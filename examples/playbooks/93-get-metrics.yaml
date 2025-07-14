@@ -1,0 +1,11 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Collect Fabric-X Committer metrics
+  ansible.builtin.import_playbook: hyperledger.fabricx.committer.get_metrics
+
+- name: Collect Fabric-X Loadgen
+  ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.get_metrics

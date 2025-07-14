@@ -1,0 +1,12 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove the Fabric-X Loadgen binary
+  vars:
+    bin_name: "{{ loadgen_bin_name }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: rm

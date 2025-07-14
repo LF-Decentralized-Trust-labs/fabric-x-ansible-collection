@@ -1,0 +1,66 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Create list of machines to setup
+  hosts: "{{ target_hosts | default('all') }}"
+  tasks:
+    - name: Select machines to setup
+      vars:
+        hostname_per_machine: >-
+          {{
+            ansible_play_hosts
+            | map('extract', hostvars)
+            | selectattr('ansible_host', '==', item)
+            | map(attribute='inventory_hostname') | sort
+            | first
+          }}
+      ansible.builtin.add_host:
+        name: "{{ hostname_per_machine }}"
+        groups: machines
+      loop: "{{ ansible_play_hosts | map('extract', hostvars, 'ansible_host') | unique | list }}"
+
+- name: Install prerequisites
+  hosts: "{{ target_hosts | default('machines') }}:&machines"
+  tasks:
+    - name: Install the container engine
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.container
+        tasks_from: install
+    - name: Install TMUX to run binaries on Linux
+      become: true
+      ansible.builtin.package:
+        name:
+          - tmux
+        state: present
+      when: ansible_facts.os_family in ['Debian', 'RedHat']
+    - name: Install TMUX to run binaries on macOS
+      community.general.homebrew:
+        name:
+          - tmux
+        state: present
+      when: ansible_facts.os_family == 'Darwin'
+    - name: Install rsync to transfer files on Linux
+      become: true
+      ansible.builtin.package:
+        name:
+          - rsync
+        state: present
+      when: ansible_facts.os_family in ['Debian', 'RedHat']
+    - name: Install rsync to transfer files on macOS
+      community.general.homebrew:
+        name:
+          - rsync
+        state: present
+      when: ansible_facts.os_family == 'Darwin'
+    - name: Install openssl
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.openssl
+        tasks_from: install
+    - name: Install YugabyteDB requirements
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.yugabyte
+        tasks_from: install_prereqs
+      when: ansible_facts.os_family in ['Debian', 'RedHat']

@@ -1,0 +1,63 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Setup the command to run
+  vars:
+    env_vars: "{{ bin_env.items() | map('join', '=') | join(' ') }}"
+  ansible.builtin.set_fact:
+    cmd_to_run: "{{ env_vars }} {{ bin_remote_dir }}/{{ bin_command }}"
+
+- name: Collect logs
+  ansible.builtin.set_fact:
+    cmd_to_run: "{{ cmd_to_run }} > {{ bin_remote_logs_dir }}/{{ bin_remote_logs_file }} 2>&1"
+  when: bin_collect_logs
+
+- name: Create log path
+  ansible.builtin.file:
+    path: "{{ bin_remote_logs_dir }}"
+    state: directory
+    mode: "0o755"
+  when: bin_collect_logs
+
+- name: Create log file
+  ansible.builtin.file:
+    path: "{{ bin_remote_logs_dir }}/{{ bin_remote_logs_file }}"
+    state: touch
+    mode: "0o644"
+  when: bin_collect_logs
+
+- name: Show command to run
+  ansible.builtin.debug:
+    msg: "{{ cmd_to_run }}"
+  when: not bin_omit_logs
+
+- name: Run command within a TMUX session
+  ansible.builtin.command: "tmux new-session -s {{ bin_name }} -d '{{ cmd_to_run }}'"
+  register: result
+  changed_when: result.rc != 0
+  when: bin_run_with_tmux
+
+- name: Run command # noqa: command-instead-of-shell
+  ansible.builtin.shell: "{{ cmd_to_run }}"
+  register: result
+  changed_when: result.rc != 0
+  when: not bin_run_with_tmux
+
+- name: Show command results
+  ansible.builtin.debug:
+    msg: "{{ result.stdout_lines }}"
+  when:
+    - not bin_collect_logs
+    - not bin_omit_logs
+    - result.stdout_lines | length > 0
+
+- name: Wait for service to become ready on port
+  ansible.builtin.wait_for:
+    host: "{{ ansible_host }}"
+    port: "{{ bin_wait_port }}"
+    delay: "{{ bin_wait_delay }}"
+    timeout: "{{ bin_wait_timeout }}"
+  when: bin_wait_until_running

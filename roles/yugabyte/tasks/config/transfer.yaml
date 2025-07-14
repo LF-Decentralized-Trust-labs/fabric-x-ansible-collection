@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure Yugabyte config directory exists
+  ansible.builtin.file:
+    path: "{{ yugabyte_remote_config_dir }}/init"
+    state: directory
+    mode: "0o750"
+
+- name: Generate {{ yugabyte_init_script_file }}
+  ansible.builtin.template:
+    src: "yugabyte-init-script.sql.j2"
+    dest: "{{ yugabyte_remote_config_dir }}/init/{{ yugabyte_init_script_file }}"
+    mode: "0o644"

@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start Fabric-X Committer coordinator container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: coordinator/container/start
+  when: not committer_use_bin
+
+- name: Start Fabric-X Committer coordinator binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: coordinator/bin/start
+  when: committer_use_bin

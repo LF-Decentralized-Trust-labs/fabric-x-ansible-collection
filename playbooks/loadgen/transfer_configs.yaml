@@ -1,0 +1,16 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Transfer Fabric-X Loadgen config files
+  hosts: "{{ target_hosts | default('load-generators') }}:&load-generators"
+  tasks:
+    - name: Transfer Fabric-X Loadgen config files
+      vars:
+        committer_hosts: "{{ groups['fabric-x-committer'] | default([]) }}"
+        orderer_hosts: "{{ groups['fabric-x-orderers'] | default([]) }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.loadgen
+        tasks_from: config/transfer

@@ -1,0 +1,21 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the go binary package has been defined
+  ansible.builtin.fail:
+    msg: "No binary name has been defined, but required to build the binary. Set it via 'bin_go_package'."
+  when: bin_go_package is not defined
+
+- name: Install the go binary {{ bin_go_package }}
+  ansible.builtin.command: "go install {{ bin_go_package }}"
+  environment:
+    GOBIN: "{{ bin_output_dir }}"
+    GOOS: "{{ bin_target_os }}"
+    GOARCH: "{{ bin_target_arch }}"
+    CGO_ENABLED: "{{ 1 if bin_cgo_enabled else 0 }}"
+    CC: "{{ go_cc_compiler | default('') if bin_cgo_enabled else '' }}"
+  register: result
+  changed_when: result.rc != 0

@@ -1,0 +1,10 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Stop Postgres DB
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: container/stop

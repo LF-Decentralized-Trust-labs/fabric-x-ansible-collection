@@ -1,0 +1,24 @@
+server:
+  endpoint:
+    host: 0.0.0.0
+    port: {{ committer_rpc_port }}
+database:
+  endpoints:
+{% for db in db_servers %}
+    - {{ hostvars[db].ansible_host }}:{{ hostvars[db].postgres_port if committer_use_postgres else hostvars[db].yugabyte_tablet_pgsql_bind_port }}
+{% endfor %}
+  username: {{ db_username }}
+  password: {{ db_password }}
+  database: {{ db_database }}
+  max-connections: 80
+  min-connections: 5
+  load-balance: {{ (not committer_use_postgres) | lower }}
+  retry:
+    max-elapsed-time: 1h
+resource-limits:
+  max-workers-for-preparer: 2
+  max-workers-for-validator: 2
+  max-workers-for-committer: 20
+  min-transaction-batch-size: 1000
+{% include './sections/monitoring.yaml.j2' +%}
+{% include './sections/logging.yaml.j2' %}

@@ -1,0 +1,39 @@
+load-profile:
+  block:
+    size: 500
+  key:
+    size: 32
+  transaction:
+    read-write-value-size: 32
+    blind-write-value-size:
+    read-only-count:
+    read-write-count:
+      const: 2
+    policy:
+      config-block-path:
+      namespace-policies:
+        0:
+          scheme: {{ loadgen_key_scheme }}
+          seed: 12345
+        _meta:
+          scheme: {{ loadgen_key_scheme }}
+          seed: 12345
+{% if loadgen_use_key %}
+          key-path:
+            signing-key: {{ loadgen_config_dir }}/{{ loadgen_key_scheme }}/{{ loadgen_admin_priv_key_file }}
+            sign-certificate: {{ loadgen_config_dir }}/{{ loadgen_key_scheme }}/{{ loadgen_admin_pub_key_file }}
+{% endif %}
+  query:
+    query-size:
+    min-invalid-keys-portion:
+    shuffle: false
+  conflicts:
+    invalid-signatures: 0
+    dependencies:
+      # - probability: 0
+      #   gap:
+      #     const: 500
+      #   src: "read-write"
+      #   dst: "read-write"
+  seed: {{ loadgen_tx_seed }}
+  workers: 32

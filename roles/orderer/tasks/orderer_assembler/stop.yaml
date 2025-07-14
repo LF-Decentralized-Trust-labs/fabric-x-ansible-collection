@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Stop Fabric-X Orderer assembler container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: container/stop
+  when: not orderer_use_bin
+
+- name: Stop Fabric-X Orderer assembler binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: bin/stop
+  when: orderer_use_bin

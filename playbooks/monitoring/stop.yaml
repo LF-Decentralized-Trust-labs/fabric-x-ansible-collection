@@ -1,0 +1,24 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Stop the Monitoring services
+  hosts: "{{ target_hosts | default('monitoring') }}:&monitoring"
+  tasks:
+    - name: Stop Jaeger
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.jaeger
+        tasks_from: stop
+      when: jaeger_collector_port is defined
+    - name: Stop Grafana
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.grafana
+        tasks_from: stop
+      when: grafana_web_port is defined
+    - name: Stop Prometheus
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.prometheus
+        tasks_from: stop
+      when: prometheus_scraper_port is defined

@@ -1,0 +1,22 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the binary name has been defined
+  ansible.builtin.fail:
+    msg: "No binary name has been defined, but required to build the binary. Set it via 'bin_name'."
+  when: bin_name is not defined
+
+- name: Ensure bin directory exists
+  ansible.builtin.file:
+    path: "{{ bin_remote_dir }}"
+    state: directory
+    mode: "0o750"
+
+- name: Transfer binary
+  ansible.builtin.copy:
+    src: "{{ bin_output_dir }}/{{ bin_name }}"
+    dest: "{{ bin_remote_dir }}"
+    mode: "0o755"

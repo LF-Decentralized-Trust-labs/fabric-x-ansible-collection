@@ -1,0 +1,12 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Stop the Fabric-X Committer container
+  vars:
+    container_name: "{{ committer_container_name }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: stop

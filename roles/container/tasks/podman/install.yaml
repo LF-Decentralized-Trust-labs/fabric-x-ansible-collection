@@ -1,0 +1,34 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check if podman is installed
+  ansible.builtin.shell:
+    cmd: "command -v podman > /dev/null 2>&1"
+  register: podman_bin
+  ignore_errors: true
+  changed_when: false
+  failed_when: false
+
+- name: Install podman on Ubuntu
+  ansible.builtin.shell:
+    cmd: >-
+      set -o pipefail &&
+      sudo apt-get update -y &&
+      sudo apt-get -y install podman &&
+      sudo podman run hello-world
+    executable: /bin/bash
+  when: podman_bin.rc != 0 and ansible_facts.os_family == 'Debian'
+  register: result
+  changed_when: result.rc != 0
+
+- name: Install podman on RHEL
+  ansible.builtin.shell: >-
+    sudo dnf update -y &&
+    sudo dnf -y install podman &&
+    sudo podman run hello-world
+  when: podman_bin.rc != 0 and ansible_facts.os_family == 'RedHat'
+  register: result
+  changed_when: result.rc != 0

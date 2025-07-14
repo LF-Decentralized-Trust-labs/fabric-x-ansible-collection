@@ -1,0 +1,157 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+all:
+  vars:
+    ansible_connection: local
+    ansible_user: "{{ lookup('env', 'USER') }}"
+    ansible_host: "{{ lookup('env', 'LOCAL_ANSIBLE_HOST') or 'localhost' }}"
+    project_dir: "{{ lookup('env', 'PROJECT_DIR') or '~/.ansible/collections/ansible_collections/hyperledger/fabricx' }}"
+    out_dir: "{{ lookup('env', 'OUT_DIR') or project_dir + '/out' }}"
+    out_build_dir: "{{ out_dir }}/build"
+    out_log_dir: "{{ out_dir }}/logs"
+    config_build_dir: "{{ out_build_dir }}/config"
+    deploy_dir: "{{ out_dir }}/local-deployment"
+    remote_config_dir: "{{ deploy_dir }}/{{ inventory_hostname }}/config"
+    source_code_dir: "{{ out_build_dir }}/code"
+    cli_bin_dir: "{{ out_build_dir }}/cli"
+    channel_id: arma
+    armageddon_use_bin: true
+    configtxgen_use_bin: true
+    cryptogen_use_bin: true
+    node_exporter_port: 9111
+  children:
+    fabric-x:
+      children:
+        fabric-x-committer:
+          vars:
+            committer_use_bin: true
+          hosts:
+            committer-db:
+              committer_component_type: db
+              yugabyte_user: sc_user
+              yugabyte_password: sc_secret_pwd
+              yugabyte_db: sc_db
+              yugabyte_master_webserver_port: 7001
+              yugabyte_tablet_pgsql_bind_port: 5435
+            committer-validator:
+              committer_component_type: validator
+              committer_rpc_port: 6001
+              prometheus_exporter_port: 2116
+            committer-verifier:
+              committer_component_type: verifier
+              committer_rpc_port: 5001
+              prometheus_exporter_port: 2115
+            committer-coordinator:
+              committer_component_type: coordinator
+              committer_rpc_port: 9001
+              prometheus_exporter_port: 2120
+            committer-sidecar:
+              committer_component_type: sidecar
+              committer_rpc_port: 5050
+              prometheus_exporter_port: 2111
+              organization:
+                name: Org1
+                domain: org1.example.com
+              use_fabric_peer_crypto: true
+
+        fabric-x-orderers:
+          vars:
+            orderer_use_bin: true
+            organization:
+              name: "OrdererOrg{{ orderer_group }}"
+              domain: "ordererorg{{ orderer_group }}.example.com"
+          children:
+            fabric-x-orderer-1:
+              vars:
+                orderer_group: 1
+              hosts:
+                orderer-router-1:
+                  orderer_component_type: router
+                  orderer_rpc_port: 7050
+                orderer-batcher-1:
+                  orderer_shard_id: 1
+                  orderer_component_type: batcher
+                  orderer_rpc_port: 7051
+                orderer-consenter-1:
+                  orderer_component_type: consenter
+                  orderer_rpc_port: 7052
+                orderer-assembler-1:
+                  orderer_component_type: assembler
+                  orderer_rpc_port: 7053
+            fabric-x-orderer-2:
+              vars:
+                orderer_group: 2
+              hosts:
+                orderer-router-2:
+                  orderer_component_type: router
+                  orderer_rpc_port: 7150
+                orderer-batcher-2:
+                  orderer_shard_id: 1
+                  orderer_component_type: batcher
+                  orderer_rpc_port: 7151
+                orderer-consenter-2:
+                  orderer_component_type: consenter
+                  orderer_rpc_port: 7152
+                orderer-assembler-2:
+                  orderer_component_type: assembler
+                  orderer_rpc_port: 7153
+            fabric-x-orderer-3:
+              vars:
+                orderer_group: 3
+              hosts:
+                orderer-router-3:
+                  orderer_component_type: router
+                  orderer_rpc_port: 7250
+                orderer-batcher-3:
+                  orderer_shard_id: 1
+                  orderer_component_type: batcher
+                  orderer_rpc_port: 7251
+                orderer-consenter-3:
+                  orderer_component_type: consenter
+                  orderer_rpc_port: 7252
+                orderer-assembler-3:
+                  orderer_component_type: assembler
+                  orderer_rpc_port: 7253
+            fabric-x-orderer-4:
+              vars:
+                orderer_group: 4
+              hosts:
+                orderer-router-4:
+                  orderer_component_type: router
+                  orderer_rpc_port: 7350
+                orderer-batcher-4:
+                  orderer_shard_id: 1
+                  orderer_component_type: batcher
+                  orderer_rpc_port: 7351
+                orderer-consenter-4:
+                  orderer_component_type: consenter
+                  orderer_rpc_port: 7352
+                orderer-assembler-4:
+                  orderer_component_type: assembler
+                  orderer_rpc_port: 7353
+
+    load-generators:
+      hosts:
+        orderer-loadgen:
+          loadgen_type: orderer-client
+          organization:
+            name: Org1
+            domain: org1.example.com
+          use_fabric_peer_crypto: true
+          use_fabric_user_crypto: true
+          fabricx_namespace_admin: true
+          prometheus_exporter_port: 2119
+          loadgen_web_port: 6997
+          loadgen_use_bin: true
+
+    monitoring:
+      hosts:
+        monitoring-machine:
+          prometheus_scraper_port: 9090
+          grafana_web_port: 3000
+          jaeger_collector_port: 4317
+          jaeger_ui_port: 16686

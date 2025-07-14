@@ -1,0 +1,16 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start the Fabric-X Orderer batcher binary
+  vars:
+    bin_command: >-
+      {{ orderer_bin_name }} batcher
+      --config={{ orderer_remote_config_file }}
+    bin_wait_until_running: true
+    bin_wait_port: "{{ orderer_rpc_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start

@@ -1,0 +1,30 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# armageddon image
+armageddon_registry_endpoint: "{{ lookup('env', 'ARMAGEDDON_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+armageddon_image_name: "fabric-x-tools"
+armageddon_image_tag: "latest"
+armageddon_image: "{{ armageddon_registry_endpoint }}/{{ armageddon_image_name }}:{{ armageddon_image_tag }}"
+armageddon_container_name: "armageddon"
+
+# armageddon binary
+armageddon_git_uri: "https://github.com/hyperledger/fabric-x-orderer.git"
+armageddon_git_dir: "{{ source_code_dir }}/fabric-x-orderer"
+armageddon_git_commit: "cbd6ff40459fb644ed3fe25df59bb769f8cf1c43"
+armageddon_source_code_dir: "{{ armageddon_git_dir }}/cmd/armageddon"
+armageddon_bin_package: "github.com/hyperledger/fabric-x-orderer/cmd/armageddon"
+armageddon_bin_name: "armageddon"
+
+# armageddon location/paths
+armageddon_cryptogen_artifacts_build_dir: "{{ config_build_dir }}/cryptogen-artifacts"
+armageddon_output_dir: "{{ config_build_dir }}/armageddon-artifacts"
+armageddon_docker_output_dir: "/tmp/out"
+armageddon_config_file: armageddon.yaml
+armageddon_shared_config_file: shared_config.yaml
+
+# armageddon misc vars
+armageddon_use_bin: "{{ use_bin | default(false) }}"

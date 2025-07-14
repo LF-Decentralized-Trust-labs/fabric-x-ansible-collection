@@ -1,0 +1,12 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Run command within Podman container
+  containers.podman.podman_container_exec:
+    name: "{{ container_name }}"
+    command: "{{ container_command }}"
+    env: "{{ container_env }}"
+  register: exec_result

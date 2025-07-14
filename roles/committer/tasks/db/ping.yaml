@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the Postgres DB port is open
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: ping
+  when: committer_use_postgres
+
+- name: Check that the Yugabyte DB ports are open
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: ping
+  when: not committer_use_postgres

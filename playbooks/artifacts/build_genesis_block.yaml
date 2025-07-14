@@ -1,0 +1,68 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Create the genesis block
+  hosts: localhost
+  tasks:
+    - name: Create the configuration file for armageddon
+      vars:
+        armageddon_orderer_hosts: "{{ groups['fabric-x-orderers'] }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.armageddon
+        tasks_from: config/build
+      when: "'fabric-x-orderers' in groups"
+    - name: Generate shared_config.binpb
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.armageddon
+        tasks_from: create_shared_config
+      when: "'fabric-x-orderers' in groups"
+    - name: Group orderers by organization
+      ansible.builtin.set_fact:
+        configtxgen_orderers_by_org: >-
+          {{
+            configtxgen_orderers_by_org | default({}) | combine({
+              hostvars[item].organization | to_json: (configtxgen_orderers_by_org | default({})).get(hostvars[item].organization | to_json, []) + [item]
+            })
+          }}
+      loop: >-
+        {{
+          groups['fabric-x-orderers'] | default([]) | map('extract', hostvars) |
+          selectattr('organization', 'defined') | map(attribute='inventory_hostname')
+        }}
+    - name: Group peers by organization
+      ansible.builtin.set_fact:
+        configtxgen_peers_by_org: >-
+          {{
+            configtxgen_peers_by_org | default({}) | combine({
+              hostvars[item].organization | to_json: (configtxgen_peers_by_org | default({})).get(hostvars[item].organization | to_json, []) + [item]
+            })
+          }}
+      loop: >-
+        {{
+          groups['all'] | map('extract', hostvars) | selectattr('use_fabric_peer_crypto', 'defined') |
+          selectattr('use_fabric_peer_crypto', '==', true) | map(attribute='inventory_hostname')
+        }}
+    - name: Build Fabricx-compatible configuration file for configtxgen
+      vars:
+        configtxgen_namespace_admin: >-
+          {{
+            groups['all'] | default([]) | map('extract', hostvars) | selectattr('fabricx_namespace_admin', 'defined') |
+            selectattr('fabricx_namespace_admin', '==', true) | map(attribute='inventory_hostname') | first
+          }}
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.configtxgen
+        tasks_from: config/build
+    - name: Install configtxgen as binary for Fabric-X
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.configtxgen
+        tasks_from: bin/install
+      when:
+        - configtxgen_use_bin is defined
+        - configtxgen_use_bin
+    - name: Generate the genesis block for Fabric-X
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.configtxgen
+        tasks_from: start

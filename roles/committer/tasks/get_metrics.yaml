@@ -1,0 +1,18 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Get Fabric-X Committer metrics
+  ansible.builtin.uri:
+    url: "http://{{ ansible_host }}:{{ prometheus_exporter_port }}/metrics"
+    method: GET
+    return_content: true
+  register: result
+  when: prometheus_exporter_port is defined
+
+- name: Print Fabric-X Committer metrics
+  ansible.builtin.debug:
+    msg: "{{ result.content }}"
+  when: prometheus_exporter_port is defined and result is defined

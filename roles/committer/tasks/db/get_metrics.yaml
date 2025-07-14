@@ -1,0 +1,11 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Collect Yugabyte DB metrics
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: get_metrics
+  when: not committer_use_postgres

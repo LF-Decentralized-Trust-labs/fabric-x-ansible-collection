@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Create folder for the logs to fetch
+  hosts: localhost
+  tasks:
+    - name: Create folder for the fetched logs
+      ansible.builtin.file:
+        path: "{{ out_log_dir }}"
+        state: directory
+        mode: "0o750"
+
+- name: Fetch Fabric-X Orderer logs
+  ansible.builtin.import_playbook: hyperledger.fabricx.orderer.fetch_logs
+
+- name: Fetch Fabric-X Committer logs
+  ansible.builtin.import_playbook: hyperledger.fabricx.committer.fetch_logs
+
+- name: Fetch Fabric-X Loadgen logs
+  ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.fetch_logs
+
+- name: Fetch Monitoring logs
+  ansible.builtin.import_playbook: hyperledger.fabricx.monitoring.fetch_logs

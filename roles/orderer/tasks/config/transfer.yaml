@@ -1,0 +1,29 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Copy consenter config
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_consenter/config/transfer
+  when: orderer_component_type == 'consenter'
+
+- name: Copy assembler config
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_assembler/config/transfer
+  when: orderer_component_type == 'assembler'
+
+- name: Copy batcher config
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_batcher/config/transfer
+  when: orderer_component_type == 'batcher'
+
+- name: Copy router config
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_router/config/transfer
+  when: orderer_component_type == 'router'

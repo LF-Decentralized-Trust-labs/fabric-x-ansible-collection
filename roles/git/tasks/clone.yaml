@@ -1,0 +1,18 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure directory where to clone exists
+  ansible.builtin.file:
+    path: "{{ git_dir }}"
+    state: directory
+    mode: "0o750"
+
+- name: Clone Git Repo {{ git_uri }}@{{ git_commit }}
+  ansible.builtin.git:
+    repo: "{{ git_uri }}"
+    dest: "{{ git_dir }}"
+    version: "{{ git_commit }}"
+    force: true

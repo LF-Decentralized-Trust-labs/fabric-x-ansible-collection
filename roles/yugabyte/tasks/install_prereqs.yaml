@@ -1,0 +1,31 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check if chrony is already installed
+  ansible.builtin.stat:
+    path: "/usr/bin/chronyc"
+  register: chrony_bin
+
+- name: Check if chrony is available as package
+  ansible.builtin.command: "{{ ansible_pkg_mgr }} list chrony"
+  register: chrony_available
+  changed_when: false
+  failed_when: false
+  when: not chrony_bin.stat.exists
+
+- name: Install chrony
+  become: true
+  ansible.builtin.package:
+    name: chrony
+    state: present
+  when: not chrony_bin.stat.exists and chrony_available.rc == 0
+
+- name: Start chrony
+  ansible.builtin.service:
+    name: chronyd
+    state: started
+    enabled: true
+  when: chrony_bin.stat.exists or (chrony_available is defined and chrony_available.rc == 0)

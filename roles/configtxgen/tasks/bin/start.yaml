@@ -1,0 +1,20 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Generate the genesis block with configtxgen
+  vars:
+    bin_run_with_tmux: false
+    bin_remote_dir: "{{ cli_bin_dir }}"
+    bin_command: >-
+      {{ configtxgen_bin_name }}
+      -channelID {{ configtxgen_channel_id }}
+      -profile {{ configtxgen_profile_id }}
+      -configPath {{ configtxgen_output_dir }}
+      --outputBlock {{ configtxgen_output_dir }}/{{ configtxgen_channel_id }}_block.pb
+    bin_collect_logs: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start

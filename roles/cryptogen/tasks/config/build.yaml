@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Create config build output directory
+  ansible.builtin.file:
+    path: "{{ cryptogen_config_dir }}"
+    state: directory
+    mode: "0o750"
+
+- name: Create crypto-config.yaml from template
+  ansible.builtin.template:
+    src: crypto-config.yaml.j2
+    dest: "{{ cryptogen_config_dir }}/{{ cryptogen_config_file }}"
+    mode: "0o644"

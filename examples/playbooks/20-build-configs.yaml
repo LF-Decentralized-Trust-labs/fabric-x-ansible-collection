@@ -1,0 +1,11 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Generate crypto material
+  ansible.builtin.import_playbook: hyperledger.fabricx.artifacts.build_crypto_material
+
+- name: Generate genesis block
+  ansible.builtin.import_playbook: hyperledger.fabricx.artifacts.build_genesis_block

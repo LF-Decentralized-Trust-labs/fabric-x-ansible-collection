@@ -1,0 +1,21 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Fetch the Monitoring tools logs
+  hosts: "{{ target_hosts | default('monitoring') }}:&monitoring"
+  tasks:
+    - name: Fetch the logs from Prometheus
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.prometheus
+        tasks_from: fetch_logs
+    - name: Fetch the logs from Grafana
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.grafana
+        tasks_from: fetch_logs
+    - name: Fetch the logs from Jaeger
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.jaeger
+        tasks_from: fetch_logs

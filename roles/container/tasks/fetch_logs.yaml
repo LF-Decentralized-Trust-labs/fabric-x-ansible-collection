@@ -1,0 +1,31 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Find the container client to use
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: get_container_client
+  when: container_client == ''
+
+- name: Ensure logs config directory exists
+  ansible.builtin.file:
+    path: "{{ container_remote_logs_dir }}"
+    state: directory
+    mode: "0o750"
+
+- name: Collect the container logs
+  ansible.builtin.shell: "{{ container_client }} logs {{ container_name }} > {{ container_remote_logs_dir }}/{{ container_remote_logs_file }} 2>&1"
+  register: result
+  changed_when: result.rc != 0
+  ignore_errors: true
+
+- name: Fetch the container logs
+  ansible.builtin.fetch:
+    src: "{{ container_remote_logs_dir }}/{{ container_remote_logs_file }}"
+    dest: "{{ container_logs_dir }}/{{ container_logs_file }}"
+    validate_checksum: false
+    fail_on_missing: false
+    flat: true

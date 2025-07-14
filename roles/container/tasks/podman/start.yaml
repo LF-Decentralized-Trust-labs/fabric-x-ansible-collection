@@ -1,0 +1,54 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start podman container with image {{ container_image }}
+  containers.podman.podman_container:
+    name: "{{ container_name }}"
+    image: "{{ container_image }}"
+    entrypoint: "{{ container_entrypoint }}"
+    command: "{{ container_command }}"
+    network: "{{ container_network_mode }}"
+    ports: "{{ container_ports if container_network_mode == 'bridge' else [] }}"
+    memory: "{{ container_memory }}"
+    volumes: "{{ container_volumes }}"
+    user: "{{ container_user }}"
+    env: "{{ container_env }}"
+    log_driver: "{{ container_log_driver }}"
+    log_options:
+      max_size: "{{ container_log_max_size }}"
+    healthcheck: "{{ container_healthcheck_test | default('NONE', container_on_mac) }}"
+    healthcheck_interval: "{{ container_healthcheck_interval }}"
+    state: started
+    detach: "{{ container_run_detach_mode }}"
+    rm: "{{ container_autoremove }}"
+  register: result
+  ignore_errors: "{{ container_ignore_errors }}"
+
+- name: Wait for Podman container to become healthy
+  ansible.builtin.command: "podman healthcheck run {{ container_name }}"
+  register: healthcheck_result
+  retries: 60
+  delay: 5
+  until: healthcheck_result.rc == 0
+  changed_when: healthcheck_result.rc != 0
+  when: container_healthcheck_test is not none
+
+- name: Wait for Podman container to become ready on port
+  ansible.builtin.wait_for:
+    host: "{{ ansible_host }}"
+    port: "{{ container_wait_port }}"
+    delay: "{{ container_wait_delay }}"
+    timeout: "{{ container_wait_timeout }}"
+  when: container_wait_until_running
+
+- name: Show output of podman container command
+  vars:
+    log_lines: "{{ result.stdout_lines + result.stderr_lines }}"
+  ansible.builtin.debug:
+    msg: "{{ log_lines[-container_log_lines:] if (container_log_lines | int > 0) else log_lines }}"
+  when:
+    - not container_omit_logs
+    - not container_run_detach_mode

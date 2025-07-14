@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+namespace: hyperledger
+name: fabricx
+version: "1.0.0"
+repository: https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection.git
+readme: README.md
+authors:
+  - Pasquale Convertini <pasquale.convertini@ibm.com>
+description: >
+  Collection of roles needed to run Fabric-X.
+license:
+  - MIT
+tags:
+  - application
+  - hyperledger
+  - fabricx
+dependencies:
+  ansible.posix: ">=1.6.2"
+  community.general: ">=10.3.0"
+  community.docker: ">=4.3.1"
+  containers.podman: ">=1.16.2"

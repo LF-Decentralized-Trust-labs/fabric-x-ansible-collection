@@ -1,0 +1,63 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Build crypto material
+  hosts: localhost
+  tasks:
+    - name: Group orderers by organization
+      ansible.builtin.set_fact:
+        cryptogen_orderers_by_org: >-
+          {{
+            cryptogen_orderers_by_org | default({}) | combine({
+              hostvars[item].organization | to_json: (cryptogen_orderers_by_org | default({})).get(hostvars[item].organization | to_json, []) + [item]
+            })
+          }}
+      loop: >-
+        {{
+          groups['fabric-x-orderers'] | default([]) | map('extract', hostvars) |
+          selectattr('organization', 'defined') | map(attribute='inventory_hostname')
+        }}
+    - name: Group peers by organization
+      ansible.builtin.set_fact:
+        cryptogen_peers_by_org: >-
+          {{
+            cryptogen_peers_by_org | default({}) | combine({
+              hostvars[item].organization | to_json: (cryptogen_peers_by_org | default({})).get(hostvars[item].organization | to_json, []) + [item]
+            })
+          }}
+      loop: >-
+        {{
+          groups['all'] | map('extract', hostvars) | selectattr('organization', 'defined') |
+          selectattr('use_fabric_peer_crypto', 'defined') | selectattr('use_fabric_peer_crypto', '==', true) | map(attribute='inventory_hostname')
+        }}
+    - name: Group users by Fabric organization
+      ansible.builtin.set_fact:
+        cryptogen_users_by_org: >-
+          {{
+            cryptogen_users_by_org | default({}) | combine({
+              hostvars[item].organization | to_json: (cryptogen_users_by_org | default({})).get(hostvars[item].organization | to_json, []) + [item]
+            })
+          }}
+      loop: >-
+        {{
+          groups['all'] | map('extract', hostvars) | selectattr('organization', 'defined') |
+          selectattr('use_fabric_user_crypto', 'defined') | selectattr('use_fabric_user_crypto', '==', true) | map(attribute='inventory_hostname')
+        }}
+    - name: Generate crypto-config.yaml
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.cryptogen
+        tasks_from: config/build
+    - name: Install cryptogen as binary for Fabric-X
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.cryptogen
+        tasks_from: bin/install
+      when:
+        - cryptogen_use_bin is defined
+        - cryptogen_use_bin
+    - name: Generate the crypto material with cryptogen
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.cryptogen
+        tasks_from: start

@@ -1,0 +1,57 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start docker container with image {{ container_image }}
+  community.docker.docker_container:
+    name: "{{ container_name }}"
+    image: "{{ container_image }}"
+    entrypoint: "{{ container_entrypoint }}"
+    command: "{{ container_command }}"
+    network_mode: "{{ container_network_mode }}"
+    ports: "{{ container_ports if container_network_mode == 'bridge' else [] }}"
+    memory: "{{ container_memory }}"
+    volumes: "{{ container_volumes }}"
+    ulimits: "{{ container_ulimits }}"
+    user: "{{ container_user }}"
+    env: "{{ container_env }}"
+    log_driver: "{{ container_log_driver }}"
+    log_options:
+      max-size: "{{ container_log_max_size }}"
+    detach: "{{ container_run_detach_mode }}"
+    healthcheck:
+      test: "{{ container_healthcheck_test }}"
+      interval: "{{ container_healthcheck_interval }}"
+    state: "{{ 'healthy' if container_healthcheck_test is not none else 'started' }}"
+    auto_remove: "{{ container_run_detach_mode and container_autoremove }}"
+    cleanup: "{{ (not container_run_detach_mode) and container_autoremove }}"
+  ignore_errors: "{{ container_ignore_errors }}"
+  register: docker_result
+
+- name: Wait for container to become ready on port
+  ansible.builtin.wait_for:
+    host: "{{ ansible_host }}"
+    port: "{{ container_wait_port }}"
+    delay: "{{ container_wait_delay }}"
+    timeout: "{{ container_wait_timeout }}"
+  when: container_wait_until_running
+
+- name: Store the Docker container command result
+  ansible.builtin.set_fact:
+    result: >-
+      {{
+        {
+          'stdout_lines': (docker_result.container.Output | default('')).splitlines()
+        }
+      }}
+
+- name: Show output of docker command
+  vars:
+    log_lines: "{{ result.stdout_lines }}"
+  ansible.builtin.debug:
+    msg: "{{ log_lines[-container_log_lines:] if (container_log_lines | int > 0) else log_lines }}"
+  when:
+    - not container_omit_logs
+    - not container_run_detach_mode

@@ -1,0 +1,6 @@
+coordinator-client:
+  endpoint: {{ hostvars[committer_coordinator].ansible_host }}:{{ hostvars[committer_coordinator].committer_rpc_port }}
+{% include './sections/load-profile.yaml.j2' +%}
+{% include './sections/monitoring.yaml.j2' +%}
+{% include './sections/stream.yaml.j2' +%}
+{% include './sections/logging.yaml.j2' %}

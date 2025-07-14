@@ -1,0 +1,29 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Teardown Fabric-X Orderer assembler container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: container/rm
+  when: not orderer_use_bin
+
+- name: Clean Fabric-X Orderer assembler container volumes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_assembler/container/clean
+  when: not orderer_use_bin
+
+- name: Stop Fabric-X Orderer assembler binary container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: bin/stop
+  when: orderer_use_bin
+
+- name: Clean Fabric-X Orderer assembler binary volumes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_assembler/bin/clean
+  when: orderer_use_bin

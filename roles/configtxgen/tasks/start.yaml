@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start configtxgen as container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.configtxgen
+    tasks_from: container/start
+  when: not configtxgen_use_bin
+
+- name: Start configtxgen as binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.configtxgen
+    tasks_from: bin/start
+  when: configtxgen_use_bin

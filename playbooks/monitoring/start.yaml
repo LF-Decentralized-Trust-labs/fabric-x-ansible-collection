@@ -1,0 +1,31 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start the Monitoring services
+  hosts: "{{ target_hosts | default('monitoring') }}:&monitoring"
+  tasks:
+    - name: Start the Prometheus service
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.prometheus
+        tasks_from: start
+      when: prometheus_scraper_port is defined
+    - name: Start the Grafana service
+      vars:
+        grafana_prometheus_instance: >-
+          {{
+            groups['monitoring']
+            | map('extract', hostvars) | selectattr('prometheus_scraper_port', 'defined')
+            | map(attribute='inventory_hostname') | sort | first
+          }}
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.grafana
+        tasks_from: start
+      when: grafana_web_port is defined
+    - name: Start the Jaeger service
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.jaeger
+        tasks_from: start
+      when: jaeger_collector_port is defined

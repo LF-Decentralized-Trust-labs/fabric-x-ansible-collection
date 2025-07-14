@@ -1,0 +1,12 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Kill TMUX session running binary
+  ansible.builtin.command: tmux kill-session -t {{ bin_name }}
+  register: result
+  changed_when: result.rc != 0
+  ignore_errors: true
+  when: bin_run_with_tmux

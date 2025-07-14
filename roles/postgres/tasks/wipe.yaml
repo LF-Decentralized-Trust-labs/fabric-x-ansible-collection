@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Postgres DB container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: container/rm
+
+- name: Clean Postgres DB data
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: container/clean

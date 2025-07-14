@@ -1,0 +1,12 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove the Postgres DB container
+  vars:
+    container_name: "{{ postgres_container_name }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: rm

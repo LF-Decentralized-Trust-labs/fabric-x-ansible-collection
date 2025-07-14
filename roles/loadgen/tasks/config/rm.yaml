@@ -1,0 +1,10 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Fabric-X Loadgen binary configuration files
+  ansible.builtin.file:
+    path: "{{ loadgen_remote_config_dir }}"
+    state: absent

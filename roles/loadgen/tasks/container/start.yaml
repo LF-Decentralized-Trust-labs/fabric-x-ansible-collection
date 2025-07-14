@@ -1,0 +1,21 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start the Fabric-X Loadgen container
+  vars:
+    container_name: "sc-loadgen-{{ inventory_hostname }}"
+    container_image: "{{ loadgen_image }}"
+    container_command: "/app start --config={{ loadgen_docker_config_dir }}/{{ loadgen_config_file }}"
+    container_ports:
+      - "{{ prometheus_exporter_port }}:{{ prometheus_exporter_port }}"
+      - "{{ loadgen_web_port }}:{{ loadgen_web_port }}"
+    container_volumes:
+      - "{{ loadgen_remote_config_dir }}:{{ loadgen_docker_config_dir }}"
+    container_wait_until_running: true
+    container_wait_port: "{{ loadgen_web_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start

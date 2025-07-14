@@ -1,0 +1,35 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Fetch the logs from the Fabric-X Committer DB
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: db/fetch_logs
+  when: committer_component_type == 'db'
+
+- name: Fetch the logs from the Fabric-X Committer validator persistence
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: validator/fetch_logs
+  when: committer_component_type == 'validator'
+
+- name: Fetch the logs from the Fabric-X Committer signature verifiers
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: verifier/fetch_logs
+  when: committer_component_type == 'verifier'
+
+- name: Fetch the logs from the Fabric-X Committer coordinator
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: coordinator/fetch_logs
+  when: committer_component_type == 'coordinator'
+
+- name: Fetch the logs from the Fabric-X Committer sidecar
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: sidecar/fetch_logs
+  when: committer_component_type == 'sidecar'

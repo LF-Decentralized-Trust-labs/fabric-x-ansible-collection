@@ -1,0 +1,23 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start Node Exporter container
+  vars:
+    container_name: "{{ node_exporter_container_name }}"
+    container_image: "{{ node_exporter_image }}"
+    container_command:
+      - "--web.listen-address=:{{ node_exporter_port }}"
+      - "--path.rootfs=/host"
+    container_ports:
+      - "{{ node_exporter_port }}:{{ node_exporter_port }}"
+    container_volumes:
+      - "/:/host:ro,rslave"
+    container_wait_until_running: true
+    container_run_as_host_user: true
+    container_wait_port: "{{ node_exporter_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start

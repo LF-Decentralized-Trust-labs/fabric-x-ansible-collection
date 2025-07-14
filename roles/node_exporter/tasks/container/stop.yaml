@@ -1,0 +1,13 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Stop Node Exporter container
+  vars:
+    container_name: "{{ node_exporter_container_name }}"
+    container_image: "{{ node_exporter_image }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: stop

@@ -1,0 +1,38 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure orderer-client config directory exists
+  ansible.builtin.file:
+    path: "{{ loadgen_remote_config_dir }}"
+    state: directory
+    mode: "0o750"
+
+- name: Generate the config for the Fabric-X Loadgen for the Fabric-X Orderer
+  vars:
+    loadgen_config_dir: "{{ loadgen_remote_config_dir if loadgen_use_bin else loadgen_docker_config_dir }}"
+    loadgen_use_key: true
+  ansible.builtin.template:
+    src: "orderer-client.yaml.j2"
+    dest: "{{ loadgen_remote_config_dir }}/{{ loadgen_config_file }}"
+    mode: "0o644"
+
+- name: Copy Fabric-X Committer sidecar root CA
+  ansible.builtin.copy:
+    src: "{{ loadgen_cryptogen_artifact_build_dir }}/crypto/ca-certs.pem"
+    dest: "{{ loadgen_remote_config_dir }}/ca-certs.pem"
+    mode: "0o644"
+  when: loadgen_use_tls
+
+- name: Copy loadgen MSP crypto material
+  ansible.posix.synchronize:
+    src: "{{ loadgen_cryptogen_artifact_build_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ inventory_hostname }}.{{ organization.domain }}/msp"
+    dest: "{{ loadgen_remote_config_dir }}"
+  when: loadgen_use_tls
+
+- name: Generate Loadgen keys
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: config/generate_key

@@ -1,0 +1,29 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Teardown Fabric-X Orderer routers
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_router/teardown
+  when: orderer_component_type == 'router'
+
+- name: Teardown Fabric-X Orderer assemblers
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_assembler/teardown
+  when: orderer_component_type == 'assembler'
+
+- name: Teardown Fabric-X Orderer batchers
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_batcher/teardown
+  when: orderer_component_type == 'batcher'
+
+- name: Teardown Fabric-X Orderer consenters
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_consenter/teardown
+  when: orderer_component_type == 'consenter'

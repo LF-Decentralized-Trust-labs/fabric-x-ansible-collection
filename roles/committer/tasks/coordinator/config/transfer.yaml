@@ -1,0 +1,27 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check if committer_verifiers required variable is set
+  ansible.builtin.fail:
+    msg: "The variable 'committer_verifiers' must be defined to use this role. It must contain the list of hosts devoted for the Fabric-X Committer verifiers."
+  when: committer_verifiers is not defined
+
+- name: Check if committer_validators required variable is set
+  ansible.builtin.fail:
+    msg: "The variable 'committer_validators' must be defined to use this role. It must contain the list of hosts devoted for the Fabric-X Committer validators."
+  when: committer_validators is not defined
+
+- name: Ensure Fabric-X Committer coordinator config directory exists
+  ansible.builtin.file:
+    path: "{{ committer_remote_config_dir }}"
+    state: directory
+    mode: "0o750"
+
+- name: Generate {{ committer_coordinator_config_file }}
+  ansible.builtin.template:
+    src: "config-coordinator.yaml.j2"
+    dest: "{{ committer_remote_config_dir }}/{{ committer_coordinator_config_file }}"
+    mode: "0o644"

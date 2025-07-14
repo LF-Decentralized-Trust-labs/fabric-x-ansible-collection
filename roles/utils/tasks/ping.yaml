@@ -1,0 +1,19 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check if ports are open
+  block:
+    - name: Listen on ports
+      ansible.builtin.wait_for:
+        port: "{{ port_to_ping }}"
+        host: "{{ ansible_host }}"
+        timeout: 1
+      loop: "{{ utils_ports_to_ping }}"
+      loop_control:
+        loop_var: port_to_ping
+  rescue:
+    - name: Do nothing on failure (silent rescue)
+      ansible.builtin.meta: noop

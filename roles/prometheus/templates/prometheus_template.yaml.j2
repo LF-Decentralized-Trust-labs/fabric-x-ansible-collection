@@ -1,0 +1,116 @@
+global:
+  scrape_interval: 2s
+
+scrape_configs:
+  - job_name: node_exporter
+    static_configs:
+      - targets:
+{% for host in prometheus_node_exporters %}
+        - {{ hostvars[host].ansible_host }}:{{ hostvars[host].node_exporter_port }}
+{% endfor %}
+  - job_name: sidecar_service
+    static_configs:
+      - targets:
+{% for host in prometheus_committer_sidecars %}
+        - {{ hostvars[host].ansible_host }}:{{ hostvars[host].prometheus_exporter_port }}
+{% endfor %}
+  - job_name: coordinators_service
+    static_configs:
+      - targets:
+{% for host in prometheus_committer_coordinators %}
+        - {{ hostvars[host].ansible_host }}:{{ hostvars[host].prometheus_exporter_port }}
+{% endfor %}
+  - job_name: verifiers_service
+    static_configs:
+      - targets:
+{% for host in prometheus_committer_verifiers %}
+        - {{ hostvars[host].ansible_host }}:{{ hostvars[host].prometheus_exporter_port }}
+{% endfor %}
+  - job_name: validators_service
+    static_configs:
+      - targets:
+{% for host in prometheus_committer_validators %}
+        - {{ hostvars[host].ansible_host }}:{{ hostvars[host].prometheus_exporter_port }}
+{% endfor %}
+  - job_name: blockgens_service
+    static_configs:
+      - targets:
+{% for host in prometheus_load_generators %}
+        - {{ hostvars[host].ansible_host }}:{{ hostvars[host].prometheus_exporter_port }}
+{% endfor %}
+  - job_name: yugabytedb
+    metrics_path: /prometheus-metrics
+    relabel_configs:
+          - target_label: "node_prefix"
+            replacement: "cluster-1"
+    metric_relabel_configs:
+      # Save the name of the metric so we can group_by since we cannot by __name__ directly...
+      - source_labels: ["__name__"]
+        regex: "(.*)"
+        target_label: "saved_name"
+        replacement: "$1"
+      # The following basically retrofit the handler_latency_* metrics to label format.
+      - source_labels: ["__name__"]
+        regex: "handler_latency_(yb_[^_]*)_([^_]*)_([^_]*)(.*)"
+        target_label: "server_type"
+        replacement: "$1"
+      - source_labels: ["__name__"]
+        regex: "handler_latency_(yb_[^_]*)_([^_]*)_([^_]*)(.*)"
+        target_label: "service_type"
+        replacement: "$2"
+      - source_labels: ["__name__"]
+        regex: "handler_latency_(yb_[^_]*)_([^_]*)_([^_]*)(_sum|_count)?"
+        target_label: "service_method"
+        replacement: "$3"
+      - source_labels: ["__name__"]
+        regex: "handler_latency_(yb_[^_]*)_([^_]*)_([^_]*)(_sum|_count)?"
+        target_label: "__name__"
+        replacement: "rpc_latency$4"
+    static_configs:
+{% for host in prometheus_yb_masters %}
+      - targets:
+        - {{ hostvars[host].ansible_host }}:{{ hostvars[host].yugabyte_master_webserver_port }}
+        labels:
+          group: "yb-master"
+          export_type: "master_export"
+{% endfor %}
+{% for host in prometheus_yb_tservers %}
+      - targets:
+        - {{ hostvars[host].ansible_host }}:{{ hostvars[host].yugabyte_tablet_webserver_port }}
+        labels:
+          group: "yb-tserver"
+          export_type: "tserver_export"
+{% endfor %}
+{% for host in prometheus_yb_tservers %}
+      - targets:
+        - {{ hostvars[host].ansible_host }}:{{ hostvars[host].yugabyte_tablet_pgsql_web_port }}
+        labels:
+          group: "ysql"
+          export_type: "ysql_export"
+{% endfor %}
+{% for host in prometheus_yb_tservers %}
+      - targets:
+        - {{ hostvars[host].ansible_host }}:{{ hostvars[host].yugabyte_tablet_cql_web_port }}
+        labels:
+          group: "ycql"
+          export_type: "cql_export"
+{% endfor %}
+{% for host in prometheus_yb_tservers %}
+      - targets:
+        - {{ hostvars[host].ansible_host }}:{{ hostvars[host].yugabyte_tablet_redis_web_port }}
+        labels:
+          group: "yedis"
+          export_type: "redis_export"
+{% endfor %}
+  - job_name: tse_signer
+    static_configs:
+      - targets:
+{% for host in prometheus_tse_signer %}
+        - {{ hostvars[host].ansible_host }}:{{ hostvars[host].prometheus_exporter_port }}
+{% endfor %}
+  - job_name: tse_client
+    static_configs:
+      - targets:
+{% for host in prometheus_tse_client %}
+        - {{ hostvars[host].ansible_host }}:{{ hostvars[host].prometheus_exporter_port }}
+{% endfor %}

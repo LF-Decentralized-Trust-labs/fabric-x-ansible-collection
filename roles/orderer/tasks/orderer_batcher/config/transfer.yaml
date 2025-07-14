@@ -1,0 +1,36 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure Fabric-X Orderer config directory exists
+  ansible.builtin.file:
+    path: "{{ orderer_remote_config_dir }}"
+    state: directory
+    mode: "0o750"
+
+- name: Create Fabric-X Orderer Batcher config
+  vars:
+    orderer_config_dir: "{{ orderer_remote_config_dir if orderer_use_bin else orderer_docker_config_dir }}"
+  ansible.builtin.template:
+    src: config-batcher.yaml.j2
+    dest: "{{ orderer_remote_config_file }}"
+    mode: "0o640"
+
+- name: Copy Genesis block to use for the genesis setup phase
+  ansible.builtin.copy:
+    src: "{{ orderer_configtxgen_artifact_dir }}/{{ orderer_genesis_block_file }}"
+    dest: "{{ orderer_remote_config_dir }}/genesis.block"
+    mode: "0o644"
+
+- name: Transfer the Fabric-X Orderer crypto material
+  ansible.posix.synchronize:
+    src: "{{ orderer_cryptogen_artifact_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ inventory_hostname }}.{{ organization.domain }}/"
+    dest: "{{ orderer_remote_config_dir }}"
+
+# TODO: temporary fix because batcher have an hardcoded path for the signign key
+- name: Copy the batcher signing key in the expected location
+  ansible.posix.synchronize:
+    src: "{{ orderer_cryptogen_artifact_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ inventory_hostname }}.{{ organization.domain }}/msp/keystore/priv_sk"
+    dest: "{{ orderer_remote_config_dir }}/signingPrivateKey.pem"

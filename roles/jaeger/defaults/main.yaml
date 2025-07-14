@@ -1,0 +1,20 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# jaeger image
+jaeger_registry_endpoint: "{{ lookup('env', 'JAEGER_REGISTRY_ENDPOINT') or 'docker.io/jaegertracing' }}"
+jaeger_image_name: "all-in-one"
+jaeger_image_tag: "latest"
+jaeger_image: "{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_image_tag }}"
+jaeger_container_name: "jaeger-{{ inventory_hostname }}"
+
+# jaeger ports
+jaeger_ui_port: 16686
+jaeger_admin_port: 14269
+jaeger_http_server_port: 14268
+jaeger_http_collector_port: 4318
+jaeger_grpc_server_port: 14250
+jaeger_collector_port: 4317

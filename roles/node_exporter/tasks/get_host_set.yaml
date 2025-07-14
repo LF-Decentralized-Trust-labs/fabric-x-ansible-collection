@@ -1,0 +1,20 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Create a list of hosts where to run node_exporter
+  vars:
+    hostname_for_node_exporter: >-
+      {{
+        ansible_play_hosts
+        | map('extract', hostvars)
+        | selectattr('ansible_host', '==', item) | selectattr('node_exporter_port', 'defined')
+        | map(attribute='inventory_hostname') | sort
+        | first
+      }}
+  ansible.builtin.add_host:
+    name: "{{ hostname_for_node_exporter }}"
+    groups: node_exporter_hosts
+  loop: "{{ ansible_play_hosts | map('extract', hostvars, 'ansible_host') | unique | list }}"

@@ -1,0 +1,14 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Transfer Fabric-X Orderer binary
+  vars:
+    bin_name: "{{ orderer_bin_name }}"
+    bin_target_os: "{{ os | default('') }}"
+    bin_target_arch: "{{ arch | default('') }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: transfer

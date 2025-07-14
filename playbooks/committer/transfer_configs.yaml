@@ -1,0 +1,39 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Generate the Fabric-X Committer config files
+  hosts: "{{ target_hosts | default('fabric-x-committer') }}:&fabric-x-committer"
+  tasks:
+    - name: Generate the config files for the Fabric-X Committer
+      vars:
+        committer_db_servers: >-
+          {{
+            groups['fabric-x-committer'] | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
+            selectattr('committer_component_type', '==', 'db') | map(attribute='inventory_hostname') | list
+          }}
+        committer_verifiers: >-
+          {{
+            groups['fabric-x-committer'] | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
+            selectattr('committer_component_type', '==', 'verifier') | map(attribute='inventory_hostname') | list
+          }}
+        committer_validators: >-
+          {{
+            groups['fabric-x-committer'] | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
+            selectattr('committer_component_type', '==', 'validator') | map(attribute='inventory_hostname') | list
+          }}
+        committer_coordinator: >-
+          {{
+            groups['fabric-x-committer'] | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
+            selectattr('committer_component_type', '==', 'coordinator') | map(attribute='inventory_hostname') | list | first
+          }}
+        orderer_assemblers: >-
+          {{
+            groups['fabric-x-orderers'] | default([]) | map('extract', hostvars) |
+            selectattr('orderer_component_type', '==', 'assembler') | map(attribute='inventory_hostname') | list
+          }}
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.committer
+        tasks_from: config/transfer

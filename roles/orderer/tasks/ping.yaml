@@ -1,0 +1,13 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the gRPC port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ orderer_rpc_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping

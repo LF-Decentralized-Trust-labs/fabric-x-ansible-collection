@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ping Fabric-X Orderer
+  ansible.builtin.import_playbook: hyperledger.fabricx.orderer.ping
+
+- name: Ping Fabric-X Committer
+  ansible.builtin.import_playbook: hyperledger.fabricx.committer.ping
+
+- name: Ping Fabric-X Loadgen
+  ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.ping
+
+- name: Ping Monitoring
+  ansible.builtin.import_playbook: hyperledger.fabricx.monitoring.ping

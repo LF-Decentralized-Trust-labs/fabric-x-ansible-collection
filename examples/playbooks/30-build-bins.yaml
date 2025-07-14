@@ -1,0 +1,14 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Build Fabric-X Orderer binaries
+  ansible.builtin.import_playbook: hyperledger.fabricx.orderer.build_binaries
+
+- name: Build Fabric-X Committer binaries
+  ansible.builtin.import_playbook: hyperledger.fabricx.committer.build_binaries
+
+- name: Build Loadgen binaries
+  ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.build_binaries

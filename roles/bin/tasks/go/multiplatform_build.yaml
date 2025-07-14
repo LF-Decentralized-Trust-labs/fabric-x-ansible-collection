@@ -1,0 +1,33 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the binary instances have been defined
+  ansible.builtin.fail:
+    msg: "No bin host is indicated. Set it via 'bin_service_instances'."
+  when: bin_service_instances is not defined
+
+- name: Set os and arch combinations collection variable
+  ansible.builtin.set_fact:
+    os_arch_combos: [] # Necessary to clean fact between new runs
+
+- name: Collect unique os and arch combinations
+  vars:
+    os_arch_combo:
+      os: "{{ hostvars[item].os | default('') }}"
+      arch: "{{ hostvars[item].arch | default('') }}"
+  ansible.builtin.set_fact:
+    os_arch_combos: "{{ os_arch_combos + [os_arch_combo] }}"
+  loop: "{{ bin_service_instances }}"
+  when: os_arch_combo not in os_arch_combos
+
+- name: Build for multiple platforms the binary {{ bin_name }}
+  vars:
+    bin_target_os: "{{ item.os }}"
+    bin_target_arch: "{{ item.arch }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: go/build
+  loop: "{{ os_arch_combos }}"

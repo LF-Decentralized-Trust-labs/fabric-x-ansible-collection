@@ -1,0 +1,13 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Install {{ loadgen_bin_name }}
+  vars:
+    bin_service_instances: "{{ loadgen_instances }}"
+    bin_go_package: "{{ loadgen_bin_package }}@{{ loadgen_git_commit }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: go/multiplatform_install

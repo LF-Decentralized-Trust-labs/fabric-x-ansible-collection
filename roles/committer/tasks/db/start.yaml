@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start Postgres DB for Fabric-X Committer
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: container/start
+  when: committer_use_postgres
+
+- name: Start Yugabyte DB containers
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: container/start
+  when: not committer_use_postgres

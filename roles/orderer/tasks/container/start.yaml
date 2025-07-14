@@ -1,0 +1,29 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start Fabric-X Orderer consenters containers
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_consenter/container/start
+  when: orderer_component_type == 'consenter'
+
+- name: Start Fabric-X Orderer batchers containers
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_batcher/container/start
+  when: orderer_component_type == 'batcher'
+
+- name: Start Fabric-X Orderer assemblers containers
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_assembler/container/start
+  when: orderer_component_type == 'assembler'
+
+- name: Start Fabric-X Orderer routers containers
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_router/container/start
+  when: orderer_component_type == 'router'

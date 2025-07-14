@@ -1,0 +1,22 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Find which container client is installed on the machine
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: get_container_client
+
+- name: Install podman client
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: podman/install
+  when: container_client == 'podman' or container_client == ''
+
+- name: Install container client
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: docker/install
+  when: container_client == 'docker'

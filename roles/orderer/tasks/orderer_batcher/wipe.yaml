@@ -1,0 +1,40 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Fabric-X Orderer batcher container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: container/rm
+  when: not orderer_use_bin
+
+- name: Clean Fabric-X Orderer batcher container volumes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_batcher/container/clean
+  when: not orderer_use_bin
+
+- name: Stop Fabric-X Orderer batcher binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: bin/stop
+  when: orderer_use_bin
+
+- name: Remove Fabric-X Orderer batcher binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: bin/rm
+  when: orderer_use_bin
+
+- name: Clean Fabric-X Orderer batcher binary artifacts
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_batcher/bin/clean
+  when: orderer_use_bin
+
+- name: Remove Fabric-X Orderer batcher configuration files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: config/rm

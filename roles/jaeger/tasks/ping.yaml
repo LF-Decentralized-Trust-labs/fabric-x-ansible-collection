@@ -1,0 +1,18 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the Jaeger ports are open
+  vars:
+    utils_ports_to_ping:
+      - "{{ jaeger_ui_port }}"
+      - "{{ jaeger_admin_port }}"
+      - "{{ jaeger_http_server_port }}"
+      - "{{ jaeger_http_collector_port }}"
+      - "{{ jaeger_grpc_server_port }}"
+      - "{{ jaeger_collector_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping

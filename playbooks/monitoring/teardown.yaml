@@ -1,0 +1,24 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Teardown the Monitoring services
+  hosts: "{{ target_hosts | default('monitoring') }}:&monitoring"
+  tasks:
+    - name: Remove Jaeger
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.jaeger
+        tasks_from: teardown
+      when: jaeger_collector_port is defined
+    - name: Remove Grafana
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.grafana
+        tasks_from: teardown
+      when: grafana_web_port is defined
+    - name: Remove Prometheus
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.prometheus
+        tasks_from: teardown
+      when: prometheus_scraper_port is defined

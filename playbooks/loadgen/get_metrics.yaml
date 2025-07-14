@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Collect metrics from Fabric-X Loadgen
+  hosts: "{{ target_hosts | default('load-generators') }}:&load-generators"
+  tasks:
+    - name: Collect metrics from Fabric-X Loadgen
+      vars:
+        loadgen_assert_metrics: "{{ assert_metrics | default(false) }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.loadgen
+        tasks_from: get_metrics

@@ -1,0 +1,22 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Create shared_config.binpb with armageddon as container
+  vars:
+    container_name: "{{ armageddon_container_name }}"
+    container_image: "{{ armageddon_image }}"
+    container_command: >-
+      {{ armageddon_bin_name }} createSharedConfigProto
+      --sharedConfigYaml={{ armageddon_docker_output_dir }}/{{ armageddon_shared_config_file }}
+      --output={{ armageddon_docker_output_dir }}
+    container_volumes:
+      - "{{ armageddon_output_dir }}:{{ armageddon_docker_output_dir }}"
+    container_run_detach_mode: false
+    container_run_as_host_user: true
+    container_autoremove: true
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start

@@ -1,0 +1,24 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Build the Fabric-X Committer binaries
+  hosts: localhost
+  tasks:
+    - name: Build the Fabric-X Committer validator binaries for the not dockerized hosts
+      vars:
+        committer_service_instances: >-
+          {{
+            groups[target_hosts | default('fabric-x-committer')] | intersect(groups['fabric-x-committer']) |
+            map('extract', hostvars) | selectattr("committer_use_bin", 'defined') |
+            selectattr("committer_use_bin", 'eq', true) |
+            map(attribute='inventory_hostname') | list
+          }}
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.committer
+        tasks_from: bin/install
+      when:
+        - "'fabric-x-committer' in groups"
+        - committer_service_instances | length > 0

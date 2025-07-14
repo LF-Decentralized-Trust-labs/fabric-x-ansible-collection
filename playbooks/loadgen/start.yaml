@@ -1,0 +1,13 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start Fabric-X Loadgen
+  hosts: "{{ target_hosts | default('load-generators') }}:&load-generators"
+  tasks:
+    - name: Start Fabric-X Loadgen
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.loadgen
+        tasks_from: start

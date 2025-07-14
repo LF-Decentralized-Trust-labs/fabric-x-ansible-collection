@@ -1,0 +1,29 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Fabric-X Orderer consenter container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: container/rm
+  when: not orderer_use_bin
+
+- name: Clean Fabric-X Orderer consenter container volumes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_consenter/container/clean
+  when: not orderer_use_bin
+
+- name: Stop Fabric-X Orderer consenter binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: bin/stop
+  when: orderer_use_bin
+
+- name: Clean Fabric-X Orderer consenter binary db
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_consenter/bin/clean
+  when: orderer_use_bin

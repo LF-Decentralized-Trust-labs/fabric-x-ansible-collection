@@ -1,0 +1,23 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start Grafana container
+  vars:
+    container_name: "{{ grafana_container_name }}"
+    container_image: "{{ grafana_image }}"
+    container_env:
+      GF_SERVER_HTTP_PORT: "{{ grafana_web_port | string }}"
+      _GF_PROMETHEUS_ENDPOINT: "http://{{ hostvars[grafana_prometheus_instance].ansible_host }}:{{ hostvars[grafana_prometheus_instance].prometheus_scraper_port }}"
+    container_ports:
+      - "{{ grafana_web_port }}:{{ grafana_web_port }}"
+    container_volumes:
+      - "{{ grafana_remote_config_dir }}/grafana:/etc/grafana/provisioning/:ro"
+    container_wait_until_running: true
+    container_run_as_host_user: true
+    container_wait_port: "{{ grafana_web_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start

@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Get Fabric-X Loadgen metrics
+  ansible.builtin.uri:
+    url: "http://{{ ansible_host }}:{{ prometheus_exporter_port }}/metrics"
+    method: GET
+    return_content: true
+  register: result
+
+- name: Print Fabric-X Loadgen metrics
+  ansible.builtin.debug:
+    msg: "{{ result.content }}"
+
+- name: Assert the Fabric-X Loadgen metrics
+  ansible.builtin.set_fact:
+    tx_latency: "{{ result.content | regex_search('loadgen_valid_transaction_latency_seconds_count ([0-9]+)', '\\1') | d(['0']) | first | int }}"
+  when: loadgen_assert_metrics
+
+- name: Assert the Fabric-X Loadgen latency metric
+  ansible.builtin.fail:
+    tx_latency: "The transaction latency is invalid: {{ tx_latency }}"
+  when: loadgen_assert_metrics and tx_latency == '0'

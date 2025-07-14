@@ -1,0 +1,10 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Stop Podman container
+  containers.podman.podman_container:
+    name: "{{ container_name }}"
+    state: stopped

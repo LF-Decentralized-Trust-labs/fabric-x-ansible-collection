@@ -1,0 +1,62 @@
+Parties:
+{% for orderer_group, group_instances in all_orderer_instances.items() %}
+  - PartyID: {{ orderer_group }}
+    CACerts:
+      - {{ armageddon_cryptogen_artifacts_build_dir }}/crypto/ordererOrganizations/{{ hostvars[group_instances['assembler']].organization.domain }}/ca/ca.{{ hostvars[group_instances['assembler']].organization.domain }}-cert.pem
+    TLSCACerts:
+      - {{ armageddon_cryptogen_artifacts_build_dir }}/crypto/ordererOrganizations/{{ hostvars[group_instances['assembler']].organization.domain }}/tlsca/tlsca.{{ hostvars[group_instances['assembler']].organization.domain }}-cert.pem
+    RouterConfig:
+      TLSCert: {{ armageddon_cryptogen_artifacts_build_dir }}/crypto/ordererOrganizations/{{ hostvars[group_instances['router']].organization.domain }}/orderers/{{ group_instances['router'] }}.{{ hostvars[group_instances['router']].organization.domain }}/tls/server.crt
+      Host: {{ hostvars[group_instances['router']].ansible_host }}
+      Port: {{ hostvars[group_instances['router']].orderer_rpc_port}}
+    BatchersConfig:
+{% for batch_instance in  group_instances['batchers'] %}
+      - ShardID: {{ hostvars[batch_instance].orderer_shard_id}}
+        PublicKey: {{ armageddon_cryptogen_artifacts_build_dir }}/crypto/ordererOrganizations/{{ hostvars[batch_instance].organization.domain }}/orderers/{{ batch_instance }}.{{ hostvars[batch_instance].organization.domain }}/msp/signcerts/{{ batch_instance }}.{{ hostvars[batch_instance].organization.domain }}-cert.pem
+        TLSCert: {{ armageddon_cryptogen_artifacts_build_dir }}/crypto/ordererOrganizations/{{ hostvars[batch_instance].organization.domain }}/orderers/{{ batch_instance }}.{{ hostvars[batch_instance].organization.domain }}/tls/server.crt
+        Host: {{ hostvars[batch_instance].ansible_host }}
+        Port: {{ hostvars[batch_instance].orderer_rpc_port }}
+{% endfor %}
+    ConsenterConfig:
+      PublicKey: {{ armageddon_cryptogen_artifacts_build_dir }}/crypto/ordererOrganizations/{{ hostvars[group_instances['consenter']].organization.domain }}/orderers/{{ group_instances['consenter'] }}.{{ hostvars[group_instances['consenter']].organization.domain }}/msp/signcerts/{{ group_instances['consenter'] }}.{{ hostvars[group_instances['consenter']].organization.domain }}-cert.pem
+      TLSCert: {{ armageddon_cryptogen_artifacts_build_dir }}/crypto/ordererOrganizations/{{ hostvars[group_instances['consenter']].organization.domain }}/orderers/{{ group_instances['consenter'] }}.{{ hostvars[group_instances['consenter']].organization.domain }}/tls/server.crt
+      Host: {{ hostvars[group_instances['consenter']].ansible_host }}
+      Port: {{ hostvars[group_instances['consenter']].orderer_rpc_port}}
+    AssemblerConfig:
+      TLSCert: {{ armageddon_cryptogen_artifacts_build_dir }}/crypto/ordererOrganizations/{{ hostvars[group_instances['assembler']].organization.domain}}/orderers/{{ group_instances['assembler'] }}.{{ hostvars[group_instances['assembler']].organization.domain}}/tls/server.crt
+      Host: {{ hostvars[group_instances['assembler']].ansible_host }}
+      Port: {{ hostvars[group_instances['assembler']].orderer_rpc_port}}
+{% endfor %}
+Consensus:
+    SmartBFT:
+        selfid: 0
+        requestbatchmaxcount: 100
+        requestbatchmaxbytes: 10485760
+        requestbatchmaxinterval: 500ms
+        incomingmessagebuffersize: 200
+        requestpoolsize: 400
+        requestforwardtimeout: 10s
+        requestcomplaintimeout: 20s
+        requestautoremovetimeout: 3m0s
+        viewchangeresendinterval: 5s
+        viewchangetimeout: 20s
+        leaderheartbeattimeout: 1m0s
+        leaderheartbeatcount: 10
+        numofticksbehindbeforesyncing: 10
+        collecttimeout: 1s
+        synconstart: false
+        speedupviewchange: false
+        leaderrotation: false
+        decisionsperleader: 0
+        requestmaxbytes: 10240
+        requestpoolsubmittimeout: 5s
+Batching:
+    BatchTimeouts:
+        BatchCreationTimeout: 500ms
+        FirstStrikeThreshold: 10s
+        SecondStrikeThreshold: 10s
+        AutoRemoveTimeout: 10s
+    BatchSize:
+        MaxMessageCount: 10000
+        AbsoluteMaxBytes: 10485760
+    RequestMaxBytes: 1048576

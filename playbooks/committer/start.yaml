@@ -1,0 +1,13 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start the Fabric-X Committer
+  hosts: "{{ target_hosts | default('fabric-x-committer') }}:&fabric-x-committer"
+  tasks:
+    - name: Start the Fabric-X Committer services
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.committer
+        tasks_from: start

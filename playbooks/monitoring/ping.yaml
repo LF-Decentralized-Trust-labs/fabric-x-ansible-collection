@@ -1,0 +1,24 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ping the Monitoring components
+  hosts: "{{ target_hosts | default('monitoring') }}:&monitoring"
+  tasks:
+    - name: Ping Jaeger
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.jaeger
+        tasks_from: ping
+      when: jaeger_collector_port is defined
+    - name: Ping Grafana
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.grafana
+        tasks_from: ping
+      when: grafana_web_port is defined
+    - name: Ping Prometheus
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.prometheus
+        tasks_from: ping
+      when: prometheus_scraper_port is defined

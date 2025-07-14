@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start the Fabric-X Committer validator binary
+  vars:
+    bin_command: >-
+      {{ committer_bin_name }} start-vc
+      --config={{ committer_remote_config_dir }}/{{ committer_validator_config_file }}
+    bin_wait_until_running: true
+    bin_wait_port: "{{ committer_rpc_port }}"
+    bin_wait_timeout: 120
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start

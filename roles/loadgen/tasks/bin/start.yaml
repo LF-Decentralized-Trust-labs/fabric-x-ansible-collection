@@ -1,0 +1,16 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start the Fabric-X Loadgen binary
+  vars:
+    bin_command: >-
+      {{ loadgen_bin_name }} start
+      --config={{ loadgen_remote_config_dir }}/{{ loadgen_config_file }}
+    bin_wait_until_running: true
+    bin_wait_port: "{{ loadgen_web_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start

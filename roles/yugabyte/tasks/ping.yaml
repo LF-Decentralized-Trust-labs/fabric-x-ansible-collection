@@ -1,0 +1,22 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Set Yugabyte variables
+  ansible.builtin.set_fact:
+    yb_masters: "{{ ansible_play_hosts | map('extract', hostvars) | selectattr('yugabyte_component_type', 'defined') | selectattr('yugabyte_component_type', '==', 'master') | map(attribute='inventory_hostname') | list }}"
+    yb_tablets: "{{ ansible_play_hosts | map('extract', hostvars) | selectattr('yugabyte_component_type', 'defined') | selectattr('yugabyte_component_type', '==', 'tablet') | map(attribute='inventory_hostname') | list }}"
+
+- name: Check that the Yugabyte standalone DB ports are open
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: standalone/ping
+  when: yb_masters | length == 0 and yb_tablets | length == 0
+
+- name: Check that the Yugabyte cluster ports are open
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: distributed/ping
+  when: yb_masters | length > 0 or yb_tablets | length > 0

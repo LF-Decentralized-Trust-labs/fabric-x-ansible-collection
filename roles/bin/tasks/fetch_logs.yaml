@@ -1,0 +1,13 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Fetch the logs from the binary
+  ansible.builtin.fetch:
+    src: "{{ bin_remote_logs_dir }}/{{ bin_remote_logs_file }}"
+    dest: "{{ bin_logs_dir }}/{{ bin_logs_file }}"
+    validate_checksum: false
+    fail_on_missing: false
+    flat: true

@@ -1,0 +1,29 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Yugabyte DB image
+yugabyte_db_registry_endpoint: "{{ lookup('env', 'YUGABYTE_DB_REGISTRY_ENDPOINT') or 'docker.io/yugabytedb' }}"
+yugabyte_db_image_name: "yugabyte"
+yugabyte_db_image_tag: "2.20.7.0-b58"
+yugabyte_db_image: "{{ yugabyte_db_registry_endpoint }}/{{ yugabyte_db_image_name }}:{{ yugabyte_db_image_tag }}"
+yugabyte_container_name: "{{ inventory_hostname }}"
+
+# Yugabyte locations/paths
+yugabyte_remote_config_dir: "{{ remote_config_dir }}"
+
+# Miscellaneous
+yugabyte_init_script_file: "01-yb-init.sql"
+yugabyte_logs_level: 3
+# yugabyte master ports
+yugabyte_master_webserver_port: 7000
+# yugabyte tablet ports
+yugabyte_tablet_rpc_bind_port: 9100
+yugabyte_tablet_webserver_port: 9000
+yugabyte_tablet_redis_web_port: 11000
+yugabyte_tablet_cql_web_port: 12000
+yugabyte_tablet_pgsql_web_port: 13000
+yugabyte_tablet_cql_bind_port: 9042
+yugabyte_tablet_redis_rpc_port: 6379

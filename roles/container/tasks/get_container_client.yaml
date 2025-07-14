@@ -1,0 +1,38 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Set given client as container client
+  ansible.builtin.set_fact:
+    container_client: "{{ container_client }}"
+  when: container_client != ''
+
+- name: Check if podman is installed
+  ansible.builtin.shell:
+    cmd: "command -v podman > /dev/null 2>&1"
+  register: podman_bin
+  ignore_errors: true
+  changed_when: false
+  failed_when: false
+  when: container_client == ''
+
+- name: Check if docker is installed
+  ansible.builtin.shell:
+    cmd: "command -v docker > /dev/null 2>&1"
+  register: docker_bin
+  ignore_errors: true
+  changed_when: false
+  failed_when: false
+  when: container_client == '' and podman_bin.rc != 0
+
+- name: Set podman as container client
+  ansible.builtin.set_fact:
+    container_client: "podman"
+  when: container_client == '' and podman_bin.rc == 0
+
+- name: Set docker as container client
+  ansible.builtin.set_fact:
+    container_client: "docker"
+  when: container_client == '' and podman_bin.rc != 0 and docker_bin.rc == 0

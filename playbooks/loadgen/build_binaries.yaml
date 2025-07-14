@@ -1,0 +1,24 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Build the loadgen
+  hosts: localhost
+  tasks:
+    - name: Build the Fabric-X Loadgen for the not dockerized hosts
+      vars:
+        loadgen_instances: >-
+          {{
+            groups[target_hosts | default('load-generators')] | intersect(groups['load-generators']) |
+            map('extract', hostvars) | selectattr("loadgen_use_bin", 'defined') |
+            selectattr("loadgen_use_bin", 'eq', true) |
+            map(attribute='inventory_hostname') | list
+          }}
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.loadgen
+        tasks_from: bin/install
+      when:
+        - "'load-generators' in groups"
+        - loadgen_instances | length > 0

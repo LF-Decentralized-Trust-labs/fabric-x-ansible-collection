@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure Fabric-X Committer verifier config directory exists
+  ansible.builtin.file:
+    path: "{{ committer_remote_config_dir }}"
+    state: directory
+    mode: "0o750"
+
+- name: Generate Fabric-X Committer verifier config from template
+  ansible.builtin.template:
+    src: "config-verifier.yaml.j2"
+    dest: "{{ committer_remote_config_dir }}/{{ committer_verifier_config_file }}"
+    mode: "0o644"

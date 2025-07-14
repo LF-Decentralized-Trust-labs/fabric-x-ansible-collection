@@ -1,0 +1,21 @@
+server:
+  endpoint:
+    host: 0.0.0.0
+    port: {{ committer_rpc_port }}
+verifier:
+  endpoints:
+{% for host in committer_verifiers %}
+    - {{ hostvars[host].ansible_host }}:{{ hostvars[host].committer_rpc_port }}
+{% endfor %}
+validator-committer:
+  endpoints:
+{% for host in committer_validators %}
+    - {{ hostvars[host].ansible_host }}:{{ hostvars[host].committer_rpc_port }}
+{% endfor %}
+dependency-graph:
+  num-of-local-dep-constructors: {{ committer_coordinator_dep_graph_constructors }}
+  waiting-txs-limit: {{ committer_coordinator_dep_graph_wait_tx_limit }}
+  num-of-workers-for-global-dep-manager: 1
+per-channel-buffer-size-per-goroutine: 10
+{% include './sections/monitoring.yaml.j2' +%}
+{% include './sections/logging.yaml.j2' %}

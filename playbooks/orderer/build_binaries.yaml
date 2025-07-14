@@ -1,0 +1,24 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Build the Fabric-X Orderer binaries
+  hosts: localhost
+  tasks:
+    - name: Build the Fabric-X Orderer binaries for the not dockerized Fabric-X Orderer hosts
+      vars:
+        orderer_service_instances: >-
+          {{
+            groups[target_hosts | default('fabric-x-orderers')] | intersect(groups['fabric-x-orderers']) |
+            map('extract', hostvars) | selectattr("orderer_use_bin", 'defined') |
+            selectattr("orderer_use_bin", 'eq', true) |
+            map(attribute='inventory_hostname') | list
+          }}
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.orderer
+        tasks_from: bin/install
+      when:
+        - "'fabric-x-orderers' in groups"
+        - orderer_service_instances | length > 0

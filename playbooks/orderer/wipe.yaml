@@ -1,0 +1,13 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Wipe Fabric-X Orderer
+  hosts: "{{ target_hosts | default('fabric-x-orderers') }}:&fabric-x-orderers"
+  tasks:
+    - name: Wipe Fabric-X Orderer artifacts
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.orderer
+        tasks_from: wipe

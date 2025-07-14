@@ -1,0 +1,18 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Get YugabyteDB metrics
+  ansible.builtin.uri:
+    url: "http://{{ ansible_host }}:{{ prometheus_exporter_port }}/prometheus-metrics"
+    method: GET
+    return_content: true
+  register: result
+  when: prometheus_exporter_port is defined
+
+- name: Print YugabyteDB metrics
+  ansible.builtin.debug:
+    msg: "{{ result.content }}"
+  when: prometheus_exporter_port is defined and result is defined

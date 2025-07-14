@@ -1,0 +1,34 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Define Fabric-X Committer sidecar mandatory Docker mounts
+  ansible.builtin.set_fact:
+    sidecar_docker_volumes:
+      - "{{ committer_remote_config_dir }}/{{ committer_sidecar_config_file }}:{{ committer_docker_config_dir }}/{{ committer_sidecar_config_file }}"
+
+- name: Mount Sidecar MSP crypto material
+  vars:
+    crypto_material_volumes:
+      - "{{ committer_remote_config_dir }}/ca-certs.pem:{{ committer_docker_config_dir }}/ca-certs.pem"
+      - "{{ committer_remote_config_dir }}/msp:{{ committer_docker_config_dir }}/msp"
+  ansible.builtin.set_fact:
+    sidecar_docker_volumes: "{{ sidecar_docker_volumes + crypto_material_volumes }}"
+  when: committer_use_tls
+
+- name: Start Fabric-X Committer Sidecar containers
+  vars:
+    container_name: "{{ committer_container_name }}"
+    container_image: "{{ committer_sidecar_image }}"
+    container_command: "/app start --config={{ committer_docker_config_dir }}/{{ committer_sidecar_config_file }}"
+    container_ports:
+      - "{{ committer_rpc_port }}:{{ committer_rpc_port }}"
+      - "{{ prometheus_exporter_port }}:{{ prometheus_exporter_port }}"
+    container_volumes: "{{ sidecar_docker_volumes }}"
+    container_wait_until_running: true
+    container_wait_port: "{{ committer_rpc_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start

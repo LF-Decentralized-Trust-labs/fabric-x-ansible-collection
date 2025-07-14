@@ -1,0 +1,16 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure monitoring directory exists
+  ansible.builtin.file:
+    path: "{{ grafana_remote_config_dir }}/grafana"
+    state: directory
+    mode: "0o755"
+
+- name: Copy Grafana dashboards
+  ansible.posix.synchronize:
+    src: files/
+    dest: "{{ grafana_remote_config_dir }}/grafana"

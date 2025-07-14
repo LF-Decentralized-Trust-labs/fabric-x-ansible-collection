@@ -1,0 +1,63 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Transfer Monitoring configuration files
+  hosts: "{{ target_hosts | default('monitoring') }}:&monitoring"
+  tasks:
+    - name: Create a list of hosts where to run node_exporter
+      vars:
+        hostname_for_node_exporter: >-
+          {{
+            groups['all']
+            | map('extract', hostvars)
+            | selectattr('ansible_host', '==', item) | selectattr('node_exporter_port', 'defined')
+            | map(attribute='inventory_hostname') | sort
+            | first
+          }}
+      ansible.builtin.set_fact:
+        node_exporter_hosts: "{{ node_exporter_hosts | default([]) + [hostname_for_node_exporter] }}"
+      loop: "{{ groups['all'] | map('extract', hostvars, 'ansible_host') | unique | list }}"
+    - name: Transfer the Prometheus configuration files
+      vars:
+        prometheus_node_exporters: "{{ node_exporter_hosts }}"
+        prometheus_committer_sidecars: >-
+          {{
+            groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
+            selectattr('committer_component_type', '==', 'sidecar') | map(attribute='inventory_hostname') | list
+          }}
+        prometheus_committer_coordinators: >-
+          {{
+            groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
+            selectattr('committer_component_type', '==', 'coordinator') | map(attribute='inventory_hostname') | list
+          }}
+        prometheus_committer_verifiers: >-
+          {{
+            groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
+            selectattr('committer_component_type', '==', 'verifier') | map(attribute='inventory_hostname') | list
+          }}
+        prometheus_committer_validators: >-
+          {{
+            groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
+            selectattr('committer_component_type', '==', 'validator') | map(attribute='inventory_hostname') | list
+          }}
+        prometheus_yb_masters: >-
+          {{
+            groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('yugabyte_component_type', 'defined') |
+            selectattr('yugabyte_component_type', '==', 'master') | map(attribute='inventory_hostname') | list
+          }}
+        prometheus_yb_tservers: >-
+          {{
+            groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('yugabyte_component_type', 'defined') |
+            selectattr('yugabyte_component_type', '==', 'tablet') | map(attribute='inventory_hostname') | list
+          }}
+        prometheus_load_generators: "{{ groups['load-generators'] | default([]) }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.prometheus
+        tasks_from: config/transfer
+    - name: Transfer the Grafana configuration files
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.grafana
+        tasks_from: config/transfer

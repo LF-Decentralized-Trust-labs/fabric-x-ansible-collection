@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start Fabric-X Loadgen container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: container/start
+  when: not loadgen_use_bin
+
+- name: Start Fabric-X Loadgen binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: bin/start
+  when: loadgen_use_bin

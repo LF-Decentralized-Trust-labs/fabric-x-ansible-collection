@@ -1,0 +1,20 @@
+orderer-client:
+{% if committer_sidecar is defined %}
+  sidecar-endpoint: {{ hostvars[committer_sidecar].ansible_host }}:{{ hostvars[committer_sidecar].committer_rpc_port }}
+{% endif %}
+  orderer:
+    connection:
+      endpoints:
+{% for orderer_router in orderer_routers %}
+        - id={{ hostvars[orderer_router].orderer_group }},broadcast,{{ hostvars[orderer_router].ansible_host }}:{{ hostvars[orderer_router].orderer_rpc_port }}
+{% endfor %}
+{% for orderer_assembler in orderer_assemblers %}
+        - id={{ hostvars[orderer_assembler].orderer_group }},deliver,{{ hostvars[orderer_assembler].ansible_host }}:{{ hostvars[orderer_assembler].orderer_rpc_port }}
+{% endfor %}
+    consensus-type: BFT
+    channel-id: {{ channel_id }}
+  broadcast-parallelism: 8
+{% include './sections/load-profile.yaml.j2' +%}
+{% include './sections/monitoring.yaml.j2' +%}
+{% include './sections/stream.yaml.j2' +%}
+{% include './sections/logging.yaml.j2' %}

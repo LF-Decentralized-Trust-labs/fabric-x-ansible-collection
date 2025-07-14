@@ -1,0 +1,10 @@
+monitoring:
+  server:
+    endpoint: 0.0.0.0:{{ prometheus_exporter_port }}
+  latency:
+    sampler:
+      prefix: a
+    buckets:
+      type: uniform
+      max-latency: 5s
+      bucket-count: 1000

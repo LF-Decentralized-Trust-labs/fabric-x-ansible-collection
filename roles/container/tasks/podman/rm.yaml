@@ -1,0 +1,11 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Podman container
+  containers.podman.podman_container:
+    name: "{{ container_name }}"
+    state: absent
+    delete_volumes: true

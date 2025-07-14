@@ -1,0 +1,13 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Stop Fabric-X Loadgen container
+  vars:
+    container_name: "sc-loadgen-{{ inventory_hostname }}"
+    container_image: "{{ loadgen_image }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: stop

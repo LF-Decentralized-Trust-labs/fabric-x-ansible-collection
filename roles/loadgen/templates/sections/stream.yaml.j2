@@ -1,0 +1,10 @@
+stream:
+  rate-limit:
+    endpoint: :{{ loadgen_web_port }}
+    initial-limit: {{ loadgen_limit_rate }}
+  gen-batch: 4000
+  buffers-size: 2000
+generate:
+  config: false
+  namespaces: {{ loadgen_generate_namespace | lower }}
+  load: true

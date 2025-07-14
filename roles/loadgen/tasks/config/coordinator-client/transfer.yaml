@@ -1,0 +1,20 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure coordinator-client config directory exists
+  ansible.builtin.file:
+    path: "{{ loadgen_remote_config_dir }}"
+    state: directory
+    mode: "0o750"
+
+- name: Generate the config for the Fabric-X Loadgen for the Fabric-X Committer Coordinator
+  vars:
+    loadgen_config_dir: "{{ loadgen_remote_config_dir if loadgen_use_bin else loadgen_docker_config_dir }}"
+    loadgen_use_key: false
+  ansible.builtin.template:
+    src: "coordinator-client.yaml.j2"
+    dest: "{{ loadgen_remote_config_dir }}/{{ loadgen_config_file }}"
+    mode: "0o644"

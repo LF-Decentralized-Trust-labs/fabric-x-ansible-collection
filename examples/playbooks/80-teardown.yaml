@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Teardown Loadgen
+  ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.teardown
+
+- name: Teardown Monitoring
+  ansible.builtin.import_playbook: hyperledger.fabricx.monitoring.teardown
+
+- name: Teardown Fabric-X Committer
+  ansible.builtin.import_playbook: hyperledger.fabricx.committer.teardown
+
+- name: Teardown Fabric-X Orderers
+  ansible.builtin.import_playbook: hyperledger.fabricx.orderer.teardown

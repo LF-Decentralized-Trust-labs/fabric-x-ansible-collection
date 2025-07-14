@@ -1,0 +1,13 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Create shared_config.binpb with armageddon as binary
+  ansible.builtin.command: >-
+    {{ cli_bin_dir }}/{{ armageddon_bin_name }} createSharedConfigProto
+    --sharedConfigYaml={{ armageddon_output_dir }}/{{ armageddon_shared_config_file }}
+    --output={{ armageddon_output_dir }}
+  register: result
+  changed_when: result.rc != 0

@@ -1,0 +1,14 @@
+# misc
+.DS_Store
+out/
+out.*working/
+
+# ansible
+.ansible/
+# tests/integration/inventory
+tests/output
+
+# IDEs
+.env
+.vscode/
+.idea/
