@@ -31,6 +31,8 @@ To install the `hyperledger.fabricx` collection on your control node, run:
 
 ```shell
 git clone https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection.git ~/.ansible/collections/ansible_collections/hyperledger/fabricx
+cd ~/.ansible/collections/ansible_collections/hyperledger/fabricx
+ansible-galaxy collection install -r requirements.yml
 ```
 
 **NOTE**: This is the recommended way if you plan to develop and change the scripts, since it allows to test directly the modified scripts avoiding to reinstall the collection at every change.
