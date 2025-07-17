@@ -8,7 +8,7 @@
   ansible.builtin.file:
     path: "{{ postgres_pgdata_dir }}"
     state: directory
-    mode: "0o750"
+    mode: "0o755"
 
 - name: Start Postgres DB Container
   vars:
