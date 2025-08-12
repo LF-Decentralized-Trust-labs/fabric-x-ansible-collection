@@ -9,18 +9,18 @@
     url: "http://{{ ansible_host }}:{{ prometheus_exporter_port }}/metrics"
     method: GET
     return_content: true
-  register: result
+  register: loadgen_metrics
 
 - name: Print Fabric-X Loadgen metrics
   ansible.builtin.debug:
-    msg: "{{ result.content }}"
+    msg: "{{ loadgen_metrics.content }}"
 
 - name: Assert the Fabric-X Loadgen metrics
   ansible.builtin.set_fact:
-    tx_latency: "{{ result.content | regex_search('loadgen_valid_transaction_latency_seconds_count ([0-9]+)', '\\1') | d(['0']) | first | int }}"
+    loadgen_tx_latency: "{{ loadgen_metrics.content | regex_search('loadgen_valid_transaction_latency_seconds_count ([0-9]+)', '\\1') | d(['0']) | first | int }}"
   when: loadgen_assert_metrics
 
 - name: Assert the Fabric-X Loadgen latency metric
   ansible.builtin.fail:
-    tx_latency: "The transaction latency is invalid: {{ tx_latency }}"
-  when: loadgen_assert_metrics and tx_latency == '0'
+    loadgen_tx_latency: "The transaction latency is invalid: {{ loadgen_tx_latency }}"
+  when: loadgen_assert_metrics and loadgen_tx_latency == '0'

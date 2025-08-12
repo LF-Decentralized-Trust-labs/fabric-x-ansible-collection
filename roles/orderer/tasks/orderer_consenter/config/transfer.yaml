@@ -33,4 +33,4 @@
 - name: Copy the assembler signing key in the expected location
   ansible.posix.synchronize:
     src: "{{ orderer_cryptogen_artifact_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ inventory_hostname }}.{{ organization.domain }}/msp/keystore/priv_sk"
-    dest: "{{ orderer_remote_config_dir }}/signingPrivateKey.pem"
+    dest: "{{ orderer_remote_config_dir }}/msp/keystore/sign-privateKey.pem"

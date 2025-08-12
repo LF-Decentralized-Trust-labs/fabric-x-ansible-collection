@@ -12,7 +12,7 @@
 - name: Check if podman is installed
   ansible.builtin.shell:
     cmd: "command -v podman > /dev/null 2>&1"
-  register: podman_bin
+  register: container_check_podman
   ignore_errors: true
   changed_when: false
   failed_when: false
@@ -21,18 +21,18 @@
 - name: Check if docker is installed
   ansible.builtin.shell:
     cmd: "command -v docker > /dev/null 2>&1"
-  register: docker_bin
+  register: container_check_docker
   ignore_errors: true
   changed_when: false
   failed_when: false
-  when: container_client == '' and podman_bin.rc != 0
+  when: container_client == '' and container_check_podman.rc != 0
 
 - name: Set podman as container client
   ansible.builtin.set_fact:
     container_client: "podman"
-  when: container_client == '' and podman_bin.rc == 0
+  when: container_client == '' and container_check_podman.rc == 0
 
 - name: Set docker as container client
   ansible.builtin.set_fact:
     container_client: "docker"
-  when: container_client == '' and podman_bin.rc != 0 and docker_bin.rc == 0
+  when: container_client == '' and container_check_podman.rc != 0 and container_check_docker.rc == 0

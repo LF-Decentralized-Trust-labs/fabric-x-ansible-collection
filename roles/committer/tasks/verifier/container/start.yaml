@@ -7,8 +7,8 @@
 - name: Start Fabric-X Committer Signature Verifier containers
   vars:
     container_name: "{{ committer_container_name }}"
-    container_image: "{{ committer_verifier_image }}"
-    container_command: "/app start --config={{ committer_docker_config_dir }}/{{ committer_verifier_config_file }}"
+    container_image: "{{ committer_image }}"
+    container_command: "committer start-verifier --config={{ committer_docker_config_dir }}/{{ committer_verifier_config_file }}"
     container_ports:
       - "{{ committer_rpc_port }}:{{ committer_rpc_port }}"
       - "{{ prometheus_exporter_port }}:{{ prometheus_exporter_port }}"

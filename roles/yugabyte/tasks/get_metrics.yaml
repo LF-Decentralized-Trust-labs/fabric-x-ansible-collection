@@ -9,10 +9,10 @@
     url: "http://{{ ansible_host }}:{{ prometheus_exporter_port }}/prometheus-metrics"
     method: GET
     return_content: true
-  register: result
+  register: yugabyte_metrics
   when: prometheus_exporter_port is defined
 
 - name: Print YugabyteDB metrics
   ansible.builtin.debug:
-    msg: "{{ result.content }}"
-  when: prometheus_exporter_port is defined and result is defined
+    msg: "{{ yugabyte_metrics.content }}"
+  when: prometheus_exporter_port is defined and yugabyte_metrics is defined

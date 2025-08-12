@@ -18,8 +18,8 @@
 
 - name: Collect the container logs
   ansible.builtin.shell: "{{ container_client }} logs {{ container_name }} > {{ container_remote_logs_dir }}/{{ container_remote_logs_file }} 2>&1"
-  register: result
-  changed_when: result.rc != 0
+  register: container_logs
+  changed_when: container_logs.rc != 0
   ignore_errors: true
 
 - name: Fetch the container logs

@@ -6,7 +6,7 @@
 
 - name: Kill TMUX session running binary
   ansible.builtin.command: tmux kill-session -t {{ bin_name }}
-  register: result
-  changed_when: result.rc != 0
+  register: bin_tmux_kill_session
+  changed_when: bin_tmux_kill_session.rc != 0
   ignore_errors: true
   when: bin_run_with_tmux

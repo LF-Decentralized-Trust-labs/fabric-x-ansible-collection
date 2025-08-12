@@ -41,7 +41,7 @@ install:
 # Check the linting correctness (e.g. make lint)
 .PHONY: lint
 lint:
-	ansible-lint roles playbooks examples
+	ansible-lint --offline roles playbooks examples
 
 #########################
 # Deployment
