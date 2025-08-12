@@ -7,8 +7,8 @@
 - name: Start Fabric-X Committer Validator Persistence containers
   vars:
     container_name: "{{ committer_container_name }}"
-    container_image: "{{ committer_validator_image }}"
-    container_command: "/app start --config={{ committer_docker_config_dir }}/{{ committer_validator_config_file }}"
+    container_image: "{{ committer_image }}"
+    container_command: "committer start-vc --config={{ committer_docker_config_dir }}/{{ committer_validator_config_file }}"
     container_ports:
       - "{{ committer_rpc_port }}:{{ committer_rpc_port }}"
       - "{{ prometheus_exporter_port }}:{{ prometheus_exporter_port }}"

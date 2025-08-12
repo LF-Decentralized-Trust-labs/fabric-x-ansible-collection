@@ -8,11 +8,11 @@
   vars:
     env_vars: "{{ bin_env.items() | map('join', '=') | join(' ') }}"
   ansible.builtin.set_fact:
-    cmd_to_run: "{{ env_vars }} {{ bin_remote_dir }}/{{ bin_command }}"
+    bin_cmd_to_run: "{{ env_vars }} {{ bin_remote_dir }}/{{ bin_command }}"
 
 - name: Collect logs
   ansible.builtin.set_fact:
-    cmd_to_run: "{{ cmd_to_run }} > {{ bin_remote_logs_dir }}/{{ bin_remote_logs_file }} 2>&1"
+    bin_cmd_to_run: "{{ bin_cmd_to_run }} > {{ bin_remote_logs_dir }}/{{ bin_remote_logs_file }} 2>&1"
   when: bin_collect_logs
 
 - name: Create log path
@@ -31,19 +31,19 @@
 
 - name: Show command to run
   ansible.builtin.debug:
-    msg: "{{ cmd_to_run }}"
+    msg: "{{ bin_cmd_to_run }}"
   when: not bin_omit_logs
 
 - name: Run command within a TMUX session
-  ansible.builtin.command: "tmux new-session -s {{ bin_name }} -d '{{ cmd_to_run }}'"
-  register: result
-  changed_when: result.rc != 0
+  ansible.builtin.command: "tmux new-session -s {{ bin_name }} -d '{{ bin_cmd_to_run }}'"
+  register: bin_output
+  changed_when: bin_output.rc != 0
   when: bin_run_with_tmux
 
 - name: Run command # noqa: command-instead-of-shell
-  ansible.builtin.shell: "{{ cmd_to_run }}"
-  register: result
-  changed_when: result.rc != 0
+  ansible.builtin.shell: "{{ bin_cmd_to_run }}"
+  register: bin_output
+  changed_when: bin_output.rc != 0
   when: not bin_run_with_tmux
 
 - name: Show command results

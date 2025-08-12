@@ -21,8 +21,8 @@
 - name: Start Fabric-X Committer Sidecar containers
   vars:
     container_name: "{{ committer_container_name }}"
-    container_image: "{{ committer_sidecar_image }}"
-    container_command: "/app start --config={{ committer_docker_config_dir }}/{{ committer_sidecar_config_file }}"
+    container_image: "{{ committer_image }}"
+    container_command: "committer start-sidecar --config={{ committer_docker_config_dir }}/{{ committer_sidecar_config_file }}"
     container_ports:
       - "{{ committer_rpc_port }}:{{ committer_rpc_port }}"
       - "{{ prometheus_exporter_port }}:{{ prometheus_exporter_port }}"

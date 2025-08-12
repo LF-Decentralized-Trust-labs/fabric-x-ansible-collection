@@ -7,14 +7,14 @@
 # Fabric-X Orderer images
 orderer_registry_endpoint: "{{ lookup('env', 'ORDERER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 orderer_image_name: "fabric-x-orderer"
-orderer_image_tag: "{{ 'linux-s390x-0.0.12' if ansible_architecture == 's390x' else 'linux-arm64-0.0.12' if ansible_architecture == 'arm64' else 'linux-amd64-0.0.12' }}"
+orderer_image_tag: "0.0.17"
 orderer_image: "{{ orderer_registry_endpoint }}/{{ orderer_image_name }}:{{ orderer_image_tag }}"
 orderer_container_name: "{{ inventory_hostname }}"
 
 # Fabric-X Orderer bins
 orderer_git_uri: "https://github.com/hyperledger/fabric-x-orderer.git"
 orderer_git_dir: "{{ source_code_dir }}/fabric-x-orderer"
-orderer_git_commit: "v0.0.14"
+orderer_git_commit: "v0.0.17"
 orderer_source_code_dir: "{{ orderer_git_dir }}/cmd/arma"
 orderer_bin_package: "github.com/hyperledger/fabric-x-orderer/cmd/arma"
 orderer_bin_name: "arma"
