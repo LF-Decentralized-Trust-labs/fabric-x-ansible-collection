@@ -29,7 +29,6 @@ all:
         fabric-x-committer:
           vars:
             committer_use_postgres: true
-            # committer_use_bin: true
           hosts:
             committer-db:
               committer_component_type: db
@@ -60,7 +59,6 @@ all:
 
         fabric-x-orderers:
           vars:
-            # orderer_use_bin: true
             organization:
               name: "OrdererOrg{{ orderer_group }}"
               domain: "ordererorg{{ orderer_group }}.example.com"

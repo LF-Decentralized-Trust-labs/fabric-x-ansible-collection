@@ -7,14 +7,14 @@
 # Fabric-X Loadgen image
 loadgen_registry_endpoint: "{{ lookup('env', 'LOADGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 loadgen_image_name: "fabric-x-tools"
-loadgen_image_tag: "1.0.0"
+loadgen_image_tag: "0.0.1"
 loadgen_image: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
 loadgen_container_name: "{{ inventory_hostname }}"
 
 # Fabric-X Loadgen bin
 loadgen_git_uri: "https://github.com/hyperledger/fabric-x-committer.git"
 loadgen_git_dir: "{{ source_code_dir }}/fabric-x-committer"
-loadgen_git_commit: "7c06fc40d2f0da3cb7914e46fc923a8e4c17195e"
+loadgen_git_commit: "v0.1.4"
 loadgen_source_code_dir: "{{ loadgen_git_dir }}/cmd/loadgen"
 loadgen_bin_package: "github.com/hyperledger/fabric-x-committer/cmd/loadgen"
 loadgen_bin_name: "loadgen"
