@@ -56,6 +56,10 @@ all:
                 name: Org1
                 domain: org1.example.com
               use_fabric_peer_crypto: true
+            committer-query-service:
+              committer_component_type: query-service
+              committer_rpc_port: 7001
+              prometheus_exporter_port: 2117
 
         fabric-x-orderers:
           vars:

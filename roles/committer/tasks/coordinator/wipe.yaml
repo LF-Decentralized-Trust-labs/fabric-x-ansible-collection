@@ -19,7 +19,7 @@
 - name: Remove Fabric-X Committer coordinator binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
-    tasks_from: coordinator/bin/rm
+    tasks_from: bin/rm
   when: committer_use_bin
 
 - name: Remove Fabric-X Committer coordinator configuration files

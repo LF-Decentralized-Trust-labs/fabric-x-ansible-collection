@@ -4,25 +4,25 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Remove Fabric-X Committer verifier container
+- name: Remove Fabric-X Committer QueryService container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: container/rm
   when: not committer_use_bin
 
-- name: Stop Fabric-X Committer verifier binary
+- name: Stop Fabric-X Committer QueryService binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: bin/stop
   when: committer_use_bin
 
-- name: Remove Fabric-X Committer verifier binary
+- name: Remove Fabric-X Committer QueryService binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: bin/rm
   when: committer_use_bin
 
-- name: Remove Fabric-X Committer verifier configuration files
+- name: Remove Fabric-X Committer QueryService configuration files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: config/rm
