@@ -4,6 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Stop Fabric-X Committer QueryService
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: query_service/stop
+  when: committer_component_type == 'query-service'
+
 - name: Stop Fabric-X Committer sidecar
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer

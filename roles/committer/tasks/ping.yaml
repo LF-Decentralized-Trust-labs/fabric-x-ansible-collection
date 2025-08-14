@@ -33,3 +33,9 @@
     name: hyperledger.fabricx.committer
     tasks_from: sidecar/ping
   when: committer_component_type == 'sidecar'
+
+- name: Ping Fabric-X Committer QueryService
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: query_service/ping
+  when: committer_component_type == 'query-service'

@@ -1,7 +1,10 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
 server:
-  endpoint:
-    host: 0.0.0.0
-    port: {{ committer_rpc_port }}
+  endpoint: 0.0.0.0:{{ committer_rpc_port }}
 verifier:
   endpoints:
 {% for host in committer_verifiers %}
