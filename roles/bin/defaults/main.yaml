@@ -28,3 +28,8 @@ bin_omit_logs: false
 bin_wait_until_running: false
 bin_wait_delay: 1
 bin_wait_timeout: 60
+
+# bin rerun options
+bin_run_until: null
+bin_run_delay: 0
+bin_run_retries: 0

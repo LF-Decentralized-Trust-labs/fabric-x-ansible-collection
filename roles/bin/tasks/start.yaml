@@ -43,6 +43,9 @@
 - name: Run command # noqa: command-instead-of-shell
   ansible.builtin.shell: "{{ bin_cmd_to_run }}"
   register: bin_output
+  until: "{{ bin_run_until }}"
+  retries: "{{ bin_run_retries }}"
+  delay: "{{ bin_run_delay }}"
   changed_when: bin_output.rc != 0
   when: not bin_run_with_tmux
 
