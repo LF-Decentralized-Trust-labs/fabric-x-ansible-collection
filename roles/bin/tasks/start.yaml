@@ -48,11 +48,11 @@
 
 - name: Show command results
   ansible.builtin.debug:
-    msg: "{{ result.stdout_lines }}"
+    msg: "{{ bin_output.stdout_lines }}"
   when:
     - not bin_collect_logs
     - not bin_omit_logs
-    - result.stdout_lines | length > 0
+    - bin_output.stdout_lines | length > 0
 
 - name: Wait for service to become ready on port
   ansible.builtin.wait_for:
