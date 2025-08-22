@@ -26,6 +26,7 @@ bin_flag: "use_bin"
 # env for wait binary
 bin_omit_logs: false
 bin_wait_until_running: false
+bin_ignore_errors: false
 bin_wait_delay: 1
 bin_wait_timeout: 60
 

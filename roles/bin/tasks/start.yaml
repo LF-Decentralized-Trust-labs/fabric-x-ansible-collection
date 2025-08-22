@@ -47,6 +47,7 @@
   retries: "{{ bin_run_retries }}"
   delay: "{{ bin_run_delay }}"
   changed_when: bin_output.rc != 0
+  ignore_errors: "{{ bin_ignore_errors }}"
   when: not bin_run_with_tmux
 
 - name: Show command results
