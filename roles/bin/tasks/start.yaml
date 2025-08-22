@@ -7,8 +7,9 @@
 - name: Setup the command to run
   vars:
     env_vars: "{{ bin_env.items() | map('join', '=') | join(' ') }}"
+    cmd_to_run: "{{ (bin_remote_dir ~ '/' ~ bin_command) if bin_remote_dir else bin_command }}"
   ansible.builtin.set_fact:
-    bin_cmd_to_run: "{{ env_vars }} {{ bin_remote_dir }}/{{ bin_command }}"
+    bin_cmd_to_run: "{{ env_vars }} {{ cmd_to_run }}"
 
 - name: Collect logs
   ansible.builtin.set_fact:
