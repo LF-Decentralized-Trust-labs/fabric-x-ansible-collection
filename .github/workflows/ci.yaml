@@ -34,4 +34,4 @@ jobs:
           pip install ansible ansible-lint
       # Run the lint target from your Makefile
       - name: Run lint
-        run: make lint
+        run: make install lint
