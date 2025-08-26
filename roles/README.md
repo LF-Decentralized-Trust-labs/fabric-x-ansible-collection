@@ -40,6 +40,7 @@ The roles that come within such collection are listed hereafter. Click on them t
 - [`hyperledger.fabricx.openssl`](./openssl);
 - [`hyperledger.fabricx.orderer`](./orderer);
 - [`hyperledger.fabricx.postgres`](./postgres);
+- [`hyperledger.fabricx.postgres_exporter`](./postgres_exporter);
 - [`hyperledger.fabricx.prometheus`](./prometheus);
 - [`hyperledger.fabricx.utils`](./utils);
 - [`hyperledger.fabricx.yugabyte`](./yugabyte).

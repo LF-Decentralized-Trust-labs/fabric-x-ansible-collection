@@ -6,6 +6,7 @@ The role `hyperledger.fabricx.prometheus` can be used to run a Prometheus metric
 - load generator (through the `prometheus_load_generators` variable);
 - Yugabyte cluster (through the `prometheus_yb_masters` and `prometheus_yb_tservers` variables);
 - node exporters (through the `prometheus_node_exporters` variable).
+- postgres exporters (through the `prometheus_postgres_exporters` variable).
 
 The role allows to run Prometheus as **container only** (binary is not currently supported).
 

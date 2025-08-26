@@ -17,6 +17,7 @@ prometheus_remote_config_dir: "{{ remote_config_dir }}"
 # vars
 prometheus_scraper_port: 9090
 prometheus_node_exporters: []
+prometheus_postgres_exporters: []
 prometheus_committer_sidecars: []
 prometheus_committer_coordinators: []
 prometheus_committer_verifiers: []
