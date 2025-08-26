@@ -66,7 +66,7 @@ The task `wipe` allows to shut down the Postgres DB and corresponding Postgres E
 
 ### fetch_logs
 
-The task `fetch_logs` allows to fetch the logs from the Postgres DB components from the remote hosts to the control node.
+The task `fetch_logs` allows to fetch the logs from the Postgres DB components and corresponding Postgres Exporter Sidecar (if toggled) from the remote hosts to the control node.
 
 ```yaml
 - name: Fetch the Postgres DB and corresponding Postgres Exporter Sidecar (if toggled) logs
@@ -77,7 +77,7 @@ The task `fetch_logs` allows to fetch the logs from the Postgres DB components f
 
 ### ping
 
-The task `ping` allows to ping the Postgres DB components on their opened ports. It is useful to check whether the instances are running or if they are not running/reachable.
+The task `ping` allows to ping the Postgres DB components and corresponding Postgres Exporter Sidecar (if toggled) on their opened ports. It is useful to check whether the instances are running or if they are not running/reachable.
 
 ```yaml
 - name: Ping the Postgres DB
