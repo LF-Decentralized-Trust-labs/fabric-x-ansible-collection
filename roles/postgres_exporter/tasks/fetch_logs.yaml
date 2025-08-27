@@ -3,7 +3,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+
 - name: Fetch logs from container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
-    tasks_from: docker/fetch_logs
+    tasks_from: container/fetch_logs

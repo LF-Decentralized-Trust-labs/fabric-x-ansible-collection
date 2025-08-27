@@ -6,10 +6,7 @@ The role allows to run Postgres Exporter as **container only** (binary is not cu
 
 The role supports running one exporter per database instance.
 
-⚠️ **Important:**  
-For the Postgres Exporter to be deployed, the variable `postgres_exporter_port` **must be defined in the inventory host**.  
-This ensures the exporter listens on a known port and allows Prometheus to scrape its metrics.  
-If the port is not defined, the exporter sidecar will not be started alongside the database.
+⚠️ **Important:** For the Postgres Exporter to be deployed, the variable `postgres_exporter_port` **must be defined in the inventory host**. This ensures the exporter listens on a known port and allows Prometheus to scrape its metrics. If the port is not defined, the exporter sidecar will not be started alongside the database.
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -22,7 +19,7 @@ If the port is not defined, the exporter sidecar will not be started alongside t
   - [fetch_logs](#fetch_logs)
   - [ping](#ping)
 
-### Postgres Exporter Metrics
+## Postgres Exporter Metrics
 
 When the `prometheus_postgres_exporters` variable is set, Prometheus scrapes the following main metric families from each PostgreSQL instance:
 
@@ -30,13 +27,13 @@ When the `prometheus_postgres_exporters` variable is set, Prometheus scrapes the
 - **pg_connections** – Current number of active connections
 - **pg_database_size_bytes** – Database size in bytes
 - **pg_stat_activity** – Information about active queries and sessions
-- **pg_stat_database_ metrics** – Transaction counts, commit/rollback rates, tuple reads/inserts/updates/deletes
-- **pg_stat_replication_ metrics** – Replication lag and streaming replication state
+- **pg*stat_database* metrics** – Transaction counts, commit/rollback rates, tuple reads/inserts/updates/deletes
+- **pg*stat_replication* metrics** – Replication lag and streaming replication state
 - **pg_locks** – Lock counts by type and mode
-- **pg_index_ metrics** – Index usage and size
-- **pg_table_ metrics** – Table size and row counts
-- **pg_stat_bgwriter_ metrics** – Background writer activity (checkpoints, buffers written)
-- **pg_stat_statements_ metrics** *(if extension is enabled)* – Query execution counts, total/mean execution time, I/O stats
+- **pg*index* metrics** – Index usage and size
+- **pg*table* metrics** – Table size and row counts
+- **pg*stat_bgwriter* metrics** – Background writer activity (checkpoints, buffers written)
+- **pg*stat_statements* metrics** (_if extension is enabled_) – Query execution counts, total/mean execution time, I/O stats
 - **pg_cache_hit_ratio** – Calculated metric for cache efficiency
 
 ## Tasks

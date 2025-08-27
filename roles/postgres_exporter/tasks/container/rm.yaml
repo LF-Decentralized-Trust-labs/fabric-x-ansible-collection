@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+
 - name: Remove the Postgres Exporter Sidecar container
   vars:
     container_name: "{{ postgres_exporter_container_name }}"

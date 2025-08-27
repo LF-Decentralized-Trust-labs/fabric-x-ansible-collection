@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+
 - name: Fetch the logs from the Postgres Exporter Sidecar container
   vars:
     container_logs_file: "{{ postgres_exporter_container_name }}_logs.txt"
