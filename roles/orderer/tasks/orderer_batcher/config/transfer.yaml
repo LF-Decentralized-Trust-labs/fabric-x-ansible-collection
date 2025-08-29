@@ -28,9 +28,3 @@
   ansible.posix.synchronize:
     src: "{{ orderer_cryptogen_artifact_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ inventory_hostname }}.{{ organization.domain }}/"
     dest: "{{ orderer_remote_config_dir }}"
-
-# TODO: temporary fix because batcher have an hardcoded path for the signign key
-- name: Copy the batcher signing key in the expected location
-  ansible.posix.synchronize:
-    src: "{{ orderer_cryptogen_artifact_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ inventory_hostname }}.{{ organization.domain }}/msp/keystore/priv_sk"
-    dest: "{{ orderer_remote_config_dir }}/msp/keystore/sign-privateKey.pem"
