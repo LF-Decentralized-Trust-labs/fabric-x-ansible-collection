@@ -8,6 +8,12 @@ scrape_configs:
 {% for host in prometheus_node_exporters %}
         - {{ hostvars[host].ansible_host }}:{{ hostvars[host].node_exporter_port }}
 {% endfor %}
+  - job_name: postgres_exporters
+    static_configs:
+      - targets:
+{% for host in prometheus_postgres_exporters %}
+        - {{ hostvars[host].ansible_host }}:{{ hostvars[host].postgres_exporter_port }}
+{% endfor %}
   - job_name: sidecar_service
     static_configs:
       - targets:

@@ -2,11 +2,12 @@
 
 The role `hyperledger.fabricx.grafana` can be used to run a Grafana instance to visualize the Fabric-X components metrics.
 
-The role comes with 3 predefined dashboards:
+The role comes with 4 predefined dashboards:
 
-- a dashboard for the CommitterX metrics;
-- a dashboard for the Node Exporter metrics;
-- a dashboard to look at the Yugabyte cluster stats.
+- A dashboard for the CommitterX metrics;
+- A dashboard for the Node Exporter metrics (useful to keep an eye on the CPU, RAM, network statuses of the machines);
+- A dashboard to look at the Yugabyte cluster stats;
+- A dashboard for Postgres Exporter metrics.
 
 Grafana fetches the metrics through `prometheus`.
 

@@ -23,6 +23,11 @@
     - name: Transfer the Prometheus configuration files
       vars:
         prometheus_node_exporters: "{{ node_exporter_hosts }}"
+        prometheus_postgres_exporters: >-
+          {{
+            groups['all'] | default([]) | map('extract', hostvars) | selectattr('postgres_exporter_port', 'defined') |
+            map(attribute='inventory_hostname') | list
+          }}
         prometheus_committer_sidecars: >-
           {{
             groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |

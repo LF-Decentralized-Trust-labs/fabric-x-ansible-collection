@@ -11,3 +11,10 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: ping
+
+- name: Check that the Exporter port is open
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres_exporter
+    tasks_from: ping
+  when:
+    - postgres_exporter_port is defined

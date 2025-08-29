@@ -37,3 +37,13 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: start
+
+- name: Start Postgres Exporter Sidecar
+  vars:
+    postgres_exporter_container_name: "{{ postgres_container_name }}_exporter"
+    postgres_exporter_data_source_name: "postgresql://{{ postgres_user }}:{{ postgres_password }}@{{ ansible_host }}:{{ postgres_port }}/{{ postgres_db }}?sslmode=disable"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres_exporter
+    tasks_from: start
+  when:
+    - postgres_exporter_port is defined
