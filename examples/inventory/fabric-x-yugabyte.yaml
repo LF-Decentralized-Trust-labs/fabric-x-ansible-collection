@@ -20,15 +20,11 @@ all:
     cli_bin_dir: "{{ out_build_dir }}/cli"
     channel_id: arma
     armageddon_use_bin: true
-    configtxgen_use_bin: true
-    cryptogen_use_bin: true
     node_exporter_port: 9111
   children:
     fabric-x:
       children:
         fabric-x-committer:
-          vars:
-            committer_use_bin: true
           hosts:
             committer-db:
               committer_component_type: db
@@ -60,7 +56,6 @@ all:
 
         fabric-x-orderers:
           vars:
-            orderer_use_bin: true
             organization:
               name: "OrdererOrg{{ orderer_group }}"
               domain: "ordererorg{{ orderer_group }}.example.com"

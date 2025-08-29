@@ -20,8 +20,6 @@ all:
     cli_bin_dir: "{{ out_build_dir }}/cli"
     channel_id: arma
     armageddon_use_bin: true
-    configtxgen_use_bin: true
-    cryptogen_use_bin: true
     node_exporter_port: 9111
   children:
     fabric-x:

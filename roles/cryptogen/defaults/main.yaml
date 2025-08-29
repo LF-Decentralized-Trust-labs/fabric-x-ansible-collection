@@ -6,17 +6,17 @@
 
 # cryptogen image
 cryptogen_registry_endpoint: "{{ lookup('env', 'CRYPTOGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-cryptogen_image_name: "fabric-tools"
-cryptogen_image_tag: "3.0.0-beta"
+cryptogen_image_name: "fabric-x-tools"
+cryptogen_image_tag: "0.0.3"
 cryptogen_image: "{{ cryptogen_registry_endpoint }}/{{ cryptogen_image_name }}:{{ cryptogen_image_tag }}"
 cryptogen_container_name: "cryptogen"
 
 # cryptogen bin
-cryptogen_git_uri: "https://github.com/hyperledger/fabric-x-common.git"
-cryptogen_git_dir: "{{ source_code_dir }}/fabric-x-common"
-cryptogen_git_commit: "c15db56a338270210cc765d0a3ec4041b091df26"
-cryptogen_source_code_dir: "{{ cryptogen_git_dir }}/cmd/cryptogen"
-cryptogen_bin_package: "github.com/hyperledger/fabric-x-common/cmd/cryptogen"
+cryptogen_git_uri: "https://github.com/hyperledger/fabric-x.git"
+cryptogen_git_dir: "{{ source_code_dir }}/fabric-x"
+cryptogen_git_commit: "v0.0.3"
+cryptogen_source_code_dir: "{{ cryptogen_git_dir }}/tools/cryptogen"
+cryptogen_bin_package: "github.com/hyperledger/fabric-x/tools/cryptogen"
 cryptogen_bin_name: "cryptogen"
 
 # cryptogen paths/locations

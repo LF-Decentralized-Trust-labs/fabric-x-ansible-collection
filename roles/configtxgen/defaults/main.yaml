@@ -7,16 +7,16 @@
 # configtxgen image
 configtxgen_registry_endpoint: "{{ lookup('env', 'CONFIGTXGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 configtxgen_image_name: "fabric-x-tools"
-configtxgen_image_tag: "latest"
+configtxgen_image_tag: "0.0.3"
 configtxgen_image: "{{ configtxgen_registry_endpoint }}/{{ configtxgen_image_name }}:{{ configtxgen_image_tag }}"
 configtxgen_container_name: "configtxgen"
 
 # configtxgen bin
-configtxgen_git_uri: "https://github.com/hyperledger/fabric-x-common.git"
-configtxgen_git_dir: "{{ source_code_dir }}/fabric-x-common"
-configtxgen_git_commit: "c15db56a338270210cc765d0a3ec4041b091df26"
-configtxgen_source_code_dir: "{{ configtxgen_git_dir }}/cmd/configtxgen"
-configtxgen_bin_package: "github.com/hyperledger/fabric-x-common/cmd/configtxgen"
+configtxgen_git_uri: "https://github.com/hyperledger/fabric-x.git"
+configtxgen_git_dir: "{{ source_code_dir }}/fabric-x"
+configtxgen_git_commit: "v0.0.3"
+configtxgen_source_code_dir: "{{ configtxgen_git_dir }}/tools/configtxgen"
+configtxgen_bin_package: "github.com/hyperledger/fabric-x/tools/configtxgen"
 configtxgen_bin_name: "configtxgen"
 
 # configtxgen paths/locations
