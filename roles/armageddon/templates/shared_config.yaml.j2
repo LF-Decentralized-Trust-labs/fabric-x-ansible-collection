@@ -12,13 +12,13 @@ Parties:
     BatchersConfig:
 {% for batch_instance in  group_instances['batchers'] %}
       - ShardID: {{ hostvars[batch_instance].orderer_shard_id}}
-        PublicKey: {{ armageddon_cryptogen_artifacts_build_dir }}/crypto/ordererOrganizations/{{ hostvars[batch_instance].organization.domain }}/orderers/{{ batch_instance }}.{{ hostvars[batch_instance].organization.domain }}/msp/signcerts/{{ batch_instance }}.{{ hostvars[batch_instance].organization.domain }}-cert.pem
+        SignCert: {{ armageddon_cryptogen_artifacts_build_dir }}/crypto/ordererOrganizations/{{ hostvars[batch_instance].organization.domain }}/orderers/{{ batch_instance }}.{{ hostvars[batch_instance].organization.domain }}/msp/signcerts/{{ batch_instance }}.{{ hostvars[batch_instance].organization.domain }}-cert.pem
         TLSCert: {{ armageddon_cryptogen_artifacts_build_dir }}/crypto/ordererOrganizations/{{ hostvars[batch_instance].organization.domain }}/orderers/{{ batch_instance }}.{{ hostvars[batch_instance].organization.domain }}/tls/server.crt
         Host: {{ hostvars[batch_instance].ansible_host }}
         Port: {{ hostvars[batch_instance].orderer_rpc_port }}
 {% endfor %}
     ConsenterConfig:
-      PublicKey: {{ armageddon_cryptogen_artifacts_build_dir }}/crypto/ordererOrganizations/{{ hostvars[group_instances['consenter']].organization.domain }}/orderers/{{ group_instances['consenter'] }}.{{ hostvars[group_instances['consenter']].organization.domain }}/msp/signcerts/{{ group_instances['consenter'] }}.{{ hostvars[group_instances['consenter']].organization.domain }}-cert.pem
+      SignCert: {{ armageddon_cryptogen_artifacts_build_dir }}/crypto/ordererOrganizations/{{ hostvars[group_instances['consenter']].organization.domain }}/orderers/{{ group_instances['consenter'] }}.{{ hostvars[group_instances['consenter']].organization.domain }}/msp/signcerts/{{ group_instances['consenter'] }}.{{ hostvars[group_instances['consenter']].organization.domain }}-cert.pem
       TLSCert: {{ armageddon_cryptogen_artifacts_build_dir }}/crypto/ordererOrganizations/{{ hostvars[group_instances['consenter']].organization.domain }}/orderers/{{ group_instances['consenter'] }}.{{ hostvars[group_instances['consenter']].organization.domain }}/tls/server.crt
       Host: {{ hostvars[group_instances['consenter']].ansible_host }}
       Port: {{ hostvars[group_instances['consenter']].orderer_rpc_port}}
