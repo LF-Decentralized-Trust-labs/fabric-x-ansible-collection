@@ -13,7 +13,7 @@
     container_ports:
       - "{{ postgres_exporter_port }}:{{ postgres_exporter_port }}"
     container_env:
-      DATA_SOURCE_NAME: "{{ postgres_exporter_dsn }}"
+      DATA_SOURCE_NAME: "{{ postgres_exporter_data_source_name }}"
     container_wait_until_running: true
     container_wait_port: "{{ postgres_exporter_port }}"
     container_run_as_host_user: true

@@ -16,6 +16,3 @@ postgres_pgdata_dir: "{{ remote_config_dir }}"
 
 # miscellaneous
 postgres_tuning: ""
-
-# Full DSN (Data Source Name) string used by Postgres Exporter to connect to the DB
-postgres_exporter_data_source_name: "postgresql://{{ postgres_user }}:{{ postgres_password }}@{{ ansible_host }}:{{ postgres_port }}/{{ postgres_db }}?sslmode=disable"

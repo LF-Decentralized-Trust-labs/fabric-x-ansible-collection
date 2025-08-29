@@ -20,18 +20,14 @@
       ansible.builtin.set_fact:
         node_exporter_hosts: "{{ node_exporter_hosts | default([]) + [hostname_for_node_exporter] }}"
       loop: "{{ groups['all'] | map('extract', hostvars, 'ansible_host') | unique | list }}"
-    - name: Initialize list of postgres_exporter targets
-      ansible.builtin.set_fact:
-        postgres_exporter_targets: []
-    - name: Append hosts with postgres_exporter_port to target list
-      ansible.builtin.set_fact:
-        postgres_exporter_targets: "{{ postgres_exporter_targets + [ (hostvars[item].ansible_host | default(item)) ~ ':' ~ hostvars[item].postgres_exporter_port | string ] }}"
-      when: hostvars[item].postgres_exporter_port is defined
-      loop: "{{ groups['all'] }}"
     - name: Transfer the Prometheus configuration files
       vars:
         prometheus_node_exporters: "{{ node_exporter_hosts }}"
-        prometheus_postgres_exporters: "{{ postgres_exporter_targets }}"
+        prometheus_postgres_exporters: >-
+          {{
+            groups['all'] | default([]) | map('extract', hostvars) | selectattr('postgres_exporter_port', 'defined') |
+            map(attribute='inventory_hostname') | list
+          }}
         prometheus_committer_sidecars: >-
           {{
             groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |

@@ -16,7 +16,7 @@ The role supports running one exporter per database instance.
   - [stop](#stop)
   - [teardown](#teardown)
   - [wipe](#wipe)
-  - [fetch_logs](#fetch_logs)
+  - [fetch\_logs](#fetch_logs)
   - [ping](#ping)
 
 ## Postgres Exporter Metrics
@@ -33,7 +33,7 @@ When the `prometheus_postgres_exporters` variable is set, Prometheus scrapes the
 - **pg*index* metrics** – Index usage and size
 - **pg*table* metrics** – Table size and row counts
 - **pg*stat_bgwriter* metrics** – Background writer activity (checkpoints, buffers written)
-- **pg*stat_statements* metrics** (_if extension is enabled_) – Query execution counts, total/mean execution time, I/O stats
+- **pg*stat_statements* metrics** (if extension is enabled) – Query execution counts, total/mean execution time, I/O stats
 - **pg_cache_hit_ratio** – Calculated metric for cache efficiency
 
 ## Tasks
