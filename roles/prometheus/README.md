@@ -1,20 +1,41 @@
 # hyperledger.fabricx.prometheus
 
-The role `hyperledger.fabricx.prometheus` can be used to run a Prometheus metrics collector. Specifically, Prometheus is configured to collect metrics from:
-
-- committer components (through the `prometheus_committer_sidecars`, `prometheus_committer_coordinators`, `prometheus_committer_verifiers`, `prometheus_committer_validators` variables);
-- load generator (through the `prometheus_load_generators` variable);
-- Yugabyte cluster (through the `prometheus_yb_masters` and `prometheus_yb_tservers` variables);
-- node exporters (through the `prometheus_node_exporters` variable).
-- postgres exporters (through the `prometheus_postgres_exporters` variable).
+The role `hyperledger.fabricx.prometheus` can be used to run a Prometheus metrics collector.
 
 The role allows to run Prometheus as **container only** (binary is not currently supported).
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Tasks](#tasks)
+  - [config.transfer](#configtransfer)
+  - [start](#start)
+  - [stop](#stop)
+  - [teardown](#teardown)
+  - [wipe](#wipe)
+  - [fetch_logs](#fetch_logs)
+  - [ping](#ping)
 
 ## Tasks
+
+### config.transfer
+
+The task `config.transfer` allows to generate a `prometheus.yml` configuration file for the Prometheus service.
+
+It supports multiple customizations, for an example please have a look at its usage in this [sample playbook](../../playbooks/monitoring/transfer_configs.yaml).
+
+```yaml
+- name: Generate the configuration for Prometheus
+  vars:
+    prometheus_scrape_interval: 2s
+    prometheus_scrape_services:
+      - job_name: node_exporter
+        targets:
+          - hosts: "{{ node_exporter_hosts }}"
+            port_to_scrape: node_exporter_port
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: config/transfer
+```
 
 ### start
 
