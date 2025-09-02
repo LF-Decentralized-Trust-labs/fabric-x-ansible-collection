@@ -185,4 +185,4 @@
         tasks_from: config/transfer_grafana_dashboard
       when:
         - grafana_web_port is defined
-        - groups['all'] | map('extract', hostvars) | selectattr('(yugabyte_component_type', 'defined') | list | length > 0
+        - groups['all'] | map('extract', hostvars) | selectattr('yugabyte_component_type', 'defined') | list | length > 0

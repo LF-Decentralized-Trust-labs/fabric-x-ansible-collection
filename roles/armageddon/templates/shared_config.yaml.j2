@@ -1,3 +1,9 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
 Parties:
 {% for orderer_group, group_instances in all_orderer_instances.items() %}
   - PartyID: {{ orderer_group }}

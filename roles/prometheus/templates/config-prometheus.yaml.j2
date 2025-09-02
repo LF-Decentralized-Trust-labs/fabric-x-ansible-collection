@@ -1,10 +1,22 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Global configuration for Prometheus server
 global:
+  # How often to scrape metrics from targets (default 2 seconds)
   scrape_interval: {{ prometheus_scrape_interval }}
 
+# List of scrape jobs (each defines a set of targets to monitor)
 scrape_configs:
 {% for service_to_scrape in prometheus_scrape_services %}
+{% if (service_to_scrape.targets | map(attribute='hosts') | sum(start=[]) | length) > 0 %}
+  # Identifier for the scrape job
   - job_name: {{ service_to_scrape.job_name }}
 {% if service_to_scrape.prometheus_metrics_path is defined %}
+    # GET endpoint path to collect the metrics
     metrics_path: {{ service_to_scrape.prometheus_metrics_path }}
 {% endif %}
 {% if service_to_scrape.relabel_configs is defined %}
@@ -23,8 +35,10 @@ scrape_configs:
         replacement: {{ metrics_relabel_config.replacement | quote }}
 {% endfor %}
 {% endif %}
+    # Static list of targets for this job
     static_configs:
 {% for targets in service_to_scrape.targets %}
+      # List of targets to scrape
       - targets:
 {% if targets.hosts is defined %}
 {% for host in targets.hosts %}
@@ -41,4 +55,5 @@ scrape_configs:
 {% endif %}
 {% endif %}
 {% endfor %}
+{% endif %}
 {% endfor %}
