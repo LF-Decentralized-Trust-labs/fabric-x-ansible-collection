@@ -10,7 +10,7 @@
     state: directory
     mode: "0o755"
 
-- name: Copy Grafana Datasource file
+- name: Copy datasources.yaml
   ansible.builtin.copy:
     src: files/datasources.yaml
     dest: "{{ grafana_remote_config_dir }}/datasources"
@@ -22,7 +22,7 @@
     state: directory
     mode: "0o755"
 
-- name: Copy Grafana Dashboard file
+- name: Copy dashboards.yaml
   ansible.builtin.copy:
     src: files/dashboards.yaml
     dest: "{{ grafana_remote_config_dir }}/dashboards"
