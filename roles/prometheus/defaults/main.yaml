@@ -17,4 +17,3 @@ prometheus_remote_config_dir: "{{ remote_config_dir }}"
 # vars
 prometheus_web_port: 9090
 prometheus_scrape_interval: 2s
-prometheus_metrics_path: /metrics

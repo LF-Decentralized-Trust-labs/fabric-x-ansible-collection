@@ -14,7 +14,7 @@
       when: prometheus_web_port is defined
     - name: Start the Grafana service
       vars:
-        grafana_prometheus_instance: >-
+        prometheus_instance: >-
           {{
             groups['monitoring']
             | map('extract', hostvars) | selectattr('prometheus_web_port', 'defined')

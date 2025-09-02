@@ -15,7 +15,7 @@ datasources:
     # Access mode – “proxy” lets Grafana forward queries through its backend
     access: "proxy"
     # URL of the Prometheus server (environment‑variable substitution)
-    url: $_GF_PROMETHEUS_ENDPOINT
+    url: $GF_PROMETHEUS_ENDPOINT
     # HTTP method used for queries
     httpMethod: GET
     # Make this the default datasource for the organization

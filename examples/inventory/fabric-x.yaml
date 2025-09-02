@@ -152,6 +152,8 @@ all:
     monitoring:
       hosts:
         grafana:
+          grafana_username: admin
+          grafana_password: adminPWD
           grafana_web_port: 3000
         prometheus:
           prometheus_web_port: 9090
