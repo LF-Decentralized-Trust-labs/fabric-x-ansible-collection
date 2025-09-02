@@ -6,7 +6,7 @@
 
 - name: Remove Fabric-X Loadgen container
   vars:
-    container_name: "sc-loadgen-{{ inventory_hostname }}"
+    container_name: "{{ loadgen_container_name }}"
     container_image: "{{ loadgen_image }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container

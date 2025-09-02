@@ -6,7 +6,7 @@
 
 - name: Start the Fabric-X Loadgen container
   vars:
-    container_name: "sc-loadgen-{{ inventory_hostname }}"
+    container_name: "{{ loadgen_container_name }}"
     container_image: "{{ loadgen_image }}"
     container_command: "/app start --config={{ loadgen_docker_config_dir }}/{{ loadgen_config_file }}"
     container_ports:
