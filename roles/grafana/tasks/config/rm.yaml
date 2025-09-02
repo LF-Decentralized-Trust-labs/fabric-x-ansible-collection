@@ -6,5 +6,5 @@
 
 - name: Remove Grafana config directory
   ansible.builtin.file:
-    path: "{{ grafana_remote_config_dir }}/grafana"
+    path: "{{ grafana_remote_config_dir }}"
     state: absent

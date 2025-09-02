@@ -1,0 +1,25 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Grafana provisioning API version (currently only version 1 is supported)
+apiVersion: 1
+
+# List of dashboard providers
+providers:
+  # Human‑readable name for this provider
+  - name: "Fabric-X Dashboards"
+    # Provider type – reads dashboards from files
+    type: file
+    # Allow dashboards to be deleted via the UI/API (false = protected)
+    disableDeletion: false
+    # How often Grafana checks the folder for changes (seconds)
+    updateIntervalSeconds: 10
+    # Prevent UI from modifying provisioned dashboards
+    allowUiUpdates: false
+    # Provider‑specific options
+    options:
+      # Directory containing dashboard JSON files
+      path: /etc/grafana/provisioning/dashboards

@@ -14,9 +14,9 @@ scrape_configs:
         replacement: {{ relabel_config.replacement }}
 {% endfor %}
 {% endif %}
-{% if service_to_scrape.metrics_relabel_configs is defined %}
-    metrics_relabel_configs:
-{% for metrics_relabel_config in service_to_scrape.metrics_relabel_configs %}
+{% if service_to_scrape.metric_relabel_configs is defined %}
+    metric_relabel_configs:
+{% for metrics_relabel_config in service_to_scrape.metric_relabel_configs %}
       - source_labels: {{ metrics_relabel_config.source_labels }}
         regex: {{ metrics_relabel_config.regex | quote }}
         target_label: {{ metrics_relabel_config.target_label | quote }}

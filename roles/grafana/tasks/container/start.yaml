@@ -14,7 +14,7 @@
     container_ports:
       - "{{ grafana_web_port }}:{{ grafana_web_port }}"
     container_volumes:
-      - "{{ grafana_remote_config_dir }}/grafana:/etc/grafana/provisioning/:ro"
+      - "{{ grafana_remote_config_dir }}:/etc/grafana/provisioning/:ro"
     container_wait_until_running: true
     container_run_as_host_user: true
     container_wait_port: "{{ grafana_web_port }}"

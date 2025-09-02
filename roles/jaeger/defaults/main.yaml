@@ -9,7 +9,7 @@ jaeger_registry_endpoint: "{{ lookup('env', 'JAEGER_REGISTRY_ENDPOINT') or 'dock
 jaeger_image_name: "all-in-one"
 jaeger_image_tag: "latest"
 jaeger_image: "{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_image_tag }}"
-jaeger_container_name: "jaeger-{{ inventory_hostname }}"
+jaeger_container_name: "{{ inventory_hostname }}"
 
 # jaeger ports
 jaeger_ui_port: 16686

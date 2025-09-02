@@ -67,14 +67,6 @@
                     selectattr('committer_component_type', '==', 'validator') | map(attribute='inventory_hostname') | list
                   }}
                 port_to_scrape: prometheus_exporter_port
-          - job_name: validators_service
-            targets:
-              - hosts: >-
-                  {{
-                    groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
-                    selectattr('committer_component_type', '==', 'validator') | map(attribute='inventory_hostname') | list
-                  }}
-                port_to_scrape: prometheus_exporter_port
           - job_name: blockgens_service
             targets:
               - hosts: "{{ groups['load-generators'] | default([]) }}"
@@ -83,7 +75,7 @@
             relabel_configs:
               - target_label: "node_prefix"
                 replacement: "cluster-1"
-            metrics_relabel_configs:
+            metric_relabel_configs:
               - source_labels:
                   - __name__
                 regex: "(.*)"
