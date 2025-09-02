@@ -4,13 +4,26 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure monitoring directory exists
+- name: Ensure Grafana datasources directory exists
   ansible.builtin.file:
-    path: "{{ grafana_remote_config_dir }}/grafana"
+    path: "{{ grafana_remote_config_dir }}/datasources"
     state: directory
     mode: "0o755"
 
-- name: Copy Grafana dashboards
-  ansible.posix.synchronize:
-    src: files/
-    dest: "{{ grafana_remote_config_dir }}/grafana"
+- name: Copy datasources.yaml
+  ansible.builtin.copy:
+    src: files/datasources.yaml
+    dest: "{{ grafana_remote_config_dir }}/datasources"
+    mode: "0o640"
+
+- name: Ensure Grafana dashboards directory exists
+  ansible.builtin.file:
+    path: "{{ grafana_remote_config_dir }}/dashboards"
+    state: directory
+    mode: "0o755"
+
+- name: Copy dashboards.yaml
+  ansible.builtin.copy:
+    src: files/dashboards.yaml
+    dest: "{{ grafana_remote_config_dir }}/dashboards"
+    mode: "0o640"

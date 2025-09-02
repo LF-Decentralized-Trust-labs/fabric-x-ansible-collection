@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Grafana provisioning API version (currently only version 1 is supported)
+apiVersion: 1
+
+# List of datasource definitions
+datasources:
+  - name: "Prometheus"
+    # Type of datasource plugin to use
+    type: "prometheus"
+    # Access mode – “proxy” lets Grafana forward queries through its backend
+    access: "proxy"
+    # URL of the Prometheus server (environment‑variable substitution)
+    url: $GF_PROMETHEUS_ENDPOINT
+    # HTTP method used for queries
+    httpMethod: GET
+    # Make this the default datasource for the organization
+    isDefault: true
+    # Version of the datasource definition (used for migrations)
+    version: 1
+    # Allow editing of this datasource via the Grafana UI
+    editable: true

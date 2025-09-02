@@ -9,10 +9,11 @@ grafana_registry_endpoint: "{{ lookup('env', 'GRAFANA_REGISTRY_ENDPOINT') or 'do
 grafana_image_name: "grafana-oss"
 grafana_image_tag: "latest"
 grafana_image: "{{ grafana_registry_endpoint }}/{{ grafana_image_name }}:{{ grafana_image_tag }}"
-grafana_container_name: "grafana-{{ inventory_hostname }}"
+grafana_container_name: "{{ inventory_hostname }}"
 
 # Paths/locations
 grafana_remote_config_dir: "{{ remote_config_dir }}"
 
 # Miscellaneous
 grafana_web_port: 3000
+grafana_dashboard_name: dashboard.json

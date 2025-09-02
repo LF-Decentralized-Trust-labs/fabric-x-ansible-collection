@@ -1,0 +1,44 @@
+global:
+  scrape_interval: {{ prometheus_scrape_interval }}
+
+scrape_configs:
+{% for service_to_scrape in prometheus_scrape_services %}
+  - job_name: {{ service_to_scrape.job_name }}
+{% if service_to_scrape.prometheus_metrics_path is defined %}
+    metrics_path: {{ service_to_scrape.prometheus_metrics_path }}
+{% endif %}
+{% if service_to_scrape.relabel_configs is defined %}
+    relabel_configs:
+{% for relabel_config in service_to_scrape.relabel_configs %}
+      - target_label: {{ relabel_config.target_label }}
+        replacement: {{ relabel_config.replacement }}
+{% endfor %}
+{% endif %}
+{% if service_to_scrape.metric_relabel_configs is defined %}
+    metric_relabel_configs:
+{% for metrics_relabel_config in service_to_scrape.metric_relabel_configs %}
+      - source_labels: {{ metrics_relabel_config.source_labels }}
+        regex: {{ metrics_relabel_config.regex | quote }}
+        target_label: {{ metrics_relabel_config.target_label | quote }}
+        replacement: {{ metrics_relabel_config.replacement | quote }}
+{% endfor %}
+{% endif %}
+    static_configs:
+{% for targets in service_to_scrape.targets %}
+      - targets:
+{% if targets.hosts is defined %}
+{% for host in targets.hosts %}
+        - {{ hostvars[host].ansible_host }}:{{ hostvars[host][targets.port_to_scrape] }}
+{% endfor %}
+{% endif %}
+{% if targets.label is defined %}
+        labels:
+{% if targets.label.group is defined %}
+          group: {{ targets.label.group }}
+{% endif %}
+{% if targets.label.export_type is defined %}
+          export_type: {{ targets.label.export_type }}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}

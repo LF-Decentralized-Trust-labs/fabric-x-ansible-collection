@@ -22,47 +22,167 @@
       loop: "{{ groups['all'] | map('extract', hostvars, 'ansible_host') | unique | list }}"
     - name: Transfer the Prometheus configuration files
       vars:
-        prometheus_node_exporters: "{{ node_exporter_hosts }}"
-        prometheus_postgres_exporters: >-
-          {{
-            groups['all'] | default([]) | map('extract', hostvars) | selectattr('postgres_exporter_port', 'defined') |
-            map(attribute='inventory_hostname') | list
-          }}
-        prometheus_committer_sidecars: >-
-          {{
-            groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
-            selectattr('committer_component_type', '==', 'sidecar') | map(attribute='inventory_hostname') | list
-          }}
-        prometheus_committer_coordinators: >-
-          {{
-            groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
-            selectattr('committer_component_type', '==', 'coordinator') | map(attribute='inventory_hostname') | list
-          }}
-        prometheus_committer_verifiers: >-
-          {{
-            groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
-            selectattr('committer_component_type', '==', 'verifier') | map(attribute='inventory_hostname') | list
-          }}
-        prometheus_committer_validators: >-
-          {{
-            groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
-            selectattr('committer_component_type', '==', 'validator') | map(attribute='inventory_hostname') | list
-          }}
-        prometheus_yb_masters: >-
-          {{
-            groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('yugabyte_component_type', 'defined') |
-            selectattr('yugabyte_component_type', '==', 'master') | map(attribute='inventory_hostname') | list
-          }}
-        prometheus_yb_tservers: >-
-          {{
-            groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('yugabyte_component_type', 'defined') |
-            selectattr('yugabyte_component_type', '==', 'tablet') | map(attribute='inventory_hostname') | list
-          }}
-        prometheus_load_generators: "{{ groups['load-generators'] | default([]) }}"
+        prometheus_scrape_services:
+          - job_name: node_exporter
+            targets:
+              - hosts: "{{ node_exporter_hosts }}"
+                port_to_scrape: node_exporter_port
+          - job_name: postgres_exporters
+            targets:
+              - hosts: >-
+                  {{
+                    groups['all'] | default([]) | map('extract', hostvars) | selectattr('postgres_exporter_port', 'defined') |
+                    map(attribute='inventory_hostname') | list
+                  }}
+                port_to_scrape: postgres_exporter_port
+          - job_name: sidecar_service
+            targets:
+              - hosts: >-
+                  {{
+                    groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
+                    selectattr('committer_component_type', '==', 'sidecar') | map(attribute='inventory_hostname') | list
+                  }}
+                port_to_scrape: prometheus_exporter_port
+          - job_name: coordinators_service
+            targets:
+              - hosts: >-
+                  {{
+                    groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
+                    selectattr('committer_component_type', '==', 'coordinator') | map(attribute='inventory_hostname') | list
+                  }}
+                port_to_scrape: prometheus_exporter_port
+          - job_name: verifiers_service
+            targets:
+              - hosts: >-
+                  {{
+                    groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
+                    selectattr('committer_component_type', '==', 'verifier') | map(attribute='inventory_hostname') | list
+                  }}
+                port_to_scrape: prometheus_exporter_port
+          - job_name: validators_service
+            targets:
+              - hosts: >-
+                  {{
+                    groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
+                    selectattr('committer_component_type', '==', 'validator') | map(attribute='inventory_hostname') | list
+                  }}
+                port_to_scrape: prometheus_exporter_port
+          - job_name: blockgens_service
+            targets:
+              - hosts: "{{ groups['load-generators'] | default([]) }}"
+                port_to_scrape: prometheus_exporter_port
+          - job_name: yugabytedb
+            relabel_configs:
+              - target_label: "node_prefix"
+                replacement: "cluster-1"
+            metric_relabel_configs:
+              - source_labels:
+                  - __name__
+                regex: "(.*)"
+                target_label: saved_name
+                replacement: "$1"
+              - source_labels:
+                  - __name__
+                regex: "handler_latency_(yb_[^_]*)_([^_]*)_([^_]*)(.*)"
+                target_label: server_type
+                replacement: "$1"
+              - source_labels:
+                  - __name__
+                regex: "handler_latency_(yb_[^_]*)_([^_]*)_([^_]*)(.*)"
+                target_label: service_type
+                replacement: "$2"
+              - source_labels:
+                  - __name__
+                regex: "handler_latency_(yb_[^_]*)_([^_]*)_([^_]*)(_sum|_count)?"
+                target_label: service_method
+                replacement: "$3"
+              - source_labels:
+                  - __name__
+                regex: "handler_latency_(yb_[^_]*)_([^_]*)_([^_]*)(_sum|_count)?"
+                target_label: __name__
+                replacement: "rpc_latency$4"
+            prometheus_metrics_path: /prometheus-metrics
+            targets:
+              - hosts: >-
+                  {{
+                    groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('yugabyte_component_type', 'defined') |
+                    selectattr('yugabyte_component_type', '==', 'master') | map(attribute='inventory_hostname') | list
+                  }}
+                port_to_scrape: yugabyte_master_webserver_port
+                label:
+                  group: yb-master
+                  export_type: master_export
+              - hosts: >-
+                  {{
+                    groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('yugabyte_component_type', 'defined') |
+                    selectattr('yugabyte_component_type', '==', 'tablet') | map(attribute='inventory_hostname') | list
+                  }}
+                port_to_scrape: yugabyte_tablet_webserver_port
+                label:
+                  group: yb-tserver
+                  export_type: tserver_export
+              - hosts: >-
+                  {{
+                    groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('yugabyte_component_type', 'defined') |
+                    selectattr('yugabyte_component_type', '==', 'tablet') | map(attribute='inventory_hostname') | list
+                  }}
+                port_to_scrape: yugabyte_tablet_pgsql_web_port
+                label:
+                  group: ysql
+                  export_type: ysql_export
+              - hosts: >-
+                  {{
+                    groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('yugabyte_component_type', 'defined') |
+                    selectattr('yugabyte_component_type', '==', 'tablet') | map(attribute='inventory_hostname') | list
+                  }}
+                port_to_scrape: yugabyte_tablet_cql_web_port
+                label:
+                  group: ycql
+                  export_type: cql_export
+              - hosts: >-
+                  {{
+                    groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('yugabyte_component_type', 'defined') |
+                    selectattr('yugabyte_component_type', '==', 'tablet') | map(attribute='inventory_hostname') | list
+                  }}
+                port_to_scrape: yugabyte_tablet_cql_web_port
+                label:
+                  group: yedis
+                  export_type: redis_export
       ansible.builtin.include_role:
         name: hyperledger.fabricx.prometheus
         tasks_from: config/transfer
-    - name: Transfer the Grafana configuration files
+      when: prometheus_web_port is defined
+    - name: Transfer the Grafana config files
       ansible.builtin.include_role:
         name: hyperledger.fabricx.grafana
         tasks_from: config/transfer
+      when:
+        - grafana_web_port is defined
+    - name: Transfer the Node Exporter Grafana Dashboard
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.node_exporter
+        tasks_from: config/transfer_grafana_dashboard
+      when:
+        - grafana_web_port is defined
+        - groups['all'] | map('extract', hostvars) | selectattr('node_exporter_port', 'defined') | list | length > 0
+    - name: Transfer the Fabric-X Committer Grafana Dashboard
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.committer
+        tasks_from: config/transfer_grafana_dashboard
+      when:
+        - grafana_web_port is defined
+        - groups['fabric-x-committer'] | length > 0
+    - name: Transfer the Postgres Exporter Grafana Dashboard
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres_exporter
+        tasks_from: config/transfer_grafana_dashboard
+      when:
+        - grafana_web_port is defined
+        - groups['all'] | map('extract', hostvars) | selectattr('postgres_exporter_port', 'defined') | list | length > 0
+    - name: Transfer the Yugabyte Grafana Dashboard
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.yugabyte
+        tasks_from: config/transfer_grafana_dashboard
+      when:
+        - grafana_web_port is defined
+        - groups['all'] | map('extract', hostvars) | selectattr('(yugabyte_component_type', 'defined') | list | length > 0

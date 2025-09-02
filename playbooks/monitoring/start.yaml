@@ -11,13 +11,13 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.prometheus
         tasks_from: start
-      when: prometheus_scraper_port is defined
+      when: prometheus_web_port is defined
     - name: Start the Grafana service
       vars:
-        grafana_prometheus_instance: >-
+        prometheus_instance: >-
           {{
             groups['monitoring']
-            | map('extract', hostvars) | selectattr('prometheus_scraper_port', 'defined')
+            | map('extract', hostvars) | selectattr('prometheus_web_port', 'defined')
             | map(attribute='inventory_hostname') | sort | first
           }}
       ansible.builtin.include_role:
