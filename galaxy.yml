@@ -6,7 +6,7 @@
 
 namespace: hyperledger
 name: fabricx
-version: "0.1.1"
+version: "0.1.2"
 repository: https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection.git
 readme: README.md
 authors:
@@ -14,7 +14,7 @@ authors:
 description: >
   Collection of roles needed to run Fabric-X.
 license:
-  - MIT
+  - Apache-2.0
 tags:
   - application
   - hyperledger

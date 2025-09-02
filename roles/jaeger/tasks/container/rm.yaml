@@ -4,9 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Remove Prometheus container
+- name: Remove Jaeger container
   vars:
-    container_name: "jaeger-{{ inventory_hostname }}"
+    container_name: "{{ jaeger_container_name }}"
     container_image: "{{ jaeger_image }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container

@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Stop Prometheus container
+- name: Stop Jaeger container
   vars:
     container_name: "{{ jaeger_container_name }}"
     container_image: "{{ jaeger_image }}"
