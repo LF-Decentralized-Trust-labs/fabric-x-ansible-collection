@@ -15,14 +15,14 @@
       - "--web.console.templates=/usr/share/prometheus/consoles"
       - "--web.enable-remote-write-receiver"
       - "--web.enable-lifecycle"
-      - "--web.listen-address=:{{ prometheus_scraper_port }}"
+      - "--web.listen-address=:{{ prometheus_web_port }}"
     container_ports:
-      - "{{ prometheus_scraper_port }}:{{ prometheus_scraper_port }}"
+      - "{{ prometheus_web_port }}:{{ prometheus_web_port }}"
     container_volumes:
       - "{{ prometheus_remote_config_dir }}/:/etc/prometheus/config/:ro"
       - /prometheus
     container_wait_until_running: true
-    container_wait_port: "{{ prometheus_scraper_port }}"
+    container_wait_port: "{{ prometheus_web_port }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: start

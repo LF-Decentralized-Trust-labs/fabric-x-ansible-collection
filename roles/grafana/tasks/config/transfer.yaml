@@ -6,11 +6,12 @@
 
 - name: Ensure monitoring directory exists
   ansible.builtin.file:
-    path: "{{ grafana_remote_config_dir }}/grafana"
+    path: "{{ grafana_remote_config_dir }}/datasources"
     state: directory
     mode: "0o755"
 
 - name: Copy Grafana dashboards
-  ansible.posix.synchronize:
-    src: files/
-    dest: "{{ grafana_remote_config_dir }}/grafana"
+  ansible.builtin.copy:
+    src: files/prometheus-datasource.yml
+    dest: "{{ grafana_remote_config_dir }}/datasources"
+    mode: "0o640"

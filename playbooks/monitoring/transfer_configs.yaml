@@ -159,7 +159,38 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.prometheus
         tasks_from: config/transfer
-    - name: Transfer the Grafana configuration files
+      when: prometheus_web_port is defined
+    - name: Transfer the Grafana config files
       ansible.builtin.include_role:
         name: hyperledger.fabricx.grafana
         tasks_from: config/transfer
+      when:
+        - grafana_web_port is defined
+    - name: Transfer the Node Exporter Grafana Dashboard
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.node_exporter
+        tasks_from: config/transfer_grafana_dashboard
+      when:
+        - grafana_web_port is defined
+        - groups['all'] | map('extract', hostvars) | selectattr('node_exporter_port', 'defined') | list | length > 0
+    - name: Transfer the Fabric-X Committer Grafana Dashboard
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.committer
+        tasks_from: config/transfer_grafana_dashboard
+      when:
+        - grafana_web_port is defined
+        - groups['fabric-x-committer'] | length > 0
+    - name: Transfer the Postgres Exporter Grafana Dashboard
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres_exporter
+        tasks_from: config/transfer_grafana_dashboard
+      when:
+        - grafana_web_port is defined
+        - groups['all'] | map('extract', hostvars) | selectattr('postgres_exporter_port', 'defined') | list | length > 0
+    - name: Transfer the Yugabyte Grafana Dashboard
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.yugabyte
+        tasks_from: config/transfer_grafana_dashboard
+      when:
+        - grafana_web_port is defined
+        - groups['all'] | map('extract', hostvars) | selectattr('(yugabyte_component_type', 'defined') | list | length > 0

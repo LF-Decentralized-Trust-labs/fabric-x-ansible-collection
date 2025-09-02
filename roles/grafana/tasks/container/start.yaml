@@ -10,7 +10,7 @@
     container_image: "{{ grafana_image }}"
     container_env:
       GF_SERVER_HTTP_PORT: "{{ grafana_web_port | string }}"
-      _GF_PROMETHEUS_ENDPOINT: "http://{{ hostvars[grafana_prometheus_instance].ansible_host }}:{{ hostvars[grafana_prometheus_instance].prometheus_scraper_port }}"
+      _GF_PROMETHEUS_ENDPOINT: "http://{{ hostvars[grafana_prometheus_instance].ansible_host }}:{{ hostvars[grafana_prometheus_instance].prometheus_web_port }}"
     container_ports:
       - "{{ grafana_web_port }}:{{ grafana_web_port }}"
     container_volumes:

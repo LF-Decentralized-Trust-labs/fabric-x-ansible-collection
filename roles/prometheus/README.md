@@ -44,7 +44,7 @@ The task `start` allows to start the Prometheus container.
 ```yaml
 - name: Start Prometheus
   vars:
-    prometheus_scraper_port: 9090
+    prometheus_web_port: 9090
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: start

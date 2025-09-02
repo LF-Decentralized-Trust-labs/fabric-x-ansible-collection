@@ -15,6 +15,6 @@ prometheus_container_name: "prometheus-{{ inventory_hostname }}"
 prometheus_remote_config_dir: "{{ remote_config_dir }}"
 
 # vars
-prometheus_scraper_port: 9090
+prometheus_web_port: 9090
 prometheus_scrape_interval: 2s
 prometheus_metrics_path: /metrics

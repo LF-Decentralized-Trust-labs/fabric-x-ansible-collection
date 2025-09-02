@@ -145,8 +145,10 @@ all:
 
     monitoring:
       hosts:
-        monitoring-machine:
-          prometheus_scraper_port: 9090
+        grafana:
           grafana_web_port: 3000
+        prometheus:
+          prometheus_web_port: 9090
+        jaeger:
           jaeger_collector_port: 4317
           jaeger_ui_port: 16686

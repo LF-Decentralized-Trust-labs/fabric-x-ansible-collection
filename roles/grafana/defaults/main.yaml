@@ -16,3 +16,4 @@ grafana_remote_config_dir: "{{ remote_config_dir }}"
 
 # Miscellaneous
 grafana_web_port: 3000
+grafana_dashboard_name: dashboard.json
