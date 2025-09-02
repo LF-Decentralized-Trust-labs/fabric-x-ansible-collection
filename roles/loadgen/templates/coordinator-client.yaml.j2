@@ -1,3 +1,9 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
 coordinator-client:
   endpoint: {{ hostvars[committer_coordinator].ansible_host }}:{{ hostvars[committer_coordinator].committer_rpc_port }}
 {% include './sections/load-profile.yaml.j2' +%}
