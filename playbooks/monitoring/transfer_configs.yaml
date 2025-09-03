@@ -171,7 +171,7 @@
         tasks_from: config/transfer_grafana_dashboard
       when:
         - grafana_web_port is defined
-        - groups['fabric-x-committer'] | length > 0
+        - groups['fabric-x-committer'] | default([]) | length > 0
     - name: Transfer the Postgres Exporter Grafana Dashboard
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres_exporter
