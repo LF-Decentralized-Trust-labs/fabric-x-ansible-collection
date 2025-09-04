@@ -1,4 +1,4 @@
-name: Release collection to Ansible Galaxy
+name: Publish Ansible collection
 
 on:
   push:
@@ -20,12 +20,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install ansible-core
+          pip install ansible-core yq
 
       - name: Build collection
         run: |
           ansible-galaxy collection build
 
-      - name: Publish to Galaxy
+      - name: Publish collection to Ansible Galaxy
         run: |
-          ansible-galaxy collection publish *.tar.gz --api-key ${{ secrets.GALAXY_API_KEY }}
+          VERSION=$(yq -r .version galaxy.yml)
+          ansible-galaxy collection publish hyperledger-fabricx-${VERSION}.tar.gz --api-key ${{ secrets.ANSIBLE_GALAXY_API_KEY }}
