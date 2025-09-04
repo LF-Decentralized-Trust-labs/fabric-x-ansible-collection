@@ -2,9 +2,8 @@ name: Publish Ansible collection
 
 on:
   push:
-    # TODO: enable before merge in main
-    # tags:
-    #   - "[0-9]+.[0-9]+.[0-9]+"
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
   release:
