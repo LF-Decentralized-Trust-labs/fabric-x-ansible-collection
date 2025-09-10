@@ -14,12 +14,12 @@
 ################################################################################
 ---
 Organizations:
-{% for orderer_org, orderers in configtxgen_orderers_by_org.items() %}
-  - &{{ (orderer_org | from_json).name }}MSP
+{% for orderer_org_domain, orderer_org_info in configtxgen_orderers_by_org.items() %}
+  - &{{ orderer_org_info.name }}MSP
     # Name is the key by which this org will be referenced in channel
     # configuration transactions.
     # Name can include alphanumeric characters as well as dots and dashes.
-    Name: {{ (orderer_org | from_json).name }}
+    Name: {{ orderer_org_info.name }}
 
     # SkipAsForeign can be set to true for org definitions which are to be
     # inherited from the orderer system channel during channel creation.  This
@@ -31,35 +31,35 @@ Organizations:
     
     # ID is the key by which this org's MSP definition will be referenced.
     # ID can include alphanumeric charaters as well as dots and dashes.    
-    ID: {{ (orderer_org | from_json).name }}MSP
+    ID: {{ orderer_org_info.name }}MSP
 
     # MSPDir is the filesystem path which contains the MSP configuration.
-    MSPDir: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ (orderer_org | from_json).domain }}/msp
+    MSPDir: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/msp
 
     # Policies defines the set of policies at this level of the config tree
     # For organization policies, their canonical path is usually
     #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
-    Policies: &{{ (orderer_org | from_json).name }}Policies
+    Policies: &{{ orderer_org_info.name }}Policies
       Readers:
         Type: Signature
-        Rule: OR('{{ (orderer_org | from_json).name }}MSP.member')
+        Rule: OR('{{ orderer_org_info.name }}MSP.member')
         # If your MSP is configured with the new NodeOUs, you might
         # want to use a more specific rule like the following:
         # Rule: "OR('SampleOrg.admin', 'SampleOrg.peer', 'SampleOrg.client')"        
       Writers:
         Type: Signature
-        Rule: OR('{{ (orderer_org | from_json).name }}MSP.member')
+        Rule: OR('{{ orderer_org_info.name }}MSP.member')
         # If your MSP is configured with the new NodeOUs, you might
         # want to use a more specific rule like the following:
         # Rule: "OR('SampleOrg.admin', 'SampleOrg.client')"        
       Admins:
         Type: Signature
-        Rule: OR('{{ (orderer_org | from_json).name }}MSP.admin')
+        Rule: OR('{{ orderer_org_info.name }}MSP.admin')
 
     # OrdererEndpoints is a list of all orderers this org runs which clients
     # and peers may to connect to to push transactions and receive blocks respectively.
     OrdererEndpoints:
-{% for orderer in orderers %}
+{% for orderer in orderer_org_info.orderers %}
 {% if hostvars[orderer].orderer_component_type == 'router' %}
       - id={{ hostvars[orderer].orderer_group }},broadcast,{{ hostvars[orderer].ansible_host }}:{{ hostvars[orderer].orderer_rpc_port }}
 {% elif hostvars[orderer].orderer_component_type == 'assembler' %}
@@ -67,48 +67,48 @@ Organizations:
 {% endif %}
 {% endfor %}
 {% endfor %}
-{% for peer_org, peers in configtxgen_peers_by_org.items() %}
-  - &{{ (peer_org | from_json).name }}MSP
+{% for peer_org_domain, peer_org_info in configtxgen_peers_by_org.items() %}
+  - &{{ peer_org_info.name }}MSP
     # Name is the key by which this org will be referenced in channel
     # configuration transactions.
     # Name can include alphanumeric characters as well as dots and dashes.    
-    Name: {{ (peer_org | from_json).name }}
+    Name: {{ peer_org_info.name }}
     
     # ID is the key by which this org's MSP definition will be referenced.
     # ID can include alphanumeric charaters as well as dots and dashes.    
-    ID: {{ (peer_org | from_json).name }}MSP
+    ID: {{ peer_org_info.name }}MSP
 
-{% if (peer_org | from_json).type is defined and (peer_org | from_json).type == 'idemix' %}
+{% if peer_org_info.type is defined and peer_org_info.type == 'idemix' %}
     # MSPDir is the filesystem path which contains the MSP configuration.
-    MSPDir: {{ idemixgen_artifacts_dir }}/{{ (peer_org | from_json).domain }}
-    MSPType: {{ (peer_org | from_json).type }}
+    MSPDir: {{ idemixgen_artifacts_dir }}/{{ peer_org_info.domain }}
+    MSPType: {{ peer_org_info.type }}
 {% else %}
     # MSPDir is the filesystem path which contains the MSP configuration.
-    MSPDir: {{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ (peer_org | from_json).domain }}/msp
+    MSPDir: {{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ peer_org_info.domain }}/msp
 {% endif %}
 
     # Policies defines the set of policies at this level of the config tree
     # For organization policies, their canonical path is usually
     #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>    
-    Policies: &{{ (peer_org | from_json).name }}Policies
+    Policies: &{{ peer_org_info.name }}Policies
       Readers:
         Type: Signature
-        Rule: OR('{{ (peer_org | from_json).name }}MSP.member')
+        Rule: OR('{{ peer_org_info.name }}MSP.member')
         # If your MSP is configured with the new NodeOUs, you might
         # want to use a more specific rule like the following:
         # Rule: "OR('SampleOrg.admin', 'SampleOrg.peer', 'SampleOrg.client')"        
       Writers:
         Type: Signature
-        Rule: OR('{{ (peer_org | from_json).name }}MSP.member')
+        Rule: OR('{{ peer_org_info.name }}MSP.member')
         # If your MSP is configured with the new NodeOUs, you might
         # want to use a more specific rule like the following:
         # Rule: "OR('SampleOrg.admin', 'SampleOrg.client')"        
       Endorsement:
         Type: Signature
-        Rule: OR('{{ (peer_org | from_json).name }}MSP.member')
+        Rule: OR('{{ peer_org_info.name }}MSP.member')
       Admins:
         Type: Signature
-        Rule: OR('{{ (peer_org | from_json).name }}MSP.admin')
+        Rule: OR('{{ peer_org_info.name }}MSP.admin')
 
     # AnchorPeers defines the location of peers which can be used for
     # cross-org gossip communication.
@@ -118,7 +118,7 @@ Organizations:
     # to instead use the channel configuration update process to set the
     # anchor peers for each organization.
     AnchorPeers:
-{% for peer in peers %}
+{% for peer in peer_org_info.peers %}
 {% if hostvars[peer].sc_rpc_port is defined %}
       - Host: {{ hostvars[peer].ansible_host }}
         Port: {{ hostvars[peer].sc_rpc_port }}
@@ -270,8 +270,8 @@ Application: &ApplicationDefaults
   # Organizations lists the orgs participating on the application side of the
   # network.
   Organizations:
-{% for peer_org, peers in configtxgen_peers_by_org.items() %}
-    - *{{ (peer_org | from_json).name }}MSP
+{% for peer_org_domain, peer_org_info in configtxgen_peers_by_org.items() %}
+    - *{{ peer_org_info.name }}MSP
 {% endfor %}
 
   # Policies defines the set of policies at this level of the config tree
@@ -287,17 +287,22 @@ Application: &ApplicationDefaults
     Admins:
       Type: ImplicitMeta
       Rule: ANY Admins
+    Endorsement:
+      Type: ImplicitMeta
+      Rule: ANY Endorsement      
     LifecycleEndorsement:
+{% if configtxgen_peers_by_org.items() | length > 0 %}
       Type: Signature
       Rule: >
         OR (
-{% for peer_org, peers in configtxgen_peers_by_org.items() %}
-        '{{ (peer_org | from_json).name }}MSP.member'{% if not loop.last %},{% endif +%}
+{% for peer_org_domain, peer_org_info in configtxgen_peers_by_org.items() %}
+        '{{ peer_org_info.name }}MSP.member'{% if not loop.last %},{% endif +%}
 {% endfor %}
         )
-    Endorsement:
+{% else %}
       Type: ImplicitMeta
-      Rule: ANY Endorsement
+      Rule: ANY Admins
+{% endif %}
 
   # Capabilities describes the application level capabilities, see the
   # dedicated Capabilities section elsewhere in this file for a full
@@ -425,16 +430,16 @@ Orderer: &OrdererDefaults
   # org definition) map 1:1 to the Orderer/ConsenterMapping (for cluster consensus). That is, every consenter should
   # be represented by a delivery endpoint. Note that in BFT (V3) global Orderer/Addresses are no longer supported.
   ConsenterMapping:
-{% for orderer_org, orderers in configtxgen_orderers_by_org.items() %}
-{% for orderer in orderers %}
+{% for orderer_org_domain, orderer_org_info in configtxgen_orderers_by_org.items() %}
+{% for orderer in orderer_org_info.orderers %}
 {% if hostvars[orderer].orderer_component_type == 'consenter' %}
     - ID: {{ hostvars[orderer].orderer_group }}
       Host: {{ hostvars[orderer].ansible_host }}
       Port: {{ hostvars[orderer].orderer_rpc_port }}
-      MSPID: {{ (orderer_org | from_json).name }}MSP
-      Identity: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ (orderer_org | from_json).domain }}/orderers/{{ orderer }}.{{ (orderer_org | from_json).domain }}/msp/signcerts/{{ orderer }}.{{ (orderer_org | from_json).domain }}-cert.pem
-      ClientTLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ (orderer_org | from_json).domain }}/orderers/{{ orderer }}.{{ (orderer_org | from_json).domain }}/tls/server.crt
-      ServerTLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ (orderer_org | from_json).domain }}/orderers/{{ orderer }}.{{ (orderer_org | from_json).domain }}/tls/server.crt
+      MSPID: {{ orderer_org_info.name }}MSP
+      Identity: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ orderer }}.{{ orderer_org_info.domain }}/msp/signcerts/{{ orderer }}.{{ orderer_org_info.domain }}-cert.pem
+      ClientTLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ orderer }}.{{ orderer_org_info.domain }}/tls/server.crt
+      ServerTLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ orderer }}.{{ orderer_org_info.domain }}/tls/server.crt
 {% endif %}
 {% endfor %}
 {% endfor %}
@@ -442,8 +447,8 @@ Orderer: &OrdererDefaults
   # Organizations lists the orgs participating on the orderer side of the
   # network.
   Organizations:
-{% for orderer_org, orderers in configtxgen_orderers_by_org.items() %}
-    - *{{ (orderer_org | from_json).name }}MSP
+{% for orderer_org_domain, orderer_org_info in configtxgen_orderers_by_org.items() %}
+    - *{{ orderer_org_info.name }}MSP
 {% endfor %}
   
   # Policies defines the set of policies at this level of the config tree

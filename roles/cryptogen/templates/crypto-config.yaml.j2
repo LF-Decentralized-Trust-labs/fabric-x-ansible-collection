@@ -4,19 +4,19 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-{% if cryptogen_orderers_by_org | length > 0 %}
+{% if cryptogen_orderers_by_org.items() | length > 0 %}
 # ---------------------------------------------------------------------------
 # "OrdererOrgs" - Definition of organizations managing orderer nodes
 # ---------------------------------------------------------------------------
 OrdererOrgs:
-{% for orderer_org, orderer_instances in cryptogen_orderers_by_org.items() %}
+{% for orderer_org_domain, orderer_org_info in cryptogen_orderers_by_org.items() %}
   # ---------------------------------------------------------------------------
-  # {{ (orderer_org | from_json).name }}
+  # {{ orderer_org_info.name }}
   # ---------------------------------------------------------------------------
-  - Name: {{ (orderer_org | from_json).name }}
-    Domain: {{ (orderer_org | from_json).domain }} 
+  - Name: {{ orderer_org_info.name }}
+    Domain: {{ orderer_org_info.domain }}
     EnableNodeOUs: false
-    
+{% if orderer_org_info.orderers | length > 0 %}    
     # ---------------------------------------------------------------------------
     # "Specs"
     # ---------------------------------------------------------------------------      
@@ -30,8 +30,8 @@ OrdererOrgs:
     #                 which obtains its values from the Spec.Hostname and
     #                 Org.Domain, respectively.      
     Specs:
-{% for orderer in orderer_instances %}
-      - Hostname: {{ hostvars[orderer].inventory_hostname }}
+{% for orderer in orderer_org_info.orderers %}
+      - Hostname: {{ orderer }}
         SANS:
           - {{ hostvars[orderer].ansible_host }}
           - 0.0.0.0
@@ -39,22 +39,23 @@ OrdererOrgs:
           - 127.0.0.1
           - ::1
 {% endfor %}
+{% endif %}
 {% endfor %}
 {% endif %}
 
-{% if cryptogen_peers_by_org | length > 0 %}
+{% if cryptogen_peers_by_org.items() | length > 0 %}
 # ---------------------------------------------------------------------------
 # "PeerOrgs" - Definition of organizations managing peer nodes
 # ---------------------------------------------------------------------------
 PeerOrgs:
-{% for peer_org, peer_instances in cryptogen_peers_by_org.items() %}
+{% for peer_org_domain, peer_org_info in cryptogen_peers_by_org.items() %}
   # ---------------------------------------------------------------------------
-  # {{ (peer_org | from_json).name }}
+  # {{ peer_org_info.name }}
   # ---------------------------------------------------------------------------
-  - Name: {{ (peer_org | from_json).name }}
-    Domain: {{ (peer_org | from_json).domain }}
+  - Name: {{ peer_org_info.name }}
+    Domain: {{ peer_org_info.domain }}
     EnableNodeOUs: false
-
+{% if peer_org_info.peers | length > 0 %}
     # ---------------------------------------------------------------------------
     # "Specs"
     # ---------------------------------------------------------------------------
@@ -80,8 +81,8 @@ PeerOrgs:
     #                     - .Hostname
     # ---------------------------------------------------------------------------
     Specs:
-{% for peer in peer_instances %}
-      - Hostname: {{ hostvars[peer].inventory_hostname }}
+{% for peer in (peer_org_info.peers | unique) %}
+      - Hostname: {{ peer }}
         SANS:
           - {{ hostvars[peer].ansible_host }}
           - 0.0.0.0
@@ -89,6 +90,7 @@ PeerOrgs:
           - 127.0.0.1
           - ::1
 {% endfor %}
+{% endif %}
 
     # ---------------------------------------------------------------------------
     # "Users"
@@ -96,26 +98,19 @@ PeerOrgs:
     Users:
       # Count: The number of user accounts _in addition_ to Admin
       Count: 1
+{% if peer_org_info.users | length > 0 %}
+      # ---------------------------------------------------------------------------
+      # "Specs"
+      # ---------------------------------------------------------------------------
+      # Specs is an array of Spec entries.  Each Spec entry consists of two fields:
+      #   - Name:   (Required) The desired name for the user.
+      #
+      # ---------------------------------------------------------------------------
       Specs:
-{% for user_org, user_instances in cryptogen_users_by_org.items() %}
-{% if peer_org == user_org %}
-{% for user in user_instances %}
-        - Name: {{ hostvars[user].inventory_hostname }}
-          HSM: false
-{% if hostvars[user].fsc_token_issuer_identities is defined %}
-{% for issuer_identity in hostvars[user].fsc_token_issuer_identities %}
-        - Name: {{ issuer_identity.id }}
+{% for user in (peer_org_info.users | unique) %}
+        - Name: {{ user }}
           HSM: false
 {% endfor %}
 {% endif %}
-{% if hostvars[user].fsc_token_auditor_identities is defined %}
-{% for auditor_identity in hostvars[user].fsc_token_auditor_identities %}
-        - Name: {{ auditor_identity.id }}
-          HSM: false
-{% endfor %}
-{% endif %}
-{% endfor %}
-{% endif %}
-{% endfor %}
 {% endfor %}
 {% endif %}

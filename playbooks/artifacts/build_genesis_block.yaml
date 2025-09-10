@@ -20,31 +20,53 @@
         tasks_from: create_shared_config
       when: "'fabric-x-orderers' in groups"
     - name: Group orderers by organization
+      vars:
+        org_domain: "{{ hostvars[orderer].organization.domain }}"
+        org_name: "{{ hostvars[orderer].organization.name }}"
       ansible.builtin.set_fact:
         configtxgen_orderers_by_org: >-
           {{
             configtxgen_orderers_by_org | default({}) | combine({
-              hostvars[item].organization | to_json: (configtxgen_orderers_by_org | default({})).get(hostvars[item].organization | to_json, []) + [item]
+              org_domain: {
+                'name': org_name,
+                'domain': org_domain,
+                'orderers': (
+                  (configtxgen_orderers_by_org | default({})).get(org_domain, {}).get('orderers', []) + [orderer]
+                )
+              }
             })
           }}
       loop: >-
         {{
-          groups['fabric-x-orderers'] | default([]) | map('extract', hostvars) |
-          selectattr('organization', 'defined') | map(attribute='inventory_hostname')
+          groups['all'] | default([]) | map('extract', hostvars) | selectattr('organization', 'defined') |
+          selectattr('organization.role', 'defined') | selectattr('organization.role', '==', 'orderer') | map(attribute='inventory_hostname')
         }}
+      loop_control:
+        loop_var: orderer
     - name: Group peers by organization
+      vars:
+        org_domain: "{{ hostvars[peer].organization.domain }}"
+        org_name: "{{ hostvars[peer].organization.name }}"
       ansible.builtin.set_fact:
         configtxgen_peers_by_org: >-
           {{
             configtxgen_peers_by_org | default({}) | combine({
-              hostvars[item].organization | to_json: (configtxgen_peers_by_org | default({})).get(hostvars[item].organization | to_json, []) + [item]
+              org_domain: {
+                'name': org_name,
+                'domain': org_domain,
+                'peers': (
+                  (configtxgen_peers_by_org | default({})).get(org_domain, {}).get('peers', []) + [peer]
+                )
+              }
             })
           }}
       loop: >-
         {{
-          groups['all'] | map('extract', hostvars) | selectattr('use_fabric_peer_crypto', 'defined') |
-          selectattr('use_fabric_peer_crypto', '==', true) | map(attribute='inventory_hostname')
+          groups['all'] | default([]) | map('extract', hostvars) | selectattr('organization', 'defined') |
+          selectattr('organization.role', 'defined') | selectattr('organization.role', '==', 'peer') | map(attribute='inventory_hostname')
         }}
+      loop_control:
+        loop_var: peer
     - name: Build Fabricx-compatible configuration file for configtxgen
       vars:
         configtxgen_namespace_admin: >-

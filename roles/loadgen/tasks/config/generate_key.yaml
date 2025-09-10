@@ -20,26 +20,32 @@
     tasks_from: generate_ecdsa_key
   when:
     - inherit_endorser is undefined
-    - use_fabric_user_crypto is undefined or (not use_fabric_user_crypto)
+    - organization is undefined
     - loadgen_key_scheme == 'ECDSA'
 
 - name: Transfer the Fabric-X Loadgen Public Key
   ansible.builtin.copy:
-    src: "{{ loadgen_cryptogen_artifact_build_dir }}/crypto/peerOrganizations/{{ organization.domain }}/users/{{ inventory_hostname }}@{{ organization.domain }}/msp/signcerts/{{ inventory_hostname }}@{{ organization.domain }}-cert.pem"
+    src: "{{ loadgen_cryptogen_artifact_build_dir }}/crypto/peerOrganizations/{{ organization.domain }}/users/{{ user }}@{{ organization.domain }}/msp/signcerts/{{ user }}@{{ organization.domain }}-cert.pem"
     dest: "{{ loadgen_remote_config_dir }}/{{ loadgen_key_scheme }}/{{ loadgen_admin_pub_key_file }}"
     mode: "0o644"
+  loop: "{{ organization.users }}"
+  loop_control:
+    loop_var: user
   when:
-    - use_fabric_user_crypto is defined
-    - use_fabric_user_crypto
+    - inherit_endorser is undefined
+    - organization is defined
 
 - name: Transfer the Fabric-X Loadgen Private Key
   ansible.builtin.copy:
-    src: "{{ loadgen_cryptogen_artifact_build_dir }}/crypto/peerOrganizations/{{ organization.domain }}/users/{{ inventory_hostname }}@{{ organization.domain }}/msp/keystore/priv_sk"
+    src: "{{ loadgen_cryptogen_artifact_build_dir }}/crypto/peerOrganizations/{{ organization.domain }}/users/{{ user }}@{{ organization.domain }}/msp/keystore/priv_sk"
     dest: "{{ loadgen_remote_config_dir }}/{{ loadgen_key_scheme }}/{{ loadgen_admin_priv_key_file }}"
     mode: "0o644"
+  loop: "{{ organization.users }}"
+  loop_control:
+    loop_var: user
   when:
-    - use_fabric_user_crypto is defined
-    - use_fabric_user_crypto
+    - inherit_endorser is undefined
+    - organization is defined
 
 - name: Transfer the endorser public key
   vars:
@@ -50,7 +56,8 @@
     src: "{{ loadgen_cryptogen_artifact_build_dir }}/crypto/peerOrganizations/{{ _fqdn }}/users/{{ _endorser.inventory_hostname }}@{{ _fqdn }}/msp/signcerts/{{ _pub_key_cert }}"
     dest: "{{ loadgen_remote_config_dir }}/{{ loadgen_key_scheme }}/{{ loadgen_admin_pub_key_file }}"
     mode: "0o644"
-  when: inherit_endorser is defined
+  when:
+    - inherit_endorser is defined
 
 - name: Transfer the endorser private key
   vars:
@@ -60,4 +67,5 @@
     src: "{{ loadgen_cryptogen_artifact_build_dir }}/crypto/peerOrganizations/{{ _fqdn }}/users/{{ _endorser.inventory_hostname }}@{{ _fqdn }}/msp/keystore/priv_sk"
     dest: "{{ loadgen_remote_config_dir }}/{{ loadgen_key_scheme }}/{{ loadgen_admin_priv_key_file }}"
     mode: "0o644"
-  when: inherit_endorser is defined
+  when:
+    - inherit_endorser is defined
