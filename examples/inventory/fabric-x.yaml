@@ -51,10 +51,6 @@ all:
               committer_component_type: sidecar
               committer_rpc_port: 5050
               prometheus_exporter_port: 2111
-              organization:
-                name: Org1
-                domain: org1.example.com
-              use_fabric_peer_crypto: true
             committer-query-service:
               committer_component_type: query-service
               committer_rpc_port: 7001
@@ -65,6 +61,7 @@ all:
             organization:
               name: "OrdererOrg{{ orderer_group }}"
               domain: "ordererorg{{ orderer_group }}.example.com"
+              role: orderer
           children:
             fabric-x-orderer-1:
               vars:
@@ -138,13 +135,13 @@ all:
     load-generators:
       hosts:
         orderer-loadgen:
-          loadgen_type: orderer-client
           organization:
             name: Org1
             domain: org1.example.com
-          use_fabric_peer_crypto: true
-          use_fabric_user_crypto: true
-          fabricx_namespace_admin: true
+            users:
+              - name: orderer-loadgen
+                meta_namespace_admin: true
+          loadgen_type: orderer-client
           prometheus_exporter_port: 2119
           loadgen_web_port: 6997
           loadgen_use_bin: true
@@ -157,6 +154,3 @@ all:
           grafana_web_port: 3000
         prometheus:
           prometheus_web_port: 9090
-        jaeger:
-          jaeger_collector_port: 4317
-          jaeger_ui_port: 16686

@@ -4,60 +4,30 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure keys directory exists
+- name: Ensure the load-generator users config directory exists
   ansible.builtin.file:
-    path: "{{ loadgen_remote_config_dir }}/{{ loadgen_key_scheme }}"
+    path: "{{ loadgen_remote_config_dir }}/users"
     state: directory
     mode: "0o750"
 
-- name: Generate ECDSA key
-  vars:
-    openssl_private_key_path: "{{ loadgen_remote_config_dir }}/{{ loadgen_key_scheme }}/{{ loadgen_admin_priv_key_file }}"
-    openssl_cert_path: "{{ loadgen_remote_config_dir }}/{{ loadgen_key_scheme }}/{{ loadgen_admin_pub_key_file }}"
-    openssl_csr_path: "{{ loadgen_remote_config_dir }}/{{ loadgen_key_scheme }}/cert.csr"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.openssl
-    tasks_from: generate_ecdsa_key
-  when:
-    - inherit_endorser is undefined
-    - use_fabric_user_crypto is undefined or (not use_fabric_user_crypto)
-    - loadgen_key_scheme == 'ECDSA'
-
 - name: Transfer the Fabric-X Loadgen Public Key
-  ansible.builtin.copy:
-    src: "{{ loadgen_cryptogen_artifact_build_dir }}/crypto/peerOrganizations/{{ organization.domain }}/users/{{ inventory_hostname }}@{{ organization.domain }}/msp/signcerts/{{ inventory_hostname }}@{{ organization.domain }}-cert.pem"
-    dest: "{{ loadgen_remote_config_dir }}/{{ loadgen_key_scheme }}/{{ loadgen_admin_pub_key_file }}"
-    mode: "0o644"
+  ansible.posix.synchronize:
+    src: "{{ loadgen_cryptogen_artifact_build_dir }}/crypto/peerOrganizations/{{ organization.domain }}/users/{{ user.name }}@{{ organization.domain }}"
+    dest: "{{ loadgen_remote_config_dir }}/users"
+  loop: "{{ organization.users }}"
+  loop_control:
+    label: "{{ user.name }}"
+    loop_var: user
   when:
-    - use_fabric_user_crypto is defined
-    - use_fabric_user_crypto
+    - inherit_user is undefined
+    - organization is defined
+    - organization.users is defined
 
-- name: Transfer the Fabric-X Loadgen Private Key
-  ansible.builtin.copy:
-    src: "{{ loadgen_cryptogen_artifact_build_dir }}/crypto/peerOrganizations/{{ organization.domain }}/users/{{ inventory_hostname }}@{{ organization.domain }}/msp/keystore/priv_sk"
-    dest: "{{ loadgen_remote_config_dir }}/{{ loadgen_key_scheme }}/{{ loadgen_admin_priv_key_file }}"
-    mode: "0o644"
+# This is a patch to allow the orderer-loadgen to inherit the key of another user in order to automatically create its MetaNamespace."
+# It will be removed in the future.
+- name: Transfer the {{ inherit_user.name }} user public key
+  ansible.posix.synchronize:
+    src: "{{ loadgen_cryptogen_artifact_build_dir }}/crypto/peerOrganizations/{{ inherit_user.organization.domain }}/users/{{ inherit_user.name }}@{{ inherit_user.organization.domain }}"
+    dest: "{{ loadgen_remote_config_dir }}/users"
   when:
-    - use_fabric_user_crypto is defined
-    - use_fabric_user_crypto
-
-- name: Transfer the endorser public key
-  vars:
-    _endorser: "{{ hostvars[inherit_endorser] }}"
-    _fqdn: "{{ _endorser.organization.domain }}"
-    _pub_key_cert: "{{ _endorser.inventory_hostname }}@{{ _fqdn }}-cert.pem"
-  ansible.builtin.copy:
-    src: "{{ loadgen_cryptogen_artifact_build_dir }}/crypto/peerOrganizations/{{ _fqdn }}/users/{{ _endorser.inventory_hostname }}@{{ _fqdn }}/msp/signcerts/{{ _pub_key_cert }}"
-    dest: "{{ loadgen_remote_config_dir }}/{{ loadgen_key_scheme }}/{{ loadgen_admin_pub_key_file }}"
-    mode: "0o644"
-  when: inherit_endorser is defined
-
-- name: Transfer the endorser private key
-  vars:
-    _endorser: "{{ hostvars[inherit_endorser] }}"
-    _fqdn: "{{ _endorser.organization.domain }}"
-  ansible.builtin.copy:
-    src: "{{ loadgen_cryptogen_artifact_build_dir }}/crypto/peerOrganizations/{{ _fqdn }}/users/{{ _endorser.inventory_hostname }}@{{ _fqdn }}/msp/keystore/priv_sk"
-    dest: "{{ loadgen_remote_config_dir }}/{{ loadgen_key_scheme }}/{{ loadgen_admin_priv_key_file }}"
-    mode: "0o644"
-  when: inherit_endorser is defined
+    - inherit_user is defined

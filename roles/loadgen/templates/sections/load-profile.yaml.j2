@@ -18,10 +18,10 @@ load-profile:
         _meta:
           scheme: {{ loadgen_key_scheme }}
           seed: 12345
-{% if loadgen_use_key %}
+{% if loadgen_user %}
           key-path:
-            signing-key: {{ loadgen_config_dir }}/{{ loadgen_key_scheme }}/{{ loadgen_admin_priv_key_file }}
-            sign-certificate: {{ loadgen_config_dir }}/{{ loadgen_key_scheme }}/{{ loadgen_admin_pub_key_file }}
+            signing-key: {{ loadgen_config_dir }}/users/{{ loadgen_user.name }}@{{ loadgen_user.organization.domain }}/msp/keystore/priv_sk
+            sign-certificate: {{ loadgen_config_dir }}/users/{{ loadgen_user.name }}@{{ loadgen_user.organization.domain }}/msp/signcerts/{{ loadgen_user.name }}@{{ loadgen_user.organization.domain }}-cert.pem
 {% endif %}
   query:
     query-size:

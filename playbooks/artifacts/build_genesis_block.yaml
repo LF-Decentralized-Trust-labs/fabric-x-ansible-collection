@@ -20,38 +20,88 @@
         tasks_from: create_shared_config
       when: "'fabric-x-orderers' in groups"
     - name: Group orderers by organization
+      vars:
+        org_domain: "{{ hostvars[orderer].organization.domain }}"
+        org_name: "{{ hostvars[orderer].organization.name }}"
+        orderer_info:
+          name: "{{ orderer }}"
       ansible.builtin.set_fact:
         configtxgen_orderers_by_org: >-
           {{
             configtxgen_orderers_by_org | default({}) | combine({
-              hostvars[item].organization | to_json: (configtxgen_orderers_by_org | default({})).get(hostvars[item].organization | to_json, []) + [item]
+              org_domain: {
+                'name': org_name,
+                'domain': org_domain,
+                'orderers': (
+                  (configtxgen_orderers_by_org | default({})).get(org_domain, {}).get('orderers', []) + [orderer_info]
+                )
+              }
             })
           }}
       loop: >-
         {{
-          groups['fabric-x-orderers'] | default([]) | map('extract', hostvars) |
-          selectattr('organization', 'defined') | map(attribute='inventory_hostname')
+          groups['all'] | default([]) | map('extract', hostvars) | selectattr('organization', 'defined') |
+          selectattr('organization.role', 'defined') | selectattr('organization.role', '==', 'orderer') | map(attribute='inventory_hostname')
         }}
+      loop_control:
+        loop_var: orderer
     - name: Group peers by organization
+      vars:
+        org_domain: "{{ hostvars[peer].organization.domain }}"
+        org_name: "{{ hostvars[peer].organization.name }}"
+        peer_info:
+          name: "{{ peer }}"
       ansible.builtin.set_fact:
         configtxgen_peers_by_org: >-
           {{
             configtxgen_peers_by_org | default({}) | combine({
-              hostvars[item].organization | to_json: (configtxgen_peers_by_org | default({})).get(hostvars[item].organization | to_json, []) + [item]
+              org_domain: {
+                'name': org_name,
+                'domain': org_domain,
+                'peers': (
+                  (configtxgen_peers_by_org | default({})).get(org_domain, {}).get('peers', []) + [peer_info]
+                )
+              }
             })
           }}
       loop: >-
         {{
-          groups['all'] | map('extract', hostvars) | selectattr('use_fabric_peer_crypto', 'defined') |
-          selectattr('use_fabric_peer_crypto', '==', true) | map(attribute='inventory_hostname')
+          groups['all'] | default([]) | map('extract', hostvars) | selectattr('organization', 'defined') |
+          selectattr('organization.role', 'defined') | selectattr('organization.role', '==', 'peer') | map(attribute='inventory_hostname')
         }}
-    - name: Build Fabricx-compatible configuration file for configtxgen
+      loop_control:
+        loop_var: peer
+    - name: Check that at most one namespace admin user is defined
       vars:
-        configtxgen_namespace_admin: >-
+        namespace_admin_users: >-
           {{
-            groups['all'] | default([]) | map('extract', hostvars) | selectattr('fabricx_namespace_admin', 'defined') |
-            selectattr('fabricx_namespace_admin', '==', true) | map(attribute='inventory_hostname') | first
+            groups['all'] | default([]) | map('extract', hostvars) | selectattr('organization', 'defined') |
+            selectattr('organization.users', 'defined') | map(attribute='organization.users') | flatten |
+            selectattr('meta_namespace_admin', 'defined') | selectattr('meta_namespace_admin', '==', true) | list
           }}
+      ansible.builtin.fail:
+        msg: "More than one Admin user for the MetaNamespace defined: {{ namespace_admin_users }}. Only 1 admin is allowed for the MetaNamespace."
+      when:
+        - namespace_admin_users | length > 1
+    - name: Add users to the Hyperledger Fabric-X peer organizations
+      vars:
+        admin_user: "{{ hostvars[peer].organization.users | first }}"
+      ansible.builtin.set_fact:
+        configtxgen_meta_namespace_admin:
+          name: "{{ admin_user.name }}"
+          organization:
+            name: "{{ hostvars[peer].organization.name }}"
+            domain: "{{ hostvars[peer].organization.domain }}"
+      loop: >-
+        {{
+          groups['all'] | default([]) | map('extract', hostvars) | selectattr('organization', 'defined') |
+          selectattr('organization.users', 'defined') | map(attribute='inventory_hostname')
+        }}
+      loop_control:
+        loop_var: peer
+      when:
+        - hostvars[peer].organization.users | selectattr('meta_namespace_admin', 'defined') | selectattr('meta_namespace_admin', '==', true) | list | length > 0
+    - name: Build Fabricx-compatible configuration file for configtxgen
       ansible.builtin.include_role:
         name: hyperledger.fabricx.configtxgen
         tasks_from: config/build
