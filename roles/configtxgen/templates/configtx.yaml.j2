@@ -60,10 +60,10 @@ Organizations:
     # and peers may to connect to to push transactions and receive blocks respectively.
     OrdererEndpoints:
 {% for orderer in orderer_org_info.orderers %}
-{% if hostvars[orderer].orderer_component_type == 'router' %}
-      - id={{ hostvars[orderer].orderer_group }},broadcast,{{ hostvars[orderer].ansible_host }}:{{ hostvars[orderer].orderer_rpc_port }}
-{% elif hostvars[orderer].orderer_component_type == 'assembler' %}
-      - id={{ hostvars[orderer].orderer_group }},deliver,{{ hostvars[orderer].ansible_host }}:{{ hostvars[orderer].orderer_rpc_port }}
+{% if hostvars[orderer.name].orderer_component_type == 'router' %}
+      - id={{ hostvars[orderer.name].orderer_group }},broadcast,{{ hostvars[orderer.name].ansible_host }}:{{ hostvars[orderer.name].orderer_rpc_port }}
+{% elif hostvars[orderer.name].orderer_component_type == 'assembler' %}
+      - id={{ hostvars[orderer.name].orderer_group }},deliver,{{ hostvars[orderer.name].ansible_host }}:{{ hostvars[orderer.name].orderer_rpc_port }}
 {% endif %}
 {% endfor %}
 {% endfor %}
@@ -119,9 +119,9 @@ Organizations:
     # anchor peers for each organization.
     AnchorPeers:
 {% for peer in peer_org_info.peers %}
-{% if hostvars[peer].sc_rpc_port is defined %}
-      - Host: {{ hostvars[peer].ansible_host }}
-        Port: {{ hostvars[peer].sc_rpc_port }}
+{% if hostvars[peer.name].sc_rpc_port is defined %}
+      - Host: {{ hostvars[peer.name].ansible_host }}
+        Port: {{ hostvars[peer.name].sc_rpc_port }}
 {% endif %}
 {% endfor %}
 {% endfor %}
@@ -432,14 +432,14 @@ Orderer: &OrdererDefaults
   ConsenterMapping:
 {% for orderer_org_domain, orderer_org_info in configtxgen_orderers_by_org.items() %}
 {% for orderer in orderer_org_info.orderers %}
-{% if hostvars[orderer].orderer_component_type == 'consenter' %}
-    - ID: {{ hostvars[orderer].orderer_group }}
-      Host: {{ hostvars[orderer].ansible_host }}
-      Port: {{ hostvars[orderer].orderer_rpc_port }}
+{% if hostvars[orderer.name].orderer_component_type == 'consenter' %}
+    - ID: {{ hostvars[orderer.name].orderer_group }}
+      Host: {{ hostvars[orderer.name].ansible_host }}
+      Port: {{ hostvars[orderer.name].orderer_rpc_port }}
       MSPID: {{ orderer_org_info.name }}MSP
-      Identity: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ orderer }}.{{ orderer_org_info.domain }}/msp/signcerts/{{ orderer }}.{{ orderer_org_info.domain }}-cert.pem
-      ClientTLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ orderer }}.{{ orderer_org_info.domain }}/tls/server.crt
-      ServerTLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ orderer }}.{{ orderer_org_info.domain }}/tls/server.crt
+      Identity: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ orderer.name }}.{{ orderer_org_info.domain }}/msp/signcerts/{{ orderer.name }}.{{ orderer_org_info.domain }}-cert.pem
+      ClientTLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ orderer.name }}.{{ orderer_org_info.domain }}/tls/server.crt
+      ServerTLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ orderer.name }}.{{ orderer_org_info.domain }}/tls/server.crt
 {% endif %}
 {% endfor %}
 {% endfor %}
