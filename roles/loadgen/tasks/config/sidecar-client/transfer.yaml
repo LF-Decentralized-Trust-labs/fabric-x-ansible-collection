@@ -10,15 +10,6 @@
     state: directory
     mode: "0o750"
 
-- name: Generate the config for the Fabric-X Loadgen for the Fabric-X Committer Sidecar
-  vars:
-    loadgen_config_dir: "{{ loadgen_remote_config_dir if loadgen_use_bin else loadgen_docker_config_dir }}"
-    loadgen_use_key: true
-  ansible.builtin.template:
-    src: "sidecar-client.yaml.j2"
-    dest: "{{ loadgen_remote_config_dir }}/{{ loadgen_config_file }}"
-    mode: "0o644"
-
 - name: Copy Fabric-X Committer sidecar root CA
   ansible.builtin.copy:
     src: "{{ loadgen_cryptogen_artifact_build_dir }}/crypto/ca-certs.pem"
@@ -36,3 +27,17 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: config/generate_key
+
+# Added logic to give precedence to inherit_user if defined
+- name: Generate the config for the Fabric-X Loadgen for the Fabric-X Committer Sidecar
+  vars:
+    loadgen_config_dir: "{{ loadgen_remote_config_dir if loadgen_use_bin else loadgen_docker_config_dir }}"
+    organization_user: "{{ (organization.users | first) if (organization is defined and organization.users is defined) }}"
+    loadgen_user:
+      name: "{{ inherit_user.name if inherit_user is defined else organization_user.name }}"
+      organization:
+        domain: "{{ inherit_user.domain if inherit_user is defined else organization.domain }}"
+  ansible.builtin.template:
+    src: "sidecar-client.yaml.j2"
+    dest: "{{ loadgen_remote_config_dir }}/{{ loadgen_config_file }}"
+    mode: "0o644"
