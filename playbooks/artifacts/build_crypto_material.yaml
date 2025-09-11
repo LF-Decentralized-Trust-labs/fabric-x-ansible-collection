@@ -11,6 +11,8 @@
       vars:
         org_domain: "{{ hostvars[orderer].organization.domain }}"
         org_name: "{{ hostvars[orderer].organization.name }}"
+        orderer_info:
+          name: "{{ orderer }}"
       ansible.builtin.set_fact:
         cryptogen_orderers_by_org: >-
           {{
@@ -18,7 +20,7 @@
               org_domain: {
                 'name': org_name,
                 'domain': org_domain,
-                'orderers': (cryptogen_orderers_by_org | default({})).get(org_domain, {}).get('orderers', []) + [orderer]
+                'orderers': (cryptogen_orderers_by_org | default({})).get(org_domain, {}).get('orderers', []) + [orderer_info]
               }
             })
           }}
@@ -33,6 +35,8 @@
       vars:
         org_domain: "{{ hostvars[peer].organization.domain }}"
         org_name: "{{ hostvars[peer].organization.name }}"
+        peer_info:
+          name: "{{ peer }}"
       ansible.builtin.set_fact:
         cryptogen_peers_by_org: >-
           {{
@@ -40,7 +44,7 @@
               org_domain: {
                 'name': org_name,
                 'domain': org_domain,
-                'peers': (cryptogen_peers_by_org | default({})).get(org_domain, {}).get('peers', []) + [peer]
+                'peers': (cryptogen_peers_by_org | default({})).get(org_domain, {}).get('peers', []) + [peer_info]
               }
             })
           }}

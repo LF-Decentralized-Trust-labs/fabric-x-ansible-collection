@@ -530,6 +530,6 @@ Profiles:
     Consortium: SampleConsortium
     Application:
       <<: *ApplicationDefaults
-{% if configtxgen_namespace_admin is defined %}
-      MetaNamespaceVerificationKeyPath: {{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ hostvars[configtxgen_namespace_admin].organization.domain }}/users/{{ hostvars[configtxgen_namespace_admin].inventory_hostname }}@{{ hostvars[configtxgen_namespace_admin].organization.domain }}/msp/signcerts/{{ hostvars[configtxgen_namespace_admin].inventory_hostname }}@{{ hostvars[configtxgen_namespace_admin].organization.domain }}-cert.pem
+{% if configtxgen_meta_namespace_admin is defined %}
+      MetaNamespaceVerificationKeyPath: {{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ configtxgen_meta_namespace_admin.organization.domain }}/users/{{ configtxgen_meta_namespace_admin.name }}@{{ configtxgen_meta_namespace_admin.organization.domain }}/msp/signcerts/{{ configtxgen_meta_namespace_admin.name }}@{{ configtxgen_meta_namespace_admin.organization.domain }}-cert.pem
 {% endif %}

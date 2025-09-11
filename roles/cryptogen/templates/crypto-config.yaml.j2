@@ -31,9 +31,9 @@ OrdererOrgs:
     #                 Org.Domain, respectively.      
     Specs:
 {% for orderer in orderer_org_info.orderers %}
-      - Hostname: {{ orderer }}
+      - Hostname: {{ orderer.name }}
         SANS:
-          - {{ hostvars[orderer].ansible_host }}
+          - {{ hostvars[orderer.name].ansible_host }}
           - 0.0.0.0
           - localhost
           - 127.0.0.1
@@ -82,9 +82,9 @@ PeerOrgs:
     # ---------------------------------------------------------------------------
     Specs:
 {% for peer in (peer_org_info.peers | unique) %}
-      - Hostname: {{ peer }}
+      - Hostname: {{ peer.name }}
         SANS:
-          - {{ hostvars[peer].ansible_host }}
+          - {{ hostvars[peer.name].ansible_host }}
           - 0.0.0.0
           - localhost
           - 127.0.0.1
@@ -108,7 +108,7 @@ PeerOrgs:
       # ---------------------------------------------------------------------------
       Specs:
 {% for user in (peer_org_info.users | unique) %}
-        - Name: {{ user }}
+        - Name: {{ user.name }}
           HSM: false
 {% endfor %}
 {% endif %}

@@ -137,9 +137,9 @@ all:
             name: Org1
             domain: org1.example.com
             users:
-              - "{{ inventory_hostname }}"
+              - name: orderer-loadgen
+                meta_namespace_admin: true
           loadgen_type: orderer-client
-          fabricx_namespace_admin: true
           prometheus_exporter_port: 2119
           loadgen_web_port: 6997
           loadgen_use_bin: true

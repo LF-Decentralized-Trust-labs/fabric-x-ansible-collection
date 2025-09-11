@@ -67,13 +67,37 @@
         }}
       loop_control:
         loop_var: peer
-    - name: Build Fabricx-compatible configuration file for configtxgen
+    - name: Check that at most one namespace admin user is defined
       vars:
-        configtxgen_namespace_admin: >-
+        namespace_admin_users: >-
           {{
-            groups['all'] | default([]) | map('extract', hostvars) | selectattr('fabricx_namespace_admin', 'defined') |
-            selectattr('fabricx_namespace_admin', '==', true) | map(attribute='inventory_hostname') | first
+            groups['all'] | default([]) | map('extract', hostvars) | selectattr('organization', 'defined') |
+            selectattr('organization.users', 'defined') | map(attribute='organization.users') | flatten |
+            selectattr('meta_namespace_admin', 'defined') | selectattr('meta_namespace_admin', '==', true) | list
           }}
+      ansible.builtin.fail:
+        msg: "More than one Admin user for the MetaNamespace defined: {{ namespace_admin_users }}. Only 1 admin is allowed for the MetaNamespace."
+      when:
+        - namespace_admin_users | length > 1
+    - name: Add users to the Hyperledger Fabric-X peer organizations
+      vars:
+        admin_user: "{{ hostvars[peer].organization.users | first }}"
+      ansible.builtin.set_fact:
+        configtxgen_meta_namespace_admin:
+          name: "{{ admin_user.name }}"
+          organization:
+            name: "{{ hostvars[peer].organization.name }}"
+            domain: "{{ hostvars[peer].organization.domain }}"
+      loop: >-
+        {{
+          groups['all'] | default([]) | map('extract', hostvars) | selectattr('organization', 'defined') |
+          selectattr('organization.users', 'defined') | map(attribute='inventory_hostname')
+        }}
+      loop_control:
+        loop_var: peer
+      when:
+        - hostvars[peer].organization.users | selectattr('meta_namespace_admin', 'defined') | selectattr('meta_namespace_admin', '==', true) | list | length > 0
+    - name: Build Fabricx-compatible configuration file for configtxgen
       ansible.builtin.include_role:
         name: hyperledger.fabricx.configtxgen
         tasks_from: config/build
