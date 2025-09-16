@@ -10,8 +10,10 @@
       {{
         ansible_play_hosts
         | map('extract', hostvars)
-        | selectattr('ansible_host', '==', item) | selectattr('node_exporter_port', 'defined')
-        | map(attribute='inventory_hostname') | sort
+        | selectattr('ansible_host', '==', item)
+        | selectattr('node_exporter_port', 'defined')
+        | map(attribute='inventory_hostname')
+        | sort
         | first
       }}
   ansible.builtin.add_host:

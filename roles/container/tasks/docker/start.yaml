@@ -42,9 +42,10 @@
   ansible.builtin.set_fact:
     result: >-
       {{
-        {
-          'stdout_lines': (docker_result.container.Output | default('')).splitlines()
-        }
+        docker_result
+        | combine({
+            'stdout_lines': (docker_result.container.Output | default('')).splitlines()
+          })
       }}
 
 - name: Show output of docker command

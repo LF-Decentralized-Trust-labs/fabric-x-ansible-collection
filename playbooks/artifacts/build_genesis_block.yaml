@@ -40,7 +40,7 @@
           }}
       loop: >-
         {{
-          groups['all'] | default([]) | map('extract', hostvars) | selectattr('organization', 'defined') |
+          groups['fabric-x-orderers'] | default([]) | map('extract', hostvars) | selectattr('organization', 'defined') |
           selectattr('organization.role', 'defined') | selectattr('organization.role', '==', 'orderer') | map(attribute='inventory_hostname')
         }}
       loop_control:

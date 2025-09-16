@@ -11,10 +11,13 @@
       vars:
         loadgen_instances: >-
           {{
-            groups[target_hosts | default('load-generators')] | intersect(groups['load-generators']) |
-            map('extract', hostvars) | selectattr("loadgen_use_bin", 'defined') |
-            selectattr("loadgen_use_bin", 'eq', true) |
-            map(attribute='inventory_hostname') | list
+            groups[target_hosts | default('load-generators')]
+            | intersect(groups['load-generators'])
+            | map('extract', hostvars)
+            | selectattr("loadgen_use_bin", 'defined')
+            | selectattr("loadgen_use_bin", 'eq', true)
+            | map(attribute='inventory_hostname')
+            | list
           }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.loadgen

@@ -17,8 +17,11 @@
         prometheus_instance: >-
           {{
             groups['monitoring']
-            | map('extract', hostvars) | selectattr('prometheus_web_port', 'defined')
-            | map(attribute='inventory_hostname') | sort | first
+            | map('extract', hostvars)
+            | selectattr('prometheus_web_port', 'defined')
+            | map(attribute='inventory_hostname')
+            | sort
+            | first
           }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.grafana

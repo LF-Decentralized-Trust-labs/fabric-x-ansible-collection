@@ -8,18 +8,29 @@
   vars:
     committer_sidecar: >-
       {{
-        committer_hosts | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
-        selectattr('committer_component_type', '==', 'sidecar') | map(attribute='inventory_hostname') | list | first
+        committer_hosts
+        | map('extract', hostvars)
+        | selectattr('committer_component_type', 'defined')
+        | selectattr('committer_component_type', '==', 'sidecar')
+        | map(attribute='inventory_hostname')
+        | list
+        | first
       }}
     orderer_routers: >-
       {{
-        orderer_hosts | map('extract', hostvars) | selectattr('orderer_component_type', '==', 'router') |
-        map(attribute='inventory_hostname') | list
+        orderer_hosts
+        | map('extract', hostvars)
+        | selectattr('orderer_component_type', '==', 'router')
+        | map(attribute='inventory_hostname')
+        | list
       }}
     orderer_assemblers: >-
       {{
-        orderer_hosts | map('extract', hostvars) | selectattr('orderer_component_type', '==', 'assembler') |
-        map(attribute='inventory_hostname') | list
+        orderer_hosts
+        | map('extract', hostvars)
+        | selectattr('orderer_component_type', '==', 'assembler')
+        | map(attribute='inventory_hostname')
+        | list
       }}
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
@@ -30,13 +41,21 @@
   vars:
     committer_sidecar: >-
       {{
-        committer_hosts | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
-        selectattr('committer_component_type', '==', 'sidecar') | map(attribute='inventory_hostname') | list | first
+        committer_hosts
+        | map('extract', hostvars)
+        | selectattr('committer_component_type', 'defined')
+        | selectattr('committer_component_type', '==', 'sidecar')
+        | map(attribute='inventory_hostname')
+        | list
+        | first
       }}
     orderer_routers: >-
       {{
-        orderer_hosts | map('extract', hostvars) | selectattr('orderer_component_type', '==', 'router') |
-        map(attribute='inventory_hostname') | list
+        orderer_hosts
+        | map('extract', hostvars)
+        | selectattr('orderer_component_type', '==', 'router')
+        | map(attribute='inventory_hostname')
+        | list
       }}
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
@@ -47,8 +66,13 @@
   vars:
     committer_coordinator: >-
       {{
-        committer_hosts | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
-        selectattr('committer_component_type', '==', 'coordinator') | map(attribute='inventory_hostname') | list | first
+        committer_hosts
+        | map('extract', hostvars)
+        | selectattr('committer_component_type', 'defined')
+        | selectattr('committer_component_type', '==', 'coordinator')
+        | map(attribute='inventory_hostname')
+        | list
+        | first
       }}
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
@@ -59,8 +83,12 @@
   vars:
     committer_verifiers: >-
       {{
-        committer_hosts | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
-        selectattr('committer_component_type', '==', 'verifier') | map(attribute='inventory_hostname') | list
+        committer_hosts
+        | map('extract', hostvars)
+        | selectattr('committer_component_type', 'defined')
+        | selectattr('committer_component_type', '==', 'verifier')
+        | map(attribute='inventory_hostname')
+        | list
       }}
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
@@ -71,8 +99,12 @@
   vars:
     committer_validators: >-
       {{
-        committer_hosts | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
-        selectattr('committer_component_type', '==', 'validator') | map(attribute='inventory_hostname') | list
+        committer_hosts
+        | map('extract', hostvars)
+        | selectattr('committer_component_type', 'defined')
+        | selectattr('committer_component_type', '==', 'validator')
+        | map(attribute='inventory_hostname')
+        | list
       }}
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
