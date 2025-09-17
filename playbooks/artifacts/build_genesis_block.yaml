@@ -40,8 +40,13 @@
           }}
       loop: >-
         {{
-          groups['fabric-x-orderers'] | default([]) | map('extract', hostvars) | selectattr('organization', 'defined') |
-          selectattr('organization.role', 'defined') | selectattr('organization.role', '==', 'orderer') | map(attribute='inventory_hostname')
+          groups['fabric-x-orderers']
+          | default([])
+          | map('extract', hostvars)
+          | selectattr('organization', 'defined')
+          | selectattr('organization.role', 'defined')
+          | selectattr('organization.role', '==', 'orderer')
+          | map(attribute='inventory_hostname')
         }}
       loop_control:
         loop_var: orderer
@@ -66,8 +71,12 @@
           }}
       loop: >-
         {{
-          groups['all'] | default([]) | map('extract', hostvars) | selectattr('organization', 'defined') |
-          selectattr('organization.role', 'defined') | selectattr('organization.role', '==', 'peer') | map(attribute='inventory_hostname')
+          groups['all']
+          | map('extract', hostvars)
+          | selectattr('organization', 'defined')
+          | selectattr('organization.role', 'defined')
+          | selectattr('organization.role', '==', 'peer')
+          | map(attribute='inventory_hostname')
         }}
       loop_control:
         loop_var: peer
@@ -75,32 +84,46 @@
       vars:
         namespace_admin_users: >-
           {{
-            groups['all'] | default([]) | map('extract', hostvars) | selectattr('organization', 'defined') |
-            selectattr('organization.users', 'defined') | map(attribute='organization.users') | flatten |
-            selectattr('meta_namespace_admin', 'defined') | selectattr('meta_namespace_admin', '==', true) | list
+            groups['all']
+            | map('extract', hostvars)
+            | selectattr('organization', 'defined')
+            | selectattr('organization.users', 'defined')
+            | map(attribute='organization.users')
+            | flatten
+            | selectattr('meta_namespace_admin', 'defined')
+            | selectattr('meta_namespace_admin', '==', true)
+            | list
           }}
       ansible.builtin.fail:
         msg: "More than one Admin user for the MetaNamespace defined: {{ namespace_admin_users }}. Only 1 admin is allowed for the MetaNamespace."
       when:
         - namespace_admin_users | length > 1
-    - name: Add users to the Hyperledger Fabric-X peer organizations
+    - name: Set the Hyperledger Fabric-X meta namespace admin user
       vars:
-        admin_user: "{{ hostvars[peer].organization.users | first }}"
+        current_organization: "{{ org_user[0] }}"
+        user: "{{ org_user[1] }}"
       ansible.builtin.set_fact:
         configtxgen_meta_namespace_admin:
-          name: "{{ admin_user.name }}"
+          name: "{{ user.name }}"
           organization:
-            name: "{{ hostvars[peer].organization.name }}"
-            domain: "{{ hostvars[peer].organization.domain }}"
-      loop: >-
-        {{
-          groups['all'] | default([]) | map('extract', hostvars) | selectattr('organization', 'defined') |
-          selectattr('organization.users', 'defined') | map(attribute='inventory_hostname')
-        }}
+            name: "{{ current_organization.name }}"
+            domain: "{{ current_organization.domain }}"
+      with_subelements:
+        - >-
+          {{
+            groups['all']
+            | map('extract', hostvars)
+            | selectattr('organization', 'defined')
+            | map(attribute='organization')
+            | selectattr('users', 'defined')
+          }}
+        - "users"
       loop_control:
-        loop_var: peer
+        label: "{{ current_organization.domain }}:{{ user.name }}"
+        loop_var: org_user
       when:
-        - hostvars[peer].organization.users | selectattr('meta_namespace_admin', 'defined') | selectattr('meta_namespace_admin', '==', true) | list | length > 0
+        - user.meta_namespace_admin is defined
+        - user.meta_namespace_admin
     - name: Build Fabricx-compatible configuration file for configtxgen
       ansible.builtin.include_role:
         name: hyperledger.fabricx.configtxgen
