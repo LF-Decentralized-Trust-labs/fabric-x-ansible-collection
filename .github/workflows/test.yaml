@@ -65,6 +65,8 @@ jobs:
 
       # Run the Hyperledger Fabric-X inventory
       - name: Run the Hyperledger Fabric-X sample network and test if it works
+        env:
+          CONTAINER_CLIENT: docker
         run: |
           make setup start
           sleep 10
