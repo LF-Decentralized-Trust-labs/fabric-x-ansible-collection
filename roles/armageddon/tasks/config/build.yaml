@@ -69,6 +69,8 @@
     loop_var: orderer_group
 
 - name: Create {{ armageddon_shared_config_file }}
+  vars:
+    cryptogen_artifacts_dir: "{{ armageddon_cryptogen_artifacts_dir if armageddon_use_bin else armageddon_cryptogen_docker_artifacts_dir }}"
   ansible.builtin.template:
     src: shared_config.yaml.j2
     dest: "{{ armageddon_output_dir }}/{{ armageddon_shared_config_file }}"

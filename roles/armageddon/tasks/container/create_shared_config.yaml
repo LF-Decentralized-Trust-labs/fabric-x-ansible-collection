@@ -14,6 +14,7 @@
       --output={{ armageddon_docker_output_dir }}
     container_volumes:
       - "{{ armageddon_output_dir }}:{{ armageddon_docker_output_dir }}"
+      - "{{ armageddon_cryptogen_artifacts_dir }}:{{ armageddon_cryptogen_docker_artifacts_dir }}"
     container_run_detach_mode: false
     container_run_as_host_user: true
     container_autoremove: true
