@@ -6,8 +6,8 @@
 
 # Fabric-X Loadgen image
 loadgen_registry_endpoint: "{{ lookup('env', 'LOADGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-loadgen_image_name: "fabric-x-tools"
-loadgen_image_tag: "0.0.1"
+loadgen_image_name: "fabric-x-loadgen"
+loadgen_image_tag: "0.1.6"
 loadgen_image: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
 loadgen_container_name: "{{ inventory_hostname }}"
 

@@ -26,8 +26,12 @@
           }}
       loop: >-
         {{
-          groups['all'] | default([]) | map('extract', hostvars) | selectattr('organization', 'defined') |
-          selectattr('organization.role', 'defined') | selectattr('organization.role', '==', 'orderer') | map(attribute='inventory_hostname')
+          groups['fabric-x-orderers']
+          | map('extract', hostvars)
+          | selectattr('organization', 'defined')
+          | selectattr('organization.role', 'defined')
+          | selectattr('organization.role', '==', 'orderer')
+          | map(attribute='inventory_hostname')
         }}
       loop_control:
         loop_var: orderer
@@ -50,8 +54,12 @@
           }}
       loop: >-
         {{
-          groups['all'] | default([]) | map('extract', hostvars) | selectattr('organization', 'defined') |
-          selectattr('organization.role', 'defined') | selectattr('organization.role', '==', 'peer') | map(attribute='inventory_hostname')
+          groups['all']
+          | map('extract', hostvars)
+          | selectattr('organization', 'defined')
+          | selectattr('organization.role', 'defined')
+          | selectattr('organization.role', '==', 'peer')
+          | map(attribute='inventory_hostname')
         }}
       loop_control:
         loop_var: peer
@@ -74,8 +82,11 @@
           }}
       loop: >-
         {{
-          groups['all'] | default([]) | map('extract', hostvars) | selectattr('organization', 'defined') |
-          selectattr('organization.users', 'defined') | map(attribute='inventory_hostname')
+          groups['all']
+          | map('extract', hostvars)
+          | selectattr('organization', 'defined')
+          | selectattr('organization.users', 'defined')
+          | map(attribute='inventory_hostname')
         }}
       loop_control:
         loop_var: peer

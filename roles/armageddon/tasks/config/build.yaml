@@ -12,15 +12,42 @@
 
 - name: Collect all the Fabric-X Orderer components information
   vars:
-    _group_instances: "{{ armageddon_orderer_hosts | sort | map('extract', hostvars) | selectattr('orderer_group', '==', orderer_group | int) | list }}"
-    _assembler: "{{ _group_instances | selectattr('orderer_component_type', '==', 'assembler') | first }}"
-    _consenter: "{{ _group_instances | selectattr('orderer_component_type', '==', 'consenter') | first }}"
-    _router: "{{ _group_instances | selectattr('orderer_component_type', '==', 'router') | first }}"
-    _batchers: "{{ _group_instances | selectattr('orderer_component_type', '==', 'batcher') | list }}"
+    _group_instances: >-
+      {{
+        armageddon_orderer_hosts
+        | sort
+        | map('extract', hostvars)
+        | selectattr('orderer_group', '==', orderer_group | int)
+        | list
+      }}
+    _assembler: >-
+      {{
+        _group_instances
+        | selectattr('orderer_component_type', '==', 'assembler')
+        | first
+      }}
+    _consenter: >-
+      {{
+        _group_instances
+        | selectattr('orderer_component_type', '==', 'consenter')
+        | first
+      }}
+    _router: >-
+      {{
+        _group_instances
+        | selectattr('orderer_component_type', '==', 'router')
+        | first
+      }}
+    _batchers: >-
+      {{
+        _group_instances
+        | selectattr('orderer_component_type', '==', 'batcher')
+        | list
+      }}
   ansible.builtin.set_fact:
     all_orderer_instances: >-
       {{
-        all_orderer_instances | d({}) | combine({
+        all_orderer_instances | default({}) | combine({
           orderer_group: {
             'assembler': _assembler.inventory_hostname,
             'consenter': _consenter.inventory_hostname,
@@ -29,11 +56,21 @@
           }
         })
       }}
-  loop: "{{ armageddon_orderer_hosts | map('extract', hostvars) | selectattr('orderer_group', 'defined') | map(attribute='orderer_group') | unique | list }}"
+  loop: >-
+    {{
+      armageddon_orderer_hosts
+      | map('extract', hostvars)
+      | selectattr('orderer_group', 'defined')
+      | map(attribute='orderer_group')
+      | unique
+      | list
+    }}
   loop_control:
     loop_var: orderer_group
 
 - name: Create {{ armageddon_shared_config_file }}
+  vars:
+    cryptogen_artifacts_dir: "{{ armageddon_cryptogen_artifacts_dir if armageddon_use_bin else armageddon_cryptogen_docker_artifacts_dir }}"
   ansible.builtin.template:
     src: shared_config.yaml.j2
     dest: "{{ armageddon_output_dir }}/{{ armageddon_shared_config_file }}"

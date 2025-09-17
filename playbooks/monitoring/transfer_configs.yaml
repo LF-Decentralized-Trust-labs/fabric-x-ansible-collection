@@ -13,8 +13,10 @@
           {{
             groups['all']
             | map('extract', hostvars)
-            | selectattr('ansible_host', '==', item) | selectattr('node_exporter_port', 'defined')
-            | map(attribute='inventory_hostname') | sort
+            | selectattr('ansible_host', '==', item)
+            | selectattr('node_exporter_port', 'defined')
+            | map(attribute='inventory_hostname')
+            | sort
             | first
           }}
       ansible.builtin.set_fact:
@@ -31,45 +33,72 @@
             targets:
               - hosts: >-
                   {{
-                    groups['all'] | default([]) | map('extract', hostvars) | selectattr('postgres_exporter_port', 'defined') |
-                    map(attribute='inventory_hostname') | list
+                    groups['all']
+                    | map('extract', hostvars)
+                    | selectattr('postgres_exporter_port', 'defined')
+                    | map(attribute='inventory_hostname')
+                    | list
                   }}
                 port_to_scrape: postgres_exporter_port
           - job_name: sidecar_service
             targets:
               - hosts: >-
                   {{
-                    groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
-                    selectattr('committer_component_type', '==', 'sidecar') | map(attribute='inventory_hostname') | list
+                    groups['fabric-x-committer']
+                    | default([])
+                    | map('extract', hostvars)
+                    | selectattr('committer_component_type', 'defined')
+                    | selectattr('committer_component_type', '==', 'sidecar')
+                    | map(attribute='inventory_hostname')
+                    | list
                   }}
                 port_to_scrape: prometheus_exporter_port
           - job_name: coordinators_service
             targets:
               - hosts: >-
                   {{
-                    groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
-                    selectattr('committer_component_type', '==', 'coordinator') | map(attribute='inventory_hostname') | list
+                    groups['fabric-x-committer']
+                    | default([])
+                    | map('extract', hostvars)
+                    | selectattr('committer_component_type', 'defined')
+                    | selectattr('committer_component_type', '==', 'coordinator')
+                    | map(attribute='inventory_hostname')
+                    | list
                   }}
                 port_to_scrape: prometheus_exporter_port
           - job_name: verifiers_service
             targets:
               - hosts: >-
                   {{
-                    groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
-                    selectattr('committer_component_type', '==', 'verifier') | map(attribute='inventory_hostname') | list
+                    groups['fabric-x-committer']
+                    | default([])
+                    | map('extract', hostvars)
+                    | selectattr('committer_component_type', 'defined')
+                    | selectattr('committer_component_type', '==', 'verifier')
+                    | map(attribute='inventory_hostname')
+                    | list
                   }}
                 port_to_scrape: prometheus_exporter_port
           - job_name: validators_service
             targets:
               - hosts: >-
                   {{
-                    groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('committer_component_type', 'defined') |
-                    selectattr('committer_component_type', '==', 'validator') | map(attribute='inventory_hostname') | list
+                    groups['fabric-x-committer']
+                    | default([])
+                    | map('extract', hostvars)
+                    | selectattr('committer_component_type', 'defined')
+                    | selectattr('committer_component_type', '==', 'validator')
+                    | map(attribute='inventory_hostname')
+                    | list
                   }}
                 port_to_scrape: prometheus_exporter_port
           - job_name: blockgens_service
             targets:
-              - hosts: "{{ groups['load-generators'] | default([]) }}"
+              - hosts: >-
+                  {{
+                    groups['load-generators']
+                    | default([])
+                  }}
                 port_to_scrape: prometheus_exporter_port
           - job_name: yugabytedb
             relabel_configs:
@@ -105,8 +134,13 @@
             targets:
               - hosts: >-
                   {{
-                    groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('yugabyte_component_type', 'defined') |
-                    selectattr('yugabyte_component_type', '==', 'master') | map(attribute='inventory_hostname') | list
+                    groups['fabric-x-committer']
+                    | default([])
+                    | map('extract', hostvars)
+                    | selectattr('yugabyte_component_type', 'defined')
+                    | selectattr('yugabyte_component_type', '==', 'master')
+                    | map(attribute='inventory_hostname')
+                    | list
                   }}
                 port_to_scrape: yugabyte_master_webserver_port
                 label:
@@ -114,8 +148,13 @@
                   export_type: master_export
               - hosts: >-
                   {{
-                    groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('yugabyte_component_type', 'defined') |
-                    selectattr('yugabyte_component_type', '==', 'tablet') | map(attribute='inventory_hostname') | list
+                    groups['fabric-x-committer']
+                    | default([])
+                    | map('extract', hostvars)
+                    | selectattr('yugabyte_component_type', 'defined')
+                    | selectattr('yugabyte_component_type', '==', 'tablet')
+                    | map(attribute='inventory_hostname')
+                    | list
                   }}
                 port_to_scrape: yugabyte_tablet_webserver_port
                 label:
@@ -123,8 +162,13 @@
                   export_type: tserver_export
               - hosts: >-
                   {{
-                    groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('yugabyte_component_type', 'defined') |
-                    selectattr('yugabyte_component_type', '==', 'tablet') | map(attribute='inventory_hostname') | list
+                    groups['fabric-x-committer']
+                    | default([])
+                    | map('extract', hostvars)
+                    | selectattr('yugabyte_component_type', 'defined')
+                    | selectattr('yugabyte_component_type', '==', 'tablet')
+                    | map(attribute='inventory_hostname')
+                    | list
                   }}
                 port_to_scrape: yugabyte_tablet_pgsql_web_port
                 label:
@@ -132,8 +176,13 @@
                   export_type: ysql_export
               - hosts: >-
                   {{
-                    groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('yugabyte_component_type', 'defined') |
-                    selectattr('yugabyte_component_type', '==', 'tablet') | map(attribute='inventory_hostname') | list
+                    groups['fabric-x-committer']
+                    | default([])
+                    | map('extract', hostvars)
+                    | selectattr('yugabyte_component_type', 'defined')
+                    | selectattr('yugabyte_component_type', '==', 'tablet')
+                    | map(attribute='inventory_hostname')
+                    | list
                   }}
                 port_to_scrape: yugabyte_tablet_cql_web_port
                 label:
@@ -141,8 +190,13 @@
                   export_type: cql_export
               - hosts: >-
                   {{
-                    groups['fabric-x-committer'] | default([]) | map('extract', hostvars) | selectattr('yugabyte_component_type', 'defined') |
-                    selectattr('yugabyte_component_type', '==', 'tablet') | map(attribute='inventory_hostname') | list
+                    groups['fabric-x-committer']
+                    | default([])
+                    | map('extract', hostvars)
+                    | selectattr('yugabyte_component_type', 'defined')
+                    | selectattr('yugabyte_component_type', '==', 'tablet')
+                    | map(attribute='inventory_hostname')
+                    | list
                   }}
                 port_to_scrape: yugabyte_tablet_cql_web_port
                 label:

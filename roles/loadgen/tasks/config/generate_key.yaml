@@ -25,7 +25,7 @@
 
 # This is a patch to allow the orderer-loadgen to inherit the key of another user in order to automatically create its MetaNamespace."
 # It will be removed in the future.
-- name: Transfer the {{ inherit_user.name }} user public key
+- name: Transfer the inherited user public key
   ansible.posix.synchronize:
     src: "{{ loadgen_cryptogen_artifact_build_dir }}/crypto/peerOrganizations/{{ inherit_user.organization.domain }}/users/{{ inherit_user.name }}@{{ inherit_user.organization.domain }}"
     dest: "{{ loadgen_remote_config_dir }}/users"

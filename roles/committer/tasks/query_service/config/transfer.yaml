@@ -17,8 +17,20 @@
 
 - name: Generate {{ committer_query_service_config_file }}
   vars:
-    _yb_master: "{{ committer_db_servers | map('extract', hostvars) | selectattr('yugabyte_component_type', 'defined') | selectattr('yugabyte_component_type', '==', 'master') | map(attribute='inventory_hostname') }}"
-    db_servers: "{{ committer_db_servers | difference(_yb_master) | list }}"
+    _yb_master: >-
+      {{
+        committer_db_servers
+        | map('extract', hostvars)
+        | selectattr('yugabyte_component_type', 'defined')
+        | selectattr('yugabyte_component_type', '==', 'master')
+        | map(attribute='inventory_hostname')
+      }}
+    db_servers: >-
+      {{
+        committer_db_servers
+        | difference(_yb_master)
+        | list
+      }}
     _db_server: "{{ db_servers | first }}"
     db_username: "{{ hostvars[_db_server].postgres_user if committer_use_postgres else hostvars[_db_server].yugabyte_user }}"
     db_password: "{{ hostvars[_db_server].postgres_password if committer_use_postgres else hostvars[_db_server].yugabyte_password }}"

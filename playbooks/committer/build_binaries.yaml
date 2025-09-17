@@ -11,10 +11,13 @@
       vars:
         committer_service_instances: >-
           {{
-            groups[target_hosts | default('fabric-x-committer')] | intersect(groups['fabric-x-committer']) |
-            map('extract', hostvars) | selectattr("committer_use_bin", 'defined') |
-            selectattr("committer_use_bin", 'eq', true) |
-            map(attribute='inventory_hostname') | list
+            groups[target_hosts | default('fabric-x-committer')]
+            | intersect(groups['fabric-x-committer'])
+            | map('extract', hostvars)
+            | selectattr("committer_use_bin", 'defined')
+            | selectattr("committer_use_bin", 'eq', true)
+            | map(attribute='inventory_hostname')
+            | list
           }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.committer

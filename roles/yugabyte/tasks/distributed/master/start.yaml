@@ -8,14 +8,19 @@
   vars:
     _yb_masters: >-
       {{
-        ansible_play_hosts | map('extract', hostvars) | selectattr('yugabyte_component_type', 'defined') |
-        selectattr('yugabyte_component_type', '==', 'master') | map(attribute='inventory_hostname') | list
+        ansible_play_hosts
+        | map('extract', hostvars)
+        | selectattr('yugabyte_component_type', 'defined')
+        | selectattr('yugabyte_component_type', '==', 'master')
+        | map(attribute='inventory_hostname')
+        | list
       }}
   ansible.builtin.set_fact:
     yb_masters: "{{ _yb_masters }}"
     yb_master_hosts: >-
       {{
-        _yb_masters | map('extract', hostvars, 'ansible_host')
+        _yb_masters
+        | map('extract', hostvars, 'ansible_host')
         | zip(_yb_masters | map('extract', hostvars, 'yugabyte_master_rpc_bind_port'))
         | map('join', ':')
         | join(',')

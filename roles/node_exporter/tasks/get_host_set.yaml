@@ -10,11 +10,19 @@
       {{
         ansible_play_hosts
         | map('extract', hostvars)
-        | selectattr('ansible_host', '==', item) | selectattr('node_exporter_port', 'defined')
-        | map(attribute='inventory_hostname') | sort
+        | selectattr('ansible_host', '==', item)
+        | selectattr('node_exporter_port', 'defined')
+        | map(attribute='inventory_hostname')
+        | sort
         | first
       }}
   ansible.builtin.add_host:
     name: "{{ hostname_for_node_exporter }}"
     groups: node_exporter_hosts
-  loop: "{{ ansible_play_hosts | map('extract', hostvars, 'ansible_host') | unique | list }}"
+  loop: >-
+    {{
+      ansible_play_hosts
+      | map('extract', hostvars, 'ansible_host')
+      | unique
+      | list
+    }}

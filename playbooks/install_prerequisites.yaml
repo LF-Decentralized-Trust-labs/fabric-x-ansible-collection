@@ -20,7 +20,13 @@
       ansible.builtin.add_host:
         name: "{{ hostname_per_machine }}"
         groups: machines
-      loop: "{{ ansible_play_hosts | map('extract', hostvars, 'ansible_host') | unique | list }}"
+      loop: >-
+        {{
+          ansible_play_hosts
+          | map('extract', hostvars, 'ansible_host')
+          | unique
+          | list
+        }}
 
 - name: Install prerequisites
   hosts: "{{ target_hosts | default('machines') }}:&machines"
