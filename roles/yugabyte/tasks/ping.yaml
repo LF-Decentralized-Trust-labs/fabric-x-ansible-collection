@@ -6,17 +6,36 @@
 
 - name: Set Yugabyte variables
   ansible.builtin.set_fact:
-    yugabyte_masters: "{{ ansible_play_hosts | map('extract', hostvars) | selectattr('yugabyte_component_type', 'defined') | selectattr('yugabyte_component_type', '==', 'master') | map(attribute='inventory_hostname') | list }}"
-    yugabyte_tablets: "{{ ansible_play_hosts | map('extract', hostvars) | selectattr('yugabyte_component_type', 'defined') | selectattr('yugabyte_component_type', '==', 'tablet') | map(attribute='inventory_hostname') | list }}"
+    yugabyte_masters: >-
+      {{
+        ansible_play_hosts
+        | map('extract', hostvars)
+        | selectattr('yugabyte_component_type', 'defined')
+        | selectattr('yugabyte_component_type', '==', 'master')
+        | map(attribute='inventory_hostname')
+        | list
+      }}
+    yugabyte_tablets: >-
+      {{
+        ansible_play_hosts
+        | map('extract', hostvars)
+        | selectattr('yugabyte_component_type', 'defined')
+        | selectattr('yugabyte_component_type', '==', 'tablet')
+        | map(attribute='inventory_hostname')
+        | list
+      }}
 
 - name: Check that the Yugabyte standalone DB ports are open
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: standalone/ping
-  when: yugabyte_masters | length == 0 and yugabyte_tablets | length == 0
+  when:
+    - yugabyte_masters | length == 0
+    - yugabyte_tablets | length == 0
 
 - name: Check that the Yugabyte cluster ports are open
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: distributed/ping
-  when: yugabyte_masters | length > 0 or yugabyte_tablets | length > 0
+  when:
+    - yugabyte_masters | length > 0 or yugabyte_tablets | length > 0

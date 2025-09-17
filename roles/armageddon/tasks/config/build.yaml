@@ -47,7 +47,7 @@
   ansible.builtin.set_fact:
     all_orderer_instances: >-
       {{
-        all_orderer_instances | d({}) | combine({
+        all_orderer_instances | default({}) | combine({
           orderer_group: {
             'assembler': _assembler.inventory_hostname,
             'consenter': _consenter.inventory_hostname,

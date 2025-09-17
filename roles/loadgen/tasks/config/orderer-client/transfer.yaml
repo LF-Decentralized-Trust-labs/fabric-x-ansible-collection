@@ -32,7 +32,12 @@
 - name: Generate the config for the Fabric-X Loadgen for the Fabric-X Orderer
   vars:
     loadgen_config_dir: "{{ loadgen_remote_config_dir if loadgen_use_bin else loadgen_docker_config_dir }}"
-    organization_user: "{{ (organization.users | default([]) | first) }}"
+    organization_user: >-
+      {{
+        organization.users
+        | default([])
+        | first
+      }}
     loadgen_user:
       name: "{{ inherit_user.name if inherit_user is defined else organization_user.name }}"
       organization:

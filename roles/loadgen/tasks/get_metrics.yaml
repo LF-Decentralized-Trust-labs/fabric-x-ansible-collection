@@ -17,7 +17,14 @@
 
 - name: Assert the Fabric-X Loadgen metrics
   ansible.builtin.set_fact:
-    loadgen_tx_latency: "{{ loadgen_metrics.content | regex_search('loadgen_valid_transaction_latency_seconds_count ([0-9]+)', '\\1') | d(['0']) | first | int }}"
+    loadgen_tx_latency: >-
+      {{
+        loadgen_metrics.content
+        | regex_search('loadgen_valid_transaction_latency_seconds_count ([0-9]+)', '\\1')
+        | default(['0'])
+        | first
+        | int
+      }}
   when: loadgen_assert_metrics
 
 - name: Assert the Fabric-X Loadgen latency metric
