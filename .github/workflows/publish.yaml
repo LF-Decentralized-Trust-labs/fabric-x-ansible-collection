@@ -1,3 +1,9 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
 name: Publish Ansible collection
 
 on:
@@ -8,23 +14,29 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+
     steps:
+      # Checkout the repository code
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Set up Python environment for Ansible
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.x"
 
+      # Install ansible-core
       - name: Install dependencies
         run: |
           pip install ansible-core yq
 
+      # Build the collection
       - name: Build collection
         run: |
           ansible-galaxy collection build
 
+      # Publish the collection to Ansible Galaxy
       - name: Publish collection to Ansible Galaxy
         run: |
           VERSION=$(yq -r .version galaxy.yml)
