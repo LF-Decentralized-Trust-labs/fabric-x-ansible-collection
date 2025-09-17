@@ -61,7 +61,7 @@ jobs:
         run: |
           pip install -r requirements.txt
           ansible-galaxy collection install -r requirements.yml
-          make install
+          make install install-prerequisites
 
       # Run the Hyperledger Fabric-X inventory
       - name: Run the Hyperledger Fabric-X sample network and test if it works
