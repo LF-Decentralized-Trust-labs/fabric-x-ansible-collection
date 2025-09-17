@@ -9,7 +9,12 @@
   tasks:
     - name: Collect metrics from Fabric-X Loadgen
       vars:
-        loadgen_assert_metrics: "{{ assert_metrics | default(false) }}"
+        loadgen_assert_metrics: >-
+          {{
+            assert_metrics
+            | bool
+            | default(false)
+          }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.loadgen
         tasks_from: get_metrics
