@@ -28,9 +28,9 @@ Organizations:
     # this property must always be set to false for orgs included in block
     # creation.
     SkipAsForeign: false
-    
+
     # ID is the key by which this org's MSP definition will be referenced.
-    # ID can include alphanumeric charaters as well as dots and dashes.    
+    # ID can include alphanumeric charaters as well as dots and dashes.
     ID: {{ orderer_org_info.name }}MSP
 
     # MSPDir is the filesystem path which contains the MSP configuration.
@@ -45,13 +45,13 @@ Organizations:
         Rule: OR('{{ orderer_org_info.name }}MSP.member')
         # If your MSP is configured with the new NodeOUs, you might
         # want to use a more specific rule like the following:
-        # Rule: "OR('SampleOrg.admin', 'SampleOrg.peer', 'SampleOrg.client')"        
+        # Rule: "OR('SampleOrg.admin', 'SampleOrg.peer', 'SampleOrg.client')"
       Writers:
         Type: Signature
         Rule: OR('{{ orderer_org_info.name }}MSP.member')
         # If your MSP is configured with the new NodeOUs, you might
         # want to use a more specific rule like the following:
-        # Rule: "OR('SampleOrg.admin', 'SampleOrg.client')"        
+        # Rule: "OR('SampleOrg.admin', 'SampleOrg.client')"
       Admins:
         Type: Signature
         Rule: OR('{{ orderer_org_info.name }}MSP.admin')
@@ -71,11 +71,11 @@ Organizations:
   - &{{ peer_org_info.name }}MSP
     # Name is the key by which this org will be referenced in channel
     # configuration transactions.
-    # Name can include alphanumeric characters as well as dots and dashes.    
+    # Name can include alphanumeric characters as well as dots and dashes.
     Name: {{ peer_org_info.name }}
-    
+
     # ID is the key by which this org's MSP definition will be referenced.
-    # ID can include alphanumeric charaters as well as dots and dashes.    
+    # ID can include alphanumeric charaters as well as dots and dashes.
     ID: {{ peer_org_info.name }}MSP
 
 {% if peer_org_info.type is defined and peer_org_info.type == 'idemix' %}
@@ -89,20 +89,20 @@ Organizations:
 
     # Policies defines the set of policies at this level of the config tree
     # For organization policies, their canonical path is usually
-    #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>    
+    #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
     Policies: &{{ peer_org_info.name }}Policies
       Readers:
         Type: Signature
         Rule: OR('{{ peer_org_info.name }}MSP.member')
         # If your MSP is configured with the new NodeOUs, you might
         # want to use a more specific rule like the following:
-        # Rule: "OR('SampleOrg.admin', 'SampleOrg.peer', 'SampleOrg.client')"        
+        # Rule: "OR('SampleOrg.admin', 'SampleOrg.peer', 'SampleOrg.client')"
       Writers:
         Type: Signature
         Rule: OR('{{ peer_org_info.name }}MSP.member')
         # If your MSP is configured with the new NodeOUs, you might
         # want to use a more specific rule like the following:
-        # Rule: "OR('SampleOrg.admin', 'SampleOrg.client')"        
+        # Rule: "OR('SampleOrg.admin', 'SampleOrg.client')"
       Endorsement:
         Type: Signature
         Rule: OR('{{ peer_org_info.name }}MSP.member')
@@ -276,7 +276,7 @@ Application: &ApplicationDefaults
 
   # Policies defines the set of policies at this level of the config tree
   # For Application policies, their canonical path is
-  #   /Channel/Application/<PolicyName>  
+  #   /Channel/Application/<PolicyName>
   Policies:
     Readers:
       Type: ImplicitMeta
@@ -289,7 +289,7 @@ Application: &ApplicationDefaults
       Rule: ANY Admins
     Endorsement:
       Type: ImplicitMeta
-      Rule: ANY Endorsement      
+      Rule: ANY Endorsement
     LifecycleEndorsement:
 {% if configtxgen_peers_by_org.items() | length > 0 %}
       Type: Signature
@@ -334,7 +334,7 @@ Orderer: &OrdererDefaults
   # is applied.
   BatchSize:
     # Max Message Count: The maximum number of messages to permit in a
-    # batch.  No block will contain more than this number of messages.  
+    # batch.  No block will contain more than this number of messages.
     MaxMessageCount: 3500
 
     # Absolute Max Bytes: The absolute maximum number of bytes allowed for
@@ -358,7 +358,7 @@ Orderer: &OrdererDefaults
     # preferred max bytes (up to AbsoluteMaxBytes), some batches may exceed
     # the preferred max bytes, but will always contain exactly one transaction.
     PreferredMaxBytes: 4 MB
-  
+
   # Max Channels is the maximum number of channels to allow on the ordering
   # network. When set to 0, this implies no maximum number of channels.
   MaxChannels: 0
@@ -369,7 +369,7 @@ Orderer: &OrdererDefaults
     # The maximal number of requests in a batch.
     # A request batch that reaches this count is proposed immediately.
     RequestBatchMaxCount: 8000
-    
+
     # The maximal total size of requests in a batch, in bytes.
     # This is also the maximal size of a single request.
     # A request batch that reaches this size is proposed immediately.
@@ -465,7 +465,7 @@ Orderer: &OrdererDefaults
       Type: ImplicitMeta
       Rule: MAJORITY Admins
     # BlockValidation specifies what signatures must be included in the block
-    # from the orderer for the peer to validate it.      
+    # from the orderer for the peer to validate it.
     BlockValidation:
       Type: ImplicitMeta
       Rule: ANY Writers
@@ -474,7 +474,7 @@ Orderer: &OrdererDefaults
   # dedicated Capabilities section elsewhere in this file for a full
   # description
   Capabilities:
-    <<: *OrdererCapabilities      
+    <<: *OrdererCapabilities
 
 ################################################################################
 #
@@ -504,7 +504,7 @@ Channel: &ChannelDefaults
   
   # Capabilities describes the channel level capabilities, see the
   # dedicated Capabilities section elsewhere in this file for a full
-  # description      
+  # description
   Capabilities:
     <<: *ChannelCapabilities
 
