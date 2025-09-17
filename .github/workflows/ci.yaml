@@ -8,15 +8,16 @@ name: Lint
 
 on:
   push:
-    branches: ["main", "master"]
+    branches: ["main"]
   pull_request:
-    branches: ["main", "master"]
+    branches: ["main"]
   # Enable manual triggering
   workflow_dispatch:
 
 jobs:
   lint:
     runs-on: ubuntu-latest
+
     steps:
       # Checkout the repository code
       - name: Checkout code
