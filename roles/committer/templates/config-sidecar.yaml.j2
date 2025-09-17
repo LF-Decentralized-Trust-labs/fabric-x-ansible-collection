@@ -19,7 +19,7 @@ orderer:
     endpoints:
 {% for orderer_assembler in orderer_assemblers %}
       - {{ hostvars[orderer_assembler].ansible_host }}:{{ hostvars[orderer_assembler].orderer_rpc_port }}
-{% endfor %}    
+{% endfor %}
 {% if committer_use_tls %}
   orderer-connection-profile:
     {
@@ -33,7 +33,7 @@ committer:
   endpoint:
     host: {{ hostvars[committer_coordinator].ansible_host }}
     port: {{ hostvars[committer_coordinator].committer_rpc_port }}
-ledger: 
+ledger:
   path: {{ committer_config_dir }}/ledger
 last-committed-block-set-interval: 5s
 bootstrap:

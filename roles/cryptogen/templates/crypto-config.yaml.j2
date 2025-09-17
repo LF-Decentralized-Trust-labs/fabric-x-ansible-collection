@@ -16,10 +16,10 @@ OrdererOrgs:
   - Name: {{ orderer_org_info.name }}
     Domain: {{ orderer_org_info.domain }}
     EnableNodeOUs: false
-{% if orderer_org_info.orderers is defined and orderer_org_info.orderers | length > 0 %}    
+{% if orderer_org_info.orderers is defined and orderer_org_info.orderers | length > 0 %}
     # ---------------------------------------------------------------------------
     # "Specs"
-    # ---------------------------------------------------------------------------      
+    # ---------------------------------------------------------------------------
     # Specs is an array of Spec entries.  Each Spec entry consists of two fields:
     #   - Hostname:   (Required) The desired hostname, sans the domain.
     #   - CommonName: (Optional) Specifies the template or explicit override for
@@ -28,7 +28,7 @@ OrdererOrgs:
     #                              "Hostname.Domain"
     #
     #                 which obtains its values from the Spec.Hostname and
-    #                 Org.Domain, respectively.      
+    #                 Org.Domain, respectively.
     Specs:
 {% for orderer in orderer_org_info.orderers %}
       - Hostname: {{ orderer.name }}
