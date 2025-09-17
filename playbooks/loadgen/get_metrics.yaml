@@ -12,8 +12,8 @@
         loadgen_assert_metrics: >-
           {{
             assert_metrics
-            | bool
             | default(false)
+            | bool
           }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.loadgen
