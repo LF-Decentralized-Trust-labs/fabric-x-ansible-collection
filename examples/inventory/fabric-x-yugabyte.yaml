@@ -141,7 +141,6 @@ all:
           loadgen_type: orderer-client
           prometheus_exporter_port: 2119
           loadgen_web_port: 6997
-          loadgen_use_bin: true
 
     monitoring:
       hosts:
