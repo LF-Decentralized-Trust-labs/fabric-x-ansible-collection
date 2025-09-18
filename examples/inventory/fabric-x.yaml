@@ -23,38 +23,6 @@ all:
   children:
     fabric-x:
       children:
-        fabric-x-committer:
-          vars:
-            committer_use_postgres: true
-          hosts:
-            committer-db:
-              committer_component_type: db
-              postgres_user: sc_user
-              postgres_password: sc_secret_pwd
-              postgres_db: sc_db
-              postgres_port: 5435
-              postgres_exporter_port: 2110
-            committer-validator:
-              committer_component_type: validator
-              committer_rpc_port: 6001
-              prometheus_exporter_port: 2116
-            committer-verifier:
-              committer_component_type: verifier
-              committer_rpc_port: 5001
-              prometheus_exporter_port: 2115
-            committer-coordinator:
-              committer_component_type: coordinator
-              committer_rpc_port: 9001
-              prometheus_exporter_port: 2120
-            committer-sidecar:
-              committer_component_type: sidecar
-              committer_rpc_port: 5050
-              prometheus_exporter_port: 2111
-            committer-query-service:
-              committer_component_type: query-service
-              committer_rpc_port: 7001
-              prometheus_exporter_port: 2117
-
         fabric-x-orderers:
           vars:
             organization:
@@ -130,6 +98,38 @@ all:
                 orderer-assembler-4:
                   orderer_component_type: assembler
                   orderer_rpc_port: 7353
+
+        fabric-x-committer:
+          vars:
+            committer_use_postgres: true
+          hosts:
+            committer-db:
+              committer_component_type: db
+              postgres_user: sc_user
+              postgres_password: sc_secret_pwd
+              postgres_db: sc_db
+              postgres_port: 5435
+              postgres_exporter_port: 2110
+            committer-validator:
+              committer_component_type: validator
+              committer_rpc_port: 5100
+              prometheus_exporter_port: 2120
+            committer-verifier:
+              committer_component_type: verifier
+              committer_rpc_port: 5200
+              prometheus_exporter_port: 2130
+            committer-coordinator:
+              committer_component_type: coordinator
+              committer_rpc_port: 5300
+              prometheus_exporter_port: 2140
+            committer-sidecar:
+              committer_component_type: sidecar
+              committer_rpc_port: 5400
+              prometheus_exporter_port: 2150
+            committer-query-service:
+              committer_component_type: query-service
+              committer_rpc_port: 5500
+              prometheus_exporter_port: 2160
 
     load-generators:
       hosts:
