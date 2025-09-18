@@ -132,6 +132,7 @@ all:
     load-generators:
       hosts:
         orderer-loadgen:
+          loadgen_use_bin: true
           organization:
             name: Org1
             domain: org1.example.com

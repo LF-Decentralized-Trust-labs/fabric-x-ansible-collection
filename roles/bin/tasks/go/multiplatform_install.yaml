@@ -16,18 +16,24 @@
 - name: Collect unique os and arch combinations
   vars:
     os_arch_combo:
-      os: "{{ hostvars[item].os | default('') }}"
-      arch: "{{ hostvars[item].arch | default('') }}"
+      os: "{{ hostvars[host].os | default('') }}"
+      arch: "{{ hostvars[host].arch | default('') }}"
   ansible.builtin.set_fact:
     os_arch_combos: "{{ os_arch_combos + [os_arch_combo] }}"
   loop: "{{ bin_service_instances }}"
-  when: os_arch_combo not in os_arch_combos
+  loop_control:
+    loop_var: host
+  when:
+    - os_arch_combo not in os_arch_combos
 
 - name: Install for multiple platforms the binary {{ bin_name }}
   vars:
-    bin_target_os: "{{ item.os }}"
-    bin_target_arch: "{{ item.arch }}"
+    bin_target_os: "{{ os_arch.os }}"
+    bin_target_arch: "{{ os_arch.arch }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: go/install
   loop: "{{ os_arch_combos }}"
+  loop_control:
+    label: "{{ bin_target_arch | default(ansible_facts.architecture, true) | lower }}:{{ bin_target_os | default(ansible_facts.os_family, true) | lower }}"
+    loop_var: os_arch

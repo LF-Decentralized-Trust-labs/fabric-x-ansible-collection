@@ -1,4 +1,4 @@
-name: Test the Ansible collection
+name: Tests
 
 on:
   push:
@@ -15,9 +15,7 @@ jobs:
       matrix:
         include:
           - inventory: "fabric-x"
-            inventory_path: "./examples/inventory/fabric-x.yaml"
           - inventory: "fabric-x-yugabyte"
-            inventory_path: "./examples/inventory/fabric-x-yugabyte.yaml"
       fail-fast: false
 
     steps:
@@ -75,7 +73,7 @@ jobs:
       - name: Run the Hyperledger Fabric-X sample network (${{ matrix.inventory }})
         env:
           CONTAINER_CLIENT: docker
-          ANSIBLE_INVENTORY: ${{ matrix.inventory_path }}
+          ANSIBLE_INVENTORY: ./examples/inventory/${{ matrix.inventory }}.yaml
         run: |
           make setup start
           sleep 10

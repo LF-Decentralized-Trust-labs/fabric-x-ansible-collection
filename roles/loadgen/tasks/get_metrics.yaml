@@ -17,21 +17,22 @@
   when:
     - not loadgen_assert_metrics
 
-- name: Assert the Fabric-X Loadgen metrics
+- name: Set the transaction latency from the Fabric-X Loadgen metrics
   ansible.builtin.set_fact:
     loadgen_tx_latency: >-
       {{
         loadgen_metrics.content
         | regex_findall('loadgen_valid_transaction_latency_seconds_count\s+([0-9]+)')
-        | default('0')
+        | default(['0'])
         | first
         | int
       }}
-  when: loadgen_assert_metrics
+  when:
+    - loadgen_assert_metrics
 
 - name: Assert the Fabric-X Loadgen latency metric
   ansible.builtin.fail:
-    loadgen_tx_latency: "The transaction latency is invalid: {{ loadgen_tx_latency }}"
+    msg: "The transaction latency is invalid: {{ loadgen_tx_latency }}"
   when:
     - loadgen_assert_metrics
-    - loadgen_tx_latency == '0'
+    - loadgen_tx_latency == 0
