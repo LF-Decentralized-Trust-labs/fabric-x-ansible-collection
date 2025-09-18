@@ -35,5 +35,5 @@
     tasks_from: go/build
   loop: "{{ os_arch_combos }}"
   loop_control:
-    label: "{{ bin_target_arch }}:{{ bin_target_os }}"
+    label: "{{ bin_target_arch | default(ansible_facts.architecture, true) | lower }}:{{ bin_target_os | default(ansible_facts.os_family, true) | lower }}"
     loop_var: os_arch
