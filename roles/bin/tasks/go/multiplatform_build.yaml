@@ -22,7 +22,7 @@
     os_arch_combos: "{{ os_arch_combos + [os_arch_combo] }}"
   loop: "{{ bin_service_instances }}"
   loop_control:
-    label: host
+    loop_var: host
   when:
     - os_arch_combo not in os_arch_combos
 
