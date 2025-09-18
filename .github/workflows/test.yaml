@@ -73,7 +73,7 @@ jobs:
       - name: Run the Hyperledger Fabric-X sample network (${{ matrix.inventory }})
         env:
           CONTAINER_CLIENT: docker
-          ANSIBLE_INVENTORY: ./examples/inventory/${{ matrix.inventory }}
+          ANSIBLE_INVENTORY: ./examples/inventory/${{ matrix.inventory }}.yaml
         run: |
           make setup start
           sleep 10
