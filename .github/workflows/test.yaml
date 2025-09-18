@@ -1,3 +1,9 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
 name: Tests
 
 on:
@@ -70,12 +76,9 @@ jobs:
           make install install-prerequisites
 
       # Run the Hyperledger Fabric-X inventory
-      - name: Run the Hyperledger Fabric-X sample network (${{ matrix.inventory }})
+      - name: Test the (${{ matrix.inventory }}) inventory
         env:
           CONTAINER_CLIENT: docker
           ANSIBLE_INVENTORY: ./examples/inventory/${{ matrix.inventory }}.yaml
         run: |
-          make setup start
-          sleep 10
-          make load-generators get-metrics ASSERT_METRICS=true
-          make teardown
+          ./ci/run_ci_test.sh
