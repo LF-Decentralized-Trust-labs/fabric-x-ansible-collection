@@ -78,6 +78,7 @@ jobs:
       # Run the Hyperledger Fabric-X inventory
       - name: Test the (${{ matrix.inventory }}) inventory
         env:
+          PROJECT_DIR: $PWD
           CONTAINER_CLIENT: docker
           ANSIBLE_INVENTORY: ./examples/inventory/${{ matrix.inventory }}.yaml
         run: |
