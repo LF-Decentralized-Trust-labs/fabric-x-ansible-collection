@@ -15,6 +15,7 @@
       - "--web.console.templates=/usr/share/prometheus/consoles"
       - "--web.enable-remote-write-receiver"
       - "--web.enable-lifecycle"
+      - "--enable-feature=native-histograms"
       - "--web.listen-address=:{{ prometheus_web_port }}"
     container_ports:
       - "{{ prometheus_web_port }}:{{ prometheus_web_port }}"

@@ -31,3 +31,6 @@
     name: hyperledger.fabricx.bin
     tasks_from: go/install
   loop: "{{ os_arch_combos }}"
+  loop_control:
+    label: "{{ bin_target_arch }}:{{ bin_target_os }}"
+    loop_var: os_arch
