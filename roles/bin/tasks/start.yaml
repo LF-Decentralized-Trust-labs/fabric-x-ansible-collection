@@ -42,12 +42,16 @@
 
 - name: Run command within a TMUX session
   ansible.builtin.command: "tmux new-session -s {{ bin_name }} -d '{{ bin_cmd_to_run }}'"
+  args:
+    chdir: "{{ bin_chdir }}"
   register: bin_output
   changed_when: bin_output.rc != 0
   when: bin_run_with_tmux
 
 - name: Run command # noqa: command-instead-of-shell
   ansible.builtin.shell: "{{ bin_cmd_to_run }}"
+  args:
+    chdir: "{{ bin_chdir }}"
   register: bin_output
   until: "{{ bin_run_until }}"
   retries: "{{ bin_run_retries }}"
