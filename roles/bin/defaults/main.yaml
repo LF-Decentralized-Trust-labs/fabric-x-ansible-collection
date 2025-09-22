@@ -22,6 +22,7 @@ bin_cgo_enabled: false
 bin_collect_logs: true
 bin_run_with_tmux: true
 bin_flag: "use_bin"
+bin_chdir: null
 
 # env for wait binary
 bin_omit_logs: false
