@@ -1,0 +1,28 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check if tmux session exists
+  ansible.builtin.command: tmux has-session -t {{ tmux_session_name }}
+  register: tmux_session_exists
+  changed_when: false
+  failed_when: false
+
+- name: Run tmux session
+  ansible.builtin.command: "tmux new-session -s {{ tmux_session_name }} -d '{{ tmux_cmd_to_run }}'"
+  args:
+    chdir: "{{ tmux_chdir }}"
+  register: tmux_output
+  changed_when: tmux_output.rc != 0
+  when:
+    - tmux_session_exists.rc != 0
+
+- name: Show command results
+  ansible.builtin.debug:
+    msg: "{{ tmux_output.stdout_lines }}"
+  when:
+    - not tmux_omit_logs
+    - tmux_output is defined
+    - tmux_output.stdout_lines | length > 0

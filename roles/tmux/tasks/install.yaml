@@ -11,18 +11,19 @@
   when:
     - ansible_facts.os_family == "Debian"
 
-- name: Install openssl on Linux
+- name: Install tmux on Linux
   become: true
   ansible.builtin.package:
     name:
-      - openssl
+      - tmux
     state: present
   when:
     - ansible_facts.system == 'Linux'
 
-- name: Install openssl on macOS
+- name: Install tmux on macOS
   community.general.homebrew:
     name:
-      - openssl
+      - tmux
     state: present
-  when: ansible_facts.os_family == 'Darwin'
+  when:
+    - ansible_facts.system == 'Darwin'

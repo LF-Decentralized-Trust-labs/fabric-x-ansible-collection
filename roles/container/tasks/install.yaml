@@ -21,18 +21,20 @@
   ansible.builtin.set_fact:
     container_client_installed: "{{ container_client_bin.rc == 0 }}"
 
-- name: Install podman client
+- name: Install podman client on Linux
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: podman/install
   when:
+    - ansible_facts.system == 'Linux'
     - container_client == 'podman' or container_client == ''
     - not container_client_installed
 
-- name: Install docker client
+- name: Install docker client on Linux
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: docker/install
   when:
+    - ansible_facts.system == 'Linux'
     - container_client == 'docker'
     - not container_client_installed
