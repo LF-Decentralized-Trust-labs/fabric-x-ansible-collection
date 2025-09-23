@@ -17,16 +17,16 @@
     podman_installed: "{{ podman_bin.rc == 0 }}"
 
 - name: Ensure Podman package is installed on Debian-based systems
+  become: true
   ansible.builtin.apt:
-    name: podman
-    state: present
     update_cache: true
   when:
     - ansible_facts.os_family == "Debian"
     # - not podman_installed
 
 - name: Ensure Podman package is installed on RedHat-based systems
-  ansible.builtin.dnf:
+  become: true
+  ansible.builtin.package:
     name: podman
     state: present
   when:

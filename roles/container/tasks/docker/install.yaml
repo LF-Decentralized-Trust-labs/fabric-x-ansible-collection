@@ -17,6 +17,7 @@
     docker_installed: "{{ podman_bin.rc == 0 }}"
 
 - name: Ensure dependencies for Docker are installed (Debian)
+  become: true
   ansible.builtin.apt:
     name:
       - ca-certificates
@@ -60,6 +61,7 @@
     # - not docker_installed
 
 - name: Install Docker packages
+  become: true
   ansible.builtin.package:
     name:
       - docker-ce
