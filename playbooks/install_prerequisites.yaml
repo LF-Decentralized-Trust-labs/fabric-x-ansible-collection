@@ -43,85 +43,26 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.openssl
         tasks_from: install
-    # rsync installation
-    - name: Check if rsync is installed
-      ansible.builtin.shell:
-        cmd: "command -v rsync > /dev/null 2>&1"
-      register: rsync_check
-      changed_when: false
-      failed_when: false
-    - name: Check if rsync is available
-      ansible.builtin.command: "{{ ansible_pkg_mgr }} list rsync"
-      register: rsync_available
-      changed_when: false
-      failed_when: false
+    - name: Install rsync
+      vars:
+        package_name: rsync
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.package
+        tasks_from: install
+    - name: Install chrony on Linux
+      vars:
+        package_name: chrony
+        package_has_service: true
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.package
+        tasks_from: install
       when:
         - ansible_facts.system == 'Linux'
-        - rsync_check.rc != 0
-    - name: Install rsync on Linux
-      become: true
-      ansible.builtin.package:
-        name:
-          - rsync
-        state: present
-      when:
-        - ansible_facts.system == 'Linux'
-        - rsync_check.rc != 0
-        - rsync_available.rc == 0
-    - name: Install rsync on macOS
-      community.general.homebrew:
-        name:
-          - rsync
-        state: present
-      when:
-        - ansible_facts.system == 'Darwin'
-        - rsync_check.rc != 0
-    # chrony installation
-    - name: Check if chrony is installed on Linux
-      ansible.builtin.shell:
-        cmd: "command -v chrony > /dev/null 2>&1"
-      register: chrony_check
-      changed_when: false
-      failed_when: false
-      when:
-        - ansible_facts.system == 'Linux'
-    - name: Check if chronyc is installed on macOS
-      ansible.builtin.shell:
-        cmd: "command -v chronyc > /dev/null 2>&1"
-      register: chrony_check
-      changed_when: false
-      failed_when: false
-      when:
-        - ansible_facts.system == 'Darwin'
-    - name: Check if chrony is available
-      ansible.builtin.command: "{{ ansible_pkg_mgr }} list chrony"
-      register: chrony_available
-      changed_when: false
-      failed_when: false
-      when:
-        - ansible_facts.system == 'Linux'
-        - chrony_check.rc != 0
-    - name: Install chrony
-      become: true
-      ansible.builtin.package:
-        name: chrony
-        state: present
-      when:
-        - ansible_facts.system == 'Linux'
-        - chrony_check.rc != 0
-        - chrony_available.rc == 0
     - name: Install chronyc on macOS
-      community.general.homebrew:
-        name:
-          - chronyc
-        state: present
+      vars:
+        package_name: chronyc
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.package
+        tasks_from: install
       when:
         - ansible_facts.system == 'Darwin'
-        - chrony_check.rc != 0
-    - name: Start chrony
-      ansible.builtin.service:
-        name: chronyd
-        state: started
-        enabled: true
-      when:
-        - ansible_facts.system == 'Linux'

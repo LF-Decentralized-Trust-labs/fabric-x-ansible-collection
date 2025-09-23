@@ -4,26 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Update cache on Debian-based systems
-  become: true
-  ansible.builtin.apt:
-    update_cache: true
-  when:
-    - ansible_facts.os_family == "Debian"
-
-- name: Install tmux on Linux
-  become: true
-  ansible.builtin.package:
-    name:
-      - tmux
-    state: present
-  when:
-    - ansible_facts.system == 'Linux'
-
-- name: Install tmux on macOS
-  community.general.homebrew:
-    name:
-      - tmux
-    state: present
-  when:
-    - ansible_facts.system == 'Darwin'
+- name: Install tmux
+  vars:
+    package_name: tmux
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.package
+    tasks_from: install
