@@ -52,7 +52,7 @@
         name:
           - rsync
         state: present
-      when: ansible_facts.os_family == 'Darwin'
+      when: ansible_facts.system == 'Darwin'
     - name: Install openssl
       ansible.builtin.include_role:
         name: hyperledger.fabricx.openssl
@@ -61,4 +61,5 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.yugabyte
         tasks_from: install_prereqs
-      when: ansible_facts.os_family in ['Debian', 'RedHat']
+      when:
+        - ansible_facts.system == 'Linux'

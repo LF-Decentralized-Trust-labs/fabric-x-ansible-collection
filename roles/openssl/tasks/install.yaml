@@ -25,4 +25,4 @@
     name:
       - openssl
     state: present
-  when: ansible_facts.os_family == 'Darwin'
+  when: ansible_facts.system == 'Darwin'
