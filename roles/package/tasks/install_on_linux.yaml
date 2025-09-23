@@ -42,4 +42,6 @@
     state: started
     enabled: true
   when:
+    - package_check.rc != 0
+    - package_available.rc == 0
     - package_has_service
