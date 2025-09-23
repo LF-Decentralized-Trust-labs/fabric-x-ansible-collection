@@ -99,8 +99,8 @@
 - name: Test docker with an hello-world container
   vars:
     container_client: docker
-    container_name: "podman-hello-world"
-    container_image: "hello-world"
+    container_name: docker-hello-world
+    container_image: hello-world
     container_run_detach_mode: false
     container_autoremove: true
   ansible.builtin.include_role:

@@ -41,8 +41,8 @@
 - name: Test podman with an hello-world container
   vars:
     container_client: podman
-    container_name: "podman-hello-world"
-    container_image: "hello-world"
+    container_name: podman-hello-world
+    container_image: quay.io/podman/hello:latest
     container_run_detach_mode: false
     container_autoremove: true
   ansible.builtin.include_role:

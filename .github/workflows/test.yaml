@@ -70,6 +70,8 @@ jobs:
 
       # Install the required packages
       - name: Install all the required packages and collections
+        env:
+          CONTAINER_CLIENT: docker
         run: |
           pip install -r requirements.txt
           ansible-galaxy collection install -r requirements.yml
