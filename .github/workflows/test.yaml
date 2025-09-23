@@ -33,7 +33,6 @@ jobs:
         run: |
           sudo apt-get purge -y podman docker docker-engine docker.io containerd runc || true
           sudo apt-get autoremove -y
-          sudo rm -rf /var/lib/docker
 
       # Install make
       - name: Install make
@@ -71,7 +70,7 @@ jobs:
       # Install the required packages
       - name: Install all the required packages and collections
         env:
-          CONTAINER_CLIENT: podman
+          CONTAINER_CLIENT: docker
         run: |
           pip install -r requirements.txt
           ansible-galaxy collection install -r requirements.yml

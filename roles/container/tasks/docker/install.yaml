@@ -7,16 +7,16 @@
 - name: Check if docker is installed
   ansible.builtin.shell:
     cmd: "command -v docker > /dev/null 2>&1"
-  register: podman_bin
+  register: docker_bin
   ignore_errors: true
   changed_when: false
   failed_when: false
 
 - name: Set if docker is installed
   ansible.builtin.set_fact:
-    docker_installed: "{{ podman_bin.rc == 0 }}"
+    docker_installed: "{{ docker_bin.rc == 0 }}"
 
-- name: Ensure dependencies for Docker are installed (Debian)
+- name: Ensure dependencies for Docker are installed on Debian
   become: true
   ansible.builtin.apt:
     name:
@@ -28,7 +28,7 @@
     - ansible_facts.os_family == "Debian"
     - not docker_installed
 
-- name: Add Docker GPG apt key (Debian)
+- name: Add Docker GPG apt key on Debian
   become: true
   ansible.builtin.get_url:
     url: https://download.docker.com/linux/ubuntu/gpg
@@ -80,6 +80,8 @@
     name: docker
     state: started
     enabled: true
+  when:
+    - not docker_installed
 
 - name: Ensure docker group exists
   become: true
