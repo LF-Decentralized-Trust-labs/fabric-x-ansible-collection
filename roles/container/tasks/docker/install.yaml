@@ -4,18 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check if docker is installed
-  ansible.builtin.shell:
-    cmd: "command -v docker > /dev/null 2>&1"
-  register: docker_bin
-  ignore_errors: true
-  changed_when: false
-  failed_when: false
-
-- name: Set if docker is installed
-  ansible.builtin.set_fact:
-    docker_installed: "{{ docker_bin.rc == 0 }}"
-
 - name: Ensure dependencies for Docker are installed on Debian
   become: true
   ansible.builtin.apt:
@@ -26,7 +14,6 @@
     update_cache: true
   when:
     - ansible_facts.os_family == "Debian"
-    - not docker_installed
 
 - name: Add Docker GPG apt key on Debian
   become: true
@@ -36,7 +23,6 @@
     mode: "0644"
   when:
     - ansible_facts.os_family == "Debian"
-    - not docker_installed
 
 - name: Add Docker repository on Debian
   become: true
@@ -49,7 +35,6 @@
     state: present
   when:
     - ansible_facts.os_family == "Debian"
-    - not docker_installed
 
 - name: Add Docker repository on RHEL
   become: true
@@ -61,7 +46,6 @@
     enabled: true
   when:
     - ansible_facts.os_family == "RedHat"
-    - not docker_installed
 
 - name: Install Docker packages
   become: true
@@ -71,8 +55,6 @@
       - docker-ce-cli
       - containerd.io
     state: present
-  when:
-    - not docker_installed
 
 - name: Ensure Docker service is started and enabled
   become: true
@@ -80,8 +62,6 @@
     name: docker
     state: started
     enabled: true
-  when:
-    - not docker_installed
 
 - name: Ensure docker group exists
   become: true

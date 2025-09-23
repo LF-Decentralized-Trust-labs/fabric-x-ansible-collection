@@ -4,33 +4,18 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check if podman is installed
-  ansible.builtin.shell:
-    cmd: "command -v podman > /dev/null 2>&1"
-  register: podman_bin
-  ignore_errors: true
-  changed_when: false
-  failed_when: false
-
-- name: Set if podman is installed
-  ansible.builtin.set_fact:
-    podman_installed: "{{ podman_bin.rc == 0 }}"
-
 - name: Ensure Podman package is installed on Debian-based systems
   become: true
   ansible.builtin.apt:
     update_cache: true
   when:
     - ansible_facts.os_family == "Debian"
-    - not podman_installed
 
 - name: Ensure Podman package is installed on RedHat-based systems
   become: true
   ansible.builtin.package:
     name: podman
     state: present
-  when:
-    - not podman_installed
 
 - name: Verify Podman binary is available
   ansible.builtin.command: podman --version
