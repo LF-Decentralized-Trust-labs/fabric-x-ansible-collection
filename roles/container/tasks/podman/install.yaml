@@ -12,23 +12,39 @@
   changed_when: false
   failed_when: false
 
-- name: Install podman on Ubuntu
-  ansible.builtin.shell:
-    cmd: >-
-      set -o pipefail &&
-      sudo apt-get update -y &&
-      sudo apt-get -y install podman &&
-      sudo podman run hello-world
-    executable: /bin/bash
-  when: podman_bin.rc != 0 and ansible_facts.os_family == 'Debian'
-  register: result
-  changed_when: result.rc != 0
+- name: Set if podman is installed
+  ansible.builtin.set_fact:
+    podman_installed: "{{ podman_bin.rc == 0 }}"
 
-- name: Install podman on RHEL
-  ansible.builtin.shell: >-
-    sudo dnf update -y &&
-    sudo dnf -y install podman &&
-    sudo podman run hello-world
-  when: podman_bin.rc != 0 and ansible_facts.os_family == 'RedHat'
-  register: result
-  changed_when: result.rc != 0
+- name: Ensure Podman package is installed on Debian-based systems
+  ansible.builtin.apt:
+    name: podman
+    state: present
+    update_cache: true
+  when:
+    - ansible_facts.os_family == "Debian"
+    # - not podman_installed
+
+- name: Ensure Podman package is installed on RedHat-based systems
+  ansible.builtin.dnf:
+    name: podman
+    state: present
+  when:
+    - ansible_facts.os_family == "RedHat"
+    # - not podman_installed
+
+- name: Verify Podman binary is available
+  ansible.builtin.command: podman --version
+  register: podman_check
+  changed_when: podman_check.rc != 0
+
+- name: Test podman with an hello-world container
+  vars:
+    container_client: podman
+    container_name: "podman-hello-world"
+    container_image: "hello-world"
+    container_run_detach_mode: false
+    container_autoremove: true
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start
