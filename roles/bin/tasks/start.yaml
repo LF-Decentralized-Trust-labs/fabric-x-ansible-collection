@@ -53,7 +53,7 @@
   args:
     chdir: "{{ bin_chdir }}"
   register: bin_output
-  until: "{{ bin_run_until }}"
+  until: bin_run_until
   retries: "{{ bin_run_retries }}"
   delay: "{{ bin_run_delay }}"
   changed_when: bin_output.rc != 0
