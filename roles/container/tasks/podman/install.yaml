@@ -30,7 +30,6 @@
     name: podman
     state: present
   when:
-    - ansible_facts.os_family == "RedHat"
     - not podman_installed
 
 - name: Verify Podman binary is available
