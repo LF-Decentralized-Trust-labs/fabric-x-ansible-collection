@@ -7,7 +7,8 @@
 - name: Set given client as container client
   ansible.builtin.set_fact:
     container_client: "{{ container_client }}"
-  when: container_client != ''
+  when:
+    - container_client != ''
 
 - name: Check if podman is installed
   ansible.builtin.shell:
@@ -16,7 +17,8 @@
   ignore_errors: true
   changed_when: false
   failed_when: false
-  when: container_client == ''
+  when:
+    - container_client == ''
 
 - name: Check if docker is installed
   ansible.builtin.shell:
@@ -25,14 +27,21 @@
   ignore_errors: true
   changed_when: false
   failed_when: false
-  when: container_client == '' and container_check_podman.rc != 0
+  when:
+    - container_client == ''
+    - container_check_podman.rc != 0
 
 - name: Set podman as container client
   ansible.builtin.set_fact:
     container_client: "podman"
-  when: container_client == '' and container_check_podman.rc == 0
+  when:
+    - container_client == ''
+    - container_check_podman.rc == 0
 
 - name: Set docker as container client
   ansible.builtin.set_fact:
     container_client: "docker"
-  when: container_client == '' and container_check_podman.rc != 0 and container_check_docker.rc == 0
+  when:
+    - container_client == ''
+    - container_check_podman.rc != 0
+    - container_check_docker.rc == 0

@@ -15,17 +15,6 @@ The role allows to run YugabyteDB as **container only** (binary is not currently
 
 ## Tasks
 
-### install_prereqs
-
-The task `install_prereqs` allows to install the needed Yugabyte prerequisites on the remote hosts. Specifically, it installs and enable `chrony`.
-
-```yaml
-- name: Install the Yugabyte DB prerequisites
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.yugabyte
-    tasks_from: install_prereqs
-```
-
 ### start
 
 The task `start` allows to start the Yugabyte DB Cluster.
