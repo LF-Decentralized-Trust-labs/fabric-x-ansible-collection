@@ -70,7 +70,6 @@
       - docker-ce
       - docker-ce-cli
       - containerd.io
-      - docker-compose-plugin
     state: present
   # when:
   # - not docker_installed
