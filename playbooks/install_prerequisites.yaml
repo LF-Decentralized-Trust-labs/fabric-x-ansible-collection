@@ -35,38 +35,34 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.container
         tasks_from: install
-    - name: Install TMUX to run binaries on Linux
-      become: true
-      ansible.builtin.package:
-        name:
-          - tmux
-        state: present
-      when: ansible_facts.os_family in ['Debian', 'RedHat']
-    - name: Install TMUX to run binaries on macOS
-      community.general.homebrew:
-        name:
-          - tmux
-        state: present
-      when: ansible_facts.os_family == 'Darwin'
-    - name: Install rsync to transfer files on Linux
-      become: true
-      ansible.builtin.package:
-        name:
-          - rsync
-        state: present
-      when: ansible_facts.os_family in ['Debian', 'RedHat']
-    - name: Install rsync to transfer files on macOS
-      community.general.homebrew:
-        name:
-          - rsync
-        state: present
-      when: ansible_facts.os_family == 'Darwin'
+    - name: Install tmux
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.tmux
+        tasks_from: install
     - name: Install openssl
       ansible.builtin.include_role:
         name: hyperledger.fabricx.openssl
         tasks_from: install
-    - name: Install YugabyteDB requirements
+    - name: Install rsync
+      vars:
+        package_name: rsync
       ansible.builtin.include_role:
-        name: hyperledger.fabricx.yugabyte
-        tasks_from: install_prereqs
-      when: ansible_facts.os_family in ['Debian', 'RedHat']
+        name: hyperledger.fabricx.package
+        tasks_from: install
+    - name: Install chrony on Linux
+      vars:
+        package_name: chrony
+        package_has_service: true
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.package
+        tasks_from: install_on_linux
+      when:
+        - ansible_facts.system == 'Linux'
+    - name: Install chronyc on macOS
+      vars:
+        package_name: chronyc
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.package
+        tasks_from: install_on_macos
+      when:
+        - ansible_facts.system == 'Darwin'

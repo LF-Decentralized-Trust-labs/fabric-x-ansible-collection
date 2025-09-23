@@ -1,0 +1,18 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check if tmux session exists
+  ansible.builtin.command: tmux has-session -t {{ tmux_session_name }}
+  register: tmux_session_exists
+  changed_when: false
+  failed_when: false
+
+- name: Kill tmux session
+  ansible.builtin.command: tmux kill-session -t {{ tmux_session_name }}
+  register: tmux_kill_session
+  changed_when: tmux_kill_session.rc != 0
+  when:
+    - tmux_session_exists.rc == 0

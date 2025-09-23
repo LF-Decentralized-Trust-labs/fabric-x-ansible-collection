@@ -4,9 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Install openssl
+- name: Install tmux
   vars:
-    package_name: openssl
+    package_name: tmux
   ansible.builtin.include_role:
     name: hyperledger.fabricx.package
     tasks_from: install

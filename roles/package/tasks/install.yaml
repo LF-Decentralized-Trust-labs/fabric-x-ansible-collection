@@ -1,0 +1,19 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Install {{ package_name }} on Linux
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.package
+    tasks_from: install_on_linux
+  when:
+    - ansible_facts.system == 'Linux'
+
+- name: Install {{ package_name }} on macOS
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.package
+    tasks_from: install_on_macos
+  when:
+    - ansible_facts.system == 'Darwin'
