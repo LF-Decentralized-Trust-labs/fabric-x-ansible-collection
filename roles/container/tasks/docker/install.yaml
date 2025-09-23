@@ -29,6 +29,7 @@
     # - not docker_installed
 
 - name: Add Docker GPG apt key (Debian)
+  become: true
   ansible.builtin.get_url:
     url: https://download.docker.com/linux/ubuntu/gpg
     dest: /etc/apt/keyrings/docker.asc
@@ -38,6 +39,7 @@
     # - not docker_installed
 
 - name: Add Docker repository on Debian
+  become: true
   ansible.builtin.apt_repository:
     repo: >-
       deb [arch={{ ansible_architecture }} signed-by=/etc/apt/keyrings/docker.asc]
@@ -50,6 +52,7 @@
     # - not docker_installed
 
 - name: Add Docker repository on RHEL
+  become: true
   ansible.builtin.yum_repository:
     name: docker-ce
     description: Docker CE Stable - $releasever
@@ -81,6 +84,7 @@
     enabled: true
 
 - name: Ensure docker group exists
+  become: true
   ansible.builtin.group:
     name: docker
     state: present
