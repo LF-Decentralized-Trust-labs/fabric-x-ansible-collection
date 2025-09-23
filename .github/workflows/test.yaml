@@ -31,7 +31,7 @@ jobs:
 
       - name: Remove preinstalled Docker (simulate clean environment)
         run: |
-          sudo apt-get purge -y docker docker-engine docker.io containerd runc || true
+          sudo apt-get purge -y podman docker docker-engine docker.io containerd runc || true
           sudo apt-get autoremove -y
           sudo rm -rf /var/lib/docker
 
@@ -71,7 +71,7 @@ jobs:
       # Install the required packages
       - name: Install all the required packages and collections
         env:
-          CONTAINER_CLIENT: docker
+          CONTAINER_CLIENT: podman
         run: |
           pip install -r requirements.txt
           ansible-galaxy collection install -r requirements.yml

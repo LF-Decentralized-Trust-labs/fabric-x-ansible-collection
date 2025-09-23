@@ -26,7 +26,7 @@
     update_cache: true
   when:
     - ansible_facts.os_family == "Debian"
-    # - not docker_installed
+    - not docker_installed
 
 - name: Add Docker GPG apt key (Debian)
   become: true
@@ -36,7 +36,7 @@
     mode: "0644"
   when:
     - ansible_facts.os_family == "Debian"
-    # - not docker_installed
+    - not docker_installed
 
 - name: Add Docker repository on Debian
   become: true
@@ -49,7 +49,7 @@
     state: present
   when:
     - ansible_facts.os_family == "Debian"
-    # - not docker_installed
+    - not docker_installed
 
 - name: Add Docker repository on RHEL
   become: true
@@ -61,7 +61,7 @@
     enabled: true
   when:
     - ansible_facts.os_family == "RedHat"
-    # - not docker_installed
+    - not docker_installed
 
 - name: Install Docker packages
   become: true
@@ -71,8 +71,8 @@
       - docker-ce-cli
       - containerd.io
     state: present
-  # when:
-  # - not docker_installed
+  when:
+    - not docker_installed
 
 - name: Ensure Docker service is started and enabled
   become: true
@@ -96,7 +96,7 @@
 - name: Verify Docker binary
   ansible.builtin.command: docker --version
   register: docker_check
-  changed_when: false
+  changed_when: docker_check.rc != 0
 
 - name: Test docker with an hello-world container
   vars:

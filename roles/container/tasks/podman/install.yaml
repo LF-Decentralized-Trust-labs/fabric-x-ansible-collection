@@ -22,7 +22,7 @@
     update_cache: true
   when:
     - ansible_facts.os_family == "Debian"
-    # - not podman_installed
+    - not podman_installed
 
 - name: Ensure Podman package is installed on RedHat-based systems
   become: true
@@ -31,7 +31,7 @@
     state: present
   when:
     - ansible_facts.os_family == "RedHat"
-    # - not podman_installed
+    - not podman_installed
 
 - name: Verify Podman binary is available
   ansible.builtin.command: podman --version
