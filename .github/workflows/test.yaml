@@ -29,11 +29,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Remove preinstalled Docker (simulate clean environment)
-        run: |
-          sudo apt-get purge -y podman docker docker-engine docker.io containerd runc || true
-          sudo apt-get autoremove -y
-
       # Install make
       - name: Install make
         run: |
