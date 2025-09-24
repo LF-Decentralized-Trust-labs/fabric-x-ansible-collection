@@ -14,6 +14,8 @@ BLUE='\033[0;34m'
 
 # vars
 PROFILE_FILE="${HOME}/.profile"
+DEFAULT_CONTAINER_CLIENT=$(command -v podman >/dev/null 2>&1 && echo "podman" || (command -v docker >/dev/null 2>&1 && echo "docker" || echo ""))
+CONTAINER_CLIENT="${CONTAINER_CLIENT:-$DEFAULT_CONTAINER_CLIENT}"
 
 function print_logs() {
     local dir=$1
@@ -21,12 +23,7 @@ function print_logs() {
     find "$dir" -type f | while read -r file; do
         # Print the last part of the logs
         echo -e "📝 ${BLUE}$file${NO_STYLE}"
-        tail -n 500 "$file"
-
-        # Print only logs with `err` inside
-        echo -e "🚨 ${RED}Error logs${NO_STYLE}"
-        grep -i "err" "$file"
-        echo
+        cat "$file"
     done
 }
 
@@ -34,25 +31,23 @@ function print_logs() {
 function collect_deployment_failure_info() {
     echo -e "🚩 ${BLUE}Retrieve status for service ports.${NO_STYLE}"
 
-    make services ping
-    make load-generators ping
+    make ping
     echo "✅ Done."
 
-    echo -e "🚩 ${BLUE}List running docker containers.${NO_STYLE}"
-    docker container ls
+    echo -e "🚩 ${BLUE}List running $CONTAINER_CLIENT containers.${NO_STYLE}"
+    $CONTAINER_CLIENT container ls
     echo "✅ Done."
 
     echo -e "🚩 ${BLUE}Retrieve the logs from the services.${NO_STYLE}"
-    make services fetch-logs
-    make load-generators fetch-logs
+    make fetch-logs
     echo "✅ Done."
 
     echo -e "🚩 ${BLUE}List the fetched log files.${NO_STYLE}"
-    ls "$PROJECT_DIR/out/fetched-logs"
+    ls "$PROJECT_DIR/out/logs"
     echo "✅ Done."
 
     echo -e "🚩 ${BLUE}Show all the logs.${NO_STYLE}"
-    print_logs "$PROJECT_DIR/out/fetched-logs"
+    print_logs "$PROJECT_DIR/out/logs"
     echo "✅ Done."
 }
 
