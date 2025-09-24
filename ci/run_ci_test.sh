@@ -23,12 +23,7 @@ function print_logs() {
     find "$dir" -type f | while read -r file; do
         # Print the last part of the logs
         echo -e "📝 ${BLUE}$file${NO_STYLE}"
-        tail -n 500 "$file"
-
-        # Print only logs with `err` inside
-        echo -e "🚨 ${RED}Error logs${NO_STYLE}"
-        grep -i "err" "$file"
-        echo
+        cat "$file"
     done
 }
 
