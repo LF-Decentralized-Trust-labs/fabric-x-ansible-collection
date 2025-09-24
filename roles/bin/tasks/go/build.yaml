@@ -22,7 +22,7 @@
         else
         ""
       }}
-  when: ansible_facts.os_family == 'Darwin' and bin_cgo_enabled
+  when: ansible_facts.system == 'Darwin' and bin_cgo_enabled
 
 - name: Build the binary {{ bin_name }}
   ansible.builtin.command: >-

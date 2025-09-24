@@ -4,50 +4,88 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check if docker is installed
-  ansible.builtin.shell:
-    cmd: "command -v docker > /dev/null 2>&1"
-  register: docker_bin
-  ignore_errors: true
-  changed_when: false
-  failed_when: false
+- name: Ensure dependencies for Docker are installed on Debian
+  become: true
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - curl
+    state: present
+  when:
+    - ansible_facts.os_family == "Debian"
 
-- name: Install docker on Ubuntu
-  ansible.builtin.shell:
-    cmd: >-
-      set -o pipefail &&
-      sudo apt-get update -y &&
-      sudo apt-get install -y ca-certificates curl &&
-      sudo install -m 0755 -d /etc/apt/keyrings &&
-      sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc &&
-      sudo chmod a+r /etc/apt/keyrings/docker.asc &&
-      echo \
-        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-        $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-        sudo tee /etc/apt/sources.list.d/docker.list > /dev/null &&
-      sudo apt-get update -y &&
-      sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin &&
-      sudo docker run hello-world
-    executable: /bin/bash
-  when: docker_bin.rc != 0 and ansible_facts.os_family == 'Debian'
-  register: result
-  changed_when: result.rc != 0
+- name: Add Docker GPG apt key on Debian
+  become: true
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /etc/apt/keyrings/docker.asc
+    mode: "0644"
+  when:
+    - ansible_facts.os_family == "Debian"
 
-- name: Install docker on RHEL
-  ansible.builtin.shell: >-
-    sudo dnf update -y &&
-    sudo dnf config-manager --add-repo=https://download.docker.com/linux/rhel/docker-ce.repo &&
-    sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin &&
-    sudo systemctl start docker &&
-    sudo groupadd docker &&
-    sudo usermod -aG docker ${USER} &&
-    sudo docker run hello-world
-  when: docker_bin.rc != 0 and ansible_facts.os_family == 'RedHat'
-  register: result
-  changed_when: result.rc != 0
+- name: Add Docker repository on Debian
+  become: true
+  ansible.builtin.apt_repository:
+    repo: >-
+      deb [arch={{ ansible_architecture }} signed-by=/etc/apt/keyrings/docker.asc]
+      https://download.docker.com/linux/ubuntu
+      {{ ansible_lsb.codename | default(ansible_distribution_release) }} stable
+    filename: docker
+    state: present
+  when:
+    - ansible_facts.os_family == "Debian"
 
-- name: Start docker daemon
+- name: Add Docker repository on RHEL
+  become: true
+  ansible.builtin.yum_repository:
+    name: docker-ce
+    description: Docker CE Stable - $releasever
+    baseurl: https://download.docker.com/linux/rhel/docker-ce.repo
+    gpgcheck: true
+    enabled: true
+  when:
+    - ansible_facts.os_family == "RedHat"
+
+- name: Install Docker packages
+  become: true
+  ansible.builtin.package:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: present
+
+- name: Ensure Docker service is started and enabled
+  become: true
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Ensure docker group exists
+  become: true
+  ansible.builtin.group:
+    name: docker
+    state: present
+
+- name: Add current user to docker group
+  ansible.builtin.user:
+    name: "{{ ansible_user_id }}"
+    groups: docker
+    append: true
+
+- name: Verify Docker binary
+  ansible.builtin.command: docker --version
+  register: docker_check
+  changed_when: docker_check.rc != 0
+
+- name: Test docker with an hello-world container
+  vars:
+    container_client: docker
+    container_name: docker-hello-world
+    container_image: hello-world
+    container_run_detach_mode: false
+    container_autoremove: true
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
-    tasks_from: docker/start_daemon
-  when: docker_bin.rc != 0
+    tasks_from: start

@@ -1,0 +1,39 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check if {{ package_name }} is installed
+  ansible.builtin.shell:
+    cmd: "command -v {{ package_name }} > /dev/null 2>&1"
+  register: package_check
+  changed_when: false
+  failed_when: false
+
+- name: Check if {{ package_name }} is available on Linux
+  ansible.builtin.command: "{{ ansible_pkg_mgr }} list {{ package_name }}"
+  register: package_available
+  changed_when: false
+  failed_when: false
+  when:
+    - package_check.rc != 0
+
+- name: Install {{ package_name }} on Linux
+  become: true
+  ansible.builtin.package:
+    name: "{{ package_name }}"
+    state: present
+  when:
+    - package_check.rc != 0
+    - package_available.rc == 0
+
+- name: Start {{ package_name }} service
+  ansible.builtin.service:
+    name: "{{ package_name }}"
+    state: started
+    enabled: true
+  when:
+    - package_check.rc != 0
+    - package_available.rc == 0
+    - package_has_service

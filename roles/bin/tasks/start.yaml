@@ -41,20 +41,29 @@
   when: not bin_omit_logs
 
 - name: Run command within a TMUX session
-  ansible.builtin.command: "tmux new-session -s {{ bin_name }} -d '{{ bin_cmd_to_run }}'"
-  register: bin_output
-  changed_when: bin_output.rc != 0
-  when: bin_run_with_tmux
+  vars:
+    tmux_session_name: "{{ bin_name }}"
+    tmux_cmd_to_run: "{{ bin_cmd_to_run }}"
+    tmux_chdir: "{{ bin_chdir }}"
+    tmux_omit_logs: "{{ bin_omit_logs }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.tmux
+    tasks_from: start
+  when:
+    - bin_run_with_tmux
 
 - name: Run command # noqa: command-instead-of-shell
   ansible.builtin.shell: "{{ bin_cmd_to_run }}"
+  args:
+    chdir: "{{ bin_chdir }}"
   register: bin_output
-  until: "{{ bin_run_until }}"
+  until: bin_run_until
   retries: "{{ bin_run_retries }}"
   delay: "{{ bin_run_delay }}"
   changed_when: bin_output.rc != 0
   ignore_errors: "{{ bin_ignore_errors }}"
-  when: not bin_run_with_tmux
+  when:
+    - not bin_run_with_tmux
 
 - name: Show command results
   ansible.builtin.debug:
@@ -62,6 +71,7 @@
   when:
     - not bin_collect_logs
     - not bin_omit_logs
+    - bin_output is defined
     - bin_output.stdout_lines | length > 0
 
 - name: Wait for service to become ready on port

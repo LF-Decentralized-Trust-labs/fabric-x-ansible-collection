@@ -9,14 +9,32 @@
     name: hyperledger.fabricx.container
     tasks_from: get_container_client
 
-- name: Install podman client
+- name: Check if the container client is installed
+  ansible.builtin.shell:
+    cmd: "command -v {{ container_client | default('podman', true) }} > /dev/null 2>&1"
+  register: container_client_bin
+  ignore_errors: true
+  changed_when: false
+  failed_when: false
+
+- name: Set the container client installation status
+  ansible.builtin.set_fact:
+    container_client_installed: "{{ container_client_bin.rc == 0 }}"
+
+- name: Install podman client on Linux
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: podman/install
-  when: container_client == 'podman' or container_client == ''
+  when:
+    - ansible_facts.system == 'Linux'
+    - container_client == 'podman' or container_client == ''
+    - not container_client_installed
 
-- name: Install container client
+- name: Install docker client on Linux
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: docker/install
-  when: container_client == 'docker'
+  when:
+    - ansible_facts.system == 'Linux'
+    - container_client == 'docker'
+    - not container_client_installed
