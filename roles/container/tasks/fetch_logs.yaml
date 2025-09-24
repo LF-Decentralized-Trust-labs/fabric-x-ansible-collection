@@ -24,7 +24,7 @@
 
 - name: Debug fetch logs
   ansible.builtin.debug:
-    msg: "Collecting logs at {{ container_remote_logs_dir }}/{{ container_remote_logs_file }}"
+    msg: "Collecting logs at {{ container_remote_logs_dir }}/{{ container_remote_logs_file }} to {{ container_logs_dir }}/{{ container_logs_file }}"
 
 - name: Fetch the container logs
   ansible.builtin.fetch:
