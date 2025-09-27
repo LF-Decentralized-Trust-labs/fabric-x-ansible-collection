@@ -15,6 +15,7 @@ container_command: ""
 container_ports: []
 container_volumes: []
 container_ulimits: []
+container_networks: []
 container_env: {}
 container_memory: null
 container_entrypoint: null
