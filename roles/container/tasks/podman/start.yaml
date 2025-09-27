@@ -13,8 +13,8 @@
     hostname: "{{ container_name }}"
     network: >-
       {{
-        (container_networks | first)
-        if (container_network_mode == 'bridge' and (container_networks | length) > 0)
+        (container_network)
+        if (container_network_mode == 'bridge') and (container_network is defined)
         else container_network_mode
       }}
     ports: >-

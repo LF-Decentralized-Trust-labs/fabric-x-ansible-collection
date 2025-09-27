@@ -14,8 +14,8 @@
     network_mode: "{{ container_network_mode }}"
     networks: >-
       {{
-        container_networks
-        if container_network_mode == 'bridge'
+        [container_network]
+        if (container_network_mode == 'bridge') and (container_network is defined)
         else []
       }}
     ports: >-
