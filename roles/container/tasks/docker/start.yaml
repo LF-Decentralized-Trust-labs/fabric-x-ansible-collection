@@ -4,13 +4,21 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Create docker network
+  community.docker.docker_network:
+    name: "{{ container_network_name }}"
+    driver: "{{ container_network_driver | default('bridge') }}"
+    state: present
+  when: container_network_name is defined
+
 - name: Start docker container with image {{ container_image }}
   community.docker.docker_container:
     name: "{{ container_name }}"
     image: "{{ container_image }}"
     entrypoint: "{{ container_entrypoint }}"
     command: "{{ container_command }}"
-    network_mode: "{{ container_network_mode }}"
+    networks: "{{ [{'name': container_network_name}] if container_network_name is defined else omit }}"
+    network_mode: "{{ (container_network_name is not defined) | ternary(container_network_mode | default(omit), omit) }}"
     ports: "{{ container_ports if container_network_mode == 'bridge' else [] }}"
     memory: "{{ container_memory }}"
     volumes: "{{ container_volumes }}"

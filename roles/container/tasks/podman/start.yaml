@@ -4,13 +4,27 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Check if network exists
+  command: podman network inspect {{ container_network_name }}
+  register: podman_network_inspect
+  failed_when: false
+  changed_when: false
+  when: container_network_name is defined and container_network_name is not none
+
+- name: Create podman network
+  containers.podman.podman_network:
+    name: "{{ container_network_name }}"
+    driver: "{{ container_network_driver | default('bridge') }}"
+    state: present
+  when: container_network_name is defined and container_network_name is not none and podman_network_inspect.rc != 0
+
 - name: Start podman container with image {{ container_image }}
   containers.podman.podman_container:
     name: "{{ container_name }}"
     image: "{{ container_image }}"
     entrypoint: "{{ container_entrypoint }}"
     command: "{{ container_command }}"
-    network: "{{ container_network_mode }}"
+    network: "{{ container_network_name | default(container_network_mode, true) | default(omit, true) }}"
     ports: "{{ container_ports if container_network_mode == 'bridge' else [] }}"
     memory: "{{ container_memory }}"
     volumes: "{{ container_volumes }}"
