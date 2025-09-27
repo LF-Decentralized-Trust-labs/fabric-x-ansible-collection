@@ -4,13 +4,13 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# docker location/paths
+# container location/paths
 container_logs_dir: "{{ out_log_dir }}"
 container_logs_file: "{{ inventory_hostname }}_logs.txt"
 container_remote_logs_dir: "{{ remote_config_dir }}"
 container_remote_logs_file: "logs.txt"
 
-# docker misc
+# container misc
 container_command: ""
 container_ports: []
 container_volumes: []
@@ -33,6 +33,11 @@ container_omit_logs: false
 container_log_lines: 0
 container_autoremove: false
 container_ignore_errors: false
+
+# container rerun options
+container_run_until: null
+container_run_delay: 0
+container_run_retries: 0
 
 # env for wait container
 container_wait_until_running: false

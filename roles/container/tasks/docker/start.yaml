@@ -44,6 +44,9 @@
       }}
     auto_remove: "{{ container_run_detach_mode and container_autoremove }}"
     cleanup: "{{ (not container_run_detach_mode) and container_autoremove }}"
+  until: container_run_until
+  retries: "{{ container_run_retries }}"
+  delay: "{{ container_run_delay }}"
   ignore_errors: "{{ container_ignore_errors }}"
   register: docker_result
 

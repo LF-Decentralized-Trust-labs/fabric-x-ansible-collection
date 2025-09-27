@@ -35,6 +35,9 @@
     state: started
     detach: "{{ container_run_detach_mode }}"
     rm: "{{ container_autoremove }}"
+  until: container_run_until
+  retries: "{{ container_run_retries }}"
+  delay: "{{ container_run_delay }}"
   register: result
   ignore_errors: "{{ container_ignore_errors }}"
 
