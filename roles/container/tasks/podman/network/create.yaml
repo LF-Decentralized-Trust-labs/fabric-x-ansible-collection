@@ -1,0 +1,12 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure Podman network {{ container_network }} exists
+  containers.podman.podman_network:
+    name: "{{ container_network }}"
+    driver: "{{ container_network_driver }}"
+    internal: "{{ container_network_internal }}"
+    state: present
