@@ -22,16 +22,23 @@ container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
 container_network_mode: "{{ 'bridge' if container_on_mac else 'host' }}"
 container_run_as_host_user: false
 container_list_hosts: "{{ ansible_play_hosts }}"
-container_log_driver: "json-file"
-container_log_max_size: "1g"
 container_run_detach_mode: true
 container_healthcheck_test: null
 container_user: "{{ ansible_facts.user_uid ~ ':' ~ ansible_facts.user_gid if container_run_as_host_user else '' }}"
 container_healthcheck_interval: "30s"
-container_omit_logs: false
-container_log_lines: 0
 container_autoremove: false
 container_ignore_errors: false
+
+# container network options
+container_network_driver: bridge
+container_network_attachable: true # docker-only: podman networks are always attachable
+container_network_internal: false
+
+# container logs options
+container_omit_logs: false
+container_log_driver: "json-file"
+container_log_max_size: "1g"
+container_log_lines: 0
 
 # container rerun options
 container_run_until: null
