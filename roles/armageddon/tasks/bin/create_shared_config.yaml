@@ -4,10 +4,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Create shared_config.binpb with armageddon as binary
-  ansible.builtin.command: >-
-    {{ cli_bin_dir }}/{{ armageddon_bin_name }} createSharedConfigProto
-    --sharedConfigYaml={{ armageddon_output_dir }}/{{ armageddon_shared_config_file }}
-    --output={{ armageddon_output_dir }}
-  register: result
-  changed_when: result.rc != 0
+- name: Generate the genesis block with configtxgen
+  vars:
+    bin_run_with_tmux: false
+    bin_remote_dir: "{{ cli_bin_dir }}"
+    bin_command: >-
+      {{ armageddon_bin_name }}
+      createSharedConfigProto
+      --sharedConfigYaml={{ armageddon_output_dir }}/{{ armageddon_shared_config_file }}
+      --output={{ armageddon_output_dir }}
+    bin_collect_logs: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start
