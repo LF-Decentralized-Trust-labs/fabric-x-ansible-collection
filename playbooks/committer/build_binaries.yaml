@@ -7,7 +7,7 @@
 - name: Build the Fabric-X Committer binaries
   hosts: localhost
   tasks:
-    - name: Build the Fabric-X Committer validator binaries for the not dockerized hosts
+    - name: Build the Fabric-X Committer binaries for the not dockerized hosts
       vars:
         committer_service_instances: >-
           {{
