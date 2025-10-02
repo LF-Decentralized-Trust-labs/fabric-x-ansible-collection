@@ -1,0 +1,25 @@
+# Enroll the orderer node identity for the right component
+
+- name: Enroll consenter crypto
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_consenter/config/enroll_fabric_crypto
+  when: orderer_component_type == 'consenter'
+
+- name: Enroll assembler crypto
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_assembler/config/enroll_fabric_crypto
+  when: orderer_component_type == 'assembler'
+
+- name: Enroll batcher crypto
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_batcher/config/enroll_fabric_crypto
+  when: orderer_component_type == 'batcher'
+
+- name: Enroll router crypto
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_router/config/enroll_fabric_crypto
+  when: orderer_component_type == 'router'
