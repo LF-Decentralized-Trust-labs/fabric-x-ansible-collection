@@ -1,0 +1,38 @@
+- name: Enroll orderer identity (assembler)
+  vars:
+    scheme: "{{ 'https' if (hostvars[organization.fabric_ca_host].fabric_ca_use_tls | default(false)) else 'http' }}"
+    current_user: "{{ organization.user }}"
+    fabric_ca_url: >-
+      {{ scheme }}://{{ current_user.name }}:{{ current_user.secret }}@{{ hostvars[organization.fabric_ca_host].ansible_host }}:{{ hostvars[organization.fabric_ca_host].fabric_ca_port }}
+    fabric_ca_msp_dir: "{{ orderer_remote_config_dir }}"
+    fabric_ca_ca_name: "{{ hostvars[organization.fabric_ca_host].fabric_ca_ca_name | default(organization.fabric_ca_host) }}"
+    fabric_ca_identity:
+      name: "{{ current_user.name }}"
+      secret: "{{ current_user.secret }}"
+      type: orderer
+  ansible.builtin.include_role:
+    name: ibm.fabricx.fabric_ca
+    tasks_from: client/docker/enroll_identity
+  when:
+    - organization is defined
+    - organization.role | default('') == 'orderer'
+    - organization.user is defined
+    - organization.user.name is defined
+    - organization.user.secret is defined
+    - organization.fabric_ca_host is defined
+
+- name: Ensure local artifact dir for this orderer exists
+  ansible.builtin.file:
+    path: >-
+      {{ orderer_cryptogen_artifact_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ inventory_hostname }}.{{ organization.domain }}/
+    state: directory
+    mode: "0o755"
+
+- name: Fetch enrolled orderer MSP to local artifacts
+  ansible.posix.synchronize:
+    src: "{{ orderer_remote_config_dir }}/"
+    dest: >-
+      {{ orderer_cryptogen_artifact_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ inventory_hostname }}.{{ organization.domain }}/
+    mode: pull
+    rsync_opts:
+      - "--exclude=keystore/*"
