@@ -63,17 +63,16 @@
   vars:
     container_run_until: >-
       {{
-        (result is defined or docker_result is defined) and
         fxconfig_namespace in (
           (
-            (result.stdout_lines | join('\n'))
-            if result.stdout_lines is defined
-            else (docker_result.container.Output | default(''))
+            (docker_result.container.Output)
+            if container_client == 'docker'
+            else (result.stdout_lines | join('\n'))
           )
         )
       }}
     container_run_retries: 60
     container_run_delay: 2
   ansible.builtin.include_role:
-    name: hyperledger.fabricx.fxconfig
+    name: ibm.fabricx.fxconfig
     tasks_from: container/namespace_list
