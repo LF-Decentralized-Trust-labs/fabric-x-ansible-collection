@@ -74,5 +74,5 @@
     container_run_retries: 60
     container_run_delay: 2
   ansible.builtin.include_role:
-    name: ibm.fabricx.fxconfig
+    name: hyperledger.fabricx.fxconfig
     tasks_from: container/namespace_list
