@@ -64,9 +64,9 @@
     container_run_until: >-
       {{
         fxconfig_namespace in (
-            docker_result.container.Output
-            if container_client == 'docker'
-            else (result.stdout_lines | join('\n'))
+          docker_result.container.Output
+          if container_client == 'docker'
+          else (result.stdout_lines | join('\n'))
         )
       }}
     container_run_retries: 60
