@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: List namespaces
+  vars:
+    bin_run_with_tmux: false
+    bin_collect_logs: false
+    bin_command: >-
+      {{ fxconfig_bin_name }} namespace
+      list
+      --endpoint={{ hostvars[committer_query_service_host].ansible_host }}:{{ hostvars[committer_query_service_host].committer_rpc_port }}
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start

@@ -1,0 +1,19 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Create namespace with fxconfig binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxconfig
+    tasks_from: bin/namespace_create
+  when:
+    - fxconfig_use_bin
+
+- name: Create namespace with fxconfig container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxconfig
+    tasks_from: container/namespace_create
+  when:
+    - not fxconfig_use_bin

@@ -43,6 +43,11 @@ install:
 lint:
 	ansible-lint --offline roles playbooks examples
 
+# Check the license header
+.PHONY: check-license-header
+check-license-header:
+	./ci/check_license_header.sh
+
 #########################
 # Deployment
 #########################
