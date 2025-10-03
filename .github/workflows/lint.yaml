@@ -38,3 +38,7 @@ jobs:
       # Run the lint target from your Makefile
       - name: Run lint
         run: make install lint
+
+        # Check that all the files have the license header
+      - name: Run the license check
+        run: make check-license-header

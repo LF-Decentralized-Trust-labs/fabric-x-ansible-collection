@@ -1,0 +1,38 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Create namespace {{ fxconfig_namespace }}
+  vars:
+    bin_run_with_tmux: false
+    bin_collect_logs: false
+    bin_command: >-
+      {{ fxconfig_bin_name }} namespace
+      create {{ fxconfig_namespace }}
+      --channel {{ channel_id }}
+      --orderer {{ hostvars[orderer_router_host].ansible_host }}:{{ hostvars[orderer_router_host].orderer_rpc_port }}
+      --mspConfigPath {{ fxconfig_msp_config_path }}
+      --mspID {{ fxconfig_msp_id }}
+      {% if fxconfig_pubkey_path is defined %}
+      --pk {{ fxconfig_pubkey_path }}
+      {% endif %}
+      {% if fxconfig_cafile_path is defined %}
+      --cafile {{ fxconfig_cafile_path }}
+      {% endif %}
+      {% if fxconfig_use_tls %}
+      --tls
+      {% endif %}
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start
+
+- name: Wait until the namespace {{ fxconfig_namespace }} is created
+  vars:
+    bin_run_until: "{{ fxconfig_namespace in bin_output.stdout }}"
+    bin_run_retries: 60
+    bin_run_delay: 2
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxconfig
+    tasks_from: bin/namespace_list

@@ -1,0 +1,12 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Install {{ fxconfig_bin_name }}
+  vars:
+    bin_go_package: "{{ fxconfig_bin_package }}@{{ fxconfig_git_commit }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: go/install
