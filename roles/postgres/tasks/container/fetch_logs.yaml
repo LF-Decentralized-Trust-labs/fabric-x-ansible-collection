@@ -14,7 +14,7 @@
 
 - name: Fetch the logs from the Postgres Exporter Sidecar
   vars:
-    container_logs_file: "{{ postgres_container_name }}_exporter_logs.txt"
+    postgres_exporter_container_name: "{{ postgres_container_name }}_exporter"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: fetch_logs
