@@ -29,7 +29,6 @@ all:
               name: "OrdererOrg{{ orderer_group }}"
               domain: "ordererorg{{ orderer_group }}.example.com"
               role: orderer
-              enable_organizational_units: true
           children:
             fabric-x-orderer-1:
               vars:
@@ -139,7 +138,6 @@ all:
           organization:
             name: Org1
             domain: org1.example.com
-            enable_organizational_units: true
             users:
               - name: orderer-loadgen
                 meta_namespace_admin: true
