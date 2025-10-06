@@ -1,0 +1,45 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Create multiple namespaces with fxconfig binary
+  vars:
+    fxconfig_namespace: "{{ namespace_info.namespace }}"
+    fxconfig_pubkey_path: >-
+      {{
+        namespace_info.pubkeys
+        | default([])
+        | list
+        | first
+      }}
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxconfig
+    tasks_from: bin/namespace_create
+  loop: "{{ fxconfig_namespaces }}"
+  loop_control:
+    label: "{{ fxconfig_namespace }}"
+    loop_var: namespace_info
+  when:
+    - fxconfig_use_bin
+
+- name: Create multiple namespaces with fxconfig container
+  vars:
+    fxconfig_namespace: "{{ namespace_info.namespace }}"
+    fxconfig_pubkey_path: >-
+      {{
+        namespace_info.pubkeys
+        | default([])
+        | list
+        | first
+      }}
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxconfig
+    tasks_from: container/namespace_create
+  loop: "{{ fxconfig_namespaces }}"
+  loop_control:
+    label: "{{ fxconfig_namespace }}"
+    loop_var: namespace_info
+  when:
+    - not fxconfig_use_bin
