@@ -18,11 +18,3 @@
   changed_when: tmux_output.rc != 0
   when:
     - tmux_session_exists.rc != 0
-
-- name: Show command results
-  ansible.builtin.debug:
-    msg: "{{ tmux_output.stdout_lines }}"
-  when:
-    - not tmux_omit_logs
-    - tmux_output is defined
-    - tmux_output.stdout_lines | length > 0
