@@ -45,7 +45,6 @@
     tmux_session_name: "{{ bin_name }}"
     tmux_cmd_to_run: "{{ bin_cmd_to_run }}"
     tmux_chdir: "{{ bin_chdir }}"
-    tmux_omit_logs: "{{ bin_omit_logs }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.tmux
     tasks_from: start
