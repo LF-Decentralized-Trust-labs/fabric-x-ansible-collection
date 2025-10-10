@@ -7,13 +7,7 @@
 - name: Create multiple namespaces with fxconfig binary
   vars:
     fxconfig_namespace: "{{ namespace_info.namespace }}"
-    fxconfig_pubkey_path: >-
-      {{
-        namespace_info.pubkeys
-        | default([])
-        | list
-        | first
-      }}
+    fxconfig_pubkey_path: "{{ namespace_info.pubkey }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
     tasks_from: bin/namespace_create
@@ -27,13 +21,7 @@
 - name: Create multiple namespaces with fxconfig container
   vars:
     fxconfig_namespace: "{{ namespace_info.namespace }}"
-    fxconfig_pubkey_path: >-
-      {{
-        namespace_info.pubkeys
-        | default([])
-        | list
-        | first
-      }}
+    fxconfig_pubkey_path: "{{ namespace_info.pubkey }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
     tasks_from: container/namespace_create

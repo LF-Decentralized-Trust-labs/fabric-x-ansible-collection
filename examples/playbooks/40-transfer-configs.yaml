@@ -15,3 +15,6 @@
 
 - name: Transfer Loadgen configs
   ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.transfer_configs
+
+- name: Transfer fxconfig configs
+  ansible.builtin.import_playbook: hyperledger.fabricx.fxconfig.transfer_namespaces_pubkey

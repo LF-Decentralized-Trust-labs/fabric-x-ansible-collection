@@ -10,6 +10,9 @@
 - name: Start Fabric-X Committer
   ansible.builtin.import_playbook: hyperledger.fabricx.committer.start
 
+- name: Create namespaces on Fabric-X Committer
+  ansible.builtin.import_playbook: hyperledger.fabricx.fxconfig.create_namespaces
+
 - name: Start Monitoring
   ansible.builtin.import_playbook: hyperledger.fabricx.monitoring.start
 

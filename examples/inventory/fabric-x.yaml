@@ -102,6 +102,7 @@ all:
         fabric-x-committer:
           vars:
             committer_use_postgres: true
+            committer_log_level: DEBUG
           hosts:
             committer-db:
               committer_component_type: db
@@ -135,11 +136,13 @@ all:
       hosts:
         orderer-loadgen:
           loadgen_use_bin: true
+          loadgen_generate_namespace: false
           organization:
             name: Org1
             domain: org1.example.com
             users:
               - name: orderer-loadgen
+                namespace: workload
                 meta_namespace_admin: true
           loadgen_type: orderer-client
           prometheus_exporter_port: 2119
