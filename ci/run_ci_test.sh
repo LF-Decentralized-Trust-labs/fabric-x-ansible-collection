@@ -48,11 +48,11 @@ function collect_deployment_failure_info() {
     echo "✅ Done."
 
     echo -e "🚩 ${BLUE}List the fetched log files.${NO_STYLE}"
-    ls "$PROJECT_DIR/out/fetched-logs"
+    ls "$PROJECT_DIR/out/logs"
     echo "✅ Done."
 
     echo -e "🚩 ${BLUE}Show all the logs.${NO_STYLE}"
-    print_logs "$PROJECT_DIR/out/fetched-logs"
+    print_logs "$PROJECT_DIR/out/logs"
     echo "✅ Done."
 }
 
