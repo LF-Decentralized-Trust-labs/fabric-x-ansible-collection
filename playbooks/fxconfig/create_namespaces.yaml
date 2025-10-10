@@ -29,7 +29,7 @@
         - "users"
       loop_control:
         loop_var: loadgen_org_user
-        label: "{{ current_user.namespace }}:{{ current_user.name }}@{{ current_organization.domain }}"
+        label: "{{ current_user.namespace | default('N/A') }}:{{ current_user.name }}@{{ current_organization.domain }}"
       when:
         - organization is defined
         - organization.users is defined

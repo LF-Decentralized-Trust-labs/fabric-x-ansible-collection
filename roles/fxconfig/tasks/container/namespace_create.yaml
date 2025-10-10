@@ -63,7 +63,7 @@
   vars:
     container_run_until: >-
       {{
-        fxconfig_namespace in (
+        (fxconfig_namespace | string) in (
           docker_result.container.Output
           if container_client == 'docker'
           else (result.stdout_lines | join('\n'))

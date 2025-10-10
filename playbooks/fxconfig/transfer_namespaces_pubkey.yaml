@@ -22,7 +22,7 @@
         - "users"
       loop_control:
         loop_var: loadgen_org_user
-        label: "{{ current_user.namespace }}"
+        label: "{{ current_user.namespace | default('N/A') }}"
       when:
         - organization is defined
         - organization.users is defined
@@ -31,7 +31,7 @@
           | selectattr('meta_namespace_admin', '==', true)
           | length > 0
         - current_user.namespace is defined
-    - name: Transfer
+    - name: Transfer the namespace verification public key
       vars:
         current_organization: "{{ loadgen_org_user[0] }}"
         current_user: "{{ loadgen_org_user[1] }}"
@@ -52,7 +52,7 @@
         - "users"
       loop_control:
         loop_var: loadgen_org_user
-        label: "{{ current_user.namespace }}:{{ current_user.name }}@{{ current_organization.domain }}"
+        label: "{{ current_user.namespace | default('N/A') }}:{{ current_user.name }}@{{ current_organization.domain }}"
       when:
         - organization is defined
         - organization.users is defined
