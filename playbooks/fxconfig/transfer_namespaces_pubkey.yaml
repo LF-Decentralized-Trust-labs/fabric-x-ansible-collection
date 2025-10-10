@@ -1,0 +1,69 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Transfer the Load generators public keys for namespace setup
+  hosts: "{{ target_hosts | default('all') }}"
+  tasks:
+    - name: Ensure namespace directory exists
+      vars:
+        current_organization: "{{ loadgen_org_user[0] }}"
+        current_user: "{{ loadgen_org_user[1] }}"
+      ansible.builtin.file:
+        path: "{{ remote_config_dir }}/namespaces/{{ current_user.namespace }}"
+        state: directory
+        mode: "0o750"
+      with_subelements:
+        - >-
+          {{
+            groups['load-generators']
+            | default([])
+            | map('extract', hostvars)
+            | selectattr('organization', 'defined')
+            | map(attribute='organization')
+            | selectattr('users', 'defined')
+          }}
+        - "users"
+      loop_control:
+        loop_var: loadgen_org_user
+        label: "{{ current_user.namespace | default('N/A') }}"
+      when:
+        - organization is defined
+        - organization.users is defined
+        - organization.users
+          | selectattr('meta_namespace_admin', 'defined')
+          | selectattr('meta_namespace_admin', '==', true)
+          | length > 0
+        - current_user.namespace is defined
+    - name: Transfer the namespace verification public key
+      vars:
+        current_organization: "{{ loadgen_org_user[0] }}"
+        current_user: "{{ loadgen_org_user[1] }}"
+      ansible.builtin.copy:
+        src: "{{ config_build_dir }}/cryptogen-artifacts/crypto/peerOrganizations/{{ current_organization.domain }}/users/{{ current_user.name }}@{{ current_organization.domain }}/msp/signcerts/{{ current_user.name }}@{{ current_organization.domain }}-cert.pem"
+        dest: "{{ remote_config_dir }}/namespaces/{{ current_user.namespace }}/pubkey.pem"
+        mode: "0o644"
+      with_subelements:
+        - >-
+          {{
+            groups['load-generators']
+            | default([])
+            | map('extract', hostvars)
+            | selectattr('organization', 'defined')
+            | map(attribute='organization')
+            | selectattr('users', 'defined')
+          }}
+        - "users"
+      loop_control:
+        loop_var: loadgen_org_user
+        label: "{{ current_user.namespace | default('N/A') }}:{{ current_user.name }}@{{ current_organization.domain }}"
+      when:
+        - organization is defined
+        - organization.users is defined
+        - organization.users
+          | selectattr('meta_namespace_admin', 'defined')
+          | selectattr('meta_namespace_admin', '==', true)
+          | length > 0
+        - current_user.namespace is defined
