@@ -102,7 +102,6 @@ all:
         fabric-x-committer:
           vars:
             committer_use_postgres: true
-            committer_log_level: DEBUG
           hosts:
             committer-db:
               committer_component_type: db
