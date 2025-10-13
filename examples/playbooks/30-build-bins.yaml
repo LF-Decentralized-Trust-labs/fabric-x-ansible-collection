@@ -10,5 +10,8 @@
 - name: Build Fabric-X Committer binaries
   ansible.builtin.import_playbook: hyperledger.fabricx.committer.build_binaries
 
+- name: Build fxconfig binaries
+  ansible.builtin.import_playbook: hyperledger.fabricx.fxconfig.build_binaries
+
 - name: Build Loadgen binaries
   ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.build_binaries

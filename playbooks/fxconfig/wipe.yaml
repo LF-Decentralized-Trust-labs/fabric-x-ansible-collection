@@ -1,0 +1,31 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove the fxconfig configuration files
+  hosts: "{{ target_hosts | default('all') }}"
+  tasks:
+    - name: Remove the namespaces public keys
+      ansible.builtin.file:
+        path: "{{ remote_config_dir }}/namespaces"
+        state: absent
+      when:
+        - organization is defined
+        - organization.users is defined
+        - organization.users
+          | selectattr('meta_namespace_admin', 'defined')
+          | selectattr('meta_namespace_admin', '==', true)
+          | length > 0
+    - name: Wipe fxconfig
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxconfig
+        tasks_from: wipe
+      when:
+        - organization is defined
+        - organization.users is defined
+        - organization.users
+          | selectattr('meta_namespace_admin', 'defined')
+          | selectattr('meta_namespace_admin', '==', true)
+          | length > 0
