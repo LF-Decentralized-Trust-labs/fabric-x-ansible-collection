@@ -4,10 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Transfer the Load generators public keys for namespace setup
+- name: Transfer the fxconfig configuration files
   hosts: "{{ target_hosts | default('all') }}"
   tasks:
-    - name: Ensure namespace directory exists
+    - name: Ensure loadgen namespace directory exists
       vars:
         current_organization: "{{ loadgen_org_user[0] }}"
         current_user: "{{ loadgen_org_user[1] }}"
@@ -37,7 +37,7 @@
           | selectattr('meta_namespace_admin', '==', true)
           | length > 0
         - current_user.namespace is defined
-    - name: Transfer the namespace verification public key
+    - name: Transfer the loadgen namespace verification public key
       vars:
         current_organization: "{{ loadgen_org_user[0] }}"
         current_user: "{{ loadgen_org_user[1] }}"

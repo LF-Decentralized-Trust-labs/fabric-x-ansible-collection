@@ -10,6 +10,9 @@
 - name: Wipe Monitoring
   ansible.builtin.import_playbook: hyperledger.fabricx.monitoring.wipe
 
+- name: Wipe fxconfig
+  ansible.builtin.import_playbook: hyperledger.fabricx.fxconfig.wipe
+
 - name: Wipe Fabric-X Committer
   ansible.builtin.import_playbook: hyperledger.fabricx.committer.wipe
 

@@ -30,7 +30,7 @@
 
 - name: Wait until the namespace {{ fxconfig_namespace }} is created
   vars:
-    bin_run_until: "{{ fxconfig_namespace in bin_output.stdout }}"
+    bin_run_until: "{{ (fxconfig_namespace | string ~ ':') in bin_output.stdout }}"
     bin_run_retries: 60
     bin_run_delay: 2
   ansible.builtin.include_role:
