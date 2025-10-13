@@ -37,4 +37,5 @@
         name: hyperledger.fabricx.fxconfig
         tasks_from: bin/multiplatform_install
       when:
+        - fxconfig_service_instances is defined
         - fxconfig_service_instances | length > 0
