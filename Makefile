@@ -6,13 +6,20 @@
 
 # exported vars
 ANSIBLE_CONFIG ?= ./examples/ansible.cfg
-export ANSIBLE_CONFIG
+ANSIBLE_CACHE_PLUGIN ?= jsonfile
+ANSIBLE_CACHE_PLUGIN_CONNECTION ?= /tmp/ansible_fact_cache
 PROJECT_DIR := $(CURDIR)
+
+export ANSIBLE_CONFIG
+export ANSIBLE_CACHE_PLUGIN
+export ANSIBLE_CACHE_PLUGIN_CONNECTION
 export PROJECT_DIR
 
 # Makefile vars
 PLAYBOOK_PATH := $(CURDIR)/examples/playbooks
 TARGET_HOSTS ?= all
+ASSERT_METRICS ?= false
+LIMIT ?= 1000
 
 # Print the list of supported commands.
 .PHONY: help
