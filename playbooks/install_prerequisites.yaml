@@ -49,20 +49,10 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.package
         tasks_from: install
-    - name: Install chrony on Linux
+    - name: Install chrony
       vars:
         package_name: chrony
         package_has_service: true
       ansible.builtin.include_role:
         name: hyperledger.fabricx.package
-        tasks_from: install_on_linux
-      when:
-        - ansible_facts.system == 'Linux'
-    - name: Install chronyc on macOS
-      vars:
-        package_name: chronyc
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.package
-        tasks_from: install_on_macos
-      when:
-        - ansible_facts.system == 'Darwin'
+        tasks_from: install
