@@ -1,0 +1,13 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure Docker network {{ container_network }} exists
+  community.docker.docker_network:
+    name: "{{ container_network }}"
+    driver: "{{ container_network_driver }}"
+    attachable: "{{ container_network_attachable }}"
+    internal: "{{ container_network_internal }}"
+    state: present

@@ -10,6 +10,9 @@
 - name: Transfer Fabric-X Committer configs
   ansible.builtin.import_playbook: hyperledger.fabricx.committer.transfer_configs
 
+- name: Transfer fxconfig configs
+  ansible.builtin.import_playbook: hyperledger.fabricx.fxconfig.transfer_configs
+
 - name: Transfer Monitoring configs
   ansible.builtin.import_playbook: hyperledger.fabricx.monitoring.transfer_configs
 

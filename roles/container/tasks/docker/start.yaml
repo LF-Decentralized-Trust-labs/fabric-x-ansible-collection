@@ -10,8 +10,20 @@
     image: "{{ container_image }}"
     entrypoint: "{{ container_entrypoint }}"
     command: "{{ container_command }}"
+    hostname: "{{ container_name }}"
     network_mode: "{{ container_network_mode }}"
-    ports: "{{ container_ports if container_network_mode == 'bridge' else [] }}"
+    networks: >-
+      {{
+        [container_network]
+        if (container_network_mode == 'bridge') and (container_network is defined)
+        else []
+      }}
+    ports: >-
+      {{
+        container_ports
+        if container_network_mode == 'bridge'
+        else []
+      }}
     memory: "{{ container_memory }}"
     volumes: "{{ container_volumes }}"
     ulimits: "{{ container_ulimits }}"
@@ -24,9 +36,17 @@
     healthcheck:
       test: "{{ container_healthcheck_test }}"
       interval: "{{ container_healthcheck_interval }}"
-    state: "{{ 'healthy' if container_healthcheck_test is not none else 'started' }}"
+    state: >-
+      {{
+        'healthy'
+        if container_healthcheck_test is not none
+        else 'started'
+      }}
     auto_remove: "{{ container_run_detach_mode and container_autoremove }}"
     cleanup: "{{ (not container_run_detach_mode) and container_autoremove }}"
+  until: container_run_until
+  retries: "{{ container_run_retries }}"
+  delay: "{{ container_run_delay }}"
   ignore_errors: "{{ container_ignore_errors }}"
   register: docker_result
 

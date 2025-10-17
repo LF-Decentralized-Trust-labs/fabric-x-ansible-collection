@@ -10,8 +10,19 @@
     image: "{{ container_image }}"
     entrypoint: "{{ container_entrypoint }}"
     command: "{{ container_command }}"
-    network: "{{ container_network_mode }}"
-    ports: "{{ container_ports if container_network_mode == 'bridge' else [] }}"
+    hostname: "{{ container_name }}"
+    network: >-
+      {{
+        (container_network)
+        if (container_network_mode == 'bridge') and (container_network is defined)
+        else container_network_mode
+      }}
+    ports: >-
+      {{
+        container_ports
+        if container_network_mode == 'bridge'
+        else []
+      }}
     memory: "{{ container_memory }}"
     volumes: "{{ container_volumes }}"
     user: "{{ container_user }}"
@@ -24,6 +35,9 @@
     state: started
     detach: "{{ container_run_detach_mode }}"
     rm: "{{ container_autoremove }}"
+  until: container_run_until
+  retries: "{{ container_run_retries }}"
+  delay: "{{ container_run_delay }}"
   register: result
   ignore_errors: "{{ container_ignore_errors }}"
 

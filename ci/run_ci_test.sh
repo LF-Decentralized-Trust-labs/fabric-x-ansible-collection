@@ -34,7 +34,7 @@ function print_logs() {
 function collect_deployment_failure_info() {
     echo -e "🚩 ${BLUE}Retrieve status for service ports.${NO_STYLE}"
 
-    make services ping
+    make fabric-x ping
     make load-generators ping
     echo "✅ Done."
 
@@ -42,17 +42,17 @@ function collect_deployment_failure_info() {
     docker container ls
     echo "✅ Done."
 
-    echo -e "🚩 ${BLUE}Retrieve the logs from the services.${NO_STYLE}"
-    make services fetch-logs
+    echo -e "🚩 ${BLUE}Retrieve the logs from the Hyperledger Fabric-X components.${NO_STYLE}"
+    make fabric-x fetch-logs
     make load-generators fetch-logs
     echo "✅ Done."
 
     echo -e "🚩 ${BLUE}List the fetched log files.${NO_STYLE}"
-    ls "$PROJECT_DIR/out/fetched-logs"
+    ls "$PROJECT_DIR/out/logs"
     echo "✅ Done."
 
     echo -e "🚩 ${BLUE}Show all the logs.${NO_STYLE}"
-    print_logs "$PROJECT_DIR/out/fetched-logs"
+    print_logs "$PROJECT_DIR/out/logs"
     echo "✅ Done."
 }
 

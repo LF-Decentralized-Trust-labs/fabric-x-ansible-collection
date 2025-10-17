@@ -12,16 +12,19 @@ load-profile:
     policy:
       config-block-path:
       namespace-policies:
-        0:
+{% if organization is defined %}
+{% if organization.users is defined %}
+{% for user in organization.users %}
+{% if user.namespace is defined %}
+        {{ user.namespace }}:
           scheme: {{ loadgen_key_scheme }}
-          seed: 12345
-        _meta:
-          scheme: {{ loadgen_key_scheme }}
-          seed: 12345
-{% if loadgen_user %}
+          seed: {{ user.seed | default(12345) }}
           key-path:
-            signing-key: {{ loadgen_config_dir }}/users/{{ loadgen_user.name }}@{{ loadgen_user.organization.domain }}/msp/keystore/priv_sk
-            sign-certificate: {{ loadgen_config_dir }}/users/{{ loadgen_user.name }}@{{ loadgen_user.organization.domain }}/msp/signcerts/{{ loadgen_user.name }}@{{ loadgen_user.organization.domain }}-cert.pem
+            signing-key: {{ loadgen_config_dir }}/users/{{ user.name }}@{{ organization.domain }}/msp/keystore/priv_sk
+            sign-certificate: {{ loadgen_config_dir }}/users/{{ user.name }}@{{ organization.domain }}/msp/signcerts/{{ user.name }}@{{ organization.domain }}-cert.pem
+{% endif %}
+{% endfor %}
+{% endif %}
 {% endif %}
   query:
     query-size:
