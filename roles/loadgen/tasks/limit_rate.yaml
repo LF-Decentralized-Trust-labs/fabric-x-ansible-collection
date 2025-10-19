@@ -9,6 +9,10 @@
     url: "http://{{ ansible_host }}:{{ loadgen_web_port }}/setLimits"
     method: POST
     body_format: json
-    body:
-      limit: "{{ loadgen_limit_rate | int }}"
+    body: >-
+      {{
+        {
+          'limit': loadgen_limit_rate | int
+        }
+      }}
     status_code: 200
