@@ -20,6 +20,7 @@ all:
     cli_bin_dir: "{{ out_build_dir }}/cli"
     channel_id: arma
     node_exporter_port: 9111
+    container_network: fabricx-network
   children:
     fabric-x:
       children:
