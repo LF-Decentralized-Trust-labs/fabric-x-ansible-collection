@@ -15,3 +15,6 @@
 
 - name: Teardown Fabric-X Orderers
   ansible.builtin.import_playbook: hyperledger.fabricx.orderer.teardown
+
+- name: Remove container networks
+  ansible.builtin.import_playbook: hyperledger.fabricx.remove_container_networks
