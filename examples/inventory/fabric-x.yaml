@@ -20,7 +20,6 @@ all:
     cli_bin_dir: "{{ out_build_dir }}/cli"
     channel_id: arma
     node_exporter_port: 9111
-    fxconfig_use_bin: true
   children:
     fabric-x:
       children:
