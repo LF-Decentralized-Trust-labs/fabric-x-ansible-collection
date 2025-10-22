@@ -8,7 +8,7 @@
 bin_build_dir: "{{ out_build_dir }}/bin"
 bin_output_dir: "{{ bin_build_dir }}/{{ bin_target_os }}_os/{{ bin_target_arch }}_arch"
 bin_remote_dir: "{{ deploy_dir }}/{{ inventory_hostname }}/bin"
-bin_remote_logs_dir: "{{ remote_config_dir }}"
+bin_remote_logs_dir: "{{ deploy_dir }}/{{ inventory_hostname }}/logs"
 bin_remote_logs_file: "logs.txt"
 bin_logs_dir: "{{ out_log_dir }}"
 bin_logs_file: "{{ inventory_hostname }}_logs.txt"
