@@ -7,7 +7,7 @@
 # container location/paths
 container_logs_dir: "{{ out_log_dir }}"
 container_logs_file: "{{ inventory_hostname }}_logs.txt"
-container_remote_logs_dir: "{{ remote_config_dir }}"
+container_remote_logs_dir: "{{ deploy_dir }}/{{ inventory_hostname }}/logs"
 container_remote_logs_file: "logs.txt"
 
 # container misc
