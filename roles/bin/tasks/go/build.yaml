@@ -16,13 +16,12 @@
 
 - name: Set CC for cross-compilation on macOS with CGO_ENABLED
   ansible.builtin.set_fact:
-    go_cc_compiler: >-
-      {{
-        'x86_64-unknown-linux-gnu-gcc' if bin_target_os == 'linux' and bin_target_arch == 'amd64'
-        else
-        ""
-      }}
-  when: ansible_facts.system == 'Darwin' and bin_cgo_enabled
+    go_cc_compiler: x86_64-unknown-linux-gnu-gcc
+  when:
+    - ansible_facts.system == 'Darwin'
+    - bin_cgo_enabled
+    - bin_target_os == 'linux'
+    - bin_target_arch == 'amd64'
 
 - name: Build the binary {{ bin_name }}
   ansible.builtin.command: >-
