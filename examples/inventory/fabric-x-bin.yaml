@@ -23,6 +23,7 @@ all:
     armageddon_use_bin: true
     configtxgen_use_bin: true
     cryptogen_use_bin: true
+    fxconfig_use_bin: true
   children:
     fabric-x:
       children:
