@@ -4,8 +4,14 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Check that the Fabric-X Committer instances have been defined
+  ansible.builtin.fail:
+    msg: "No Fabric-X Committer coordinator host is indicated. Set it via 'committer_service_instances'."
+  when: committer_service_instances is not defined
+
 - name: Install {{ committer_bin_name }}
   vars:
+    bin_service_instances: "{{ committer_service_instances }}"
     bin_go_package: "{{ committer_bin_package }}@{{ committer_git_commit }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
