@@ -21,7 +21,7 @@
           }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.loadgen
-        tasks_from: bin/install
+        tasks_from: bin/multiplatform_install
       when:
         - "'load-generators' in groups"
         - loadgen_instances | length > 0
