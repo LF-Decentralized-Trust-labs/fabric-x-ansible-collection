@@ -37,3 +37,10 @@
     marker: "# {mark} TLS CA CERT {{ fabric_ca_name }} ({{ organization.domain }})"
     block: "{{ lookup('file', tls_cert_file) }}"
   delegate_to: localhost
+
+# TODO: admincerts seems to be deprecated. Maybe we don't need this anymore
+- name: Fetch the Admin CA certificate
+  ansible.builtin.fetch:
+    src: "{{ fabric_ca_remote_config_dir }}/{{ fabric_ca_admin.name }}/msp/signcerts/cert.pem"
+    dest: "{{ fabric_ca_org_dir }}/msp/admincerts/Admin@{{ organization.domain }}-cert.pem"
+    flat: true
