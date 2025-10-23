@@ -28,3 +28,5 @@
   ansible.posix.synchronize:
     src: "{{ orderer_cryptogen_artifact_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ inventory_hostname }}.{{ organization.domain }}/"
     dest: "{{ orderer_remote_config_dir }}"
+  when:
+    - organization.fabric_ca_host is not defined
