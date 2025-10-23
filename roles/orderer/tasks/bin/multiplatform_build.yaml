@@ -4,6 +4,11 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Check that the Fabric-X Orderer instances have been defined
+  ansible.builtin.fail:
+    msg: "No Fabric-X Orderer host is indicated. Set it via 'orderer_service_instances'."
+  when: orderer_service_instances is not defined
+
 - name: Clone the Fabric-X Orderer repository
   vars:
     git_uri: "{{ orderer_git_uri }}"
@@ -13,10 +18,11 @@
     name: hyperledger.fabricx.git
     tasks_from: clone
 
-- name: Build the binary {{ orderer_bin_name }}
+- name: Build the binary {{ orderer_bin_name }} for multiplatform
   vars:
     bin_name: "{{ orderer_bin_name }}"
     bin_source_code_path: "{{ orderer_source_code_dir }}"
+    bin_service_instances: "{{ orderer_service_instances }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: go/multiplatform_build

@@ -1,0 +1,18 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the Fabric-X Orderer instances have been defined
+  ansible.builtin.fail:
+    msg: "No Fabric-X Orderer host is indicated. Set it via 'orderer_service_instances'."
+  when: orderer_service_instances is not defined
+
+- name: Install {{ orderer_bin_name }} for multiplatform
+  vars:
+    bin_service_instances: "{{ orderer_service_instances }}"
+    bin_go_package: "{{ orderer_bin_package }}@{{ orderer_git_commit }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: go/multiplatform_install
