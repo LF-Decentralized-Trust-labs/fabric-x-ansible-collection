@@ -19,5 +19,8 @@
 - name: Wipe Fabric-X Orderer
   ansible.builtin.import_playbook: hyperledger.fabricx.orderer.wipe
 
+- name: Wipe Fabric CA servers
+  ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.wipe
+
 - name: Remove container networks
   ansible.builtin.import_playbook: hyperledger.fabricx.remove_container_networks

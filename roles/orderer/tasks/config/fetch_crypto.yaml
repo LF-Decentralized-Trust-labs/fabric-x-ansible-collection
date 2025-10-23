@@ -1,0 +1,21 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Fetch Fabric-X Orderer signcerts
+  ansible.builtin.fetch:
+    src: "{{ orderer_remote_config_dir }}/msp/signcerts/cert.pem"
+    dest: "{{ orderer_cryptogen_artifact_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ organization.orderer.name }}.{{ organization.domain }}/msp/signcerts/{{ organization.orderer.name }}.{{ organization.domain }}-cert.pem"
+    flat: true
+  when:
+    - organization.fabric_ca_host is defined
+
+- name: Fetch Fabric-X Orderer TLS certificates
+  ansible.builtin.fetch:
+    src: "{{ orderer_remote_config_dir }}/tls/signcerts/cert.pem"
+    dest: "{{ orderer_cryptogen_artifact_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ organization.orderer.name }}.{{ organization.domain }}/tls/server.crt"
+    flat: true
+  when:
+    - organization.fabric_ca_host is defined

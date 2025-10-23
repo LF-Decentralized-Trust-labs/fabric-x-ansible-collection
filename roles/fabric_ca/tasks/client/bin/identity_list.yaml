@@ -1,0 +1,35 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: List all Fabric CA identities
+  vars:
+    bin_env:
+      FABRIC_CA_CLIENT_HOME: "{{ fabric_ca_msp_dir }}"
+    bin_command: >-
+      {{ fabric_ca_client_bin_name }} identity list
+      -u {{ fabric_ca_scheme }}://{{ hostvars[fabric_ca_host].ansible_host }}:{{ hostvars[fabric_ca_host].fabric_ca_port }}
+      --caname {{ fabric_ca_name }}
+      {% if fabric_ca_use_tls and (fabric_ca_tls_certfile is defined) %}
+      --tls.certfiles {{ fabric_ca_tls_certfile }}
+      {% endif %}
+    bin_run_with_tmux: false
+    bin_collect_logs: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start
+
+- name: Extract registered Fabric CA identity names
+  ansible.builtin.set_fact:
+    fabric_ca_registered_identities_names: >-
+      {{
+        (bin_output.stdout_lines | default([]))
+        | select('match', '^Name:')
+        | map('replace', 'Name: ', '')
+        | map('regex_replace', ',.*$', '')
+        | map('trim')
+        | list
+        | unique
+      }}

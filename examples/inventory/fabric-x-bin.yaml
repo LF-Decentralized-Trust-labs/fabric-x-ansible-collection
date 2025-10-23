@@ -4,6 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# This inventory runs an Hyperledger Fabric-X network by generating the crypto material directly on the remote
+# nodes using "Fabric CA".
+# This approach allows to generate the private key directly on the remote node, which is the safest approach.
+# All the services (except for the Postgres DBs) run as binaries, therefore make sure to have "tmux"
+# installed on your target machines.
+
 all:
   vars:
     ansible_connection: local
@@ -20,23 +26,78 @@ all:
     cli_bin_dir: "{{ out_build_dir }}/cli"
     channel_id: arma
     node_exporter_port: 9111
+    organizations:
+      orderer_org_1: &OrdererOrg1
+        name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
+      orderer_org_2: &OrdererOrg2
+        name: "OrdererOrg2"
+        domain: "ordererorg2.example.com"
+      orderer_org_3: &OrdererOrg3
+        name: "OrdererOrg3"
+        domain: "ordererorg3.example.com"
+      orderer_org_4: &OrdererOrg4
+        name: "OrdererOrg4"
+        domain: "ordererorg4.example.com"
+      org1: &Org1
+        name: "Org1"
+        domain: "org1.example.com"
     armageddon_use_bin: true
     configtxgen_use_bin: true
     cryptogen_use_bin: true
     fxconfig_use_bin: true
+    fabric_ca_client_use_bin: true
   children:
+    fabric-cas:
+      vars:
+        fabric_ca_server_use_bin: true
+        fabric_ca_use_tls: true
+        fabric_ca_name: "{{ inventory_hostname }}"
+        fabric_ca_admin:
+          name: admin
+          secret: adminPWD
+          attrs:
+            hf.Registrar.Roles: "*"
+            hf.Registrar.Attributes: "*"
+            hf.GenCRL: "true"
+            hf.Revoker: "true"
+      hosts:
+        fabric-ca-orderer-org1:
+          fabric_ca_port: 9019
+          fabric_ca_operations_port: 9020
+          organization: *OrdererOrg1
+        fabric-ca-orderer-org2:
+          fabric_ca_port: 9029
+          fabric_ca_operations_port: 9030
+          organization: *OrdererOrg2
+        fabric-ca-orderer-org3:
+          fabric_ca_port: 9039
+          fabric_ca_operations_port: 9040
+          organization: *OrdererOrg3
+        fabric-ca-orderer-org4:
+          fabric_ca_port: 9049
+          fabric_ca_operations_port: 9050
+          organization: *OrdererOrg4
+        fabric-ca-org1:
+          fabric_ca_port: 9069
+          fabric_ca_operations_port: 9070
+          organization: *Org1
+
     fabric-x:
       children:
         fabric-x-orderers:
           vars:
             orderer_use_bin: true
-            organization:
-              name: "OrdererOrg{{ orderer_group }}"
-              domain: "ordererorg{{ orderer_group }}.example.com"
-              role: orderer
           children:
             fabric-x-orderer-1:
               vars:
+                organization:
+                  <<: *OrdererOrg1
+                  fabric_ca_host: fabric-ca-orderer-org1
+                  role: orderer
+                  orderer:
+                    name: "{{ inventory_hostname }}"
+                    secret: "{{ inventory_hostname }}PWD"
                 orderer_group: 1
               hosts:
                 orderer-router-1:
@@ -54,6 +115,13 @@ all:
                   orderer_rpc_port: 7053
             fabric-x-orderer-2:
               vars:
+                organization:
+                  <<: *OrdererOrg2
+                  fabric_ca_host: fabric-ca-orderer-org2
+                  role: orderer
+                  orderer:
+                    name: "{{ inventory_hostname }}"
+                    secret: "{{ inventory_hostname }}PWD"
                 orderer_group: 2
               hosts:
                 orderer-router-2:
@@ -71,6 +139,13 @@ all:
                   orderer_rpc_port: 7153
             fabric-x-orderer-3:
               vars:
+                organization:
+                  <<: *OrdererOrg3
+                  fabric_ca_host: fabric-ca-orderer-org3
+                  role: orderer
+                  orderer:
+                    name: "{{ inventory_hostname }}"
+                    secret: "{{ inventory_hostname }}PWD"
                 orderer_group: 3
               hosts:
                 orderer-router-3:
@@ -88,6 +163,13 @@ all:
                   orderer_rpc_port: 7253
             fabric-x-orderer-4:
               vars:
+                organization:
+                  <<: *OrdererOrg4
+                  fabric_ca_host: fabric-ca-orderer-org4
+                  role: orderer
+                  orderer:
+                    name: "{{ inventory_hostname }}"
+                    secret: "{{ inventory_hostname }}PWD"
                 orderer_group: 4
               hosts:
                 orderer-router-4:
@@ -141,12 +223,12 @@ all:
       hosts:
         orderer-loadgen:
           loadgen_use_bin: true
-          loadgen_generate_namespace: false
           organization:
-            name: Org1
-            domain: org1.example.com
+            <<: *Org1
+            fabric_ca_host: fabric-ca-org1
             users:
               - name: orderer-loadgen
+                secret: "{{ inventory_hostname }}PWD"
                 namespace: 0
                 meta_namespace_admin: true
           loadgen_type: orderer-client

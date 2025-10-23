@@ -1,0 +1,60 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Set the MSP folder
+  vars:
+    org_dir: >-
+      {{
+        'ordererOrganizations'
+        if fabric_ca_orderer_organization is defined and fabric_ca_orderer_organization
+        else 'peerOrganizations'
+      }}
+  ansible.builtin.set_fact:
+    fabric_ca_org_dir: "{{ fabric_ca_cryptogen_artifact_dir }}/crypto/{{ org_dir }}/{{ organization.domain }}"
+
+- name: Fetch the CA certificate
+  ansible.builtin.fetch:
+    src: "{{ fabric_ca_remote_config_dir }}/ca-cert.pem"
+    dest: "{{ fabric_ca_org_dir }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem"
+    flat: true
+
+- name: Fetch the TLS CA certificate
+  ansible.builtin.fetch:
+    src: "{{ fabric_ca_remote_config_dir }}/ca-cert.pem"
+    dest: "{{ fabric_ca_org_dir }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
+    flat: true
+
+- name: Ensure TLS CA cert is in the list of trusted CA certificates
+  vars:
+    tls_cert_file: "{{ fabric_ca_org_dir }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
+  ansible.builtin.blockinfile:
+    path: "{{ fabric_ca_cryptogen_artifact_dir }}/crypto/ca-certs.pem"
+    create: true
+    mode: "0o644"
+    marker: "# {mark} TLS CA CERT {{ fabric_ca_name }} ({{ organization.domain }})"
+    block: "{{ lookup('file', tls_cert_file) }}"
+  delegate_to: localhost
+
+# TODO: admincerts seems to be deprecated. Maybe we don't need this anymore
+- name: Fetch the Admin CA certificate
+  ansible.builtin.fetch:
+    src: "{{ fabric_ca_remote_config_dir }}/{{ fabric_ca_admin.name }}/msp/signcerts/cert.pem"
+    dest: "{{ fabric_ca_org_dir }}/msp/admincerts/Admin@{{ organization.domain }}-cert.pem"
+    flat: true
+
+# TODO: temporary fix -> this location is only used by armageddon at the moment. We must change armageddon and let it use stuff from msp/
+- name: Fetch the CA certificate under ca/
+  ansible.builtin.fetch:
+    src: "{{ fabric_ca_remote_config_dir }}/ca-cert.pem"
+    dest: "{{ fabric_ca_org_dir }}/ca/ca.{{ organization.domain }}-cert.pem"
+    flat: true
+
+# TODO: temporary fix -> this location is only used by armageddon at the moment. We must change armageddon and let it use stuff from msp/
+- name: Fetch the TLS CA certificate under tlsca/
+  ansible.builtin.fetch:
+    src: "{{ fabric_ca_remote_config_dir }}/ca-cert.pem"
+    dest: "{{ fabric_ca_org_dir }}/tlsca/tlsca.{{ organization.domain }}-cert.pem"
+    flat: true

@@ -1,0 +1,51 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Fabric CA server configuration file
+version: 1.5.15
+
+# Top-level server switches
+port: {{ fabric_ca_port }}
+debug: {{ fabric_ca_log_level == 'debug' | bool | lower }}
+
+operations:
+  listenAddress: "0.0.0.0:{{ fabric_ca_operations_port }}"
+
+# CA identity
+ca:
+  name: "{{ fabric_ca_name }}"
+
+# TLS serving
+tls:
+  enabled: {{ fabric_ca_use_tls | lower }}
+
+# CSR defaults
+csr:
+  cn: "{{ fabric_ca_csr_cn }}"
+  names:
+    - C: US
+      ST: "California"
+      L: "San Francisco"
+      O: "{{ organization.domain }}"
+  hosts:
+{% for host in (fabric_ca_csr_hosts | default([])) %}
+    - "{{ host }}"
+{% endfor %}
+  ca:
+    expiry: "{{ fabric_ca_csr_expiry }}"
+
+registry:
+  maxenrollments: -1
+  identities:
+    - name: "{{ fabric_ca_admin.name }}"
+      pass: "{{ fabric_ca_admin.secret }}"
+      type: "admin"
+      attrs:
+{% if fabric_ca_admin.attrs is defined %}
+{% for attribute_name, attribute_value in fabric_ca_admin.attrs.items() %}
+        {{ attribute_name }}: "{{ attribute_value }}"
+{% endfor %}
+{% endif %}

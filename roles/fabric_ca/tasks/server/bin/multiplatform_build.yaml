@@ -1,0 +1,29 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the Fabric CA instances have been defined
+  ansible.builtin.fail:
+    msg: "No Fabric CA host is indicated. Set it via 'fabric_ca_server_instances'."
+  when: fabric_ca_server_instances is not defined
+
+- name: Clone the Fabric CA repository
+  vars:
+    git_uri: "{{ fabric_ca_git_uri }}"
+    git_dir: "{{ fabric_ca_git_dir }}"
+    git_commit: "{{ fabric_ca_git_commit }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.git
+    tasks_from: clone
+
+- name: Build the binary {{ fabric_ca_server_bin_name }}
+  vars:
+    bin_name: "{{ fabric_ca_server_bin_name }}"
+    bin_source_code_path: "{{ fabric_ca_server_source_code_dir }}"
+    bin_service_instances: "{{ fabric_ca_server_instances }}"
+    bin_cgo_enabled: true
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: go/multiplatform_build

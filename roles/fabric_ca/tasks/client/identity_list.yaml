@@ -1,0 +1,19 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: List registered identities with Fabric CA client container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/container/identity_list
+  when:
+    - not fabric_ca_client_use_bin
+
+- name: List registered identities with Fabric CA client binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/bin/identity_list
+  when:
+    - fabric_ca_client_use_bin

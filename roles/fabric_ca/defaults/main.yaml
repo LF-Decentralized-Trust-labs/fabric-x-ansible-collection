@@ -1,0 +1,58 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Fabric CA image
+# =========================
+fabric_ca_registry_endpoint: "docker.io/hyperledger"
+fabric_ca_image_name: "fabric-ca"
+fabric_ca_image_tag: "1.5.15"
+fabric_ca_image: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
+fabric_ca_container_name: "{{ inventory_hostname }}"
+fabric_ca_container_config_dir: "/config"
+
+# =========================
+# Fabric CA binaries
+# =========================
+fabric_ca_git_uri: "https://github.com/hyperledger/fabric-ca.git"
+fabric_ca_git_dir: "{{ source_code_dir }}/fabric-ca"
+fabric_ca_git_commit: "v1.5.15"
+fabric_ca_bin_dir: "{{ deploy_dir }}/{{ inventory_hostname }}/bin"
+# Fabric CA Server binary
+fabric_ca_server_source_code_dir: "{{ fabric_ca_git_dir }}/cmd/fabric-ca-server"
+fabric_ca_server_bin_package: "github.com/hyperledger/fabric-ca/cmd/fabric-ca-server"
+fabric_ca_server_bin_name: "fabric-ca-server"
+fabric_ca_server_use_bin: false
+# Fabric CA Client binary
+fabric_ca_client_source_code_dir: "{{ fabric_ca_git_dir }}/cmd/fabric-ca-client"
+fabric_ca_client_bin_package: "github.com/hyperledger/fabric-ca/cmd/fabric-ca-client"
+fabric_ca_client_bin_name: "fabric-ca-client"
+fabric_ca_client_use_bin: false
+
+# =========================
+# Paths, locations
+# =========================
+fabric_ca_remote_config_dir: "{{ remote_config_dir }}"
+fabric_ca_cryptogen_artifact_dir: "{{ config_build_dir }}/cryptogen-artifacts"
+
+# =========================
+# TLS
+# =========================
+fabric_ca_scheme: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
+fabric_ca_use_tls: true
+fabric_ca_enable_nodeous: true
+fabric_ca_tls_root_cert: "{{ fabric_ca_remote_config_dir }}/ca-cert.pem"
+
+# =========================
+# Misc (config, logging...)
+# =========================
+fabric_ca_name: "{{ inventory_hostname }}"
+fabric_ca_log_level: "info"
+fabric_ca_csr_cn: "{{ fabric_ca_name }}"
+fabric_ca_csr_hosts:
+  - "{{ ansible_host }}"
+  - "{{ inventory_hostname }}"
+fabric_ca_csr_expiry: "131400h"

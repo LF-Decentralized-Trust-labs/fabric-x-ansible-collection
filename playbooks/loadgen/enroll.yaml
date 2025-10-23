@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Enroll load generators identities on Fabric CA
+  hosts: "{{ target_hosts | default('load-generators') }}:&load-generators"
+  tasks:
+    - name: Enroll load generator identities
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.loadgen
+        tasks_from: config/enroll
+    - name: Fetch load generator certificates
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.loadgen
+        tasks_from: config/fetch_crypto

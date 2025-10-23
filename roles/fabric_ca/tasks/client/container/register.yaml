@@ -1,0 +1,72 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Find all registered identities on Fabric CA
+  vars:
+    container_omit_logs: true
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/container/identity_list
+
+- name: Check if identity is already registered
+  ansible.builtin.set_fact:
+    fabric_ca_identity_exists: "{{ fabric_ca_identity.name in fabric_ca_registered_identities_names }}"
+
+- name: Identity already present — skip registration
+  ansible.builtin.debug:
+    msg: "Identity '{{ fabric_ca_identity.name }}' is already registered on {{ fabric_ca_name }} Fabric CA server, skipping registration..."
+  when: fabric_ca_identity_exists
+
+- name: Set volumes for Fabric-CA client
+  ansible.builtin.set_fact:
+    fabric_ca_volumes:
+      - "{{ fabric_ca_msp_dir }}:{{ fabric_ca_container_config_dir }}/msp"
+  when: not fabric_ca_identity_exists
+
+- name: Set volumes for TLS certificates
+  vars:
+    fabric_ca_tls_certfile_volume: "{{ fabric_ca_tls_certfile }}:{{ fabric_ca_container_config_dir }}/tls-cert.pem"
+  ansible.builtin.set_fact:
+    fabric_ca_volumes: "{{ fabric_ca_volumes + [fabric_ca_tls_certfile_volume] }}"
+  when:
+    - fabric_ca_use_tls
+    - fabric_ca_tls_certfile is defined
+    - not fabric_ca_identity_exists
+
+# If you want the attributes to appear in the certificate, make sure to set them with the ":ecert" suffix.
+# e.g: hf.GenCRL: "true:ecert"
+- name: Register identity with Fabric CA client container
+  vars:
+    container_name: "{{ fabric_ca_name }}-register-{{ fabric_ca_identity.name }}"
+    container_image: "{{ fabric_ca_image }}"
+    container_env:
+      FABRIC_CA_CLIENT_HOME: "{{ fabric_ca_container_config_dir }}"
+    container_command: >-
+      {{ fabric_ca_client_bin_name }} register
+      -u {{ fabric_ca_scheme }}://{{ hostvars[fabric_ca_host].ansible_host }}:{{ hostvars[fabric_ca_host].fabric_ca_port }}
+      --caname {{ fabric_ca_name }}
+      --id.name {{ fabric_ca_identity.name }}
+      --id.secret {{ fabric_ca_identity.secret }}
+      --id.type {{ fabric_ca_identity.type }}
+      {% if fabric_ca_identity.affiliation is defined %}
+      --id.affiliation {{ fabric_ca_identity.affiliation }}
+      {% endif %}
+      {% if fabric_ca_identity.attrs is defined %}
+      {% for attribute_name, attribute_value in fabric_ca_identity.attrs.items() %}
+      --id.attrs "{{ attribute_name }}={{ attribute_value }}"
+      {% endfor %}
+      {% endif %}
+      {% if fabric_ca_use_tls and (fabric_ca_tls_certfile is defined) %}
+      --tls.certfiles {{ fabric_ca_container_config_dir }}/tls-cert.pem
+      {% endif %}
+    container_volumes: "{{ fabric_ca_volumes }}"
+    container_autoremove: true
+    container_run_as_host_user: true
+    container_run_detach_mode: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start
+  when: not fabric_ca_identity_exists

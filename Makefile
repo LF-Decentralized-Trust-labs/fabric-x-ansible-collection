@@ -168,6 +168,11 @@ limit-rate:
 # Common target hosts
 #########################
 
+# Target the Fabric CA servers for the command being run (e.g. make fabric-cas start).
+.PHONY: fabric-cas
+fabric-cas:
+	$(eval TARGET_HOSTS = fabric-cas)
+
 # Target the Fabric-X components for the command being run (e.g. make fabric-x start).
 .PHONY: fabric-x
 fabric-x:
