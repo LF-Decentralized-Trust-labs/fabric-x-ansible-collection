@@ -6,8 +6,7 @@
 
 - name: Install {{ orderer_bin_name }}
   vars:
-    bin_service_instances: "{{ orderer_service_instances }}"
     bin_go_package: "{{ orderer_bin_package }}@{{ orderer_git_commit }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
-    tasks_from: go/multiplatform_install
+    tasks_from: go/install
