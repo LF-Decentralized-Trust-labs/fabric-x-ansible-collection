@@ -6,7 +6,7 @@
 
 - name: Ensure TLS CA certificate folder exists
   ansible.builtin.file:
-    path: "{{ orderer_remote_config_dir }}/{{ organization.domain }}/msp/tlscacerts"
+    path: "{{ orderer_remote_config_dir }}/tlscacerts"
     state: directory
     mode: "0o755"
   when:
@@ -17,7 +17,7 @@
 - name: Copy TLS CA certificate of Fabric CA
   ansible.builtin.copy:
     src: "{{ orderer_cryptogen_artifact_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
-    dest: "{{ orderer_remote_config_dir }}/{{ organization.domain }}/msp/tlscacerts"
+    dest: "{{ orderer_remote_config_dir }}/tlscacerts"
     mode: "preserve"
   when:
     - organization.fabric_ca_host is defined
@@ -30,7 +30,7 @@
     fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls }}"
     fabric_ca_name: "{{ hostvars[organization.fabric_ca_host].fabric_ca_name }}"
     fabric_ca_msp_dir: "{{ orderer_remote_config_dir }}/msp"
-    fabric_ca_tls_certfile: "{{ orderer_remote_config_dir }}/{{ organization.domain }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
+    fabric_ca_tls_certfile: "{{ orderer_remote_config_dir }}/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
     fabric_ca_csr_hosts:
       - "{{ inventory_hostname }}"
       - "{{ ansible_host }}"
@@ -51,7 +51,7 @@
     fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls }}"
     fabric_ca_name: "{{ hostvars[organization.fabric_ca_host].fabric_ca_name }}"
     fabric_ca_msp_dir: "{{ orderer_remote_config_dir }}/tls"
-    fabric_ca_tls_certfile: "{{ orderer_remote_config_dir }}/{{ organization.domain }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
+    fabric_ca_tls_certfile: "{{ orderer_remote_config_dir }}/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
     fabric_ca_enrollment_profile: tls
     fabric_ca_csr_hosts:
       - "{{ inventory_hostname }}"
