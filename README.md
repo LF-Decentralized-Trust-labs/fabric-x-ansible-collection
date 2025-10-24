@@ -122,7 +122,7 @@ make start
 
 This command bootstraps all the components that have been indicated within the reference inventory. Once the command completes, a Fabric-X network should be running on your machine with a load of 1000 TPS (which can be incremented or decremented, see [Supported Commands](#supported-commands)).
 
-You can access [Grafana dashboards](http://localhost:3000/dashboards) (user=_admin_, password=_admin_) to see how the Fabric-X network is handling the transactions processing.
+You can access [Grafana dashboards](http://localhost:3000/dashboards) (user=_admin_, password=_adminPWD_) to see how the Fabric-X network is handling the transactions processing.
 
 ### 3. Teardown the network
 
