@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure Fabric CA config directory exists
+  ansible.builtin.file:
+    path: "{{ fabric_ca_remote_config_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Render Fabric CA server configuration
+  ansible.builtin.template:
+    src: fabric-ca-server-config.yaml.j2
+    dest: "{{ fabric_ca_remote_config_dir }}/fabric-ca-server-config.yaml"
+    mode: "0644"

@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Ping Fabric CA servers
+  ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.ping
+
 - name: Ping Fabric-X Orderer
   ansible.builtin.import_playbook: hyperledger.fabricx.orderer.ping
 

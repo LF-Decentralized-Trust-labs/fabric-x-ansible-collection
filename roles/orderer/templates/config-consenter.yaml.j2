@@ -5,39 +5,7 @@
 #
 
 PartyID: {{ orderer_group }}
-General:
-    ListenAddress: 0.0.0.0
-    ListenPort: {{ orderer_rpc_port }}
-    TLS:
-        Enabled: {{ orderer_use_tls | lower }}
-        PrivateKey: {{ orderer_config_dir }}/tls/server.key
-        Certificate: {{ orderer_config_dir }}/tls/server.crt
-        RootCAs:
-            - {{ orderer_config_dir }}/tls/ca.crt
-        ClientAuthRequired: {{ orderer_use_mtls | lower }}
-    Keepalive:
-        ClientInterval: 1m0s
-        ClientTimeout: 20s
-        ServerInterval: 2h0m0s
-        ServerTimeout: 20s
-        ServerMinInterval: 1m0s
-    Backoff:
-        BaseDelay: 1s
-        Multiplier: 1.6
-        MaxDelay: 2m0s
-    MaxRecvMsgSize: 104857600
-    MaxSendMsgSize: 104857600
-    Bootstrap:
-        Method: block
-        File: {{ orderer_config_dir }}/genesis.block
-    Cluster:
-        SendBufferSize: 2000
-        ClientCertificate: {{ orderer_config_dir }}/tls/server.crt
-        ClientPrivateKey: {{ orderer_config_dir }}/tls/server.key
-    LocalMSPDir: {{ orderer_config_dir }}/msp
-    LocalMSPID: {{ organization.name }}
-    LogSpec: info
-FileStore:
-    Location: {{ orderer_config_dir }}/store
 Consensus:
     WALDir: {{ orderer_config_dir }}/wal
+{% include './sections/general.yaml.j2' +%}
+{% include './sections/filestore.yaml.j2' %}

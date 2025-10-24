@@ -437,9 +437,9 @@ Orderer: &OrdererDefaults
       Host: {{ hostvars[orderer.name].ansible_host }}
       Port: {{ hostvars[orderer.name].orderer_rpc_port }}
       MSPID: {{ orderer_org_info.name }}MSP
-      Identity: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ orderer.name }}.{{ orderer_org_info.domain }}/msp/signcerts/{{ orderer.name }}.{{ orderer_org_info.domain }}-cert.pem
-      ClientTLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ orderer.name }}.{{ orderer_org_info.domain }}/tls/server.crt
-      ServerTLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ orderer.name }}.{{ orderer_org_info.domain }}/tls/server.crt
+      Identity: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ hostvars[orderer.name].organization.orderer.name | default(orderer.name) }}.{{ orderer_org_info.domain }}/msp/signcerts/{{ hostvars[orderer.name].organization.orderer.name | default(orderer.name) }}.{{ orderer_org_info.domain }}-cert.pem
+      ClientTLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ hostvars[orderer.name].organization.orderer.name | default(orderer.name) }}.{{ orderer_org_info.domain }}/tls/server.crt
+      ServerTLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ hostvars[orderer.name].organization.orderer.name | default(orderer.name) }}.{{ orderer_org_info.domain }}/tls/server.crt
 {% endif %}
 {% endfor %}
 {% endfor %}

@@ -1,0 +1,23 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start Fabric CA server container
+  vars:
+    container_name: "{{ fabric_ca_container_name }}"
+    container_image: "{{ fabric_ca_image }}"
+    container_env:
+      FABRIC_CA_HOME: "{{ fabric_ca_container_config_dir }}"
+    container_command: fabric-ca-server start
+    container_ports:
+      - "{{ fabric_ca_port }}:{{ fabric_ca_port }}"
+      - "{{ fabric_ca_operations_port }}:{{ fabric_ca_operations_port }}"
+    container_volumes:
+      - "{{ fabric_ca_remote_config_dir }}:{{ fabric_ca_container_config_dir }}"
+    container_wait_until_running: true
+    container_wait_port: "{{ fabric_ca_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start

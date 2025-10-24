@@ -1,0 +1,19 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Enroll identity with Fabric CA client container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/container/enroll
+  when:
+    - not fabric_ca_client_use_bin
+
+- name: Enroll all identities with Fabric CA client binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/bin/enroll
+  when:
+    - fabric_ca_client_use_bin

@@ -1,0 +1,45 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Teardown Fabric CA container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/container/rm
+  when:
+    - not fabric_ca_server_use_bin
+
+- name: Clean Fabric CA container artifacts
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/container/clean
+  when:
+    - not fabric_ca_server_use_bin
+
+- name: Stop Fabric CA binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/bin/stop
+  when:
+    - fabric_ca_server_use_bin
+
+- name: Remove Fabric CA binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/bin/rm
+  when:
+    - fabric_ca_server_use_bin
+
+- name: Clean Fabric CA binary artifacts
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/bin/clean
+  when:
+    - fabric_ca_server_use_bin
+
+- name: Remove Fabric CA config files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/config/rm

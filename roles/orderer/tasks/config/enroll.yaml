@@ -1,0 +1,67 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure TLS CA certificate folder exists
+  ansible.builtin.file:
+    path: "{{ orderer_remote_config_dir }}/tlscacerts"
+    state: directory
+    mode: "0o755"
+  when:
+    - organization.fabric_ca_host is defined
+    - hostvars[organization.fabric_ca_host].fabric_ca_use_tls is defined
+    - hostvars[organization.fabric_ca_host].fabric_ca_use_tls
+
+- name: Copy TLS CA certificate of Fabric CA
+  ansible.builtin.copy:
+    src: "{{ orderer_cryptogen_artifact_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
+    dest: "{{ orderer_remote_config_dir }}/tlscacerts"
+    mode: "preserve"
+  when:
+    - organization.fabric_ca_host is defined
+    - hostvars[organization.fabric_ca_host].fabric_ca_use_tls is defined
+    - hostvars[organization.fabric_ca_host].fabric_ca_use_tls
+
+- name: Generate Fabric-X Orderer MSP crypto material
+  vars:
+    fabric_ca_host: "{{ organization.fabric_ca_host }}"
+    fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls }}"
+    fabric_ca_name: "{{ hostvars[organization.fabric_ca_host].fabric_ca_name }}"
+    fabric_ca_msp_dir: "{{ orderer_remote_config_dir }}/msp"
+    fabric_ca_tls_certfile: "{{ orderer_remote_config_dir }}/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
+    fabric_ca_csr_hosts:
+      - "{{ inventory_hostname }}"
+      - "{{ ansible_host }}"
+      - "{{ organization.orderer.name }}"
+    fabric_ca_identity:
+      name: "{{ organization.orderer.name }}"
+      secret: "{{ organization.orderer.secret }}"
+      type: orderer
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/enroll
+  when:
+    - organization.fabric_ca_host is defined
+
+- name: Generate Fabric-X Orderer TLS crypto material
+  vars:
+    fabric_ca_host: "{{ organization.fabric_ca_host }}"
+    fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls }}"
+    fabric_ca_name: "{{ hostvars[organization.fabric_ca_host].fabric_ca_name }}"
+    fabric_ca_msp_dir: "{{ orderer_remote_config_dir }}/tls"
+    fabric_ca_tls_certfile: "{{ orderer_remote_config_dir }}/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
+    fabric_ca_enrollment_profile: tls
+    fabric_ca_csr_hosts:
+      - "{{ inventory_hostname }}"
+      - "{{ ansible_host }}"
+      - "{{ organization.orderer.name }}"
+    fabric_ca_identity:
+      name: "{{ organization.orderer.name }}"
+      secret: "{{ organization.orderer.secret }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/enroll
+  when:
+    - organization.fabric_ca_host is defined

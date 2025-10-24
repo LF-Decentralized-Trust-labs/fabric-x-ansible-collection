@@ -18,20 +18,25 @@
     dest: "{{ loadgen_remote_config_dir }}/{{ loadgen_config_file }}"
     mode: "0o644"
 
-- name: Copy Fabric-X Committer sidecar root CA
-  ansible.builtin.copy:
-    src: "{{ loadgen_cryptogen_artifact_build_dir }}/crypto/ca-certs.pem"
-    dest: "{{ loadgen_remote_config_dir }}/ca-certs.pem"
-    mode: "0o644"
-  when: loadgen_use_tls
+- name: Ensure the load-generator users config directory exists
+  ansible.builtin.file:
+    path: "{{ loadgen_remote_config_dir }}/users"
+    state: directory
+    mode: "0o750"
+  when:
+    - organization is defined
+    - organization.users is defined
+    - organization.fabric_ca_host is undefined
 
-- name: Copy loadgen MSP crypto material
+- name: Transfer the Fabric-X Loadgen users crypto material
   ansible.posix.synchronize:
-    src: "{{ loadgen_cryptogen_artifact_build_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ inventory_hostname }}.{{ organization.domain }}/msp"
-    dest: "{{ loadgen_remote_config_dir }}"
-  when: loadgen_use_tls
-
-- name: Generate Loadgen keys
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.loadgen
-    tasks_from: config/generate_key
+    src: "{{ loadgen_cryptogen_artifact_build_dir }}/crypto/peerOrganizations/{{ organization.domain }}/users/{{ user.name }}@{{ organization.domain }}"
+    dest: "{{ loadgen_remote_config_dir }}/users"
+  loop: "{{ organization.users }}"
+  loop_control:
+    label: "{{ user.name }}"
+    loop_var: user
+  when:
+    - organization is defined
+    - organization.users is defined
+    - organization.fabric_ca_host is undefined

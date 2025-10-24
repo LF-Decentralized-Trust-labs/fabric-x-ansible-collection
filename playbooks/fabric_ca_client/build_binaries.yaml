@@ -1,0 +1,40 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Build the Fabric CA Client binaries
+  hosts: localhost
+  tasks:
+    - name: Build the Fabric CA client binaries for the not dockerized hosts
+      vars:
+        fabric_ca_client_instances: >-
+          {{
+            (
+            groups[target_hosts | default('fabric-cas')]
+            | intersect(groups['fabric-cas'])
+            | map('extract', hostvars)
+            | selectattr("fabric_ca_client_use_bin", 'defined')
+            | selectattr("fabric_ca_client_use_bin", 'eq', true)
+            | map(attribute='inventory_hostname')
+            | list
+            )
+            +
+            (
+            groups['all']
+            | map('extract', hostvars)
+            | selectattr("fabric_ca_client_use_bin", 'defined')
+            | selectattr("fabric_ca_client_use_bin", 'eq', true)
+            | selectattr("organization", 'defined')
+            | selectattr("organization.fabric_ca_host", 'defined')
+            | map(attribute='inventory_hostname')
+            | list
+            )
+          }}
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: client/bin/multiplatform_install
+      when:
+        - "'fabric-cas' in groups"
+        - fabric_ca_client_instances | length > 0

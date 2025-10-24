@@ -30,9 +30,8 @@ loadgen_key_scheme: "ECDSA"
 
 # Fabric-X Committer misc vars
 loadgen_limit_rate: 1000
-loadgen_use_tls: false
 loadgen_use_bin: "{{ use_bin | default(false) }}"
 loadgen_log_level: "INFO"
 loadgen_assert_metrics: false
 loadgen_tx_seed: "12345"
-loadgen_generate_namespace: true
+loadgen_generate_namespace: false

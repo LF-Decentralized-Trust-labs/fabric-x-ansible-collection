@@ -1,0 +1,16 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+NodeOUs:
+  Enable: {{ fabric_ca_enable_nodeous | lower }}
+  ClientOUIdentifier:
+    OrganizationalUnitIdentifier: client
+  AdminOUIdentifier:
+    OrganizationalUnitIdentifier: admin
+  OrdererOUIdentifier:
+    OrganizationalUnitIdentifier: orderer
+  PeerOUIdentifier:
+    OrganizationalUnitIdentifier: peer
