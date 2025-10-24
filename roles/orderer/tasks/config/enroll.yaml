@@ -38,7 +38,6 @@
     fabric_ca_identity:
       name: "{{ organization.orderer.name }}"
       secret: "{{ organization.orderer.secret }}"
-      type: orderer
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/enroll
