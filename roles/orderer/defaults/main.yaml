@@ -24,6 +24,7 @@ orderer_remote_config_dir: "{{ remote_config_dir }}"
 orderer_docker_config_dir: "/config"
 orderer_config_file: "node_config.yaml"
 orderer_remote_config_file: "{{ orderer_remote_config_dir }}/{{ orderer_config_file }}"
+orderer_crypto_name: "{{ organization.orderer.name | default(inventory_hostname) }}"
 
 # Fabric-X Orderer misc vars
 orderer_use_tls: false

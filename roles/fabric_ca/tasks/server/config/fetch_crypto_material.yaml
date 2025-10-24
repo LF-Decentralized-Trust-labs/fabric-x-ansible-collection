@@ -38,7 +38,10 @@
     block: "{{ lookup('file', tls_cert_file) }}"
   delegate_to: localhost
 
-# TODO: admincerts seems to be deprecated. Maybe we don't need this anymore
+# Despite admincerts being deprecated, we must fetch also the admin cert in order to build a proper
+# config block for the ordering service.
+# If we don't fetch the admin certificate, the genesis block is built without it and the orderers
+# fail with the error "administrators must be declared when no admin ou classification is set".
 - name: Fetch the Admin CA certificate
   ansible.builtin.fetch:
     src: "{{ fabric_ca_remote_config_dir }}/{{ fabric_ca_admin.name }}/msp/signcerts/cert.pem"
