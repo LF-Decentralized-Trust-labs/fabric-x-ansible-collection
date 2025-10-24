@@ -13,7 +13,6 @@
         fabric_ca_identity:
           name: "{{ fabric_ca_admin.name }}"
           secret: "{{ fabric_ca_admin.secret }}"
-          type: admin
         fabric_ca_msp_dir: "{{ fabric_ca_remote_config_dir }}/{{ fabric_ca_admin.name }}/msp"
         fabric_ca_tls_certfile: "{{ fabric_ca_remote_config_dir }}/tls-cert.pem"
       ansible.builtin.include_role:

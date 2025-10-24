@@ -38,7 +38,6 @@
     fabric_ca_identity:
       name: "{{ current_user.name }}"
       secret: "{{ current_user.secret }}"
-      type: client
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/enroll
