@@ -196,6 +196,7 @@ restricts the command to the host group `fabric-x-orderers` defined within the i
 
 | Group              | Target                                           | Example                         |
 | ------------------ | ------------------------------------------------ | ------------------------------- |
+| fabric-cas         | The Fabric CA servers                            | `make fabric-cas start`         |
 | fabric-x           | The Fabric-X network nodes (orderers+committer). | `make fabric-x start`           |
 | fabric-x-orderers  | All the Fabric-X orderers.                       | `make fabric-x-orderers start`  |
 | fabric-x-committer | The Fabric-X committer components.               | `make fabric-x-committer start` |
