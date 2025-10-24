@@ -138,7 +138,7 @@ all:
             domain: org1.example.com
             users:
               - name: orderer-loadgen
-                namespace: 0
+                namespace: workload
                 meta_namespace_admin: true
           loadgen_type: orderer-client
           prometheus_exporter_port: 2119
