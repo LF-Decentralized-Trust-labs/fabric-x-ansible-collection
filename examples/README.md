@@ -5,6 +5,9 @@ This folder contains sample inspirational inventories and playbooks to deploy di
 ## Table of Contents <!-- omit in toc -->
 
 - [Inventories](#inventories)
+  - [Define the inventory to run](#define-the-inventory-to-run)
+    - [Use `ansible.cfg`](#use-ansiblecfg)
+    - [Set via env](#set-via-env)
   - [fabric-x.yaml](#fabric-xyaml)
   - [fabric-x-yugabyte.yaml](#fabric-x-yugabyteyaml)
   - [fabric-x-bin.yaml](#fabric-x-binyaml)
@@ -18,6 +21,26 @@ This folder contains sample inspirational inventories and playbooks to deploy di
 There are currently 4 different [inventories](./inventory/) that can be used.
 
 The microservices indicated as _horizontally scalable_ can be replicated. To understand how to replicate them, look at [this section](#how-to-replicate-an-horizontally-scalable-microservice).
+
+### Define the inventory to run
+
+To decide the inventory to run, you can:
+
+#### Use `ansible.cfg`
+
+Set the inventory in the [ansible.cfg](./ansible.cfg) file directly:
+
+```ini
+inventory = <path_to_the_inventory>
+```
+
+#### Set via env
+
+Set the inventory as env variable:
+
+```shell
+export ANSIBLE_INVENTORY=<path_to_the_inventory>
+```
 
 ### fabric-x.yaml
 
