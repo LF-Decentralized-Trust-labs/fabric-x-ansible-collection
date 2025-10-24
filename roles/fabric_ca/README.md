@@ -133,6 +133,8 @@ It uses the `fabric-ca-client` CLI utility (either as container or as binary by 
       name: orderer-router-1
       secret: orderer-router-1-PWD
       type: orderer
+      attrs:
+        hf.GenCRL: "true:ecert"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/register
