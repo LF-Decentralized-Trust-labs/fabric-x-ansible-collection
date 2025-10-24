@@ -9,15 +9,15 @@ This folder contains sample inspirational inventories and playbooks to deploy di
   - [fabric-x-yugabyte.yaml](#fabric-x-yugabyteyaml)
   - [fabric-x-bin.yaml](#fabric-x-binyaml)
   - [fabric-x-cryptogen.yaml](#fabric-x-cryptogenyaml)
-  - [How to replicate an horizontally scalable microservice](#how-to-replicate-an-horizontally-scalable-microservice)
-  - [How to run a microservice on a different machine](#how-to-run-a-microservice-on-a-different-machine)
 - [Playbooks](#playbooks)
+- [How to replicate an horizontally scalable microservice](#how-to-replicate-an-horizontally-scalable-microservice)
+- [How to run a microservice on a different machine](#how-to-run-a-microservice-on-a-different-machine)
 
 ## Inventories
 
 There are currently 4 different [inventories](./inventory/) that can be used.
 
-The microservices indicated as _horizontally scalable_ can be replicated. To understand how to replicate them, look at the section
+The microservices indicated as _horizontally scalable_ can be replicated. To understand how to replicate them, look at [this section](#how-to-replicate-an-horizontally-scalable-microservice).
 
 ### fabric-x.yaml
 
@@ -120,7 +120,13 @@ It bootstraps a network with:
 
 The absence of the Fabric CAs is due to the fact that the crypto material is generated on the control node using `cryptogen`. As stated within the inventory itself, this deployment is not meant for Production.
 
-### How to replicate an horizontally scalable microservice
+## Playbooks
+
+We have crafted some [playbooks](./playbooks/) that work with the groups indicated in the stated-above inventories. They make use of the playbooks coming with the collection itself.
+
+You can either run a playbook directly using `ansible-playbook` or use the `Makefile` targets as stated in the [README.md](../README.md#1-generate-the-artifacts).
+
+## How to replicate an horizontally scalable microservice
 
 Replicating an horizontally scalable microservice using this collection is straightforward. All you need to do is add new entries into the reference inventory.
 
@@ -145,7 +151,7 @@ fabric-x-orderer-1:
 
 This approach can be extended for all the other components marked as _horizontally scalable_.
 
-### How to run a microservice on a different machine
+## How to run a microservice on a different machine
 
 All the inventories that are indicated in this repository run on a single machine. This is useful to quickly run a network and test its functionalities, but to achieve better performance each microservice can be run on a separate machine.
 
@@ -187,9 +193,3 @@ fabric-x-orderer-1:
 ```
 
 This approach is valid for all the microservices within the inventory.
-
-## Playbooks
-
-We have crafted some [playbooks](./playbooks/) that work with the groups indicated in the stated-above inventories. They make use of the playbooks coming with the collection itself.
-
-You can either run a playbook directly using `ansible-playbook` or use the `Makefile` targets as stated in the [README.md](../README.md#1-generate-the-artifacts).

@@ -93,7 +93,7 @@ make install-prerequisites
 
 ## Run a sample Fabric-X network
 
-The collection contains some Ansible [inventory samples](./examples/inventory) and [playbooks samples](./examples/playbooks) that could be used to start a sample Fabric-X network on your local machine.
+This repository comes with some Ansible inventories and playbooks examples that could be used to start a sample Fabric-X network on your local machine. Please look at the [examples README](./examples/README.md) to understand better which network you can run with each inventory and how to enhance them for your use case.
 
 To run it on your local machine, follow the steps hereafter indicated.
 
