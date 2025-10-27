@@ -55,7 +55,7 @@
           name: "{{ current_user.name }}"
           secret: "{{ current_user.secret }}"
           attrs: "{{ current_user.attrs | default({}) }}"
-          type: client
+          type: "{{ current_user.type | default('client') }}"
       ansible.builtin.set_fact:
         fabric_ca_identities: "{{ (fabric_ca_identities | default([])) + [fabric_ca_identity] }}"
       loop: >-
