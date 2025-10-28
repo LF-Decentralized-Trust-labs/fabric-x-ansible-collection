@@ -222,6 +222,8 @@ all:
                 namespace: 0
                 meta_namespace_admin: true
           loadgen_type: orderer-client
+          # TODO: temporary fix until fxconfig gets updated to work with committer 0.1.6
+          loadgen_generate_namespace: true
           prometheus_exporter_port: 2119
           loadgen_web_port: 6997
 
