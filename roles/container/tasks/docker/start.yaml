@@ -26,6 +26,7 @@
       }}
     memory: "{{ container_memory }}"
     volumes: "{{ container_volumes }}"
+    cpus: "{{ container_cpus }}"
     ulimits: "{{ container_ulimits }}"
     user: "{{ container_user }}"
     env: "{{ container_env }}"
