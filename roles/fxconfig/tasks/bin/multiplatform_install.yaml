@@ -12,7 +12,6 @@
 - name: Install {{ fxconfig_bin_name }}
   vars:
     bin_go_package: "{{ fxconfig_bin_package }}@{{ fxconfig_git_commit }}"
-    bin_cgo_enabled: true
     bin_service_instances: "{{ fxconfig_service_instances }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin

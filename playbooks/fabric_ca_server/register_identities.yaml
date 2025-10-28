@@ -1,0 +1,96 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Gather and register identities on each CA host
+  hosts: "{{ target_hosts | default('fabric-cas') }}:&fabric-cas"
+  tasks:
+    - name: Set orderer identities per organization CA
+      vars:
+        current_orderer: "{{ hostvars[orderer_host] }}"
+        fabric_ca_identity:
+          name: "{{ current_orderer.organization.orderer.name }}"
+          secret: "{{ current_orderer.organization.orderer.secret }}"
+          attrs: "{{ current_orderer.organization.orderer.attrs | default({}) }}"
+          type: orderer
+      ansible.builtin.set_fact:
+        fabric_ca_identities: "{{ (fabric_ca_identities | default([])) + [fabric_ca_identity] }}"
+      loop: "{{ groups['all'] }}"
+      loop_control:
+        loop_var: orderer_host
+      when:
+        - current_orderer.organization is defined
+        - current_orderer.organization.domain == organization.domain
+        - current_orderer.organization.role is defined
+        - current_orderer.organization.role == 'orderer'
+        - current_orderer.organization.orderer is defined
+        - current_orderer.organization.orderer.name is defined
+        - current_orderer.organization.orderer.secret is defined
+    - name: Set peer identities per organization CA
+      vars:
+        current_peer: "{{ hostvars[peer_host] }}"
+        fabric_ca_identity:
+          name: "{{ current_peer.organization.peer.name }}"
+          secret: "{{ current_peer.organization.peer.secret }}"
+          attrs: "{{ current_peer.organization.peer.attrs | default({}) }}"
+          type: peer
+      ansible.builtin.set_fact:
+        fabric_ca_identities: "{{ (fabric_ca_identities | default([])) + [fabric_ca_identity] }}"
+      loop: "{{ groups['all'] }}"
+      loop_control:
+        loop_var: peer_host
+      when:
+        - current_peer.organization is defined
+        - current_peer.organization.domain == organization.domain
+        - current_peer.organization.role is defined
+        - current_peer.organization.role == 'peer'
+        - current_peer.organization.peer is defined
+        - current_peer.organization.peer.name is defined
+        - current_peer.organization.peer.secret is defined
+    - name: Set users identities per organization CA
+      vars:
+        fabric_ca_identity:
+          name: "{{ current_user.name }}"
+          secret: "{{ current_user.secret }}"
+          attrs: "{{ current_user.attrs | default({}) }}"
+          type: "{{ current_user.type | default('client') }}"
+      ansible.builtin.set_fact:
+        fabric_ca_identities: "{{ (fabric_ca_identities | default([])) + [fabric_ca_identity] }}"
+      loop: >-
+        {{
+          groups['all']
+          | map('extract', hostvars)
+          | map('to_json')
+          | map('from_json')
+          | selectattr('organization', 'defined')
+          | map(attribute='organization')
+          | selectattr('domain', 'defined')
+          | selectattr('domain', '==', organization.domain)
+          | selectattr('users', 'defined')
+          | map(attribute='users')
+          | flatten
+        }}
+      loop_control:
+        loop_var: current_user
+        label: "{{ organization.domain }}:{{ current_user.name }}"
+      when:
+        - current_user.name is defined
+        - current_user.secret is defined
+    - name: Register identities on Fabric CA
+      vars:
+        fabric_ca_tls_certfile: "{{ fabric_ca_remote_config_dir }}/tls-cert.pem"
+        fabric_ca_host: "{{ inventory_hostname }}"
+        fabric_ca_msp_dir: "{{ fabric_ca_remote_config_dir }}/{{ fabric_ca_admin.name }}/msp"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: client/register
+      loop: "{{ fabric_ca_identities }}"
+      loop_control:
+        loop_var: fabric_ca_identity
+        label: "{{ fabric_ca_identity.name }}"
+      when:
+        - fabric_ca_admin is defined
+        - fabric_ca_identities is defined
+        - fabric_ca_identities | length > 0

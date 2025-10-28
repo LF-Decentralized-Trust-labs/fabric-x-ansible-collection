@@ -12,7 +12,17 @@
 
 - name: Collect all the Fabric-X Orderer components information
   vars:
-    _group_instances: >-
+    orderer_group_organization_domains: >-
+      {{
+        armageddon_orderer_hosts
+        | sort
+        | map('extract', hostvars)
+        | selectattr('orderer_group', '==', orderer_group | int)
+        | map(attribute='organization.domain')
+        | list
+        | unique
+      }}
+    orderer_group_instances: >-
       {{
         armageddon_orderer_hosts
         | sort
@@ -20,27 +30,27 @@
         | selectattr('orderer_group', '==', orderer_group | int)
         | list
       }}
-    _assembler: >-
+    orderer_group_assembler: >-
       {{
-        _group_instances
+        orderer_group_instances
         | selectattr('orderer_component_type', '==', 'assembler')
         | first
       }}
-    _consenter: >-
+    orderer_group_consenter: >-
       {{
-        _group_instances
+        orderer_group_instances
         | selectattr('orderer_component_type', '==', 'consenter')
         | first
       }}
-    _router: >-
+    orderer_group_router: >-
       {{
-        _group_instances
+        orderer_group_instances
         | selectattr('orderer_component_type', '==', 'router')
         | first
       }}
-    _batchers: >-
+    orderer_group_batchers: >-
       {{
-        _group_instances
+        orderer_group_instances
         | selectattr('orderer_component_type', '==', 'batcher')
         | list
       }}
@@ -49,10 +59,11 @@
       {{
         all_orderer_instances | default({}) | combine({
           orderer_group: {
-            'assembler': _assembler.inventory_hostname,
-            'consenter': _consenter.inventory_hostname,
-            'router': _router.inventory_hostname,
-            'batchers': _batchers | map(attribute='inventory_hostname') | list
+            'organizations': orderer_group_organization_domains,
+            'assembler': orderer_group_assembler,
+            'consenter': orderer_group_consenter,
+            'router': orderer_group_router,
+            'batchers': orderer_group_batchers
           }
         })
       }}
@@ -67,6 +78,7 @@
     }}
   loop_control:
     loop_var: orderer_group
+    label: "orderer_group:{{ orderer_group }}"
 
 - name: Create {{ armageddon_shared_config_file }}
   vars:

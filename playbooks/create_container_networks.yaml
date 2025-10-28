@@ -1,0 +1,53 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Build list of unique (host, network) pairs
+  hosts: localhost
+  tasks:
+    - name: Collect candidate hosts
+      ansible.builtin.set_fact:
+        candidate_hosts: >-
+          {{
+            (candidate_hosts | default({}))
+            | combine({
+                current_host.ansible_host ~ ":" ~ current_host.container_network: {
+                  "name": current_host.inventory_hostname,
+                  "ansible_host": current_host.ansible_host,
+                  "container_network": current_host.container_network
+                }
+              })
+          }}
+      loop: >-
+        {{
+          groups['all']
+          | map('extract', hostvars)
+          | selectattr('container_network', 'defined')
+        }}
+      loop_control:
+        loop_var: current_host
+        label: "{{ current_host.inventory_hostname }}:{{ current_host.container_network }}"
+    - name: Add one representative host per (ansible_host, container_network)
+      ansible.builtin.add_host:
+        name: "{{ current_host.name }}"
+        ansible_host: "{{ current_host.ansible_host }}"
+        container_network: "{{ current_host.container_network }}"
+        groups: machines_with_container_networks
+      loop: "{{ candidate_hosts.values() }}"
+      loop_control:
+        loop_var: current_host
+        label: "{{ current_host.name }}:{{ current_host.container_network }}"
+      when:
+        - candidate_hosts is defined
+
+- name: Create container networks
+  hosts: "{{ target_hosts | default('machines_with_container_networks') }}:&machines_with_container_networks"
+  tasks:
+    - name: Create the container networks
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.container
+        tasks_from: network/create
+      when:
+        - container_network is defined

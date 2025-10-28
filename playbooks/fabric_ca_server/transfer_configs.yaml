@@ -1,0 +1,13 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Transfer Fabric-CA configuration files
+  hosts: "{{ target_hosts | default('fabric-cas') }}:&fabric-cas"
+  tasks:
+    - name: Transfer Fabric CA server config files
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: server/config/transfer

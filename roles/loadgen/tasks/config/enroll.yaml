@@ -1,0 +1,50 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure TLS CA certificate folder exists
+  ansible.builtin.file:
+    path: "{{ loadgen_remote_config_dir }}/tlscacerts"
+    state: directory
+    mode: "0o755"
+  when:
+    - organization.fabric_ca_host is defined
+    - hostvars[organization.fabric_ca_host].fabric_ca_use_tls is defined
+    - hostvars[organization.fabric_ca_host].fabric_ca_use_tls
+
+- name: Copy TLS CA certificate of Fabric CA
+  ansible.builtin.copy:
+    src: "{{ loadgen_cryptogen_artifact_build_dir }}/crypto/peerOrganizations/{{ organization.domain }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
+    dest: "{{ loadgen_remote_config_dir }}/tlscacerts"
+    mode: "preserve"
+  when:
+    - organization.fabric_ca_host is defined
+    - hostvars[organization.fabric_ca_host].fabric_ca_use_tls is defined
+    - hostvars[organization.fabric_ca_host].fabric_ca_use_tls
+
+- name: Generate Fabric-X Load generator MSP crypto material
+  vars:
+    fabric_ca_host: "{{ organization.fabric_ca_host }}"
+    fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls }}"
+    fabric_ca_name: "{{ hostvars[organization.fabric_ca_host].fabric_ca_name }}"
+    fabric_ca_msp_dir: "{{ loadgen_remote_config_dir }}/users/{{ current_user.name }}@{{ organization.domain }}/msp"
+    fabric_ca_tls_certfile: "{{ loadgen_remote_config_dir }}/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
+    fabric_ca_csr_hosts:
+      - "{{ inventory_hostname }}"
+      - "{{ ansible_host }}"
+      - "{{ current_user.name }}"
+    fabric_ca_identity:
+      name: "{{ current_user.name }}"
+      secret: "{{ current_user.secret }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/enroll
+  loop: "{{ organization.users }}"
+  loop_control:
+    loop_var: current_user
+    label: "{{ organization.domain }}:{{ current_user.name }}"
+  when:
+    - organization.fabric_ca_host is defined
+    - organization.users is defined

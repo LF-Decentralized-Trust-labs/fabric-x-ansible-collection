@@ -7,7 +7,7 @@
 # container location/paths
 container_logs_dir: "{{ out_log_dir }}"
 container_logs_file: "{{ inventory_hostname }}_logs.txt"
-container_remote_logs_dir: "{{ remote_config_dir }}"
+container_remote_logs_dir: "{{ deploy_dir }}/{{ inventory_hostname }}/logs"
 container_remote_logs_file: "logs.txt"
 
 # container misc
@@ -17,6 +17,7 @@ container_volumes: []
 container_ulimits: []
 container_env: {}
 container_memory: null
+container_cpus: null
 container_entrypoint: null
 container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
 container_network_mode: "{{ 'bridge' if container_on_mac else 'host' }}"

@@ -93,7 +93,11 @@ make install-prerequisites
 
 ## Run a sample Fabric-X network
 
-The collection contains some Ansible [inventory samples](./examples/inventory) and [playbooks samples](./examples/playbooks) that could be used to start a sample Fabric-X network on your local machine.
+This repository comes with some Ansible inventories and playbooks examples that could be used to start a sample Fabric-X network on your local machine. Please look at the [examples README](./examples/README.md) to understand better which network you can run with each inventory and how to enhance them for your use case.
+
+By default, the [fabric-x.yaml](./examples/inventory/fabric-x.yaml) is used:
+
+![fabric-x-inventory](./examples/images/fabric-x.drawio.png)
 
 To run it on your local machine, follow the steps hereafter indicated.
 
@@ -122,7 +126,7 @@ make start
 
 This command bootstraps all the components that have been indicated within the reference inventory. Once the command completes, a Fabric-X network should be running on your machine with a load of 1000 TPS (which can be incremented or decremented, see [Supported Commands](#supported-commands)).
 
-You can access [Grafana dashboards](http://localhost:3000/dashboards) (user=_admin_, password=_admin_) to see how the Fabric-X network is handling the transactions processing.
+You can access [Grafana dashboards](http://localhost:3000/dashboards) (user=_admin_, password=_adminPWD_) to see how the Fabric-X network is handling the transactions processing.
 
 ### 3. Teardown the network
 
@@ -192,6 +196,7 @@ restricts the command to the host group `fabric-x-orderers` defined within the i
 
 | Group              | Target                                           | Example                         |
 | ------------------ | ------------------------------------------------ | ------------------------------- |
+| fabric-cas         | The Fabric CA servers                            | `make fabric-cas start`         |
 | fabric-x           | The Fabric-X network nodes (orderers+committer). | `make fabric-x start`           |
 | fabric-x-orderers  | All the Fabric-X orderers.                       | `make fabric-x-orderers start`  |
 | fabric-x-committer | The Fabric-X committer components.               | `make fabric-x-committer start` |

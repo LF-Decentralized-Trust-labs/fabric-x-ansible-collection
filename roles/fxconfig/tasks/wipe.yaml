@@ -1,0 +1,12 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove the fxconfig binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxconfig
+    tasks_from: bin/rm
+  when:
+    - fxconfig_use_bin

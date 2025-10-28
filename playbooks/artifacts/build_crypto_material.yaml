@@ -31,6 +31,7 @@
           groups['fabric-x-orderers']
           | map('extract', hostvars)
           | selectattr('organization', 'defined')
+          | selectattr('organization.fabric_ca_host', 'undefined')
           | selectattr('organization.role', 'defined')
           | selectattr('organization.role', '==', 'orderer')
           | map(attribute='inventory_hostname')
@@ -61,6 +62,7 @@
           groups['all']
           | map('extract', hostvars)
           | selectattr('organization', 'defined')
+          | selectattr('organization.fabric_ca_host', 'undefined')
           | selectattr('organization.role', 'defined')
           | selectattr('organization.role', '==', 'peer')
           | map(attribute='inventory_hostname')
@@ -91,6 +93,7 @@
           groups['all']
           | map('extract', hostvars)
           | selectattr('organization', 'defined')
+          | selectattr('organization.fabric_ca_host', 'undefined')
           | selectattr('organization.users', 'defined')
           | map(attribute='inventory_hostname')
         }}
@@ -100,14 +103,19 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.cryptogen
         tasks_from: config/build
+      when:
+        - (cryptogen_peers_by_org is defined) or (cryptogen_orderers_by_org is defined)
     - name: Install cryptogen as binary for Fabric-X
       ansible.builtin.include_role:
         name: hyperledger.fabricx.cryptogen
         tasks_from: bin/install
       when:
+        - (cryptogen_peers_by_org is defined) or (cryptogen_orderers_by_org is defined)
         - cryptogen_use_bin is defined
         - cryptogen_use_bin
     - name: Generate the crypto material with cryptogen
       ansible.builtin.include_role:
         name: hyperledger.fabricx.cryptogen
         tasks_from: start
+      when:
+        - (cryptogen_peers_by_org is defined) or (cryptogen_orderers_by_org is defined)

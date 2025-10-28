@@ -24,6 +24,7 @@
         else []
       }}
     memory: "{{ container_memory }}"
+    cpus: "{{ container_cpus }}"
     volumes: "{{ container_volumes }}"
     user: "{{ container_user }}"
     env: "{{ container_env }}"

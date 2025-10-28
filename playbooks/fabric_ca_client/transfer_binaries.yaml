@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Transfer Fabric CA client binaries
+  hosts: "{{ target_hosts | default('all') }}"
+  tasks:
+    - name: Transfer Fabric CA client binary on Fabric CA servers
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: server/bin/transfer
+      when:
+        - fabric_ca_port is defined
+        - fabric_ca_server_use_bin is defined
+        - fabric_ca_server_use_bin
+    - name: Transfer Fabric CA client binary on nodes
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: client/bin/transfer
+      when:
+        - fabric_ca_client_use_bin is defined
+        - fabric_ca_client_use_bin
+        - organization is defined
+        - organization.fabric_ca_host is defined

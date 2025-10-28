@@ -13,6 +13,9 @@
         state: directory
         mode: "0o750"
 
+- name: Ping Fabric CA servers
+  ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.ping
+
 - name: Fetch Fabric-X Orderer logs
   ansible.builtin.import_playbook: hyperledger.fabricx.orderer.fetch_logs
 
@@ -24,13 +27,3 @@
 
 - name: Fetch Monitoring logs
   ansible.builtin.import_playbook: hyperledger.fabricx.monitoring.fetch_logs
-
-- name: Archive fetched logs folder
-  hosts: localhost
-  tasks:
-    - name: Zip the logs folder
-      community.general.archive:
-        path: "{{ out_log_dir }}"
-        dest: "{{ out_log_dir }}.zip"
-        format: zip
-        mode: "0o644"

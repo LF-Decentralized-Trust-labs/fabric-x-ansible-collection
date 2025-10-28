@@ -31,7 +31,7 @@ OrdererOrgs:
     #                 Org.Domain, respectively.
     Specs:
 {% for orderer in orderer_org_info.orderers %}
-      - Hostname: {{ orderer.name }}
+      - Hostname: {{ hostvars[orderer.name].organization.orderer.name | default(orderer.name) }}
         SANS:
           - {{ hostvars[orderer.name].ansible_host }}
           - 0.0.0.0
@@ -82,7 +82,7 @@ PeerOrgs:
     # ---------------------------------------------------------------------------
     Specs:
 {% for peer in (peer_org_info.peers | unique) %}
-      - Hostname: {{ peer.name }}
+      - Hostname: {{ hostvars[peer.name].organization.peer.name | default(peer.name) }}
         SANS:
           - {{ hostvars[peer.name].ansible_host }}
           - 0.0.0.0

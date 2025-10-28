@@ -1,0 +1,52 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check if already enrolled
+  ansible.builtin.stat:
+    path: "{{ fabric_ca_msp_dir }}/signcerts/cert.pem"
+  register: msp_cert
+
+- name: Enroll identity with Fabric CA client binary
+  vars:
+    bin_env:
+      FABRIC_CA_CLIENT_HOME: "{{ fabric_ca_msp_dir }}"
+    bin_command: >-
+      {{ fabric_ca_client_bin_name }} enroll
+      -u {{ fabric_ca_scheme }}://{{ fabric_ca_identity.name }}:{{ fabric_ca_identity.secret }}@{{ hostvars[fabric_ca_host].ansible_host }}:{{ hostvars[fabric_ca_host].fabric_ca_port }}
+      --caname {{ fabric_ca_name }}
+      --mspdir {{ fabric_ca_msp_dir }}
+      {% if fabric_ca_enrollment_profile is defined %}
+      --enrollment.profile {{ fabric_ca_enrollment_profile }}
+      {% endif %}
+      {% if fabric_ca_csr_hosts is defined and (fabric_ca_csr_hosts | length) > 0 %}
+      {% for csr_host in fabric_ca_csr_hosts %}
+      --csr.hosts {{ csr_host }}
+      {% endfor %}
+      {% endif %}
+      {% if fabric_ca_use_tls and (fabric_ca_tls_certfile is defined) %}
+      --tls.certfiles {{ fabric_ca_tls_certfile }}
+      {% endif %}
+    bin_run_with_tmux: false
+    bin_collect_logs: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start
+  when:
+    - not msp_cert.stat.exists
+
+- name: Copy NodeOUs configuration file
+  ansible.builtin.template:
+    src: nodeous-config.yaml.j2
+    dest: "{{ fabric_ca_msp_dir }}/config.yaml"
+    mode: "0o644"
+  when:
+    - fabric_ca_enable_nodeous
+
+# TODO: we need to evaluate if we want to go with this path or handle per component locations based on whether they receive material through cryptogen or fabric-ca
+- name: Adjust crypto to be as cryptogen produced crypto
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/cryptogenize

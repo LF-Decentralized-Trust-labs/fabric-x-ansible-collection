@@ -1,0 +1,23 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Generate CRL from Fabric CA
+  vars:
+    bin_env:
+      FABRIC_CA_CLIENT_HOME: "{{ fabric_ca_msp_dir }}"
+    bin_command: >-
+      fabric-ca-client gencrl
+      -u {{ fabric_ca_scheme }}://{{ hostvars[fabric_ca_host].ansible_host }}:{{ hostvars[fabric_ca_host].fabric_ca_port }}
+      --caname {{ fabric_ca_name }}
+      --mspdir {{ fabric_ca_msp_dir }}
+      {% if fabric_ca_use_tls and (fabric_ca_tls_certfile is defined) %}
+      --tls.certfiles {{ fabric_ca_tls_certfile }}
+      {% endif %}
+    bin_run_with_tmux: false
+    bin_collect_logs: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start

@@ -4,8 +4,67 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+######################################
+# Crypto material with cryptogen
+######################################
 - name: Generate crypto material
   ansible.builtin.import_playbook: hyperledger.fabricx.artifacts.build_crypto_material
 
+######################################
+# Crypto material with Fabric CA
+######################################
+- name: Build Fabric CA server binaries
+  ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.build_binaries
+  when:
+    - "'fabric-cas' in groups"
+
+- name: Build Fabric CA client binaries
+  ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_client.build_binaries
+  when:
+    - "'fabric-cas' in groups"
+
+- name: Transfer Fabric CA server binaries
+  ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.transfer_binaries
+  when:
+    - "'fabric-cas' in groups"
+
+- name: Transfer Fabric CA server configuration files
+  ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.transfer_configs
+  when:
+    - "'fabric-cas' in groups"
+
+- name: Transfer Fabric CA client binaries
+  ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_client.transfer_binaries
+  when:
+    - "'fabric-cas' in groups"
+
+- name: Start Fabric CA servers
+  ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.start
+  when:
+    - "'fabric-cas' in groups"
+
+- name: Init Fabric CA servers
+  ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.init
+  when:
+    - "'fabric-cas' in groups"
+
+- name: Gather and register identities
+  ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.register_identities
+  when:
+    - "'fabric-cas' in groups"
+
+- name: Enroll Fabric-X Orderers
+  ansible.builtin.import_playbook: hyperledger.fabricx.orderer.enroll
+  when:
+    - "'fabric-cas' in groups"
+
+- name: Enroll Fabric-X Load generators
+  ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.enroll
+  when:
+    - "'fabric-cas' in groups"
+
+######################################
+# Genesis block with configtxgen
+######################################
 - name: Generate genesis block
   ansible.builtin.import_playbook: hyperledger.fabricx.artifacts.build_genesis_block
