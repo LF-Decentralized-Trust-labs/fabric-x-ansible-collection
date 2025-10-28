@@ -1,0 +1,20 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Wipe Fabric CAs
+  hosts: "{{ target_hosts | default('fabric-cas') }}:&fabric-cas"
+  tasks:
+    - name: Wipe Fabric CA servers
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: server/wipe
+    - name: Wipe Fabric CA client binaries
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: client/bin/rm
+      when:
+        - fabric_ca_client_use_bin is defined
+        - fabric_ca_client_use_bin

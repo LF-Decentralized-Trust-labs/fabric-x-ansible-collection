@@ -7,7 +7,7 @@
 - name: Build the Fabric-X Committer binaries
   hosts: localhost
   tasks:
-    - name: Build the Fabric-X Committer validator binaries for the not dockerized hosts
+    - name: Build the Fabric-X Committer binaries for the not dockerized hosts
       vars:
         committer_service_instances: >-
           {{
@@ -21,7 +21,7 @@
           }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.committer
-        tasks_from: bin/install
+        tasks_from: bin/multiplatform_install
       when:
         - "'fabric-x-committer' in groups"
         - committer_service_instances | length > 0

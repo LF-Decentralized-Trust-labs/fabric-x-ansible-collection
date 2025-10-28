@@ -13,6 +13,9 @@
         state: directory
         mode: "0o750"
 
+- name: Ping Fabric CA servers
+  ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.ping
+
 - name: Fetch Fabric-X Orderer logs
   ansible.builtin.import_playbook: hyperledger.fabricx.orderer.fetch_logs
 

@@ -6,13 +6,20 @@
 
 # exported vars
 ANSIBLE_CONFIG ?= ./examples/ansible.cfg
-export ANSIBLE_CONFIG
+ANSIBLE_CACHE_PLUGIN ?= jsonfile
+ANSIBLE_CACHE_PLUGIN_CONNECTION ?= /tmp/ansible_fact_cache
 PROJECT_DIR := $(CURDIR)
+
+export ANSIBLE_CONFIG
+export ANSIBLE_CACHE_PLUGIN
+export ANSIBLE_CACHE_PLUGIN_CONNECTION
 export PROJECT_DIR
 
 # Makefile vars
 PLAYBOOK_PATH := $(CURDIR)/examples/playbooks
 TARGET_HOSTS ?= all
+ASSERT_METRICS ?= false
+LIMIT ?= 1000
 
 # Print the list of supported commands.
 .PHONY: help
@@ -42,6 +49,11 @@ install:
 .PHONY: lint
 lint:
 	ansible-lint --offline roles playbooks examples
+
+# Check the license header
+.PHONY: check-license-header
+check-license-header:
+	./ci/check_license_header.sh
 
 #########################
 # Deployment
@@ -76,8 +88,13 @@ build-bins:
 
 # Clean all the artifacts (configs and bins) built on the controller node (e.g. make clean).
 .PHONY: clean
-clean:
+clean: clean-cache
 	rm -rf ./out
+
+# Clean the Ansible cache (e.g. make clean-cache).
+.PHONY: clean-cache
+clean-cache:
+	rm -rf $(ANSIBLE_CACHE_PLUGIN_CONNECTION)
 
 # Transfer the targeted config artifacts to the remote nodes (e.g. make fabric-x transfer-configs).
 .PHONY: transfer-configs
@@ -155,6 +172,11 @@ limit-rate:
 #########################
 # Common target hosts
 #########################
+
+# Target the Fabric CA servers for the command being run (e.g. make fabric-cas start).
+.PHONY: fabric-cas
+fabric-cas:
+	$(eval TARGET_HOSTS = fabric-cas)
 
 # Target the Fabric-X components for the command being run (e.g. make fabric-x start).
 .PHONY: fabric-x

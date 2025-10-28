@@ -5,33 +5,37 @@
 #
 
 Parties:
-{% for orderer_group, group_instances in all_orderer_instances.items() %}
-  - PartyID: {{ orderer_group }}
+{% for orderer_group_id, orderer_group in all_orderer_instances.items() %}
+  - PartyID: {{ orderer_group_id }}
     CACerts:
-      - {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ hostvars[group_instances['assembler']].organization.domain }}/ca/ca.{{ hostvars[group_instances['assembler']].organization.domain }}-cert.pem
+{% for orderer_organization_domain in orderer_group.organizations %}
+      - {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_organization_domain }}/msp/cacerts/ca.{{ orderer_organization_domain }}-cert.pem
+{% endfor %}
     TLSCACerts:
-      - {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ hostvars[group_instances['assembler']].organization.domain }}/tlsca/tlsca.{{ hostvars[group_instances['assembler']].organization.domain }}-cert.pem
+{% for orderer_organization_domain in orderer_group.organizations %}
+      - {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_organization_domain }}/msp/tlscacerts/tlsca.{{ orderer_organization_domain }}-cert.pem
+{% endfor %}
     RouterConfig:
-      TLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ hostvars[group_instances['router']].organization.domain }}/orderers/{{ group_instances['router'] }}.{{ hostvars[group_instances['router']].organization.domain }}/tls/server.crt
-      Host: {{ hostvars[group_instances['router']].ansible_host }}
-      Port: {{ hostvars[group_instances['router']].orderer_rpc_port}}
+      TLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_group.router.organization.domain }}/orderers/{{ orderer_group.router.organization.orderer.name | default(orderer_group.router.inventory_hostname) }}.{{ orderer_group.router.organization.domain }}/tls/server.crt
+      Host: {{ orderer_group.router.ansible_host }}
+      Port: {{ orderer_group.router.orderer_rpc_port}}
     BatchersConfig:
-{% for batch_instance in  group_instances['batchers'] %}
-      - ShardID: {{ hostvars[batch_instance].orderer_shard_id}}
-        SignCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ hostvars[batch_instance].organization.domain }}/orderers/{{ batch_instance }}.{{ hostvars[batch_instance].organization.domain }}/msp/signcerts/{{ batch_instance }}.{{ hostvars[batch_instance].organization.domain }}-cert.pem
-        TLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ hostvars[batch_instance].organization.domain }}/orderers/{{ batch_instance }}.{{ hostvars[batch_instance].organization.domain }}/tls/server.crt
-        Host: {{ hostvars[batch_instance].ansible_host }}
-        Port: {{ hostvars[batch_instance].orderer_rpc_port }}
+{% for orderer_batcher in orderer_group.batchers %}
+      - ShardID: {{ orderer_batcher.orderer_shard_id}}
+        SignCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_batcher.organization.domain }}/orderers/{{ orderer_batcher.organization.orderer.name | default(orderer_batcher.inventory_hostname) }}.{{ orderer_batcher.organization.domain }}/msp/signcerts/{{ orderer_batcher.organization.orderer.name | default(orderer_batcher.inventory_hostname) }}.{{ orderer_batcher.organization.domain }}-cert.pem
+        TLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_batcher.organization.domain }}/orderers/{{ orderer_batcher.organization.orderer.name | default(orderer_batcher.inventory_hostname) }}.{{ orderer_batcher.organization.domain }}/tls/server.crt
+        Host: {{ orderer_batcher.ansible_host }}
+        Port: {{ orderer_batcher.orderer_rpc_port }}
 {% endfor %}
     ConsenterConfig:
-      SignCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ hostvars[group_instances['consenter']].organization.domain }}/orderers/{{ group_instances['consenter'] }}.{{ hostvars[group_instances['consenter']].organization.domain }}/msp/signcerts/{{ group_instances['consenter'] }}.{{ hostvars[group_instances['consenter']].organization.domain }}-cert.pem
-      TLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ hostvars[group_instances['consenter']].organization.domain }}/orderers/{{ group_instances['consenter'] }}.{{ hostvars[group_instances['consenter']].organization.domain }}/tls/server.crt
-      Host: {{ hostvars[group_instances['consenter']].ansible_host }}
-      Port: {{ hostvars[group_instances['consenter']].orderer_rpc_port}}
+      SignCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_group.consenter.organization.domain }}/orderers/{{ orderer_group.consenter.organization.orderer.name | default(orderer_group.consenter.inventory_hostname) }}.{{ orderer_group.consenter.organization.domain }}/msp/signcerts/{{ orderer_group.consenter.organization.orderer.name | default(orderer_group.consenter.inventory_hostname) }}.{{ orderer_group.consenter.organization.domain }}-cert.pem
+      TLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_group.consenter.organization.domain }}/orderers/{{ orderer_group.consenter.organization.orderer.name | default(orderer_group.consenter.inventory_hostname) }}.{{ orderer_group.consenter.organization.domain }}/tls/server.crt
+      Host: {{ orderer_group.consenter.ansible_host }}
+      Port: {{ orderer_group.consenter.orderer_rpc_port}}
     AssemblerConfig:
-      TLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ hostvars[group_instances['assembler']].organization.domain}}/orderers/{{ group_instances['assembler'] }}.{{ hostvars[group_instances['assembler']].organization.domain}}/tls/server.crt
-      Host: {{ hostvars[group_instances['assembler']].ansible_host }}
-      Port: {{ hostvars[group_instances['assembler']].orderer_rpc_port}}
+      TLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_group.assembler.organization.domain}}/orderers/{{ orderer_group.assembler.organization.orderer.name | default(orderer_group.assembler.inventory_hostname) }}.{{ orderer_group.assembler.organization.domain}}/tls/server.crt
+      Host: {{ orderer_group.assembler.ansible_host }}
+      Port: {{ orderer_group.assembler.orderer_rpc_port}}
 {% endfor %}
 Consensus:
     SmartBFT:

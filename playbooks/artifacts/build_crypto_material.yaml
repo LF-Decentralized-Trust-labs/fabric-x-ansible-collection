@@ -11,6 +11,7 @@
       vars:
         org_domain: "{{ hostvars[orderer].organization.domain }}"
         org_name: "{{ hostvars[orderer].organization.name }}"
+        org_enable_organizational_units: "{{ hostvars[orderer].organization.enable_organizational_units | default(false) }}"
         orderer_info:
           name: "{{ orderer }}"
       ansible.builtin.set_fact:
@@ -20,6 +21,7 @@
               org_domain: {
                 'name': org_name,
                 'domain': org_domain,
+                'enable_organizational_units': org_enable_organizational_units,
                 'orderers': (cryptogen_orderers_by_org | default({})).get(org_domain, {}).get('orderers', []) + [orderer_info]
               }
             })
@@ -29,6 +31,7 @@
           groups['fabric-x-orderers']
           | map('extract', hostvars)
           | selectattr('organization', 'defined')
+          | selectattr('organization.fabric_ca_host', 'undefined')
           | selectattr('organization.role', 'defined')
           | selectattr('organization.role', '==', 'orderer')
           | map(attribute='inventory_hostname')
@@ -39,6 +42,7 @@
       vars:
         org_domain: "{{ hostvars[peer].organization.domain }}"
         org_name: "{{ hostvars[peer].organization.name }}"
+        org_enable_organizational_units: "{{ hostvars[peer].organization.enable_organizational_units | default(false) }}"
         peer_info:
           name: "{{ peer }}"
       ansible.builtin.set_fact:
@@ -48,6 +52,7 @@
               org_domain: {
                 'name': org_name,
                 'domain': org_domain,
+                'enable_organizational_units': org_enable_organizational_units,
                 'peers': (cryptogen_peers_by_org | default({})).get(org_domain, {}).get('peers', []) + [peer_info]
               }
             })
@@ -57,6 +62,7 @@
           groups['all']
           | map('extract', hostvars)
           | selectattr('organization', 'defined')
+          | selectattr('organization.fabric_ca_host', 'undefined')
           | selectattr('organization.role', 'defined')
           | selectattr('organization.role', '==', 'peer')
           | map(attribute='inventory_hostname')
@@ -67,6 +73,7 @@
       vars:
         org_domain: "{{ hostvars[peer].organization.domain }}"
         org_name: "{{ hostvars[peer].organization.name }}"
+        org_enable_organizational_units: "{{ hostvars[peer].organization.enable_organizational_units | default(false) }}"
         users: "{{ hostvars[peer].organization.users }}"
       ansible.builtin.set_fact:
         cryptogen_peers_by_org: >-
@@ -75,6 +82,7 @@
               org_domain: {
                 'name': org_name,
                 'domain': org_domain,
+                'enable_organizational_units': org_enable_organizational_units,
                 'users': (cryptogen_peers_by_org | default({})).get(org_domain, {}).get('users', []) + users,
                 'peers': (cryptogen_peers_by_org | default({})).get(org_domain, {}).get('peers', [])
               }
@@ -85,6 +93,7 @@
           groups['all']
           | map('extract', hostvars)
           | selectattr('organization', 'defined')
+          | selectattr('organization.fabric_ca_host', 'undefined')
           | selectattr('organization.users', 'defined')
           | map(attribute='inventory_hostname')
         }}
@@ -94,14 +103,19 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.cryptogen
         tasks_from: config/build
+      when:
+        - (cryptogen_peers_by_org is defined) or (cryptogen_orderers_by_org is defined)
     - name: Install cryptogen as binary for Fabric-X
       ansible.builtin.include_role:
         name: hyperledger.fabricx.cryptogen
         tasks_from: bin/install
       when:
+        - (cryptogen_peers_by_org is defined) or (cryptogen_orderers_by_org is defined)
         - cryptogen_use_bin is defined
         - cryptogen_use_bin
     - name: Generate the crypto material with cryptogen
       ansible.builtin.include_role:
         name: hyperledger.fabricx.cryptogen
         tasks_from: start
+      when:
+        - (cryptogen_peers_by_org is defined) or (cryptogen_orderers_by_org is defined)

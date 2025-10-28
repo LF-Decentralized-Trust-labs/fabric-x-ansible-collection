@@ -1,0 +1,41 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Set volumes for Fabric-CA client
+  ansible.builtin.set_fact:
+    fabric_ca_volumes:
+      - "{{ fabric_ca_msp_dir }}:{{ fabric_ca_container_config_dir }}"
+
+- name: Set volumes for TLS certificates
+  vars:
+    fabric_ca_tls_certfile_volume: "{{ fabric_ca_tls_certfile }}:{{ fabric_ca_container_config_dir }}/tls-cert.pem"
+  ansible.builtin.set_fact:
+    fabric_ca_volumes: "{{ fabric_ca_volumes + [fabric_ca_tls_certfile_volume] }}"
+  when:
+    - fabric_ca_use_tls
+    - fabric_ca_tls_certfile is defined
+
+- name: Generate Certificate Revocation List (CRL) with Fabric CA client container
+  vars:
+    container_name: "{{ fabric_ca_name }}-gencrl"
+    container_image: "{{ fabric_ca_image }}"
+    container_env:
+      FABRIC_CA_CLIENT_HOME: "{{ fabric_ca_container_config_dir }}"
+    container_command: >-
+      fabric-ca-client gencrl
+      -u {{ fabric_ca_scheme }}://{{ hostvars[fabric_ca_host].ansible_host }}:{{ hostvars[fabric_ca_host].fabric_ca_port }}
+      --caname {{ fabric_ca_name }}
+      --mspdir {{ fabric_ca_container_config_dir }}
+      {% if fabric_ca_use_tls and (fabric_ca_tls_certfile is defined) %}
+      --tls.certfiles {{ fabric_ca_container_config_dir }}/tls-cert.pem
+      {% endif %}
+    container_volumes: "{{ fabric_ca_volumes }}"
+    container_autoremove: true
+    container_run_as_host_user: true
+    container_run_detach_mode: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start

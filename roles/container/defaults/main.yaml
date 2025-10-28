@@ -4,34 +4,47 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# docker location/paths
+# container location/paths
 container_logs_dir: "{{ out_log_dir }}"
 container_logs_file: "{{ inventory_hostname }}_logs.txt"
-container_remote_logs_dir: "{{ remote_config_dir }}"
+container_remote_logs_dir: "{{ deploy_dir }}/{{ inventory_hostname }}/logs"
 container_remote_logs_file: "logs.txt"
 
-# docker misc
+# container misc
 container_command: ""
 container_ports: []
 container_volumes: []
 container_ulimits: []
 container_env: {}
 container_memory: null
+container_cpus: null
 container_entrypoint: null
 container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
 container_network_mode: "{{ 'bridge' if container_on_mac else 'host' }}"
 container_run_as_host_user: false
 container_list_hosts: "{{ ansible_play_hosts }}"
-container_log_driver: "json-file"
-container_log_max_size: "1g"
 container_run_detach_mode: true
 container_healthcheck_test: null
 container_user: "{{ ansible_facts.user_uid ~ ':' ~ ansible_facts.user_gid if container_run_as_host_user else '' }}"
 container_healthcheck_interval: "30s"
-container_omit_logs: false
-container_log_lines: 0
 container_autoremove: false
 container_ignore_errors: false
+
+# container network options
+container_network_driver: bridge
+container_network_attachable: true # docker-only: podman networks are always attachable
+container_network_internal: false
+
+# container logs options
+container_omit_logs: false
+container_log_driver: "json-file"
+container_log_max_size: "1g"
+container_log_lines: 0
+
+# container rerun options
+container_run_until: null
+container_run_delay: 0
+container_run_retries: 0
 
 # env for wait container
 container_wait_until_running: false

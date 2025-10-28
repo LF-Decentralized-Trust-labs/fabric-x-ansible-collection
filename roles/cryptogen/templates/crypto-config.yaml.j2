@@ -15,7 +15,7 @@ OrdererOrgs:
   # ---------------------------------------------------------------------------
   - Name: {{ orderer_org_info.name }}
     Domain: {{ orderer_org_info.domain }}
-    EnableNodeOUs: false
+    EnableNodeOUs: {{ orderer_org_info.enable_organizational_units | default(false) | lower }}
 {% if orderer_org_info.orderers is defined and orderer_org_info.orderers | length > 0 %}
     # ---------------------------------------------------------------------------
     # "Specs"
@@ -31,7 +31,7 @@ OrdererOrgs:
     #                 Org.Domain, respectively.
     Specs:
 {% for orderer in orderer_org_info.orderers %}
-      - Hostname: {{ orderer.name }}
+      - Hostname: {{ hostvars[orderer.name].organization.orderer.name | default(orderer.name) }}
         SANS:
           - {{ hostvars[orderer.name].ansible_host }}
           - 0.0.0.0
@@ -54,7 +54,7 @@ PeerOrgs:
   # ---------------------------------------------------------------------------
   - Name: {{ peer_org_info.name }}
     Domain: {{ peer_org_info.domain }}
-    EnableNodeOUs: false
+    EnableNodeOUs: {{ peer_org_info.enable_organizational_units | default(false) | lower }}
 {% if peer_org_info.peers is defined and peer_org_info.peers | length > 0 %}
     # ---------------------------------------------------------------------------
     # "Specs"
@@ -82,7 +82,7 @@ PeerOrgs:
     # ---------------------------------------------------------------------------
     Specs:
 {% for peer in (peer_org_info.peers | unique) %}
-      - Hostname: {{ peer.name }}
+      - Hostname: {{ hostvars[peer.name].organization.peer.name | default(peer.name) }}
         SANS:
           - {{ hostvars[peer.name].ansible_host }}
           - 0.0.0.0

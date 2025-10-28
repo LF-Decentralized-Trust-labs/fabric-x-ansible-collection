@@ -21,7 +21,7 @@
           }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.orderer
-        tasks_from: bin/install
+        tasks_from: bin/multiplatform_install
       when:
         - "'fabric-x-orderers' in groups"
         - orderer_service_instances | length > 0

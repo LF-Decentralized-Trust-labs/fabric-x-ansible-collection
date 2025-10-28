@@ -1,0 +1,19 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Generate CRL for Fabric CA with Fabric CA client container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/container/gencrl
+  when:
+    - not fabric_ca_client_use_bin
+
+- name: Generate CRL for Fabric CA with Fabric CA client binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/bin/gencrl
+  when:
+    - fabric_ca_client_use_bin

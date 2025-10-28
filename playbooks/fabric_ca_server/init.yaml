@@ -1,0 +1,37 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Init Fabric-CA servers
+  hosts: "{{ target_hosts | default('fabric-cas') }}:&fabric-cas"
+  tasks:
+    - name: Enroll Fabric CA admin
+      vars:
+        fabric_ca_host: "{{ inventory_hostname }}"
+        fabric_ca_identity:
+          name: "{{ fabric_ca_admin.name }}"
+          secret: "{{ fabric_ca_admin.secret }}"
+        fabric_ca_msp_dir: "{{ fabric_ca_remote_config_dir }}/{{ fabric_ca_admin.name }}/msp"
+        fabric_ca_tls_certfile: "{{ fabric_ca_remote_config_dir }}/tls-cert.pem"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: client/enroll
+      when:
+        - fabric_ca_admin is defined
+    - name: Fetch the Fabric CA crypto material for the genesis block build
+      vars:
+        fabric_ca_orderer_organization: >-
+          {{
+            groups['all']
+            | map('extract', hostvars)
+            | selectattr('organization', 'defined')
+            | selectattr('organization.domain', '==', organization.domain)
+            | selectattr('organization.role', 'defined')
+            | selectattr('organization.role', '==', 'orderer')
+            | length > 0
+          }}
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: server/config/fetch_crypto_material

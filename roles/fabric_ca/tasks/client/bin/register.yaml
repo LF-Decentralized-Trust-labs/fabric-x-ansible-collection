@@ -1,0 +1,50 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Find all registered identities on Fabric CA
+  vars:
+    bin_omit_logs: true
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/bin/identity_list
+
+- name: Check if identity is already registered
+  ansible.builtin.set_fact:
+    fabric_ca_identity_exists: "{{ fabric_ca_identity.name in fabric_ca_registered_identities_names }}"
+
+- name: Identity already present — skip registration
+  ansible.builtin.debug:
+    msg: "Identity '{{ fabric_ca_identity.name }}' is already registered on {{ fabric_ca_name }} Fabric CA server, skipping registration..."
+  when: fabric_ca_identity_exists
+
+- name: Register identity with Fabric CA client binary
+  vars:
+    bin_env:
+      FABRIC_CA_CLIENT_HOME: "{{ fabric_ca_msp_dir }}"
+    bin_command: >-
+      {{ fabric_ca_client_bin_name }} register
+      -u {{ fabric_ca_scheme }}://{{ hostvars[fabric_ca_host].ansible_host }}:{{ hostvars[fabric_ca_host].fabric_ca_port }}
+      --caname {{ fabric_ca_name }}
+      --id.name {{ fabric_ca_identity.name }}
+      --id.secret {{ fabric_ca_identity.secret }}
+      --id.type {{ fabric_ca_identity.type }}
+      {% if fabric_ca_identity.affiliation is defined %}
+      --id.affiliation {{ fabric_ca_identity.affiliation }}
+      {% endif %}
+      {% if fabric_ca_identity.attrs is defined %}
+      {% for attribute_name, attribute_value in fabric_ca_identity.attrs.items() %}
+      --id.attrs "{{ attribute_name }}={{ attribute_value }}"
+      {% endfor %}
+      {% endif %}
+      {% if fabric_ca_use_tls and (fabric_ca_tls_certfile is defined) %}
+      --tls.certfiles {{ fabric_ca_tls_certfile }}
+      {% endif %}
+    bin_run_with_tmux: false
+    bin_collect_logs: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start
+  when: not fabric_ca_identity_exists

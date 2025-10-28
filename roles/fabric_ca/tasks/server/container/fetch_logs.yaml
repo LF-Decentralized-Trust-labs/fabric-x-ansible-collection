@@ -1,0 +1,12 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Fetch the logs from the Fabric CA container
+  vars:
+    container_logs_file: "{{ fabric_ca_container_name }}_logs.txt"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: fetch_logs

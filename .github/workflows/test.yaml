@@ -22,6 +22,8 @@ jobs:
         include:
           - inventory: "fabric-x"
           - inventory: "fabric-x-yugabyte"
+          - inventory: "fabric-x-bin"
+          - inventory: "fabric-x-cryptogen"
       fail-fast: false
 
     steps:
@@ -66,6 +68,8 @@ jobs:
       - name: Install all the required packages and collections
         env:
           CONTAINER_CLIENT: docker
+          ANSIBLE_CACHE_PLUGIN: jsonfile
+          ANSIBLE_CACHE_PLUGIN_CONNECTION: /tmp/ansible_fact_cache
         run: |
           pip install -r requirements.txt
           ansible-galaxy collection install -r requirements.yml
@@ -77,5 +81,7 @@ jobs:
           PROJECT_DIR: ${{ github.workspace }}
           CONTAINER_CLIENT: docker
           ANSIBLE_INVENTORY: ./examples/inventory/${{ matrix.inventory }}.yaml
+          ANSIBLE_CACHE_PLUGIN: jsonfile
+          ANSIBLE_CACHE_PLUGIN_CONNECTION: /tmp/ansible_fact_cache
         run: |
           ./ci/run_ci_test.sh

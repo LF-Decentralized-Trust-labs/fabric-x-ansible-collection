@@ -1,0 +1,18 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the Fabric CA client instances have been defined
+  ansible.builtin.fail:
+    msg: "No Fabric CA host is indicated. Set it via 'fabric_ca_client_instances'."
+  when: fabric_ca_client_instances is not defined
+
+- name: Install the binary {{ fabric_ca_client_bin_name }} for multiplatform
+  vars:
+    bin_service_instances: "{{ fabric_ca_client_instances }}"
+    bin_go_package: "{{ fabric_ca_client_bin_package }}@{{ fabric_ca_git_commit }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: go/multiplatform_install

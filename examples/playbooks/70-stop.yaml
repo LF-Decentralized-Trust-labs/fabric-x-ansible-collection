@@ -15,3 +15,6 @@
 
 - name: Stop Fabric-X Orderer
   ansible.builtin.import_playbook: hyperledger.fabricx.orderer.stop
+
+- name: Stop Fabric CA servers
+  ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.stop
