@@ -17,6 +17,7 @@ container_volumes: []
 container_ulimits: []
 container_env: {}
 container_memory: null
+container_cpus: null
 container_entrypoint: null
 container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
 container_network_mode: "{{ 'bridge' if container_on_mac else 'host' }}"
