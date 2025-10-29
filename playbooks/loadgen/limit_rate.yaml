@@ -5,7 +5,7 @@
 #
 
 - name: Set the Fabric-X Loadgen limit rate
-  hosts: "{{ target_hosts | default('load-generators') }}:&load-generators"
+  hosts: "{{ target_hosts | default('load_generators') }}:&load_generators"
   tasks:
     - name: Set the Fabric-X Loadgen TPS limit rate
       ansible.builtin.include_role:

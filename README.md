@@ -189,18 +189,18 @@ By default all the `Makefile` commands target all the hosts which are defined wi
 For example, running:
 
 ```shell
-make fabric-x-orderers start
+make fabric_x_orderers start
 ```
 
-restricts the command to the host group `fabric-x-orderers` defined within the inventory. The `Makefile` comes with a set of predefined host groups that can be used to easily restrict commands:
+restricts the command to the host group `fabric_x_orderers` defined within the inventory. The `Makefile` comes with a set of predefined host groups that can be used to easily restrict commands:
 
 | Group              | Target                                           | Example                         |
 | ------------------ | ------------------------------------------------ | ------------------------------- |
-| fabric-cas         | The Fabric CA servers                            | `make fabric-cas start`         |
-| fabric-x           | The Fabric-X network nodes (orderers+committer). | `make fabric-x start`           |
-| fabric-x-orderers  | All the Fabric-X orderers.                       | `make fabric-x-orderers start`  |
-| fabric-x-committer | The Fabric-X committer components.               | `make fabric-x-committer start` |
-| load-generators    | All the load-generators.                         | `make load-generators start`    |
+| fabric_cas         | The Fabric CA servers                            | `make fabric_cas start`         |
+| fabric_x           | The Fabric-X network nodes (orderers+committer). | `make fabric_x start`           |
+| fabric_x_orderers  | All the Fabric-X orderers.                       | `make fabric_x_orderers start`  |
+| fabric_x_committer | The Fabric-X committer components.               | `make fabric_x_committer start` |
+| load_generators    | All the load_generators.                         | `make load_generators start`    |
 | monitoring         | All the monitoring instances.                    | `make monitoring start`         |
 
 All these groups are reflected in the [sample inventory](./examples/inventory/fabric-x.yaml). If you plan to use the playbooks provided with the collection, we recommend to keep the names identical in order to leverage all the playbooks capabilities.

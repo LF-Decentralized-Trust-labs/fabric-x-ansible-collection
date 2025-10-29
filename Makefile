@@ -96,51 +96,51 @@ clean: clean-cache
 clean-cache:
 	rm -rf $(ANSIBLE_CACHE_PLUGIN_CONNECTION)
 
-# Transfer the targeted config artifacts to the remote nodes (e.g. make fabric-x transfer-configs).
+# Transfer the targeted config artifacts to the remote nodes (e.g. make fabric_x transfer-configs).
 .PHONY: transfer-configs
 transfer-configs:
 	ansible-playbook "$(PLAYBOOK_PATH)/40-transfer-configs.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
-# Transfer the targeted binaries to the remote nodes (e.g. make fabric-x transfer-bins).
+# Transfer the targeted binaries to the remote nodes (e.g. make fabric_x transfer-bins).
 .PHONY: transfer-bins
 transfer-bins:
 	ansible-playbook "$(PLAYBOOK_PATH)/50-transfer-bins.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
-# Start the targeted hosts (e.g. make fabric-x start).
+# Start the targeted hosts (e.g. make fabric_x start).
 .PHONY: start
 start:
 	ansible-playbook "$(PLAYBOOK_PATH)/60-start.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
-# Stop the targeted hosts (e.g. make fabric-x stop).
+# Stop the targeted hosts (e.g. make fabric_x stop).
 .PHONY: stop
 stop:
 	ansible-playbook "$(PLAYBOOK_PATH)/70-stop.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
-# Teardown the targeted hosts (e.g. make fabric-x teardown).
+# Teardown the targeted hosts (e.g. make fabric_x teardown).
 .PHONY: teardown
 teardown:
 	ansible-playbook "$(PLAYBOOK_PATH)/80-teardown.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
-# Restart the targeted hosts (e.g. make fabric-x restart).
+# Restart the targeted hosts (e.g. make fabric_x restart).
 .PHONY: restart
 restart: teardown start
 
-# Start a Node Exporter container on the targeted hosts (e.g. make fabric-x node-exporter-start).
+# Start a Node Exporter container on the targeted hosts (e.g. make fabric_x node-exporter-start).
 .PHONY: node-exporter-start
 node-exporter-start:
 	ansible-playbook hyperledger.fabricx.node_exporter.start --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
-# Stop the Node Exporter container on the targeted hosts (e.g. make fabric-x node-exporter-stop).
+# Stop the Node Exporter container on the targeted hosts (e.g. make fabric_x node-exporter-stop).
 .PHONY: node-exporter-stop
 node-exporter-stop:
 	ansible-playbook hyperledger.fabricx.node_exporter.stop --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
-# Teardown the Node Exporter container on the targeted hosts (e.g. make fabric-x node-exporter-teardown).
+# Teardown the Node Exporter container on the targeted hosts (e.g. make fabric_x node-exporter-teardown).
 .PHONY: node-exporter-teardown
 node-exporter-teardown:
 	ansible-playbook hyperledger.fabricx.node_exporter.teardown --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
-# Wipe out the config artifacts and the binaries from the remote hosts (e.g. make fabric-x wipe).
+# Wipe out the config artifacts and the binaries from the remote hosts (e.g. make fabric_x wipe).
 .PHONY: wipe
 wipe:
 	ansible-playbook "$(PLAYBOOK_PATH)/100-wipe.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
@@ -149,17 +149,17 @@ wipe:
 # Utils
 #########################
 
-# Ping the targeted host to check whether is reachable (e.g. make fabric-x ping).
+# Ping the targeted host to check whether is reachable (e.g. make fabric_x ping).
 .PHONY: ping
 ping:
 	ansible-playbook "$(PLAYBOOK_PATH)/90-ping.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}';
 
-# Get the metrics from the targeted components and assert they are working correctly (e.g make load-generators get-metrics).
+# Get the metrics from the targeted components and assert they are working correctly (e.g make load_generators get-metrics).
 .PHONY: get-metrics
 get-metrics:
 	ansible-playbook "$(PLAYBOOK_PATH)/93-get-metrics.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)", "assert_metrics": "$(ASSERT_METRICS)"}'
 
-# Fetch the logs from the targeted hosts (e.g. make fabric-x fetch-logs).
+# Fetch the logs from the targeted hosts (e.g. make fabric_x fetch-logs).
 .PHONY: fetch-logs
 fetch-logs:
 	ansible-playbook "$(PLAYBOOK_PATH)/96-fetch-logs.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
@@ -173,32 +173,32 @@ limit-rate:
 # Common target hosts
 #########################
 
-# Target the Fabric CA servers for the command being run (e.g. make fabric-cas start).
-.PHONY: fabric-cas
-fabric-cas:
-	$(eval TARGET_HOSTS = fabric-cas)
+# Target the Fabric CA servers for the command being run (e.g. make fabric_cas start).
+.PHONY: fabric_cas
+fabric_cas:
+	@$(eval TARGET_HOSTS = fabric_cas):
 
-# Target the Fabric-X components for the command being run (e.g. make fabric-x start).
-.PHONY: fabric-x
-fabric-x:
-	$(eval TARGET_HOSTS = fabric-x)
+# Target the fabric_x components for the command being run (e.g. make fabric_x start).
+.PHONY: fabric_x
+fabric_x:
+	@$(eval TARGET_HOSTS = fabric_x):
 
-# Target the Fabric-X Orderer components for the command being run (e.g. make fabric-x-orderers start).
-.PHONY: fabric-x-orderers
-fabric-x-orderers:
-	$(eval TARGET_HOSTS = fabric-x-orderers)
+# Target the Fabric-X Orderer components for the command being run (e.g. make fabric_x_orderers start).
+.PHONY: fabric_x_orderers
+fabric_x_orderers:
+	@$(eval TARGET_HOSTS = fabric_x_orderers):
 
-# Target the Fabric-X Committer components for the command being run (e.g. make fabric-x-committer start).
-.PHONY: fabric-x-committer
-fabric-x-committer:
-	$(eval TARGET_HOSTS = fabric-x-committer)
+# Target the Fabric-X Committer components for the command being run (e.g. make fabric_x_committer start).
+.PHONY: fabric_x_committer
+fabric_x_committer:
+	@$(eval TARGET_HOSTS = fabric_x_committer):
 
-# Target the load-generators for the command being run (e.g. make load-generators start).
-.PHONY: load-generators
-load-generators:
-	$(eval TARGET_HOSTS = load-generators)
+# Target the load_generators for the command being run (e.g. make load_generators start).
+.PHONY: load_generators
+load_generators:
+	@$(eval TARGET_HOSTS = load_generators):
 
 # Target the monitoring instances for the command being run (e.g. make monitoring start).
 .PHONY: monitoring
 monitoring:
-	$(eval TARGET_HOSTS = monitoring)
+	@$(eval TARGET_HOSTS = monitoring):

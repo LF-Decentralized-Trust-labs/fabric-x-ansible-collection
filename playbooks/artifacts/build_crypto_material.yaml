@@ -28,7 +28,7 @@
           }}
       loop: >-
         {{
-          groups['fabric-x-orderers']
+          groups['fabric_x_orderers']
           | map('extract', hostvars)
           | selectattr('organization', 'defined')
           | selectattr('organization.fabric_ca_host', 'undefined')

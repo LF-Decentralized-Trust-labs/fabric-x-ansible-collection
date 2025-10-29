@@ -5,7 +5,7 @@
 #
 
 - name: Fetch the Fabric-X Committer logs
-  hosts: "{{ target_hosts | default('fabric-x-committer') }}:&fabric-x-committer"
+  hosts: "{{ target_hosts | default('fabric_x_committer') }}:&fabric_x_committer"
   tasks:
     - name: Fetch the Fabric-X Committer logs
       ansible.builtin.include_role:

@@ -5,7 +5,7 @@
 #
 
 - name: Transfer Fabric-X Orderer binaries
-  hosts: "{{ target_hosts | default('fabric-x-orderers') }}:&fabric-x-orderers"
+  hosts: "{{ target_hosts | default('fabric_x_orderers') }}:&fabric_x_orderers"
   tasks:
     - name: Transfer Fabric-X Orderer binary
       ansible.builtin.include_role:

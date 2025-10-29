@@ -14,6 +14,8 @@ BLUE='\033[0;34m'
 
 # vars
 PROFILE_FILE="${HOME}/.profile"
+DEFAULT_CONTAINER_CLIENT=$(command -v podman >/dev/null 2>&1 && echo "podman" || (command -v docker >/dev/null 2>&1 && echo "docker" || echo ""))
+CONTAINER_CLIENT="${CONTAINER_CLIENT:-$DEFAULT_CONTAINER_CLIENT}"
 
 function print_logs() {
     local dir=$1
@@ -21,12 +23,7 @@ function print_logs() {
     find "$dir" -type f | while read -r file; do
         # Print the last part of the logs
         echo -e "📝 ${BLUE}$file${NO_STYLE}"
-        tail -n 500 "$file"
-
-        # Print only logs with `err` inside
-        echo -e "🚨 ${RED}Error logs${NO_STYLE}"
-        grep -i "err" "$file"
-        echo
+        cat "$file"
     done
 }
 
@@ -34,18 +31,11 @@ function print_logs() {
 function collect_deployment_failure_info() {
     echo -e "🚩 ${BLUE}Retrieve status for service ports.${NO_STYLE}"
 
-    make fabric-x ping
-    make load-generators ping
+    make ping
     echo "✅ Done."
 
-    echo -e "🚩 ${BLUE}List running docker containers.${NO_STYLE}"
-    docker container ls
-    echo "✅ Done."
-
-    echo -e "🚩 ${BLUE}Retrieve the logs from the Hyperledger Fabric-X components.${NO_STYLE}"
-    make fabric-x fetch-logs
-    make load-generators fetch-logs
-    echo "✅ Done."
+    echo -e "🚩 ${BLUE}Retrieve the logs from the services.${NO_STYLE}"
+    make fetch-logs
 
     echo -e "🚩 ${BLUE}List the fetched log files.${NO_STYLE}"
     ls "$PROJECT_DIR/out/logs"
@@ -84,7 +74,7 @@ source "${PROFILE_FILE}"
 run_cmd make setup
 run_cmd make start
 run_cmd sleep 10
-run_cmd make load-generators get-metrics ASSERT_METRICS=true
+run_cmd make load_generators get-metrics ASSERT_METRICS=true
 
 # stop deployment
 run_cmd make teardown

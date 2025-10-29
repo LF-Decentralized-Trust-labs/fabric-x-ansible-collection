@@ -5,7 +5,7 @@
 #
 
 - name: Ping Fabric CAs
-  hosts: "{{ target_hosts | default('fabric-cas') }}:&fabric-cas"
+  hosts: "{{ target_hosts | default('fabric_cas') }}:&fabric_cas"
   tasks:
     - name: Ping Fabric CA servers
       ansible.builtin.include_role:
