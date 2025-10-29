@@ -12,11 +12,11 @@ committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{
 committer_container_name: "{{ inventory_hostname }}"
 
 # Fabric-X Committer bin
-committer_git_uri: "https://github.com/hyperledger/fabric_x_committer.git"
+committer_git_uri: "https://github.com/hyperledger/fabric-x-committer.git"
 committer_git_dir: "{{ source_code_dir }}/fabric_x_committer"
 committer_git_commit: "v0.1.5"
 committer_source_code_dir: "{{ committer_git_dir }}/cmd/committer"
-committer_bin_package: "github.com/hyperledger/fabric_x_committer/cmd/committer"
+committer_bin_package: "github.com/hyperledger/fabric-x-committer/cmd/committer"
 committer_bin_name: "committer"
 
 # Fabric-X Committer Config locations/names

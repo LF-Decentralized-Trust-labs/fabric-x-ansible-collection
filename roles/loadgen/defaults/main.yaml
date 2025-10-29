@@ -12,11 +12,11 @@ loadgen_image: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ load
 loadgen_container_name: "{{ inventory_hostname }}"
 
 # Fabric-X Loadgen bin
-loadgen_git_uri: "https://github.com/hyperledger/fabric_x_committer.git"
+loadgen_git_uri: "https://github.com/hyperledger/fabric-x-committer.git"
 loadgen_git_dir: "{{ source_code_dir }}/fabric_x_committer"
 loadgen_git_commit: "v0.1.5"
 loadgen_source_code_dir: "{{ loadgen_git_dir }}/cmd/loadgen"
-loadgen_bin_package: "github.com/hyperledger/fabric_x_committer/cmd/loadgen"
+loadgen_bin_package: "github.com/hyperledger/fabric-x-committer/cmd/loadgen"
 loadgen_bin_name: "loadgen"
 
 # Fabric-X Committer Config locations/names
