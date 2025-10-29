@@ -126,9 +126,9 @@ It uses the `fabric-ca-client` CLI utility (either as container or as binary by 
 ```yaml
 - name: Register the "orderer-router-1" user
   vars:
-    fabric_ca_tls_certfile: /tmp/fabric_ca_orderer_org1/ca-cert.pem
-    fabric_ca_host: fabric_ca_orderer_org1
-    fabric_ca_msp_dir: /tmp/fabric_ca_orderer_org1/admin/msp
+    fabric_ca_tls_certfile: /tmp/fabric-ca-orderer-org1/ca-cert.pem
+    fabric_ca_host: fabric-ca-orderer-org1
+    fabric_ca_msp_dir: /tmp/fabric-ca-orderer-org1/admin/msp
     fabric_ca_identity:
       name: orderer-router-1
       secret: orderer-router-1-PWD
@@ -149,9 +149,9 @@ It uses the `fabric-ca-client` CLI utility (either as container or as binary by 
 ```yaml
 - name: Enroll the "orderer-router-1" user
   vars:
-    fabric_ca_host: fabric_ca_orderer_org1
+    fabric_ca_host: fabric-ca-orderer-org1
     fabric_ca_use_tls: true
-    fabric_ca_name: fabric_ca_orderer_org1
+    fabric_ca_name: fabric-ca-orderer-org1
     fabric_ca_msp_dir: /tmp/orderer-router-1/msp
     fabric_ca_tls_certfile: /tmp/orderer-router-1/ca-cert.pem
     fabric_ca_csr_hosts:
@@ -173,9 +173,9 @@ It uses the `fabric-ca-client` CLI utility (either as container or as binary by 
 ```yaml
 - name: Re-enroll the "orderer-router-1" user
   vars:
-    fabric_ca_host: fabric_ca_orderer_org1
+    fabric_ca_host: fabric-ca-orderer-org1
     fabric_ca_use_tls: true
-    fabric_ca_name: fabric_ca_orderer_org1
+    fabric_ca_name: fabric-ca-orderer-org1
     fabric_ca_msp_dir: /tmp/orderer-router-1/msp
     fabric_ca_tls_certfile: /tmp/orderer-router-1/ca-cert.pem
     fabric_ca_csr_hosts:
@@ -195,13 +195,13 @@ The task `client/identity_list` lists all the identities registered in a Fabric 
 It uses the `fabric-ca-client` CLI utility (either as container or as binary by setting the variable `fabric_ca_client_use_bin: true`):
 
 ```yaml
-- name: Find all registered identities in "fabric_ca_orderer_org1" Fabric CA server
+- name: Find all registered identities in "fabric-ca-orderer-org1" Fabric CA server
   vars:
-    fabric_ca_host: fabric_ca_orderer_org1
+    fabric_ca_host: fabric-ca-orderer-org1
     fabric_ca_use_tls: true
-    fabric_ca_name: fabric_ca_orderer_org1
-    fabric_ca_msp_dir: /tmp/fabric_ca_orderer_org1/admin/msp
-    fabric_ca_tls_certfile: /tmp/fabric_ca_orderer_org1/ca-cert.pem
+    fabric_ca_name: fabric-ca-orderer-org1
+    fabric_ca_msp_dir: /tmp/fabric-ca-orderer-org1/admin/msp
+    fabric_ca_tls_certfile: /tmp/fabric-ca-orderer-org1/ca-cert.pem
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/identity_list
@@ -214,13 +214,13 @@ The task `client/revoke` revokes an identity previously enrolled in a Fabric CA 
 It uses the `fabric-ca-client` CLI utility (either as container or as binary by setting the variable `fabric_ca_client_use_bin: true`):
 
 ```yaml
-- name: Find all registered identities in "fabric_ca_orderer_org1" Fabric CA server
+- name: Find all registered identities in "fabric-ca-orderer-org1" Fabric CA server
   vars:
-    fabric_ca_host: fabric_ca_orderer_org1
+    fabric_ca_host: fabric-ca-orderer-org1
     fabric_ca_use_tls: true
-    fabric_ca_name: fabric_ca_orderer_org1
-    fabric_ca_msp_dir: /tmp/fabric_ca_orderer_org1/admin/msp
-    fabric_ca_tls_certfile: /tmp/fabric_ca_orderer_org1/ca-cert.pem
+    fabric_ca_name: fabric-ca-orderer-org1
+    fabric_ca_msp_dir: /tmp/fabric-ca-orderer-org1/admin/msp
+    fabric_ca_tls_certfile: /tmp/fabric-ca-orderer-org1/ca-cert.pem
     fabric_ca_identity:
       name: orderer-router-1
   ansible.builtin.include_role:
@@ -235,13 +235,13 @@ The task `client/gencrl` generates the Certificate Revocation List for a given F
 It uses the `fabric-ca-client` CLI utility (either as container or as binary by setting the variable `fabric_ca_client_use_bin: true`):
 
 ```yaml
-- name: Find all registered identities in "fabric_ca_orderer_org1" Fabric CA server
+- name: Find all registered identities in "fabric-ca-orderer-org1" Fabric CA server
   vars:
-    fabric_ca_host: fabric_ca_orderer_org1
+    fabric_ca_host: fabric-ca-orderer-org1
     fabric_ca_use_tls: true
-    fabric_ca_name: fabric_ca_orderer_org1
-    fabric_ca_msp_dir: /tmp/fabric_ca_orderer_org1/admin/msp
-    fabric_ca_tls_certfile: /tmp/fabric_ca_orderer_org1/ca-cert.pem
+    fabric_ca_name: fabric-ca-orderer-org1
+    fabric_ca_msp_dir: /tmp/fabric-ca-orderer-org1/admin/msp
+    fabric_ca_tls_certfile: /tmp/fabric-ca-orderer-org1/ca-cert.pem
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/gencrl
