@@ -15,7 +15,6 @@
       - "{{ jaeger_http_collector_port }}:{{ jaeger_http_collector_port }}"
       - "{{ jaeger_grpc_server_port }}:{{ jaeger_grpc_server_port }}"
       - "{{ jaeger_collector_port }}:{{ jaeger_collector_port }}"
-    container_memory: 15g
     container_command: >-
       --query.http-server.host-port=0.0.0.0:{{ jaeger_ui_port }}
       --admin.http.host-port=0.0.0.0:{{ jaeger_admin_port }}
