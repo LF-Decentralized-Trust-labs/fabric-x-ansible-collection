@@ -197,7 +197,7 @@ restricts the command to the host group `fabric_x_orderers` defined within the i
 | Group              | Target                                           | Example                         |
 | ------------------ | ------------------------------------------------ | ------------------------------- |
 | fabric_cas         | The Fabric CA servers                            | `make fabric_cas start`         |
-| fabric-x           | The Fabric-X network nodes (orderers+committer). | `make fabric-x start`           |
+| fabric_x           | The Fabric-X network nodes (orderers+committer). | `make fabric_x start`           |
 | fabric_x_orderers  | All the Fabric-X orderers.                       | `make fabric_x_orderers start`  |
 | fabric_x_committer | The Fabric-X committer components.               | `make fabric_x_committer start` |
 | load_generators    | All the load_generators.                         | `make load_generators start`    |
