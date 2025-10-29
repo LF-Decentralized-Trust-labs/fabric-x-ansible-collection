@@ -23,6 +23,7 @@ More examples are available in the [examples/playbooks](../examples/playbooks) f
 These playbooks come with some predefined host groups which are required within your inventory of reference to work. Specifically:
 
 ```yaml
+fabric_cas: # Group of all the Fabric CA hosts
 fabric_x_orderers: # Group of all the Fabric-X Orderer hosts
 fabric_x_committer: # Group of all the Fabric-X Committer hosts
 load_generators: # Group of all the Fabric-X Load generator hosts
