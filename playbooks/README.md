@@ -25,7 +25,7 @@ These playbooks come with some predefined host groups which are required within 
 ```yaml
 fabric-x-orderers: # Group of all the Fabric-X Orderer hosts
 fabric-x-committer: # Group of all the Fabric-X Committer hosts
-load-generators: # Group of all the Fabric-X Load generator hosts
+load_generators: # Group of all the Fabric-X Load generator hosts
 monitoring: # Group of all the monitoring hosts
 ```
 

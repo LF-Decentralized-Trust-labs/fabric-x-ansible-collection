@@ -5,7 +5,7 @@
 #
 
 - name: Transfer Fabric-X Loadgen config files
-  hosts: "{{ target_hosts | default('load-generators') }}:&load-generators"
+  hosts: "{{ target_hosts | default('load_generators') }}:&load_generators"
   tasks:
     - name: Transfer Fabric-X Loadgen config files
       vars:

@@ -154,7 +154,7 @@ wipe:
 ping:
 	ansible-playbook "$(PLAYBOOK_PATH)/90-ping.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}';
 
-# Get the metrics from the targeted components and assert they are working correctly (e.g make load-generators get-metrics).
+# Get the metrics from the targeted components and assert they are working correctly (e.g make load_generators get-metrics).
 .PHONY: get-metrics
 get-metrics:
 	ansible-playbook "$(PLAYBOOK_PATH)/93-get-metrics.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)", "assert_metrics": "$(ASSERT_METRICS)"}'
@@ -173,10 +173,10 @@ limit-rate:
 # Common target hosts
 #########################
 
-# Target the Fabric CA servers for the command being run (e.g. make fabric-cas start).
-.PHONY: fabric-cas
-fabric-cas:
-	$(eval TARGET_HOSTS = fabric-cas)
+# Target the Fabric CA servers for the command being run (e.g. make fabric_cas start).
+.PHONY: fabric_cas
+fabric_cas:
+	$(eval TARGET_HOSTS = fabric_cas)
 
 # Target the Fabric-X components for the command being run (e.g. make fabric-x start).
 .PHONY: fabric-x
@@ -193,10 +193,10 @@ fabric-x-orderers:
 fabric-x-committer:
 	$(eval TARGET_HOSTS = fabric-x-committer)
 
-# Target the load-generators for the command being run (e.g. make load-generators start).
-.PHONY: load-generators
-load-generators:
-	$(eval TARGET_HOSTS = load-generators)
+# Target the load_generators for the command being run (e.g. make load_generators start).
+.PHONY: load_generators
+load_generators:
+	$(eval TARGET_HOSTS = load_generators)
 
 # Target the monitoring instances for the command being run (e.g. make monitoring start).
 .PHONY: monitoring

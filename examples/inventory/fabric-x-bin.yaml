@@ -48,7 +48,7 @@ all:
     fxconfig_use_bin: true
     fabric_ca_client_use_bin: true
   children:
-    fabric-cas:
+    fabric_cas:
       vars:
         fabric_ca_server_use_bin: true
         fabric_ca_use_tls: true
@@ -62,23 +62,23 @@ all:
             hf.GenCRL: "true"
             hf.Revoker: "true"
       hosts:
-        fabric-ca-orderer-org1:
+        fabric_ca_orderer_org1:
           fabric_ca_port: 9019
           fabric_ca_operations_port: 9020
           organization: *OrdererOrg1
-        fabric-ca-orderer-org2:
+        fabric_ca_orderer_org2:
           fabric_ca_port: 9029
           fabric_ca_operations_port: 9030
           organization: *OrdererOrg2
-        fabric-ca-orderer-org3:
+        fabric_ca_orderer_org3:
           fabric_ca_port: 9039
           fabric_ca_operations_port: 9040
           organization: *OrdererOrg3
-        fabric-ca-orderer-org4:
+        fabric_ca_orderer_org4:
           fabric_ca_port: 9049
           fabric_ca_operations_port: 9050
           organization: *OrdererOrg4
-        fabric-ca-org1:
+        fabric_ca_org1:
           fabric_ca_port: 9069
           fabric_ca_operations_port: 9070
           organization: *Org1
@@ -93,7 +93,7 @@ all:
               vars:
                 organization:
                   <<: *OrdererOrg1
-                  fabric_ca_host: fabric-ca-orderer-org1
+                  fabric_ca_host: fabric_ca_orderer_org1
                   role: orderer
                   orderer:
                     name: "{{ inventory_hostname }}"
@@ -117,7 +117,7 @@ all:
               vars:
                 organization:
                   <<: *OrdererOrg2
-                  fabric_ca_host: fabric-ca-orderer-org2
+                  fabric_ca_host: fabric_ca_orderer_org2
                   role: orderer
                   orderer:
                     name: "{{ inventory_hostname }}"
@@ -141,7 +141,7 @@ all:
               vars:
                 organization:
                   <<: *OrdererOrg3
-                  fabric_ca_host: fabric-ca-orderer-org3
+                  fabric_ca_host: fabric_ca_orderer_org3
                   role: orderer
                   orderer:
                     name: "{{ inventory_hostname }}"
@@ -165,7 +165,7 @@ all:
               vars:
                 organization:
                   <<: *OrdererOrg4
-                  fabric_ca_host: fabric-ca-orderer-org4
+                  fabric_ca_host: fabric_ca_orderer_org4
                   role: orderer
                   orderer:
                     name: "{{ inventory_hostname }}"
@@ -219,15 +219,15 @@ all:
               committer_rpc_port: 5500
               prometheus_exporter_port: 2160
 
-    load-generators:
+    load_generators:
       hosts:
-        orderer-loadgen:
+        orderer_loadgen:
           loadgen_use_bin: true
           organization:
             <<: *Org1
-            fabric_ca_host: fabric-ca-org1
+            fabric_ca_host: fabric_ca_org1
             users:
-              - name: orderer-loadgen
+              - name: orderer_loadgen
                 secret: "{{ inventory_hostname }}PWD"
                 namespace: 0
                 meta_namespace_admin: true

@@ -171,14 +171,14 @@ all:
               committer_rpc_port: 5500
               prometheus_exporter_port: 2160
 
-    load-generators:
+    load_generators:
       hosts:
-        orderer-loadgen:
+        orderer_loadgen:
           loadgen_use_bin: true
           organization:
             <<: *Org1
             users:
-              - name: orderer-loadgen
+              - name: orderer_loadgen
                 namespace: 0
                 meta_namespace_admin: true
           loadgen_type: orderer-client

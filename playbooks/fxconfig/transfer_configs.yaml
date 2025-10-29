@@ -18,7 +18,7 @@
       with_subelements:
         - >-
           {{
-            groups['load-generators']
+            groups['load_generators']
             | default([])
             | map('extract', hostvars)
             | selectattr('organization', 'defined')
@@ -48,7 +48,7 @@
       with_subelements:
         - >-
           {{
-            groups['load-generators']
+            groups['load_generators']
             | default([])
             | map('extract', hostvars)
             | selectattr('organization', 'defined')

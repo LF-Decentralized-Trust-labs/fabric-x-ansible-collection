@@ -96,7 +96,7 @@
             targets:
               - hosts: >-
                   {{
-                    groups['load-generators']
+                    groups['load_generators']
                     | default([])
                   }}
                 port_to_scrape: prometheus_exporter_port
