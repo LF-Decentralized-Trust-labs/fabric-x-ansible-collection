@@ -44,7 +44,7 @@
             targets:
               - hosts: >-
                   {{
-                    groups['fabric-x-committer']
+                    groups['fabric_x_committer']
                     | default([])
                     | map('extract', hostvars)
                     | selectattr('committer_component_type', 'defined')
@@ -57,7 +57,7 @@
             targets:
               - hosts: >-
                   {{
-                    groups['fabric-x-committer']
+                    groups['fabric_x_committer']
                     | default([])
                     | map('extract', hostvars)
                     | selectattr('committer_component_type', 'defined')
@@ -70,7 +70,7 @@
             targets:
               - hosts: >-
                   {{
-                    groups['fabric-x-committer']
+                    groups['fabric_x_committer']
                     | default([])
                     | map('extract', hostvars)
                     | selectattr('committer_component_type', 'defined')
@@ -83,7 +83,7 @@
             targets:
               - hosts: >-
                   {{
-                    groups['fabric-x-committer']
+                    groups['fabric_x_committer']
                     | default([])
                     | map('extract', hostvars)
                     | selectattr('committer_component_type', 'defined')
@@ -134,7 +134,7 @@
             targets:
               - hosts: >-
                   {{
-                    groups['fabric-x-committer']
+                    groups['fabric_x_committer']
                     | default([])
                     | map('extract', hostvars)
                     | selectattr('yugabyte_component_type', 'defined')
@@ -148,7 +148,7 @@
                   export_type: master_export
               - hosts: >-
                   {{
-                    groups['fabric-x-committer']
+                    groups['fabric_x_committer']
                     | default([])
                     | map('extract', hostvars)
                     | selectattr('yugabyte_component_type', 'defined')
@@ -162,7 +162,7 @@
                   export_type: tserver_export
               - hosts: >-
                   {{
-                    groups['fabric-x-committer']
+                    groups['fabric_x_committer']
                     | default([])
                     | map('extract', hostvars)
                     | selectattr('yugabyte_component_type', 'defined')
@@ -176,7 +176,7 @@
                   export_type: ysql_export
               - hosts: >-
                   {{
-                    groups['fabric-x-committer']
+                    groups['fabric_x_committer']
                     | default([])
                     | map('extract', hostvars)
                     | selectattr('yugabyte_component_type', 'defined')
@@ -190,7 +190,7 @@
                   export_type: cql_export
               - hosts: >-
                   {{
-                    groups['fabric-x-committer']
+                    groups['fabric_x_committer']
                     | default([])
                     | map('extract', hostvars)
                     | selectattr('yugabyte_component_type', 'defined')
@@ -225,7 +225,7 @@
         tasks_from: config/transfer_grafana_dashboard
       when:
         - grafana_web_port is defined
-        - groups['fabric-x-committer'] | default([]) | length > 0
+        - groups['fabric_x_committer'] | default([]) | length > 0
     - name: Transfer the Postgres Exporter Grafana Dashboard
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres_exporter

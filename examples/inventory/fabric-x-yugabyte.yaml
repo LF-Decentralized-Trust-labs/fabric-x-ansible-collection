@@ -77,11 +77,11 @@ all:
           fabric_ca_operations_port: 9070
           organization: *Org1
 
-    fabric-x:
+    fabric_x:
       children:
-        fabric-x-orderers:
+        fabric_x_orderers:
           children:
-            fabric-x-orderer-1:
+            fabric_x_orderer_1:
               vars:
                 organization:
                   <<: *OrdererOrg1
@@ -105,7 +105,7 @@ all:
                 orderer-assembler-1:
                   orderer_component_type: assembler
                   orderer_rpc_port: 7053
-            fabric-x-orderer-2:
+            fabric_x_orderer_2:
               vars:
                 organization:
                   <<: *OrdererOrg2
@@ -129,7 +129,7 @@ all:
                 orderer-assembler-2:
                   orderer_component_type: assembler
                   orderer_rpc_port: 7153
-            fabric-x-orderer-3:
+            fabric_x_orderer_3:
               vars:
                 organization:
                   <<: *OrdererOrg3
@@ -153,7 +153,7 @@ all:
                 orderer-assembler-3:
                   orderer_component_type: assembler
                   orderer_rpc_port: 7253
-            fabric-x-orderer-4:
+            fabric_x_orderer_4:
               vars:
                 organization:
                   <<: *OrdererOrg4
@@ -178,7 +178,7 @@ all:
                   orderer_component_type: assembler
                   orderer_rpc_port: 7353
 
-        fabric-x-committer:
+        fabric_x_committer:
           hosts:
             committer-db:
               committer_component_type: db
@@ -210,13 +210,13 @@ all:
 
     load_generators:
       hosts:
-        orderer_loadgen:
+        orderer-loadgen:
           loadgen_use_bin: true
           organization:
             <<: *Org1
             fabric_ca_host: fabric_ca_org1
             users:
-              - name: orderer_loadgen
+              - name: orderer-loadgen
                 secret: "{{ inventory_hostname }}PWD"
                 namespace: 0
                 meta_namespace_admin: true

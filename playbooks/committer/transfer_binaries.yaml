@@ -5,7 +5,7 @@
 #
 
 - name: Transfer Fabric-X Committer binaries
-  hosts: "{{ target_hosts | default('fabric-x-committer') }}:&fabric-x-committer"
+  hosts: "{{ target_hosts | default('fabric_x_committer') }}:&fabric_x_committer"
   tasks:
     - name: Transfer the Fabric-X Committer binaries
       ansible.builtin.include_role:

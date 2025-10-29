@@ -153,11 +153,11 @@ You can either run a playbook directly using `ansible-playbook` or use the `Make
 
 Replicating an horizontally scalable microservice using this collection is straightforward. All you need to do is add new entries into the reference inventory.
 
-Let's make an example. Assume we want to add a new batcher for the `fabric-x-orderer-1` node, all you need to do is add a new `batcher` host within the node:
+Let's make an example. Assume we want to add a new batcher for the `fabric_x_orderer_1` node, all you need to do is add a new `batcher` host within the node:
 
 ```yaml
 # ...
-fabric-x-orderer-1:
+fabric_x_orderer_1:
   # ...
   hosts:
     # batcher already present
@@ -189,11 +189,11 @@ all:
 
 Once you have done this, assign to each host the machine where to run it through the `ansible_host` variable.
 
-Let's make an example. Assume we want to distribute the `fabric-x-orderer-1` node microservices over 4 different machines on the cloud, all you need to set is the following:
+Let's make an example. Assume we want to distribute the `fabric_x_orderer_1` node microservices over 4 different machines on the cloud, all you need to set is the following:
 
 ```yaml
 # ...
-fabric-x-orderer-1:
+fabric_x_orderer_1:
   # ...
   hosts:
     orderer-router-1:
