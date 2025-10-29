@@ -13,7 +13,7 @@ armageddon_container_name: "armageddon"
 
 # armageddon binary
 armageddon_git_uri: "https://github.com/hyperledger/fabric-x-orderer.git"
-armageddon_git_dir: "{{ source_code_dir }}/fabric_x_orderer"
+armageddon_git_dir: "{{ source_code_dir }}/fabric-x-orderer"
 armageddon_git_commit: "v0.0.19"
 armageddon_source_code_dir: "{{ armageddon_git_dir }}/cmd/armageddon"
 armageddon_bin_package: "github.com/hyperledger/fabric-x-orderer/cmd/armageddon"
