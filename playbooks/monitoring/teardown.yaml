@@ -7,18 +7,27 @@
 - name: Teardown the Monitoring services
   hosts: "{{ target_hosts | default('monitoring') }}:&monitoring"
   tasks:
-    - name: Remove Jaeger
+    - name: Teardown Jaeger
       ansible.builtin.include_role:
         name: hyperledger.fabricx.jaeger
         tasks_from: teardown
-      when: jaeger_collector_port is defined
-    - name: Remove Grafana
+      when:
+        - jaeger_collector_port is defined
+    - name: Teardown ElasticSearch
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.elasticsearch
+        tasks_from: teardown
+      when:
+        - elasticsearch_http_port is defined
+    - name: Teardown Grafana
       ansible.builtin.include_role:
         name: hyperledger.fabricx.grafana
         tasks_from: teardown
-      when: grafana_web_port is defined
-    - name: Remove Prometheus
+      when:
+        - grafana_web_port is defined
+    - name: Teardown Prometheus
       ansible.builtin.include_role:
         name: hyperledger.fabricx.prometheus
         tasks_from: teardown
-      when: prometheus_web_port is defined
+      when:
+        - prometheus_web_port is defined

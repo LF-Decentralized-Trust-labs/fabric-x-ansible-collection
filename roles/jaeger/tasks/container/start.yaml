@@ -15,6 +15,12 @@
       - "{{ jaeger_http_collector_port }}:{{ jaeger_http_collector_port }}"
       - "{{ jaeger_grpc_server_port }}:{{ jaeger_grpc_server_port }}"
       - "{{ jaeger_collector_port }}:{{ jaeger_collector_port }}"
+    container_env:
+      JAEGER_SAMPLER_TYPE: "const"
+      JAEGER_SAMPLER_PARAM: "1"
+      COLLECTOR_OTLP_ENABLED: "true"
+      SPAN_STORAGE_TYPE: elasticsearch
+      ES_SERVER_URLS: "http://{{ hostvars[elasticsearch_host].ansible_host }}:{{ hostvars[elasticsearch_host].elasticsearch_http_port }}"
     container_command: >-
       --query.http-server.host-port=0.0.0.0:{{ jaeger_ui_port }}
       --admin.http.host-port=0.0.0.0:{{ jaeger_admin_port }}
@@ -22,10 +28,6 @@
       --collector.otlp.http.host-port=0.0.0.0:{{ jaeger_http_collector_port }}
       --collector.grpc-server.host-port=0.0.0.0:{{ jaeger_grpc_server_port }}
       --collector.otlp.grpc.host-port=0.0.0.0:{{ jaeger_collector_port }}
-    container_env:
-      JAEGER_SAMPLER_TYPE: "const"
-      JAEGER_SAMPLER_PARAM: "1"
-      COLLECTOR_OTLP_ENABLED: "true"
     container_wait_until_running: true
     container_run_as_host_user: true
     container_wait_port: "{{ jaeger_ui_port }}"

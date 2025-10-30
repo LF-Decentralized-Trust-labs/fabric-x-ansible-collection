@@ -11,11 +11,23 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.prometheus
         tasks_from: fetch_logs
+      when:
+        - prometheus_web_port is defined
     - name: Fetch the logs from Grafana
       ansible.builtin.include_role:
         name: hyperledger.fabricx.grafana
         tasks_from: fetch_logs
+      when:
+        - grafana_web_port is defined
+    - name: Fetch the logs from ElasticSearch
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.elasticsearch
+        tasks_from: fetch_logs
+      when:
+        - elasticsearch_http_port is defined
     - name: Fetch the logs from Jaeger
       ansible.builtin.include_role:
         name: hyperledger.fabricx.jaeger
         tasks_from: fetch_logs
+      when:
+        - jaeger_collector_port is defined

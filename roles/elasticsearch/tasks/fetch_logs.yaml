@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Fetch the logs from the Jaeger container
+- name: Fetch the logs from the ElasticSearch container
   ansible.builtin.include_role:
-    name: hyperledger.fabricx.jaeger
+    name: hyperledger.fabricx.elasticsearch
     tasks_from: container/fetch_logs
