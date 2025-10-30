@@ -5,7 +5,7 @@
 #
 
 - name: Ping Fabric-X Loadgen
-  hosts: "{{ target_hosts | default('load-generators') }}:&load-generators"
+  hosts: "{{ target_hosts | default('load_generators') }}:&load_generators"
   tasks:
     - name: Ping the Fabric-X Load generators
       ansible.builtin.include_role:

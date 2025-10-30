@@ -5,7 +5,7 @@
 #
 
 - name: Enroll load generators identities on Fabric CA
-  hosts: "{{ target_hosts | default('load-generators') }}:&load-generators"
+  hosts: "{{ target_hosts | default('load_generators') }}:&load_generators"
   tasks:
     - name: Enroll load generator identities
       ansible.builtin.include_role:

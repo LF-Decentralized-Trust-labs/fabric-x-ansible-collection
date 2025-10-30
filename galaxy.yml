@@ -6,7 +6,7 @@
 
 namespace: hyperledger
 name: fabricx
-version: "0.3.3"
+version: "0.3.5"
 repository: https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection.git
 readme: README.md
 authors:

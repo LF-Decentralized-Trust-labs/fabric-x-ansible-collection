@@ -9,16 +9,16 @@
   tasks:
     - name: Create the configuration file for armageddon
       vars:
-        armageddon_orderer_hosts: "{{ groups['fabric-x-orderers'] }}"
+        armageddon_orderer_hosts: "{{ groups['fabric_x_orderers'] }}"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.armageddon
         tasks_from: config/build
-      when: "'fabric-x-orderers' in groups"
+      when: "'fabric_x_orderers' in groups"
     - name: Generate shared_config.binpb
       ansible.builtin.include_role:
         name: hyperledger.fabricx.armageddon
         tasks_from: create_shared_config
-      when: "'fabric-x-orderers' in groups"
+      when: "'fabric_x_orderers' in groups"
     - name: Group orderers by organization
       vars:
         org_domain: "{{ hostvars[orderer].organization.domain }}"
@@ -40,7 +40,7 @@
           }}
       loop: >-
         {{
-          groups['fabric-x-orderers']
+          groups['fabric_x_orderers']
           | default([])
           | map('extract', hostvars)
           | selectattr('organization', 'defined')

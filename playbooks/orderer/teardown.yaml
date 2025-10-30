@@ -5,7 +5,7 @@
 #
 
 - name: Teardown Fabric-X Orderer
-  hosts: "{{ target_hosts | default('fabric-x-orderers') }}:&fabric-x-orderers"
+  hosts: "{{ target_hosts | default('fabric_x_orderers') }}:&fabric_x_orderers"
   tasks:
     - name: Teardown Fabric-X Orderer components
       ansible.builtin.include_role:

@@ -34,11 +34,7 @@ function collect_deployment_failure_info() {
     make ping
     echo "✅ Done."
 
-    echo -e "🚩 ${BLUE}List running $CONTAINER_CLIENT containers.${NO_STYLE}"
-    $CONTAINER_CLIENT container ls
-    echo "✅ Done."
-
-    echo -e "🚩 ${BLUE}Retrieve the logs from the services.${NO_STYLE}"
+    echo -e "🚩 ${BLUE}Retrieve the logs from the Hyperledger Fabric-X components.${NO_STYLE}"
     make fetch-logs
     echo "✅ Done."
 
@@ -79,7 +75,7 @@ source "${PROFILE_FILE}"
 run_cmd make setup
 run_cmd make start
 run_cmd sleep 10
-run_cmd make load-generators get-metrics ASSERT_METRICS=true
+run_cmd make load_generators get-metrics ASSERT_METRICS=true
 
 # stop deployment
 run_cmd make teardown

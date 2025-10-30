@@ -5,13 +5,13 @@
 #
 
 - name: Generate the Fabric-X Committer config files
-  hosts: "{{ target_hosts | default('fabric-x-committer') }}:&fabric-x-committer"
+  hosts: "{{ target_hosts | default('fabric_x_committer') }}:&fabric_x_committer"
   tasks:
     - name: Generate the config files for the Fabric-X Committer
       vars:
         committer_db_servers: >-
           {{
-            groups['fabric-x-committer']
+            groups['fabric_x_committer']
             | map('extract', hostvars)
             | selectattr('committer_component_type', 'defined')
             | selectattr('committer_component_type', '==', 'db')
@@ -20,7 +20,7 @@
           }}
         committer_verifiers: >-
           {{
-            groups['fabric-x-committer']
+            groups['fabric_x_committer']
             | map('extract', hostvars)
             | selectattr('committer_component_type', 'defined')
             | selectattr('committer_component_type', '==', 'verifier')
@@ -29,7 +29,7 @@
           }}
         committer_validators: >-
           {{
-            groups['fabric-x-committer']
+            groups['fabric_x_committer']
             | map('extract', hostvars)
             | selectattr('committer_component_type', 'defined')
             | selectattr('committer_component_type', '==', 'validator')
@@ -38,7 +38,7 @@
           }}
         committer_coordinator: >-
           {{
-            groups['fabric-x-committer']
+            groups['fabric_x_committer']
             | map('extract', hostvars)
             | selectattr('committer_component_type', 'defined')
             | selectattr('committer_component_type', '==', 'coordinator')
@@ -48,7 +48,7 @@
           }}
         orderer_assemblers: >-
           {{
-            groups['fabric-x-orderers']
+            groups['fabric_x_orderers']
             | default([])
             | map('extract', hostvars)
             | selectattr('orderer_component_type', '==', 'assembler')

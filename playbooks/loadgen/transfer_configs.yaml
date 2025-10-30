@@ -5,12 +5,12 @@
 #
 
 - name: Transfer Fabric-X Loadgen config files
-  hosts: "{{ target_hosts | default('load-generators') }}:&load-generators"
+  hosts: "{{ target_hosts | default('load_generators') }}:&load_generators"
   tasks:
     - name: Transfer Fabric-X Loadgen config files
       vars:
-        committer_hosts: "{{ groups['fabric-x-committer'] | default([]) }}"
-        orderer_hosts: "{{ groups['fabric-x-orderers'] | default([]) }}"
+        committer_hosts: "{{ groups['fabric_x_committer'] | default([]) }}"
+        orderer_hosts: "{{ groups['fabric_x_orderers'] | default([]) }}"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.loadgen
         tasks_from: config/transfer

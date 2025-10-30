@@ -5,7 +5,7 @@
 #
 
 - name: Wipe the Fabric-X Committer services
-  hosts: "{{ target_hosts | default('fabric-x-committer') }}:&fabric-x-committer"
+  hosts: "{{ target_hosts | default('fabric_x_committer') }}:&fabric_x_committer"
   tasks:
     - name: Wipe the Fabric-X Committer components
       ansible.builtin.include_role:
