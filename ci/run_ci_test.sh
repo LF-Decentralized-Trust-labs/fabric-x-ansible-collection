@@ -29,13 +29,13 @@ function print_logs() {
 
 # Collect deployment failure info
 function collect_deployment_failure_info() {
-    echo -e "🚩 ${BLUE}Retrieve status for service ports.${NO_STYLE}"
-
+    echo -e "🚩 ${BLUE}Ping the hosts.${NO_STYLE}"
     make ping
     echo "✅ Done."
 
-    echo -e "🚩 ${BLUE}Retrieve the logs from the services.${NO_STYLE}"
+    echo -e "🚩 ${BLUE}Retrieve the logs from the hosts.${NO_STYLE}"
     make fetch-logs
+    echo "✅ Done."
 
     echo -e "🚩 ${BLUE}List the fetched log files.${NO_STYLE}"
     ls "$PROJECT_DIR/out/logs"
