@@ -165,26 +165,45 @@ make help
 
 Here there is a list of the most used commands:
 
-| Command               | Usage                                                          | Example                      |
-| --------------------- | -------------------------------------------------------------- | ---------------------------- |
-| install-prerequisites | Install the needed utilities on the remote hosts.              | `make install-prerequisites` |
-| setup                 | Build all the artifacts and transfer them to the remote hosts. | `make setup`                 |
-| start                 | Start the targeted hosts.                                      | `make start`                 |
-| restart               | Restart the targeted hosts.                                    | `make restart`               |
-| stop                  | Stop the targeted hosts.                                       | `make stop`                  |
-| clean                 | Clean all the generated artifacts.                             | `make clean`                 |
-| teardown              | Teardown the targeted hosts.                                   | `make teardown`              |
-| node-exporter-start   | Start a Node Exporter container on the remote hosts.           | `make node-exporter-start`   |
-| node-exporter-stop    | Stop the Node Exporter container on the remote hosts.          | `make node-exporter-stop`    |
-| fetch-logs            | Fetch the logs from the targeted hosts.                        | `make fetch-logs`            |
-| wipe                  | Wipe out the artifacts and the binaries on the remote hosts.   | `make wipe`                  |
-| get-metrics           | Get the metrics from the targeted components.                  | `make get-metrics`           |
-| limit-rate            | Set the TPS rate on the load generators.                       | `make limit-rate LIMIT=1000` |
-| ping                  | Ping the ports of the components.                              | `make ping`                  |
+| Command                 | Usage                                                                       |
+| ----------------------- | --------------------------------------------------------------------------- |
+| `install-prerequisites` | Install the needed prerequisites on the remote hosts.                       |
+| `generate-crypto`       | Build the config artifacts on the controller node.                          |
+| `genesis-block`         | Build the genesis block for the network.                                    |
+| `build-artifacts`       | Wrapper for `generate-crypto` + `genesis-block`.                            |
+| `build-bins`            | Build the binaries on the controller node for the targeted hosts.           |
+| `build`                 | Wrapper for `build-artifacts` + `build-bins`.                               |
+| `transfer-configs`      | Transfer the artifacts and generate the config files on the targeted hosts. |
+| `transfer-bins`         | Transfer the binaries on the targeted hosts.                                |
+| `transfer`              | Wrapper for `transfer-configs` + `transfer-bins`.                           |
+| `setup`                 | Wrapper for `build` + `transfer`.                                           |
+| `start`                 | Start the targeted hosts.                                                   |
+| `restart`               | Wrapper for `teardown`+`start`.                                             |
+| `ping`                  | Check that the component ports are open.                                    |
+| `fetch-logs`            | Fetch the logs from the targeted hosts.                                     |
+| `stop`                  | Stop the targeted hosts without deleting the data.                          |
+| `teardown`              | Kill the targeted hosts and delete the data.                                |
+| `wipe`                  | Wipe out the config artifacts and the binaries from the remote hosts.       |
+| `clean`                 | Clean all the artifacts and binaries built on the controller node.          |
+| `node-exporter-start`   | Start a Node Exporter container on the targeted hosts.                      |
+| `node-exporter-stop`    | Stop the Node Exporter container on the targeted hosts.                     |
+| `get-metrics`           | Get the metrics from the targeted components.                               |
+| `limit-rate`            | Set the TPS rate on the load generators.                                    |
 
 ### Restrict commands to a group of hosts
 
 By default all the `Makefile` commands target all the hosts which are defined within the reference inventory. However, the playbooks have been tailored in such a way that the actions can be restricted to a sub-group (or even a single host) through the `target_hosts` Ansible variable, which is reflected as the `TARGET_HOSTS` variable in the [Makefile](./Makefile).
+
+The `Makefile` comes with a set of [predefined host groups](./target_hosts.mk) that can be used to easily restrict commands:
+
+| Group                | Target                                           | Example                         |
+| -------------------- | ------------------------------------------------ | ------------------------------- |
+| `fabric_cas`         | The Fabric CA servers                            | `make fabric_cas start`         |
+| `fabric_x`           | The Fabric-X network nodes (orderers+committer). | `make fabric_x start`           |
+| `fabric_x_orderers`  | All the Fabric-X orderers.                       | `make fabric_x_orderers start`  |
+| `fabric_x_committer` | The Fabric-X committer components.               | `make fabric_x_committer start` |
+| `load_generators`    | All the load_generators.                         | `make load_generators start`    |
+| `monitoring`         | All the monitoring instances.                    | `make monitoring start`         |
 
 For example, running:
 
@@ -192,16 +211,7 @@ For example, running:
 make fabric_x_orderers start
 ```
 
-restricts the command to the host group `fabric_x_orderers` defined within the inventory. The `Makefile` comes with a set of predefined host groups that can be used to easily restrict commands:
-
-| Group              | Target                                           | Example                         |
-| ------------------ | ------------------------------------------------ | ------------------------------- |
-| fabric_cas         | The Fabric CA servers                            | `make fabric_cas start`         |
-| fabric_x           | The Fabric-X network nodes (orderers+committer). | `make fabric_x start`           |
-| fabric_x_orderers  | All the Fabric-X orderers.                       | `make fabric_x_orderers start`  |
-| fabric_x_committer | The Fabric-X committer components.               | `make fabric_x_committer start` |
-| load_generators    | All the load_generators.                         | `make load_generators start`    |
-| monitoring         | All the monitoring instances.                    | `make monitoring start`         |
+restricts the command to the host group `fabric_x_orderers` defined within the inventory.
 
 All these groups are reflected in the [sample inventory](./examples/inventory/fabric-x.yaml). If you plan to use the playbooks provided with the collection, we recommend to keep the names identical in order to leverage all the playbooks capabilities.
 
