@@ -22,6 +22,9 @@
     container_volumes:
       - "{{ prometheus_remote_config_dir }}/:/etc/prometheus/config/:ro"
       - /prometheus
+    container_healthcheck_test: >-
+      promtool check healthy
+      --url=http://localhost:{{ prometheus_web_port }}
     container_wait_until_running: true
     container_wait_port: "{{ prometheus_web_port }}"
   ansible.builtin.include_role:
