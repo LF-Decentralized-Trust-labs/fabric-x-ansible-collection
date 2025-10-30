@@ -62,9 +62,3 @@
   ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.enroll
   when:
     - "'fabric_cas' in groups"
-
-######################################
-# Genesis block with configtxgen
-######################################
-- name: Generate genesis block
-  ansible.builtin.import_playbook: hyperledger.fabricx.artifacts.build_genesis_block
