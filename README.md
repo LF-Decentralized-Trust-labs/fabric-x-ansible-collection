@@ -95,7 +95,7 @@ make install-prerequisites
 
 This repository comes with some Ansible inventories and playbooks examples that could be used to start a sample Fabric-X network on your local machine. Please look at the [examples README](./examples/README.md) to understand better which network you can run with each inventory and how to enhance them for your use case.
 
-By default, the [fabric-x.yaml](./examples/inventory/fabric-x.yaml) is used:
+By default, the [fabric-x.yaml](./examples/inventory/fabric-x.yaml) inventory is used:
 
 ![fabric-x-inventory](./examples/images/fabric-x.drawio.png)
 
@@ -196,14 +196,14 @@ By default all the `Makefile` commands target all the hosts which are defined wi
 
 The `Makefile` comes with a set of [predefined host groups](./target_hosts.mk) that can be used to easily restrict commands:
 
-| Group                | Target                                           | Example                         |
-| -------------------- | ------------------------------------------------ | ------------------------------- |
-| `fabric_cas`         | The Fabric CA servers                            | `make fabric_cas start`         |
-| `fabric_x`           | The Fabric-X network nodes (orderers+committer). | `make fabric_x start`           |
-| `fabric_x_orderers`  | All the Fabric-X orderers.                       | `make fabric_x_orderers start`  |
-| `fabric_x_committer` | The Fabric-X committer components.               | `make fabric_x_committer start` |
-| `load_generators`    | All the load_generators.                         | `make load_generators start`    |
-| `monitoring`         | All the monitoring instances.                    | `make monitoring start`         |
+| Group                | Target                                           |
+| -------------------- | ------------------------------------------------ |
+| `fabric_cas`         | The Fabric CA servers                            |
+| `fabric_x`           | The Fabric-X network nodes (orderers+committer). |
+| `fabric_x_orderers`  | All the Fabric-X orderers.                       |
+| `fabric_x_committer` | The Fabric-X committer components.               |
+| `load_generators`    | All the load_generators.                         |
+| `monitoring`         | All the monitoring instances.                    |
 
 For example, running:
 
