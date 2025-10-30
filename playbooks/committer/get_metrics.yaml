@@ -5,7 +5,7 @@
 #
 
 - name: Collect the Fabric-X Committer metrics
-  hosts: "{{ target_hosts | default('fabric-x-committer') }}:&fabric-x-committer"
+  hosts: "{{ target_hosts | default('fabric_x_committer') }}:&fabric_x_committer"
   tasks:
     - name: Collect metrics from the Fabric-X Committer
       ansible.builtin.include_role:

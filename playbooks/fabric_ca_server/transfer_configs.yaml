@@ -5,7 +5,7 @@
 #
 
 - name: Transfer Fabric-CA configuration files
-  hosts: "{{ target_hosts | default('fabric-cas') }}:&fabric-cas"
+  hosts: "{{ target_hosts | default('fabric_cas') }}:&fabric_cas"
   tasks:
     - name: Transfer Fabric CA server config files
       ansible.builtin.include_role:

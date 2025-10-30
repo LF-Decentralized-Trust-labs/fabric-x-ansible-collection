@@ -25,7 +25,7 @@
       with_subelements:
         - >-
           {{
-            groups['load-generators']
+            groups['load_generators']
             | default([])
             | map('extract', hostvars)
             | selectattr('organization', 'defined')
@@ -50,7 +50,7 @@
         fxconfig_msp_id: "{{ organization.name }}MSP"
         orderer_router_host: >-
           {{
-            groups['fabric-x-orderers']
+            groups['fabric_x_orderers']
             | default([])
             | map('extract', hostvars)
             | selectattr('orderer_component_type', 'defined')
@@ -61,7 +61,7 @@
           }}
         committer_query_service_host: >-
           {{
-            groups['fabric-x-committer']
+            groups['fabric_x_committer']
             | default([])
             | map('extract', hostvars)
             | selectattr('committer_component_type', 'defined')

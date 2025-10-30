@@ -11,8 +11,8 @@
       vars:
         loadgen_instances: >-
           {{
-            groups[target_hosts | default('load-generators')]
-            | intersect(groups['load-generators'])
+            groups[target_hosts | default('load_generators')]
+            | intersect(groups['load_generators'])
             | map('extract', hostvars)
             | selectattr("loadgen_use_bin", 'defined')
             | selectattr("loadgen_use_bin", 'eq', true)
@@ -23,5 +23,5 @@
         name: hyperledger.fabricx.loadgen
         tasks_from: bin/multiplatform_install
       when:
-        - "'load-generators' in groups"
+        - "'load_generators' in groups"
         - loadgen_instances | length > 0

@@ -4,7 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Fetch logs from container
+- name: Fetch logs from the Postgres Exporter container
+  vars:
+    container_name: "{{ postgres_exporter_container_name }}"
+    container_logs_file: "{{ postgres_exporter_container_name }}_logs.txt"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: container/fetch_logs

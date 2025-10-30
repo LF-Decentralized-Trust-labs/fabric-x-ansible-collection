@@ -5,7 +5,7 @@
 #
 
 - name: Collect metrics from Fabric-X Loadgen
-  hosts: "{{ target_hosts | default('load-generators') }}:&load-generators"
+  hosts: "{{ target_hosts | default('load_generators') }}:&load_generators"
   tasks:
     - name: Collect metrics from Fabric-X Loadgen
       vars:

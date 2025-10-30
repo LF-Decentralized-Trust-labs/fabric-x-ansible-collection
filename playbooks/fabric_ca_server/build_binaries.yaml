@@ -11,8 +11,8 @@
       vars:
         fabric_ca_server_instances: >-
           {{
-            groups[target_hosts | default('fabric-cas')]
-            | intersect(groups['fabric-cas'])
+            groups[target_hosts | default('fabric_cas')]
+            | intersect(groups['fabric_cas'])
             | map('extract', hostvars)
             | selectattr("fabric_ca_server_use_bin", 'defined')
             | selectattr("fabric_ca_server_use_bin", 'eq', true)
@@ -23,5 +23,5 @@
         name: hyperledger.fabricx.fabric_ca
         tasks_from: server/bin/multiplatform_install
       when:
-        - "'fabric-cas' in groups"
+        - "'fabric_cas' in groups"
         - fabric_ca_server_instances | length > 0

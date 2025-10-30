@@ -5,7 +5,7 @@
 #
 
 - name: Teardown the Fabric-X Committer
-  hosts: "{{ target_hosts | default('fabric-x-committer') }}:&fabric-x-committer"
+  hosts: "{{ target_hosts | default('fabric_x_committer') }}:&fabric_x_committer"
   tasks:
     - name: Teardown the Fabric-X Committer services
       ansible.builtin.include_role:

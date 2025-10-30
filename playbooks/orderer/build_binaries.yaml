@@ -11,8 +11,8 @@
       vars:
         orderer_service_instances: >-
           {{
-            groups[target_hosts | default('fabric-x-orderers')]
-            | intersect(groups['fabric-x-orderers'])
+            groups[target_hosts | default('fabric_x_orderers')]
+            | intersect(groups['fabric_x_orderers'])
             | map('extract', hostvars)
             | selectattr("orderer_use_bin", 'defined')
             | selectattr("orderer_use_bin", 'eq', true)
@@ -23,5 +23,5 @@
         name: hyperledger.fabricx.orderer
         tasks_from: bin/multiplatform_install
       when:
-        - "'fabric-x-orderers' in groups"
+        - "'fabric_x_orderers' in groups"
         - orderer_service_instances | length > 0

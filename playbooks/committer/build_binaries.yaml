@@ -11,8 +11,8 @@
       vars:
         committer_service_instances: >-
           {{
-            groups[target_hosts | default('fabric-x-committer')]
-            | intersect(groups['fabric-x-committer'])
+            groups[target_hosts | default('fabric_x_committer')]
+            | intersect(groups['fabric_x_committer'])
             | map('extract', hostvars)
             | selectattr("committer_use_bin", 'defined')
             | selectattr("committer_use_bin", 'eq', true)
@@ -23,5 +23,5 @@
         name: hyperledger.fabricx.committer
         tasks_from: bin/multiplatform_install
       when:
-        - "'fabric-x-committer' in groups"
+        - "'fabric_x_committer' in groups"
         - committer_service_instances | length > 0

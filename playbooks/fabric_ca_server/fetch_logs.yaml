@@ -5,9 +5,9 @@
 #
 
 - name: Fetch the Fabric CAs logs
-  hosts: "{{ target_hosts | default('fabric-cas') }}:&fabric-cas"
+  hosts: "{{ target_hosts | default('fabric_cas') }}:&fabric_cas"
   tasks:
     - name: Fetch the logs from the Fabric CA servers
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fabric_ca
-        tasks_from: server/ping
+        tasks_from: server/fetch_logs
