@@ -19,8 +19,8 @@
       xpack.security.http.ssl.enabled: "false"
       xpack.security.enabled: "false"
       xpack.security.enrollment.enabled: "false"
-      http.port: "{{ elasticsearch_http_port }}"
-      transport.port: "{{ elasticsearch_transport_port }}"
+      http.port: "{{ elasticsearch_http_port | string }}"
+      transport.port: "{{ elasticsearch_transport_port | string }}"
     container_ports:
       - "{{ elasticsearch_http_port }}:{{ elasticsearch_http_port }}"
       - "{{ elasticsearch_transport_port }}:{{ elasticsearch_transport_port }}"
