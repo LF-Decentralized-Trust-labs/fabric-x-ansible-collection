@@ -77,7 +77,7 @@ build: build-artifacts build-bins
 
 # Build all the artifacts (e.g. make build-artifacts).
 .PHONY: build-artifacts
-build: generate-crypto genesis-block
+build-artifacts: generate-crypto genesis-block
 
 # Transfer all the artifacts and the binaries to the remote hosts (e.g. make transfer).
 .PHONY: transfer
