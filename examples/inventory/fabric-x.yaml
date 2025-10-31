@@ -232,5 +232,13 @@ all:
           grafana_username: admin
           grafana_password: adminPWD
           grafana_web_port: 3000
+        elasticsearch:
+          elasticsearch_http_port: 9400
+          elasticsearch_transport_port: 940
+        jaeger:
+          container_memory: "50GB"
+          jaeger_collector_port: 4317
+          jaeger_ui_port: 16686
+          elasticsearch_host: elasticsearch
         prometheus:
           prometheus_web_port: 9090
