@@ -29,7 +29,7 @@
       --collector.grpc-server.host-port=0.0.0.0:{{ jaeger_grpc_server_port }}
       --collector.otlp.grpc.host-port=0.0.0.0:{{ jaeger_collector_port }}
     container_healthcheck_test: >-
-      wget --spider -q http://localhost:{{ jaeger_ui_port }}
+      wget --spider -q http://localhost:{{ jaeger_admin_port }}
     container_wait_until_running: true
     container_run_as_host_user: true
     container_wait_port: "{{ jaeger_ui_port }}"
