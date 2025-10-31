@@ -21,7 +21,15 @@
           }}
       ansible.builtin.set_fact:
         node_exporter_hosts: "{{ node_exporter_hosts | default([]) + [hostname_for_node_exporter] }}"
-      loop: "{{ groups['all'] | map('extract', hostvars, 'ansible_host') | unique | list }}"
+      loop: >-
+        {{
+          groups['all']
+          | map('extract', hostvars, 'ansible_host')
+          | unique
+          | list
+        }}
+      when:
+        - prometheus_web_port is defined
     - name: Transfer the Prometheus configuration files
       vars:
         prometheus_scrape_services:
@@ -205,7 +213,8 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.prometheus
         tasks_from: config/transfer
-      when: prometheus_web_port is defined
+      when:
+        - prometheus_web_port is defined
     - name: Transfer the Grafana config files
       ansible.builtin.include_role:
         name: hyperledger.fabricx.grafana
@@ -218,25 +227,39 @@
         tasks_from: config/transfer_grafana_dashboard
       when:
         - grafana_web_port is defined
-        - groups['all'] | map('extract', hostvars) | selectattr('node_exporter_port', 'defined') | list | length > 0
+        - groups['all']
+          | map('extract', hostvars)
+          | selectattr('node_exporter_port', 'defined')
+          | list
+          | length > 0
     - name: Transfer the Fabric-X Committer Grafana Dashboard
       ansible.builtin.include_role:
         name: hyperledger.fabricx.committer
         tasks_from: config/transfer_grafana_dashboard
       when:
         - grafana_web_port is defined
-        - groups['fabric_x_committer'] | default([]) | length > 0
+        - groups['fabric_x_committer']
+          | default([])
+          | length > 0
     - name: Transfer the Postgres Exporter Grafana Dashboard
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres_exporter
         tasks_from: config/transfer_grafana_dashboard
       when:
         - grafana_web_port is defined
-        - groups['all'] | map('extract', hostvars) | selectattr('postgres_exporter_port', 'defined') | list | length > 0
+        - groups['all']
+          | map('extract', hostvars)
+          | selectattr('postgres_exporter_port', 'defined')
+          | list
+          | length > 0
     - name: Transfer the Yugabyte Grafana Dashboard
       ansible.builtin.include_role:
         name: hyperledger.fabricx.yugabyte
         tasks_from: config/transfer_grafana_dashboard
       when:
         - grafana_web_port is defined
-        - groups['all'] | map('extract', hostvars) | selectattr('yugabyte_component_type', 'defined') | list | length > 0
+        - groups['all']
+          | map('extract', hostvars)
+          | selectattr('yugabyte_component_type', 'defined')
+          | list
+          | length > 0

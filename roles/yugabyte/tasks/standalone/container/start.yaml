@@ -42,7 +42,7 @@
       - "{{ yugabyte_remote_config_dir }}/init:/var/ybinit"
     container_healthcheck_test: >-
       ysqlsh
-      -h {{ ansible_host }}
+      -h localhost
       -d {{ yugabyte_db }}
       -U {{ yugabyte_user }}
       -p {{ yugabyte_tablet_pgsql_bind_port }}

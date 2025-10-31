@@ -17,6 +17,9 @@
       - "{{ grafana_web_port }}:{{ grafana_web_port }}"
     container_volumes:
       - "{{ grafana_remote_config_dir }}:/etc/grafana/provisioning/:ro"
+    container_healthcheck_test: >-
+      curl -f
+      http://localhost:{{ grafana_web_port }}/api/health
     container_wait_until_running: true
     container_run_as_host_user: true
     container_wait_port: "{{ grafana_web_port }}"

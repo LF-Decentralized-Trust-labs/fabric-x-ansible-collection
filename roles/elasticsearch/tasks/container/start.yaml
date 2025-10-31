@@ -1,0 +1,36 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure the ElasticSearch volume directory exists
+  ansible.builtin.file:
+    path: "{{ elasticsearch_data_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Start an ElasticSearch container
+  vars:
+    container_name: "{{ elasticsearch_container_name }}"
+    container_image: "{{ elasticsearch_image }}"
+    container_env:
+      discovery.type: single-node
+      xpack.security.http.ssl.enabled: "false"
+      xpack.security.enabled: "false"
+      xpack.security.enrollment.enabled: "false"
+      http.port: "{{ elasticsearch_http_port }}"
+      transport.port: "{{ elasticsearch_transport_port }}"
+    container_ports:
+      - "{{ elasticsearch_http_port }}:{{ elasticsearch_http_port }}"
+      - "{{ elasticsearch_transport_port }}:{{ elasticsearch_transport_port }}"
+    container_volumes:
+      - "{{ elasticsearch_data_dir }}:/usr/share/elasticsearch/data"
+    container_healthcheck_test: >-
+      curl -f
+      http://localhost:{{ elasticsearch_http_port }}/_cluster/health
+    container_wait_until_running: true
+    container_wait_port: "{{ elasticsearch_http_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start
