@@ -19,8 +19,9 @@
       JAEGER_SAMPLER_TYPE: "const"
       JAEGER_SAMPLER_PARAM: "1"
       COLLECTOR_OTLP_ENABLED: "true"
-      SPAN_STORAGE_TYPE: elasticsearch
+      SPAN_STORAGE_TYPE: "elasticsearch"
       ES_SERVER_URLS: "http://{{ hostvars[elasticsearch_host].ansible_host }}:{{ hostvars[elasticsearch_host].elasticsearch_http_port }}"
+      ES_INDEX_ROLLOVER_FREQUENCY_SPANS: "hour"
     container_command: >-
       --query.http-server.host-port=0.0.0.0:{{ jaeger_ui_port }}
       --admin.http.host-port=0.0.0.0:{{ jaeger_admin_port }}
