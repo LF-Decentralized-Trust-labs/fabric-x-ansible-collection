@@ -15,8 +15,11 @@
       - "{{ node_exporter_port }}:{{ node_exporter_port }}"
     container_volumes:
       - "/:/host:ro,rslave"
+    container_healthcheck_test: >-
+      wget -q
+      -O /dev/null
+      http://localhost:{{ node_exporter_port }}/metrics
     container_wait_until_running: true
-    container_run_as_host_user: true
     container_wait_port: "{{ node_exporter_port }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
