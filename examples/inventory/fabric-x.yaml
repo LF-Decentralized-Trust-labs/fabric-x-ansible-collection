@@ -234,7 +234,7 @@ all:
           grafana_web_port: 3000
         elasticsearch:
           elasticsearch_http_port: 9400
-          elasticsearch_transport_port: 940
+          elasticsearch_transport_port: 9300
         jaeger:
           container_memory: "50GB"
           jaeger_collector_port: 4317
