@@ -72,7 +72,7 @@
         --fs_data_dirs=/var/data
     container_volumes:
       - "{{ yugabyte_remote_config_dir }}/init:/var/ybinit"
-      - "{{ yugabyte_remote_config_dir }}/data:/var/data"
+      - "{{ yugabyte_remote_config_dir }}/data:/var/data:Z"
     container_ulimits:
       - nofile:1048576:1048576
       - core:-1:-1

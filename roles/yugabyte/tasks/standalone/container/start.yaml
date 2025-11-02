@@ -38,8 +38,8 @@
       --initial_scripts_dir /var/ybinit
       --insecure
     container_volumes:
-      - "{{ yugabyte_remote_config_dir }}/data:/var/data"
       - "{{ yugabyte_remote_config_dir }}/init:/var/ybinit"
+      - "{{ yugabyte_remote_config_dir }}/data:/var/data:Z"
     container_healthcheck_test: >-
       ysqlsh
       -h localhost

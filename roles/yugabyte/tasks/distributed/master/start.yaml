@@ -38,18 +38,18 @@
     container_image: "{{ yugabyte_db_image }}"
     container_command: >-
       bin/yb-master
-        --master_addresses={{ yb_master_hosts }}
-        --rpc_bind_addresses=0.0.0.0:{{ yugabyte_master_rpc_bind_port }}
-        --webserver_port={{ yugabyte_master_webserver_port }}
-        --replication_factor={{ yb_masters | length }}
-        --minloglevel={{ yugabyte_logs_level }}
-        --stderrthreshold={{ yugabyte_logs_level }}
-        --fs_data_dirs=/var/data
+      --master_addresses={{ yb_master_hosts }}
+      --rpc_bind_addresses=0.0.0.0:{{ yugabyte_master_rpc_bind_port }}
+      --webserver_port={{ yugabyte_master_webserver_port }}
+      --replication_factor={{ yb_masters | length }}
+      --minloglevel={{ yugabyte_logs_level }}
+      --stderrthreshold={{ yugabyte_logs_level }}
+      --fs_data_dirs=/var/data
     container_ports:
       - "{{ yugabyte_master_rpc_bind_port }}:{{ yugabyte_master_rpc_bind_port }}"
       - "{{ yugabyte_master_webserver_port }}:{{ yugabyte_master_webserver_port }}"
     container_volumes:
-      - "{{ yugabyte_remote_config_dir }}/data:/var/data"
+      - "{{ yugabyte_remote_config_dir }}/data:/var/data:Z"
     container_ulimits:
       - nofile:1048576:1048576
       - core:-1:-1
