@@ -23,8 +23,8 @@
         if container_network_mode == 'bridge'
         else []
       }}
-    memory: "{{ container_memory }}"
-    cpus: "{{ container_cpus }}"
+    memory: "{{ container_memory | default(omit) }}"
+    cpus: "{{ container_cpus | default(omit) }}"
     volumes: "{{ container_volumes }}"
     user: "{{ container_user }}"
     env: "{{ container_env }}"
@@ -49,7 +49,8 @@
   delay: 5
   until: healthcheck_result.rc == 0
   changed_when: healthcheck_result.rc != 0
-  when: container_healthcheck_test is not none
+  when:
+    - container_healthcheck_test is defined
 
 - name: Wait for Podman container to become ready on port
   ansible.builtin.wait_for:
@@ -57,7 +58,8 @@
     port: "{{ container_wait_port }}"
     delay: "{{ container_wait_delay }}"
     timeout: "{{ container_wait_timeout }}"
-  when: container_wait_until_running
+  when:
+    - container_wait_until_running
 
 - name: Show output of podman container command
   vars:
