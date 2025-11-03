@@ -31,7 +31,7 @@
     log_driver: "{{ container_log_driver }}"
     log_options:
       max_size: "{{ container_log_max_size }}"
-    healthcheck: "{{ container_healthcheck_test | default('NONE', container_on_mac) }}"
+    healthcheck: "{{ container_healthcheck_test | default(omit) }}"
     healthcheck_interval: "{{ container_healthcheck_interval }}"
     state: started
     detach: "{{ container_run_detach_mode }}"

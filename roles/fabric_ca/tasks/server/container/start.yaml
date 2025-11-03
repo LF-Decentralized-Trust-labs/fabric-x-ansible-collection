@@ -15,13 +15,14 @@
       - "{{ fabric_ca_port }}:{{ fabric_ca_port }}"
       - "{{ fabric_ca_operations_port }}:{{ fabric_ca_operations_port }}"
     container_volumes:
-      - "{{ fabric_ca_remote_config_dir }}:{{ fabric_ca_container_config_dir }}"
+      - "{{ fabric_ca_remote_config_dir }}:{{ fabric_ca_container_config_dir }}:Z"
     container_healthcheck_test: >-
       bash -c '
         exec 3<>/dev/tcp/localhost/{{ fabric_ca_operations_port }} &&
         echo -e "GET /healthz HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n" >&3 &&
         grep "HTTP/1.1 200 OK" <&3
       '
+    container_run_as_host_user: true
     container_wait_until_running: true
     container_wait_port: "{{ fabric_ca_port }}"
   ansible.builtin.include_role:
