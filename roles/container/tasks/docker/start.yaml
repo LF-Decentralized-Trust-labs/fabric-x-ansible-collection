@@ -8,7 +8,7 @@
   community.docker.docker_container:
     name: "{{ container_name }}"
     image: "{{ container_image }}"
-    entrypoint: "{{ container_entrypoint }}"
+    entrypoint: "{{ container_entrypoint | default(omit) }}"
     command: "{{ container_command }}"
     hostname: "{{ container_name }}"
     network_mode: "{{ container_network_mode }}"

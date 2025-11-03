@@ -16,11 +16,9 @@ container_ports: []
 container_volumes: []
 container_ulimits: []
 container_env: {}
-container_entrypoint: null
 container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
 container_network_mode: "{{ 'bridge' if container_on_mac else 'host' }}"
 container_run_as_host_user: false
-container_list_hosts: "{{ ansible_play_hosts }}"
 container_run_detach_mode: true
 container_user: "{{ ansible_facts.user_uid ~ ':' ~ ansible_facts.user_gid if container_run_as_host_user else '' }}"
 container_healthcheck_interval: "30s"
