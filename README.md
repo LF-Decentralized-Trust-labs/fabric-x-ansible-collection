@@ -1,5 +1,7 @@
 # Hyperledger Fabric-X Ansible Collection
 
+![Tests](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/test.yaml/badge.svg) ![Lint](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/lint.yaml/badge.svg) ![Publish](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/publish.yaml/badge.svg)
+
 Hyperledger Fabric-X is an open source project that builds on top of Hyperledger Fabric and tailored specifically for digital assets use-cases. Fabric-X builds on the core principles of Hyperledger Fabric (_sovereign_, _horizontally scalable smart contract execution_ and a _modular_, _agile_ architecture) making it well-suited to meet the governance and compliance needs of regulated digital assets.
 
 This repository contains the `hyperledger.fabricx` Ansible collection, which can be used to deploy an Hyperledger Fabric-X network and distribute the components over multiple nodes.
