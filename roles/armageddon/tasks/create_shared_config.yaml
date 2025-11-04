@@ -7,7 +7,7 @@
 - name: Start armageddon as container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.armageddon
-    tasks_from: container/create_shared_config.yaml
+    tasks_from: container/create_shared_config
   when: not armageddon_use_bin
 
 - name: Install armageddon as binary
@@ -19,5 +19,5 @@
 - name: Start armageddon as binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.armageddon
-    tasks_from: bin/create_shared_config.yaml
+    tasks_from: bin/create_shared_config
   when: armageddon_use_bin
