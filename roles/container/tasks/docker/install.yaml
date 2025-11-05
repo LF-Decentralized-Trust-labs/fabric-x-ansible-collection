@@ -4,56 +4,17 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure dependencies for Docker are installed on Debian
+- name: Install Docker packages for Linux
   become: true
-  ansible.builtin.apt:
-    name:
-      - ca-certificates
-      - curl
-    state: present
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      curl -fsSL https://get.docker.com | sh
+    executable: /bin/bash
+  register: ibmcloud_install_output
+  changed_when: ibmcloud_install_output.rc != 0
   when:
-    - ansible_facts.os_family == "Debian"
-
-- name: Add Docker GPG apt key on Debian
-  become: true
-  ansible.builtin.get_url:
-    url: https://download.docker.com/linux/ubuntu/gpg
-    dest: /etc/apt/keyrings/docker.asc
-    mode: "0644"
-  when:
-    - ansible_facts.os_family == "Debian"
-
-- name: Add Docker repository on Debian
-  become: true
-  ansible.builtin.apt_repository:
-    repo: >-
-      deb [arch={{ ansible_architecture }} signed-by=/etc/apt/keyrings/docker.asc]
-      https://download.docker.com/linux/ubuntu
-      {{ ansible_lsb.codename | default(ansible_distribution_release) }} stable
-    filename: docker
-    state: present
-  when:
-    - ansible_facts.os_family == "Debian"
-
-- name: Add Docker repository on RHEL
-  become: true
-  ansible.builtin.yum_repository:
-    name: docker-ce
-    description: Docker CE Stable - $releasever
-    baseurl: https://download.docker.com/linux/rhel/docker-ce.repo
-    gpgcheck: true
-    enabled: true
-  when:
-    - ansible_facts.os_family == "RedHat"
-
-- name: Install Docker packages
-  become: true
-  ansible.builtin.package:
-    name:
-      - docker-ce
-      - docker-ce-cli
-      - containerd.io
-    state: present
+    - ansible_facts.system == 'Linux'
 
 - name: Ensure Docker service is started and enabled
   become: true
