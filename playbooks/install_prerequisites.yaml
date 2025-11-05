@@ -52,7 +52,7 @@
     - name: Install chrony
       vars:
         package_name: chrony
-        package_has_service: true
+        package_service_name: chronyd
       ansible.builtin.include_role:
         name: hyperledger.fabricx.package
         tasks_from: install
