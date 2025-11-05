@@ -28,7 +28,7 @@
     - package_check.rc != 0
     - package_available.rc == 0
 
-- name: Start {{ package_service_name }} service
+- name: Start service
   ansible.builtin.service:
     name: "{{ package_service_name }}"
     state: started
