@@ -26,13 +26,13 @@ The task `install` allows to install a package on the target machine:
 
 ### install_on_linux
 
-The task `install_on_linux` allows to install a package on a Linux machine and, optionally, to start it also as daemon if needed (through the `package_has_service` flag):
+The task `install_on_linux` allows to install a package on a Linux machine and, optionally, to start it also as daemon if needed (through the `package_service_name` flag):
 
 ```yaml
 - name: Install chrony on Linux
   vars:
     package_name: chrony
-    package_has_service: true # optional
+    package_service_name: chronyd # optional
   ansible.builtin.include_role:
     name: hyperledger.fabricx.package
     tasks_from: install_on_linux
