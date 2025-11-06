@@ -14,6 +14,7 @@
       loop: "{{ utils_ports_to_ping }}"
       loop_control:
         loop_var: port_to_ping
+        label: "{{ ansible_host }}:{{ port_to_ping }}"
   rescue:
     - name: Do nothing on failure (silent rescue)
       ansible.builtin.meta: noop

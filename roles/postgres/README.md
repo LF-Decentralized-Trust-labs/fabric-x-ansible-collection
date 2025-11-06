@@ -20,10 +20,10 @@ The role allows to run Postgres as **container only** (binary is not currently s
 
 ### start
 
-The task `start` allows to start the Postgres DB and corresponding Postgres Exporter Sidecar (if toggled).
+The task `start` allows to start the Postgres DB.
 
 ```yaml
-- name: Start the Postgres DB and corresponding Postgres Exporter Sidecar (if toggled)
+- name: Start the Postgres DB
   vars:
     postgres_port: 5432
   ansible.builtin.include_role:
@@ -33,10 +33,10 @@ The task `start` allows to start the Postgres DB and corresponding Postgres Expo
 
 ### stop
 
-The task `stop` allows to stop the Postgres DB and corresponding Postgres Exporter Sidecar (if toggled).
+The task `stop` allows to stop the Postgres DB.
 
 ```yaml
-- name: Stop the Postgres DB and corresponding Postgres Exporter Sidecar (if toggled)
+- name: Stop the Postgres DB
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: stop
@@ -44,10 +44,10 @@ The task `stop` allows to stop the Postgres DB and corresponding Postgres Export
 
 ### teardown
 
-The task `teardown` allows to shut down the Postgres DB and corresponding Postgres Exporter Sidecar (if toggled), and remove all the artifacts being generated during runtime.
+The task `teardown` allows to shut down the Postgres DB, and remove all the artifacts being generated during runtime.
 
 ```yaml
-- name: Teardown the Postgres DB and corresponding Postgres Exporter Sidecar (if toggled)
+- name: Teardown the Postgres DB
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: teardown
@@ -55,10 +55,10 @@ The task `teardown` allows to shut down the Postgres DB and corresponding Postgr
 
 ### wipe
 
-The task `wipe` allows to shut down the Postgres DB and corresponding Postgres Exporter Sidecar (if toggled), and remove all the artifacts (configuration files and all the runtime-generated artifacts).
+The task `wipe` allows to shut down the Postgres DB, and remove all the artifacts (configuration files and all the runtime-generated artifacts).
 
 ```yaml
-- name: Wipe the Postgres DB and corresponding Postgres Exporter Sidecar (if toggled)
+- name: Wipe the Postgres DB
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: wipe
@@ -66,10 +66,10 @@ The task `wipe` allows to shut down the Postgres DB and corresponding Postgres E
 
 ### fetch_logs
 
-The task `fetch_logs` allows to fetch the logs from the Postgres DB components and corresponding Postgres Exporter Sidecar (if toggled) from the remote hosts to the control node.
+The task `fetch_logs` allows to fetch the logs from the Postgres DB components from the remote hosts to the control node.
 
 ```yaml
-- name: Fetch the Postgres DB and corresponding Postgres Exporter Sidecar (if toggled) logs
+- name: Fetch the Postgres DB logs
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: fetch_logs
@@ -77,7 +77,7 @@ The task `fetch_logs` allows to fetch the logs from the Postgres DB components a
 
 ### ping
 
-The task `ping` allows to ping the Postgres DB components and corresponding Postgres Exporter Sidecar (if toggled) on their opened ports. It is useful to check whether the instances are running or if they are not running/reachable.
+The task `ping` allows to ping the Postgres DB components on their opened ports. It is useful to check whether the instances are running or if they are not running/reachable.
 
 ```yaml
 - name: Ping the Postgres DB

@@ -13,7 +13,7 @@
     container_ports:
       - "{{ postgres_exporter_port }}:{{ postgres_exporter_port }}"
     container_env:
-      DATA_SOURCE_NAME: "{{ postgres_exporter_data_source_name }}"
+      DATA_SOURCE_NAME: "postgresql://{{ hostvars[postgres_db_host].postgres_user }}:{{ hostvars[postgres_db_host].postgres_password }}@{{ hostvars[postgres_db_host].ansible_host }}:{{ hostvars[postgres_db_host].postgres_port }}/{{ hostvars[postgres_db_host].postgres_db }}?sslmode=disable"
     container_wait_until_running: true
     container_wait_port: "{{ postgres_exporter_port }}"
     container_run_as_host_user: true
