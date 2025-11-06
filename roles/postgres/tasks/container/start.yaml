@@ -20,7 +20,7 @@
     container_ports:
       - "{{ postgres_port }}:{{ postgres_port }}"
     container_volumes:
-      - "{{ postgres_pgdata_dir }}:/var/lib/postgresql/data:Z"
+      - "{{ postgres_pgdata_dir }}:/var/lib/postgresql/data"
     container_env:
       POSTGRES_DB: "{{ postgres_db }}"
       POSTGRES_USER: "{{ postgres_user }}"

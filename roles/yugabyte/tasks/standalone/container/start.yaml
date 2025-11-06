@@ -39,7 +39,7 @@
       --insecure
     container_volumes:
       - "{{ yugabyte_remote_config_dir }}/init:/var/ybinit"
-      - "{{ yugabyte_remote_config_dir }}/data:/var/data:Z"
+      - "{{ yugabyte_remote_config_dir }}/data:/var/data"
     container_healthcheck_test: >-
       ysqlsh
       -h localhost
