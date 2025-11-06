@@ -7,6 +7,12 @@
 - name: Start the Monitoring services
   hosts: "{{ target_hosts | default('monitoring') }}:&monitoring"
   tasks:
+    - name: Start Postgres Exporter nodes
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres_exporter
+        tasks_from: start
+      when:
+        - postgres_exporter_port is defined
     - name: Start the Prometheus service
       ansible.builtin.include_role:
         name: hyperledger.fabricx.prometheus

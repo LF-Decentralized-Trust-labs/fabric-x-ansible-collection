@@ -197,7 +197,6 @@ all:
               postgres_password: sc_secret_pwd
               postgres_db: sc_db
               postgres_port: 5435
-              postgres_exporter_port: 2110
             committer-validator:
               committer_component_type: validator
               committer_rpc_port: 5100
@@ -237,6 +236,9 @@ all:
 
     monitoring:
       hosts:
+        committer-db-exporter:
+          postgres_db_host: committer-db
+          postgres_exporter_port: 2110
         grafana:
           grafana_username: admin
           grafana_password: adminPWD

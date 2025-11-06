@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Remove Postgres DB container and corresponding Postgres Exporter Sidecar (if toggled)
+- name: Remove Postgres DB container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: container/rm
