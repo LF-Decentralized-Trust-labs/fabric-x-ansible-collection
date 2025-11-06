@@ -31,3 +31,9 @@
         tasks_from: teardown
       when:
         - prometheus_web_port is defined
+    - name: Teardown Postgres Exporter nodes
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres_exporter
+        tasks_from: teardown
+      when:
+        - postgres_exporter_port is defined

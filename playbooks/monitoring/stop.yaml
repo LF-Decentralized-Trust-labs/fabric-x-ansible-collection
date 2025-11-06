@@ -31,3 +31,9 @@
         tasks_from: stop
       when:
         - prometheus_web_port is defined
+    - name: Stop Postgres Exporter nodes
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres_exporter
+        tasks_from: stop
+      when:
+        - postgres_exporter_port is defined

@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Start Postgres DB and corresponding Postgres Exporter Sidecar (if toggled)
+- name: Start Postgres DB
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: container/start
