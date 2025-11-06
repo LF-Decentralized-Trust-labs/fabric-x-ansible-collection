@@ -21,9 +21,22 @@ jobs:
       matrix:
         include:
           - inventory: "fabric-x"
+            container_client: docker
           - inventory: "fabric-x-yugabyte"
+            container_client: docker
           - inventory: "fabric-x-bin"
+            container_client: docker
           - inventory: "fabric-x-cryptogen"
+            container_client: docker
+
+          - inventory: "fabric-x"
+            container_client: podman
+          - inventory: "fabric-x-yugabyte"
+            container_client: podman
+          - inventory: "fabric-x-bin"
+            container_client: podman
+          - inventory: "fabric-x-cryptogen"
+            container_client: podman
       fail-fast: false
 
     steps:
@@ -67,7 +80,7 @@ jobs:
       # Install the required packages
       - name: Install all the required packages and collections
         env:
-          CONTAINER_CLIENT: docker
+          CONTAINER_CLIENT: ${{ matrix.container_client }}
           ANSIBLE_CACHE_PLUGIN: jsonfile
           ANSIBLE_CACHE_PLUGIN_CONNECTION: /tmp/ansible_fact_cache
         run: |
@@ -79,7 +92,7 @@ jobs:
       - name: Test the (${{ matrix.inventory }}) inventory
         env:
           PROJECT_DIR: ${{ github.workspace }}
-          CONTAINER_CLIENT: docker
+          CONTAINER_CLIENT: ${{ matrix.container_client }}
           ANSIBLE_INVENTORY: ./examples/inventory/${{ matrix.inventory }}.yaml
           ANSIBLE_CACHE_PLUGIN: jsonfile
           ANSIBLE_CACHE_PLUGIN_CONNECTION: /tmp/ansible_fact_cache
