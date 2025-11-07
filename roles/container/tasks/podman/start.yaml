@@ -26,6 +26,12 @@
     memory: "{{ container_memory | default(omit) }}"
     cpus: "{{ container_cpus | default(omit) }}"
     volumes: "{{ container_volumes }}"
+    user: >-
+      {{
+        container_host_user
+        if container_run_as_host_user
+        else omit
+      }}
     userns: "{{ 'keep-id' if container_run_as_host_user else omit }}"
     env: "{{ container_env }}"
     log_driver: "{{ container_log_driver }}"
