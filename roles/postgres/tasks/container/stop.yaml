@@ -10,12 +10,3 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: stop
-
-- name: Stop the Postgres Exporter container
-  vars:
-    postgres_exporter_container_name: "{{ postgres_container_name }}_exporter"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.postgres_exporter
-    tasks_from: stop
-  when:
-    - postgres_exporter_port is defined

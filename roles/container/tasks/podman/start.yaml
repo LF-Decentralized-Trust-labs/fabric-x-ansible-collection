@@ -32,7 +32,12 @@
         if container_run_as_host_user
         else omit
       }}
-    userns: "{{ 'keep-id' if container_run_as_host_user else omit }}"
+    userns: >-
+      {{
+        'keep-id'
+        if container_run_as_host_user and (not container_host_user_is_root)
+        else omit
+      }}
     env: "{{ container_env }}"
     log_driver: "{{ container_log_driver }}"
     log_options:
