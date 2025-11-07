@@ -1,0 +1,11 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure Docker volume exists
+  ansible.builtin.file:
+    path: "{{ container_volume_path }}"
+    mode: "{{ container_volume_mode }}"
+    state: "{{ container_volume_type }}"

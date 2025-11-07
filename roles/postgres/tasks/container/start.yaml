@@ -4,16 +4,23 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure the Postgres volume directory exists
-  ansible.builtin.file:
-    path: "{{ postgres_pgdata_dir }}"
-    state: directory
-    mode: "0o755"
+- name: Create Postgres DB volume
+  vars:
+    container_volume_path: "{{ postgres_pgdata_dir }}"
+    container_volume_mode: "0o750"
+    container_volume_uid: "999"
+    container_volume_gid: "999"
+    container_volume_type: directory
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: volume/create
 
 - name: Start Postgres DB Container
   vars:
     container_name: "{{ postgres_container_name }}"
     container_image: "{{ postgres_image }}"
+    container_image_uid: "999"
+    container_image_gid: "999"
     container_command: >-
       postgres -c port={{ postgres_port }}
       {{ postgres_tuning }}

@@ -1,0 +1,23 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Find the container client to use
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: get_container_client
+  when: container_client == ''
+
+- name: Remove a podman volume
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: podman/volume/rm
+  when: container_client == 'podman'
+
+- name: Remove a docker volume
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: docker/volume/rm
+  when: container_client == 'docker'

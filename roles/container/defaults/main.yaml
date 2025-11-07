@@ -4,45 +4,64 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# container location/paths
-container_logs_dir: "{{ out_log_dir }}"
-container_logs_file: "{{ inventory_hostname }}_logs.txt"
-container_remote_logs_dir: "{{ deploy_dir }}/{{ inventory_hostname }}/logs"
-container_remote_logs_file: "logs.txt"
-
-# container misc
+# =========================
+# Container Opts
+# =========================
+container_client: "{{ lookup('env', 'CONTAINER_CLIENT') or '' }}"
 container_command: ""
 container_ports: []
 container_volumes: []
 container_ulimits: []
 container_env: {}
-container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
-container_network_mode: "{{ 'bridge' if container_on_mac else 'host' }}"
-container_run_as_host_user: false
 container_run_detach_mode: true
-container_user: "{{ ansible_facts.user_uid ~ ':' ~ ansible_facts.user_gid if container_run_as_host_user else '' }}"
 container_healthcheck_interval: "30s"
 container_autoremove: false
 container_ignore_errors: false
 
-# container network options
-container_network_driver: bridge
-container_network_attachable: true # docker-only: podman networks are always attachable
-container_network_internal: false
+# =========================
+# Container User
+# =========================
+container_image_uid: "0"
+container_image_gid: "0"
+container_image_user: "{{ container_image_uid }}:{{ container_image_gid }}"
+container_host_uid: "{{ ansible_facts.user_uid }}"
+container_host_gid: "{{ ansible_facts.user_gid }}"
+container_host_user: "{{ container_host_uid }}:{{ container_host_gid }}"
+container_host_user_is_root: "{{ container_host_user == '0:0' }}"
+container_run_as_host_user: false
+container_user: "{{ container_host_user if container_run_as_host_user else '' }}"
 
-# container logs options
+# =========================
+# Container Logs
+# =========================
+container_logs_dir: "{{ out_log_dir }}"
+container_logs_file: "{{ inventory_hostname }}_logs.txt"
+container_remote_logs_dir: "{{ deploy_dir }}/{{ inventory_hostname }}/logs"
+container_remote_logs_file: "logs.txt"
 container_omit_logs: false
 container_log_driver: "json-file"
 container_log_max_size: "1g"
 container_log_lines: 0
 
-# container rerun options
+# =========================
+# Container Network
+# =========================
+container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
+container_network_mode: "{{ 'bridge' if container_on_mac else 'host' }}"
+container_network_driver: bridge
+container_network_attachable: true # docker-only: podman networks are always attachable
+container_network_internal: false
+
+# =========================
+# Container Rerun Opts
+# =========================
 container_run_until: null
 container_run_delay: 0
 container_run_retries: 0
 
-# env for wait container
+# =========================
+# Container Wait Opts
+# =========================
 container_wait_until_running: false
 container_wait_delay: 1
 container_wait_timeout: 60
-container_client: "{{ lookup('env', 'CONTAINER_CLIENT') or '' }}"
