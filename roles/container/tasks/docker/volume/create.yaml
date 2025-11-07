@@ -9,3 +9,35 @@
     path: "{{ container_volume_path }}"
     mode: "{{ container_volume_mode }}"
     state: "{{ container_volume_type }}"
+
+- name: Set Docker volume permissions on Linux for rootful user
+  ansible.builtin.file:
+    path: "{{ container_volume_path }}"
+    mode: "{{ container_volume_mode }}"
+    owner: "{{ container_volume_uid }}"
+    group: "{{ container_volume_gid }}"
+    state: "{{ container_volume_type }}"
+  when:
+    - not container_on_mac
+    - container_host_user_is_root
+
+# For Docker, we could be in trouble creating
+# the volume with the right permissions (e.g. when the user is not root).
+# To solve it, we use `docker-unshare`, which works as an implementation
+# of `podman-unshare`, but using alpine as base image.
+- name: Set Docker volume permissions on Linux for rootless user
+  community.docker.docker_container:
+    name: "docker-unshare-set-{{ 999999 | random }}"
+    image: docker.io/library/alpine:3.18
+    command: >-
+      sh -c
+      "chown {{ container_volume_uid }}:{{ container_volume_gid }} /volume"
+    volumes:
+      - "{{ container_volume_path }}:/volume"
+    auto_remove: true
+    state: started
+  when:
+    - not container_on_mac
+    - not container_host_user_is_root
+    - container_volume_uid is defined
+    - container_volume_gid is defined

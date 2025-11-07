@@ -4,6 +4,17 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Create Elasticsearch volume
+  vars:
+    container_volume_path: "{{ elasticsearch_data_dir }}"
+    container_volume_mode: "0o750"
+    container_volume_uid: "1000"
+    container_volume_gid: "0"
+    container_volume_type: directory
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: volume/create
+
 - name: Start an ElasticSearch container
   vars:
     container_name: "{{ elasticsearch_container_name }}"
@@ -18,6 +29,8 @@
     container_ports:
       - "{{ elasticsearch_http_port }}:{{ elasticsearch_http_port }}"
       - "{{ elasticsearch_transport_port }}:{{ elasticsearch_transport_port }}"
+    container_volumes:
+      - "{{ elasticsearch_data_dir }}:/usr/share/elasticsearch/data"
     container_healthcheck_test: >-
       curl -f
       http://localhost:{{ elasticsearch_http_port }}/_cluster/health

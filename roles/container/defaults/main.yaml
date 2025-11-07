@@ -21,15 +21,11 @@ container_ignore_errors: false
 # =========================
 # Container User
 # =========================
-container_image_uid: "0"
-container_image_gid: "0"
-container_image_user: "{{ container_image_uid }}:{{ container_image_gid }}"
 container_host_uid: "{{ ansible_facts.user_uid }}"
 container_host_gid: "{{ ansible_facts.user_gid }}"
 container_host_user: "{{ container_host_uid }}:{{ container_host_gid }}"
 container_host_user_is_root: "{{ container_host_user == '0:0' }}"
 container_run_as_host_user: false
-container_user: "{{ container_host_user if container_run_as_host_user else '' }}"
 
 # =========================
 # Container Logs

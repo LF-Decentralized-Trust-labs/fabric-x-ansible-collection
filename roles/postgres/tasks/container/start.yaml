@@ -19,8 +19,6 @@
   vars:
     container_name: "{{ postgres_container_name }}"
     container_image: "{{ postgres_image }}"
-    container_image_uid: "999"
-    container_image_gid: "999"
     container_command: >-
       postgres -c port={{ postgres_port }}
       {{ postgres_tuning }}
@@ -40,7 +38,6 @@
       -p {{ postgres_port }}
     container_wait_until_running: true
     container_wait_port: "{{ postgres_port }}"
-    container_run_as_host_user: true
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: start

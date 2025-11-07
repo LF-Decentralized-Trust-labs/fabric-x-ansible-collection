@@ -28,7 +28,12 @@
     cpus: "{{ container_cpus | default(omit) }}"
     volumes: "{{ container_volumes }}"
     ulimits: "{{ container_ulimits }}"
-    user: "{{ container_user }}"
+    user: >-
+      {{
+        container_host_user
+        if container_run_as_host_user
+        else omit
+      }}
     env: "{{ container_env }}"
     log_driver: "{{ container_log_driver }}"
     log_options:
