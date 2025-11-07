@@ -12,7 +12,7 @@
     container_ports:
       - "{{ orderer_rpc_port }}:{{ orderer_rpc_port }}"
     container_volumes:
-      - "{{ orderer_remote_config_dir }}:{{ orderer_docker_config_dir }}"
+      - "{{ orderer_remote_config_dir }}:{{ orderer_docker_config_dir }}:Z"
     container_wait_until_running: true
     container_wait_port: "{{ orderer_rpc_port }}"
     container_run_as_host_user: true

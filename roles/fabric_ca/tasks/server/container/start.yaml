@@ -15,7 +15,7 @@
       - "{{ fabric_ca_port }}:{{ fabric_ca_port }}"
       - "{{ fabric_ca_operations_port }}:{{ fabric_ca_operations_port }}"
     container_volumes:
-      - "{{ fabric_ca_remote_config_dir }}:{{ fabric_ca_container_config_dir }}"
+      - "{{ fabric_ca_remote_config_dir }}:{{ fabric_ca_container_config_dir }}:Z"
     container_healthcheck_test: >-
       bash -c '
         exec 3<>/dev/tcp/localhost/{{ fabric_ca_operations_port }} &&

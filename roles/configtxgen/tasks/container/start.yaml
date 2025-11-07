@@ -13,13 +13,13 @@
 - name: Define mandatory Docker mounts
   ansible.builtin.set_fact:
     configtxgen_docker_volumes:
-      - "{{ configtxgen_output_dir }}:{{ configtxgen_docker_output_dir }}"
-      - "{{ configtxgen_cryptogen_artifacts_dir }}:{{ configtxgen_cryptogen_docker_artifacts_dir }}"
-      - "{{ configtxgen_armageddon_artifacts_dir }}:{{ configtxgen_armageddon_docker_artifacts_dir }}"
+      - "{{ configtxgen_output_dir }}:{{ configtxgen_docker_output_dir }}:Z"
+      - "{{ configtxgen_cryptogen_artifacts_dir }}:{{ configtxgen_cryptogen_docker_artifacts_dir }}:Z"
+      - "{{ configtxgen_armageddon_artifacts_dir }}:{{ configtxgen_armageddon_docker_artifacts_dir }}:Z"
 
 - name: Add volume for idemixgen CA
   vars:
-    idemixgen_artifacts_volume: "{{ configtxgen_idemixgen_artifacts_dir }}:{{ configtxgen_idemixgen_docker_artifacts_dir }}"
+    idemixgen_artifacts_volume: "{{ configtxgen_idemixgen_artifacts_dir }}:{{ configtxgen_idemixgen_docker_artifacts_dir }}:Z"
   ansible.builtin.set_fact:
     configtxgen_docker_volumes: "{{ configtxgen_docker_volumes + [idemixgen_artifacts_volume] }}"
   when: configtxgen_idemixgen_artifacts_dir is exists

@@ -20,7 +20,7 @@
     container_ports:
       - "{{ prometheus_web_port }}:{{ prometheus_web_port }}"
     container_volumes:
-      - "{{ prometheus_remote_config_dir }}/:/etc/prometheus/config/:ro"
+      - "{{ prometheus_remote_config_dir }}/:/etc/prometheus/config/:Z,ro"
       - /prometheus
     container_healthcheck_test: >-
       promtool check healthy

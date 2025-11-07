@@ -13,7 +13,7 @@
       - "{{ prometheus_exporter_port }}:{{ prometheus_exporter_port }}"
       - "{{ loadgen_web_port }}:{{ loadgen_web_port }}"
     container_volumes:
-      - "{{ loadgen_remote_config_dir }}:{{ loadgen_docker_config_dir }}"
+      - "{{ loadgen_remote_config_dir }}:{{ loadgen_docker_config_dir }}:Z"
     container_wait_until_running: true
     container_wait_port: "{{ loadgen_web_port }}"
   ansible.builtin.include_role:

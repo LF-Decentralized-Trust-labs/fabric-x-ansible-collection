@@ -30,7 +30,7 @@
       - "{{ elasticsearch_http_port }}:{{ elasticsearch_http_port }}"
       - "{{ elasticsearch_transport_port }}:{{ elasticsearch_transport_port }}"
     container_volumes:
-      - "{{ elasticsearch_data_dir }}:/usr/share/elasticsearch/data"
+      - "{{ elasticsearch_data_dir }}:/usr/share/elasticsearch/data:Z"
     container_healthcheck_test: >-
       curl -f
       http://localhost:{{ elasticsearch_http_port }}/_cluster/health

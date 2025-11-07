@@ -49,7 +49,7 @@
       - "{{ yugabyte_master_rpc_bind_port }}:{{ yugabyte_master_rpc_bind_port }}"
       - "{{ yugabyte_master_webserver_port }}:{{ yugabyte_master_webserver_port }}"
     container_volumes:
-      - "{{ yugabyte_remote_config_dir }}/data:/var/data"
+      - "{{ yugabyte_remote_config_dir }}/data:/var/data:Z"
     container_ulimits:
       - nofile:1048576:1048576
       - core:-1:-1
