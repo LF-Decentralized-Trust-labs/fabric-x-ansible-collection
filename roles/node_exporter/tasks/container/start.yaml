@@ -14,7 +14,7 @@
     container_ports:
       - "{{ node_exporter_port }}:{{ node_exporter_port }}"
     container_volumes:
-      - "/:/host:ro,rslave"
+      - "/:/host:Z,ro,rslave"
     container_healthcheck_test: >-
       wget -q
       -O /dev/null

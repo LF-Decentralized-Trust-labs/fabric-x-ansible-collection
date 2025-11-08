@@ -12,3 +12,8 @@ elasticsearch_image_name: "elasticsearch"
 elasticsearch_image_tag: "8.19.6"
 elasticsearch_image: "{{ elasticsearch_registry_endpoint }}/{{ elasticsearch_image_name }}:{{ elasticsearch_image_tag }}"
 elasticsearch_container_name: "{{ inventory_hostname }}"
+
+# =========================
+# Elasticsearch Paths
+# =========================
+elasticsearch_data_dir: "{{ remote_config_dir }}"

@@ -11,12 +11,3 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: fetch_logs
-
-- name: Fetch the logs from the Postgres Exporter Sidecar
-  vars:
-    postgres_exporter_container_name: "{{ postgres_container_name }}_exporter"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.postgres_exporter
-    tasks_from: fetch_logs
-  when:
-    - postgres_exporter_port is defined

@@ -1,0 +1,35 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure Podman volume exists
+  ansible.builtin.file:
+    path: "{{ container_volume_path }}"
+    mode: "{{ container_volume_mode }}"
+    state: "{{ container_volume_type }}"
+
+# For rootless Podman, we could be in trouble creating
+# the volume with the right permissions.
+# To solve it, we use `podman unshare`, which can be
+# used to grant the necessary rights to perform operations
+# which would not be possible for the user without being sudo.
+- name: Ensure Podman volume permissions on Linux are correct
+  become_method: >-
+    {{
+      'containers.podman.podman_unshare'
+      if (not container_host_user_is_root)
+      else omit
+    }}
+  become: true
+  ansible.builtin.file:
+    path: "{{ container_volume_path }}"
+    mode: "{{ container_volume_mode }}"
+    owner: "{{ container_volume_uid }}"
+    group: "{{ container_volume_gid }}"
+    state: "{{ container_volume_type }}"
+  when:
+    - not container_on_mac
+    - container_volume_uid is defined
+    - container_volume_gid is defined

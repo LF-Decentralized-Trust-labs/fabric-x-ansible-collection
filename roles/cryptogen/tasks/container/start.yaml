@@ -24,8 +24,8 @@
       --config={{ cryptogen_docker_config_dir }}/{{ cryptogen_config_file }}
       --output={{ cryptogen_docker_output_dir }}
     container_volumes:
-      - "{{ cryptogen_config_dir }}:{{ cryptogen_docker_config_dir }}"
-      - "{{ cryptogen_output_dir }}:{{ cryptogen_docker_output_dir }}"
+      - "{{ cryptogen_config_dir }}:{{ cryptogen_docker_config_dir }}:Z"
+      - "{{ cryptogen_output_dir }}:{{ cryptogen_docker_output_dir }}:Z"
     container_run_detach_mode: false
     container_run_as_host_user: true
     container_autoremove: true

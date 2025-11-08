@@ -5,10 +5,10 @@
 #
 
 # exported vars
-ANSIBLE_CONFIG ?= ./examples/ansible.cfg
-ANSIBLE_CACHE_PLUGIN ?= jsonfile
-ANSIBLE_CACHE_PLUGIN_CONNECTION ?= /tmp/ansible_fact_cache
 PROJECT_DIR := $(CURDIR)
+ANSIBLE_CONFIG ?= $(PROJECT_DIR)/ansible.cfg
+ANSIBLE_CACHE_PLUGIN ?= jsonfile
+ANSIBLE_CACHE_PLUGIN_CONNECTION ?= $(PROJECT_DIR)/out/ansible_fact_cache
 
 export ANSIBLE_CONFIG
 export ANSIBLE_CACHE_PLUGIN

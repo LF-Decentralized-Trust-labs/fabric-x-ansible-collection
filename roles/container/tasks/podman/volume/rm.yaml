@@ -1,0 +1,31 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# For rootless Podman, we could be in trouble removing
+# a volume with the wrong permissions.
+# To solve it, we use `podman unshare`, which can be
+# used to grant the necessary rights to perform operations
+# which would not be possible for the user without being sudo.
+- name: Remove Podman volume on Linux
+  become_method: >-
+    {{
+      'containers.podman.podman_unshare'
+      if (not container_host_user_is_root)
+      else omit
+    }}
+  become: true
+  ansible.builtin.file:
+    path: "{{ container_volume_path }}"
+    state: absent
+  when:
+    - not container_on_mac
+
+- name: Remove Podman volume on macOS
+  ansible.builtin.file:
+    path: "{{ container_volume_path }}"
+    state: absent
+  when:
+    - container_on_mac
