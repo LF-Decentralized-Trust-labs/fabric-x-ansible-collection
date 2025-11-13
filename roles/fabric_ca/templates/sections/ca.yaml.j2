@@ -1,0 +1,20 @@
+#############################################################################
+#  The CA section contains information related to the Certificate Authority
+#  including the name of the CA, which should be unique for all members
+#  of a blockchain network.  It also includes the key and certificate files
+#  used when issuing enrollment certificates (ECerts).
+#  The chainfile (if it exists) contains the certificate chain which
+#  should be trusted for this CA, where the 1st in the chain is always the
+#  root CA certificate.
+#############################################################################
+ca:
+  # Name of this CA
+  name: "{{ fabric_ca_name }}"
+  # Key file (is only used to import a private key into BCCSP)
+  keyfile:
+  # Certificate file (default: ca-cert.pem)
+  certfile:
+  # Chain file
+  chainfile:
+  # Ignore Certificate Expiration in the case of re-enroll
+  reenrollIgnoreCertExpiry: false

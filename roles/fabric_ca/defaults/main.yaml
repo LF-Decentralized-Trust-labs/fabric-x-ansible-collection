@@ -39,7 +39,12 @@ fabric_ca_remote_config_dir: "{{ remote_config_dir }}"
 fabric_ca_cryptogen_artifact_dir: "{{ config_build_dir }}/cryptogen-artifacts"
 
 # =========================
-# TLS
+# General settings
+# =========================
+fabric_ca_log_level: "INFO"
+
+# =========================
+# TLS settings
 # =========================
 fabric_ca_scheme: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
 fabric_ca_use_tls: true
@@ -47,10 +52,13 @@ fabric_ca_enable_nodeous: true
 fabric_ca_tls_root_cert: "{{ fabric_ca_remote_config_dir }}/ca-cert.pem"
 
 # =========================
-# Misc (config, logging...)
+# CA settings
 # =========================
 fabric_ca_name: "{{ inventory_hostname }}"
-fabric_ca_log_level: "INFO"
+
+# =========================
+# CSR settings
+# =========================
 fabric_ca_csr_cn: "{{ fabric_ca_name }}"
 fabric_ca_csr_hosts:
   - "{{ ansible_host }}"
