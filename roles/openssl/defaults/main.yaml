@@ -35,4 +35,4 @@ openssl_basic_constraints: "CA:false"
 openssl_key_usage: "keyEncipherment, digitalSignature"
 openssl_extended_key_usage: "serverAuth, clientAuth"
 openssl_san_entries:
-  - "IP:127.0.0.1"
+  - "DNS:{{ ansible_host }}"

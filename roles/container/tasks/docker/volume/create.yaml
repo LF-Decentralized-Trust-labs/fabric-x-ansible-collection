@@ -17,6 +17,7 @@
     owner: "{{ container_volume_uid }}"
     group: "{{ container_volume_gid }}"
     state: "{{ container_volume_type }}"
+    recurse: "{{ recurse | default(false) }}"
   when:
     - not container_on_mac
     - container_host_user_is_root
@@ -31,7 +32,18 @@
     image: docker.io/library/alpine:3.18
     command: >-
       sh -c
-      "chown {{ container_volume_uid }}:{{ container_volume_gid }} /volume"
+      "chown
+      {% if recurse | default(false) %}
+      -R
+      {% endif %}
+      {{ container_volume_uid }}:{{ container_volume_gid }}
+      /volume"
+      && chmod
+      {% if recurse | default(false) %}
+      -R
+      {% endif %}
+      {{ container_volume_mode }}
+      /volume"
     volumes:
       - "{{ container_volume_path }}:/volume"
     auto_remove: true
