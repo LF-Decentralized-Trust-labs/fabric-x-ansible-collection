@@ -17,6 +17,11 @@ db:
     user={{ hostvars[postgres_db_host].postgres_user }}
     password={{ hostvars[postgres_db_host].postgres_password }}
     dbname={{ hostvars[postgres_db_host].postgres_db }}
+{% if hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
+    sslmode=verify-full
+{% else %}
+    sslmode=disable
+{% endif %}
   tls:
     enabled: {{ hostvars[postgres_db_host].postgres_use_tls | default(false) | lower }}
 {% if hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
