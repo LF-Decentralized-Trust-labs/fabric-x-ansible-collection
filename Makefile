@@ -6,7 +6,7 @@
 
 # exported vars
 PROJECT_DIR := $(CURDIR)
-ANSIBLE_CONFIG ?= $(PROJECT_DIR)/ansible.cfg
+ANSIBLE_CONFIG ?= $(PROJECT_DIR)/examples/ansible.cfg
 ANSIBLE_CACHE_PLUGIN ?= jsonfile
 ANSIBLE_CACHE_PLUGIN_CONNECTION ?= $(PROJECT_DIR)/out/ansible_fact_cache
 
@@ -16,13 +16,13 @@ export ANSIBLE_CACHE_PLUGIN_CONNECTION
 export PROJECT_DIR
 
 # Makefile vars
-PLAYBOOK_PATH := $(CURDIR)/examples/playbooks
+PLAYBOOK_PATH := $(PROJECT_DIR)/examples/playbooks
 TARGET_HOSTS ?= all
 ASSERT_METRICS ?= false
 LIMIT ?= 1000
 
 # include the checks target
-include $(CURDIR)/target_hosts.mk
+include $(PROJECT_DIR)/target_hosts.mk
 
 # Print the list of supported commands.
 .PHONY: help
