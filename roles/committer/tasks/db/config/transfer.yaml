@@ -4,8 +4,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Transfer Yugabyte config scripts
+- name: Transfer Yugabyte config files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: config/transfer
-  when: not committer_use_postgres
+  when:
+    - not committer_use_postgres
+
+- name: Transfer Postgres config files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: config/transfer
+  when:
+    - committer_use_postgres

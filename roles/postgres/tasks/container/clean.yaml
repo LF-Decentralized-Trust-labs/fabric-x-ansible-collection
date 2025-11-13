@@ -10,10 +10,3 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: volume/rm
-
-- name: Clean Postgres TLS volume
-  vars:
-    container_volume_path: "{{ postgres_tls_dir }}"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.container
-    tasks_from: volume/rm
