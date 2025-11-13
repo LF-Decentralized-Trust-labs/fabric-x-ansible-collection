@@ -37,7 +37,7 @@
       -R
       {% endif %}
       {{ container_volume_uid }}:{{ container_volume_gid }}
-      /volume"
+      /volume
       && chmod
       {% if recurse | default(false) %}
       -R
