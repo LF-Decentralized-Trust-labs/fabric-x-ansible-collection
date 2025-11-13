@@ -59,9 +59,7 @@
       {% endif %}
     container_ports:
       - "{{ postgres_port }}:{{ postgres_port }}"
-    container_volumes:
-      - "{{ postgres_remote_config_dir }}/tls:/var/lib/postgresql/tls:Z"
-      - "{{ postgres_remote_config_dir }}/data:/var/lib/postgresql/data:Z"
+    container_volumes: "{{ postgres_volumes }}"
     container_env:
       POSTGRES_DB: "{{ postgres_db }}"
       POSTGRES_USER: "{{ postgres_user }}"

@@ -18,7 +18,7 @@ db:
     password={{ hostvars[postgres_db_host].postgres_password }}
     dbname={{ hostvars[postgres_db_host].postgres_db }}
   tls:
-    enabled: {{ hostvars[postgres_db_host].postgres_use_tls | default(false) }}
+    enabled: {{ hostvars[postgres_db_host].postgres_use_tls | default(false) | lower }}
 {% if hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
     certfiles: 
       - {{ fabric_ca_config_dir }}/db/tls/cert.pem

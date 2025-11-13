@@ -55,3 +55,8 @@
     {% endif %}
   args:
     creates: "{{ openssl_private_key_path }}"
+
+- name: Clean the OpenSSL configuration folder
+  ansible.builtin.file:
+    dest: "{{ openssl_remote_config_dir }}"
+    state: absent

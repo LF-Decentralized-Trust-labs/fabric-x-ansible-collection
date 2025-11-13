@@ -11,3 +11,5 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openssl
     tasks_from: generate_key
+  when:
+    - postgres_use_tls
