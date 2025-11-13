@@ -24,7 +24,8 @@ all:
     out_log_dir: "{{ out_dir }}/logs"
     config_build_dir: "{{ out_build_dir }}/config"
     deploy_dir: "{{ out_dir }}/local-deployment"
-    remote_config_dir: "{{ deploy_dir }}/{{ inventory_hostname }}/config"
+    remote_host_dir: "{{ deploy_dir }}/{{ inventory_hostname }}"
+    remote_config_dir: "{{ remote_host_dir }}/config"
     source_code_dir: "{{ out_build_dir }}/code"
     cli_bin_dir: "{{ out_build_dir }}/cli"
     channel_id: arma

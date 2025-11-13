@@ -4,18 +4,160 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# Fabric CA server configuration file
+#############################################################################
+#   This is a configuration file for the fabric-ca-server command.
+#
+#   COMMAND LINE ARGUMENTS AND ENVIRONMENT VARIABLES
+#   ------------------------------------------------
+#   Each configuration element can be overridden via command line
+#   arguments or environment variables.  The precedence for determining
+#   the value of each element is as follows:
+#   1) command line argument
+#      Examples:
+#      a) --port 443
+#         To set the listening port
+#      b) --ca.keyfile ../mykey.pem
+#         To set the "keyfile" element in the "ca" section below;
+#         note the '.' separator character.
+#   2) environment variable
+#      Examples:
+#      a) FABRIC_CA_SERVER_PORT=443
+#         To set the listening port
+#      b) FABRIC_CA_SERVER_CA_KEYFILE="../mykey.pem"
+#         To set the "keyfile" element in the "ca" section below;
+#         note the '_' separator character.
+#   3) configuration file
+#   4) default value (if there is one)
+#      All default values are shown beside each element below.
+#
+#   FILE NAME ELEMENTS
+#   ------------------
+#   The value of all fields whose name ends with "file" or "files" are
+#   name or names of other files.
+#   For example, see "tls.certfile" and "tls.clientauth.certfiles".
+#   The value of each of these fields can be a simple filename, a
+#   relative path, or an absolute path.  If the value is not an
+#   absolute path, it is interpreted as being relative to the location
+#   of this configuration file.
+#
+#############################################################################
+
+# Version of config file
 version: 1.5.15
 
-# Top-level server switches
+# Server's listening port (default: 7054)
 port: {{ fabric_ca_port }}
-debug: {{ fabric_ca_log_level == 'debug' | bool | lower }}
 
+# Cross-Origin Resource Sharing (CORS)
+cors:
+    enabled: false
+    origins:
+      - "*"
+
+# Enables debug logging (default: false)
+debug: {{ (fabric_ca_log_level == 'DEBUG') | bool | lower }}
+
+#############################################################################
+#  TLS section for the server's listening port
+#
+#  The following types are supported for client authentication: NoClientCert,
+#  RequestClientCert, RequireAnyClientCert, VerifyClientCertIfGiven,
+#  and RequireAndVerifyClientCert.
+#
+#  Certfiles is a list of root certificate authorities that the server uses
+#  when verifying client certificates.
+#############################################################################
+tls:
+  # Enable TLS (default: false)
+  enabled: {{ fabric_ca_use_tls | lower }}
+
+#############################################################################
+#  The CA section contains information related to the Certificate Authority
+#  including the name of the CA, which should be unique for all members
+#  of a blockchain network.  It also includes the key and certificate files
+#  used when issuing enrollment certificates (ECerts).
+#  The chainfile (if it exists) contains the certificate chain which
+#  should be trusted for this CA, where the 1st in the chain is always the
+#  root CA certificate.
+#############################################################################
+ca:
+  # Name of this CA
+  name: "{{ fabric_ca_name }}"
+  # Key file (is only used to import a private key into BCCSP)
+  keyfile:
+  # Certificate file (default: ca-cert.pem)
+  certfile:
+  # Chain file
+  chainfile:
+  # Ignore Certificate Expiration in the case of re-enroll
+  reenrollIgnoreCertExpiry: false  
+
+#############################################################################
+#  The gencrl REST endpoint is used to generate a CRL that contains revoked
+#  certificates. This section contains configuration options that are used
+#  during gencrl request processing.
+#############################################################################
+crl:
+  # Specifies expiration for the generated CRL. The number of hours
+  # specified by this property is added to the UTC time, the resulting time
+  # is used to set the 'Next Update' date of the CRL.
+  expiry: 24h
+
+###############################################################################
+#
+#    Operations section
+#
+###############################################################################
 operations:
+  # host and port for the operations server
   listenAddress: "0.0.0.0:{{ fabric_ca_operations_port }}"
+  # TLS configuration for the operations endpoint
+  tls:
+      # TLS enabled
+      enabled: false  
+
+#############################################################################
+#  The registry section controls how the fabric-ca-server does two things:
+#  1) authenticates enrollment requests which contain a username and password
+#     (also known as an enrollment ID and secret).
+#  2) once authenticated, retrieves the identity's attribute names and values.
+#     These attributes are useful for making access control decisions in
+#     chaincode.
+#  There are two main configuration options:
+#  1) The fabric-ca-server is the registry.
+#     This is true if "ldap.enabled" in the ldap section below is false.
+#  2) An LDAP server is the registry, in which case the fabric-ca-server
+#     calls the LDAP server to perform these tasks.
+#     This is true if "ldap.enabled" in the ldap section below is true,
+#     which means this "registry" section is ignored.
+#############################################################################
+registry:
+  # Maximum number of times a password/secret can be reused for enrollment
+  # (default: -1, which means there is no limit)
+  maxenrollments: -1
+  # Contains identity information which is used when LDAP is disabled
+  identities:
+    - name: "{{ fabric_ca_admin.name }}"
+      pass: "{{ fabric_ca_admin.secret }}"
+      type: "admin"
+      attrs:
+{% if fabric_ca_admin.attrs is defined %}
+{% for attribute_name, attribute_value in fabric_ca_admin.attrs.items() %}
+        {{ attribute_name }}: "{{ attribute_value }}"
+{% endfor %}
+{% endif %}
 
 {% if postgres_db_host is defined %}
-# Database configuration for PostgreSQL
+#############################################################################
+#  Database section
+#  Supported types are: "sqlite3", "postgres", and "mysql".
+#  The datasource value depends on the type.
+#  If the type is "sqlite3", the datasource value is a file name to use
+#  as the database store.  Since "sqlite3" is an embedded database, it
+#  may not be used if you want to run the fabric-ca-server in a cluster.
+#  To run the fabric-ca-server in a cluster, you must choose "postgres"
+#  or "mysql".
+#############################################################################
 db:
   type: postgres
   datasource: >-
@@ -24,29 +166,34 @@ db:
     user={{ hostvars[postgres_db_host].postgres_user }}
     password={{ hostvars[postgres_db_host].postgres_password }}
     dbname={{ hostvars[postgres_db_host].postgres_db }}
-{% if hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
-    sslrootcert={{ fabric_ca_config_dir }}/db/cas/cert.pem
-    sslmode=verify-full
-{% else %}
-    sslmode=disable
-{% endif %}
   tls:
-    enabled: false
-    certfiles:
-    client:
-      certfile:
-      keyfile:
+    enabled: {{ hostvars[postgres_db_host].postgres_use_tls | default(false) }}
+{% if hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
+    certfiles: 
+      - {{ fabric_ca_config_dir }}/db/tls/cert.pem
+{% endif %}
 {% endif %}
 
-# CA identity
-ca:
-  name: "{{ fabric_ca_name }}"
-
-# TLS serving
-tls:
-  enabled: {{ fabric_ca_use_tls | lower }}
-
-# CSR defaults
+###########################################################################
+#  Certificate Signing Request (CSR) section.
+#  This controls the creation of the root CA certificate.
+#  The expiration for the root CA certificate is configured with the
+#  "ca.expiry" field below, whose default value is "131400h" which is
+#  15 years in hours.
+#  The pathlength field is used to limit CA certificate hierarchy as described
+#  in section 4.2.1.9 of RFC 5280.
+#  Examples:
+#  1) No pathlength value means no limit is requested.
+#  2) pathlength == 1 means a limit of 1 is requested which is the default for
+#     a root CA.  This means the root CA can issue intermediate CA certificates,
+#     but these intermediate CAs may not in turn issue other CA certificates
+#     though they can still issue end entity certificates.
+#  3) pathlength == 0 means a limit of 0 is requested;
+#     this is the default for an intermediate CA, which means it can not issue
+#     CA certificates though it can still issue end entity certificates.
+#  The "hosts" field will be used to specify Subject Alternative Names
+#  if the server creates a self-signed TLS certificate.
+###########################################################################
 csr:
   cn: "{{ fabric_ca_csr_cn }}"
   names:
@@ -61,15 +208,3 @@ csr:
   ca:
     expiry: "{{ fabric_ca_csr_expiry }}"
 
-registry:
-  maxenrollments: -1
-  identities:
-    - name: "{{ fabric_ca_admin.name }}"
-      pass: "{{ fabric_ca_admin.secret }}"
-      type: "admin"
-      attrs:
-{% if fabric_ca_admin.attrs is defined %}
-{% for attribute_name, attribute_value in fabric_ca_admin.attrs.items() %}
-        {{ attribute_name }}: "{{ attribute_value }}"
-{% endfor %}
-{% endif %}

@@ -50,7 +50,7 @@ fabric_ca_tls_root_cert: "{{ fabric_ca_remote_config_dir }}/ca-cert.pem"
 # Misc (config, logging...)
 # =========================
 fabric_ca_name: "{{ inventory_hostname }}"
-fabric_ca_log_level: "info"
+fabric_ca_log_level: "INFO"
 fabric_ca_csr_cn: "{{ fabric_ca_name }}"
 fabric_ca_csr_hosts:
   - "{{ ansible_host }}"

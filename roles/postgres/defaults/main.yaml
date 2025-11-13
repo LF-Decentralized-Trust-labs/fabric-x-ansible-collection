@@ -4,15 +4,28 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# =========================
 # Postgres image
+# =========================
 postgres_registry_endpoint: "{{ lookup('env', 'POSTGRES_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
 postgres_image_name: "postgres"
 postgres_image_tag: "16.4"
 postgres_image: "{{ postgres_registry_endpoint }}/{{ postgres_image_name }}:{{ postgres_image_tag }}"
 postgres_container_name: "{{ inventory_hostname }}"
 
-# Postgres locations/paths
-postgres_pgdata_dir: "{{ remote_config_dir }}"
+# =========================
+# Paths/Locations
+# =========================
+postgres_remote_config_dir: "{{ remote_config_dir }}"
+postgres_pgdata_dir: "{{ postgres_remote_config_dir }}/data"
 
-# miscellaneous
+# =========================
+# TLS settings
+# =========================
+postgres_use_tls: false
+postgres_tls_dir: "{{ postgres_remote_config_dir }}/tls"
+
+# =========================
+# Miscellaneous
+# =========================
 postgres_tuning: ""
