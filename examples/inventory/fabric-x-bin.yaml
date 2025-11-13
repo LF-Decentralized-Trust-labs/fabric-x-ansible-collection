@@ -49,39 +49,66 @@ all:
     fabric_ca_client_use_bin: true
   children:
     fabric_cas:
-      vars:
-        fabric_ca_server_use_bin: true
-        fabric_ca_use_tls: true
-        fabric_ca_name: "{{ inventory_hostname }}"
-        fabric_ca_admin:
-          name: admin
-          secret: adminPWD
-          attrs:
-            hf.Registrar.Roles: "*"
-            hf.Registrar.Attributes: "*"
-            hf.GenCRL: "true"
-            hf.Revoker: "true"
-      hosts:
-        fabric-ca-orderer-org1:
-          fabric_ca_port: 9019
-          fabric_ca_operations_port: 9020
-          organization: *OrdererOrg1
-        fabric-ca-orderer-org2:
-          fabric_ca_port: 9029
-          fabric_ca_operations_port: 9030
-          organization: *OrdererOrg2
-        fabric-ca-orderer-org3:
-          fabric_ca_port: 9039
-          fabric_ca_operations_port: 9040
-          organization: *OrdererOrg3
-        fabric-ca-orderer-org4:
-          fabric_ca_port: 9049
-          fabric_ca_operations_port: 9050
-          organization: *OrdererOrg4
-        fabric-ca-org1:
-          fabric_ca_port: 9069
-          fabric_ca_operations_port: 9070
-          organization: *Org1
+      children:
+        fabric_ca_dbs:
+          vars:
+            postgres_user: postgres
+            postgres_password: example
+          hosts:
+            fca-orderer-org1-db:
+              postgres_db: ordererOrg1DB
+              postgres_port: 9120
+            fca-orderer-org2-db:
+              postgres_db: ordererOrg2DB
+              postgres_port: 9130
+            fca-orderer-org3-db:
+              postgres_db: ordererOrg3DB
+              postgres_port: 9140
+            fca-orderer-org4-db:
+              postgres_db: ordererOrg4DB
+              postgres_port: 9150
+            fca-org1-db:
+              postgres_db: Org1DB
+              postgres_port: 9170
+        fabric_ca_servers:
+          vars:
+            fabric_ca_server_use_bin: true
+            fabric_ca_use_tls: true
+            fabric_ca_name: "{{ inventory_hostname }}"
+            fabric_ca_admin:
+              name: admin
+              secret: adminPWD
+              attrs:
+                hf.Registrar.Roles: "*"
+                hf.Registrar.Attributes: "*"
+                hf.GenCRL: "true"
+                hf.Revoker: "true"
+          hosts:
+            fabric-ca-orderer-org1:
+              fabric_ca_port: 9019
+              fabric_ca_operations_port: 9020
+              organization: *OrdererOrg1
+              postgres_db_host: fca-orderer-org1-db
+            fabric-ca-orderer-org2:
+              fabric_ca_port: 9029
+              fabric_ca_operations_port: 9030
+              organization: *OrdererOrg2
+              postgres_db_host: fca-orderer-org2-db
+            fabric-ca-orderer-org3:
+              fabric_ca_port: 9039
+              fabric_ca_operations_port: 9040
+              organization: *OrdererOrg3
+              postgres_db_host: fca-orderer-org3-db
+            fabric-ca-orderer-org4:
+              fabric_ca_port: 9049
+              fabric_ca_operations_port: 9050
+              organization: *OrdererOrg4
+              postgres_db_host: fca-orderer-org4-db
+            fabric-ca-org1:
+              fabric_ca_port: 9069
+              fabric_ca_operations_port: 9070
+              organization: *Org1
+              postgres_db_host: fca-org1-db
 
     fabric_x:
       children:

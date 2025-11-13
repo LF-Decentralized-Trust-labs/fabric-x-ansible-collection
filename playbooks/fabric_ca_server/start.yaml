@@ -7,7 +7,15 @@
 - name: Start all Fabric-CA servers
   hosts: "{{ target_hosts | default('fabric_cas') }}:&fabric_cas"
   tasks:
+    - name: Start Fabric CA DBs
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres
+        tasks_from: start
+      when:
+        - postgres_port is defined
     - name: Start Fabric CA servers
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fabric_ca
         tasks_from: server/start
+      when:
+        - fabric_ca_port is defined

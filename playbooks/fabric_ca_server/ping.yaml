@@ -7,7 +7,15 @@
 - name: Ping Fabric CAs
   hosts: "{{ target_hosts | default('fabric_cas') }}:&fabric_cas"
   tasks:
+    - name: Ping Fabric CA DBs
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres
+        tasks_from: server/ping
+      when:
+        - postgres_port is defined
     - name: Ping Fabric CA servers
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fabric_ca
         tasks_from: server/ping
+      when:
+        - fabric_ca_port is defined

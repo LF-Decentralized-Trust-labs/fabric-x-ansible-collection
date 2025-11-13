@@ -6,7 +6,7 @@
 
 # exported vars
 PROJECT_DIR := $(CURDIR)
-ANSIBLE_CONFIG ?= $(PROJECT_DIR)/ansible.cfg
+ANSIBLE_CONFIG ?= $(PROJECT_DIR)/examples/ansible.cfg
 ANSIBLE_CACHE_PLUGIN ?= jsonfile
 ANSIBLE_CACHE_PLUGIN_CONNECTION ?= $(PROJECT_DIR)/out/ansible_fact_cache
 
