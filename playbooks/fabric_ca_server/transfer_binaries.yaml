@@ -5,7 +5,7 @@
 #
 
 - name: Transfer Fabric CA server binaries
-  hosts: "{{ target_hosts | default('fabric_cas') }}:&fabric_cas"
+  hosts: "{{ target_hosts | default('fabric_ca_servers') }}:&fabric_ca_servers"
   tasks:
     - name: Transfer Fabric CA server binaries
       ansible.builtin.include_role:

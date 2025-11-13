@@ -5,7 +5,7 @@
 #
 
 - name: Gather and register identities on each CA host
-  hosts: "{{ target_hosts | default('fabric_cas') }}:&fabric_cas"
+  hosts: "{{ target_hosts | default('fabric_ca_servers') }}:&fabric_ca_servers"
   tasks:
     - name: Set orderer identities per organization CA
       vars:

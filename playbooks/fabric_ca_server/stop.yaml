@@ -11,3 +11,11 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fabric_ca
         tasks_from: server/stop
+      when:
+        - fabric_ca_port is defined
+    - name: Stop Fabric CA DBs
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres
+        tasks_from: stop
+      when:
+        - postgres_port is defined

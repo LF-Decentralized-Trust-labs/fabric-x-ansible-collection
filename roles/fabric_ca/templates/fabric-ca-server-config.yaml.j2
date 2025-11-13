@@ -14,6 +14,30 @@ debug: {{ fabric_ca_log_level == 'debug' | bool | lower }}
 operations:
   listenAddress: "0.0.0.0:{{ fabric_ca_operations_port }}"
 
+{% if postgres_db_host is defined %}
+# Database configuration for PostgreSQL
+db:
+  type: postgres
+  datasource: >-
+    host={{ hostvars[postgres_db_host].ansible_host }}
+    port={{ hostvars[postgres_db_host].postgres_port }}
+    user={{ hostvars[postgres_db_host].postgres_user }}
+    password={{ hostvars[postgres_db_host].postgres_password }}
+    dbname={{ hostvars[postgres_db_host].postgres_db }}
+{% if hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
+    sslrootcert={{ fabric_ca_config_dir }}/db/cas/cert.pem
+    sslmode=verify-full
+{% else %}
+    sslmode=disable
+{% endif %}
+  tls:
+    enabled: false
+    certfiles:
+    client:
+      certfile:
+      keyfile:
+{% endif %}
+
 # CA identity
 ca:
   name: "{{ fabric_ca_name }}"

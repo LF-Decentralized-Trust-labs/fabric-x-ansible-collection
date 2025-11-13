@@ -11,10 +11,19 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fabric_ca
         tasks_from: server/wipe
+      when:
+        - fabric_ca_port is defined
     - name: Wipe Fabric CA client binaries
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fabric_ca
         tasks_from: client/bin/rm
       when:
+        - fabric_ca_port is defined
         - fabric_ca_client_use_bin is defined
         - fabric_ca_client_use_bin
+    - name: Wipe Fabric CA DBs
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres
+        tasks_from: wipe
+      when:
+        - postgres_port is defined

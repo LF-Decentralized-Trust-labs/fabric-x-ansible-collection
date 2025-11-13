@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Transfer Fabric CAs configs
+  ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.transfer_configs
+
 - name: Transfer Fabric-X Orderer configs
   ansible.builtin.import_playbook: hyperledger.fabricx.orderer.transfer_configs
 

@@ -8,10 +8,20 @@
 # Common target hosts
 # =======================
 
-# Target the Fabric CA servers for the command being run (e.g. make fabric_cas start).
+# Target the Fabric CAs for the command being run (e.g. make fabric_cas start).
 .PHONY: fabric_cas
 fabric_cas:
 	@$(eval TARGET_HOSTS = fabric_cas):
+
+# Target the Fabric CA DBs for the command being run (e.g. make fabric_ca_dbs start).
+.PHONY: fabric_ca_dbs
+fabric_ca_dbs:
+	@$(eval TARGET_HOSTS = fabric_ca_dbs):
+
+# Target the Fabric CA servers for the command being run (e.g. make fabric_ca_servers start).
+.PHONY: fabric_ca_servers
+fabric_ca_servers:
+	@$(eval TARGET_HOSTS = fabric_ca_servers):
 
 # Target the fabric_x components for the command being run (e.g. make fabric_x start).
 .PHONY: fabric_x
