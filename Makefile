@@ -16,13 +16,13 @@ export ANSIBLE_CACHE_PLUGIN_CONNECTION
 export PROJECT_DIR
 
 # Makefile vars
-PLAYBOOK_PATH := $(CURDIR)/examples/playbooks
+PLAYBOOK_PATH := $(PROJECT_DIR)/examples/playbooks
 TARGET_HOSTS ?= all
 ASSERT_METRICS ?= false
 LIMIT ?= 1000
 
 # include the checks target
-include $(CURDIR)/target_hosts.mk
+include $(PROJECT_DIR)/target_hosts.mk
 
 # Print the list of supported commands.
 .PHONY: help
