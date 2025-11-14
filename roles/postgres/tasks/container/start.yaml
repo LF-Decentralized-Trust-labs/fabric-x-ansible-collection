@@ -45,6 +45,11 @@
   vars:
     container_name: "{{ postgres_container_name }}"
     container_image: "{{ postgres_image }}"
+    container_env:
+      POSTGRES_DB: "{{ postgres_db }}"
+      POSTGRES_USER: "{{ postgres_user }}"
+      POSTGRES_PASSWORD: "{{ postgres_password }}"
+      PGDATA: /var/lib/postgresql/data/pgdata
     container_command: >-
       postgres
       -c port={{ postgres_port }}
@@ -59,11 +64,6 @@
     container_ports:
       - "{{ postgres_port }}:{{ postgres_port }}"
     container_volumes: "{{ postgres_volumes }}"
-    container_env:
-      POSTGRES_DB: "{{ postgres_db }}"
-      POSTGRES_USER: "{{ postgres_user }}"
-      POSTGRES_PASSWORD: "{{ postgres_password }}"
-      PGDATA: /var/lib/postgresql/data/pgdata
     container_healthcheck_test: >-
       pg_isready
       -d {{ postgres_db }}
