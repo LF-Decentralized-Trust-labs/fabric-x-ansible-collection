@@ -15,6 +15,34 @@
     state: directory
     mode: "0o750"
 
+# Postgres is not distributed. We assume there's only one DB in committer_db_servers
+- name: Ensure directory for Postgres DB TLS certificate exists
+  vars:
+    postgres_db_host: "{{ committer_db_servers | first }}"
+    use_postgres: "{{ (hostvars[postgres_db_host].postgres_port is defined) | default(false) }}"
+  ansible.builtin.file:
+    path: "{{ committer_remote_config_dir }}/db/tls"
+    state: directory
+    mode: "0750"
+  when:
+    - use_postgres
+    - hostvars[postgres_db_host].postgres_use_tls is defined
+    - hostvars[postgres_db_host].postgres_use_tls
+
+# Postgres is not distributed. We assume there's only one DB in committer_db_servers
+- name: Copy Postgres DB TLS certificate
+  vars:
+    postgres_db_host: "{{ committer_db_servers | first }}"
+    use_postgres: "{{ (hostvars[postgres_db_host].postgres_port is defined) | default(false) }}"
+  ansible.builtin.copy:
+    src: "{{ config_build_dir }}/{{ postgres_db_host }}/tls/cert.pem"
+    dest: "{{ committer_remote_config_dir }}/db/tls/cert.pem"
+    mode: "0644"
+  when:
+    - use_postgres
+    - hostvars[postgres_db_host].postgres_use_tls is defined
+    - hostvars[postgres_db_host].postgres_use_tls
+
 - name: Generate {{ committer_query_service_config_file }}
   vars:
     reference_db: "{{ committer_db_servers | first }}"

@@ -8,6 +8,7 @@
 # Paths, locations
 # =========================
 openssl_remote_config_dir: "{{ remote_host_dir }}/openssl"
+openssl_clean_after_gen: false
 
 # =========================
 # OpenSSL settings

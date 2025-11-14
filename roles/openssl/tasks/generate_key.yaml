@@ -60,3 +60,5 @@
   ansible.builtin.file:
     dest: "{{ openssl_remote_config_dir }}"
     state: absent
+  when:
+    - openssl_clean_after_gen

@@ -13,10 +13,16 @@
         tasks_from: config/transfer
       when:
         - yugabyte_component_type is defined
-    - name: Transfer Postgres config files
+    - name: Transfer Fabric-X Committer Postgres DB config files
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres
         tasks_from: config/transfer
+      when:
+        - postgres_port is defined
+    - name: Fetch Fabric-X Committer Postgres DB crypto files
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres
+        tasks_from: config/fetch_crypto
       when:
         - postgres_port is defined
     - name: Generate the config files for the Fabric-X Committer
