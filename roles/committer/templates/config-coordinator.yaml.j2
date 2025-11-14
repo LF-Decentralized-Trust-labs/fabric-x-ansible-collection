@@ -21,5 +21,7 @@ dependency-graph:
   waiting-txs-limit: {{ committer_coordinator_dep_graph_wait_tx_limit }}
   num-of-workers-for-global-dep-manager: 1
 per-channel-buffer-size-per-goroutine: 10
+{% if prometheus_exporter_port is defined %}
 {% include './sections/monitoring.yaml.j2' +%}
+{% endif %}
 {% include './sections/logging.yaml.j2' %}

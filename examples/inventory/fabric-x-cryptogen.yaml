@@ -141,8 +141,6 @@ all:
                   orderer_rpc_port: 7353
 
         fabric_x_committer:
-          vars:
-            committer_use_postgres: true
           hosts:
             committer-db:
               committer_component_type: db

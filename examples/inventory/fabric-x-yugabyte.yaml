@@ -214,6 +214,7 @@ all:
               yugabyte_user: sc_user
               yugabyte_password: sc_secret_pwd
               yugabyte_db: sc_db
+              yugabyte_component_type: standalone
               yugabyte_master_webserver_port: 7001
               yugabyte_tablet_pgsql_bind_port: 5435
             committer-validator:

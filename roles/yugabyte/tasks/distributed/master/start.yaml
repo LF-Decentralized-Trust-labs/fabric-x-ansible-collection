@@ -8,7 +8,7 @@
   vars:
     _yb_masters: >-
       {{
-        ansible_play_hosts
+        yugabyte_cluster
         | map('extract', hostvars)
         | selectattr('yugabyte_component_type', 'defined')
         | selectattr('yugabyte_component_type', '==', 'master')

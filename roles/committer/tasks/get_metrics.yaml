@@ -10,9 +10,12 @@
     method: GET
     return_content: true
   register: committer_metrics
-  when: prometheus_exporter_port is defined
+  when:
+    - prometheus_exporter_port is defined
 
 - name: Print Fabric-X Committer metrics
   ansible.builtin.debug:
     msg: "{{ committer_metrics.content }}"
-  when: prometheus_exporter_port is defined and committer_metrics is defined
+  when:
+    - prometheus_exporter_port is defined
+    - committer_metrics is defined

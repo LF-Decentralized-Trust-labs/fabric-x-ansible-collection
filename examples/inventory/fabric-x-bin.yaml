@@ -217,7 +217,6 @@ all:
 
         fabric_x_committer:
           vars:
-            committer_use_postgres: true
             committer_use_bin: true
           hosts:
             committer-db:

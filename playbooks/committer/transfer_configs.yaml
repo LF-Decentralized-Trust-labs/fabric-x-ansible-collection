@@ -7,16 +7,37 @@
 - name: Generate the Fabric-X Committer config files
   hosts: "{{ target_hosts | default('fabric_x_committer') }}:&fabric_x_committer"
   tasks:
+    - name: Transfer Yugabyte config files
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.yugabyte
+        tasks_from: config/transfer
+      when:
+        - yugabyte_component_type is defined
+    - name: Transfer Postgres config files
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres
+        tasks_from: config/transfer
+      when:
+        - postgres_port is defined
     - name: Generate the config files for the Fabric-X Committer
       vars:
         committer_db_servers: >-
           {{
-            groups['fabric_x_committer']
-            | map('extract', hostvars)
-            | selectattr('committer_component_type', 'defined')
-            | selectattr('committer_component_type', '==', 'db')
-            | map(attribute='inventory_hostname')
-            | list
+            (
+              groups['fabric_x_committer']
+              | map('extract', hostvars)
+              | selectattr('postgres_port', 'defined')
+              | map(attribute='inventory_hostname')
+              | list
+            )
+            +
+            (
+              groups['fabric_x_committer']
+              | map('extract', hostvars)
+              | selectattr('yugabyte_component_type', 'defined')
+              | map(attribute='inventory_hostname')
+              | list
+            )
           }}
         committer_verifiers: >-
           {{
@@ -58,3 +79,5 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.committer
         tasks_from: config/transfer
+      when:
+        - committer_component_type is defined

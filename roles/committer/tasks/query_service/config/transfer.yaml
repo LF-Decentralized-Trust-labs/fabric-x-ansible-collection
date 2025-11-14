@@ -17,24 +17,26 @@
 
 - name: Generate {{ committer_query_service_config_file }}
   vars:
-    _yb_master: >-
+    reference_db: "{{ committer_db_servers | first }}"
+    use_postgres: "{{ (hostvars[reference_db].postgres_port is defined) | default(false) }}"
+    db_username: >-
       {{
-        committer_db_servers
-        | map('extract', hostvars)
-        | selectattr('yugabyte_component_type', 'defined')
-        | selectattr('yugabyte_component_type', '==', 'master')
-        | map(attribute='inventory_hostname')
+        hostvars[reference_db].postgres_user
+        if use_postgres
+        else hostvars[reference_db].yugabyte_user
       }}
-    db_servers: >-
+    db_password: >-
       {{
-        committer_db_servers
-        | difference(_yb_master)
-        | list
+        hostvars[reference_db].postgres_password
+        if use_postgres
+        else hostvars[reference_db].yugabyte_password
       }}
-    _db_server: "{{ db_servers | first }}"
-    db_username: "{{ hostvars[_db_server].postgres_user if committer_use_postgres else hostvars[_db_server].yugabyte_user }}"
-    db_password: "{{ hostvars[_db_server].postgres_password if committer_use_postgres else hostvars[_db_server].yugabyte_password }}"
-    db_database: "{{ hostvars[_db_server].postgres_db if committer_use_postgres else hostvars[_db_server].yugabyte_db }}"
+    db_database: >-
+      {{
+        hostvars[reference_db].postgres_db
+        if use_postgres
+        else hostvars[reference_db].yugabyte_db
+      }}
   ansible.builtin.template:
     src: "config-query-service.yaml.j2"
     dest: "{{ committer_remote_config_dir }}/{{ committer_query_service_config_file }}"

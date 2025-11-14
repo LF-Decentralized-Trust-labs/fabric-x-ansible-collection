@@ -33,9 +33,3 @@
     name: hyperledger.fabricx.committer
     tasks_from: validator/stop
   when: committer_component_type == 'validator'
-
-- name: Stop the Fabric-X Committer DB
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: db/stop
-  when: committer_component_type == 'db'
