@@ -1,0 +1,13 @@
+#############################################################################
+#  TLS section for the server's listening port
+#
+#  The following types are supported for client authentication: NoClientCert,
+#  RequestClientCert, RequireAnyClientCert, VerifyClientCertIfGiven,
+#  and RequireAndVerifyClientCert.
+#
+#  Certfiles is a list of root certificate authorities that the server uses
+#  when verifying client certificates.
+#############################################################################
+tls:
+  # Enable TLS (default: false)
+  enabled: {{ fabric_ca_use_tls | lower }}

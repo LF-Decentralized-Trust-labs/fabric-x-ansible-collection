@@ -14,6 +14,7 @@
             groups[target_hosts | default('fabric_x_committer')]
             | intersect(groups['fabric_x_committer'])
             | map('extract', hostvars)
+            | selectattr("committer_component_type", 'defined')
             | selectattr("committer_use_bin", 'defined')
             | selectattr("committer_use_bin", 'eq', true)
             | map(attribute='inventory_hostname')

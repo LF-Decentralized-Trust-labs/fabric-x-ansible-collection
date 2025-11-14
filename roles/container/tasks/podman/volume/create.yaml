@@ -29,6 +29,7 @@
     owner: "{{ container_volume_uid }}"
     group: "{{ container_volume_gid }}"
     state: "{{ container_volume_type }}"
+    recurse: "{{ recurse | default(false) }}"
   when:
     - not container_on_mac
     - container_volume_uid is defined

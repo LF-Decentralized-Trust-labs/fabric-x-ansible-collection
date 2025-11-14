@@ -1,7 +1,11 @@
 database:
   endpoints:
-{% for db in db_servers %}
-    - {{ hostvars[db].ansible_host }}:{{ hostvars[db].postgres_port if committer_use_postgres else hostvars[db].yugabyte_tablet_pgsql_bind_port }}
+{% for db in committer_db_servers %}
+{% if hostvars[db].postgres_port is defined %}
+    - {{ hostvars[db].ansible_host }}:{{ hostvars[db].postgres_port }}  # PostgresDB
+{% elif hostvars[db].yugabyte_tablet_pgsql_bind_port is defined %}
+    - {{ hostvars[db].ansible_host }}:{{ hostvars[db].yugabyte_tablet_pgsql_bind_port }} # Yugabyte Tablet
+{% endif %}
 {% endfor %}
   # The username for the database
   username: {{ db_username }}

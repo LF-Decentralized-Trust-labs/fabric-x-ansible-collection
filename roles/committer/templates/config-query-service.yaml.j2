@@ -20,5 +20,7 @@ max-aggregated-views: 1024
 # A view will be closed if it was opened for longer than this time.
 max-view-timeout: 10s
 {% include './sections/database.yaml.j2' +%}
+{% if prometheus_exporter_port is defined %}
 {% include './sections/monitoring.yaml.j2' +%}
+{% endif %}
 {% include './sections/logging.yaml.j2' %}

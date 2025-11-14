@@ -11,3 +11,17 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.committer
         tasks_from: teardown
+      when:
+        - committer_component_type is defined
+    - name: Teardown the Fabric-X Committer Postgres DB
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres
+        tasks_from: teardown
+      when:
+        - postgres_port is defined
+    - name: Teardown the Fabric-X Committer Yugabyte DB
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.yugabyte
+        tasks_from: teardown
+      when:
+        - yugabyte_component_type is defined

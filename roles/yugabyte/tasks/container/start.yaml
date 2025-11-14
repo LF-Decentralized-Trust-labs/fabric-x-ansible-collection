@@ -4,35 +4,23 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Set Yugabyte variables
-  ansible.builtin.set_fact:
-    yb_masters: >-
-      {{
-        ansible_play_hosts
-        | map('extract', hostvars)
-        | selectattr('yugabyte_component_type', 'defined')
-        | selectattr('yugabyte_component_type', '==', 'master')
-        | map(attribute='inventory_hostname')
-        | list
-      }}
-    yb_tablets: >-
-      {{
-        ansible_play_hosts
-        | map('extract', hostvars)
-        | selectattr('yugabyte_component_type', 'defined')
-        | selectattr('yugabyte_component_type', '==', 'tablet')
-        | map(attribute='inventory_hostname')
-        | list
-      }}
-
 - name: Start standalone Yugabyte container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: standalone/container/start
-  when: yb_masters | length == 0 and yb_tablets | length == 0
+  when:
+    - yugabyte_component_type == 'standalone'
 
-- name: Start distributed Yugabyte containers
+- name: Start Yugabyte master DB container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
-    tasks_from: distributed/container/start
-  when: yb_masters | length > 0 or yb_tablets | length > 0
+    tasks_from: distributed/master/start
+  when:
+    - yugabyte_component_type == 'master'
+
+- name: Start Yugabyte Tablet Servers containers
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: distributed/tablet/start
+  when:
+    - yugabyte_component_type == 'tablet'

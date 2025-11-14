@@ -1,0 +1,13 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Fetch the Postgres TLS certificate
+  ansible.builtin.fetch:
+    src: "{{ postgres_tls_dir }}/tls_cert.pem"
+    dest: "{{ config_build_dir }}/{{ inventory_hostname }}/tls/cert.pem"
+    flat: true
+  when:
+    - postgres_use_tls

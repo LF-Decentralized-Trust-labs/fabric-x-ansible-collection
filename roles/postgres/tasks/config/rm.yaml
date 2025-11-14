@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Clean Postgres TLS key
+  vars:
+    container_volume_path: "{{ postgres_tls_dir }}/tls_key.pem"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: volume/rm
+
+- name: Clean Postgres config files
+  ansible.builtin.file:
+    path: "{{ postgres_remote_config_dir }}"
+    state: absent

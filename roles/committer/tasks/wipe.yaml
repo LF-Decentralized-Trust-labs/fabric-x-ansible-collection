@@ -33,9 +33,3 @@
     name: hyperledger.fabricx.committer
     tasks_from: validator/wipe
   when: committer_component_type == 'validator'
-
-- name: Wipe the the Fabric-X Committer DB
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: db/wipe
-  when: committer_component_type == 'db'
