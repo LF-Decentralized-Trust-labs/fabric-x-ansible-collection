@@ -55,6 +55,7 @@ all:
           vars:
             postgres_user: postgres
             postgres_password: example
+            postgres_use_tls: true
           hosts:
             fca-orderer-org1-db:
               postgres_db: ordererOrg1DB
