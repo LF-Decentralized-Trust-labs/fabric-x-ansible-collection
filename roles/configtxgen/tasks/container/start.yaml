@@ -10,19 +10,20 @@
     state: directory
     mode: "0o750"
 
-- name: Define mandatory Docker mounts
+- name: Define mandatory container mounts
   ansible.builtin.set_fact:
-    configtxgen_docker_volumes:
-      - "{{ configtxgen_output_dir }}:{{ configtxgen_docker_output_dir }}:Z"
-      - "{{ configtxgen_cryptogen_artifacts_dir }}:{{ configtxgen_cryptogen_docker_artifacts_dir }}:Z"
-      - "{{ configtxgen_armageddon_artifacts_dir }}:{{ configtxgen_armageddon_docker_artifacts_dir }}:Z"
+    configtxgen_volumes:
+      - "{{ configtxgen_output_dir }}:{{ configtxgen_container_output_dir }}:Z"
+      - "{{ configtxgen_cryptogen_artifacts_dir }}:{{ configtxgen_cryptogen_container_artifacts_dir }}:Z"
+      - "{{ configtxgen_armageddon_artifacts_dir }}:{{ configtxgen_armageddon_container_artifacts_dir }}:Z"
 
 - name: Add volume for idemixgen CA
   vars:
-    idemixgen_artifacts_volume: "{{ configtxgen_idemixgen_artifacts_dir }}:{{ configtxgen_idemixgen_docker_artifacts_dir }}:Z"
+    idemixgen_artifacts_volume: "{{ configtxgen_idemixgen_artifacts_dir }}:{{ configtxgen_idemixgen_container_artifacts_dir }}:Z"
   ansible.builtin.set_fact:
     configtxgen_docker_volumes: "{{ configtxgen_docker_volumes + [idemixgen_artifacts_volume] }}"
-  when: configtxgen_idemixgen_artifacts_dir is exists
+  when:
+    - configtxgen_idemixgen_artifacts_dir is exists
 
 - name: Generate the genesis block with configtxgen as container
   vars:
@@ -32,9 +33,9 @@
       {{ configtxgen_bin_name }}
       -channelID {{ configtxgen_channel_id }}
       -profile {{ configtxgen_profile_id }}
-      -configPath {{ configtxgen_docker_output_dir }}
-      --outputBlock {{ configtxgen_docker_output_dir }}/{{ configtxgen_channel_id }}_block.pb
-    container_volumes: "{{ configtxgen_docker_volumes }}"
+      -configPath {{ configtxgen_container_output_dir }}
+      --outputBlock {{ configtxgen_container_output_dir }}/{{ configtxgen_channel_id }}_block.pb
+    container_volumes: "{{ configtxgen_volumes }}"
     container_run_detach_mode: false
     container_run_as_host_user: true
     container_autoremove: true
