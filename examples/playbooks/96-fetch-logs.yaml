@@ -9,7 +9,7 @@
   tasks:
     - name: Create folder for the fetched logs
       ansible.builtin.file:
-        path: "{{ out_log_dir }}"
+        path: "{{ fetched_logs_dir }}"
         state: directory
         mode: "0o750"
 

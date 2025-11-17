@@ -16,12 +16,12 @@ ansible_host: "{{ lookup('env', 'LOCAL_ANSIBLE_HOST') or 'localhost' }}"
 # =========================
 project_dir: "{{ lookup('env', 'PROJECT_DIR') or '~/.ansible/collections/ansible_collections/hyperledger/fabricx' }}"
 out_dir: "{{ project_dir }}/out"
-out_log_dir: "{{ out_dir }}/logs"
 control_node_dir: "{{ out_dir }}/control-node"
 source_code_dir: "{{ control_node_dir }}/code"
 cli_bin_dir: "{{ control_node_dir }}/cli"
 config_build_dir: "{{ control_node_dir }}/config"
 fetched_artifacts_dir: "{{ control_node_dir }}/fetched"
+fetched_logs_dir: "{{ fetched_artifacts_dir }}/logs"
 fetched_tls_dir: "{{ fetched_artifacts_dir }}/tls"
 fetched_msp_dir: "{{ fetched_artifacts_dir }}/msp"
 

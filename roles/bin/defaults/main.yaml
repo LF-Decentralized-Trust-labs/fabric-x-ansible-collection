@@ -10,8 +10,8 @@ bin_output_dir: "{{ bin_build_dir }}/{{ bin_target_os }}_os/{{ bin_target_arch }
 bin_remote_dir: "{{ remote_node_dir }}/bin"
 bin_remote_logs_dir: "{{ remote_node_dir }}/logs"
 bin_remote_logs_file: "logs.txt"
-bin_logs_dir: "{{ out_log_dir }}"
-bin_logs_file: "{{ inventory_hostname }}_logs.txt"
+bin_fetched_logs_dir: "{{ fetched_logs_dir }}"
+bin_fetched_logs_filename: "logs.txt"
 
 # Bin misc vars
 bin_name: "{{ inventory_hostname }}"

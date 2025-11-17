@@ -30,7 +30,7 @@ container_run_as_host_user: false
 # =========================
 # Container Logs
 # =========================
-container_logs_dir: "{{ out_log_dir }}"
+container_logs_dir: "{{ fetched_logs_dir }}"
 container_logs_file: "{{ inventory_hostname }}_logs.txt"
 container_remote_logs_dir: "{{ remote_node_dir }}/logs"
 container_remote_logs_file: "logs.txt"

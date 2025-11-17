@@ -7,7 +7,7 @@
 - name: Fetch the logs from the binary
   ansible.builtin.fetch:
     src: "{{ bin_remote_logs_dir }}/{{ bin_remote_logs_file }}"
-    dest: "{{ bin_logs_dir }}/{{ bin_logs_file }}"
+    dest: "{{ bin_fetched_logs_dir }}/{{ bin_fetched_logs_filename }}"
     validate_checksum: false
     fail_on_missing: false
     flat: true
