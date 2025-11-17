@@ -1,0 +1,16 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Fetch CSR on control node
+  vars:
+    openssl_private_key_path: "{{ yugabyte_remote_config_dir }}/tls/tls_key.pem"
+    openssl_csr_path: "{{ yugabyte_remote_config_dir }}/tls/tls.csr"
+  ansible.builtin.fetch:
+    src: "{{ yugabyte_remote_config_dir }}/tls/tls.csr"
+    dest: "{{ tls_dest_file }}"
+    flat: true
+  when:
+    - yugabyte_use_tls

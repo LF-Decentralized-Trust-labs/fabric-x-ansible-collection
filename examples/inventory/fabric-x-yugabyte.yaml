@@ -210,6 +210,7 @@ all:
         fabric_x_committer:
           hosts:
             committer-db:
+              yugabyte_cluster_id: 1
               committer_component_type: db
               yugabyte_user: sc_user
               yugabyte_password: sc_secret_pwd
@@ -218,6 +219,7 @@ all:
               yugabyte_master_webserver_port: 7001
               yugabyte_tablet_pgsql_bind_port: 5435
             committer-validator:
+              yugabyte_cluster_ref_id: 1
               committer_component_type: validator
               committer_rpc_port: 5100
               prometheus_exporter_port: 2120
@@ -234,6 +236,7 @@ all:
               committer_rpc_port: 5400
               prometheus_exporter_port: 2150
             committer-query-service:
+              yugabyte_cluster_ref_id: 1
               committer_component_type: query-service
               committer_rpc_port: 5500
               prometheus_exporter_port: 2160

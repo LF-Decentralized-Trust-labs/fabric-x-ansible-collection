@@ -1,0 +1,41 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the path for the OpenSSL CA private key has been defined
+  ansible.builtin.fail:
+    msg: "No CA private key path has been defined, but required to build the binary. Set it via 'openssl_ca_private_key_path'."
+  when:
+    - openssl_ca_private_key_path is not defined
+
+- name: Check that the path for the OpenSSL CA cert has been defined
+  ansible.builtin.fail:
+    msg: "No CA cert path has been defined, but required to build the binary. Set it via 'openssl_ca_cert_path'."
+  when:
+    - openssl_ca_cert_path is not defined
+
+- name: Check that the path for the OpenSSL CSR has been defined
+  ansible.builtin.fail:
+    msg: "No CSR path has been defined, but required to build the binary. Set it via 'openssl_csr_path'."
+  when:
+    - openssl_csr_path is not defined
+
+- name: Ensure that the cert output directory exists
+  ansible.builtin.file:
+    path: "{{ openssl_cert_path | dirname }}"
+    state: directory
+    mode: "0755"
+
+- name: Generate a signed certificate from CSR
+  ansible.builtin.command: >-
+    openssl x509
+    -req
+    -in {{ openssl_csr_path }}
+    -CA {{ openssl_ca_cert_path }}
+    -CAkey {{ openssl_ca_private_key_path }}
+    -out {{ openssl_cert_path }}
+    -days {{ openssl_cert_duration }}
+  args:
+    creates: "{{ openssl_cert_path }}"

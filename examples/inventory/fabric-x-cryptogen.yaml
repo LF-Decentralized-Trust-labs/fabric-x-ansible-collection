@@ -152,6 +152,7 @@ all:
               committer_component_type: validator
               committer_rpc_port: 5100
               prometheus_exporter_port: 2120
+              postgres_db_host: committer-db
             committer-verifier:
               committer_component_type: verifier
               committer_rpc_port: 5200
@@ -168,6 +169,7 @@ all:
               committer_component_type: query-service
               committer_rpc_port: 5500
               prometheus_exporter_port: 2160
+              postgres_db_host: committer-db
 
     load_generators:
       hosts:

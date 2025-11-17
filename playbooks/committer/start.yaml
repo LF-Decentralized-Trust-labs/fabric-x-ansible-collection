@@ -20,6 +20,8 @@
             groups['fabric_x_committer']
             | map('extract', hostvars)
             | selectattr('yugabyte_component_type', 'defined')
+            | selectattr('yugabyte_cluster_id', 'defined')
+            | selectattr('yugabyte_cluster_id', '==', yugabyte_cluster_id)
             | map(attribute='inventory_hostname')
             | list
           }}

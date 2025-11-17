@@ -54,7 +54,7 @@
     -pkeyopt {{ openssl_pkey_opt }}
     {% endif %}
   args:
-    creates: "{{ openssl_private_key_path }}"
+    creates: "{{ openssl_cert_path }}"
 
 - name: Clean the OpenSSL configuration folder
   ansible.builtin.file:

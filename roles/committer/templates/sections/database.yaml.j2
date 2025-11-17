@@ -1,24 +1,37 @@
 database:
   endpoints:
-{% for db in committer_db_servers %}
-{% if hostvars[db].postgres_port is defined %}
-    - {{ hostvars[db].ansible_host }}:{{ hostvars[db].postgres_port }}  # PostgresDB
-{% elif hostvars[db].yugabyte_tablet_pgsql_bind_port is defined %}
-    - {{ hostvars[db].ansible_host }}:{{ hostvars[db].yugabyte_tablet_pgsql_bind_port }} # Yugabyte Tablet
+{% if postgres_db_host is defined %}
+    # PostgresDB
+    - {{ hostvars[postgres_db_host].ansible_host }}:{{ hostvars[postgres_db_host].postgres_port }}
+  # The username for the database
+  username: {{ hostvars[postgres_db_host].postgres_user }}
+  # The password for the database
+  password: {{ hostvars[postgres_db_host].postgres_password }}
+  # The database name
+  database: {{ hostvars[postgres_db_host].postgres_db }}
+  # Should be enabled for DB cluster
+  load-balance: false  
+{% elif yugabyte_cluster_ref_id is defined %}
+{% set yugabyte_cluster = groups['all'] | map('extract', hostvars) | selectattr('yugabyte_cluster_id', 'defined') | selectattr('yugabyte_cluster_id', '==', yugabyte_cluster_ref_id) | map(attribute='inventory_hostname') %}
+{% for db in yugabyte_cluster %}
+{% if hostvars[db].yugabyte_tablet_pgsql_bind_port is defined %}
+    # Yugabyte Tablet
+    - {{ hostvars[db].ansible_host }}:{{ hostvars[db].yugabyte_tablet_pgsql_bind_port }}
 {% endif %}
 {% endfor %}
   # The username for the database
-  username: {{ db_username }}
+  username: {{ hostvars[yugabyte_cluster | first ].yugabyte_user }}
   # The password for the database
-  password: {{ db_password }}
+  password: {{ hostvars[yugabyte_cluster | first ].yugabyte_password }}
   # The database name
-  database: {{ db_database }}
+  database: {{ hostvars[yugabyte_cluster | first ].yugabyte_db }}
+  # Should be enabled for DB cluster
+  load-balance: true
+{% endif %}
   # The maximum size of the connection pool
   max-connections: 10
   # The minimum size of the connection pool
   min-connections: 5
-  # Should be enabled for DB cluster
-  load-balance: false
   # The exponential backoff retry strategy for database operation.
   retry:
     # This strategy increases the delay between retry attempts exponentially.

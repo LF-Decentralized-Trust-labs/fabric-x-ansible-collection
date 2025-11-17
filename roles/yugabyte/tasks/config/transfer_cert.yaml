@@ -1,0 +1,23 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Copy TLS cert
+  # TODO: add a default
+  ansible.builtin.copy:
+    src: "{{ tls_cert_src_file }}"
+    dest: "{{ yugabyte_remote_config_dir }}/tls/tls_cert.pem"
+    mode: "0o644"
+  when:
+    - yugabyte_use_tls
+
+- name: Copy TLS CA cert
+  # TODO: add a default
+  ansible.builtin.copy:
+    src: "{{ tls_ca_cert_src_file }}"
+    dest: "{{ yugabyte_remote_config_dir }}/tls/ca.pem"
+    mode: "0o644"
+  when:
+    - yugabyte_use_tls

@@ -6,7 +6,7 @@ The role `hyperledger.fabricx.openssl` can be used to run the `openssl` CLI util
 
 - [Tasks](#tasks)
   - [install](#install)
-  - [generate\_key](#generate_key)
+  - [generate_key](#generate_self_signed_cert)
 
 ## Tasks
 
@@ -21,9 +21,9 @@ The `install` task allows to install the `openssl` binary utility on a machine (
     tasks_from: install
 ```
 
-### generate_key
+### generate_self_signed_cert
 
-The `generate_key` task allows to generate a private key and its corresponding certificate.
+The `generate_self_signed_cert` task allows to generate a private key and its corresponding certificate.
 
 ```yaml
 - name: Generate an ECDSA key with certificate using openssl
@@ -32,5 +32,5 @@ The `generate_key` task allows to generate a private key and its corresponding c
     openssl_cert_path: /tmp/pubKey.cert
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openssl
-    tasks_from: generate_key
+    tasks_from: generate_self_signed_cert
 ```

@@ -1,0 +1,97 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Generate CA certificate for Yugabyte DB
+  hosts: localhost
+  tasks:
+    - name: Generate self signed certificate for Yugabyte DBs
+      vars:
+        yugabyte_cluster_ca_dir: "{{ config_build_dir }}/yugabyte-cluster-{{ current_yugabyte_cluster_id }}"
+        openssl_private_key_path: "{{ yugabyte_cluster_ca_dir }}/tls/tls_key.pem"
+        openssl_cert_path: "{{ yugabyte_cluster_ca_dir }}/tls/tls_cert.pem"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.openssl
+        tasks_from: generate_self_signed_cert
+      loop: >-
+        {{
+          groups['all']
+          | map('extract', hostvars)
+          | selectattr('yugabyte_use_tls', 'defined')
+          | selectattr('yugabyte_use_tls', '==', true)
+          | selectattr('yugabyte_cluster_id', 'defined')
+          | map(attribute='yugabyte_cluster_id')
+          | unique
+        }}
+      loop_control:
+        loop_var: current_yugabyte_cluster_id
+        label: "yugabyte_cluster={{ current_yugabyte_cluster_id }}"
+
+- name: Generate and fetch CSR for TLS certs
+  hosts: "{{ target_hosts | default('all') }}"
+  tasks:
+    - name: Generate CSR for TLS cert
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.yugabyte
+        tasks_from: config/generate_csr
+      when:
+        - yugabyte_component_type is defined
+        - yugabyte_use_tls is defined
+        - yugabyte_use_tls
+    - name: Fetch CSR for TLS cert on control node
+      vars:
+        tls_dest_file: "{{ config_build_dir }}/yugabyte-cluster-{{ yugabyte_cluster_id }}/{{ inventory_hostname }}/tls/tls.csr"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.yugabyte
+        tasks_from: config/fetch_csr
+      when:
+        - yugabyte_component_type is defined
+        - yugabyte_use_tls is defined
+        - yugabyte_use_tls
+
+- name: Sign CSR and produce TLS certificates
+  hosts: localhost
+  tasks:
+    - name: Sign CSR and generate TLS
+      vars:
+        yugabyte_cluster_ca_dir: "{{ config_build_dir }}/yugabyte-cluster-{{ hostvars[current_yugabyte_node].yugabyte_cluster_id }}"
+        openssl_ca_private_key_path: "{{ yugabyte_cluster_ca_dir }}/tls/tls_key.pem"
+        openssl_ca_cert_path: "{{ yugabyte_cluster_ca_dir }}/tls/tls_cert.pem"
+        openssl_csr_path: "{{ yugabyte_cluster_ca_dir }}/{{ current_yugabyte_node }}/tls/tls.csr"
+        openssl_cert_path: "{{ yugabyte_cluster_ca_dir }}/{{ current_yugabyte_node }}/tls/tls_cert.pem"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.openssl
+        tasks_from: generate_cert
+      loop: >-
+        {{
+          groups['all']
+          | map('extract', hostvars)
+          | selectattr('yugabyte_component_type', 'defined')
+          | selectattr('yugabyte_use_tls', 'defined')
+          | selectattr('yugabyte_use_tls', '==', true)
+          | map(attribute='inventory_hostname')
+          | list
+        }}
+      loop_control:
+        loop_var: current_yugabyte_node
+        label: "{{ current_yugabyte_node }}"
+
+- name: Transfer TLS certs to the nodes
+  hosts: "{{ target_hosts | default('all') }}"
+  roles:
+    - hyperledger.fabricx.yugabyte
+  tasks:
+    - name: Transfer generated certs to nodes
+      vars:
+        yugabyte_cluster_ca_dir: "{{ config_build_dir }}/yugabyte-cluster-{{ yugabyte_cluster_id }}"
+        tls_cert_src_file: "{{ yugabyte_cluster_ca_dir }}/{{ inventory_hostname }}/tls/tls_cert.pem"
+        tls_ca_cert_src_file: "{{ yugabyte_cluster_ca_dir }}/tls/tls_cert.pem"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.yugabyte
+        tasks_from: config/transfer_cert
+      when:
+        - yugabyte_component_type is defined
+        - yugabyte_use_tls is defined
+        - yugabyte_use_tls

@@ -30,7 +30,6 @@ committer_sidecar_config_file: "config-sidecar.yml"
 committer_query_service_config_file: "config-query-service.yml"
 
 # Fabric-X Committer misc vars
-committer_use_postgres: "{{ lookup('env', 'COMMITTER_USE_POSTGRES') or false }}"
 committer_use_tls: false
 committer_use_bin: "{{ use_bin | default(false) }}"
 committer_log_level: "INFO"
