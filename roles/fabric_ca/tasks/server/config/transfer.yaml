@@ -30,7 +30,7 @@
 
 - name: Copy Postgres DB TLS certificate
   ansible.builtin.copy:
-    src: "{{ tls_build_dir }}/{{ postgres_db_host }}/tls_cert.pem"
+    src: "{{ fetched_tls_dir }}/{{ postgres_db_host }}/tls_cert.pem"
     dest: "{{ fabric_ca_remote_config_dir }}/db/tls/cert.pem"
     mode: "0644"
   when:

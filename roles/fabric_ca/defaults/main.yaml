@@ -20,7 +20,6 @@ fabric_ca_container_config_dir: "/config"
 fabric_ca_git_uri: "https://github.com/hyperledger/fabric-ca.git"
 fabric_ca_git_dir: "{{ source_code_dir }}/fabric-ca"
 fabric_ca_git_commit: "v1.5.15"
-fabric_ca_bin_dir: "{{ deploy_dir }}/{{ inventory_hostname }}/bin"
 # Fabric CA Server binary
 fabric_ca_server_source_code_dir: "{{ fabric_ca_git_dir }}/cmd/fabric-ca-server"
 fabric_ca_server_bin_package: "github.com/hyperledger/fabric-ca/cmd/fabric-ca-server"

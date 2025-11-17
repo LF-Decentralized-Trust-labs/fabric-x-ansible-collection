@@ -16,33 +16,8 @@
 all:
   vars:
     # =========================
-    # Ansible Connection
+    # Organizations
     # =========================
-    ansible_connection: local
-    ansible_user: "{{ lookup('env', 'USER') }}"
-    ansible_host: "{{ lookup('env', 'LOCAL_ANSIBLE_HOST') or 'localhost' }}"
-    # =========================
-    # Control Node Paths
-    # =========================
-    project_dir: "{{ lookup('env', 'PROJECT_DIR') or '~/.ansible/collections/ansible_collections/hyperledger/fabricx' }}"
-    out_dir: "{{ lookup('env', 'OUT_DIR') or project_dir + '/out' }}"
-    out_build_dir: "{{ out_dir }}/build"
-    source_code_dir: "{{ out_build_dir }}/code"
-    cli_bin_dir: "{{ out_build_dir }}/cli"
-    out_log_dir: "{{ out_dir }}/logs"
-    config_build_dir: "{{ out_build_dir }}/config"
-    tls_build_dir: "{{ out_build_dir }}/tls"
-    # =========================
-    # Remote Node Paths
-    # =========================
-    deploy_dir: "{{ out_dir }}/local-deployment"
-    remote_host_dir: "{{ deploy_dir }}/{{ inventory_hostname }}"
-    remote_config_dir: "{{ remote_host_dir }}/config"
-    # =========================
-    # Miscellaneous
-    # =========================
-    channel_id: arma
-    node_exporter_port: 9111
     organizations:
       orderer_org_1: &OrdererOrg1
         name: "OrdererOrg1"

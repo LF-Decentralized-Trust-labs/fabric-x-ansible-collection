@@ -1,0 +1,38 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Ansible Connection
+# =========================
+ansible_connection: local
+ansible_user: "{{ lookup('env', 'USER') }}"
+ansible_host: "{{ lookup('env', 'LOCAL_ANSIBLE_HOST') or 'localhost' }}"
+
+# =========================
+# Control Node Paths
+# =========================
+project_dir: "{{ lookup('env', 'PROJECT_DIR') or '~/.ansible/collections/ansible_collections/hyperledger/fabricx' }}"
+out_dir: "{{ project_dir }}/out"
+out_log_dir: "{{ out_dir }}/logs"
+control_node_dir: "{{ out_dir }}/control-node"
+source_code_dir: "{{ control_node_dir }}/code"
+cli_bin_dir: "{{ control_node_dir }}/cli"
+config_build_dir: "{{ control_node_dir }}/config"
+fetched_artifacts_dir: "{{ control_node_dir }}/fetched"
+fetched_tls_dir: "{{ fetched_artifacts_dir }}/tls"
+fetched_msp_dir: "{{ fetched_artifacts_dir }}/msp"
+
+# =========================
+# Remote Node Paths
+# =========================
+remote_node_dir: "{{ out_dir }}/local-deployment/{{ inventory_hostname }}"
+remote_config_dir: "{{ remote_node_dir }}/config"
+
+# =========================
+# Miscellaneous
+# =========================
+channel_id: arma
+node_exporter_port: 9111

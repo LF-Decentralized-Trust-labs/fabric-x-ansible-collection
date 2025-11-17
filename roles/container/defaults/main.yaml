@@ -32,7 +32,7 @@ container_run_as_host_user: false
 # =========================
 container_logs_dir: "{{ out_log_dir }}"
 container_logs_file: "{{ inventory_hostname }}_logs.txt"
-container_remote_logs_dir: "{{ deploy_dir }}/{{ inventory_hostname }}/logs"
+container_remote_logs_dir: "{{ remote_node_dir }}/logs"
 container_remote_logs_file: "logs.txt"
 container_omit_logs: false
 container_log_driver: "json-file"
