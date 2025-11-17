@@ -7,7 +7,6 @@
 - name: Fetch the logs from the ElasticSearch container
   vars:
     container_name: "{{ elasticsearch_container_name }}"
-    container_logs_file: "{{ elasticsearch_container_name }}_logs.txt"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: fetch_logs

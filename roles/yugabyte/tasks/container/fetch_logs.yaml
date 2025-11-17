@@ -7,7 +7,6 @@
 - name: Fetch the logs from the Yugabyte container
   vars:
     container_name: "{{ yugabyte_container_name }}"
-    container_logs_file: "{{ yugabyte_container_name }}_logs.txt"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: fetch_logs
