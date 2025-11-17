@@ -34,4 +34,4 @@
           }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fabric_ca
-        tasks_from: server/config/fetch_crypto_material
+        tasks_from: server/config/fetch_certs

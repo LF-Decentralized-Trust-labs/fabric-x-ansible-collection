@@ -22,10 +22,10 @@
         tasks_from: config/transfer
       when:
         - postgres_port is defined
-    - name: Fetch Fabric-X Committer Postgres DB crypto files
+    - name: Fetch Fabric-X Committer Postgres DB certificates
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres
-        tasks_from: config/fetch_crypto
+        tasks_from: config/fetch_certs
       when:
         - postgres_port is defined
     - name: Generate the config files for the Fabric-X Committer

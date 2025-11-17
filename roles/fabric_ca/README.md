@@ -8,7 +8,7 @@ The role `hyperledger.fabricx.fabric_ca` can be used to run an Hyperledger Fabri
 - [Tasks](#tasks)
   - [server/config/transfer](#serverconfigtransfer)
   - [server/start](#serverstart)
-  - [server/config/fetch_crypto_material](#serverconfigfetch_crypto_material)
+  - [server/config/fetch_certs](#serverconfigfetch_certs)
   - [server/stop](#serverstop)
   - [server/teardown](#serverteardown)
   - [server/wipe](#serverwipe)
@@ -51,15 +51,15 @@ The task `server/start` starts a Fabric CA server (either as container or as bin
     tasks_from: server/start
 ```
 
-### server/config/fetch_crypto_material
+### server/config/fetch_certs
 
-The task `server/config/fetch_crypto_material` fetches on the control node the certificates of a Fabric CA server that need to be used to build the genesis block:
+The task `server/config/fetch_certs` fetches on the control node the certificates of a Fabric CA server that need to be used to build the genesis block:
 
 ```yaml
 - name: Fetch the Fabric CA server crypto material
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
-    tasks_from: server/config/fetch_crypto_material
+    tasks_from: server/config/fetch_certs
 ```
 
 ### server/stop

@@ -13,10 +13,10 @@
         tasks_from: config/transfer
       when:
         - postgres_port is defined
-    - name: Fetch the Fabric CA DBs crypto files
+    - name: Fetch the Fabric CA DBs certificates
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres
-        tasks_from: config/fetch_crypto
+        tasks_from: config/fetch_certs
       when:
         - postgres_port is defined
     - name: Transfer Fabric CA server config files

@@ -14,4 +14,4 @@
     - name: Fetch FabricX Orderer certificates
       ansible.builtin.include_role:
         name: hyperledger.fabricx.orderer
-        tasks_from: config/fetch_crypto
+        tasks_from: config/fetch_certs
