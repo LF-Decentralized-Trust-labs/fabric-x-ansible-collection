@@ -5,19 +5,17 @@
 #
 
 - name: Copy TLS cert
-  # TODO: add a default
   ansible.builtin.copy:
-    src: "{{ tls_cert_src_file }}"
-    dest: "{{ yugabyte_remote_config_dir }}/tls/tls_cert.pem"
+    src: "{{ tls_build_dir }}/{{ inventory_hostname }}/tls_cert.pem"
+    dest: "{{ yugabyte_remote_tls_dir }}/tls_cert.pem"
     mode: "0o644"
   when:
     - yugabyte_use_tls
 
 - name: Copy TLS CA cert
-  # TODO: add a default
   ansible.builtin.copy:
-    src: "{{ tls_ca_cert_src_file }}"
-    dest: "{{ yugabyte_remote_config_dir }}/tls/ca.pem"
+    src: "{{ tls_build_dir }}/yugabyte-cluster-{{ yugabyte_cluster_id }}/tls_cert.pem"
+    dest: "{{ yugabyte_remote_tls_dir }}/ca.pem"
     mode: "0o644"
   when:
     - yugabyte_use_tls

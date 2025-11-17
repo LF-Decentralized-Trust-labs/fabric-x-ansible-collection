@@ -6,8 +6,8 @@
 
 - name: Fetch the Postgres TLS certificate
   ansible.builtin.fetch:
-    src: "{{ postgres_tls_dir }}/tls_cert.pem"
-    dest: "{{ config_build_dir }}/{{ inventory_hostname }}/tls/cert.pem"
+    src: "{{ postgres_remote_tls_dir }}/tls_cert.pem"
+    dest: "{{ tls_build_dir }}/{{ inventory_hostname }}/tls_cert.pem"
     flat: true
   when:
     - postgres_use_tls

@@ -6,8 +6,8 @@
 
 - name: Generate CSR for TLS cert
   vars:
-    openssl_private_key_path: "{{ yugabyte_remote_config_dir }}/tls/tls_key.pem"
-    openssl_csr_path: "{{ yugabyte_remote_config_dir }}/tls/tls.csr"
+    openssl_private_key_path: "{{ yugabyte_remote_tls_dir }}/tls_key.pem"
+    openssl_csr_path: "{{ yugabyte_remote_tls_dir }}/tls.csr"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openssl
     tasks_from: generate_csr

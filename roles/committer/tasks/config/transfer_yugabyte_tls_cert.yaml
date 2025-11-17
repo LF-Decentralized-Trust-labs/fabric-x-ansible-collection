@@ -1,0 +1,35 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure directory for Yugabyte cluster TLS certificate exists
+  ansible.builtin.file:
+    path: "{{ committer_remote_config_dir }}/db/tls"
+    state: directory
+    mode: "0750"
+  when:
+    - yugabyte_cluster_ref_id is defined
+    - groups['all']
+      | map('extract', hostvars)
+      | selectattr('yugabyte_cluster_id', 'defined')
+      | selectattr('yugabyte_cluster_id', '==', yugabyte_cluster_ref_id)
+      | selectattr('yugabyte_use_tls', 'defined')
+      | selectattr('yugabyte_use_tls', '==', true)
+      | length > 0
+
+- name: Copy Yugabyte cluster CA TLS certificate
+  ansible.builtin.copy:
+    src: "{{ tls_build_dir }}/yugabyte-cluster-{{ yugabyte_cluster_ref_id }}/tls_cert.pem"
+    dest: "{{ committer_remote_config_dir }}/db/tls/cert.pem"
+    mode: "0644"
+  when:
+    - yugabyte_cluster_ref_id is defined
+    - groups['all']
+      | map('extract', hostvars)
+      | selectattr('yugabyte_cluster_id', 'defined')
+      | selectattr('yugabyte_cluster_id', '==', yugabyte_cluster_ref_id)
+      | selectattr('yugabyte_use_tls', 'defined')
+      | selectattr('yugabyte_use_tls', '==', true)
+      | length > 0

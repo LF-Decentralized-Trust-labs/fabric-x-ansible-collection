@@ -20,7 +20,7 @@
   ansible.builtin.file:
     path: "{{ openssl_remote_config_dir }}"
     state: directory
-    mode: "0o750"
+    mode: "0o755"
 
 - name: Ensure that the key output directory exists
   ansible.builtin.file:

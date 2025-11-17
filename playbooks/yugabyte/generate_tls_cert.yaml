@@ -9,9 +9,10 @@
   tasks:
     - name: Generate self signed certificate for Yugabyte DBs
       vars:
-        yugabyte_cluster_ca_dir: "{{ config_build_dir }}/yugabyte-cluster-{{ current_yugabyte_cluster_id }}"
-        openssl_private_key_path: "{{ yugabyte_cluster_ca_dir }}/tls/tls_key.pem"
-        openssl_cert_path: "{{ yugabyte_cluster_ca_dir }}/tls/tls_cert.pem"
+        yugabyte_cluster_ca_dir: "{{ tls_build_dir }}/yugabyte-cluster-{{ current_yugabyte_cluster_id }}"
+        openssl_remote_config_dir: "{{ yugabyte_cluster_ca_dir }}"
+        openssl_private_key_path: "{{ yugabyte_cluster_ca_dir }}/tls_key.pem"
+        openssl_cert_path: "{{ yugabyte_cluster_ca_dir }}/tls_cert.pem"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.openssl
         tasks_from: generate_self_signed_cert
@@ -38,29 +39,23 @@
         tasks_from: config/generate_csr
       when:
         - yugabyte_component_type is defined
-        - yugabyte_use_tls is defined
-        - yugabyte_use_tls
     - name: Fetch CSR for TLS cert on control node
-      vars:
-        tls_dest_file: "{{ config_build_dir }}/yugabyte-cluster-{{ yugabyte_cluster_id }}/{{ inventory_hostname }}/tls/tls.csr"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.yugabyte
         tasks_from: config/fetch_csr
       when:
         - yugabyte_component_type is defined
-        - yugabyte_use_tls is defined
-        - yugabyte_use_tls
 
 - name: Sign CSR and produce TLS certificates
   hosts: localhost
   tasks:
     - name: Sign CSR and generate TLS
       vars:
-        yugabyte_cluster_ca_dir: "{{ config_build_dir }}/yugabyte-cluster-{{ hostvars[current_yugabyte_node].yugabyte_cluster_id }}"
-        openssl_ca_private_key_path: "{{ yugabyte_cluster_ca_dir }}/tls/tls_key.pem"
-        openssl_ca_cert_path: "{{ yugabyte_cluster_ca_dir }}/tls/tls_cert.pem"
-        openssl_csr_path: "{{ yugabyte_cluster_ca_dir }}/{{ current_yugabyte_node }}/tls/tls.csr"
-        openssl_cert_path: "{{ yugabyte_cluster_ca_dir }}/{{ current_yugabyte_node }}/tls/tls_cert.pem"
+        yugabyte_cluster_ca_dir: "{{ tls_build_dir }}/yugabyte-cluster-{{ hostvars[current_yugabyte_node].yugabyte_cluster_id }}"
+        openssl_ca_private_key_path: "{{ yugabyte_cluster_ca_dir }}/tls_key.pem"
+        openssl_ca_cert_path: "{{ yugabyte_cluster_ca_dir }}/tls_cert.pem"
+        openssl_csr_path: "{{ tls_build_dir }}/{{ current_yugabyte_node }}/tls.csr"
+        openssl_cert_path: "{{ tls_build_dir }}/{{ current_yugabyte_node }}/tls_cert.pem"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.openssl
         tasks_from: generate_cert
@@ -80,18 +75,10 @@
 
 - name: Transfer TLS certs to the nodes
   hosts: "{{ target_hosts | default('all') }}"
-  roles:
-    - hyperledger.fabricx.yugabyte
   tasks:
     - name: Transfer generated certs to nodes
-      vars:
-        yugabyte_cluster_ca_dir: "{{ config_build_dir }}/yugabyte-cluster-{{ yugabyte_cluster_id }}"
-        tls_cert_src_file: "{{ yugabyte_cluster_ca_dir }}/{{ inventory_hostname }}/tls/tls_cert.pem"
-        tls_ca_cert_src_file: "{{ yugabyte_cluster_ca_dir }}/tls/tls_cert.pem"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.yugabyte
         tasks_from: config/transfer_cert
       when:
         - yugabyte_component_type is defined
-        - yugabyte_use_tls is defined
-        - yugabyte_use_tls

@@ -24,22 +24,16 @@
     dest: "{{ committer_remote_config_dir }}/{{ committer_query_service_config_file }}"
     mode: "0o644"
 
-- name: Ensure directory for Postgres DB TLS certificate exists
-  ansible.builtin.file:
-    path: "{{ committer_remote_config_dir }}/db/tls"
-    state: directory
-    mode: "0750"
+- name: Transfer Postgres TLS certificates
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: config/transfer_postgres_tls_cert
   when:
     - postgres_db_host is defined
-    - hostvars[postgres_db_host].postgres_use_tls is defined
-    - hostvars[postgres_db_host].postgres_use_tls
 
-- name: Copy Postgres DB TLS certificate
-  ansible.builtin.copy:
-    src: "{{ config_build_dir }}/{{ postgres_db_host }}/tls/cert.pem"
-    dest: "{{ committer_remote_config_dir }}/db/tls/cert.pem"
-    mode: "0644"
+- name: Transfer Yugabyte TLS certificates
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: config/transfer_yugabyte_tls_cert
   when:
-    - postgres_db_host is defined
-    - hostvars[postgres_db_host].postgres_use_tls is defined
-    - hostvars[postgres_db_host].postgres_use_tls
+    - yugabyte_cluster_ref_id is defined
