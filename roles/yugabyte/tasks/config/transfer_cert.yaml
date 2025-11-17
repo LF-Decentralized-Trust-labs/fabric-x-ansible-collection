@@ -6,7 +6,7 @@
 
 - name: Copy TLS cert
   ansible.builtin.copy:
-    src: "{{ fetched_tls_dir }}/{{ inventory_hostname }}/tls_cert.pem"
+    src: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls_cert.pem"
     dest: "{{ yugabyte_remote_tls_dir }}/tls_cert.pem"
     mode: "0o644"
   when:
@@ -14,7 +14,7 @@
 
 - name: Copy TLS CA cert
   ansible.builtin.copy:
-    src: "{{ fetched_tls_dir }}/yugabyte-cluster-{{ yugabyte_cluster_id }}/tls_cert.pem"
+    src: "{{ fetched_artifacts_dir }}/yugabyte-cluster-{{ yugabyte_cluster_id }}/tls/tls_cert.pem"
     dest: "{{ yugabyte_remote_tls_dir }}/ca.pem"
     mode: "0o644"
   when:

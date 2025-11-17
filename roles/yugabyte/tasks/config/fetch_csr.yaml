@@ -7,7 +7,7 @@
 - name: Fetch CSR on control node
   ansible.builtin.fetch:
     src: "{{ yugabyte_remote_tls_dir }}/tls.csr"
-    dest: "{{ fetched_tls_dir }}/{{ inventory_hostname }}/tls.csr"
+    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls.csr"
     flat: true
   when:
     - yugabyte_use_tls

@@ -26,8 +26,6 @@ config_build_dir: "{{ control_node_dir }}/config"
 # - Where fetched material from the remote nodes is collected on the control node.
 # =========================
 fetched_artifacts_dir: "{{ control_node_dir }}/fetched"
-fetched_tls_dir: "{{ fetched_artifacts_dir }}/tls"
-fetched_msp_dir: "{{ fetched_artifacts_dir }}/msp"
 
 # =========================
 # Remote Node Paths

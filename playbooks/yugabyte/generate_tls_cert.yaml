@@ -9,7 +9,7 @@
   tasks:
     - name: Generate self signed certificate for Yugabyte DBs
       vars:
-        yugabyte_cluster_ca_dir: "{{ fetched_tls_dir }}/yugabyte-cluster-{{ current_yugabyte_cluster_id }}"
+        yugabyte_cluster_ca_dir: "{{ fetched_artifacts_dir }}/yugabyte-cluster-{{ current_yugabyte_cluster_id }}/tls"
         openssl_remote_config_dir: "{{ yugabyte_cluster_ca_dir }}"
         openssl_private_key_path: "{{ yugabyte_cluster_ca_dir }}/tls_key.pem"
         openssl_cert_path: "{{ yugabyte_cluster_ca_dir }}/tls_cert.pem"
@@ -51,11 +51,11 @@
   tasks:
     - name: Sign CSR and generate TLS
       vars:
-        yugabyte_cluster_ca_dir: "{{ fetched_tls_dir }}/yugabyte-cluster-{{ hostvars[current_yugabyte_node].yugabyte_cluster_id }}"
+        yugabyte_cluster_ca_dir: "{{ fetched_artifacts_dir }}/yugabyte-cluster-{{ hostvars[current_yugabyte_node].yugabyte_cluster_id }}/tls"
         openssl_ca_private_key_path: "{{ yugabyte_cluster_ca_dir }}/tls_key.pem"
         openssl_ca_cert_path: "{{ yugabyte_cluster_ca_dir }}/tls_cert.pem"
-        openssl_csr_path: "{{ fetched_tls_dir }}/{{ current_yugabyte_node }}/tls.csr"
-        openssl_cert_path: "{{ fetched_tls_dir }}/{{ current_yugabyte_node }}/tls_cert.pem"
+        openssl_csr_path: "{{ fetched_artifacts_dir }}/{{ current_yugabyte_node }}/tls/tls.csr"
+        openssl_cert_path: "{{ fetched_artifacts_dir }}/{{ current_yugabyte_node }}/tls/tls_cert.pem"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.openssl
         tasks_from: generate_cert
