@@ -21,7 +21,7 @@
       -configPath {{ configtxgen_container_artifacts_dir }}
       --outputBlock {{ configtxgen_container_artifacts_dir }}/{{ configtxgen_channel_id }}_block.pb
     container_volumes:
-      - "{{ fetched_artifacts_dir }}/crypto:{{ configtxgen_container_crypto_artifacts_dir }}:Z"
+      - "{{ fetched_artifacts_dir }}:{{ configtxgen_container_crypto_artifacts_dir }}:Z"
       - "{{ armageddon_artifacts_dir }}:{{ configtxgen_armageddon_container_artifacts_dir }}:Z"
       - "{{ configtxgen_artifacts_dir }}:{{ configtxgen_container_artifacts_dir }}:Z"
     container_run_detach_mode: false
