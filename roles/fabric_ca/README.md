@@ -7,17 +7,17 @@ The role `hyperledger.fabricx.fabric_ca` can be used to run an Hyperledger Fabri
 - [Prerequisites](#prerequisites)
 - [Tasks](#tasks)
   - [server/config/transfer](#serverconfigtransfer)
-  - [server/start](#serverstart)
   - [server/crypto/fetch](#servercryptofetch)
+  - [server/start](#serverstart)
   - [server/stop](#serverstop)
   - [server/teardown](#serverteardown)
   - [server/wipe](#serverwipe)
   - [server/ping](#serverping)
-  - [server/fetch\_logs](#serverfetch_logs)
+  - [server/fetch_logs](#serverfetch_logs)
   - [client/register](#clientregister)
   - [client/enroll](#clientenroll)
   - [client/reenroll](#clientreenroll)
-  - [client/identity\_list](#clientidentity_list)
+  - [client/identity_list](#clientidentity_list)
   - [client/revoke](#clientrevoke)
   - [client/gencrl](#clientgencrl)
 
@@ -40,17 +40,6 @@ The task `server/config/transfer` generates the configuration file for a Fabric 
     tasks_from: server/config/transfer
 ```
 
-### server/start
-
-The task `server/start` starts a Fabric CA server (either as container or as binary if the `fabric_ca_use_bin` variable is set):
-
-```yaml
-- name: Start a Fabric CA server
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.fabric_ca
-    tasks_from: server/start
-```
-
 ### server/crypto/fetch
 
 The task `server/crypto/fetch` fetches on the control node the certificates of a Fabric CA server that need to be used to build the genesis block:
@@ -60,6 +49,17 @@ The task `server/crypto/fetch` fetches on the control node the certificates of a
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/crypto/fetch
+```
+
+### server/start
+
+The task `server/start` starts a Fabric CA server (either as container or as binary if the `fabric_ca_use_bin` variable is set):
+
+```yaml
+- name: Start a Fabric CA server
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/start
 ```
 
 ### server/stop

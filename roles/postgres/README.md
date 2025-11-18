@@ -2,13 +2,13 @@
 
 The role `hyperledger.fabricx.postgres` can be used to run a PostgreSQL DB.
 
-When the variable `postgres_exporter_port` is defined, the role will also manage a **Postgres Exporter sidecar** (start, stop, teardown, wipe) to expose PostgreSQL metrics for Prometheus and Grafana.
-
 The role allows to run Postgres as **container only** (binary is not currently supported).
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Tasks](#tasks)
+  - [crypto/transfer](#cryptotransfer)
+  - [crypto/fetch](#cryptofetch)
   - [start](#start)
   - [stop](#stop)
   - [teardown](#teardown)
@@ -17,6 +17,28 @@ The role allows to run Postgres as **container only** (binary is not currently s
   - [ping](#ping)
 
 ## Tasks
+
+### crypto/transfer
+
+The task `crypto/transfer` allows to generate the crypto material needed to run a Postgres DB with TLS. The task uses `openssl` (see [hyperledger.fabricx.openssl](../openssl/README.md)) to generate a TLS keypair and a self-signed certificate which can be shared with the client to perform a connection secured with TLS.
+
+```yaml
+- name: Generate the TLS keypair for Postgres DB
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: crypto/transfer
+```
+
+### crypto/fetch
+
+The task `crypto/fetch` allows to fetch the TLS certificate of a Postgres DB on the control node, so that it could be shared with the clients later.
+
+```yaml
+- name: Fetch the Postgres DB TLS certificate
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: crypto/fetch
+```
 
 ### start
 
