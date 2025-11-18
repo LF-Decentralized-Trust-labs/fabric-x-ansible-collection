@@ -27,10 +27,10 @@ cryptogen_use_bin: false
 # =========================
 # Paths/Locations
 # =========================
-cryptogen_config_dir: "{{ config_build_dir }}/cryptogen-artifacts"
-cryptogen_output_dir: "{{ cryptogen_config_dir }}/crypto"
-cryptogen_docker_config_dir: "/tmp/cryptogen-artifacts"
-cryptogen_docker_output_dir: "{{ cryptogen_docker_config_dir }}/crypto"
+cryptogen_artifacts_dir: "{{ config_build_dir }}/cryptogen-artifacts"
+cryptogen_output_dir: "{{ cryptogen_artifacts_dir }}/crypto"
+cryptogen_container_artifacts_dir: "/tmp/cryptogen-artifacts"
+cryptogen_container_output_dir: "{{ cryptogen_container_artifacts_dir }}/crypto"
 cryptogen_config_file: "crypto-config.yaml"
 
 # =========================

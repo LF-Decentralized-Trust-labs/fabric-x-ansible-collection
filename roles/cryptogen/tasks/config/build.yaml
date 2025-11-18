@@ -6,12 +6,12 @@
 
 - name: Create config build output directory
   ansible.builtin.file:
-    path: "{{ cryptogen_config_dir }}"
+    path: "{{ cryptogen_artifacts_dir }}"
     state: directory
     mode: "0o750"
 
 - name: Create crypto-config.yaml from template
   ansible.builtin.template:
     src: crypto-config.yaml.j2
-    dest: "{{ cryptogen_config_dir }}/{{ cryptogen_config_file }}"
+    dest: "{{ cryptogen_artifacts_dir }}/{{ cryptogen_config_file }}"
     mode: "0o644"

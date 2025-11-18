@@ -16,7 +16,7 @@
 
 - name: Fetch for the orderer organization MSP directory
   ansible.posix.synchronize:
-    src: "{{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ current_orderer_org_domain }}/msp"
+    src: "{{ cryptogen_output_dir }}/ordererOrganizations/{{ current_orderer_org_domain }}/msp"
     dest: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ current_orderer_org_domain }}"
   loop: "{{ cryptogen_orderers_by_org.keys() }}"
   loop_control:
@@ -35,9 +35,15 @@
 
 - name: Fetch for the peer organization MSP directory
   ansible.posix.synchronize:
-    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ current_peer_org_domain }}/msp"
+    src: "{{ cryptogen_output_dir }}/peerOrganizations/{{ current_peer_org_domain }}/msp"
     dest: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ current_peer_org_domain }}"
   loop: "{{ cryptogen_peers_by_org.keys() }}"
   loop_control:
     loop_var: current_peer_org_domain
     label: "{{ current_peer_org_domain }}"
+
+- name: Fetch the ca.certs file
+  ansible.builtin.copy:
+    src: "{{ cryptogen_output_dir }}/ca-certs.pem"
+    dest: "{{ fetched_artifacts_dir }}/crypto"
+    mode: "preserve"

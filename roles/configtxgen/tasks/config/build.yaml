@@ -12,19 +12,13 @@
 
 - name: Create configtxgen.yaml from template
   vars:
-    cryptogen_artifacts_dir: >-
+    crypto_artifacts_dir: >-
       {{
         fetched_artifacts_dir
         if configtxgen_use_bin
         else configtxgen_container_crypto_artifacts_dir
       }}
-    idemixgen_artifacts_dir: >-
-      {{
-        configtxgen_idemixgen_artifacts_dir
-        if configtxgen_use_bin
-        else configtxgen_idemixgen_container_artifacts_dir
-      }}
-    armageddon_artifacts_dir: >-
+    armageddon_artifacts: >-
       {{
         armageddon_artifacts_dir
         if configtxgen_use_bin
