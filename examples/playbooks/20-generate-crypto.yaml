@@ -28,6 +28,11 @@
   when:
     - "'fabric_cas' in groups"
 
+- name: Setup Fabric CA crypto material
+  ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.generate_crypto
+  when:
+    - "'fabric_cas' in groups"
+
 - name: Transfer Fabric CA server configuration files
   ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.transfer_configs
   when:
