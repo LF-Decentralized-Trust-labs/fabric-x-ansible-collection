@@ -54,11 +54,7 @@
     - "'fabric_cas' in groups"
 
 - name: Enroll Fabric-X Orderers
-  ansible.builtin.import_playbook: hyperledger.fabricx.orderer.enroll
-  when:
-    - "'fabric_cas' in groups"
+  ansible.builtin.import_playbook: hyperledger.fabricx.orderer.generate_crypto
 
 - name: Enroll Fabric-X Load generators
-  ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.enroll
-  when:
-    - "'fabric_cas' in groups"
+  ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.generate_crypto

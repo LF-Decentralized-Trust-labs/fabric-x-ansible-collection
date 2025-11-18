@@ -4,14 +4,14 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Enroll load generators identities on Fabric CA
+- name: Setup the crypto material for the load generators
   hosts: "{{ target_hosts | default('load_generators') }}:&load_generators"
   tasks:
-    - name: Enroll load generator identities
+    - name: Transfer the crypto material for the load generators
       ansible.builtin.include_role:
         name: hyperledger.fabricx.loadgen
-        tasks_from: config/enroll
+        tasks_from: crypto/transfer
     - name: Fetch load generator certificates
       ansible.builtin.include_role:
         name: hyperledger.fabricx.loadgen
-        tasks_from: config/fetch_certs
+        tasks_from: crypto/fetch

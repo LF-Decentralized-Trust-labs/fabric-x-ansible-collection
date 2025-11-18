@@ -11,8 +11,8 @@
     bin_command: >-
       {{ armageddon_bin_name }}
       createSharedConfigProto
-      --sharedConfigYaml={{ armageddon_output_dir }}/{{ armageddon_shared_config_file }}
-      --output={{ armageddon_output_dir }}
+      --sharedConfigYaml={{ armageddon_artifacts_dir }}/{{ armageddon_shared_config_file }}
+      --output={{ armageddon_artifacts_dir }}
     bin_collect_logs: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin

@@ -36,13 +36,13 @@
     - name: Generate CSR for TLS cert
       ansible.builtin.include_role:
         name: hyperledger.fabricx.yugabyte
-        tasks_from: config/generate_csr
+        tasks_from: crypto/generate_csr
       when:
         - yugabyte_component_type is defined
     - name: Fetch CSR for TLS cert on control node
       ansible.builtin.include_role:
         name: hyperledger.fabricx.yugabyte
-        tasks_from: config/fetch_csr
+        tasks_from: crypto/fetch_csr
       when:
         - yugabyte_component_type is defined
 
@@ -79,6 +79,6 @@
     - name: Transfer generated certs to nodes
       ansible.builtin.include_role:
         name: hyperledger.fabricx.yugabyte
-        tasks_from: config/transfer_cert
+        tasks_from: crypto/transfer_cert
       when:
         - yugabyte_component_type is defined

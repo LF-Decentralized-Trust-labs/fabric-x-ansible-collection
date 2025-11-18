@@ -4,14 +4,14 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Enroll FabricX Orderers on Fabric CA
+- name: Setup the crypto material for Fabric-X Orderers
   hosts: "{{ target_hosts | default('fabric_x_orderers') }}:&fabric_x_orderers"
   tasks:
-    - name: Enroll FabricX Orderer identities
+    - name: Enroll Fabric-X Orderer identities
       ansible.builtin.include_role:
         name: hyperledger.fabricx.orderer
-        tasks_from: config/enroll
-    - name: Fetch FabricX Orderer certificates
+        tasks_from: crypto/transfer
+    - name: Fetch Fabric-X Orderer certificates
       ansible.builtin.include_role:
         name: hyperledger.fabricx.orderer
-        tasks_from: config/fetch_certs
+        tasks_from: crypto/fetch

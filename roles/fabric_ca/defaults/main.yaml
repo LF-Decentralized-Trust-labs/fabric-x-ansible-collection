@@ -35,7 +35,6 @@ fabric_ca_client_use_bin: false
 # Paths, locations
 # =========================
 fabric_ca_remote_config_dir: "{{ remote_config_dir }}"
-fabric_ca_cryptogen_artifact_dir: "{{ config_build_dir }}/cryptogen-artifacts"
 
 # =========================
 # General settings

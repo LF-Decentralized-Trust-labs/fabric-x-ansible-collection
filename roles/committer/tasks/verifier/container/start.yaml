@@ -8,12 +8,12 @@
   vars:
     container_name: "{{ committer_container_name }}"
     container_image: "{{ committer_image }}"
-    container_command: "committer start-verifier --config={{ committer_docker_config_dir }}/{{ committer_verifier_config_file }}"
+    container_command: "committer start-verifier --config={{ committer_container_config_dir }}/{{ committer_verifier_config_file }}"
     container_ports:
       - "{{ committer_rpc_port }}:{{ committer_rpc_port }}"
       - "{{ prometheus_exporter_port }}:{{ prometheus_exporter_port }}"
     container_volumes:
-      - "{{ committer_remote_config_dir }}/{{ committer_verifier_config_file }}:{{ committer_docker_config_dir }}/{{ committer_verifier_config_file }}:Z"
+      - "{{ committer_remote_config_dir }}/{{ committer_verifier_config_file }}:{{ committer_container_config_dir }}/{{ committer_verifier_config_file }}:Z"
     container_wait_until_running: true
     container_run_as_host_user: true
     container_wait_port: "{{ committer_rpc_port }}"

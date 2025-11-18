@@ -25,7 +25,7 @@
     - name: Fetch Fabric-X Committer Postgres DB certificates
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres
-        tasks_from: config/fetch_certs
+        tasks_from: crypto/fetch
       when:
         - postgres_port is defined
     - name: Generate the config files for the Fabric-X Committer

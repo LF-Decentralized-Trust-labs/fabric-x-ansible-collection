@@ -26,6 +26,9 @@ config_build_dir: "{{ control_node_dir }}/config"
 # - Where fetched material from the remote nodes is collected on the control node.
 # =========================
 fetched_artifacts_dir: "{{ control_node_dir }}/fetched"
+cryptogen_artifacts_dir: "{{ config_build_dir }}/cryptogen-artifacts"
+armageddon_artifacts_dir: "{{ config_build_dir }}/armageddon-artifacts"
+configtxgen_artifacts_dir: "{{ config_build_dir }}/configtxgen-artifacts"
 
 # =========================
 # Remote Node Paths

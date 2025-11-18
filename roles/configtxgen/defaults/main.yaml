@@ -27,12 +27,10 @@ configtxgen_use_bin: false
 # =========================
 # Paths/Locations
 # =========================
-configtxgen_output_dir: "{{ config_build_dir }}/configtxgen-artifacts"
-configtxgen_cryptogen_artifacts_dir: "{{ config_build_dir }}/cryptogen-artifacts"
+configtxgen_artifacts_dir: "{{ config_build_dir }}/configtxgen-artifacts"
 configtxgen_idemixgen_artifacts_dir: "{{ config_build_dir }}/idemixgen-artifacts"
-configtxgen_armageddon_artifacts_dir: "{{ config_build_dir }}/armageddon-artifacts"
 configtxgen_container_output_dir: "/tmp/configtxgen-artifacts"
-configtxgen_cryptogen_container_artifacts_dir: "/tmp/cryptogen-artifacts"
+configtxgen_container_crypto_artifacts_dir: "/tmp/cryptogen-artifacts"
 configtxgen_idemixgen_container_artifacts_dir: "/tmp/idemixgen-artifacts"
 configtxgen_armageddon_container_artifacts_dir: "/tmp/armageddon-artifacts"
 configtxgen_armageddon_binpb_file: "shared_config.binpb"

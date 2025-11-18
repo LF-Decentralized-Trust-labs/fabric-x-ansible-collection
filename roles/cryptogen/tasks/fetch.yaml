@@ -1,0 +1,43 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure the orderer organizations directories exist
+  ansible.builtin.file:
+    path: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ current_orderer_org_domain }}"
+    state: directory
+    mode: "0o755"
+  loop: "{{ cryptogen_orderers_by_org.keys() }}"
+  loop_control:
+    loop_var: current_orderer_org_domain
+    label: "{{ current_orderer_org_domain }}"
+
+- name: Fetch for the orderer organization MSP directory
+  ansible.posix.synchronize:
+    src: "{{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ current_orderer_org_domain }}/msp"
+    dest: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ current_orderer_org_domain }}"
+  loop: "{{ cryptogen_orderers_by_org.keys() }}"
+  loop_control:
+    loop_var: current_orderer_org_domain
+    label: "{{ current_orderer_org_domain }}"
+
+- name: Ensure the peer organizations directories exist
+  ansible.builtin.file:
+    path: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ current_peer_org_domain }}"
+    state: directory
+    mode: "0o755"
+  loop: "{{ cryptogen_peers_by_org.keys() }}"
+  loop_control:
+    loop_var: current_peer_org_domain
+    label: "{{ current_peer_org_domain }}"
+
+- name: Fetch for the peer organization MSP directory
+  ansible.posix.synchronize:
+    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ current_peer_org_domain }}/msp"
+    dest: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ current_peer_org_domain }}"
+  loop: "{{ cryptogen_peers_by_org.keys() }}"
+  loop_control:
+    loop_var: current_peer_org_domain
+    label: "{{ current_peer_org_domain }}"

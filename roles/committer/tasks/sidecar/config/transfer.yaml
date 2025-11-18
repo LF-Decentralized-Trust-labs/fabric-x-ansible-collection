@@ -12,7 +12,12 @@
 
 - name: Generate Fabric-X Committer Sidecar config
   vars:
-    committer_config_dir: "{{ committer_remote_config_dir if committer_use_bin else committer_docker_config_dir }}"
+    committer_config_dir: >-
+      {{
+        committer_remote_config_dir
+        if committer_use_bin
+        else committer_container_config_dir
+      }}
   ansible.builtin.template:
     src: "config-sidecar.yaml.j2"
     dest: "{{ committer_remote_config_dir }}/{{ committer_sidecar_config_file }}"
@@ -20,14 +25,16 @@
 
 - name: Copy Fabric-X Committer sidecar root CA
   ansible.builtin.copy:
-    src: "{{ committer_cryptogen_artifact_build_dir }}/crypto/ca-certs.pem"
+    src: "{{ fetched_artifacts_dir }}/crypto/ca-certs.pem"
     dest: "{{ committer_remote_config_dir }}/ca-certs.pem"
     mode: "0o644"
-  when: committer_use_tls
+  when:
+    - committer_use_tls
 
-- name: Copy Fabric-X Committer sidecar crypto material
+- name: Copy Fabric-X Committer sidecar crypto material generated with cryptogen
   ansible.builtin.copy:
-    src: "{{ committer_cryptogen_artifact_build_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ inventory_hostname }}.{{ organization.domain }}/"
+    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ inventory_hostname }}.{{ organization.domain }}/"
     dest: "{{ committer_remote_config_dir }}"
     mode: "0o644"
-  when: committer_use_tls
+  when:
+    - committer_use_tls

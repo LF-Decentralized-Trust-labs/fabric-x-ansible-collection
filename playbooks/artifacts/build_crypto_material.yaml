@@ -119,3 +119,9 @@
         tasks_from: start
       when:
         - (cryptogen_peers_by_org is defined) or (cryptogen_orderers_by_org is defined)
+    - name: Fetch the orgs certificates generated with cryptogen
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.cryptogen
+        tasks_from: fetch
+      when:
+        - (cryptogen_peers_by_org is defined) or (cryptogen_orderers_by_org is defined)

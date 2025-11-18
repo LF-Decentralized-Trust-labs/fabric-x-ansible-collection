@@ -1,0 +1,43 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# With cryptogen
+# =========================
+- name: Fetch Fabric-X Orderer sign certificate generated with cryptogen
+  ansible.builtin.fetch:
+    src: "{{ orderer_remote_config_dir }}/msp/signcerts/{{ orderer_crypto_name }}.{{ organization.domain }}-cert.pem"
+    dest: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/msp/signcerts/{{ orderer_crypto_name }}.{{ organization.domain }}-cert.pem"
+    flat: true
+  when:
+    - organization.fabric_ca_host is undefined
+
+- name: Fetch Fabric-X Orderer TLS certificate generated with cryptogen
+  ansible.builtin.fetch:
+    src: "{{ orderer_remote_config_dir }}/tls/server.crt"
+    dest: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/tls/server.crt"
+    flat: true
+  when:
+    - organization.fabric_ca_host is undefined
+
+# =========================
+# With Fabric-CA
+# =========================
+- name: Fetch Fabric-X Orderer sign certificate generated with Fabric-CA
+  ansible.builtin.fetch:
+    src: "{{ orderer_remote_config_dir }}/msp/signcerts/cert.pem"
+    dest: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/msp/signcerts/{{ orderer_crypto_name }}.{{ organization.domain }}-cert.pem"
+    flat: true
+  when:
+    - organization.fabric_ca_host is defined
+
+- name: Fetch Fabric-X Orderer TLS certificate generated with Fabric-CA
+  ansible.builtin.fetch:
+    src: "{{ orderer_remote_config_dir }}/tls/signcerts/cert.pem"
+    dest: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/tls/server.crt"
+    flat: true
+  when:
+    - organization.fabric_ca_host is defined

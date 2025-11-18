@@ -4,6 +4,27 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Ensure orderer config directory exists
+  ansible.builtin.file:
+    path: "{{ orderer_remote_config_dir }}"
+    state: directory
+    mode: "0o750"
+
+# =========================
+# With cryptogen
+# =========================
+# If no Fabric CA is defined, assume the crypto material is generated
+# with cryptogen. Thus, transfer it.
+- name: Transfer the Fabric-X Orderer crypto material generated with cryptogen
+  ansible.posix.synchronize:
+    src: "{{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/"
+    dest: "{{ orderer_remote_config_dir }}"
+  when:
+    - organization.fabric_ca_host is not defined
+
+# =========================
+# With Fabric-CA
+# =========================
 - name: Ensure TLS CA certificate folder exists
   ansible.builtin.file:
     path: "{{ orderer_remote_config_dir }}/tlscacerts"
@@ -16,7 +37,7 @@
 
 - name: Copy TLS CA certificate of Fabric CA
   ansible.builtin.copy:
-    src: "{{ orderer_cryptogen_artifact_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
+    src: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
     dest: "{{ orderer_remote_config_dir }}/tlscacerts"
     mode: "preserve"
   when:

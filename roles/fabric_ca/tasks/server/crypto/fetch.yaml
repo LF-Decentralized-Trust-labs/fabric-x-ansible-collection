@@ -13,7 +13,7 @@
         else 'peerOrganizations'
       }}
   ansible.builtin.set_fact:
-    fabric_ca_org_dir: "{{ fabric_ca_cryptogen_artifact_dir }}/crypto/{{ org_dir }}/{{ organization.domain }}"
+    fabric_ca_org_dir: "{{ fetched_artifacts_dir }}/crypto/{{ org_dir }}/{{ organization.domain }}"
 
 - name: Fetch the CA certificate
   ansible.builtin.fetch:
@@ -31,7 +31,7 @@
   vars:
     tls_cert_file: "{{ fabric_ca_org_dir }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
   ansible.builtin.blockinfile:
-    path: "{{ fabric_ca_cryptogen_artifact_dir }}/crypto/ca-certs.pem"
+    path: "{{ fetched_artifacts_dir }}/crypto/ca-certs.pem"
     create: true
     mode: "0o644"
     marker: "# {mark} TLS CA CERT {{ fabric_ca_name }} ({{ organization.domain }})"

@@ -6,16 +6,16 @@
 
 - name: Create config build output directory
   ansible.builtin.file:
-    path: "{{ configtxgen_output_dir }}"
+    path: "{{ configtxgen_artifacts_dir }}"
     state: directory
     mode: "0o750"
 
 - name: Define mandatory container mounts
   ansible.builtin.set_fact:
     configtxgen_volumes:
-      - "{{ configtxgen_output_dir }}:{{ configtxgen_container_output_dir }}:Z"
-      - "{{ configtxgen_cryptogen_artifacts_dir }}:{{ configtxgen_cryptogen_container_artifacts_dir }}:Z"
-      - "{{ configtxgen_armageddon_artifacts_dir }}:{{ configtxgen_armageddon_container_artifacts_dir }}:Z"
+      - "{{ armageddon_artifacts_dir }}:{{ configtxgen_armageddon_container_artifacts_dir }}:Z"
+      - "{{ configtxgen_artifacts_dir }}:{{ configtxgen_container_output_dir }}:Z"
+      - "{{ fetched_artifacts_dir }}:{{ configtxgen_container_crypto_artifacts_dir }}:Z"
 
 - name: Add volume for idemixgen CA
   vars:

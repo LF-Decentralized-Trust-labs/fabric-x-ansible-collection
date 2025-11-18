@@ -10,11 +10,11 @@
     container_image: "{{ armageddon_image }}"
     container_command: >-
       {{ armageddon_bin_name }} createSharedConfigProto
-      --sharedConfigYaml={{ armageddon_docker_output_dir }}/{{ armageddon_shared_config_file }}
-      --output={{ armageddon_docker_output_dir }}
+      --sharedConfigYaml={{ armageddon_container_output_dir }}/{{ armageddon_shared_config_file }}
+      --output={{ armageddon_container_output_dir }}
     container_volumes:
-      - "{{ armageddon_output_dir }}:{{ armageddon_docker_output_dir }}:Z"
-      - "{{ armageddon_cryptogen_artifacts_dir }}:{{ armageddon_cryptogen_docker_artifacts_dir }}:Z"
+      - "{{ armageddon_artifacts_dir }}:{{ armageddon_container_output_dir }}:Z"
+      - "{{ fetched_artifacts_dir }}:{{ armageddon_container_crypto_artifacts_dir }}:Z"
     container_run_detach_mode: false
     container_run_as_host_user: true
     container_autoremove: true
