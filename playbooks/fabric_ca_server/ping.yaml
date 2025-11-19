@@ -10,7 +10,7 @@
     - name: Ping Fabric CA DBs
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres
-        tasks_from: server/ping
+        tasks_from: ping
       when:
         - postgres_port is defined
     - name: Ping Fabric CA servers
