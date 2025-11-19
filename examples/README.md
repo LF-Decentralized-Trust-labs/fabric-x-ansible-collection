@@ -150,7 +150,7 @@ The [fabric-x-distributed.yaml](./inventory/fabric-x-distributed.yaml) inventory
 
 ![fabric-x-distributed-inventory](./images/fabric-x-distributed.drawio.png)
 
-**NOTE**: this inventory is not ready to use! To use this inventory, you need to indicate the target machines, named as `host_machine_*`. Replace the placeholders `linux*amd64.cloud.com` with the names/IPs of your 16 machines.
+**NOTE**: this inventory is NOT ready to use! To use this inventory, you need to indicate the target machines, named as `host_machine_*`.
 
 It bootstraps a network with:
 
@@ -170,6 +170,13 @@ It bootstraps a network with:
 - 2 **Hyperledger Fabric-X Loadgen** binaries;
 - 1 **Grafana** container;
 - 1 **Prometheus** container.
+
+We have used this inventory to deploy an Hyperledger Fabric-X network able to reach ~100k TPS using 16 machines deployed within the same datacenter and with the following properties:
+
+- **OS**: RHEL9;
+- **CPU**: Intel(R) Xeon(R) Silver 4210 CPU @ 2.20GHz;
+- **RAM**: 64GB;
+- **DISK**: 1000GB SSD (to get high-speed IOPS).
 
 The absence of the Fabric CAs is due to the fact that the crypto material is generated on the control node using `cryptogen`. Thus, this deployment is not meant for Production, but for performance evaluation only.
 
