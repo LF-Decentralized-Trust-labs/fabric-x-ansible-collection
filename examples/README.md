@@ -12,6 +12,7 @@ This folder contains sample inspirational inventories and playbooks to deploy di
   - [fabric-x-yugabyte.yaml](#fabric-x-yugabyteyaml)
   - [fabric-x-bin.yaml](#fabric-x-binyaml)
   - [fabric-x-cryptogen.yaml](#fabric-x-cryptogenyaml)
+  - [fabric-x-distributed.yaml](#fabric-x-distributedyaml)
 - [Playbooks](#playbooks)
 - [How to replicate an horizontally scalable microservice](#how-to-replicate-an-horizontally-scalable-microservice)
 - [How to run a microservice on a different machine](#how-to-run-a-microservice-on-a-different-machine)
@@ -142,6 +143,33 @@ It bootstraps a network with:
 - 1 **Prometheus** container.
 
 The absence of the Fabric CAs is due to the fact that the crypto material is generated on the control node using `cryptogen`. As stated within the inventory itself, this deployment is not meant for Production.
+
+### fabric-x-distributed.yaml
+
+The [fabric-x-distributed.yaml](./inventory/fabric-x-distributed.yaml) inventory represents the following network scenario:
+
+![fabric-x-distributed-inventory](./images/fabric-x-distributed.drawio.png)
+
+It bootstraps a network with:
+
+- 4 **Hyperledger Fabric-X Orderers**, each one made by:
+  - 1 consenter container;
+  - 1 assembler container;
+  - 2 batcher containers (_horizontally scalable_);
+  - 1 router container;
+- 1 **Hyperledger Fabric-X Committer**, made by:
+  - 1 coordinator container;
+  - 1 sidecar container;
+  - 1 query service container;
+  - 7 validator containers (_horizontally scalable_);
+  - 7 verifier containers (_horizontally scalable_);
+  - 3 Yugabyte master containers (_horizontally scalable_);
+  - 7 Yugabyte tablet containers (_horizontally scalable_);
+- 2 **Hyperledger Fabric-X Loadgen** binaries;
+- 1 **Grafana** container;
+- 1 **Prometheus** container.
+
+The absence of the Fabric CAs is due to the fact that the crypto material is generated on the control node using `cryptogen`. Thus, this deployment is not meant for Production, but for performance evaluation only.
 
 ## Playbooks
 
