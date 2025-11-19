@@ -5,13 +5,6 @@
 #
 
 # =========================
-# Ansible Connection
-# =========================
-ansible_connection: local
-ansible_user: "{{ lookup('env', 'USER') }}"
-ansible_host: "{{ lookup('env', 'LOCAL_ANSIBLE_HOST') or 'localhost' }}"
-
-# =========================
 # Control Node Paths
 # =========================
 project_dir: "{{ lookup('env', 'PROJECT_DIR') or '~/.ansible/collections/ansible_collections/hyperledger/fabricx' }}"
@@ -30,12 +23,6 @@ config_build_dir: "{{ control_node_dir }}/config"
 cryptogen_artifacts_dir: "{{ config_build_dir }}/cryptogen-artifacts"
 armageddon_artifacts_dir: "{{ config_build_dir }}/armageddon-artifacts"
 configtxgen_artifacts_dir: "{{ config_build_dir }}/configtxgen-artifacts"
-
-# =========================
-# Remote Node Paths
-# =========================
-remote_node_dir: "{{ out_dir }}/local-deployment/{{ inventory_hostname }}"
-remote_config_dir: "{{ remote_node_dir }}/config"
 
 # =========================
 # Miscellaneous

@@ -28,7 +28,6 @@ yugabyte_logs_level: 3
 # Yugabyte TLS
 # =========================
 yugabyte_use_tls: false
-yugabyte_remote_tls_dir: "{{ yugabyte_remote_config_dir }}/tls"
 
 # =========================
 # Yugabyte Master ports
