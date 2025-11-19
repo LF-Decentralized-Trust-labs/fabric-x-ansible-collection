@@ -146,9 +146,11 @@ The absence of the Fabric CAs is due to the fact that the crypto material is gen
 
 ### fabric-x-distributed.yaml
 
-The [fabric-x-distributed.yaml](./inventory/fabric-x-distributed.yaml) inventory represents the following network scenario:
+The [fabric-x-distributed.yaml](./inventory/fabric-x-distributed.yaml) inventory represents an example of Fabric-X inventory that distributes the different components over multiple machines. This inventory specifically targets a total of 16 different machines which host some of the microservices. Use this inventory as reference to create your distributed network:
 
 ![fabric-x-distributed-inventory](./images/fabric-x-distributed.drawio.png)
+
+**NOTE**: this inventory is not ready to use! To use this inventory, you need to indicate the target machines, named as `host_machine_*`. Replace the placeholders `linux*amd64.cloud.com` with the names/IPs of your 16 machines.
 
 It bootstraps a network with:
 
