@@ -171,7 +171,7 @@ It bootstraps a network with:
 - 1 **Grafana** container;
 - 1 **Prometheus** container.
 
-We have used this inventory to deploy an Hyperledger Fabric-X network able to reach ~100k TPS using 16 machines deployed within the same datacenter and with the following properties:
+We have used this inventory to deploy an Hyperledger Fabric-X network able to reach ~100k TPS using 16 BareMetal servers within the same datacenter and with the following properties:
 
 - **OS**: RHEL9;
 - **CPU**: Intel(R) Xeon(R) Silver 4210 CPU @ 2.20GHz;
