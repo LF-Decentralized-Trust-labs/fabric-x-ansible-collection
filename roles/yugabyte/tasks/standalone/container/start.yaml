@@ -10,16 +10,61 @@
     state: directory
     mode: "0o750"
 
+- name: Set YugabyteDB mandatory volumes and flags
+  ansible.builtin.set_fact:
+    yugabyte_volumes:
+      - "{{ yugabyte_remote_config_dir }}/init:/var/ybinit:Z"
+      - "{{ yugabyte_remote_config_dir }}/data:/var/data:Z"
+    # NOTE: we use 0.0.0.0 as interface everywhere to override the `host.docker.internal`
+    # value when set with --advertise_address, which causes the container to fail to
+    # start on macOS.
+    # A better approach could be to conditionally set the interface to 0.0.0.0
+    # only if the container is running on mac.
+    yugabyte_master_flags:
+      - webserver_interface=0.0.0.0
+      - rpc_bind_addresses=0.0.0.0:{{ yugabyte_master_rpc_bind_port }}
+      - minloglevel={{ yugabyte_logs_level }}
+      - stderrthreshold={{ yugabyte_logs_level }}
+    yugabyte_tablet_flags:
+      - webserver_interface=0.0.0.0
+      - webserver_port={{ yugabyte_tablet_webserver_port }}
+      - pgsql_proxy_bind_address=0.0.0.0:{{ yugabyte_tablet_pgsql_bind_port }}
+      - pgsql_proxy_webserver_port={{ yugabyte_tablet_pgsql_web_port }}
+      - cql_proxy_bind_address=0.0.0.0:{{ yugabyte_tablet_cql_bind_port }}
+      - cql_proxy_webserver_port={{ yugabyte_tablet_cql_web_port }}
+      - redis_proxy_bind_address=0.0.0.0:{{ yugabyte_tablet_redis_rpc_port }}
+      - redis_proxy_webserver_port={{ yugabyte_tablet_redis_web_port }}
+      - rpc_bind_addresses=0.0.0.0:{{ yugabyte_tablet_rpc_bind_port }}
+      - minloglevel={{ yugabyte_logs_level }}
+      - stderrthreshold={{ yugabyte_logs_level }}
+
+- name: Add YugabyteDB volumes and flags for TLS certificates
+  vars:
+    yugabyte_tls_volumes:
+      - "{{ yugabyte_remote_config_dir }}/tls:/var/tls:Z"
+    yugabyte_tls_flags:
+      - allow_insecure_connections=false
+      - use_client_to_server_encryption=true
+      - certs_for_client_dir=/var/tls
+  ansible.builtin.set_fact:
+    yugabyte_volumes: "{{ yugabyte_volumes + yugabyte_tls_volumes }}"
+    yugabyte_master_flags: "{{ yugabyte_master_flags + yugabyte_tls_flags }}"
+    yugabyte_tablet_flags: "{{ yugabyte_tablet_flags + yugabyte_tls_flags }}"
+  when:
+    - yugabyte_use_tls
+
 - name: Start standalone Yugabyte container
   vars:
     container_name: "{{ yugabyte_container_name }}"
     container_image: "{{ yugabyte_db_image }}"
     container_ports:
-      - "7100:7100" # yugabyte_master_rpc_bind_port for the master cannot be changed in the standalone deployment
+      # master ports
+      - "{{ yugabyte_master_rpc_bind_port }}:{{ yugabyte_master_rpc_bind_port }}"
       - "{{ yugabyte_master_webserver_port }}:{{ yugabyte_master_webserver_port }}"
-      - "{{ yugabyte_tablet_pgsql_bind_port }}:{{ yugabyte_tablet_pgsql_bind_port }}"
+      # tablet ports
       - "{{ yugabyte_tablet_rpc_bind_port }}:{{ yugabyte_tablet_rpc_bind_port }}"
       - "{{ yugabyte_tablet_webserver_port }}:{{ yugabyte_tablet_webserver_port }}"
+      - "{{ yugabyte_tablet_pgsql_bind_port }}:{{ yugabyte_tablet_pgsql_bind_port }}"
       - "{{ yugabyte_tablet_redis_web_port }}:{{ yugabyte_tablet_redis_web_port }}"
       - "{{ yugabyte_tablet_pgsql_web_port }}:{{ yugabyte_tablet_pgsql_web_port }}"
       - "{{ yugabyte_tablet_cql_bind_port }}:{{ yugabyte_tablet_cql_bind_port }}"
@@ -27,26 +72,31 @@
     container_command: >-
       bin/yugabyted start
       --base_dir /var/data
-      --advertise_address 0.0.0.0
-      --master_flags webserver_interface=0.0.0.0,rpc_bind_addresses=0.0.0.0:7100
+      --advertise_address {{ ansible_host }}
+      --master_flags {{ yugabyte_master_flags | join(',') }}
       --master_webserver_port {{ yugabyte_master_webserver_port }}
-      --tserver_flags webserver_interface=0.0.0.0,rpc_bind_addresses=0.0.0.0:{{ yugabyte_tablet_rpc_bind_port }},pgsql_proxy_bind_address=0.0.0.0:{{ yugabyte_tablet_pgsql_bind_port }},cql_proxy_bind_address=0.0.0.0:{{ yugabyte_tablet_cql_bind_port }},redis_proxy_bind_address=0.0.0.0:{{ yugabyte_tablet_redis_rpc_port }},webserver_port={{ yugabyte_tablet_webserver_port }},redis_proxy_webserver_port={{ yugabyte_tablet_redis_web_port }},pgsql_proxy_webserver_port={{ yugabyte_tablet_pgsql_web_port }},cql_proxy_webserver_port={{ yugabyte_tablet_cql_web_port }}
+      --master_rpc_port {{ yugabyte_master_rpc_bind_port }}
+      --tserver_webserver_port {{ yugabyte_tablet_webserver_port }}
+      --tserver_rpc_port {{ yugabyte_tablet_rpc_bind_port }}
+      --tserver_flags {{ yugabyte_tablet_flags | join(',') }}
       --ysql_port {{ yugabyte_tablet_pgsql_bind_port }}
+      --ycql_port {{ yugabyte_tablet_cql_bind_port }}
       --callhome false
       --fault_tolerance none
       --background false
       --initial_scripts_dir /var/ybinit
+      {% if yugabyte_use_tls %}
+      --certs_dir /var/tls
+      --secure
+      {% else %}
       --insecure
-    container_volumes:
-      - "{{ yugabyte_remote_config_dir }}/init:/var/ybinit:Z"
-      - "{{ yugabyte_remote_config_dir }}/data:/var/data:Z"
+      {% endif %}
+    container_volumes: "{{ yugabyte_volumes }}"
     container_healthcheck_test: >-
-      ysqlsh
-      -h localhost
+      /home/yugabyte/postgres/bin/pg_isready
       -d {{ yugabyte_db }}
       -U {{ yugabyte_user }}
       -p {{ yugabyte_tablet_pgsql_bind_port }}
-      -c '\q'
     container_wait_until_running: true
     container_wait_port: "{{ yugabyte_tablet_pgsql_bind_port }}"
     container_run_as_host_user: true

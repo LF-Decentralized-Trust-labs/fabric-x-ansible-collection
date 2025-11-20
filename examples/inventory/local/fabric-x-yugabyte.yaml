@@ -205,6 +205,7 @@ all:
               yugabyte_db: sc_db
               yugabyte_component_type: standalone
               yugabyte_master_webserver_port: 7001
+              yugabyte_master_rpc_bind_port: 7100
               yugabyte_tablet_pgsql_bind_port: 5435
             committer-validator:
               yugabyte_cluster_ref_id: 1

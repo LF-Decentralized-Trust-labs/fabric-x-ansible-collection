@@ -6,14 +6,22 @@
 
 - name: Build the Fabric CA Client binaries
   hosts: localhost
+  vars:
+    targeted_hosts: >-
+      {{
+        groups[target_hosts]
+        if target_hosts in groups
+        else [target_hosts]
+      }}
   tasks:
     - name: Build the Fabric CA client binaries for the not dockerized hosts
       vars:
         fabric_ca_client_instances: >-
           {{
             (
-            groups[target_hosts | default('fabric_cas')]
-            | intersect(groups['fabric_cas'])
+            targeted_hosts
+            | default(groups['fabric_ca_servers'])
+            | intersect(groups['fabric_ca_servers'])
             | map('extract', hostvars)
             | selectattr("fabric_ca_client_use_bin", 'defined')
             | selectattr("fabric_ca_client_use_bin", 'eq', true)
@@ -22,7 +30,8 @@
             )
             +
             (
-            groups['all']
+            targeted_hosts
+            | default(groups['all'])
             | map('extract', hostvars)
             | selectattr("fabric_ca_client_use_bin", 'defined')
             | selectattr("fabric_ca_client_use_bin", 'eq', true)

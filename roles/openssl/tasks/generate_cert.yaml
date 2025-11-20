@@ -37,5 +37,9 @@
     -CAkey {{ openssl_ca_private_key_path }}
     -out {{ openssl_cert_path }}
     -days {{ openssl_cert_duration }}
+    {% if openssl_ext_file_path is defined %}
+    -extfile {{ openssl_ext_file_path }}
+    -extensions v3_req
+    {% endif %}
   args:
     creates: "{{ openssl_cert_path }}"

@@ -36,7 +36,7 @@
 
 - name: Create the OpenSSL configuration file
   ansible.builtin.template:
-    src: "config-openssl.yaml.j2"
+    src: "conf.yaml.j2"
     dest: "{{ openssl_remote_config_dir }}/openssl.conf"
     mode: "0o644"
 

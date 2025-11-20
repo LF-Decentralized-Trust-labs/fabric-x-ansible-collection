@@ -34,11 +34,19 @@
     state: directory
     mode: "0755"
 
-- name: Create the OpenSSL configuration file
+- name: Create the OpenSSL CSR configuration file
   ansible.builtin.template:
-    src: "config-openssl.yaml.j2"
+    src: "conf.yaml.j2"
     dest: "{{ openssl_remote_config_dir }}/openssl.conf"
     mode: "0o644"
+
+- name: Create the OpenSSL CSR extension file
+  ansible.builtin.template:
+    src: "ext.yaml.j2"
+    dest: "{{ openssl_ext_file_path }}"
+    mode: "0o644"
+  when:
+    - openssl_ext_file_path is defined
 
 - name: Generate private key and self-signed certificate
   ansible.builtin.command: >-
@@ -50,6 +58,7 @@
     -days {{ openssl_cert_duration }}
     -config {{ openssl_remote_config_dir }}/openssl.conf
     -nodes
+    -reqexts v3_req
     {% if openssl_pkey_opt is defined %}
     -pkeyopt {{ openssl_pkey_opt }}
     {% endif %}

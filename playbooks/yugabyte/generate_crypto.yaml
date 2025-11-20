@@ -7,12 +7,15 @@
 - name: Generate CA certificate for Yugabyte DB
   hosts: localhost
   tasks:
-    - name: Generate self signed certificate for Yugabyte DBs
+    - name: Generate CA certificate for Yugabyte DB cluster
       vars:
         yugabyte_cluster_ca_dir: "{{ fetched_artifacts_dir }}/yugabyte-cluster-{{ current_yugabyte_cluster_id }}/tls"
         openssl_remote_config_dir: "{{ yugabyte_cluster_ca_dir }}"
         openssl_private_key_path: "{{ yugabyte_cluster_ca_dir }}/tls_key.pem"
         openssl_cert_path: "{{ yugabyte_cluster_ca_dir }}/tls_cert.pem"
+        openssl_san_entries: []
+        openssl_basic_constraints: "critical, CA:true"
+        openssl_key_usage: "critical, keyCertSign, cRLSign"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.openssl
         tasks_from: generate_self_signed_cert
@@ -56,6 +59,7 @@
         openssl_ca_cert_path: "{{ yugabyte_cluster_ca_dir }}/tls_cert.pem"
         openssl_csr_path: "{{ fetched_artifacts_dir }}/{{ current_yugabyte_node }}/tls/tls.csr"
         openssl_cert_path: "{{ fetched_artifacts_dir }}/{{ current_yugabyte_node }}/tls/tls_cert.pem"
+        openssl_ext_file_path: "{{ fetched_artifacts_dir }}/{{ current_yugabyte_node }}/tls/tls.ext"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.openssl
         tasks_from: generate_cert
