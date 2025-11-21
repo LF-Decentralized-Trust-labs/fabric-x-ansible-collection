@@ -4,15 +4,32 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Initialize SAN entries
+  ansible.builtin.set_fact:
+    openssl_san_entries:
+      - "DNS.1:{{ ansible_host }}"
+      - "DNS.2:{{ inventory_hostname }}"
+
+- name: Add IP addresses to SAN entries
+  vars:
+    current_san_ip_entry: "IP.{{ item_index + 1 }}:{{ current_ip_addr }}"
+  ansible.builtin.set_fact:
+    openssl_san_entries: "{{ openssl_san_entries + [current_san_ip_entry] }}"
+  loop: "{{ ansible_all_ipv4_addresses }}"
+  loop_control:
+    loop_var: current_ip_addr
+    index_var: item_index
+    label: "{{ current_ip_addr }}"
+  when:
+    - ansible_all_ipv4_addresses is defined
+    - ansible_all_ipv4_addresses
+      | length > 0
+
 - name: Generate CSR for TLS cert
   vars:
     openssl_private_key_path: "{{ yugabyte_remote_config_dir }}/tls/node.{{ ansible_host }}.key"
     openssl_csr_path: "{{ yugabyte_remote_config_dir }}/tls/tls.csr"
     openssl_ext_file_path: "{{ yugabyte_remote_config_dir }}/tls/tls.ext"
-    openssl_san_entries:
-      - "DNS.1:{{ ansible_host }}"
-      - "DNS.2:{{ inventory_hostname }}"
-      - "IP.1:{{ ansible_default_ipv4.address }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openssl
     tasks_from: generate_csr

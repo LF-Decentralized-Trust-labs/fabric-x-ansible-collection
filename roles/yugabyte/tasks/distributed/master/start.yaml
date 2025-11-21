@@ -70,6 +70,10 @@
       - "{{ yugabyte_master_rpc_bind_port }}:{{ yugabyte_master_rpc_bind_port }}"
       - "{{ yugabyte_master_webserver_port }}:{{ yugabyte_master_webserver_port }}"
     container_volumes: "{{ yugabyte_master_volumes }}"
+    container_healthcheck_test: >-
+      exec 3<>/dev/tcp/localhost/{{ yugabyte_master_webserver_port }};
+      echo -e 'GET /api/v1/health-check HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3;
+      grep 'HTTP/1.1 200 OK' <&3
     container_wait_until_running: true
     container_wait_port: "{{ yugabyte_master_rpc_bind_port }}"
     container_run_as_host_user: true

@@ -94,12 +94,10 @@
       {% endif %}
     container_volumes: "{{ yugabyte_tablet_volumes }}"
     container_healthcheck_test: >-
-      ysqlsh
-      -h localhost
+      /home/yugabyte/postgres/bin/pg_isready
       -d yugabyte
       -U yugabyte
       -p {{ yugabyte_tablet_pgsql_bind_port }}
-      -c '\q'
     container_wait_until_running: true
     container_wait_port: "{{ yugabyte_tablet_pgsql_bind_port }}"
     container_run_as_host_user: true
