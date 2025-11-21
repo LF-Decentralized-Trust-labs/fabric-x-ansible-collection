@@ -8,18 +8,23 @@ This folder contains sample inspirational inventories and playbooks to deploy di
   - [Define the inventory to run](#define-the-inventory-to-run)
     - [Use `ansible.cfg`](#use-ansiblecfg)
     - [Set via env](#set-via-env)
-  - [fabric-x.yaml](#fabric-xyaml)
-  - [fabric-x-yugabyte.yaml](#fabric-x-yugabyteyaml)
-  - [fabric-x-bin.yaml](#fabric-x-binyaml)
-  - [fabric-x-cryptogen.yaml](#fabric-x-cryptogenyaml)
-  - [fabric-x-distributed.yaml](#fabric-x-distributedyaml)
+  - [local/fabric-x.yaml](#localfabric-xyaml)
+  - [local/fabric-x-yugabyte.yaml](#localfabric-x-yugabyteyaml)
+  - [local/fabric-x-bin.yaml](#localfabric-x-binyaml)
+  - [local/fabric-x-cryptogen.yaml](#localfabric-x-cryptogenyaml)
+  - [distributed/fabric-x.yaml](#distributedfabric-xyaml)
 - [Playbooks](#playbooks)
 - [How to replicate an horizontally scalable microservice](#how-to-replicate-an-horizontally-scalable-microservice)
 - [How to run a microservice on a different machine](#how-to-run-a-microservice-on-a-different-machine)
 
 ## Inventories
 
-There are currently 4 different [inventories](./inventory/) that can be used.
+There are currently 5 sample different [inventories](./inventory/) that can be used.
+
+They are split into 2 folders:
+
+- [`local/`](./inventory/local/): it contains inventories that can be used on a single machine (acting as both control node and remote node) to run an Hyperledger Fabric-X network;
+- [`distributed/`](./inventory/distributed/): it contains inventories that require multiple machines to run and are useful to evaluate the network performance by distributing and fine-tuning the settings for each microservice.
 
 The microservices indicated as _horizontally scalable_ can be replicated. To understand how to replicate them, look at [this section](#how-to-replicate-an-horizontally-scalable-microservice).
 
@@ -43,11 +48,11 @@ Set the inventory as env variable:
 export ANSIBLE_INVENTORY=<path_to_the_inventory>
 ```
 
-### fabric-x.yaml
+### local/fabric-x.yaml
 
-The [fabric-x.yaml](./inventory/fabric-x.yaml) inventory represents the following network scenario:
+The [local/fabric-x.yaml](./inventory/local/fabric-x.yaml) inventory represents the following network scenario:
 
-![fabric-x-inventory](./images/fabric-x.drawio.png)
+![local/fabric-x-inventory](./images/fabric-x.drawio.png)
 
 It bootstraps a network with:
 
@@ -68,11 +73,11 @@ It bootstraps a network with:
 - 1 **Grafana** container;
 - 1 **Prometheus** container.
 
-### fabric-x-yugabyte.yaml
+### local/fabric-x-yugabyte.yaml
 
-The [fabric-x-yugabyte.yaml](./inventory/fabric-x-yugabyte.yaml) inventory represents the following network scenario:
+The [local/fabric-x-yugabyte.yaml](./inventory/local/fabric-x-yugabyte.yaml) inventory represents the following network scenario:
 
-![fabric-x-yugabyte-inventory](./images/fabric-x-yugabyte.drawio.png)
+![local/fabric-x-yugabyte-inventory](./images/fabric-x-yugabyte.drawio.png)
 
 It bootstraps a network with:
 
@@ -93,11 +98,11 @@ It bootstraps a network with:
 - 1 **Grafana** container;
 - 1 **Prometheus** container.
 
-### fabric-x-bin.yaml
+### local/fabric-x-bin.yaml
 
-The [fabric-x-bin.yaml](./inventory/fabric-x-bin.yaml) inventory represents the following network scenario:
+The [local/fabric-x-bin.yaml](./inventory/local/fabric-x-bin.yaml) inventory represents the following network scenario:
 
-![fabric-x-bin-inventory](./images/fabric-x-bin.drawio.png)
+![local/fabric-x-bin-inventory](./images/fabric-x-bin.drawio.png)
 
 It bootstraps a network with:
 
@@ -118,11 +123,11 @@ It bootstraps a network with:
 - 1 **Grafana** container;
 - 1 **Prometheus** container.
 
-### fabric-x-cryptogen.yaml
+### local/fabric-x-cryptogen.yaml
 
-The [fabric-x-cryptogen.yaml](./inventory/fabric-x-cryptogen.yaml) inventory represents the following network scenario:
+The [local/fabric-x-cryptogen.yaml](./inventory/local/fabric-x-cryptogen.yaml) inventory represents the following network scenario:
 
-![fabric-x-cryptogen-inventory](./images/fabric-x-cryptogen.drawio.png)
+![local/fabric-x-cryptogen-inventory](./images/fabric-x-cryptogen.drawio.png)
 
 It bootstraps a network with:
 
@@ -144,11 +149,11 @@ It bootstraps a network with:
 
 The absence of the Fabric CAs is due to the fact that the crypto material is generated on the control node using `cryptogen`. As stated within the inventory itself, this deployment is not meant for Production.
 
-### fabric-x-distributed.yaml
+### distributed/fabric-x.yaml
 
-The [fabric-x-distributed.yaml](./inventory/fabric-x-distributed.yaml) inventory represents an example of Fabric-X inventory that distributes the different components over multiple machines. This inventory specifically targets a total of 16 different machines which host some of the microservices. Use this inventory as reference to create your distributed network:
+The [distributed/fabric-x.yaml](./inventory/distributed/fabric-x.yaml) inventory represents an example of Fabric-X inventory that distributes the different components over multiple machines. This inventory specifically targets a total of 16 different machines which host some of the microservices. Use this inventory as reference to create your distributed network:
 
-![fabric-x-distributed-inventory](./images/fabric-x-distributed.drawio.png)
+![distributed/fabric-x-inventory](./images/fabric-x-distributed.drawio.png)
 
 **NOTE**: this inventory is NOT ready to use! To use this inventory, you need to indicate the target machines, named as `host_machine_*`.
 

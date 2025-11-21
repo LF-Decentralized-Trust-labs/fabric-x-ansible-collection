@@ -4,22 +4,39 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# Yugabyte DB image
+# =========================
+# Yugabyte image
+# =========================
 yugabyte_db_registry_endpoint: "{{ lookup('env', 'YUGABYTE_DB_REGISTRY_ENDPOINT') or 'docker.io/yugabytedb' }}"
 yugabyte_db_image_name: "yugabyte"
 yugabyte_db_image_tag: "2.20.7.0-b58"
 yugabyte_db_image: "{{ yugabyte_db_registry_endpoint }}/{{ yugabyte_db_image_name }}:{{ yugabyte_db_image_tag }}"
 yugabyte_container_name: "{{ inventory_hostname }}"
 
-# Yugabyte locations/paths
+# =========================
+# Locations/Paths
+# =========================
 yugabyte_remote_config_dir: "{{ remote_config_dir }}"
-
-# Miscellaneous
 yugabyte_init_script_file: "01-yb-init.sql"
+
+# =========================
+# Yugabyte settings
+# =========================
 yugabyte_logs_level: 3
-# yugabyte master ports
+
+# =========================
+# Yugabyte TLS
+# =========================
+yugabyte_use_tls: false
+
+# =========================
+# Yugabyte Master ports
+# =========================
 yugabyte_master_webserver_port: 7000
-# yugabyte tablet ports
+
+# =========================
+# Yugabyte Tablet ports
+# =========================
 yugabyte_tablet_rpc_bind_port: 9100
 yugabyte_tablet_webserver_port: 9000
 yugabyte_tablet_redis_web_port: 11000

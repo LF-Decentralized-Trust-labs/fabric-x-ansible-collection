@@ -1,0 +1,37 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# With cryptogen
+# =========================
+- name: Fetch Fabric-X loadgen user sign certificates generated with cryptogen
+  ansible.builtin.fetch:
+    src: "{{ loadgen_remote_config_dir }}/users/{{ current_user.name }}@{{ organization.domain }}/msp/signcerts/{{ current_user.name }}@{{ organization.domain }}-cert.pem"
+    dest: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/users/{{ current_user.name }}@{{ organization.domain }}/msp/signcerts/{{ current_user.name }}@{{ organization.domain }}-cert.pem"
+    flat: true
+  loop: "{{ organization.users }}"
+  loop_control:
+    loop_var: current_user
+    label: "{{ organization.domain }}:{{ current_user.name }}"
+  when:
+    - organization.fabric_ca_host is undefined
+    - organization.users is defined
+
+# =========================
+# With Fabric-CA
+# =========================
+- name: Fetch Fabric-X loadgen user sign certificates generated with Fabric-CA
+  ansible.builtin.fetch:
+    src: "{{ loadgen_remote_config_dir }}/users/{{ current_user.name }}@{{ organization.domain }}/msp/signcerts/cert.pem"
+    dest: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/users/{{ current_user.name }}@{{ organization.domain }}/msp/signcerts/{{ current_user.name }}@{{ organization.domain }}-cert.pem"
+    flat: true
+  loop: "{{ organization.users }}"
+  loop_control:
+    loop_var: current_user
+    label: "{{ organization.domain }}:{{ current_user.name }}"
+  when:
+    - organization.fabric_ca_host is defined
+    - organization.users is defined

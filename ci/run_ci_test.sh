@@ -14,16 +14,18 @@ BLUE='\033[0;34m'
 
 # vars
 PROFILE_FILE="${HOME}/.profile"
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+DEFAULT_PROJECT_DIR=$(dirname "${SCRIPT_DIR}")
+PROJECT_DIR="${PROJECT_DIR:-$DEFAULT_PROJECT_DIR}"
 DEFAULT_CONTAINER_CLIENT=$(command -v podman >/dev/null 2>&1 && echo "podman" || (command -v docker >/dev/null 2>&1 && echo "docker" || echo ""))
 CONTAINER_CLIENT="${CONTAINER_CLIENT:-$DEFAULT_CONTAINER_CLIENT}"
 
 function print_logs() {
-    local dir=$1
-
-    find "$dir" -type f | while read -r file; do
-        # Print the last part of the logs
-        echo -e "📝 ${BLUE}$file${NO_STYLE}"
-        cat "$file"
+    for file in "$@"; do
+        if [[ -f "$file" ]]; then
+            echo -e "📝 ${BLUE}$file${NO_STYLE}"
+            cat "$file"
+        fi
     done
 }
 
@@ -38,11 +40,11 @@ function collect_deployment_failure_info() {
     echo "✅ Done."
 
     echo -e "🚩 ${BLUE}List the fetched log files.${NO_STYLE}"
-    ls "$PROJECT_DIR/out/logs"
+    ls -la "$PROJECT_DIR"/out/control-node/fetched/*/logs.txt
     echo "✅ Done."
 
     echo -e "🚩 ${BLUE}Show all the logs.${NO_STYLE}"
-    print_logs "$PROJECT_DIR/out/logs"
+    print_logs "$PROJECT_DIR"/out/control-node/fetched/*/logs.txt
     echo "✅ Done."
 }
 

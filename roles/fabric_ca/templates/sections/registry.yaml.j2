@@ -1,0 +1,30 @@
+#############################################################################
+#  The registry section controls how the fabric-ca-server does two things:
+#  1) authenticates enrollment requests which contain a username and password
+#     (also known as an enrollment ID and secret).
+#  2) once authenticated, retrieves the identity's attribute names and values.
+#     These attributes are useful for making access control decisions in
+#     chaincode.
+#  There are two main configuration options:
+#  1) The fabric-ca-server is the registry.
+#     This is true if "ldap.enabled" in the ldap section below is false.
+#  2) An LDAP server is the registry, in which case the fabric-ca-server
+#     calls the LDAP server to perform these tasks.
+#     This is true if "ldap.enabled" in the ldap section below is true,
+#     which means this "registry" section is ignored.
+#############################################################################
+registry:
+  # Maximum number of times a password/secret can be reused for enrollment
+  # (default: -1, which means there is no limit)
+  maxenrollments: -1
+  # Contains identity information which is used when LDAP is disabled
+  identities:
+    - name: "{{ fabric_ca_admin.name }}"
+      pass: "{{ fabric_ca_admin.secret }}"
+      type: "admin"
+      attrs:
+{% if fabric_ca_admin.attrs is defined %}
+{% for attribute_name, attribute_value in fabric_ca_admin.attrs.items() %}
+        {{ attribute_name }}: "{{ attribute_value }}"
+{% endfor %}
+{% endif %}

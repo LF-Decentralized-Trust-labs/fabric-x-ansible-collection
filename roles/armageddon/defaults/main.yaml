@@ -4,28 +4,31 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# armageddon image
+# =========================
+# Armageddon image
+# =========================
 armageddon_registry_endpoint: "{{ lookup('env', 'ARMAGEDDON_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 armageddon_image_name: "fabric-x-tools"
 armageddon_image_tag: "0.0.4"
 armageddon_image: "{{ armageddon_registry_endpoint }}/{{ armageddon_image_name }}:{{ armageddon_image_tag }}"
 armageddon_container_name: "armageddon"
 
-# armageddon binary
+# =========================
+# Armageddon binary
+# =========================
 armageddon_git_uri: "https://github.com/hyperledger/fabric-x-orderer.git"
 armageddon_git_dir: "{{ source_code_dir }}/fabric-x-orderer"
 armageddon_git_commit: "v0.0.19"
 armageddon_source_code_dir: "{{ armageddon_git_dir }}/cmd/armageddon"
 armageddon_bin_package: "github.com/hyperledger/fabric-x-orderer/cmd/armageddon"
 armageddon_bin_name: "armageddon"
+armageddon_use_bin: false
 
-# armageddon location/paths
-armageddon_cryptogen_artifacts_dir: "{{ config_build_dir }}/cryptogen-artifacts"
-armageddon_cryptogen_docker_artifacts_dir: "/tmp/cryptogen-artifacts"
-armageddon_output_dir: "{{ config_build_dir }}/armageddon-artifacts"
-armageddon_docker_output_dir: "/tmp/out"
+# =========================
+# Locations/Paths
+# =========================
+armageddon_artifacts_dir: "{{ config_build_dir }}/armageddon-artifacts"
+armageddon_container_output_dir: "/tmp/out"
+armageddon_container_crypto_artifacts_dir: "/tmp/crypto"
 armageddon_config_file: armageddon.yaml
 armageddon_shared_config_file: shared_config.yaml
-
-# armageddon misc vars
-armageddon_use_bin: "{{ use_bin | default(false) }}"

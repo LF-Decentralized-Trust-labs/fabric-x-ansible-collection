@@ -8,12 +8,12 @@
   vars:
     container_name: "{{ loadgen_container_name }}"
     container_image: "{{ loadgen_image }}"
-    container_command: "loadgen start --config={{ loadgen_docker_config_dir }}/{{ loadgen_config_file }}"
+    container_command: "loadgen start --config={{ loadgen_container_config_dir }}/{{ loadgen_config_file }}"
     container_ports:
       - "{{ prometheus_exporter_port }}:{{ prometheus_exporter_port }}"
       - "{{ loadgen_web_port }}:{{ loadgen_web_port }}"
     container_volumes:
-      - "{{ loadgen_remote_config_dir }}:{{ loadgen_docker_config_dir }}:Z"
+      - "{{ loadgen_remote_config_dir }}:{{ loadgen_container_config_dir }}:Z"
     container_wait_until_running: true
     container_wait_port: "{{ loadgen_web_port }}"
   ansible.builtin.include_role:

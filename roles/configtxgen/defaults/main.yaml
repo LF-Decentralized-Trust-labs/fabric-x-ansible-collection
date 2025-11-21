@@ -4,35 +4,39 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# configtxgen image
+# =========================
+# Configtxgen image
+# =========================
 configtxgen_registry_endpoint: "{{ lookup('env', 'CONFIGTXGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 configtxgen_image_name: "fabric-x-tools"
 configtxgen_image_tag: "0.0.4"
 configtxgen_image: "{{ configtxgen_registry_endpoint }}/{{ configtxgen_image_name }}:{{ configtxgen_image_tag }}"
 configtxgen_container_name: "configtxgen"
 
-# configtxgen bin
+# =========================
+# Configtxgen binary
+# =========================
 configtxgen_git_uri: "https://github.com/hyperledger/fabric-x.git"
 configtxgen_git_dir: "{{ source_code_dir }}/fabric-x"
 configtxgen_git_commit: "v0.0.4"
 configtxgen_source_code_dir: "{{ configtxgen_git_dir }}/tools/configtxgen"
 configtxgen_bin_package: "github.com/hyperledger/fabric-x/tools/configtxgen"
 configtxgen_bin_name: "configtxgen"
+configtxgen_use_bin: false
 
-# configtxgen paths/locations
-configtxgen_output_dir: "{{ config_build_dir }}/configtxgen-artifacts"
-configtxgen_cryptogen_artifacts_dir: "{{ config_build_dir }}/cryptogen-artifacts"
-configtxgen_idemixgen_artifacts_dir: "{{ config_build_dir }}/idemixgen-artifacts"
-configtxgen_armageddon_artifacts_dir: "{{ config_build_dir }}/armageddon-artifacts"
-configtxgen_docker_output_dir: "/tmp/configtxgen-artifacts"
-configtxgen_cryptogen_docker_artifacts_dir: "/tmp/cryptogen-artifacts"
-configtxgen_idemixgen_docker_artifacts_dir: "/tmp/idemixgen-artifacts"
-configtxgen_armageddon_docker_artifacts_dir: "/tmp/armageddon-artifacts"
+# =========================
+# Paths/Locations
+# =========================
+configtxgen_artifacts_dir: "{{ config_build_dir }}/configtxgen-artifacts"
+configtxgen_container_artifacts_dir: "/tmp/configtxgen-artifacts"
+configtxgen_container_crypto_artifacts_dir: "/tmp/crypto-artifacts"
+configtxgen_armageddon_container_artifacts_dir: "/tmp/armageddon-artifacts"
 configtxgen_armageddon_binpb_file: "shared_config.binpb"
 configtxgen_config_file: "configtx.yaml"
 
-# configtxgen misc
-configtxgen_use_bin: "{{ use_bin | default(false) }}"
+# =========================
+# Configtxgen Opts
+# =========================
 configtxgen_channel_id: "{{ channel_id }}"
 configtxgen_profile_id: "OrgsChannel"
 configtxgen_orderers_by_org: {}

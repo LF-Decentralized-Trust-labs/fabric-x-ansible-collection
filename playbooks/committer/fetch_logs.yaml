@@ -7,7 +7,21 @@
 - name: Fetch the Fabric-X Committer logs
   hosts: "{{ target_hosts | default('fabric_x_committer') }}:&fabric_x_committer"
   tasks:
+    - name: Fetch the Fabric-X Committer DB container logs
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres
+        tasks_from: fetch_logs
+      when:
+        - postgres_port is defined
+    - name: Fetch the Fabric-X Committer Yugabyte DB container logs
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.yugabyte
+        tasks_from: fetch_logs
+      when:
+        - yugabyte_component_type is defined
     - name: Fetch the Fabric-X Committer logs
       ansible.builtin.include_role:
         name: hyperledger.fabricx.committer
         tasks_from: fetch_logs
+      when:
+        - committer_component_type is defined

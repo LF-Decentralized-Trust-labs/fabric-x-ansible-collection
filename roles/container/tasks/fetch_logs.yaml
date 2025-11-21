@@ -25,7 +25,7 @@
 - name: Fetch the container logs
   ansible.builtin.fetch:
     src: "{{ container_remote_logs_dir }}/{{ container_remote_logs_file }}"
-    dest: "{{ container_logs_dir }}/{{ container_logs_file }}"
+    dest: "{{ container_fetched_logs_dir }}/{{ container_fetched_logs_file }}"
     validate_checksum: false
     fail_on_missing: false
     flat: true

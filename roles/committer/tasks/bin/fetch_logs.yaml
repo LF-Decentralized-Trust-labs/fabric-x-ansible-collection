@@ -5,8 +5,6 @@
 #
 
 - name: Fetch the logs from the Fabric-X Committer binary
-  vars:
-    bin_logs_file: "{{ inventory_hostname }}_logs.txt"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: fetch_logs

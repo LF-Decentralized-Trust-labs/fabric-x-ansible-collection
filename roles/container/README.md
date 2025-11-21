@@ -111,8 +111,8 @@ The task `fetch_logs` allows to fetch the logs of a container on the control nod
 - name: Fetch the logs from my-container container
   vars:
     container_name: my-container
-    container_logs_dir: /tmp
-    container_logs_file: my-container_logs.txt
+    container_fetched_logs_dir: /tmp
+    container_fetched_logs_file: my-container_logs.txt
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: fetch_logs

@@ -12,7 +12,7 @@
 
 - name: Generate the config for the Fabric-X Loadgen for the Fabric-X Committer Sidecar
   vars:
-    loadgen_config_dir: "{{ loadgen_remote_config_dir if loadgen_use_bin else loadgen_docker_config_dir }}"
+    loadgen_config_dir: "{{ loadgen_remote_config_dir if loadgen_use_bin else loadgen_container_config_dir }}"
   ansible.builtin.template:
     src: "sidecar-client.yaml.j2"
     dest: "{{ loadgen_remote_config_dir }}/{{ loadgen_config_file }}"
@@ -30,7 +30,7 @@
 
 - name: Transfer the Fabric-X Loadgen users crypto material
   ansible.posix.synchronize:
-    src: "{{ loadgen_cryptogen_artifact_build_dir }}/crypto/peerOrganizations/{{ organization.domain }}/users/{{ user.name }}@{{ organization.domain }}"
+    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/users/{{ user.name }}@{{ organization.domain }}"
     dest: "{{ loadgen_remote_config_dir }}/users"
   loop: "{{ organization.users }}"
   loop_control:

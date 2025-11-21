@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Setup the crypto material for Fabric-X Orderers
+  hosts: "{{ target_hosts | default('fabric_x_orderers') }}:&fabric_x_orderers"
+  tasks:
+    - name: Enroll Fabric-X Orderer identities
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.orderer
+        tasks_from: crypto/transfer
+    - name: Fetch Fabric-X Orderer certificates
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.orderer
+        tasks_from: crypto/fetch

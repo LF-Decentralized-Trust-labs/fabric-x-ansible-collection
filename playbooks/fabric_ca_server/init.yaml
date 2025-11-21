@@ -20,7 +20,7 @@
         tasks_from: client/enroll
       when:
         - fabric_ca_admin is defined
-    - name: Fetch the Fabric CA crypto material for the genesis block build
+    - name: Fetch the Fabric CA certificates
       vars:
         fabric_ca_orderer_organization: >-
           {{
@@ -34,4 +34,4 @@
           }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fabric_ca
-        tasks_from: server/config/fetch_crypto_material
+        tasks_from: server/crypto/fetch

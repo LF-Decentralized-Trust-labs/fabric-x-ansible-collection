@@ -11,4 +11,7 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.committer
         tasks_from: bin/transfer
-      when: committer_use_bin is defined and committer_use_bin
+      when:
+        - committer_component_type is defined
+        - committer_use_bin is defined
+        - committer_use_bin

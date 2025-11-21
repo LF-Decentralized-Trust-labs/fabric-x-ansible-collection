@@ -1,0 +1,33 @@
+###########################################################################
+#  Certificate Signing Request (CSR) section.
+#  This controls the creation of the root CA certificate.
+#  The expiration for the root CA certificate is configured with the
+#  "ca.expiry" field below, whose default value is "131400h" which is
+#  15 years in hours.
+#  The pathlength field is used to limit CA certificate hierarchy as described
+#  in section 4.2.1.9 of RFC 5280.
+#  Examples:
+#  1) No pathlength value means no limit is requested.
+#  2) pathlength == 1 means a limit of 1 is requested which is the default for
+#     a root CA.  This means the root CA can issue intermediate CA certificates,
+#     but these intermediate CAs may not in turn issue other CA certificates
+#     though they can still issue end entity certificates.
+#  3) pathlength == 0 means a limit of 0 is requested;
+#     this is the default for an intermediate CA, which means it can not issue
+#     CA certificates though it can still issue end entity certificates.
+#  The "hosts" field will be used to specify Subject Alternative Names
+#  if the server creates a self-signed TLS certificate.
+###########################################################################
+csr:
+  cn: "{{ fabric_ca_csr_cn }}"
+  names:
+    - C: US
+      ST: "California"
+      L: "San Francisco"
+      O: "{{ organization.domain }}"
+  hosts:
+{% for host in (fabric_ca_csr_hosts | default([])) %}
+    - "{{ host }}"
+{% endfor %}
+  ca:
+    expiry: "{{ fabric_ca_csr_expiry }}"

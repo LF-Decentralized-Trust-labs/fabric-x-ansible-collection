@@ -15,7 +15,7 @@
     bin_remote_dir: "{{ cli_bin_dir }}"
     bin_command: >-
       {{ cryptogen_bin_name }} generate
-      --config={{ cryptogen_config_dir }}/{{ cryptogen_config_file }}
+      --config={{ cryptogen_artifacts_dir }}/{{ cryptogen_config_file }}
       --output={{ cryptogen_output_dir }}
     bin_collect_logs: false
   ansible.builtin.include_role:

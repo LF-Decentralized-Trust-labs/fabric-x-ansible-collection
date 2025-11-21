@@ -34,7 +34,7 @@ Organizations:
     ID: {{ orderer_org_info.name }}MSP
 
     # MSPDir is the filesystem path which contains the MSP configuration.
-    MSPDir: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/msp
+    MSPDir: {{ crypto_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/msp
 
     # Policies defines the set of policies at this level of the config tree
     # For organization policies, their canonical path is usually
@@ -80,11 +80,11 @@ Organizations:
 
 {% if peer_org_info.type is defined and peer_org_info.type == 'idemix' %}
     # MSPDir is the filesystem path which contains the MSP configuration.
-    MSPDir: {{ idemixgen_artifacts_dir }}/{{ peer_org_info.domain }}
+    MSPDir: {{ crypto_artifacts_dir }}/crypto/peerOrganizations/{{ peer_org_info.domain }}
     MSPType: {{ peer_org_info.type }}
 {% else %}
     # MSPDir is the filesystem path which contains the MSP configuration.
-    MSPDir: {{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ peer_org_info.domain }}/msp
+    MSPDir: {{ crypto_artifacts_dir }}/crypto/peerOrganizations/{{ peer_org_info.domain }}/msp
 {% endif %}
 
     # Policies defines the set of policies at this level of the config tree
@@ -437,9 +437,9 @@ Orderer: &OrdererDefaults
       Host: {{ hostvars[orderer.name].ansible_host }}
       Port: {{ hostvars[orderer.name].orderer_rpc_port }}
       MSPID: {{ orderer_org_info.name }}MSP
-      Identity: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ hostvars[orderer.name].organization.orderer.name | default(orderer.name) }}.{{ orderer_org_info.domain }}/msp/signcerts/{{ hostvars[orderer.name].organization.orderer.name | default(orderer.name) }}.{{ orderer_org_info.domain }}-cert.pem
-      ClientTLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ hostvars[orderer.name].organization.orderer.name | default(orderer.name) }}.{{ orderer_org_info.domain }}/tls/server.crt
-      ServerTLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ hostvars[orderer.name].organization.orderer.name | default(orderer.name) }}.{{ orderer_org_info.domain }}/tls/server.crt
+      Identity: {{ crypto_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ hostvars[orderer.name].organization.orderer.name | default(orderer.name) }}.{{ orderer_org_info.domain }}/msp/signcerts/{{ hostvars[orderer.name].organization.orderer.name | default(orderer.name) }}.{{ orderer_org_info.domain }}-cert.pem
+      ClientTLSCert: {{ crypto_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ hostvars[orderer.name].organization.orderer.name | default(orderer.name) }}.{{ orderer_org_info.domain }}/tls/server.crt
+      ServerTLSCert: {{ crypto_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_org_info.domain }}/orderers/{{ hostvars[orderer.name].organization.orderer.name | default(orderer.name) }}.{{ orderer_org_info.domain }}/tls/server.crt
 {% endif %}
 {% endfor %}
 {% endfor %}
@@ -526,10 +526,10 @@ Profiles:
     Orderer:
       <<: *OrdererDefaults
       Arma:
-        Path: {{ armageddon_artifacts_dir }}/{{ configtxgen_armageddon_binpb_file }}
+        Path: {{ armageddon_artifacts }}/{{ configtxgen_armageddon_binpb_file }}
     Consortium: SampleConsortium
     Application:
       <<: *ApplicationDefaults
 {% if configtxgen_meta_namespace_admin is defined %}
-      MetaNamespaceVerificationKeyPath: {{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ configtxgen_meta_namespace_admin.organization.domain }}/users/{{ configtxgen_meta_namespace_admin.name }}@{{ configtxgen_meta_namespace_admin.organization.domain }}/msp/signcerts/{{ configtxgen_meta_namespace_admin.name }}@{{ configtxgen_meta_namespace_admin.organization.domain }}-cert.pem
+      MetaNamespaceVerificationKeyPath: {{ crypto_artifacts_dir }}/crypto/peerOrganizations/{{ configtxgen_meta_namespace_admin.organization.domain }}/users/{{ configtxgen_meta_namespace_admin.name }}@{{ configtxgen_meta_namespace_admin.organization.domain }}/msp/signcerts/{{ configtxgen_meta_namespace_admin.name }}@{{ configtxgen_meta_namespace_admin.organization.domain }}-cert.pem
 {% endif %}

@@ -4,35 +4,42 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# Fabric-X Orderer images
+# =========================
+# Fabric-X Orderer image
+# =========================
 orderer_registry_endpoint: "{{ lookup('env', 'ORDERER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 orderer_image_name: "fabric-x-orderer"
 orderer_image_tag: "0.0.19"
 orderer_image: "{{ orderer_registry_endpoint }}/{{ orderer_image_name }}:{{ orderer_image_tag }}"
 orderer_container_name: "{{ inventory_hostname }}"
 
-# Fabric-X Orderer bins
+# =========================
+# Fabric-X Orderer bin
+# =========================
 orderer_git_uri: "https://github.com/hyperledger/fabric-x-orderer.git"
 orderer_git_dir: "{{ source_code_dir }}/fabric-x-orderer"
 orderer_git_commit: "v0.0.19"
 orderer_source_code_dir: "{{ orderer_git_dir }}/cmd/arma"
 orderer_bin_package: "github.com/hyperledger/fabric-x-orderer/cmd/arma"
 orderer_bin_name: "arma"
+orderer_use_bin: false
 
-# Fabric-X Orderer config location/names
+# =========================
+# Paths/Locations
+# =========================
 orderer_remote_config_dir: "{{ remote_config_dir }}"
-orderer_docker_config_dir: "/config"
-orderer_config_file: "node_config.yaml"
+orderer_container_config_dir: "/config"
 orderer_remote_config_file: "{{ orderer_remote_config_dir }}/{{ orderer_config_file }}"
-orderer_crypto_name: "{{ organization.orderer.name | default(inventory_hostname) }}"
+orderer_config_file: "node_config.yaml"
 
-# Fabric-X Orderer misc vars
+# =========================
+# Fabric-X Orderer TLS/mTLS
+# =========================
 orderer_use_tls: false
 orderer_use_mtls: false
-orderer_use_bin: "{{ use_bin | default(false) }}"
 
-# Fabric-X Orderer helper config location/names
-orderer_armageddon_artifact_dir: "{{ config_build_dir }}/armageddon-artifacts"
-orderer_cryptogen_artifact_dir: "{{ config_build_dir }}/cryptogen-artifacts"
-orderer_configtxgen_artifact_dir: "{{ config_build_dir }}/configtxgen-artifacts"
+# =========================
+# Miscellaneous
+# =========================
+orderer_crypto_name: "{{ organization.orderer.name | default(inventory_hostname) }}"
 orderer_genesis_block_file: "{{ channel_id }}_block.pb"

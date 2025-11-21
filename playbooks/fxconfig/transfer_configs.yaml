@@ -42,7 +42,7 @@
         current_organization: "{{ loadgen_org_user[0] }}"
         current_user: "{{ loadgen_org_user[1] }}"
       ansible.builtin.copy:
-        src: "{{ config_build_dir }}/cryptogen-artifacts/crypto/peerOrganizations/{{ current_organization.domain }}/users/{{ current_user.name }}@{{ current_organization.domain }}/msp/signcerts/{{ current_user.name }}@{{ current_organization.domain }}-cert.pem"
+        src: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ current_organization.domain }}/users/{{ current_user.name }}@{{ current_organization.domain }}/msp/signcerts/{{ current_user.name }}@{{ current_organization.domain }}-cert.pem"
         dest: "{{ remote_config_dir }}/namespaces/{{ current_user.namespace }}/pubkey.pem"
         mode: "0o644"
       with_subelements:

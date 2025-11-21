@@ -31,6 +31,13 @@
     - loadgen_assert_metrics
 
 - name: Assert the Fabric-X Loadgen latency metric
+  ansible.builtin.debug:
+    msg: "The transaction latency is valid (>0): {{ loadgen_tx_latency }}"
+  when:
+    - loadgen_assert_metrics
+    - loadgen_tx_latency != 0
+
+- name: Assert the Fabric-X Loadgen latency metric
   ansible.builtin.fail:
     msg: "The transaction latency is invalid: {{ loadgen_tx_latency }}"
   when:

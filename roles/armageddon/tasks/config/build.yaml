@@ -6,7 +6,7 @@
 
 - name: Create armageddon config directory
   ansible.builtin.file:
-    path: "{{ armageddon_output_dir }}"
+    path: "{{ armageddon_artifacts_dir }}"
     state: directory
     mode: "0o750"
 
@@ -82,8 +82,13 @@
 
 - name: Create {{ armageddon_shared_config_file }}
   vars:
-    cryptogen_artifacts_dir: "{{ armageddon_cryptogen_artifacts_dir if armageddon_use_bin else armageddon_cryptogen_docker_artifacts_dir }}"
+    cryptogen_artifacts_dir: >-
+      {{
+        fetched_artifacts_dir
+        if armageddon_use_bin
+        else armageddon_container_crypto_artifacts_dir
+      }}
   ansible.builtin.template:
     src: shared_config.yaml.j2
-    dest: "{{ armageddon_output_dir }}/{{ armageddon_shared_config_file }}"
+    dest: "{{ armageddon_artifacts_dir }}/{{ armageddon_shared_config_file }}"
     mode: "0o644"
