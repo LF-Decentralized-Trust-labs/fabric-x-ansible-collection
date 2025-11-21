@@ -70,6 +70,9 @@
       - "{{ yugabyte_tablet_pgsql_web_port }}:{{ yugabyte_tablet_pgsql_web_port }}"
       - "{{ yugabyte_tablet_cql_bind_port }}:{{ yugabyte_tablet_cql_bind_port }}"
       - "{{ yugabyte_tablet_cql_web_port }}:{{ yugabyte_tablet_cql_web_port }}"
+    # We are forced to use rpc_bind_addresses={{ ansible_host }}:{{ yugabyte_tablet_rpc_bind_port }}
+    # with TLS because rpc_bind_addresses=0.0.0.0:{{ yugabyte_tablet_rpc_bind_port }} requires
+    # a TLS certificate to have also 0.0.0.0 inside (not recommended for security reasons).
     container_command: >-
       bin/yb-tserver
       --tserver_master_addrs={{ yb_master_hosts }}

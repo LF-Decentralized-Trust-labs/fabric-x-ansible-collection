@@ -8,8 +8,10 @@
   ansible.builtin.set_fact:
     openssl_san_entries:
       - "DNS.1:{{ ansible_host }}"
-      - "DNS.2:{{ inventory_hostname }}"
 
+# Note: we add all IP addresses to the SAN entries, but technically
+# we should only add the public ones that will be used to reach
+# the node.
 - name: Add IP addresses to SAN entries
   vars:
     current_san_ip_entry: "IP.{{ item_index + 1 }}:{{ current_ip_addr }}"
@@ -27,6 +29,7 @@
 
 - name: Generate CSR for TLS cert
   vars:
+    openssl_common_name: "{{ inventory_hostname }}"
     openssl_private_key_path: "{{ yugabyte_remote_config_dir }}/tls/node.{{ ansible_host }}.key"
     openssl_csr_path: "{{ yugabyte_remote_config_dir }}/tls/tls.csr"
     openssl_ext_file_path: "{{ yugabyte_remote_config_dir }}/tls/tls.ext"
