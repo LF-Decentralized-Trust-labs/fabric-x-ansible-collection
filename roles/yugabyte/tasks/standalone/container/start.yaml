@@ -42,10 +42,12 @@
   vars:
     yugabyte_tls_volumes:
       - "{{ yugabyte_remote_config_dir }}/tls:/var/tls:Z"
+    # add this flag since on master `yugabyted` doesn't add it by default even
+    # if we specify --secure as option.
+    # https://docs.yugabyte.com/stable/reference/configuration/yb-master/#allow-insecure-connections
     yugabyte_tls_flags:
       - allow_insecure_connections=false
       - use_client_to_server_encryption=true
-      - certs_for_client_dir=/var/tls
   ansible.builtin.set_fact:
     yugabyte_volumes: "{{ yugabyte_volumes + yugabyte_tls_volumes }}"
     yugabyte_master_flags: "{{ yugabyte_master_flags + yugabyte_tls_flags }}"

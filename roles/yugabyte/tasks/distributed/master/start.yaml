@@ -32,6 +32,20 @@
     state: directory
     mode: "0o750"
 
+- name: Set YugabyteDB Master mandatory volumes and flags
+  ansible.builtin.set_fact:
+    yugabyte_master_volumes:
+      - "{{ yugabyte_remote_config_dir }}/data:/var/data:Z"
+
+- name: Add YugabyteDB Master volumes for TLS certificates
+  vars:
+    yugabyte_master_tls_volumes:
+      - "{{ yugabyte_remote_config_dir }}/tls:/var/tls:Z"
+  ansible.builtin.set_fact:
+    yugabyte_master_volumes: "{{ yugabyte_master_volumes + yugabyte_master_tls_volumes }}"
+  when:
+    - yugabyte_use_tls
+
 - name: Start Yugabyte master DB container
   vars:
     container_name: "{{ yugabyte_container_name }}"
@@ -39,24 +53,23 @@
     container_command: >-
       bin/yb-master
       --master_addresses={{ yb_master_hosts }}
+      --server_broadcast_addresses={{ ansible_host }}:{{ yugabyte_master_rpc_bind_port }}
       --rpc_bind_addresses=0.0.0.0:{{ yugabyte_master_rpc_bind_port }}
       --webserver_port={{ yugabyte_master_webserver_port }}
       --replication_factor={{ yb_masters | length }}
       --minloglevel={{ yugabyte_logs_level }}
       --stderrthreshold={{ yugabyte_logs_level }}
       --fs_data_dirs=/var/data
+      {% if yugabyte_use_tls %}
+      --allow_insecure_connections=false
+      --use_node_to_node_encryption=true
+      --use_client_to_server_encryption=true
+      --certs_dir=/var/tls
+      {% endif %}
     container_ports:
       - "{{ yugabyte_master_rpc_bind_port }}:{{ yugabyte_master_rpc_bind_port }}"
       - "{{ yugabyte_master_webserver_port }}:{{ yugabyte_master_webserver_port }}"
-    container_volumes:
-      - "{{ yugabyte_remote_config_dir }}/data:/var/data:Z"
-    container_ulimits:
-      - nofile:1048576:1048576
-      - core:-1:-1
-      - sigpending:119934:119934
-      - nproc:12000:12000
-      - memlock:64:-1
-      - msgqueue:819200:819200
+    container_volumes: "{{ yugabyte_master_volumes }}"
     container_wait_until_running: true
     container_wait_port: "{{ yugabyte_master_rpc_bind_port }}"
     container_run_as_host_user: true
