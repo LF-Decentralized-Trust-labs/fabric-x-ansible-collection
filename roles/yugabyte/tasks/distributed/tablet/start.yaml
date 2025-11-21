@@ -74,7 +74,7 @@
       bin/yb-tserver
       --tserver_master_addrs={{ yb_master_hosts }}
       --server_broadcast_addresses={{ ansible_host }}:{{ yugabyte_tablet_rpc_bind_port }}
-      --rpc_bind_addresses=0.0.0.0:{{ yugabyte_tablet_rpc_bind_port }}
+      --rpc_bind_addresses={{ ansible_host }}:{{ yugabyte_tablet_rpc_bind_port }}
       --webserver_port={{ yugabyte_tablet_webserver_port }}
       --pgsql_proxy_bind_address=0.0.0.0:{{ yugabyte_tablet_pgsql_bind_port }}
       --pgsql_proxy_webserver_port={{ yugabyte_tablet_pgsql_web_port }}
