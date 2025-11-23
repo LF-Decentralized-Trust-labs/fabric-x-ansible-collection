@@ -49,7 +49,7 @@
 - name: Start Yugabyte master DB container
   vars:
     container_name: "{{ yugabyte_container_name }}"
-    container_image: "{{ yugabyte_db_image }}"
+    container_image: "{{ yugabyte_image }}"
     container_command: >-
       bin/yb-master
       --master_addresses={{ yb_master_hosts }}
@@ -71,9 +71,12 @@
       - "{{ yugabyte_master_webserver_port }}:{{ yugabyte_master_webserver_port }}"
     container_volumes: "{{ yugabyte_master_volumes }}"
     container_healthcheck_test: >-
-      exec 3<>/dev/tcp/localhost/{{ yugabyte_master_webserver_port }};
-      echo -e 'GET /api/v1/health-check HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3;
-      grep 'HTTP/1.1 200 OK' <&3
+      /home/yugabyte/bin/yb-admin
+      --master_addresses {{ ansible_host }}:{{ yugabyte_master_rpc_bind_port }}
+      {% if yugabyte_use_tls %}
+      --certs_dir_name=/var/tls
+      {% endif %}
+      list_all_masters
     container_wait_until_running: true
     container_wait_port: "{{ yugabyte_master_rpc_bind_port }}"
     container_run_as_host_user: true

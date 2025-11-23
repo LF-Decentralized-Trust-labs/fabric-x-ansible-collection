@@ -60,7 +60,7 @@
 - name: Start Yugabyte Tablet Servers containers
   vars:
     container_name: "{{ yugabyte_container_name }}"
-    container_image: "{{ yugabyte_db_image }}"
+    container_image: "{{ yugabyte_image }}"
     container_ports:
       - "{{ yugabyte_tablet_pgsql_bind_port }}:{{ yugabyte_tablet_pgsql_bind_port }}"
       - "{{ yugabyte_tablet_rpc_bind_port }}:{{ yugabyte_tablet_rpc_bind_port }}"

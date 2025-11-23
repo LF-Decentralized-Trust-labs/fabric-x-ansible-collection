@@ -7,10 +7,10 @@
 # =========================
 # Yugabyte image
 # =========================
-yugabyte_db_registry_endpoint: "{{ lookup('env', 'YUGABYTE_DB_REGISTRY_ENDPOINT') or 'docker.io/yugabytedb' }}"
-yugabyte_db_image_name: "yugabyte"
-yugabyte_db_image_tag: "2.20.7.0-b58"
-yugabyte_db_image: "{{ yugabyte_db_registry_endpoint }}/{{ yugabyte_db_image_name }}:{{ yugabyte_db_image_tag }}"
+yugabyte_registry_endpoint: "{{ lookup('env', 'YUGABYTE_REGISTRY_ENDPOINT') or 'docker.io/yugabytedb' }}"
+yugabyte_image_name: "yugabyte"
+yugabyte_image_tag: 2.20.11.0-b34
+yugabyte_image: "{{ yugabyte_registry_endpoint }}/{{ yugabyte_image_name }}:{{ yugabyte_image_tag }}"
 yugabyte_container_name: "{{ inventory_hostname }}"
 
 # =========================
