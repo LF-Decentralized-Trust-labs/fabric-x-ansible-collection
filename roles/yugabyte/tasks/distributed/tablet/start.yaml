@@ -70,20 +70,18 @@
       - "{{ yugabyte_tablet_pgsql_web_port }}:{{ yugabyte_tablet_pgsql_web_port }}"
       - "{{ yugabyte_tablet_cql_bind_port }}:{{ yugabyte_tablet_cql_bind_port }}"
       - "{{ yugabyte_tablet_cql_web_port }}:{{ yugabyte_tablet_cql_web_port }}"
-    # We are forced to use rpc_bind_addresses={{ ansible_host }}:{{ yugabyte_tablet_rpc_bind_port }}
-    # with TLS because rpc_bind_addresses=0.0.0.0:{{ yugabyte_tablet_rpc_bind_port }} requires
-    # a TLS certificate to have also 0.0.0.0 inside (not recommended for security reasons).
     container_command: >-
       bin/yb-tserver
       --tserver_master_addrs={{ yb_master_hosts }}
       --server_broadcast_addresses={{ ansible_host }}:{{ yugabyte_tablet_rpc_bind_port }}
       --rpc_bind_addresses={{ ansible_host }}:{{ yugabyte_tablet_rpc_bind_port }}
+      --webserver_interface={{ ansible_host }}
       --webserver_port={{ yugabyte_tablet_webserver_port }}
-      --pgsql_proxy_bind_address=0.0.0.0:{{ yugabyte_tablet_pgsql_bind_port }}
+      --pgsql_proxy_bind_address={{ ansible_host }}:{{ yugabyte_tablet_pgsql_bind_port }}
       --pgsql_proxy_webserver_port={{ yugabyte_tablet_pgsql_web_port }}
-      --redis_proxy_bind_address=0.0.0.0:{{ yugabyte_tablet_redis_rpc_port }}
+      --redis_proxy_bind_address={{ ansible_host }}:{{ yugabyte_tablet_redis_rpc_port }}
       --redis_proxy_webserver_port={{ yugabyte_tablet_redis_web_port }}
-      --cql_proxy_bind_address=0.0.0.0:{{ yugabyte_tablet_cql_bind_port }}
+      --cql_proxy_bind_address={{ ansible_host }}:{{ yugabyte_tablet_cql_bind_port }}
       --cql_proxy_webserver_port={{ yugabyte_tablet_cql_web_port }}
       --minloglevel={{ yugabyte_logs_level }}
       --stderrthreshold={{ yugabyte_logs_level }}
@@ -94,10 +92,15 @@
       --use_node_to_node_encryption=true
       --use_client_to_server_encryption=true
       --certs_dir=/var/tls
+      --webserver_ca_certificate_file /var/tls/ca.crt
+      --webserver_certificate_file /var/tls/node.{{ ansible_host }}.crt
+      --webserver_private_key_file /var/tls/node.{{ ansible_host }}.key
+      --webserver_redirect_http_to_https=true
       {% endif %}
     container_volumes: "{{ yugabyte_tablet_volumes }}"
     container_healthcheck_test: >-
       /home/yugabyte/postgres/bin/pg_isready
+      -h {{ ansible_host }}
       -d yugabyte
       -U yugabyte
       -p {{ yugabyte_tablet_pgsql_bind_port }}

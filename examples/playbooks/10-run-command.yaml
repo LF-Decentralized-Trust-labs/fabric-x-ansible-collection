@@ -1,0 +1,30 @@
+- name: Create list of machines where to run the command
+  hosts: "{{ target_hosts | default('all') }}"
+  tasks:
+    - name: Select machines where to run the command
+      vars:
+        hostname_per_machine: >-
+          {{
+            ansible_play_hosts
+            | map('extract', hostvars)
+            | selectattr('ansible_host', '==', item)
+            | map(attribute='inventory_hostname')
+            | sort
+            | first
+          }}
+      ansible.builtin.add_host:
+        name: "{{ hostname_per_machine }}"
+        groups: machines
+      loop: "{{ ansible_play_hosts | map('extract', hostvars, 'ansible_host') | unique | list }}"
+
+- name: Run command on the machines
+  hosts: "{{ target_hosts | default('machines') }}:&machines"
+  tasks:
+    - name: Run command {{ command }}
+      ansible.builtin.command: "{{ command }}"
+      changed_when: result.rc != 0
+      register: result
+    - name: Show the command output
+      ansible.builtin.debug:
+        msg: "{{ result.stdout_lines }}"
+      when: result is defined
