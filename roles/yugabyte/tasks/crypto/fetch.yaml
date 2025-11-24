@@ -10,4 +10,4 @@
     dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls_cert.pem"
     flat: true
   when:
-    - organization is defined
+    - yugabyte_use_tls

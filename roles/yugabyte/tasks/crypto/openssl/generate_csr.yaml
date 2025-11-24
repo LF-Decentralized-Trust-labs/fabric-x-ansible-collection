@@ -52,6 +52,7 @@
 - name: Generate CSR for TLS cert
   vars:
     openssl_common_name: "{{ inventory_hostname }}"
+    openssl_organization: "{{ organization.domain }}"
     openssl_private_key_path: "{{ yugabyte_remote_config_dir }}/tls/node.{{ ansible_host }}.key"
     openssl_csr_path: "{{ yugabyte_remote_config_dir }}/tls/tls.csr"
     openssl_ext_file_path: "{{ yugabyte_remote_config_dir }}/tls/tls.ext"

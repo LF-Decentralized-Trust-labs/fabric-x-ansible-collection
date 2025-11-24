@@ -20,6 +20,8 @@
     src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ organization.peer.name | default(inventory_hostname) }}.{{ organization.domain }}/"
     dest: "{{ yugabyte_remote_config_dir }}"
   when:
+    - yugabyte_use_tls
+    - organization is defined
     - organization.fabric_ca_host is not defined
 
 - name: Rename TLS key to match Yugabyte naming logic
@@ -29,6 +31,8 @@
     mode: preserve
     remote_src: true
   when:
+    - yugabyte_use_tls
+    - organization is defined
     - organization.fabric_ca_host is not defined
 
 - name: Rename TLS certificate to match Yugabyte naming logic
@@ -38,6 +42,8 @@
     mode: preserve
     remote_src: true
   when:
+    - yugabyte_use_tls
+    - organization is defined
     - organization.fabric_ca_host is not defined
 
 # =========================
