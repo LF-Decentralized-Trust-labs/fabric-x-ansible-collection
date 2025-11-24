@@ -7,10 +7,10 @@
 - name: Setup the crypto material for the load generators
   hosts: "{{ target_hosts | default('load_generators') }}:&load_generators"
   tasks:
-    - name: Transfer the crypto material for the load generators
+    - name: Setup the crypto material for the load generators
       ansible.builtin.include_role:
         name: hyperledger.fabricx.loadgen
-        tasks_from: crypto/transfer
+        tasks_from: crypto/setup
     - name: Fetch load generator certificates
       ansible.builtin.include_role:
         name: hyperledger.fabricx.loadgen

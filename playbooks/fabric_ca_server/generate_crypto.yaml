@@ -8,10 +8,10 @@
 - name: Setup Fabric-CA crypto material
   hosts: "{{ target_hosts | default('fabric_cas') }}:&fabric_cas"
   tasks:
-    - name: Transfer Fabric CA DBs config files
+    - name: Setup Fabric CA DBs config files
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres
-        tasks_from: crypto/transfer
+        tasks_from: crypto/setup
       when:
         - postgres_port is defined
     - name: Fetch the Fabric CA DBs certificates

@@ -5,7 +5,7 @@ The role `hyperledger.fabricx.loadgen` can be used to run a Load generator to te
 ## Table of Contents <!-- omit in toc -->
 
 - [Tasks](#tasks)
-  - [crypto/transfer](#cryptotransfer)
+  - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
   - [config/transfer](#configtransfer)
   - [start](#start)
@@ -19,18 +19,18 @@ The role `hyperledger.fabricx.loadgen` can be used to run a Load generator to te
 
 ## Tasks
 
-### crypto/transfer
+### crypto/setup
 
-The task `crypto/transfer` allows to generate and/or transfer the crypto material needed to run a Fabric-X Loadgen component. The task supports two modes to run:
+The task `crypto/setup` allows to generate and/or transfer the crypto material needed to run a Fabric-X Loadgen component. The task supports two modes to run:
 
-- with `cryptogen` (when `organization.fabric_ca_host` is not set): the crypto material must be generated with `cryptogen` (see [hyperledger.fabricx.cryptogen](../cryptogen/README.md)) on the control node and is transferred to the remote node;
-- with `fabric-ca`: in this case the crypto material is generated directly on the remote node.
+- with `cryptogen` (see [hyperledger.fabricx.cryptogen](../cryptogen/README.md)): the crypto material generated on the control node with `cryptogen` is transferred to the remote node;
+- with `fabric-ca` (see [hyperledger.fabricx.fabric_ca](../fabric_ca/README.md)): the crypto material is generated directly on the remote node querying the reference `fabric_ca` host.
 
 ```yaml
 - name: Setup the crypto material for Fabric-X Loadgen
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
-    tasks_from: crypto/transfer
+    tasks_from: crypto/setup
 ```
 
 ### crypto/fetch

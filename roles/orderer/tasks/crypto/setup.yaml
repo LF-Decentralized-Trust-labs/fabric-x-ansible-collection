@@ -1,0 +1,27 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# With cryptogen
+# =========================
+- name: Transfer the Hyperledger Fabric-X Orderer crypto material generated with cryptogen
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: crypto/cryptogen/transfer
+  when:
+    - organization is defined
+    - organization.fabric_ca_host is undefined
+
+# =========================
+# With Fabric-CA
+# =========================
+- name: Enroll the Hyperledger Fabric-X Orderer with Fabric-CA to generate the crypto material
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: crypto/fabric_ca/enroll
+  when:
+    - organization is defined
+    - organization.fabric_ca_host is defined

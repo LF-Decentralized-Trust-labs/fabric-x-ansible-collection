@@ -1,0 +1,41 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure TLS CA certificate folder exists
+  ansible.builtin.file:
+    path: "{{ yugabyte_remote_config_dir }}/tlscacerts"
+    state: directory
+    mode: "0o755"
+  when:
+    - hostvars[organization.fabric_ca_host].fabric_ca_use_tls is defined
+    - hostvars[organization.fabric_ca_host].fabric_ca_use_tls
+
+- name: Copy TLS CA certificate of Fabric CA
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
+    dest: "{{ yugabyte_remote_config_dir }}/tlscacerts"
+    mode: "preserve"
+  when:
+    - hostvars[organization.fabric_ca_host].fabric_ca_use_tls is defined
+    - hostvars[organization.fabric_ca_host].fabric_ca_use_tls
+
+- name: Generate Yugabyte TLS crypto material
+  vars:
+    fabric_ca_host: "{{ organization.fabric_ca_host }}"
+    fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls }}"
+    fabric_ca_name: "{{ hostvars[organization.fabric_ca_host].fabric_ca_name }}"
+    fabric_ca_msp_dir: "{{ yugabyte_remote_config_dir }}/tls"
+    fabric_ca_tls_certfile: "{{ yugabyte_remote_config_dir }}/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
+    fabric_ca_enrollment_profile: tls
+    fabric_ca_cryptogenize_tls_cert_name: node.{{ ansible_host }}.crt
+    fabric_ca_cryptogenize_tls_key_name: node.{{ ansible_host }}.key
+    fabric_ca_csr_hosts: "{{ ansible_all_ipv4_addresses + [ansible_host] }}"
+    fabric_ca_identity:
+      name: "{{ organization.peer.name }}"
+      secret: "{{ organization.peer.secret }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/enroll

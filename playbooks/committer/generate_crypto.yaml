@@ -7,10 +7,10 @@
 - name: Generate the Fabric-X Committer crypto material
   hosts: "{{ target_hosts | default('fabric_x_committer') }}:&fabric_x_committer"
   tasks:
-    - name: Transfer Fabric-X Committer Postgres DB crypto material
+    - name: Setup Fabric-X Committer Postgres DB crypto material
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres
-        tasks_from: crypto/transfer
+        tasks_from: crypto/setup
       when:
         - postgres_port is defined
     - name: Fetch Fabric-X Committer Postgres DB certificates
@@ -19,10 +19,10 @@
         tasks_from: crypto/fetch
       when:
         - postgres_port is defined
-    - name: Transfer Fabric-X Committer Yugabyte DB crypto material
+    - name: Setup Fabric-X Committer Yugabyte DB crypto material
       ansible.builtin.include_role:
         name: hyperledger.fabricx.yugabyte
-        tasks_from: crypto/transfer
+        tasks_from: crypto/setup
       when:
         - yugabyte_component_type is defined
     - name: Fetch Fabric-X Committer Yugabyte DB certificates

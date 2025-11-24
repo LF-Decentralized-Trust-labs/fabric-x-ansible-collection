@@ -4,34 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure orderer config directory exists
-  ansible.builtin.file:
-    path: "{{ orderer_remote_config_dir }}"
-    state: directory
-    mode: "0o750"
-
-# =========================
-# With cryptogen
-# =========================
-# If no Fabric CA is defined, assume the crypto material is generated
-# with cryptogen. Thus, transfer it.
-- name: Transfer the Fabric-X Orderer crypto material generated with cryptogen
-  ansible.posix.synchronize:
-    src: "{{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/"
-    dest: "{{ orderer_remote_config_dir }}"
-  when:
-    - organization.fabric_ca_host is not defined
-
-# =========================
-# With Fabric-CA
-# =========================
 - name: Ensure TLS CA certificate folder exists
   ansible.builtin.file:
     path: "{{ orderer_remote_config_dir }}/tlscacerts"
     state: directory
     mode: "0o755"
   when:
-    - organization.fabric_ca_host is defined
     - hostvars[organization.fabric_ca_host].fabric_ca_use_tls is defined
     - hostvars[organization.fabric_ca_host].fabric_ca_use_tls
 
@@ -41,7 +19,6 @@
     dest: "{{ orderer_remote_config_dir }}/tlscacerts"
     mode: "preserve"
   when:
-    - organization.fabric_ca_host is defined
     - hostvars[organization.fabric_ca_host].fabric_ca_use_tls is defined
     - hostvars[organization.fabric_ca_host].fabric_ca_use_tls
 
@@ -83,5 +60,3 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/enroll
-  when:
-    - organization.fabric_ca_host is defined

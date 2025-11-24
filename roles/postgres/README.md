@@ -7,7 +7,7 @@ The role allows to run Postgres as **container only** (binary is not currently s
 ## Table of Contents <!-- omit in toc -->
 
 - [Tasks](#tasks)
-  - [crypto/transfer](#cryptotransfer)
+  - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
   - [start](#start)
   - [stop](#stop)
@@ -18,15 +18,19 @@ The role allows to run Postgres as **container only** (binary is not currently s
 
 ## Tasks
 
-### crypto/transfer
+### crypto/setup
 
-The task `crypto/transfer` allows to generate the crypto material needed to run a Postgres DB with TLS. The task uses `openssl` (see [hyperledger.fabricx.openssl](../openssl/README.md)) to generate a TLS keypair and a self-signed certificate which can be shared with the client to perform a connection secured with TLS.
+The task `crypto/setup` transfers or generates the crypto material needed to run a Postgres DB with TLS. The task supports 3 operating modes:
+
+- with `openssl` (see [hyperledger.fabricx.openssl](../openssl/README.md)) if the DB runs without an Hyperledger Fabric-X peer organization definition;
+- with `cryptogen` (see [hyperledger.fabricx.cryptogen](../cryptogen/README.md)): the crypto material generated on the control node with `cryptogen` is transferred to the remote node;
+- with `fabric-ca` (see [hyperledger.fabricx.fabric_ca](../fabric_ca/README.md)): the crypto material is generated directly on the remote node querying the reference `fabric_ca` host.
 
 ```yaml
 - name: Generate the TLS keypair for Postgres DB
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
-    tasks_from: crypto/transfer
+    tasks_from: crypto/setup
 ```
 
 ### crypto/fetch

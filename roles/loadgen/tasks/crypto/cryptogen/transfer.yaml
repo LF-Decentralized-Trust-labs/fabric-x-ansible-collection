@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure the load-generator users config directory exists
+  ansible.builtin.file:
+    path: "{{ loadgen_remote_config_dir }}/users"
+    state: directory
+    mode: "0o750"
+  when:
+    - organization is defined
+    - organization.users is defined
+
+- name: Transfer the Fabric-X Loadgen users crypto material
+  ansible.posix.synchronize:
+    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/users/{{ user.name }}@{{ organization.domain }}"
+    dest: "{{ loadgen_remote_config_dir }}/users"
+  loop: "{{ organization.users }}"
+  loop_control:
+    label: "{{ user.name }}"
+    loop_var: user
+  when:
+    - organization is defined
+    - organization.users is defined

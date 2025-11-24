@@ -7,10 +7,10 @@
 - name: Setup the crypto material for Fabric-X Orderers
   hosts: "{{ target_hosts | default('fabric_x_orderers') }}:&fabric_x_orderers"
   tasks:
-    - name: Enroll Fabric-X Orderer identities
+    - name: Setup Fabric-X Orderer crypto material
       ansible.builtin.include_role:
         name: hyperledger.fabricx.orderer
-        tasks_from: crypto/transfer
+        tasks_from: crypto/setup
     - name: Fetch Fabric-X Orderer certificates
       ansible.builtin.include_role:
         name: hyperledger.fabricx.orderer
