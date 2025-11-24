@@ -4,15 +4,27 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Generate CA certificate for Yugabyte DB
+- name: Generate CA certificate for Yugabyte DB using OpenSSL
   hosts: localhost
   tasks:
     - name: Generate CA certificate for Yugabyte DB cluster
       vars:
-        yugabyte_cluster_ca_dir: "{{ fetched_artifacts_dir }}/yugabyte-cluster-{{ current_yugabyte_cluster_id }}/tls"
+        yugabyte_cluster_ref_host: >-
+          {{
+            groups['all']
+            | map('extract', hostvars)
+            | selectattr('yugabyte_use_tls', 'defined')
+            | selectattr('yugabyte_use_tls', '==', true)
+            | selectattr('yugabyte_cluster_id', 'defined')
+            | selectattr('yugabyte_cluster_id', '==', current_yugabyte_cluster_id)
+            | first
+          }}
+        yugabyte_cluster_ca_dir: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ yugabyte_cluster_ref_host.organization.domain }}"
         openssl_remote_config_dir: "{{ yugabyte_cluster_ca_dir }}"
-        openssl_private_key_path: "{{ yugabyte_cluster_ca_dir }}/tls_key.pem"
-        openssl_cert_path: "{{ yugabyte_cluster_ca_dir }}/tls_cert.pem"
+        openssl_private_key_path: "{{ yugabyte_cluster_ca_dir }}/ca/priv_sk"
+        openssl_cert_path: "{{ yugabyte_cluster_ca_dir }}/msp/tlscacerts/tlsca.{{ yugabyte_cluster_ref_host.organization.domain }}-cert.pem"
+        openssl_common_name: "tlsca.{{ yugabyte_cluster_ref_host.organization.domain }}"
+        openssl_organization: "{{ yugabyte_cluster_ref_host.organization.domain }}"
         openssl_san_entries: []
         openssl_basic_constraints: "critical, CA:true"
         openssl_key_usage: "critical, keyCertSign, cRLSign"
@@ -39,13 +51,13 @@
     - name: Generate CSR for TLS cert
       ansible.builtin.include_role:
         name: hyperledger.fabricx.yugabyte
-        tasks_from: crypto/generate_csr
+        tasks_from: crypto/openssl/generate_csr
       when:
         - yugabyte_component_type is defined
     - name: Fetch CSR for TLS cert on control node
       ansible.builtin.include_role:
         name: hyperledger.fabricx.yugabyte
-        tasks_from: crypto/fetch_csr
+        tasks_from: crypto/openssl/fetch_csr
       when:
         - yugabyte_component_type is defined
 
@@ -54,9 +66,9 @@
   tasks:
     - name: Sign CSR and generate TLS
       vars:
-        yugabyte_cluster_ca_dir: "{{ fetched_artifacts_dir }}/yugabyte-cluster-{{ hostvars[current_yugabyte_node].yugabyte_cluster_id }}/tls"
-        openssl_ca_private_key_path: "{{ yugabyte_cluster_ca_dir }}/tls_key.pem"
-        openssl_ca_cert_path: "{{ yugabyte_cluster_ca_dir }}/tls_cert.pem"
+        yugabyte_cluster_ca_dir: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ hostvars[current_yugabyte_node].organization.domain }}"
+        openssl_ca_private_key_path: "{{ yugabyte_cluster_ca_dir }}/ca/priv_sk"
+        openssl_ca_cert_path: "{{ yugabyte_cluster_ca_dir }}/msp/tlscacerts/tlsca.{{ hostvars[current_yugabyte_node].organization.domain }}-cert.pem"
         openssl_csr_path: "{{ fetched_artifacts_dir }}/{{ current_yugabyte_node }}/tls/tls.csr"
         openssl_cert_path: "{{ fetched_artifacts_dir }}/{{ current_yugabyte_node }}/tls/tls_cert.pem"
         openssl_ext_file_path: "{{ fetched_artifacts_dir }}/{{ current_yugabyte_node }}/tls/tls.ext"
@@ -83,6 +95,6 @@
     - name: Transfer generated certs to nodes
       ansible.builtin.include_role:
         name: hyperledger.fabricx.yugabyte
-        tasks_from: crypto/transfer_cert
+        tasks_from: crypto/openssl/transfer_cert
       when:
         - yugabyte_component_type is defined
