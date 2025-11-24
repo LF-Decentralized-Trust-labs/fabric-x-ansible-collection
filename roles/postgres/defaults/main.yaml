@@ -23,7 +23,6 @@ postgres_pgdata_dir: "{{ postgres_remote_config_dir }}/data"
 # TLS settings
 # =========================
 postgres_use_tls: false
-postgres_remote_tls_dir: "{{ postgres_remote_config_dir }}/tls"
 
 # =========================
 # Miscellaneous
