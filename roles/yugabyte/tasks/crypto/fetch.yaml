@@ -6,7 +6,7 @@
 
 - name: Fetch Yugabyte TLS certificate
   ansible.builtin.fetch:
-    src: "{{ yugabyte_remote_config_dir }}/tls/server.crt"
+    src: "{{ yugabyte_remote_config_dir }}/tls/node.{{ ansible_host }}.crt"
     dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls_cert.pem"
     flat: true
   when:
