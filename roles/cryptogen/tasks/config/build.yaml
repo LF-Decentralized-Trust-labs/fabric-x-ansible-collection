@@ -10,6 +10,43 @@
     state: directory
     mode: "0o750"
 
+# We gather facts in order to get the IP addresses of the
+# orderers and peers and generate TLS certificates which
+# contain such IPs.
+- name: Gather Hyperledger Fabric-X Orderers facts
+  ansible.builtin.setup:
+  delegate_to: "{{ current_orderer.name }}"
+  loop: >-
+    {{
+      cryptogen_orderers_by_org.values()
+      | selectattr('orderers', 'defined')
+      | map(attribute='orderers')
+      | flatten
+    }}
+  loop_control:
+    loop_var: current_orderer
+    label: "{{ current_orderer.name }}"
+  when:
+    - cryptogen_orderers_by_org is defined
+    - hostvars[current_orderer.name].ansible_facts.all_ipv4_addresses is undefined
+
+- name: Gather Hyperledger Fabric-X Peers facts
+  ansible.builtin.setup:
+  delegate_to: "{{ current_peer.name }}"
+  loop: >-
+    {{
+      cryptogen_peers_by_org.values()
+      | selectattr('peers', 'defined')
+      | map(attribute='peers')
+      | flatten
+    }}
+  loop_control:
+    loop_var: current_peer
+    label: "{{ current_peer.name }}"
+  when:
+    - cryptogen_peers_by_org is defined
+    - hostvars[current_peer.name].ansible_facts.all_ipv4_addresses is undefined
+
 - name: Create crypto-config.yaml from template
   ansible.builtin.template:
     src: crypto-config.yaml.j2
