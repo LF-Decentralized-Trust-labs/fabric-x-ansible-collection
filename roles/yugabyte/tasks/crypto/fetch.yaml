@@ -6,9 +6,8 @@
 
 - name: Fetch Yugabyte TLS certificate generated with Fabric-CA
   ansible.builtin.fetch:
-    src: "{{ yugabyte_remote_config_dir }}/tls/signcerts/cert.pem"
+    src: "{{ yugabyte_remote_config_dir }}/tls/server.crt"
     dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls_cert.pem"
     flat: true
   when:
     - organization is defined
-    - organization.fabric_ca_host is defined

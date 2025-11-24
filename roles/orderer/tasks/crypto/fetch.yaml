@@ -15,18 +15,10 @@
   when:
     - organization.fabric_ca_host is undefined
 
-- name: Fetch Fabric-X Orderer TLS certificate generated with cryptogen
-  ansible.builtin.fetch:
-    src: "{{ orderer_remote_config_dir }}/tls/server.crt"
-    dest: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/tls/server.crt"
-    flat: true
-  when:
-    - organization.fabric_ca_host is undefined
-
 # =========================
 # With Fabric-CA
 # =========================
-- name: Fetch Fabric-X Orderer sign certificate generated with Fabric-CA
+- name: Fetch Fabric-X Orderer sign certificate generated with Fabric-CA to build genesis block
   ansible.builtin.fetch:
     src: "{{ orderer_remote_config_dir }}/msp/signcerts/cert.pem"
     dest: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/msp/signcerts/{{ orderer_crypto_name }}.{{ organization.domain }}-cert.pem"
@@ -34,10 +26,17 @@
   when:
     - organization.fabric_ca_host is defined
 
-- name: Fetch Fabric-X Orderer TLS certificate generated with Fabric-CA
+# =========================
+# With cryptogen/Fabric-CA (if running with cryptogenize)
+# =========================
+- name: Fetch Fabric-X Orderer TLS certificate generated with Fabric-CA to build genesis block
   ansible.builtin.fetch:
-    src: "{{ orderer_remote_config_dir }}/tls/signcerts/cert.pem"
+    src: "{{ orderer_remote_config_dir }}/tls/server.crt"
     dest: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/tls/server.crt"
     flat: true
-  when:
-    - organization.fabric_ca_host is defined
+
+- name: Fetch Fabric-X Orderer TLS certificate generated with Fabric-CA
+  ansible.builtin.fetch:
+    src: "{{ orderer_remote_config_dir }}/tls/server.crt"
+    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls_cert.pem"
+    flat: true
