@@ -161,6 +161,11 @@ wipe:
 # Utils
 # =======================
 
+# Run a generic command on the targeted hosts (e.g. make run-command COMMAND="echo 'hello-world'")
+.PHONY: run-command
+run-command:
+	ansible-playbook "$(PLAYBOOK_PATH)/10-run-command.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)", "command": "$(COMMAND)"}'
+
 # Ping the targeted host to check whether is reachable (e.g. make fabric_x ping).
 .PHONY: ping
 ping:
