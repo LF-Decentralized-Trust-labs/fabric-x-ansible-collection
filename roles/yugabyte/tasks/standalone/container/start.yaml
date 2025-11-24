@@ -38,16 +38,16 @@
       - minloglevel={{ yugabyte_logs_level }}
       - stderrthreshold={{ yugabyte_logs_level }}
 
+# Note: these flags do not necessarily work because of the `--secure` option,
+# which overrides some values automatically.
 - name: Add YugabyteDB volumes and flags for TLS certificates
   vars:
+    yugabyte_tls_flags:
+      - allow_insecure_connections={{ (not yugabyte_client_to_server_use_tls) | bool | lower }}
+      - use_client_to_server_encryption={{ yugabyte_client_to_server_use_tls | bool | lower }}
+      - use_node_to_node_encryption={{ yugabyte_node_to_node_use_tls | bool | lower }}
     yugabyte_tls_volumes:
       - "{{ yugabyte_remote_config_dir }}/tls:/var/tls:Z"
-    # add this flag since on master `yugabyted` doesn't add it by default even
-    # if we specify --secure as option.
-    # https://docs.yugabyte.com/stable/reference/configuration/yb-master/#allow-insecure-connections
-    yugabyte_tls_flags:
-      - allow_insecure_connections=false
-      - use_client_to_server_encryption=true
   ansible.builtin.set_fact:
     yugabyte_volumes: "{{ yugabyte_volumes + yugabyte_tls_volumes }}"
     yugabyte_master_flags: "{{ yugabyte_master_flags + yugabyte_tls_flags }}"
@@ -57,9 +57,6 @@
 
 - name: Add YugabyteDB Webserver flags for TLS certificates
   vars:
-    # These flags are needed to run also the Webserver interface under TLS
-    # For some reason, they don't work on macOS.
-    # Thus we add them only if we are on Linux.
     yugabyte_webserver_tls_flags:
       - webserver_ca_certificate_file=/var/tls/ca.crt
       - webserver_certificate_file=/var/tls/node.{{ ansible_host }}.crt
@@ -69,8 +66,8 @@
     yugabyte_master_flags: "{{ yugabyte_master_flags + yugabyte_webserver_tls_flags }}"
     yugabyte_tablet_flags: "{{ yugabyte_tablet_flags + yugabyte_webserver_tls_flags }}"
   when:
-    - yugabyte_use_tls
-    - ansible_facts.os_family == 'Linux'
+    - yugabyte_webserver_use_tls
+    - ansible_facts.os_family == 'Linux' # For some reason, they don't work on macOS. Thus we add them only if we are on Linux.
 
 - name: Start standalone Yugabyte container
   vars:

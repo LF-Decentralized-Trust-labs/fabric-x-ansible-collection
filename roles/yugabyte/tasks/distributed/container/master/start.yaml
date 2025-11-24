@@ -62,10 +62,16 @@
       --stderrthreshold={{ yugabyte_logs_level }}
       --fs_data_dirs=/var/data
       {% if yugabyte_use_tls %}
-      --allow_insecure_connections=false
-      --use_node_to_node_encryption=true
-      --use_client_to_server_encryption=true
       --certs_dir=/var/tls
+      {% endif %}
+      {% if yugabyte_node_to_node_use_tls %}
+      --use_node_to_node_encryption=true
+      {% endif %}
+      {% if yugabyte_client_to_server_use_tls %}
+      --allow_insecure_connections=false
+      --use_client_to_server_encryption=true
+      {% endif %}
+      {% if yugabyte_webserver_use_tls %}
       --webserver_ca_certificate_file=/var/tls/ca.crt
       --webserver_certificate_file=/var/tls/node.{{ ansible_host }}.crt
       --webserver_private_key_file=/var/tls/node.{{ ansible_host }}.key
@@ -78,7 +84,7 @@
     container_healthcheck_test: >-
       /home/yugabyte/bin/yb-admin
       --master_addresses {{ yb_master_hosts }}
-      {% if yugabyte_use_tls %}
+      {% if yugabyte_webserver_use_tls %}
       --certs_dir_name=/var/tls
       {% endif %}
       list_all_masters

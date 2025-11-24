@@ -28,6 +28,9 @@ yugabyte_logs_level: 3
 # Yugabyte TLS
 # =========================
 yugabyte_use_tls: false
+yugabyte_webserver_use_tls: "{{ yugabyte_use_tls }}"
+yugabyte_client_to_server_use_tls: "{{ yugabyte_use_tls }}"
+yugabyte_node_to_node_use_tls: "{{ yugabyte_use_tls }}"
 
 # =========================
 # Yugabyte Master ports
