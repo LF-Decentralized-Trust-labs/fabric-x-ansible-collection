@@ -62,3 +62,10 @@ fabric_ca_csr_hosts:
   - "{{ ansible_host }}"
   - "{{ inventory_hostname }}"
 fabric_ca_csr_expiry: "131400h"
+
+# =========================
+# Cryptogenize settings
+# =========================
+fabric_ca_cryptogenize_tls_ca_cert_name: ca.crt
+fabric_ca_cryptogenize_tls_cert_name: server.crt
+fabric_ca_cryptogenize_tls_key_name: server.key

@@ -4,10 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Generate TLS certificates for the Yugabyte cluster
-  ansible.builtin.import_playbook: hyperledger.fabricx.yugabyte.generate_crypto
-
-- name: Generate the Fabric-X Committer config files
+- name: Generate the Fabric-X Committer crypto material
   hosts: "{{ target_hosts | default('fabric_x_committer') }}:&fabric_x_committer"
   tasks:
     - name: Transfer Fabric-X Committer Postgres DB crypto material
@@ -22,3 +19,15 @@
         tasks_from: crypto/fetch
       when:
         - postgres_port is defined
+    - name: Transfer Fabric-X Committer Yugabyte DB crypto material
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.yugabyte
+        tasks_from: crypto/transfer
+      when:
+        - yugabyte_component_type is defined
+    - name: Fetch Fabric-X Committer Yugabyte DB certificates
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.yugabyte
+        tasks_from: crypto/fetch
+      when:
+        - yugabyte_component_type is defined

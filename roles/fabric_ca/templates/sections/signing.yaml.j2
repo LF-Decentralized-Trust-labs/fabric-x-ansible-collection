@@ -1,0 +1,39 @@
+#############################################################################
+#  Signing section
+#
+#  The "default" subsection is used to sign enrollment certificates;
+#  the default expiration ("expiry" field) is "8760h", which is 1 year in hours.
+#
+#  The "ca" profile subsection is used to sign intermediate CA certificates;
+#  the default expiration ("expiry" field) is "43800h" which is 5 years in hours.
+#  Note that "isca" is true, meaning that it issues a CA certificate.
+#  A maxpathlen of 0 means that the intermediate CA cannot issue other
+#  intermediate CA certificates, though it can still issue end entity certificates.
+#  (See RFC 5280, section 4.2.1.9)
+#
+#  The "tls" profile subsection is used to sign TLS certificate requests;
+#  the default expiration ("expiry" field) is "8760h", which is 1 year in hours.
+#############################################################################
+signing:
+    default:
+      usage:
+        - digital signature
+      expiry: 8760h
+    profiles:
+      ca:
+         usage:
+           - cert sign
+           - crl sign
+         expiry: 43800h
+         caconstraint:
+           isca: true
+           maxpathlen: 0
+      tls:
+         usage:
+            - signing
+            - key encipherment
+            - server auth
+            - client auth
+            - key agreement
+         expiry: 8760h
+
