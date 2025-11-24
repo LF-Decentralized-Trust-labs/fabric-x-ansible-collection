@@ -5,9 +5,30 @@
 #
 
 - name: Initialize SAN entries
+  vars:
+    ansible_host_is_ip: "{{ ansible_host is match('^[0-9]{1,3}(\\.[0-9]{1,3}){3}$') }}"
+    san_prefix: >-
+      {{
+        'IP.0'
+        if ansible_host_is_ip
+        else 'DNS.0'
+      }}
   ansible.builtin.set_fact:
     openssl_san_entries:
-      - "DNS.1:{{ ansible_host }}"
+      - "{{ san_prefix }}:{{ ansible_host }}"
+  when:
+    - yugabyte_use_tls
+
+# If we run Yugabyte on macOS, it will try to bind to `host.docker.internal`.
+# This patch is needed until this issue is fixed:
+# https://github.com/yugabyte/yugabyte-db/issues/29453
+- name: Add host.docker.internal IP resolution as SAN entry
+  vars:
+    host_docker_internal_san_entry: "IP.0:192.168.127.254"
+  ansible.builtin.set_fact:
+    openssl_san_entries: "{{ openssl_san_entries + [host_docker_internal_san_entry] }}"
+  when:
+    - ansible_facts.os_family == 'Darwin'
 
 # Note: we add all IP addresses to the SAN entries, but technically
 # we should only add the public ones that will be used to reach
@@ -23,6 +44,7 @@
     index_var: item_index
     label: "{{ current_ip_addr }}"
   when:
+    - yugabyte_use_tls
     - ansible_all_ipv4_addresses is defined
     - ansible_all_ipv4_addresses
       | length > 0

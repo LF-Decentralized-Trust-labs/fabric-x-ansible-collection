@@ -92,9 +92,9 @@
       --use_node_to_node_encryption=true
       --use_client_to_server_encryption=true
       --certs_dir=/var/tls
-      --webserver_ca_certificate_file /var/tls/ca.crt
-      --webserver_certificate_file /var/tls/node.{{ ansible_host }}.crt
-      --webserver_private_key_file /var/tls/node.{{ ansible_host }}.key
+      --webserver_ca_certificate_file=/var/tls/ca.crt
+      --webserver_certificate_file=/var/tls/node.{{ ansible_host }}.crt
+      --webserver_private_key_file=/var/tls/node.{{ ansible_host }}.key
       --webserver_redirect_http_to_https=true
       {% endif %}
     container_volumes: "{{ yugabyte_tablet_volumes }}"
