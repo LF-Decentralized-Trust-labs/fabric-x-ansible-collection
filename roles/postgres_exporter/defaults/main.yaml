@@ -4,11 +4,19 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# ------------------------------
+# =========================
 # Postgres Exporter Image
-# ------------------------------
+# =========================
 postgres_exporter_registry_endpoint: "{{ lookup('env', 'POSTGRES_EXPORTER_REGISTRY_ENDPOINT') or 'docker.io/prometheuscommunity' }}"
 postgres_exporter_image_name: "postgres-exporter"
 postgres_exporter_image_tag: "v0.15.0"
 postgres_exporter_image: "{{ postgres_exporter_registry_endpoint }}/{{ postgres_exporter_image_name }}:{{ postgres_exporter_image_tag }}"
 postgres_exporter_container_name: "{{ inventory_hostname }}"
+
+# =========================
+# Paths/Locations
+# =========================
+postgres_exporter_remote_config_dir: "{{ remote_config_dir }}"
+postgres_exporter_container_config_dir: /var/config
+postgres_exporter_config_file: postgres_exporter.yaml
+postgres_exporter_web_config_file: web-config.yaml

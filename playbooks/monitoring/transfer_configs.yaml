@@ -7,6 +7,12 @@
 - name: Transfer Monitoring configuration files
   hosts: "{{ target_hosts | default('monitoring') }}:&monitoring"
   tasks:
+    - name: Transfer the Postgres Exporter configuration files
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres_exporter
+        tasks_from: config/transfer
+      when:
+        - postgres_exporter_port is defined
     - name: Create a list of hosts where to run node_exporter
       vars:
         hostname_for_node_exporter: >-

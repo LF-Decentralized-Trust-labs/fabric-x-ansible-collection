@@ -1,0 +1,21 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Generate the Monitoring tools crypto material
+  hosts: "{{ target_hosts | default('monitoring') }}:&monitoring"
+  tasks:
+    - name: Setup Postgres Exporter crypto material
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres_exporter
+        tasks_from: crypto/setup
+      when:
+        - postgres_exporter_port is defined
+    - name: Fetch Postgres Exporter certificates
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres_exporter
+        tasks_from: crypto/fetch
+      when:
+        - postgres_exporter_port is defined

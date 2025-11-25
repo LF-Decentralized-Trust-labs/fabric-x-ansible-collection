@@ -66,3 +66,6 @@
 
 - name: Generate Fabric-X Load generators crypto
   ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.generate_crypto
+
+- name: Generate Monitoring tools crypto
+  ansible.builtin.import_playbook: hyperledger.fabricx.monitoring.generate_crypto
