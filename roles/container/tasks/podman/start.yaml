@@ -50,16 +50,16 @@
   until: container_run_until
   retries: "{{ container_run_retries }}"
   delay: "{{ container_run_delay }}"
-  register: result
+  register: container_output
   ignore_errors: "{{ container_ignore_errors }}"
 
 - name: Wait for Podman container to become healthy
   ansible.builtin.command: "podman healthcheck run {{ container_name }}"
-  register: healthcheck_result
+  register: container_podman_healthcheck_result
   retries: 60
   delay: 5
-  until: healthcheck_result.rc == 0
-  changed_when: healthcheck_result.rc != 0
+  until: container_podman_healthcheck_result.rc == 0
+  changed_when: container_podman_healthcheck_result.rc != 0
   when:
     - container_healthcheck_test is defined
 
@@ -74,7 +74,7 @@
 
 - name: Show output of podman container command
   vars:
-    log_lines: "{{ result.stdout_lines + result.stderr_lines }}"
+    log_lines: "{{ container_output.stdout_lines + container_output.stderr_lines }}"
   ansible.builtin.debug:
     msg: "{{ log_lines[-container_log_lines:] if (container_log_lines | int > 0) else log_lines }}"
   when:

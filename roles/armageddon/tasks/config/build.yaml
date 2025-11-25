@@ -55,9 +55,9 @@
         | list
       }}
   ansible.builtin.set_fact:
-    all_orderer_instances: >-
+    armageddon_orderer_instances: >-
       {{
-        all_orderer_instances | default({}) | combine({
+        armageddon_orderer_instances | default({}) | combine({
           orderer_group: {
             'organizations': orderer_group_organization_domains,
             'assembler': orderer_group_assembler,

@@ -25,9 +25,9 @@
         | list
       }}
   ansible.builtin.set_fact:
-    yb_masters: "{{ _yb_masters }}"
-    yb_tablets: "{{ _yb_tablets }}"
-    yb_master_hosts: >-
+    yugabyte_master_hosts: "{{ _yb_masters }}"
+    yugabyte_tablet_hosts: "{{ _yb_tablets }}"
+    yugabyte_master_endpoints: >-
       {{
         _yb_masters
         | map('extract', hostvars, 'ansible_host')
@@ -72,7 +72,7 @@
       - "{{ yugabyte_tablet_cql_web_port }}:{{ yugabyte_tablet_cql_web_port }}"
     container_command: >-
       bin/yb-tserver
-      --tserver_master_addrs={{ yb_master_hosts }}
+      --tserver_master_addrs={{ yugabyte_master_endpoints }}
       --server_broadcast_addresses={{ ansible_host }}:{{ yugabyte_tablet_rpc_bind_port }}
       --rpc_bind_addresses={{ ansible_host }}:{{ yugabyte_tablet_rpc_bind_port }}
       --webserver_interface={{ ansible_host }}
@@ -129,4 +129,4 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: exec
-  when: inventory_hostname == yb_tablets[0]
+  when: inventory_hostname == yugabyte_tablet_hosts[0]

@@ -7,11 +7,12 @@
 - name: Set Grafana dashboard path to copy
   # set as fact before calling the method allows to evaluate `role_path` in the right role
   ansible.builtin.set_fact:
-    grafana_dashboard_path: "{{ role_path }}/files/yugabyte-dashboard.json"
+    yugabyte_grafana_dashboard_path: "{{ role_path }}/files/yugabyte-dashboard.json"
 
 - name: Transfer the YugabyteDB Grafana Dashboard
   vars:
     grafana_dashboard_name: "yugabyte-dashboard.json"
+    grafana_dashboard_path: "{{ yugabyte_grafana_dashboard_path }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
     tasks_from: config/copy_dashboard

@@ -16,8 +16,8 @@
         | list
       }}
   ansible.builtin.set_fact:
-    yb_masters: "{{ _yb_masters }}"
-    yb_master_hosts: >-
+    yugabyte_master_hosts: "{{ _yb_masters }}"
+    yugabyte_master_endpoints: >-
       {{
         _yb_masters
         | map('extract', hostvars, 'ansible_host')
@@ -52,12 +52,12 @@
     container_image: "{{ yugabyte_image }}"
     container_command: >-
       bin/yb-master
-      --master_addresses={{ yb_master_hosts }}
+      --master_addresses={{ yugabyte_master_endpoints }}
       --server_broadcast_addresses={{ ansible_host }}:{{ yugabyte_master_rpc_bind_port }}
       --rpc_bind_addresses={{ ansible_host }}:{{ yugabyte_master_rpc_bind_port }}
       --webserver_interface={{ ansible_host }}
       --webserver_port={{ yugabyte_master_webserver_port }}
-      --replication_factor={{ yb_masters | length }}
+      --replication_factor={{ yugabyte_master_hosts | length }}
       --minloglevel={{ yugabyte_logs_level }}
       --stderrthreshold={{ yugabyte_logs_level }}
       --fs_data_dirs=/var/data
@@ -83,7 +83,7 @@
     container_volumes: "{{ yugabyte_master_volumes }}"
     container_healthcheck_test: >-
       /home/yugabyte/bin/yb-admin
-      --master_addresses {{ yb_master_hosts }}
+      --master_addresses {{ yugabyte_master_endpoints }}
       {% if yugabyte_webserver_use_tls %}
       --certs_dir_name=/var/tls
       {% endif %}

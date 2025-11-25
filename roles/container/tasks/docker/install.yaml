@@ -11,8 +11,8 @@
       set -o pipefail
       curl -fsSL https://get.docker.com | sh
     executable: /bin/bash
-  register: ibmcloud_install_output
-  changed_when: ibmcloud_install_output.rc != 0
+  register: container_docker_install_result
+  changed_when: container_docker_install_result.rc != 0
   when:
     - ansible_facts.system == 'Linux'
 
@@ -37,8 +37,8 @@
 
 - name: Verify Docker binary
   ansible.builtin.command: docker --version
-  register: docker_check
-  changed_when: docker_check.rc != 0
+  register: container_docker_check
+  changed_when: container_docker_check.rc != 0
 
 - name: Test docker with an hello-world container
   vars:

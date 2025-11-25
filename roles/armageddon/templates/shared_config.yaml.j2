@@ -5,7 +5,7 @@
 #
 
 Parties:
-{% for orderer_group_id, orderer_group in all_orderer_instances.items() %}
+{% for orderer_group_id, orderer_group in armageddon_orderer_instances.items() %}
   - PartyID: {{ orderer_group_id }}
     CACerts:
 {% for orderer_organization_domain in orderer_group.organizations %}

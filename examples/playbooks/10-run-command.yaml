@@ -28,9 +28,10 @@
   tasks:
     - name: Run command {{ command }}
       ansible.builtin.command: "{{ command }}"
-      changed_when: result.rc != 0
-      register: result
+      changed_when: command_result.rc != 0
+      register: command_result
     - name: Show the command output
       ansible.builtin.debug:
-        msg: "{{ result.stdout_lines }}"
-      when: result is defined
+        msg: "{{ command_result.stdout_lines }}"
+      when:
+        - command_result is defined

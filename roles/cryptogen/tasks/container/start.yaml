@@ -42,12 +42,13 @@
     patterns: "tlsca*.pem"
     depth: 4
     recurse: true
-  register: tlsca_cert_files
+  register: cryptogen_tlsca_certs
 
 - name: Combine all TLS CA certs in ca-certs.pem
   ansible.builtin.shell: >-
-    cat {{ tlsca_cert_files.files | map(attribute='path') | join(' ') }}
+    cat {{ cryptogen_tlsca_certs.files | map(attribute='path') | join(' ') }}
     > {{ cryptogen_output_dir }}/ca-certs.pem
-  register: result
-  changed_when: result.rc != 0
-  when: tlsca_cert_files.files | length > 0
+  register: cryptogen_tlscas_result
+  changed_when: cryptogen_tlscas_result.rc != 0
+  when:
+    - cryptogen_tlsca_certs.files | length > 0

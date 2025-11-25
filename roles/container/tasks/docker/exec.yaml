@@ -9,4 +9,4 @@
     container: "{{ container_name }}"
     command: "{{ container_command }}"
     env: "{{ container_env }}"
-  register: exec_result
+  register: container_exec_result

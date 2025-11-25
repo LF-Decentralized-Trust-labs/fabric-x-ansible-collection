@@ -13,8 +13,8 @@
 
 - name: Verify Podman binary is available
   ansible.builtin.command: podman --version
-  register: podman_check
-  changed_when: podman_check.rc != 0
+  register: container_podman_check
+  changed_when: container_podman_check.rc != 0
 
 - name: Test podman with an hello-world container
   vars:

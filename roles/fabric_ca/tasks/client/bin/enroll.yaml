@@ -7,7 +7,7 @@
 - name: Check if already enrolled
   ansible.builtin.stat:
     path: "{{ fabric_ca_msp_dir }}/signcerts/cert.pem"
-  register: msp_cert
+  register: fabric_ca_msp_cert
 
 - name: Enroll identity with Fabric CA client binary
   vars:
@@ -35,7 +35,7 @@
     name: hyperledger.fabricx.bin
     tasks_from: start
   when:
-    - not msp_cert.stat.exists
+    - not fabric_ca_msp_cert.stat.exists
 
 - name: Copy NodeOUs configuration file
   ansible.builtin.template:

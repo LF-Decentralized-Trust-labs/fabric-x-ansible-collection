@@ -68,7 +68,7 @@
   retries: "{{ container_run_retries }}"
   delay: "{{ container_run_delay }}"
   ignore_errors: "{{ container_ignore_errors }}"
-  register: docker_result
+  register: container_docker_result
 
 - name: Wait for container to become ready on port
   ansible.builtin.wait_for:
@@ -81,17 +81,17 @@
 
 - name: Store the Docker container command result
   ansible.builtin.set_fact:
-    result: >-
+    container_output: >-
       {{
-        docker_result
+        container_docker_result
         | combine({
-            'stdout_lines': (docker_result.container.Output | default('')).splitlines()
+            'stdout_lines': (container_docker_result.container.Output | default('')).splitlines()
           })
       }}
 
 - name: Show output of docker command
   vars:
-    log_lines: "{{ result.stdout_lines }}"
+    log_lines: "{{ container_output.stdout_lines }}"
   ansible.builtin.debug:
     msg: "{{ log_lines[-container_log_lines:] if (container_log_lines | int > 0) else log_lines }}"
   when:
