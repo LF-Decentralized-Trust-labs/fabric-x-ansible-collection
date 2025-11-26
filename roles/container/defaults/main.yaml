@@ -8,7 +8,6 @@
 # Container Opts
 # =========================
 container_client: "{{ lookup('env', 'CONTAINER_CLIENT') or '' }}"
-container_command: ""
 container_ports: []
 container_volumes: []
 container_ulimits: []

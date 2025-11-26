@@ -9,7 +9,7 @@
     name: "{{ container_name }}"
     image: "{{ container_image }}"
     entrypoint: "{{ container_entrypoint | default(omit) }}"
-    command: "{{ container_command }}"
+    command: "{{ container_command | default(omit) }}"
     hostname: "{{ container_name }}"
     network: >-
       {{
