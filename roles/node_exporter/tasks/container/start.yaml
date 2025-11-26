@@ -8,17 +8,26 @@
   vars:
     container_name: "{{ node_exporter_container_name }}"
     container_image: "{{ node_exporter_image }}"
-    container_command:
-      - "--web.listen-address=:{{ node_exporter_port }}"
-      - "--path.rootfs=/host"
+    container_command: >-
+      --web.listen-address=:{{ node_exporter_port }}
+      --path.rootfs=/host
+      {% if node_exporter_use_tls %}
+      --web.config.file={{ node_exporter_container_config_dir }}/{{ node_exporter_web_config_file }}
+      {% endif %}
     container_ports:
       - "{{ node_exporter_port }}:{{ node_exporter_port }}"
     container_volumes:
-      - "/:/host:ro,rslave"
+      - "/:/host:ro,rslave" # needed by NodeExporter to read machine general details (e.g. CPU type, RAM)
+      - "{{ node_exporter_remote_config_dir }}:{{ node_exporter_container_config_dir }}:Z"
     container_healthcheck_test: >-
       wget -q
-      -O /dev/null
+      --spider
+      {% if node_exporter_use_tls %}
+      --no-check-certificate
+      https://localhost:{{ node_exporter_port }}/metrics
+      {% else %}
       http://localhost:{{ node_exporter_port }}/metrics
+      {% endif %}
     container_wait_until_running: true
     container_wait_port: "{{ node_exporter_port }}"
   ansible.builtin.include_role:

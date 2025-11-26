@@ -4,9 +4,23 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# node_exporter images
+# =========================
+# Node Exporter image
+# =========================
 node_exporter_registry_endpoint: "{{ lookup('env', 'NODE_EXPORTER_REGISTRY_ENDPOINT') or 'docker.io/prom' }}"
 node_exporter_image_name: "node-exporter"
 node_exporter_image_tag: "latest"
 node_exporter_image: "{{ node_exporter_registry_endpoint }}/{{ node_exporter_image_name }}:{{ node_exporter_image_tag }}"
 node_exporter_container_name: "node-exporter"
+
+# =========================
+# Paths/Locations
+# =========================
+node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
+node_exporter_container_config_dir: /var/config
+node_exporter_web_config_file: web-config.yaml
+
+# =========================
+# TLS settings
+# =========================
+node_exporter_use_tls: false

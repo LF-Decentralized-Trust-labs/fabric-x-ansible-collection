@@ -39,10 +39,6 @@
     - name: Define Prometheus scrape services
       ansible.builtin.set_fact:
         prometheus_scrape_services:
-          - job_name: node_exporter
-            targets:
-              - hosts: "{{ node_exporter_hosts }}"
-                port_to_scrape: node_exporter_port
           - job_name: sidecar_service
             targets:
               - hosts: >-
@@ -217,7 +213,7 @@
             - hosts: "{{ [current_postgres_exporter] }}"
               port_to_scrape: postgres_exporter_port
       ansible.builtin.set_fact:
-        prometheus_scrape_services: "{{ (prometheus_scrape_services | default([])) + [postgres_exporter_service] }}"
+        prometheus_scrape_services: "{{ prometheus_scrape_services + [postgres_exporter_service] }}"
       loop: >-
         {{
           groups['all']
@@ -229,6 +225,29 @@
       loop_control:
         loop_var: current_postgres_exporter
         label: "{{ current_postgres_exporter }}"
+      when:
+        - prometheus_web_port is defined
+    - name: Retrieve the Node Exporter hosts
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.node_exporter
+        tasks_from: get_host_set
+      when:
+        - prometheus_web_port is defined
+    - name: Add Prometheus scrape services for Node Exporters
+      vars:
+        node_exporter_service:
+          job_name: "node_exporter.{{ hostvars[current_node_exporter].ansible_host }}"
+          use_tls: "{{ hostvars[current_node_exporter].node_exporter_use_tls | default(false) }}"
+          tls_ca_file: "{{ fetched_artifacts_dir }}/node-exporter-{{ hostvars[current_node_exporter].ansible_host }}/tls/tls_cert.pem"
+          targets:
+            - hosts: "{{ [current_node_exporter] }}"
+              port_to_scrape: node_exporter_port
+      ansible.builtin.set_fact:
+        prometheus_scrape_services: "{{ prometheus_scrape_services + [node_exporter_service] }}"
+      loop: "{{ groups['node_exporter_hosts'] }}"
+      loop_control:
+        loop_var: current_node_exporter
+        label: "{{ current_node_exporter }}"
       when:
         - prometheus_web_port is defined
     - name: Transfer the Prometheus configuration files

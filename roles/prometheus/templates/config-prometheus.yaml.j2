@@ -20,6 +20,7 @@ scrape_configs:
     metrics_path: {{ service_to_scrape.prometheus_metrics_path }}
 {% endif %}
 {% if service_to_scrape.use_tls is defined and service_to_scrape.use_tls %}
+    # TLS settings
     scheme: https
     tls_config:
       ca_file: {{ prometheus_container_config_dir }}/tls/{{ service_to_scrape.job_name }}/ca.crt

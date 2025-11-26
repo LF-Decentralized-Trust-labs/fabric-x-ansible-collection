@@ -15,6 +15,18 @@
 - name: Start Node Exporter
   hosts: "{{ target_hosts | default('node_exporter_hosts') }}:&node_exporter_hosts"
   tasks:
+    - name: Generate the Node Exporter TLS crypto material
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.node_exporter
+        tasks_from: crypto/setup
+    - name: Fetch the Node Exporter TLS certificates
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.node_exporter
+        tasks_from: crypto/fetch
+    - name: Transfer the Node Exporter configuration files
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.node_exporter
+        tasks_from: config/transfer
     - name: Start the Node Exporter instances
       ansible.builtin.include_role:
         name: hyperledger.fabricx.node_exporter

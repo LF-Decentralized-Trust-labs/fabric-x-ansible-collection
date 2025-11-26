@@ -8,9 +8,9 @@
   vars:
     hostname_for_node_exporter: >-
       {{
-        ansible_play_hosts
+        groups['all']
         | map('extract', hostvars)
-        | selectattr('ansible_host', '==', item)
+        | selectattr('ansible_host', '==', current_ansible_host)
         | selectattr('node_exporter_port', 'defined')
         | map(attribute='inventory_hostname')
         | sort
@@ -21,8 +21,11 @@
     groups: node_exporter_hosts
   loop: >-
     {{
-      ansible_play_hosts
+      groups['all']
       | map('extract', hostvars, 'ansible_host')
       | unique
       | list
     }}
+  loop_control:
+    loop_var: current_ansible_host
+    label: "{{ current_ansible_host }}"

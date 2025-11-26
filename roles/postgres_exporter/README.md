@@ -6,8 +6,6 @@ The role allows to run Postgres Exporter as **container only** (binary is not cu
 
 The role supports running one exporter per database instance.
 
-⚠️ **Important:** For the Postgres Exporter to be deployed, the variable `postgres_exporter_port` **must be defined in the inventory host**. This ensures the exporter listens on a known port and allows Prometheus to scrape its metrics. If the port is not defined, the exporter sidecar will not be started alongside the database.
-
 ## Table of Contents <!-- omit in toc -->
 
 - [Postgres Exporter Metrics](#postgres-exporter-metrics)
