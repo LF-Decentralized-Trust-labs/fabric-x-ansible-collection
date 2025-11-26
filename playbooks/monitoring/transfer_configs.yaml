@@ -36,24 +36,13 @@
         }}
       when:
         - prometheus_web_port is defined
-    - name: Transfer the Prometheus configuration files
-      vars:
+    - name: Define Prometheus scrape services
+      ansible.builtin.set_fact:
         prometheus_scrape_services:
           - job_name: node_exporter
             targets:
               - hosts: "{{ node_exporter_hosts }}"
                 port_to_scrape: node_exporter_port
-          - job_name: postgres_exporters
-            targets:
-              - hosts: >-
-                  {{
-                    groups['all']
-                    | map('extract', hostvars)
-                    | selectattr('postgres_exporter_port', 'defined')
-                    | map(attribute='inventory_hostname')
-                    | list
-                  }}
-                port_to_scrape: postgres_exporter_port
           - job_name: sidecar_service
             targets:
               - hosts: >-
@@ -216,6 +205,33 @@
                 label:
                   group: yedis
                   export_type: redis_export
+      when:
+        - prometheus_web_port is defined
+    - name: Add Prometheus scrape services for Postgres Exporters
+      vars:
+        postgres_exporter_service:
+          job_name: "postgres_exporter.{{ current_postgres_exporter }}"
+          use_tls: "{{ hostvars[current_postgres_exporter].postgres_exporter_use_tls | default(false) }}"
+          tls_ca_file: "{{ fetched_artifacts_dir }}/{{ current_postgres_exporter }}/tls/tls_cert.pem"
+          targets:
+            - hosts: "{{ [current_postgres_exporter] }}"
+              port_to_scrape: postgres_exporter_port
+      ansible.builtin.set_fact:
+        prometheus_scrape_services: "{{ (prometheus_scrape_services | default([])) + [postgres_exporter_service] }}"
+      loop: >-
+        {{
+          groups['all']
+          | map('extract', hostvars)
+          | selectattr('postgres_exporter_port', 'defined')
+          | map(attribute='inventory_hostname')
+          | list
+        }}
+      loop_control:
+        loop_var: current_postgres_exporter
+        label: "{{ current_postgres_exporter }}"
+      when:
+        - prometheus_web_port is defined
+    - name: Transfer the Prometheus configuration files
       ansible.builtin.include_role:
         name: hyperledger.fabricx.prometheus
         tasks_from: config/transfer

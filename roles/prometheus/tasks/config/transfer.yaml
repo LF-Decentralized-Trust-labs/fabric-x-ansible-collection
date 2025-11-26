@@ -15,3 +15,33 @@
     src: "config-prometheus.yaml.j2"
     dest: "{{ prometheus_remote_config_dir }}/prometheus.yml"
     mode: "0o644"
+
+- name: Ensure TLS folder exists
+  ansible.builtin.file:
+    path: "{{ prometheus_remote_config_dir }}/tls/{{ service_to_scrape.job_name }}"
+    state: directory
+    mode: "0o755"
+  loop: "{{ prometheus_scrape_services }}"
+  loop_control:
+    loop_var: service_to_scrape
+    label: "{{ service_to_scrape.job_name }}"
+  when:
+    - prometheus_scrape_services is defined
+    - service_to_scrape.use_tls is defined
+    - service_to_scrape.use_tls
+    - service_to_scrape.tls_ca_file is defined
+
+- name: Transfer TLS certificates
+  ansible.builtin.copy:
+    src: "{{ service_to_scrape.tls_ca_file }}"
+    dest: "{{ prometheus_remote_config_dir }}/tls/{{ service_to_scrape.job_name }}/ca.crt"
+    mode: preserve
+  loop: "{{ prometheus_scrape_services }}"
+  loop_control:
+    loop_var: service_to_scrape
+    label: "{{ service_to_scrape.job_name }}"
+  when:
+    - prometheus_scrape_services is defined
+    - service_to_scrape.use_tls is defined
+    - service_to_scrape.use_tls
+    - service_to_scrape.tls_ca_file is defined

@@ -13,6 +13,7 @@ prometheus_container_name: "{{ inventory_hostname }}"
 
 # prometheus paths/locations
 prometheus_remote_config_dir: "{{ remote_config_dir }}"
+prometheus_container_config_dir: "/etc/prometheus/config"
 
 # vars
 prometheus_web_port: 9090

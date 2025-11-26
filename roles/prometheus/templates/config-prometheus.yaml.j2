@@ -19,6 +19,11 @@ scrape_configs:
     # GET endpoint path to collect the metrics
     metrics_path: {{ service_to_scrape.prometheus_metrics_path }}
 {% endif %}
+{% if service_to_scrape.use_tls is defined and service_to_scrape.use_tls %}
+    scheme: https
+    tls_config:
+      ca_file: {{ prometheus_container_config_dir }}/tls/{{ service_to_scrape.job_name }}/ca.crt
+{% endif %}
 {% if service_to_scrape.relabel_configs is defined %}
     relabel_configs:
 {% for relabel_config in service_to_scrape.relabel_configs %}
