@@ -128,7 +128,7 @@
           tls_ca_file: >-
             {{
               fetched_artifacts_dir ~ '/crypto/peerOrganizations/' ~ current_yugabyte_cluster_ref_host.organization.domain ~ '/msp/tlscacerts/tlsca.' ~ current_yugabyte_cluster_ref_host.organization.domain ~ '-cert.pem'
-              if (current_yugabyte_cluster_ref_host.use_tls is defined and current_yugabyte_cluster_ref_host.use_tls)
+              if (current_yugabyte_cluster_ref_host.yugabyte_use_tls is defined and current_yugabyte_cluster_ref_host.yugabyte_use_tls)
               else ''
             }}
           relabel_configs:

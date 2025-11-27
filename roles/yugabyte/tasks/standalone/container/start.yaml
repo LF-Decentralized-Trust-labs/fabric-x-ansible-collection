@@ -21,20 +21,26 @@
     # A better approach could be to conditionally set the interface to 0.0.0.0
     # only if the container is running on mac.
     yugabyte_master_flags:
-      - webserver_interface=0.0.0.0
+      # db ports flags
       - rpc_bind_addresses=0.0.0.0:{{ yugabyte_master_rpc_bind_port }}
+      # webserver flags
+      - webserver_interface=0.0.0.0
+      # log flags
       - minloglevel={{ yugabyte_logs_level }}
       - stderrthreshold={{ yugabyte_logs_level }}
     yugabyte_tablet_flags:
+      # db ports flags
+      - pgsql_proxy_bind_address=0.0.0.0:{{ yugabyte_tablet_pgsql_bind_port }}
+      - cql_proxy_bind_address=0.0.0.0:{{ yugabyte_tablet_cql_bind_port }}
+      - redis_proxy_bind_address=0.0.0.0:{{ yugabyte_tablet_redis_rpc_port }}
+      - rpc_bind_addresses=0.0.0.0:{{ yugabyte_tablet_rpc_bind_port }}
+      # webserver flags
       - webserver_interface=0.0.0.0
       - webserver_port={{ yugabyte_tablet_webserver_port }}
-      - pgsql_proxy_bind_address=0.0.0.0:{{ yugabyte_tablet_pgsql_bind_port }}
       - pgsql_proxy_webserver_port={{ yugabyte_tablet_pgsql_web_port }}
-      - cql_proxy_bind_address=0.0.0.0:{{ yugabyte_tablet_cql_bind_port }}
       - cql_proxy_webserver_port={{ yugabyte_tablet_cql_web_port }}
-      - redis_proxy_bind_address=0.0.0.0:{{ yugabyte_tablet_redis_rpc_port }}
       - redis_proxy_webserver_port={{ yugabyte_tablet_redis_web_port }}
-      - rpc_bind_addresses=0.0.0.0:{{ yugabyte_tablet_rpc_bind_port }}
+      # log flags
       - minloglevel={{ yugabyte_logs_level }}
       - stderrthreshold={{ yugabyte_logs_level }}
 
@@ -79,12 +85,12 @@
       - "{{ yugabyte_master_webserver_port }}:{{ yugabyte_master_webserver_port }}"
       # tablet ports
       - "{{ yugabyte_tablet_rpc_bind_port }}:{{ yugabyte_tablet_rpc_bind_port }}"
-      - "{{ yugabyte_tablet_webserver_port }}:{{ yugabyte_tablet_webserver_port }}"
       - "{{ yugabyte_tablet_pgsql_bind_port }}:{{ yugabyte_tablet_pgsql_bind_port }}"
-      - "{{ yugabyte_tablet_redis_web_port }}:{{ yugabyte_tablet_redis_web_port }}"
-      - "{{ yugabyte_tablet_pgsql_web_port }}:{{ yugabyte_tablet_pgsql_web_port }}"
       - "{{ yugabyte_tablet_cql_bind_port }}:{{ yugabyte_tablet_cql_bind_port }}"
+      - "{{ yugabyte_tablet_webserver_port }}:{{ yugabyte_tablet_webserver_port }}"
+      - "{{ yugabyte_tablet_pgsql_web_port }}:{{ yugabyte_tablet_pgsql_web_port }}"
       - "{{ yugabyte_tablet_cql_web_port }}:{{ yugabyte_tablet_cql_web_port }}"
+      - "{{ yugabyte_tablet_redis_web_port }}:{{ yugabyte_tablet_redis_web_port }}"
     container_command: >-
       bin/yugabyted start
       --base_dir /var/data
