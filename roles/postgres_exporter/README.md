@@ -1,6 +1,6 @@
 # hyperledger.fabricx.postgres_exporter
 
-The role `hyperledger.fabricx.postgres_exporter` can be used to run a [Prometheus Postgres Exporter](https://github.com/prometheus-community/postgres_exporter) container to collect PostgreSQL metrics.
+The role `hyperledger.fabricx.postgres_exporter` can be used to run a [Prometheus Postgres Exporter](https://github.com/prometheus-community/postgres_exporter) to collect PostgreSQL metrics.
 
 The role allows to run Postgres Exporter as **container only** (binary is not currently supported).
 
@@ -10,6 +10,10 @@ The role supports running one exporter per database instance.
 
 - [Postgres Exporter Metrics](#postgres-exporter-metrics)
 - [Tasks](#tasks)
+  - [crypto/setup](#cryptosetup)
+  - [crypto/fetch](#cryptofetch)
+  - [config/transfer](#configtransfer)
+  - [config/rm](#configrm)
   - [start](#start)
   - [stop](#stop)
   - [teardown](#teardown)
@@ -36,12 +40,56 @@ When the `prometheus_postgres_exporters` variable is set, Prometheus scrapes the
 
 ## Tasks
 
+### crypto/setup
+
+The task `crypto/setup` allows to generate the crypto material needed to run Postgres Exporter with TLS using [openssl](../openssl/README.md):
+
+```yaml
+- name: Setup the crypto material for Postgres Exporter
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres_exporter
+    tasks_from: crypto/setup
+```
+
+### crypto/fetch
+
+The task `crypto/fetch` fetches the TLS certificate of a Postgres Exporter running with TLS:
+
+```yaml
+- name: Fetch the TLS certificate of Postgres Exporter
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres_exporter
+    tasks_from: crypto/fetch
+```
+
+### config/transfer
+
+The task `config/transfer` transfers the Postgres Exporter configuration files:
+
+```yaml
+- name: Transfer the Postgres Exporter configuration files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres_exporter
+    tasks_from: config/transfer
+```
+
+### config/rm
+
+The task `config/rm` removes the Postgres Exporter configuration files:
+
+```yaml
+- name: Remove the Postgres Exporter configuration files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres_exporter
+    tasks_from: config/rm
+```
+
 ### start
 
 The task `start` allows to start the Postgres Exporter.
 
 ```yaml
-- name: Start Postgres Exporter Sidecar container
+- name: Start Postgres Exporter
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: start
@@ -52,7 +100,7 @@ The task `start` allows to start the Postgres Exporter.
 The task `stop` allows to stop the Postgres Exporter.
 
 ```yaml
-- name: Stop Postgres Exporter Sidecar container
+- name: Stop Postgres Exporter
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: stop
@@ -63,7 +111,7 @@ The task `stop` allows to stop the Postgres Exporter.
 The task `teardown` allows to shut down the Postgres Exporter.
 
 ```yaml
-- name: Teardown the Postgres Exporter Sidecar container
+- name: Teardown the Postgres Exporter
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: teardown
@@ -71,10 +119,10 @@ The task `teardown` allows to shut down the Postgres Exporter.
 
 ### wipe
 
-The task `wipe` allows to shut down the Postgres Postgres Exporter.
+The task `wipe` allows to shut down and wipe all configuration files of a Postgres Postgres Exporter.
 
 ```yaml
-- name: Wipe the Postgres Exporter Sidecar container
+- name: Wipe the Postgres Exporter
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: wipe
@@ -85,7 +133,7 @@ The task `wipe` allows to shut down the Postgres Postgres Exporter.
 The task `fetch_logs` allows to fetch the logs from the Postgres Exporter.
 
 ```yaml
-- name: Fetch the Postgres Exporter Sidecar container logs
+- name: Fetch the Postgres Exporter logs
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: fetch_logs
@@ -96,7 +144,7 @@ The task `fetch_logs` allows to fetch the logs from the Postgres Exporter.
 The task `ping` allows to ping the Postgres Exporter components on their opened ports. It is useful to check whether the instances are running or if they are not running/reachable.
 
 ```yaml
-- name: Ping the Postgres Exporter Sidecar container
+- name: Ping the Postgres Exporter
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: ping
