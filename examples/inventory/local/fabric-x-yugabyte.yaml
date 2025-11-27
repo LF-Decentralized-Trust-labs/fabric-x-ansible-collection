@@ -257,9 +257,11 @@ all:
 
     monitoring:
       hosts:
+        node-exporter:
+          node_exporter_port: 9111
+        prometheus:
+          prometheus_web_port: 9090
         grafana:
           grafana_username: admin
           grafana_password: adminPWD
           grafana_web_port: 3000
-        prometheus:
-          prometheus_web_port: 9090

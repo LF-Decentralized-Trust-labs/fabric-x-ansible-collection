@@ -327,7 +327,46 @@ all:
     monitoring:
       vars:
         ansible_host: "{{ host_machine_16 }}"
+      children:
+        node_exporters:
+          vars:
+            node_exporter_port: 9111
+          hosts:
+            node-exporter-1:
+              ansible_host: "{{ host_machine_1 }}"
+            node-exporter-2:
+              ansible_host: "{{ host_machine_2 }}"
+            node-exporter-3:
+              ansible_host: "{{ host_machine_3 }}"
+            node-exporter-4:
+              ansible_host: "{{ host_machine_4 }}"
+            node-exporter-5:
+              ansible_host: "{{ host_machine_5 }}"
+            node-exporter-6:
+              ansible_host: "{{ host_machine_6 }}"
+            node-exporter-7:
+              ansible_host: "{{ host_machine_7 }}"
+            node-exporter-8:
+              ansible_host: "{{ host_machine_8 }}"
+            node-exporter-9:
+              ansible_host: "{{ host_machine_9 }}"
+            node-exporter-10:
+              ansible_host: "{{ host_machine_10 }}"
+            node-exporter-11:
+              ansible_host: "{{ host_machine_11 }}"
+            node-exporter-12:
+              ansible_host: "{{ host_machine_12 }}"
+            node-exporter-13:
+              ansible_host: "{{ host_machine_13 }}"
+            node-exporter-14:
+              ansible_host: "{{ host_machine_14 }}"
+            node-exporter-15:
+              ansible_host: "{{ host_machine_15 }}"
+            node-exporter-16:
+              ansible_host: "{{ host_machine_16 }}"
       hosts:
+        node-exporter:
+          node_exporter_port: 9111
         grafana:
           grafana_username: admin
           grafana_password: adminPWD

@@ -8,6 +8,15 @@
   hosts: "{{ target_hosts | default('monitoring') }}:&monitoring"
   tasks:
     # =========================
+    # Node Exporter
+    # =========================
+    - name: Fetch the logs from Node Exporter
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.node_exporter
+        tasks_from: fetch_logs
+      when:
+        - node_exporter_port is defined
+    # =========================
     # Postgres Exporter
     # =========================
     - name: Fetch the logs from Postgres Exporter

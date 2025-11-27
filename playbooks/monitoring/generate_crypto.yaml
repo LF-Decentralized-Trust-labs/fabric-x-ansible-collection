@@ -8,6 +8,21 @@
   hosts: "{{ target_hosts | default('monitoring') }}:&monitoring"
   tasks:
     # =========================
+    # Node Exporter
+    # =========================
+    - name: Setup Node Exporter crypto material
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.node_exporter
+        tasks_from: crypto/setup
+      when:
+        - node_exporter_port is defined
+    - name: Fetch Node Exporter crypto material
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.node_exporter
+        tasks_from: crypto/fetch
+      when:
+        - node_exporter_port is defined
+    # =========================
     # Postgres Exporter
     # =========================
     - name: Setup Postgres Exporter crypto material

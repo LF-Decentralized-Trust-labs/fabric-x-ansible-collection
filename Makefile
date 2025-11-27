@@ -137,21 +137,6 @@ teardown:
 .PHONY: restart
 restart: teardown start
 
-# Start a Node Exporter container on the targeted hosts (e.g. make fabric_x node-exporter-start).
-.PHONY: node-exporter-start
-node-exporter-start:
-	ansible-playbook hyperledger.fabricx.node_exporter.start --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
-
-# Stop the Node Exporter container on the targeted hosts (e.g. make fabric_x node-exporter-stop).
-.PHONY: node-exporter-stop
-node-exporter-stop:
-	ansible-playbook hyperledger.fabricx.node_exporter.stop --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
-
-# Teardown the Node Exporter container on the targeted hosts (e.g. make fabric_x node-exporter-teardown).
-.PHONY: node-exporter-teardown
-node-exporter-teardown:
-	ansible-playbook hyperledger.fabricx.node_exporter.teardown --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
-
 # Wipe out the config artifacts and the binaries from the remote hosts (e.g. make fabric_x wipe).
 .PHONY: wipe
 wipe:

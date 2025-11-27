@@ -257,12 +257,14 @@ all:
 
     monitoring:
       hosts:
+        node-exporter:
+          node_exporter_port: 9111
         committer-db-exporter:
           postgres_db_host: committer-db
           postgres_exporter_port: 2110
+        prometheus:
+          prometheus_web_port: 9090
         grafana:
           grafana_username: admin
           grafana_password: adminPWD
           grafana_web_port: 3000
-        prometheus:
-          prometheus_web_port: 9090

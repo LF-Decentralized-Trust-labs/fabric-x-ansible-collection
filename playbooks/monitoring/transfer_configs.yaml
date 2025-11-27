@@ -8,6 +8,15 @@
   hosts: "{{ target_hosts | default('monitoring') }}:&monitoring"
   tasks:
     # =========================
+    # Node Exporter
+    # =========================
+    - name: Transfer the Node Exporter configuration files
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.node_exporter
+        tasks_from: config/transfer
+      when:
+        - node_exporter_port is defined
+    # =========================
     # Postgres Exporter
     # =========================
     - name: Transfer the Postgres Exporter configuration files
@@ -229,13 +238,20 @@
         node_exporter_scrape_service:
           job_name: "node_exporter.{{ hostvars[current_node_exporter].ansible_host }}"
           use_tls: "{{ hostvars[current_node_exporter].node_exporter_use_tls | default(false) }}"
-          tls_ca_file: "{{ fetched_artifacts_dir }}/node-exporter-{{ hostvars[current_node_exporter].ansible_host }}/tls/tls_cert.pem"
+          tls_ca_file: "{{ fetched_artifacts_dir }}/{{ current_node_exporter }}/tls/tls_cert.pem"
           targets:
             - hosts: "{{ [current_node_exporter] }}"
               port_to_scrape: node_exporter_port
       ansible.builtin.set_fact:
         prometheus_scrape_services: "{{ prometheus_scrape_services + [node_exporter_scrape_service] }}"
-      loop: "{{ groups['node_exporter_hosts'] }}"
+      loop: >-
+        {{
+          groups['all']
+          | map('extract', hostvars)
+          | selectattr('node_exporter_port', 'defined')
+          | map(attribute='inventory_hostname')
+          | list
+        }}
       loop_control:
         loop_var: current_node_exporter
         label: "{{ current_node_exporter }}"

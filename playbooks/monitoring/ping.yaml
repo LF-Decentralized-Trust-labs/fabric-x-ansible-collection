@@ -8,6 +8,15 @@
   hosts: "{{ target_hosts | default('monitoring') }}:&monitoring"
   tasks:
     # =========================
+    # Node Exporter
+    # =========================
+    - name: Node Postgres Exporter
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.node_exporter
+        tasks_from: ping
+      when:
+        - node_exporter_port is defined
+    # =========================
     # Postgres Exporter
     # =========================
     - name: Ping Postgres Exporter

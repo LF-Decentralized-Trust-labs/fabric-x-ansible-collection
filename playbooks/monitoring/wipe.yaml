@@ -52,3 +52,12 @@
         tasks_from: wipe
       when:
         - postgres_exporter_port is defined
+    # =========================
+    # Node Exporter
+    # =========================
+    - name: Wipe Node Exporter nodes
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.node_exporter
+        tasks_from: wipe
+      when:
+        - node_exporter_port is defined

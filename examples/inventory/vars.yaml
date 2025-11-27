@@ -28,4 +28,3 @@ configtxgen_artifacts_dir: "{{ config_build_dir }}/configtxgen-artifacts"
 # Miscellaneous
 # =========================
 channel_id: arma
-node_exporter_port: 9111
