@@ -7,6 +7,9 @@
 - name: Generate the Monitoring tools crypto material
   hosts: "{{ target_hosts | default('monitoring') }}:&monitoring"
   tasks:
+    # =========================
+    # Postgres Exporter
+    # =========================
     - name: Setup Postgres Exporter crypto material
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres_exporter

@@ -7,30 +7,45 @@
 - name: Wipe the Monitoring services
   hosts: "{{ target_hosts | default('monitoring') }}:&monitoring"
   tasks:
+    # =========================
+    # Jaeger
+    # =========================
     - name: Wipe Jaeger
       ansible.builtin.include_role:
         name: hyperledger.fabricx.jaeger
         tasks_from: wipe
       when:
         - jaeger_collector_port is defined
+    # =========================
+    # ElasticSearch
+    # =========================
     - name: Wipe ElasticSearch
       ansible.builtin.include_role:
         name: hyperledger.fabricx.elasticsearch
         tasks_from: wipe
       when:
         - elasticsearch_http_port is defined
+    # =========================
+    # Grafana
+    # =========================
     - name: Wipe Grafana
       ansible.builtin.include_role:
         name: hyperledger.fabricx.grafana
         tasks_from: wipe
       when:
         - grafana_web_port is defined
+    # =========================
+    # Prometheus
+    # =========================
     - name: Wipe Prometheus
       ansible.builtin.include_role:
         name: hyperledger.fabricx.prometheus
         tasks_from: wipe
       when:
         - prometheus_web_port is defined
+    # =========================
+    # Postgres Exporter
+    # =========================
     - name: Wipe Postgres Exporter nodes
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres_exporter
