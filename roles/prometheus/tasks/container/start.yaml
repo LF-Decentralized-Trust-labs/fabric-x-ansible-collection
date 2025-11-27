@@ -26,6 +26,7 @@
       --url=http://localhost:{{ prometheus_web_port }}
     container_wait_until_running: true
     container_wait_port: "{{ prometheus_web_port }}"
+    container_run_as_host_user: true
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: start

@@ -28,6 +28,15 @@
       - "{{ postgres_exporter_port }}:{{ postgres_exporter_port }}"
     container_volumes:
       - "{{ postgres_exporter_remote_config_dir }}:{{ postgres_exporter_container_config_dir }}:Z"
+    container_healthcheck_test: >-
+      wget -q
+      --spider
+      {% if postgres_exporter_use_tls %}
+      --no-check-certificate
+      https://localhost:{{ postgres_exporter_port }}/metrics
+      {% else %}
+      http://localhost:{{ postgres_exporter_port }}/metrics
+      {% endif %}
     container_wait_until_running: true
     container_wait_port: "{{ postgres_exporter_port }}"
     container_run_as_host_user: true
