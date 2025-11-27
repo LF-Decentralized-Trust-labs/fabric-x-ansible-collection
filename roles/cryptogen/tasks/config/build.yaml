@@ -16,6 +16,7 @@
 - name: Gather Hyperledger Fabric-X Orderers facts
   ansible.builtin.setup:
   delegate_to: "{{ current_orderer.name }}"
+  delegate_facts: true
   loop: >-
     {{
       cryptogen_orderers_by_org.values()
@@ -33,6 +34,7 @@
 - name: Gather Hyperledger Fabric-X Peers facts
   ansible.builtin.setup:
   delegate_to: "{{ current_peer.name }}"
+  delegate_facts: true
   loop: >-
     {{
       cryptogen_peers_by_org.values()
