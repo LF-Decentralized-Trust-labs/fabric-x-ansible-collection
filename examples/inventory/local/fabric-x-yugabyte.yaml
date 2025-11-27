@@ -204,9 +204,18 @@ all:
               yugabyte_password: sc_secret_pwd
               yugabyte_db: sc_db
               yugabyte_component_type: standalone
+              # Yugabyte Master ports
               yugabyte_master_webserver_port: 7001
               yugabyte_master_rpc_bind_port: 7100
+              # Yugabyte Tablet ports
               yugabyte_tablet_pgsql_bind_port: 5435
+              yugabyte_tablet_rpc_bind_port: 9100
+              yugabyte_tablet_webserver_port: 9000
+              yugabyte_tablet_redis_web_port: 11000
+              yugabyte_tablet_cql_web_port: 12000
+              yugabyte_tablet_pgsql_web_port: 13000
+              yugabyte_tablet_cql_bind_port: 9042
+              yugabyte_tablet_redis_rpc_port: 6379
             committer-validator:
               yugabyte_cluster_ref_id: 1
               committer_component_type: validator
