@@ -210,7 +210,6 @@ all:
                 peer:
                   name: "{{ inventory_hostname }}"
                   secret: "{{ inventory_hostname }}PWD"
-              yugabyte_use_tls: true
               yugabyte_component_type: standalone
               # Yugabyte Master ports
               yugabyte_master_webserver_port: 7001
