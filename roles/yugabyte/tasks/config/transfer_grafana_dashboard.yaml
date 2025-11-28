@@ -11,7 +11,7 @@
 
 - name: Transfer the YugabyteDB Grafana Dashboard
   vars:
-    grafana_dashboard_name: "yugabyte-dashboard.json"
+    grafana_dashboard_file: "yugabyte-dashboard.json"
     grafana_dashboard_path: "{{ yugabyte_grafana_dashboard_path }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana

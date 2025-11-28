@@ -18,5 +18,5 @@
 - name: Transfer Grafana Dashboard
   ansible.builtin.copy:
     src: "{{ grafana_dashboard_path }}"
-    dest: "{{ grafana_remote_config_dir }}/dashboards/{{ grafana_dashboard_name }}"
+    dest: "{{ grafana_remote_config_dir }}/dashboards/{{ grafana_dashboard_file }}"
     mode: "0o640"

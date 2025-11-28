@@ -4,16 +4,30 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# Grafana x86/arm64 image
+# =========================
+# Grafana Image
+# =========================
 grafana_registry_endpoint: "{{ lookup('env', 'GRAFANA_REGISTRY_ENDPOINT') or 'docker.io/grafana' }}"
 grafana_image_name: "grafana-oss"
 grafana_image_tag: "latest"
 grafana_image: "{{ grafana_registry_endpoint }}/{{ grafana_image_name }}:{{ grafana_image_tag }}"
 grafana_container_name: "{{ inventory_hostname }}"
 
-# Paths/locations
+# =========================
+# Locations/Paths
+# =========================
 grafana_remote_config_dir: "{{ remote_config_dir }}"
+grafana_container_config_dir: "/etc/grafana/provisioning"
+grafana_datasource_file: datasources.yaml
+grafana_dashboards_file: dashboards.yaml
+grafana_dashboard_file: dashboard.json
 
+# =========================
+# TLS settings
+# =========================
+grafana_use_tls: false
+
+# =========================
 # Miscellaneous
+# =========================
 grafana_web_port: 3000
-grafana_dashboard_name: dashboard.json

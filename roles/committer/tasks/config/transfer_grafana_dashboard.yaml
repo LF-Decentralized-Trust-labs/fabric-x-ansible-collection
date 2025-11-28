@@ -11,7 +11,7 @@
 
 - name: Transfer the Fabric-X Committer Grafana Dashboard
   vars:
-    grafana_dashboard_name: "fabric-x-committer-dashboard.json"
+    grafana_dashboard_file: "fabric-x-committer-dashboard.json"
     grafana_dashboard_path: "{{ committer_grafana_dashboard_path }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana

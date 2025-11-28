@@ -9,14 +9,13 @@
     container_name: "{{ grafana_container_name }}"
     container_image: "{{ grafana_image }}"
     container_env:
-      GF_SERVER_HTTP_PORT: "{{ grafana_web_port | string }}"
-      GF_PROMETHEUS_ENDPOINT: "http://{{ hostvars[prometheus_instance].ansible_host }}:{{ hostvars[prometheus_instance].prometheus_port }}"
       GF_SECURITY_ADMIN_USER: "{{ grafana_username }}"
       GF_SECURITY_ADMIN_PASSWORD: "{{ grafana_password }}"
+      GF_SERVER_HTTP_PORT: "{{ grafana_web_port | string }}"
     container_ports:
       - "{{ grafana_web_port }}:{{ grafana_web_port }}"
     container_volumes:
-      - "{{ grafana_remote_config_dir }}:/etc/grafana/provisioning/:Z,ro"
+      - "{{ grafana_remote_config_dir }}:{{ grafana_container_config_dir }}:Z,ro"
     container_healthcheck_test: >-
       curl -f
       http://localhost:{{ grafana_web_port }}/api/health

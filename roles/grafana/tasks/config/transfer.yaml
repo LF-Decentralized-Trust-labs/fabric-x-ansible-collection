@@ -10,11 +10,11 @@
     state: directory
     mode: "0o755"
 
-- name: Copy datasources.yaml
-  ansible.builtin.copy:
-    src: files/datasources.yaml
-    dest: "{{ grafana_remote_config_dir }}/datasources"
-    mode: "0o640"
+- name: Transfer {{ grafana_datasource_file }}
+  ansible.builtin.template:
+    src: datasources.yaml.j2
+    dest: "{{ grafana_remote_config_dir }}/datasources/{{ grafana_datasource_file }}"
+    mode: "0o644"
 
 - name: Ensure Grafana dashboards directory exists
   ansible.builtin.file:
@@ -22,8 +22,26 @@
     state: directory
     mode: "0o755"
 
-- name: Copy dashboards.yaml
+- name: Transfer {{ grafana_dashboards_file }}
+  ansible.builtin.template:
+    src: dashboards.yaml.j2
+    dest: "{{ grafana_remote_config_dir }}/dashboards/{{ grafana_dashboards_file }}"
+    mode: "0o644"
+
+- name: Ensure Grafana TLS directory for Prometheus TLS CA exists
+  ansible.builtin.file:
+    path: "{{ grafana_remote_config_dir }}/tls/{{ prometheus_host }}"
+    state: directory
+    mode: "0o755"
+  when:
+    - hostvars[prometheus_host].prometheus_use_tls is defined
+    - hostvars[prometheus_host].prometheus_use_tls
+
+- name: Transfer Prometheus TLS CA certificate
   ansible.builtin.copy:
-    src: files/dashboards.yaml
-    dest: "{{ grafana_remote_config_dir }}/dashboards"
-    mode: "0o640"
+    src: "{{ fetched_artifacts_dir }}/{{ prometheus_host }}/tls/tls_cert.pem"
+    dest: "{{ grafana_remote_config_dir }}/tls/{{ prometheus_host }}/ca.crt"
+    mode: "0o644"
+  when:
+    - hostvars[prometheus_host].prometheus_use_tls is defined
+    - hostvars[prometheus_host].prometheus_use_tls

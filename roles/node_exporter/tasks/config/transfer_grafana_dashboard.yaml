@@ -11,7 +11,7 @@
 
 - name: Transfer the Node Exporter Grafana Dashboard
   vars:
-    grafana_dashboard_name: "node-exporter-dashboard.json"
+    grafana_dashboard_file: "node-exporter-dashboard.json"
     grafana_dashboard_path: "{{ node_exporter_grafana_dashboard_path }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
