@@ -12,13 +12,14 @@ The role supports running one exporter per database instance.
 - [Tasks](#tasks)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
+  - [crypto/rm](#cryptorm)
   - [config/transfer](#configtransfer)
   - [config/rm](#configrm)
   - [start](#start)
   - [stop](#stop)
   - [teardown](#teardown)
   - [wipe](#wipe)
-  - [fetch\_logs](#fetch_logs)
+  - [fetch_logs](#fetch_logs)
   - [ping](#ping)
 
 ## Postgres Exporter Metrics
@@ -62,9 +63,20 @@ The task `crypto/fetch` fetches the TLS certificate of a Postgres Exporter runni
     tasks_from: crypto/fetch
 ```
 
+### crypto/rm
+
+The task `crypto/rm` removes the crypto material generated for Postgres Exporter:
+
+```yaml
+- name: Remove the Postgres Exporter crypto files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres_exporter
+    tasks_from: crypto/rm
+```
+
 ### config/transfer
 
-The task `config/transfer` transfers the Postgres Exporter configuration files:
+The task `config/transfer` transfers the Postgres Exporter configuration files on the remote node:
 
 ```yaml
 - name: Transfer the Postgres Exporter configuration files
@@ -75,7 +87,7 @@ The task `config/transfer` transfers the Postgres Exporter configuration files:
 
 ### config/rm
 
-The task `config/rm` removes the Postgres Exporter configuration files:
+The task `config/rm` removes the Postgres Exporter configuration files on the remote node:
 
 ```yaml
 - name: Remove the Postgres Exporter configuration files

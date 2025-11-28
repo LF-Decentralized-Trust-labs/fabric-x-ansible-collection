@@ -5,6 +5,10 @@ The role `hyperledger.fabricx.elasticsearch` can be used to run an ElasticSearch
 ## Table of Contents <!-- omit in toc -->
 
 - [Tasks](#tasks)
+  - [crypto/setup](#cryptosetup)
+  - [crypto/fetch](#cryptofetch)
+  - [crypto/rm](#cryptorm)
+  - [config/rm](#configrm)
   - [start](#start)
   - [stop](#stop)
   - [teardown](#teardown)
@@ -13,6 +17,50 @@ The role `hyperledger.fabricx.elasticsearch` can be used to run an ElasticSearch
   - [ping](#ping)
 
 ## Tasks
+
+### crypto/setup
+
+The task `crypto/setup` allows to generate the crypto material needed to run ElasticSearch with TLS using [openssl](../openssl/README.md):
+
+```yaml
+- name: Setup the crypto material for ElasticSearch
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.elasticsearch
+    tasks_from: crypto/setup
+```
+
+### crypto/fetch
+
+The task `crypto/fetch` fetches the TLS certificate of a ElasticSearch running with TLS:
+
+```yaml
+- name: Fetch the TLS certificate of ElasticSearch
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.elasticsearch
+    tasks_from: crypto/fetch
+```
+
+### crypto/rm
+
+The task `crypto/rm` removes the crypto material generated for ElasticSearch:
+
+```yaml
+- name: Remove the ElasticSearch crypto files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.elasticsearch
+    tasks_from: crypto/rm
+```
+
+### config/rm
+
+The task `config/rm` removes the ElasticSearch configuration files on the remote node:
+
+```yaml
+- name: Remove the ElasticSearch configuration files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.elasticsearch
+    tasks_from: config/rm
+```
 
 ### start
 

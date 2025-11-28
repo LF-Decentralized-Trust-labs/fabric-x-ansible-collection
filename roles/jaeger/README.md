@@ -7,8 +7,38 @@ The role allows to run `jaeger` as **container only** (binary is not currently s
 ## Table of Contents <!-- omit in toc -->
 
 - [Tasks](#tasks)
+  - [config/transfer](#configtransfer)
+  - [config/rm](#configrm)
+  - [start](#start)
+  - [stop](#stop)
+  - [teardown](#teardown)
+  - [wipe](#wipe)
+  - [fetch_logs](#fetch_logs)
+  - [ping](#ping)
 
 ## Tasks
+
+### config/transfer
+
+The task `config/transfer` transfers the Jaeger configuration files on the remote node:
+
+```yaml
+- name: Transfer the Jaeger configuration files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.jaeger
+    tasks_from: config/transfer
+```
+
+### config/rm
+
+The task `config/rm` removes the Jaeger configuration files on the remote node:
+
+```yaml
+- name: Remove the Jaeger configuration files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.jaeger
+    tasks_from: config/rm
+```
 
 ### start
 

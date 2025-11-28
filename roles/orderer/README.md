@@ -7,7 +7,9 @@ The role `hyperledger.fabricx.orderer` can be used to run the Fabric-X `orderer`
 - [Tasks](#tasks)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
+  - [crypto/rm](#cryptorm)
   - [config/transfer](#configtransfer)
+  - [config/rm](#configrm)
   - [start](#start)
   - [stop](#stop)
   - [teardown](#teardown)
@@ -42,6 +44,17 @@ The task `crypto/fetch` allows to fetch the Fabric-X Orderer certificates on the
     tasks_from: crypto/fetch
 ```
 
+### crypto/rm
+
+The task `crypto/rm` removes the crypto material generated for a Fabric-X Orderer:
+
+```yaml
+- name: Remove the Fabric-X Orderer crypto files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: crypto/rm
+```
+
 ### config/transfer
 
 The task `config/transfer` allows to transfer the configuration files for a Fabric-X Orderer on the remote node:
@@ -51,6 +64,17 @@ The task `config/transfer` allows to transfer the configuration files for a Fabr
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: config/transfer
+```
+
+### config/rm
+
+The task `config/rm` removes the Fabric-X Orderer configuration files on the remote node:
+
+```yaml
+- name: Remove the Fabric-X Orderer configuration files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: config/rm
 ```
 
 ### start

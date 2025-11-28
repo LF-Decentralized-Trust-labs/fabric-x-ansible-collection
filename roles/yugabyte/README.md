@@ -14,9 +14,12 @@ The role allows to run YugabyteDB as **container only** (binary is not currently
 - [Tasks](#tasks)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
+  - [crypto/rm](#cryptorm)
   - [crypto/openssl/generate_csr](#cryptoopensslgenerate_csr)
   - [crypto/openssl/fetch_csr](#cryptoopensslfetch_csr)
   - [crypto/openssl/transfer_cert](#cryptoopenssltransfer_cert)
+  - [config/transfer](#configtransfer)
+  - [config/rm](#configrm)
   - [start](#start)
   - [stop](#stop)
   - [teardown](#teardown)
@@ -52,6 +55,17 @@ The task `crypto/fetch` fetches on the control node the TLS certificate of a Yug
     tasks_from: crypto/fetch
 ```
 
+### crypto/rm
+
+The task `crypto/rm` removes the crypto material generated for Yugabyte:
+
+```yaml
+- name: Remove the Yugabyte crypto files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: crypto/rm
+```
+
 ### crypto/openssl/generate_csr
 
 The task `crypto/openssl/generate_csr` allows to generate a private key and a CSR to be used to request a TLS certificate.
@@ -85,6 +99,28 @@ The task `crypto/openssl/transfer_cert` allows to transfer the TLS certificate g
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: crypto/openssl/transfer_cert
+```
+
+### config/transfer
+
+The task `config/transfer` transfers the Yugabyte configuration files on the remote node:
+
+```yaml
+- name: Transfer the Yugabyte configuration files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: config/transfer
+```
+
+### config/rm
+
+The task `config/rm` removes the Yugabyte configuration files on the remote node:
+
+```yaml
+- name: Remove the Yugabyte configuration files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: config/rm
 ```
 
 ### start

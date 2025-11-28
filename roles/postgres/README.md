@@ -9,6 +9,8 @@ The role allows to run Postgres as **container only** (binary is not currently s
 - [Tasks](#tasks)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
+  - [crypto/rm](#cryptorm)
+  - [config/rm](#configrm)
   - [start](#start)
   - [stop](#stop)
   - [teardown](#teardown)
@@ -42,6 +44,28 @@ The task `crypto/fetch` allows to fetch the TLS certificate of a Postgres DB on 
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: crypto/fetch
+```
+
+### crypto/rm
+
+The task `crypto/rm` removes the crypto material generated for Postgres on the remote node:
+
+```yaml
+- name: Remove the Postgres crypto files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: crypto/rm
+```
+
+### config/rm
+
+The task `config/rm` removes the Postgres configuration files on the remote node:
+
+```yaml
+- name: Remove the Postgres configuration files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: config/rm
 ```
 
 ### start

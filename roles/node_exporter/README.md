@@ -9,14 +9,15 @@ The role allows to run Node Exporter as **container only** (binary is not curren
 - [Tasks](#tasks)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
+  - [crypto/rm](#cryptorm)
   - [config/transfer](#configtransfer)
   - [config/rm](#configrm)
   - [start](#start)
   - [stop](#stop)
   - [teardown](#teardown)
   - [wipe](#wipe)
-  - [fetch\_logs](#fetch_logs)
-  - [get\_host\_set](#get_host_set)
+  - [fetch_logs](#fetch_logs)
+  - [get_host_set](#get_host_set)
 
 ## Tasks
 
@@ -42,9 +43,20 @@ The task `crypto/fetch` fetches the TLS certificate of a Node Exporter running w
     tasks_from: crypto/fetch
 ```
 
+### crypto/rm
+
+The task `crypto/rm` removes the crypto material generated for Node Exporter:
+
+```yaml
+- name: Remove the Node Exporter crypto files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.node_exporter
+    tasks_from: crypto/rm
+```
+
 ### config/transfer
 
-The task `config/transfer` transfers the Node Exporter configuration files:
+The task `config/transfer` transfers the Node Exporter configuration files on the remote node:
 
 ```yaml
 - name: Transfer the Node Exporter configuration files
@@ -55,7 +67,7 @@ The task `config/transfer` transfers the Node Exporter configuration files:
 
 ### config/rm
 
-The task `config/rm` removes the Node Exporter configuration files:
+The task `config/rm` removes the Node Exporter configuration files on the remote node:
 
 ```yaml
 - name: Remove the Node Exporter configuration files

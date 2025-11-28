@@ -7,7 +7,9 @@ The role `hyperledger.fabricx.loadgen` can be used to run a Load generator to te
 - [Tasks](#tasks)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
+  - [crypto/rm](#cryptorm)
   - [config/transfer](#configtransfer)
+  - [config/rm](#configrm)
   - [start](#start)
   - [stop](#stop)
   - [teardown](#teardown)
@@ -44,6 +46,17 @@ The task `crypto/fetch` allows to fetch the Fabric-X Loadgen certificates on the
     tasks_from: crypto/fetch
 ```
 
+### crypto/rm
+
+The task `crypto/rm` removes the crypto material generated for a Fabric-X Loadgen:
+
+```yaml
+- name: Remove the Fabric-X Loadgen crypto files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: crypto/rm
+```
+
 ### config/transfer
 
 The task `config/transfer` allows to transfer the configuration files for a Fabric-X Loadgen on the remote node:
@@ -53,6 +66,17 @@ The task `config/transfer` allows to transfer the configuration files for a Fabr
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: config/transfer
+```
+
+### config/rm
+
+The task `config/rm` removes the Fabric-X Loadgen configuration files on the remote node:
+
+```yaml
+- name: Remove the Fabric-X Loadgen configuration files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: config/rm
 ```
 
 ### start

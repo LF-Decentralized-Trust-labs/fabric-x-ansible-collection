@@ -9,13 +9,14 @@ The role allows to run Prometheus as **container only** (binary is not currently
 - [Tasks](#tasks)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
+  - [crypto/rm](#cryptorm)
   - [config/transfer](#configtransfer)
   - [config/rm](#configrm)
   - [start](#start)
   - [stop](#stop)
   - [teardown](#teardown)
   - [wipe](#wipe)
-  - [fetch\_logs](#fetch_logs)
+  - [fetch_logs](#fetch_logs)
   - [ping](#ping)
 
 ## Tasks
@@ -42,6 +43,17 @@ The task `crypto/fetch` fetches the TLS certificate of Prometheus running with T
     tasks_from: crypto/fetch
 ```
 
+### crypto/rm
+
+The task `crypto/rm` removes the crypto material generated for Prometheus:
+
+```yaml
+- name: Remove the Prometheus crypto files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: crypto/rm
+```
+
 ### config/transfer
 
 The task `config/transfer` allows to generate the configuration file for a Prometheus service.
@@ -64,7 +76,7 @@ It supports multiple customizations, for an example please have a look at its us
 
 ### config/rm
 
-The task `config/rm` removes the Prometheus configuration files:
+The task `config/rm` removes the Prometheus configuration files on the remote node:
 
 ```yaml
 - name: Remove the Prometheus configuration files
