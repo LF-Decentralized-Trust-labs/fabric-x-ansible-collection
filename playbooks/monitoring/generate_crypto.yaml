@@ -38,6 +38,21 @@
       when:
         - postgres_exporter_port is defined
     # =========================
+    # ElasticSearch
+    # =========================
+    - name: Setup ElasticSearch crypto material
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.elasticsearch
+        tasks_from: crypto/setup
+      when:
+        - elasticsearch_http_port is defined
+    - name: Fetch ElasticSearch certificates
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.elasticsearch
+        tasks_from: crypto/fetch
+      when:
+        - elasticsearch_http_port is defined
+    # =========================
     # Prometheus
     # =========================
     - name: Setup Prometheus crypto material

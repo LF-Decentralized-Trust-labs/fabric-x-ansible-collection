@@ -4,6 +4,37 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Define Jaeger env variables
+  ansible.builtin.set_fact:
+    jaeger_env:
+      JAEGER_SAMPLER_TYPE: "const"
+      JAEGER_SAMPLER_PARAM: "1"
+      COLLECTOR_OTLP_ENABLED: "true"
+      ES_INDEX_ROLLOVER_FREQUENCY_SPANS: "hour"
+
+- name: Define Jaeger env variables to connect to ElasticSearch
+  vars:
+    jaeger_es_env:
+      SPAN_STORAGE_TYPE: "elasticsearch"
+      ES_SERVER_URLS: "http://{{ hostvars[elasticsearch_host].ansible_host }}:{{ hostvars[elasticsearch_host].elasticsearch_http_port }}"
+  ansible.builtin.set_fact:
+    jaeger_env: "{{ jaeger_env | combine(jaeger_es_env) }}"
+  when:
+    - elasticsearch_host is defined
+
+- name: Define Jaeger env variables to connect to ElasticSearch with TLS
+  vars:
+    jaeger_es_tls_env:
+      ES_SERVER_URLS: "https://{{ hostvars[elasticsearch_host].ansible_host }}:{{ hostvars[elasticsearch_host].elasticsearch_http_port }}"
+      ES_TLS_ENABLED: "true"
+      ES_TLS_CA: "{{ jaeger_container_config_dir }}/tls/{{ elasticsearch_host }}/ca.crt"
+  ansible.builtin.set_fact:
+    jaeger_env: "{{ jaeger_env | combine(jaeger_es_tls_env) }}"
+  when:
+    - elasticsearch_host is defined
+    - hostvars[elasticsearch_host].elasticsearch_use_tls is defined
+    - hostvars[elasticsearch_host].elasticsearch_use_tls
+
 - name: Start Jaeger container
   vars:
     container_name: "{{ jaeger_container_name }}"
@@ -15,13 +46,7 @@
       - "{{ jaeger_http_collector_port }}:{{ jaeger_http_collector_port }}"
       - "{{ jaeger_grpc_server_port }}:{{ jaeger_grpc_server_port }}"
       - "{{ jaeger_collector_port }}:{{ jaeger_collector_port }}"
-    container_env:
-      JAEGER_SAMPLER_TYPE: "const"
-      JAEGER_SAMPLER_PARAM: "1"
-      COLLECTOR_OTLP_ENABLED: "true"
-      SPAN_STORAGE_TYPE: "elasticsearch"
-      ES_SERVER_URLS: "http://{{ hostvars[elasticsearch_host].ansible_host }}:{{ hostvars[elasticsearch_host].elasticsearch_http_port }}"
-      ES_INDEX_ROLLOVER_FREQUENCY_SPANS: "hour"
+    container_env: "{{ jaeger_env }}"
     container_command: >-
       --query.http-server.host-port=0.0.0.0:{{ jaeger_ui_port }}
       --admin.http.host-port=0.0.0.0:{{ jaeger_admin_port }}
@@ -31,6 +56,8 @@
       --collector.otlp.grpc.host-port=0.0.0.0:{{ jaeger_collector_port }}
     container_healthcheck_test: >-
       wget --spider -q http://localhost:{{ jaeger_admin_port }}
+    container_volumes:
+      - "{{ jaeger_remote_config_dir }}:{{ jaeger_container_config_dir }}"
     container_wait_until_running: true
     container_run_as_host_user: true
     container_wait_port: "{{ jaeger_ui_port }}"

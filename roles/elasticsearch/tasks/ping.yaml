@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that the Elasticsearch ports are open
+- name: Check that ElasticSearch ports are open
   vars:
     utils_ports_to_ping:
       - "{{ elasticsearch_http_port }}"

@@ -1,0 +1,31 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure Jaeger config directory exists
+  ansible.builtin.file:
+    path: "{{ jaeger_remote_config_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Ensure the TLS directory for ElasticSearch CA cert exists
+  ansible.builtin.file:
+    path: "{{ jaeger_remote_config_dir }}/tls/{{ elasticsearch_host }}"
+    state: directory
+    mode: "0o755"
+  when:
+    - elasticsearch_host is defined
+    - hostvars[elasticsearch_host].elasticsearch_use_tls is defined
+    - hostvars[elasticsearch_host].elasticsearch_use_tls
+
+- name: Copy the TLS certificate of ElasticSearch
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/{{ elasticsearch_host }}/tls/tls_cert.pem"
+    dest: "{{ jaeger_remote_config_dir }}/tls/{{ elasticsearch_host }}/ca.crt"
+    mode: preserve
+  when:
+    - elasticsearch_host is defined
+    - hostvars[elasticsearch_host].elasticsearch_use_tls is defined
+    - hostvars[elasticsearch_host].elasticsearch_use_tls

@@ -4,14 +4,14 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Clean Postgres TLS key
+- name: Clean ElasticSearch TLS key
   vars:
-    container_volume_path: "{{ postgres_remote_config_dir }}/tls/tls_key.pem"
+    container_volume_path: "{{ elasticsearch_remote_config_dir }}/tls/tls_key.pem"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: volume/rm
 
-- name: Clean Postgres TLS folder
+- name: Clean ElasticSearch TLS folder
   ansible.builtin.file:
-    path: "{{ postgres_remote_config_dir }}/tls"
+    path: "{{ elasticsearch_remote_config_dir }}/tls"
     state: absent

@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Stop the ElasticSearch container
+- name: Stop ElasticSearch container
   vars:
     container_name: "{{ elasticsearch_container_name }}"
   ansible.builtin.include_role:

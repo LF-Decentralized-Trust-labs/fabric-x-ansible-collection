@@ -4,12 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Remove the ElasticSearch container
+- name: Remove ElasticSearch container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: container/rm
 
-- name: Clean the ElasticSearch volume
+- name: Clean ElasticSearch volume
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: container/clean

@@ -14,7 +14,12 @@
     name: hyperledger.fabricx.postgres
     tasks_from: container/clean
 
-- name: Clean Postgres configuration files
+- name: Clean Postgres crypto material
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: crypto/rm
+
+- name: Clean Postgres configuration files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: config/rm

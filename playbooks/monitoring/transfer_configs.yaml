@@ -315,3 +315,12 @@
           | selectattr('yugabyte_component_type', 'defined')
           | list
           | length > 0
+    # =========================
+    # Jaeger
+    # =========================
+    - name: Transfer the Jaeger config files
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.jaeger
+        tasks_from: config/transfer
+      when:
+        - jaeger_collector_port is defined

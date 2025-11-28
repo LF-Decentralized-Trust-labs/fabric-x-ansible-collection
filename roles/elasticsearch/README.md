@@ -33,7 +33,7 @@ The task `start` allows to start an ElasticSearch container:
 The task `stop` allows to stop an ElasticSearch container.
 
 ```yaml
-- name: Stop the ElasticSearch container
+- name: Stop ElasticSearch container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: stop
@@ -44,7 +44,7 @@ The task `stop` allows to stop an ElasticSearch container.
 The task `teardown` allows to shut down an ElasticSearch container and remove all the data stored by the container on the persistent volume.
 
 ```yaml
-- name: Teardown the ElasticSearch container
+- name: Teardown ElasticSearch container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: teardown
@@ -55,7 +55,7 @@ The task `teardown` allows to shut down an ElasticSearch container and remove al
 The task `wipe` allows to shut down an ElasticSearch container and remove all the data stored by the container on the persistent volume.
 
 ```yaml
-- name: Wipe the ElasticSearch container
+- name: Wipe ElasticSearch container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: wipe
@@ -66,7 +66,7 @@ The task `wipe` allows to shut down an ElasticSearch container and remove all th
 The task `fetch_logs` allows to fetch the logs from an ElasticSearch container.
 
 ```yaml
-- name: Fetch the ElasticSearch container
+- name: Fetch ElasticSearch container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: fetch_logs
@@ -77,7 +77,7 @@ The task `fetch_logs` allows to fetch the logs from an ElasticSearch container.
 The task `ping` allows to ping an ElasticSearch container. It is useful to check whether the instances are running or if they are not running/reachable.
 
 ```yaml
-- name: Ping the ElasticSearch container
+- name: Ping ElasticSearch container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: ping

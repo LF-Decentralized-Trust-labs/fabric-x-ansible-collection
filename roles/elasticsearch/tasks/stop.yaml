@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Stop the ElasticSearch container
+- name: Stop ElasticSearch container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: container/stop
