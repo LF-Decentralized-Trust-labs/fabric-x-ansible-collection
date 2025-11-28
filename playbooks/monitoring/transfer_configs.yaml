@@ -203,6 +203,7 @@
           | selectattr('yugabyte_cluster_id', 'defined')
           | map(attribute='yugabyte_cluster_id')
           | list
+          | unique
         }}
       loop_control:
         loop_var: current_yugabyte_cluster_id
@@ -236,7 +237,7 @@
     - name: Add Prometheus scrape services for Node Exporters
       vars:
         node_exporter_scrape_service:
-          job_name: "node_exporter.{{ hostvars[current_node_exporter].ansible_host }}"
+          job_name: "node_exporter.{{ current_node_exporter }}"
           use_tls: "{{ hostvars[current_node_exporter].node_exporter_use_tls | default(false) }}"
           tls_ca_file: "{{ fetched_artifacts_dir }}/{{ current_node_exporter }}/tls/tls_cert.pem"
           targets:
