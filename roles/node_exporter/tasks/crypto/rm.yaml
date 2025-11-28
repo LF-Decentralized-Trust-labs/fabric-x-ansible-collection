@@ -1,0 +1,12 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Node Exporter TLS directory
+  ansible.builtin.file:
+    path: "{{ node_exporter_remote_config_dir }}/tls"
+    state: absent
+  when:
+    - node_exporter_use_tls

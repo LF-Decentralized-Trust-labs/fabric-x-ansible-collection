@@ -22,6 +22,11 @@
     tasks_from: bin/rm
   when: orderer_use_bin
 
+- name: Remove Fabric-X Orderer router crypto files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: crypto/rm
+
 - name: Remove Fabric-X Orderer router configuration files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer

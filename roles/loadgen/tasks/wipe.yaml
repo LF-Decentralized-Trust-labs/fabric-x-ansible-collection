@@ -22,7 +22,12 @@
     tasks_from: bin/rm
   when: loadgen_use_bin
 
-- name: Remove Fabric-X Loadgen binary configuration files
+- name: Remove Fabric-X Loadgen crypto files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: crypto/rm
+
+- name: Remove Fabric-X Loadgen configuration files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: config/rm

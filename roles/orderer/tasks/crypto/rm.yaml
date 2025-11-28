@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Fabric-X Orderer MSP directory
+  ansible.builtin.file:
+    path: "{{ orderer_remote_config_dir }}/msp"
+    state: absent
+
+- name: Remove Fabric-X Orderer TLS directory
+  ansible.builtin.file:
+    path: "{{ orderer_remote_config_dir }}/tls"
+    state: absent

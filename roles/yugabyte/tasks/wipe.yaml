@@ -14,6 +14,11 @@
     name: hyperledger.fabricx.yugabyte
     tasks_from: container/clean
 
+- name: Remove Yugabyte crypto files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: crypto/rm
+
 - name: Remove Yugabyte configuration files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte

@@ -1,0 +1,12 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Grafana TLS directory
+  ansible.builtin.file:
+    path: "{{ grafana_remote_config_dir }}/tls"
+    state: absent
+  when:
+    - grafana_use_tls

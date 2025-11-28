@@ -34,6 +34,11 @@
     tasks_from: orderer_batcher/bin/clean
   when: orderer_use_bin
 
+- name: Remove Fabric-X Orderer batcher crypto files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: crypto/rm
+
 - name: Remove Fabric-X Orderer batcher configuration files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
