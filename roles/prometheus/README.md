@@ -7,19 +7,44 @@ The role allows to run Prometheus as **container only** (binary is not currently
 ## Table of Contents <!-- omit in toc -->
 
 - [Tasks](#tasks)
-  - [config.transfer](#configtransfer)
+  - [crypto/setup](#cryptosetup)
+  - [crypto/fetch](#cryptofetch)
+  - [config/transfer](#configtransfer)
+  - [config/rm](#configrm)
   - [start](#start)
   - [stop](#stop)
   - [teardown](#teardown)
   - [wipe](#wipe)
-  - [fetch_logs](#fetch_logs)
+  - [fetch\_logs](#fetch_logs)
   - [ping](#ping)
 
 ## Tasks
 
-### config.transfer
+### crypto/setup
 
-The task `config.transfer` allows to generate a `prometheus.yml` configuration file for the Prometheus service.
+The task `crypto/setup` allows to generate the crypto material needed to run Prometheus with TLS using [openssl](../openssl/README.md):
+
+```yaml
+- name: Setup the crypto material for Prometheus
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: crypto/setup
+```
+
+### crypto/fetch
+
+The task `crypto/fetch` fetches the TLS certificate of Prometheus running with TLS:
+
+```yaml
+- name: Fetch the TLS certificate of Prometheus
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: crypto/fetch
+```
+
+### config/transfer
+
+The task `config/transfer` allows to generate the configuration file for a Prometheus service.
 
 It supports multiple customizations, for an example please have a look at its usage in this [sample playbook](../../playbooks/monitoring/transfer_configs.yaml).
 
@@ -28,13 +53,24 @@ It supports multiple customizations, for an example please have a look at its us
   vars:
     prometheus_scrape_interval: 2s
     prometheus_scrape_services:
-      - job_name: node_exporter
+      - job_name: prometheus
         targets:
-          - hosts: "{{ node_exporter_hosts }}"
-            port_to_scrape: node_exporter_port
+          - hosts: "{{ prometheus_hosts }}"
+            port_to_scrape: prometheus_port
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: config/transfer
+```
+
+### config/rm
+
+The task `config/rm` removes the Prometheus configuration files:
+
+```yaml
+- name: Remove the Prometheus configuration files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: config/rm
 ```
 
 ### start
@@ -44,7 +80,7 @@ The task `start` allows to start the Prometheus container.
 ```yaml
 - name: Start Prometheus
   vars:
-    prometheus_web_port: 9090
+    prometheus_port: 9090
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: start

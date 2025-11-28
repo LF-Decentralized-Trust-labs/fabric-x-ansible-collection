@@ -10,11 +10,19 @@
     state: directory
     mode: "0o755"
 
-- name: Generate prometheus.yaml
+- name: Generate {{ prometheus_config_file }}
   ansible.builtin.template:
-    src: "config-prometheus.yaml.j2"
-    dest: "{{ prometheus_remote_config_dir }}/prometheus.yml"
+    src: "prometheus.yaml.j2"
+    dest: "{{ prometheus_remote_config_dir }}/{{ prometheus_config_file }}"
     mode: "0o644"
+
+- name: Generate {{ prometheus_web_config_file }}
+  ansible.builtin.template:
+    src: "web-config.yaml.j2"
+    dest: "{{ prometheus_remote_config_dir }}/{{ prometheus_web_config_file }}"
+    mode: "0o644"
+  when:
+    - prometheus_use_tls
 
 - name: Ensure TLS folder exists
   ansible.builtin.file:

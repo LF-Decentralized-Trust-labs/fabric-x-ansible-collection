@@ -37,3 +37,18 @@
         tasks_from: crypto/fetch
       when:
         - postgres_exporter_port is defined
+    # =========================
+    # Prometheus
+    # =========================
+    - name: Setup Prometheus crypto material
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.prometheus
+        tasks_from: crypto/setup
+      when:
+        - prometheus_port is defined
+    - name: Fetch Postgres Exporter certificates
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.prometheus
+        tasks_from: crypto/fetch
+      when:
+        - prometheus_port is defined

@@ -92,7 +92,7 @@
                   }}
                 port_to_scrape: prometheus_exporter_port
       when:
-        - prometheus_web_port is defined
+        - prometheus_port is defined
     - name: Add Prometheus scrape services for Yugabyte clusters
       vars:
         current_yugabyte_cluster: >-
@@ -209,7 +209,7 @@
         loop_var: current_yugabyte_cluster_id
         label: "yugabyte-cluster:{{ current_yugabyte_cluster_id }}"
       when:
-        - prometheus_web_port is defined
+        - prometheus_port is defined
     - name: Add Prometheus scrape services for Postgres Exporters
       vars:
         postgres_exporter_scrape_service:
@@ -233,7 +233,7 @@
         loop_var: current_postgres_exporter
         label: "{{ current_postgres_exporter }}"
       when:
-        - prometheus_web_port is defined
+        - prometheus_port is defined
     - name: Add Prometheus scrape services for Node Exporters
       vars:
         node_exporter_scrape_service:
@@ -257,13 +257,13 @@
         loop_var: current_node_exporter
         label: "{{ current_node_exporter }}"
       when:
-        - prometheus_web_port is defined
+        - prometheus_port is defined
     - name: Transfer the Prometheus configuration files
       ansible.builtin.include_role:
         name: hyperledger.fabricx.prometheus
         tasks_from: config/transfer
       when:
-        - prometheus_web_port is defined
+        - prometheus_port is defined
     # =========================
     # Grafana
     # =========================

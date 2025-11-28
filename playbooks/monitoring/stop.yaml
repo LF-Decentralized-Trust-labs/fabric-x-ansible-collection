@@ -42,7 +42,7 @@
         name: hyperledger.fabricx.prometheus
         tasks_from: stop
       when:
-        - prometheus_web_port is defined
+        - prometheus_port is defined
     # =========================
     # Postgres Exporter
     # =========================

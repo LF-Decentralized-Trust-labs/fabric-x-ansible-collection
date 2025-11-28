@@ -203,13 +203,6 @@ all:
               yugabyte_user: sc_user
               yugabyte_password: sc_secret_pwd
               yugabyte_db: sc_db
-              organization:
-                <<: *Org1
-                fabric_ca_host: fabric-ca-org1
-                role: peer
-                peer:
-                  name: "{{ inventory_hostname }}"
-                  secret: "{{ inventory_hostname }}PWD"
               yugabyte_component_type: standalone
               # Yugabyte Master ports
               yugabyte_master_webserver_port: 7001
@@ -267,7 +260,7 @@ all:
         node-exporter:
           node_exporter_port: 9111
         prometheus:
-          prometheus_web_port: 9090
+          prometheus_port: 9090
         grafana:
           grafana_username: admin
           grafana_password: adminPWD

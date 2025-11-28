@@ -4,17 +4,30 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# prometheus image
+# =========================
+# Prometheus Image
+# =========================
 prometheus_registry_endpoint: "{{ lookup('env', 'PROMETHEUS_REGISTRY_ENDPOINT') or 'docker.io/prom' }}"
 prometheus_image_name: "prometheus"
 prometheus_image_tag: "latest"
 prometheus_image: "{{ prometheus_registry_endpoint }}/{{ prometheus_image_name }}:{{ prometheus_image_tag }}"
 prometheus_container_name: "{{ inventory_hostname }}"
 
-# prometheus paths/locations
+# =========================
+# Paths/Locations
+# =========================
 prometheus_remote_config_dir: "{{ remote_config_dir }}"
 prometheus_container_config_dir: "/etc/prometheus/config"
+prometheus_config_file: prometheus.yaml
+prometheus_web_config_file: web-config.yaml
 
-# vars
-prometheus_web_port: 9090
+# =========================
+# TLS Settings
+# =========================
+prometheus_use_tls: false
+
+# =========================
+# Miscellaneous
+# =========================
+prometheus_port: 9090
 prometheus_scrape_interval: 2s

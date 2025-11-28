@@ -372,4 +372,4 @@ all:
           grafana_password: adminPWD
           grafana_web_port: 3000
         prometheus:
-          prometheus_web_port: 9090
+          prometheus_port: 9090
