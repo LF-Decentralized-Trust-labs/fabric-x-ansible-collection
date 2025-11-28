@@ -331,6 +331,7 @@ all:
         node_exporters:
           vars:
             node_exporter_port: 9111
+            node_exporter_use_tls: true
           hosts:
             node-exporter-1:
               ansible_host: "{{ host_machine_1 }}"
@@ -365,12 +366,12 @@ all:
             node-exporter-16:
               ansible_host: "{{ host_machine_16 }}"
       hosts:
-        node-exporter:
-          node_exporter_port: 9111
         prometheus:
           prometheus_port: 9090
+          prometheus_use_tls: true
         grafana:
           grafana_username: admin
           grafana_password: adminPWD
           grafana_web_port: 3000
           prometheus_host: prometheus
+          grafana_use_tls: true

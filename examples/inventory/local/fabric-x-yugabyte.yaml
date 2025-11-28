@@ -259,10 +259,13 @@ all:
       hosts:
         node-exporter:
           node_exporter_port: 9111
+          node_exporter_use_tls: true
         prometheus:
           prometheus_port: 9090
+          prometheus_use_tls: true
         grafana:
           grafana_username: admin
           grafana_password: adminPWD
           grafana_web_port: 3000
           prometheus_host: prometheus
+          grafana_use_tls: true
