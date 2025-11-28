@@ -10,13 +10,13 @@
       JAEGER_SAMPLER_TYPE: "const"
       JAEGER_SAMPLER_PARAM: "1"
       COLLECTOR_OTLP_ENABLED: "true"
-      ES_INDEX_ROLLOVER_FREQUENCY_SPANS: "hour"
 
 - name: Define Jaeger env variables to connect to ElasticSearch
   vars:
     jaeger_es_env:
       SPAN_STORAGE_TYPE: "elasticsearch"
       ES_SERVER_URLS: "http://{{ hostvars[elasticsearch_host].ansible_host }}:{{ hostvars[elasticsearch_host].elasticsearch_http_port }}"
+      ES_INDEX_ROLLOVER_FREQUENCY_SPANS: "hour"
   ansible.builtin.set_fact:
     jaeger_env: "{{ jaeger_env | combine(jaeger_es_env) }}"
   when:
