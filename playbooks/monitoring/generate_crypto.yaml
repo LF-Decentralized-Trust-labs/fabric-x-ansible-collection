@@ -46,9 +46,24 @@
         tasks_from: crypto/setup
       when:
         - prometheus_port is defined
-    - name: Fetch Postgres Exporter certificates
+    - name: Fetch Prometheus certificates
       ansible.builtin.include_role:
         name: hyperledger.fabricx.prometheus
         tasks_from: crypto/fetch
       when:
         - prometheus_port is defined
+    # =========================
+    # Grafana
+    # =========================
+    - name: Setup Grafana crypto material
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.grafana
+        tasks_from: crypto/setup
+      when:
+        - grafana_web_port is defined
+    - name: Fetch Grafana certificates
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.grafana
+        tasks_from: crypto/fetch
+      when:
+        - grafana_web_port is defined

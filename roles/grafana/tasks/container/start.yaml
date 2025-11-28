@@ -4,21 +4,43 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Set Grafana container environment variables
+  ansible.builtin.set_fact:
+    grafana_env:
+      GF_SECURITY_ADMIN_USER: "{{ grafana_username }}"
+      GF_SECURITY_ADMIN_PASSWORD: "{{ grafana_password }}"
+      GF_SERVER_HTTP_PORT: "{{ grafana_web_port | string }}"
+
+- name: Set Grafana environment variables for TLS
+  vars:
+    grafana_tls_env:
+      GF_SERVER_PROTOCOL: https
+      GF_SERVER_CERT_FILE: "{{ grafana_container_config_dir }}/tls/tls_cert.pem"
+      GF_SERVER_CERT_KEY: "{{ grafana_container_config_dir }}/tls/tls_key.pem"
+  ansible.builtin.set_fact:
+    grafana_env: "{{ grafana_env | combine(grafana_tls_env) }}"
+  when:
+    - grafana_use_tls
+
 - name: Start Grafana container
   vars:
     container_name: "{{ grafana_container_name }}"
     container_image: "{{ grafana_image }}"
-    container_env:
-      GF_SECURITY_ADMIN_USER: "{{ grafana_username }}"
-      GF_SECURITY_ADMIN_PASSWORD: "{{ grafana_password }}"
-      GF_SERVER_HTTP_PORT: "{{ grafana_web_port | string }}"
+    container_env: "{{ grafana_env }}"
     container_ports:
       - "{{ grafana_web_port }}:{{ grafana_web_port }}"
     container_volumes:
       - "{{ grafana_remote_config_dir }}:{{ grafana_container_config_dir }}:Z,ro"
     container_healthcheck_test: >-
       curl -f
+      --silent
+      --show-error
+      {% if grafana_use_tls %}
+      --cacert {{ grafana_container_config_dir }}/tls/tls_cert.pem
+      https://{{ ansible_host }}:{{ grafana_web_port }}/api/health
+      {% else %}
       http://localhost:{{ grafana_web_port }}/api/health
+      {% endif %}
     container_wait_until_running: true
     container_run_as_host_user: true
     container_wait_port: "{{ grafana_web_port }}"
