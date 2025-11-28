@@ -61,19 +61,21 @@
   when:
     - yugabyte_use_tls
 
-- name: Add YugabyteDB Webserver flags for TLS certificates
-  vars:
-    yugabyte_webserver_tls_flags:
-      - webserver_ca_certificate_file=/var/tls/ca.crt
-      - webserver_certificate_file=/var/tls/node.{{ ansible_host }}.crt
-      - webserver_private_key_file=/var/tls/node.{{ ansible_host }}.key
-      - webserver_redirect_http_to_https=true
-  ansible.builtin.set_fact:
-    yugabyte_master_flags: "{{ yugabyte_master_flags + yugabyte_webserver_tls_flags }}"
-    yugabyte_tablet_flags: "{{ yugabyte_tablet_flags + yugabyte_webserver_tls_flags }}"
-  when:
-    - yugabyte_webserver_use_tls
-    - ansible_facts.os_family == 'Linux' # For some reason, they don't work on macOS. Thus we add them only if we are on Linux.
+# Cannot run yugabyted with TLS on the webserver. This is a current limitation
+# due to some http hardcoded URLs within the yugabyted script:
+# https://github.com/yugabyte/yugabyte-db/issues/29525
+# - name: Add YugabyteDB Webserver flags for TLS certificates
+#   vars:
+#     yugabyte_webserver_tls_flags:
+#       - webserver_ca_certificate_file=/var/tls/ca.crt
+#       - webserver_certificate_file=/var/tls/node.{{ ansible_host }}.crt
+#       - webserver_private_key_file=/var/tls/node.{{ ansible_host }}.key
+#       - webserver_redirect_http_to_https=true
+#   ansible.builtin.set_fact:
+#     yugabyte_master_flags: "{{ yugabyte_master_flags + yugabyte_webserver_tls_flags }}"
+#     yugabyte_tablet_flags: "{{ yugabyte_tablet_flags + yugabyte_webserver_tls_flags }}"
+#   when:
+#     - yugabyte_webserver_use_tls
 
 - name: Start standalone Yugabyte container
   vars:

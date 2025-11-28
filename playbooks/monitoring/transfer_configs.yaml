@@ -122,13 +122,19 @@
             | map(attribute='inventory_hostname')
             | list
           }}
+        # TLS enabled on the standalone YugabyteDB does not run also the webserver interface with TLS
+        current_yugabyte_cluster_webserver_use_tls: >-
+          {{
+            (current_yugabyte_cluster_ref_host.yugabyte_webserver_use_tls | default(current_yugabyte_cluster_ref_host.yugabyte_use_tls | default(false)))
+            and (current_yugabyte_cluster_ref_host.yugabyte_component_type != 'standalone')
+          }}
         yugabyte_scrape_service:
           job_name: yugabytedb.cluster-{{ current_yugabyte_cluster_id }}
-          use_tls: "{{ current_yugabyte_cluster_ref_host.yugabyte_use_tls | default(false) }}"
+          use_tls: "{{ current_yugabyte_cluster_webserver_use_tls }}"
           tls_ca_file: >-
             {{
               fetched_artifacts_dir ~ '/crypto/peerOrganizations/' ~ current_yugabyte_cluster_ref_host.organization.domain ~ '/msp/tlscacerts/tlsca.' ~ current_yugabyte_cluster_ref_host.organization.domain ~ '-cert.pem'
-              if (current_yugabyte_cluster_ref_host.yugabyte_use_tls is defined and current_yugabyte_cluster_ref_host.yugabyte_use_tls)
+              if current_yugabyte_cluster_webserver_use_tls
               else ''
             }}
           relabel_configs:
@@ -225,12 +231,6 @@
       loop_control:
         loop_var: current_postgres_exporter
         label: "{{ current_postgres_exporter }}"
-      when:
-        - prometheus_web_port is defined
-    - name: Retrieve the Node Exporter hosts
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.node_exporter
-        tasks_from: get_host_set
       when:
         - prometheus_web_port is defined
     - name: Add Prometheus scrape services for Node Exporters
