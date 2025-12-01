@@ -22,8 +22,7 @@
     dest: "{{ postgres_exporter_remote_config_dir }}/{{ postgres_exporter_web_config_file }}"
     mode: "0o644"
   when:
-    - hostvars[postgres_db_host].postgres_use_tls is defined
-    - hostvars[postgres_db_host].postgres_use_tls
+    - postgres_exporter_use_tls
 
 - name: Transfer the PostgresDB TLS certificate
   ansible.builtin.copy:

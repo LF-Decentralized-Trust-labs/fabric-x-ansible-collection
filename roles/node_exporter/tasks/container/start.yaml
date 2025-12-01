@@ -29,6 +29,7 @@
       http://localhost:{{ node_exporter_port }}/metrics
       {% endif %}
     container_wait_until_running: true
+    container_run_as_host_user: true
     container_wait_port: "{{ node_exporter_port }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
