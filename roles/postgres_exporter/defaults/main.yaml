@@ -25,3 +25,5 @@ postgres_exporter_web_config_file: web-config.yaml
 # TLS settings
 # =========================
 postgres_exporter_use_tls: false
+postgres_exporter_tls_private_key_file: tls_key.pem
+postgres_exporter_tls_cert_file: tls_cert.pem

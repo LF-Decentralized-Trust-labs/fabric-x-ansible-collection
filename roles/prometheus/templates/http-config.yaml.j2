@@ -7,4 +7,4 @@
 # CA Certificate used by promtool to verify TLS authenticity from
 # the server.
 tls_config:
-  ca_file: {{ prometheus_container_config_dir }}/tls/tls_cert.pem
+  ca_file: {{ prometheus_container_config_dir }}/tls/{{ prometheus_tls_cert_file }}
