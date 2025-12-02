@@ -28,14 +28,16 @@
       - "{{ postgres_exporter_port }}:{{ postgres_exporter_port }}"
     container_volumes:
       - "{{ postgres_exporter_remote_config_dir }}:{{ postgres_exporter_container_config_dir }}:Z"
+    # There is a problem using `wget` for healthcheck when running with TLS:
+    # https://github.com/docker-library/busybox/issues/162
+    # Since `postgres-exporter` uses `busybox` as base image, wget is not working as expected.
+    # Thus, we fallback to `nc` when running with TLS until the issue gets fixed:
+    # https://github.com/prometheus/node_exporter/issues/3496
     container_healthcheck_test: >-
-      wget -q
-      --spider
-      {% if postgres_exporter_use_tls %}
-      --no-check-certificate
-      https://localhost:{{ postgres_exporter_port }}/metrics
+      {% if node_exporter_use_tls %}
+      nc -z -w 3 localhost {{ postgres_exporter_port }}
       {% else %}
-      http://localhost:{{ postgres_exporter_port }}/metrics
+      wget -q --spider http://localhost:{{ postgres_exporter_port }}/metrics
       {% endif %}
     container_wait_until_running: true
     container_wait_port: "{{ postgres_exporter_port }}"
