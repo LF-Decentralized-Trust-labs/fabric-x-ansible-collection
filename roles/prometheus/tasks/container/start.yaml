@@ -29,7 +29,7 @@
       healthy
       {% if prometheus_use_tls %}
       --http.config.file={{ prometheus_container_config_dir }}/{{ prometheus_http_config_file }}
-      --url https://localhost:{{ prometheus_port }}
+      --url https://{{ ansible_host }}:{{ prometheus_port }}
       {% else %}
       --url http://localhost:{{ prometheus_port }}
       {% endif %}
