@@ -6,7 +6,7 @@
 
 - name: Clean ElasticSearch TLS key
   vars:
-    container_volume_path: "{{ elasticsearch_remote_config_dir }}/tls/tls_key.pem"
+    container_volume_path: "{{ elasticsearch_remote_config_dir }}/tls/{{ elasticsearch_tls_private_key_file }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: volume/rm

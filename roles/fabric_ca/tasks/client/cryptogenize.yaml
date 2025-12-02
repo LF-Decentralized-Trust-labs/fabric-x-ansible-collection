@@ -37,7 +37,7 @@
 - name: Copy TLS CA certificate as cryptogen-alike location
   ansible.builtin.copy:
     src: "{{ fabric_ca_tlsca_pem_files.files[0].path }}"
-    dest: "{{ fabric_ca_msp_dir }}/{{ fabric_ca_cryptogenize_tls_ca_cert_name }}"
+    dest: "{{ fabric_ca_msp_dir }}/{{ fabric_ca_cryptogenize_tls_ca_cert_file }}"
     remote_src: true
     mode: "preserve"
   when:
@@ -59,7 +59,7 @@
 - name: Copy TLS cert as cryptogen-alike location
   ansible.builtin.copy:
     src: "{{ fabric_ca_signcert_pem_files.files[0].path }}"
-    dest: "{{ fabric_ca_msp_dir }}/{{ fabric_ca_cryptogenize_tls_cert_name }}"
+    dest: "{{ fabric_ca_msp_dir }}/{{ fabric_ca_cryptogenize_tls_cert_file }}"
     remote_src: true
     mode: "preserve"
   when:
@@ -81,7 +81,7 @@
 - name: Copy TLS private key as cryptogen-alike location
   ansible.builtin.copy:
     src: "{{ fabric_ca_tls_privkey_files.files[0].path }}"
-    dest: "{{ fabric_ca_msp_dir }}/{{ fabric_ca_cryptogenize_tls_key_name }}"
+    dest: "{{ fabric_ca_msp_dir }}/{{ fabric_ca_cryptogenize_tls_key_file }}"
     remote_src: true
     mode: "preserve"
   when:

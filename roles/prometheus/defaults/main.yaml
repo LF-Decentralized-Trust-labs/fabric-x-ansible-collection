@@ -26,6 +26,8 @@ prometheus_http_config_file: http-config.yaml
 # TLS Settings
 # =========================
 prometheus_use_tls: false
+prometheus_tls_private_key_file: server.key
+prometheus_tls_cert_file: server.crt
 
 # =========================
 # Miscellaneous

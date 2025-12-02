@@ -23,3 +23,5 @@ elasticsearch_container_config_dir: "/usr/share/elasticsearch"
 # TLS Settings
 # =========================
 elasticsearch_use_tls: false
+elasticsearch_tls_private_key_file: server.key
+elasticsearch_tls_cert_file: server.crt

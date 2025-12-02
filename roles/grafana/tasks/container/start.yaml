@@ -15,8 +15,8 @@
   vars:
     grafana_tls_env:
       GF_SERVER_PROTOCOL: https
-      GF_SERVER_CERT_FILE: "{{ grafana_container_config_dir }}/tls/tls_cert.pem"
-      GF_SERVER_CERT_KEY: "{{ grafana_container_config_dir }}/tls/tls_key.pem"
+      GF_SERVER_CERT_KEY: "{{ grafana_container_config_dir }}/tls/{{ grafana_tls_private_key_file }}"
+      GF_SERVER_CERT_FILE: "{{ grafana_container_config_dir }}/tls/{{ grafana_tls_cert_file }}"
   ansible.builtin.set_fact:
     grafana_env: "{{ grafana_env | combine(grafana_tls_env) }}"
   when:
@@ -36,7 +36,7 @@
       --silent
       --show-error
       {% if grafana_use_tls %}
-      --cacert {{ grafana_container_config_dir }}/tls/tls_cert.pem
+      --cacert {{ grafana_container_config_dir }}/tls/{{ grafana_tls_cert_file }}
       https://{{ ansible_host }}:{{ grafana_web_port }}/api/health
       {% else %}
       http://localhost:{{ grafana_web_port }}/api/health

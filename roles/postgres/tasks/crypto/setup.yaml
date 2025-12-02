@@ -44,3 +44,19 @@
     - organization.role is defined
     - organization.role == 'peer'
     - organization.fabric_ca_host is defined
+
+# =========================
+# Permissions
+# =========================
+- name: Set right permissions for TLS private key
+  vars:
+    container_volume_path: "{{ postgres_remote_config_dir }}/tls/{{ postgres_tls_private_key_file }}"
+    container_volume_mode: "0o600"
+    container_volume_uid: "999"
+    container_volume_gid: "999"
+    container_volume_type: file
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: volume/create
+  when:
+    - postgres_use_tls

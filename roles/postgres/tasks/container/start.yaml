@@ -28,19 +28,6 @@
     name: hyperledger.fabricx.container
     tasks_from: volume/create
 
-- name: Set right permissions for TLS private key
-  vars:
-    container_volume_path: "{{ postgres_remote_config_dir }}/tls/tls_key.pem"
-    container_volume_mode: "0o600"
-    container_volume_uid: "999"
-    container_volume_gid: "999"
-    container_volume_type: file
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.container
-    tasks_from: volume/create
-  when:
-    - postgres_use_tls
-
 - name: Start Postgres DB Container
   vars:
     container_name: "{{ postgres_container_name }}"
@@ -55,8 +42,8 @@
       -c port={{ postgres_port }}
       {% if postgres_use_tls %}
       -c ssl=on
-      -c ssl_key_file=/var/lib/postgresql/tls/tls_key.pem
-      -c ssl_cert_file=/var/lib/postgresql/tls/tls_cert.pem
+      -c ssl_key_file=/var/lib/postgresql/tls/{{ postgres_tls_private_key_file }}
+      -c ssl_cert_file=/var/lib/postgresql/tls/{{ postgres_tls_cert_file }}
       {% endif %}
       {% if postgres_extra_cmd_opts is defined %}
       {{ postgres_extra_cmd_opts }}

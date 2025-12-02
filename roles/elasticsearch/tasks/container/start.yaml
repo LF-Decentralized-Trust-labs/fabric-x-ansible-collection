@@ -35,24 +35,11 @@
   when:
     - elasticsearch_use_tls
 
-- name: Adjust Elasticsearch TLS private key permissions
-  vars:
-    container_volume_path: "{{ elasticsearch_remote_config_dir }}/tls/tls_key.pem"
-    container_volume_mode: "0o600"
-    container_volume_uid: "1000"
-    container_volume_gid: "0"
-    container_volume_type: file
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.container
-    tasks_from: volume/create
-  when:
-    - elasticsearch_use_tls
-
 - name: Set ElasticSearch env variables to enable TLS
   vars:
     elasticsearch_tls_env:
-      xpack.security.http.ssl.key: "{{ elasticsearch_container_config_dir }}/config/certs/tls_key.pem"
-      xpack.security.http.ssl.certificate: "{{ elasticsearch_container_config_dir }}/config/certs/tls_cert.pem"
+      xpack.security.http.ssl.key: "{{ elasticsearch_container_config_dir }}/config/certs/{{ elasticsearch_tls_private_key_file }}"
+      xpack.security.http.ssl.certificate: "{{ elasticsearch_container_config_dir }}/config/certs/{{ elasticsearch_tls_cert_file }}"
       xpack.security.authc.anonymous.username: anonymous
       xpack.security.authc.anonymous.roles: superuser
   ansible.builtin.set_fact:
@@ -74,7 +61,7 @@
       --silent
       --show-error
       {% if elasticsearch_use_tls %}
-      --cacert {{ elasticsearch_container_config_dir }}/config/certs/tls_cert.pem
+      --cacert {{ elasticsearch_container_config_dir }}/config/certs/{{ elasticsearch_tls_cert_file }}
       https://{{ ansible_host }}:{{ elasticsearch_http_port }}/_cluster/health
       {% else %}
       http://localhost:{{ elasticsearch_http_port }}/_cluster/health
