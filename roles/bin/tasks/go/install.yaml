@@ -6,8 +6,9 @@
 
 - name: Check that the go binary package has been defined
   ansible.builtin.fail:
-    msg: "No binary name has been defined, but required to build the binary. Set it via 'bin_go_package'."
-  when: bin_go_package is not defined
+    msg: "No binary package has been defined, but required to install the binary. Set it via 'bin_go_package'."
+  when:
+    - bin_go_package is not defined
 
 - name: Set CC for cross-compilation on macOS with CGO_ENABLED
   ansible.builtin.set_fact:

@@ -6,13 +6,13 @@
 
 - name: Check that the path for the OpenSSL private key has been defined
   ansible.builtin.fail:
-    msg: "No private key path has been defined, but required to build the binary. Set it via 'openssl_private_key_path'."
+    msg: "No private key path has been defined. Set it via 'openssl_private_key_path'."
   when:
     - openssl_private_key_path is not defined
 
 - name: Check that the path for the OpenSSL public key has been defined
   ansible.builtin.fail:
-    msg: "No certificate path has been defined, but required to build the binary. Set it via 'openssl_cert_path'."
+    msg: "No certificate path has been defined. Set it via 'openssl_cert_path'."
   when:
     - openssl_cert_path is not defined
 
@@ -50,8 +50,8 @@
     -days {{ openssl_cert_duration }}
     -config {{ openssl_remote_config_dir }}/openssl.conf
     -nodes
-    {% if openssl_pkey_opt is defined %}
-    -pkeyopt {{ openssl_pkey_opt }}
+    {% if openssl_key_opt is defined %}
+    -pkeyopt {{ openssl_key_opt }}
     {% endif %}
   args:
     creates: "{{ openssl_cert_path }}"

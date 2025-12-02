@@ -13,7 +13,8 @@ openssl_clean_after_gen: false
 # =========================
 # OpenSSL settings
 # =========================
-openssl_key_type: "rsa:4096"
+openssl_key_alg: RSA
+openssl_key_type: rsa:4096
 openssl_cert_duration: 365
 
 # =========================
