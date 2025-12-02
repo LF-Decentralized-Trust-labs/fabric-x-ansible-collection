@@ -6,7 +6,7 @@
 
 - name: Clean Elasticsearch volume
   vars:
-    container_volume_path: "{{ elasticsearch_data_dir }}"
+    container_volume_path: "{{ elasticsearch_remote_config_dir }}/data"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: volume/rm

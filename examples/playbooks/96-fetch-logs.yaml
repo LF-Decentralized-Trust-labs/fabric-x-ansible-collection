@@ -4,15 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Create folder for the logs to fetch
-  hosts: localhost
-  tasks:
-    - name: Create folder for the fetched logs
-      ansible.builtin.file:
-        path: "{{ out_log_dir }}"
-        state: directory
-        mode: "0o750"
-
 - name: Fetch Fabric CA server logs
   ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.fetch_logs
 

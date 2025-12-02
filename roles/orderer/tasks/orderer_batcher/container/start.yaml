@@ -8,11 +8,11 @@
   vars:
     container_name: "{{ orderer_container_name }}"
     container_image: "{{ orderer_image }}"
-    container_command: "batcher --config={{ orderer_docker_config_dir }}/{{ orderer_config_file }}"
+    container_command: "batcher --config={{ orderer_container_config_dir }}/{{ orderer_config_file }}"
     container_ports:
       - "{{ orderer_rpc_port }}:{{ orderer_rpc_port }}"
     container_volumes:
-      - "{{ orderer_remote_config_dir }}:{{ orderer_docker_config_dir }}:Z"
+      - "{{ orderer_remote_config_dir }}:{{ orderer_container_config_dir }}:Z"
     container_wait_until_running: true
     container_wait_port: "{{ orderer_rpc_port }}"
     container_run_as_host_user: true

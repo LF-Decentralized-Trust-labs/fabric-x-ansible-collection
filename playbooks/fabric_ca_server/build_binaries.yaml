@@ -6,12 +6,20 @@
 
 - name: Build the Fabric CA binaries
   hosts: localhost
+  vars:
+    targeted_hosts: >-
+      {{
+        groups[target_hosts]
+        if target_hosts in groups
+        else [target_hosts]
+      }}
   tasks:
     - name: Install the Fabric CA server binaries for the not dockerized hosts
       vars:
         fabric_ca_server_instances: >-
           {{
-            groups[target_hosts | default('fabric_ca_servers')]
+            targeted_hosts
+            | default(groups['fabric_ca_servers'])
             | intersect(groups['fabric_ca_servers'])
             | map('extract', hostvars)
             | selectattr("fabric_ca_server_use_bin", 'defined')

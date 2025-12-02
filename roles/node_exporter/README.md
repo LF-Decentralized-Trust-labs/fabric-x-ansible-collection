@@ -7,13 +7,74 @@ The role allows to run Node Exporter as **container only** (binary is not curren
 ## Table of Contents <!-- omit in toc -->
 
 - [Tasks](#tasks)
+  - [crypto/setup](#cryptosetup)
+  - [crypto/fetch](#cryptofetch)
+  - [crypto/rm](#cryptorm)
+  - [config/transfer](#configtransfer)
+  - [config/rm](#configrm)
   - [start](#start)
   - [stop](#stop)
   - [teardown](#teardown)
+  - [wipe](#wipe)
   - [fetch_logs](#fetch_logs)
   - [get_host_set](#get_host_set)
 
 ## Tasks
+
+### crypto/setup
+
+The task `crypto/setup` allows to generate the crypto material needed to run Node Exporter with TLS using [openssl](../openssl/README.md):
+
+```yaml
+- name: Setup the crypto material for Node Exporter
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.node_exporter
+    tasks_from: crypto/setup
+```
+
+### crypto/fetch
+
+The task `crypto/fetch` fetches the TLS certificate of a Node Exporter running with TLS:
+
+```yaml
+- name: Fetch the TLS certificate of Node Exporter
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.node_exporter
+    tasks_from: crypto/fetch
+```
+
+### crypto/rm
+
+The task `crypto/rm` removes the crypto material generated for Node Exporter:
+
+```yaml
+- name: Remove the Node Exporter crypto files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.node_exporter
+    tasks_from: crypto/rm
+```
+
+### config/transfer
+
+The task `config/transfer` transfers the Node Exporter configuration files on the remote node:
+
+```yaml
+- name: Transfer the Node Exporter configuration files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.node_exporter
+    tasks_from: config/transfer
+```
+
+### config/rm
+
+The task `config/rm` removes the Node Exporter configuration files on the remote node:
+
+```yaml
+- name: Remove the Node Exporter configuration files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.node_exporter
+    tasks_from: config/rm
+```
 
 ### start
 
@@ -46,6 +107,17 @@ The task `teardown` allows to shut down Node Exporter deleting the associated co
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: teardown
+```
+
+### wipe
+
+The task `wipe` allows to shut down and wipe all configuration files of a Node Exporter.
+
+```yaml
+- name: Wipe the Node Exporter
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.node_exporter
+    tasks_from: wipe
 ```
 
 ### fetch_logs

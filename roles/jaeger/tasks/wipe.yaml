@@ -8,3 +8,8 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: container/rm
+
+- name: Remove Jaeger configuration files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.jaeger
+    tasks_from: config/rm

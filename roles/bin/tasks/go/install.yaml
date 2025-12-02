@@ -6,12 +6,13 @@
 
 - name: Check that the go binary package has been defined
   ansible.builtin.fail:
-    msg: "No binary name has been defined, but required to build the binary. Set it via 'bin_go_package'."
-  when: bin_go_package is not defined
+    msg: "No binary package has been defined, but required to install the binary. Set it via 'bin_go_package'."
+  when:
+    - bin_go_package is not defined
 
 - name: Set CC for cross-compilation on macOS with CGO_ENABLED
   ansible.builtin.set_fact:
-    go_cc_compiler: x86_64-unknown-linux-gnu-gcc
+    bin_go_cc_compiler: x86_64-unknown-linux-gnu-gcc
   when:
     - ansible_facts.system == 'Darwin'
     - bin_cgo_enabled
@@ -25,6 +26,6 @@
     GOOS: "{{ bin_target_os }}"
     GOARCH: "{{ bin_target_arch }}"
     CGO_ENABLED: "{{ 1 if bin_cgo_enabled else 0 }}"
-    CC: "{{ go_cc_compiler | default('') if bin_cgo_enabled else '' }}"
-  register: result
-  changed_when: result.rc != 0
+    CC: "{{ bin_go_cc_compiler | default('') if bin_cgo_enabled else '' }}"
+  register: bin_go_install_result
+  changed_when: bin_go_install_result.rc != 0

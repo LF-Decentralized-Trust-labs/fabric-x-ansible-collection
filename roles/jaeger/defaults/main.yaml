@@ -4,14 +4,24 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# jaeger image
+# =========================
+# Jaeger Image
+# =========================
 jaeger_registry_endpoint: "{{ lookup('env', 'JAEGER_REGISTRY_ENDPOINT') or 'docker.io/jaegertracing' }}"
 jaeger_image_name: "all-in-one"
 jaeger_image_tag: "latest"
 jaeger_image: "{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_image_tag }}"
 jaeger_container_name: "{{ inventory_hostname }}"
 
-# jaeger ports
+# =========================
+# Paths/Locations
+# =========================
+jaeger_remote_config_dir: "{{ remote_config_dir }}"
+jaeger_container_config_dir: "/var/config"
+
+# =========================
+# Jaeger Default Ports
+# =========================
 jaeger_ui_port: 16686
 jaeger_admin_port: 14269
 jaeger_http_server_port: 14268

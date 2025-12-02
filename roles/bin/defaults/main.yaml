@@ -4,34 +4,50 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# Bin config location/paths
-bin_build_dir: "{{ out_build_dir }}/bin"
-bin_output_dir: "{{ bin_build_dir }}/{{ bin_target_os }}_os/{{ bin_target_arch }}_arch"
-bin_remote_dir: "{{ deploy_dir }}/{{ inventory_hostname }}/bin"
-bin_remote_logs_dir: "{{ deploy_dir }}/{{ inventory_hostname }}/logs"
-bin_remote_logs_file: "logs.txt"
-bin_logs_dir: "{{ out_log_dir }}"
-bin_logs_file: "{{ inventory_hostname }}_logs.txt"
-
-# Bin misc vars
+# =========================
+# Bin Locations/Paths
+# =========================
+bin_build_dir: "{{ control_node_dir }}/bin"
 bin_name: "{{ inventory_hostname }}"
+bin_output_dir: "{{ bin_build_dir }}/{{ bin_target_os }}_os/{{ bin_target_arch }}_arch"
+bin_remote_dir: "{{ remote_node_dir }}/bin"
+
+# =========================
+# Bin Logs
+# =========================
+bin_remote_logs_dir: "{{ remote_node_dir }}/logs"
+bin_remote_logs_file: "logs.txt"
+bin_fetched_logs_dir: "{{ fetched_artifacts_dir }}/{{ bin_name }}"
+bin_fetched_logs_file: "logs.txt"
+bin_collect_logs: true
+bin_omit_logs: false
+
+# =========================
+# Bin Build Opts
+# =========================
 bin_target_os: ""
 bin_target_arch: ""
-bin_env: {}
 bin_cgo_enabled: false
-bin_collect_logs: true
-bin_run_with_tmux: true
 bin_flag: "use_bin"
+
+# =========================
+# Bin Run Opts
+# =========================
+bin_env: {}
+bin_run_with_tmux: true
 bin_chdir: null
-
-# env for wait binary
-bin_omit_logs: false
-bin_wait_until_running: false
 bin_ignore_errors: false
-bin_wait_delay: 1
-bin_wait_timeout: 60
 
-# bin rerun options
+# =========================
+# Bin Rerun Opts
+# =========================
 bin_run_until: null
 bin_run_delay: 0
 bin_run_retries: 0
+
+# =========================
+# Bin Wait Opts
+# =========================
+bin_wait_until_running: false
+bin_wait_delay: 1
+bin_wait_timeout: 60

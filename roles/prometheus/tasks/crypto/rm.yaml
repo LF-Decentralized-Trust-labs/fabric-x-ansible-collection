@@ -1,0 +1,12 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Prometheus TLS directory
+  ansible.builtin.file:
+    path: "{{ prometheus_remote_config_dir }}/tls"
+    state: absent
+  when:
+    - prometheus_use_tls

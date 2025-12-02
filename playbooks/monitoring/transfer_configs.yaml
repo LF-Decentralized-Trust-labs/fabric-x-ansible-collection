@@ -7,47 +7,30 @@
 - name: Transfer Monitoring configuration files
   hosts: "{{ target_hosts | default('monitoring') }}:&monitoring"
   tasks:
-    - name: Create a list of hosts where to run node_exporter
-      vars:
-        hostname_for_node_exporter: >-
-          {{
-            groups['all']
-            | map('extract', hostvars)
-            | selectattr('ansible_host', '==', item)
-            | selectattr('node_exporter_port', 'defined')
-            | map(attribute='inventory_hostname')
-            | sort
-            | first
-          }}
-      ansible.builtin.set_fact:
-        node_exporter_hosts: "{{ node_exporter_hosts | default([]) + [hostname_for_node_exporter] }}"
-      loop: >-
-        {{
-          groups['all']
-          | map('extract', hostvars, 'ansible_host')
-          | unique
-          | list
-        }}
+    # =========================
+    # Node Exporter
+    # =========================
+    - name: Transfer the Node Exporter configuration files
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.node_exporter
+        tasks_from: config/transfer
       when:
-        - prometheus_web_port is defined
-    - name: Transfer the Prometheus configuration files
-      vars:
+        - node_exporter_port is defined
+    # =========================
+    # Postgres Exporter
+    # =========================
+    - name: Transfer the Postgres Exporter configuration files
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres_exporter
+        tasks_from: config/transfer
+      when:
+        - postgres_exporter_port is defined
+    # =========================
+    # Prometheus
+    # =========================
+    - name: Define Prometheus scrape services
+      ansible.builtin.set_fact:
         prometheus_scrape_services:
-          - job_name: node_exporter
-            targets:
-              - hosts: "{{ node_exporter_hosts }}"
-                port_to_scrape: node_exporter_port
-          - job_name: postgres_exporters
-            targets:
-              - hosts: >-
-                  {{
-                    groups['all']
-                    | map('extract', hostvars)
-                    | selectattr('postgres_exporter_port', 'defined')
-                    | map(attribute='inventory_hostname')
-                    | list
-                  }}
-                port_to_scrape: postgres_exporter_port
           - job_name: sidecar_service
             targets:
               - hosts: >-
@@ -108,113 +91,182 @@
                     | default([])
                   }}
                 port_to_scrape: prometheus_exporter_port
-          - job_name: yugabytedb
-            relabel_configs:
-              - target_label: "node_prefix"
-                replacement: "cluster-1"
-            metric_relabel_configs:
-              - source_labels:
-                  - __name__
-                regex: "(.*)"
-                target_label: saved_name
-                replacement: "$1"
-              - source_labels:
-                  - __name__
-                regex: "handler_latency_(yb_[^_]*)_([^_]*)_([^_]*)(.*)"
-                target_label: server_type
-                replacement: "$1"
-              - source_labels:
-                  - __name__
-                regex: "handler_latency_(yb_[^_]*)_([^_]*)_([^_]*)(.*)"
-                target_label: service_type
-                replacement: "$2"
-              - source_labels:
-                  - __name__
-                regex: "handler_latency_(yb_[^_]*)_([^_]*)_([^_]*)(_sum|_count)?"
-                target_label: service_method
-                replacement: "$3"
-              - source_labels:
-                  - __name__
-                regex: "handler_latency_(yb_[^_]*)_([^_]*)_([^_]*)(_sum|_count)?"
-                target_label: __name__
-                replacement: "rpc_latency$4"
-            prometheus_metrics_path: /prometheus-metrics
-            targets:
-              - hosts: >-
-                  {{
-                    groups['fabric_x_committer']
-                    | default([])
-                    | map('extract', hostvars)
-                    | selectattr('yugabyte_component_type', 'defined')
-                    | selectattr('yugabyte_component_type', '==', 'master')
-                    | map(attribute='inventory_hostname')
-                    | list
-                  }}
-                port_to_scrape: yugabyte_master_webserver_port
-                label:
-                  group: yb-master
-                  export_type: master_export
-              - hosts: >-
-                  {{
-                    groups['fabric_x_committer']
-                    | default([])
-                    | map('extract', hostvars)
-                    | selectattr('yugabyte_component_type', 'defined')
-                    | selectattr('yugabyte_component_type', '==', 'tablet')
-                    | map(attribute='inventory_hostname')
-                    | list
-                  }}
-                port_to_scrape: yugabyte_tablet_webserver_port
-                label:
-                  group: yb-tserver
-                  export_type: tserver_export
-              - hosts: >-
-                  {{
-                    groups['fabric_x_committer']
-                    | default([])
-                    | map('extract', hostvars)
-                    | selectattr('yugabyte_component_type', 'defined')
-                    | selectattr('yugabyte_component_type', '==', 'tablet')
-                    | map(attribute='inventory_hostname')
-                    | list
-                  }}
-                port_to_scrape: yugabyte_tablet_pgsql_web_port
-                label:
-                  group: ysql
-                  export_type: ysql_export
-              - hosts: >-
-                  {{
-                    groups['fabric_x_committer']
-                    | default([])
-                    | map('extract', hostvars)
-                    | selectattr('yugabyte_component_type', 'defined')
-                    | selectattr('yugabyte_component_type', '==', 'tablet')
-                    | map(attribute='inventory_hostname')
-                    | list
-                  }}
-                port_to_scrape: yugabyte_tablet_cql_web_port
-                label:
-                  group: ycql
-                  export_type: cql_export
-              - hosts: >-
-                  {{
-                    groups['fabric_x_committer']
-                    | default([])
-                    | map('extract', hostvars)
-                    | selectattr('yugabyte_component_type', 'defined')
-                    | selectattr('yugabyte_component_type', '==', 'tablet')
-                    | map(attribute='inventory_hostname')
-                    | list
-                  }}
-                port_to_scrape: yugabyte_tablet_cql_web_port
-                label:
-                  group: yedis
-                  export_type: redis_export
+      when:
+        - prometheus_port is defined
+    - name: Add Prometheus scrape services for Yugabyte clusters
+      vars:
+        current_yugabyte_cluster: >-
+          {{
+            groups['all']
+            | map('extract', hostvars)
+            | selectattr('yugabyte_cluster_id', 'defined')
+            | selectattr('yugabyte_cluster_id', '==', current_yugabyte_cluster_id)
+            | selectattr('yugabyte_component_type', 'defined')
+          }}
+        current_yugabyte_cluster_ref_host: >-
+          {{
+            current_yugabyte_cluster
+            | first
+          }}
+        current_yugabyte_cluster_masters: >-
+          {{
+            current_yugabyte_cluster
+            | selectattr('yugabyte_component_type', 'match', 'master|standalone')
+            | map(attribute='inventory_hostname')
+            | list
+          }}
+        current_yugabyte_cluster_tablets: >-
+          {{
+            current_yugabyte_cluster
+            | selectattr('yugabyte_component_type', 'match', 'tablet|standalone')
+            | map(attribute='inventory_hostname')
+            | list
+          }}
+        # TLS enabled on the standalone YugabyteDB does not run also the webserver interface with TLS
+        current_yugabyte_cluster_webserver_use_tls: >-
+          {{
+            (current_yugabyte_cluster_ref_host.yugabyte_webserver_use_tls | default(current_yugabyte_cluster_ref_host.yugabyte_use_tls | default(false)))
+            and (current_yugabyte_cluster_ref_host.yugabyte_component_type != 'standalone')
+          }}
+        yugabyte_scrape_service:
+          job_name: yugabytedb.cluster-{{ current_yugabyte_cluster_id }}
+          use_tls: "{{ current_yugabyte_cluster_webserver_use_tls }}"
+          tls_ca_file: >-
+            {{
+              fetched_artifacts_dir ~ '/crypto/peerOrganizations/' ~ current_yugabyte_cluster_ref_host.organization.domain ~ '/msp/tlscacerts/tlsca.' ~ current_yugabyte_cluster_ref_host.organization.domain ~ '-cert.pem'
+              if current_yugabyte_cluster_webserver_use_tls
+              else ''
+            }}
+          relabel_configs:
+            - target_label: "node_prefix"
+              replacement: "cluster-{{ current_yugabyte_cluster_id }}"
+          metric_relabel_configs:
+            - source_labels:
+                - __name__
+              regex: "(.*)"
+              target_label: saved_name
+              replacement: "$1"
+            - source_labels:
+                - __name__
+              regex: "handler_latency_(yb_[^_]*)_([^_]*)_([^_]*)(.*)"
+              target_label: server_type
+              replacement: "$1"
+            - source_labels:
+                - __name__
+              regex: "handler_latency_(yb_[^_]*)_([^_]*)_([^_]*)(.*)"
+              target_label: service_type
+              replacement: "$2"
+            - source_labels:
+                - __name__
+              regex: "handler_latency_(yb_[^_]*)_([^_]*)_([^_]*)(_sum|_count)?"
+              target_label: service_method
+              replacement: "$3"
+            - source_labels:
+                - __name__
+              regex: "handler_latency_(yb_[^_]*)_([^_]*)_([^_]*)(_sum|_count)?"
+              target_label: __name__
+              replacement: "rpc_latency$4"
+          prometheus_metrics_path: /prometheus-metrics
+          targets:
+            - hosts: "{{ current_yugabyte_cluster_masters }}"
+              port_to_scrape: yugabyte_master_webserver_port
+              label:
+                group: yb-master
+                export_type: master_export
+            - hosts: "{{ current_yugabyte_cluster_tablets }}"
+              port_to_scrape: yugabyte_tablet_webserver_port
+              label:
+                group: yb-tserver
+                export_type: tserver_export
+            - hosts: "{{ current_yugabyte_cluster_tablets }}"
+              port_to_scrape: yugabyte_tablet_pgsql_web_port
+              label:
+                group: ysql
+                export_type: ysql_export
+            - hosts: "{{ current_yugabyte_cluster_tablets }}"
+              port_to_scrape: yugabyte_tablet_cql_web_port
+              label:
+                group: ycql
+                export_type: cql_export
+            - hosts: "{{ current_yugabyte_cluster_tablets }}"
+              port_to_scrape: yugabyte_tablet_cql_web_port
+              label:
+                group: yedis
+                export_type: redis_export
+      ansible.builtin.set_fact:
+        prometheus_scrape_services: "{{ prometheus_scrape_services + [yugabyte_scrape_service] }}"
+      loop: >-
+        {{
+          groups['all']
+          | map('extract', hostvars)
+          | selectattr('yugabyte_component_type', 'defined')
+          | selectattr('yugabyte_cluster_id', 'defined')
+          | map(attribute='yugabyte_cluster_id')
+          | list
+          | unique
+        }}
+      loop_control:
+        loop_var: current_yugabyte_cluster_id
+        label: "yugabyte-cluster:{{ current_yugabyte_cluster_id }}"
+      when:
+        - prometheus_port is defined
+    - name: Add Prometheus scrape services for Postgres Exporters
+      vars:
+        postgres_exporter_scrape_service:
+          job_name: "postgres_exporter.{{ current_postgres_exporter }}"
+          use_tls: "{{ hostvars[current_postgres_exporter].postgres_exporter_use_tls | default(false) }}"
+          tls_ca_file: "{{ fetched_artifacts_dir }}/{{ current_postgres_exporter }}/tls/tls_cert.pem"
+          targets:
+            - hosts: "{{ [current_postgres_exporter] }}"
+              port_to_scrape: postgres_exporter_port
+      ansible.builtin.set_fact:
+        prometheus_scrape_services: "{{ prometheus_scrape_services + [postgres_exporter_scrape_service] }}"
+      loop: >-
+        {{
+          groups['all']
+          | map('extract', hostvars)
+          | selectattr('postgres_exporter_port', 'defined')
+          | map(attribute='inventory_hostname')
+          | list
+        }}
+      loop_control:
+        loop_var: current_postgres_exporter
+        label: "{{ current_postgres_exporter }}"
+      when:
+        - prometheus_port is defined
+    - name: Add Prometheus scrape services for Node Exporters
+      vars:
+        node_exporter_scrape_service:
+          job_name: "node_exporter.{{ current_node_exporter }}"
+          use_tls: "{{ hostvars[current_node_exporter].node_exporter_use_tls | default(false) }}"
+          tls_ca_file: "{{ fetched_artifacts_dir }}/{{ current_node_exporter }}/tls/tls_cert.pem"
+          targets:
+            - hosts: "{{ [current_node_exporter] }}"
+              port_to_scrape: node_exporter_port
+      ansible.builtin.set_fact:
+        prometheus_scrape_services: "{{ prometheus_scrape_services + [node_exporter_scrape_service] }}"
+      loop: >-
+        {{
+          groups['all']
+          | map('extract', hostvars)
+          | selectattr('node_exporter_port', 'defined')
+          | map(attribute='inventory_hostname')
+          | list
+        }}
+      loop_control:
+        loop_var: current_node_exporter
+        label: "{{ current_node_exporter }}"
+      when:
+        - prometheus_port is defined
+    - name: Transfer the Prometheus configuration files
       ansible.builtin.include_role:
         name: hyperledger.fabricx.prometheus
         tasks_from: config/transfer
       when:
-        - prometheus_web_port is defined
+        - prometheus_port is defined
+    # =========================
+    # Grafana
+    # =========================
     - name: Transfer the Grafana config files
       ansible.builtin.include_role:
         name: hyperledger.fabricx.grafana
@@ -263,3 +315,12 @@
           | selectattr('yugabyte_component_type', 'defined')
           | list
           | length > 0
+    # =========================
+    # Jaeger
+    # =========================
+    - name: Transfer the Jaeger config files
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.jaeger
+        tasks_from: config/transfer
+      when:
+        - jaeger_collector_port is defined

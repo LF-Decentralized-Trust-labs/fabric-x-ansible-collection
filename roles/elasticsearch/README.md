@@ -5,6 +5,10 @@ The role `hyperledger.fabricx.elasticsearch` can be used to run an ElasticSearch
 ## Table of Contents <!-- omit in toc -->
 
 - [Tasks](#tasks)
+  - [crypto/setup](#cryptosetup)
+  - [crypto/fetch](#cryptofetch)
+  - [crypto/rm](#cryptorm)
+  - [config/rm](#configrm)
   - [start](#start)
   - [stop](#stop)
   - [teardown](#teardown)
@@ -13,6 +17,50 @@ The role `hyperledger.fabricx.elasticsearch` can be used to run an ElasticSearch
   - [ping](#ping)
 
 ## Tasks
+
+### crypto/setup
+
+The task `crypto/setup` allows to generate the crypto material needed to run ElasticSearch with TLS using [openssl](../openssl/README.md):
+
+```yaml
+- name: Setup the crypto material for ElasticSearch
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.elasticsearch
+    tasks_from: crypto/setup
+```
+
+### crypto/fetch
+
+The task `crypto/fetch` fetches the TLS certificate of a ElasticSearch running with TLS:
+
+```yaml
+- name: Fetch the TLS certificate of ElasticSearch
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.elasticsearch
+    tasks_from: crypto/fetch
+```
+
+### crypto/rm
+
+The task `crypto/rm` removes the crypto material generated for ElasticSearch:
+
+```yaml
+- name: Remove the ElasticSearch crypto files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.elasticsearch
+    tasks_from: crypto/rm
+```
+
+### config/rm
+
+The task `config/rm` removes the ElasticSearch configuration files on the remote node:
+
+```yaml
+- name: Remove the ElasticSearch configuration files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.elasticsearch
+    tasks_from: config/rm
+```
 
 ### start
 
@@ -33,7 +81,7 @@ The task `start` allows to start an ElasticSearch container:
 The task `stop` allows to stop an ElasticSearch container.
 
 ```yaml
-- name: Stop the ElasticSearch container
+- name: Stop ElasticSearch container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: stop
@@ -44,7 +92,7 @@ The task `stop` allows to stop an ElasticSearch container.
 The task `teardown` allows to shut down an ElasticSearch container and remove all the data stored by the container on the persistent volume.
 
 ```yaml
-- name: Teardown the ElasticSearch container
+- name: Teardown ElasticSearch container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: teardown
@@ -55,7 +103,7 @@ The task `teardown` allows to shut down an ElasticSearch container and remove al
 The task `wipe` allows to shut down an ElasticSearch container and remove all the data stored by the container on the persistent volume.
 
 ```yaml
-- name: Wipe the ElasticSearch container
+- name: Wipe ElasticSearch container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: wipe
@@ -66,7 +114,7 @@ The task `wipe` allows to shut down an ElasticSearch container and remove all th
 The task `fetch_logs` allows to fetch the logs from an ElasticSearch container.
 
 ```yaml
-- name: Fetch the ElasticSearch container
+- name: Fetch ElasticSearch container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: fetch_logs
@@ -77,7 +125,7 @@ The task `fetch_logs` allows to fetch the logs from an ElasticSearch container.
 The task `ping` allows to ping an ElasticSearch container. It is useful to check whether the instances are running or if they are not running/reachable.
 
 ```yaml
-- name: Ping the ElasticSearch container
+- name: Ping ElasticSearch container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: ping

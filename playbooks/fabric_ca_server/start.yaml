@@ -7,7 +7,7 @@
 - name: Start all Fabric-CA servers
   hosts: "{{ target_hosts | default('fabric_cas') }}:&fabric_cas"
   tasks:
-    - name: Start Fabric CA DBs
+    - name: Start Fabric CA Postgres DBs
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres
         tasks_from: start

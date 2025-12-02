@@ -8,6 +8,7 @@ The role `hyperledger.fabricx.cryptogen` can be used to run the `cryptogen` CLI 
 - [Tasks](#tasks)
   - [config/build](#configbuild)
   - [start](#start)
+  - [fetch](#fetch)
 
 ## Prerequisites
 
@@ -37,4 +38,15 @@ The task `start` allows to start `cryptogen` for the generation of the crypto ma
   ansible.builtin.include_role:
     name: hyperledger.fabricx.cryptogen
     tasks_from: start
+```
+
+### fetch
+
+The task `fetch` allows to _emulate_ the fetch operation that is performed to collect the MSP folder of each organization when run using Fabric-CA (see [hyperledger.fabricx.fabric_ca](../fabric_ca/README.md)).
+
+```yaml
+- name: Copy the MSP folder of each Fabric-X organization
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.cryptogen
+    tasks_from: fetch
 ```

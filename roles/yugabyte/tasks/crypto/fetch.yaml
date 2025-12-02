@@ -1,0 +1,13 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Fetch Yugabyte TLS certificate
+  ansible.builtin.fetch:
+    src: "{{ yugabyte_remote_config_dir }}/tls/node.{{ ansible_host }}.crt"
+    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls_cert.pem"
+    flat: true
+  when:
+    - yugabyte_use_tls

@@ -9,6 +9,11 @@
     name: hyperledger.fabricx.grafana
     tasks_from: container/rm
 
+- name: Remove Grafana crypto files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.grafana
+    tasks_from: crypto/rm
+
 - name: Remove Grafana configuration files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana

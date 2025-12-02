@@ -1,0 +1,25 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure directory for Postgres DB TLS certificate exists
+  ansible.builtin.file:
+    path: "{{ committer_remote_config_dir }}/db/tls"
+    state: directory
+    mode: "0750"
+  when:
+    - postgres_db_host is defined
+    - hostvars[postgres_db_host].postgres_use_tls is defined
+    - hostvars[postgres_db_host].postgres_use_tls
+
+- name: Copy Postgres DB TLS certificate
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/{{ postgres_db_host }}/tls/tls_cert.pem"
+    dest: "{{ committer_remote_config_dir }}/db/tls/cert.pem"
+    mode: "0644"
+  when:
+    - postgres_db_host is defined
+    - hostvars[postgres_db_host].postgres_use_tls is defined
+    - hostvars[postgres_db_host].postgres_use_tls

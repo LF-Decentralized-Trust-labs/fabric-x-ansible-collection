@@ -8,25 +8,34 @@
   vars:
     container_name: "{{ prometheus_container_name }}"
     container_image: "{{ prometheus_image }}"
-    container_command:
-      - "--config.file=/etc/prometheus/config/prometheus.yml"
-      - "--storage.tsdb.path=/prometheus"
-      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
-      - "--web.console.templates=/usr/share/prometheus/consoles"
-      - "--web.enable-remote-write-receiver"
-      - "--web.enable-lifecycle"
-      - "--enable-feature=native-histograms"
-      - "--web.listen-address=:{{ prometheus_web_port }}"
+    container_command: >-
+      --web.listen-address=:{{ prometheus_port }}
+      --config.file={{ prometheus_container_config_dir }}/{{ prometheus_config_file }}
+      --storage.tsdb.path={{ prometheus_container_config_dir }}/data
+      --web.console.libraries=/usr/share/prometheus/console_libraries
+      --web.console.templates=/usr/share/prometheus/consoles
+      --web.enable-remote-write-receiver
+      --web.enable-lifecycle
+      --enable-feature=native-histograms
+      {% if prometheus_use_tls %}
+      --web.config.file={{ prometheus_container_config_dir }}/{{ prometheus_web_config_file }}
+      {% endif %}
     container_ports:
-      - "{{ prometheus_web_port }}:{{ prometheus_web_port }}"
+      - "{{ prometheus_port }}:{{ prometheus_port }}"
     container_volumes:
-      - "{{ prometheus_remote_config_dir }}/:/etc/prometheus/config/:Z,ro"
-      - /prometheus
+      - "{{ prometheus_remote_config_dir }}:{{ prometheus_container_config_dir }}:Z"
     container_healthcheck_test: >-
-      promtool check healthy
-      --url=http://localhost:{{ prometheus_web_port }}
+      promtool check
+      healthy
+      {% if prometheus_use_tls %}
+      --http.config.file={{ prometheus_container_config_dir }}/{{ prometheus_http_config_file }}
+      --url https://{{ ansible_host }}:{{ prometheus_port }}
+      {% else %}
+      --url http://localhost:{{ prometheus_port }}
+      {% endif %}
     container_wait_until_running: true
-    container_wait_port: "{{ prometheus_web_port }}"
+    container_wait_port: "{{ prometheus_port }}"
+    container_run_as_host_user: true
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: start

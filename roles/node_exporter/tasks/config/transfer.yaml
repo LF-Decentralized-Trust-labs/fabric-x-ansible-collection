@@ -1,0 +1,19 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure Node Exporter config directory exists
+  ansible.builtin.file:
+    path: "{{ node_exporter_remote_config_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Generate {{ node_exporter_web_config_file }}
+  ansible.builtin.template:
+    src: "web-config.yaml.j2"
+    dest: "{{ node_exporter_remote_config_dir }}/{{ node_exporter_web_config_file }}"
+    mode: "0o644"
+  when:
+    - node_exporter_use_tls

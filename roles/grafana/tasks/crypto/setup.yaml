@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# With OpenSSL
+# =========================
+- name: Generate the Grafana TLS crypto material with OpenSSL
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: crypto/openssl/generate_cert
+  when:
+    - grafana_use_tls

@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# With OpenSSL
+# =========================
+- name: Generate the Node Exporter TLS crypto material with OpenSSL
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.node_exporter
+    tasks_from: crypto/openssl/generate_cert
+  when:
+    - node_exporter_use_tls

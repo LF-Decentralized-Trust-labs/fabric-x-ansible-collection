@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# With OpenSSL
+# =========================
+- name: Generate the Postgres Exporter TLS crypto material with OpenSSL
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres_exporter
+    tasks_from: crypto/openssl/generate_cert
+  when:
+    - postgres_exporter_use_tls

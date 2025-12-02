@@ -1,0 +1,11 @@
+# ----- Request Settings -----
+# Controls how the certificate request is generated.
+[ req ]
+# Section defining subject fields
+distinguished_name = dn
+# X.509 v3 extensions applied to the cert
+x509_extensions = v3_req
+# Disable interactive input
+prompt = no
+# Message digest algorithm
+default_md = {{ openssl_default_md }}

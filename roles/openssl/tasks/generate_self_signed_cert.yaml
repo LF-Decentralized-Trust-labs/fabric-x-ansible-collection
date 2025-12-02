@@ -1,0 +1,64 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the path for the OpenSSL private key has been defined
+  ansible.builtin.fail:
+    msg: "No private key path has been defined. Set it via 'openssl_private_key_path'."
+  when:
+    - openssl_private_key_path is not defined
+
+- name: Check that the path for the OpenSSL public key has been defined
+  ansible.builtin.fail:
+    msg: "No certificate path has been defined. Set it via 'openssl_cert_path'."
+  when:
+    - openssl_cert_path is not defined
+
+- name: Ensure that the config directory exists
+  ansible.builtin.file:
+    path: "{{ openssl_remote_config_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Ensure that the key output directory exists
+  ansible.builtin.file:
+    path: "{{ openssl_private_key_path | dirname }}"
+    state: directory
+    mode: "0755"
+
+- name: Ensure that the cert output directory exists
+  ansible.builtin.file:
+    path: "{{ openssl_cert_path | dirname }}"
+    state: directory
+    mode: "0755"
+
+- name: Create the OpenSSL configuration file
+  ansible.builtin.template:
+    src: "conf.yaml.j2"
+    dest: "{{ openssl_remote_config_dir }}/openssl.conf"
+    mode: "0o644"
+
+- name: Generate private key and self-signed certificate
+  ansible.builtin.command: >-
+    openssl req
+    -x509
+    -newkey {{ openssl_key_type }}
+    -keyout {{ openssl_private_key_path }}
+    -out {{ openssl_cert_path }}
+    -days {{ openssl_cert_duration }}
+    -config {{ openssl_remote_config_dir }}/openssl.conf
+    -nodes
+    {% if openssl_key_opt is defined %}
+    -pkeyopt {{ openssl_key_opt }}
+    {% endif %}
+  args:
+    creates: "{{ openssl_cert_path }}"
+
+- name: Clean the OpenSSL configuration folder
+  ansible.builtin.file:
+    dest: "{{ openssl_remote_config_dir }}"
+    state: absent
+  when:
+    - openssl_clean_after_gen

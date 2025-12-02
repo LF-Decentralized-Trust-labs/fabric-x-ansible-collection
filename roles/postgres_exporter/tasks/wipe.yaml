@@ -8,3 +8,13 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: container/rm
+
+- name: Remove Postgres Exporter crypto files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres_exporter
+    tasks_from: crypto/rm
+
+- name: Remove Postgres Exporter config files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres_exporter
+    tasks_from: config/rm

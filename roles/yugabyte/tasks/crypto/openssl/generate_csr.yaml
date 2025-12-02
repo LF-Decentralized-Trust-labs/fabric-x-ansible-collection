@@ -1,0 +1,64 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Initialize SAN entries
+  vars:
+    ansible_host_is_ip: "{{ ansible_host is match('^[0-9]{1,3}(\\.[0-9]{1,3}){3}$') }}"
+    san_prefix: >-
+      {{
+        'IP.0'
+        if ansible_host_is_ip
+        else 'DNS.0'
+      }}
+  ansible.builtin.set_fact:
+    yugabyte_openssl_san_entries:
+      - "{{ san_prefix }}:{{ ansible_host }}"
+  when:
+    - yugabyte_use_tls
+
+# If we run Yugabyte on macOS, it will try to bind to `host.docker.internal`.
+# This patch is needed until this issue is fixed:
+# https://github.com/yugabyte/yugabyte-db/issues/29453
+- name: Add host.docker.internal IP resolution as SAN entry
+  vars:
+    host_docker_internal_san_entry: "IP.0:192.168.127.254"
+  ansible.builtin.set_fact:
+    yugabyte_openssl_san_entries: "{{ yugabyte_openssl_san_entries + [host_docker_internal_san_entry] }}"
+  when:
+    - ansible_facts.os_family == 'Darwin'
+
+# Note: we add all IP addresses to the SAN entries, but technically
+# we should only add the public ones that will be used to reach
+# the node.
+- name: Add IP addresses to SAN entries
+  vars:
+    current_san_ip_entry: "IP.{{ item_index + 1 }}:{{ current_ip_addr }}"
+  ansible.builtin.set_fact:
+    yugabyte_openssl_san_entries: "{{ yugabyte_openssl_san_entries + [current_san_ip_entry] }}"
+  loop: "{{ ansible_all_ipv4_addresses }}"
+  loop_control:
+    loop_var: current_ip_addr
+    index_var: item_index
+    label: "{{ current_ip_addr }}"
+  when:
+    - yugabyte_use_tls
+    - ansible_all_ipv4_addresses is defined
+    - ansible_all_ipv4_addresses
+      | length > 0
+
+- name: Generate CSR for TLS cert
+  vars:
+    openssl_common_name: "{{ inventory_hostname }}"
+    openssl_organization: "{{ organization.domain }}"
+    openssl_private_key_path: "{{ yugabyte_remote_config_dir }}/tls/node.{{ ansible_host }}.key"
+    openssl_csr_path: "{{ yugabyte_remote_config_dir }}/tls/tls.csr"
+    openssl_ext_file_path: "{{ yugabyte_remote_config_dir }}/tls/tls.ext"
+    openssl_san_entries: "{{ yugabyte_openssl_san_entries }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openssl
+    tasks_from: generate_csr
+  when:
+    - yugabyte_use_tls

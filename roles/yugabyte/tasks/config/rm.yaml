@@ -6,5 +6,5 @@
 
 - name: Remove the Yugabyte config directory
   ansible.builtin.file:
-    path: "{{ yugabyte_remote_config_dir }}/init"
+    path: "{{ yugabyte_remote_config_dir }}"
     state: absent

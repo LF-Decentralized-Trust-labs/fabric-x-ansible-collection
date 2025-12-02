@@ -5,8 +5,79 @@ The role `hyperledger.fabricx.loadgen` can be used to run a Load generator to te
 ## Table of Contents <!-- omit in toc -->
 
 - [Tasks](#tasks)
+  - [crypto/setup](#cryptosetup)
+  - [crypto/fetch](#cryptofetch)
+  - [crypto/rm](#cryptorm)
+  - [config/transfer](#configtransfer)
+  - [config/rm](#configrm)
+  - [start](#start)
+  - [stop](#stop)
+  - [teardown](#teardown)
+  - [wipe](#wipe)
+  - [fetch_logs](#fetch_logs)
+  - [ping](#ping)
+  - [get_metrics](#get_metrics)
+  - [limit_rate](#limit_rate)
 
 ## Tasks
+
+### crypto/setup
+
+The task `crypto/setup` allows to generate and/or transfer the crypto material needed to run a Fabric-X Loadgen component. The task supports two modes to run:
+
+- with `cryptogen` (see [hyperledger.fabricx.cryptogen](../cryptogen/README.md)): the crypto material generated on the control node with `cryptogen` is transferred to the remote node;
+- with `fabric-ca` (see [hyperledger.fabricx.fabric_ca](../fabric_ca/README.md)): the crypto material is generated directly on the remote node querying the reference `fabric_ca` host.
+
+```yaml
+- name: Setup the crypto material for Fabric-X Loadgen
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: crypto/setup
+```
+
+### crypto/fetch
+
+The task `crypto/fetch` allows to fetch the Fabric-X Loadgen certificates on the control node. This operation is important for the generation of the genesis block on the control node in case the Loadgen user is set as **Meta Namespace Admin** (with the `meta_namespace_admin` flag).
+
+```yaml
+- name: Fetch the Fabric-X Loadgen certificates
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: crypto/fetch
+```
+
+### crypto/rm
+
+The task `crypto/rm` removes the crypto material generated for a Fabric-X Loadgen:
+
+```yaml
+- name: Remove the Fabric-X Loadgen crypto files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: crypto/rm
+```
+
+### config/transfer
+
+The task `config/transfer` allows to transfer the configuration files for a Fabric-X Loadgen on the remote node:
+
+```yaml
+- name: Transfer the Fabric-X Loadgen configuration files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: config/transfer
+```
+
+### config/rm
+
+The task `config/rm` removes the Fabric-X Loadgen configuration files on the remote node:
+
+```yaml
+- name: Remove the Fabric-X Loadgen configuration files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: config/rm
+```
 
 ### start
 

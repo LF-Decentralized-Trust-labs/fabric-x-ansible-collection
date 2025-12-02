@@ -11,3 +11,17 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.committer
         tasks_from: stop
+      when:
+        - committer_component_type is defined
+    - name: Stop the Fabric-X Committer Postgres DB
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres
+        tasks_from: stop
+      when:
+        - postgres_port is defined
+    - name: Stop the Fabric-X Committer Yugabyte DB
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.yugabyte
+        tasks_from: stop
+      when:
+        - yugabyte_component_type is defined

@@ -7,7 +7,7 @@
 - name: Check that the Prometheus port is open
   vars:
     utils_ports_to_ping:
-      - "{{ prometheus_web_port }}"
+      - "{{ prometheus_port }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: ping

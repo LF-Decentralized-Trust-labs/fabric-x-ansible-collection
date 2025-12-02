@@ -1,0 +1,132 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Set Yugabyte variables
+  vars:
+    _yb_masters: >-
+      {{
+        yugabyte_cluster
+        | map('extract', hostvars)
+        | selectattr('yugabyte_component_type', 'defined')
+        | selectattr('yugabyte_component_type', '==', 'master')
+        | map(attribute='inventory_hostname')
+        | list
+      }}
+    _yb_tablets: >-
+      {{
+        yugabyte_cluster
+        | map('extract', hostvars)
+        | selectattr('yugabyte_component_type', 'defined')
+        | selectattr('yugabyte_component_type', '==', 'tablet')
+        | map(attribute='inventory_hostname')
+        | list
+      }}
+  ansible.builtin.set_fact:
+    yugabyte_master_hosts: "{{ _yb_masters }}"
+    yugabyte_tablet_hosts: "{{ _yb_tablets }}"
+    yugabyte_master_endpoints: >-
+      {{
+        _yb_masters
+        | map('extract', hostvars, 'ansible_host')
+        | zip(_yb_masters | map('extract', hostvars, 'yugabyte_master_rpc_bind_port'))
+        | map('join', ':')
+        | join(',')
+      }}
+
+- name: Ensure Yugabyte DB volume dir exists
+  ansible.builtin.file:
+    path: "{{ yugabyte_remote_config_dir }}/data"
+    state: directory
+    mode: "0o750"
+
+- name: Set YugabyteDB Tablet mandatory volumes and flags
+  ansible.builtin.set_fact:
+    yugabyte_tablet_volumes:
+      - "{{ yugabyte_remote_config_dir }}/init:/var/ybinit:Z"
+      - "{{ yugabyte_remote_config_dir }}/data:/var/data:Z"
+
+- name: Add YugabyteDB Tablet volumes for TLS certificates
+  vars:
+    yugabyte_tablet_tls_volumes:
+      - "{{ yugabyte_remote_config_dir }}/tls:/var/tls:Z"
+  ansible.builtin.set_fact:
+    yugabyte_tablet_volumes: "{{ yugabyte_tablet_volumes + yugabyte_tablet_tls_volumes }}"
+  when:
+    - yugabyte_use_tls
+
+- name: Start Yugabyte Tablet Servers containers
+  vars:
+    container_name: "{{ yugabyte_container_name }}"
+    container_image: "{{ yugabyte_image }}"
+    container_ports:
+      - "{{ yugabyte_tablet_pgsql_bind_port }}:{{ yugabyte_tablet_pgsql_bind_port }}"
+      - "{{ yugabyte_tablet_rpc_bind_port }}:{{ yugabyte_tablet_rpc_bind_port }}"
+      - "{{ yugabyte_tablet_webserver_port }}:{{ yugabyte_tablet_webserver_port }}"
+      - "{{ yugabyte_tablet_redis_rpc_port }}:{{ yugabyte_tablet_redis_rpc_port }}"
+      - "{{ yugabyte_tablet_redis_web_port }}:{{ yugabyte_tablet_redis_web_port }}"
+      - "{{ yugabyte_tablet_pgsql_web_port }}:{{ yugabyte_tablet_pgsql_web_port }}"
+      - "{{ yugabyte_tablet_cql_bind_port }}:{{ yugabyte_tablet_cql_bind_port }}"
+      - "{{ yugabyte_tablet_cql_web_port }}:{{ yugabyte_tablet_cql_web_port }}"
+    container_command: >-
+      bin/yb-tserver
+      --tserver_master_addrs={{ yugabyte_master_endpoints }}
+      --server_broadcast_addresses={{ ansible_host }}:{{ yugabyte_tablet_rpc_bind_port }}
+      --rpc_bind_addresses={{ ansible_host }}:{{ yugabyte_tablet_rpc_bind_port }}
+      --webserver_interface={{ ansible_host }}
+      --webserver_port={{ yugabyte_tablet_webserver_port }}
+      --pgsql_proxy_bind_address={{ ansible_host }}:{{ yugabyte_tablet_pgsql_bind_port }}
+      --pgsql_proxy_webserver_port={{ yugabyte_tablet_pgsql_web_port }}
+      --redis_proxy_bind_address={{ ansible_host }}:{{ yugabyte_tablet_redis_rpc_port }}
+      --redis_proxy_webserver_port={{ yugabyte_tablet_redis_web_port }}
+      --cql_proxy_bind_address={{ ansible_host }}:{{ yugabyte_tablet_cql_bind_port }}
+      --cql_proxy_webserver_port={{ yugabyte_tablet_cql_web_port }}
+      --minloglevel={{ yugabyte_logs_level }}
+      --stderrthreshold={{ yugabyte_logs_level }}
+      --yb_enable_read_committed_isolation=true
+      --fs_data_dirs=/var/data
+      {% if yugabyte_use_tls %}
+      --certs_dir=/var/tls
+      {% endif %}
+      {% if yugabyte_node_to_node_use_tls %}
+      --use_node_to_node_encryption=true
+      {% endif %}
+      {% if yugabyte_client_to_server_use_tls %}
+      --allow_insecure_connections=false
+      --use_client_to_server_encryption=true
+      {% endif %}
+      {% if yugabyte_webserver_use_tls %}
+      --webserver_ca_certificate_file=/var/tls/ca.crt
+      --webserver_certificate_file=/var/tls/node.{{ ansible_host }}.crt
+      --webserver_private_key_file=/var/tls/node.{{ ansible_host }}.key
+      --webserver_redirect_http_to_https=true
+      {% endif %}
+    container_volumes: "{{ yugabyte_tablet_volumes }}"
+    container_healthcheck_test: >-
+      /home/yugabyte/postgres/bin/pg_isready
+      -h {{ ansible_host }}
+      -d yugabyte
+      -U yugabyte
+      -p {{ yugabyte_tablet_pgsql_bind_port }}
+    container_wait_until_running: true
+    container_wait_port: "{{ yugabyte_tablet_pgsql_bind_port }}"
+    container_run_as_host_user: true
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start
+
+- name: Initialize DB in yb-tservers
+  vars:
+    container_name: "{{ yugabyte_container_name }}"
+    container_command: >-
+      ysqlsh
+      -h {{ ansible_host }}
+      -p {{ yugabyte_tablet_pgsql_bind_port }}
+      -U yugabyte
+      -f /var/ybinit/{{ yugabyte_init_script_file }}
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: exec
+  when: inventory_hostname == yugabyte_tablet_hosts[0]

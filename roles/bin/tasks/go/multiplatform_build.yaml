@@ -11,7 +11,7 @@
 
 - name: Set os and arch combinations collection variable
   ansible.builtin.set_fact:
-    os_arch_combos: [] # Necessary to clean fact between new runs
+    bin_os_arch_combos: [] # Necessary to clean fact between new runs
 
 - name: Collect unique os and arch combinations
   vars:
@@ -19,12 +19,12 @@
       os: "{{ hostvars[host].os | default('') }}"
       arch: "{{ hostvars[host].arch | default('') }}"
   ansible.builtin.set_fact:
-    os_arch_combos: "{{ os_arch_combos + [os_arch_combo] }}"
+    bin_os_arch_combos: "{{ bin_os_arch_combos + [os_arch_combo] }}"
   loop: "{{ bin_service_instances }}"
   loop_control:
     loop_var: host
   when:
-    - os_arch_combo not in os_arch_combos
+    - os_arch_combo not in bin_os_arch_combos
 
 - name: Build for multiple platforms the binary {{ bin_name }}
   vars:
@@ -33,7 +33,7 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: go/build
-  loop: "{{ os_arch_combos }}"
+  loop: "{{ bin_os_arch_combos }}"
   loop_control:
     label: "{{ bin_target_arch | default(ansible_facts.architecture, true) | lower }}:{{ bin_target_os | default(ansible_facts.os_family, true) | lower }}"
     loop_var: os_arch

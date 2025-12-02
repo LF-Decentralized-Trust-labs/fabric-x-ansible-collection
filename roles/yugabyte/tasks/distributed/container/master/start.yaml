@@ -1,0 +1,96 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Set Yugabyte variables
+  vars:
+    _yb_masters: >-
+      {{
+        yugabyte_cluster
+        | map('extract', hostvars)
+        | selectattr('yugabyte_component_type', 'defined')
+        | selectattr('yugabyte_component_type', '==', 'master')
+        | map(attribute='inventory_hostname')
+        | list
+      }}
+  ansible.builtin.set_fact:
+    yugabyte_master_hosts: "{{ _yb_masters }}"
+    yugabyte_master_endpoints: >-
+      {{
+        _yb_masters
+        | map('extract', hostvars, 'ansible_host')
+        | zip(_yb_masters | map('extract', hostvars, 'yugabyte_master_rpc_bind_port'))
+        | map('join', ':')
+        | join(',')
+      }}
+
+- name: Ensure Yugabyte DB volume dir exists
+  ansible.builtin.file:
+    path: "{{ yugabyte_remote_config_dir }}/data"
+    state: directory
+    mode: "0o750"
+
+- name: Set YugabyteDB Master mandatory volumes and flags
+  ansible.builtin.set_fact:
+    yugabyte_master_volumes:
+      - "{{ yugabyte_remote_config_dir }}/data:/var/data:Z"
+
+- name: Add YugabyteDB Master volumes for TLS certificates
+  vars:
+    yugabyte_master_tls_volumes:
+      - "{{ yugabyte_remote_config_dir }}/tls:/var/tls:Z"
+  ansible.builtin.set_fact:
+    yugabyte_master_volumes: "{{ yugabyte_master_volumes + yugabyte_master_tls_volumes }}"
+  when:
+    - yugabyte_use_tls
+
+- name: Start Yugabyte master DB container
+  vars:
+    container_name: "{{ yugabyte_container_name }}"
+    container_image: "{{ yugabyte_image }}"
+    container_command: >-
+      bin/yb-master
+      --master_addresses={{ yugabyte_master_endpoints }}
+      --server_broadcast_addresses={{ ansible_host }}:{{ yugabyte_master_rpc_bind_port }}
+      --rpc_bind_addresses={{ ansible_host }}:{{ yugabyte_master_rpc_bind_port }}
+      --webserver_interface={{ ansible_host }}
+      --webserver_port={{ yugabyte_master_webserver_port }}
+      --replication_factor={{ yugabyte_master_hosts | length }}
+      --minloglevel={{ yugabyte_logs_level }}
+      --stderrthreshold={{ yugabyte_logs_level }}
+      --fs_data_dirs=/var/data
+      {% if yugabyte_use_tls %}
+      --certs_dir=/var/tls
+      {% endif %}
+      {% if yugabyte_node_to_node_use_tls %}
+      --use_node_to_node_encryption=true
+      {% endif %}
+      {% if yugabyte_client_to_server_use_tls %}
+      --allow_insecure_connections=false
+      --use_client_to_server_encryption=true
+      {% endif %}
+      {% if yugabyte_webserver_use_tls %}
+      --webserver_ca_certificate_file=/var/tls/ca.crt
+      --webserver_certificate_file=/var/tls/node.{{ ansible_host }}.crt
+      --webserver_private_key_file=/var/tls/node.{{ ansible_host }}.key
+      --webserver_redirect_http_to_https=true
+      {% endif %}
+    container_ports:
+      - "{{ yugabyte_master_rpc_bind_port }}:{{ yugabyte_master_rpc_bind_port }}"
+      - "{{ yugabyte_master_webserver_port }}:{{ yugabyte_master_webserver_port }}"
+    container_volumes: "{{ yugabyte_master_volumes }}"
+    container_healthcheck_test: >-
+      /home/yugabyte/bin/yb-admin
+      --master_addresses {{ yugabyte_master_endpoints }}
+      {% if yugabyte_webserver_use_tls %}
+      --certs_dir_name=/var/tls
+      {% endif %}
+      list_all_masters
+    container_wait_until_running: true
+    container_wait_port: "{{ yugabyte_master_rpc_bind_port }}"
+    container_run_as_host_user: true
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start

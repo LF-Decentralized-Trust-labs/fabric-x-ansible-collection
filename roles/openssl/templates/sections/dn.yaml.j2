@@ -1,0 +1,19 @@
+# ----- Distinguished Name (DN) -----
+# These identify the subject (entity) of the certificate.
+[ dn ]
+# Country code
+C  = {{ openssl_country }}
+# State or province
+ST = {{ openssl_state }}
+{% if openssl_locality is defined %}
+# City or locality
+L  = {{ openssl_locality }}
+{% endif %}
+# Common Name
+CN = {{ openssl_common_name }}
+# Organization name
+O  = {{ openssl_organization }}
+{% if openssl_organizational_unit is defined %}
+# Organizational Unit
+OU = {{ openssl_organizational_unit }}
+{% endif %}

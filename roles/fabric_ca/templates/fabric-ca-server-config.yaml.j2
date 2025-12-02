@@ -4,72 +4,64 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# Fabric CA server configuration file
+#############################################################################
+#   This is a configuration file for the fabric-ca-server command.
+#
+#   COMMAND LINE ARGUMENTS AND ENVIRONMENT VARIABLES
+#   ------------------------------------------------
+#   Each configuration element can be overridden via command line
+#   arguments or environment variables.  The precedence for determining
+#   the value of each element is as follows:
+#   1) command line argument
+#      Examples:
+#      a) --port 443
+#         To set the listening port
+#      b) --ca.keyfile ../mykey.pem
+#         To set the "keyfile" element in the "ca" section below;
+#         note the '.' separator character.
+#   2) environment variable
+#      Examples:
+#      a) FABRIC_CA_SERVER_PORT=443
+#         To set the listening port
+#      b) FABRIC_CA_SERVER_CA_KEYFILE="../mykey.pem"
+#         To set the "keyfile" element in the "ca" section below;
+#         note the '_' separator character.
+#   3) configuration file
+#   4) default value (if there is one)
+#      All default values are shown beside each element below.
+#
+#   FILE NAME ELEMENTS
+#   ------------------
+#   The value of all fields whose name ends with "file" or "files" are
+#   name or names of other files.
+#   For example, see "tls.certfile" and "tls.clientauth.certfiles".
+#   The value of each of these fields can be a simple filename, a
+#   relative path, or an absolute path.  If the value is not an
+#   absolute path, it is interpreted as being relative to the location
+#   of this configuration file.
+#
+#############################################################################
+
+# Version of config file
 version: 1.5.15
 
-# Top-level server switches
+# Server's listening port (default: 7054)
 port: {{ fabric_ca_port }}
-debug: {{ fabric_ca_log_level == 'debug' | bool | lower }}
 
-operations:
-  listenAddress: "0.0.0.0:{{ fabric_ca_operations_port }}"
+# Enables debug logging (default: false)
+debug: {{ (fabric_ca_log_level == 'DEBUG') | bool | lower }}
 
-{% if postgres_db_host is defined %}
-# Database configuration for PostgreSQL
-db:
-  type: postgres
-  datasource: >-
-    host={{ hostvars[postgres_db_host].ansible_host }}
-    port={{ hostvars[postgres_db_host].postgres_port }}
-    user={{ hostvars[postgres_db_host].postgres_user }}
-    password={{ hostvars[postgres_db_host].postgres_password }}
-    dbname={{ hostvars[postgres_db_host].postgres_db }}
-{% if hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
-    sslrootcert={{ fabric_ca_config_dir }}/db/cas/cert.pem
-    sslmode=verify-full
-{% else %}
-    sslmode=disable
-{% endif %}
-  tls:
+# Cross-Origin Resource Sharing (CORS)
+cors:
     enabled: false
-    certfiles:
-    client:
-      certfile:
-      keyfile:
-{% endif %}
+    origins:
+      - "*"
 
-# CA identity
-ca:
-  name: "{{ fabric_ca_name }}"
-
-# TLS serving
-tls:
-  enabled: {{ fabric_ca_use_tls | lower }}
-
-# CSR defaults
-csr:
-  cn: "{{ fabric_ca_csr_cn }}"
-  names:
-    - C: US
-      ST: "California"
-      L: "San Francisco"
-      O: "{{ organization.domain }}"
-  hosts:
-{% for host in (fabric_ca_csr_hosts | default([])) %}
-    - "{{ host }}"
-{% endfor %}
-  ca:
-    expiry: "{{ fabric_ca_csr_expiry }}"
-
-registry:
-  maxenrollments: -1
-  identities:
-    - name: "{{ fabric_ca_admin.name }}"
-      pass: "{{ fabric_ca_admin.secret }}"
-      type: "admin"
-      attrs:
-{% if fabric_ca_admin.attrs is defined %}
-{% for attribute_name, attribute_value in fabric_ca_admin.attrs.items() %}
-        {{ attribute_name }}: "{{ attribute_value }}"
-{% endfor %}
-{% endif %}
+{% include './sections/tls.yaml.j2' +%}
+{% include './sections/ca.yaml.j2' +%}
+{% include './sections/crl.yaml.j2' +%}
+{% include './sections/operations.yaml.j2' +%}
+{% include './sections/registry.yaml.j2' +%}
+{% include './sections/db.yaml.j2' +%}
+{% include './sections/signing.yaml.j2' +%}
+{% include './sections/csr.yaml.j2' +%}

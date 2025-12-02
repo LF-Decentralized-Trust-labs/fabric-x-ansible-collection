@@ -7,40 +7,54 @@
 - name: Start the Monitoring services
   hosts: "{{ target_hosts | default('monitoring') }}:&monitoring"
   tasks:
+    # =========================
+    # Node Exporter
+    # =========================
+    - name: Start Node Exporter nodes
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.node_exporter
+        tasks_from: start
+      when:
+        - node_exporter_port is defined
+    # =========================
+    # Postgres Exporter
+    # =========================
     - name: Start Postgres Exporter nodes
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres_exporter
         tasks_from: start
       when:
         - postgres_exporter_port is defined
+    # =========================
+    # Prometheus
+    # =========================
     - name: Start the Prometheus service
       ansible.builtin.include_role:
         name: hyperledger.fabricx.prometheus
         tasks_from: start
       when:
-        - prometheus_web_port is defined
+        - prometheus_port is defined
+    # =========================
+    # Grafana
+    # =========================
     - name: Start the Grafana service
-      vars:
-        prometheus_instance: >-
-          {{
-            groups['monitoring']
-            | map('extract', hostvars)
-            | selectattr('prometheus_web_port', 'defined')
-            | map(attribute='inventory_hostname')
-            | sort
-            | first
-          }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.grafana
         tasks_from: start
       when:
         - grafana_web_port is defined
-    - name: Start the Jaeger ElasticSearch storage
+    # =========================
+    # ElasticSearch
+    # =========================
+    - name: Start ElasticSearch
       ansible.builtin.include_role:
         name: hyperledger.fabricx.elasticsearch
         tasks_from: start
       when:
         - elasticsearch_http_port is defined
+    # =========================
+    # Jaeger
+    # =========================
     - name: Start the Jaeger service
       ansible.builtin.include_role:
         name: hyperledger.fabricx.jaeger

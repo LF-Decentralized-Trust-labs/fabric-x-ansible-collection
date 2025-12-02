@@ -7,24 +7,54 @@
 - name: Ping the Monitoring components
   hosts: "{{ target_hosts | default('monitoring') }}:&monitoring"
   tasks:
+    # =========================
+    # Node Exporter
+    # =========================
+    - name: Node Postgres Exporter
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.node_exporter
+        tasks_from: ping
+      when:
+        - node_exporter_port is defined
+    # =========================
+    # Postgres Exporter
+    # =========================
+    - name: Ping Postgres Exporter
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres_exporter
+        tasks_from: ping
+      when:
+        - postgres_exporter_port is defined
+    # =========================
+    # Prometheus
+    # =========================
     - name: Ping Prometheus
       ansible.builtin.include_role:
         name: hyperledger.fabricx.prometheus
         tasks_from: ping
       when:
-        - prometheus_web_port is defined
+        - prometheus_port is defined
+    # =========================
+    # Grafana
+    # =========================
     - name: Ping Grafana
       ansible.builtin.include_role:
         name: hyperledger.fabricx.grafana
         tasks_from: ping
       when:
         - grafana_web_port is defined
+    # =========================
+    # ElasticSearch
+    # =========================
     - name: Ping ElasticSearch
       ansible.builtin.include_role:
         name: hyperledger.fabricx.elasticsearch
         tasks_from: ping
       when:
         - elasticsearch_http_port is defined
+    # =========================
+    # Jaeger
+    # =========================
     - name: Ping Jaeger
       ansible.builtin.include_role:
         name: hyperledger.fabricx.jaeger

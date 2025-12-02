@@ -1,0 +1,13 @@
+###############################################################################
+#
+#    Operations section
+#
+###############################################################################
+operations:
+  # host and port for the operations server
+  listenAddress: "0.0.0.0:{{ fabric_ca_operations_port }}"
+  # TLS configuration for the operations endpoint
+  tls:
+      # TLS enabled
+      enabled: false
+

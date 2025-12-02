@@ -4,10 +4,22 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Create Elasticsearch volume
+- name: Define the ElasticSearch volume and env variables
+  ansible.builtin.set_fact:
+    elasticsearch_env:
+      discovery.type: single-node
+      xpack.security.enabled: "{{ elasticsearch_use_tls | lower | string }}"
+      xpack.security.http.ssl.enabled: "{{ elasticsearch_use_tls | lower | string }}"
+      xpack.security.enrollment.enabled: "false"
+      http.port: "{{ elasticsearch_http_port | string }}"
+      transport.port: "{{ elasticsearch_transport_port | string }}"
+    elasticsearch_volumes:
+      - "{{ elasticsearch_remote_config_dir }}/data:{{ elasticsearch_container_config_dir }}/data:Z"
+
+- name: Adjust Elasticsearch permissions
   vars:
-    container_volume_path: "{{ elasticsearch_data_dir }}"
-    container_volume_mode: "0o750"
+    container_volume_path: "{{ elasticsearch_remote_config_dir }}/data"
+    container_volume_mode: "0o755"
     container_volume_uid: "1000"
     container_volume_gid: "0"
     container_volume_type: directory
@@ -15,25 +27,58 @@
     name: hyperledger.fabricx.container
     tasks_from: volume/create
 
+- name: Define the ElasticSearch volume for TLS
+  vars:
+    elasticsearch_tls_volume: "{{ elasticsearch_remote_config_dir }}/tls:{{ elasticsearch_container_config_dir }}/config/certs:Z"
+  ansible.builtin.set_fact:
+    elasticsearch_volumes: "{{ elasticsearch_volumes + [elasticsearch_tls_volume] }}"
+  when:
+    - elasticsearch_use_tls
+
+- name: Adjust Elasticsearch TLS private key permissions
+  vars:
+    container_volume_path: "{{ elasticsearch_remote_config_dir }}/tls/tls_key.pem"
+    container_volume_mode: "0o600"
+    container_volume_uid: "1000"
+    container_volume_gid: "0"
+    container_volume_type: file
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: volume/create
+  when:
+    - elasticsearch_use_tls
+
+- name: Set ElasticSearch env variables to enable TLS
+  vars:
+    elasticsearch_tls_env:
+      xpack.security.http.ssl.key: "{{ elasticsearch_container_config_dir }}/config/certs/tls_key.pem"
+      xpack.security.http.ssl.certificate: "{{ elasticsearch_container_config_dir }}/config/certs/tls_cert.pem"
+      xpack.security.authc.anonymous.username: anonymous
+      xpack.security.authc.anonymous.roles: superuser
+  ansible.builtin.set_fact:
+    elasticsearch_env: "{{ elasticsearch_env | combine(elasticsearch_tls_env) }}"
+  when:
+    - elasticsearch_use_tls
+
 - name: Start an ElasticSearch container
   vars:
     container_name: "{{ elasticsearch_container_name }}"
     container_image: "{{ elasticsearch_image }}"
-    container_env:
-      discovery.type: single-node
-      xpack.security.http.ssl.enabled: "false"
-      xpack.security.enabled: "false"
-      xpack.security.enrollment.enabled: "false"
-      http.port: "{{ elasticsearch_http_port | string }}"
-      transport.port: "{{ elasticsearch_transport_port | string }}"
+    container_env: "{{ elasticsearch_env }}"
     container_ports:
       - "{{ elasticsearch_http_port }}:{{ elasticsearch_http_port }}"
       - "{{ elasticsearch_transport_port }}:{{ elasticsearch_transport_port }}"
-    container_volumes:
-      - "{{ elasticsearch_data_dir }}:/usr/share/elasticsearch/data:Z"
+    container_volumes: "{{ elasticsearch_volumes }}"
     container_healthcheck_test: >-
       curl -f
+      --silent
+      --show-error
+      {% if elasticsearch_use_tls %}
+      --cacert {{ elasticsearch_container_config_dir }}/config/certs/tls_cert.pem
+      https://{{ ansible_host }}:{{ elasticsearch_http_port }}/_cluster/health
+      {% else %}
       http://localhost:{{ elasticsearch_http_port }}/_cluster/health
+      {% endif %}
     container_wait_until_running: true
     container_wait_port: "{{ elasticsearch_http_port }}"
   ansible.builtin.include_role:

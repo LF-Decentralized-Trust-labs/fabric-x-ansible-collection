@@ -43,7 +43,7 @@
   ansible.builtin.set_fact:
     fabric_ca_registered_identities_names: >-
       {{
-        (result.stdout_lines | default([]))
+        (container_output.stdout_lines | default([]))
         | select('match', '^Name:')
         | map('replace', 'Name: ', '')
         | map('regex_replace', ',.*$', '')

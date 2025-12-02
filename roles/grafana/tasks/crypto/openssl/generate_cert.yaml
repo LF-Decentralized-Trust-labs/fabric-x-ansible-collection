@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Generate the Grafana TLS crypto material with OpenSSL
+  vars:
+    openssl_common_name: "{{ inventory_hostname }}"
+    openssl_organization: "{{ organization.domain | default(inventory_hostname) }}"
+    openssl_private_key_path: "{{ grafana_remote_config_dir }}/tls/tls_key.pem"
+    openssl_cert_path: "{{ grafana_remote_config_dir }}/tls/tls_cert.pem"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openssl
+    tasks_from: generate_self_signed_cert

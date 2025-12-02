@@ -12,7 +12,7 @@
 
 - name: Generate the config for the Fabric-X Loadgen for the Fabric-X Committer validators
   vars:
-    loadgen_config_dir: "{{ loadgen_remote_config_dir if loadgen_use_bin else loadgen_docker_config_dir }}"
+    loadgen_config_dir: "{{ loadgen_remote_config_dir if loadgen_use_bin else loadgen_container_config_dir }}"
   ansible.builtin.template:
     src: "validator-client.yaml.j2"
     dest: "{{ loadgen_remote_config_dir }}/{{ loadgen_config_file }}"

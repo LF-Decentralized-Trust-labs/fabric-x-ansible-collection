@@ -7,33 +7,57 @@
 - name: Teardown the Monitoring services
   hosts: "{{ target_hosts | default('monitoring') }}:&monitoring"
   tasks:
+    # =========================
+    # Jaeger
+    # =========================
     - name: Teardown Jaeger
       ansible.builtin.include_role:
         name: hyperledger.fabricx.jaeger
         tasks_from: teardown
       when:
         - jaeger_collector_port is defined
+    # =========================
+    # ElasticSearch
+    # =========================
     - name: Teardown ElasticSearch
       ansible.builtin.include_role:
         name: hyperledger.fabricx.elasticsearch
         tasks_from: teardown
       when:
         - elasticsearch_http_port is defined
+    # =========================
+    # Grafana
+    # =========================
     - name: Teardown Grafana
       ansible.builtin.include_role:
         name: hyperledger.fabricx.grafana
         tasks_from: teardown
       when:
         - grafana_web_port is defined
+    # =========================
+    # Prometheus
+    # =========================
     - name: Teardown Prometheus
       ansible.builtin.include_role:
         name: hyperledger.fabricx.prometheus
         tasks_from: teardown
       when:
-        - prometheus_web_port is defined
+        - prometheus_port is defined
+    # =========================
+    # Postgres Exporter
+    # =========================
     - name: Teardown Postgres Exporter nodes
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres_exporter
         tasks_from: teardown
       when:
         - postgres_exporter_port is defined
+    # =========================
+    # Node Exporter
+    # =========================
+    - name: Teardown Node Exporter nodes
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.node_exporter
+        tasks_from: teardown
+      when:
+        - node_exporter_port is defined

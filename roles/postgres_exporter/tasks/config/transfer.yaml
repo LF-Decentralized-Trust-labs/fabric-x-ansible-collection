@@ -1,0 +1,34 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure Postgres Exporter config directory exists
+  ansible.builtin.file:
+    path: "{{ postgres_exporter_remote_config_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Generate {{ postgres_exporter_config_file }}
+  ansible.builtin.template:
+    src: "postgres_exporter.yaml.j2"
+    dest: "{{ postgres_exporter_remote_config_dir }}/{{ postgres_exporter_config_file }}"
+    mode: "0o644"
+
+- name: Generate {{ postgres_exporter_web_config_file }}
+  ansible.builtin.template:
+    src: "web-config.yaml.j2"
+    dest: "{{ postgres_exporter_remote_config_dir }}/{{ postgres_exporter_web_config_file }}"
+    mode: "0o644"
+  when:
+    - postgres_exporter_use_tls
+
+- name: Transfer the PostgresDB TLS certificate
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/{{ postgres_db_host }}/tls/tls_cert.pem"
+    dest: "{{ postgres_exporter_remote_config_dir }}/tls/db.{{ postgres_db_host }}.crt"
+    mode: preserve
+  when:
+    - hostvars[postgres_db_host].postgres_use_tls is defined
+    - hostvars[postgres_db_host].postgres_use_tls

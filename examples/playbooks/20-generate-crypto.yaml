@@ -28,6 +28,11 @@
   when:
     - "'fabric_cas' in groups"
 
+- name: Setup Fabric CA crypto material
+  ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.generate_crypto
+  when:
+    - "'fabric_cas' in groups"
+
 - name: Transfer Fabric CA server configuration files
   ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.transfer_configs
   when:
@@ -53,12 +58,14 @@
   when:
     - "'fabric_cas' in groups"
 
-- name: Enroll Fabric-X Orderers
-  ansible.builtin.import_playbook: hyperledger.fabricx.orderer.enroll
-  when:
-    - "'fabric_cas' in groups"
+- name: Generate Fabric-X Orderers crypto
+  ansible.builtin.import_playbook: hyperledger.fabricx.orderer.generate_crypto
 
-- name: Enroll Fabric-X Load generators
-  ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.enroll
-  when:
-    - "'fabric_cas' in groups"
+- name: Generate Fabric-X Committers crypto
+  ansible.builtin.import_playbook: hyperledger.fabricx.committer.generate_crypto
+
+- name: Generate Fabric-X Load generators crypto
+  ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.generate_crypto
+
+- name: Generate Monitoring tools crypto
+  ansible.builtin.import_playbook: hyperledger.fabricx.monitoring.generate_crypto

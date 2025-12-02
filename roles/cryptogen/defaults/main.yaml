@@ -4,30 +4,38 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# cryptogen image
+# =========================
+# Cryptogen image
+# =========================
 cryptogen_registry_endpoint: "{{ lookup('env', 'CRYPTOGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 cryptogen_image_name: "fabric-x-tools"
 cryptogen_image_tag: "0.0.4"
 cryptogen_image: "{{ cryptogen_registry_endpoint }}/{{ cryptogen_image_name }}:{{ cryptogen_image_tag }}"
 cryptogen_container_name: "cryptogen"
 
-# cryptogen bin
+# =========================
+# Cryptogen bin
+# =========================
 cryptogen_git_uri: "https://github.com/hyperledger/fabric-x.git"
 cryptogen_git_dir: "{{ source_code_dir }}/fabric-x"
 cryptogen_git_commit: "v0.0.4"
 cryptogen_source_code_dir: "{{ cryptogen_git_dir }}/tools/cryptogen"
 cryptogen_bin_package: "github.com/hyperledger/fabric-x/tools/cryptogen"
 cryptogen_bin_name: "cryptogen"
+cryptogen_use_bin: false
 
-# cryptogen paths/locations
-cryptogen_config_dir: "{{ config_build_dir }}/cryptogen-artifacts"
-cryptogen_output_dir: "{{ cryptogen_config_dir }}/crypto"
-cryptogen_docker_config_dir: "/tmp/cryptogen-artifacts"
-cryptogen_docker_output_dir: "{{ cryptogen_docker_config_dir }}/crypto"
+# =========================
+# Paths/Locations
+# =========================
+cryptogen_artifacts_dir: "{{ config_build_dir }}/cryptogen-artifacts"
+cryptogen_output_dir: "{{ cryptogen_artifacts_dir }}/crypto"
+cryptogen_container_artifacts_dir: "/tmp/cryptogen-artifacts"
+cryptogen_container_output_dir: "{{ cryptogen_container_artifacts_dir }}/crypto"
 cryptogen_config_file: "crypto-config.yaml"
 
-# cryptogen misc vars
-cryptogen_use_bin: "{{ use_bin | default(false) }}"
+# =========================
+# Miscellaneous
+# =========================
 cryptogen_orderers_by_org: {}
 cryptogen_peers_by_org: {}
 cryptogen_users_by_org: {}

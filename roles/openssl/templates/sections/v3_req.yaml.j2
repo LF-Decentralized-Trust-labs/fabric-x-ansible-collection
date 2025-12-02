@@ -1,0 +1,18 @@
+# ----- X.509 v3 Extensions -----
+# Defines extensions such as SANs, key usage, and constraints.
+[ v3_req ]
+# Subject Alternative Names
+# Required for TLS: browsers and clients ignore CN for hostname validation.
+{% if openssl_san_entries is defined and openssl_san_entries | length > 0 %}
+subjectAltName = {{ openssl_san_entries | join(',') }}
+{% endif %}
+# Basic constraints: indicates whether this is a CA certificate
+# For leaf certificates (typical TLS certs), this should be "CA:false"
+basicConstraints = {{ openssl_basic_constraints }}
+# Key usage defines how the key can be used.
+# For TLS, "digitalSignature" (handshake) and "keyEncipherment" (key exchange)
+# are standard. You can adjust based on cert type.
+keyUsage = {{ openssl_key_usage }}
+# Extended key usage refines purpose: server/client authentication, code signing, etc.
+# For TLS, "serverAuth" and "clientAuth" are typical.
+extendedKeyUsage = {{ openssl_extended_key_usage }}

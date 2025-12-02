@@ -7,11 +7,12 @@
 - name: Set Grafana dashboard path to copy
   # set as fact before calling the method allows to evaluate `role_path` in the right role
   ansible.builtin.set_fact:
-    grafana_dashboard_path: "{{ role_path }}/files/node-exporter-dashboard.json"
+    node_exporter_grafana_dashboard_path: "{{ role_path }}/files/node-exporter-dashboard.json"
 
 - name: Transfer the Node Exporter Grafana Dashboard
   vars:
-    grafana_dashboard_name: "node-exporter-dashboard.json"
+    grafana_dashboard_file: "node-exporter-dashboard.json"
+    grafana_dashboard_path: "{{ node_exporter_grafana_dashboard_path }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
     tasks_from: config/copy_dashboard

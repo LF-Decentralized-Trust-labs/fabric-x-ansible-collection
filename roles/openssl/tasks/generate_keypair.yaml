@@ -1,0 +1,49 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the path for the OpenSSL private key has been defined
+  ansible.builtin.fail:
+    msg: "No private key path has been defined. Set it via 'openssl_private_key_path'."
+  when:
+    - openssl_private_key_path is not defined
+
+- name: Check that the path for the OpenSSL public key has been defined
+  ansible.builtin.fail:
+    msg: "No public key path has been defined. Set it via 'openssl_public_key_path'."
+  when:
+    - openssl_public_key_path is not defined
+
+- name: Ensure that the private key directory exists
+  ansible.builtin.file:
+    path: "{{ openssl_private_key_path | dirname }}"
+    state: directory
+    mode: "0755"
+
+- name: Ensure that the public key directory exists
+  ansible.builtin.file:
+    path: "{{ openssl_public_key_path | dirname }}"
+    state: directory
+    mode: "0755"
+
+- name: Generate private key
+  ansible.builtin.command: >-
+    openssl genpkey
+    -algorithm {{ openssl_key_alg }}
+    {% if openssl_key_opt is defined %}
+    -pkeyopt {{ openssl_key_opt }}
+    {% endif %}
+    -out {{ openssl_private_key_path }}
+  args:
+    creates: "{{ openssl_private_key_path }}"
+
+- name: Generate public key
+  ansible.builtin.command: >-
+    openssl pkey
+    -in {{ openssl_private_key_path }}
+    -pubout
+    -out {{ openssl_public_key_path }}
+  args:
+    creates: "{{ openssl_public_key_path }}"

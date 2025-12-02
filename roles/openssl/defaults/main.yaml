@@ -4,4 +4,37 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-openssl_ecdsa_curve: "prime256v1"
+# =========================
+# Paths, locations
+# =========================
+openssl_remote_config_dir: "{{ remote_node_dir }}/openssl"
+openssl_clean_after_gen: false
+
+# =========================
+# OpenSSL settings
+# =========================
+openssl_key_alg: RSA
+openssl_key_type: rsa:4096
+openssl_cert_duration: 365
+
+# =========================
+# OpenSSL CSR settings
+# =========================
+openssl_default_md: "sha256"
+
+# =========================
+# OpenSSL DN settings
+# =========================
+openssl_country: "US"
+openssl_state: "California"
+openssl_organization: "MyOrg Inc."
+openssl_common_name: "example.com"
+
+# =========================
+# OpenSSL x.509 v3 ext
+# =========================
+openssl_basic_constraints: "CA:false"
+openssl_key_usage: "keyEncipherment, digitalSignature"
+openssl_extended_key_usage: "serverAuth, clientAuth"
+openssl_san_entries:
+  - "DNS:{{ ansible_host }}"

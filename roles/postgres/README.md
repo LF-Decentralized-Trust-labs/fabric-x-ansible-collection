@@ -2,13 +2,15 @@
 
 The role `hyperledger.fabricx.postgres` can be used to run a PostgreSQL DB.
 
-When the variable `postgres_exporter_port` is defined, the role will also manage a **Postgres Exporter sidecar** (start, stop, teardown, wipe) to expose PostgreSQL metrics for Prometheus and Grafana.
-
 The role allows to run Postgres as **container only** (binary is not currently supported).
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Tasks](#tasks)
+  - [crypto/setup](#cryptosetup)
+  - [crypto/fetch](#cryptofetch)
+  - [crypto/rm](#cryptorm)
+  - [config/rm](#configrm)
   - [start](#start)
   - [stop](#stop)
   - [teardown](#teardown)
@@ -17,6 +19,54 @@ The role allows to run Postgres as **container only** (binary is not currently s
   - [ping](#ping)
 
 ## Tasks
+
+### crypto/setup
+
+The task `crypto/setup` transfers or generates the crypto material needed to run a Postgres DB with TLS. The task supports 3 operating modes:
+
+- with `openssl` (see [hyperledger.fabricx.openssl](../openssl/README.md)) if the DB runs without an Hyperledger Fabric-X peer organization definition;
+- with `cryptogen` (see [hyperledger.fabricx.cryptogen](../cryptogen/README.md)): the crypto material generated on the control node with `cryptogen` is transferred to the remote node;
+- with `fabric-ca` (see [hyperledger.fabricx.fabric_ca](../fabric_ca/README.md)): the crypto material is generated directly on the remote node querying the reference `fabric_ca` host.
+
+```yaml
+- name: Generate the TLS keypair for Postgres DB
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: crypto/setup
+```
+
+### crypto/fetch
+
+The task `crypto/fetch` allows to fetch the TLS certificate of a Postgres DB on the control node, so that it could be shared with the clients later.
+
+```yaml
+- name: Fetch the Postgres DB TLS certificate
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: crypto/fetch
+```
+
+### crypto/rm
+
+The task `crypto/rm` removes the crypto material generated for Postgres on the remote node:
+
+```yaml
+- name: Remove the Postgres crypto files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: crypto/rm
+```
+
+### config/rm
+
+The task `config/rm` removes the Postgres configuration files on the remote node:
+
+```yaml
+- name: Remove the Postgres configuration files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: config/rm
+```
 
 ### start
 

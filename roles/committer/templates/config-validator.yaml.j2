@@ -7,5 +7,7 @@
 server:
   endpoint: 0.0.0.0:{{ committer_rpc_port }}
 {% include './sections/database.yaml.j2' +%}
+{% if prometheus_exporter_port is defined %}
 {% include './sections/monitoring.yaml.j2' +%}
+{% endif %}
 {% include './sections/logging.yaml.j2' %}
