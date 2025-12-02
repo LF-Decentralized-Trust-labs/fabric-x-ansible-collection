@@ -24,6 +24,14 @@
   when:
     - prometheus_use_tls
 
+- name: Generate {{ prometheus_http_config_file }} for promtool
+  ansible.builtin.template:
+    src: "http-config.yaml.j2"
+    dest: "{{ prometheus_remote_config_dir }}/{{ prometheus_http_config_file }}"
+    mode: "0o644"
+  when:
+    - prometheus_use_tls
+
 - name: Ensure TLS folder exists
   ansible.builtin.file:
     path: "{{ prometheus_remote_config_dir }}/tls/{{ service_to_scrape.job_name }}"

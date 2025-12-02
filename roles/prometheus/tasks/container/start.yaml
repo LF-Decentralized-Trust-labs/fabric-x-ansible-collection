@@ -25,13 +25,13 @@
     container_volumes:
       - "{{ prometheus_remote_config_dir }}:{{ prometheus_container_config_dir }}:Z"
     container_healthcheck_test: >-
-      wget -q
-      --spider
+      promtool check
+      healthy
       {% if prometheus_use_tls %}
-      --no-check-certificate
-      https://localhost:{{ prometheus_port }}/-/healthy
+      --http.config.file={{ prometheus_container_config_dir }}/{{ prometheus_http_config_file }}
+      --url https://localhost:{{ prometheus_port }}
       {% else %}
-      http://localhost:{{ prometheus_port }}/-/healthy
+      --url http://localhost:{{ prometheus_port }}
       {% endif %}
     container_wait_until_running: true
     container_wait_port: "{{ prometheus_port }}"
