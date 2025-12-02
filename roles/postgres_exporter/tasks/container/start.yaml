@@ -32,9 +32,9 @@
     # https://github.com/docker-library/busybox/issues/162
     # Since `postgres-exporter` uses `busybox` as base image, wget is not working as expected.
     # Thus, we fallback to `nc` when running with TLS until the issue gets fixed:
-    # https://github.com/prometheus/node_exporter/issues/3496
+    # https://github.com/prometheus-community/postgres_exporter/issues/1225
     container_healthcheck_test: >-
-      {% if node_exporter_use_tls %}
+      {% if postgres_exporter_use_tls %}
       nc -z -w 3 localhost {{ postgres_exporter_port }}
       {% else %}
       wget -q --spider http://localhost:{{ postgres_exporter_port }}/metrics
