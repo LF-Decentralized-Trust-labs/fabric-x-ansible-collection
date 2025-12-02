@@ -28,5 +28,5 @@ postgres_use_tls: false
 # Miscellaneous
 # =========================
 postgres_tuning: ""
-postgres_tls_private_key_file: tls_key.pem
-postgres_tls_cert_file: tls_cert.pem
+postgres_tls_private_key_file: server.key
+postgres_tls_cert_file: server.crt
