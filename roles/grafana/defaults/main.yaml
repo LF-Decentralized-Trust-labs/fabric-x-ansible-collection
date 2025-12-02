@@ -26,6 +26,8 @@ grafana_dashboard_file: dashboard.json
 # TLS settings
 # =========================
 grafana_use_tls: false
+grafana_tls_private_key_file: tls_key.pem
+grafana_tls_cert_file: tls_cert.pem
 
 # =========================
 # Miscellaneous
