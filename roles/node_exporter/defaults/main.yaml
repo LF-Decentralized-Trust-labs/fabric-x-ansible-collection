@@ -24,3 +24,5 @@ node_exporter_web_config_file: web-config.yaml
 # TLS settings
 # =========================
 node_exporter_use_tls: false
+node_exporter_tls_private_key_file: tls_key.pem
+node_exporter_tls_cert_file: tls_cert.pem
