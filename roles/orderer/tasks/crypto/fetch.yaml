@@ -4,31 +4,21 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# =========================
-# With cryptogen
-# =========================
-- name: Fetch Fabric-X Orderer sign certificate generated with cryptogen
+- name: Fetch Fabric-X Orderer sign certificates
+  vars:
+    cryptogen_signcert_file: "{{ orderer_crypto_name }}.{{ organization.domain }}-cert.pem"
+    fabric_ca_signcert_file: "cert.pem"
+    signcert_file: >-
+      {{
+        cryptogen_signcert_file
+        if organization.fabric_ca_host is undefined
+        else fabric_ca_signcert_file
+      }}
   ansible.builtin.fetch:
-    src: "{{ orderer_remote_config_dir }}/msp/signcerts/{{ orderer_crypto_name }}.{{ organization.domain }}-cert.pem"
-    dest: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/msp/signcerts/{{ orderer_crypto_name }}.{{ organization.domain }}-cert.pem"
+    src: "{{ orderer_remote_config_dir }}/msp/signcerts/{{ signcert_file }}"
+    dest: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/msp/signcerts/{{ cryptogen_signcert_file }}"
     flat: true
-  when:
-    - organization.fabric_ca_host is undefined
 
-# =========================
-# With Fabric-CA
-# =========================
-- name: Fetch Fabric-X Orderer sign certificate generated with Fabric-CA to build genesis block
-  ansible.builtin.fetch:
-    src: "{{ orderer_remote_config_dir }}/msp/signcerts/cert.pem"
-    dest: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/msp/signcerts/{{ orderer_crypto_name }}.{{ organization.domain }}-cert.pem"
-    flat: true
-  when:
-    - organization.fabric_ca_host is defined
-
-# =========================
-# With cryptogen/Fabric-CA (if running with cryptogenize)
-# =========================
 - name: Fetch Fabric-X Orderer TLS certificate generated with Fabric-CA to build genesis block
   ansible.builtin.fetch:
     src: "{{ orderer_remote_config_dir }}/tls/server.crt"
