@@ -38,5 +38,5 @@
 
 - name: Combine all TLS CA certificates in one file
   ansible.builtin.include_role:
-    name: hyperledger.fabric.cryptogen
+    name: hyperledger.fabricx.cryptogen
     tasks_from: config/combine_tlscas
