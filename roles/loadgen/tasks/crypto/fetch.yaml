@@ -4,34 +4,23 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# =========================
-# With cryptogen
-# =========================
-- name: Fetch Fabric-X loadgen user sign certificates generated with cryptogen
+- name: Fetch Fabric-X loadgen user sign certificates
+  vars:
+    cryptogen_signcert_file: "{{ current_user.name }}@{{ organization.domain }}-cert.pem"
+    fabric_ca_signcert_file: "cert.pem"
+    signcert_file: >-
+      {{
+        cryptogen_signcert_file
+        if organization.fabric_ca_host is undefined
+        else fabric_ca_signcert_file
+      }}
   ansible.builtin.fetch:
-    src: "{{ loadgen_remote_config_dir }}/users/{{ current_user.name }}@{{ organization.domain }}/msp/signcerts/{{ current_user.name }}@{{ organization.domain }}-cert.pem"
-    dest: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/users/{{ current_user.name }}@{{ organization.domain }}/msp/signcerts/{{ current_user.name }}@{{ organization.domain }}-cert.pem"
+    src: "{{ loadgen_remote_config_dir }}/users/{{ current_user.name }}@{{ organization.domain }}/msp/signcerts/{{ signcert_file }}"
+    dest: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/users/{{ current_user.name }}@{{ organization.domain }}/msp/signcerts/{{ cryptogen_signcert_file }}"
     flat: true
   loop: "{{ organization.users }}"
   loop_control:
     loop_var: current_user
     label: "{{ organization.domain }}:{{ current_user.name }}"
   when:
-    - organization.fabric_ca_host is undefined
-    - organization.users is defined
-
-# =========================
-# With Fabric-CA
-# =========================
-- name: Fetch Fabric-X loadgen user sign certificates generated with Fabric-CA
-  ansible.builtin.fetch:
-    src: "{{ loadgen_remote_config_dir }}/users/{{ current_user.name }}@{{ organization.domain }}/msp/signcerts/cert.pem"
-    dest: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/users/{{ current_user.name }}@{{ organization.domain }}/msp/signcerts/{{ current_user.name }}@{{ organization.domain }}-cert.pem"
-    flat: true
-  loop: "{{ organization.users }}"
-  loop_control:
-    loop_var: current_user
-    label: "{{ organization.domain }}:{{ current_user.name }}"
-  when:
-    - organization.fabric_ca_host is defined
     - organization.users is defined
