@@ -6,7 +6,7 @@
 
 - name: Fetch Fabric-X loadgen user sign certificates
   vars:
-    cryptogen_signcert_file: "{{ current_user.name }}.{{ organization.domain }}-cert.pem"
+    cryptogen_signcert_file: "{{ current_user.name }}@{{ organization.domain }}-cert.pem"
     fabric_ca_signcert_file: "cert.pem"
     signcert_file: >-
       {{
