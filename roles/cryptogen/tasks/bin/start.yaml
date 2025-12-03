@@ -22,19 +22,7 @@
     name: hyperledger.fabricx.bin
     tasks_from: start
 
-- name: Find all TLS CA certs
-  ansible.builtin.find:
-    paths: "{{ cryptogen_output_dir }}"
-    patterns: "tlsca*.pem"
-    depth: 4
-    recurse: true
-  register: cryptogen_tlsca_certs
-
-- name: Combine all TLS CA certs in ca-certs.pem
-  ansible.builtin.shell: >-
-    cat {{ cryptogen_tlsca_certs.files | map(attribute='path') | join(' ') }}
-    > {{ cryptogen_output_dir }}/ca-certs.pem
-  register: cryptogen_tlscas_result
-  changed_when: cryptogen_tlscas_result.rc != 0
-  when:
-    - cryptogen_tlsca_certs.files | length > 0
+- name: Combine all TLS CA certificates in one file
+  ansible.builtin.include_role:
+    name: hyperledger.fabric.cryptogen
+    tasks_from: config/combine_tlscas
