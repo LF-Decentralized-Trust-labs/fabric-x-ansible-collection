@@ -60,3 +60,13 @@
     tasks_from: volume/create
   when:
     - postgres_use_tls
+
+# This operation is needed for systems where openssl runs with umask=027.
+# In this case the certificate will be created with permission 0o640, which
+# makes it unreadable from within Postgres (running with user 999).
+- name: Set right permissions for Postgres TLS certificate
+  ansible.builtin.file:
+    path: "{{ postgres_remote_config_dir }}/tls/{{ postgres_tls_cert_file }}"
+    mode: "0o644"
+  when:
+    - postgres_use_tls
