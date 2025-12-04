@@ -8,5 +8,5 @@
   containers.podman.podman_container_exec:
     name: "{{ container_name }}"
     command: "{{ container_command }}"
-    env: "{{ container_env }}"
+    env: "{{ container_env | default(omit) }}"
   register: container_exec_result
