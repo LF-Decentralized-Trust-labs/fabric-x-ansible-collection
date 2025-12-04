@@ -20,12 +20,12 @@
     ports: >-
       {{
         container_ports
-        if container_network_mode == 'bridge'
-        else []
+        if (container_network_mode == 'bridge') and (container_ports is defined)
+        else omit
       }}
     memory: "{{ container_memory | default(omit) }}"
     cpus: "{{ container_cpus | default(omit) }}"
-    volumes: "{{ container_volumes }}"
+    volumes: "{{ container_volumes | default(omit) }}"
     user: >-
       {{
         container_host_user
@@ -38,7 +38,7 @@
         if container_run_as_host_user and (not container_host_user_is_root)
         else omit
       }}
-    env: "{{ container_env }}"
+    env: "{{ container_env | default(omit) }}"
     log_driver: "{{ container_log_driver }}"
     log_options:
       max_size: "{{ container_log_max_size }}"
