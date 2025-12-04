@@ -19,26 +19,30 @@
 - name: Collect logs
   ansible.builtin.set_fact:
     bin_cmd_to_run: "{{ bin_cmd_to_run }} > {{ bin_remote_logs_dir }}/{{ bin_remote_logs_file }} 2>&1"
-  when: bin_collect_logs
+  when:
+    - bin_collect_logs
 
 - name: Create log path
   ansible.builtin.file:
     path: "{{ bin_remote_logs_dir }}"
     state: directory
     mode: "0o755"
-  when: bin_collect_logs
+  when:
+    - bin_collect_logs
 
 - name: Create log file
   ansible.builtin.file:
     path: "{{ bin_remote_logs_dir }}/{{ bin_remote_logs_file }}"
     state: touch
     mode: "0o644"
-  when: bin_collect_logs
+  when:
+    - bin_collect_logs
 
 - name: Show command to run
   ansible.builtin.debug:
     msg: "{{ bin_cmd_to_run }}"
-  when: not bin_omit_logs
+  when:
+    - not bin_omit_logs
 
 - name: Run command within a TMUX session
   vars:
@@ -79,4 +83,5 @@
     port: "{{ bin_wait_port }}"
     delay: "{{ bin_wait_delay }}"
     timeout: "{{ bin_wait_timeout }}"
-  when: bin_wait_until_running
+  when:
+    - bin_wait_until_running
