@@ -29,3 +29,13 @@
     tasks_from: volume/create
   when:
     - elasticsearch_use_tls
+
+# This operation is needed for systems where openssl runs with umask=027.
+# In this case the certificate will be created with permission 0o640, which
+# makes it unreadable from within Elasticsearch (running with user 1000).
+- name: Set right permissions for ElasticSearch TLS certificate
+  ansible.builtin.file:
+    path: "{{ elasticsearch_remote_config_dir }}/tls/{{ elasticsearch_tls_cert_file }}"
+    mode: "0o644"
+  when:
+    - elasticsearch_use_tls
