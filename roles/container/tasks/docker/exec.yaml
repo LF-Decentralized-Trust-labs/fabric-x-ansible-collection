@@ -8,5 +8,5 @@
   community.docker.docker_container_exec:
     container: "{{ container_name }}"
     command: "{{ container_command }}"
-    env: "{{ container_env }}"
+    env: "{{ container_env | default(omit) }}"
   register: container_exec_result
