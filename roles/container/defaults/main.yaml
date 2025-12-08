@@ -29,7 +29,7 @@ container_fetched_logs_dir: "{{ fetched_artifacts_dir }}/{{ container_name }}"
 container_fetched_logs_file: "logs.txt"
 container_remote_logs_dir: "{{ remote_node_dir }}/logs"
 container_remote_logs_file: "logs.txt"
-container_debug: false
+container_debug: "{{ lookup('env', 'DEBUG') | bool | default(false) }}"
 container_log_driver: "json-file"
 container_log_max_size: "1g"
 container_log_lines: 0
