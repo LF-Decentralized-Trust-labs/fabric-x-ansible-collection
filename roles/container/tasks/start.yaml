@@ -8,8 +8,7 @@
   ansible.builtin.debug:
     msg: "{{ container_command }}"
   when:
-    - not container_omit_logs
-    - not container_run_detach_mode
+    - container_debug
 
 - name: Find the container client to use
   ansible.builtin.include_role:

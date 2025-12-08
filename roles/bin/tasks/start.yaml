@@ -42,7 +42,7 @@
   ansible.builtin.debug:
     msg: "{{ bin_cmd_to_run }}"
   when:
-    - not bin_omit_logs
+    - bin_debug
 
 - name: Run command within a TMUX session
   vars:
@@ -73,7 +73,7 @@
     msg: "{{ bin_output.stdout_lines }}"
   when:
     - not bin_collect_logs
-    - not bin_omit_logs
+    - bin_debug
     - bin_output is defined
     - bin_output.stdout_lines | length > 0
 

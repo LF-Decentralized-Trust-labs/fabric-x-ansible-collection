@@ -20,7 +20,7 @@ bin_remote_logs_file: "logs.txt"
 bin_fetched_logs_dir: "{{ fetched_artifacts_dir }}/{{ bin_name }}"
 bin_fetched_logs_file: "logs.txt"
 bin_collect_logs: true
-bin_omit_logs: false
+bin_debug: false
 
 # =========================
 # Bin Build Opts
