@@ -78,5 +78,5 @@
   ansible.builtin.debug:
     msg: "{{ log_lines[-container_log_lines:] if (container_log_lines | int > 0) else log_lines }}"
   when:
-    - not container_omit_logs
+    - container_debug
     - not container_run_detach_mode

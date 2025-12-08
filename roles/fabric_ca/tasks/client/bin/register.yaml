@@ -5,8 +5,6 @@
 #
 
 - name: Find all registered identities on Fabric CA
-  vars:
-    bin_omit_logs: true
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/bin/identity_list
