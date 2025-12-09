@@ -247,7 +247,7 @@ all:
                   children:
                     yb_masters:
                       vars:
-                        yugabyte_component_type: "master"
+                        yugabyte_component_type: master
                         yugabyte_master_rpc_bind_port: 7100
                         yugabyte_master_webserver_port: 7000
                       hosts:
@@ -259,7 +259,7 @@ all:
                           ansible_host: "{{ host_machine_7 }}"
                     yb_tablets:
                       vars:
-                        yugabyte_component_type: "tablet"
+                        yugabyte_component_type: tablet
                         yugabyte_tablet_pgsql_bind_port: 5433
                         yugabyte_tablet_rpc_bind_port: 9100
                         yugabyte_tablet_webserver_port: 9000
