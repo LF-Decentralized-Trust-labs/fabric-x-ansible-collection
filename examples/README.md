@@ -179,7 +179,7 @@ It bootstraps a network with:
 We have used this inventory to deploy an Hyperledger Fabric-X network able to reach ~100k TPS using 16 BareMetal servers within the same datacenter and with the following properties:
 
 - **OS**: RHEL9;
-- **CPU**: Intel(R) Xeon(R) Silver 4210 CPU @ 2.20GHz;
+- **CPU**: 2 CPU Sockets, each one equipped with an (Intel(R) Xeon(R) Silver 4210 CPU @ 2.20GHz)[https://www.intel.com/content/www/us/en/products/sku/193384/intel-xeon-silver-4210-processor-13-75m-cache-2-20-ghz/specifications.html] (for a total of 20 Cores each machines);
 - **RAM**: 64GB;
 - **DISK**: 1000GB SSD (to get high-speed IOPS).
 
