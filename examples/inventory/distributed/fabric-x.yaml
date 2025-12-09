@@ -14,7 +14,7 @@
 # This deployment was able to achieve high TPS distributing the components
 # over 16 machines with the following properties:
 # - RHEL OS;
-# - Intel(R) Xeon(R) Silver 4210 CPU @ 2.20GHz;
+# - 2 CPU Sockets each one equipped with Intel(R) Xeon(R) Silver 4210 CPU @ 2.20GHz;
 # - 64GB RAM;
 # - 1000GB SSD disk (to get high-speed IOPS);
 #
@@ -179,16 +179,16 @@ all:
             #   - 7 tablets
             fabric_x_committer:
               hosts:
-                committer-coordinator:
-                  committer_component_type: coordinator
-                  ansible_host: "{{ host_machine_5 }}"
-                  committer_rpc_port: 5300
-                  prometheus_exporter_port: 2140
                 committer-sidecar:
                   committer_component_type: sidecar
-                  ansible_host: "{{ host_machine_6 }}"
+                  ansible_host: "{{ host_machine_5 }}"
                   committer_rpc_port: 5400
                   prometheus_exporter_port: 2150
+                committer-coordinator:
+                  committer_component_type: coordinator
+                  ansible_host: "{{ host_machine_6 }}"
+                  committer_rpc_port: 5300
+                  prometheus_exporter_port: 2140
                 committer-query-service:
                   committer_component_type: query-service
                   ansible_host: "{{ host_machine_6 }}"
@@ -247,7 +247,7 @@ all:
                   children:
                     yb_masters:
                       vars:
-                        yugabyte_component_type: "master"
+                        yugabyte_component_type: master
                         yugabyte_master_rpc_bind_port: 7100
                         yugabyte_master_webserver_port: 7000
                       hosts:
@@ -259,7 +259,7 @@ all:
                           ansible_host: "{{ host_machine_7 }}"
                     yb_tablets:
                       vars:
-                        yugabyte_component_type: "tablet"
+                        yugabyte_component_type: tablet
                         yugabyte_tablet_pgsql_bind_port: 5433
                         yugabyte_tablet_rpc_bind_port: 9100
                         yugabyte_tablet_webserver_port: 9000
