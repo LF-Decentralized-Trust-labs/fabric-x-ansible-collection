@@ -14,16 +14,19 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: get_container_client
-  when: container_client == ''
+  when:
+    - container_client == ''
 
 - name: Start container with podman
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: podman/start
-  when: container_client == 'podman'
+  when:
+    - container_client == 'podman'
 
 - name: Start container with docker
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: docker/start
-  when: container_client == 'docker'
+  when:
+    - container_client == 'docker'

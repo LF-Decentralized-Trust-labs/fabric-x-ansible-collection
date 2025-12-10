@@ -8,7 +8,8 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: get_container_client
-  when: container_client == ''
+  when:
+    - container_client == ''
 
 - name: Ensure logs config directory exists
   ansible.builtin.file:

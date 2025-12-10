@@ -7,26 +7,15 @@
 - name: Create list of machines where to run the command
   hosts: "{{ target_hosts | default('all') }}"
   tasks:
-    - name: Select machines where to run the command
-      vars:
-        hostname_per_machine: >-
-          {{
-            ansible_play_hosts
-            | map('extract', hostvars)
-            | selectattr('ansible_host', '==', item)
-            | map(attribute='inventory_hostname')
-            | sort
-            | first
-          }}
-      ansible.builtin.add_host:
-        name: "{{ hostname_per_machine }}"
-        groups: machines
-      loop: "{{ ansible_play_hosts | map('extract', hostvars, 'ansible_host') | unique | list }}"
+    - name: Set the group "machines"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.utils
+        tasks_from: select_one_host_per_machine
 
 - name: Run command on the machines
   hosts: "{{ target_hosts | default('machines') }}:&machines"
   tasks:
-    - name: Run command {{ command }}
+    - name: Run command "{{ command }}"
       ansible.builtin.command: "{{ command }}"
       changed_when: command_result.rc != 0
       register: command_result

@@ -191,6 +191,7 @@ Here there is a list of the most used commands:
 | `node-exporter-stop`    | Stop the Node Exporter container on the targeted hosts.                     |
 | `get-metrics`           | Get the metrics from the targeted components.                               |
 | `limit-rate`            | Set the TPS rate on the load generators.                                    |
+| `login-cr`              | Log a container engine within a container registry                          |
 
 ### Restrict commands to a group of hosts
 

@@ -21,6 +21,11 @@ TARGET_HOSTS ?= all
 ASSERT_METRICS ?= false
 LIMIT ?= 1000
 
+# Vars to log into CR using env vars
+CONTAINER_REGISTRY ?=
+CONTAINER_REGISTRY_USERNAME ?=
+CONTAINER_REGISTRY_PASSWORD ?=
+
 # include the checks target
 include $(PROJECT_DIR)/target_hosts.mk
 
@@ -66,6 +71,11 @@ check-license-header:
 .PHONY: install-prerequisites
 install-prerequisites:
 	ansible-playbook hyperledger.fabricx.install_prerequisites --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+
+# Log the container engine within a Container Registry (aka CR) (e.g. make login-cr CONTAINER_REGISTRY=icr.io CONTAINER_REGISTRY_USERNAME=iamapikey CONTAINER_REGISTRY_PASSWORD=my_api_key).
+.PHONY: login-cr
+login-cr:
+	ansible-playbook hyperledger.fabricx.log_in_container_registry --extra-vars '{"target_hosts": "$(TARGET_HOSTS)", "container_registry": "$(CONTAINER_REGISTRY)", "container_registry_username": "$(CONTAINER_REGISTRY_USERNAME)", "container_registry_password": "$(CONTAINER_REGISTRY_PASSWORD)"}'
 
 # Build all the artifacts, the binaries and transfer them to the remote hosts (e.g. make setup).
 .PHONY: setup
