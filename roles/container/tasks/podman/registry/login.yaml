@@ -1,0 +1,30 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the Container Registry has been defined
+  ansible.builtin.fail:
+    msg: "No container registry has been defined. Set it via 'container_registry'."
+  when:
+    - container_registry is not defined
+
+- name: Check that the Container Registry username has been defined
+  ansible.builtin.fail:
+    msg: "No container registry username has been defined. Set it via 'container_registry_username'."
+  when:
+    - container_registry_username is not defined
+
+- name: Check that the Container Registry password has been defined
+  ansible.builtin.fail:
+    msg: "No container registry password has been defined. Set it via 'container_registry_password'."
+  when:
+    - container_registry_password is not defined
+
+- name: Login podman within {{ container_registry }}
+  containers.podman.podman_login:
+    registry: "{{ container_registry }}"
+    username: "{{ container_registry_username }}"
+    password: "{{ container_registry_password }}"
+    authfile: "{{ container_authfile | default(omit) }}"

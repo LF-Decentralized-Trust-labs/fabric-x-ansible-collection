@@ -4,6 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Check that the container network has been defined
+  ansible.builtin.fail:
+    msg: "No container network has been defined. Set it via 'container_network'."
+  when:
+    - container_network is not defined
+
 - name: Remove Podman network {{ container_network }}
   containers.podman.podman_network:
     name: "{{ container_network }}"

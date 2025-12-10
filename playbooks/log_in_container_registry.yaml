@@ -18,4 +18,4 @@
     - name: Login the container engine in a container registry
       ansible.builtin.include_role:
         name: hyperledger.fabricx.container
-        tasks_from: login
+        tasks_from: registry/login
