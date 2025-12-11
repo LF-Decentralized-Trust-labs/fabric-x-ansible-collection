@@ -11,16 +11,16 @@
   when:
     - container_client == ''
 
-- name: Execute container command with podman client
+- name: Login into Container Registry with podman
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
-    tasks_from: podman/exec
+    tasks_from: podman/registry/login
   when:
     - container_client == 'podman'
 
-- name: Execute container command with docker client
+- name: Login into Container Registry with docker
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
-    tasks_from: docker/exec
+    tasks_from: docker/registry/login
   when:
     - container_client == 'docker'

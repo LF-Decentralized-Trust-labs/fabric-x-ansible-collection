@@ -1,0 +1,21 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Create list of machines to log into Container Registry
+  hosts: "{{ target_hosts | default('all') }}"
+  tasks:
+    - name: Set the group "machines"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.utils
+        tasks_from: select_one_host_per_machine
+
+- name: Log into Container Registry
+  hosts: "{{ target_hosts | default('machines') }}:&machines"
+  tasks:
+    - name: Login the container engine in a container registry
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.container
+        tasks_from: registry/login

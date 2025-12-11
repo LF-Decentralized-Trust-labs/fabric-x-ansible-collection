@@ -1,0 +1,30 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# This task is useful whenever you need to run some commands
+# which can collide when run on the same machine and cause
+# errors.
+- name: Create group "machines" with one host per machine
+  vars:
+    hostname_per_machine: >-
+      {{
+        ansible_play_hosts
+        | map('extract', hostvars)
+        | selectattr('ansible_host', '==', item)
+        | map(attribute='inventory_hostname')
+        | sort
+        | first
+      }}
+  ansible.builtin.add_host:
+    name: "{{ hostname_per_machine }}"
+    groups: machines
+  loop: >-
+    {{
+      ansible_play_hosts
+      | map('extract', hostvars, 'ansible_host')
+      | unique
+      | list
+    }}
