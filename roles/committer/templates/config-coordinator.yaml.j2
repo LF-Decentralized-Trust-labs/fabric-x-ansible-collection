@@ -5,16 +5,60 @@
 #
 
 {% include './sections/server.yaml.j2' +%}
+# Settings for the connection to the Hyperledger Fabric-X Committer Verifier services.
 verifier:
+  # List of HLFX Committer verifiers endpoints.
   endpoints:
 {% for host in committer_verifiers %}
     - {{ hostvars[host].ansible_host }}:{{ hostvars[host].committer_rpc_port }}
 {% endfor %}
+{% if hostvars[committer_verifier_ref_host].committer_use_tls is defined and hostvars[committer_verifier_ref_host].committer_use_tls %}
+	# Define TLS options and certificate paths used for secure communication
+  # between the coordinator and the verifiers.
+  tls:
+    # Server CA certificates to trust if tls is enabled.
+    ca-cert-paths:
+      - {{ committer_config_dir }}/tls/ca.crt
+{% if hostvars[committer_verifier_ref_host].committer_use_mtls is defined and hostvars[committer_verifier_ref_host].committer_use_mtls %}
+    # Path to the TLS key file (private key).
+    key-path: {{ committer_config_dir }}/tls/server.key
+    # Path to the TLS certificate file (public key).
+    cert-path: {{ committer_config_dir }}/tls/server.crt
+    # TLS configuration modes ("none", "tls" or "mtls")
+    mode: mtls
+{% else %}
+    # TLS configuration modes ("none", "tls" or "mtls")
+    mode: tls
+{% endif %}
+{% endif %}
+
+# Settings for the connection to the Hyperledger Fabric-X Committer Validator services.
 validator-committer:
+  # List of HLFX Committer validators endpoints.
   endpoints:
 {% for host in committer_validators %}
     - {{ hostvars[host].ansible_host }}:{{ hostvars[host].committer_rpc_port }}
 {% endfor %}
+{% if hostvars[committer_validator_ref_host].committer_use_tls is defined and hostvars[committer_validator_ref_host].committer_use_tls %}
+	# Define TLS options and certificate paths used for secure communication
+  # between the coordinator and the validators.
+  tls:
+    # Server CA certificates to trust if tls is enabled.
+    ca-cert-paths:
+      - {{ committer_config_dir }}/tls/ca.crt
+{% if hostvars[committer_validator_ref_host].committer_use_mtls is defined and hostvars[committer_validator_ref_host].committer_use_mtls %}
+    # Path to the TLS key file (private key).
+    key-path: {{ committer_config_dir }}/tls/server.key
+    # Path to the TLS certificate file (public key).
+    cert-path: {{ committer_config_dir }}/tls/server.crt
+    # TLS configuration modes ("none", "tls" or "mtls")
+    mode: mtls
+{% else %}
+    # TLS configuration modes ("none", "tls" or "mtls")
+    mode: tls
+{% endif %}
+{% endif %}
+
 dependency-graph:
   num-of-local-dep-constructors: {{ committer_coordinator_dep_graph_constructors }}
   waiting-txs-limit: {{ committer_coordinator_dep_graph_wait_tx_limit }}

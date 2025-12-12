@@ -39,6 +39,7 @@ committer_query_service_config_file: "config-query-service.yml"
 # Fabric-X Committer TLS/mTLS
 # =========================
 committer_use_tls: false
+committer_use_mtls: false
 
 # =========================
 # Miscellaneous

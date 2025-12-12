@@ -22,19 +22,3 @@
     src: "config-sidecar.yaml.j2"
     dest: "{{ committer_remote_config_dir }}/{{ committer_sidecar_config_file }}"
     mode: "0o644"
-
-- name: Copy Fabric-X Committer sidecar root CA
-  ansible.builtin.copy:
-    src: "{{ fetched_artifacts_dir }}/crypto/ca-certs.pem"
-    dest: "{{ committer_remote_config_dir }}/ca-certs.pem"
-    mode: "0o644"
-  when:
-    - committer_use_tls
-
-- name: Copy Fabric-X Committer sidecar crypto material generated with cryptogen
-  ansible.builtin.copy:
-    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ inventory_hostname }}.{{ organization.domain }}/"
-    dest: "{{ committer_remote_config_dir }}"
-    mode: "0o644"
-  when:
-    - committer_use_tls
