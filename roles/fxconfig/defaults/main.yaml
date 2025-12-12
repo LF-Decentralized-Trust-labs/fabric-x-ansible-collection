@@ -4,21 +4,27 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# fxconfig image
+# =========================
+# Fxconfig image
+# =========================
 fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 fxconfig_image_name: "fabric-x-tools"
 fxconfig_image_tag: "0.0.5"
 fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
 fxconfig_container_name: "fxconfig"
 
-# fxconfig bin
+# =========================
+# Fxconfig binary
+# =========================
 fxconfig_git_uri: "https://github.com/hyperledger/fabric-x.git"
 fxconfig_git_dir: "{{ source_code_dir }}/fabric-x"
 fxconfig_source_code_dir: "{{ fxconfig_git_dir }}/tools/fxconfig"
 fxconfig_bin_name: fxconfig
 fxconfig_bin_package: github.com/hyperledger/fabric-x/tools/fxconfig
-fxconfig_git_commit: v0.0.5
-
-# fxconfig misc
-fxconfig_use_tls: false
+fxconfig_git_commit: 2b2ca4d5e0f97e676e9d95a0636aac3d898d061c
 fxconfig_use_bin: false
+
+# =========================
+# Fxconfig TLS settings
+# =========================
+fxconfig_use_tls: false
