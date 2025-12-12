@@ -4,8 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-server:
-  endpoint: 0.0.0.0:{{ committer_rpc_port }}
+{% include './sections/server.yaml.j2' +%}
 verifier:
   endpoints:
 {% for host in committer_verifiers %}

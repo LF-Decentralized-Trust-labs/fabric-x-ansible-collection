@@ -1,0 +1,26 @@
+# GRPC Server configuration
+server:
+  # The GRPC server endpoint
+  endpoint: 0.0.0.0:{{ committer_rpc_port }}
+  # Set the keepalive behavior for the gRPC server.
+  keep-alive:
+    params:
+      # After a duration of this time if the server doesn't see any activity it
+      # pings the client to see if the transport is still alive.
+      # If set below 1s, a minimum value of 1s will be used instead.    
+      time: 300s
+      # After having pinged for keepalive check, the server waits for a duration
+      # of Timeout and if no activity is seen even after that the connection is
+      # closed.
+      timeout: 600s
+    # EnforcementPolicy is used to set keepalive enforcement policy on the
+    # server-side. Server will close connection with a client that violates this
+    # policy.      
+    enforcement-policy:
+      # MinTime is the minimum amount of time a client should wait before sending
+      # a keepalive ping.    
+      min-time: 60s
+      # If true, server allows keepalive pings even when there are no active
+      # streams(RPCs). If false, and client sends ping when there are no active
+      # streams, server will send GOAWAY and close the connection.      
+      permit-without-stream: false

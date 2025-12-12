@@ -4,9 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-server:
-  # The server's endpoint configuration
-  endpoint: 0.0.0.0:{{ committer_rpc_port }}
+{% include './sections/server.yaml.j2' +%}
 
 # Resource limit configurations
 # A batch will execute once it accumulated this number of keys.
