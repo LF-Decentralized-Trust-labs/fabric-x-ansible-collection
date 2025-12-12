@@ -4,8 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-server:
-  endpoint: 0.0.0.0:{{ committer_rpc_port }}
+{% include './sections/server.yaml.j2' +%}
 parallel-executor:
   batch-size-cutoff: 500
   batch-time-cutoff: 2ms

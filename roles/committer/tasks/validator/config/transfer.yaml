@@ -19,6 +19,13 @@
     mode: "0o750"
 
 - name: Generate {{ committer_validator_config_file }}
+  vars:
+    committer_config_dir: >-
+      {{
+        committer_remote_config_dir
+        if committer_use_bin
+        else committer_container_config_dir
+      }}
   ansible.builtin.template:
     src: "config-validator.yaml.j2"
     dest: "{{ committer_remote_config_dir }}/{{ committer_validator_config_file }}"

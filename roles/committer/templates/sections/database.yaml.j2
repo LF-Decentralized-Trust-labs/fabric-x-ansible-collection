@@ -1,3 +1,6 @@
+# Database configuration. Hyperledger Fabric-X Committer supports
+# either PostgresDB or YugabyteDB as persistence layers.
+# YugabyteDB is recommended for high-throughput scenarios.
 database:
   endpoints:
 {% if postgres_db_host is defined %}
@@ -10,7 +13,15 @@ database:
   # The database name
   database: {{ hostvars[postgres_db_host].postgres_db }}
   # Should be enabled for DB cluster
-  load-balance: false  
+  load-balance: false
+{% if hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
+	# Define TLS certificate for a secure communication with PostgresDB.
+  tls:
+    # TLS configuration modes ("none", "tls" or "mtls")
+    mode: tls
+    # DB CA certificate to trust if tls is enabled.    
+    ca-cert-path: {{ committer_config_dir }}/tls/ca.crt
+{% endif %}
 {% elif yugabyte_cluster_ref_id is defined %}
 {% set yugabyte_cluster = groups['all'] | map('extract', hostvars) | selectattr('yugabyte_cluster_id', 'defined') | selectattr('yugabyte_cluster_id', '==', yugabyte_cluster_ref_id) | map(attribute='inventory_hostname') %}
 {% for db in yugabyte_cluster %}
@@ -20,13 +31,21 @@ database:
 {% endif %}
 {% endfor %}
   # The username for the database
-  username: {{ hostvars[yugabyte_cluster | first ].yugabyte_user }}
+  username: {{ hostvars[yugabyte_cluster | first].yugabyte_user }}
   # The password for the database
-  password: {{ hostvars[yugabyte_cluster | first ].yugabyte_password }}
+  password: {{ hostvars[yugabyte_cluster | first].yugabyte_password }}
   # The database name
-  database: {{ hostvars[yugabyte_cluster | first ].yugabyte_db }}
+  database: {{ hostvars[yugabyte_cluster | first].yugabyte_db }}
   # Should be enabled for DB cluster
   load-balance: true
+{% if hostvars[yugabyte_cluster | first].yugabyte_use_tls is defined and hostvars[yugabyte_cluster | first].yugabyte_use_tls %}
+	# Define TLS certificate for a secure communication with YugabyteDB.
+  tls:
+    # TLS configuration modes ("none", "tls" or "mtls")
+    mode: tls
+    # DB CA certificate to trust if tls is enabled.    
+    ca-cert-path: {{ committer_config_dir }}/tls/ca.crt
+{% endif %}  
 {% endif %}
   # The maximum size of the connection pool
   max-connections: 10
@@ -37,12 +56,10 @@ database:
     # This strategy increases the delay between retry attempts exponentially.
     # When using YugabyteDB as the backend, it is needed to handle retryable errors.
     # https://support.yugabyte.com/hc/en-us/articles/4409627048461-How-to-Troubleshoot-Database-Transaction-Retryable-Errors
-
     # initial-interval: Specifies the duration of the first backoff interval.
     # This is the time to wait before the first retry attempt.
     # Format: string representing a duration (e.g., "500ms", "1s", "2.5s").
     initial-interval: 500ms
-
     # randomization-factor: Controls the amount of randomness (jitter) applied to each backoff interval.
     # The actual backoff duration for an attempt will be randomly selected from the range:
     # [current_interval * (1 - randomization_factor), current_interval * (1 + randomization_factor)]
@@ -50,19 +67,16 @@ database:
     # can vary by +/- 50% of the calculated interval.
     # Must be between 0 and 1.
     randomization-factor: 0.5
-
     # multiplier: The factor by which the backoff interval increases after each failed attempt.
     # The next interval (before randomization) is calculated as: current_interval * multiplier.
     # A value of 1.5 means each subsequent interval will be 50% longer than the previous one.
     # Must be >= 1.
     multiplier: 1.5
-
     # max-interval: Sets the absolute maximum duration for any single backoff interval.
     # Even if the calculated interval (initial_interval * multiplier^n) exceeds this value,
     # the interval used (before randomization) will be capped at max-interval.
     # Format: string representing a duration (e.g., "60s", "1m", "5m").
     max-interval: 60s
-
     # max-elapsed-time: The maximum total time allowed for retries since the operation first began.
     # If the total time spent (including execution time of attempts and backoff waits)
     # exceeds this duration, the retry mechanism will stop, even if other limits haven't been reached.
