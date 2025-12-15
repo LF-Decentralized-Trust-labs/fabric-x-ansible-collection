@@ -48,21 +48,19 @@ all:
         name: "Org1"
         domain: "org1.example.com"
   children:
+    # =========================
+    # Network (HLFX)
+    # =========================
     network:
       children:
         # =========================
-        # Fabric-X hosts
+        # Hyperledger Fabric-X
         # =========================
         fabric_x:
           children:
             # =========================
-            # Fabric-X Orderers
+            # HLFX Orderers
             # =========================
-            # Each Fabric-X Orderer is composed by:
-            # - 1 consenter
-            # - 1 assembler
-            # - 2 batchers
-            # - 1 router
             fabric_x_orderers:
               children:
                 fabric_x_orderer_1:
@@ -167,16 +165,8 @@ all:
                       orderer_rpc_port: 7054
 
             # =========================
-            # Fabric-X Committer
+            # HLFX Committer
             # =========================
-            # The Fabric-X Composed is composed by:
-            # - 1 coordinator
-            # - 1 sidecar
-            # - 7 validators
-            # - 7 verifiers
-            # - 1 Yugabyte cluster of:
-            #   - 3 masters
-            #   - 7 tablets
             fabric_x_committer:
               hosts:
                 committer-sidecar:
@@ -282,7 +272,7 @@ all:
                           ansible_host: "{{ host_machine_13 }}"
 
     # =========================
-    # Fabric-X Loadgen
+    # HLFX LoadGens
     # =========================
     # We run 2 load-generators on 2 different machines
     # to generate more load.
@@ -318,11 +308,8 @@ all:
           loadgen_tx_seed: 67890
 
     # =========================
-    # Monitoring
+    # Monitoring Infra
     # =========================
-    # Use Prometheus and Grafana to collect
-    # metrics from the components and assess the
-    # load of txs being sent.
     monitoring:
       vars:
         ansible_host: "{{ host_machine_16 }}"
