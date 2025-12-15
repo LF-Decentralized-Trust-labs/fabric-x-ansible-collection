@@ -2,8 +2,8 @@ General:
     ListenAddress: 0.0.0.0
     ListenPort: {{ orderer_rpc_port }}
     TLS:
-        Enabled: {{ orderer_use_tls | lower }}
-        ClientAuthRequired: {{ orderer_use_mtls | lower }}
+        Enabled: {{ orderer_use_tls | bool | lower }}
+        ClientAuthRequired: {{ orderer_use_mtls | bool | lower }}
         PrivateKey: {{ orderer_config_dir }}/tls/server.key
         Certificate: {{ orderer_config_dir }}/tls/server.crt
         RootCAs:
