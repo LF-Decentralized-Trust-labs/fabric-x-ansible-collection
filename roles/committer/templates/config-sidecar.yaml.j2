@@ -56,9 +56,7 @@ orderer:
 # ---------------------------------------------------------------------------
 committer:
   # HLFX Committer Coordinator endpoint
-  endpoint:
-    host: {{ hostvars[committer_coordinator].ansible_host }}
-    port: {{ hostvars[committer_coordinator].committer_rpc_port }}
+  endpoint: {{ hostvars[committer_coordinator].ansible_host }}:{{ hostvars[committer_coordinator].committer_rpc_port }}
 {% if (hostvars[committer_coordinator].committer_use_tls is defined) and hostvars[committer_coordinator].committer_use_tls %}
 	# Define TLS options and certificate paths used for secure communication
   # between the sidecar and the coordinator.
