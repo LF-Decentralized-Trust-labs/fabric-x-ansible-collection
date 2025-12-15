@@ -64,8 +64,6 @@
     dest: "{{ ca_cert_path }}/{{ openssl_ca_cert_file }}"
     mode: "0o644"
     remote_src: true
-  args:
-    creates: "{{ ca_cert_path }}/{{ openssl_ca_cert_file }}"
 
 - name: Clean the OpenSSL configuration folder
   ansible.builtin.file:
