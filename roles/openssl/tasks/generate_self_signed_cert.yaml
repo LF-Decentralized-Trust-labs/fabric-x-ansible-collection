@@ -63,6 +63,7 @@
     src: "{{ openssl_cert_path }}"
     dest: "{{ ca_cert_path }}/{{ openssl_ca_cert_file }}"
     mode: "0o644"
+    remote_src: true
   args:
     creates: "{{ ca_cert_path }}/{{ openssl_ca_cert_file }}"
 
