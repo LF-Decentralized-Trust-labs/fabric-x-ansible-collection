@@ -211,7 +211,6 @@ all:
             committer_use_bin: true
           hosts:
             committer-db:
-              committer_component_type: db
               postgres_user: sc_user
               postgres_password: sc_secret_pwd
               postgres_db: sc_db

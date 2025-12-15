@@ -7,7 +7,7 @@
 - name: Set Postgres Exporter Data Source connection string
   vars:
     base_data_source_name: "postgresql://{{ hostvars[postgres_db_host].postgres_user }}:{{ hostvars[postgres_db_host].postgres_password }}@{{ hostvars[postgres_db_host].ansible_host }}:{{ hostvars[postgres_db_host].postgres_port }}/{{ hostvars[postgres_db_host].postgres_db }}"
-    data_source_name_with_tls: "sslmode=verify-full&sslrootcert={{ postgres_exporter_container_config_dir }}/tls/db.{{ postgres_db_host }}.crt"
+    data_source_name_with_tls: "sslmode=verify-full&sslrootcert={{ postgres_exporter_container_config_dir }}/tls/db/{{ postgres_db_host }}/ca.crt"
     data_source_name_without_tls: "sslmode=disable"
   ansible.builtin.set_fact:
     postgres_exporter_data_source_name: "{{ base_data_source_name }}?{{ data_source_name_with_tls if (hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls) else data_source_name_without_tls }}"

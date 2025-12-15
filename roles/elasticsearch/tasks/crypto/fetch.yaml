@@ -6,7 +6,7 @@
 
 - name: Fetch ElasticSearch TLS certificate
   ansible.builtin.fetch:
-    src: "{{ elasticsearch_remote_config_dir }}/tls/{{ elasticsearch_tls_cert_file }}"
+    src: "{{ elasticsearch_remote_config_dir }}/tls/ca.crt"
     dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls_cert.pem"
     flat: true
   when:

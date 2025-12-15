@@ -27,6 +27,6 @@
 
 - name: Fetch Hyperledger Fabric-X Orderer TLS certificate generated with Fabric-CA
   ansible.builtin.fetch:
-    src: "{{ orderer_remote_config_dir }}/tls/server.crt"
+    src: "{{ orderer_remote_config_dir }}/tls/ca.crt"
     dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls_cert.pem"
     flat: true

@@ -6,7 +6,7 @@
 
 - name: Fetch the Prometheus TLS certificate
   ansible.builtin.fetch:
-    src: "{{ prometheus_remote_config_dir }}/tls/{{ prometheus_tls_cert_file }}"
+    src: "{{ prometheus_remote_config_dir }}/tls/ca.crt"
     dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls_cert.pem"
     flat: true
   when:

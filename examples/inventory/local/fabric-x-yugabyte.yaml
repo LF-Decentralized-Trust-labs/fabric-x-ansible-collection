@@ -201,7 +201,6 @@ all:
           hosts:
             committer-db:
               yugabyte_cluster_id: 1
-              committer_component_type: db
               yugabyte_user: sc_user
               yugabyte_password: sc_secret_pwd
               yugabyte_db: sc_db

@@ -239,7 +239,6 @@ all:
                       ansible_host: "{{ host_machine_13 }}"
                 committer_dbs:
                   vars:
-                    committer_component_type: db
                     yugabyte_user: yugabyte
                     yugabyte_password: yugabyte
                     yugabyte_db: yugabyte

@@ -6,7 +6,7 @@
 
 - name: Fetch the Node Exporter TLS certificate
   ansible.builtin.fetch:
-    src: "{{ node_exporter_remote_config_dir }}/tls/{{ node_exporter_tls_cert_file }}"
+    src: "{{ node_exporter_remote_config_dir }}/tls/ca.crt"
     dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls_cert.pem"
     flat: true
   when:
