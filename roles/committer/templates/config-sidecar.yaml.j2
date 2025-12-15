@@ -57,7 +57,8 @@ orderer:
 committer:
   # HLFX Committer Coordinator endpoint
   endpoint:
-    host: {{ hostvars[committer_coordinator].ansible_host }}:{{ hostvars[committer_coordinator].committer_rpc_port }}
+    host: {{ hostvars[committer_coordinator].ansible_host }}
+    port: {{ hostvars[committer_coordinator].committer_rpc_port }}
 {% if (hostvars[committer_coordinator].committer_use_tls is defined) and hostvars[committer_coordinator].committer_use_tls %}
 	# Define TLS options and certificate paths used for secure communication
   # between the sidecar and the coordinator.
@@ -78,7 +79,6 @@ committer:
 {% endif %}
 {% endif %}
 
-
 # ---------------------------------------------------------------------------
 # Relay Settings
 # ---------------------------------------------------------------------------
@@ -91,5 +91,3 @@ last-committed-block-set-interval: 5s
 ledger:
   # Path where to store the ledger
   path: {{ committer_config_dir }}/ledger
-
-
