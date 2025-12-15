@@ -25,8 +25,8 @@
     dest: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/tls/server.crt"
     flat: true
 
-- name: Fetch Hyperledger Fabric-X Orderer TLS certificate generated with Fabric-CA
+- name: Fetch Hyperledger Fabric-X Orderer TLS CA certificate generated with Fabric-CA
   ansible.builtin.fetch:
     src: "{{ orderer_remote_config_dir }}/tls/ca.crt"
-    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls_cert.pem"
+    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/ca.crt"
     flat: true

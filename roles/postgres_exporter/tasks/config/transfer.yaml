@@ -30,9 +30,9 @@
     state: directory
     mode: "0o755"
 
-- name: Transfer the PostgresDB TLS certificate
+- name: Transfer the PostgresDB TLS CA certificate
   ansible.builtin.copy:
-    src: "{{ fetched_artifacts_dir }}/{{ postgres_db_host }}/tls/tls_cert.pem"
+    src: "{{ fetched_artifacts_dir }}/{{ postgres_db_host }}/tls/ca.crt"
     dest: "{{ postgres_exporter_remote_config_dir }}/tls/db/{{ postgres_db_host }}/ca.crt"
     mode: preserve
   when:

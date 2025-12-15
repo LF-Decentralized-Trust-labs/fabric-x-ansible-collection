@@ -39,7 +39,7 @@
 
 - name: Transfer Prometheus TLS CA certificate
   ansible.builtin.copy:
-    src: "{{ fetched_artifacts_dir }}/{{ prometheus_host }}/tls/tls_cert.pem"
+    src: "{{ fetched_artifacts_dir }}/{{ prometheus_host }}/tls/ca.crt"
     dest: "{{ grafana_remote_config_dir }}/tls/{{ prometheus_host }}/ca.crt"
     mode: "0o644"
   when:

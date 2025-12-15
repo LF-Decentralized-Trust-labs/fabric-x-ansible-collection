@@ -215,7 +215,7 @@
         postgres_exporter_scrape_service:
           job_name: "postgres_exporter.{{ current_postgres_exporter }}"
           use_tls: "{{ hostvars[current_postgres_exporter].postgres_exporter_use_tls | default(false) }}"
-          tls_ca_file: "{{ fetched_artifacts_dir }}/{{ current_postgres_exporter }}/tls/tls_cert.pem"
+          tls_ca_file: "{{ fetched_artifacts_dir }}/{{ current_postgres_exporter }}/tls/ca.crt"
           targets:
             - hosts: "{{ [current_postgres_exporter] }}"
               port_to_scrape: postgres_exporter_port
@@ -239,7 +239,7 @@
         node_exporter_scrape_service:
           job_name: "node_exporter.{{ current_node_exporter }}"
           use_tls: "{{ hostvars[current_node_exporter].node_exporter_use_tls | default(false) }}"
-          tls_ca_file: "{{ fetched_artifacts_dir }}/{{ current_node_exporter }}/tls/tls_cert.pem"
+          tls_ca_file: "{{ fetched_artifacts_dir }}/{{ current_node_exporter }}/tls/ca.crt"
           targets:
             - hosts: "{{ [current_node_exporter] }}"
               port_to_scrape: node_exporter_port

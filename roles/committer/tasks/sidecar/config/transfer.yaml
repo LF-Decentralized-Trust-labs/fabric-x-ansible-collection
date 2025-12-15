@@ -4,6 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Check that the Hyperledger Fabric-X Orderer Assemblers have been defined
+  ansible.builtin.fail:
+    msg: "No Hyperledger Fabric-X Orderer Assembler has been defined. Set it via 'orderer_assemblers'."
+  when:
+    - orderer_assemblers is not defined
+
 - name: Ensure Hyperledger Fabric-X Committer coordinator config directory exists
   ansible.builtin.file:
     path: "{{ committer_remote_config_dir }}"
@@ -27,3 +33,29 @@
     src: "config-sidecar.yaml.j2"
     dest: "{{ committer_remote_config_dir }}/{{ committer_sidecar_config_file }}"
     mode: "0o644"
+
+- name: Ensure Hyperledger Fabric-X Orderer Assemblers TLS folders exist
+  ansible.builtin.file:
+    path: "{{ committer_remote_config_dir }}/tls/orderers/{{ current_orderer_assembler }}"
+    state: directory
+    mode: "0o755"
+  loop: "{{ orderer_assemblers }}"
+  loop_control:
+    loop_var: current_orderer_assembler
+    label: "{{ current_orderer_assembler }}"
+  when:
+    - hostvars[current_orderer_assembler].orderer_use_tls is defined
+    - hostvars[current_orderer_assembler].orderer_use_tls
+
+- name: Transfer Hyperledger Fabric-X Orderer Assemblers TLS CA certificates
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/{{ current_orderer_assembler }}/tls/ca.crt"
+    dest: "{{ committer_remote_config_dir }}/tls/orderers/{{ current_orderer_assembler }}/ca.crt"
+    mode: "0o644"
+  loop: "{{ orderer_assemblers }}"
+  loop_control:
+    loop_var: current_orderer_assembler
+    label: "{{ current_orderer_assembler }}"
+  when:
+    - hostvars[current_orderer_assembler].orderer_use_tls is defined
+    - hostvars[current_orderer_assembler].orderer_use_tls

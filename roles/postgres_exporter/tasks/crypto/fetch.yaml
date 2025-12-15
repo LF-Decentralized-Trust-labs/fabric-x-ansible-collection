@@ -7,7 +7,7 @@
 - name: Fetch the Postgres Exporter TLS CA certificate
   ansible.builtin.fetch:
     src: "{{ postgres_exporter_remote_config_dir }}/tls/ca.crt"
-    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls_cert.pem"
+    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/ca.crt"
     flat: true
   when:
     - postgres_exporter_use_tls

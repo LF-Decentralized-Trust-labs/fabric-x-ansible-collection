@@ -4,10 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Fetch Hyperledger Fabric-X Committer TLS certificate
+- name: Fetch Hyperledger Fabric-X Committer TLS CA certificate
   ansible.builtin.fetch:
     src: "{{ committer_remote_config_dir }}/tls/ca.crt"
-    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls_cert.pem"
+    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/ca.crt"
     flat: true
   when:
     - committer_use_tls

@@ -4,10 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Fetch ElasticSearch TLS certificate
+- name: Fetch ElasticSearch TLS CA certificate
   ansible.builtin.fetch:
     src: "{{ elasticsearch_remote_config_dir }}/tls/ca.crt"
-    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls_cert.pem"
+    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/ca.crt"
     flat: true
   when:
     - elasticsearch_use_tls

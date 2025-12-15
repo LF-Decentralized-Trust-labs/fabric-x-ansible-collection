@@ -4,10 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Fetch the Postgres TLS certificate
+- name: Fetch the Postgres TLS CA certificate
   ansible.builtin.fetch:
     src: "{{ postgres_remote_config_dir }}/tls/ca.crt"
-    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls_cert.pem"
+    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/ca.crt"
     flat: true
   when:
     - postgres_use_tls
