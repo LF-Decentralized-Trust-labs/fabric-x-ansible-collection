@@ -8,22 +8,26 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: orderer_router/stop
-  when: orderer_component_type == 'router'
+  when:
+    - orderer_component_type == 'router'
 
 - name: Stop Fabric-X Orderer assemblers
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: orderer_assembler/stop
-  when: orderer_component_type == 'assembler'
+  when:
+    - orderer_component_type == 'assembler'
 
 - name: Stop Fabric-X Orderer batchers
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: orderer_batcher/stop
-  when: orderer_component_type == 'batcher'
+  when:
+    - orderer_component_type == 'batcher'
 
 - name: Stop Fabric-X Orderer consenters
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: orderer_consenter/stop
-  when: orderer_component_type == 'consenter'
+  when:
+    - orderer_component_type == 'consenter'
