@@ -4,26 +4,26 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure Yugabyte TLS directory exists
+- name: Ensure Hyperledger Fabric-X Committer TLS directory exists
   ansible.builtin.file:
-    path: "{{ yugabyte_remote_config_dir }}/tls"
+    path: "{{ committer_remote_config_dir }}/tls"
     state: directory
     mode: "0o755"
 
 - name: Transfer the TLS key generated with cryptogen
   ansible.builtin.copy:
     src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ organization.peer.name | default(inventory_hostname) }}.{{ organization.domain }}/tls/server.key"
-    dest: "{{ yugabyte_remote_config_dir }}/tls/node.{{ ansible_host }}.key"
+    dest: "{{ committer_remote_config_dir }}/tls/server.key"
     mode: preserve
 
 - name: Transfer the TLS certificate generated with cryptogen
   ansible.builtin.copy:
     src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ organization.peer.name | default(inventory_hostname) }}.{{ organization.domain }}/tls/server.crt"
-    dest: "{{ yugabyte_remote_config_dir }}/tls/node.{{ ansible_host }}.crt"
+    dest: "{{ committer_remote_config_dir }}/tls/server.crt"
     mode: preserve
 
 - name: Transfer the TLS CA certificate generated with cryptogen
   ansible.builtin.copy:
     src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ organization.peer.name | default(inventory_hostname) }}.{{ organization.domain }}/tls/ca.crt"
-    dest: "{{ yugabyte_remote_config_dir }}/tls/ca.crt"
+    dest: "{{ committer_remote_config_dir }}/tls/ca.crt"
     mode: preserve

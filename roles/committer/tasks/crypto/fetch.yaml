@@ -1,0 +1,13 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Fetch Hyperledger Fabric-X Committer TLS certificate
+  ansible.builtin.fetch:
+    src: "{{ committer_remote_config_dir }}/tls/server.crt"
+    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls_cert.pem"
+    flat: true
+  when:
+    - committer_use_tls

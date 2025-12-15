@@ -4,13 +4,13 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Fetch Fabric-X Committer coordinator logs from container
+- name: Fetch Hyperledger Fabric-X Committer coordinator logs from container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: container/fetch_logs
   when: not committer_use_bin
 
-- name: Fetch Fabric-X Committer coordinator logs from binary
+- name: Fetch Hyperledger Fabric-X Committer coordinator logs from binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: bin/fetch_logs

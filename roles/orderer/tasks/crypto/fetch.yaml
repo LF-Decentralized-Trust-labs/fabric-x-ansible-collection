@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Fetch Fabric-X Orderer sign certificates
+- name: Fetch Hyperledger Fabric-X Orderer sign certificates
   vars:
     cryptogen_signcert_file: "{{ orderer_crypto_name }}.{{ organization.domain }}-cert.pem"
     fabric_ca_signcert_file: "cert.pem"
@@ -19,13 +19,13 @@
     dest: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/msp/signcerts/{{ cryptogen_signcert_file }}"
     flat: true
 
-- name: Fetch Fabric-X Orderer TLS certificate generated with Fabric-CA to build genesis block
+- name: Fetch Hyperledger Fabric-X Orderer TLS certificate generated with Fabric-CA to build genesis block
   ansible.builtin.fetch:
     src: "{{ orderer_remote_config_dir }}/tls/server.crt"
     dest: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/tls/server.crt"
     flat: true
 
-- name: Fetch Fabric-X Orderer TLS certificate generated with Fabric-CA
+- name: Fetch Hyperledger Fabric-X Orderer TLS certificate generated with Fabric-CA
   ansible.builtin.fetch:
     src: "{{ orderer_remote_config_dir }}/tls/server.crt"
     dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls_cert.pem"
