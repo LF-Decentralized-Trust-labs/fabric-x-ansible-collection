@@ -5,6 +5,13 @@
 #
 
 {% include './sections/server.yaml.j2' +%}
+
+{% if prometheus_exporter_port is defined %}
+{% include './sections/monitoring.yaml.j2' +%}
+{% endif %}
+
+{% include './sections/logging.yaml.j2' +%}
+
 orderer:
   channel-id: {{ channel_id }}
   consensus-type: BFT
@@ -31,7 +38,4 @@ ledger:
 last-committed-block-set-interval: 5s
 bootstrap:
   genesis-block-file-path:
-{% if prometheus_exporter_port is defined %}
-{% include './sections/monitoring.yaml.j2' +%}
-{% endif %}
-{% include './sections/logging.yaml.j2' %}
+

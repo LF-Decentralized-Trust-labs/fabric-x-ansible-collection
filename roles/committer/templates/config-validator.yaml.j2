@@ -5,8 +5,11 @@
 #
 
 {% include './sections/server.yaml.j2' +%}
+
 {% include './sections/database.yaml.j2' +%}
+
 {% if prometheus_exporter_port is defined %}
 {% include './sections/monitoring.yaml.j2' +%}
 {% endif %}
-{% include './sections/logging.yaml.j2' %}
+
+{% include './sections/logging.yaml.j2' +%}

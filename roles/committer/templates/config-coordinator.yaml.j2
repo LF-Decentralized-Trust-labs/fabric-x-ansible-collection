@@ -5,7 +5,16 @@
 #
 
 {% include './sections/server.yaml.j2' +%}
-# Settings for the connection to the Hyperledger Fabric-X Committer Verifier services.
+
+{% if prometheus_exporter_port is defined %}
+{% include './sections/monitoring.yaml.j2' +%}
+{% endif %}
+
+{% include './sections/logging.yaml.j2' +%}
+
+# ---------------------------------------------------------------------------
+# Settings for the connection to the HLFX Committer Verifier services.
+# ---------------------------------------------------------------------------
 verifier:
   # List of HLFX Committer verifiers endpoints.
   endpoints:
@@ -32,7 +41,9 @@ verifier:
 {% endif %}
 {% endif %}
 
-# Settings for the connection to the Hyperledger Fabric-X Committer Validator services.
+# ---------------------------------------------------------------------------
+# Settings for the connection to the HLFX Committer Validator services.
+# ---------------------------------------------------------------------------
 validator-committer:
   # List of HLFX Committer validators endpoints.
   endpoints:
@@ -59,12 +70,23 @@ validator-committer:
 {% endif %}
 {% endif %}
 
+# ---------------------------------------------------------------------------
+# Dependency Graph settings
+# ---------------------------------------------------------------------------
+# Configuration for dependency graph manager.
+# It specifies resource limits.
 dependency-graph:
+  # Number of local dependency-constructor goroutines that the dependency-graph
+  # manager starts. Each constructor builds a part of the transaction dependency 
+  # graph in parallel. Increasing this lets the manager process more transactions
+  # concurrently, at the cost of more CPU and memory.
   num-of-local-dep-constructors: {{ committer_coordinator_dep_graph_constructors }}
+  # Upper bound on how many transactions may be waiting inside the dependency-graph
+  # manager at any time.
   waiting-txs-limit: {{ committer_coordinator_dep_graph_wait_tx_limit }}
-  num-of-workers-for-global-dep-manager: 1
+
+# ---------------------------------------------------------------------------
+# Go-Routine settings
+# ---------------------------------------------------------------------------
+# Defines the buffer size per go-routine
 per-channel-buffer-size-per-goroutine: 10
-{% if prometheus_exporter_port is defined %}
-{% include './sections/monitoring.yaml.j2' +%}
-{% endif %}
-{% include './sections/logging.yaml.j2' %}

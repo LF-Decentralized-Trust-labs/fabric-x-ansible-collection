@@ -5,12 +5,15 @@
 #
 
 {% include './sections/server.yaml.j2' +%}
+
+{% if prometheus_exporter_port is defined %}
+{% include './sections/monitoring.yaml.j2' +%}
+{% endif %}
+
+{% include './sections/logging.yaml.j2' +%}
+
 parallel-executor:
   batch-size-cutoff: 500
   batch-time-cutoff: 2ms
   channel-buffer-size: 1000
   parallelism: 80
-{% if prometheus_exporter_port is defined %}
-{% include './sections/monitoring.yaml.j2' +%}
-{% endif %}
-{% include './sections/logging.yaml.j2' %}

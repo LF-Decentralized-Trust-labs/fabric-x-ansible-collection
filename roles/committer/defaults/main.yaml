@@ -45,5 +45,7 @@ committer_use_mtls: false
 # Miscellaneous
 # =========================
 committer_log_level: "INFO"
+committer_enable_logs: true
+committer_enable_dev_logs: true
 committer_coordinator_dep_graph_wait_tx_limit: 20000000
 committer_coordinator_dep_graph_constructors: 4
