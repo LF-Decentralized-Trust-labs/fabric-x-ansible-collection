@@ -237,6 +237,7 @@ all:
                     yugabyte_password: yugabyte
                     yugabyte_db: yugabyte
                     yugabyte_cluster_id: 1
+                    yugabyte_use_tls: true
                   children:
                     yb_masters:
                       vars:

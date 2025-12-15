@@ -231,10 +231,14 @@ all:
             # =========================
             fabric_x_committer:
               vars:
+                committer_use_bin: true
                 organization:
                   <<: *Org1
+                  fabric_ca_host: fabric-ca-org1
                   role: peer
-                committer_use_bin: true
+                  peer:
+                    name: "{{ inventory_hostname }}"
+                    secret: "{{ inventory_hostname }}PWD"
               hosts:
                 committer-db:
                   postgres_user: sc_user

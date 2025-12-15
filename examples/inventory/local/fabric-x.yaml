@@ -224,7 +224,11 @@ all:
               vars:
                 organization:
                   <<: *Org1
+                  fabric_ca_host: fabric-ca-org1
                   role: peer
+                  peer:
+                    name: "{{ inventory_hostname }}"
+                    secret: "{{ inventory_hostname }}PWD"
               hosts:
                 committer-db:
                   postgres_user: sc_user
