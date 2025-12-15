@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure Fabric-X Orderer config directory exists
+- name: Ensure Hyperledger Fabric-X Orderer config directory exists
   ansible.builtin.file:
     path: "{{ orderer_remote_config_dir }}"
     state: directory

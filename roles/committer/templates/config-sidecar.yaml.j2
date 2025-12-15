@@ -29,6 +29,25 @@ orderer:
 {% for orderer_assembler in orderer_assemblers %}
       - {{ hostvars[orderer_assembler].ansible_host }}:{{ hostvars[orderer_assembler].orderer_rpc_port }}
 {% endfor %}
+{% if (hostvars[orderer_assembler_ref_host].orderer_use_tls is defined) and hostvars[orderer_assembler_ref_host].orderer_use_tls %}
+	# Define TLS options and certificate paths used for secure communication
+  # between the sidecar and the orderers.
+  tls:
+    # Server CA certificates to trust if tls is enabled.
+    ca-cert-paths:
+      - {{ committer_config_dir }}/tls/orderers/ca.crt
+{% if (hostvars[orderer_assembler_ref_host].orderer_use_mtls is defined) and hostvars[orderer_assembler_ref_host].orderer_use_mtls %}
+    # Path to the TLS key file (private key).
+    key-path: {{ committer_config_dir }}/tls/server.key
+    # Path to the TLS certificate file (public key).
+    cert-path: {{ committer_config_dir }}/tls/server.crt
+    # TLS configuration modes ("none", "tls" or "mtls")
+    mode: mtls
+{% else %}
+    # TLS configuration modes ("none", "tls" or "mtls")
+    mode: tls
+{% endif %}
+{% endif %}
 
 # ---------------------------------------------------------------------------
 # HLFX Committer Coordinator connection settings
@@ -39,6 +58,26 @@ committer:
   # HLFX Committer Coordinator endpoint
   endpoint:
     host: {{ hostvars[committer_coordinator].ansible_host }}:{{ hostvars[committer_coordinator].committer_rpc_port }}
+{% if (hostvars[committer_coordinator].committer_use_tls is defined) and hostvars[committer_coordinator].committer_use_tls %}
+	# Define TLS options and certificate paths used for secure communication
+  # between the sidecar and the coordinator.
+  tls:
+    # Server CA certificates to trust if tls is enabled.
+    ca-cert-paths:
+      - {{ committer_config_dir }}/tls/coordinator/ca.crt
+{% if (hostvars[committer_coordinator].committer_use_mtls is defined) and hostvars[committer_coordinator].committer_use_mtls %}
+    # Path to the TLS key file (private key).
+    key-path: {{ committer_config_dir }}/tls/server.key
+    # Path to the TLS certificate file (public key).
+    cert-path: {{ committer_config_dir }}/tls/server.crt
+    # TLS configuration modes ("none", "tls" or "mtls")
+    mode: mtls
+{% else %}
+    # TLS configuration modes ("none", "tls" or "mtls")
+    mode: tls
+{% endif %}
+{% endif %}
+
 
 # ---------------------------------------------------------------------------
 # Relay Settings

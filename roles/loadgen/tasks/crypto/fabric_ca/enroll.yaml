@@ -22,7 +22,7 @@
     - hostvars[organization.fabric_ca_host].fabric_ca_use_tls is defined
     - hostvars[organization.fabric_ca_host].fabric_ca_use_tls
 
-- name: Generate Fabric-X Load generator MSP crypto material
+- name: Generate Hyperledger Fabric-X Load generator MSP crypto material
   vars:
     fabric_ca_host: "{{ organization.fabric_ca_host }}"
     fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls }}"

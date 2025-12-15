@@ -6,7 +6,7 @@
 
 - name: Ensure directory for Postgres DB TLS certificate exists
   ansible.builtin.file:
-    path: "{{ committer_remote_config_dir }}/db/tls"
+    path: "{{ committer_remote_config_dir }}/tls/db"
     state: directory
     mode: "0750"
   when:
@@ -17,7 +17,7 @@
 - name: Copy Postgres DB TLS certificate
   ansible.builtin.copy:
     src: "{{ fetched_artifacts_dir }}/{{ postgres_db_host }}/tls/tls_cert.pem"
-    dest: "{{ committer_remote_config_dir }}/db/tls/cert.pem"
+    dest: "{{ committer_remote_config_dir }}/tls/db/ca.crt"
     mode: "0644"
   when:
     - postgres_db_host is defined

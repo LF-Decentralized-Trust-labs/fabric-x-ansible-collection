@@ -4,13 +4,13 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure Fabric-X Committer verifier config directory exists
+- name: Ensure Hyperledger Fabric-X Committer verifier config directory exists
   ansible.builtin.file:
     path: "{{ committer_remote_config_dir }}"
     state: directory
     mode: "0o750"
 
-- name: Generate Fabric-X Committer verifier config from template
+- name: Generate Hyperledger Fabric-X Committer verifier config from template
   vars:
     committer_config_dir: >-
       {{

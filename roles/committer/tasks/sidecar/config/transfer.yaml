@@ -4,19 +4,24 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure Fabric-X Committer coordinator config directory exists
+- name: Ensure Hyperledger Fabric-X Committer coordinator config directory exists
   ansible.builtin.file:
     path: "{{ committer_remote_config_dir }}"
     state: directory
     mode: "0o750"
 
-- name: Generate Fabric-X Committer Sidecar config
+- name: Generate Hyperledger Fabric-X Committer Sidecar config
   vars:
     committer_config_dir: >-
       {{
         committer_remote_config_dir
         if committer_use_bin
         else committer_container_config_dir
+      }}
+    orderer_assembler_ref_host: >-
+      {{
+        orderer_assemblers
+        | first
       }}
   ansible.builtin.template:
     src: "config-sidecar.yaml.j2"

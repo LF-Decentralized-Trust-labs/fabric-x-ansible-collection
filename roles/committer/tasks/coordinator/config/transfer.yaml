@@ -16,7 +16,7 @@
   when:
     - committer_validators is not defined
 
-- name: Ensure Fabric-X Committer coordinator config directory exists
+- name: Ensure Hyperledger Fabric-X Committer coordinator config directory exists
   ansible.builtin.file:
     path: "{{ committer_remote_config_dir }}"
     state: directory

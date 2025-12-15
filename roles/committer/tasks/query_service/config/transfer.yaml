@@ -12,7 +12,7 @@
   when:
     - (postgres_db_host is not defined) and (yugabyte_cluster_ref_id is not defined)
 
-- name: Ensure Fabric-X Committer QueryService config directory exists
+- name: Ensure Hyperledger Fabric-X Committer QueryService config directory exists
   ansible.builtin.file:
     path: "{{ committer_remote_config_dir }}"
     state: directory

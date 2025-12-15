@@ -23,7 +23,7 @@ database:
     # TLS configuration modes ("none", "tls" or "mtls")
     mode: tls
     # DB CA certificate to trust if tls is enabled.    
-    ca-cert-path: {{ committer_config_dir }}/tls/ca.crt
+    ca-cert-path: {{ committer_config_dir }}/tls/db/ca.crt
 {% endif %}
 {% elif yugabyte_cluster_ref_id is defined %}
 {% set yugabyte_cluster = groups['all'] | map('extract', hostvars) | selectattr('yugabyte_cluster_id', 'defined') | selectattr('yugabyte_cluster_id', '==', yugabyte_cluster_ref_id) | map(attribute='inventory_hostname') %}
@@ -47,7 +47,7 @@ database:
     # TLS configuration modes ("none", "tls" or "mtls")
     mode: tls
     # DB CA certificate to trust if tls is enabled.    
-    ca-cert-path: {{ committer_config_dir }}/tls/ca.crt
+    ca-cert-path: {{ committer_config_dir }}/tls/db/ca.crt
 {% endif %}  
 {% endif %}
   # The maximum size of the connection pool

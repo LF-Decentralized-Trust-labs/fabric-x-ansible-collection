@@ -4,31 +4,31 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Generate Fabric-X Committer validators config files
+- name: Generate Hyperledger Fabric-X Committer validators config files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: validator/config/transfer
   when: committer_component_type == 'validator'
 
-- name: Generate Fabric-X Committer verifiers config files
+- name: Generate Hyperledger Fabric-X Committer verifiers config files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: verifier/config/transfer
   when: committer_component_type == 'verifier'
 
-- name: Generate Fabric-X Committer coordinator config files
+- name: Generate Hyperledger Fabric-X Committer coordinator config files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: coordinator/config/transfer
   when: committer_component_type == 'coordinator'
 
-- name: Generate Fabric-X Committer sidecar config files
+- name: Generate Hyperledger Fabric-X Committer sidecar config files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: sidecar/config/transfer
   when: committer_component_type == 'sidecar'
 
-- name: Generate Fabric-X QueryService config files
+- name: Generate Hyperledger Fabric-X QueryService config files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: query_service/config/transfer

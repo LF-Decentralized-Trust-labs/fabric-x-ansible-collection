@@ -22,7 +22,7 @@
     - hostvars[organization.fabric_ca_host].fabric_ca_use_tls is defined
     - hostvars[organization.fabric_ca_host].fabric_ca_use_tls
 
-- name: Generate Fabric-X Orderer MSP crypto material
+- name: Generate Hyperledger Fabric-X Orderer MSP crypto material
   vars:
     fabric_ca_host: "{{ organization.fabric_ca_host }}"
     fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls }}"
@@ -42,7 +42,7 @@
   when:
     - organization.fabric_ca_host is defined
 
-- name: Generate Fabric-X Orderer TLS crypto material
+- name: Generate Hyperledger Fabric-X Orderer TLS crypto material
   vars:
     fabric_ca_host: "{{ organization.fabric_ca_host }}"
     fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls }}"
