@@ -12,30 +12,45 @@
 
 {% include './sections/logging.yaml.j2' +%}
 
+# ---------------------------------------------------------------------------
+# HLFX Orderers connection settings
+# The HLFX Committer Sidecar component pulls blocks from the ordering
+# service.
+# ---------------------------------------------------------------------------
 orderer:
+  # Channel ID
   channel-id: {{ channel_id }}
+  # Consensus Type ("BFT" or "CFT")
   consensus-type: BFT
+  # Connection settings
   connection:
+    # HLFX Orderer endpoints
     endpoints:
 {% for orderer_assembler in orderer_assemblers %}
       - {{ hostvars[orderer_assembler].ansible_host }}:{{ hostvars[orderer_assembler].orderer_rpc_port }}
 {% endfor %}
-{% if committer_use_tls %}
-  orderer-connection-profile:
-    {
-      "root-ca-paths": ["{{ committer_config_dir }}/ca-certs.pem",],
-      "msp-dir": "{{ committer_config_dir }}/msp",
-      "msp-id": "Org1MSP",
-      "bccsp": { "Default": "SW", "SW": { "Security": 256, "Hash": "SHA2" } },
-    }
-{% endif %}
+
+# ---------------------------------------------------------------------------
+# HLFX Committer Coordinator connection settings
+# The HLFX Committer Sidecar pushes the blocks to the HFLX Committer
+# Coordinator and pulls from the latter the block statuses.
+# ---------------------------------------------------------------------------
 committer:
+  # HLFX Committer Coordinator endpoint
   endpoint:
-    host: {{ hostvars[committer_coordinator].ansible_host }}
-    port: {{ hostvars[committer_coordinator].committer_rpc_port }}
-ledger:
-  path: {{ committer_config_dir }}/ledger
+    host: {{ hostvars[committer_coordinator].ansible_host }}:{{ hostvars[committer_coordinator].committer_rpc_port }}
+
+# ---------------------------------------------------------------------------
+# Relay Settings
+# ---------------------------------------------------------------------------
+# Interval for setting the last committed block to the HLFX Committer Coordinator
 last-committed-block-set-interval: 5s
-bootstrap:
-  genesis-block-file-path:
+
+# ---------------------------------------------------------------------------
+# Ledger settings
+# ---------------------------------------------------------------------------
+ledger:
+  # Path where to store the ledger
+  path: {{ committer_config_dir }}/ledger
+
 
