@@ -6,7 +6,7 @@
 
 - name: Ensure directory for Yugabyte cluster TLS certificate exists
   vars:
-    yugabyte_cluster_hosts: >-
+    yugabyte_cluster_tls_hosts: >-
       {{
         groups['all']
         | map('extract', hostvars)
@@ -16,17 +16,17 @@
         | selectattr('yugabyte_use_tls', '==', true)
       }}
   ansible.builtin.file:
-    path: "{{ committer_remote_config_dir }}/db/tls"
+    path: "{{ committer_remote_config_dir }}/tls/db"
     state: directory
     mode: "0755"
   when:
     - yugabyte_cluster_ref_id is defined
-    - yugabyte_cluster_hosts
+    - yugabyte_cluster_tls_hosts
       | length > 0
 
 - name: Copy Yugabyte cluster CA TLS certificate
   vars:
-    yugabyte_cluster_hosts: >-
+    yugabyte_cluster_tls_hosts: >-
       {{
         groups['all']
         | map('extract', hostvars)
@@ -37,7 +37,7 @@
       }}
     yugabyte_cluster_ref: >-
       {{
-        yugabyte_cluster_hosts
+        yugabyte_cluster_tls_hosts
         | first
       }}
   ansible.builtin.copy:
@@ -46,5 +46,5 @@
     mode: "0644"
   when:
     - yugabyte_cluster_ref_id is defined
-    - yugabyte_cluster_hosts
+    - yugabyte_cluster_tls_hosts
       | length > 0

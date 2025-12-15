@@ -8,22 +8,26 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: validator/bin/start
-  when: committer_component_type == 'validator'
+  when:
+    - committer_component_type == 'validator'
 
 - name: Start Hyperledger Fabric-X Committer signature verifiers binaries
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: verifier/bin/start
-  when: committer_component_type == 'verifier'
+  when:
+    - committer_component_type == 'verifier'
 
 - name: Start Hyperledger Fabric-X Committer coordinator binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: coordinator/bin/start
-  when: committer_component_type == 'coordinator'
+  when:
+    - committer_component_type == 'coordinator'
 
 - name: Start Hyperledger Fabric-X Committer sidecar binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: sidecar/bin/start
-  when: committer_component_type == 'sidecar'
+  when:
+    - committer_component_type == 'sidecar'
