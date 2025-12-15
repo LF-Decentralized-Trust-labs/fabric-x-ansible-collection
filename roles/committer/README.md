@@ -17,10 +17,10 @@ The role `hyperledger.fabricx.committer` can be used to run the Fabric-X `commit
 
 ### start
 
-The task `start` allows to start the Fabric-X Committer either as binary or as container.
+The task `start` allows to Start Hyperledger Fabric-X Committer either as binary or as container.
 
 ```yaml
-- name: Start the Fabric-X Committer
+- name: Start Hyperledger Fabric-X Committer
   vars:
     committer_use_bin: true # set to false or unset for container
   ansible.builtin.include_role:

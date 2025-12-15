@@ -20,20 +20,20 @@ all:
     # =========================
     organizations:
       orderer_org_1: &OrdererOrg1
-        name: "OrdererOrg1"
-        domain: "ordererorg1.example.com"
+        name: OrdererOrg1
+        domain: ordererorg1.example.com
       orderer_org_2: &OrdererOrg2
-        name: "OrdererOrg2"
-        domain: "ordererorg2.example.com"
+        name: OrdererOrg2
+        domain: ordererorg2.example.com
       orderer_org_3: &OrdererOrg3
-        name: "OrdererOrg3"
-        domain: "ordererorg3.example.com"
+        name: OrdererOrg3
+        domain: ordererorg3.example.com
       orderer_org_4: &OrdererOrg4
-        name: "OrdererOrg4"
-        domain: "ordererorg4.example.com"
+        name: OrdererOrg4
+        domain: ordererorg4.example.com
       org1: &Org1
-        name: "Org1"
-        domain: "org1.example.com"
+        name: Org1
+        domain: org1.example.com
     # TODO: temporary patch to use fxconfig as bin until we release the image
     fxconfig_use_bin: true
   children:
@@ -145,12 +145,17 @@ all:
             # HLFX Committer
             # =========================
             fabric_x_committer:
+              vars:
+                organization:
+                  <<: *Org1
+                  role: peer
               hosts:
                 committer-db:
                   postgres_user: sc_user
                   postgres_password: sc_secret_pwd
                   postgres_db: sc_db
                   postgres_port: 5435
+                  postgres_use_tls: true
                 committer-validator:
                   committer_component_type: validator
                   committer_rpc_port: 5100

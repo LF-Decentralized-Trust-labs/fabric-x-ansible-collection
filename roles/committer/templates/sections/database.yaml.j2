@@ -18,7 +18,7 @@ database:
   # Should be enabled for DB cluster
   load-balance: false
 {% if hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
-	# Define TLS certificate for a secure communication with PostgresDB.
+  # Define TLS certificate for a secure communication with PostgresDB.
   tls:
     # TLS configuration modes ("none", "tls" or "mtls")
     mode: tls
@@ -42,7 +42,7 @@ database:
   # Should be enabled for DB cluster
   load-balance: true
 {% if hostvars[yugabyte_cluster | first].yugabyte_use_tls is defined and hostvars[yugabyte_cluster | first].yugabyte_use_tls %}
-	# Define TLS certificate for a secure communication with YugabyteDB.
+  # Define TLS certificate for a secure communication with YugabyteDB.
   tls:
     # TLS configuration modes ("none", "tls" or "mtls")
     mode: tls

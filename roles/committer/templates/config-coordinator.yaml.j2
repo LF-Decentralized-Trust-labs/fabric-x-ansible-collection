@@ -22,7 +22,7 @@ verifier:
     - {{ hostvars[host].ansible_host }}:{{ hostvars[host].committer_rpc_port }}
 {% endfor %}
 {% if (hostvars[committer_verifier_ref_host].committer_use_tls is defined) and hostvars[committer_verifier_ref_host].committer_use_tls %}
-	# Define TLS options and certificate paths used for secure communication
+  # Define TLS options and certificate paths used for secure communication
   # between the coordinator and the verifiers.
   tls:
     # Server CA certificates to trust if tls is enabled.
@@ -51,7 +51,7 @@ validator-committer:
     - {{ hostvars[host].ansible_host }}:{{ hostvars[host].committer_rpc_port }}
 {% endfor %}
 {% if (hostvars[committer_validator_ref_host].committer_use_tls is defined) and hostvars[committer_validator_ref_host].committer_use_tls %}
-	# Define TLS options and certificate paths used for secure communication
+  # Define TLS options and certificate paths used for secure communication
   # between the coordinator and the validators.
   tls:
     # Server CA certificates to trust if tls is enabled.
