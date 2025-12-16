@@ -4,8 +4,15 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-PartyID: {{ orderer_group }}
+{% include './sections/party-id.yaml.j2' +%}
+
+{% include './sections/general.yaml.j2' +%}
+
+# ---------------------------------------------------------------------------
+# Hyperledger Fabric-X Router settings
+# ---------------------------------------------------------------------------
 Router:
-    NumberOfConnectionsPerBatcher: 10
-    NumberOfStreamsPerConnection: 5
-{% include './sections/general.yaml.j2' %}
+  # The number of connections between Router and Batcher
+  NumberOfConnectionsPerBatcher: 10
+  # The number of streams per connection that are opened between Router and Batcher.
+  NumberOfStreamsPerConnection: 5

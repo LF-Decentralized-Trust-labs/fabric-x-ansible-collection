@@ -4,12 +4,19 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-PartyID: {{ orderer_group }}
-Assembler:
-    PrefetchBufferMemoryBytes: 1073741824
-    RestartLedgerScanTimeout: 5s
-    PrefetchEvictionTtl: 1h0m0s
-    ReplicationChannelSize: 100
-    BatchRequestsChannelSize: 1000
+{% include './sections/party-id.yaml.j2' +%}
+
 {% include './sections/general.yaml.j2' +%}
-{% include './sections/filestore.yaml.j2' %}
+
+{% include './sections/filestore.yaml.j2' +%}
+
+# ---------------------------------------------------------------------------
+# Hyperledger Fabric-X Assembler settings
+# ---------------------------------------------------------------------------
+Assembler:
+  # The size of the buffer that is used to store prefetched batches from the Batchers.
+  PrefetchBufferMemoryBytes: 1073741824
+  RestartLedgerScanTimeout: 5s
+  PrefetchEvictionTtl: 1h0m0s
+  ReplicationChannelSize: 100
+  BatchRequestsChannelSize: 1000
