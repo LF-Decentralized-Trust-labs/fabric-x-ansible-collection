@@ -8,9 +8,6 @@
   vars:
     container_name: "{{ committer_container_name }}"
     container_image: "{{ committer_image }}"
-    container_env:
-      GRPC_GO_LOG_VERBOSITY_LEVEL: 99
-      GRPC_GO_LOG_SEVERITY_LEVEL: info
     container_command: >-
       committer start-sidecar
       --config={{ committer_container_config_dir }}/{{ committer_sidecar_config_file }}
