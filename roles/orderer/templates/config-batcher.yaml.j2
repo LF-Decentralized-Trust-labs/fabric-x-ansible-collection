@@ -17,9 +17,9 @@ Batcher:
   # Specifies the shard id to which the Batcher is associated.
   ShardID: {{ orderer_shard_id }}
   # The maximal distance the primary allows between his own current batch sequence and the secondaries sequence.
-	# The secondaries send acknowledgments over each batch to the primary, the primary collects these acknowledgments
-	# and waits until at least a threshold of secondaries is not too far behind (batch sequence distance is less than a gap)
-	# before the primary continues on to the next batch.
+  # The secondaries send acknowledgments over each batch to the primary, the primary collects these acknowledgments
+  # and waits until at least a threshold of secondaries is not too far behind (batch sequence distance is less than a gap)
+  # before the primary continues on to the next batch.
   BatchSequenceGap: 10
   # The maximal number of requests permitted in the requests pool.
   MemPoolMaxSize: 1000000
