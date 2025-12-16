@@ -12,7 +12,6 @@ General:
   TLS:
     # Require server-side TLS
     Enabled: {{ orderer_use_tls | bool | lower }}
-{% if orderer_use_tls %}
     # The file location of the private key of the server TLS certificate.
     PrivateKey: {{ orderer_config_dir }}/tls/server.key
     # The file location of the server TLS certificate.
@@ -20,10 +19,9 @@ General:
     # A list of additional file locations for root certificates used for verifying certificates of other nodes during outbound connections.
     RootCAs:
       - {{ orderer_config_dir }}/tls/ca.crt
-{% endif %}
-{% if orderer_use_mtls %}
     # Require client certificates / mutual TLS for inbound connections
     ClientAuthRequired: {{ orderer_use_mtls | bool | lower }}
+{% if orderer_use_mtls %}
     # A list of additional file locations for root certificates used for verifying certificates of other nodes during outbound connections.
     ClientRootCAs:
 {% for orderer_mtls_client in orderer_mtls_clients %}
