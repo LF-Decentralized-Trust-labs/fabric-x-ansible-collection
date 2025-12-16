@@ -25,6 +25,12 @@ fxconfig_git_commit: 2b2ca4d5e0f97e676e9d95a0636aac3d898d061c
 fxconfig_use_bin: false
 
 # =========================
+# Paths/Locations
+# =========================
+fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
+fxconfig_container_config_dir: "/tmp"
+
+# =========================
 # Fxconfig TLS settings
 # =========================
 fxconfig_use_tls: false

@@ -13,11 +13,9 @@
       --orderer {{ hostvars[orderer_router_host].ansible_host }}:{{ hostvars[orderer_router_host].orderer_rpc_port }}
       --mspConfigPath {{ fxconfig_msp_config_path }}
       --mspID {{ fxconfig_msp_id }}
-      {% if fxconfig_pubkey_path is defined %}
-      --pk {{ fxconfig_pubkey_path }}
-      {% endif %}
+      --pk {{ fxconfig_remote_config_dir }}/namespaces/{{ fxconfig_namespace }}/pubkey.pem
       {% if hostvars[orderer_router_host].orderer_use_tls is defined and hostvars[orderer_router_host].orderer_use_tls %}
-      --cafile {{ remote_config_dir }}/fxconfig/orderer/tls/ca.crt
+      --cafile {{ fxconfig_remote_config_dir }}/tls/orderer/ca.crt
       {% endif %}
     bin_run_with_tmux: false
     bin_collect_logs: false

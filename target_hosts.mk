@@ -8,6 +8,11 @@
 # Common target hosts
 # =======================
 
+# Target all the network within the inventory (e.g. make network start).
+.PHONY: network
+network:
+	@$(eval TARGET_HOSTS = network):
+
 # Target the Fabric CAs for the command being run (e.g. make fabric_cas start).
 .PHONY: fabric_cas
 fabric_cas:
