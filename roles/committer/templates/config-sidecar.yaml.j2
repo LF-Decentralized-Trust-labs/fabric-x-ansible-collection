@@ -29,26 +29,26 @@ orderer:
       - {{ hostvars[orderer_assembler].ansible_host }}:{{ hostvars[orderer_assembler].orderer_rpc_port }}
 {% endfor %}
 {% if (hostvars[orderer_assembler_ref_host].orderer_use_tls is defined) and hostvars[orderer_assembler_ref_host].orderer_use_tls %}
-  # Define TLS options and certificate paths used for secure communication
-  # between the sidecar and the orderers.
-  tls:
-    # Server CA certificates to trust if tls is enabled.
-    ca-cert-paths:
+    # Define TLS options and certificate paths used for secure communication
+    # between the sidecar and the orderers.
+    tls:
+      # Server CA certificates to trust if tls is enabled.
+      ca-cert-paths:
 {% for orderer_assembler in orderer_assemblers %}
 {% if (hostvars[orderer_assembler].orderer_use_tls is defined) and hostvars[orderer_assembler].orderer_use_tls %}
-      - {{ committer_config_dir }}/tls/orderers/{{ orderer_assembler }}/ca.crt
+        - {{ committer_config_dir }}/tls/orderers/{{ orderer_assembler }}/ca.crt
 {% endif %}
 {% endfor %}
 {% if (hostvars[orderer_assembler_ref_host].orderer_use_mtls is defined) and hostvars[orderer_assembler_ref_host].orderer_use_mtls %}
-    # Path to the TLS key file (private key).
-    key-path: {{ committer_config_dir }}/tls/server.key
-    # Path to the TLS certificate file (public key).
-    cert-path: {{ committer_config_dir }}/tls/server.crt
-    # TLS configuration modes ("none", "tls" or "mtls")
-    mode: mtls
+      # Path to the TLS key file (private key).
+      key-path: {{ committer_config_dir }}/tls/server.key
+      # Path to the TLS certificate file (public key).
+      cert-path: {{ committer_config_dir }}/tls/server.crt
+      # TLS configuration modes ("none", "tls" or "mtls")
+      mode: mtls
 {% else %}
-    # TLS configuration modes ("none", "tls" or "mtls")
-    mode: tls
+      # TLS configuration modes ("none", "tls" or "mtls")
+      mode: tls
 {% endif %}
 {% endif %}
 
