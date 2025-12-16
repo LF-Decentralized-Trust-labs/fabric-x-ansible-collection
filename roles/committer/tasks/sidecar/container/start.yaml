@@ -17,6 +17,7 @@
     container_volumes:
       - "{{ committer_remote_config_dir }}:{{ committer_container_config_dir }}:Z"
     container_wait_until_running: true
+    container_run_as_host_user: true
     container_wait_port: "{{ committer_rpc_port }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
