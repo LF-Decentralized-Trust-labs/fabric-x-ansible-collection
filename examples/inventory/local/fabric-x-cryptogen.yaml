@@ -185,7 +185,6 @@ all:
     load_generators:
       hosts:
         orderer-loadgen:
-          loadgen_use_bin: true
           organization:
             <<: *Org1
             users:

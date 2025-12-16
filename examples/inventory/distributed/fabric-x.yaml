@@ -292,7 +292,6 @@ all:
         loadgen_type: orderer-client
         prometheus_exporter_port: 2610
         loadgen_web_port: 6997
-        loadgen_use_bin: true
       hosts:
         orderer-loadgen-1:
           ansible_host: "{{ host_machine_14 }}"
