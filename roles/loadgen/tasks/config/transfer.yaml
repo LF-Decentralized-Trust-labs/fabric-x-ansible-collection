@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Transfer the config files of the Fabric-X Loadgen for the Fabric-X Orderer
+- name: Transfer the Hyperledger Fabric-X Loadgen config files as Orderer Loadgen
   vars:
     committer_sidecar: >-
       {{

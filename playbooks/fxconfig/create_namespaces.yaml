@@ -50,13 +50,12 @@
         fxconfig_msp_id: "{{ organization.name }}MSP"
         orderer_router_host: >-
           {{
-            groups['fabric_x_orderers']
-            | default([])
+            groups['all']
             | map('extract', hostvars)
             | selectattr('orderer_component_type', 'defined')
             | selectattr('orderer_component_type', '==', 'router')
             | map(attribute='inventory_hostname')
-            | list
+            | sort
             | first
           }}
         committer_query_service_host: >-
@@ -67,7 +66,7 @@
             | selectattr('committer_component_type', 'defined')
             | selectattr('committer_component_type', '==', 'query-service')
             | map(attribute='inventory_hostname')
-            | list
+            | sort
             | first
           }}
         fxconfig_namespaces: "{{ loadgen_pubkey_per_namespace.values() }}"
@@ -84,4 +83,5 @@
         - current_user.meta_namespace_admin is defined
         - current_user.meta_namespace_admin
         - loadgen_pubkey_per_namespace is defined
-        - loadgen_pubkey_per_namespace.values() | length > 0
+        - loadgen_pubkey_per_namespace.values()
+          | length > 0

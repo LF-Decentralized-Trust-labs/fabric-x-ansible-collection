@@ -1,0 +1,23 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Transfer the Hyperledger Fabric-X Orderer TLS certificate to trust
+  ansible.builtin.file:
+    path: "{{ remote_config_dir }}/fxconfig/orderer/tls"
+    state: directory
+    mode: "0o755"
+  when:
+    - hostvars[orderer_router_host].orderer_use_tls is defined
+    - hostvars[orderer_router_host].orderer_use_tls
+
+- name: Transfer the Hyperledger Fabric-X Orderer TLS certificate to trust
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/{{ orderer_router_host }}/tls/ca.crt"
+    dest: "{{ remote_config_dir }}/fxconfig/orderer/tls/ca.crt"
+    mode: "0o644"
+  when:
+    - hostvars[orderer_router_host].orderer_use_tls is defined
+    - hostvars[orderer_router_host].orderer_use_tls

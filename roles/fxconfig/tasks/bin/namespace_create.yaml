@@ -6,8 +6,6 @@
 
 - name: Create namespace {{ fxconfig_namespace }}
   vars:
-    bin_run_with_tmux: false
-    bin_collect_logs: false
     bin_command: >-
       {{ fxconfig_bin_name }} namespace
       create {{ fxconfig_namespace }}
@@ -18,12 +16,11 @@
       {% if fxconfig_pubkey_path is defined %}
       --pk {{ fxconfig_pubkey_path }}
       {% endif %}
-      {% if fxconfig_cafile_path is defined %}
-      --cafile {{ fxconfig_cafile_path }}
+      {% if hostvars[orderer_router_host].orderer_use_tls is defined and hostvars[orderer_router_host].orderer_use_tls %}
+      --cafile {{ remote_config_dir }}/fxconfig/orderer/tls/ca.crt
       {% endif %}
-      {% if fxconfig_use_tls %}
-      --tls
-      {% endif %}
+    bin_run_with_tmux: false
+    bin_collect_logs: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: start

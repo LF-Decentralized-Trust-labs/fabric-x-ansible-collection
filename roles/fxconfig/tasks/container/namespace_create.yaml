@@ -10,12 +10,12 @@
   when:
     - fxconfig_msp_config_path is not defined
 
-- name: Map the container output volume
+- name: Add volume for the MSP config directory
   ansible.builtin.set_fact:
     fxconfig_volumes:
       - "{{ fxconfig_msp_config_path }}:/tmp/meta_namespace_admin_msp:Z"
 
-- name: Add the endorser public key certificate path as volume to mount
+- name: Add volume for the namespace endorsement public key certificate
   vars:
     endorser_pubkey_volume: "{{ fxconfig_pubkey_path }}:/tmp/endorser_pub_key.cert:Z"
   ansible.builtin.set_fact:
@@ -23,9 +23,18 @@
   when:
     - fxconfig_pubkey_path is defined
 
+- name: Add volume for the Hyperledger Fabric-X Orderer TLS CA certificate
+  vars:
+    ca_volume: "{{ remote_config_dir }}/fxconfig/orderer/tls/ca.crt:/tmp/orderer/ca.crt:Z"
+  ansible.builtin.set_fact:
+    fxconfig_volumes: "{{ fxconfig_volumes + [ca_volume] }}"
+  when:
+    - hostvars[orderer_router_host].orderer_use_tls is defined
+    - hostvars[orderer_router_host].orderer_use_tls
+
 - name: Add the CA certificate path as volume to mount
   vars:
-    ca_volume: "{{ fxconfig_cafile_path }}:/tmp/ca.cert:Z"
+    ca_volume: "{{ fxconfig_cafile_path }}:/tmp/ca.crt:Z"
   ansible.builtin.set_fact:
     fxconfig_volumes: "{{ fxconfig_volumes + [ca_volume] }}"
   when:
@@ -45,11 +54,8 @@
       {% if fxconfig_pubkey_path is defined %}
       --pk /tmp/endorser_pub_key.cert
       {% endif %}
-      {% if fxconfig_cafile_path is defined %}
-      --cafile /tmp/ca.cert
-      {% endif %}
-      {% if fxconfig_use_tls %}
-      --tls
+      {% if hostvars[orderer_router_host].orderer_use_tls is defined and hostvars[orderer_router_host].orderer_use_tls %}
+      --cafile /tmp/ca.crt
       {% endif %}
     container_volumes: "{{ fxconfig_volumes }}"
     container_run_detach_mode: false
