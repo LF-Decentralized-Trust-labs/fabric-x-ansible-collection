@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# =========================
+# Config
+# =========================
 - name: Ensure orderer config directory exists
   ansible.builtin.file:
     path: "{{ orderer_remote_config_dir }}"
@@ -18,6 +21,9 @@
     dest: "{{ orderer_remote_config_file }}"
     mode: "0o640"
 
+# =========================
+# Genesis block
+# =========================
 - name: Copy Genesis block to use for the genesis setup phase
   ansible.builtin.copy:
     src: "{{ configtxgen_artifacts_dir }}/{{ orderer_genesis_block_file }}"
