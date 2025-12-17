@@ -33,30 +33,12 @@
 # =========================
 # mTLS
 # =========================
-- name: Ensure folder for TLS Certificates of mTLS clients exist
-  ansible.builtin.file:
-    path: "{{ orderer_remote_config_dir }}/mtls/{{ current_orderer_mtls_client }}"
-    state: directory
-    mode: "0o755"
-  loop: "{{ orderer_mtls_clients }}"
-  loop_control:
-    loop_var: current_orderer_mtls_client
-    label: "{{ current_orderer_mtls_client }}"
+- name: Transfer mTLS certificates
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: config/mtls/transfer
   when:
     - orderer_use_mtls
     - orderer_mtls_clients is defined
-    - orderer_mtls_clients | length > 0
-
-- name: Copy TLS Certificates of mTLS clients
-  ansible.builtin.copy:
-    src: "{{ fetched_artifacts_dir }}/{{ current_orderer_mtls_client }}/tls/server.crt"
-    dest: "{{ orderer_remote_config_dir }}/mtls/{{ current_orderer_mtls_client }}/ca.crt"
-    mode: "0o644"
-  loop: "{{ orderer_mtls_clients }}"
-  loop_control:
-    loop_var: current_orderer_mtls_client
-    label: "{{ current_orderer_mtls_client }}"
-  when:
-    - orderer_use_mtls
-    - orderer_mtls_clients is defined
-    - orderer_mtls_clients | length > 0
+    - orderer_mtls_clients
+      | length > 0

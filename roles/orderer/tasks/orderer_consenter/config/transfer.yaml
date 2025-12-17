@@ -34,3 +34,16 @@
     src: "{{ configtxgen_artifacts_dir }}/{{ orderer_genesis_block_file }}"
     dest: "{{ orderer_remote_config_dir }}/genesis.block"
     mode: "0o644"
+
+# =========================
+# mTLS
+# =========================
+- name: Transfer mTLS certificates
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: config/mtls/transfer
+  when:
+    - orderer_use_mtls
+    - orderer_mtls_clients is defined
+    - orderer_mtls_clients
+      | length > 0

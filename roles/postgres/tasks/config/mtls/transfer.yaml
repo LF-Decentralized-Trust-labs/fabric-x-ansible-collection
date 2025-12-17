@@ -1,0 +1,35 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Transfer the pg_hba.conf to enforce mTLS on PostgresDB
+  ansible.builtin.template:
+    src: pg_hba.conf.j2
+    dest: "{{ postgres_remote_config_dir }}/pg_hba.conf"
+    mode: "0o644"
+
+- name: Ensure directory for TLS Certificates of mTLS clients exist
+  ansible.builtin.file:
+    path: "{{ postgres_remote_config_dir }}/mtls/clients"
+    state: directory
+    mode: "0o755"
+
+- name: Copy TLS certificates of mTLS clients
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/{{ current_postgres_mtls_client }}/tls/server.crt"
+    dest: "{{ postgres_remote_config_dir }}/mtls/clients/{{ current_postgres_mtls_client }}.ca.crt"
+    mode: "0o644"
+  loop: "{{ postgres_mtls_clients }}"
+  loop_control:
+    loop_var: current_postgres_mtls_client
+    label: "{{ current_postgres_mtls_client }}"
+
+- name: Assemble mTLS client CA bundle for PostgreSQL
+  ansible.builtin.assemble:
+    src: "{{ postgres_remote_config_dir }}/mtls/clients"
+    dest: "{{ postgres_remote_config_dir }}/mtls/ca-certs.pem"
+    regexp: 'ca\.crt$'
+    delimiter: "\n"
+    mode: "0o644"

@@ -1,0 +1,25 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure folder for TLS Certificates of mTLS clients exist
+  ansible.builtin.file:
+    path: "{{ orderer_remote_config_dir }}/mtls/{{ current_orderer_mtls_client }}"
+    state: directory
+    mode: "0o755"
+  loop: "{{ orderer_mtls_clients }}"
+  loop_control:
+    loop_var: current_orderer_mtls_client
+    label: "{{ current_orderer_mtls_client }}"
+
+- name: Copy TLS Certificates of mTLS clients
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/{{ current_orderer_mtls_client }}/tls/server.crt"
+    dest: "{{ orderer_remote_config_dir }}/mtls/{{ current_orderer_mtls_client }}/ca.crt"
+    mode: "0o644"
+  loop: "{{ orderer_mtls_clients }}"
+  loop_control:
+    loop_var: current_orderer_mtls_client
+    label: "{{ current_orderer_mtls_client }}"

@@ -1,0 +1,24 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure config directory exists
+  ansible.builtin.file:
+    path: "{{ postgres_remote_config_dir }}"
+    state: directory
+    mode: "0o755"
+
+# =========================
+# mTLS
+# =========================
+- name: Transfer the pg_hba.conf to enforce mTLS on PostgresDB
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: config/mtls/transfer
+  when:
+    - postgres_use_mtls
+    - postgres_mtls_clients is defined
+    - postgres_mtls_clients
+      | length > 0
