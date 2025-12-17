@@ -11,3 +11,11 @@
     flat: true
   when:
     - prometheus_use_tls
+
+- name: Fetch the Prometheus TLS certificate
+  ansible.builtin.fetch:
+    src: "{{ prometheus_remote_config_dir }}/tls/server.crt"
+    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/server.crt"
+    flat: true
+  when:
+    - prometheus_use_tls

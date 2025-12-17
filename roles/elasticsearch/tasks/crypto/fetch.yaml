@@ -11,3 +11,11 @@
     flat: true
   when:
     - elasticsearch_use_tls
+
+- name: Fetch ElasticSearch TLS certificate
+  ansible.builtin.fetch:
+    src: "{{ elasticsearch_remote_config_dir }}/tls/server.crt"
+    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/server.crt"
+    flat: true
+  when:
+    - elasticsearch_use_tls

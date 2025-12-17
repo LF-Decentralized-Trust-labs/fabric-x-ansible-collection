@@ -11,3 +11,11 @@
     flat: true
   when:
     - yugabyte_use_tls
+
+- name: Fetch Yugabyte TLS certificate
+  ansible.builtin.fetch:
+    src: "{{ yugabyte_remote_config_dir }}/tls/node.{{ inventory_hostname }}.crt"
+    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/server.crt"
+    flat: true
+  when:
+    - yugabyte_use_tls

@@ -11,3 +11,11 @@
     flat: true
   when:
     - postgres_exporter_use_tls
+
+- name: Fetch the Postgres Exporter TLS certificate
+  ansible.builtin.fetch:
+    src: "{{ postgres_exporter_remote_config_dir }}/tls/server.crt"
+    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/server.crt"
+    flat: true
+  when:
+    - postgres_exporter_use_tls
