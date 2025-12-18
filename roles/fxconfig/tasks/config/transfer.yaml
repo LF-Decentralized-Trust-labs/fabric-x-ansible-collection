@@ -4,7 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Transfer the Hyperledger Fabric-X Orderer TLS certificate to trust
+# =========================
+# Namespaces keys
+# =========================
+- name: Ensure the directories for the namespaces endorsement keys exist
   ansible.builtin.file:
     path: "{{ fxconfig_remote_config_dir }}/namespaces/{{ current_namespace.name }}"
     state: directory
@@ -14,7 +17,7 @@
     loop_var: current_namespace
     label: "{{ current_namespace.name }}"
 
-- name: Transfer the namespaces endorsement public key certificate
+- name: Transfer the namespaces endorsement public keys
   vars:
     current_organization: "{{ current_namespace.user.organization }}"
     current_user: "{{ current_namespace.user }}"
@@ -27,7 +30,10 @@
     loop_var: current_namespace
     label: "{{ current_namespace.name }}:{{ current_user.name }}@{{ current_organization.domain }}"
 
-- name: Transfer the Hyperledger Fabric-X Orderer TLS certificate to trust
+# =========================
+# HLFX Orderer TLS certs
+# =========================
+- name: Ensure the directory for the Hyperledger Fabric-X Orderer Router CA certificate exist
   ansible.builtin.file:
     path: "{{ fxconfig_remote_config_dir }}/tls/orderer"
     state: directory
@@ -36,7 +42,7 @@
     - hostvars[orderer_router_host].orderer_use_tls is defined
     - hostvars[orderer_router_host].orderer_use_tls
 
-- name: Transfer the Hyperledger Fabric-X Orderer TLS certificate to trust
+- name: Transfer the Hyperledger Fabric-X Orderer Router TLS certificate to trust
   ansible.builtin.copy:
     src: "{{ fetched_artifacts_dir }}/{{ orderer_router_host }}/tls/ca.crt"
     dest: "{{ fxconfig_remote_config_dir }}/tls/orderer/ca.crt"
@@ -44,3 +50,24 @@
   when:
     - hostvars[orderer_router_host].orderer_use_tls is defined
     - hostvars[orderer_router_host].orderer_use_tls
+
+# =========================
+# HLFX Committer TLS cert
+# =========================
+- name: Ensure the directory for the Hyperledger Fabric-X Committer Query-Service CA certificate exist
+  ansible.builtin.file:
+    path: "{{ fxconfig_remote_config_dir }}/tls/committer"
+    state: directory
+    mode: "0o755"
+  when:
+    - hostvars[committer_query_service_host].committer_use_tls is defined
+    - hostvars[committer_query_service_host].committer_use_tls
+
+- name: Transfer the Hyperledger Fabric-X Committer Query-Service TLS certificate to trust
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/{{ committer_query_service_host }}/tls/ca.crt"
+    dest: "{{ fxconfig_remote_config_dir }}/tls/committer/ca.crt"
+    mode: "0o644"
+  when:
+    - hostvars[committer_query_service_host].committer_use_tls is defined
+    - hostvars[committer_query_service_host].committer_use_tls

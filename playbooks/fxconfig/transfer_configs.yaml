@@ -32,6 +32,16 @@
             | sort
             | first
           }}
+        committer_query_service_host: >-
+          {{
+            groups['all']
+            | map('extract', hostvars)
+            | selectattr('committer_component_type', 'defined')
+            | selectattr('committer_component_type', '==', 'query-service')
+            | map(attribute='inventory_hostname')
+            | sort
+            | first
+          }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxconfig
         tasks_from: config/transfer

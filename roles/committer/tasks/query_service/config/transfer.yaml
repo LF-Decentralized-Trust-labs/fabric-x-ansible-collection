@@ -31,16 +31,7 @@
     dest: "{{ committer_remote_config_dir }}/{{ committer_query_service_config_file }}"
     mode: "0o644"
 
-- name: Transfer Postgres TLS certificates
+- name: Transfer DB files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
-    tasks_from: config/transfer_postgres_tls_cert
-  when:
-    - postgres_db_host is defined
-
-- name: Transfer Yugabyte TLS certificates
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: config/transfer_yugabyte_tls_cert
-  when:
-    - yugabyte_cluster_ref_id is defined
+    tasks_from: config/db/transfer

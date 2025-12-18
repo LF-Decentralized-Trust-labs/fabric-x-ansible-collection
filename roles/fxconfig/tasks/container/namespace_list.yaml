@@ -12,6 +12,9 @@
       {{ fxconfig_bin_name }} namespace
       list
       --endpoint={{ hostvars[committer_query_service_host].ansible_host }}:{{ hostvars[committer_query_service_host].committer_rpc_port }}
+      {% if hostvars[committer_query_service_host].committer_use_tls is defined and hostvars[committer_query_service_host].committer_use_tls %}
+      --cafile {{ fxconfig_container_config_dir }}/tls/committer/ca.crt
+      {% endif %}
     container_run_detach_mode: false
     container_run_as_host_user: true
     container_autoremove: true
