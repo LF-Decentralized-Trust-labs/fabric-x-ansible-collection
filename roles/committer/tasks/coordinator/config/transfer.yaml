@@ -83,3 +83,6 @@
     src: "{{ fetched_artifacts_dir }}/{{ committer_validator_ref_host }}/tls/ca.crt"
     dest: "{{ committer_remote_config_dir }}/tls/validators/ca.crt"
     mode: "0o644"
+  when:
+    - hostvars[committer_validator_ref_host].committer_use_tls is defined
+    - hostvars[committer_validator_ref_host].committer_use_tls
