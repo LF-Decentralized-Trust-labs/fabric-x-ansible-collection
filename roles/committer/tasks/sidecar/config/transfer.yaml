@@ -77,3 +77,6 @@
     src: "{{ fetched_artifacts_dir }}/{{ committer_coordinator }}/tls/ca.crt"
     dest: "{{ committer_remote_config_dir }}/tls/coordinator/ca.crt"
     mode: "0o644"
+  when:
+    - hostvars[committer_coordinator].committer_use_tls is defined
+    - hostvars[committer_coordinator].committer_use_tls
