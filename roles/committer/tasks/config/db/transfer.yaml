@@ -14,6 +14,7 @@
         | selectattr('yugabyte_cluster_id', '==', yugabyte_cluster_ref_id)
         | selectattr('yugabyte_use_tls', 'defined')
         | selectattr('yugabyte_use_tls', '==', true)
+        | map(attribute='inventory_hostname')
         | first
       }}
     yugabyte_cluster_ref_host: "{{ yugabyte_cluster_tls_hosts | first }}"
