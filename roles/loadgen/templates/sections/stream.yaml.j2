@@ -12,7 +12,7 @@ stream:
     # Initial limit rate
     initial-limit: {{ loadgen_limit_rate }}
   # Impact the rate by batching generated items before inserting then the channel.
-	# This helps overcome the inherit rate limitation of Go channels.    
+  # This helps overcome the inherit rate limitation of Go channels.    
   gen-batch: {{ loadgen_stream_batches | default(4000) }}
   # Impact the rate by masking fluctuation in performance.
   buffers-size: {{ loadgen_stream_buffers_size | default(2000) }}

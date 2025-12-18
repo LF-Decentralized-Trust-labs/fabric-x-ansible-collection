@@ -8,35 +8,96 @@
   ansible.builtin.file:
     path: "{{ loadgen_remote_config_dir }}"
     state: directory
-    mode: "0o750"
+    mode: "0o755"
 
-- name: Generate the config for the Fabric-X Loadgen for the Fabric-X Orderer
+- name: Generate the config for the Hyperledger Fabric-X Orderer Loadgen
   vars:
+    orderer_ref_host: "{{ orderer_routers | first }}"
     loadgen_config_dir: "{{ loadgen_remote_config_dir if loadgen_use_bin else loadgen_container_config_dir }}"
   ansible.builtin.template:
     src: "orderer-client.yaml.j2"
     dest: "{{ loadgen_remote_config_dir }}/{{ loadgen_config_file }}"
     mode: "0o644"
 
-- name: Ensure the load-generator users config directory exists
+# =========================
+# HLFX Orderer Routers TLS
+# =========================
+- name: Ensure Hyperledger Fabric-X Orderer Routers TLS folders exist
   ansible.builtin.file:
-    path: "{{ loadgen_remote_config_dir }}/users"
+    path: "{{ loadgen_remote_config_dir }}/tls/orderers/{{ current_orderer_router }}"
     state: directory
-    mode: "0o750"
-  when:
-    - organization is defined
-    - organization.users is defined
-    - organization.fabric_ca_host is undefined
-
-- name: Transfer the Fabric-X Loadgen users crypto material
-  ansible.posix.synchronize:
-    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/users/{{ user.name }}@{{ organization.domain }}"
-    dest: "{{ loadgen_remote_config_dir }}/users"
-  loop: "{{ organization.users }}"
+    mode: "0o755"
+  loop: "{{ orderer_routers }}"
   loop_control:
-    label: "{{ user.name }}"
-    loop_var: user
+    loop_var: current_orderer_router
+    label: "{{ current_orderer_router }}"
   when:
-    - organization is defined
-    - organization.users is defined
-    - organization.fabric_ca_host is undefined
+    - hostvars[current_orderer_router].orderer_use_tls is defined
+    - hostvars[current_orderer_router].orderer_use_tls
+
+- name: Transfer Hyperledger Fabric-X Orderer Routers TLS CA certificates
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/{{ current_orderer_router }}/tls/ca.crt"
+    dest: "{{ loadgen_remote_config_dir }}/tls/orderers/{{ current_orderer_router }}/ca.crt"
+    mode: "0o644"
+  loop: "{{ orderer_routers }}"
+  loop_control:
+    loop_var: current_orderer_router
+    label: "{{ current_orderer_router }}"
+  when:
+    - hostvars[current_orderer_router].orderer_use_tls is defined
+    - hostvars[current_orderer_router].orderer_use_tls
+
+# =========================
+# HLFX Orderer Assemblers TLS
+# =========================
+- name: Ensure Hyperledger Fabric-X Orderer Assemblers TLS folders exist
+  ansible.builtin.file:
+    path: "{{ loadgen_remote_config_dir }}/tls/orderers/{{ current_orderer_assembler }}"
+    state: directory
+    mode: "0o755"
+  loop: "{{ orderer_assemblers }}"
+  loop_control:
+    loop_var: current_orderer_assembler
+    label: "{{ current_orderer_assembler }}"
+  when:
+    - orderer_assemblers is defined
+    - hostvars[current_orderer_assembler].orderer_use_tls is defined
+    - hostvars[current_orderer_assembler].orderer_use_tls
+
+- name: Transfer Hyperledger Fabric-X Orderer Assemblers TLS CA certificates
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/{{ current_orderer_assembler }}/tls/ca.crt"
+    dest: "{{ loadgen_remote_config_dir }}/tls/orderers/{{ current_orderer_assembler }}/ca.crt"
+    mode: "0o644"
+  loop: "{{ orderer_assemblers }}"
+  loop_control:
+    loop_var: current_orderer_assembler
+    label: "{{ current_orderer_assembler }}"
+  when:
+    - orderer_assemblers is defined
+    - hostvars[current_orderer_assembler].orderer_use_tls is defined
+    - hostvars[current_orderer_assembler].orderer_use_tls
+
+# =========================
+# HLFX Committer Sidecar TLS
+# =========================
+- name: Ensure Hyperledger Fabric-X Committer Sidecar TLS folder exist
+  ansible.builtin.file:
+    path: "{{ loadgen_remote_config_dir }}/tls/sidecar"
+    state: directory
+    mode: "0o755"
+  when:
+    - committer_sidecar is defined
+    - hostvars[committer_sidecar].committer_use_tls is defined
+    - hostvars[committer_sidecar].committer_use_tls
+
+- name: Transfer Hyperledger Fabric-X Committer Sidecar TLS CA certificate
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/{{ committer_sidecar }}/tls/ca.crt"
+    dest: "{{ loadgen_remote_config_dir }}/tls/sidecar/ca.crt"
+    mode: "0o644"
+  when:
+    - committer_sidecar is defined
+    - hostvars[committer_sidecar].committer_use_tls is defined
+    - hostvars[committer_sidecar].committer_use_tls

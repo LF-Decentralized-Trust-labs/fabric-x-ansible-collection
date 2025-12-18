@@ -7,13 +7,13 @@
 load-profile:
   # The seed to generate the seeds for each worker.
   # Each worker has a unique seed to generate keys in addition the seed for the other content.
-	# This allows reproducing the generated keys regardless of the other generated content.
-	# It is useful when generating transactions, and later generating queries for the same keys.
+  # This allows reproducing the generated keys regardless of the other generated content.
+  # It is useful when generating transactions, and later generating queries for the same keys.
   seed: {{ loadgen_tx_seed | default(12345) }}
   # The number of independent producers.
-	# Each worker uses a unique seed that is generated from the main seed.
-	# To ensure responsibility of items between runs (e.g., for query)
-	# the number of workers must be preserved.
+  # Each worker uses a unique seed that is generated from the main seed.
+  # To ensure responsibility of items between runs (e.g., for query)
+  # the number of workers must be preserved.
   workers: {{ loadgen_workers | default(32) }}
   # Describes generate block characteristics.
   block:
@@ -83,10 +83,10 @@ load-profile:
     # The number of keys to query.
     query-size: {{ loadgen_query_settings.size | default(1) }}
     # The minimal portion of invalid keys (1 => all keys are invalid).
-	  # This is a lower bound since some valid keys might have failed to commit due to conflicts.
+    # This is a lower bound since some valid keys might have failed to commit due to conflicts.
     min-invalid-keys-portion: {{ loadgen_query_settings.min_invalid_keys_portion | default(1) }}
     # If Shuffle=false, the valid keys will be placed first.
-	  # Otherwise, they will be shuffled.
+    # Otherwise, they will be shuffled.
     shuffle: {{ loadgen_query_settings.shuffle | default(false) | bool | lower }}
 {% endif %}
 {% if loadgen_conflicts_settings is defined %}
