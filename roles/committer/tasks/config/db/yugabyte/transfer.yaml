@@ -6,9 +6,9 @@
 
 - name: Check that a Yugabyte cluster reference host has been defined
   ansible.builtin.fail:
-    msg: "No Yugabyte cluster reference host is indicated. Set it via 'yugabyte_cluster_ref'."
+    msg: "No Yugabyte cluster reference host is indicated. Set it via 'yugabyte_cluster_ref_host'."
   when:
-    - yugabyte_cluster_ref is not defined
+    - yugabyte_cluster_ref_host is not defined
 
 - name: Ensure directory for Yugabyte cluster TLS certificate exists
   ansible.builtin.file:
@@ -18,6 +18,6 @@
 
 - name: Copy Yugabyte cluster CA TLS certificate
   ansible.builtin.copy:
-    src: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ yugabyte_cluster_ref.organization.domain }}/msp/tlscacerts/tlsca.{{ yugabyte_cluster_ref.organization.domain }}-cert.pem"
+    src: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ yugabyte_cluster_ref_host.organization.domain }}/msp/tlscacerts/tlsca.{{ yugabyte_cluster_ref_host.organization.domain }}-cert.pem"
     dest: "{{ committer_remote_config_dir }}/tls/db/ca.crt"
     mode: "0644"

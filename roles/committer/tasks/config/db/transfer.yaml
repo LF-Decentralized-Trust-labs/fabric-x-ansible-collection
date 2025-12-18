@@ -6,7 +6,7 @@
 
 - name: Transfer Yugabyte cluster TLS certificate
   vars:
-    yugabyte_cluster_ref: >-
+    yugabyte_cluster_tls_hosts: >-
       {{
         groups['all']
         | map('extract', hostvars)
@@ -16,6 +16,7 @@
         | selectattr('yugabyte_use_tls', '==', true)
         | first
       }}
+    yugabyte_cluster_ref_host: "{{ yugabyte_cluster_tls_hosts | first }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: config/db/yugabyte/transfer
