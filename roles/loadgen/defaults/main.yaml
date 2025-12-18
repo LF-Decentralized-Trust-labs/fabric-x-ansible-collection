@@ -36,9 +36,5 @@ loadgen_admin_priv_key_file: "admin_priv_key.pem"
 # =========================
 # Miscellaneous
 # =========================
-loadgen_key_scheme: "ECDSA"
 loadgen_limit_rate: 1000
-loadgen_log_level: "INFO"
 loadgen_assert_metrics: false
-loadgen_tx_seed: "12345"
-loadgen_generate_namespace: false

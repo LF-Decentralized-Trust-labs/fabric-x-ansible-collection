@@ -1,46 +1,114 @@
+# ---------------------------------------------------------------------------
+# Workload characteristics.
+# It only contains parameters that deterministically affect the
+# generated items.
+# The items order, however, might be affected by other parameters.
+# ---------------------------------------------------------------------------
 load-profile:
+  # The seed to generate the seeds for each worker.
+  # Each worker has a unique seed to generate keys in addition the seed for the other content.
+	# This allows reproducing the generated keys regardless of the other generated content.
+	# It is useful when generating transactions, and later generating queries for the same keys.
+  seed: {{ loadgen_tx_seed | default(12345) }}
+  # The number of independent producers.
+	# Each worker uses a unique seed that is generated from the main seed.
+	# To ensure responsibility of items between runs (e.g., for query)
+	# the number of workers must be preserved.
+  workers: {{ loadgen_workers | default(32) }}
+  # Describes generate block characteristics.
   block:
-    size: 500
+    # Size of the block
+    size: {{ loadgen_block_size | default(500) }}
+  # Describes generated keys characteristics.
   key:
-    size: 32
+    # Size of the key to generate.
+    size: {{ loadgen_key_size | default(32) }}
+  # Describes generate TX characteristics.
   transaction:
-    read-write-value-size: 32
-    blind-write-value-size:
+{% if loadgen_generate_read_only_tx | default(false) %}
+    # The number of read-only keys to generate
     read-only-count:
+      # Static number of keys
+      const: {{ loadgen_read_only_tx_keys | default(2) }}
+{% endif %}
+{% if loadgen_generate_write_only_tx | default(false) %}
+    # The number of blind-write keys to generate
+    write-count:
+      # Static number of keys
+      const: {{ loadgen_write_only_tx_keys | default(2) }}
+    # The sizes of the blind-write values to generate (size=0 => value=nil)
+    blind-write-value-size: {{ loadgen_write_only_tx_val_size | default(32) }}
+{% endif %}
+{% if loadgen_generate_read_write_tx | default(true) %}
+    # The number of read-write keys to generate
     read-write-count:
-      const: 2
+      # Static number of keys
+      const: {{ loadgen_read_write_tx_keys | default(2) }}
+    # The sizes of the read-write values to generate (size=0 => value=nil)
+    read-write-value-size: {{ loadgen_read_write_tx_val_size | default(32) }}
+{% endif %}
+    # Holds the policy information for the load generation.
+    # Describe how to sign/verify a TX.
     policy:
-      config-block-path:
+      # Specify the namespace policies.
       namespace-policies:
 {% if organization is defined %}
 {% if organization.users is defined %}
 {% for user in organization.users %}
 {% if user.namespace is defined %}
+        # Namespace identifier
         {{ user.namespace }}:
-          scheme: {{ loadgen_key_scheme }}
+          # Signature scheme ("ECDSA", "EDDSA", "BLS" or "NONE").
+          scheme: {{ loadgen_key_scheme | default('ECDSA') }}
+          # Seed to use for key generation (used only when the key is not already present).
           seed: {{ user.seed | default(12345) }}
+          # How to find/generate the signature keys.
           key-path:
+            # Path to the signing key.
             signing-key: {{ loadgen_config_dir }}/users/{{ user.name }}@{{ organization.domain }}/msp/keystore/priv_sk
 {% if organization.fabric_ca_host is defined %}
+            # Path to the signing certificate.
             sign-certificate: {{ loadgen_config_dir }}/users/{{ user.name }}@{{ organization.domain }}/msp/signcerts/cert.pem
 {% else %}
+            # Path to the signing certificate.
             sign-certificate: {{ loadgen_config_dir }}/users/{{ user.name }}@{{ organization.domain }}/msp/signcerts/{{ user.name }}@{{ organization.domain }}-cert.pem
 {% endif %}
 {% endif %}
 {% endfor %}
 {% endif %}
 {% endif %}
+{% if loadgen_query_settings is defined %}
+  # Describe query characteristics.
   query:
-    query-size:
-    min-invalid-keys-portion:
-    shuffle: false
+    # The number of keys to query.
+    query-size: {{ loadgen_query_settings.size | default(1) }}
+    # The minimal portion of invalid keys (1 => all keys are invalid).
+	  # This is a lower bound since some valid keys might have failed to commit due to conflicts.
+    min-invalid-keys-portion: {{ loadgen_query_settings.min_invalid_keys_portion | default(1) }}
+    # If Shuffle=false, the valid keys will be placed first.
+	  # Otherwise, they will be shuffled.
+    shuffle: {{ loadgen_query_settings.shuffle | default(false) | bool | lower }}
+{% endif %}
+{% if loadgen_conflicts_settings is defined %}
+  # Describe the TX conflict characteristics.
+  # Note that each of the conflicts' probabilities are independent bernoulli distributions.
   conflicts:
-    invalid-signatures: 0
+    # Probability of invalid signatures [0,1] (default: 0).
+    invalid-signatures: {{ loadgen_conflicts_settings.invalid_signatures | default(0) }}
+{% if loadgen_conflicts_settings.dependencies is defined %}
+    # List of dependencies.
     dependencies:
-      # - probability: 0
-      #   gap:
-      #     const: 500
-      #   src: "read-write"
-      #   dst: "read-write"
-  seed: {{ loadgen_tx_seed }}
-  workers: 32
+{% for dependency in loadgen_conflicts_settings.dependencies %}
+      # Probability of the dependency type [0,1] (default: 0)
+      - probability: {{ dependency.probability | default(0) }}
+        # Source dependency ("read", "write", or "read-write")
+        src: {{ dependency.src | default('read-write') }}
+        # Destination dependency ("read", "write", or "read-write")
+        dst: {{ dependency.dst | default('read-write') }}
+        # Gap is the distance between the dependent TXs (default: 1)
+        gap:
+          # Static distance
+          const: {{ dependency.gap | default(500) }}
+{% endfor %}
+{% endif %}
+{% endif %}

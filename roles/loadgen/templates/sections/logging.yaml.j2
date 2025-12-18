@@ -1,5 +1,14 @@
+# ---------------------------------------------------------------------------
+# Log settings
+# ---------------------------------------------------------------------------
 logging:
-  enabled: true
-  level: {{ loadgen_log_level }}
-  caller: true
-  development: false
+  # True if logs are enabled, false otherwise.
+  enabled: {{ loadgen_enable_logs | default(true) | bool | lower }}
+  # True to enable development logs format, false otherwise.
+  development: {{ loadgen_enable_dev_logs | default(true) | bool | lower }}
+  # Log level ("ERROR", "WARNING", "INFO" or "DEBUG")
+  level: {{ loadgen_log_level | default('INFO') }}
+  # Logger name
+  name: {{ inventory_hostname }}
+  # Annotate each message with the filename, line number, and function name.
+  caller: {{ loadgen_log_caller | default(true) | bool | lower }}

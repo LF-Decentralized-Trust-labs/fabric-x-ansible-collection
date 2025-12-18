@@ -4,12 +4,18 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+{% include './sections/load-profile.yaml.j2' +%}
+
+{% include './sections/monitoring.yaml.j2' +%}
+
+{% include './sections/stream.yaml.j2' +%}
+
+{% include './sections/generate.yaml.j2' +%}
+
+{% include './sections/logging.yaml.j2' +%}
+
 vc-client:
   endpoints:
 {% for host in committer_validators | default([]) %}
     - {{ hostvars[host].ansible_host }}:{{ hostvars[host].committer_rpc_port }}
 {% endfor %}
-{% include './sections/load-profile.yaml.j2' +%}
-{% include './sections/monitoring.yaml.j2' +%}
-{% include './sections/stream.yaml.j2' +%}
-{% include './sections/logging.yaml.j2' %}
