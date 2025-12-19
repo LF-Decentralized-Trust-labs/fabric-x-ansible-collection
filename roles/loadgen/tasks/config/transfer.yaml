@@ -42,35 +42,6 @@
     - loadgen_type == 'orderer-client'
 
 # =========================
-# Sidecar-Client
-# =========================
-- name: Transfer the Hyperledger Fabric-X Sidecar Client config files
-  vars:
-    committer_sidecar_host: >-
-      {{
-        committer_hosts
-        | map('extract', hostvars)
-        | selectattr('committer_component_type', 'defined')
-        | selectattr('committer_component_type', '==', 'sidecar')
-        | map(attribute='inventory_hostname')
-        | list
-        | first
-      }}
-    orderer_router_hosts: >-
-      {{
-        orderer_hosts
-        | map('extract', hostvars)
-        | selectattr('orderer_component_type', '==', 'router')
-        | map(attribute='inventory_hostname')
-        | list
-      }}
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.loadgen
-    tasks_from: config/sidecar-client/transfer
-  when:
-    - loadgen_type == 'sidecar-client'
-
-# =========================
 # Coordinator Client
 # =========================
 - name: Transfer the Hyperledger Fabric-X Coordinator Client config files

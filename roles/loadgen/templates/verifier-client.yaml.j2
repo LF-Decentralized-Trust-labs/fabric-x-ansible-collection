@@ -14,8 +14,30 @@
 
 {% include './sections/logging.yaml.j2' +%}
 
+# ---------------------------------------------------------------------------
+# Verifier Client Settings
+# ---------------------------------------------------------------------------
 verifier-client:
   endpoints:
-{% for host in committer_verifier_hosts | default([]) %}
-    - {{ hostvars[host].ansible_host }}:{{ hostvars[host].committer_rpc_port }}
+{% for committer_verifier_host in committer_verifier_hosts | default([]) %}
+    - {{ hostvars[committer_verifier_host].ansible_host }}:{{ hostvars[committer_verifier_host].committer_rpc_port }}
 {% endfor %}
+{% if (hostvars[committer_verifier_ref_host].committer_use_tls is defined) and hostvars[committer_verifier_ref_host].committer_use_tls %}
+  # Define TLS options and certificate paths used for secure communication
+  # between the verifier-client and the verifiers.
+  tls:
+    # Server CA certificates to trust if tls is enabled.
+    ca-cert-paths:
+      - {{ loadgen_config_dir }}/tls/verifiers/ca.crt
+{% if (hostvars[committer_verifier_ref_host].committer_use_mtls is defined) and hostvars[committer_verifier_ref_host].committer_use_mtls %}
+    # Path to the TLS key file (private key).
+    key-path: {{ loadgen_config_dir }}/tls/server.key
+    # Path to the TLS certificate file (public key).
+    cert-path: {{ loadgen_config_dir }}/tls/server.crt
+    # TLS configuration modes ("none", "tls" or "mtls")
+    mode: mtls
+{% else %}
+    # TLS configuration modes ("none", "tls" or "mtls")
+    mode: tls
+{% endif %}
+{% endif %}

@@ -71,7 +71,8 @@ orderer-client:
   # If omitted, we will fetch directly from the orderer.  
   sidecar-client:
     # Committer Sidecar endpoint
-    endpoint: {{ hostvars[committer_sidecar_host].ansible_host }}:{{ hostvars[committer_sidecar_host].committer_rpc_port }}
+    # TODO: restore endpoint once the connection with the sidecar works again
+    # endpoint: {{ hostvars[committer_sidecar_host].ansible_host }}:{{ hostvars[committer_sidecar_host].committer_rpc_port }}
 {% if (hostvars[committer_sidecar_host].committer_use_tls is defined) and hostvars[committer_sidecar_host].committer_use_tls %}
     # Define TLS options and certificate paths used for secure communication
     # between the sidecar-client and the sidecar.
