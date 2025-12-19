@@ -4,16 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-{% include './sections/load-profile.yaml.j2' +%}
-
-{% include './sections/monitoring.yaml.j2' +%}
-
-{% include './sections/stream.yaml.j2' +%}
-
-{% include './sections/generate.yaml.j2' +%}
-
-{% include './sections/logging.yaml.j2' +%}
-
 # ---------------------------------------------------------------------------
 # Verifier Client Settings
 # ---------------------------------------------------------------------------
@@ -41,3 +31,13 @@ verifier-client:
     mode: tls
 {% endif %}
 {% endif %}
+
+{% include './sections/load-profile.yaml.j2' %}
+
+{% include './sections/monitoring.yaml.j2' +%}
+
+{% include './sections/stream.yaml.j2' +%}
+
+{% include './sections/generate.yaml.j2' +%}
+
+{% include './sections/logging.yaml.j2' +%}

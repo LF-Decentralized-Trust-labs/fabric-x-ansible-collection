@@ -13,6 +13,7 @@
 - name: Generate the config for the Fabric-X Loadgen for the Fabric-X Committer Verifiers
   vars:
     loadgen_config_dir: "{{ loadgen_remote_config_dir if loadgen_use_bin else loadgen_container_config_dir }}"
+    committer_verifier_ref_host: "{{ committer_verifier_hosts | first }}"
   ansible.builtin.template:
     src: "verifier-client.yaml.j2"
     dest: "{{ loadgen_remote_config_dir }}/{{ loadgen_config_file }}"

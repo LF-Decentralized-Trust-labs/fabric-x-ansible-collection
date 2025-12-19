@@ -7,7 +7,7 @@
 - name: Create Postgres DB data volume
   vars:
     container_volume_path: "{{ postgres_remote_config_dir }}/data"
-    container_volume_mode: "0o750"
+    container_volume_mode: "0o755"
     container_volume_uid: "999"
     container_volume_gid: "999"
     container_volume_type: directory
