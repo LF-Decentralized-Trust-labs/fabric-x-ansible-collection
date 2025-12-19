@@ -7,13 +7,13 @@
 - name: Fetch Fabric CA server logs
   ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.fetch_logs
 
-- name: Fetch Fabric-X Orderer logs
+- name: Fetch Hyperledger Fabric-X Orderer logs
   ansible.builtin.import_playbook: hyperledger.fabricx.orderer.fetch_logs
 
-- name: Fetch Fabric-X Committer logs
+- name: Fetch Hyperledger Fabric-X Committer logs
   ansible.builtin.import_playbook: hyperledger.fabricx.committer.fetch_logs
 
-- name: Fetch Fabric-X Loadgen logs
+- name: Fetch Hyperledger Fabric-X Loadgen logs
   ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.fetch_logs
 
 - name: Fetch Monitoring logs

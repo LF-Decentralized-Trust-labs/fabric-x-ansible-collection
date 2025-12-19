@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Start the Fabric-X Committer sidecar binary
+- name: Start Hyperledger Fabric-X Committer Sidecar binary
   vars:
     bin_command: >-
       {{ committer_bin_name }} start-sidecar

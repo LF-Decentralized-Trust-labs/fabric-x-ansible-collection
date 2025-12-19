@@ -4,7 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Fetch Fabric-X loadgen user sign certificates
+# =========================
+# MSP certs
+# =========================
+- name: Fetch Hyperledger Fabric-X loadgen user sign certificates
   vars:
     cryptogen_signcert_file: "{{ current_user.name }}@{{ organization.domain }}-cert.pem"
     fabric_ca_signcert_file: "cert.pem"
@@ -24,3 +27,22 @@
     label: "{{ organization.domain }}:{{ current_user.name }}"
   when:
     - organization.users is defined
+
+# =========================
+# TLS certs
+# =========================
+- name: Fetch Hyperledger Fabric-X Loadgen TLS CA certificate
+  ansible.builtin.fetch:
+    src: "{{ loadgen_remote_config_dir }}/tls/ca.crt"
+    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/ca.crt"
+    flat: true
+  when:
+    - loadgen_use_tls
+
+- name: Fetch Hyperledger Fabric-X Loadgen TLS certificate
+  ansible.builtin.fetch:
+    src: "{{ loadgen_remote_config_dir }}/tls/server.crt"
+    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/server.crt"
+    flat: true
+  when:
+    - loadgen_use_tls

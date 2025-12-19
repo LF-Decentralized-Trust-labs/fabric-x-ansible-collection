@@ -8,7 +8,7 @@
   ansible.builtin.file:
     path: "{{ orderer_remote_config_dir }}"
     state: directory
-    mode: "0o750"
+    mode: "0o755"
 
 - name: Transfer the Fabric-X Orderer crypto material generated with cryptogen
   ansible.posix.synchronize:

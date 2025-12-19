@@ -4,32 +4,37 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Start the Fabric-X Committer validator persistence
+- name: Start Hyperledger Fabric-X Committer validator persistence
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: validator/start
-  when: committer_component_type == 'validator'
+  when:
+    - committer_component_type == 'validator'
 
-- name: Start the Fabric-X Committer signature verifiers
+- name: Start Hyperledger Fabric-X Committer signature verifiers
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: verifier/start
-  when: committer_component_type == 'verifier'
+  when:
+    - committer_component_type == 'verifier'
 
-- name: Start the Fabric-X Committer coordinator
+- name: Start Hyperledger Fabric-X Committer coordinator
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: coordinator/start
-  when: committer_component_type == 'coordinator'
+  when:
+    - committer_component_type == 'coordinator'
 
-- name: Start Fabric-X Committer sidecar
+- name: Start Hyperledger Fabric-X Committer sidecar
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: sidecar/start
-  when: committer_component_type == 'sidecar'
+  when:
+    - committer_component_type == 'sidecar'
 
-- name: Start Fabric-X Committer QueryService
+- name: Start Hyperledger Fabric-X Committer QueryService
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: query_service/start
-  when: committer_component_type == 'query-service'
+  when:
+    - committer_component_type == 'query-service'

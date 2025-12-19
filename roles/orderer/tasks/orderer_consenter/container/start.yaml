@@ -8,7 +8,9 @@
   vars:
     container_name: "{{ orderer_container_name }}"
     container_image: "{{ orderer_image }}"
-    container_command: "consensus --config={{ orderer_container_config_dir }}/{{ orderer_config_file }}"
+    container_command: >-
+      consensus
+      --config={{ orderer_container_config_dir }}/{{ orderer_config_file }}
     container_ports:
       - "{{ orderer_rpc_port }}:{{ orderer_rpc_port }}"
     container_volumes:

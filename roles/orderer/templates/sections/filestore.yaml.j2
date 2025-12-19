@@ -1,2 +1,8 @@
+# ---------------------------------------------------------------------------
+# FileStore settings
+# It defines the configuration of the file store
+# where blocks and databases are stored.
+# ---------------------------------------------------------------------------
 FileStore:
-    Location: {{ orderer_config_dir }}/store
+  # The directory to store data in, e.g. the blocks and databases.
+  Location: {{ orderer_config_dir }}/store

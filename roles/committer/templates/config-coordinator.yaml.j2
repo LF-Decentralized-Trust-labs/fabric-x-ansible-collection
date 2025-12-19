@@ -4,24 +4,88 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-server:
-  endpoint: 0.0.0.0:{{ committer_rpc_port }}
+{% include './sections/server.yaml.j2' +%}
+{% if prometheus_exporter_port is defined %}
+{% include './sections/monitoring.yaml.j2' +%}
+{% endif %}
+
+{% include './sections/logging.yaml.j2' +%}
+
+# ---------------------------------------------------------------------------
+# HLFX Committer Verifiers connection settings
+# ---------------------------------------------------------------------------
 verifier:
+  # List of HLFX Committer verifiers endpoints.
   endpoints:
 {% for host in committer_verifiers %}
     - {{ hostvars[host].ansible_host }}:{{ hostvars[host].committer_rpc_port }}
 {% endfor %}
+{% if (hostvars[committer_verifier_ref_host].committer_use_tls is defined) and hostvars[committer_verifier_ref_host].committer_use_tls %}
+  # Define TLS options and certificate paths used for secure communication
+  # between the coordinator and the verifiers.
+  tls:
+    # Server CA certificates to trust if tls is enabled.
+    ca-cert-paths:
+      - {{ committer_config_dir }}/tls/verifiers/ca.crt
+{% if (hostvars[committer_verifier_ref_host].committer_use_mtls is defined) and hostvars[committer_verifier_ref_host].committer_use_mtls %}
+    # Path to the TLS key file (private key).
+    key-path: {{ committer_config_dir }}/tls/server.key
+    # Path to the TLS certificate file (public key).
+    cert-path: {{ committer_config_dir }}/tls/server.crt
+    # TLS configuration modes ("none", "tls" or "mtls")
+    mode: mtls
+{% else %}
+    # TLS configuration modes ("none", "tls" or "mtls")
+    mode: tls
+{% endif %}
+{% endif %}
+
+# ---------------------------------------------------------------------------
+# HLFX Committer Validators connection settings
+# ---------------------------------------------------------------------------
 validator-committer:
+  # List of HLFX Committer validators endpoints.
   endpoints:
 {% for host in committer_validators %}
     - {{ hostvars[host].ansible_host }}:{{ hostvars[host].committer_rpc_port }}
 {% endfor %}
-dependency-graph:
-  num-of-local-dep-constructors: {{ committer_coordinator_dep_graph_constructors }}
-  waiting-txs-limit: {{ committer_coordinator_dep_graph_wait_tx_limit }}
-  num-of-workers-for-global-dep-manager: 1
-per-channel-buffer-size-per-goroutine: 10
-{% if prometheus_exporter_port is defined %}
-{% include './sections/monitoring.yaml.j2' +%}
+{% if (hostvars[committer_validator_ref_host].committer_use_tls is defined) and hostvars[committer_validator_ref_host].committer_use_tls %}
+  # Define TLS options and certificate paths used for secure communication
+  # between the coordinator and the validators.
+  tls:
+    # Server CA certificates to trust if tls is enabled.
+    ca-cert-paths:
+      - {{ committer_config_dir }}/tls/validators/ca.crt
+{% if (hostvars[committer_validator_ref_host].committer_use_mtls is defined) and hostvars[committer_validator_ref_host].committer_use_mtls %}
+    # Path to the TLS key file (private key).
+    key-path: {{ committer_config_dir }}/tls/server.key
+    # Path to the TLS certificate file (public key).
+    cert-path: {{ committer_config_dir }}/tls/server.crt
+    # TLS configuration modes ("none", "tls" or "mtls")
+    mode: mtls
+{% else %}
+    # TLS configuration modes ("none", "tls" or "mtls")
+    mode: tls
 {% endif %}
-{% include './sections/logging.yaml.j2' %}
+{% endif %}
+
+# ---------------------------------------------------------------------------
+# Dependency Graph settings
+# ---------------------------------------------------------------------------
+# Configuration for dependency graph manager.
+# It specifies resource limits.
+dependency-graph:
+  # Number of local dependency-constructor goroutines that the dependency-graph
+  # manager starts. Each constructor builds a part of the transaction dependency 
+  # graph in parallel. Increasing this lets the manager process more transactions
+  # concurrently, at the cost of more CPU and memory.
+  num-of-local-dep-constructors: {{ committer_coordinator_dep_graph_constructors }}
+  # Upper bound on how many transactions may be waiting inside the dependency-graph
+  # manager at any time.
+  waiting-txs-limit: {{ committer_coordinator_dep_graph_wait_tx_limit }}
+
+# ---------------------------------------------------------------------------
+# Go-Routine settings
+# ---------------------------------------------------------------------------
+# Defines the buffer size per go-routine
+per-channel-buffer-size-per-goroutine: 10

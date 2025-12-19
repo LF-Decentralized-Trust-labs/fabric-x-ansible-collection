@@ -4,13 +4,13 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Fetch Fabric-X Orderer consenter logs from container
+- name: Fetch Hyperledger Fabric-X Orderer consenter logs from container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: container/fetch_logs
   when: not orderer_use_bin
 
-- name: Fetch Fabric-X Orderer consenter logs from binary
+- name: Fetch Hyperledger Fabric-X Orderer consenter logs from binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: bin/fetch_logs

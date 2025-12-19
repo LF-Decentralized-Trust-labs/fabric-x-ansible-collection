@@ -8,22 +8,26 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: orderer_consenter/start
-  when: orderer_component_type == 'consenter'
+  when:
+    - orderer_component_type == 'consenter'
 
 - name: Start Fabric-X Orderer batchers
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: orderer_batcher/start
-  when: orderer_component_type == 'batcher'
+  when:
+    - orderer_component_type == 'batcher'
 
 - name: Start Fabric-X Orderer assemblers
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: orderer_assembler/start
-  when: orderer_component_type == 'assembler'
+  when:
+    - orderer_component_type == 'assembler'
 
 - name: Start Fabric-X Orderer routers
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: orderer_router/start
-  when: orderer_component_type == 'router'
+  when:
+    - orderer_component_type == 'router'

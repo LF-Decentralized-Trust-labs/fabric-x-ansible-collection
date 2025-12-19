@@ -4,31 +4,20 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Define Fabric-X Committer sidecar mandatory Docker mounts
-  ansible.builtin.set_fact:
-    committer_sidecar_volumes:
-      - "{{ committer_remote_config_dir }}/{{ committer_sidecar_config_file }}:{{ committer_container_config_dir }}/{{ committer_sidecar_config_file }}:Z"
-
-- name: Mount Sidecar MSP crypto material
-  vars:
-    crypto_material_volumes:
-      - "{{ committer_remote_config_dir }}/ca-certs.pem:{{ committer_container_config_dir }}/ca-certs.pem:Z"
-      - "{{ committer_remote_config_dir }}/msp:{{ committer_container_config_dir }}/msp:Z"
-  ansible.builtin.set_fact:
-    committer_sidecar_volumes: "{{ committer_sidecar_volumes + crypto_material_volumes }}"
-  when:
-    - committer_use_tls
-
-- name: Start Fabric-X Committer Sidecar containers
+- name: Start Hyperledger Fabric-X Committer Sidecar container
   vars:
     container_name: "{{ committer_container_name }}"
     container_image: "{{ committer_image }}"
-    container_command: "committer start-sidecar --config={{ committer_container_config_dir }}/{{ committer_sidecar_config_file }}"
+    container_command: >-
+      committer start-sidecar
+      --config={{ committer_container_config_dir }}/{{ committer_sidecar_config_file }}
     container_ports:
       - "{{ committer_rpc_port }}:{{ committer_rpc_port }}"
       - "{{ prometheus_exporter_port }}:{{ prometheus_exporter_port }}"
-    container_volumes: "{{ committer_sidecar_volumes }}"
+    container_volumes:
+      - "{{ committer_remote_config_dir }}:{{ committer_container_config_dir }}:Z"
     container_wait_until_running: true
+    container_run_as_host_user: true
     container_wait_port: "{{ committer_rpc_port }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container

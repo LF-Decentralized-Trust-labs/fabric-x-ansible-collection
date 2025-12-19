@@ -5,10 +5,11 @@
 #
 
 # =========================
-# Paths, locations
+# Paths/Locations
 # =========================
 openssl_remote_config_dir: "{{ remote_node_dir }}/openssl"
 openssl_clean_after_gen: false
+openssl_ca_cert_file: ca.crt
 
 # =========================
 # OpenSSL settings

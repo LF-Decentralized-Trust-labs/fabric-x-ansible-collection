@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Start the Fabric-X Committer verifier binary
+- name: Start Hyperledger Fabric-X Committer verifier binary
   vars:
     bin_command: >-
       {{ committer_bin_name }} start-verifier

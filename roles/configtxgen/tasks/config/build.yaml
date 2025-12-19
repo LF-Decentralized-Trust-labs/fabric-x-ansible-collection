@@ -8,7 +8,7 @@
   ansible.builtin.file:
     path: "{{ configtxgen_artifacts_dir }}"
     state: directory
-    mode: "0o750"
+    mode: "0o755"
 
 - name: Create configtxgen.yaml from template
   vars:
