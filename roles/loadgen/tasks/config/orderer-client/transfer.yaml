@@ -12,7 +12,7 @@
 
 - name: Generate the config for the Hyperledger Fabric-X Orderer Loadgen
   vars:
-    orderer_ref_host: "{{ orderer_routers | first }}"
+    orderer_ref_host: "{{ orderer_router_hosts | first }}"
     loadgen_config_dir: "{{ loadgen_remote_config_dir if loadgen_use_bin else loadgen_container_config_dir }}"
   ansible.builtin.template:
     src: "orderer-client.yaml.j2"
@@ -27,7 +27,7 @@
     path: "{{ loadgen_remote_config_dir }}/tls/orderers/{{ current_orderer_router }}"
     state: directory
     mode: "0o755"
-  loop: "{{ orderer_routers }}"
+  loop: "{{ orderer_router_hosts }}"
   loop_control:
     loop_var: current_orderer_router
     label: "{{ current_orderer_router }}"
@@ -40,7 +40,7 @@
     src: "{{ fetched_artifacts_dir }}/{{ current_orderer_router }}/tls/ca.crt"
     dest: "{{ loadgen_remote_config_dir }}/tls/orderers/{{ current_orderer_router }}/ca.crt"
     mode: "0o644"
-  loop: "{{ orderer_routers }}"
+  loop: "{{ orderer_router_hosts }}"
   loop_control:
     loop_var: current_orderer_router
     label: "{{ current_orderer_router }}"
@@ -56,12 +56,12 @@
     path: "{{ loadgen_remote_config_dir }}/tls/orderers/{{ current_orderer_assembler }}"
     state: directory
     mode: "0o755"
-  loop: "{{ orderer_assemblers }}"
+  loop: "{{ orderer_assembler_hosts }}"
   loop_control:
     loop_var: current_orderer_assembler
     label: "{{ current_orderer_assembler }}"
   when:
-    - orderer_assemblers is defined
+    - orderer_assembler_hosts is defined
     - hostvars[current_orderer_assembler].orderer_use_tls is defined
     - hostvars[current_orderer_assembler].orderer_use_tls
 
@@ -70,12 +70,12 @@
     src: "{{ fetched_artifacts_dir }}/{{ current_orderer_assembler }}/tls/ca.crt"
     dest: "{{ loadgen_remote_config_dir }}/tls/orderers/{{ current_orderer_assembler }}/ca.crt"
     mode: "0o644"
-  loop: "{{ orderer_assemblers }}"
+  loop: "{{ orderer_assembler_hosts }}"
   loop_control:
     loop_var: current_orderer_assembler
     label: "{{ current_orderer_assembler }}"
   when:
-    - orderer_assemblers is defined
+    - orderer_assembler_hosts is defined
     - hostvars[current_orderer_assembler].orderer_use_tls is defined
     - hostvars[current_orderer_assembler].orderer_use_tls
 
@@ -88,16 +88,16 @@
     state: directory
     mode: "0o755"
   when:
-    - committer_sidecar is defined
-    - hostvars[committer_sidecar].committer_use_tls is defined
-    - hostvars[committer_sidecar].committer_use_tls
+    - committer_sidecar_host is defined
+    - hostvars[committer_sidecar_host].committer_use_tls is defined
+    - hostvars[committer_sidecar_host].committer_use_tls
 
 - name: Transfer Hyperledger Fabric-X Committer Sidecar TLS CA certificate
   ansible.builtin.copy:
-    src: "{{ fetched_artifacts_dir }}/{{ committer_sidecar }}/tls/ca.crt"
+    src: "{{ fetched_artifacts_dir }}/{{ committer_sidecar_host }}/tls/ca.crt"
     dest: "{{ loadgen_remote_config_dir }}/tls/sidecar/ca.crt"
     mode: "0o644"
   when:
-    - committer_sidecar is defined
-    - hostvars[committer_sidecar].committer_use_tls is defined
-    - hostvars[committer_sidecar].committer_use_tls
+    - committer_sidecar_host is defined
+    - hostvars[committer_sidecar_host].committer_use_tls is defined
+    - hostvars[committer_sidecar_host].committer_use_tls

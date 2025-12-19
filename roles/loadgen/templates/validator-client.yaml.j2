@@ -16,6 +16,6 @@
 
 vc-client:
   endpoints:
-{% for host in committer_validators | default([]) %}
+{% for host in committer_validator_hosts | default([]) %}
     - {{ hostvars[host].ansible_host }}:{{ hostvars[host].committer_rpc_port }}
 {% endfor %}

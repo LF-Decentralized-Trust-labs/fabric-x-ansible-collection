@@ -4,9 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Transfer the Hyperledger Fabric-X Loadgen config files as Orderer Loadgen
+# =========================
+# Orderer-Client
+# =========================
+- name: Transfer the Hyperledger Fabric-X Orderer Client config files
   vars:
-    committer_sidecar: >-
+    committer_sidecar_host: >-
       {{
         committer_hosts
         | map('extract', hostvars)
@@ -16,7 +19,7 @@
         | list
         | first
       }}
-    orderer_routers: >-
+    orderer_router_hosts: >-
       {{
         orderer_hosts
         | map('extract', hostvars)
@@ -24,7 +27,7 @@
         | map(attribute='inventory_hostname')
         | list
       }}
-    orderer_assemblers: >-
+    orderer_assembler_hosts: >-
       {{
         orderer_hosts
         | map('extract', hostvars)
@@ -35,11 +38,15 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: config/orderer-client/transfer
-  when: loadgen_type == 'orderer-client'
+  when:
+    - loadgen_type == 'orderer-client'
 
-- name: Transfer the config files of the Fabric-X Loadgen for the Fabric-X Committer Sidecar
+# =========================
+# Sidecar-Client
+# =========================
+- name: Transfer the Hyperledger Fabric-X Sidecar Client config files
   vars:
-    committer_sidecar: >-
+    committer_sidecar_host: >-
       {{
         committer_hosts
         | map('extract', hostvars)
@@ -49,7 +56,7 @@
         | list
         | first
       }}
-    orderer_routers: >-
+    orderer_router_hosts: >-
       {{
         orderer_hosts
         | map('extract', hostvars)
@@ -60,11 +67,15 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: config/sidecar-client/transfer
-  when: loadgen_type == 'sidecar-client'
+  when:
+    - loadgen_type == 'sidecar-client'
 
-- name: Transfer the config files of the Fabric-X Loadgen for the Fabric-X Committer Coordinator
+# =========================
+# Coordinator Client
+# =========================
+- name: Transfer the Hyperledger Fabric-X Coordinator Client config files
   vars:
-    committer_coordinator: >-
+    committer_coordinator_host: >-
       {{
         committer_hosts
         | map('extract', hostvars)
@@ -77,11 +88,15 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: config/coordinator-client/transfer
-  when: loadgen_type == 'coordinator-client'
+  when:
+    - loadgen_type == 'coordinator-client'
 
-- name: Transfer the config files of the Fabric-X Loadgen for the Fabric-X Committer Verifiers
+# =========================
+# Verifiers Client
+# =========================
+- name: Transfer the Hyperledger Fabric-X Verifiers Client config files
   vars:
-    committer_verifiers: >-
+    committer_verifier_hosts: >-
       {{
         committer_hosts
         | map('extract', hostvars)
@@ -93,11 +108,15 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: config/verifier-client/transfer
-  when: loadgen_type == 'verifier-client'
+  when:
+    - loadgen_type == 'verifier-client'
 
-- name: Transfer the config files of the Fabric-X Loadgen for the Fabric-X Committer validators
+# =========================
+# Validators Client
+# =========================
+- name: Transfer the Hyperledger Fabric-X Validators Client config files
   vars:
-    committer_validators: >-
+    committer_validator_hosts: >-
       {{
         committer_hosts
         | map('extract', hostvars)
@@ -109,4 +128,5 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: config/validator-client/transfer
-  when: loadgen_type == 'validator-client'
+  when:
+    - loadgen_type == 'validator-client'

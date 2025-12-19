@@ -18,6 +18,6 @@
 
 - name: Copy Yugabyte cluster CA TLS certificate
   ansible.builtin.copy:
-    src: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ hostvars[yugabyte_cluster_ref_host].organization.domain }}/msp/tlscacerts/tlsca.{{ yugabyte_cluster_ref_host.organization.domain }}-cert.pem"
+    src: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ hostvars[yugabyte_cluster_ref_host].organization.domain }}/msp/tlscacerts/tlsca.{{ hostvars[yugabyte_cluster_ref_host].organization.domain }}-cert.pem"
     dest: "{{ committer_remote_config_dir }}/tls/db/ca.crt"
     mode: "0644"

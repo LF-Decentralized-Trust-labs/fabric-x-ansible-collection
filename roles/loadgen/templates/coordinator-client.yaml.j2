@@ -14,5 +14,8 @@
 
 {% include './sections/logging.yaml.j2' +%}
 
+# ---------------------------------------------------------------------------
+# Coordinator Client Settings
+# ---------------------------------------------------------------------------
 coordinator-client:
-  endpoint: {{ hostvars[committer_coordinator].ansible_host }}:{{ hostvars[committer_coordinator].committer_rpc_port }}
+  endpoint: {{ hostvars[committer_coordinator_host].ansible_host }}:{{ hostvars[committer_coordinator_host].committer_rpc_port }}

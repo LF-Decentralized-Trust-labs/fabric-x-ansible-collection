@@ -15,9 +15,9 @@
 {% include './sections/logging.yaml.j2' +%}
 
 sidecar-client:
-  sidecar-endpoint: {{ hostvars[committer_sidecar].ansible_host }}:{{ hostvars[committer_sidecar].committer_rpc_port }}
+  sidecar-endpoint: {{ hostvars[committer_sidecar_host].ansible_host }}:{{ hostvars[committer_sidecar_host].committer_rpc_port }}
   orderer-servers:
-{% for orderer_router in orderer_routers %}
+{% for orderer_router in orderer_router_hosts %}
     - endpoint: {{ hostvars[orderer_router].ansible_host }}:{{ hostvars[orderer_router].orderer_rpc_port }}
 {% endfor %}
   channel-id: {{ channel_id }}

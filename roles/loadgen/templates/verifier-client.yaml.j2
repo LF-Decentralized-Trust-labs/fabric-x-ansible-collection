@@ -16,6 +16,6 @@
 
 verifier-client:
   endpoints:
-{% for host in committer_verifiers | default([]) %}
+{% for host in committer_verifier_hosts | default([]) %}
     - {{ hostvars[host].ansible_host }}:{{ hostvars[host].committer_rpc_port }}
 {% endfor %}
