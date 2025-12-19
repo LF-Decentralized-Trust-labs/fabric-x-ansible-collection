@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# =========================
+# Config
+# =========================
 - name: Check that the Hyperledger Fabric-X Orderer Assemblers have been defined
   ansible.builtin.fail:
     msg: "No Hyperledger Fabric-X Orderer Assembler has been defined. Set it via 'orderer_assemblers'."
@@ -34,6 +37,9 @@
     dest: "{{ committer_remote_config_dir }}/{{ committer_sidecar_config_file }}"
     mode: "0o644"
 
+# =========================
+# HLFX Orderer Assemblers TLS
+# =========================
 - name: Ensure Hyperledger Fabric-X Orderer Assemblers TLS folders exist
   ansible.builtin.file:
     path: "{{ committer_remote_config_dir }}/tls/orderers/{{ current_orderer_assembler }}"
@@ -80,3 +86,16 @@
   when:
     - hostvars[committer_coordinator].committer_use_tls is defined
     - hostvars[committer_coordinator].committer_use_tls
+
+# =========================
+# mTLS
+# =========================
+- name: Transfer mTLS certificates
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: config/mtls/transfer
+  when:
+    - committer_use_mtls
+    - committer_mtls_clients is defined
+    - committer_mtls_clients
+      | length > 0

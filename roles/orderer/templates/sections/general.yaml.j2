@@ -22,11 +22,13 @@ General:
     # Require client certificates / mutual TLS for inbound connections
     ClientAuthRequired: {{ orderer_use_mtls | bool | lower }}
 {% if orderer_use_mtls %}
-    # A list of additional root certificates used for verifying certificates of client connections (relevant for Assembler and Consensus).
+    # A list of additional root certificates used for verifying certificates of client connections.
     ClientRootCAs:
+{% if orderer_mtls_clients is defined %}
 {% for orderer_mtls_client in orderer_mtls_clients %}
       - {{ orderer_config_dir }}/mtls/{{ orderer_mtls_client }}/ca.crt
 {% endfor %}
+{% endif %}
 {% endif %}
   # The Keepalive settings for the GRPC server.
   Keepalive:

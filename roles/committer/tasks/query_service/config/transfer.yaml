@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# =========================
+# Config
+# =========================
 - name: Check that either Postgres or Yugabyte is defined as persistence layer
   ansible.builtin.fail:
     msg: >-
@@ -31,7 +34,23 @@
     dest: "{{ committer_remote_config_dir }}/{{ committer_query_service_config_file }}"
     mode: "0o644"
 
+# =========================
+# DB
+# =========================
 - name: Transfer DB files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: config/db/transfer
+
+# =========================
+# mTLS
+# =========================
+- name: Transfer mTLS certificates
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: config/mtls/transfer
+  when:
+    - committer_use_mtls
+    - committer_mtls_clients is defined
+    - committer_mtls_clients
+      | length > 0

@@ -40,7 +40,14 @@ server:
     mode: mtls
     # Client CA certificates to trust if mtls is enabled
     ca-cert-paths:
+      # Accept mTLS connections from others within the same org
       - {{ committer_config_dir }}/tls/ca.crt
+{% if committer_mtls_clients is defined %}
+      # Other mTLS clients
+{% for committer_mtls_client in committer_mtls_clients %}
+      - {{ committer_config_dir }}/mtls/{{ committer_mtls_client }}/ca.crt
+{% endfor %}
+{% endif %}
 {% else %}
     # TLS configuration modes ("none", "tls" or "mtls")
     mode: tls

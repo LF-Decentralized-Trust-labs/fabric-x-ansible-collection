@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# =========================
+# Config
+# =========================
 - name: Check if committer_verifiers required variable is set
   ansible.builtin.fail:
     msg: "The variable 'committer_verifiers' must be defined to use this role. It must contain the list of hosts devoted for the Fabric-X Committer verifiers."
@@ -86,3 +89,16 @@
   when:
     - hostvars[committer_validator_ref_host].committer_use_tls is defined
     - hostvars[committer_validator_ref_host].committer_use_tls
+
+# =========================
+# mTLS
+# =========================
+- name: Transfer mTLS certificates
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: config/mtls/transfer
+  when:
+    - committer_use_mtls
+    - committer_mtls_clients is defined
+    - committer_mtls_clients
+      | length > 0
