@@ -14,7 +14,6 @@
     name: hyperledger.fabricx.committer
     tasks_from: crypto/cryptogen/transfer
   when:
-    - committer_use_tls
     - organization is defined
     - organization.role is defined
     - organization.role == 'peer'
@@ -28,7 +27,6 @@
     name: hyperledger.fabricx.committer
     tasks_from: crypto/fabric_ca/enroll
   when:
-    - committer_use_tls
     - organization is defined
     - organization.role is defined
     - organization.role == 'peer'

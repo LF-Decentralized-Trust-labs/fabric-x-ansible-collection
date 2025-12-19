@@ -22,6 +22,9 @@
     - hostvars[organization.fabric_ca_host].fabric_ca_use_tls is defined
     - hostvars[organization.fabric_ca_host].fabric_ca_use_tls
 
+# =========================
+# MSP crypto
+# =========================
 - name: Generate Hyperledger Fabric-X Load generator MSP crypto material
   vars:
     fabric_ca_host: "{{ organization.fabric_ca_host }}"
@@ -44,5 +47,25 @@
     loop_var: current_user
     label: "{{ organization.domain }}:{{ current_user.name }}"
   when:
-    - organization is defined
     - organization.users is defined
+
+# =========================
+# TLS
+# =========================
+- name: Generate Hyperledger Fabric-X Loadgen TLS crypto material
+  vars:
+    fabric_ca_host: "{{ organization.fabric_ca_host }}"
+    fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls }}"
+    fabric_ca_name: "{{ hostvars[organization.fabric_ca_host].fabric_ca_name }}"
+    fabric_ca_msp_dir: "{{ loadgen_remote_config_dir }}/tls"
+    fabric_ca_tls_certfile: "{{ loadgen_remote_config_dir }}/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
+    fabric_ca_enrollment_profile: tls
+    fabric_ca_csr_hosts: "{{ ansible_all_ipv4_addresses + [ansible_host] }}"
+    fabric_ca_identity:
+      name: "{{ organization.peer.name | default(inventory_hostname) }}"
+      secret: "{{ organization.peer.secret }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/enroll
+  when:
+    - loadgen_use_tls

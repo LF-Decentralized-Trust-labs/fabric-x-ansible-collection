@@ -10,6 +10,7 @@
     state: directory
     mode: "0o755"
   when:
+    - committer_use_tls
     - hostvars[organization.fabric_ca_host].fabric_ca_use_tls is defined
     - hostvars[organization.fabric_ca_host].fabric_ca_use_tls
 
@@ -19,6 +20,7 @@
     dest: "{{ committer_remote_config_dir }}/tlscacerts"
     mode: "preserve"
   when:
+    - committer_use_tls
     - hostvars[organization.fabric_ca_host].fabric_ca_use_tls is defined
     - hostvars[organization.fabric_ca_host].fabric_ca_use_tls
 
@@ -32,8 +34,10 @@
     fabric_ca_enrollment_profile: tls
     fabric_ca_csr_hosts: "{{ ansible_all_ipv4_addresses + [ansible_host] }}"
     fabric_ca_identity:
-      name: "{{ organization.peer.name }}"
+      name: "{{ organization.peer.name | default(inventory_hostname) }}"
       secret: "{{ organization.peer.secret }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/enroll
+  when:
+    - committer_use_tls

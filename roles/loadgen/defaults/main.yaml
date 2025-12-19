@@ -38,3 +38,8 @@ loadgen_admin_priv_key_file: "admin_priv_key.pem"
 # =========================
 loadgen_limit_rate: 1000
 loadgen_assert_metrics: false
+
+# =========================
+# TLS Settings
+# =========================
+loadgen_use_tls: false

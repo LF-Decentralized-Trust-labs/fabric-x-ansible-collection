@@ -9,21 +9,12 @@
     path: "{{ committer_remote_config_dir }}/tls"
     state: directory
     mode: "0o755"
+  when:
+    - committer_use_tls
 
-- name: Transfer the TLS key generated with cryptogen
-  ansible.builtin.copy:
-    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ organization.peer.name | default(inventory_hostname) }}.{{ organization.domain }}/tls/server.key"
-    dest: "{{ committer_remote_config_dir }}/tls/server.key"
-    mode: preserve
-
-- name: Transfer the TLS certificate generated with cryptogen
-  ansible.builtin.copy:
-    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ organization.peer.name | default(inventory_hostname) }}.{{ organization.domain }}/tls/server.crt"
-    dest: "{{ committer_remote_config_dir }}/tls/server.crt"
-    mode: preserve
-
-- name: Transfer the TLS CA certificate generated with cryptogen
-  ansible.builtin.copy:
-    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ organization.peer.name | default(inventory_hostname) }}.{{ organization.domain }}/tls/ca.crt"
-    dest: "{{ committer_remote_config_dir }}/tls/ca.crt"
-    mode: preserve
+- name: Transfer the TLS crypto material generated with cryptogen
+  ansible.posix.synchronize:
+    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ organization.peer.name | default(inventory_hostname) }}.{{ organization.domain }}/tls"
+    dest: "{{ committer_remote_config_dir }}"
+  when:
+    - committer_use_tls

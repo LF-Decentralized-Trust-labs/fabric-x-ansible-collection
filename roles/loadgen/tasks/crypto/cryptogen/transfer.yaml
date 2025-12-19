@@ -4,13 +4,15 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# =========================
+# Users MSP
+# =========================
 - name: Ensure the load-generator users config directory exists
   ansible.builtin.file:
     path: "{{ loadgen_remote_config_dir }}/users"
     state: directory
     mode: "0o755"
   when:
-    - organization is defined
     - organization.users is defined
 
 - name: Transfer the Fabric-X Loadgen users crypto material
@@ -22,5 +24,22 @@
     label: "{{ user.name }}"
     loop_var: user
   when:
-    - organization is defined
     - organization.users is defined
+
+# =========================
+# TLS
+# =========================
+- name: Ensure Hyperledger Fabric-X Loadgen TLS directory exists
+  ansible.builtin.file:
+    path: "{{ loadgen_remote_config_dir }}/tls"
+    state: directory
+    mode: "0o755"
+  when:
+    - loadgen_use_tls
+
+- name: Transfer the TLS crypto material generated with cryptogen
+  ansible.posix.synchronize:
+    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ organization.peer.name | default(inventory_hostname) }}.{{ organization.domain }}/tls"
+    dest: "{{ loadgen_remote_config_dir }}"
+  when:
+    - loadgen_use_tls
