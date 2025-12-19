@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure orderer-client config directory exists
+- name: Ensure the Hyperledger Fabric-X Orderer Loadgen config directory exists
   ansible.builtin.file:
     path: "{{ loadgen_remote_config_dir }}"
     state: directory

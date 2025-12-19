@@ -4,13 +4,13 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure verifier-client config directory exists
+- name: Ensure the Hyperledger Fabric-X Verifiers Loadgen config directory exists
   ansible.builtin.file:
     path: "{{ loadgen_remote_config_dir }}"
     state: directory
     mode: "0o755"
 
-- name: Generate the config for the Fabric-X Loadgen for the Fabric-X Committer Verifiers
+- name: Generate the config for the Hyperledger Fabric-X Verifiers Loadgen
   vars:
     loadgen_config_dir: "{{ loadgen_remote_config_dir if loadgen_use_bin else loadgen_container_config_dir }}"
     committer_verifier_ref_host: "{{ committer_verifier_hosts | first }}"
