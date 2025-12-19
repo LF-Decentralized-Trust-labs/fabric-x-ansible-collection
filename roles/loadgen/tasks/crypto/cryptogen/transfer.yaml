@@ -8,7 +8,7 @@
   ansible.builtin.file:
     path: "{{ loadgen_remote_config_dir }}/users"
     state: directory
-    mode: "0o750"
+    mode: "0o755"
   when:
     - organization is defined
     - organization.users is defined

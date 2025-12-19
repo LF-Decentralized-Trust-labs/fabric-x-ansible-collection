@@ -16,7 +16,7 @@
   ansible.builtin.file:
     path: "{{ committer_remote_config_dir }}"
     state: directory
-    mode: "0o750"
+    mode: "0o755"
 
 - name: Generate {{ committer_validator_config_file }}
   vars:

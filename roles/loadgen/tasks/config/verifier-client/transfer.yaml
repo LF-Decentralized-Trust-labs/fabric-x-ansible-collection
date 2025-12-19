@@ -8,7 +8,7 @@
   ansible.builtin.file:
     path: "{{ loadgen_remote_config_dir }}"
     state: directory
-    mode: "0o750"
+    mode: "0o755"
 
 - name: Generate the config for the Fabric-X Loadgen for the Fabric-X Committer Verifiers
   vars:
@@ -18,25 +18,27 @@
     dest: "{{ loadgen_remote_config_dir }}/{{ loadgen_config_file }}"
     mode: "0o644"
 
-- name: Ensure the load-generator users config directory exists
+# =========================
+# HLFX Committer Verifier TLS
+# =========================
+- name: Ensure Hyperledger Fabric-X Committer Verifiers TLS folder exist
+  vars:
+    committer_verifier_ref_host: "{{ committer_verifier_hosts | first }}"
   ansible.builtin.file:
-    path: "{{ loadgen_remote_config_dir }}/users"
+    path: "{{ loadgen_remote_config_dir }}/tls/verifiers"
     state: directory
-    mode: "0o750"
+    mode: "0o755"
   when:
-    - organization is defined
-    - organization.users is defined
-    - organization.fabric_ca_host is undefined
+    - hostvars[committer_verifier_ref_host].committer_use_tls is defined
+    - hostvars[committer_verifier_ref_host].committer_use_tls
 
-- name: Transfer the Fabric-X Loadgen users crypto material
-  ansible.posix.synchronize:
-    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/users/{{ user.name }}@{{ organization.domain }}"
-    dest: "{{ loadgen_remote_config_dir }}/users"
-  loop: "{{ organization.users }}"
-  loop_control:
-    label: "{{ user.name }}"
-    loop_var: user
+- name: Transfer Hyperledger Fabric-X Committer Verifiers TLS CA certificate
+  vars:
+    committer_verifier_ref_host: "{{ committer_verifier_hosts | first }}"
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/{{ committer_verifier_ref_host }}/tls/ca.crt"
+    dest: "{{ loadgen_remote_config_dir }}/tls/verifiers/ca.crt"
+    mode: "0o644"
   when:
-    - organization is defined
-    - organization.users is defined
-    - organization.fabric_ca_host is undefined
+    - hostvars[committer_verifier_ref_host].committer_use_tls is defined
+    - hostvars[committer_verifier_ref_host].committer_use_tls

@@ -8,7 +8,7 @@
   ansible.builtin.file:
     path: "{{ committer_remote_config_dir }}"
     state: directory
-    mode: "0o750"
+    mode: "0o755"
 
 - name: Generate Hyperledger Fabric-X Committer verifier config from template
   vars:
