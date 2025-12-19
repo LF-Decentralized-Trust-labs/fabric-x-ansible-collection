@@ -14,9 +14,9 @@
     loop_var: current_orderer_mtls_client
     label: "{{ current_orderer_mtls_client }}"
 
-- name: Copy TLS Certificates of mTLS clients
+- name: Copy TLS CA Certificates of mTLS clients
   ansible.builtin.copy:
-    src: "{{ fetched_artifacts_dir }}/{{ current_orderer_mtls_client }}/tls/server.crt"
+    src: "{{ fetched_artifacts_dir }}/{{ current_orderer_mtls_client }}/tls/ca.crt"
     dest: "{{ orderer_remote_config_dir }}/mtls/{{ current_orderer_mtls_client }}/ca.crt"
     mode: "0o644"
   loop: "{{ orderer_mtls_clients }}"
