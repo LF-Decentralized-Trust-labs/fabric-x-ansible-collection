@@ -8,8 +8,8 @@
 # Armageddon image
 # =========================
 armageddon_registry_endpoint: "{{ lookup('env', 'ARMAGEDDON_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-armageddon_image_name: "fabric-x-tools"
-armageddon_image_tag: "0.0.4"
+armageddon_image_name: "fabric-x-orderer"
+armageddon_image_tag: "0.0.19"
 armageddon_image: "{{ armageddon_registry_endpoint }}/{{ armageddon_image_name }}:{{ armageddon_image_tag }}"
 armageddon_container_name: "armageddon"
 
