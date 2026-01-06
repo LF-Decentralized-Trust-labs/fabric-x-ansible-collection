@@ -29,6 +29,9 @@
     path: "{{ postgres_exporter_remote_config_dir }}/tls/db/{{ postgres_db_host }}"
     state: directory
     mode: "0o755"
+  when:
+    - hostvars[postgres_db_host].postgres_use_tls is defined
+    - hostvars[postgres_db_host].postgres_use_tls
 
 - name: Transfer the PostgresDB TLS CA certificate
   ansible.builtin.copy:
