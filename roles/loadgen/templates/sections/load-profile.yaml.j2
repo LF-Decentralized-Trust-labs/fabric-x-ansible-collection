@@ -50,6 +50,8 @@ load-profile:
     # Holds the policy information for the load generation.
     # Describe how to sign/verify a TX.
     policy:
+      # Channel ID
+      channel-id: {{ channel_id }}
       # Specify the namespace policies.
       namespace-policies:
 {% if organization is defined %}
