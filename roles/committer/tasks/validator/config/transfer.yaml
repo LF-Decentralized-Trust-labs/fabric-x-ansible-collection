@@ -51,6 +51,3 @@
     tasks_from: config/mtls/transfer
   when:
     - committer_use_mtls
-    - committer_mtls_clients is defined
-    - committer_mtls_clients
-      | length > 0

@@ -48,6 +48,12 @@ server:
       - {{ committer_config_dir }}/mtls/{{ committer_mtls_client }}/ca.crt
 {% endfor %}
 {% endif %}
+{% if committer_mtls_orgs is defined %}
+      # Other mTLS Orgs
+{% for committer_mtls_org in committer_mtls_orgs %}
+      - {{ committer_config_dir }}/mtls/{{ committer_mtls_org.domain }}/ca.crt
+{% endfor %}
+{% endif %}
 {% else %}
     # TLS configuration modes ("none", "tls" or "mtls")
     mode: tls

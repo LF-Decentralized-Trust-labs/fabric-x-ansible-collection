@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# =========================
+# mTLS clients
+# =========================
 - name: Ensure folder for TLS Certificates of mTLS clients exist
   ansible.builtin.file:
     path: "{{ committer_remote_config_dir }}/mtls/{{ current_committer_mtls_client }}"
@@ -13,6 +16,8 @@
   loop_control:
     loop_var: current_committer_mtls_client
     label: "{{ current_committer_mtls_client }}"
+  when:
+    - committer_mtls_clients is defined
 
 - name: Copy TLS CA Certificates of mTLS clients
   ansible.builtin.copy:
@@ -23,3 +28,32 @@
   loop_control:
     loop_var: current_committer_mtls_client
     label: "{{ current_committer_mtls_client }}"
+  when:
+    - committer_mtls_clients is defined
+
+# =========================
+# mTLS Orgs
+# =========================
+- name: Ensure folder for TLS Certificates of mTLS Orgs exist
+  ansible.builtin.file:
+    path: "{{ committer_remote_config_dir }}/mtls/{{ current_committer_mtls_org.domain }}"
+    state: directory
+    mode: "0o755"
+  loop: "{{ committer_mtls_orgs }}"
+  loop_control:
+    loop_var: current_committer_mtls_org
+    label: "{{ current_committer_mtls_org.domain }}"
+  when:
+    - committer_mtls_orgs is defined
+
+- name: Copy TLS CA Certificates of mTLS Orgs
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ current_committer_mtls_org.domain }}/msp/tlscacerts/tlsca.{{ current_committer_mtls_org.domain }}-cert.pem"
+    dest: "{{ committer_remote_config_dir }}/mtls/{{ current_committer_mtls_org.domain }}/ca.crt"
+    mode: "0o644"
+  loop: "{{ committer_mtls_orgs }}"
+  loop_control:
+    loop_var: current_committer_mtls_org
+    label: "{{ current_committer_mtls_org.domain }}"
+  when:
+    - committer_mtls_orgs is defined
