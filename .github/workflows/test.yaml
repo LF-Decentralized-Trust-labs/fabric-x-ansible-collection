@@ -24,6 +24,7 @@ jobs:
           - inventory: "fabric-x-yugabyte"
           - inventory: "fabric-x-bin"
           - inventory: "fabric-x-cryptogen"
+          - inventory: "fabric-x-no-tls"
       fail-fast: false
 
     steps:
