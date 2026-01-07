@@ -62,6 +62,8 @@ all:
             # HLFX Orderers
             # =========================
             fabric_x_orderers:
+              vars:
+                orderer_use_tls: true
               children:
                 fabric_x_orderer_1:
                   vars:
@@ -169,6 +171,7 @@ all:
             # =========================
             fabric_x_committer:
               vars:
+                committer_use_tls: true
                 organization:
                   <<: *Org1
                   role: peer
