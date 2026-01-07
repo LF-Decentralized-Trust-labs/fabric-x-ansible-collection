@@ -45,7 +45,7 @@ fabric_ca_log_level: "INFO"
 # TLS settings
 # =========================
 fabric_ca_scheme: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
-fabric_ca_use_tls: true
+fabric_ca_use_tls: false
 fabric_ca_enable_nodeous: true
 fabric_ca_tls_root_cert: "{{ fabric_ca_remote_config_dir }}/ca-cert.pem"
 
