@@ -28,7 +28,7 @@
 - name: Generate Hyperledger Fabric-X Load generator MSP crypto material
   vars:
     fabric_ca_host: "{{ organization.fabric_ca_host }}"
-    fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls }}"
+    fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls | default(false) }}"
     fabric_ca_name: "{{ hostvars[organization.fabric_ca_host].fabric_ca_name }}"
     fabric_ca_msp_dir: "{{ loadgen_remote_config_dir }}/users/{{ current_user.name }}@{{ organization.domain }}/msp"
     fabric_ca_tls_certfile: "{{ loadgen_remote_config_dir }}/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
@@ -55,7 +55,7 @@
 - name: Generate Hyperledger Fabric-X Loadgen TLS crypto material
   vars:
     fabric_ca_host: "{{ organization.fabric_ca_host }}"
-    fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls }}"
+    fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls | default(false) }}"
     fabric_ca_name: "{{ hostvars[organization.fabric_ca_host].fabric_ca_name }}"
     fabric_ca_msp_dir: "{{ loadgen_remote_config_dir }}/tls"
     fabric_ca_tls_certfile: "{{ loadgen_remote_config_dir }}/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"

@@ -27,7 +27,7 @@
 - name: Generate Hyperledger Fabric-X Committer TLS crypto material
   vars:
     fabric_ca_host: "{{ organization.fabric_ca_host }}"
-    fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls }}"
+    fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls | default(false) }}"
     fabric_ca_name: "{{ hostvars[organization.fabric_ca_host].fabric_ca_name }}"
     fabric_ca_msp_dir: "{{ committer_remote_config_dir }}/tls"
     fabric_ca_tls_certfile: "{{ committer_remote_config_dir }}/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
