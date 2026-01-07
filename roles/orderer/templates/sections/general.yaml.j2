@@ -29,6 +29,11 @@ General:
       - {{ orderer_config_dir }}/mtls/{{ orderer_mtls_client }}/ca.crt
 {% endfor %}
 {% endif %}
+{% if orderer_mtls_orgs is defined %}
+{% for orderer_mtls_org in orderer_mtls_orgs %}
+      - {{ orderer_config_dir }}/mtls/{{ orderer_mtls_org.domain }}/ca.crt
+{% endfor %}
+{% endif %}
 {% endif %}
   # The Keepalive settings for the GRPC server.
   Keepalive:

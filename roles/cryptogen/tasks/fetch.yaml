@@ -41,9 +41,3 @@
   loop_control:
     loop_var: current_peer_org_domain
     label: "{{ current_peer_org_domain }}"
-
-- name: Fetch the ca.certs file
-  ansible.builtin.copy:
-    src: "{{ cryptogen_output_dir }}/ca-certs.pem"
-    dest: "{{ fetched_artifacts_dir }}/crypto"
-    mode: "preserve"

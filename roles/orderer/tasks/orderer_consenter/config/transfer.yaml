@@ -44,6 +44,3 @@
     tasks_from: config/mtls/transfer
   when:
     - orderer_use_mtls
-    - orderer_mtls_clients is defined
-    - orderer_mtls_clients
-      | length > 0
