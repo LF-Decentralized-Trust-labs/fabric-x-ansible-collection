@@ -9,7 +9,7 @@
 # ---------------------------------------------------------------------------
 orderer-client:
   # Number of simultaneous gRPC broadcast streams the load-generator opens to the orderer.
-  broadcast-parallelism: {{ loadgen_broadcast_parallelism | default(8) }}
+  broadcast-parallelism: {{ loadgen_broadcast_parallelism | default(ansible_facts.processor_vcpus | int // 4) }}
   # Orderer-client settings
   orderer:
     # Channel ID

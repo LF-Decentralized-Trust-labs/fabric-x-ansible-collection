@@ -10,9 +10,9 @@ stream:
     # Endpoint for a simple http server to set the limiter.
     endpoint: :{{ loadgen_web_port }}
     # Initial limit rate
-    initial-limit: {{ loadgen_limit_rate }}
+    initial-limit: {{ loadgen_limit_rate | default(10) }}
   # Impact the rate by batching generated items before inserting then the channel.
   # This helps overcome the inherit rate limitation of Go channels.    
-  gen-batch: {{ loadgen_stream_batches | default(4000) }}
+  gen-batch: {{ loadgen_stream_batches | default(1) }}
   # Impact the rate by masking fluctuation in performance.
-  buffers-size: {{ loadgen_stream_buffers_size | default(2000) }}
+  buffers-size: {{ loadgen_stream_buffers_size | default(1) }}
