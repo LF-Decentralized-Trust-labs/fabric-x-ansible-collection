@@ -34,8 +34,6 @@ all:
       org1: &Org1
         name: Org1
         domain: org1.example.com
-    # TODO: temporary patch to use fxconfig as bin until we release the image
-    fxconfig_use_bin: true
   children:
     # =========================
     # Network (HLFX)
