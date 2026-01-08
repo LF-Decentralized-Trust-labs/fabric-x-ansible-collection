@@ -31,7 +31,6 @@ all:
       org1: &Org1
         name: Org1
         domain: org1.example.com
-    fxconfig_use_bin: true
   children:
     # =========================
     # Network (HLFX)
