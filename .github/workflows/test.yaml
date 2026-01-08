@@ -25,6 +25,7 @@ jobs:
           - inventory: "fabric-x-bin"
           - inventory: "fabric-x-cryptogen"
           - inventory: "fabric-x-no-tls"
+          - inventory: "fabric-x-mtls"
       fail-fast: false
 
     steps:

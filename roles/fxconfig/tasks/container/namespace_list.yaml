@@ -15,6 +15,10 @@
       {% if hostvars[committer_query_service_host].committer_use_tls is defined and hostvars[committer_query_service_host].committer_use_tls %}
       --cafile {{ fxconfig_container_config_dir }}/tls/committer/ca.crt
       {% endif %}
+      {% if hostvars[committer_query_service_host].committer_use_mtls is defined and hostvars[committer_query_service_host].committer_use_mtls %}
+      --certfile {{ fxconfig_container_config_dir }}/mtls/server.crt
+      --keyfile {{ fxconfig_container_config_dir }}/mtls/server.key
+      {% endif %}
     container_volumes:
       - "{{ fxconfig_remote_config_dir }}:{{ fxconfig_container_config_dir }}:Z"
     container_run_detach_mode: false

@@ -13,6 +13,10 @@
       {% if hostvars[committer_query_service_host].committer_use_tls is defined and hostvars[committer_query_service_host].committer_use_tls %}
       --cafile {{ fxconfig_remote_config_dir }}/tls/committer/ca.crt
       {% endif %}
+      {% if hostvars[committer_query_service_host].committer_use_mtls is defined and hostvars[committer_query_service_host].committer_use_mtls %}
+      --certfile {{ fxconfig_remote_config_dir }}/mtls/server.crt
+      --keyfile {{ fxconfig_remote_config_dir }}/mtls/server.key
+      {% endif %}
     bin_run_with_tmux: false
     bin_collect_logs: false
   ansible.builtin.include_role:

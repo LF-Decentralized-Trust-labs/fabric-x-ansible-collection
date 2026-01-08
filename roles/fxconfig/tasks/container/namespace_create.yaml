@@ -25,6 +25,10 @@
       {% if hostvars[orderer_router_host].orderer_use_tls is defined and hostvars[orderer_router_host].orderer_use_tls %}
       --cafile {{ fxconfig_container_config_dir }}/tls/orderer/ca.crt
       {% endif %}
+      {% if hostvars[orderer_router_host].orderer_use_mtls is defined and hostvars[orderer_router_host].orderer_use_mtls %}
+      --certfile {{ fxconfig_container_config_dir }}/mtls/server.crt
+      --keyfile {{ fxconfig_container_config_dir }}/mtls/server.key
+      {% endif %}
     container_volumes:
       - "{{ fxconfig_remote_config_dir }}:{{ fxconfig_container_config_dir }}:Z"
       - "{{ fxconfig_msp_config_path }}:{{ fxconfig_container_config_dir }}/meta_namespace_admin_msp:Z"

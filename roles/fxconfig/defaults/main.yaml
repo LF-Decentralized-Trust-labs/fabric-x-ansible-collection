@@ -18,7 +18,7 @@ fxconfig_container_name: "fxconfig"
 # =========================
 fxconfig_git_uri: "https://github.com/hyperledger/fabric-x.git"
 fxconfig_git_dir: "{{ source_code_dir }}/fabric-x"
-fxconfig_git_commit: "v0.0.6"
+fxconfig_git_commit: "92a6d32363465670f6cb6218f20ff9d61ee0c41e"
 fxconfig_source_code_dir: "{{ fxconfig_git_dir }}/tools/fxconfig"
 fxconfig_bin_name: fxconfig
 fxconfig_bin_package: github.com/hyperledger/fabric-x/tools/fxconfig
@@ -34,3 +34,9 @@ fxconfig_container_config_dir: "/tmp"
 # Fxconfig TLS settings
 # =========================
 fxconfig_use_tls: false
+
+# =========================
+# Fxconfig mTLS settings
+# =========================
+fxconfig_mtls_client_cert_path: "{{ remote_config_dir }}/tls/server.crt"
+fxconfig_mtls_client_key_path: "{{ remote_config_dir }}/tls/server.key"

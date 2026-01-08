@@ -71,3 +71,38 @@
   when:
     - hostvars[committer_query_service_host].committer_use_tls is defined
     - hostvars[committer_query_service_host].committer_use_tls
+
+# =========================
+# mTLS material
+# =========================
+- name: Copy TLS cert to use for mTLS connection
+  ansible.builtin.file:
+    path: "{{ fxconfig_remote_config_dir }}/mtls"
+    state: directory
+    mode: "0o755"
+  when:
+    - (hostvars[committer_query_service_host].committer_use_mtls is defined and hostvars[committer_query_service_host].committer_use_mtls)
+      or
+      (hostvars[orderer_router_host].orderer_use_mtls is defined and hostvars[orderer_router_host].orderer_use_mtls)
+
+- name: Copy TLS cert to use for mTLS connection
+  ansible.builtin.copy:
+    src: "{{ fxconfig_mtls_client_cert_path }}"
+    dest: "{{ fxconfig_remote_config_dir }}/mtls/server.crt"
+    remote_src: true
+    mode: preserve
+  when:
+    - (hostvars[committer_query_service_host].committer_use_mtls is defined and hostvars[committer_query_service_host].committer_use_mtls)
+      or
+      (hostvars[orderer_router_host].orderer_use_mtls is defined and hostvars[orderer_router_host].orderer_use_mtls)
+
+- name: Copy TLS cert to use for mTLS connection
+  ansible.builtin.copy:
+    src: "{{ fxconfig_mtls_client_key_path }}"
+    dest: "{{ fxconfig_remote_config_dir }}/mtls/server.key"
+    remote_src: true
+    mode: preserve
+  when:
+    - (hostvars[committer_query_service_host].committer_use_mtls is defined and hostvars[committer_query_service_host].committer_use_mtls)
+      or
+      (hostvars[orderer_router_host].orderer_use_mtls is defined and hostvars[orderer_router_host].orderer_use_mtls)
