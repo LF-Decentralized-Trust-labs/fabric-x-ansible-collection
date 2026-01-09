@@ -8,22 +8,26 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: orderer_assembler/wipe
-  when: orderer_component_type == 'assembler'
+  when:
+    - orderer_component_type == 'assembler'
 
 - name: Wipe Fabric-X Orderer batchers
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: orderer_batcher/wipe
-  when: orderer_component_type == 'batcher'
+  when:
+    - orderer_component_type == 'batcher'
 
 - name: Wipe Fabric-X Orderer routers
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: orderer_router/wipe
-  when: orderer_component_type == 'router'
+  when:
+    - orderer_component_type == 'router'
 
 - name: Wipe Fabric-X Orderer consenters
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: orderer_consenter/wipe
-  when: orderer_component_type == 'consenter'
+  when:
+    - orderer_component_type == 'consenter'

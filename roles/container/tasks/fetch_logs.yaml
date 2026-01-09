@@ -15,7 +15,7 @@
   ansible.builtin.file:
     path: "{{ container_remote_logs_dir }}"
     state: directory
-    mode: "0o750"
+    mode: "0o755"
 
 - name: Collect the container logs
   ansible.builtin.shell: "{{ container_client }} logs {{ container_name }} > {{ container_remote_logs_dir }}/{{ container_remote_logs_file }} 2>&1"

@@ -8,7 +8,7 @@
 # Postgres image
 # =========================
 postgres_registry_endpoint: "{{ lookup('env', 'POSTGRES_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
-postgres_image_name: "postgres"
+postgres_image_name: postgres
 postgres_image_tag: "16.4"
 postgres_image: "{{ postgres_registry_endpoint }}/{{ postgres_image_name }}:{{ postgres_image_tag }}"
 postgres_container_name: "{{ inventory_hostname }}"
@@ -17,16 +17,16 @@ postgres_container_name: "{{ inventory_hostname }}"
 # Paths/Locations
 # =========================
 postgres_remote_config_dir: "{{ remote_config_dir }}"
-postgres_pgdata_dir: "{{ postgres_remote_config_dir }}/data"
+postgres_container_config_dir: /var/lib/postgresql
 
 # =========================
 # TLS settings
 # =========================
 postgres_use_tls: false
+postgres_use_mtls: false
 
 # =========================
 # Miscellaneous
 # =========================
-postgres_tuning: ""
 postgres_tls_private_key_file: server.key
 postgres_tls_cert_file: server.crt

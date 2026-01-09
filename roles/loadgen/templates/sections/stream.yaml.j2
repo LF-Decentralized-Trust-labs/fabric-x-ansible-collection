@@ -1,10 +1,18 @@
+# ---------------------------------------------------------------------------
+# Stream settings
+# Allows adjustment to the stream rate.
+# It only contains parameters that do not affect the produced items.
+# However, these parameters might affect the order of the items.
+# ---------------------------------------------------------------------------
 stream:
+  # Limiter settings
   rate-limit:
+    # Endpoint for a simple http server to set the limiter.
     endpoint: :{{ loadgen_web_port }}
-    initial-limit: {{ loadgen_limit_rate }}
-  gen-batch: 4000
-  buffers-size: 2000
-generate:
-  config: false
-  namespaces: {{ loadgen_generate_namespace | lower }}
-  load: true
+    # Initial limit rate
+    initial-limit: {{ loadgen_limit_rate | default(10) }}
+  # Impact the rate by batching generated items before inserting then the channel.
+  # This helps overcome the inherit rate limitation of Go channels.    
+  gen-batch: {{ loadgen_stream_batches | default(1) }}
+  # Impact the rate by masking fluctuation in performance.
+  buffers-size: {{ loadgen_stream_buffers_size | default(1) }}

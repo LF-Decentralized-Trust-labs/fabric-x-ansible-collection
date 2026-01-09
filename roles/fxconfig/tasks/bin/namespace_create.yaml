@@ -6,8 +6,6 @@
 
 - name: Create namespace {{ fxconfig_namespace }}
   vars:
-    bin_run_with_tmux: false
-    bin_collect_logs: false
     bin_command: >-
       {{ fxconfig_bin_name }} namespace
       create {{ fxconfig_namespace }}
@@ -15,15 +13,16 @@
       --orderer {{ hostvars[orderer_router_host].ansible_host }}:{{ hostvars[orderer_router_host].orderer_rpc_port }}
       --mspConfigPath {{ fxconfig_msp_config_path }}
       --mspID {{ fxconfig_msp_id }}
-      {% if fxconfig_pubkey_path is defined %}
-      --pk {{ fxconfig_pubkey_path }}
+      --pk {{ fxconfig_remote_config_dir }}/namespaces/{{ fxconfig_namespace }}/pubkey.pem
+      {% if hostvars[orderer_router_host].orderer_use_tls is defined and hostvars[orderer_router_host].orderer_use_tls %}
+      --cafile {{ fxconfig_remote_config_dir }}/tls/orderer/ca.crt
       {% endif %}
-      {% if fxconfig_cafile_path is defined %}
-      --cafile {{ fxconfig_cafile_path }}
+      {% if hostvars[orderer_router_host].orderer_use_mtls is defined and hostvars[orderer_router_host].orderer_use_mtls %}
+      --certfile {{ fxconfig_remote_config_dir }}/mtls/server.crt
+      --keyfile {{ fxconfig_remote_config_dir }}/mtls/server.key
       {% endif %}
-      {% if fxconfig_use_tls %}
-      --tls
-      {% endif %}
+    bin_run_with_tmux: false
+    bin_collect_logs: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: start

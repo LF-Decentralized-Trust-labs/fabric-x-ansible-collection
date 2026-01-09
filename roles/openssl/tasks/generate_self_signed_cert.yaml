@@ -56,6 +56,15 @@
   args:
     creates: "{{ openssl_cert_path }}"
 
+- name: Set self-signed certificate as CA certificate
+  vars:
+    ca_cert_path: "{{ openssl_cert_path | dirname }}"
+  ansible.builtin.copy:
+    src: "{{ openssl_cert_path }}"
+    dest: "{{ ca_cert_path }}/{{ openssl_ca_cert_file }}"
+    mode: "0o644"
+    remote_src: true
+
 - name: Clean the OpenSSL configuration folder
   ansible.builtin.file:
     dest: "{{ openssl_remote_config_dir }}"

@@ -4,8 +4,15 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-PartyID: {{ orderer_group }}
-Consensus:
-    WALDir: {{ orderer_config_dir }}/wal
+{% include './sections/party-id.yaml.j2' +%}
+
 {% include './sections/general.yaml.j2' +%}
-{% include './sections/filestore.yaml.j2' %}
+
+{% include './sections/filestore.yaml.j2' +%}
+
+# ---------------------------------------------------------------------------
+# Hyperledger Fabric-X Consenter settings
+# ---------------------------------------------------------------------------
+Consensus:
+  # The location at which Write Ahead Logs for SmartBFT are stored.
+  WALDir: {{ orderer_config_dir }}/wal

@@ -7,28 +7,12 @@
 - name: Transfer the fxconfig configuration files
   hosts: "{{ target_hosts | default('all') }}"
   tasks:
-    - name: Ensure loadgen namespace directory exists
+    - name: Set the namespaces that must be created
       vars:
-        current_organization: "{{ loadgen_org_user[0] }}"
-        current_user: "{{ loadgen_org_user[1] }}"
-      ansible.builtin.file:
-        path: "{{ remote_config_dir }}/namespaces/{{ current_user.namespace }}"
-        state: directory
-        mode: "0o750"
-      with_subelements:
-        - >-
-          {{
-            groups['load_generators']
-            | default([])
-            | map('extract', hostvars)
-            | selectattr('organization', 'defined')
-            | map(attribute='organization')
-            | selectattr('users', 'defined')
-          }}
-        - "users"
-      loop_control:
-        loop_var: loadgen_org_user
-        label: "{{ current_user.namespace | default('N/A') }}"
+        fxconfig_namespace_nodes: "{{ groups['all'] }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxconfig
+        tasks_from: config/find_namespaces
       when:
         - organization is defined
         - organization.users is defined
@@ -36,29 +20,31 @@
           | selectattr('meta_namespace_admin', 'defined')
           | selectattr('meta_namespace_admin', '==', true)
           | length > 0
-        - current_user.namespace is defined
-    - name: Transfer the loadgen namespace verification public key
+    - name: Transfer the configuration files for fxconfig
       vars:
-        current_organization: "{{ loadgen_org_user[0] }}"
-        current_user: "{{ loadgen_org_user[1] }}"
-      ansible.builtin.copy:
-        src: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ current_organization.domain }}/users/{{ current_user.name }}@{{ current_organization.domain }}/msp/signcerts/{{ current_user.name }}@{{ current_organization.domain }}-cert.pem"
-        dest: "{{ remote_config_dir }}/namespaces/{{ current_user.namespace }}/pubkey.pem"
-        mode: "0o644"
-      with_subelements:
-        - >-
+        orderer_router_host: >-
           {{
-            groups['load_generators']
-            | default([])
+            groups['all']
             | map('extract', hostvars)
-            | selectattr('organization', 'defined')
-            | map(attribute='organization')
-            | selectattr('users', 'defined')
+            | selectattr('orderer_component_type', 'defined')
+            | selectattr('orderer_component_type', '==', 'router')
+            | map(attribute='inventory_hostname')
+            | sort
+            | first
           }}
-        - "users"
-      loop_control:
-        loop_var: loadgen_org_user
-        label: "{{ current_user.namespace | default('N/A') }}:{{ current_user.name }}@{{ current_organization.domain }}"
+        committer_query_service_host: >-
+          {{
+            groups['all']
+            | map('extract', hostvars)
+            | selectattr('committer_component_type', 'defined')
+            | selectattr('committer_component_type', '==', 'query-service')
+            | map(attribute='inventory_hostname')
+            | sort
+            | first
+          }}
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxconfig
+        tasks_from: config/transfer
       when:
         - organization is defined
         - organization.users is defined
@@ -66,4 +52,3 @@
           | selectattr('meta_namespace_admin', 'defined')
           | selectattr('meta_namespace_admin', '==', true)
           | length > 0
-        - current_user.namespace is defined

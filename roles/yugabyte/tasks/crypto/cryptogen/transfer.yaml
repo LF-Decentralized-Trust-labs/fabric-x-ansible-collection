@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure Yugabyte config directory exists
+- name: Ensure Yugabyte TLS directory exists
   ansible.builtin.file:
     path: "{{ yugabyte_remote_config_dir }}/tls"
     state: directory

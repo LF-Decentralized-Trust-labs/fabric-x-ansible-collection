@@ -20,149 +20,172 @@ all:
     # =========================
     organizations:
       orderer_org_1: &OrdererOrg1
-        name: "OrdererOrg1"
-        domain: "ordererorg1.example.com"
+        name: OrdererOrg1
+        domain: ordererorg1.example.com
       orderer_org_2: &OrdererOrg2
-        name: "OrdererOrg2"
-        domain: "ordererorg2.example.com"
+        name: OrdererOrg2
+        domain: ordererorg2.example.com
       orderer_org_3: &OrdererOrg3
-        name: "OrdererOrg3"
-        domain: "ordererorg3.example.com"
+        name: OrdererOrg3
+        domain: ordererorg3.example.com
       orderer_org_4: &OrdererOrg4
-        name: "OrdererOrg4"
-        domain: "ordererorg4.example.com"
+        name: OrdererOrg4
+        domain: ordererorg4.example.com
       org1: &Org1
-        name: "Org1"
-        domain: "org1.example.com"
+        name: Org1
+        domain: org1.example.com
   children:
-    fabric_x:
+    # =========================
+    # Network (HLFX)
+    # =========================
+    network:
       children:
-        fabric_x_orderers:
+        # =========================
+        # Hyperledger Fabric-X
+        # =========================
+        fabric_x:
           children:
-            fabric_x_orderer_1:
+            # =========================
+            # HLFX Orderers
+            # =========================
+            fabric_x_orderers:
               vars:
-                organization:
-                  <<: *OrdererOrg1
-                  role: orderer
-                  orderer:
-                    name: "{{ inventory_hostname }}"
-                orderer_group: 1
-              hosts:
-                orderer-router-1:
-                  orderer_component_type: router
-                  orderer_rpc_port: 7050
-                orderer-batcher-1:
-                  orderer_shard_id: 1
-                  orderer_component_type: batcher
-                  orderer_rpc_port: 7051
-                orderer-consenter-1:
-                  orderer_component_type: consenter
-                  orderer_rpc_port: 7052
-                orderer-assembler-1:
-                  orderer_component_type: assembler
-                  orderer_rpc_port: 7053
-            fabric_x_orderer_2:
-              vars:
-                organization:
-                  <<: *OrdererOrg2
-                  role: orderer
-                  orderer:
-                    name: "{{ inventory_hostname }}"
-                orderer_group: 2
-              hosts:
-                orderer-router-2:
-                  orderer_component_type: router
-                  orderer_rpc_port: 7150
-                orderer-batcher-2:
-                  orderer_shard_id: 1
-                  orderer_component_type: batcher
-                  orderer_rpc_port: 7151
-                orderer-consenter-2:
-                  orderer_component_type: consenter
-                  orderer_rpc_port: 7152
-                orderer-assembler-2:
-                  orderer_component_type: assembler
-                  orderer_rpc_port: 7153
-            fabric_x_orderer_3:
-              vars:
-                organization:
-                  <<: *OrdererOrg3
-                  role: orderer
-                  orderer:
-                    name: "{{ inventory_hostname }}"
-                orderer_group: 3
-              hosts:
-                orderer-router-3:
-                  orderer_component_type: router
-                  orderer_rpc_port: 7250
-                orderer-batcher-3:
-                  orderer_shard_id: 1
-                  orderer_component_type: batcher
-                  orderer_rpc_port: 7251
-                orderer-consenter-3:
-                  orderer_component_type: consenter
-                  orderer_rpc_port: 7252
-                orderer-assembler-3:
-                  orderer_component_type: assembler
-                  orderer_rpc_port: 7253
-            fabric_x_orderer_4:
-              vars:
-                organization:
-                  <<: *OrdererOrg4
-                  role: orderer
-                  orderer:
-                    name: "{{ inventory_hostname }}"
-                orderer_group: 4
-              hosts:
-                orderer-router-4:
-                  orderer_component_type: router
-                  orderer_rpc_port: 7350
-                orderer-batcher-4:
-                  orderer_shard_id: 1
-                  orderer_component_type: batcher
-                  orderer_rpc_port: 7351
-                orderer-consenter-4:
-                  orderer_component_type: consenter
-                  orderer_rpc_port: 7352
-                orderer-assembler-4:
-                  orderer_component_type: assembler
-                  orderer_rpc_port: 7353
+                orderer_use_tls: true
+              children:
+                fabric_x_orderer_1:
+                  vars:
+                    organization:
+                      <<: *OrdererOrg1
+                      role: orderer
+                      orderer:
+                        name: "{{ inventory_hostname }}"
+                    orderer_group: 1
+                  hosts:
+                    orderer-router-1:
+                      orderer_component_type: router
+                      orderer_rpc_port: 7050
+                    orderer-batcher-1:
+                      orderer_shard_id: 1
+                      orderer_component_type: batcher
+                      orderer_rpc_port: 7051
+                    orderer-consenter-1:
+                      orderer_component_type: consenter
+                      orderer_rpc_port: 7052
+                    orderer-assembler-1:
+                      orderer_component_type: assembler
+                      orderer_rpc_port: 7053
+                fabric_x_orderer_2:
+                  vars:
+                    organization:
+                      <<: *OrdererOrg2
+                      role: orderer
+                      orderer:
+                        name: "{{ inventory_hostname }}"
+                    orderer_group: 2
+                  hosts:
+                    orderer-router-2:
+                      orderer_component_type: router
+                      orderer_rpc_port: 7150
+                    orderer-batcher-2:
+                      orderer_shard_id: 1
+                      orderer_component_type: batcher
+                      orderer_rpc_port: 7151
+                    orderer-consenter-2:
+                      orderer_component_type: consenter
+                      orderer_rpc_port: 7152
+                    orderer-assembler-2:
+                      orderer_component_type: assembler
+                      orderer_rpc_port: 7153
+                fabric_x_orderer_3:
+                  vars:
+                    organization:
+                      <<: *OrdererOrg3
+                      role: orderer
+                      orderer:
+                        name: "{{ inventory_hostname }}"
+                    orderer_group: 3
+                  hosts:
+                    orderer-router-3:
+                      orderer_component_type: router
+                      orderer_rpc_port: 7250
+                    orderer-batcher-3:
+                      orderer_shard_id: 1
+                      orderer_component_type: batcher
+                      orderer_rpc_port: 7251
+                    orderer-consenter-3:
+                      orderer_component_type: consenter
+                      orderer_rpc_port: 7252
+                    orderer-assembler-3:
+                      orderer_component_type: assembler
+                      orderer_rpc_port: 7253
+                fabric_x_orderer_4:
+                  vars:
+                    organization:
+                      <<: *OrdererOrg4
+                      role: orderer
+                      orderer:
+                        name: "{{ inventory_hostname }}"
+                    orderer_group: 4
+                  hosts:
+                    orderer-router-4:
+                      orderer_component_type: router
+                      orderer_rpc_port: 7350
+                    orderer-batcher-4:
+                      orderer_shard_id: 1
+                      orderer_component_type: batcher
+                      orderer_rpc_port: 7351
+                    orderer-consenter-4:
+                      orderer_component_type: consenter
+                      orderer_rpc_port: 7352
+                    orderer-assembler-4:
+                      orderer_component_type: assembler
+                      orderer_rpc_port: 7353
 
-        fabric_x_committer:
-          hosts:
-            committer-db:
-              committer_component_type: db
-              postgres_user: sc_user
-              postgres_password: sc_secret_pwd
-              postgres_db: sc_db
-              postgres_port: 5435
-            committer-validator:
-              committer_component_type: validator
-              committer_rpc_port: 5100
-              prometheus_exporter_port: 2120
-              postgres_db_host: committer-db
-            committer-verifier:
-              committer_component_type: verifier
-              committer_rpc_port: 5200
-              prometheus_exporter_port: 2130
-            committer-coordinator:
-              committer_component_type: coordinator
-              committer_rpc_port: 5300
-              prometheus_exporter_port: 2140
-            committer-sidecar:
-              committer_component_type: sidecar
-              committer_rpc_port: 5400
-              prometheus_exporter_port: 2150
-            committer-query-service:
-              committer_component_type: query-service
-              committer_rpc_port: 5500
-              prometheus_exporter_port: 2160
-              postgres_db_host: committer-db
+            # =========================
+            # HLFX Committer
+            # =========================
+            fabric_x_committer:
+              vars:
+                committer_use_tls: true
+                organization:
+                  <<: *Org1
+                  role: peer
+              hosts:
+                committer-db:
+                  postgres_user: sc_user
+                  postgres_password: sc_secret_pwd
+                  postgres_db: sc_db
+                  postgres_port: 5435
+                  postgres_use_tls: true
+                committer-validator:
+                  committer_component_type: validator
+                  committer_rpc_port: 5100
+                  prometheus_exporter_port: 2120
+                  postgres_db_host: committer-db
+                committer-verifier:
+                  committer_component_type: verifier
+                  committer_rpc_port: 5200
+                  prometheus_exporter_port: 2130
+                committer-coordinator:
+                  committer_component_type: coordinator
+                  committer_rpc_port: 5300
+                  prometheus_exporter_port: 2140
+                committer-sidecar:
+                  committer_component_type: sidecar
+                  committer_rpc_port: 5400
+                  prometheus_exporter_port: 2150
+                committer-query-service:
+                  committer_component_type: query-service
+                  committer_rpc_port: 5500
+                  prometheus_exporter_port: 2160
+                  postgres_db_host: committer-db
 
+    # =========================
+    # HLFX LoadGens
+    # =========================
     load_generators:
       hosts:
         orderer-loadgen:
-          loadgen_use_bin: true
           organization:
             <<: *Org1
             users:
@@ -173,6 +196,9 @@ all:
           prometheus_exporter_port: 2119
           loadgen_web_port: 6997
 
+    # =========================
+    # Monitoring Infra
+    # =========================
     monitoring:
       hosts:
         node-exporter:

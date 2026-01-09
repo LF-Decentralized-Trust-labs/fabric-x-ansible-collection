@@ -8,19 +8,22 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: container/rm
-  when: not committer_use_bin
+  when:
+    - not committer_use_bin
 
 - name: Stop Fabric-X Committer verifier binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: bin/stop
-  when: committer_use_bin
+  when:
+    - committer_use_bin
 
 - name: Remove Fabric-X Committer verifier binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: bin/rm
-  when: committer_use_bin
+  when:
+    - committer_use_bin
 
 - name: Remove Fabric-X Committer verifier configuration files
   ansible.builtin.include_role:

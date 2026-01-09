@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# =========================
+# Config
+# =========================
 - name: Check that either Postgres or Yugabyte is defined as persistence layer
   ansible.builtin.fail:
     msg: >-
@@ -12,28 +15,39 @@
   when:
     - (postgres_db_host is not defined) and (yugabyte_cluster_ref_id is not defined)
 
-- name: Ensure Fabric-X Committer QueryService config directory exists
+- name: Ensure Hyperledger Fabric-X Committer QueryService config directory exists
   ansible.builtin.file:
     path: "{{ committer_remote_config_dir }}"
     state: directory
-    mode: "0o750"
+    mode: "0o755"
 
 - name: Generate {{ committer_query_service_config_file }}
+  vars:
+    committer_config_dir: >-
+      {{
+        committer_remote_config_dir
+        if committer_use_bin
+        else committer_container_config_dir
+      }}
   ansible.builtin.template:
     src: "config-query-service.yaml.j2"
     dest: "{{ committer_remote_config_dir }}/{{ committer_query_service_config_file }}"
     mode: "0o644"
 
-- name: Transfer Postgres TLS certificates
+# =========================
+# DB
+# =========================
+- name: Transfer DB files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
-    tasks_from: config/transfer_postgres_tls_cert
-  when:
-    - postgres_db_host is defined
+    tasks_from: config/db/transfer
 
-- name: Transfer Yugabyte TLS certificates
+# =========================
+# mTLS
+# =========================
+- name: Transfer mTLS certificates
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
-    tasks_from: config/transfer_yugabyte_tls_cert
+    tasks_from: config/mtls/transfer
   when:
-    - yugabyte_cluster_ref_id is defined
+    - committer_use_mtls

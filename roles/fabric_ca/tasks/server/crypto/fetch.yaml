@@ -27,17 +27,6 @@
     dest: "{{ fabric_ca_org_dir }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
     flat: true
 
-- name: Ensure TLS CA cert is in the list of trusted CA certificates
-  vars:
-    tls_cert_file: "{{ fabric_ca_org_dir }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
-  ansible.builtin.blockinfile:
-    path: "{{ fetched_artifacts_dir }}/crypto/ca-certs.pem"
-    create: true
-    mode: "0o644"
-    marker: "# {mark} TLS CA CERT {{ fabric_ca_name }} ({{ organization.domain }})"
-    block: "{{ lookup('file', tls_cert_file) }}"
-  delegate_to: localhost
-
 # Despite admincerts being deprecated, we must fetch also the admin cert in order to build a proper
 # config block for the ordering service.
 # If we don't fetch the admin certificate, the genesis block is built without it and the orderers

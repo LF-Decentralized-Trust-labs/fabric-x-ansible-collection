@@ -4,14 +4,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Start Fabric-X Committer sidecar container
+- name: Start Hyperledger Fabric-X Committer sidecar container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: sidecar/container/start
-  when: not committer_use_bin
+  when:
+    - not committer_use_bin
 
-- name: Start Fabric-X Committer sidecar binary
+- name: Start Hyperledger Fabric-X Committer sidecar binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: sidecar/bin/start
-  when: committer_use_bin
+  when:
+    - committer_use_bin

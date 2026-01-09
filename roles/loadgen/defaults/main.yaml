@@ -9,7 +9,7 @@
 # =========================
 loadgen_registry_endpoint: "{{ lookup('env', 'LOADGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 loadgen_image_name: "fabric-x-loadgen"
-loadgen_image_tag: "0.1.6"
+loadgen_image_tag: "0.1.7"
 loadgen_image: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
 loadgen_container_name: "{{ inventory_hostname }}"
 
@@ -18,7 +18,7 @@ loadgen_container_name: "{{ inventory_hostname }}"
 # =========================
 loadgen_git_uri: "https://github.com/hyperledger/fabric-x-committer.git"
 loadgen_git_dir: "{{ source_code_dir }}/fabric-x-committer"
-loadgen_git_commit: "v0.1.5"
+loadgen_git_commit: "v0.1.7"
 loadgen_source_code_dir: "{{ loadgen_git_dir }}/cmd/loadgen"
 loadgen_bin_package: "github.com/hyperledger/fabric-x-committer/cmd/loadgen"
 loadgen_bin_name: "loadgen"
@@ -36,9 +36,9 @@ loadgen_admin_priv_key_file: "admin_priv_key.pem"
 # =========================
 # Miscellaneous
 # =========================
-loadgen_key_scheme: "ECDSA"
-loadgen_limit_rate: 1000
-loadgen_log_level: "INFO"
 loadgen_assert_metrics: false
-loadgen_tx_seed: "12345"
-loadgen_generate_namespace: false
+
+# =========================
+# TLS Settings
+# =========================
+loadgen_use_tls: false

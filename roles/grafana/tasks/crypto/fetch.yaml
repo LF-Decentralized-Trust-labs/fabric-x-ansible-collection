@@ -4,10 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Fetch the Grafana TLS certificate
+- name: Fetch the Grafana TLS CA certificate
   ansible.builtin.fetch:
-    src: "{{ grafana_remote_config_dir }}/tls/{{ grafana_tls_cert_file }}"
-    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls_cert.pem"
+    src: "{{ grafana_remote_config_dir }}/tls/ca.crt"
+    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/ca.crt"
     flat: true
   when:
     - grafana_use_tls
