@@ -8,8 +8,9 @@
   vars:
     container_name: "{{ armageddon_container_name }}"
     container_image: "{{ armageddon_image }}"
+    container_entrypoint: armageddon
     container_command: >-
-      {{ armageddon_bin_name }} createSharedConfigProto
+      createSharedConfigProto
       --sharedConfigYaml={{ armageddon_container_output_dir }}/{{ armageddon_shared_config_file }}
       --output={{ armageddon_container_output_dir }}
     container_volumes:

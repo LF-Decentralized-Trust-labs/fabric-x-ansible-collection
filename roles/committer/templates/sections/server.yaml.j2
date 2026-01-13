@@ -1,0 +1,61 @@
+# ---------------------------------------------------------------------------
+# GRPC Server configuration
+# ---------------------------------------------------------------------------
+server:
+  # The GRPC server endpoint
+  endpoint: 0.0.0.0:{{ committer_rpc_port }}
+  # Set the keepalive behavior for the gRPC server.
+  keep-alive:
+    params:
+      # After a duration of this time if the server doesn't see any activity it
+      # pings the client to see if the transport is still alive.
+      # If set below 1s, a minimum value of 1s will be used instead.    
+      time: 300s
+      # After having pinged for keepalive check, the server waits for a duration
+      # of Timeout and if no activity is seen even after that the connection is
+      # closed.
+      timeout: 600s
+    # Used to set keepalive enforcement policy on the server-side.
+    # Server will close connection with a client that violates this policy.
+    enforcement-policy:
+      # The minimum amount of time a client should wait before sending a keepalive ping.
+      min-time: 60s
+      # If true, server allows keepalive pings even when there are no active
+      # streams(RPCs). If false, and client sends ping when there are no active
+      # streams, server will send GOAWAY and close the connection.
+      permit-without-stream: false
+{% if committer_use_tls %}
+  # Define TLS options and certificate paths used for secure communication 
+  # between servers and clients. Credentials are built based on the configuration mode.
+  # For example, If only server-side TLS is required, the certificate pool (certPool)
+  # is not built (for a server), since the relevant certificates paths are defined
+  # in the YAML according to the selected mode.
+  tls:
+    # Path to the TLS key file (private key).
+    key-path: {{ committer_config_dir }}/tls/server.key
+    # Path to the TLS certificate file (public key).
+    cert-path: {{ committer_config_dir }}/tls/server.crt
+{% if committer_use_mtls %}
+    # TLS configuration modes ("none", "tls" or "mtls")
+    mode: mtls
+    # Client CA certificates to trust if mtls is enabled
+    ca-cert-paths:
+      # Accept mTLS connections from others within the same org
+      - {{ committer_config_dir }}/tls/ca.crt
+{% if committer_mtls_clients is defined %}
+      # Other mTLS clients
+{% for committer_mtls_client in committer_mtls_clients %}
+      - {{ committer_config_dir }}/mtls/{{ committer_mtls_client }}/ca.crt
+{% endfor %}
+{% endif %}
+{% if committer_mtls_orgs is defined %}
+      # Other mTLS Orgs
+{% for committer_mtls_org in committer_mtls_orgs %}
+      - {{ committer_config_dir }}/mtls/{{ committer_mtls_org.domain }}/ca.crt
+{% endfor %}
+{% endif %}
+{% else %}
+    # TLS configuration modes ("none", "tls" or "mtls")
+    mode: tls
+{% endif %}
+{% endif %}

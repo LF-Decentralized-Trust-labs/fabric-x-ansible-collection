@@ -1,10 +1,22 @@
+# ---------------------------------------------------------------------------
+# Monitoring settings
+# ---------------------------------------------------------------------------
 monitoring:
+  # Metrics server settings
   server:
+    # Metrics endpoint
     endpoint: 0.0.0.0:{{ prometheus_exporter_port }}
+  # Describes the latency monitoring parameters.
   latency:
+    # Describes the latency sampling parameters.
     sampler:
+      # Prefix checks for TXs that have the given prefix.
       prefix: a
+    # Describes the latency bucket distribution.
     buckets:
-      type: uniform
-      max-latency: 5s
-      bucket-count: 1000
+      # Can be empty, uniform, or fixed.
+      distribution: {{ loadgen_latency_distribution | default('uniform') }}
+      # Maximum tracked latency
+      max-latency: {{ loadgen_max_latency | default('5s') }}
+      # Buckets amount to create between 0:max-latency
+      bucket-count: {{ loadgen_latency_buckets | default(1000) }}

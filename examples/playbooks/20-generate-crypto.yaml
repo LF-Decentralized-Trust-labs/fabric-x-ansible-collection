@@ -58,13 +58,13 @@
   when:
     - "'fabric_cas' in groups"
 
-- name: Generate Fabric-X Orderers crypto
+- name: Generate Hyperledger Fabric-X Orderers crypto
   ansible.builtin.import_playbook: hyperledger.fabricx.orderer.generate_crypto
 
-- name: Generate Fabric-X Committers crypto
+- name: Generate Hyperledger Fabric-X Committers crypto
   ansible.builtin.import_playbook: hyperledger.fabricx.committer.generate_crypto
 
-- name: Generate Fabric-X Load generators crypto
+- name: Generate Hyperledger Fabric-X Load generators crypto
   ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.generate_crypto
 
 - name: Generate Monitoring tools crypto

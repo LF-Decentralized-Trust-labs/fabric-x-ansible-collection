@@ -22,10 +22,10 @@
     - hostvars[organization.fabric_ca_host].fabric_ca_use_tls is defined
     - hostvars[organization.fabric_ca_host].fabric_ca_use_tls
 
-- name: Generate Fabric-X Orderer MSP crypto material
+- name: Generate Hyperledger Fabric-X Orderer MSP crypto material
   vars:
     fabric_ca_host: "{{ organization.fabric_ca_host }}"
-    fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls }}"
+    fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls | default(false) }}"
     fabric_ca_name: "{{ hostvars[organization.fabric_ca_host].fabric_ca_name }}"
     fabric_ca_msp_dir: "{{ orderer_remote_config_dir }}/msp"
     fabric_ca_tls_certfile: "{{ orderer_remote_config_dir }}/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
@@ -42,10 +42,10 @@
   when:
     - organization.fabric_ca_host is defined
 
-- name: Generate Fabric-X Orderer TLS crypto material
+- name: Generate Hyperledger Fabric-X Orderer TLS crypto material
   vars:
     fabric_ca_host: "{{ organization.fabric_ca_host }}"
-    fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls }}"
+    fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls | default(false) }}"
     fabric_ca_name: "{{ hostvars[organization.fabric_ca_host].fabric_ca_name }}"
     fabric_ca_msp_dir: "{{ orderer_remote_config_dir }}/tls"
     fabric_ca_tls_certfile: "{{ orderer_remote_config_dir }}/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"

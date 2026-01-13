@@ -14,10 +14,10 @@ The role `hyperledger.fabricx.loadgen` can be used to run a Load generator to te
   - [stop](#stop)
   - [teardown](#teardown)
   - [wipe](#wipe)
-  - [fetch_logs](#fetch_logs)
+  - [fetch\_logs](#fetch_logs)
   - [ping](#ping)
-  - [get_metrics](#get_metrics)
-  - [limit_rate](#limit_rate)
+  - [get\_metrics](#get_metrics)
+  - [limit\_rate](#limit_rate)
 
 ## Tasks
 
@@ -86,7 +86,6 @@ The task `start` allows to start the Fabric-X Load Generator either as binary or
 ```yaml
 - name: Start the Fabric-X Load Generator
   vars:
-    loadgen_use_bin: true # set to false or unset for container
     loadgen_web_port: 6997
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
@@ -99,8 +98,6 @@ The task `stop` allows to stop the Fabric-X Load Generator running as binary or 
 
 ```yaml
 - name: Stop the Fabric-X Load Generator
-  vars:
-    loadgen_use_bin: true # set to false or unset for container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: stop
@@ -112,8 +109,6 @@ The task `teardown` allows to shut down the Fabric-X Load Generator running as b
 
 ```yaml
 - name: Teardown the Fabric-X Load Generator
-  vars:
-    loadgen_use_bin: true # set to false or unset for container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: teardown
@@ -125,8 +120,6 @@ The task `wipe` allows to shut down the Fabric-X Load Generator running as binar
 
 ```yaml
 - name: Wipe the Fabric-X Load Generator
-  vars:
-    loadgen_use_bin: true # set to false or unset for container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: wipe
@@ -138,8 +131,6 @@ The task `fetch_logs` allows to fetch the logs from the Fabric-X Load Generator 
 
 ```yaml
 - name: Fetch the Fabric-X Load Generator logs
-  vars:
-    loadgen_use_bin: true # set to false or unset for container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: fetch_logs

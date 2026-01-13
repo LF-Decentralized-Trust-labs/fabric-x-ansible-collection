@@ -1,0 +1,12 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Hyperledger Fabric-X Committer TLS directory
+  ansible.builtin.file:
+    path: "{{ committer_remote_config_dir }}/tls"
+    state: absent
+  when:
+    - committer_use_tls

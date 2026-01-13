@@ -10,27 +10,6 @@
   when:
     - fxconfig_msp_config_path is not defined
 
-- name: Map the container output volume
-  ansible.builtin.set_fact:
-    fxconfig_volumes:
-      - "{{ fxconfig_msp_config_path }}:/tmp/meta_namespace_admin_msp:Z"
-
-- name: Add the endorser public key certificate path as volume to mount
-  vars:
-    endorser_pubkey_volume: "{{ fxconfig_pubkey_path }}:/tmp/endorser_pub_key.cert:Z"
-  ansible.builtin.set_fact:
-    fxconfig_volumes: "{{ fxconfig_volumes + [endorser_pubkey_volume] }}"
-  when:
-    - fxconfig_pubkey_path is defined
-
-- name: Add the CA certificate path as volume to mount
-  vars:
-    ca_volume: "{{ fxconfig_cafile_path }}:/tmp/ca.cert:Z"
-  ansible.builtin.set_fact:
-    fxconfig_volumes: "{{ fxconfig_volumes + [ca_volume] }}"
-  when:
-    - fxconfig_cafile_path is defined
-
 - name: Create namespace {{ fxconfig_namespace }}
   vars:
     container_name: "{{ fxconfig_container_name }}-{{ fxconfig_namespace }}-create"
@@ -40,18 +19,19 @@
       create {{ fxconfig_namespace }}
       --channel {{ channel_id }}
       --orderer {{ hostvars[orderer_router_host].ansible_host }}:{{ hostvars[orderer_router_host].orderer_rpc_port }}
-      --mspConfigPath /tmp/meta_namespace_admin_msp
+      --mspConfigPath {{ fxconfig_container_config_dir }}/meta_namespace_admin_msp
       --mspID {{ fxconfig_msp_id }}
-      {% if fxconfig_pubkey_path is defined %}
-      --pk /tmp/endorser_pub_key.cert
+      --pk {{ fxconfig_container_config_dir }}/namespaces/{{ fxconfig_namespace }}/pubkey.pem
+      {% if hostvars[orderer_router_host].orderer_use_tls is defined and hostvars[orderer_router_host].orderer_use_tls %}
+      --cafile {{ fxconfig_container_config_dir }}/tls/orderer/ca.crt
       {% endif %}
-      {% if fxconfig_cafile_path is defined %}
-      --cafile /tmp/ca.cert
+      {% if hostvars[orderer_router_host].orderer_use_mtls is defined and hostvars[orderer_router_host].orderer_use_mtls %}
+      --certfile {{ fxconfig_container_config_dir }}/mtls/server.crt
+      --keyfile {{ fxconfig_container_config_dir }}/mtls/server.key
       {% endif %}
-      {% if fxconfig_use_tls %}
-      --tls
-      {% endif %}
-    container_volumes: "{{ fxconfig_volumes }}"
+    container_volumes:
+      - "{{ fxconfig_remote_config_dir }}:{{ fxconfig_container_config_dir }}:Z"
+      - "{{ fxconfig_msp_config_path }}:{{ fxconfig_container_config_dir }}/meta_namespace_admin_msp:Z"
     container_run_detach_mode: false
     container_run_as_host_user: true
     container_autoremove: true

@@ -4,11 +4,14 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# =========================
+# Config
+# =========================
 - name: Ensure orderer config directory exists
   ansible.builtin.file:
     path: "{{ orderer_remote_config_dir }}"
     state: directory
-    mode: "0o750"
+    mode: "0o755"
 
 - name: Create Fabric-X Orderer Assembler config
   vars:
@@ -18,8 +21,21 @@
     dest: "{{ orderer_remote_config_file }}"
     mode: "0o644"
 
+# =========================
+# Genesis Block
+# =========================
 - name: Copy Genesis block to use for the genesis setup phase
   ansible.builtin.copy:
     src: "{{ configtxgen_artifacts_dir }}/{{ orderer_genesis_block_file }}"
     dest: "{{ orderer_remote_config_dir }}/genesis.block"
     mode: "0o644"
+
+# =========================
+# mTLS
+# =========================
+- name: Transfer mTLS certificates
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: config/mtls/transfer
+  when:
+    - orderer_use_mtls

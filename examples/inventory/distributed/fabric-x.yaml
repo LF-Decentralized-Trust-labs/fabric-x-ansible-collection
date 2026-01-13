@@ -33,37 +33,37 @@ all:
     # =========================
     organizations:
       orderer_org_1: &OrdererOrg1
-        name: "OrdererOrg1"
-        domain: "ordererorg1.example.com"
+        name: OrdererOrg1
+        domain: ordererorg1.example.com
       orderer_org_2: &OrdererOrg2
-        name: "OrdererOrg2"
-        domain: "ordererorg2.example.com"
+        name: OrdererOrg2
+        domain: ordererorg2.example.com
       orderer_org_3: &OrdererOrg3
-        name: "OrdererOrg3"
-        domain: "ordererorg3.example.com"
+        name: OrdererOrg3
+        domain: ordererorg3.example.com
       orderer_org_4: &OrdererOrg4
-        name: "OrdererOrg4"
-        domain: "ordererorg4.example.com"
+        name: OrdererOrg4
+        domain: ordererorg4.example.com
       org1: &Org1
-        name: "Org1"
-        domain: "org1.example.com"
+        name: Org1
+        domain: org1.example.com
   children:
+    # =========================
+    # Network (HLFX)
+    # =========================
     network:
       children:
         # =========================
-        # Fabric-X hosts
+        # Hyperledger Fabric-X
         # =========================
         fabric_x:
           children:
             # =========================
-            # Fabric-X Orderers
+            # HLFX Orderers
             # =========================
-            # Each Fabric-X Orderer is composed by:
-            # - 1 consenter
-            # - 1 assembler
-            # - 2 batchers
-            # - 1 router
             fabric_x_orderers:
+              vars:
+                orderer_use_tls: true
               children:
                 fabric_x_orderer_1:
                   vars:
@@ -167,17 +167,14 @@ all:
                       orderer_rpc_port: 7054
 
             # =========================
-            # Fabric-X Committer
+            # HLFX Committer
             # =========================
-            # The Fabric-X Composed is composed by:
-            # - 1 coordinator
-            # - 1 sidecar
-            # - 7 validators
-            # - 7 verifiers
-            # - 1 Yugabyte cluster of:
-            #   - 3 masters
-            #   - 7 tablets
             fabric_x_committer:
+              vars:
+                committer_use_tls: true
+                organization:
+                  <<: *Org1
+                  role: peer
               hosts:
                 committer-sidecar:
                   committer_component_type: sidecar
@@ -239,11 +236,11 @@ all:
                       ansible_host: "{{ host_machine_13 }}"
                 committer_dbs:
                   vars:
-                    committer_component_type: db
                     yugabyte_user: yugabyte
                     yugabyte_password: yugabyte
                     yugabyte_db: yugabyte
                     yugabyte_cluster_id: 1
+                    yugabyte_use_tls: true
                   children:
                     yb_masters:
                       vars:
@@ -283,7 +280,7 @@ all:
                           ansible_host: "{{ host_machine_13 }}"
 
     # =========================
-    # Fabric-X Loadgen
+    # HLFX LoadGens
     # =========================
     # We run 2 load-generators on 2 different machines
     # to generate more load.
@@ -298,7 +295,6 @@ all:
         loadgen_type: orderer-client
         prometheus_exporter_port: 2610
         loadgen_web_port: 6997
-        loadgen_use_bin: true
       hosts:
         orderer-loadgen-1:
           ansible_host: "{{ host_machine_14 }}"
@@ -319,11 +315,8 @@ all:
           loadgen_tx_seed: 67890
 
     # =========================
-    # Monitoring
+    # Monitoring Infra
     # =========================
-    # Use Prometheus and Grafana to collect
-    # metrics from the components and assess the
-    # load of txs being sent.
     monitoring:
       vars:
         ansible_host: "{{ host_machine_16 }}"

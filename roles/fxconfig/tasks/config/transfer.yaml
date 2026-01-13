@@ -1,0 +1,108 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Namespaces keys
+# =========================
+- name: Ensure the directories for the namespaces endorsement keys exist
+  ansible.builtin.file:
+    path: "{{ fxconfig_remote_config_dir }}/namespaces/{{ current_namespace.name }}"
+    state: directory
+    mode: "0o755"
+  loop: "{{ fxconfig_namespaces }}"
+  loop_control:
+    loop_var: current_namespace
+    label: "{{ current_namespace.name }}"
+
+- name: Transfer the namespaces endorsement public keys
+  vars:
+    current_organization: "{{ current_namespace.user.organization }}"
+    current_user: "{{ current_namespace.user }}"
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ current_organization.domain }}/users/{{ current_user.name }}@{{ current_organization.domain }}/msp/signcerts/{{ current_user.name }}@{{ current_organization.domain }}-cert.pem"
+    dest: "{{ fxconfig_remote_config_dir }}/namespaces/{{ current_namespace.name }}/pubkey.pem"
+    mode: "0o644"
+  loop: "{{ fxconfig_namespaces }}"
+  loop_control:
+    loop_var: current_namespace
+    label: "{{ current_namespace.name }}:{{ current_user.name }}@{{ current_organization.domain }}"
+
+# =========================
+# HLFX Orderer TLS certs
+# =========================
+- name: Ensure the directory for the Hyperledger Fabric-X Orderer Router CA certificate exist
+  ansible.builtin.file:
+    path: "{{ fxconfig_remote_config_dir }}/tls/orderer"
+    state: directory
+    mode: "0o755"
+  when:
+    - hostvars[orderer_router_host].orderer_use_tls is defined
+    - hostvars[orderer_router_host].orderer_use_tls
+
+- name: Transfer the Hyperledger Fabric-X Orderer Router TLS certificate to trust
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/{{ orderer_router_host }}/tls/ca.crt"
+    dest: "{{ fxconfig_remote_config_dir }}/tls/orderer/ca.crt"
+    mode: "0o644"
+  when:
+    - hostvars[orderer_router_host].orderer_use_tls is defined
+    - hostvars[orderer_router_host].orderer_use_tls
+
+# =========================
+# HLFX Committer TLS cert
+# =========================
+- name: Ensure the directory for the Hyperledger Fabric-X Committer Query-Service CA certificate exist
+  ansible.builtin.file:
+    path: "{{ fxconfig_remote_config_dir }}/tls/committer"
+    state: directory
+    mode: "0o755"
+  when:
+    - hostvars[committer_query_service_host].committer_use_tls is defined
+    - hostvars[committer_query_service_host].committer_use_tls
+
+- name: Transfer the Hyperledger Fabric-X Committer Query-Service TLS certificate to trust
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/{{ committer_query_service_host }}/tls/ca.crt"
+    dest: "{{ fxconfig_remote_config_dir }}/tls/committer/ca.crt"
+    mode: "0o644"
+  when:
+    - hostvars[committer_query_service_host].committer_use_tls is defined
+    - hostvars[committer_query_service_host].committer_use_tls
+
+# =========================
+# mTLS material
+# =========================
+- name: Copy TLS cert to use for mTLS connection
+  ansible.builtin.file:
+    path: "{{ fxconfig_remote_config_dir }}/mtls"
+    state: directory
+    mode: "0o755"
+  when:
+    - (hostvars[committer_query_service_host].committer_use_mtls is defined and hostvars[committer_query_service_host].committer_use_mtls)
+      or
+      (hostvars[orderer_router_host].orderer_use_mtls is defined and hostvars[orderer_router_host].orderer_use_mtls)
+
+- name: Copy TLS cert to use for mTLS connection
+  ansible.builtin.copy:
+    src: "{{ fxconfig_mtls_client_cert_path }}"
+    dest: "{{ fxconfig_remote_config_dir }}/mtls/server.crt"
+    remote_src: true
+    mode: preserve
+  when:
+    - (hostvars[committer_query_service_host].committer_use_mtls is defined and hostvars[committer_query_service_host].committer_use_mtls)
+      or
+      (hostvars[orderer_router_host].orderer_use_mtls is defined and hostvars[orderer_router_host].orderer_use_mtls)
+
+- name: Copy TLS cert to use for mTLS connection
+  ansible.builtin.copy:
+    src: "{{ fxconfig_mtls_client_key_path }}"
+    dest: "{{ fxconfig_remote_config_dir }}/mtls/server.key"
+    remote_src: true
+    mode: preserve
+  when:
+    - (hostvars[committer_query_service_host].committer_use_mtls is defined and hostvars[committer_query_service_host].committer_use_mtls)
+      or
+      (hostvars[orderer_router_host].orderer_use_mtls is defined and hostvars[orderer_router_host].orderer_use_mtls)

@@ -4,9 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Clean Postgres DB volume
+- name: Clean Postgres DB data volume
   vars:
-    container_volume_path: "{{ postgres_pgdata_dir }}"
+    container_volume_path: "{{ postgres_remote_config_dir }}/data"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: volume/rm

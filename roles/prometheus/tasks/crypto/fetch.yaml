@@ -4,10 +4,18 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Fetch the Prometheus TLS CA certificate
+  ansible.builtin.fetch:
+    src: "{{ prometheus_remote_config_dir }}/tls/ca.crt"
+    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/ca.crt"
+    flat: true
+  when:
+    - prometheus_use_tls
+
 - name: Fetch the Prometheus TLS certificate
   ansible.builtin.fetch:
-    src: "{{ prometheus_remote_config_dir }}/tls/{{ prometheus_tls_cert_file }}"
-    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls_cert.pem"
+    src: "{{ prometheus_remote_config_dir }}/tls/server.crt"
+    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/server.crt"
     flat: true
   when:
     - prometheus_use_tls

@@ -4,9 +4,37 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# ---------------------------------------------------------------------------
+# Coordinator Client Settings
+# ---------------------------------------------------------------------------
 coordinator-client:
-  endpoint: {{ hostvars[committer_coordinator].ansible_host }}:{{ hostvars[committer_coordinator].committer_rpc_port }}
-{% include './sections/load-profile.yaml.j2' +%}
+  endpoint: {{ hostvars[committer_coordinator_host].ansible_host }}:{{ hostvars[committer_coordinator_host].committer_rpc_port }}
+{% if (hostvars[committer_coordinator_host].committer_use_tls is defined) and hostvars[committer_coordinator_host].committer_use_tls %}
+  # Define TLS options and certificate paths used for secure communication
+  # between the coordinator-client and the coordinator.
+  tls:
+    # Server CA certificates to trust if tls is enabled.
+    ca-cert-paths:
+      - {{ loadgen_config_dir }}/tls/coordinator/ca.crt
+{% if (hostvars[committer_coordinator_host].committer_use_mtls is defined) and hostvars[committer_coordinator_host].committer_use_mtls %}
+    # Path to the TLS key file (private key).
+    key-path: {{ loadgen_config_dir }}/tls/server.key
+    # Path to the TLS certificate file (public key).
+    cert-path: {{ loadgen_config_dir }}/tls/server.crt
+    # TLS configuration modes ("none", "tls" or "mtls")
+    mode: mtls
+{% else %}
+    # TLS configuration modes ("none", "tls" or "mtls")
+    mode: tls
+{% endif %}
+{% endif %}
+
+{% include './sections/load-profile.yaml.j2' %}
+
 {% include './sections/monitoring.yaml.j2' +%}
+
 {% include './sections/stream.yaml.j2' +%}
-{% include './sections/logging.yaml.j2' %}
+
+{% include './sections/generate.yaml.j2' +%}
+
+{% include './sections/logging.yaml.j2' +%}

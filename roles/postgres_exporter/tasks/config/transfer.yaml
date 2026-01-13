@@ -24,10 +24,19 @@
   when:
     - postgres_exporter_use_tls
 
-- name: Transfer the PostgresDB TLS certificate
+- name: Ensure Postgres Exporter TLS directory exists
+  ansible.builtin.file:
+    path: "{{ postgres_exporter_remote_config_dir }}/tls/db/{{ postgres_db_host }}"
+    state: directory
+    mode: "0o755"
+  when:
+    - hostvars[postgres_db_host].postgres_use_tls is defined
+    - hostvars[postgres_db_host].postgres_use_tls
+
+- name: Transfer the PostgresDB TLS CA certificate
   ansible.builtin.copy:
-    src: "{{ fetched_artifacts_dir }}/{{ postgres_db_host }}/tls/tls_cert.pem"
-    dest: "{{ postgres_exporter_remote_config_dir }}/tls/db.{{ postgres_db_host }}.crt"
+    src: "{{ fetched_artifacts_dir }}/{{ postgres_db_host }}/tls/ca.crt"
+    dest: "{{ postgres_exporter_remote_config_dir }}/tls/db/{{ postgres_db_host }}/ca.crt"
     mode: preserve
   when:
     - hostvars[postgres_db_host].postgres_use_tls is defined

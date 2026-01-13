@@ -4,32 +4,37 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Start the Fabric-X Committer DB containers
+- name: Start Hyperledger Fabric-X Committer DB containers
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: db/start
-  when: committer_component_type == 'db'
+  when:
+    - committer_component_type == 'db'
 
-- name: Start the Fabric-X Committer validator persistence containers
+- name: Start Hyperledger Fabric-X Committer validator persistence containers
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: validator/container/start
-  when: committer_component_type == 'validator'
+  when:
+    - committer_component_type == 'validator'
 
-- name: Start the Fabric-X Committer signature verifiers containers
+- name: Start Hyperledger Fabric-X Committer signature verifiers containers
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: verifier/container/start
-  when: committer_component_type == 'verifier'
+  when:
+    - committer_component_type == 'verifier'
 
-- name: Start the Fabric-X Committer coordinator container
+- name: Start Hyperledger Fabric-X Committer coordinator container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: coordinator/container/start
-  when: committer_component_type == 'coordinator'
+  when:
+    - committer_component_type == 'coordinator'
 
-- name: Start Fabric-X Committer sidecar container
+- name: Start Hyperledger Fabric-X Committer sidecar container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: sidecar/container/start
-  when: committer_component_type == 'sidecar'
+  when:
+    - committer_component_type == 'sidecar'

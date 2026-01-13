@@ -40,7 +40,7 @@
   ansible.builtin.file:
     path: "{{ yugabyte_remote_config_dir }}/data"
     state: directory
-    mode: "0o750"
+    mode: "0o755"
 
 - name: Set YugabyteDB Tablet mandatory volumes and flags
   ansible.builtin.set_fact:

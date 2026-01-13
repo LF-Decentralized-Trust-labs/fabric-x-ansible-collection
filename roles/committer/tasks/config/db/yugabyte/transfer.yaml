@@ -1,0 +1,23 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that a Yugabyte cluster reference host has been defined
+  ansible.builtin.fail:
+    msg: "No Yugabyte cluster reference host is indicated. Set it via 'yugabyte_cluster_ref_host'."
+  when:
+    - yugabyte_cluster_ref_host is not defined
+
+- name: Ensure directory for Yugabyte cluster TLS certificate exists
+  ansible.builtin.file:
+    path: "{{ committer_remote_config_dir }}/tls/db"
+    state: directory
+    mode: "0755"
+
+- name: Copy Yugabyte cluster CA TLS certificate
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ hostvars[yugabyte_cluster_ref_host].organization.domain }}/msp/tlscacerts/tlsca.{{ hostvars[yugabyte_cluster_ref_host].organization.domain }}-cert.pem"
+    dest: "{{ committer_remote_config_dir }}/tls/db/ca.crt"
+    mode: "0644"

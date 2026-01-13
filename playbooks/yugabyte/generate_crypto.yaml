@@ -70,7 +70,7 @@
         openssl_ca_private_key_path: "{{ yugabyte_cluster_ca_dir }}/ca/priv_sk"
         openssl_ca_cert_path: "{{ yugabyte_cluster_ca_dir }}/msp/tlscacerts/tlsca.{{ hostvars[current_yugabyte_node].organization.domain }}-cert.pem"
         openssl_csr_path: "{{ fetched_artifacts_dir }}/{{ current_yugabyte_node }}/tls/tls.csr"
-        openssl_cert_path: "{{ fetched_artifacts_dir }}/{{ current_yugabyte_node }}/tls/tls_cert.pem"
+        openssl_cert_path: "{{ fetched_artifacts_dir }}/{{ current_yugabyte_node }}/tls/node.{{ hostvars[current_yugabyte_node].ansible_host }}.pem"
         openssl_ext_file_path: "{{ fetched_artifacts_dir }}/{{ current_yugabyte_node }}/tls/tls.ext"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.openssl

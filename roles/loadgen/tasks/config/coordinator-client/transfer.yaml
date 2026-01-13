@@ -4,16 +4,39 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure coordinator-client config directory exists
+- name: Ensure the Hyperledger Fabric-X Coordinator Loadgen config directory exists
   ansible.builtin.file:
     path: "{{ loadgen_remote_config_dir }}"
     state: directory
-    mode: "0o750"
+    mode: "0o755"
 
-- name: Generate the config for the Fabric-X Loadgen for the Fabric-X Committer Coordinator
+- name: Generate the config for the Hyperledger Fabric-X Coordinator Loadgen
   vars:
     loadgen_config_dir: "{{ loadgen_remote_config_dir if loadgen_use_bin else loadgen_container_config_dir }}"
   ansible.builtin.template:
     src: "coordinator-client.yaml.j2"
     dest: "{{ loadgen_remote_config_dir }}/{{ loadgen_config_file }}"
     mode: "0o644"
+
+# =========================
+# HLFX Committer Coordinator TLS
+# =========================
+- name: Ensure Hyperledger Fabric-X Committer Coordinator TLS folder exist
+  ansible.builtin.file:
+    path: "{{ loadgen_remote_config_dir }}/tls/coordinator"
+    state: directory
+    mode: "0o755"
+  when:
+    - committer_coordinator_host is defined
+    - hostvars[committer_coordinator_host].committer_use_tls is defined
+    - hostvars[committer_coordinator_host].committer_use_tls
+
+- name: Transfer Hyperledger Fabric-X Committer Coordinator TLS CA certificate
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/{{ committer_coordinator_host }}/tls/ca.crt"
+    dest: "{{ loadgen_remote_config_dir }}/tls/coordinator/ca.crt"
+    mode: "0o644"
+  when:
+    - committer_coordinator_host is defined
+    - hostvars[committer_coordinator_host].committer_use_tls is defined
+    - hostvars[committer_coordinator_host].committer_use_tls

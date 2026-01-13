@@ -4,42 +4,91 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-server:
-  endpoint: 0.0.0.0:{{ committer_rpc_port }}
-  keep-alive:
-    params:
-      time: 300s
-      timeout: 600s
-    enforcement-policy:
-      min-time: 60s
-      permit-without-stream: false
+{% include './sections/server.yaml.j2' +%}
+{% if prometheus_exporter_port is defined %}
+{% include './sections/monitoring.yaml.j2' +%}
+{% endif %}
+
+{% include './sections/logging.yaml.j2' +%}
+
+# ---------------------------------------------------------------------------
+# HLFX Orderers connection settings
+# The HLFX Committer Sidecar component pulls blocks from the ordering
+# service.
+# ---------------------------------------------------------------------------
 orderer:
+  # Channel ID
   channel-id: {{ channel_id }}
+  # Consensus Type ("BFT" or "CFT")
   consensus-type: BFT
+  # Connection settings
   connection:
+    # HLFX Orderer endpoints
     endpoints:
 {% for orderer_assembler in orderer_assemblers %}
       - {{ hostvars[orderer_assembler].ansible_host }}:{{ hostvars[orderer_assembler].orderer_rpc_port }}
 {% endfor %}
-{% if committer_use_tls %}
-  orderer-connection-profile:
-    {
-      "root-ca-paths": ["{{ committer_config_dir }}/ca-certs.pem",],
-      "msp-dir": "{{ committer_config_dir }}/msp",
-      "msp-id": "Org1MSP",
-      "bccsp": { "Default": "SW", "SW": { "Security": 256, "Hash": "SHA2" } },
-    }
+{% if (hostvars[orderer_assembler_ref_host].orderer_use_tls is defined) and hostvars[orderer_assembler_ref_host].orderer_use_tls %}
+    # Define TLS options and certificate paths used for secure communication
+    # between the sidecar and the orderers.
+    tls:
+      # Server CA certificates to trust if tls is enabled.
+      ca-cert-paths:
+{% for orderer_assembler in orderer_assemblers %}
+{% if (hostvars[orderer_assembler].orderer_use_tls is defined) and hostvars[orderer_assembler].orderer_use_tls %}
+        - {{ committer_config_dir }}/tls/orderers/{{ orderer_assembler }}/ca.crt
 {% endif %}
+{% endfor %}
+{% if (hostvars[orderer_assembler_ref_host].orderer_use_mtls is defined) and hostvars[orderer_assembler_ref_host].orderer_use_mtls %}
+      # Path to the TLS key file (private key).
+      key-path: {{ committer_config_dir }}/tls/server.key
+      # Path to the TLS certificate file (public key).
+      cert-path: {{ committer_config_dir }}/tls/server.crt
+      # TLS configuration modes ("none", "tls" or "mtls")
+      mode: mtls
+{% else %}
+      # TLS configuration modes ("none", "tls" or "mtls")
+      mode: tls
+{% endif %}
+{% endif %}
+
+# ---------------------------------------------------------------------------
+# HLFX Committer Coordinator connection settings
+# The HLFX Committer Sidecar pushes the blocks to the HFLX Committer
+# Coordinator and pulls from the latter the block statuses.
+# ---------------------------------------------------------------------------
 committer:
-  endpoint:
-    host: {{ hostvars[committer_coordinator].ansible_host }}
-    port: {{ hostvars[committer_coordinator].committer_rpc_port }}
-ledger:
-  path: {{ committer_config_dir }}/ledger
-last-committed-block-set-interval: 5s
-bootstrap:
-  genesis-block-file-path:
-{% if prometheus_exporter_port is defined %}
-{% include './sections/monitoring.yaml.j2' +%}
+  # HLFX Committer Coordinator endpoint
+  endpoint: {{ hostvars[committer_coordinator].ansible_host }}:{{ hostvars[committer_coordinator].committer_rpc_port }}
+{% if (hostvars[committer_coordinator].committer_use_tls is defined) and hostvars[committer_coordinator].committer_use_tls %}
+  # Define TLS options and certificate paths used for secure communication
+  # between the sidecar and the coordinator.
+  tls:
+    # Server CA certificates to trust if tls is enabled.
+    ca-cert-paths:
+      - {{ committer_config_dir }}/tls/coordinator/ca.crt
+{% if (hostvars[committer_coordinator].committer_use_mtls is defined) and hostvars[committer_coordinator].committer_use_mtls %}
+    # Path to the TLS key file (private key).
+    key-path: {{ committer_config_dir }}/tls/server.key
+    # Path to the TLS certificate file (public key).
+    cert-path: {{ committer_config_dir }}/tls/server.crt
+    # TLS configuration modes ("none", "tls" or "mtls")
+    mode: mtls
+{% else %}
+    # TLS configuration modes ("none", "tls" or "mtls")
+    mode: tls
 {% endif %}
-{% include './sections/logging.yaml.j2' %}
+{% endif %}
+
+# ---------------------------------------------------------------------------
+# Relay Settings
+# ---------------------------------------------------------------------------
+# Interval for setting the last committed block to the HLFX Committer Coordinator
+last-committed-block-set-interval: 5s
+
+# ---------------------------------------------------------------------------
+# Ledger settings
+# ---------------------------------------------------------------------------
+ledger:
+  # Path where to store the ledger
+  path: {{ committer_config_dir }}/ledger

@@ -8,6 +8,7 @@
   ansible.builtin.debug:
     msg: "{{ container_command }}"
   when:
+    - container_command is defined
     - container_debug
 
 - name: Find the container client to use

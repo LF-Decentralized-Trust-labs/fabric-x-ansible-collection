@@ -1,0 +1,32 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Find and group the namespaces that must be created
+  vars:
+    current_organization: "{{ current_org_with_user[0] }}"
+    current_user: "{{ current_org_with_user[1] }}"
+    fxconfig_namespace:
+      name: "{{ current_user.namespace }}"
+      user:
+        name: "{{ current_user.name }}"
+        organization: "{{ current_organization }}"
+  ansible.builtin.set_fact:
+    fxconfig_namespaces: "{{ (fxconfig_namespaces | default([])) + [fxconfig_namespace] }}"
+  with_subelements:
+    - >-
+      {{
+        fxconfig_namespace_nodes
+        | map('extract', hostvars)
+        | selectattr('organization', 'defined')
+        | map(attribute='organization')
+        | selectattr('users', 'defined')
+      }}
+    - "users"
+  loop_control:
+    loop_var: current_org_with_user
+    label: "{{ current_user.namespace | default('N/A') }}:{{ current_user.name }}@{{ current_organization.domain }}"
+  when:
+    - current_user.namespace is defined

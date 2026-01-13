@@ -9,7 +9,7 @@
 # =========================
 committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 committer_image_name: "fabric-x-committer"
-committer_image_tag: "0.1.5"
+committer_image_tag: "0.1.7"
 committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
 committer_container_name: "{{ inventory_hostname }}"
 
@@ -18,7 +18,7 @@ committer_container_name: "{{ inventory_hostname }}"
 # =========================
 committer_git_uri: "https://github.com/hyperledger/fabric-x-committer.git"
 committer_git_dir: "{{ source_code_dir }}/fabric-x-committer"
-committer_git_commit: "v0.1.5"
+committer_git_commit: "v0.1.7"
 committer_source_code_dir: "{{ committer_git_dir }}/cmd/committer"
 committer_bin_package: "github.com/hyperledger/fabric-x-committer/cmd/committer"
 committer_bin_name: "committer"
@@ -39,10 +39,13 @@ committer_query_service_config_file: "config-query-service.yml"
 # Fabric-X Committer TLS/mTLS
 # =========================
 committer_use_tls: false
+committer_use_mtls: false
 
 # =========================
 # Miscellaneous
 # =========================
 committer_log_level: "INFO"
+committer_enable_logs: true
+committer_enable_dev_logs: true
 committer_coordinator_dep_graph_wait_tx_limit: 20000000
 committer_coordinator_dep_graph_constructors: 4

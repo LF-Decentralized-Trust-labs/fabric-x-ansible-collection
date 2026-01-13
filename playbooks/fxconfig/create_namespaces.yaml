@@ -7,35 +7,12 @@
 - name: Create the Load generators namespaces
   hosts: "{{ target_hosts | default('all') }}"
   tasks:
-    - name: Find the load generator namespaces to create
+    - name: Set the namespaces that must be created
       vars:
-        current_organization: "{{ loadgen_org_user[0] }}"
-        current_user: "{{ loadgen_org_user[1] }}"
-        current_user_pubkey_path: "{{ remote_config_dir }}/namespaces/{{ current_user.namespace }}/pubkey.pem"
-      ansible.builtin.set_fact:
-        loadgen_pubkey_per_namespace: >-
-          {{
-            loadgen_pubkey_per_namespace | default({}) | combine({
-              current_user.namespace: {
-                'namespace': current_user.namespace,
-                'pubkey': current_user_pubkey_path
-              }
-            })
-          }}
-      with_subelements:
-        - >-
-          {{
-            groups['load_generators']
-            | default([])
-            | map('extract', hostvars)
-            | selectattr('organization', 'defined')
-            | map(attribute='organization')
-            | selectattr('users', 'defined')
-          }}
-        - "users"
-      loop_control:
-        loop_var: loadgen_org_user
-        label: "{{ current_user.namespace | default('N/A') }}:{{ current_user.name }}@{{ current_organization.domain }}"
+        fxconfig_namespace_nodes: "{{ groups['all'] }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxconfig
+        tasks_from: config/find_namespaces
       when:
         - organization is defined
         - organization.users is defined
@@ -43,34 +20,30 @@
           | selectattr('meta_namespace_admin', 'defined')
           | selectattr('meta_namespace_admin', '==', true)
           | length > 0
-        - current_user.namespace is defined
     - name: Create FabricX namespaces with fxconfig
       vars:
         fxconfig_msp_config_path: "{{ remote_config_dir }}/users/{{ current_user.name }}@{{ organization.domain }}/msp"
         fxconfig_msp_id: "{{ organization.name }}MSP"
         orderer_router_host: >-
           {{
-            groups['fabric_x_orderers']
-            | default([])
+            groups['all']
             | map('extract', hostvars)
             | selectattr('orderer_component_type', 'defined')
             | selectattr('orderer_component_type', '==', 'router')
             | map(attribute='inventory_hostname')
-            | list
+            | sort
             | first
           }}
         committer_query_service_host: >-
           {{
-            groups['fabric_x_committer']
-            | default([])
+            groups['all']
             | map('extract', hostvars)
             | selectattr('committer_component_type', 'defined')
             | selectattr('committer_component_type', '==', 'query-service')
             | map(attribute='inventory_hostname')
-            | list
+            | sort
             | first
           }}
-        fxconfig_namespaces: "{{ loadgen_pubkey_per_namespace.values() }}"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxconfig
         tasks_from: namespaces_create
@@ -83,5 +56,3 @@
         - organization.users is defined
         - current_user.meta_namespace_admin is defined
         - current_user.meta_namespace_admin
-        - loadgen_pubkey_per_namespace is defined
-        - loadgen_pubkey_per_namespace.values() | length > 0

@@ -4,13 +4,22 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure Fabric-X Committer coordinator config directory exists
+# =========================
+# Config
+# =========================
+- name: Check that the Hyperledger Fabric-X Orderer Assemblers have been defined
+  ansible.builtin.fail:
+    msg: "No Hyperledger Fabric-X Orderer Assembler has been defined. Set it via 'orderer_assemblers'."
+  when:
+    - orderer_assemblers is not defined
+
+- name: Ensure Hyperledger Fabric-X Committer coordinator config directory exists
   ansible.builtin.file:
     path: "{{ committer_remote_config_dir }}"
     state: directory
-    mode: "0o750"
+    mode: "0o755"
 
-- name: Generate Fabric-X Committer Sidecar config
+- name: Generate Hyperledger Fabric-X Committer Sidecar config
   vars:
     committer_config_dir: >-
       {{
@@ -18,23 +27,72 @@
         if committer_use_bin
         else committer_container_config_dir
       }}
+    orderer_assembler_ref_host: >-
+      {{
+        orderer_assemblers
+        | first
+      }}
   ansible.builtin.template:
     src: "config-sidecar.yaml.j2"
     dest: "{{ committer_remote_config_dir }}/{{ committer_sidecar_config_file }}"
     mode: "0o644"
 
-- name: Copy Fabric-X Committer sidecar root CA
-  ansible.builtin.copy:
-    src: "{{ fetched_artifacts_dir }}/crypto/ca-certs.pem"
-    dest: "{{ committer_remote_config_dir }}/ca-certs.pem"
-    mode: "0o644"
+# =========================
+# HLFX Orderer Assemblers TLS
+# =========================
+- name: Ensure Hyperledger Fabric-X Orderer Assemblers TLS folders exist
+  ansible.builtin.file:
+    path: "{{ committer_remote_config_dir }}/tls/orderers/{{ current_orderer_assembler }}"
+    state: directory
+    mode: "0o755"
+  loop: "{{ orderer_assemblers }}"
+  loop_control:
+    loop_var: current_orderer_assembler
+    label: "{{ current_orderer_assembler }}"
   when:
-    - committer_use_tls
+    - hostvars[current_orderer_assembler].orderer_use_tls is defined
+    - hostvars[current_orderer_assembler].orderer_use_tls
 
-- name: Copy Fabric-X Committer sidecar crypto material generated with cryptogen
+- name: Transfer Hyperledger Fabric-X Orderer Assemblers TLS CA certificates
   ansible.builtin.copy:
-    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ inventory_hostname }}.{{ organization.domain }}/"
-    dest: "{{ committer_remote_config_dir }}"
+    src: "{{ fetched_artifacts_dir }}/{{ current_orderer_assembler }}/tls/ca.crt"
+    dest: "{{ committer_remote_config_dir }}/tls/orderers/{{ current_orderer_assembler }}/ca.crt"
+    mode: "0o644"
+  loop: "{{ orderer_assemblers }}"
+  loop_control:
+    loop_var: current_orderer_assembler
+    label: "{{ current_orderer_assembler }}"
+  when:
+    - hostvars[current_orderer_assembler].orderer_use_tls is defined
+    - hostvars[current_orderer_assembler].orderer_use_tls
+
+# =========================
+# Coordinator TLS certs
+# =========================
+- name: Ensure directory for coordinator TLS CA certificates exists
+  ansible.builtin.file:
+    path: "{{ committer_remote_config_dir }}/tls/coordinator"
+    state: directory
+    mode: "0o755"
+  when:
+    - hostvars[committer_coordinator].committer_use_tls is defined
+    - hostvars[committer_coordinator].committer_use_tls
+
+- name: Transfer the coordinator CA certificate
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/{{ committer_coordinator }}/tls/ca.crt"
+    dest: "{{ committer_remote_config_dir }}/tls/coordinator/ca.crt"
     mode: "0o644"
   when:
-    - committer_use_tls
+    - hostvars[committer_coordinator].committer_use_tls is defined
+    - hostvars[committer_coordinator].committer_use_tls
+
+# =========================
+# mTLS
+# =========================
+- name: Transfer mTLS certificates
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: config/mtls/transfer
+  when:
+    - committer_use_mtls
