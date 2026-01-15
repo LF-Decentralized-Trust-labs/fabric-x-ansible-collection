@@ -21,7 +21,7 @@ General:
       - {{ orderer_config_dir }}/tls/ca.crt
     # Require client certificates / mutual TLS for inbound connections
     ClientAuthRequired: {{ orderer_use_mtls | bool | lower }}
-{% if orderer_use_mtls %}
+{% if orderer_use_tls and orderer_use_mtls %}
     # A list of additional root certificates used for verifying certificates of client connections.
     ClientRootCAs:
 {% if orderer_mtls_clients is defined %}
