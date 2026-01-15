@@ -303,6 +303,7 @@ all:
           ansible_host: "{{ host_machine_14 }}"
           organization:
             <<: *Org1
+            role: peer
             users:
               - name: orderer-loadgen
                 namespace: 0
@@ -312,6 +313,7 @@ all:
           ansible_host: "{{ host_machine_15 }}"
           organization:
             <<: *Org1
+            role: peer
             users:
               - name: orderer-loadgen
                 namespace: 0

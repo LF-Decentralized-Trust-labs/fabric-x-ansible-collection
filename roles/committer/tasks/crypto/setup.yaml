@@ -6,10 +6,18 @@
 
 - name: Check that TLS prerequisites are satisfied
   ansible.builtin.fail:
-    msg: "Cannot setup TLS crypto material for HLFX Committer without an organization. Please define it through the `organization` field."
+    msg: "Cannot setup TLS crypto material for HLFX Committer without an organization. Please define it through the 'organization' field."
   when:
     - committer_use_tls or committer_use_mtls
     - organization is undefined
+
+- name: Check that a peer role is provided for TLS cert
+  ansible.builtin.fail:
+    msg: "Cannot setup TLS crypto material for HLFX Committer if is not a peer. Please set the field 'organization.role' as 'peer'."
+  when:
+    - committer_use_tls or committer_use_mtls
+    - organization is defined
+    - (organization.role is undefined) or (organization.role != 'peer')
 
 # =========================
 # With cryptogen
