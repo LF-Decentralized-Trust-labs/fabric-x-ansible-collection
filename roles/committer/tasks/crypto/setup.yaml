@@ -8,7 +8,7 @@
   ansible.builtin.fail:
     msg: "Cannot setup TLS crypto material for HLFX Committer without an organization. Please define it through the `organization` field."
   when:
-    - committer_use_tls
+    - committer_use_tls or committer_use_mtls
     - organization is undefined
 
 # =========================
