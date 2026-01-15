@@ -9,6 +9,7 @@
     path: "{{ container_volume_path }}"
     mode: "{{ container_volume_mode }}"
     state: "{{ container_volume_type }}"
+    recurse: "{{ recurse | default(false) }}"
 
 # For rootless Podman, we could be in trouble creating
 # the volume with the right permissions.
