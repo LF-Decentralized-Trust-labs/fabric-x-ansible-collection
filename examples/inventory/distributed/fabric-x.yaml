@@ -64,6 +64,7 @@ all:
             fabric_x_orderers:
               vars:
                 orderer_use_tls: true
+                orderer_use_mtls: true
               children:
                 fabric_x_orderer_1:
                   vars:
@@ -172,6 +173,7 @@ all:
             fabric_x_committer:
               vars:
                 committer_use_tls: true
+                committer_use_mtls: true
                 organization:
                   <<: *Org1
                   role: peer
@@ -295,6 +297,7 @@ all:
         loadgen_type: orderer-client
         prometheus_exporter_port: 2610
         loadgen_web_port: 6997
+        loadgen_use_tls: true
       hosts:
         orderer-loadgen-1:
           ansible_host: "{{ host_machine_14 }}"

@@ -4,6 +4,13 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Check that TLS prerequisites are satisfied
+  ansible.builtin.fail:
+    msg: "Cannot setup TLS crypto material for HLFX Orderer without an organization. Please define it through the `organization` field."
+  when:
+    - orderer_use_tls
+    - organization is undefined
+
 # =========================
 # With cryptogen
 # =========================

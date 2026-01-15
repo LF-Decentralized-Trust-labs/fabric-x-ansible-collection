@@ -119,6 +119,7 @@ all:
             fabric_x_orderers:
               vars:
                 orderer_use_tls: true
+                orderer_use_mtls: true
               children:
                 fabric_x_orderer_1:
                   vars:
@@ -223,6 +224,7 @@ all:
             fabric_x_committer:
               vars:
                 committer_use_tls: true
+                committer_use_mtls: true
                 organization:
                   <<: *Org1
                   fabric_ca_host: fabric-ca-org1
@@ -288,6 +290,7 @@ all:
                 namespace: 0
                 meta_namespace_admin: true
           loadgen_type: orderer-client
+          loadgen_use_tls: true
           prometheus_exporter_port: 2119
           loadgen_web_port: 6997
 

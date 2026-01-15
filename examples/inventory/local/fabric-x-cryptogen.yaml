@@ -51,6 +51,7 @@ all:
             fabric_x_orderers:
               vars:
                 orderer_use_tls: true
+                orderer_use_mtls: true
               children:
                 fabric_x_orderer_1:
                   vars:
@@ -146,10 +147,11 @@ all:
             # =========================
             fabric_x_committer:
               vars:
-                committer_use_tls: true
                 organization:
                   <<: *Org1
                   role: peer
+                committer_use_tls: true
+                committer_use_mtls: true
               hosts:
                 committer-db:
                   postgres_user: sc_user
