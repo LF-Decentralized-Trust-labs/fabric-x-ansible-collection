@@ -12,7 +12,7 @@ sidecar-client:
   orderer-servers:
 {% for loadgen_mock_orderer_port in loadgen_mock_orderer_ports %}
     - {{ ansible_host }}:{{ loadgen_mock_orderer_port }}
-{% endfor %}    
+{% endfor %}
   # Used to deliver status from the sidecar.
   # If omitted, we will fetch directly from the orderer.
   sidecar-client:
