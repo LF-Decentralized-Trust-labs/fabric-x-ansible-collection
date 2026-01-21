@@ -35,6 +35,8 @@
 - name: Transfer Hyperledger Fabric-X Committer Sidecar TLS CA certificate
   vars:
     committer_sidecar_host: "{{ committer_verifier_hosts | first }}"
+    loadgen_generate_config: true
+    loadgen_generate_namespace: true
   ansible.builtin.copy:
     src: "{{ fetched_artifacts_dir }}/{{ committer_sidecar_host }}/tls/ca.crt"
     dest: "{{ loadgen_remote_config_dir }}/tls/sidecar/ca.crt"
