@@ -13,6 +13,8 @@
 - name: Generate the config for the Hyperledger Fabric-X Sidecar Loadgen
   vars:
     loadgen_config_dir: "{{ loadgen_remote_config_dir if loadgen_use_bin else loadgen_container_config_dir }}"
+    loadgen_generate_config: true
+    loadgen_generate_namespace: true
   ansible.builtin.template:
     src: "sidecar-client.yaml.j2"
     dest: "{{ loadgen_remote_config_dir }}/{{ loadgen_config_file }}"
@@ -35,8 +37,6 @@
 - name: Transfer Hyperledger Fabric-X Committer Sidecar TLS CA certificate
   vars:
     committer_sidecar_host: "{{ committer_verifier_hosts | first }}"
-    loadgen_generate_config: true
-    loadgen_generate_namespace: true
   ansible.builtin.copy:
     src: "{{ fetched_artifacts_dir }}/{{ committer_sidecar_host }}/tls/ca.crt"
     dest: "{{ loadgen_remote_config_dir }}/tls/sidecar/ca.crt"
