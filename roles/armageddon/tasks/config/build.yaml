@@ -4,6 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Check that the Fabric-X Orderer hosts have been defined
+  ansible.builtin.fail:
+    msg: "No Hyperledger Fabric-X orderer hosts have been defined, but required to set the armageddon configuration file. Set it via 'armageddon_orderer_hosts'."
+  when:
+    - armageddon_orderer_hosts is not defined
+
 - name: Create armageddon config directory
   ansible.builtin.file:
     path: "{{ armageddon_artifacts_dir }}"
