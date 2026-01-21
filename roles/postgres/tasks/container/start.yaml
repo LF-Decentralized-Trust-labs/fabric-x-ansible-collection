@@ -53,6 +53,7 @@
       -p {{ postgres_port }}
     container_wait_until_running: true
     container_wait_port: "{{ postgres_port }}"
+    container_run_as_host_user: "{{ container_on_mac | default(false) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: start

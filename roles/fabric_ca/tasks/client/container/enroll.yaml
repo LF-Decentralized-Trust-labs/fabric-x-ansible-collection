@@ -20,17 +20,19 @@
     state: directory
     mode: "0755"
 
-- name: Check if already enrolled
+- name: Check if already enrolled (BCCSP only)
   ansible.builtin.stat:
     path: "{{ fabric_ca_msp_dir }}/signcerts/cert.pem"
   register: fabric_ca_msp_cert
+  when:
+    - fabric_ca_enrollment_type == 'bccsp'
 
 - name: Set volumes for Fabric-CA client
   ansible.builtin.set_fact:
     fabric_ca_volumes:
       - "{{ fabric_ca_msp_dir }}:{{ fabric_ca_container_config_dir }}:Z"
   when:
-    - not fabric_ca_msp_cert.stat.exists
+    - fabric_ca_enrollment_type == 'idemix' or (fabric_ca_enrollment_type == 'bccsp' and not fabric_ca_msp_cert.stat.exists)
 
 - name: Set volumes for TLS certificates
   vars:
@@ -40,7 +42,7 @@
   when:
     - fabric_ca_use_tls
     - fabric_ca_tls_certfile is defined
-    - not fabric_ca_msp_cert.stat.exists
+    - fabric_ca_enrollment_type == 'idemix' or (fabric_ca_enrollment_type == 'bccsp' and not fabric_ca_msp_cert.stat.exists)
 
 - name: Enroll identity with Fabric CA client container
   vars:
@@ -49,14 +51,19 @@
     container_env:
       FABRIC_CA_CLIENT_HOME: "{{ fabric_ca_container_config_dir }}"
     container_command: >-
-      {{ fabric_ca_client_bin_name }} enroll
+      {{ fabric_ca_client_bin_name }}
+      {% if fabric_ca_enrollment_type == 'idemix' %}
+      idemix enroll
+      {% else %}
+      enroll
+      {% endif %}
       -u {{ fabric_ca_scheme }}://{{ fabric_ca_identity.name }}:{{ fabric_ca_identity.secret }}@{{ hostvars[fabric_ca_host].ansible_host }}:{{ hostvars[fabric_ca_host].fabric_ca_port }}
       --caname {{ fabric_ca_name }}
       --mspdir {{ fabric_ca_container_config_dir }}
-      {% if fabric_ca_enrollment_profile is defined %}
+      {% if fabric_ca_enrollment_type == 'bccsp' and fabric_ca_enrollment_profile is defined %}
       --enrollment.profile {{ fabric_ca_enrollment_profile }}
       {% endif %}
-      {% if fabric_ca_csr_hosts is defined and (fabric_ca_csr_hosts | length) > 0 %}
+      {% if fabric_ca_enrollment_type == 'bccsp' and fabric_ca_csr_hosts is defined and (fabric_ca_csr_hosts | length) > 0 %}
       {% for csr_host in fabric_ca_csr_hosts %}
       --csr.hosts {{ csr_host }}
       {% endfor %}
@@ -72,7 +79,7 @@
     name: hyperledger.fabricx.container
     tasks_from: start
   when:
-    - not fabric_ca_msp_cert.stat.exists
+    - fabric_ca_enrollment_type == 'idemix' or (fabric_ca_enrollment_type == 'bccsp' and not fabric_ca_msp_cert.stat.exists)
 
 - name: Copy NodeOUs configuration file
   ansible.builtin.template:
@@ -80,6 +87,7 @@
     dest: "{{ fabric_ca_msp_dir }}/config.yaml"
     mode: "0o644"
   when:
+    - fabric_ca_enrollment_type == 'bccsp'
     - fabric_ca_enable_nodeous
 
 # TODO: we need to evaluate if we want to go with this path or handle per component locations based on whether they receive material through cryptogen or fabric-ca
@@ -87,3 +95,5 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/cryptogenize
+  when:
+    - fabric_ca_enrollment_type == 'bccsp'
