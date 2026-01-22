@@ -1,0 +1,21 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Create list of machines to wipe out
+  hosts: "{{ target_hosts | default('all') }}"
+  tasks:
+    - name: Set the group "machines"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.utils
+        tasks_from: select_one_host_per_machine
+
+- name: Run command on the machines
+  hosts: "{{ target_hosts | default('machines') }}:&machines"
+  tasks:
+    - name: Wipe deployment folder
+      ansible.builtin.file:
+        path: "{{ remote_deploy_dir }}"
+        state: absent
