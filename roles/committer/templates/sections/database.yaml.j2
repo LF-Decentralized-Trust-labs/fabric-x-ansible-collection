@@ -51,9 +51,9 @@ database:
 {% endif %}  
 {% endif %}
   # The maximum size of the connection pool
-  max-connections: 10
+  max-connections: {{ committer_database_max_connections | default(10) }}
   # The minimum size of the connection pool
-  min-connections: 5
+  min-connections: {{ committer_database_min_connections | default(5) }}
   # The exponential backoff retry strategy for database operation.
   retry:
     # This strategy increases the delay between retry attempts exponentially.
@@ -62,28 +62,28 @@ database:
     # initial-interval: Specifies the duration of the first backoff interval.
     # This is the time to wait before the first retry attempt.
     # Format: string representing a duration (e.g., "500ms", "1s", "2.5s").
-    initial-interval: 500ms
+    initial-interval: {{ committer_database_retry_initial_interval | default('500ms') }}
     # Controls the amount of randomness (jitter) applied to each backoff interval.
     # The actual backoff duration for an attempt will be randomly selected from the range:
     # [current_interval * (1 - randomization_factor), current_interval * (1 + randomization_factor)]
     # A factor of 0 means no randomization. A factor of 0.5 means the actual interval
     # can vary by +/- 50% of the calculated interval.
     # Must be between 0 and 1.
-    randomization-factor: 0.5
+    randomization-factor: {{ committer_database_retry_randomization_factor | default(0.5) }}
     # The factor by which the backoff interval increases after each failed attempt.
     # The next interval (before randomization) is calculated as: current_interval * multiplier.
     # A value of 1.5 means each subsequent interval will be 50% longer than the previous one.
     # Must be >= 1.
-    multiplier: 1.5
+    multiplier: {{ committer_database_retry_multiplier | default(1.5) }}
     # Sets the absolute maximum duration for any single backoff interval.
     # Even if the calculated interval (initial_interval * multiplier^n) exceeds this value,
     # the interval used (before randomization) will be capped at max-interval.
     # Format: string representing a duration (e.g., "60s", "1m", "5m").
-    max-interval: 60s
+    max-interval: {{ committer_database_retry_max_interval | default('60s') }}
     # The maximum total time allowed for retries since the operation first began.
     # If the total time spent (including execution time of attempts and backoff waits)
     # exceeds this duration, the retry mechanism will stop, even if other limits haven't been reached.
     # Setting this to "0" means there is no time limit, and retries will continue
     # indefinitely until successful.
     # Format: string representing a duration (e.g., "15m", "1h").
-    max-elapsed-time: 15m
+    max-elapsed-time: {{ committer_database_retry_max_elapsed_time | default('15m') }}
