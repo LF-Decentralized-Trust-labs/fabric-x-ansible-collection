@@ -7,9 +7,9 @@
 - name: Build the fxconfig binaries
   hosts: localhost
   tasks:
-    - name: Find all the meta namespace admin hosts
+    - name: Find all the meta namespace admin hosts where to install fxconfig
       ansible.builtin.set_fact:
-        fxconfig_service_instances: >-
+        fxconfig_install_bin_instances: >-
           {{
             fxconfig_service_instances | default([]) + [current_host.inventory_hostname]
           }}
@@ -21,6 +21,7 @@
           | map('from_json')
           | selectattr('fxconfig_use_bin', 'defined')
           | selectattr('fxconfig_use_bin', '==', true)
+          | selectattr('fxconfig_build_bin', 'undefined')
           | selectattr('organization', 'defined')
           | selectattr('organization.users', 'defined')
         }}
@@ -33,9 +34,47 @@
           | selectattr('meta_namespace_admin', '==', true)
           | length > 0
     - name: Install the fxconfig binary
+      vars:
+        fxconfig_service_instances: "{{ fxconfig_install_bin_instances }}"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxconfig
         tasks_from: bin/multiplatform_install
+      when:
+        - fxconfig_service_instances is defined
+        - fxconfig_service_instances | length > 0
+    - name: Find all the meta namespace admin hosts where to build fxconfig
+      ansible.builtin.set_fact:
+        fxconfig_build_bin_instances: >-
+          {{
+            fxconfig_service_instances | default([]) + [current_host.inventory_hostname]
+          }}
+      loop: >-
+        {{
+          groups['all']
+          | map('extract', hostvars)
+          | map('to_json')
+          | map('from_json')
+          | selectattr('fxconfig_use_bin', 'defined')
+          | selectattr('fxconfig_use_bin', '==', true)
+          | selectattr('fxconfig_build_bin', 'defined')
+          | selectattr('fxconfig_build_bin', '==', true)
+          | selectattr('organization', 'defined')
+          | selectattr('organization.users', 'defined')
+        }}
+      loop_control:
+        loop_var: current_host
+        label: "{{ current_host.inventory_hostname }}:{{ current_host.organization.domain }}"
+      when:
+        - current_host.organization.users
+          | selectattr('meta_namespace_admin', 'defined')
+          | selectattr('meta_namespace_admin', '==', true)
+          | length > 0
+    - name: Build the fxconfig binary
+      vars:
+        fxconfig_service_instances: "{{ fxconfig_build_bin_instances }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxconfig
+        tasks_from: bin/multiplatform_build
       when:
         - fxconfig_service_instances is defined
         - fxconfig_service_instances | length > 0

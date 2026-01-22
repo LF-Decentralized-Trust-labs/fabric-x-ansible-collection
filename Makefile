@@ -152,6 +152,11 @@ restart: teardown start
 wipe:
 	ansible-playbook "$(PLAYBOOK_PATH)/100-wipe.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
+# Wipe the deploy folder from the remote hosts (e.g. make fabric_x hard-wipe).
+.PHONY: hard-wipe
+hard-wipe:
+	ansible-playbook "$(PLAYBOOK_PATH)/110-hard-wipe.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+
 # =======================
 # Utils
 # =======================
