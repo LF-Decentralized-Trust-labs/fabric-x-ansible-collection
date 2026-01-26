@@ -14,7 +14,7 @@
     msg: "No Fabric CA identity is indicated. Set it via 'fabric_ca_identity'."
   when: fabric_ca_identity is not defined
 
-- name: Check if already enrolled (BCCSP only)
+- name: Check if already enrolled
   ansible.builtin.stat:
     path: "{{ fabric_ca_msp_dir }}/signcerts/cert.pem"
   register: fabric_ca_msp_cert
