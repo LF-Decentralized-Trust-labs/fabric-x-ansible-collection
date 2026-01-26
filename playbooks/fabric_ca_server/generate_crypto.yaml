@@ -4,10 +4,54 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# Generate Idemix CA material for Fabric-CA Idemix organizations
+# TODO: Production: replace control-node Idemix CA keygen and sync with a secure provisioning workflow.
+- name: Build Fabric-CA Idemix CA crypto material
+  hosts: localhost
+  vars:
+    idemixgen_artifacts_dir: "{{ config_build_dir }}/idemixgen-artifacts"
+  tasks:
+    - name: Generate Idemix CA keys for Fabric-CA Idemix organizations
+      vars:
+        current_ca_host: "{{ item }}"
+        idemixgen_output_dir: "{{ idemixgen_artifacts_dir }}/{{ hostvars[current_ca_host].organization.domain }}"
+        idemixgen_curve_id: "FP256BN_AMCL"
+      ansible.builtin.include_role:
+        name: hyperledger.fabric.idemixgen
+        tasks_from: ca-keygen
+      loop: "{{ groups['fabric_ca_servers'] | default([]) }}"
+      loop_control:
+        label: "{{ hostvars[current_ca_host].organization.domain | default(current_ca_host) }}"
+      when:
+        - hostvars[current_ca_host].organization is defined
+        - hostvars[current_ca_host].organization.type is defined
+        - hostvars[current_ca_host].organization.type == 'idemix'
+
 # Currently we let Fabric-CA autogenerate its crypto material at bootstrap time
 - name: Setup Fabric-CA crypto material
   hosts: "{{ target_hosts | default('fabric_cas') }}:&fabric_cas"
+  vars:
+    idemixgen_artifacts_dir: "{{ config_build_dir }}/idemixgen-artifacts"
+    fabric_ca_remote_config_dir: "{{ remote_config_dir }}"
   tasks:
+    - name: Ensure Idemix CA directory exists
+      ansible.builtin.file:
+        path: "{{ fabric_ca_remote_config_dir }}/idemix"
+        state: directory
+        mode: "0o755"
+        recurse: true
+      when:
+        - organization is defined
+        - organization.type is defined
+        - organization.type == 'idemix'
+    - name: Transfer Idemix CA crypto material
+      ansible.posix.synchronize:
+        src: "{{ idemixgen_artifacts_dir }}/{{ organization.domain }}/"
+        dest: "{{ fabric_ca_remote_config_dir }}/idemix"
+      when:
+        - organization is defined
+        - organization.type is defined
+        - organization.type == 'idemix'
     - name: Setup Fabric CA DBs config files
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres

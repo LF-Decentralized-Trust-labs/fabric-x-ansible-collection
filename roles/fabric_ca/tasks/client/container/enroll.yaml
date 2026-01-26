@@ -44,6 +44,7 @@
     - fabric_ca_tls_certfile is defined
     - fabric_ca_enrollment_type == 'idemix' or (fabric_ca_enrollment_type == 'bccsp' and not fabric_ca_msp_cert.stat.exists)
 
+# TODO: When owner-wallet Idemix credentials move to the Onboarding Repository, scope this to Fabric identities only.
 - name: Enroll identity with Fabric CA client container
   vars:
     container_name: "{{ fabric_ca_name }}-enroll-{{ fabric_ca_identity.name }}"
@@ -52,15 +53,14 @@
       FABRIC_CA_CLIENT_HOME: "{{ fabric_ca_container_config_dir }}"
     container_command: >-
       {{ fabric_ca_client_bin_name }}
-      {% if fabric_ca_enrollment_type == 'idemix' %}
-      idemix enroll
-      {% else %}
       enroll
-      {% endif %}
       -u {{ fabric_ca_scheme }}://{{ fabric_ca_identity.name }}:{{ fabric_ca_identity.secret }}@{{ hostvars[fabric_ca_host].ansible_host }}:{{ hostvars[fabric_ca_host].fabric_ca_port }}
       --caname {{ fabric_ca_name }}
       --mspdir {{ fabric_ca_container_config_dir }}
-      {% if fabric_ca_enrollment_type == 'bccsp' and fabric_ca_enrollment_profile is defined %}
+      {% if fabric_ca_enrollment_type == 'idemix' %}
+      --enrollment.type idemix
+      --enrollment.profile {{ fabric_ca_idemix_enrollment_profile }}
+      {% elif fabric_ca_enrollment_type == 'bccsp' and fabric_ca_enrollment_profile is defined %}
       --enrollment.profile {{ fabric_ca_enrollment_profile }}
       {% endif %}
       {% if fabric_ca_enrollment_type == 'bccsp' and fabric_ca_csr_hosts is defined and (fabric_ca_csr_hosts | length) > 0 %}

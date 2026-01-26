@@ -54,6 +54,8 @@ fabric_ca_tls_root_cert: "{{ fabric_ca_remote_config_dir }}/ca-cert.pem"
 # =========================
 fabric_ca_name: "{{ inventory_hostname }}"
 fabric_ca_enrollment_type: bccsp  # bccsp or idemix
+# Signing profile used when enrolling Idemix credentials.
+fabric_ca_idemix_enrollment_profile: idemix
 
 # =========================
 # CSR settings
