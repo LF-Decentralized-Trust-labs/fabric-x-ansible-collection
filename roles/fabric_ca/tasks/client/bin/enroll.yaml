@@ -52,7 +52,7 @@
     name: hyperledger.fabricx.bin
     tasks_from: start
   when:
-    - fabric_ca_enrollment_type == 'idemix' or (fabric_ca_enrollment_type == 'bccsp' and not fabric_ca_msp_cert.stat.exists)
+    - not fabric_ca_msp_cert.stat.exists
 
 - name: Copy NodeOUs configuration file
   ansible.builtin.template:
