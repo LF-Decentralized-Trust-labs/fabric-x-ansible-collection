@@ -84,7 +84,7 @@ committer:
 # Relay Settings
 # ---------------------------------------------------------------------------
 # Interval for setting the last committed block to the HLFX Committer Coordinator
-last-committed-block-set-interval: 5s
+last-committed-block-set-interval: {{ committer_sidecar_last_committed_block_set_interval | default('5s') }}
 
 # ---------------------------------------------------------------------------
 # Ledger settings

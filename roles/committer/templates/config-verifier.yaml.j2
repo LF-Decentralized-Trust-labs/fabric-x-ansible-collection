@@ -16,10 +16,10 @@
 # ---------------------------------------------------------------------------
 parallel-executor:
   # How many parallel go routines will be launched.
-  parallelism: 80
+  parallelism: {{ committer_verifier_parallelism | default(ansible_facts.processor_vcpus * 2) }}
   # The minimum amount of responses we need to collect before emitting a response.
-  batch-size-cutoff: 500
+  batch-size-cutoff: {{ committer_verifier_batch_size_cutoff | default(500) }}
   # How often we should empty the non-empty buffer.
-  batch-time-cutoff: 2ms
+  batch-time-cutoff: {{ committer_verifier_batch_time_cutoff | default('2ms') }}
   # The size of the buffer of the input channels (increase for high fluctuations of load)
-  channel-buffer-size: 1000
+  channel-buffer-size: {{ committer_verifier_channel_buffer_size | default(1000) }}

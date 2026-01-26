@@ -7,6 +7,25 @@
 - name: Build the loadgen
   hosts: localhost
   tasks:
+    - name: Install the Fabric-X Loadgen for the not dockerized hosts
+      vars:
+        loadgen_instances: >-
+          {{
+            groups[target_hosts | default('load_generators')]
+            | intersect(groups['load_generators'])
+            | map('extract', hostvars)
+            | selectattr("loadgen_use_bin", 'defined')
+            | selectattr("loadgen_use_bin", '==', true)
+            | selectattr("loadgen_build_bin", 'undefined')
+            | map(attribute='inventory_hostname')
+            | list
+          }}
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.loadgen
+        tasks_from: bin/multiplatform_install
+      when:
+        - "'load_generators' in groups"
+        - loadgen_instances | length > 0
     - name: Build the Fabric-X Loadgen for the not dockerized hosts
       vars:
         loadgen_instances: >-
@@ -15,13 +34,15 @@
             | intersect(groups['load_generators'])
             | map('extract', hostvars)
             | selectattr("loadgen_use_bin", 'defined')
-            | selectattr("loadgen_use_bin", 'eq', true)
+            | selectattr("loadgen_use_bin", '==', true)
+            | selectattr("loadgen_build_bin", 'defined')
+            | selectattr("loadgen_build_bin", '==', true)
             | map(attribute='inventory_hostname')
             | list
           }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.loadgen
-        tasks_from: bin/multiplatform_install
+        tasks_from: bin/multiplatform_build
       when:
         - "'load_generators' in groups"
         - loadgen_instances | length > 0

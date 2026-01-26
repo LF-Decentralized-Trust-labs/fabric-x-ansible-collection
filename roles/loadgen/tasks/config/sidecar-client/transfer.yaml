@@ -1,0 +1,46 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure the Hyperledger Fabric-X Sidecar Loadgen config directory exists
+  ansible.builtin.file:
+    path: "{{ loadgen_remote_config_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Generate the config for the Hyperledger Fabric-X Sidecar Loadgen
+  vars:
+    loadgen_config_dir: "{{ loadgen_remote_config_dir if loadgen_use_bin else loadgen_container_config_dir }}"
+    loadgen_generate_config: true
+    loadgen_generate_namespace: true
+  ansible.builtin.template:
+    src: "sidecar-client.yaml.j2"
+    dest: "{{ loadgen_remote_config_dir }}/{{ loadgen_config_file }}"
+    mode: "0o644"
+
+# =========================
+# HLFX Committer Sidecar TLS
+# =========================
+- name: Ensure Hyperledger Fabric-X Committer Sidecar TLS folder exist
+  vars:
+    committer_sidecar_host: "{{ committer_verifier_hosts | first }}"
+  ansible.builtin.file:
+    path: "{{ loadgen_remote_config_dir }}/tls/sidecar"
+    state: directory
+    mode: "0o755"
+  when:
+    - hostvars[committer_sidecar_host].committer_use_tls is defined
+    - hostvars[committer_sidecar_host].committer_use_tls
+
+- name: Transfer Hyperledger Fabric-X Committer Sidecar TLS CA certificate
+  vars:
+    committer_sidecar_host: "{{ committer_verifier_hosts | first }}"
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/{{ committer_sidecar_host }}/tls/ca.crt"
+    dest: "{{ loadgen_remote_config_dir }}/tls/sidecar/ca.crt"
+    mode: "0o644"
+  when:
+    - hostvars[committer_sidecar_host].committer_use_tls is defined
+    - hostvars[committer_sidecar_host].committer_use_tls

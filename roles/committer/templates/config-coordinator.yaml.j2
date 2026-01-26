@@ -79,13 +79,13 @@ dependency-graph:
   # manager starts. Each constructor builds a part of the transaction dependency 
   # graph in parallel. Increasing this lets the manager process more transactions
   # concurrently, at the cost of more CPU and memory.
-  num-of-local-dep-constructors: {{ committer_coordinator_dep_graph_constructors }}
+  num-of-local-dep-constructors: {{ committer_coordinator_dep_graph_constructors | default(4) }}
   # Upper bound on how many transactions may be waiting inside the dependency-graph
   # manager at any time.
-  waiting-txs-limit: {{ committer_coordinator_dep_graph_wait_tx_limit }}
+  waiting-txs-limit: {{ committer_coordinator_dep_graph_wait_tx_limit | default(20000000) }}
 
 # ---------------------------------------------------------------------------
 # Go-Routine settings
 # ---------------------------------------------------------------------------
 # Defines the buffer size per go-routine
-per-channel-buffer-size-per-goroutine: 10
+per-channel-buffer-size-per-goroutine: {{ committer_coordinator_per_channel_buffer_size_per_goroutine | default(10) }}
