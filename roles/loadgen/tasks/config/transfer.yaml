@@ -101,3 +101,24 @@
     tasks_from: config/validator-client/transfer
   when:
     - loadgen_type == 'validator-client'
+
+# =========================
+# Sidecar Client
+# =========================
+- name: Transfer the Hyperledger Fabric-X Sidecar Client config files
+  vars:
+    committer_sidecar_host: >-
+      {{
+        committer_hosts
+        | map('extract', hostvars)
+        | selectattr('committer_component_type', 'defined')
+        | selectattr('committer_component_type', '==', 'sidecar')
+        | map(attribute='inventory_hostname')
+        | list
+        | first
+      }}
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: config/sidecar-client/transfer
+  when:
+    - loadgen_type == 'sidecar-client'

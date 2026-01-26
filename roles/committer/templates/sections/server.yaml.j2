@@ -10,20 +10,20 @@ server:
       # After a duration of this time if the server doesn't see any activity it
       # pings the client to see if the transport is still alive.
       # If set below 1s, a minimum value of 1s will be used instead.    
-      time: 300s
+      time: {{ committer_server_keep_alive_time | default('300s') }}
       # After having pinged for keepalive check, the server waits for a duration
       # of Timeout and if no activity is seen even after that the connection is
       # closed.
-      timeout: 600s
+      timeout: {{ committer_server_keep_alive_timeout | default('600s') }}
     # Used to set keepalive enforcement policy on the server-side.
     # Server will close connection with a client that violates this policy.
     enforcement-policy:
       # The minimum amount of time a client should wait before sending a keepalive ping.
-      min-time: 60s
+      min-time: {{ committer_server_keep_alive_min_time | default('60s') }}
       # If true, server allows keepalive pings even when there are no active
       # streams(RPCs). If false, and client sends ping when there are no active
       # streams, server will send GOAWAY and close the connection.
-      permit-without-stream: false
+      permit-without-stream: {{ committer_server_keep_alive_permit_without_stream | default(false) | bool | lower }}
 {% if committer_use_tls %}
   # Define TLS options and certificate paths used for secure communication 
   # between servers and clients. Credentials are built based on the configuration mode.

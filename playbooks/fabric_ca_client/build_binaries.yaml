@@ -14,6 +14,41 @@
         else [target_hosts]
       }}
   tasks:
+    - name: Install the Fabric CA client binaries for the not dockerized hosts
+      vars:
+        fabric_ca_client_instances: >-
+          {{
+            (
+            targeted_hosts
+            | default(groups['fabric_ca_servers'])
+            | intersect(groups['fabric_ca_servers'])
+            | map('extract', hostvars)
+            | selectattr("fabric_ca_client_use_bin", 'defined')
+            | selectattr("fabric_ca_client_use_bin", '==', true)
+            | selectattr("fabric_ca_client_build_bin", 'undefined')
+            | map(attribute='inventory_hostname')
+            | list
+            )
+            +
+            (
+            targeted_hosts
+            | default(groups['all'])
+            | map('extract', hostvars)
+            | selectattr("fabric_ca_client_use_bin", 'defined')
+            | selectattr("fabric_ca_client_use_bin", '==', true)
+            | selectattr("fabric_ca_client_build_bin", 'undefined')
+            | selectattr("organization", 'defined')
+            | selectattr("organization.fabric_ca_host", 'defined')
+            | map(attribute='inventory_hostname')
+            | list
+            )
+          }}
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: client/bin/multiplatform_install
+      when:
+        - "'fabric_cas' in groups"
+        - fabric_ca_client_instances | length > 0
     - name: Build the Fabric CA client binaries for the not dockerized hosts
       vars:
         fabric_ca_client_instances: >-
@@ -24,7 +59,9 @@
             | intersect(groups['fabric_ca_servers'])
             | map('extract', hostvars)
             | selectattr("fabric_ca_client_use_bin", 'defined')
-            | selectattr("fabric_ca_client_use_bin", 'eq', true)
+            | selectattr("fabric_ca_client_use_bin", '==', true)
+            | selectattr("fabric_ca_client_build_bin", 'defined')
+            | selectattr("fabric_ca_client_build_bin", '==', true)
             | map(attribute='inventory_hostname')
             | list
             )
@@ -35,6 +72,8 @@
             | map('extract', hostvars)
             | selectattr("fabric_ca_client_use_bin", 'defined')
             | selectattr("fabric_ca_client_use_bin", 'eq', true)
+            | selectattr("fabric_ca_client_build_bin", 'defined')
+            | selectattr("fabric_ca_client_build_bin", '==', true)
             | selectattr("organization", 'defined')
             | selectattr("organization.fabric_ca_host", 'defined')
             | map(attribute='inventory_hostname')
@@ -43,7 +82,7 @@
           }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fabric_ca
-        tasks_from: client/bin/multiplatform_install
+        tasks_from: client/bin/multiplatform_build
       when:
         - "'fabric_cas' in groups"
         - fabric_ca_client_instances | length > 0

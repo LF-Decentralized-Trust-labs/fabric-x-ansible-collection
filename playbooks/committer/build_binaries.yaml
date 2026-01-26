@@ -7,6 +7,26 @@
 - name: Build the Fabric-X Committer binaries
   hosts: localhost
   tasks:
+    - name: Install the Fabric-X Committer binaries for the not dockerized hosts
+      vars:
+        committer_service_instances: >-
+          {{
+            groups[target_hosts | default('fabric_x_committer')]
+            | intersect(groups['fabric_x_committer'])
+            | map('extract', hostvars)
+            | selectattr("committer_component_type", 'defined')
+            | selectattr("committer_use_bin", 'defined')
+            | selectattr("committer_use_bin", '==', true)
+            | selectattr("committer_build_bin", 'undefined')
+            | map(attribute='inventory_hostname')
+            | list
+          }}
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.committer
+        tasks_from: bin/multiplatform_install
+      when:
+        - "'fabric_x_committer' in groups"
+        - committer_service_instances | length > 0
     - name: Build the Fabric-X Committer binaries for the not dockerized hosts
       vars:
         committer_service_instances: >-
@@ -16,13 +36,15 @@
             | map('extract', hostvars)
             | selectattr("committer_component_type", 'defined')
             | selectattr("committer_use_bin", 'defined')
-            | selectattr("committer_use_bin", 'eq', true)
+            | selectattr("committer_use_bin", '==', true)
+            | selectattr("committer_build_bin", 'defined')
+            | selectattr("committer_build_bin", '==', true)
             | map(attribute='inventory_hostname')
             | list
           }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.committer
-        tasks_from: bin/multiplatform_install
+        tasks_from: bin/multiplatform_build
       when:
         - "'fabric_x_committer' in groups"
         - committer_service_instances | length > 0

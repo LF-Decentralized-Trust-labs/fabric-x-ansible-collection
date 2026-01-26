@@ -24,12 +24,34 @@
             | map('extract', hostvars)
             | selectattr("fabric_ca_server_use_bin", 'defined')
             | selectattr("fabric_ca_server_use_bin", 'eq', true)
+            | selectattr("fabric_ca_server_build_bin", 'undefined')
             | map(attribute='inventory_hostname')
             | list
           }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fabric_ca
         tasks_from: server/bin/multiplatform_install
+      when:
+        - "'fabric_ca_servers' in groups"
+        - fabric_ca_server_instances | length > 0
+    - name: Build the Fabric CA server binaries for the not dockerized hosts
+      vars:
+        fabric_ca_server_instances: >-
+          {{
+            targeted_hosts
+            | default(groups['fabric_ca_servers'])
+            | intersect(groups['fabric_ca_servers'])
+            | map('extract', hostvars)
+            | selectattr("fabric_ca_server_use_bin", 'defined')
+            | selectattr("fabric_ca_server_use_bin", 'eq', true)
+            | selectattr("fabric_ca_server_build_bin", 'defined')
+            | selectattr("fabric_ca_server_build_bin", 'eq', true)
+            | map(attribute='inventory_hostname')
+            | list
+          }}
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: server/bin/multiplatform_build
       when:
         - "'fabric_ca_servers' in groups"
         - fabric_ca_server_instances | length > 0
