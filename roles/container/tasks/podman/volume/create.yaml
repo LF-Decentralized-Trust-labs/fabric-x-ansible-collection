@@ -52,6 +52,7 @@
       /volume
     volumes:
       - "{{ container_volume_path }}:/volume"
+    detach: false
     auto_remove: true
     state: started
   when:
@@ -72,6 +73,7 @@
       /volume
     volumes:
       - "{{ container_volume_path }}:/volume"
+    detach: false
     auto_remove: true
     state: started
   when:
