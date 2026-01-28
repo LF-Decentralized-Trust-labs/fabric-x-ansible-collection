@@ -35,3 +35,45 @@
     - not container_on_mac
     - container_volume_uid is defined
     - container_volume_gid is defined
+
+# For Podman on macOS the `podman unshare` command is not available.
+# To fix the issue, we reuse the Docker approach of running a container
+# to fix the permissions.
+- name: Set Podman volume "uid" and "gid" on macOS for rootless users
+  containers.podman.podman_container:
+    name: "podman-unshare-chown-{{ container_name | default(999999 | random) }}"
+    image: docker.io/library/alpine:3.18
+    command: >-
+      chown
+      {% if recurse | default(false) %}
+      -R
+      {% endif %}
+      {{ container_volume_uid }}:{{ container_volume_gid }}
+      /volume
+    volumes:
+      - "{{ container_volume_path }}:/volume"
+    auto_remove: true
+    state: started
+  when:
+    - container_on_mac
+    - container_volume_uid is defined
+    - container_volume_gid is defined
+
+- name: Set Podman volume permissions on macOS for rootless users
+  containers.podman.podman_container:
+    name: "podman-unshare-chmod-{{ container_name | default(999999 | random) }}"
+    image: docker.io/library/alpine:3.18
+    command: >-
+      chmod
+      {% if recurse | default(false) %}
+      -R
+      {% endif %}
+      {{ container_volume_mode | regex_replace('^0o', '0') }}
+      /volume
+    volumes:
+      - "{{ container_volume_path }}:/volume"
+    auto_remove: true
+    state: started
+  when:
+    - container_on_mac
+    - container_volume_mode is defined
