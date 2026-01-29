@@ -27,12 +27,26 @@
   when:
     - fabric_ca_enrollment_type == 'bccsp'
 
+- name: Check if already enrolled (Idemix only)
+  ansible.builtin.stat:
+    path: "{{ fabric_ca_msp_dir }}/msp/user/SignerConfig"
+  register: fabric_ca_idemix_signer
+  when:
+    - fabric_ca_enrollment_type == 'idemix'
+
 - name: Set volumes for Fabric-CA client
   ansible.builtin.set_fact:
     fabric_ca_volumes:
       - "{{ fabric_ca_msp_dir }}:{{ fabric_ca_container_config_dir }}:Z"
   when:
-    - not fabric_ca_msp_cert.stat.exists
+    - (
+        (fabric_ca_enrollment_type | default('bccsp')) == 'idemix'
+        and not fabric_ca_idemix_signer.stat.exists
+      )
+      or (
+        (fabric_ca_enrollment_type | default('bccsp')) == 'bccsp'
+        and not fabric_ca_msp_cert.stat.exists
+      )
 
 - name: Set volumes for TLS certificates
   vars:
@@ -42,7 +56,14 @@
   when:
     - fabric_ca_use_tls
     - fabric_ca_tls_certfile is defined
-    - not fabric_ca_msp_cert.stat.exists
+    - (
+        (fabric_ca_enrollment_type | default('bccsp')) == 'idemix'
+        and not fabric_ca_idemix_signer.stat.exists
+      )
+      or (
+        (fabric_ca_enrollment_type | default('bccsp')) == 'bccsp'
+        and not fabric_ca_msp_cert.stat.exists
+      )
 
 # TODO: When owner-wallet Idemix credentials move to the Onboarding Repository, scope this to Fabric identities only.
 - name: Enroll identity with Fabric CA client container
@@ -79,7 +100,14 @@
     name: hyperledger.fabricx.container
     tasks_from: start
   when:
-    - not fabric_ca_msp_cert.stat.exists
+    - (
+        (fabric_ca_enrollment_type | default('bccsp')) == 'idemix'
+        and not fabric_ca_idemix_signer.stat.exists
+      )
+      or (
+        (fabric_ca_enrollment_type | default('bccsp')) == 'bccsp'
+        and not fabric_ca_msp_cert.stat.exists
+      )
 
 - name: Copy NodeOUs configuration file
   ansible.builtin.template:

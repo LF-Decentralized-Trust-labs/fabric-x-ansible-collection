@@ -21,6 +21,13 @@
   when:
     - fabric_ca_enrollment_type == 'bccsp'
 
+- name: Check if already enrolled (Idemix only)
+  ansible.builtin.stat:
+    path: "{{ fabric_ca_msp_dir }}/msp/user/SignerConfig"
+  register: fabric_ca_idemix_signer
+  when:
+    - fabric_ca_enrollment_type == 'idemix'
+
 # TODO: When owner-wallet Idemix credentials move to the Onboarding Repository, scope this to Fabric identities only.
 - name: Enroll identity with Fabric CA client binary
   vars:
@@ -52,7 +59,14 @@
     name: hyperledger.fabricx.bin
     tasks_from: start
   when:
-    - not fabric_ca_msp_cert.stat.exists
+    - (
+        (fabric_ca_enrollment_type | default('bccsp')) == 'idemix'
+        and not fabric_ca_idemix_signer.stat.exists
+      )
+      or (
+        (fabric_ca_enrollment_type | default('bccsp')) == 'bccsp'
+        and not fabric_ca_msp_cert.stat.exists
+      )
 
 - name: Copy NodeOUs configuration file
   ansible.builtin.template:
