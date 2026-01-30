@@ -6,23 +6,35 @@
 
 - name: Build list of unique (host, network) pairs
   hosts: localhost
+  vars:
+    targeted_hosts: >-
+      {{
+        groups[target_hosts]
+        if target_hosts in groups
+        else [target_hosts]
+      }}
   tasks:
     - name: Collect candidate hosts
+      vars:
+        candidate_actual_host: "{{ 'localhost' if ansible_connection == 'local' else current_host.ansible_host }}"
+        candidate_actual_hostname: "{{ candidate_actual_host }}-{{ current_host.container_network }}"
       ansible.builtin.set_fact:
         candidate_hosts: >-
           {{
             (candidate_hosts | default({}))
             | combine({
-                current_host.ansible_host ~ ":" ~ current_host.container_network: {
-                  "name": current_host.inventory_hostname,
-                  "ansible_host": current_host.ansible_host,
+                candidate_actual_hostname: {
+                  "name": candidate_actual_hostname,
+                  "ansible_host": candidate_actual_host,
                   "container_network": current_host.container_network
                 }
               })
           }}
       loop: >-
         {{
-          groups['all']
+          targeted_hosts
+          | default(groups['all'])
+          | sort
           | map('extract', hostvars)
           | selectattr('container_network', 'defined')
         }}
@@ -38,12 +50,12 @@
       loop: "{{ candidate_hosts.values() }}"
       loop_control:
         loop_var: current_host
-        label: "{{ current_host.name }}:{{ current_host.container_network }}"
+        label: "{{ current_host.name }}"
       when:
         - candidate_hosts is defined
 
 - name: Create container networks
-  hosts: "{{ target_hosts | default('machines_with_container_networks') }}:&machines_with_container_networks"
+  hosts: machines_with_container_networks
   tasks:
     - name: Create the container networks
       ansible.builtin.include_role:

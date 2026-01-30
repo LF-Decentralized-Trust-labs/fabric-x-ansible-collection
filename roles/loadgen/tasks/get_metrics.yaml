@@ -6,7 +6,7 @@
 
 - name: Get Fabric-X Loadgen metrics
   ansible.builtin.uri:
-    url: "http://{{ ansible_host }}:{{ prometheus_exporter_port }}/metrics"
+    url: "http://{{ actual_host }}:{{ prometheus_exporter_port }}/metrics"
     method: GET
     return_content: true
   register: loadgen_metrics

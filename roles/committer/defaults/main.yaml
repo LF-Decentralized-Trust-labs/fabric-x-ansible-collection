@@ -40,6 +40,7 @@ committer_query_service_config_file: "config-query-service.yml"
 # =========================
 committer_use_tls: false
 committer_use_mtls: false
+committer_http_protocol: "{{ 'https' if committer_use_tls else 'http' }}"
 
 # =========================
 # Miscellaneous

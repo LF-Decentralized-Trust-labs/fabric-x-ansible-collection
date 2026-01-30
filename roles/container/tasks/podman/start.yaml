@@ -10,7 +10,7 @@
     image: "{{ container_image }}"
     entrypoint: "{{ container_entrypoint | default(omit) }}"
     command: "{{ container_command | default(omit) }}"
-    hostname: "{{ container_name }}"
+    hostname: "{{ container_hostname }}"
     network: >-
       {{
         (container_network)
@@ -68,7 +68,7 @@
 # matches the inventory_hostname (to emulate the Docker Compose approach).
 - name: Wait for Podman container to become ready on port
   ansible.builtin.wait_for:
-    host: "{{ '127.0.0.1' if ansible_connection == 'local' else ansible_host }}"
+    host: "{{ actual_host }}"
     port: "{{ container_wait_port }}"
     delay: "{{ container_wait_delay }}"
     timeout: "{{ container_wait_timeout }}"
