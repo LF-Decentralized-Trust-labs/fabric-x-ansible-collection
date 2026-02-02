@@ -6,7 +6,8 @@
 
 - name: Get Fabric-X Committer metrics
   ansible.builtin.uri:
-    url: "http://{{ ansible_host }}:{{ prometheus_exporter_port }}/metrics"
+    url: "{{ committer_http_protocol }}://{{ actual_host }}:{{ prometheus_exporter_port }}/metrics"
+    validate_certs: false
     method: GET
     return_content: true
   register: committer_metrics

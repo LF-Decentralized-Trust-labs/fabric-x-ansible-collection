@@ -42,6 +42,7 @@ container_network_mode: "{{ 'bridge' if container_on_mac else 'host' }}"
 container_network_driver: bridge
 container_network_attachable: true # docker-only: podman networks are always attachable
 container_network_internal: false
+container_hostname: "{{ container_name | default(inventory_hostname) }}"
 
 # =========================
 # Container Rerun Opts

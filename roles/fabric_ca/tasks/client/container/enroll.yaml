@@ -50,7 +50,7 @@
 
 - name: Set volumes for TLS certificates
   vars:
-    fabric_ca_tls_certfile_volume: "{{ fabric_ca_tls_certfile }}:{{ fabric_ca_container_config_dir }}/tls-cert.pem:Z"
+    fabric_ca_tls_certfile_volume: "{{ fabric_ca_tls_certfile }}:/tmp/tls-cert.pem:Z"
   ansible.builtin.set_fact:
     fabric_ca_volumes: "{{ fabric_ca_volumes + [fabric_ca_tls_certfile_volume] }}"
   when:
@@ -90,7 +90,7 @@
       {% endfor %}
       {% endif %}
       {% if fabric_ca_use_tls and (fabric_ca_tls_certfile is defined) %}
-      --tls.certfiles {{ fabric_ca_container_config_dir }}/tls-cert.pem
+      --tls.certfiles /tmp/tls-cert.pem
       {% endif %}
     container_volumes: "{{ fabric_ca_volumes }}"
     container_autoremove: true

@@ -15,6 +15,17 @@
     name: hyperledger.fabricx.container
     tasks_from: volume/create
 
+# We need to find which container client is used since
+# Docker on macOS doesn't allow `docker-unshare`.
+# Therefore, we cannot set the permissions for the user "999:999".
+# For this reason the container is started with the host user.
+- name: Find the container client used on macOS
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: get_container_client
+  when:
+    - ansible_facts.os_family == 'Darwin'
+
 - name: Start Postgres DB Container
   vars:
     container_name: "{{ postgres_container_name }}"
@@ -53,7 +64,11 @@
       -p {{ postgres_port }}
     container_wait_until_running: true
     container_wait_port: "{{ postgres_port }}"
-    container_run_as_host_user: "{{ container_on_mac }}"
+    # We run the container as host user when we are on macOS and we detect that Docker
+    # is used. The reason is that both Rancher and Docker Desktop don't allow
+    # docker-unshare (as instead podman). Hence, we cannot change the permissions
+    # of the folder for the user 999:999.
+    container_run_as_host_user: "{{ (ansible_facts.os_family == 'Darwin') and (container_client == 'docker' | default(false)) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: start
