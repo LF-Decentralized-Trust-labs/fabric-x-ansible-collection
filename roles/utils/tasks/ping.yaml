@@ -9,7 +9,7 @@
     - name: Listen on ports
       ansible.builtin.wait_for:
         port: "{{ port_to_ping }}"
-        host: "{{ ansible_host }}"
+        host: "{{ actual_host }}"
         timeout: 1
       loop: "{{ utils_ports_to_ping }}"
       loop_control:

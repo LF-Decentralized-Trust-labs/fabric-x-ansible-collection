@@ -5,6 +5,12 @@
 #
 
 ######################################
+# Create container networks
+######################################
+- name: Create container networks
+  ansible.builtin.import_playbook: hyperledger.fabricx.create_container_networks
+
+######################################
 # Crypto material with cryptogen
 ######################################
 - name: Generate crypto material
