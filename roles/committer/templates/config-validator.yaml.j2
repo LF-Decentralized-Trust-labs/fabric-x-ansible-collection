@@ -12,3 +12,18 @@
 {% include './sections/logging.yaml.j2' +%}
 
 {% include './sections/database.yaml.j2' +%}
+
+# ---------------------------------------------------------------------------
+# Configuration for the resource limits.
+# ---------------------------------------------------------------------------
+resource-limits:
+  # Maximum number of workers for the preparer
+  max-workers-for-preparer: {{ committer_resource_limits_max_workers_for_preparer | default(1) }}
+  # Maximum number of workers for the validator
+  max-workers-for-validator: {{ committer_resource_limits_max_workers_for_validator | default(1) }}
+  # Maximum number of workers for the committer
+  max-workers-for-committer: {{ committer_resource_limits_max_workers_for_committer | default(20) }}
+  # Minimum transactions required to cut a batch immediately
+  min-transaction-batch-size: {{ committer_resource_limits_min_transaction_batch_size | default(1) }}
+  # Maximum time to wait for min-transaction-batch-size before cutting the batch
+  timeout-for-min-transaction-batch-size: {{ committer_resource_limits_timeout_for_min_transaction_batch_size | default('2s') }}
