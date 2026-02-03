@@ -38,7 +38,7 @@ container_log_lines: 0
 # Container Network
 # =========================
 container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
-container_network_mode: "{{ 'bridge' if container_on_mac else 'host' }}"
+container_network_mode: "{{ 'bridge' if (container_on_mac or (container_network is defined)) else 'host' }}"
 container_network_driver: bridge
 container_network_attachable: true # docker-only: podman networks are always attachable
 container_network_internal: false

@@ -14,13 +14,13 @@
     network: >-
       {{
         (container_network)
-        if (container_network_mode == 'bridge') and (container_network is defined)
+        if ((container_network_mode == 'bridge') and (container_network is defined))
         else container_network_mode
       }}
     ports: >-
       {{
         container_ports
-        if (container_network_mode == 'bridge') and (container_ports is defined)
+        if ((container_network_mode == 'bridge') and (container_ports is defined))
         else omit
       }}
     memory: "{{ container_memory | default(omit) }}"
