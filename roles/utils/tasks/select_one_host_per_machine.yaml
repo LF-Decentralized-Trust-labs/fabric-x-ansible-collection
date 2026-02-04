@@ -13,7 +13,7 @@
       {{
         ansible_play_hosts
         | map('extract', hostvars)
-        | selectattr('ansible_host', '==', item)
+        | selectattr('actual_host', '==', item)
         | map(attribute='inventory_hostname')
         | sort
         | first
@@ -24,7 +24,7 @@
   loop: >-
     {{
       ansible_play_hosts
-      | map('extract', hostvars, 'ansible_host')
+      | map('extract', hostvars, 'actual_host')
       | unique
       | list
     }}
