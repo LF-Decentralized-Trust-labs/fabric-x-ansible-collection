@@ -85,6 +85,10 @@ committer:
 # ---------------------------------------------------------------------------
 # Interval for setting the last committed block to the HLFX Committer Coordinator
 last-committed-block-set-interval: {{ committer_sidecar_last_committed_block_set_interval | default('5s') }}
+# maximum number of transaction allowed to wait in the sidecar
+waiting-txs-limit: {{ committer_sidecar_waiting_txs_limit | default(20000000) }}
+# capacity of the channel/queue used between various components (relay, ledger)
+channel-buffer-size: {{ committer_sidecar_channel_buffer_size | default(100) }}
 
 # ---------------------------------------------------------------------------
 # Ledger settings
