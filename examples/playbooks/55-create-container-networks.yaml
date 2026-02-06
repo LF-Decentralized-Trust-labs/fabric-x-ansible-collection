@@ -1,8 +1,0 @@
-#
-# Copyright IBM Corp. All Rights Reserved.
-#
-# SPDX-License-Identifier: Apache-2.0
-#
-
-- name: Create container networks
-  ansible.builtin.import_playbook: hyperledger.fabricx.create_container_networks

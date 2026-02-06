@@ -10,7 +10,7 @@
     image: "{{ container_image }}"
     entrypoint: "{{ container_entrypoint | default(omit) }}"
     command: "{{ container_command | default(omit) }}"
-    hostname: "{{ container_name }}"
+    hostname: "{{ container_hostname }}"
     network: >-
       {{
         (container_network)
@@ -63,9 +63,12 @@
   when:
     - container_healthcheck_test is defined
 
+# We specifically set the host to 127.0.0.1 in case of `ansible_connection == local`
+# in order to prevent issues when running containers with an ansible_host that
+# matches the inventory_hostname (to emulate the Docker Compose approach).
 - name: Wait for Podman container to become ready on port
   ansible.builtin.wait_for:
-    host: "{{ ansible_host }}"
+    host: "{{ actual_host }}"
     port: "{{ container_wait_port }}"
     delay: "{{ container_wait_delay }}"
     timeout: "{{ container_wait_timeout }}"

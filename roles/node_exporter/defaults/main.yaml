@@ -19,6 +19,7 @@ node_exporter_container_name: "node-exporter"
 node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
 node_exporter_container_config_dir: /var/config
 node_exporter_web_config_file: web-config.yaml
+node_exporter_root_fs_flags: "ro,rslave"
 
 # =========================
 # TLS settings
