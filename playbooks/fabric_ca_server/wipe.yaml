@@ -19,8 +19,7 @@
         tasks_from: client/bin/rm
       when:
         - fabric_ca_port is defined
-        - fabric_ca_client_use_bin is defined
-        - fabric_ca_client_use_bin
+        - fabric_ca_client_use_bin | default(true)
     - name: Wipe Fabric CA DBs
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres

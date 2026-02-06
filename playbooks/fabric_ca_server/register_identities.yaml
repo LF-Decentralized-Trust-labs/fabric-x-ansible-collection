@@ -7,6 +7,10 @@
 - name: Gather and register identities on each CA host
   hosts: "{{ target_hosts | default('fabric_ca_servers') }}:&fabric_ca_servers"
   tasks:
+    - name: Resolve Fabric CA config directory
+      ansible.builtin.set_fact:
+        fabric_ca_config_dir: "{{ vars.get('fabric_ca_remote_config_dir', vars.get('remote_config_dir', vars.get('remote_node_dir', '/tmp'))) }}"
+
     - name: Set orderer identities per organization CA
       vars:
         current_orderer: "{{ hostvars[orderer_host] }}"
@@ -80,9 +84,9 @@
         - current_user.secret is defined
     - name: Register identities on Fabric CA
       vars:
-        fabric_ca_tls_certfile: "{{ fabric_ca_remote_config_dir }}/tls-cert.pem"
+        fabric_ca_tls_certfile: "{{ fabric_ca_tls_root_cert | default(fabric_ca_config_dir ~ '/ca-cert.pem') }}"
         fabric_ca_host: "{{ inventory_hostname }}"
-        fabric_ca_msp_dir: "{{ fabric_ca_remote_config_dir }}/{{ fabric_ca_admin.name }}/msp"
+        fabric_ca_msp_dir: "{{ fabric_ca_config_dir ~ '/' ~ fabric_ca_admin.name ~ '/msp' }}"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fabric_ca
         tasks_from: client/register

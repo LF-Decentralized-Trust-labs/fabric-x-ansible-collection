@@ -7,14 +7,53 @@
 - name: Init Fabric-CA servers
   hosts: "{{ target_hosts | default('fabric_ca_servers') }}:&fabric_ca_servers"
   tasks:
+    - name: Resolve Fabric CA config directory
+      ansible.builtin.set_fact:
+        fabric_ca_config_dir: "{{ vars.get('fabric_ca_remote_config_dir', vars.get('remote_config_dir', vars.get('remote_node_dir', '/tmp'))) }}"
+
+    - name: Check if Fabric CA root certificate exists
+      ansible.builtin.stat:
+        path: "{{ fabric_ca_tls_root_cert | default(fabric_ca_config_dir ~ '/ca-cert.pem') }}"
+      register: fabric_ca_root_cert
+      when:
+        - fabric_ca_server_use_bin | default(true)
+        - fabric_ca_use_tls
+
+    - name: Stop Fabric CA server before regenerating TLS root certificate
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: server/bin/stop
+      when:
+        - fabric_ca_server_use_bin | default(true)
+        - fabric_ca_use_tls
+        - not fabric_ca_root_cert.stat.exists
+
+    - name: Generate Fabric CA root certificate when missing
+      ansible.builtin.command: "{{ remote_node_dir }}/bin/{{ fabric_ca_server_bin_name | default('fabric-ca-server') }} init"
+      environment:
+        FABRIC_CA_HOME: "{{ fabric_ca_config_dir }}"
+      when:
+        - fabric_ca_server_use_bin | default(true)
+        - fabric_ca_use_tls
+        - not fabric_ca_root_cert.stat.exists
+
+    - name: Start Fabric CA server after generating TLS root certificate
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: server/bin/start
+      when:
+        - fabric_ca_server_use_bin | default(true)
+        - fabric_ca_use_tls
+        - not fabric_ca_root_cert.stat.exists
+
     - name: Enroll Fabric CA admin
       vars:
         fabric_ca_host: "{{ inventory_hostname }}"
         fabric_ca_identity:
           name: "{{ fabric_ca_admin.name }}"
           secret: "{{ fabric_ca_admin.secret }}"
-        fabric_ca_msp_dir: "{{ fabric_ca_remote_config_dir }}/{{ fabric_ca_admin.name }}/msp"
-        fabric_ca_tls_certfile: "{{ fabric_ca_remote_config_dir }}/tls-cert.pem"
+        fabric_ca_msp_dir: "{{ fabric_ca_config_dir ~ '/' ~ fabric_ca_admin.name ~ '/msp' }}"
+        fabric_ca_tls_certfile: "{{ fabric_ca_tls_root_cert | default(fabric_ca_config_dir ~ '/ca-cert.pem') }}"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fabric_ca
         tasks_from: client/enroll
