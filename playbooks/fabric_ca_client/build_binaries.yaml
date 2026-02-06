@@ -16,31 +16,59 @@
   tasks:
     - name: Install the Fabric CA client binaries for the not dockerized hosts
       vars:
-        fabric_ca_client_instances: >-
+        fabric_ca_server_hosts: >-
           {{
-            (
             targeted_hosts
             | default(groups['fabric_ca_servers'])
             | intersect(groups['fabric_ca_servers'])
             | map('extract', hostvars)
-            | selectattr("fabric_ca_client_use_bin", 'defined')
-            | selectattr("fabric_ca_client_use_bin", '==', true)
-            | selectattr("fabric_ca_client_build_bin", 'undefined')
-            | map(attribute='inventory_hostname')
             | list
-            )
-            +
-            (
+          }}
+        fabric_ca_node_hosts: >-
+          {{
             targeted_hosts
             | default(groups['all'])
             | map('extract', hostvars)
-            | selectattr("fabric_ca_client_use_bin", 'defined')
-            | selectattr("fabric_ca_client_use_bin", '==', true)
-            | selectattr("fabric_ca_client_build_bin", 'undefined')
-            | selectattr("organization", 'defined')
-            | selectattr("organization.fabric_ca_host", 'defined')
-            | map(attribute='inventory_hostname')
             | list
+          }}
+        fabric_ca_client_instances: >-
+          {{
+            (
+              fabric_ca_server_hosts
+              | rejectattr("fabric_ca_client_use_bin", 'defined')
+              | selectattr("fabric_ca_client_build_bin", 'undefined')
+              | map(attribute='inventory_hostname')
+              | list
+            )
+            +
+            (
+              fabric_ca_server_hosts
+              | selectattr("fabric_ca_client_use_bin", 'defined')
+              | selectattr("fabric_ca_client_use_bin", '==', true)
+              | selectattr("fabric_ca_client_build_bin", 'undefined')
+              | map(attribute='inventory_hostname')
+              | list
+            )
+            +
+            (
+              fabric_ca_node_hosts
+              | rejectattr("fabric_ca_client_use_bin", 'defined')
+              | selectattr("fabric_ca_client_build_bin", 'undefined')
+              | selectattr("organization", 'defined')
+              | selectattr("organization.fabric_ca_host", 'defined')
+              | map(attribute='inventory_hostname')
+              | list
+            )
+            +
+            (
+              fabric_ca_node_hosts
+              | selectattr("fabric_ca_client_use_bin", 'defined')
+              | selectattr("fabric_ca_client_use_bin", '==', true)
+              | selectattr("fabric_ca_client_build_bin", 'undefined')
+              | selectattr("organization", 'defined')
+              | selectattr("organization.fabric_ca_host", 'defined')
+              | map(attribute='inventory_hostname')
+              | list
             )
           }}
       ansible.builtin.include_role:
@@ -51,33 +79,63 @@
         - fabric_ca_client_instances | length > 0
     - name: Build the Fabric CA client binaries for the not dockerized hosts
       vars:
-        fabric_ca_client_instances: >-
+        fabric_ca_server_hosts: >-
           {{
-            (
             targeted_hosts
             | default(groups['fabric_ca_servers'])
             | intersect(groups['fabric_ca_servers'])
             | map('extract', hostvars)
-            | selectattr("fabric_ca_client_use_bin", 'defined')
-            | selectattr("fabric_ca_client_use_bin", '==', true)
-            | selectattr("fabric_ca_client_build_bin", 'defined')
-            | selectattr("fabric_ca_client_build_bin", '==', true)
-            | map(attribute='inventory_hostname')
             | list
-            )
-            +
-            (
+          }}
+        fabric_ca_node_hosts: >-
+          {{
             targeted_hosts
             | default(groups['all'])
             | map('extract', hostvars)
-            | selectattr("fabric_ca_client_use_bin", 'defined')
-            | selectattr("fabric_ca_client_use_bin", 'eq', true)
-            | selectattr("fabric_ca_client_build_bin", 'defined')
-            | selectattr("fabric_ca_client_build_bin", '==', true)
-            | selectattr("organization", 'defined')
-            | selectattr("organization.fabric_ca_host", 'defined')
-            | map(attribute='inventory_hostname')
             | list
+          }}
+        fabric_ca_client_instances: >-
+          {{
+            (
+              fabric_ca_server_hosts
+              | rejectattr("fabric_ca_client_use_bin", 'defined')
+              | selectattr("fabric_ca_client_build_bin", 'defined')
+              | selectattr("fabric_ca_client_build_bin", '==', true)
+              | map(attribute='inventory_hostname')
+              | list
+            )
+            +
+            (
+              fabric_ca_server_hosts
+              | selectattr("fabric_ca_client_use_bin", 'defined')
+              | selectattr("fabric_ca_client_use_bin", 'eq', true)
+              | selectattr("fabric_ca_client_build_bin", 'defined')
+              | selectattr("fabric_ca_client_build_bin", '==', true)
+              | map(attribute='inventory_hostname')
+              | list
+            )
+            +
+            (
+              fabric_ca_node_hosts
+              | rejectattr("fabric_ca_client_use_bin", 'defined')
+              | selectattr("fabric_ca_client_build_bin", 'defined')
+              | selectattr("fabric_ca_client_build_bin", '==', true)
+              | selectattr("organization", 'defined')
+              | selectattr("organization.fabric_ca_host", 'defined')
+              | map(attribute='inventory_hostname')
+              | list
+            )
+            +
+            (
+              fabric_ca_node_hosts
+              | selectattr("fabric_ca_client_use_bin", 'defined')
+              | selectattr("fabric_ca_client_use_bin", 'eq', true)
+              | selectattr("fabric_ca_client_build_bin", 'defined')
+              | selectattr("fabric_ca_client_build_bin", '==', true)
+              | selectattr("organization", 'defined')
+              | selectattr("organization.fabric_ca_host", 'defined')
+              | map(attribute='inventory_hostname')
+              | list
             )
           }}
       ansible.builtin.include_role:

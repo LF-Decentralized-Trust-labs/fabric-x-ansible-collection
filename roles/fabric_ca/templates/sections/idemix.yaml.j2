@@ -1,0 +1,19 @@
+#############################################################################
+#  Idemix section
+#
+#  This enables Idemix support in Fabric-CA. The CA will generate and manage
+#  the Idemix issuer keys (IssuerPublicKey, IssuerRevocationPublicKey, etc.)
+#  under its home directory.
+#############################################################################
+idemix:
+  # Size of the revocation handle pool (default: 1000)
+  rhpoolsize: 1000
+
+  # Expiration for nonces used in Idemix credential issuance (default: 15s)
+  nonceexpiration: 15s
+
+  # Interval at which expired nonces are removed (default: 15m)
+  noncesweepinterval: 15m
+
+  # Elliptic curve used by Identity Mixer (default: amcl.Fp256bn)
+  curve: amcl.Fp256bn

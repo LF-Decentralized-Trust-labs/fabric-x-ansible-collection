@@ -12,12 +12,10 @@
         name: hyperledger.fabricx.fabric_ca
         tasks_from: server/bin/transfer
       when:
-        - fabric_ca_server_use_bin is defined
-        - fabric_ca_server_use_bin
+        - fabric_ca_server_use_bin | default(true)
     - name: Transfer Fabric CA client binaries
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fabric_ca
         tasks_from: client/bin/transfer
       when:
-        - fabric_ca_client_use_bin is defined
-        - fabric_ca_client_use_bin
+        - fabric_ca_client_use_bin | default(true)
