@@ -5,7 +5,9 @@
 #
 
 {% include './sections/party-id.yaml.j2' +%}
-
+{% if prometheus_exporter_port is defined %}
+{% include './sections/monitoring.yaml.j2' +%}
+{% endif %}
 {% include './sections/general.yaml.j2' +%}
 
 {% include './sections/filestore.yaml.j2' +%}

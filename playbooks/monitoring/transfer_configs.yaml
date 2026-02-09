@@ -91,6 +91,81 @@
                     | default([])
                   }}
                 port_to_scrape: prometheus_exporter_port
+
+          - job_name: assembler_service
+            targets:
+              - hosts: >-
+                  {{
+                    groups['fabric_x_orderers']
+                    | default([])
+                    | map('extract', hostvars)
+                    | selectattr('orderer_component_type', 'defined')
+                    | selectattr('orderer_component_type', '==', 'assembler')
+                    | map(attribute='inventory_hostname')
+                    | list
+                  }}
+                port_to_scrape: prometheus_exporter_port
+
+          - job_name: consenter_service
+            targets:
+              - hosts: >-
+                  {{
+                    groups['fabric_x_orderers']
+                    | default([])
+                    | map('extract', hostvars)
+                    | selectattr('orderer_component_type', 'defined')
+                    | selectattr('orderer_component_type', '==', 'consenter')
+                    | map(attribute='inventory_hostname')
+                    | list
+                  }}
+                port_to_scrape: prometheus_exporter_port
+
+          - job_name: router_service
+            targets:
+              - hosts: >-
+                  {{
+                    groups['fabric_x_orderers']
+                    | default([])
+                    | map('extract', hostvars)
+                    | selectattr('orderer_component_type', 'defined')
+                    | selectattr('orderer_component_type', '==', 'router')
+                    | map(attribute='inventory_hostname')
+                    | list
+                  }}
+                port_to_scrape: prometheus_exporter_port
+          
+          - job_name: batcher_shard1_service
+            targets:
+              - hosts: >-
+                  {{
+                    groups['fabric_x_orderers']
+                    | default([])
+                    | map('extract', hostvars)
+                    | selectattr('orderer_component_type', 'defined')
+                    | selectattr('orderer_component_type', '==', 'batcher')
+                    | selectattr('orderer_shard_id', 'defined')
+                    | selectattr('orderer_shard_id', '==', 1)
+                    | map(attribute='inventory_hostname')
+                    | list
+                  }}
+                port_to_scrape: prometheus_exporter_port
+
+          - job_name: batcher_shard2_service
+            targets:
+              - hosts: >-
+                  {{
+                    groups['fabric_x_orderers']
+                    | default([])
+                    | map('extract', hostvars)
+                    | selectattr('orderer_component_type', 'defined')
+                    | selectattr('orderer_component_type', '==', 'batcher')
+                    | selectattr('orderer_shard_id', 'defined')
+                    | selectattr('orderer_shard_id', '==', 2)
+                    | map(attribute='inventory_hostname')
+                    | list
+                  }}
+                port_to_scrape: prometheus_exporter_port
+
       when:
         - prometheus_port is defined
     - name: Add Prometheus scrape services for Yugabyte clusters
@@ -293,6 +368,16 @@
         - groups['fabric_x_committer']
           | default([])
           | length > 0
+    - name: Transfer the Fabric-X Orderer Grafana Dashboard
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.orderer
+        tasks_from: config/transfer_grafana_dashboard
+      when:
+        - grafana_web_port is defined
+        - groups['fabric_x_orderers']
+          | default([])
+          | length > 0
+
     - name: Transfer the Postgres Exporter Grafana Dashboard
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres_exporter

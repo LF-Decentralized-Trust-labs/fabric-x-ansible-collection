@@ -68,7 +68,7 @@ It supports multiple customizations, for an example please have a look at its us
       - job_name: prometheus
         targets:
           - hosts: "{{ prometheus_hosts }}"
-            port_to_scrape: prometheus_port
+            port_to_scrape: prometheus_exporter_port
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: config/transfer

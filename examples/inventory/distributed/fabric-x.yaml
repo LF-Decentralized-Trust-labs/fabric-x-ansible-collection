@@ -77,20 +77,25 @@ all:
                     orderer-router-1:
                       orderer_component_type: router
                       orderer_rpc_port: 7050
+                      prometheus_exporter_port: 9003
                     orderer-batcher-1-1:
                       orderer_shard_id: 1
                       orderer_component_type: batcher
+                      prometheus_exporter_port: 9004
                       orderer_rpc_port: 7051
                     orderer-batcher-1-2:
                       orderer_shard_id: 2
                       orderer_component_type: batcher
                       orderer_rpc_port: 7052
+                      prometheus_exporter_port: 9005
                     orderer-consenter-1:
                       orderer_component_type: consenter
                       orderer_rpc_port: 7053
+                      prometheus_exporter_port: 9002
                     orderer-assembler-1:
                       orderer_component_type: assembler
                       orderer_rpc_port: 7054
+                      prometheus_exporter_port: 9001
                 fabric_x_orderer_2:
                   vars:
                     organization:
@@ -102,20 +107,25 @@ all:
                     orderer-router-2:
                       orderer_component_type: router
                       orderer_rpc_port: 7050
+                      prometheus_exporter_port: 9003
                     orderer-batcher-2-1:
                       orderer_shard_id: 1
                       orderer_component_type: batcher
                       orderer_rpc_port: 7051
+                      prometheus_exporter_port: 9004
                     orderer-batcher-2-2:
                       orderer_shard_id: 2
                       orderer_component_type: batcher
                       orderer_rpc_port: 7052
+                      prometheus_exporter_port: 9005
                     orderer-consenter-2:
                       orderer_component_type: consenter
                       orderer_rpc_port: 7053
+                      prometheus_exporter_port: 9002
                     orderer-assembler-2:
                       orderer_component_type: assembler
                       orderer_rpc_port: 7054
+                      prometheus_exporter_port: 9001
                 fabric_x_orderer_3:
                   vars:
                     organization:
@@ -127,20 +137,25 @@ all:
                     orderer-router-3:
                       orderer_component_type: router
                       orderer_rpc_port: 7050
+                      prometheus_exporter_port: 9003
                     orderer-batcher-3-1:
                       orderer_shard_id: 1
                       orderer_component_type: batcher
                       orderer_rpc_port: 7051
+                      prometheus_exporter_port: 9004
                     orderer-batcher-3-2:
                       orderer_shard_id: 2
                       orderer_component_type: batcher
                       orderer_rpc_port: 7052
+                      prometheus_exporter_port: 9005
                     orderer-consenter-3:
                       orderer_component_type: consenter
                       orderer_rpc_port: 7053
+                      prometheus_exporter_port: 9002
                     orderer-assembler-3:
                       orderer_component_type: assembler
                       orderer_rpc_port: 7054
+                      prometheus_exporter_port: 9001
                 fabric_x_orderer_4:
                   vars:
                     organization:
@@ -152,20 +167,25 @@ all:
                     orderer-router-4:
                       orderer_component_type: router
                       orderer_rpc_port: 7050
+                      prometheus_exporter_port: 9003
                     orderer-batcher-4-1:
                       orderer_shard_id: 1
                       orderer_component_type: batcher
                       orderer_rpc_port: 7051
+                      prometheus_exporter_port: 9004
                     orderer-batcher-4-2:
                       orderer_shard_id: 2
                       orderer_component_type: batcher
                       orderer_rpc_port: 7052
+                      prometheus_exporter_port: 9005
                     orderer-consenter-4:
                       orderer_component_type: consenter
                       orderer_rpc_port: 7053
+                      prometheus_exporter_port: 9002
                     orderer-assembler-4:
                       orderer_component_type: assembler
                       orderer_rpc_port: 7054
+                      prometheus_exporter_port: 9001
 
             # =========================
             # HLFX Committer

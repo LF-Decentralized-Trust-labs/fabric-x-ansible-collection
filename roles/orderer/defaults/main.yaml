@@ -37,6 +37,7 @@ orderer_config_file: "node_config.yaml"
 # =========================
 orderer_use_tls: false
 orderer_use_mtls: false
+orderer_http_protocol: "{{ 'https' if orderer_use_tls else 'http' }}"
 
 # =========================
 # Miscellaneous
