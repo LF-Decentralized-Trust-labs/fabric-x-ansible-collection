@@ -16,10 +16,10 @@
     ]
   },
   "description": "running commands were for 3 days :\n\nfor i in {1..4}; do\n  nohup ./armageddon receive \\\n    --config=arma-config/config/party${i}/user_config.yaml \\\n    --pullFromPartyId=${i} \\\n    --expectedTxs=259200000 \\\n    --output=\"/tmp${i}\" \\\n    >> receiver${i}.log 2>&1 &\ndone\nnohup ./armageddon load --config=arma-config/config/party1/user_config.yaml --transactions=259200000 --rate=1000 --txSize=300 >> loader.log 2>&1 &",
-  "editable": false,
+  "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 0,
   "links": [],
   "panels": [
     {
@@ -421,6 +421,18 @@
           "color": {
             "mode": "fixed"
           },
+          "custom": {
+            "axisPlacement": "auto",
+            "fillOpacity": 70,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineWidth": 0,
+            "spanNulls": false
+          },
           "mappings": [
             {
               "options": {
@@ -458,19 +470,20 @@
       },
       "id": 21,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
+        "alignValue": "left",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
         },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
+        "mergeValues": true,
+        "rowHeight": 0.9,
+        "showValue": "always",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "pluginVersion": "12.3.2",
       "targets": [
@@ -483,7 +496,7 @@
         }
       ],
       "title": "Batcher - Current Role",
-      "type": "stat"
+      "type": "state-timeline"
     },
     {
       "datasource": {
@@ -493,7 +506,41 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Role changes (last 30 min)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -520,32 +567,30 @@
       },
       "id": 22,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": ["last"],
-          "fields": "",
-          "values": false
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
         },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
       },
       "pluginVersion": "12.3.2",
       "targets": [
         {
-          "editorMode": "builder",
-          "expr": "batcher_role_changes_total",
+          "editorMode": "code",
+          "expr": "increase(batcher_role_changes_total[30m])",
           "legendFormat": "Batcher {{party_id}}-{{shard_id}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Batcher - Role Changes",
-      "type": "stat"
+      "title": "Batcher - Role Changes / second",
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -555,7 +600,41 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Complaints (last 30 min)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -582,32 +661,30 @@
       },
       "id": 23,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": ["last"],
-          "fields": "",
-          "values": false
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
         },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
       },
       "pluginVersion": "12.3.2",
       "targets": [
         {
-          "editorMode": "builder",
-          "expr": "batcher_complaints_total",
+          "editorMode": "code",
+          "expr": "increase(batcher_complaints_total[30m])",
           "legendFormat": "Batcher {{party_id}}-{{shard_id}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Batcher - Complaints",
-      "type": "stat"
+      "title": "Batcher - Complaints / second",
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -623,7 +700,7 @@
             "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Resends per second",
+            "axisLabel": "Tx per second",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "barWidthFactor": 0.6,
@@ -694,7 +771,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "rate(batcher_first_resends_total[1m])",
+          "expr": "increase(batcher_first_resends_total[30m])",
           "legendFormat": "Batcher {{party_id}}-{{shard_id}}",
           "range": true,
           "refId": "A"
@@ -1006,7 +1083,41 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Complaints (last 30 min)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -1031,158 +1142,32 @@
         "x": 12,
         "y": 42
       },
-      "id": 13,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": ["last"],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.3.2",
-      "targets": [
-        {
-          "editorMode": "builder",
-          "expr": "consensus_blocks_count",
-          "legendFormat": "Consenter {{party_id}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Consenter - Total Blocks ",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "bfbjjqeamkjy8a"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 50
-      },
-      "id": 11,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": ["last"],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.3.2",
-      "targets": [
-        {
-          "editorMode": "builder",
-          "expr": "consensus_decisions_count",
-          "legendFormat": "Consenter {{party_id}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Consenter - Total Decisions ",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "bfbjjqeamkjy8a"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 50
-      },
       "id": 15,
       "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": ["last"],
-          "fields": "",
-          "values": false
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
         },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "pluginVersion": "12.3.2",
       "targets": [
         {
-          "editorMode": "builder",
-          "expr": "consensus_complaints_count",
+          "editorMode": "code",
+          "expr": "increase(consensus_complaints_count[30m])",
           "legendFormat": "Consenter {{party_id}}",
           "range": true,
           "refId": "A"
         }
       ],
       "title": "Consenter - Complaints",
-      "type": "stat"
+      "type": "timeseries"
     },
     {
       "collapsed": false,
@@ -1190,7 +1175,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 58
+        "y": 50
       },
       "id": 5,
       "panels": [],
@@ -1262,7 +1247,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 59
+        "y": 51
       },
       "id": 6,
       "options": {
@@ -1357,7 +1342,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 59
+        "y": 51
       },
       "id": 7,
       "options": {
@@ -1407,7 +1392,41 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Requests / second",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -1430,36 +1449,34 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 67
+        "y": 59
       },
       "id": 8,
       "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": ["last"],
-          "fields": "",
-          "values": false
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
         },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "pluginVersion": "12.3.2",
       "targets": [
         {
           "editorMode": "code",
-          "expr": "router_requests_completed",
+          "expr": "rate(router_requests_completed[1m])",
           "legendFormat": "Router {{party_id}}",
           "range": true,
           "refId": "A"
         }
       ],
       "title": "Router - Total Requests",
-      "type": "stat"
+      "type": "timeseries"
     },
     {
       "collapsed": false,
@@ -1467,7 +1484,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 75
+        "y": 67
       },
       "id": 4,
       "panels": [],
@@ -1539,7 +1556,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 76
+        "y": 68
       },
       "id": 3,
       "options": {
@@ -1633,7 +1650,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 76
+        "y": 68
       },
       "id": 2,
       "options": {
@@ -1727,7 +1744,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 84
+        "y": 76
       },
       "id": 1,
       "options": {
@@ -1763,7 +1780,9 @@
   ],
   "preload": false,
   "schemaVersion": 42,
-  "tags": ["Arma Nightly"],
+  "tags": [
+    "Arma Nightly"
+  ],
   "templating": {
     "list": []
   },
@@ -1773,7 +1792,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Arma Weekend Run 4p2s - from 29.1.26 till 1.2.26",
+  "title": "Arma Dashboard",
   "uid": "adtfxrx",
-  "version": 28
+  "version": 40
 }
