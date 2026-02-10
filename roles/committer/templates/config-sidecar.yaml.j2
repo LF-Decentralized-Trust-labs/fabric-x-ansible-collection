@@ -92,3 +92,9 @@ last-committed-block-set-interval: {{ committer_sidecar_last_committed_block_set
 ledger:
   # Path where to store the ledger
   path: {{ committer_config_dir }}/ledger
+
+# ---------------------------------------------------------------------------
+# Notification settings
+# ---------------------------------------------------------------------------
+notification:
+  max-timeout: 10m
