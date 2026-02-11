@@ -96,5 +96,10 @@ ledger:
 # ---------------------------------------------------------------------------
 # Notification settings
 # ---------------------------------------------------------------------------
+{% if committer_sidecar_notification_max_timeout is defined %}
+# ---------------------------------------------------------------------------
+# Notification settings
+# ---------------------------------------------------------------------------
 notification:
-  max-timeout: 10m
+  max-timeout: {{ committer_sidecar_notification_max_timeout | default('10') }}
+{% endif %}
