@@ -91,7 +91,6 @@
                     | default([])
                   }}
                 port_to_scrape: prometheus_exporter_port
-
           - job_name: assembler_service
             targets:
               - hosts: >-
@@ -104,8 +103,7 @@
                     | map(attribute='inventory_hostname')
                     | list
                   }}
-                port_to_scrape: prometheus_exporter_port
-
+                port_to_scrape: orderer_metrics_port
           - job_name: consenter_service
             targets:
               - hosts: >-
@@ -118,8 +116,7 @@
                     | map(attribute='inventory_hostname')
                     | list
                   }}
-                port_to_scrape: prometheus_exporter_port
-
+                port_to_scrape: orderer_metrics_port
           - job_name: router_service
             targets:
               - hosts: >-
@@ -132,9 +129,8 @@
                     | map(attribute='inventory_hostname')
                     | list
                   }}
-                port_to_scrape: prometheus_exporter_port
-          
-          - job_name: batcher_shard1_service
+                port_to_scrape: orderer_metrics_port
+          - job_name: batcher_service
             targets:
               - hosts: >-
                   {{
@@ -144,27 +140,10 @@
                     | selectattr('orderer_component_type', 'defined')
                     | selectattr('orderer_component_type', '==', 'batcher')
                     | selectattr('orderer_shard_id', 'defined')
-                    | selectattr('orderer_shard_id', '==', 1)
                     | map(attribute='inventory_hostname')
                     | list
                   }}
-                port_to_scrape: prometheus_exporter_port
-
-          - job_name: batcher_shard2_service
-            targets:
-              - hosts: >-
-                  {{
-                    groups['fabric_x_orderers']
-                    | default([])
-                    | map('extract', hostvars)
-                    | selectattr('orderer_component_type', 'defined')
-                    | selectattr('orderer_component_type', '==', 'batcher')
-                    | selectattr('orderer_shard_id', 'defined')
-                    | selectattr('orderer_shard_id', '==', 2)
-                    | map(attribute='inventory_hostname')
-                    | list
-                  }}
-                port_to_scrape: prometheus_exporter_port
+                port_to_scrape: orderer_metrics_port
 
       when:
         - prometheus_port is defined

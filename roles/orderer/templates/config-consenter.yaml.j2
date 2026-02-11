@@ -5,9 +5,6 @@
 #
 
 {% include './sections/party-id.yaml.j2' +%}
-{% if prometheus_exporter_port is defined %}
-{% include './sections/monitoring.yaml.j2' +%}
-{% endif %}
 
 {% include './sections/general.yaml.j2' +%}
 
@@ -19,3 +16,8 @@
 Consensus:
   # The location at which Write Ahead Logs for SmartBFT are stored.
   WALDir: {{ orderer_config_dir }}/wal
+  # Monitoring settings
+  Monitoring:
+    MetricsLogInterval: 10s
+    MonitoringListenAddress: "0.0.0.0"
+    MonitoringListenPort: {{ orderer_metrics_port }}

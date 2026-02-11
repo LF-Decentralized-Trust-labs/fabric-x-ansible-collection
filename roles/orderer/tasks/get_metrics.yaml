@@ -6,17 +6,17 @@
 
 - name: Get Fabric-X Orderer metrics
   ansible.builtin.uri:
-    url: "{{ orderer_http_protocol }}://{{ actual_host }}:{{ prometheus_exporter_port }}/metrics"
+    url: "{{ orderer_http_protocol }}://{{ actual_host }}:{{ orderer_metrics_port }}/metrics"
     validate_certs: false
     method: GET
     return_content: true
   register: orderer_metrics
   when:
-    - prometheus_exporter_port is defined
+    - orderer_metrics_port is defined
 
 - name: Print Fabric-X Orderer metrics
   ansible.builtin.debug:
     msg: "{{ orderer_metrics.content }}"
   when:
-    - prometheus_exporter_port is defined
+    - orderer_metrics_port is defined
     - orderer_metrics is defined

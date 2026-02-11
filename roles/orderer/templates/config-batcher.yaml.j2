@@ -5,9 +5,6 @@
 #
 
 {% include './sections/party-id.yaml.j2' +%}
-{% if prometheus_exporter_port is defined %}
-{% include './sections/monitoring.yaml.j2' +%}
-{% endif %}
 
 {% include './sections/general.yaml.j2' +%}
 
@@ -28,3 +25,8 @@ Batcher:
   MemPoolMaxSize: 1000000
   # The time a client can wait for the submission of a single request into the request pool.
   SubmitTimeout: 500ms
+  # Monitoring settings
+  Monitoring:
+    MetricsLogInterval: 10s
+    MonitoringListenAddress: "0.0.0.0"
+    MonitoringListenPort: {{ orderer_metrics_port }}
