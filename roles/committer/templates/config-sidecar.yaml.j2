@@ -96,3 +96,14 @@ channel-buffer-size: {{ committer_sidecar_channel_buffer_size | default(100) }}
 ledger:
   # Path where to store the ledger
   path: {{ committer_config_dir }}/ledger
+
+# ---------------------------------------------------------------------------
+# Notification settings
+# ---------------------------------------------------------------------------
+{% if committer_sidecar_notification_max_timeout is defined %}
+# ---------------------------------------------------------------------------
+# Notification settings
+# ---------------------------------------------------------------------------
+notification:
+  max-timeout: {{ committer_sidecar_notification_max_timeout | default('10') }}
+{% endif %}
