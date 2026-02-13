@@ -16,6 +16,4 @@
 Consensus:
   # The location at which Write Ahead Logs for SmartBFT are stored.
   WALDir: {{ orderer_config_dir }}/wal
-{% if orderer_metrics_port is defined %}
-{% include './sections/monitoring.yaml.j2' +%}
-{% endif %}
+  

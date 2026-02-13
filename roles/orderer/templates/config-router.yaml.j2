@@ -18,6 +18,4 @@ Router:
   NumberOfConnectionsPerBatcher: 10
   # The number of streams per connection that are opened between Router and Batcher.
   NumberOfStreamsPerConnection: 5
-{% if orderer_metrics_port is defined %}
-{% include './sections/monitoring.yaml.j2' +%}
-{% endif %}
+  

@@ -20,6 +20,4 @@ Assembler:
   PrefetchEvictionTtl: 1h0m0s
   ReplicationChannelSize: 100
   BatchRequestsChannelSize: 1000
-{% if orderer_metrics_port is defined %}
-{% include './sections/monitoring.yaml.j2' +%}
-{% endif %}
+  
