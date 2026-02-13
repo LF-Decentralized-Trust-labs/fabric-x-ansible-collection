@@ -75,7 +75,7 @@
 # =========================
 # mTLS material
 # =========================
-- name: Copy TLS cert to use for mTLS connection
+- name: Create folder for mTLS material
   ansible.builtin.file:
     path: "{{ fxconfig_remote_config_dir }}/mtls"
     state: directory
@@ -96,7 +96,7 @@
       or
       (hostvars[orderer_router_host].orderer_use_mtls is defined and hostvars[orderer_router_host].orderer_use_mtls)
 
-- name: Copy TLS cert to use for mTLS connection
+- name: Copy TLS key to use for mTLS connection
   ansible.builtin.copy:
     src: "{{ fxconfig_mtls_client_key_path }}"
     dest: "{{ fxconfig_remote_config_dir }}/mtls/server.key"
