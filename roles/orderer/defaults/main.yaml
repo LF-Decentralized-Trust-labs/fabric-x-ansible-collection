@@ -9,7 +9,7 @@
 # =========================
 orderer_registry_endpoint: "{{ lookup('env', 'ORDERER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 orderer_image_name: "fabric-x-orderer"
-orderer_image_tag: "0.0.23"
+orderer_image_tag: "0.0.21"
 orderer_image: "{{ orderer_registry_endpoint }}/{{ orderer_image_name }}:{{ orderer_image_tag }}"
 orderer_container_name: "{{ inventory_hostname }}"
 
