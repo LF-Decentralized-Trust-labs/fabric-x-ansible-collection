@@ -12,20 +12,6 @@
 {% include './sections/logging.yaml.j2' +%}
 
 # ---------------------------------------------------------------------------
-# Identity settings
-# ---------------------------------------------------------------------------
-identity:
-  root-ca-paths:
-    - /root/config/crypto/ca-certs.pem
-  msp-dir: /root/config/crypto/peerOrganizations/defaultpeerorg.example.com/peers/peerservice-machine1.defaultpeerorg.example.com/msp
-  msp-id: DefaultPeerOrgMSP
-  bccsp:
-    Default: SW
-    SW:
-      Security: 256
-      Hash: SHA2
-
-# ---------------------------------------------------------------------------
 # HLFX Orderers connection settings
 # The HLFX Committer Sidecar component pulls blocks from the ordering
 # service.
@@ -65,6 +51,14 @@ orderer:
       mode: tls
 {% endif %}
 {% endif %}
+  identity:
+    msp-dir: {{ committer_config_dir }}/msp
+    msp-id: Org1MSP
+    bccsp:
+      Default: SW
+      SW:
+        Security: 256
+        Hash: SHA2
 
 # ---------------------------------------------------------------------------
 # HLFX Committer Coordinator connection settings
