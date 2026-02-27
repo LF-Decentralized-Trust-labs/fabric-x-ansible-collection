@@ -13,6 +13,7 @@
       --config={{ orderer_container_config_dir }}/{{ orderer_config_file }}
     container_ports:
       - "{{ orderer_rpc_port }}:{{ orderer_rpc_port }}"
+      - "{{ orderer_metrics_port }}:{{ orderer_metrics_port }}"
     container_volumes:
       - "{{ orderer_remote_config_dir }}:{{ orderer_container_config_dir }}:Z"
     container_wait_until_running: true

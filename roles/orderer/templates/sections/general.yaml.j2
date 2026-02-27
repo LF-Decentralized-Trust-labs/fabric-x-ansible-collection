@@ -94,3 +94,12 @@ General:
   LocalMSPID: {{ organization.name }}
   # The logging level of the node
   LogSpec: info
+{% if orderer_metrics_port is defined %}
+  # Defines metrics log period; 0 disables.
+  MetricsLogInterval: {{ orderer_metrics_log_interval | default('10s') }}
+  # The address on which to bind to listen the monitoring service
+  MonitoringListenAddress: 0.0.0.0
+  # The port on which to expose the monitoring service
+	# If empty, the General.ListenAddress is used.
+  MonitoringListenPort: {{ orderer_metrics_port }}
+{% endif %}
