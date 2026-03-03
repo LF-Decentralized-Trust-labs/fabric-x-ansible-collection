@@ -45,13 +45,13 @@
 - name: Set YugabyteDB Tablet mandatory volumes and flags
   ansible.builtin.set_fact:
     yugabyte_tablet_volumes:
-      - "{{ yugabyte_remote_config_dir }}/init:/var/ybinit:Z"
-      - "{{ yugabyte_remote_config_dir }}/data:/var/data:Z"
+      - "{{ yugabyte_remote_config_dir }}/init:/var/ybinit:z"
+      - "{{ yugabyte_remote_config_dir }}/data:/var/data:z"
 
 - name: Add YugabyteDB Tablet volumes for TLS certificates
   vars:
     yugabyte_tablet_tls_volumes:
-      - "{{ yugabyte_remote_config_dir }}/tls:/var/tls:Z"
+      - "{{ yugabyte_remote_config_dir }}/tls:/var/tls:z"
   ansible.builtin.set_fact:
     yugabyte_tablet_volumes: "{{ yugabyte_tablet_volumes + yugabyte_tablet_tls_volumes }}"
   when:

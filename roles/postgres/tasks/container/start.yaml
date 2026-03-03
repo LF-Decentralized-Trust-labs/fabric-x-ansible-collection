@@ -55,8 +55,8 @@
     container_ports:
       - "{{ postgres_port }}:{{ postgres_port }}"
     container_volumes:
-      - "{{ postgres_remote_config_dir }}:{{ postgres_container_config_dir }}:Z"
-      - "{{ postgres_remote_config_dir }}/data:{{ postgres_container_config_dir }}/data:Z" # necessary volume to override default named volume inside Postgres image
+      - "{{ postgres_remote_config_dir }}:{{ postgres_container_config_dir }}:z"
+      - "{{ postgres_remote_config_dir }}/data:{{ postgres_container_config_dir }}/data:z" # necessary volume to override default named volume inside Postgres image
     container_healthcheck_test: >-
       pg_isready
       -d {{ postgres_db }}

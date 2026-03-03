@@ -27,8 +27,8 @@
       --config={{ cryptogen_container_artifacts_dir }}/{{ cryptogen_config_file }}
       --output={{ cryptogen_container_output_dir }}
     container_volumes:
-      - "{{ cryptogen_artifacts_dir }}:{{ cryptogen_container_artifacts_dir }}:Z"
-      - "{{ cryptogen_output_dir }}:{{ cryptogen_container_output_dir }}:Z"
+      - "{{ cryptogen_artifacts_dir }}:{{ cryptogen_container_artifacts_dir }}:z"
+      - "{{ cryptogen_output_dir }}:{{ cryptogen_container_output_dir }}:z"
     container_run_detach_mode: false
     container_run_as_host_user: true
     container_autoremove: true
