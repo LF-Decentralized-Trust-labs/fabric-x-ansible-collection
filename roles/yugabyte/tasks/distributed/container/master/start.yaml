@@ -35,12 +35,12 @@
 - name: Set YugabyteDB Master mandatory volumes and flags
   ansible.builtin.set_fact:
     yugabyte_master_volumes:
-      - "{{ yugabyte_remote_config_dir }}/data:/var/data:Z"
+      - "{{ yugabyte_remote_config_dir }}/data:/var/data:z"
 
 - name: Add YugabyteDB Master volumes for TLS certificates
   vars:
     yugabyte_master_tls_volumes:
-      - "{{ yugabyte_remote_config_dir }}/tls:/var/tls:Z"
+      - "{{ yugabyte_remote_config_dir }}/tls:/var/tls:z"
   ansible.builtin.set_fact:
     yugabyte_master_volumes: "{{ yugabyte_master_volumes + yugabyte_master_tls_volumes }}"
   when:

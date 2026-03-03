@@ -15,7 +15,7 @@
       - "{{ orderer_rpc_port }}:{{ orderer_rpc_port }}"
       - "{{ orderer_metrics_port }}:{{ orderer_metrics_port }}"
     container_volumes:
-      - "{{ orderer_remote_config_dir }}:{{ orderer_container_config_dir }}:Z"
+      - "{{ orderer_remote_config_dir }}:{{ orderer_container_config_dir }}:z"
     container_wait_until_running: true
     container_wait_port: "{{ orderer_rpc_port }}"
     container_run_as_host_user: true
