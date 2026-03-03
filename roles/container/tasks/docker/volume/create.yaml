@@ -33,18 +33,28 @@
   community.docker.docker_container:
     name: "docker-unshare-chown-{{ container_name | default(999999 | random) }}"
     image: docker.io/library/alpine:3.18
-    command: >-
-      chown
-      {% if recurse | default(false) %}
-      -R
-      {% endif %}
-      {{ container_volume_uid }}:{{ container_volume_gid }}
-      /volume
+    command:
+      - sh
+      - -c
+      - |
+        current=$(stat -c "%u:%g" /volume)
+        target="{{ container_volume_uid }}:{{ container_volume_gid }}"
+        if [ "$current" != "$target" ]; then
+          chown \
+          {% if recurse | default(false) %}-R{% endif %} \
+          {{ container_volume_uid }}:{{ container_volume_gid }} \
+          /volume
+          exit 10
+        fi
+        exit 0
     volumes:
-      - "{{ container_volume_path }}:/volume"
+      - "{{ container_volume_path }}:/volume:z"
     detach: false
     auto_remove: true
     state: started
+  register: docker_unshare_chown_result
+  changed_when: docker_unshare_chown_result.status == 10
+  failed_when: docker_unshare_chown_result.status not in [0, 10]
   when:
     - not container_on_mac
     - not container_host_user_is_root
@@ -55,19 +65,90 @@
   community.docker.docker_container:
     name: "docker-unshare-chmod-{{ container_name | default(999999 | random) }}"
     image: docker.io/library/alpine:3.18
-    command: >-
-      chmod
-      {% if recurse | default(false) %}
-      -R
-      {% endif %}
-      {{ container_volume_mode | regex_replace('^0o', '0') }}
-      /volume
+    command:
+      - sh
+      - -c
+      - |
+        current=$(stat -c "%a" /volume)
+        target="{{ container_volume_mode | regex_replace('^0o?', '') }}"
+        if [ "$current" != "$target" ]; then
+          chmod \
+          {% if recurse | default(false) %}-R{% endif %} \
+          $target \
+          /volume
+          exit 10
+        fi
+        exit 0
+    volumes:
+      - "{{ container_volume_path }}:/volume:z"
+    detach: false
+    auto_remove: true
+    state: started
+  register: docker_unshare_chmod_result
+  changed_when: docker_unshare_chmod_result.status == 10
+  failed_when: docker_unshare_chmod_result.status not in [0, 10]
+  when:
+    - not container_on_mac
+    - not container_host_user_is_root
+    - container_volume_mode is defined
+
+- name: Set Docker volume "uid" and "gid" on macOS for rootless users
+  community.docker.docker_container:
+    name: "docker-unshare-chown-{{ container_name | default(999999 | random) }}"
+    image: docker.io/library/alpine:3.18
+    command:
+      - sh
+      - -c
+      - |
+        current=$(stat -c "%u:%g" /volume)
+        target="{{ container_volume_uid }}:{{ container_volume_gid }}"
+        if [ "$current" != "$target" ]; then
+          chown \
+          {% if recurse | default(false) %}-R{% endif %} \
+          $target \
+          /volume
+          exit 10
+        fi
+        exit 0
     volumes:
       - "{{ container_volume_path }}:/volume"
     detach: false
     auto_remove: true
     state: started
+  register: docker_unshare_chown_result_mac
+  changed_when: docker_unshare_chown_result_mac.status == 10
+  failed_when: docker_unshare_chown_result_mac.status not in [0, 10]
   when:
-    - not container_on_mac
-    - not container_host_user_is_root
+    - container_on_mac
+    - container_volume_uid is defined
+    - container_volume_gid is defined
+
+- name: Set Docker volume permissions on macOS for rootless users
+  community.docker.docker_container:
+    name: "docker-unshare-chmod-{{ container_name | default(999999 | random) }}"
+    image: docker.io/library/alpine:3.18
+    command:
+      - sh
+      - -c
+      - |
+        current=$(stat -c "%a" /volume)
+        target="{{ container_volume_mode | regex_replace('^0o?', '') }}"
+        if [ "$current" != "$target" ]; then
+          chmod \
+          {% if recurse | default(false) %}-R{% endif %} \
+          {{ container_volume_mode | regex_replace('^0o', '0') }} \
+          /volume
+          exit 10
+        fi
+        exit 0
+    volumes:
+      - "{{ container_volume_path }}:/volume"
+    detach: false
+    auto_remove: true
+    state: started
+  register: docker_unshare_chmod_result_mac
+  changed_when: docker_unshare_chmod_result_mac.status == 10
+  failed_when: docker_unshare_chmod_result_mac.status not in [0, 10]
+  when:
+    - container_on_mac
     - container_volume_mode is defined

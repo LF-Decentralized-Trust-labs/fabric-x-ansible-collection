@@ -49,7 +49,7 @@
         if [ "$current" != "$target" ]; then
           chown \
           {% if recurse | default(false) %}-R{% endif %} \
-          {{ container_volume_uid }}:{{ container_volume_gid }} \
+          $target \
           /volume
           echo "CHANGED"
         fi
@@ -78,7 +78,7 @@
         if [ "$current" != "$target" ]; then
           chmod \
           {% if recurse | default(false) %}-R{% endif %} \
-          {{ container_volume_mode | regex_replace('^0o', '0') }} \
+          $target \
           /volume
           echo "CHANGED"
         fi
