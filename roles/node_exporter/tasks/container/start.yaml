@@ -28,7 +28,7 @@
       - "{{ node_exporter_port }}:{{ node_exporter_port }}"
     container_volumes:
       - "/:/host:{{ node_exporter_root_fs_flags }}" # needed by NodeExporter to read machine general details (e.g. CPU type, RAM)
-      - "{{ node_exporter_remote_config_dir }}:{{ node_exporter_container_config_dir }}:Z"
+      - "{{ node_exporter_remote_config_dir }}:{{ node_exporter_container_config_dir }}:z"
     # There is a problem using `wget` for healthcheck when running with TLS:
     # https://github.com/docker-library/busybox/issues/162
     # Since `prom/node-exporter` uses `busybox` as base image, wget is not working as expected.

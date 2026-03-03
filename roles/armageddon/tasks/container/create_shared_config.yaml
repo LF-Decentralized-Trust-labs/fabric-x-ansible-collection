@@ -14,8 +14,8 @@
       --sharedConfigYaml={{ armageddon_container_output_dir }}/{{ armageddon_shared_config_file }}
       --output={{ armageddon_container_output_dir }}
     container_volumes:
-      - "{{ armageddon_artifacts_dir }}:{{ armageddon_container_output_dir }}:Z"
-      - "{{ fetched_artifacts_dir }}:{{ armageddon_container_crypto_artifacts_dir }}:Z"
+      - "{{ armageddon_artifacts_dir }}:{{ armageddon_container_output_dir }}:z"
+      - "{{ fetched_artifacts_dir }}:{{ armageddon_container_crypto_artifacts_dir }}:z"
     container_run_detach_mode: false
     container_run_as_host_user: true
     container_autoremove: true

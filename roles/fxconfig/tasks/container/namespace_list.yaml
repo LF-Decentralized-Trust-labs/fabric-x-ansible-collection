@@ -20,7 +20,7 @@
       --keyfile {{ fxconfig_container_config_dir }}/mtls/server.key
       {% endif %}
     container_volumes:
-      - "{{ fxconfig_remote_config_dir }}:{{ fxconfig_container_config_dir }}:Z"
+      - "{{ fxconfig_remote_config_dir }}:{{ fxconfig_container_config_dir }}:z"
     container_run_detach_mode: false
     container_run_as_host_user: true
     container_autoremove: true

@@ -28,13 +28,13 @@
 - name: Set volumes for Fabric-CA client
   ansible.builtin.set_fact:
     fabric_ca_volumes:
-      - "{{ fabric_ca_msp_dir }}:{{ fabric_ca_container_config_dir }}:Z"
+      - "{{ fabric_ca_msp_dir }}:{{ fabric_ca_container_config_dir }}:z"
   when:
     - not fabric_ca_msp_cert.stat.exists
 
 - name: Set volumes for TLS certificates
   vars:
-    fabric_ca_tls_certfile_volume: "{{ fabric_ca_tls_certfile }}:/tmp/tls-cert.pem:Z"
+    fabric_ca_tls_certfile_volume: "{{ fabric_ca_tls_certfile }}:/tmp/tls-cert.pem:z"
   ansible.builtin.set_fact:
     fabric_ca_volumes: "{{ fabric_ca_volumes + [fabric_ca_tls_certfile_volume] }}"
   when:
