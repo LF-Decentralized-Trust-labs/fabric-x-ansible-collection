@@ -36,25 +36,30 @@
     - container_volume_uid is defined
     - container_volume_gid is defined
 
-# For Podman on macOS the `podman unshare` command is not available.
-# To fix the issue, we reuse the Docker approach of running a container
-# to fix the permissions.
 - name: Set Podman volume "uid" and "gid" on macOS for rootless users
   containers.podman.podman_container:
     name: "podman-unshare-chown-{{ container_name | default(999999 | random) }}"
     image: docker.io/library/alpine:3.18
-    command: >-
-      chown
-      {% if recurse | default(false) %}
-      -R
-      {% endif %}
-      {{ container_volume_uid }}:{{ container_volume_gid }}
-      /volume
+    command:
+      - sh
+      - -c
+      - |
+        current=$(stat -c "%u:%g" /volume)
+        target="{{ container_volume_uid }}:{{ container_volume_gid }}"
+        if [ "$current" != "$target" ]; then
+          chown \
+          {% if recurse | default(false) %}-R{% endif %} \
+          {{ container_volume_uid }}:{{ container_volume_gid }} \
+          /volume
+          echo "CHANGED"
+        fi
     volumes:
       - "{{ container_volume_path }}:/volume"
     detach: false
     auto_remove: true
     state: started
+  register: chown_result
+  changed_when: chown_result.stdout | trim == 'CHANGED'
   when:
     - container_on_mac
     - container_volume_uid is defined
@@ -64,18 +69,26 @@
   containers.podman.podman_container:
     name: "podman-unshare-chmod-{{ container_name | default(999999 | random) }}"
     image: docker.io/library/alpine:3.18
-    command: >-
-      chmod
-      {% if recurse | default(false) %}
-      -R
-      {% endif %}
-      {{ container_volume_mode | regex_replace('^0o', '0') }}
-      /volume
+    command:
+      - sh
+      - -c
+      - |
+        current=$(stat -c "%a" /volume)
+        target="{{ container_volume_mode | regex_replace('^0o?', '') }}"
+        if [ "$current" != "$target" ]; then
+          chmod \
+          {% if recurse | default(false) %}-R{% endif %} \
+          {{ container_volume_mode | regex_replace('^0o', '0') }} \
+          /volume
+          echo "CHANGED"
+        fi
     volumes:
       - "{{ container_volume_path }}:/volume"
     detach: false
     auto_remove: true
     state: started
+  register: chmod_result
+  changed_when: chmod_result.stdout | trim == 'CHANGED'
   when:
     - container_on_mac
     - container_volume_mode is defined
