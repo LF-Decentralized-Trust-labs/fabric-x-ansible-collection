@@ -14,7 +14,7 @@
       http.port: "{{ elasticsearch_http_port | string }}"
       transport.port: "{{ elasticsearch_transport_port | string }}"
     elasticsearch_volumes:
-      - "{{ elasticsearch_remote_config_dir }}/data:{{ elasticsearch_container_config_dir }}/data:Z"
+      - "{{ elasticsearch_remote_config_dir }}/data:{{ elasticsearch_container_config_dir }}/data:z"
 
 - name: Adjust Elasticsearch permissions
   vars:
@@ -29,7 +29,7 @@
 
 - name: Define the ElasticSearch volume for TLS
   vars:
-    elasticsearch_tls_volume: "{{ elasticsearch_remote_config_dir }}/tls:{{ elasticsearch_container_config_dir }}/config/certs:Z"
+    elasticsearch_tls_volume: "{{ elasticsearch_remote_config_dir }}/tls:{{ elasticsearch_container_config_dir }}/config/certs:z"
   ansible.builtin.set_fact:
     elasticsearch_volumes: "{{ elasticsearch_volumes + [elasticsearch_tls_volume] }}"
   when:

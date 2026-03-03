@@ -23,7 +23,7 @@
     container_ports:
       - "{{ prometheus_port }}:{{ prometheus_port }}"
     container_volumes:
-      - "{{ prometheus_remote_config_dir }}:{{ prometheus_container_config_dir }}:Z"
+      - "{{ prometheus_remote_config_dir }}:{{ prometheus_container_config_dir }}:z"
     container_healthcheck_test: >-
       promtool check
       healthy

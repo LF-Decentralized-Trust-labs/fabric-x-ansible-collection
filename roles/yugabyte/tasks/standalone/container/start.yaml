@@ -13,8 +13,8 @@
 - name: Set YugabyteDB mandatory volumes and flags
   ansible.builtin.set_fact:
     yugabyte_volumes:
-      - "{{ yugabyte_remote_config_dir }}/init:/var/ybinit:Z"
-      - "{{ yugabyte_remote_config_dir }}/data:/var/data:Z"
+      - "{{ yugabyte_remote_config_dir }}/init:/var/ybinit:z"
+      - "{{ yugabyte_remote_config_dir }}/data:/var/data:z"
     # NOTE: we use 0.0.0.0 as interface everywhere to override the `host.docker.internal`
     # value when set with --advertise_address, which causes the container to fail to
     # start on macOS.
@@ -53,7 +53,7 @@
       - use_client_to_server_encryption={{ yugabyte_client_to_server_use_tls | bool | lower }}
       - use_node_to_node_encryption={{ yugabyte_node_to_node_use_tls | bool | lower }}
     yugabyte_tls_volumes:
-      - "{{ yugabyte_remote_config_dir }}/tls:/var/tls:Z"
+      - "{{ yugabyte_remote_config_dir }}/tls:/var/tls:z"
   ansible.builtin.set_fact:
     yugabyte_volumes: "{{ yugabyte_volumes + yugabyte_tls_volumes }}"
     yugabyte_master_flags: "{{ yugabyte_master_flags + yugabyte_tls_flags }}"
