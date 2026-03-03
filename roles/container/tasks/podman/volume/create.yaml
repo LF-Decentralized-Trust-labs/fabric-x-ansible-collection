@@ -58,8 +58,8 @@
     detach: false
     auto_remove: true
     state: started
-  register: podman_unshare_chown_result
-  changed_when: podman_unshare_chown_result.stdout | trim == 'CHANGED'
+  register: container_podman_unshare_chown_result
+  changed_when: container_podman_unshare_chown_result.stdout | trim == 'CHANGED'
   when:
     - container_on_mac
     - container_volume_uid is defined
@@ -87,8 +87,8 @@
     detach: false
     auto_remove: true
     state: started
-  register: podman_unshare_chmod_result
-  changed_when: podman_unshare_chmod_result.stdout | trim == 'CHANGED'
+  register: container_podman_unshare_chmod_result
+  changed_when: container_podman_unshare_chmod_result.stdout | trim == 'CHANGED'
   when:
     - container_on_mac
     - container_volume_mode is defined

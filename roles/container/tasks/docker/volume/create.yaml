@@ -52,9 +52,9 @@
     detach: false
     auto_remove: true
     state: started
-  register: docker_unshare_chown_result
-  changed_when: docker_unshare_chown_result.status == 10
-  failed_when: docker_unshare_chown_result.status not in [0, 10]
+  register: container_docker_unshare_chown_result
+  changed_when: container_docker_unshare_chown_result.status == 10
+  failed_when: container_docker_unshare_chown_result.status not in [0, 10]
   when:
     - not container_on_mac
     - not container_host_user_is_root
@@ -84,9 +84,9 @@
     detach: false
     auto_remove: true
     state: started
-  register: docker_unshare_chmod_result
-  changed_when: docker_unshare_chmod_result.status == 10
-  failed_when: docker_unshare_chmod_result.status not in [0, 10]
+  register: container_docker_unshare_chmod_result
+  changed_when: container_docker_unshare_chmod_result.status == 10
+  failed_when: container_docker_unshare_chmod_result.status not in [0, 10]
   when:
     - not container_on_mac
     - not container_host_user_is_root
