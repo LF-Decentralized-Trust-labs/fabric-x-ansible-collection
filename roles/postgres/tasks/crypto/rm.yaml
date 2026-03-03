@@ -10,8 +10,12 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: volume/rm
+  when:
+    - postgres_use_tls
 
 - name: Clean Postgres TLS folder
   ansible.builtin.file:
     path: "{{ postgres_remote_config_dir }}/tls"
     state: absent
+  when:
+    - postgres_use_tls
