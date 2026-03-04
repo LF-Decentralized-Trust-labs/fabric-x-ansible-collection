@@ -63,6 +63,11 @@ lint:
 check-license-header:
 	./ci/check_license_header.sh
 
+# Check that no trailing spaces are added in the j2 files
+.PHONY: check-license-header
+check-trailing-spaces:
+	./ci/check_trailing_spaces.sh
+
 # =======================
 # Deployment
 # =======================
