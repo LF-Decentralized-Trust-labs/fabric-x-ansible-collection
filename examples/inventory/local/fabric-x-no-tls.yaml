@@ -285,8 +285,8 @@ all:
                 namespace: 0
                 meta_namespace_admin: true
           loadgen_type: orderer-client
-          loadgen_metrics_port: 2119
-          loadgen_web_port: 6997
+          loadgen_metrics_port: 12010
+          loadgen_web_port: 12000
 
     # =========================
     # Monitoring Infra

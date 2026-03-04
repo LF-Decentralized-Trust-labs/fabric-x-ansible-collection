@@ -315,8 +315,8 @@ all:
     load_generators:
       vars:
         loadgen_type: orderer-client
-        loadgen_metrics_port: 2610
-        loadgen_web_port: 6997
+        loadgen_metrics_port: 12010
+        loadgen_web_port: 12000
         loadgen_use_tls: true
       hosts:
         orderer-loadgen-1:
