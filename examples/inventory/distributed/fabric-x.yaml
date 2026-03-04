@@ -201,25 +201,25 @@ all:
                 committer-sidecar:
                   committer_component_type: sidecar
                   ansible_host: "{{ host_machine_5 }}"
-                  committer_rpc_port: 5400
-                  committer_metrics_port: 2150
+                  committer_rpc_port: 5130
+                  committer_metrics_port: 5230
                 committer-coordinator:
                   committer_component_type: coordinator
                   ansible_host: "{{ host_machine_6 }}"
-                  committer_rpc_port: 5300
-                  committer_metrics_port: 2140
+                  committer_rpc_port: 5120
+                  committer_metrics_port: 5220
                 committer-query-service:
                   committer_component_type: query-service
                   ansible_host: "{{ host_machine_6 }}"
                   yugabyte_cluster_ref_id: 1
-                  committer_rpc_port: 5500
-                  committer_metrics_port: 2160
+                  committer_rpc_port: 5140
+                  committer_metrics_port: 5240
               children:
                 committer_validators:
                   vars:
                     committer_component_type: validator
                     committer_rpc_port: 5100
-                    committer_metrics_port: 2120
+                    committer_metrics_port: 5200
                     yugabyte_cluster_ref_id: 1
                   hosts:
                     committer-validator-1:
@@ -239,8 +239,8 @@ all:
                 committer_verifiers:
                   vars:
                     committer_component_type: verifier
-                    committer_rpc_port: 5200
-                    committer_metrics_port: 2130
+                    committer_rpc_port: 5110
+                    committer_metrics_port: 5210
                   hosts:
                     committer-verifier-1:
                       ansible_host: "{{ host_machine_7 }}"
@@ -267,8 +267,8 @@ all:
                     yb_masters:
                       vars:
                         yugabyte_component_type: master
-                        yugabyte_master_rpc_bind_port: 7100
-                        yugabyte_master_webserver_port: 7000
+                        yugabyte_master_rpc_bind_port: 5300
+                        yugabyte_master_webserver_port: 5310
                       hosts:
                         yugabytedb-master-1:
                           ansible_host: "{{ host_machine_5 }}"
@@ -279,12 +279,12 @@ all:
                     yb_tablets:
                       vars:
                         yugabyte_component_type: tablet
-                        yugabyte_tablet_pgsql_bind_port: 5433
-                        yugabyte_tablet_rpc_bind_port: 9100
-                        yugabyte_tablet_webserver_port: 9000
-                        yugabyte_tablet_redis_web_port: 11001
-                        yugabyte_tablet_cql_web_port: 12001
-                        yugabyte_tablet_pgsql_web_port: 13001
+                        yugabyte_tablet_pgsql_bind_port: 5320
+                        yugabyte_tablet_rpc_bind_port: 5330
+                        yugabyte_tablet_webserver_port: 5340
+                        yugabyte_tablet_redis_web_port: 5350
+                        yugabyte_tablet_cql_web_port: 5360
+                        yugabyte_tablet_pgsql_web_port: 5370
                       hosts:
                         yugabytedb-tablet-1:
                           ansible_host: "{{ host_machine_7 }}"
