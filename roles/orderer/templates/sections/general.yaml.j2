@@ -75,18 +75,18 @@ General:
     # The path for the bootstrap configuration.
     # The bootstrap file can be the genesis block, and it can also be a config block for late bootstrap.
     File: {{ orderer_config_dir }}/genesis.block
-  # Defines the settings for ordering service nodes that communicate with other ordering service nodes.    
+  # Defines the settings for ordering service nodes that communicate with other ordering service nodes.
   Cluster:
     # The maximum number of messages in the egress buffer.
-    # Consensus messages are dropped if the buffer is full, and transaction 
+    # Consensus messages are dropped if the buffer is full, and transaction
     # messages are waiting for space to be freed.
     SendBufferSize: 2000
     # The file location of the client TLS certificate used to establish mutual TLS connections
     # with other ordering service nodes.
-    # If not set, the server General.TLS.Certificate is re-used.    
+    # If not set, the server General.TLS.Certificate is re-used.
     ClientCertificate: {{ orderer_config_dir }}/tls/server.crt
     # The file location of the private key of the client TLS certificate.
-    # If not set, the server General.TLS.PrivateKey is re-used.    
+    # If not set, the server General.TLS.PrivateKey is re-used.
     ClientPrivateKey: {{ orderer_config_dir }}/tls/server.key
   # The path to the private crypto material needed by the Fabric-X Orderer.
   LocalMSPDir: {{ orderer_config_dir }}/msp

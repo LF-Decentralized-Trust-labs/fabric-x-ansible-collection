@@ -76,7 +76,7 @@ validator-committer:
 # It specifies resource limits.
 dependency-graph:
   # Number of local dependency-constructor goroutines that the dependency-graph
-  # manager starts. Each constructor builds a part of the transaction dependency 
+  # manager starts. Each constructor builds a part of the transaction dependency
   # graph in parallel. Increasing this lets the manager process more transactions
   # concurrently, at the cost of more CPU and memory.
   num-of-local-dep-constructors: {{ committer_coordinator_dep_graph_constructors | default(4) }}

@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------
 # Database configuration
-# Hyperledger Fabric-X Committer supports either PostgresDB or 
-# YugabyteDB as persistence layers. YugabyteDB is recommended for 
+# Hyperledger Fabric-X Committer supports either PostgresDB or
+# YugabyteDB as persistence layers. YugabyteDB is recommended for
 # high-throughput scenarios.
 # ---------------------------------------------------------------------------
 database:
@@ -22,7 +22,7 @@ database:
   tls:
     # TLS configuration modes ("none", "tls" or "mtls")
     mode: tls
-    # DB CA certificate to trust if tls is enabled.    
+    # DB CA certificate to trust if tls is enabled.
     ca-cert-path: {{ committer_config_dir }}/tls/db/ca.crt
 {% endif %}
 {% elif yugabyte_cluster_ref_id is defined %}
@@ -48,7 +48,7 @@ database:
     mode: tls
     # DB CA certificate to trust if tls is enabled.
     ca-cert-path: {{ committer_config_dir }}/tls/db/ca.crt
-{% endif %}  
+{% endif %}
 {% endif %}
   # The maximum size of the connection pool
   max-connections: {{ committer_database_max_connections | default(10) }}
