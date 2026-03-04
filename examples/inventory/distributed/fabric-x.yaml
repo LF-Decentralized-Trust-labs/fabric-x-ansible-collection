@@ -202,24 +202,24 @@ all:
                   committer_component_type: sidecar
                   ansible_host: "{{ host_machine_5 }}"
                   committer_rpc_port: 5400
-                  prometheus_exporter_port: 2150
+                  committer_metrics_port: 2150
                 committer-coordinator:
                   committer_component_type: coordinator
                   ansible_host: "{{ host_machine_6 }}"
                   committer_rpc_port: 5300
-                  prometheus_exporter_port: 2140
+                  committer_metrics_port: 2140
                 committer-query-service:
                   committer_component_type: query-service
                   ansible_host: "{{ host_machine_6 }}"
                   yugabyte_cluster_ref_id: 1
                   committer_rpc_port: 5500
-                  prometheus_exporter_port: 2160
+                  committer_metrics_port: 2160
               children:
                 committer_validators:
                   vars:
                     committer_component_type: validator
                     committer_rpc_port: 5100
-                    prometheus_exporter_port: 2120
+                    committer_metrics_port: 2120
                     yugabyte_cluster_ref_id: 1
                   hosts:
                     committer-validator-1:
@@ -240,7 +240,7 @@ all:
                   vars:
                     committer_component_type: verifier
                     committer_rpc_port: 5200
-                    prometheus_exporter_port: 2130
+                    committer_metrics_port: 2130
                   hosts:
                     committer-verifier-1:
                       ansible_host: "{{ host_machine_7 }}"
@@ -315,7 +315,7 @@ all:
     load_generators:
       vars:
         loadgen_type: orderer-client
-        prometheus_exporter_port: 2610
+        loadgen_metrics_port: 2610
         loadgen_web_port: 6997
         loadgen_use_tls: true
       hosts:
