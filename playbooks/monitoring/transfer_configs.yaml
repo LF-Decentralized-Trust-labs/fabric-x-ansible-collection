@@ -176,22 +176,22 @@
         current_yugabyte_cluster_masters: >-
           {{
             current_yugabyte_cluster
-            | selectattr('yugabyte_component_type', 'match', 'master|standalone')
+            | selectattr('yugabyte_component_type', 'match', 'master')
             | map(attribute='inventory_hostname')
             | list
           }}
         current_yugabyte_cluster_tablets: >-
           {{
             current_yugabyte_cluster
-            | selectattr('yugabyte_component_type', 'match', 'tablet|standalone')
+            | selectattr('yugabyte_component_type', 'match', 'tablet')
             | map(attribute='inventory_hostname')
             | list
           }}
-        # TLS enabled on the standalone YugabyteDB does not run also the webserver interface with TLS
         current_yugabyte_cluster_webserver_use_tls: >-
           {{
-            (current_yugabyte_cluster_ref_host.yugabyte_webserver_use_tls | default(current_yugabyte_cluster_ref_host.yugabyte_use_tls | default(false)))
-            and (current_yugabyte_cluster_ref_host.yugabyte_component_type != 'standalone')
+            current_yugabyte_cluster_ref_host.yugabyte_webserver_use_tls
+            | default(current_yugabyte_cluster_ref_host.yugabyte_use_tls)
+            | default(false)
           }}
         yugabyte_scrape_service:
           job_name: yugabytedb.cluster-{{ current_yugabyte_cluster_id }}

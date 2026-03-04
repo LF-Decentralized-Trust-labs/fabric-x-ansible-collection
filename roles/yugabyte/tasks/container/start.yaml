@@ -4,13 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Start standalone Yugabyte container
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.yugabyte
-    tasks_from: standalone/container/start
-  when:
-    - yugabyte_component_type == 'standalone'
-
 - name: Start Yugabyte master DB container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte

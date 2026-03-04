@@ -2,11 +2,6 @@
 
 The role `hyperledger.fabricx.yugabyte` can be used to run a `yugabyte` distributed DB cluster.
 
-It supports 2 types of deployments:
-
-- **standalone**: a minimal Yugabyte cluster is deployed on the same machine through a single container (1 master, 1 tablet => replication factor = 1). This deployment strategy is used whenever a Yugabyte host does not specify its cluster role (`master` or `tablet`);
-- **distributed**: the Yugabyte cluster nodes are deployed according to the `yugabyte_component_type` value that has been assigned (`master` or `tablet`).
-
 The role allows to run YugabyteDB as **container only** (binary is not currently supported).
 
 ## Table of Contents <!-- omit in toc -->

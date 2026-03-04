@@ -54,8 +54,8 @@
       bin/yb-master
       --master_addresses={{ yugabyte_master_endpoints }}
       --server_broadcast_addresses={{ ansible_host }}:{{ yugabyte_master_rpc_bind_port }}
-      --rpc_bind_addresses={{ ansible_host }}:{{ yugabyte_master_rpc_bind_port }}
-      --webserver_interface={{ ansible_host }}
+      --rpc_bind_addresses=0.0.0.0:{{ yugabyte_master_rpc_bind_port }}
+      --webserver_interface=0.0.0.0
       --webserver_port={{ yugabyte_master_webserver_port }}
       --replication_factor={{ yugabyte_master_hosts | length }}
       --minloglevel={{ yugabyte_logs_level }}

@@ -177,7 +177,6 @@ all:
                       orderer_component_type: assembler
                       orderer_rpc_port: 7153
                       orderer_metrics_port: 9011
-
                 fabric_x_orderer_3:
                   vars:
                     organization:
@@ -249,26 +248,30 @@ all:
                   peer:
                     name: "{{ inventory_hostname }}"
                     secret: "{{ inventory_hostname }}PWD"
+              children:
+                committer_dbs:
+                  vars:
+                    yugabyte_user: yugabyte
+                    yugabyte_password: yugabyte
+                    yugabyte_db: yugabyte
+                    yugabyte_cluster_id: 1
+                    yugabyte_use_tls: true
+                  hosts:
+                    yugabytedb-master-1:
+                      yugabyte_component_type: master
+                      yugabyte_master_rpc_bind_port: 7100
+                      yugabyte_master_webserver_port: 7001
+                    yugabytedb-tablet-1:
+                      yugabyte_component_type: tablet
+                      yugabyte_tablet_pgsql_bind_port: 5433
+                      yugabyte_tablet_rpc_bind_port: 9100
+                      yugabyte_tablet_webserver_port: 9000
+                      yugabyte_tablet_redis_web_port: 11001
+                      yugabyte_tablet_redis_rpc_port: 6379
+                      yugabyte_tablet_cql_bind_port: 9042
+                      yugabyte_tablet_cql_web_port: 12001
+                      yugabyte_tablet_pgsql_web_port: 13001
               hosts:
-                committer-db:
-                  yugabyte_cluster_id: 1
-                  yugabyte_user: sc_user
-                  yugabyte_password: sc_secret_pwd
-                  yugabyte_db: sc_db
-                  yugabyte_component_type: standalone
-                  # Yugabyte Master ports
-                  yugabyte_master_webserver_port: 7001
-                  yugabyte_master_rpc_bind_port: 7100
-                  # Yugabyte Tablet ports
-                  yugabyte_tablet_rpc_bind_port: 9100
-                  yugabyte_tablet_pgsql_bind_port: 5435
-                  yugabyte_tablet_cql_bind_port: 9042
-                  yugabyte_tablet_redis_rpc_port: 6379
-                  yugabyte_tablet_webserver_port: 9000
-                  yugabyte_tablet_pgsql_web_port: 13000
-                  yugabyte_tablet_cql_web_port: 12000
-                  yugabyte_tablet_redis_web_port: 11000
-                  yugabyte_use_tls: true
                 committer-validator:
                   yugabyte_cluster_ref_id: 1
                   committer_component_type: validator

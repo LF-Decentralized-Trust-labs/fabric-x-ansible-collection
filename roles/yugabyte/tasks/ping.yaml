@@ -4,16 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that the Yugabyte standalone DB ports are open
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.yugabyte
-    tasks_from: standalone/ping
-  when:
-    - yugabyte_component_type == 'standalone'
-
 - name: Check that the Yugabyte cluster ports are open
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: distributed/ping
-  when:
-    - yugabyte_component_type == 'master' or yugabyte_component_type == 'tablet'
