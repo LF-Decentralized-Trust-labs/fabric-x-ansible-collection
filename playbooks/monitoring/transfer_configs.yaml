@@ -155,6 +155,9 @@
                 port_to_scrape: loadgen_metrics_port
       when:
         - prometheus_port is defined
+    # =========================
+    # Yugabyte metrics
+    # =========================
     - name: Add Prometheus scrape services for Yugabyte clusters
       vars:
         current_yugabyte_cluster: >-
@@ -272,6 +275,9 @@
         label: "yugabyte-cluster:{{ current_yugabyte_cluster_id }}"
       when:
         - prometheus_port is defined
+    # =========================
+    # Postgres Exporter metrics
+    # =========================
     - name: Add Prometheus scrape services for Postgres Exporters
       vars:
         postgres_exporter_scrape_service:
@@ -296,6 +302,9 @@
         label: "{{ current_postgres_exporter }}"
       when:
         - prometheus_port is defined
+    # =========================
+    # Node Exporter metrics
+    # =========================
     - name: Add Prometheus scrape services for Node Exporters
       vars:
         node_exporter_scrape_service:
