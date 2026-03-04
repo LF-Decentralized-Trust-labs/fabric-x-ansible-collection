@@ -31,66 +31,9 @@
     - name: Define Prometheus scrape services
       ansible.builtin.set_fact:
         prometheus_scrape_services:
-          - job_name: sidecar_service
-            targets:
-              - hosts: >-
-                  {{
-                    groups['fabric_x_committer']
-                    | default([])
-                    | map('extract', hostvars)
-                    | selectattr('committer_component_type', 'defined')
-                    | selectattr('committer_component_type', '==', 'sidecar')
-                    | map(attribute='inventory_hostname')
-                    | list
-                  }}
-                port_to_scrape: prometheus_exporter_port
-          - job_name: coordinators_service
-            targets:
-              - hosts: >-
-                  {{
-                    groups['fabric_x_committer']
-                    | default([])
-                    | map('extract', hostvars)
-                    | selectattr('committer_component_type', 'defined')
-                    | selectattr('committer_component_type', '==', 'coordinator')
-                    | map(attribute='inventory_hostname')
-                    | list
-                  }}
-                port_to_scrape: prometheus_exporter_port
-          - job_name: verifiers_service
-            targets:
-              - hosts: >-
-                  {{
-                    groups['fabric_x_committer']
-                    | default([])
-                    | map('extract', hostvars)
-                    | selectattr('committer_component_type', 'defined')
-                    | selectattr('committer_component_type', '==', 'verifier')
-                    | map(attribute='inventory_hostname')
-                    | list
-                  }}
-                port_to_scrape: prometheus_exporter_port
-          - job_name: validators_service
-            targets:
-              - hosts: >-
-                  {{
-                    groups['fabric_x_committer']
-                    | default([])
-                    | map('extract', hostvars)
-                    | selectattr('committer_component_type', 'defined')
-                    | selectattr('committer_component_type', '==', 'validator')
-                    | map(attribute='inventory_hostname')
-                    | list
-                  }}
-                port_to_scrape: prometheus_exporter_port
-          - job_name: blockgens_service
-            targets:
-              - hosts: >-
-                  {{
-                    groups['load_generators']
-                    | default([])
-                  }}
-                port_to_scrape: prometheus_exporter_port
+          # =========================
+          # HLFX Orderer metrics
+          # =========================
           - job_name: assembler_service
             targets:
               - hosts: >-
@@ -144,7 +87,72 @@
                     | list
                   }}
                 port_to_scrape: orderer_metrics_port
-
+          # =========================
+          # HLFX Committer metrics
+          # =========================
+          - job_name: sidecar_service
+            targets:
+              - hosts: >-
+                  {{
+                    groups['fabric_x_committer']
+                    | default([])
+                    | map('extract', hostvars)
+                    | selectattr('committer_component_type', 'defined')
+                    | selectattr('committer_component_type', '==', 'sidecar')
+                    | map(attribute='inventory_hostname')
+                    | list
+                  }}
+                port_to_scrape: committer_metrics_port
+          - job_name: coordinators_service
+            targets:
+              - hosts: >-
+                  {{
+                    groups['fabric_x_committer']
+                    | default([])
+                    | map('extract', hostvars)
+                    | selectattr('committer_component_type', 'defined')
+                    | selectattr('committer_component_type', '==', 'coordinator')
+                    | map(attribute='inventory_hostname')
+                    | list
+                  }}
+                port_to_scrape: committer_metrics_port
+          - job_name: verifiers_service
+            targets:
+              - hosts: >-
+                  {{
+                    groups['fabric_x_committer']
+                    | default([])
+                    | map('extract', hostvars)
+                    | selectattr('committer_component_type', 'defined')
+                    | selectattr('committer_component_type', '==', 'verifier')
+                    | map(attribute='inventory_hostname')
+                    | list
+                  }}
+                port_to_scrape: committer_metrics_port
+          - job_name: validators_service
+            targets:
+              - hosts: >-
+                  {{
+                    groups['fabric_x_committer']
+                    | default([])
+                    | map('extract', hostvars)
+                    | selectattr('committer_component_type', 'defined')
+                    | selectattr('committer_component_type', '==', 'validator')
+                    | map(attribute='inventory_hostname')
+                    | list
+                  }}
+                port_to_scrape: committer_metrics_port
+          # =========================
+          # HLFX Loadgen metrics
+          # =========================
+          - job_name: blockgens_service
+            targets:
+              - hosts: >-
+                  {{
+                    groups['load_generators']
+                    | default([])
+                  }}
+                port_to_scrape: loadgen_metrics_port
       when:
         - prometheus_port is defined
     - name: Add Prometheus scrape services for Yugabyte clusters
