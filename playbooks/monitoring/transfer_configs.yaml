@@ -364,7 +364,6 @@
         - groups['fabric_x_orderers']
           | default([])
           | length > 0
-
     - name: Transfer the Postgres Exporter Grafana Dashboard
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres_exporter
