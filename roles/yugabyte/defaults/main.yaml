@@ -9,7 +9,7 @@
 # =========================
 yugabyte_registry_endpoint: "{{ lookup('env', 'YUGABYTE_REGISTRY_ENDPOINT') or 'docker.io/yugabytedb' }}"
 yugabyte_image_name: "yugabyte"
-yugabyte_image_tag: latest
+yugabyte_image_tag: 2025.2.1.0-b141
 yugabyte_image: "{{ yugabyte_registry_endpoint }}/{{ yugabyte_image_name }}:{{ yugabyte_image_tag }}"
 yugabyte_container_name: "{{ inventory_hostname }}"
 
