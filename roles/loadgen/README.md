@@ -14,10 +14,10 @@ The role `hyperledger.fabricx.loadgen` can be used to run a Load generator to te
   - [stop](#stop)
   - [teardown](#teardown)
   - [wipe](#wipe)
-  - [fetch\_logs](#fetch_logs)
+  - [fetch_logs](#fetch_logs)
   - [ping](#ping)
-  - [get\_metrics](#get_metrics)
-  - [limit\_rate](#limit_rate)
+  - [get_metrics](#get_metrics)
+  - [limit_rate](#limit_rate)
 
 ## Tasks
 
@@ -86,7 +86,7 @@ The task `start` allows to start the Fabric-X Load Generator either as binary or
 ```yaml
 - name: Start the Fabric-X Load Generator
   vars:
-    loadgen_web_port: 6997
+    loadgen_web_port: 12000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: start
