@@ -51,6 +51,14 @@ orderer:
       mode: tls
 {% endif %}
 {% endif %}
+  identity:
+    msp-dir: {{ committer_config_dir }}/msp
+    msp-id: Org1MSP
+    bccsp:
+      Default: SW
+      SW:
+        Security: 256
+        Hash: SHA2
 
 # ---------------------------------------------------------------------------
 # HLFX Committer Coordinator connection settings
