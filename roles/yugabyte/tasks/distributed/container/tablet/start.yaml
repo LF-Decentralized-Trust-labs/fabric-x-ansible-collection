@@ -86,6 +86,7 @@
       --minloglevel={{ yugabyte_logs_level }}
       --stderrthreshold={{ yugabyte_logs_level }}
       --yb_enable_read_committed_isolation=true
+      --use_node_hostname_for_local_tserver=true
       --fs_data_dirs=/var/data
       {% if yugabyte_use_tls %}
       --certs_dir=/var/tls
