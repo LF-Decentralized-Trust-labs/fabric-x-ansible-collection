@@ -59,6 +59,9 @@ cors:
 
 {% include './sections/tls.yaml.j2' +%}
 {% include './sections/ca.yaml.j2' +%}
+{% if organization is defined and organization.get('type', 'x509') == 'idemix' %}
+{% include './sections/idemix.yaml.j2' +%}
+{% endif %}
 {% include './sections/crl.yaml.j2' +%}
 {% include './sections/operations.yaml.j2' +%}
 {% include './sections/registry.yaml.j2' +%}

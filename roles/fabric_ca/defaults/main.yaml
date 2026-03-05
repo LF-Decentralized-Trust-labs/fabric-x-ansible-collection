@@ -17,19 +17,22 @@ fabric_ca_container_config_dir: "/config"
 # =========================
 # Fabric CA binaries
 # =========================
-fabric_ca_git_uri: "https://github.com/hyperledger/fabric-ca.git"
+fabric_ca_git_uri: "https://github.com/bestbeforetoday/fabric-ca.git"
 fabric_ca_git_dir: "{{ source_code_dir }}/fabric-ca"
-fabric_ca_git_commit: "v1.5.15"
+fabric_ca_git_commit: "db7f3bd055375892fe469abcd4b22fdfe6b464cd"
 # Fabric CA Server binary
 fabric_ca_server_source_code_dir: "{{ fabric_ca_git_dir }}/cmd/fabric-ca-server"
 fabric_ca_server_bin_package: "github.com/hyperledger/fabric-ca/cmd/fabric-ca-server"
 fabric_ca_server_bin_name: "fabric-ca-server"
-fabric_ca_server_use_bin: false
+fabric_ca_server_use_bin: true
 # Fabric CA Client binary
 fabric_ca_client_source_code_dir: "{{ fabric_ca_git_dir }}/cmd/fabric-ca-client"
 fabric_ca_client_bin_package: "github.com/hyperledger/fabric-ca/cmd/fabric-ca-client"
 fabric_ca_client_bin_name: "fabric-ca-client"
-fabric_ca_client_use_bin: false
+fabric_ca_client_use_bin: true
+
+fabric_ca_server_build_bin: true
+fabric_ca_client_build_bin: true
 
 # =========================
 # Paths, locations
@@ -53,6 +56,9 @@ fabric_ca_tls_root_cert: "{{ fabric_ca_remote_config_dir }}/ca-cert.pem"
 # CA settings
 # =========================
 fabric_ca_name: "{{ inventory_hostname }}"
+fabric_ca_enrollment_type: bccsp  # bccsp or idemix
+# Signing profile used when enrolling Idemix credentials.
+fabric_ca_idemix_enrollment_profile: idemix
 
 # =========================
 # CSR settings

@@ -13,14 +13,18 @@
         tasks_from: server/bin/transfer
       when:
         - fabric_ca_port is defined
-        - fabric_ca_server_use_bin is defined
-        - fabric_ca_server_use_bin
+        - fabric_ca_server_use_bin | default(true)
     - name: Transfer Fabric CA client binary on nodes
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fabric_ca
         tasks_from: client/bin/transfer
       when:
-        - fabric_ca_client_use_bin is defined
-        - fabric_ca_client_use_bin
-        - organization is defined
-        - organization.fabric_ca_host is defined
+        - fabric_ca_client_use_bin | default(true)
+        - >-
+          (organization is defined and organization.fabric_ca_host is defined)
+          or
+          (fsc_organization is defined and fsc_organization.fabric_ca_host is defined)
+          or
+          (fabric_organizations is defined and (fabric_organizations | selectattr('fabric_ca_host', 'defined') | list | length > 0))
+          or
+          (token_management_services is defined and (token_management_services | selectattr('organization', 'defined') | selectattr('organization.fabric_ca_host', 'defined') | list | length > 0))
