@@ -16,10 +16,36 @@
     name: hyperledger.fabricx.git
     tasks_from: clone
 
-- name: Build go code as binary
+# We gather facts in order to get architecture and os running on the remote machine.
+- name: Gather host system facts
+  ansible.builtin.setup:
+  delegate_to: "{{ current_host }}"
+  delegate_facts: true
+  loop: "{{ bin_hosts }}"
+  loop_control:
+    loop_var: current_host
+    label: "{{ current_host }}"
+  when:
+    - hostvars[current_host].ansible_facts.system is undefined or hostvars[current_host].ansible_facts.architecture is undefined
+
+- name: Build unique platform dictionary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: map_platform_to_host
+
+- name: Build {{ bin_name }} binary from go repository
   vars:
-    go_source_code_path: "{{ bin_source_code_dir if bin_build_on_control_node else bin_remote_source_code_dir }}/{{ git_repo_name }}"
-    go_output_name: "{{ bin_output_dir if bin_build_on_control_node else bin_remote_dir }}/{{ bin_name }}"
+    # Bin vars are needed to correctly define the output path
+    bin_target_os: "{{ bin_platforms[current_platform_key].os }}"
+    bin_target_arch: "{{ bin_platforms[current_platform_key].arch }}"
+    # Go vars
+    go_host_to_map: "{{ bin_platforms[current_platform_key].hosts[0] }}"
+    go_source_code_path: "{{ bin_source_code_dir }}/{{ git_repo_name }}"
+    go_output_name: "{{ bin_output_dir }}/{{ bin_name }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.go
     tasks_from: build
+  loop: "{{ bin_platforms.keys() }}"
+  loop_control:
+    loop_var: current_platform_key
+    label: "{{ current_platform_key }}"

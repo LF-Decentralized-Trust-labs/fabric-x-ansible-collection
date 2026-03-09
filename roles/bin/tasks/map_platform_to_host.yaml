@@ -6,6 +6,10 @@
 
 # Build a dictionary of unique system:arch combinations mapped to the hosts that share that platform.
 # This ensures we only build once per unique platform instead of once per service instance.
+- name: Reset bin_platforms
+  ansible.builtin.set_fact:
+    bin_platforms: {}
+
 - name: Build unique platform dictionary
   vars:
     bin_target_os: "{{ hostvars[current_host].ansible_facts.system }}"
@@ -14,7 +18,7 @@
   ansible.builtin.set_fact:
     bin_platforms: >-
       {{
-        bin_platforms | default({})
+        bin_platforms
         | combine(
           {
             platform_key: {

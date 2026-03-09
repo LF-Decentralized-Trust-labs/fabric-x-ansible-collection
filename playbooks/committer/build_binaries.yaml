@@ -23,7 +23,7 @@
           }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.committer
-        tasks_from: bin/multiplatform_install
+        tasks_from: bin/install
       when:
         - "'fabric_x_committer' in groups"
         - bin_hosts | length > 0
@@ -44,7 +44,7 @@
           }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.committer
-        tasks_from: bin/multiplatform_build
+        tasks_from: bin/build
       when:
         - "'fabric_x_committer' in groups"
         - bin_hosts | length > 0

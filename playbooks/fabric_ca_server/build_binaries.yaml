@@ -30,7 +30,7 @@
           }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fabric_ca
-        tasks_from: server/bin/multiplatform_install
+        tasks_from: server/bin/install
       when:
         - "'fabric_ca_servers' in groups"
         - bin_hosts | length > 0
@@ -51,7 +51,7 @@
           }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fabric_ca
-        tasks_from: server/bin/multiplatform_build
+        tasks_from: server/bin/build
       when:
         - "'fabric_ca_servers' in groups"
         - bin_hosts | length > 0

@@ -17,6 +17,8 @@ bin_output_dir: "{{ control_node_dir }}/bin/{{ bin_target_os }}/{{ bin_target_ar
 # Paths when building directly on remote node
 bin_remote_source_code_dir: "{{ remote_node_dir }}/code"
 bin_remote_dir: "{{ remote_node_dir }}/bin"
+# List of hosts to build for
+bin_hosts: "{{ inventory_hostname }}"
 
 # =========================
 # Bin Logs

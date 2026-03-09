@@ -35,7 +35,7 @@
         bin_hosts: "{{ fxconfig_install_hosts }}"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxconfig
-        tasks_from: bin/multiplatform_install
+        tasks_from: bin/install
       when:
         - fxconfig_install_hosts is defined
         - fxconfig_install_hosts | length > 0
@@ -68,7 +68,7 @@
         bin_hosts: "{{ fxconfig_build_hosts }}"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxconfig
-        tasks_from: bin/multiplatform_build
+        tasks_from: bin/build
       when:
         - fxconfig_build_hosts is defined
         - fxconfig_build_hosts | length > 0

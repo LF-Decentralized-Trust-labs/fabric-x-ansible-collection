@@ -4,6 +4,23 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# We gather facts in order to get architecture and os running on the remote machine.
+- name: Gather host system facts
+  ansible.builtin.setup:
+  delegate_to: "{{ current_host }}"
+  delegate_facts: true
+  loop: "{{ bin_hosts }}"
+  loop_control:
+    loop_var: current_host
+    label: "{{ current_host }}"
+  when:
+    - hostvars[current_host].ansible_facts.system is undefined or hostvars[current_host].ansible_facts.architecture is undefined
+
+- name: Build unique platform dictionary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: map_platform_to_host
+
 - name: Install go package as binary
   vars:
     go_output_dir: "{{ bin_output_dir if bin_build_on_control_node else bin_remote_dir }}"

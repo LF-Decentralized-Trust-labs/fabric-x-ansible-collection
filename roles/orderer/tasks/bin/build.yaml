@@ -15,4 +15,4 @@
     go_source_code_package: "{{ orderer_source_code_package }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
-    tasks_from: go/multiplatform_build
+    tasks_from: go/build
