@@ -9,10 +9,7 @@
   tasks:
     - name: Find all the meta namespace admin hosts where to install fxconfig
       ansible.builtin.set_fact:
-        fxconfig_install_bin_instances: >-
-          {{
-            fxconfig_service_instances | default([]) + [current_host.inventory_hostname]
-          }}
+        fxconfig_install_bin_instances: "{{ fxconfig_install_bin_instances | default([]) + [current_host.inventory_hostname] }}"
       loop: >-
         {{
           groups['all']
@@ -35,19 +32,16 @@
           | length > 0
     - name: Install the fxconfig binary
       vars:
-        fxconfig_service_instances: "{{ fxconfig_install_bin_instances }}"
+        bin_service_instances: "{{ fxconfig_install_bin_instances }}"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxconfig
         tasks_from: bin/multiplatform_install
       when:
-        - fxconfig_service_instances is defined
-        - fxconfig_service_instances | length > 0
+        - fxconfig_install_bin_instances is defined
+        - fxconfig_install_bin_instances | length > 0
     - name: Find all the meta namespace admin hosts where to build fxconfig
       ansible.builtin.set_fact:
-        fxconfig_build_bin_instances: >-
-          {{
-            fxconfig_service_instances | default([]) + [current_host.inventory_hostname]
-          }}
+        fxconfig_build_bin_instances: "{{ fxconfig_service_instances | default([]) + [current_host.inventory_hostname] }}"
       loop: >-
         {{
           groups['all']
@@ -71,10 +65,10 @@
           | length > 0
     - name: Build the fxconfig binary
       vars:
-        fxconfig_service_instances: "{{ fxconfig_build_bin_instances }}"
+        bin_service_instances: "{{ fxconfig_build_bin_instances }}"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxconfig
         tasks_from: bin/multiplatform_build
       when:
-        - fxconfig_service_instances is defined
-        - fxconfig_service_instances | length > 0
+        - fxconfig_build_bin_instances is defined
+        - fxconfig_build_bin_instances | length > 0

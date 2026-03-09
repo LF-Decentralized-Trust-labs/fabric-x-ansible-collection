@@ -4,14 +4,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that the Fabric CA client instances have been defined
-  ansible.builtin.fail:
-    msg: "No Fabric CA host is indicated. Set it via 'fabric_ca_client_instances'."
-  when: fabric_ca_client_instances is not defined
-
-- name: Install the binary {{ fabric_ca_client_bin_name }} for multiplatform
+- name: Install the binary {{ fabric_ca_client_bin_name }} for multiple platforms
   vars:
-    bin_service_instances: "{{ fabric_ca_client_instances }}"
     go_package: "{{ fabric_ca_client_bin_package }}@{{ fabric_ca_git_commit }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin

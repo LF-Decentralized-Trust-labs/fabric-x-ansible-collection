@@ -9,7 +9,7 @@
   tasks:
     - name: Install the Fabric-X Loadgen for the not dockerized hosts
       vars:
-        loadgen_instances: >-
+        bin_service_instances: >-
           {{
             groups[target_hosts | default('load_generators')]
             | intersect(groups['load_generators'])
@@ -25,10 +25,10 @@
         tasks_from: bin/multiplatform_install
       when:
         - "'load_generators' in groups"
-        - loadgen_instances | length > 0
+        - bin_service_instances | length > 0
     - name: Build the Fabric-X Loadgen for the not dockerized hosts
       vars:
-        loadgen_instances: >-
+        bin_service_instances: >-
           {{
             groups[target_hosts | default('load_generators')]
             | intersect(groups['load_generators'])
@@ -45,4 +45,4 @@
         tasks_from: bin/multiplatform_build
       when:
         - "'load_generators' in groups"
-        - loadgen_instances | length > 0
+        - bin_service_instances | length > 0

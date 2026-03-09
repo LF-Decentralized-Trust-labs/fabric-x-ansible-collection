@@ -4,14 +4,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that the Fabric CA server instances have been defined
-  ansible.builtin.fail:
-    msg: "No Fabric CA host is indicated. Set it via 'fabric_ca_server_instances'."
-  when: fabric_ca_server_instances is not defined
-
 - name: Install the binary {{ fabric_ca_server_bin_name }} for multiplatform
   vars:
-    bin_service_instances: "{{ fabric_ca_server_instances }}"
     go_package: "{{ fabric_ca_server_bin_package }}@{{ fabric_ca_git_commit }}"
     go_cgo_enabled: true
   ansible.builtin.include_role:

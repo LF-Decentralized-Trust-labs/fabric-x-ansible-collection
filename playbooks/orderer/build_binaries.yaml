@@ -9,7 +9,7 @@
   tasks:
     - name: Install the Fabric-X Orderer binaries for the not dockerized Fabric-X Orderer hosts
       vars:
-        orderer_service_instances: >-
+        bin_service_instances: >-
           {{
             groups[target_hosts | default('fabric_x_orderers')]
             | intersect(groups['fabric_x_orderers'])
@@ -25,10 +25,10 @@
         tasks_from: bin/multiplatform_install
       when:
         - "'fabric_x_orderers' in groups"
-        - orderer_service_instances | length > 0
+        - bin_service_instances | length > 0
     - name: Build the Fabric-X Orderer binaries for the not dockerized Fabric-X Orderer hosts
       vars:
-        orderer_service_instances: >-
+        bin_service_instances: >-
           {{
             groups[target_hosts | default('fabric_x_orderers')]
             | intersect(groups['fabric_x_orderers'])
@@ -45,4 +45,4 @@
         tasks_from: bin/multiplatform_build
       when:
         - "'fabric_x_orderers' in groups"
-        - orderer_service_instances | length > 0
+        - bin_service_instances | length > 0
