@@ -13,68 +13,43 @@
 - name: Skip installation if Go is already installed
   ansible.builtin.debug:
     msg: "Go is already installed: {{ go_version_check.stdout }}"
-  when:
-    - go_version_check.rc == 0
+  when: go_version_check.rc == 0
 
-- name: Map host platform to GOOS and GOARCH
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.go
-    tasks_from: map_platform
-  when:
-    - go_version_check.rc != 0
-
-- name: Download Go binary package
-  ansible.builtin.get_url:
-    url: "{{ go_download_url }}"
-    dest: "/tmp/go{{ go_version }}.{{ go_os }}-{{ go_arch }}.tar.gz"
-    mode: '0644'
-  when:
-    - go_version_check.rc != 0
-
-- name: Extract Go to /usr/local
-  ansible.builtin.unarchive:
-    src: "/tmp/go{{ go_version }}.{{ go_os }}-{{ go_arch }}.tar.gz"
-    dest: "{{ go_install_dir }}"
-    remote_src: true
-    creates: "{{ go_install_dir }}/go/bin/go"
-  become: true
-  when:
-    - go_version_check.rc != 0
-
-- name: Verify Go installation
-  ansible.builtin.command: go version
-  register: go_verify
-  changed_when: false
-  when:
-    - go_version_check.rc != 0
-
-- name: Add Go to PATH in shell profile
-  ansible.builtin.lineinfile:
-    path: "{{ ansible_user_dir }}/.profile"
-    line: "export PATH=$PATH:{{ go_install_dir }}/go/bin"
-    create: true
-    mode: '0644'
-  when:
-    - go_version_check.rc != 0
-    - go_verify.rc != 0
-
-- name: Verify Go installation
-  ansible.builtin.command: go version
-  register: go_verify_with_profile
-  changed_when: false
-  when:
-    - go_version_check.rc != 0
-
-- name: Display Go installation result
-  ansible.builtin.debug:
-    msg: "Go installed successfully: {{ go_verify.stdout }}"
-  when:
-    - go_version_check.rc != 0
-    - go_verify.rc == 0 or go_verify_with_profile.rc == 0
-
-- name: Clean up downloaded tarball
-  ansible.builtin.file:
-    path: "/tmp/go{{ go_version }}.{{ go_os }}-{{ go_arch }}.tar.gz"
-    state: absent
-  when:
-    - go_version_check.rc != 0
+- name: Install Go
+  when: go_version_check.rc != 0
+  block:
+    - name: Map host platform to GOOS and GOARCH
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.go
+        tasks_from: map_platform
+    - name: Download Go binary package
+      ansible.builtin.get_url:
+        url: "{{ go_download_url }}"
+        dest: "/tmp/go{{ go_version }}.{{ go_os }}-{{ go_arch }}.tar.gz"
+        mode: '0644'
+    - name: Extract Go to /usr/local
+      ansible.builtin.unarchive:
+        src: "/tmp/go{{ go_version }}.{{ go_os }}-{{ go_arch }}.tar.gz"
+        dest: "{{ go_install_dir }}"
+        remote_src: true
+        creates: "{{ go_install_dir }}/go/bin/go"
+      become: true
+    - name: Add Go to PATH in shell profile
+      ansible.builtin.lineinfile:
+        path: "{{ ansible_user_dir }}/.profile"
+        line: "export PATH=$PATH:{{ go_install_dir }}/go/bin"
+        create: true
+        mode: '0644'
+    - name: Verify Go installation
+      ansible.builtin.command: go version
+      register: go_verify
+      changed_when: false
+    - name: Display Go installation result
+      ansible.builtin.debug:
+        msg: "Go installed successfully: {{ go_verify.stdout }}"
+      when: go_verify.rc == 0
+  always:
+    - name: Clean up downloaded tarball
+      ansible.builtin.file:
+        path: "/tmp/go{{ go_version }}.{{ go_os }}-{{ go_arch }}.tar.gz"
+        state: absent
