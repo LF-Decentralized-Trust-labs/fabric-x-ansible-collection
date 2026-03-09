@@ -16,7 +16,7 @@
   tasks:
     - name: Install the Fabric CA server binaries for the not dockerized hosts
       vars:
-        bin_service_instances: >-
+        bin_hosts: >-
           {{
             targeted_hosts
             | default(groups['fabric_ca_servers'])
@@ -33,10 +33,10 @@
         tasks_from: server/bin/multiplatform_install
       when:
         - "'fabric_ca_servers' in groups"
-        - bin_service_instances | length > 0
+        - bin_hosts | length > 0
     - name: Build the Fabric CA server binaries for the not dockerized hosts
       vars:
-        bin_service_instances: >-
+        bin_hosts: >-
           {{
             targeted_hosts
             | default(groups['fabric_ca_servers'])
@@ -54,4 +54,4 @@
         tasks_from: server/bin/multiplatform_build
       when:
         - "'fabric_ca_servers' in groups"
-        - bin_service_instances | length > 0
+        - bin_hosts | length > 0

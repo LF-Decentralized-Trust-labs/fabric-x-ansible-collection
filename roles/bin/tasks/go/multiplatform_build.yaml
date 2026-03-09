@@ -11,8 +11,8 @@
 
 - name: Check that the binary instances have been defined
   ansible.builtin.fail:
-    msg: "No bin host is indicated. Set it via 'bin_service_instances'."
-  when: bin_service_instances is not defined
+    msg: "No bin host is indicated. Set it via 'bin_hosts'."
+  when: bin_hosts is not defined
 
 - name: Clone go binary code as git repository
   vars:
@@ -26,7 +26,7 @@
   ansible.builtin.setup:
   delegate_to: "{{ current_host }}"
   delegate_facts: true
-  loop: "{{ bin_service_instances }}"
+  loop: "{{ bin_hosts }}"
   loop_control:
     loop_var: current_host
     label: "{{ current_host }}"

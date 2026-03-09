@@ -9,7 +9,7 @@
   tasks:
     - name: Install the Fabric-X Committer binaries for the not dockerized hosts
       vars:
-        bin_service_instances: >-
+        bin_hosts: >-
           {{
             groups[target_hosts | default('fabric_x_committer')]
             | intersect(groups['fabric_x_committer'])
@@ -26,10 +26,10 @@
         tasks_from: bin/multiplatform_install
       when:
         - "'fabric_x_committer' in groups"
-        - bin_service_instances | length > 0
+        - bin_hosts | length > 0
     - name: Build the Fabric-X Committer binaries for the not dockerized hosts
       vars:
-        bin_service_instances: >-
+        bin_hosts: >-
           {{
             groups[target_hosts | default('fabric_x_committer')]
             | intersect(groups['fabric_x_committer'])
@@ -47,4 +47,4 @@
         tasks_from: bin/multiplatform_build
       when:
         - "'fabric_x_committer' in groups"
-        - bin_service_instances | length > 0
+        - bin_hosts | length > 0

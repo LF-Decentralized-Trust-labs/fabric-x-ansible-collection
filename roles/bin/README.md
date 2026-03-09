@@ -57,7 +57,7 @@ The task `build` allows to clone the source code of a `go` binary and build it f
     git_uri: "https://github.com/sample/sample-go.git"
     bin_name: sample-go
     go_source_code_package: /tmp/sample-go/cmd
-    bin_service_instances: ["sample-host-amd64", "sample-host-aarch64"]
+    bin_hosts: ["sample-host-amd64", "sample-host-aarch64"]
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: go/multiplatform_build
@@ -96,7 +96,7 @@ The task `multiplatform_install` allows to install a go binary with the `go inst
 - name: Install the sample-go binary for multiple platforms
   vars:
     go_package: github.com/example/sample-go/cmd
-    bin_service_instances: ["sample-host-amd64", "sample-host-aarch64"]
+    bin_hosts: ["sample-host-amd64", "sample-host-aarch64"]
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: go/multiplatform_install
