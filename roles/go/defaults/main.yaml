@@ -5,6 +5,15 @@
 #
 
 # =========================
+# Go Installation Settings
+# =========================
+# Go version to install
+go_version: "1.25"
+# Go download URL
+go_download_url: "https://go.dev/dl/go{{ go_version }}.{{ go_os }}-{{ go_arch }}.tar.gz"
+go_install_dir: "/usr/local"
+
+# =========================
 # Go Build Settings
 # =========================
 # Enable CGO for cross-compilation (requires a C compiler)
