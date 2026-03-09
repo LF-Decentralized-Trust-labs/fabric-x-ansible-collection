@@ -8,9 +8,10 @@
 # Go Installation Settings
 # =========================
 # Go version to install
-go_version: "1.25"
+go_version: "1.25.8"
 # Go download URL
 go_download_url: "https://go.dev/dl/go{{ go_version }}.{{ go_os }}-{{ go_arch }}.tar.gz"
+# Go installation directory
 go_install_dir: "/usr/local"
 
 # =========================
