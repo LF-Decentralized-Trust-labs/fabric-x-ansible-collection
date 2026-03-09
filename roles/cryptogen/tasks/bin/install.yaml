@@ -7,7 +7,7 @@
 - name: Install {{ cryptogen_bin_name }}
   vars:
     bin_output_dir: "{{ cli_bin_dir }}"
-    bin_go_package: "{{ cryptogen_bin_package }}@{{ cryptogen_git_commit }}"
+    go_package: "{{ cryptogen_bin_package }}@{{ cryptogen_git_commit }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: go/install

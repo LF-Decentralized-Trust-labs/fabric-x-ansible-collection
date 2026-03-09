@@ -1,0 +1,38 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the go binary package has been defined
+  ansible.builtin.fail:
+    msg: "No go binary package has been defined, but required to install the binary. Set it via 'go_package'."
+  when:
+    - go_package is not defined
+
+- name: Map host platform to GOOS and GOARCH
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.go
+    tasks_from: map_platform
+  when:
+    - go_host_to_map is defined
+
+- name: Set CC for cross-compilation on macOS with CGO_ENABLED
+  ansible.builtin.set_fact:
+    go_cc_compiler: x86_64-unknown-linux-gnu-gcc
+  when:
+    - ansible_facts.system == 'Darwin'
+    - go_cgo_enabled
+    - go_os == 'linux'
+    - go_arch == 'amd64'
+
+- name: Install the go binary {{ go_package }}
+  environment:
+    GOBIN: "{{ go_output_dir }}"
+    GOOS: "{{ go_os }}"
+    GOARCH: "{{ go_arch }}"
+    CGO_ENABLED: "{{ 1 if go_cgo_enabled else 0 }}"
+    CC: "{{ go_cc_compiler | default('') if go_cgo_enabled else '' }}"
+  ansible.builtin.command: "go install {{ go_package }}"
+  register: go_install_result
+  changed_when: go_install_result.rc != 0

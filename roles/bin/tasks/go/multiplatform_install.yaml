@@ -9,31 +9,33 @@
     msg: "No bin host is indicated. Set it via 'bin_service_instances'."
   when: bin_service_instances is not defined
 
-- name: Set os and arch combinations collection variable
-  ansible.builtin.set_fact:
-    bin_os_arch_combos: [] # Necessary to clean fact between new runs
-
-- name: Collect unique os and arch combinations
-  vars:
-    os_arch_combo:
-      os: "{{ hostvars[host].os | default('') }}"
-      arch: "{{ hostvars[host].arch | default('') }}"
-  ansible.builtin.set_fact:
-    bin_os_arch_combos: "{{ bin_os_arch_combos + [os_arch_combo] }}"
+# We gather facts in order to get architecture and os running on the remote machine.
+- name: Gather host system facts
+  ansible.builtin.setup:
+  delegate_to: "{{ current_host }}"
+  delegate_facts: true
   loop: "{{ bin_service_instances }}"
   loop_control:
-    loop_var: host
+    loop_var: current_host
+    label: "{{ current_host }}"
   when:
-    - os_arch_combo not in bin_os_arch_combos
+    - hostvars[current_host].ansible_facts.system is undefined or hostvars[current_host].ansible_facts.architecture is undefined
 
-- name: Install for multiple platforms the binary {{ bin_name }}
-  vars:
-    bin_target_os: "{{ os_arch.os }}"
-    bin_target_arch: "{{ os_arch.arch }}"
+- name: Build unique platform dictionary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
-    tasks_from: go/install
-  loop: "{{ bin_os_arch_combos }}"
+    tasks_from: map_platform_to_host
+
+- name: Install go package as binary for multiple platforms
+  vars:
+    bin_target_os: "{{ bin_platforms[current_platform_key].os }}"
+    bin_target_arch: "{{ bin_platforms[current_platform_key].arch }}"
+    go_output_dir: "{{ bin_output_dir }}"
+    go_host_to_map: "{{ bin_platforms[current_platform_key].hosts[0] }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.go
+    tasks_from: install
+  loop: "{{ bin_platforms.keys() }}"
   loop_control:
-    label: "{{ bin_target_arch | default(ansible_facts.architecture, true) | lower }}:{{ bin_target_os | default(ansible_facts.os_family, true) | lower }}"
-    loop_var: os_arch
+    loop_var: current_platform_key
+    label: "{{ current_platform_key }}"

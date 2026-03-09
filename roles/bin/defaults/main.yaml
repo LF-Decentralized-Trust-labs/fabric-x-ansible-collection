@@ -5,11 +5,17 @@
 #
 
 # =========================
-# Bin Locations/Paths
+# Bin Build Opts
 # =========================
-bin_build_dir: "{{ control_node_dir }}/bin"
+bin_build_on_control_node: true
+bin_target_os: "{{ ansible_facts.system }}"
+bin_target_arch: "{{ ansible_facts.architecture }}"
 bin_name: "{{ inventory_hostname }}"
-bin_output_dir: "{{ bin_build_dir }}/{{ bin_target_os }}_os/{{ bin_target_arch }}_arch"
+# Paths when building locally on control node
+bin_source_code_dir: "{{ source_code_dir }}"
+bin_output_dir: "{{ control_node_dir }}/bin/{{ bin_target_os }}_os/{{ bin_target_arch }}_arch"
+# Paths when building directly on remote node
+bin_remote_source_code_dir: "{{ remote_node_dir }}/code"
 bin_remote_dir: "{{ remote_node_dir }}/bin"
 
 # =========================
@@ -21,14 +27,6 @@ bin_fetched_logs_dir: "{{ fetched_artifacts_dir }}/{{ bin_name }}"
 bin_fetched_logs_file: "logs.txt"
 bin_collect_logs: true
 bin_debug: "{{ lookup('env', 'DEBUG') | bool | default(false) }}"
-
-# =========================
-# Bin Build Opts
-# =========================
-bin_target_os: ""
-bin_target_arch: ""
-bin_cgo_enabled: false
-bin_flag: "use_bin"
 
 # =========================
 # Bin Run Opts

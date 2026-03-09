@@ -11,7 +11,7 @@
 
 - name: Install {{ loadgen_bin_name }}
   vars:
-    bin_go_package: "{{ loadgen_bin_package }}@{{ loadgen_git_commit }}"
+    go_package: "{{ loadgen_bin_package }}@{{ loadgen_git_commit }}"
     bin_service_instances: "{{ loadgen_instances }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin

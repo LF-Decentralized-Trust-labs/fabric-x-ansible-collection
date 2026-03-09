@@ -17,7 +17,7 @@
   vars:
     bin_name: "{{ fabric_ca_server_bin_name }}"
     bin_source_code_path: "{{ fabric_ca_server_source_code_dir }}"
-    bin_cgo_enabled: true
+    go_cgo_enabled: true
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: go/build
