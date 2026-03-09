@@ -15,12 +15,10 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.git
     tasks_from: clone
-  when:
-    - git_uri is defined
 
 - name: Build go code as binary
   vars:
-    go_source_code_path: "{{ bin_source_code_dir if bin_build_on_control_node else bin_remote_source_code_dir }}/{{ bin_source_code_path }}"
+    go_source_code_path: "{{ bin_source_code_dir if bin_build_on_control_node else bin_remote_source_code_dir }}/{{ git_repo_name }}"
     go_output_name: "{{ bin_output_dir if bin_build_on_control_node else bin_remote_dir }}/{{ bin_name }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.go

@@ -18,15 +18,14 @@ fabric_ca_container_config_dir: "/config"
 # Fabric CA binaries
 # =========================
 fabric_ca_git_uri: "https://github.com/hyperledger/fabric-ca.git"
-fabric_ca_git_dir: "fabric-ca"
 fabric_ca_git_commit: "v1.5.15"
 # Fabric CA Server binary
-fabric_ca_server_source_code_dir: "{{ fabric_ca_git_dir }}/cmd/fabric-ca-server"
+fabric_ca_server_source_code_package: "cmd/fabric-ca-server"
 fabric_ca_server_bin_package: "github.com/hyperledger/fabric-ca/cmd/fabric-ca-server"
 fabric_ca_server_bin_name: "fabric-ca-server"
 fabric_ca_server_use_bin: false
 # Fabric CA Client binary
-fabric_ca_client_source_code_dir: "{{ fabric_ca_git_dir }}/cmd/fabric-ca-client"
+fabric_ca_client_source_code_package: "cmd/fabric-ca-client"
 fabric_ca_client_bin_package: "github.com/hyperledger/fabric-ca/cmd/fabric-ca-client"
 fabric_ca_client_bin_name: "fabric-ca-client"
 fabric_ca_client_use_bin: false

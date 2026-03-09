@@ -11,12 +11,14 @@
 
 - name: Build the binary {{ orderer_bin_name }} for multiplatform
   vars:
+    # Git vars
     git_uri: "{{ orderer_git_uri }}"
-    git_repo_name: "{{ orderer_git_repo_name }}"
     git_commit: "{{ orderer_git_commit }}"
+    # Bin vars
     bin_name: "{{ orderer_bin_name }}"
-    bin_source_code_path: "{{ orderer_source_code_dir }}"
     bin_service_instances: "{{ orderer_service_instances }}"
+    # Go vars
+    go_source_code_package: "{{ orderer_source_code_package }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: go/multiplatform_build

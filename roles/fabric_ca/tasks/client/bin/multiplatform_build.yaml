@@ -11,11 +11,14 @@
 
 - name: Build the binary {{ fabric_ca_client_bin_name }}
   vars:
+    # Git vars
     git_uri: "{{ fabric_ca_git_uri }}"
     git_commit: "{{ fabric_ca_git_commit }}"
+    # Bin vars
     bin_name: "{{ fabric_ca_client_bin_name }}"
-    bin_source_code_path: "{{ fabric_ca_client_source_code_dir }}"
     bin_service_instances: "{{ fabric_ca_client_instances }}"
+    # Go vars
+    go_source_code_package: "{{ fabric_ca_client_source_code_package }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: go/multiplatform_build

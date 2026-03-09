@@ -9,7 +9,7 @@
     git_uri: "{{ fabric_ca_git_uri }}"
     git_commit: "{{ fabric_ca_git_commit }}"
     bin_name: "{{ fabric_ca_client_bin_name }}"
-    bin_source_code_path: "{{ fabric_ca_client_source_code_dir }}"
+    go_source_code_package: "{{ fabric_ca_client_source_code_package }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: go/build

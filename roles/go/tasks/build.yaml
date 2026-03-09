@@ -33,7 +33,7 @@
 - name: Build the binary {{ go_output_name }}
   ansible.builtin.command: >-
     go build
-    -C {{ go_source_code_path }}
+    -C {{ go_source_code_path }}/{{ go_source_code_package }}
     -o {{ go_output_name }}
   environment:
     GOOS: "{{ go_os }}"

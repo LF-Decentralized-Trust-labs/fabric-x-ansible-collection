@@ -20,8 +20,6 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.git
     tasks_from: clone
-  when:
-    - git_uri is defined
 
 # We gather facts in order to get architecture and os running on the remote machine.
 - name: Gather host system facts
@@ -42,10 +40,12 @@
 
 - name: Build for multiple platforms the binary {{ bin_name }}
   vars:
+    # Bin vars are needed to correctly define the output path
     bin_target_os: "{{ bin_platforms[current_platform_key].os }}"
     bin_target_arch: "{{ bin_platforms[current_platform_key].arch }}"
+    # Go vars
     go_host_to_map: "{{ bin_platforms[current_platform_key].hosts[0] }}"
-    go_source_code_path: "{{ bin_source_code_dir }}/{{ bin_source_code_path }}"
+    go_source_code_path: "{{ bin_source_code_dir }}/{{ git_repo_name }}"
     go_output_name: "{{ bin_output_dir }}/{{ bin_name }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.go

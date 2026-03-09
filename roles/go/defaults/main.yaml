@@ -21,5 +21,5 @@ go_arch: ""
 # =========================
 # Output directory for built/installed binaries
 go_output_dir: "{{ lookup('env', 'GOBIN') | default(lookup('env', 'GOPATH') + '/bin') }}"
-# Source code path (required for build task)
-go_source_code_path: "{{ lookup('env', 'GOPATH') }}/src/{{ go_output_name }}"
+# Go Package to build
+go_source_code_package: ""

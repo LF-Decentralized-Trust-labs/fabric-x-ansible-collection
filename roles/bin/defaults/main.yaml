@@ -12,8 +12,8 @@ bin_target_os: "{{ ansible_facts.system }}"
 bin_target_arch: "{{ ansible_facts.architecture }}"
 bin_name: "{{ inventory_hostname }}"
 # Paths when building locally on control node
-bin_source_code_dir: "{{ source_code_dir }}"
-bin_output_dir: "{{ control_node_dir }}/bin/{{ bin_target_os }}_os/{{ bin_target_arch }}_arch"
+bin_source_code_dir: "{{ control_node_dir }}/code"
+bin_output_dir: "{{ control_node_dir }}/bin/{{ bin_target_os }}/{{ bin_target_arch }}"
 # Paths when building directly on remote node
 bin_remote_source_code_dir: "{{ remote_node_dir }}/code"
 bin_remote_dir: "{{ remote_node_dir }}/bin"

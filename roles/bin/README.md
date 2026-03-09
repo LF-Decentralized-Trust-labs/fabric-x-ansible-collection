@@ -33,11 +33,12 @@ The tasks in the [`go`](./tasks/go) section allow to build or install a `go` bin
 
 #### build
 
-The task `build` allows to build a `go` binary from its source code:
+The task `build` allows to clone the source code of a `go` binary and build it:
 
 ```yaml
 - name: Build the sample-go binary
   vars:
+    git_uri: "https://github.com/sample/sample-go.git"
     bin_name: sample-go
     go_source_code_path: /tmp/sample-go/src
     bin_output_dir: /usr/local/bin
@@ -48,13 +49,14 @@ The task `build` allows to build a `go` binary from its source code:
 
 #### multiplatform_build
 
-The task `multiplatform_build` allows to build a `go` binary for multiple platforms:
+The task `build` allows to clone the source code of a `go` binary and build it for multiple platforms:
 
 ```yaml
 - name: Build the sample-go binary for multiple platforms
   vars:
+    git_uri: "https://github.com/sample/sample-go.git"
     bin_name: sample-go
-    bin_source_code_path: /tmp/sample-go/cmd
+    go_source_code_package: /tmp/sample-go/cmd
     bin_service_instances: ["sample-host-amd64", "sample-host-aarch64"]
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin

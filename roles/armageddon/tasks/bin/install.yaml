@@ -6,7 +6,10 @@
 
 - name: Install {{ armageddon_bin_name }}
   vars:
+    # Bin vars
+    bin_build_on_control_node: true
     bin_output_dir: "{{ cli_bin_dir }}"
+    # Go vars
     go_package: "{{ armageddon_bin_package }}@{{ armageddon_git_commit }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
