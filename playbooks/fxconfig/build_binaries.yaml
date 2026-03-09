@@ -6,13 +6,20 @@
 
 - name: Build the fxconfig binaries
   hosts: localhost
+  vars:
+    targeted_hosts: >-
+      {{
+        groups[target_hosts]
+        if target_hosts in groups
+        else [target_hosts]
+      }}
   tasks:
     - name: Find all the meta namespace admin hosts where to install fxconfig
       ansible.builtin.set_fact:
         fxconfig_install_hosts: "{{ fxconfig_install_hosts | default([]) + [current_host.inventory_hostname] }}"
       loop: >-
         {{
-          groups['all']
+          (targeted_hosts | default(groups['all']))
           | map('extract', hostvars)
           | map('to_json')
           | map('from_json')
@@ -41,10 +48,10 @@
         - fxconfig_install_hosts | length > 0
     - name: Find all the meta namespace admin hosts where to build fxconfig
       ansible.builtin.set_fact:
-        fxconfig_build_hosts: "{{ fxconfig_service_instances | default([]) + [current_host.inventory_hostname] }}"
+        fxconfig_build_hosts: "{{ fxconfig_build_hosts | default([]) + [current_host.inventory_hostname] }}"
       loop: >-
         {{
-          groups['all']
+          (targeted_hosts | default(groups['all']))
           | map('extract', hostvars)
           | map('to_json')
           | map('from_json')

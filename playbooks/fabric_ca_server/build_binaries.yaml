@@ -13,17 +13,26 @@
         if target_hosts in groups
         else [target_hosts]
       }}
+    # Base list with common filters - used as input for task-level bin_hosts
+    base_bin_hosts: >-
+      {{
+        targeted_hosts
+        | default(groups['fabric_ca_servers'])
+        | intersect(groups['fabric_ca_servers'])
+        | map('extract', hostvars)
+        | selectattr("fabric_ca_server_use_bin", 'defined')
+        | selectattr("fabric_ca_server_use_bin", 'eq', true)
+        | map(attribute='inventory_hostname')
+        | list
+      }}
   tasks:
     - name: Install the Fabric CA server binaries for the not dockerized hosts
       vars:
+        # Task-level bin_hosts filters base list for install (build_bin undefined)
         bin_hosts: >-
           {{
-            targeted_hosts
-            | default(groups['fabric_ca_servers'])
-            | intersect(groups['fabric_ca_servers'])
+            base_bin_hosts
             | map('extract', hostvars)
-            | selectattr("fabric_ca_server_use_bin", 'defined')
-            | selectattr("fabric_ca_server_use_bin", 'eq', true)
             | selectattr("fabric_ca_server_build_bin", 'undefined')
             | map(attribute='inventory_hostname')
             | list
@@ -36,14 +45,11 @@
         - bin_hosts | length > 0
     - name: Build the Fabric CA server binaries for the not dockerized hosts
       vars:
+        # Task-level bin_hosts filters base list for build (build_bin defined and true)
         bin_hosts: >-
           {{
-            targeted_hosts
-            | default(groups['fabric_ca_servers'])
-            | intersect(groups['fabric_ca_servers'])
+            base_bin_hosts
             | map('extract', hostvars)
-            | selectattr("fabric_ca_server_use_bin", 'defined')
-            | selectattr("fabric_ca_server_use_bin", 'eq', true)
             | selectattr("fabric_ca_server_build_bin", 'defined')
             | selectattr("fabric_ca_server_build_bin", 'eq', true)
             | map(attribute='inventory_hostname')
