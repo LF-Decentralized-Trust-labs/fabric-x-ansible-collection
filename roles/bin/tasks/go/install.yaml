@@ -23,7 +23,14 @@
 
 - name: Install go package as binary
   vars:
-    go_output_dir: "{{ bin_output_dir if bin_build_on_control_node else bin_remote_dir }}"
+    bin_target_os: "{{ bin_platforms[current_platform_key].os }}"
+    bin_target_arch: "{{ bin_platforms[current_platform_key].arch }}"
+    go_output_dir: "{{ bin_output_dir }}"
+    go_host_to_map: "{{ bin_platforms[current_platform_key].hosts[0] }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.go
     tasks_from: install
+  loop: "{{ bin_platforms.keys() }}"
+  loop_control:
+    loop_var: current_platform_key
+    label: "{{ current_platform_key }}"
