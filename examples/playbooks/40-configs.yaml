@@ -1,0 +1,23 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Transfer Fabric CAs configs
+  ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.configs
+
+- name: Transfer Fabric-X Orderer configs
+  ansible.builtin.import_playbook: hyperledger.fabricx.orderer.configs
+
+- name: Transfer Fabric-X Committer configs
+  ansible.builtin.import_playbook: hyperledger.fabricx.committer.configs
+
+- name: Transfer fxconfig configs
+  ansible.builtin.import_playbook: hyperledger.fabricx.fxconfig.configs
+
+- name: Transfer Monitoring configs
+  ansible.builtin.import_playbook: hyperledger.fabricx.monitoring.configs
+
+- name: Transfer Loadgen configs
+  ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.configs

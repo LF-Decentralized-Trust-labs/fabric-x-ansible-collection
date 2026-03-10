@@ -58,7 +58,7 @@ The task `crypto/rm` removes the crypto material generated for Prometheus:
 
 The task `config/transfer` allows to generate the configuration file for a Prometheus service.
 
-It supports multiple customizations, for an example please have a look at its usage in this [sample playbook](../../playbooks/monitoring/transfer_configs.yaml).
+It supports multiple customizations, for an example please have a look at its usage in this [sample playbook](../../playbooks/monitoring/configs.yaml).
 
 ```yaml
 - name: Generate the configuration for Prometheus

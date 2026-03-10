@@ -39,6 +39,8 @@ all:
     cryptogen_use_bin: true
     fxconfig_use_bin: true
     fabric_ca_client_use_bin: true
+    # Use this one to speed up operations since 1-host only deployment.
+    bin_build_on_control_node: true
   children:
     # =========================
     # Network (HLFX)

@@ -35,7 +35,7 @@
     - "'fabric_cas' in groups"
 
 - name: Transfer Fabric CA server configuration files
-  ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.transfer_configs
+  ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.configs
   when:
     - "'fabric_cas' in groups"
 
