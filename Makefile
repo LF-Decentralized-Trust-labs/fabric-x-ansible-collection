@@ -88,11 +88,11 @@ setup: build transfer
 
 # Build all the artifacts and the binaries on the localhost (e.g. make build).
 .PHONY: build
-build: build-artifacts binaries
+build: artifacts binaries
 
-# Build all the artifacts (e.g. make build-artifacts).
-.PHONY: build-artifacts
-build-artifacts: generate-crypto genesis-block
+# Build all the artifacts (e.g. make artifacts).
+.PHONY: artifacts
+artifacts: generate-crypto genesis-block
 
 # Transfer all the artifacts and the binaries to the remote hosts (e.g. make transfer).
 .PHONY: transfer

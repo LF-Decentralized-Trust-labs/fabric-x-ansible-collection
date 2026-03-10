@@ -172,9 +172,9 @@ Here there is a list of the most used commands:
 | `install-prerequisites` | Install the needed prerequisites on the remote hosts.                        |
 | `generate-crypto`       | Build the config artifacts on the controller node.                           |
 | `genesis-block`         | Build the genesis block for the network.                                     |
-| `build-artifacts`       | Wrapper for `generate-crypto` + `genesis-block`.                             |
+| `artifacts`             | Wrapper for `generate-crypto` + `genesis-block`.                             |
 | `binaries`              | Build/install binaries on controller or remote nodes for the targeted hosts. |
-| `build`                 | Wrapper for `build-artifacts` + `binaries`.                                  |
+| `build`                 | Wrapper for `artifacts` + `binaries`.                                        |
 | `transfer-configs`      | Transfer the artifacts and generate the config files on the targeted hosts.  |
 | `transfer`              | Wrapper for `transfer-configs`.                                              |
 | `setup`                 | Wrapper for `build` + `transfer`.                                            |

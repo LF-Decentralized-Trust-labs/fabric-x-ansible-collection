@@ -226,8 +226,8 @@ Run `make help` to see all commands. The most important ones are:
 | `check-trailing-spaces` | Check for trailing spaces in `.j2` files         |
 | `install-prerequisites` | Install prerequisites on remote hosts            |
 | `setup`                 | `build` + `transfer` (full artifact pipeline)    |
-| `build`                 | `build-artifacts` + `binaries`                   |
-| `build-artifacts`       | `generate-crypto` + `genesis-block`              |
+| `build`                 | `artifacts` + `binaries`                         |
+| `artifacts`             | `generate-crypto` + `genesis-block`              |
 | `generate-crypto`       | Generate crypto material on controller           |
 | `genesis-block`         | Build genesis block                              |
 | `binaries`              | Build/install binaries on controller or remotes  |
