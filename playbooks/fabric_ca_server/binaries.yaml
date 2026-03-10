@@ -28,7 +28,7 @@
         | list
       }}
   tasks:
-    - name: Install the Fabric CA server binaries for the not dockerized hosts on the control node
+    - name: Install the Fabric CA server binaries on the control node
       vars:
         # Task-level bin_hosts filters base list for install (build_bin undefined)
         bin_hosts: >-
@@ -45,7 +45,7 @@
       when:
         - "'fabric_ca_servers' in groups"
         - bin_hosts | length > 0
-    - name: Build the Fabric CA server binaries for the not dockerized hosts on the control node
+    - name: Build the Fabric CA server binaries on the control node
       vars:
         # Task-level bin_hosts filters base list for build (build_bin defined and true)
         bin_hosts: >-

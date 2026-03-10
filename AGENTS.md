@@ -129,8 +129,10 @@ roles/<role>/
 │   ├── get_metrics.yaml  # Scrape metrics
 │   ├── generate_crypto.yaml
 │   ├── transfer_configs.yaml
-│   ├── build_binaries.yaml
 │   ├── bin/              # Binary-mode sub-tasks
+│   │   ├── build.yaml
+│   │   ├── install.yaml
+│   │   ├── transfer.yaml
 │   ├── container/        # Container-mode sub-tasks
 │   └── config/           # Config generation sub-tasks
 └── templates/            # Jinja2 templates (*.j2)
@@ -159,22 +161,21 @@ Reusable playbooks organised by component. They are designed to be called by the
 
 Numbered sequencing playbooks that wire the collection playbooks together for a full lifecycle run:
 
-| File                          | Purpose                         |
-| ----------------------------- | ------------------------------- |
-| `10-run-command.yaml`         | Run an arbitrary shell command  |
-| `20-generate-crypto.yaml`     | Generate crypto material        |
-| `21-build-genesis-block.yaml` | Build the genesis block         |
-| `30-binaries.yaml`            | Build component binaries        |
-| `40-transfer-configs.yaml`    | Push configs to remote nodes    |
-| `50-transfer-bins.yaml`       | Push binaries to remote nodes   |
-| `60-start.yaml`               | Start all components            |
-| `70-stop.yaml`                | Stop all components             |
-| `80-teardown.yaml`            | Teardown (stop + delete data)   |
-| `90-ping.yaml`                | Port health check               |
-| `93-get-metrics.yaml`         | Metrics collection              |
-| `96-fetch-logs.yaml`          | Fetch remote logs               |
-| `100-wipe.yaml`               | Wipe configs/bins from remotes  |
-| `110-hard-wipe.yaml`          | Wipe deploy folder from remotes |
+| File                          | Purpose                           |
+| ----------------------------- | --------------------------------- |
+| `10-run-command.yaml`         | Run an arbitrary shell command    |
+| `20-generate-crypto.yaml`     | Generate crypto material          |
+| `21-build-genesis-block.yaml` | Build the genesis block           |
+| `30-binaries.yaml`            | Build/transfer component binaries |
+| `40-transfer-configs.yaml`    | Push configs to remote nodes      |
+| `60-start.yaml`               | Start all components              |
+| `70-stop.yaml`                | Stop all components               |
+| `80-teardown.yaml`            | Teardown (stop + delete data)     |
+| `90-ping.yaml`                | Port health check                 |
+| `93-get-metrics.yaml`         | Metrics collection                |
+| `96-fetch-logs.yaml`          | Fetch remote logs                 |
+| `100-wipe.yaml`               | Wipe configs/bins from remotes    |
+| `110-hard-wipe.yaml`          | Wipe deploy folder from remotes   |
 
 ---
 
@@ -229,10 +230,9 @@ Run `make help` to see all commands. The most important ones are:
 | `build-artifacts`       | `generate-crypto` + `genesis-block`              |
 | `generate-crypto`       | Generate crypto material on controller           |
 | `genesis-block`         | Build genesis block                              |
-| `binaries`              | Compile binaries on controller                   |
-| `transfer`              | `transfer-configs` + `transfer-bins`             |
+| `binaries`              | Build/install binaries on controller or remotes  |
+| `transfer`              | `transfer-configs`                               |
 | `transfer-configs`      | Push config artifacts to remotes                 |
-| `transfer-bins`         | Push binaries to remotes                         |
 | `start`                 | Start targeted components                        |
 | `stop`                  | Stop targeted components (keep data)             |
 | `restart`               | `teardown` + `start`                             |

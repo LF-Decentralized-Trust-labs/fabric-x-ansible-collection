@@ -5,13 +5,13 @@
 #
 
 - name: Build Fabric-X Orderer binaries
-  ansible.builtin.import_playbook: hyperledger.fabricx.orderer.build_binaries
+  ansible.builtin.import_playbook: hyperledger.fabricx.orderer.binaries
 
 - name: Build Fabric-X Committer binaries
-  ansible.builtin.import_playbook: hyperledger.fabricx.committer.build_binaries
+  ansible.builtin.import_playbook: hyperledger.fabricx.committer.binaries
 
 - name: Build fxconfig binaries
-  ansible.builtin.import_playbook: hyperledger.fabricx.fxconfig.build_binaries
+  ansible.builtin.import_playbook: hyperledger.fabricx.fxconfig.binaries
 
 - name: Build Loadgen binaries
-  ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.build_binaries
+  ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.binaries
