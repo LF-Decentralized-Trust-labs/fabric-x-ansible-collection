@@ -39,7 +39,7 @@ The task `build` allows to clone the source code of a `go` binary and build it:
     git_uri: "https://github.com/sample/sample-go.git"
     bin_name: sample-go
     go_source_code_path: /tmp/sample-go/src
-    bin_output_dir: /usr/local/bin
+    bin_dir: /usr/local/bin
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: go/build
@@ -53,7 +53,7 @@ The task `install` allows to install a go binary with the `go install` paradigm.
 - name: Install the sample-go binary
   vars:
     go_package: github.com/example/sample-go/cmd
-    bin_output_dir: /usr/local/bin
+    bin_dir: /usr/local/bin
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: go/install
@@ -67,7 +67,7 @@ The task `transfer` allows to transfer a binary from the control node to the rem
 - name: Transfer the sample-go binary to the remote hosts
   vars:
     bin_name: sample-go
-    bin_output_dir: /usr/local/bin
+    bin_dir: /usr/local/bin
     bin_remote_dir: /usr/local/bin
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin

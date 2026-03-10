@@ -1,5 +1,6 @@
 skip_list:
   - yaml[line-length]
   - name[template]
+  - key-order[task]
 exclude_paths:
   - out/

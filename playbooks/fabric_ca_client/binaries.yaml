@@ -1,0 +1,152 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Build the Fabric CA Client binaries
+  hosts: localhost
+  vars:
+    targeted_hosts: >-
+      {{
+        groups[target_hosts]
+        if target_hosts in groups
+        else [target_hosts]
+      }}
+    # Base list with common filters - hosts from fabric_ca_servers group or with organization.fabric_ca_host defined
+    base_bin_hosts: >-
+      {{
+        (
+          targeted_hosts
+          | default(groups['fabric_ca_servers'])
+          | intersect(groups['fabric_ca_servers'])
+          | map('extract', hostvars)
+          | selectattr("bin_build_on_control_node", 'defined')
+          | selectattr("bin_build_on_control_node", 'eq', true)
+          | selectattr("fabric_ca_client_use_bin", 'defined')
+          | selectattr("fabric_ca_client_use_bin", '==', true)
+          | map(attribute='inventory_hostname')
+          | list
+        )
+        +
+        (
+          targeted_hosts
+          | default(groups['all'])
+          | map('extract', hostvars)
+          | selectattr("bin_build_on_control_node", 'defined')
+          | selectattr("bin_build_on_control_node", 'eq', true)
+          | selectattr("fabric_ca_client_use_bin", 'defined')
+          | selectattr("fabric_ca_client_use_bin", '==', true)
+          | selectattr("organization", 'defined')
+          | selectattr("organization.fabric_ca_host", 'defined')
+          | map(attribute='inventory_hostname')
+          | list
+        )
+      }}
+  tasks:
+    - name: Install the Fabric CA client binaries for the not dockerized hosts
+      vars:
+        # Task-level bin_hosts filters base list for install (build_bin undefined)
+        bin_hosts: >-
+          {{
+            base_bin_hosts
+            | map('extract', hostvars)
+            | selectattr("fabric_ca_client_build_bin", 'undefined')
+            | map(attribute='inventory_hostname')
+            | list
+          }}
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: client/bin/install
+      when:
+        - "'fabric_cas' in groups"
+        - bin_hosts | length > 0
+    - name: Build the Fabric CA client binaries for the not dockerized hosts
+      vars:
+        # Task-level bin_hosts filters base list for build (build_bin defined and true)
+        bin_hosts: >-
+          {{
+            base_bin_hosts
+            | map('extract', hostvars)
+            | selectattr("fabric_ca_client_build_bin", 'defined')
+            | selectattr("fabric_ca_client_build_bin", '==', true)
+            | map(attribute='inventory_hostname')
+            | list
+          }}
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: client/bin/build
+      when:
+        - "'fabric_cas' in groups"
+        - bin_hosts | length > 0
+
+- name: Ensure Fabric CA client binaries are on the remote nodes
+  hosts: "{{ target_hosts | default('all') }}"
+  tasks:
+    - name: Build/Install Fabric CA client directly on the remote nodes
+      block:
+        # =========================
+        # Install on the remote node
+        # =========================
+        - name: Install Fabric CA client on the Fabric CA server remote hosts
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.fabric_ca
+            tasks_from: client/bin/install
+          when:
+            - fabric_ca_client_build_bin is undefined or not fabric_ca_client_build_bin
+            - fabric_ca_port is defined
+        - name: Install Fabric CA client on the remote hosts requiring Fabric CA
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.fabric_ca
+            tasks_from: client/bin/install
+          when:
+            - fabric_ca_client_build_bin is undefined or not fabric_ca_client_build_bin
+            - organization is defined
+            - organization.fabric_ca_host is defined
+        # =========================
+        # Build on the remote node
+        # =========================
+        - name: Build Fabric CA client on the Fabric CA server remote hosts
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.fabric_ca
+            tasks_from: client/bin/build
+          when:
+            - fabric_ca_client_build_bin is defined
+            - fabric_ca_client_build_bin
+            - fabric_ca_port is defined
+        - name: Build Fabric CA client on the remote hosts requiring Fabric CA
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.fabric_ca
+            tasks_from: client/bin/build
+          when:
+            - fabric_ca_client_build_bin is defined
+            - fabric_ca_client_build_bin
+            - organization is defined
+            - organization.fabric_ca_host is defined
+      when:
+        - bin_build_on_control_node is undefined or not bin_build_on_control_node
+        - fabric_ca_client_use_bin is defined
+        - fabric_ca_client_use_bin
+    - name: Transfer Fabric CA client from the control node to remote nodes
+      block:
+        # =========================
+        # Transfer from the control node
+        # =========================
+        - name: Transfer Fabric CA client binary on Fabric CA servers
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.fabric_ca
+            tasks_from: client/bin/transfer
+          when:
+            - fabric_ca_port is defined
+        - name: Transfer Fabric CA client binary on nodes
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.fabric_ca
+            tasks_from: client/bin/transfer
+          when:
+            - organization is defined
+            - organization.fabric_ca_host is defined
+      when:
+        - bin_build_on_control_node is defined
+        - bin_build_on_control_node
+        - fabric_ca_client_use_bin is defined
+        - fabric_ca_client_use_bin

@@ -173,8 +173,8 @@ Here there is a list of the most used commands:
 | `generate-crypto`       | Build the config artifacts on the controller node.                          |
 | `genesis-block`         | Build the genesis block for the network.                                    |
 | `build-artifacts`       | Wrapper for `generate-crypto` + `genesis-block`.                            |
-| `build-bins`            | Build the binaries on the controller node for the targeted hosts.           |
-| `build`                 | Wrapper for `build-artifacts` + `build-bins`.                               |
+| `binaries`              | Build the binaries on the controller node for the targeted hosts.           |
+| `build`                 | Wrapper for `build-artifacts` + `binaries`.                                 |
 | `transfer-configs`      | Transfer the artifacts and generate the config files on the targeted hosts. |
 | `transfer-bins`         | Transfer the binaries on the targeted hosts.                                |
 | `transfer`              | Wrapper for `transfer-configs` + `transfer-bins`.                           |

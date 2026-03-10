@@ -7,17 +7,19 @@
 # =========================
 # Bin Build Opts
 # =========================
-bin_build_on_control_node: true
+bin_build_on_control_node: false
 bin_target_os: "{{ ansible_facts.system }}"
 bin_target_arch: "{{ ansible_facts.architecture }}"
 bin_name: "{{ inventory_hostname }}"
 # Paths when building locally on control node
-bin_source_code_dir: "{{ control_node_dir }}/code"
-bin_output_dir: "{{ control_node_dir }}/bin/{{ bin_target_os }}/{{ bin_target_arch }}"
+bin_control_source_code_dir: "{{ control_node_dir }}/code"
+bin_control_dir: "{{ control_node_dir }}/bin/{{ bin_target_os }}/{{ bin_target_arch }}"
 # Paths when building directly on remote node
 bin_remote_source_code_dir: "{{ remote_node_dir }}/code"
 bin_remote_dir: "{{ remote_node_dir }}/bin"
 # List of hosts to build for
+bin_source_code_dir: "{{ bin_control_source_code_dir if bin_build_on_control_node else bin_remote_source_code_dir }}"
+bin_dir: "{{ bin_control_dir if bin_build_on_control_node else bin_remote_dir }}"
 bin_hosts:
   - "{{ inventory_hostname }}"
 

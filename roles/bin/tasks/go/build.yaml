@@ -41,7 +41,7 @@
     # Go vars
     go_host_to_map: "{{ bin_platforms[current_platform_key].hosts[0] }}"
     go_source_code_path: "{{ bin_source_code_dir }}/{{ git_repo_name }}"
-    go_output_name: "{{ bin_output_dir }}/{{ bin_name }}"
+    go_output_name: "{{ bin_dir }}/{{ bin_name }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.go
     tasks_from: build

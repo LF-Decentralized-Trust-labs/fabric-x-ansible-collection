@@ -22,16 +22,16 @@ The role requires:
 
 The following variables can be used to customize the role:
 
-| Variable              | Description                                   | Default                              |
-| --------------------- | --------------------------------------------- | ------------------------------------ |
-| `go_cgo_enabled`      | Enable CGO for cross-compilation              | `false`                              |
-| `go_output_dir`       | Output directory for binaries                 | `bin_output_dir` or `/usr/local/bin` |
-| `go_source_code_path` | Path to source code (build task)              | `""`                                 |
-| `go_output_name`      | Name of output binary (build task)            | `""`                                 |
-| `go_package`          | Go package to install (install task)          | `""`                                 |
-| `go_host_to_map`      | Host to map platform from (map_platform task) | `""`                                 |
-| `go_os`               | Mapped GOOS value (set by map_platform)       | `""`                                 |
-| `go_arch`             | Mapped GOARCH value (set by map_platform)     | `""`                                 |
+| Variable              | Description                                   | Default                       |
+| --------------------- | --------------------------------------------- | ----------------------------- |
+| `go_cgo_enabled`      | Enable CGO for cross-compilation              | `false`                       |
+| `go_output_dir`       | Output directory for binaries                 | `bin_dir` or `/usr/local/bin` |
+| `go_source_code_path` | Path to source code (build task)              | `""`                          |
+| `go_output_name`      | Name of output binary (build task)            | `""`                          |
+| `go_package`          | Go package to install (install task)          | `""`                          |
+| `go_host_to_map`      | Host to map platform from (map_platform task) | `""`                          |
+| `go_os`               | Mapped GOOS value (set by map_platform)       | `""`                          |
+| `go_arch`             | Mapped GOARCH value (set by map_platform)     | `""`                          |
 
 ## Tasks
 

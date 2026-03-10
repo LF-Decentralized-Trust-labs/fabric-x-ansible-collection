@@ -88,7 +88,7 @@ setup: build transfer
 
 # Build all the artifacts and the binaries on the localhost (e.g. make build).
 .PHONY: build
-build: build-artifacts build-bins
+build: build-artifacts binaries
 
 # Build all the artifacts (e.g. make build-artifacts).
 .PHONY: build-artifacts
@@ -96,7 +96,7 @@ build-artifacts: generate-crypto genesis-block
 
 # Transfer all the artifacts and the binaries to the remote hosts (e.g. make transfer).
 .PHONY: transfer
-transfer: transfer-configs transfer-bins
+transfer: transfer-configs
 
 # Generate the crypto material (e.g. make build-crypto).
 .PHONY: generate-crypto
@@ -108,10 +108,10 @@ generate-crypto:
 genesis-block:
 	ansible-playbook "$(PLAYBOOK_PATH)/21-build-genesis-block.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
-# Build the targeted binaries on the controller node (e.g. make build-bins).
-.PHONY: build-bins
-build-bins:
-	ansible-playbook "$(PLAYBOOK_PATH)/30-build-bins.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+# Build the targeted binaries on the controller node (e.g. make binaries).
+.PHONY: binaries
+binaries:
+	ansible-playbook "$(PLAYBOOK_PATH)/30-binaries.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
 # Clean all the artifacts (configs and bins) built on the controller node (e.g. make clean).
 .PHONY: clean

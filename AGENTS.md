@@ -130,7 +130,6 @@ roles/<role>/
 │   ├── generate_crypto.yaml
 │   ├── transfer_configs.yaml
 │   ├── build_binaries.yaml
-│   └── transfer_binaries.yaml
 │   ├── bin/              # Binary-mode sub-tasks
 │   ├── container/        # Container-mode sub-tasks
 │   └── config/           # Config generation sub-tasks
@@ -165,7 +164,7 @@ Numbered sequencing playbooks that wire the collection playbooks together for a 
 | `10-run-command.yaml`         | Run an arbitrary shell command  |
 | `20-generate-crypto.yaml`     | Generate crypto material        |
 | `21-build-genesis-block.yaml` | Build the genesis block         |
-| `30-build-bins.yaml`          | Build component binaries        |
+| `30-binaries.yaml`            | Build component binaries        |
 | `40-transfer-configs.yaml`    | Push configs to remote nodes    |
 | `50-transfer-bins.yaml`       | Push binaries to remote nodes   |
 | `60-start.yaml`               | Start all components            |
@@ -226,11 +225,11 @@ Run `make help` to see all commands. The most important ones are:
 | `check-trailing-spaces` | Check for trailing spaces in `.j2` files         |
 | `install-prerequisites` | Install prerequisites on remote hosts            |
 | `setup`                 | `build` + `transfer` (full artifact pipeline)    |
-| `build`                 | `build-artifacts` + `build-bins`                 |
+| `build`                 | `build-artifacts` + `binaries`                   |
 | `build-artifacts`       | `generate-crypto` + `genesis-block`              |
 | `generate-crypto`       | Generate crypto material on controller           |
 | `genesis-block`         | Build genesis block                              |
-| `build-bins`            | Compile binaries on controller                   |
+| `binaries`              | Compile binaries on controller                   |
 | `transfer`              | `transfer-configs` + `transfer-bins`             |
 | `transfer-configs`      | Push config artifacts to remotes                 |
 | `transfer-bins`         | Push binaries to remotes                         |

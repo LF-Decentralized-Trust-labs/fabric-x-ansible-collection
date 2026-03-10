@@ -25,7 +25,7 @@
   vars:
     bin_target_os: "{{ bin_platforms[current_platform_key].os }}"
     bin_target_arch: "{{ bin_platforms[current_platform_key].arch }}"
-    go_output_dir: "{{ bin_output_dir }}"
+    go_output_dir: "{{ bin_dir }}"
     go_host_to_map: "{{ bin_platforms[current_platform_key].hosts[0] }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.go
