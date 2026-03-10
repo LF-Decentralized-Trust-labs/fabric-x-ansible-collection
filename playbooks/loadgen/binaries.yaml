@@ -1,0 +1,112 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Build the Fabric-X Loadgen binaries on the control node
+  hosts: localhost
+  vars:
+    targeted_hosts: >-
+      {{
+        groups[target_hosts]
+        if target_hosts in groups
+        else [target_hosts]
+      }}
+    # Base list with common filters - used as input for task-level bin_hosts
+    base_bin_hosts: >-
+      {{
+        targeted_hosts
+        | default(groups['load_generators'])
+        | intersect(groups['load_generators'])
+        | map('extract', hostvars)
+        | selectattr("bin_build_on_control_node", 'defined')
+        | selectattr("bin_build_on_control_node", 'eq', true)
+        | selectattr("loadgen_use_bin", 'defined')
+        | selectattr("loadgen_use_bin", '==', true)
+        | map(attribute='inventory_hostname')
+        | list
+      }}
+  tasks:
+    # =========================
+    # Install on the control node
+    # =========================
+    - name: Install the Fabric-X Loadgen on the control node
+      vars:
+        # Task-level bin_hosts filters base list for install (build_bin undefined)
+        bin_hosts: >-
+          {{
+            base_bin_hosts
+            | map('extract', hostvars)
+            | selectattr("loadgen_build_bin", 'undefined')
+            | map(attribute='inventory_hostname')
+            | list
+          }}
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.loadgen
+        tasks_from: bin/install
+      when:
+        - "'load_generators' in groups"
+        - bin_hosts | length > 0
+    # =========================
+    # Build on the control node
+    # =========================
+    - name: Build the Fabric-X Loadgen on the control node
+      vars:
+        # Task-level bin_hosts filters base list for build (build_bin defined and true)
+        bin_hosts: >-
+          {{
+            base_bin_hosts
+            | map('extract', hostvars)
+            | selectattr("loadgen_build_bin", 'defined')
+            | selectattr("loadgen_build_bin", '==', true)
+            | map(attribute='inventory_hostname')
+            | list
+          }}
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.loadgen
+        tasks_from: bin/build
+      when:
+        - "'load_generators' in groups"
+        - bin_hosts | length > 0
+
+- name: Ensure Fabric-X Loadgen binaries are on remote nodes
+  hosts: "{{ target_hosts | default('load_generators') }}:&load_generators"
+  tasks:
+    - name: Build/Install Fabric-X Loadgen directly on the remote nodes
+      block:
+        # =========================
+        # Install on the remote node
+        # =========================
+        - name: Install Fabric-X Loadgen binaries on the remote nodes
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.loadgen
+            tasks_from: bin/install
+          when:
+            - loadgen_build_bin is undefined or not loadgen_build_bin
+        # =========================
+        # Build on the remote node
+        # =========================
+        - name: Build Fabric-X Loadgen binaries on the remote nodes
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.loadgen
+            tasks_from: bin/build
+          when:
+            - loadgen_build_bin is defined
+            - loadgen_build_bin
+      when:
+        - bin_build_on_control_node is undefined or not bin_build_on_control_node
+        - loadgen_use_bin is defined
+        - loadgen_use_bin
+    # =========================
+    # Transfer from the control node
+    # =========================
+    - name: Transfer Fabric-X Loadgen binaries built on the Control Node
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.loadgen
+        tasks_from: bin/transfer
+      when:
+        - bin_build_on_control_node is defined
+        - bin_build_on_control_node
+        - loadgen_use_bin is defined
+        - loadgen_use_bin

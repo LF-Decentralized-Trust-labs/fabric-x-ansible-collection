@@ -128,10 +128,11 @@ roles/<role>/
 │   ├── fetch_logs.yaml   # Pull logs to controller
 │   ├── get_metrics.yaml  # Scrape metrics
 │   ├── generate_crypto.yaml
-│   ├── transfer_configs.yaml
-│   ├── build_binaries.yaml
-│   └── transfer_binaries.yaml
+│   ├── configs.yaml
 │   ├── bin/              # Binary-mode sub-tasks
+│   │   ├── build.yaml
+│   │   ├── install.yaml
+│   │   ├── transfer.yaml
 │   ├── container/        # Container-mode sub-tasks
 │   └── config/           # Config generation sub-tasks
 └── templates/            # Jinja2 templates (*.j2)
@@ -160,22 +161,21 @@ Reusable playbooks organised by component. They are designed to be called by the
 
 Numbered sequencing playbooks that wire the collection playbooks together for a full lifecycle run:
 
-| File                          | Purpose                         |
-| ----------------------------- | ------------------------------- |
-| `10-run-command.yaml`         | Run an arbitrary shell command  |
-| `20-generate-crypto.yaml`     | Generate crypto material        |
-| `21-build-genesis-block.yaml` | Build the genesis block         |
-| `30-build-bins.yaml`          | Build component binaries        |
-| `40-transfer-configs.yaml`    | Push configs to remote nodes    |
-| `50-transfer-bins.yaml`       | Push binaries to remote nodes   |
-| `60-start.yaml`               | Start all components            |
-| `70-stop.yaml`                | Stop all components             |
-| `80-teardown.yaml`            | Teardown (stop + delete data)   |
-| `90-ping.yaml`                | Port health check               |
-| `93-get-metrics.yaml`         | Metrics collection              |
-| `96-fetch-logs.yaml`          | Fetch remote logs               |
-| `100-wipe.yaml`               | Wipe configs/bins from remotes  |
-| `110-hard-wipe.yaml`          | Wipe deploy folder from remotes |
+| File                          | Purpose                           |
+| ----------------------------- | --------------------------------- |
+| `10-run-command.yaml`         | Run an arbitrary shell command    |
+| `20-generate-crypto.yaml`     | Generate crypto material          |
+| `21-build-genesis-block.yaml` | Build the genesis block           |
+| `30-binaries.yaml`            | Build/transfer component binaries |
+| `40-config.yaml`              | Push configs to remote nodes      |
+| `60-start.yaml`               | Start all components              |
+| `70-stop.yaml`                | Stop all components               |
+| `80-teardown.yaml`            | Teardown (stop + delete data)     |
+| `90-ping.yaml`                | Port health check                 |
+| `93-get-metrics.yaml`         | Metrics collection                |
+| `96-fetch-logs.yaml`          | Fetch remote logs                 |
+| `100-wipe.yaml`               | Wipe configs/bins from remotes    |
+| `110-hard-wipe.yaml`          | Wipe deploy folder from remotes   |
 
 ---
 
@@ -225,28 +225,26 @@ Run `make help` to see all commands. The most important ones are:
 | `check-license-header`  | Verify license headers on all files              |
 | `check-trailing-spaces` | Check for trailing spaces in `.j2` files         |
 | `install-prerequisites` | Install prerequisites on remote hosts            |
-| `setup`                 | `build` + `transfer` (full artifact pipeline)    |
-| `build`                 | `build-artifacts` + `build-bins`                 |
-| `build-artifacts`       | `generate-crypto` + `genesis-block`              |
+| `login-cr`              | Log into a container registry                    |
+| `setup`                 | `artifacts` + `binaries` + `configs`             |
+| `artifacts`             | `generate-crypto` + `genesis-block`              |
 | `generate-crypto`       | Generate crypto material on controller           |
 | `genesis-block`         | Build genesis block                              |
-| `build-bins`            | Compile binaries on controller                   |
-| `transfer`              | `transfer-configs` + `transfer-bins`             |
-| `transfer-configs`      | Push config artifacts to remotes                 |
-| `transfer-bins`         | Push binaries to remotes                         |
+| `binaries`              | Build/install binaries on controller or remotes  |
+| `clean`                 | Remove local `out/` directory                    |
+| `clean-cache`           | Clean the Ansible cache                          |
+| `configs`               | Create/Ship the configs to remote nodes          |
 | `start`                 | Start targeted components                        |
 | `stop`                  | Stop targeted components (keep data)             |
-| `restart`               | `teardown` + `start`                             |
 | `teardown`              | Stop + delete data                               |
+| `restart`               | `teardown` + `start`                             |
 | `wipe`                  | Remove configs/bins from remotes                 |
 | `hard-wipe`             | Remove deploy folder from remotes                |
-| `clean`                 | Remove local `out/` directory                    |
+| `run-command`           | Run arbitrary command on remotes (`COMMAND="…"`) |
 | `ping`                  | Check that component ports are open              |
 | `get-metrics`           | Collect metrics from components                  |
 | `fetch-logs`            | Pull logs from remote hosts                      |
 | `limit-rate`            | Adjust load-generator TPS (`LIMIT=<n>`)          |
-| `login-cr`              | Log into a container registry                    |
-| `run-command`           | Run arbitrary command on remotes (`COMMAND="…"`) |
 
 ---
 

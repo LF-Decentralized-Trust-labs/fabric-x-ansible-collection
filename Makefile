@@ -82,21 +82,13 @@ install-prerequisites:
 login-cr:
 	ansible-playbook hyperledger.fabricx.log_in_container_registry --extra-vars '{"target_hosts": "$(TARGET_HOSTS)", "container_registry": "$(CONTAINER_REGISTRY)", "container_registry_username": "$(CONTAINER_REGISTRY_USERNAME)", "container_registry_password": "$(CONTAINER_REGISTRY_PASSWORD)"}'
 
-# Build all the artifacts, the binaries and transfer them to the remote hosts (e.g. make setup).
+# Build all the artifacts, the binaries and configuration files (e.g. make setup).
 .PHONY: setup
-setup: build transfer
+setup: artifacts binaries configs
 
-# Build all the artifacts and the binaries on the localhost (e.g. make build).
-.PHONY: build
-build: build-artifacts build-bins
-
-# Build all the artifacts (e.g. make build-artifacts).
-.PHONY: build-artifacts
-build-artifacts: generate-crypto genesis-block
-
-# Transfer all the artifacts and the binaries to the remote hosts (e.g. make transfer).
-.PHONY: transfer
-transfer: transfer-configs transfer-bins
+# Build all the artifacts (e.g. make artifacts).
+.PHONY: artifacts
+artifacts: generate-crypto genesis-block
 
 # Generate the crypto material (e.g. make build-crypto).
 .PHONY: generate-crypto
@@ -108,10 +100,10 @@ generate-crypto:
 genesis-block:
 	ansible-playbook "$(PLAYBOOK_PATH)/21-build-genesis-block.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
-# Build the targeted binaries on the controller node (e.g. make build-bins).
-.PHONY: build-bins
-build-bins:
-	ansible-playbook "$(PLAYBOOK_PATH)/30-build-bins.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+# Build the targeted binaries on the controller node (e.g. make binaries).
+.PHONY: binaries
+binaries:
+	ansible-playbook "$(PLAYBOOK_PATH)/30-binaries.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
 # Clean all the artifacts (configs and bins) built on the controller node (e.g. make clean).
 .PHONY: clean
@@ -123,15 +115,10 @@ clean: clean-cache
 clean-cache:
 	rm -rf $(ANSIBLE_CACHE_PLUGIN_CONNECTION)
 
-# Transfer the targeted config artifacts to the remote nodes (e.g. make fabric_x transfer-configs).
-.PHONY: transfer-configs
-transfer-configs:
-	ansible-playbook "$(PLAYBOOK_PATH)/40-transfer-configs.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
-
-# Transfer the targeted binaries to the remote nodes (e.g. make fabric_x transfer-bins).
-.PHONY: transfer-bins
-transfer-bins:
-	ansible-playbook "$(PLAYBOOK_PATH)/50-transfer-bins.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+# Create/Ship the configs to the remote nodes (e.g. make fabric_x configs).
+.PHONY: configs
+configs:
+	ansible-playbook "$(PLAYBOOK_PATH)/40-configs.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
 # Start the targeted hosts (e.g. make fabric_x start).
 .PHONY: start
