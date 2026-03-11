@@ -104,36 +104,17 @@
           | selectattr('meta_namespace_admin', '==', true)
           | length > 0
       block:
-        - name: Build/Install fxconfig directly on the remote nodes
-          when:
-            - bin_build_on_control_node is undefined or not bin_build_on_control_node
+        - name: Setup fxconfig binary using appropriate method
+          vars:
+            # Determine the operation based on flags
+            bin_operation: >-
+              {{
+                'transfer' if (bin_build_on_control_node is defined and bin_build_on_control_node)
+                else ('build' if (fxconfig_build_bin is defined and fxconfig_build_bin)
+                else 'install')
+              }}
           block:
-            # =========================
-            # Install on remote node
-            # =========================
-            - name: Install fxconfig binaries on the remote nodes
+            - name: "{{ bin_operation | capitalize }} fxconfig binaries on the remote nodes"
               ansible.builtin.include_role:
                 name: hyperledger.fabricx.fxconfig
-                tasks_from: bin/install
-              when:
-                - fxconfig_build_bin is undefined or not fxconfig_build_bin
-            # =========================
-            # Build on remote node
-            # =========================
-            - name: Build fxconfig binaries on the remote nodes
-              ansible.builtin.include_role:
-                name: hyperledger.fabricx.fxconfig
-                tasks_from: bin/build
-              when:
-                - fxconfig_build_bin is defined
-                - fxconfig_build_bin
-        # =========================
-        # Transfer from the control node
-        # =========================
-        - name: Transfer fxconfig binaries built on the Control Node
-          ansible.builtin.include_role:
-            name: hyperledger.fabricx.fxconfig
-            tasks_from: bin/transfer
-          when:
-            - bin_build_on_control_node is defined
-            - bin_build_on_control_node
+                tasks_from: "bin/{{ bin_operation }}"
