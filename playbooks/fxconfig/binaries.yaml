@@ -13,6 +13,18 @@
         if target_hosts in groups
         else [target_hosts]
       }}
+    base_bin_hosts: >-
+      {{
+        targeted_hosts
+        | default(groups['all'])
+        | map('extract', hostvars)
+        | selectattr('bin_build_on_control_node', 'defined')
+        | selectattr('bin_build_on_control_node', '==', true)
+        | selectattr('fxconfig_use_bin', 'defined')
+        | selectattr('fxconfig_use_bin', '==', true)
+        | map(attribute='inventory_hostname')
+        | list
+      }}
   tasks:
     # =========================
     # Install on the control node
@@ -22,14 +34,10 @@
         fxconfig_install_hosts: "{{ fxconfig_install_hosts | default([]) + [current_host.inventory_hostname] }}"
       loop: >-
         {{
-          (targeted_hosts | default(groups['all']))
+          base_bin_hosts
           | map('extract', hostvars)
           | map('to_json')
           | map('from_json')
-          | selectattr('bin_build_on_control_node', 'defined')
-          | selectattr('bin_build_on_control_node', '==', true)
-          | selectattr('fxconfig_use_bin', 'defined')
-          | selectattr('fxconfig_use_bin', '==', true)
           | selectattr('fxconfig_build_bin', 'undefined')
           | selectattr('organization', 'defined')
           | selectattr('organization.users', 'defined')
@@ -59,14 +67,10 @@
         fxconfig_build_hosts: "{{ fxconfig_build_hosts | default([]) + [current_host.inventory_hostname] }}"
       loop: >-
         {{
-          (targeted_hosts | default(groups['all']))
+          base_bin_hosts
           | map('extract', hostvars)
           | map('to_json')
           | map('from_json')
-          | selectattr('bin_build_on_control_node', 'defined')
-          | selectattr('bin_build_on_control_node', '==', true)
-          | selectattr('fxconfig_use_bin', 'defined')
-          | selectattr('fxconfig_use_bin', '==', true)
           | selectattr('fxconfig_build_bin', 'defined')
           | selectattr('fxconfig_build_bin', '==', true)
           | selectattr('organization', 'defined')
