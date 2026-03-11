@@ -27,6 +27,14 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.openssl
         tasks_from: install
+    - name: Install git
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.git
+        tasks_from: install
+    - name: Install go
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.go
+        tasks_from: install_go
     - name: Install rsync
       vars:
         package_name: rsync

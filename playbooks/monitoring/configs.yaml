@@ -31,6 +31,65 @@
     - name: Define Prometheus scrape services
       ansible.builtin.set_fact:
         prometheus_scrape_services:
+          # =========================
+          # HLFX Orderer metrics
+          # =========================
+          - job_name: assembler_service
+            targets:
+              - hosts: >-
+                  {{
+                    groups['fabric_x_orderers']
+                    | default([])
+                    | map('extract', hostvars)
+                    | selectattr('orderer_component_type', 'defined')
+                    | selectattr('orderer_component_type', '==', 'assembler')
+                    | map(attribute='inventory_hostname')
+                    | list
+                  }}
+                port_to_scrape: orderer_metrics_port
+          - job_name: consenter_service
+            targets:
+              - hosts: >-
+                  {{
+                    groups['fabric_x_orderers']
+                    | default([])
+                    | map('extract', hostvars)
+                    | selectattr('orderer_component_type', 'defined')
+                    | selectattr('orderer_component_type', '==', 'consenter')
+                    | map(attribute='inventory_hostname')
+                    | list
+                  }}
+                port_to_scrape: orderer_metrics_port
+          - job_name: router_service
+            targets:
+              - hosts: >-
+                  {{
+                    groups['fabric_x_orderers']
+                    | default([])
+                    | map('extract', hostvars)
+                    | selectattr('orderer_component_type', 'defined')
+                    | selectattr('orderer_component_type', '==', 'router')
+                    | map(attribute='inventory_hostname')
+                    | list
+                  }}
+                port_to_scrape: orderer_metrics_port
+          - job_name: batcher_service
+            targets:
+              - hosts: >-
+                  {{
+                    groups['fabric_x_orderers']
+                    | default([])
+                    | map('extract', hostvars)
+                    | selectattr('orderer_component_type', 'defined')
+                    | selectattr('orderer_component_type', '==', 'batcher')
+                    | selectattr('orderer_shard_id', 'defined')
+                    | map(attribute='inventory_hostname')
+                    | list
+                  }}
+                port_to_scrape: orderer_metrics_port
+          # =========================
+          # HLFX Committer metrics
+          # =========================
           - job_name: sidecar_service
             targets:
               - hosts: >-
@@ -43,7 +102,7 @@
                     | map(attribute='inventory_hostname')
                     | list
                   }}
-                port_to_scrape: prometheus_exporter_port
+                port_to_scrape: committer_metrics_port
           - job_name: coordinators_service
             targets:
               - hosts: >-
@@ -56,7 +115,7 @@
                     | map(attribute='inventory_hostname')
                     | list
                   }}
-                port_to_scrape: prometheus_exporter_port
+                port_to_scrape: committer_metrics_port
           - job_name: verifiers_service
             targets:
               - hosts: >-
@@ -69,7 +128,7 @@
                     | map(attribute='inventory_hostname')
                     | list
                   }}
-                port_to_scrape: prometheus_exporter_port
+                port_to_scrape: committer_metrics_port
           - job_name: validators_service
             targets:
               - hosts: >-
@@ -82,7 +141,10 @@
                     | map(attribute='inventory_hostname')
                     | list
                   }}
-                port_to_scrape: prometheus_exporter_port
+                port_to_scrape: committer_metrics_port
+          # =========================
+          # HLFX Loadgen metrics
+          # =========================
           - job_name: blockgens_service
             targets:
               - hosts: >-
@@ -90,9 +152,12 @@
                     groups['load_generators']
                     | default([])
                   }}
-                port_to_scrape: prometheus_exporter_port
+                port_to_scrape: loadgen_metrics_port
       when:
         - prometheus_port is defined
+    # =========================
+    # Yugabyte metrics
+    # =========================
     - name: Add Prometheus scrape services for Yugabyte clusters
       vars:
         current_yugabyte_cluster: >-
@@ -111,22 +176,22 @@
         current_yugabyte_cluster_masters: >-
           {{
             current_yugabyte_cluster
-            | selectattr('yugabyte_component_type', 'match', 'master|standalone')
+            | selectattr('yugabyte_component_type', 'match', 'master')
             | map(attribute='inventory_hostname')
             | list
           }}
         current_yugabyte_cluster_tablets: >-
           {{
             current_yugabyte_cluster
-            | selectattr('yugabyte_component_type', 'match', 'tablet|standalone')
+            | selectattr('yugabyte_component_type', 'match', 'tablet')
             | map(attribute='inventory_hostname')
             | list
           }}
-        # TLS enabled on the standalone YugabyteDB does not run also the webserver interface with TLS
         current_yugabyte_cluster_webserver_use_tls: >-
           {{
-            (current_yugabyte_cluster_ref_host.yugabyte_webserver_use_tls | default(current_yugabyte_cluster_ref_host.yugabyte_use_tls | default(false)))
-            and (current_yugabyte_cluster_ref_host.yugabyte_component_type != 'standalone')
+            current_yugabyte_cluster_ref_host.yugabyte_webserver_use_tls
+            | default(current_yugabyte_cluster_ref_host.yugabyte_use_tls)
+            | default(false)
           }}
         yugabyte_scrape_service:
           job_name: yugabytedb.cluster-{{ current_yugabyte_cluster_id }}
@@ -210,6 +275,9 @@
         label: "yugabyte-cluster:{{ current_yugabyte_cluster_id }}"
       when:
         - prometheus_port is defined
+    # =========================
+    # Postgres Exporter metrics
+    # =========================
     - name: Add Prometheus scrape services for Postgres Exporters
       vars:
         postgres_exporter_scrape_service:
@@ -234,6 +302,9 @@
         label: "{{ current_postgres_exporter }}"
       when:
         - prometheus_port is defined
+    # =========================
+    # Node Exporter metrics
+    # =========================
     - name: Add Prometheus scrape services for Node Exporters
       vars:
         node_exporter_scrape_service:
@@ -291,6 +362,15 @@
       when:
         - grafana_web_port is defined
         - groups['fabric_x_committer']
+          | default([])
+          | length > 0
+    - name: Transfer the Fabric-X Orderer Grafana Dashboard
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.orderer
+        tasks_from: config/transfer_grafana_dashboard
+      when:
+        - grafana_web_port is defined
+        - groups['fabric_x_orderers']
           | default([])
           | length > 0
     - name: Transfer the Postgres Exporter Grafana Dashboard

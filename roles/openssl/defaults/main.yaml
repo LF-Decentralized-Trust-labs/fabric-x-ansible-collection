@@ -37,5 +37,13 @@ openssl_common_name: "example.com"
 openssl_basic_constraints: "CA:false"
 openssl_key_usage: "keyEncipherment, digitalSignature"
 openssl_extended_key_usage: "serverAuth, clientAuth"
-openssl_san_entries:
+openssl_san_dns_entries:
   - "DNS:{{ ansible_host }}"
+openssl_san_ip_entries: >-
+  {{
+    ansible_facts.all_ipv4_addresses
+    | default([])
+    | map('regex_replace', '^', 'IP:')
+    | list
+  }}
+openssl_san_entries: "{{ openssl_san_dns_entries + openssl_san_ip_entries }}"

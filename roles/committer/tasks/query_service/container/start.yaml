@@ -13,7 +13,7 @@
       --config={{ committer_container_config_dir }}/{{ committer_query_service_config_file }}
     container_ports:
       - "{{ committer_rpc_port }}:{{ committer_rpc_port }}"
-      - "{{ prometheus_exporter_port }}:{{ prometheus_exporter_port }}"
+      - "{{ committer_metrics_port }}:{{ committer_metrics_port }}"
     container_volumes:
       - "{{ committer_remote_config_dir }}:{{ committer_container_config_dir }}:z"
     container_wait_until_running: true

@@ -37,10 +37,6 @@ OrdererOrgs:
           - {{ orderer_ip }}
 {% endfor %}
           - {{ hostvars[orderer.name].ansible_host }}
-          - 0.0.0.0
-          - localhost
-          - 127.0.0.1
-          - ::1
 {% endfor %}
 {% endif %}
 {% endfor %}
@@ -89,12 +85,8 @@ PeerOrgs:
         SANS:
 {% for peer_ip in hostvars[peer.name].ansible_facts.all_ipv4_addresses %}
           - {{ peer_ip }}
-{% endfor %}      
+{% endfor %}
           - {{ hostvars[peer.name].ansible_host }}
-          - 0.0.0.0
-          - localhost
-          - 127.0.0.1
-          - ::1
 {% endfor %}
 {% endif %}
 

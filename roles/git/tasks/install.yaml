@@ -1,0 +1,12 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Install git
+  vars:
+    package_name: git
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.package
+    tasks_from: install

@@ -17,9 +17,8 @@ loadgen_container_name: "{{ inventory_hostname }}"
 # Fabric-X Loadgen bin
 # =========================
 loadgen_git_uri: "https://github.com/hyperledger/fabric-x-committer.git"
-loadgen_git_dir: "{{ source_code_dir }}/fabric-x-committer"
 loadgen_git_commit: "v0.1.7"
-loadgen_source_code_dir: "{{ loadgen_git_dir }}/cmd/loadgen"
+loadgen_source_code_package: "cmd/loadgen"
 loadgen_bin_package: "github.com/hyperledger/fabric-x-committer/cmd/loadgen"
 loadgen_bin_name: "loadgen"
 loadgen_use_bin: false

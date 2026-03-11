@@ -8,9 +8,7 @@ The role `hyperledger.fabricx.bin` can be used to handle a binary run on a targe
 - [Tasks](#tasks)
   - [go](#go)
     - [build](#build)
-    - [multiplatform_build](#multiplatform_build)
     - [install](#install)
-    - [multiplatform_install](#multiplatform_install)
   - [transfer](#transfer)
   - [start](#start)
   - [stop](#stop)
@@ -33,45 +31,18 @@ The tasks in the [`go`](./tasks/go) section allow to build or install a `go` bin
 
 #### build
 
-The task `build` allows to build a `go` binary from its source code:
+The task `build` allows to clone the source code of a `go` binary and build it:
 
 ```yaml
 - name: Build the sample-go binary
   vars:
+    git_uri: "https://github.com/sample/sample-go.git"
     bin_name: sample-go
-    bin_source_code_path: /tmp/sample-go/src
-    bin_output_dir: /usr/local/bin
-    bin_target_os: linux
-    bin_target_arch: amd64
+    go_source_code_path: /tmp/sample-go/src
+    bin_dir: /usr/local/bin
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: go/build
-```
-
-#### multiplatform_build
-
-The task `multiplatform_build` allows to build a `go` binary for multiple platforms:
-
-```yaml
-- name: Build the sample-go binary for multiple platforms
-  vars:
-    bin_name: sample-go
-    bin_source_code_path: /tmp/sample-go/cmd
-    bin_service_instances: ["sample-host-amd64", "sample-host-aarch64"]
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.bin
-    tasks_from: go/multiplatform_build
-```
-
-You can set the target platform for an host using the `os` and `arch` variables. For example:
-
-```yaml
-sample-host-amd64:
-  os: linux
-  arch: amd64
-sample-host-aarch64:
-  os: linux
-  arch: aarch64
 ```
 
 #### install
@@ -81,27 +52,11 @@ The task `install` allows to install a go binary with the `go install` paradigm.
 ```yaml
 - name: Install the sample-go binary
   vars:
-    bin_go_package: github.com/example/sample-go/cmd
-    bin_output_dir: /usr/local/bin
-    bin_target_os: linux
-    bin_target_arch: amd64
+    go_package: github.com/example/sample-go/cmd
+    bin_dir: /usr/local/bin
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: go/install
-```
-
-#### multiplatform_install
-
-The task `multiplatform_install` allows to install a go binary with the `go install` for multiple platforms.
-
-```yaml
-- name: Install the sample-go binary for multiple platforms
-  vars:
-    bin_go_package: github.com/example/sample-go/cmd
-    bin_service_instances: ["sample-host-amd64", "sample-host-aarch64"]
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.bin
-    tasks_from: go/multiplatform_install
 ```
 
 ### transfer
@@ -112,7 +67,7 @@ The task `transfer` allows to transfer a binary from the control node to the rem
 - name: Transfer the sample-go binary to the remote hosts
   vars:
     bin_name: sample-go
-    bin_output_dir: /usr/local/bin
+    bin_dir: /usr/local/bin
     bin_remote_dir: /usr/local/bin
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin

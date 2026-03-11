@@ -10,7 +10,6 @@
 project_dir: "{{ lookup('env', 'PROJECT_DIR') or '~/.ansible/collections/ansible_collections/hyperledger/fabricx' }}"
 out_dir: "{{ project_dir }}/out"
 control_node_dir: "{{ out_dir }}/control-node"
-source_code_dir: "{{ control_node_dir }}/code"
 cli_bin_dir: "{{ control_node_dir }}/cli"
 
 # =========================
