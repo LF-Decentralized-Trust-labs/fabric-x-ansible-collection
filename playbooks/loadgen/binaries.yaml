@@ -73,40 +73,41 @@
 - name: Ensure Fabric-X Loadgen binaries are on remote nodes
   hosts: "{{ target_hosts | default('load_generators') }}:&load_generators"
   tasks:
-    - name: Build/Install Fabric-X Loadgen directly on the remote nodes
+    - name: Setup Fabric-X Loadgen binary on the remote nodes
+      when:
+        - loadgen_use_bin is defined
+        - loadgen_use_bin
       block:
+        - name: Build/Install Fabric-X Loadgen directly on the remote nodes
+          when:
+            - bin_build_on_control_node is undefined or not bin_build_on_control_node
+          block:
+            # =========================
+            # Install on remote node
+            # =========================
+            - name: Install Fabric-X Loadgen binaries on the remote nodes
+              ansible.builtin.include_role:
+                name: hyperledger.fabricx.loadgen
+                tasks_from: bin/install
+              when:
+                - loadgen_build_bin is undefined or not loadgen_build_bin
+            # =========================
+            # Build on remote node
+            # =========================
+            - name: Build Fabric-X Loadgen binaries on the remote nodes
+              ansible.builtin.include_role:
+                name: hyperledger.fabricx.loadgen
+                tasks_from: bin/build
+              when:
+                - loadgen_build_bin is defined
+                - loadgen_build_bin
         # =========================
-        # Install on the remote node
+        # Transfer from the control node
         # =========================
-        - name: Install Fabric-X Loadgen binaries on the remote nodes
+        - name: Transfer Fabric-X Loadgen binaries built on the Control Node
           ansible.builtin.include_role:
             name: hyperledger.fabricx.loadgen
-            tasks_from: bin/install
+            tasks_from: bin/transfer
           when:
-            - loadgen_build_bin is undefined or not loadgen_build_bin
-        # =========================
-        # Build on the remote node
-        # =========================
-        - name: Build Fabric-X Loadgen binaries on the remote nodes
-          ansible.builtin.include_role:
-            name: hyperledger.fabricx.loadgen
-            tasks_from: bin/build
-          when:
-            - loadgen_build_bin is defined
-            - loadgen_build_bin
-      when:
-        - bin_build_on_control_node is undefined or not bin_build_on_control_node
-        - loadgen_use_bin is defined
-        - loadgen_use_bin
-    # =========================
-    # Transfer from the control node
-    # =========================
-    - name: Transfer Fabric-X Loadgen binaries built on the Control Node
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.loadgen
-        tasks_from: bin/transfer
-      when:
-        - bin_build_on_control_node is defined
-        - bin_build_on_control_node
-        - loadgen_use_bin is defined
-        - loadgen_use_bin
+            - bin_build_on_control_node is defined
+            - bin_build_on_control_node

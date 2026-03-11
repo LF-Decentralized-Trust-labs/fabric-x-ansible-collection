@@ -73,40 +73,41 @@
 - name: Ensure Fabric-X Orderer binaries are on remote nodes
   hosts: "{{ target_hosts | default('fabric_x_orderers') }}:&fabric_x_orderers"
   tasks:
-    - name: Build/Install Fabric-X Orderer directly on the remote nodes
+    - name: Setup Fabric-X Orderer binary on the remote nodes
+      when:
+        - orderer_use_bin is defined
+        - orderer_use_bin
       block:
+        - name: Build/Install Fabric-X Orderer directly on the remote nodes
+          when:
+            - bin_build_on_control_node is undefined or not bin_build_on_control_node
+          block:
+            # =========================
+            # Install on remote node
+            # =========================
+            - name: Install Fabric-X Orderer binaries on the remote nodes
+              ansible.builtin.include_role:
+                name: hyperledger.fabricx.orderer
+                tasks_from: bin/install
+              when:
+                - orderer_build_bin is undefined or not orderer_build_bin
+            # =========================
+            # Build on remote node
+            # =========================
+            - name: Build Fabric-X Orderer binaries on the remote nodes
+              ansible.builtin.include_role:
+                name: hyperledger.fabricx.orderer
+                tasks_from: bin/build
+              when:
+                - orderer_build_bin is defined
+                - orderer_build_bin
         # =========================
-        # Install on the remote node
+        # Transfer from the control node
         # =========================
-        - name: Install Fabric-X Orderer binaries on the remote nodes
+        - name: Transfer Fabric-X Orderer binaries built on the Control Node
           ansible.builtin.include_role:
             name: hyperledger.fabricx.orderer
-            tasks_from: bin/install
+            tasks_from: bin/transfer
           when:
-            - orderer_build_bin is undefined or not orderer_build_bin
-        # =========================
-        # Build on the remote node
-        # =========================
-        - name: Build Fabric-X Orderer binaries on the remote nodes
-          ansible.builtin.include_role:
-            name: hyperledger.fabricx.orderer
-            tasks_from: bin/build
-          when:
-            - orderer_build_bin is defined
-            - orderer_build_bin
-      when:
-        - bin_build_on_control_node is undefined or not bin_build_on_control_node
-        - orderer_use_bin is defined
-        - orderer_use_bin
-    # =========================
-    # Transfer from the control node
-    # =========================
-    - name: Transfer Fabric-X Orderer binaries built on the Control Node
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.orderer
-        tasks_from: bin/transfer
-      when:
-        - bin_build_on_control_node is defined
-        - bin_build_on_control_node
-        - orderer_use_bin is defined
-        - orderer_use_bin
+            - bin_build_on_control_node is defined
+            - bin_build_on_control_node

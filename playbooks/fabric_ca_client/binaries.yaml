@@ -89,70 +89,74 @@
 - name: Ensure Fabric CA client binaries are on the remote nodes
   hosts: "{{ target_hosts | default('all') }}"
   tasks:
-    - name: Build/Install Fabric CA client directly on the remote nodes
-      block:
-        # =========================
-        # Install on the remote node
-        # =========================
-        - name: Install Fabric CA client on the Fabric CA server remote hosts
-          ansible.builtin.include_role:
-            name: hyperledger.fabricx.fabric_ca
-            tasks_from: client/bin/install
-          when:
-            - fabric_ca_client_build_bin is undefined or not fabric_ca_client_build_bin
-            - fabric_ca_port is defined
-        - name: Install Fabric CA client on the remote hosts requiring Fabric CA
-          ansible.builtin.include_role:
-            name: hyperledger.fabricx.fabric_ca
-            tasks_from: client/bin/install
-          when:
-            - fabric_ca_client_build_bin is undefined or not fabric_ca_client_build_bin
-            - organization is defined
-            - organization.fabric_ca_host is defined
-        # =========================
-        # Build on the remote node
-        # =========================
-        - name: Build Fabric CA client on the Fabric CA server remote hosts
-          ansible.builtin.include_role:
-            name: hyperledger.fabricx.fabric_ca
-            tasks_from: client/bin/build
-          when:
-            - fabric_ca_client_build_bin is defined
-            - fabric_ca_client_build_bin
-            - fabric_ca_port is defined
-        - name: Build Fabric CA client on the remote hosts requiring Fabric CA
-          ansible.builtin.include_role:
-            name: hyperledger.fabricx.fabric_ca
-            tasks_from: client/bin/build
-          when:
-            - fabric_ca_client_build_bin is defined
-            - fabric_ca_client_build_bin
-            - organization is defined
-            - organization.fabric_ca_host is defined
+    - name: Setup Fabric CA client binary on the remote nodes
       when:
-        - bin_build_on_control_node is undefined or not bin_build_on_control_node
         - fabric_ca_client_use_bin is defined
         - fabric_ca_client_use_bin
-    - name: Transfer Fabric CA client from the control node to remote nodes
       block:
+        - name: Build/Install Fabric CA client directly on the remote nodes
+          when:
+            - bin_build_on_control_node is undefined or not bin_build_on_control_node
+          block:
+            # =========================
+            # Install on remote node
+            # =========================
+            - name: Install Fabric CA client binary
+              when:
+                - fabric_ca_client_build_bin is undefined or not fabric_ca_client_build_bin
+              block:
+                - name: Install Fabric CA client on the Fabric CA server remote hosts
+                  ansible.builtin.include_role:
+                    name: hyperledger.fabricx.fabric_ca
+                    tasks_from: client/bin/install
+                  when:
+                    - fabric_ca_port is defined
+                - name: Install Fabric CA client on the remote hosts requiring Fabric CA
+                  ansible.builtin.include_role:
+                    name: hyperledger.fabricx.fabric_ca
+                    tasks_from: client/bin/install
+                  when:
+                    - organization is defined
+                    - organization.fabric_ca_host is defined
+            # =========================
+            # Build on remote node
+            # =========================
+        - name: Build Fabric CA client binary
+          when:
+            - fabric_ca_client_build_bin is defined
+            - fabric_ca_client_build_bin
+          block:
+            - name: Build Fabric CA client on the Fabric CA server remote hosts
+              ansible.builtin.include_role:
+                name: hyperledger.fabricx.fabric_ca
+                tasks_from: client/bin/build
+              when:
+                - fabric_ca_port is defined
+            - name: Build Fabric CA client on the remote hosts requiring Fabric CA
+              ansible.builtin.include_role:
+                name: hyperledger.fabricx.fabric_ca
+                tasks_from: client/bin/build
+              when:
+                - organization is defined
+                - organization.fabric_ca_host is defined
         # =========================
         # Transfer from the control node
         # =========================
-        - name: Transfer Fabric CA client binary on Fabric CA servers
-          ansible.builtin.include_role:
-            name: hyperledger.fabricx.fabric_ca
-            tasks_from: client/bin/transfer
+        - name: Transfer Fabric CA client from the control node to remote nodes
           when:
-            - fabric_ca_port is defined
-        - name: Transfer Fabric CA client binary on nodes
-          ansible.builtin.include_role:
-            name: hyperledger.fabricx.fabric_ca
-            tasks_from: client/bin/transfer
-          when:
-            - organization is defined
-            - organization.fabric_ca_host is defined
-      when:
-        - bin_build_on_control_node is defined
-        - bin_build_on_control_node
-        - fabric_ca_client_use_bin is defined
-        - fabric_ca_client_use_bin
+            - bin_build_on_control_node is defined
+            - bin_build_on_control_node
+          block:
+            - name: Transfer Fabric CA client binary on Fabric CA servers
+              ansible.builtin.include_role:
+                name: hyperledger.fabricx.fabric_ca
+                tasks_from: client/bin/transfer
+              when:
+                - fabric_ca_port is defined
+            - name: Transfer Fabric CA client binary on nodes
+              ansible.builtin.include_role:
+                name: hyperledger.fabricx.fabric_ca
+                tasks_from: client/bin/transfer
+              when:
+                - organization is defined
+                - organization.fabric_ca_host is defined
