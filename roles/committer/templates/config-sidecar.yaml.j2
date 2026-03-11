@@ -53,7 +53,7 @@ orderer:
 {% endif %}
   identity:
     msp-dir: {{ committer_config_dir }}/msp
-    msp-id: Org1MSP
+    msp-id: "{{ organization.name }}MSP"
     bccsp:
       Default: SW
       SW:
