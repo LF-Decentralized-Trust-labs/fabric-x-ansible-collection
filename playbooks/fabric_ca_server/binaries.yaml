@@ -72,36 +72,17 @@
         - fabric_ca_server_use_bin is defined
         - fabric_ca_server_use_bin
       block:
-        - name: Build/Install Fabric CA server directly on the remote nodes
-          when:
-            - bin_build_on_control_node is undefined or not bin_build_on_control_node
+        - name: Setup Fabric CA server binary using appropriate method
+          vars:
+            # Determine the operation based on flags
+            bin_operation: >-
+              {{
+                'transfer' if (bin_build_on_control_node is defined and bin_build_on_control_node)
+                else ('build' if (fabric_ca_build_bin is defined and fabric_ca_build_bin)
+                else 'install')
+              }}
           block:
-            # =========================
-            # Install on remote node
-            # =========================
-            - name: Install Fabric CA server binaries on the remote nodes
+            - name: "{{ bin_operation | capitalize }} Fabric CA server binaries on the remote nodes"
               ansible.builtin.include_role:
                 name: hyperledger.fabricx.fabric_ca
-                tasks_from: server/bin/install
-              when:
-                - fabric_ca_build_bin is undefined or not fabric_ca_build_bin
-            # =========================
-            # Build on remote node
-            # =========================
-            - name: Build Fabric CA server binaries on the remote nodes
-              ansible.builtin.include_role:
-                name: hyperledger.fabricx.fabric_ca
-                tasks_from: server/bin/build
-              when:
-                - fabric_ca_build_bin is defined
-                - fabric_ca_build_bin
-        # =========================
-        # Transfer from the control node
-        # =========================
-        - name: Transfer Fabric CA server binaries built on the Control Node
-          ansible.builtin.include_role:
-            name: hyperledger.fabricx.fabric_ca
-            tasks_from: server/bin/transfer
-          when:
-            - bin_build_on_control_node is defined
-            - bin_build_on_control_node
+                tasks_from: "server/bin/{{ bin_operation }}"

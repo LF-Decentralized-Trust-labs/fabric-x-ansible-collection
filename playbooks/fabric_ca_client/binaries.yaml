@@ -94,69 +94,26 @@
         - fabric_ca_client_use_bin is defined
         - fabric_ca_client_use_bin
       block:
-        - name: Build/Install Fabric CA client directly on the remote nodes
-          when:
-            - bin_build_on_control_node is undefined or not bin_build_on_control_node
+        - name: Setup Fabric CA client binary using appropriate method
+          vars:
+            # Determine the operation based on flags
+            bin_operation: >-
+              {{
+                'transfer' if (bin_build_on_control_node is defined and bin_build_on_control_node)
+                else ('build' if (fabric_ca_client_build_bin is defined and fabric_ca_client_build_bin)
+                else 'install')
+              }}
           block:
-            # =========================
-            # Install on remote node
-            # =========================
-            - name: Install Fabric CA client binary
-              when:
-                - fabric_ca_client_build_bin is undefined or not fabric_ca_client_build_bin
-              block:
-                - name: Install Fabric CA client on the Fabric CA server remote hosts
-                  ansible.builtin.include_role:
-                    name: hyperledger.fabricx.fabric_ca
-                    tasks_from: client/bin/install
-                  when:
-                    - fabric_ca_port is defined
-                - name: Install Fabric CA client on the remote hosts requiring Fabric CA
-                  ansible.builtin.include_role:
-                    name: hyperledger.fabricx.fabric_ca
-                    tasks_from: client/bin/install
-                  when:
-                    - organization is defined
-                    - organization.fabric_ca_host is defined
-            # =========================
-            # Build on remote node
-            # =========================
-            - name: Build Fabric CA client binary
-              when:
-                - fabric_ca_client_build_bin is defined
-                - fabric_ca_client_build_bin
-              block:
-                - name: Build Fabric CA client on the Fabric CA server remote hosts
-                  ansible.builtin.include_role:
-                    name: hyperledger.fabricx.fabric_ca
-                    tasks_from: client/bin/build
-                  when:
-                    - fabric_ca_port is defined
-                - name: Build Fabric CA client on the remote hosts requiring Fabric CA
-                  ansible.builtin.include_role:
-                    name: hyperledger.fabricx.fabric_ca
-                    tasks_from: client/bin/build
-                  when:
-                    - organization is defined
-                    - organization.fabric_ca_host is defined
-        # =========================
-        # Transfer from the control node
-        # =========================
-        - name: Transfer Fabric CA client from the control node to remote nodes
-          when:
-            - bin_build_on_control_node is defined
-            - bin_build_on_control_node
-          block:
-            - name: Transfer Fabric CA client binary on Fabric CA servers
+            - name: "{{ bin_operation | capitalize }} Fabric CA client on the Fabric CA server remote hosts"
               ansible.builtin.include_role:
                 name: hyperledger.fabricx.fabric_ca
-                tasks_from: client/bin/transfer
+                tasks_from: "client/bin/{{ bin_operation }}"
               when:
                 - fabric_ca_port is defined
-            - name: Transfer Fabric CA client binary on nodes
+            - name: "{{ bin_operation | capitalize }} Fabric CA client on the remote hosts requiring Fabric CA"
               ansible.builtin.include_role:
                 name: hyperledger.fabricx.fabric_ca
-                tasks_from: client/bin/transfer
+                tasks_from: "client/bin/{{ bin_operation }}"
               when:
                 - organization is defined
                 - organization.fabric_ca_host is defined

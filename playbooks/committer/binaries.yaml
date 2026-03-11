@@ -80,36 +80,17 @@
         - committer_use_bin is defined
         - committer_use_bin
       block:
-        - name: Build/Install Fabric-X Committer directly on the remote nodes
-          when:
-            - bin_build_on_control_node is undefined or not bin_build_on_control_node
+        - name: Setup Fabric-X Committer binary using appropriate method
+          vars:
+            # Determine the operation based on flags
+            bin_operation: >-
+              {{
+                'transfer' if (bin_build_on_control_node is defined and bin_build_on_control_node)
+                else ('build' if (committer_build_bin is defined and committer_build_bin)
+                else 'install')
+              }}
           block:
-            # =========================
-            # Install on remote node
-            # =========================
-            - name: Install Fabric-X Committer binaries on the remote nodes
+            - name: "{{ bin_operation | capitalize }} Fabric-X Committer binaries on the remote nodes"
               ansible.builtin.include_role:
                 name: hyperledger.fabricx.committer
-                tasks_from: bin/install
-              when:
-                - committer_build_bin is undefined or not committer_build_bin
-            # =========================
-            # Build on remote node
-            # =========================
-            - name: Build Fabric-X Committer binaries on the remote nodes
-              ansible.builtin.include_role:
-                name: hyperledger.fabricx.committer
-                tasks_from: bin/build
-              when:
-                - committer_build_bin is defined
-                - committer_build_bin
-        # =========================
-        # Transfer from the control node
-        # =========================
-        - name: Transfer Fabric-X Committer binaries built on the Control Node
-          ansible.builtin.include_role:
-            name: hyperledger.fabricx.committer
-            tasks_from: bin/transfer
-          when:
-            - bin_build_on_control_node is defined
-            - bin_build_on_control_node
+                tasks_from: "bin/{{ bin_operation }}"
