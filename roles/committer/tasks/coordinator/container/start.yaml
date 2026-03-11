@@ -15,7 +15,7 @@
       - "{{ committer_rpc_port }}:{{ committer_rpc_port }}"
       - "{{ prometheus_exporter_port }}:{{ prometheus_exporter_port }}"
     container_volumes:
-      - "{{ committer_remote_config_dir }}:{{ committer_container_config_dir }}:Z"
+      - "{{ committer_remote_config_dir }}:{{ committer_container_config_dir }}:z"
     container_wait_until_running: true
     container_run_as_host_user: true
     container_wait_port: "{{ committer_rpc_port }}"
