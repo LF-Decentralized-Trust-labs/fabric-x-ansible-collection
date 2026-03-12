@@ -2,11 +2,7 @@
 # Log settings
 # ---------------------------------------------------------------------------
 logging:
-  # True if logs are enabled, false otherwise.
-  enabled: {{ committer_enable_logs | bool | lower }}
-  # True to enable development logs format, false otherwise.
-  development: {{ committer_enable_dev_logs | bool | lower }}
-  # Log level ("ERROR", "WARNING", "INFO" or "DEBUG")
-  level: {{ committer_log_level }}
-  # Logger name
-  name: {{ committer_component_type }}
+  # Log specification
+  logSpec: {{ committer_log_level | lower }}
+  # Log format
+  format: "{{ committer_log_format }}"
