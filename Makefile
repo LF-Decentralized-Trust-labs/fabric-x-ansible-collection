@@ -31,8 +31,11 @@ CONTAINER_REGISTRY ?=
 CONTAINER_REGISTRY_USERNAME ?=
 CONTAINER_REGISTRY_PASSWORD ?=
 
-# include the checks target
-include $(PROJECT_DIR)/target_hosts.mk
+# include the predefined target groups
+include $(PROJECT_DIR)/target_groups.mk
+
+# conditionally include the generated target hosts (if exists)
+-include $(PROJECT_DIR)/target_hosts.mk
 
 # Print the list of supported commands.
 .PHONY: help
@@ -182,6 +185,12 @@ hard-wipe:
 # =======================
 # Utils
 # =======================
+
+# Generate Makefile targets for all inventory hosts (e.g. make targets)
+.PHONY: targets
+targets:
+	@echo "$(COLOR_CYAN)==> Generating Makefile targets for all inventory hosts...$(COLOR_RESET)"
+	ansible-playbook "hyperledger.fabricx.generate_target_hosts"
 
 # Run a generic command on the targeted hosts (e.g. make run-command COMMAND="echo 'hello-world'")
 .PHONY: run-command
