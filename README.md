@@ -181,7 +181,9 @@ Here there is a list of the most used commands:
 | `start`                 | Start the targeted hosts.                                                    |
 | `stop`                  | Stop the targeted hosts without deleting the data.                           |
 | `teardown`              | Teardown the targeted hosts (stop and delete data).                          |
-| `restart`               | Wrapper for `teardown` + `start`.                                            |
+| `update`                | Update the targeted hosts (stop + binaries + start).                         |
+| `restart`               | Restart the targeted hosts (stop + start).                                   |
+| `hard-restart`          | Hard restart the targeted hosts (teardown + start).                          |
 | `wipe`                  | Wipe out the config artifacts and the binaries from the remote hosts.        |
 | `hard-wipe`             | Wipe the deploy folder from the remote hosts.                                |
 | `run-command`           | Run a generic command on the targeted hosts.                                 |

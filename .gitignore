@@ -2,6 +2,7 @@
 .DS_Store
 out/
 out.*working/
+target_hosts.mk
 
 # ansible
 .ansible/

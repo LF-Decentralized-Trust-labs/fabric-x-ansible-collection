@@ -1,0 +1,13 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Generate target_hosts.mk file
+  vars:
+    utils_all_inventory_hosts: "{{ groups['all'] | sort }}"
+  ansible.builtin.template:
+    src: target_hosts.mk.j2
+    dest: "{{ lookup('env', 'PROJECT_DIR') }}/target_hosts.mk"
+    mode: "0644"

@@ -218,33 +218,35 @@ This sets `TARGET_HOSTS=fabric_x_orderers` for the underlying playbook call.
 
 Run `make help` to see all commands. The most important ones are:
 
-| Command                 | Description                                      |
-| ----------------------- | ------------------------------------------------ |
-| `install`               | Build and install the collection locally         |
-| `lint`                  | Run `ansible-lint`                               |
-| `check-license-header`  | Verify license headers on all files              |
-| `check-trailing-spaces` | Check for trailing spaces in `.j2` files         |
-| `install-prerequisites` | Install prerequisites on remote hosts            |
-| `login-cr`              | Log into a container registry                    |
-| `setup`                 | `artifacts` + `binaries` + `configs`             |
-| `artifacts`             | `generate-crypto` + `genesis-block`              |
-| `generate-crypto`       | Generate crypto material on controller           |
-| `genesis-block`         | Build genesis block                              |
-| `binaries`              | Build/install binaries on controller or remotes  |
-| `clean`                 | Remove local `out/` directory                    |
-| `clean-cache`           | Clean the Ansible cache                          |
-| `configs`               | Create/Ship the configs to remote nodes          |
-| `start`                 | Start targeted components                        |
-| `stop`                  | Stop targeted components (keep data)             |
-| `teardown`              | Stop + delete data                               |
-| `restart`               | `teardown` + `start`                             |
-| `wipe`                  | Remove configs/bins from remotes                 |
-| `hard-wipe`             | Remove deploy folder from remotes                |
-| `run-command`           | Run arbitrary command on remotes (`COMMAND="…"`) |
-| `ping`                  | Check that component ports are open              |
-| `get-metrics`           | Collect metrics from components                  |
-| `fetch-logs`            | Pull logs from remote hosts                      |
-| `limit-rate`            | Adjust load-generator TPS (`LIMIT=<n>`)          |
+| Command                 | Description                                                |
+| ----------------------- | ---------------------------------------------------------- |
+| `install`               | Build and install the collection locally                   |
+| `lint`                  | Run `ansible-lint`                                         |
+| `check-license-header`  | Verify license headers on all files                        |
+| `check-trailing-spaces` | Check for trailing spaces in `.j2` files                   |
+| `install-prerequisites` | Install prerequisites on remote hosts                      |
+| `login-cr`              | Log into a container registry                              |
+| `setup`                 | `artifacts` + `binaries` + `configs`                       |
+| `artifacts`             | `generate-crypto` + `genesis-block`                        |
+| `generate-crypto`       | Generate crypto material on controller                     |
+| `genesis-block`         | Build genesis block                                        |
+| `binaries`              | Build/install binaries on controller or remotes            |
+| `clean`                 | Remove local `out/` directory                              |
+| `clean-cache`           | Clean the Ansible cache                                    |
+| `configs`               | Create/Ship the configs to remote nodes                    |
+| `start`                 | Start targeted components                                  |
+| `stop`                  | Stop targeted components (keep data)                       |
+| `teardown`              | Stop + delete data                                         |
+| `update`                | Update targeted components (`stop` + `binaries` + `start`) |
+| `restart`               | Restart targeted components (`stop` + `start`)             |
+| `hard-restart`          | Hard restart targeted components (`teardown` + `start`)    |
+| `wipe`                  | Remove configs/bins from remotes                           |
+| `hard-wipe`             | Remove deploy folder from remotes                          |
+| `run-command`           | Run arbitrary command on remotes (`COMMAND="…"`)           |
+| `ping`                  | Check that component ports are open                        |
+| `get-metrics`           | Collect metrics from components                            |
+| `fetch-logs`            | Pull logs from remote hosts                                |
+| `limit-rate`            | Adjust load-generator TPS (`LIMIT=<n>`)                    |
 
 ---
 
