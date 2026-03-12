@@ -44,6 +44,5 @@ committer_http_protocol: "{{ 'https' if committer_use_tls else 'http' }}"
 # =========================
 # Miscellaneous
 # =========================
-committer_log_level: "INFO"
-committer_enable_logs: true
-committer_enable_dev_logs: true
+committer_log_level: "info"
+committer_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
