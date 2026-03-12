@@ -169,12 +169,17 @@ Here there is a list of the most used commands:
 
 | Command                 | Usage                                                                        |
 | ----------------------- | ---------------------------------------------------------------------------- |
+| `install`               | Build and install the collection locally.                                    |
+| `lint`                  | Run `ansible-lint` checks.                                                   |
+| `check-license-header`  | Verify license headers on all files.                                         |
+| `check-trailing-spaces` | Check for trailing spaces in `.j2` files.                                    |
 | `install-prerequisites` | Install the needed prerequisites on the remote hosts.                        |
+| `login-cr`              | Log a container engine within a container registry.                          |
+| `setup`                 | Wrapper for `artifacts` + `binaries` + `configs`.                            |
+| `artifacts`             | Wrapper for `generate-crypto` + `genesis-block`.                             |
 | `generate-crypto`       | Generate the crypto material on the controller node.                         |
 | `genesis-block`         | Build the genesis block for the network.                                     |
-| `artifacts`             | Wrapper for `generate-crypto` + `genesis-block`.                             |
 | `binaries`              | Build/install binaries on controller or remote nodes for the targeted hosts. |
-| `setup`                 | Wrapper for `artifacts` + `binaries` + `configs`.                            |
 | `clean`                 | Clean all the artifacts and binaries built on the controller node.           |
 | `clean-cache`           | Clean the Ansible cache.                                                     |
 | `configs`               | Create/Ship the configs to the remote nodes.                                 |
@@ -186,12 +191,12 @@ Here there is a list of the most used commands:
 | `hard-restart`          | Hard restart the targeted hosts (teardown + start).                          |
 | `wipe`                  | Wipe out the config artifacts and the binaries from the remote hosts.        |
 | `hard-wipe`             | Wipe the deploy folder from the remote hosts.                                |
+| `targets`               | Generate Makefile targets for all inventory hosts.                           |
 | `run-command`           | Run a generic command on the targeted hosts.                                 |
 | `ping`                  | Check that the component ports are open.                                     |
 | `get-metrics`           | Get the metrics from the targeted components.                                |
 | `fetch-logs`            | Fetch the logs from the targeted hosts.                                      |
 | `limit-rate`            | Set the TPS rate on the load generators.                                     |
-| `login-cr`              | Log a container engine within a container registry.                          |
 
 ### Restrict commands to a group of hosts
 

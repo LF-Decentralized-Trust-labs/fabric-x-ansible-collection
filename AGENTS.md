@@ -242,6 +242,7 @@ Run `make help` to see all commands. The most important ones are:
 | `hard-restart`          | Hard restart targeted components (`teardown` + `start`)    |
 | `wipe`                  | Remove configs/bins from remotes                           |
 | `hard-wipe`             | Remove deploy folder from remotes                          |
+| `targets`               | Generate Makefile targets for all inventory hosts          |
 | `run-command`           | Run arbitrary command on remotes (`COMMAND="…"`)           |
 | `ping`                  | Check that component ports are open                        |
 | `get-metrics`           | Collect metrics from components                            |
