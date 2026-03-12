@@ -4,7 +4,13 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Check if Podman container to stop exists
+  containers.podman.podman_container_info:
+    name: "{{ container_name }}"
+  register: container_podman_info
+
 - name: Stop Podman container
   containers.podman.podman_container:
     name: "{{ container_name }}"
     state: stopped
+  when: container_podman_info.containers | length > 0

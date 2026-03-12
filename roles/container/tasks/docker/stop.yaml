@@ -4,7 +4,13 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Stop container
+- name: Check if Docker container exists
+  community.docker.docker_container_info:
+    name: "{{ container_name }}"
+  register: container_docker_info
+
+- name: Stop Docker container
   community.docker.docker_container:
     name: "{{ container_name }}"
     state: stopped
+  when: container_docker_info.exists
