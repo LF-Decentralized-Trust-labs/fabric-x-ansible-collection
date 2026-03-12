@@ -4,20 +4,17 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that TLS prerequisites are satisfied
+- name: Check that crypto prerequisites are satisfied
   ansible.builtin.fail:
     msg: "Cannot setup TLS crypto material for HLFX Committer without an organization. Please define it through the 'organization' field."
   when:
-    - committer_use_tls or committer_use_mtls
     - organization is undefined
 
 - name: Check that a peer role is provided for TLS cert
   ansible.builtin.fail:
     msg: "Cannot setup TLS crypto material for HLFX Committer if is not a peer. Please set the field 'organization.role' as 'peer'."
   when:
-    - committer_use_tls or committer_use_mtls
-    - organization is defined
-    - (organization.role is undefined) or (organization.role != 'peer')
+    - organization.role is undefined or organization.role != 'peer'
 
 # =========================
 # With cryptogen
@@ -29,9 +26,6 @@
     name: hyperledger.fabricx.committer
     tasks_from: crypto/cryptogen/transfer
   when:
-    - organization is defined
-    - organization.role is defined
-    - organization.role == 'peer'
     - organization.fabric_ca_host is not defined
 
 # =========================
@@ -42,7 +36,4 @@
     name: hyperledger.fabricx.committer
     tasks_from: crypto/fabric_ca/enroll
   when:
-    - organization is defined
-    - organization.role is defined
-    - organization.role == 'peer'
     - organization.fabric_ca_host is defined
