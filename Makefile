@@ -135,9 +135,17 @@ stop:
 teardown:
 	ansible-playbook "$(PLAYBOOK_PATH)/80-teardown.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
+# Update the targeted hosts (e.g. make fabric_x update).
+.PHONY: update
+update: stop binaries start
+
 # Restart the targeted hosts (e.g. make fabric_x restart).
 .PHONY: restart
-restart: teardown start
+restart: stop start
+
+# Hard restart the targeted hosts by deleting runtime generated data (e.g. make fabric_x hard-restart).
+.PHONY: hard-restart
+hard-restart: teardown start
 
 # Wipe out the config artifacts and the binaries from the remote hosts (e.g. make fabric_x wipe).
 .PHONY: wipe
