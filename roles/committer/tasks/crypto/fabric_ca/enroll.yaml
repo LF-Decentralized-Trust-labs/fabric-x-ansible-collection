@@ -24,6 +24,8 @@
     - hostvars[organization.fabric_ca_host].fabric_ca_use_tls is defined
     - hostvars[organization.fabric_ca_host].fabric_ca_use_tls
 
+# Only the sidecar component requires an MSP since it's the only Committer component
+# interfacing with the ordering service
 - name: Generate Hyperledger Fabric-X Committer MSP crypto material
   vars:
     fabric_ca_host: "{{ organization.fabric_ca_host }}"
@@ -40,7 +42,8 @@
     tasks_from: client/enroll
   when:
     - organization.fabric_ca_host is defined
-    - committer_component_type | default('') == 'sidecar'
+    - committer_component_type is defined
+    - committer_component_type == 'sidecar'
 
 - name: Generate Hyperledger Fabric-X Committer TLS crypto material
   vars:

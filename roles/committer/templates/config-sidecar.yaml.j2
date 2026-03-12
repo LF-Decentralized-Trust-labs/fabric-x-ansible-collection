@@ -52,11 +52,19 @@ orderer:
 {% endif %}
 {% endif %}
   identity:
+    # Indicates to which MSP this client belongs to.
+    msp-id: {{ organization.name }}MSP
+    # Indicates the MSP folder to use as identity
     msp-dir: {{ committer_config_dir }}/msp
-    msp-id: "{{ organization.name }}MSP"
+    # BCCSP (Blockchain crypto provider): Select which crypto implementation or
+    # library to use    
     bccsp:
       Default: SW
+      # Settings for the SW crypto provider (i.e. when DEFAULT: SW)
       SW:
+        # The default Hash and Security level needs refactoring to be
+        # fully configurable. Changing these defaults requires coordination
+        # SHA2 is hardcoded in several places, not only BCCSP      
         Security: 256
         Hash: SHA2
 
