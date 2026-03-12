@@ -57,14 +57,14 @@ orderer:
     # Indicates the MSP folder to use as identity
     msp-dir: {{ committer_config_dir }}/msp
     # BCCSP (Blockchain crypto provider): Select which crypto implementation or
-    # library to use    
+    # library to use
     bccsp:
       Default: SW
       # Settings for the SW crypto provider (i.e. when DEFAULT: SW)
       SW:
         # The default Hash and Security level needs refactoring to be
         # fully configurable. Changing these defaults requires coordination
-        # SHA2 is hardcoded in several places, not only BCCSP      
+        # SHA2 is hardcoded in several places, not only BCCSP
         Security: 256
         Hash: SHA2
 
