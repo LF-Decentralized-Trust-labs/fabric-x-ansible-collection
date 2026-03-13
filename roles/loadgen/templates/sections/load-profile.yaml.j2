@@ -1,13 +1,9 @@
 # ---------------------------------------------------------------------------
-# Workload characteristics.
-# It only contains parameters that deterministically affect the
-# generated items.
-# The items order, however, might be affected by other parameters.
+# Load profile configuration defining transaction characteristics and generation parameters
 # ---------------------------------------------------------------------------
 load-profile:
-  # Describes generated keys characteristics.
   key:
-    # Size of the key to generate.
+    # Size of generated keys in bytes. Affects transaction payload size and storage requirements.
     size: {{ loadgen_key_size | default(32) }}
   # Random seed for reproducible transaction generation. Same seed produces same transaction sequence.
   seed: {{ loadgen_tx_seed | default(12345) }}
@@ -53,14 +49,14 @@ load-profile:
     # Number of blind-write operations per transaction.
     write-count:
       const: {{ loadgen_write_only_tx_keys | default(2) }}
-    # The sizes of the blind-write values to generate (size=0 => value=nil)
+    # Size in bytes of the value written for each blind-write operation (0 means nil value).
     blind-write-value-size: {{ loadgen_write_only_tx_val_size | default(32) }}
 {% endif %}
 {% if loadgen_generate_read_write_tx | default(true) %}
-    # The number of read-write keys to generate
+    # Number of read-write operations per transaction.
     read-write-count:
       const: {{ loadgen_read_write_tx_keys | default(2) }}
-    # The sizes of the read-write values to generate (size=0 => value=nil)
+    # Size in bytes of the value written for each read-write operation (0 means nil value).
     read-write-value-size: {{ loadgen_read_write_tx_val_size | default(32) }}
 {% endif %}
   # Policy configuration for transaction endorsement and validation

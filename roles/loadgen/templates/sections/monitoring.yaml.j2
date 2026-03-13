@@ -17,7 +17,7 @@ monitoring:
     # Path to the server's TLS certificate file (public key).
     cert-path: {{ loadgen_config_dir }}/tls/server.crt
 {% if loadgen_monitoring_use_mtls %}
-    # TLS mode for server connections: 'none' (no TLS), 'tls' (server auth only),
+    # TLS mode for monitoring endpoint: 'none' (no TLS), 'tls' (server auth only),
     # or 'mtls' (mutual TLS with client cert verification).
     mode: mtls
     # List of paths to CA certificate files for verifying client certificates (required for mtls).
@@ -37,14 +37,24 @@ monitoring:
 {% endfor %}
 {% endif %}
 {% else %}
-    # TLS mode for server connections: 'none' (no TLS), 'tls' (server auth only),
+    # TLS mode for monitoring endpoint: 'none' (no TLS), 'tls' (server auth only),
     # or 'mtls' (mutual TLS with client cert verification).
     mode: tls
 {% endif %}
 {% endif %}
-  # Describes the latency monitoring parameters.
+  # Rate limiting configuration for unary gRPC endpoints.
+  # Uses a token bucket algorithm to limit the number of requests per second.
+  rate-limit:
+    # Maximum number of requests per second allowed.
+    # Set to 0 to disable rate limiting.
+    requests-per-second: {{ loadgen_monitoring_rate_limit_requests_per_second | default(0) }}
+    # Maximum number of requests allowed in a single burst.
+    # When rate limiting is enabled (requests-per-second > 0):
+    #   - Must be greater than 0
+    #   - Must be less than or equal to requests-per-second
+    burst: {{ loadgen_monitoring_rate_limit_burst | default(0) }}
+  # Latency tracking configuration for measuring transaction processing times.
   latency:
-    # Describes the latency sampling parameters.
     sampler:
 {% if loadgen_latency_sampler_prefix is defined %}
       # Prefix checks for TXs that have the given prefix.
@@ -53,11 +63,10 @@ monitoring:
       # Portion of transactions to sample for latency measurement (0.0 to 1.0).
       # Lower values reduce overhead but may miss outliers. 0.01 = 1% sampling.
       portion: {{ loadgen_latency_sampler_portion | default(0.01) }}
-    # Describes the latency bucket distribution.
     buckets:
-      # Can be empty, uniform, or fixed.
+      # Distribution type for latency histogram buckets: 'uniform' (equal width) or 'exponential'.
       distribution: {{ loadgen_latency_distribution | default('uniform') }}
-      # Maximum tracked latency
+      # Maximum latency value to track. Latencies above this are counted in overflow bucket.
       max-latency: {{ loadgen_max_latency | default('5s') }}
-      # Buckets amount to create between 0:max-latency
+      # Number of histogram buckets for latency distribution analysis.
       bucket-count: {{ loadgen_latency_buckets | default(1000) }}
