@@ -1,59 +1,80 @@
 # ---------------------------------------------------------------------------
-# Workload characteristics.
-# It only contains parameters that deterministically affect the
-# generated items.
-# The items order, however, might be affected by other parameters.
+# Load profile configuration defining transaction characteristics and generation parameters
 # ---------------------------------------------------------------------------
 load-profile:
-  # The seed to generate the seeds for each worker.
-  # Each worker has a unique seed to generate keys in addition the seed for the other content.
-  # This allows reproducing the generated keys regardless of the other generated content.
-  # It is useful when generating transactions, and later generating queries for the same keys.
-  seed: {{ loadgen_tx_seed | default(12345) }}
-  # The number of independent producers.
-  # Each worker uses a unique seed that is generated from the main seed.
-  # To ensure responsibility of items between runs (e.g., for query)
-  # the number of workers must be preserved.
-  workers: {{ loadgen_workers | default(ansible_facts.processor_vcpus) | int }}
-  # Describes generate block characteristics.
-  block:
-    # Size of the block
-    size: {{ loadgen_block_size | default(1) }}
-  # Describes generated keys characteristics.
   key:
-    # Size of the key to generate.
+    # Size of generated keys in bytes. Affects transaction payload size and storage requirements.
     size: {{ loadgen_key_size | default(32) }}
-  # Describes generate TX characteristics.
+  # Random seed for reproducible transaction generation. Same seed produces same transaction sequence.
+  seed: {{ loadgen_tx_seed | default(12345) }}
+  # Number of worker goroutines for parallel transaction generation.
+  # Higher values increase generation throughput but consume more CPU.
+  # We set low values to reduce the CPU load during tests.
+  workers: {{ loadgen_workers | default(ansible_facts.processor_vcpus) | int }}
+  # block describes generate block characteristics
+  # (when applying load to the VC or Verifier, blocks are translated to batches).
+  # The generated block size is aimed to be max-size, if the generated
+  # TXs rate is sufficient.
+  # If the generated TXs rate is too low, the block size might
+  # be less than max-size, but at least min-size.
+  # In such case, the block is generated at a preferred rate of preferred-rate.
+  # Blocks wait up to preferred-rate (default: 1 second) before submission.
+  # If a full block is not ready by then, a partial block is
+  # submitted if it meets min-size (default: 1);
+  # otherwise, the system waits until min-size is available.
+  # If the max-size is less than or equal to min-size, preferred-rate is ignored.
+  block:
+    max-size: {{ loadgen_block_max_size | default(500) }}
+    min-size: {{ loadgen_block_min_size | default(1) }}
+    preferred-rate: {{ loadgen_block_preferred_rate | default('1s') }}
+  # Transaction structure configuration.
+  # Each transaction can contain three types of key operations:
+  #   - read-only: Reads a key without writing (version is nil).
+  #   - read-write: Reads and writes a key (read version is nil).
+  #   - blind-write (write-count): Writes a key without reading it first.
+  # The count for each type is specified using a distribution (see below).
+  # Supported distributions:
+  #   const: N                          - Exactly N operations.
+  #   uniform: {min: M, max: N}         - Uniformly distributed between M and N.
+  #   normal: {mean: M, std: S}         - Normal distribution with mean M and std S.
+  #   bernoulli: P                      - 1 with probability P, 0 otherwise.
+  #   discrete: [{value: V, probability: P}, ...] - Discrete distribution.
   transaction:
 {% if loadgen_generate_read_only_tx | default(false) %}
-    # The number of read-only keys to generate
+    # Number of read-only operations per transaction.
     read-only-count:
-      # Static number of keys
       const: {{ loadgen_read_only_tx_keys | default(2) }}
 {% endif %}
 {% if loadgen_generate_write_only_tx | default(false) %}
-    # The number of blind-write keys to generate
+    # Number of blind-write operations per transaction.
     write-count:
-      # Static number of keys
       const: {{ loadgen_write_only_tx_keys | default(2) }}
-    # The sizes of the blind-write values to generate (size=0 => value=nil)
+    # Size in bytes of the value written for each blind-write operation (0 means nil value).
     blind-write-value-size: {{ loadgen_write_only_tx_val_size | default(32) }}
 {% endif %}
 {% if loadgen_generate_read_write_tx | default(true) %}
-    # The number of read-write keys to generate
+    # Number of read-write operations per transaction.
     read-write-count:
-      # Static number of keys
       const: {{ loadgen_read_write_tx_keys | default(2) }}
-    # The sizes of the read-write values to generate (size=0 => value=nil)
+    # Size in bytes of the value written for each read-write operation (0 means nil value).
     read-write-value-size: {{ loadgen_read_write_tx_val_size | default(32) }}
 {% endif %}
-    # Holds the policy information for the load generation.
-    # Describe how to sign/verify a TX.
-    policy:
-      # Channel ID
-      channel-id: {{ channel_id }}
-      # Specify the namespace policies.
-      namespace-policies:
+  # Policy configuration for transaction endorsement and validation
+  policy:
+    # Channel ID for which transactions are generated. Must match the target blockchain channel.
+    channel-id: {{ channel_id }}
+    # Namespace-specific endorsement policies. Key is namespace ID (0 for default namespace).
+    # Each namespace can have different signature schemes and endorsement requirements.
+    # System namespaces (meta and config) must not be specified; their policies are derived
+    # from the config block automatically.
+    #
+    # Supported schemes:
+    #   ECDSA, EDDSA, BLS - Use synthetic identities generated from 'seed' (or loaded from 'key-path').
+    #                        No Fabric PKI required. Useful for performance testing.
+    #   MSP               - Uses Fabric's standard endorsement with signing identities loaded from
+    #                        artifacts-path. Requires all peer organizations to sign. The 'seed' and
+    #                        'key-path' fields are ignored when using MSP.
+    namespace-policies:
 {% if organization is defined %}
 {% if organization.users is defined %}
 {% for user in organization.users %}
@@ -62,8 +83,6 @@ load-profile:
         {{ user.namespace }}:
           # Signature scheme ("ECDSA", "EDDSA", "BLS" or "NONE").
           scheme: {{ loadgen_key_scheme | default('ECDSA') }}
-          # Seed to use for key generation (used only when the key is not already present).
-          seed: {{ user.seed | default(12345) }}
           # How to find/generate the signature keys.
           key-path:
             # Path to the signing key.
@@ -79,6 +98,18 @@ load-profile:
 {% endfor %}
 {% endif %}
 {% endif %}
+{% if loadgen_generate_config_block %}
+    # Orderer endpoint specifications for transaction submission.
+    # Format: id=<num>,msp-id=<org>,broadcast,deliver,<host>:<port>
+    # Capabilities: 'broadcast' (submit txs), 'deliver' (receive blocks).
+    orderer-endpoints:
+{% for orderer_router in orderer_router_hosts %}
+      - id={{ hostvars[orderer_router].orderer_group }},msp-id={{ hostvars[orderer_router].organization.name }},broadcast,{{ hostvars[orderer_router].ansible_host }}:{{ hostvars[orderer_router].orderer_rpc_port }}
+{% endfor %}
+{% for orderer_assembler in orderer_assembler_hosts %}
+      - id={{ hostvars[orderer_assembler].orderer_group }},msp-id={{ hostvars[orderer_assembler].organization.name }},deliver,{{ hostvars[orderer_assembler].ansible_host }}:{{ hostvars[orderer_assembler].orderer_rpc_port }}
+{% endfor %}
+{% endif %}
 {% if loadgen_query_settings is defined %}
   # Describe query characteristics.
   query:
@@ -92,24 +123,28 @@ load-profile:
     shuffle: {{ loadgen_query_settings.shuffle | default(false) | bool | lower }}
 {% endif %}
 {% if loadgen_conflicts_settings is defined %}
-  # Describe the TX conflict characteristics.
-  # Note that each of the conflicts' probabilities are independent bernoulli distributions.
+  # Conflict and error injection configuration for testing system resilience.
   conflicts:
-    # Probability of invalid signatures [0,1] (default: 0).
+    # Fraction of transactions to generate with invalid signatures (0.0 to 1.0).
+    # Used to test signature verification and error handling. 0.1 = 10% invalid.
     invalid-signatures: {{ loadgen_conflicts_settings.invalid_signatures | default(0) }}
 {% if loadgen_conflicts_settings.dependencies is defined %}
-    # List of dependencies.
+    # Dependencies inject read-write conflicts between transactions to test MVCC validation.
+    # Each dependency type is an independent Bernoulli trial applied per transaction.
+    # 'src' and 'dst' specify the operation types that create the dependency:
+    #   "read", "write", or "read-write" (both read and write the same key).
+    # 'gap' controls the distance (in transaction count) between dependent transactions.
     dependencies:
 {% for dependency in loadgen_conflicts_settings.dependencies %}
-      # Probability of the dependency type [0,1] (default: 0)
+      # 0.05 -> 5% of transactions will have this dependency
       - probability: {{ dependency.probability | default(0) }}
-        # Source dependency ("read", "write", or "read-write")
+        # Source transaction reads and writes a key
         src: {{ dependency.src | default('read-write') }}
-        # Destination dependency ("read", "write", or "read-write")
+        # Destination transaction reads and writes the same key
         dst: {{ dependency.dst | default('read-write') }}
-        # Gap is the distance between the dependent TXs (default: 1)
+        # Gap is the distance between the dependent TXs
         gap:
-          # Static distance
+          # Dependent transaction is the immediately next one
           const: {{ dependency.gap | default(500) }}
 {% endfor %}
 {% endif %}

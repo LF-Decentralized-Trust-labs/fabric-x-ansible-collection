@@ -14,19 +14,35 @@
 {% include './sections/database.yaml.j2' +%}
 
 # ---------------------------------------------------------------------------
-# Batch limit settings
+# Resource limit configurations.
+# The following limits prevent unbounded memory growth and resource leaks.
 # ---------------------------------------------------------------------------
-# A batch will execute once it accumulated this number of keys.
-min-batch-keys: {{ committer_query_service_min_batch_keys | default(1024) }}
-# A batch will execute once it waited this much time.
-max-batch-wait: {{ committer_query_service_max_batch_wait | default('100ms') }}
 
-# ---------------------------------------------------------------------------
-# View limit settings
-# ---------------------------------------------------------------------------
-# A new view will be created if the previous view was created before this much time.
+# Minimum number of keys that must accumulate in a batch before executing the query
+# against the database. Batching reduces database round-trips and improves efficiency.
+# Queries wait up to max-batch-wait for the batch to fill.
+min-batch-keys: {{ committer_query_service_min_batch_keys | default(1024) }}
+# Maximum time to wait for a batch to reach min-batch-keys before executing it anyway.
+# Lower values reduce query latency but may decrease batching efficiency. Queries may
+# wait longer if no database connections are available.
+max-batch-wait: {{ committer_query_service_max_batch_wait | default('100ms') }}
+# Time window for aggregating multiple views with the same parameters into a single
+# batched view. Views created within this window are processed together to reduce
+# database load. Larger windows improve batching but increase latency.
 view-aggregation-window: {{ committer_query_service_view_aggregation_window | default('100ms') }}
-# A new view will be created if the previous view aggregated this number of views.
+# Maximum number of views that can be aggregated together. Once reached, a new
+# aggregated view is created even if within the view-aggregation-window.
 max-aggregated-views: {{ committer_query_service_max_aggregated_views | default(1024) }}
-# A view will be closed if it was opened for longer than this time.
+# Maximum number of concurrently active (batched) views. When reached, new BeginView
+# requests are rejected with RESOURCE_EXHAUSTED. Set to 0 to disable the limit.
+max-active-views: {{ committer_query_service_max_active_views | default(4096) }}
+# Maximum lifetime of a view from creation to completion of its last query.
+# Views exceeding this timeout are aborted to prevent resource leaks.
+# Includes query execution time.
 max-view-timeout: {{ committer_query_service_max_view_timeout | default('10s') }}
+# Maximum number of keys allowed in a single query request.
+# This applies to both GetRows (total keys across all namespaces) and
+# GetTransactionStatus (number of transaction IDs).
+# Large key sets can cause high latency, memory spikes, and potential timeouts.
+# Set to 0 to disable the limit (not recommended for production).
+max-request-keys: {{ committer_query_service_max_request_keys | default(10000) }}

@@ -8,76 +8,113 @@
 # Orderer Client Settings
 # ---------------------------------------------------------------------------
 orderer-client:
-  # Number of simultaneous gRPC broadcast streams the load-generator opens to the orderer.
+  # Number of parallel goroutines for broadcasting transactions to the orderer.
+  # Higher values increase throughput but consume more resources.
+  # We set low values to reduce the CPU load during tests.
   broadcast-parallelism: {{ loadgen_broadcast_parallelism | default(ansible_facts.processor_vcpus | int // 4) }}
-  # Orderer-client settings
+  # Direct orderer connection configuration (alternative to sidecar-client)
   orderer:
-    # Channel ID
+    # The channel ID for which transactions are generated and submitted.
     channel-id: {{ channel_id }}
-    # Consensus Type ("BFT" or "CFT")
+    # Consensus type of the ordering service: 'BFT' (Byzantine Fault Tolerant) or 'Raft'.
+    # Affects how the loadgen interacts with the orderer.
     consensus-type: BFT
-    # Orderer connection settings
-    connection:
-      # List of HLFX Orderer endpoints
-      endpoints:
-        # List of HLFX Orderer Router endpoints
+    # Identity configuration for signing transactions and connecting to orderers.
+    identity:
+      # MSP (Membership Service Provider) ID identifying the organization.
+      msp-id: {{ organization.name }}MSP
+      # Path to the MSP directory containing certificates and keys.
+      # Standard Fabric MSP structure with signcerts/, keystore/, cacerts/, etc.
+      msp-dir: {{ loadgen_config_dir }}/msp
+      # BCCSP (Blockchain Crypto Service Provider) configuration for cryptographic operations.
+      bccsp:
+        # Default crypto provider: 'SW' (software) or 'PKCS11' (hardware security module).
+        Default: SW
+        SW:
+          # Security level in bits (256 for ECDSA P-256, 384 for P-384).
+          Security: 256
+          # Hash algorithm: 'SHA2' or 'SHA3'.
+          Hash: SHA2
+    # Organizations map organization MSP IDs to their orderer connection details.
+    # It supports multi-organization deployments where each org has its own orderers and TLS root CAs.
+    # Each organization can have multiple orderer endpoints with different capabilities (broadcast, deliver).
+    organizations:
 {% for orderer_router in orderer_router_hosts %}
-        - id={{ hostvars[orderer_router].orderer_group }},broadcast,{{ hostvars[orderer_router].ansible_host }}:{{ hostvars[orderer_router].orderer_rpc_port }}
-{% endfor %}
-        # List of HLFX Orderer Assembler endpoints
+      # Organization identifier (key can be any string, typically matches MSP ID).
+      # Each organization entry contains its orderer endpoints and CA certificates.
+      {{ hostvars[orderer_router].organization.name }}:
+        # List of orderer endpoints for this organization.
+        # Format: id=<num>,broadcast,deliver,<host>:<port>
+        # - id: Unique orderer identifier within the organization
+        # - broadcast: Endpoint supports transaction submission
+        # - deliver: Endpoint supports block delivery
+        # - host:port: Network address of the orderer
+        endpoints:
+          - id={{ hostvars[orderer_router].orderer_group }},broadcast,{{ hostvars[orderer_router].ansible_host }}:{{ hostvars[orderer_router].orderer_rpc_port }}
 {% for orderer_assembler in orderer_assembler_hosts %}
-        - id={{ hostvars[orderer_assembler].orderer_group }},deliver,{{ hostvars[orderer_assembler].ansible_host }}:{{ hostvars[orderer_assembler].orderer_rpc_port }}
+{% if hostvars[orderer_assembler].orderer_group == hostvars[orderer_router].orderer_group %}
+          - id={{ hostvars[orderer_assembler].orderer_group }},deliver,{{ hostvars[orderer_assembler].ansible_host }}:{{ hostvars[orderer_assembler].orderer_rpc_port }}
+{% endif %}
+{% endfor %}
+        # List of paths to CA certificate files for verifying orderer certificates.
+        # Each organization can have its own CA certificates.
+        ca-cert-paths:
+          - {{ loadgen_config_dir }}/tls/orderers/{{ orderer_router }}/ca.crt
 {% endfor %}
 {% if (hostvars[orderer_ref_host].orderer_use_tls is defined) and hostvars[orderer_ref_host].orderer_use_tls %}
-      # Define TLS options and certificate paths used for secure communication
-      # between the loadgen and the orderers.
+      # Loadgen uses these TLS credentials when connecting to the orderers as a client.
       tls:
-        # Server CA certificates to trust if tls is enabled.
-        ca-cert-paths:
+        # List of common CA certificate paths used across all orderer organizations.
+        # These are in addition to organization-specific CA certificates.
+        common-ca-cert-paths:
 {% for orderer_router in orderer_router_hosts %}
 {% if (hostvars[orderer_router].orderer_use_tls is defined) and hostvars[orderer_router].orderer_use_tls %}
-          - {{ loadgen_config_dir }}/tls/orderers/{{ orderer_router }}/ca.crt
+          - {{ loadgen_config_dir }}/tls/orderers/{{ orderer_router }}/server.crt
 {% endif %}
 {% endfor %}
 {% for orderer_assembler in orderer_assembler_hosts %}
 {% if (hostvars[orderer_assembler].orderer_use_tls is defined) and hostvars[orderer_assembler].orderer_use_tls %}
-          - {{ loadgen_config_dir }}/tls/orderers/{{ orderer_assembler }}/ca.crt
+          - {{ loadgen_config_dir }}/tls/orderers/{{ orderer_assembler }}/server.crt
 {% endif %}
 {% endfor %}
 {% if (hostvars[orderer_ref_host].orderer_use_mtls is defined) and hostvars[orderer_ref_host].orderer_use_mtls %}
-        # Path to the TLS key file (private key).
+        # Path to the client's TLS private key file.
         key-path: {{ loadgen_config_dir }}/tls/server.key
-        # Path to the TLS certificate file (public key).
+        # Path to the client's TLS certificate file (public key) for authentication.
         cert-path: {{ loadgen_config_dir }}/tls/server.crt
-        # TLS configuration modes ("none", "tls" or "mtls")
+        # TLS mode for orderer client connections: 'none' (no TLS), 'tls' (server auth only),
+        # or 'mtls' (mutual TLS with client cert verification).
         mode: mtls
 {% else %}
-        # TLS configuration modes ("none", "tls" or "mtls")
+        # TLS mode for orderer client connections: 'none' (no TLS), 'tls' (server auth only),
+        # or 'mtls' (mutual TLS with client cert verification).
         mode: tls
 {% endif %}
 {% endif %}
 {% if committer_sidecar_host is defined %}
-  # Used to deliver status from the sidecar.
-  # If omitted, we will fetch directly from the orderer.
+  # Sidecar client configuration (alternative to direct orderer connection)
   sidecar-client:
-    # Committer Sidecar endpoint
+    # Endpoint of the sidecar service to connect to for block delivery.
+    # Format: host:port.
     endpoint: {{ hostvars[committer_sidecar_host].ansible_host }}:{{ hostvars[committer_sidecar_host].committer_rpc_port }}
 {% if (hostvars[committer_sidecar_host].committer_use_tls is defined) and hostvars[committer_sidecar_host].committer_use_tls %}
     # Define TLS options and certificate paths used for secure communication
     # between the sidecar-client and the sidecar.
     tls:
-      # Server CA certificates to trust if tls is enabled.
+      # List of paths to CA certificate files for verifying server certificates.
       ca-cert-paths:
         - {{ loadgen_config_dir }}/tls/sidecar/ca.crt
 {% if (hostvars[committer_sidecar_host].committer_use_mtls is defined) and hostvars[committer_sidecar_host].committer_use_mtls %}
-      # Path to the TLS key file (private key).
+      # Path to the client's TLS private key file.
       key-path: {{ loadgen_config_dir }}/tls/server.key
-      # Path to the TLS certificate file (public key).
+      # Path to the client's TLS certificate file (public key) for authentication.
       cert-path: {{ loadgen_config_dir }}/tls/server.crt
-      # TLS configuration modes ("none", "tls" or "mtls")
+      # TLS mode for sidecar client connections: 'none' (no TLS), 'tls' (server auth only),
+      # or 'mtls' (mutual TLS with client cert verification).
       mode: mtls
 {% else %}
-      # TLS configuration modes ("none", "tls" or "mtls")
+      # TLS mode for sidecar client connections: 'none' (no TLS), 'tls' (server auth only),
+      # or 'mtls' (mutual TLS with client cert verification).
       mode: tls
 {% endif %}
 {% endif %}
@@ -90,5 +127,7 @@ orderer-client:
 {% include './sections/stream.yaml.j2' +%}
 
 {% include './sections/generate.yaml.j2' +%}
+
+{% include './sections/limit.yaml.j2' +%}
 
 {% include './sections/logging.yaml.j2' +%}

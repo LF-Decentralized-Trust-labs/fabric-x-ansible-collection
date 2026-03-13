@@ -4,19 +4,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that TLS prerequisites are satisfied
+- name: Check that an organization has been provided to the loadgen
   ansible.builtin.fail:
-    msg: "Cannot setup TLS crypto material for HLFX Loadgen without an organization. Please define it through the 'organization' field."
+    msg: "No organization has been assigned to the loadgen. Please define it through the 'organization' field."
   when:
-    - loadgen_use_tls
     - organization is undefined
 
-- name: Check that a peer role is provided for TLS cert
+- name: Check that a peer role is provided
   ansible.builtin.fail:
-    msg: "Cannot setup TLS crypto material for HLFX Loadgen if is not a peer. Please set the field 'organization.role' as 'peer'."
+    msg: "Cannot setup crypto material for HLFX Loadgen if is not a peer. Please set the field 'organization.role' as 'peer'."
   when:
-    - loadgen_use_tls
-    - organization is defined
     - (organization.role is undefined) or (organization.role != 'peer')
 
 # =========================
@@ -27,7 +24,6 @@
     name: hyperledger.fabricx.loadgen
     tasks_from: crypto/cryptogen/transfer
   when:
-    - organization is defined
     - organization.fabric_ca_host is undefined
 
 # =========================
@@ -38,5 +34,4 @@
     name: hyperledger.fabricx.loadgen
     tasks_from: crypto/fabric_ca/enroll
   when:
-    - organization is defined
     - organization.fabric_ca_host is defined

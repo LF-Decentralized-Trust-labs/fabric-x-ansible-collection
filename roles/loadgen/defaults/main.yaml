@@ -9,7 +9,7 @@
 # =========================
 loadgen_registry_endpoint: "{{ lookup('env', 'LOADGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 loadgen_image_name: "fabric-x-loadgen"
-loadgen_image_tag: "0.1.7"
+loadgen_image_tag: "0.1.9"
 loadgen_image: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
 loadgen_container_name: "{{ inventory_hostname }}"
 
@@ -36,8 +36,19 @@ loadgen_admin_priv_key_file: "admin_priv_key.pem"
 # Miscellaneous
 # =========================
 loadgen_assert_metrics: false
+loadgen_generate_config_block: false
 
 # =========================
 # TLS Settings
 # =========================
+# TLS settings
 loadgen_use_tls: false
+loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
+# mTLS settings
+loadgen_monitoring_use_mtls: false
+
+# =========================
+# Log Settings
+# =========================
+loadgen_log_level: "info"
+loadgen_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"

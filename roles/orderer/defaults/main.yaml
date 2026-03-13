@@ -9,7 +9,7 @@
 # =========================
 orderer_registry_endpoint: "{{ lookup('env', 'ORDERER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 orderer_image_name: "fabric-x-orderer"
-orderer_image_tag: "0.0.21"
+orderer_image_tag: "0.0.24"
 orderer_image: "{{ orderer_registry_endpoint }}/{{ orderer_image_name }}:{{ orderer_image_tag }}"
 orderer_container_name: "{{ inventory_hostname }}"
 
@@ -17,7 +17,7 @@ orderer_container_name: "{{ inventory_hostname }}"
 # Fabric-X Orderer bin
 # =========================
 orderer_git_uri: "https://github.com/hyperledger/fabric-x-orderer.git"
-orderer_git_commit: "v0.0.21"
+orderer_git_commit: "v0.0.24"
 orderer_source_code_package: "cmd/arma"
 orderer_bin_package: "github.com/hyperledger/fabric-x-orderer/cmd/arma"
 orderer_bin_name: "arma"
