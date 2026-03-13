@@ -40,7 +40,7 @@ orderer:
         # fully configurable. Changing these defaults requires coordination
         # SHA2 is hardcoded in several places, not only BCCSP
         Security: 256
-        Hash: SHA2  
+        Hash: SHA2
   organizations:
 {% for orderer_assembler in orderer_assemblers %}
     {{ hostvars[orderer_assembler].organization.name }}:
