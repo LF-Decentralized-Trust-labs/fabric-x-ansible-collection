@@ -109,7 +109,7 @@ The first step consists in generating the artifacts needed by the nodes to run, 
 
 - generate the crypto material through the `cryptogen` CLI;
 - generate the genesis block through `armageddon` and `configtxgen` CLIs;
-- build the Fabric-X component binaries for all the hosts that have been marked to use the binary instead of the containerized solution (see more the [Roles](./roles/README.md) documentation);
+- build/install the Fabric-X component binaries on the control node or directly on remote nodes, depending on the `bin_build_on_control_node` variable (see more the [Roles](./roles/README.md) documentation);
 - distribute the above-mentioned artifacts on the remote nodes.
 
 To achieve this, run:
@@ -167,31 +167,36 @@ make help
 
 Here there is a list of the most used commands:
 
-| Command                 | Usage                                                                       |
-| ----------------------- | --------------------------------------------------------------------------- |
-| `install-prerequisites` | Install the needed prerequisites on the remote hosts.                       |
-| `generate-crypto`       | Build the config artifacts on the controller node.                          |
-| `genesis-block`         | Build the genesis block for the network.                                    |
-| `build-artifacts`       | Wrapper for `generate-crypto` + `genesis-block`.                            |
-| `build-bins`            | Build the binaries on the controller node for the targeted hosts.           |
-| `build`                 | Wrapper for `build-artifacts` + `build-bins`.                               |
-| `transfer-configs`      | Transfer the artifacts and generate the config files on the targeted hosts. |
-| `transfer-bins`         | Transfer the binaries on the targeted hosts.                                |
-| `transfer`              | Wrapper for `transfer-configs` + `transfer-bins`.                           |
-| `setup`                 | Wrapper for `build` + `transfer`.                                           |
-| `start`                 | Start the targeted hosts.                                                   |
-| `restart`               | Wrapper for `teardown`+`start`.                                             |
-| `ping`                  | Check that the component ports are open.                                    |
-| `fetch-logs`            | Fetch the logs from the targeted hosts.                                     |
-| `stop`                  | Stop the targeted hosts without deleting the data.                          |
-| `teardown`              | Kill the targeted hosts and delete the data.                                |
-| `wipe`                  | Wipe out the config artifacts and the binaries from the remote hosts.       |
-| `clean`                 | Clean all the artifacts and binaries built on the controller node.          |
-| `node-exporter-start`   | Start a Node Exporter container on the targeted hosts.                      |
-| `node-exporter-stop`    | Stop the Node Exporter container on the targeted hosts.                     |
-| `get-metrics`           | Get the metrics from the targeted components.                               |
-| `limit-rate`            | Set the TPS rate on the load generators.                                    |
-| `login-cr`              | Log a container engine within a container registry                          |
+| Command                 | Usage                                                                        |
+| ----------------------- | ---------------------------------------------------------------------------- |
+| `install`               | Build and install the collection locally.                                    |
+| `lint`                  | Run `ansible-lint` checks.                                                   |
+| `check-license-header`  | Verify license headers on all files.                                         |
+| `check-trailing-spaces` | Check for trailing spaces in `.j2` files.                                    |
+| `install-prerequisites` | Install the needed prerequisites on the remote hosts.                        |
+| `login-cr`              | Log a container engine within a container registry.                          |
+| `setup`                 | Wrapper for `artifacts` + `binaries` + `configs`.                            |
+| `artifacts`             | Wrapper for `generate-crypto` + `genesis-block`.                             |
+| `generate-crypto`       | Generate the crypto material on the controller node.                         |
+| `genesis-block`         | Build the genesis block for the network.                                     |
+| `binaries`              | Build/install binaries on controller or remote nodes for the targeted hosts. |
+| `clean`                 | Clean all the artifacts and binaries built on the controller node.           |
+| `clean-cache`           | Clean the Ansible cache.                                                     |
+| `configs`               | Create/Ship the configs to the remote nodes.                                 |
+| `start`                 | Start the targeted hosts.                                                    |
+| `stop`                  | Stop the targeted hosts without deleting the data.                           |
+| `teardown`              | Teardown the targeted hosts (stop and delete data).                          |
+| `update`                | Update the targeted hosts (stop + binaries + start).                         |
+| `restart`               | Restart the targeted hosts (stop + start).                                   |
+| `hard-restart`          | Hard restart the targeted hosts (teardown + start).                          |
+| `wipe`                  | Wipe out the config artifacts and the binaries from the remote hosts.        |
+| `hard-wipe`             | Wipe the deploy folder from the remote hosts.                                |
+| `targets`               | Generate Makefile targets for all inventory hosts.                           |
+| `run-command`           | Run a generic command on the targeted hosts.                                 |
+| `ping`                  | Check that the component ports are open.                                     |
+| `get-metrics`           | Get the metrics from the targeted components.                                |
+| `fetch-logs`            | Fetch the logs from the targeted hosts.                                      |
+| `limit-rate`            | Set the TPS rate on the load generators.                                     |
 
 ### Restrict commands to a group of hosts
 

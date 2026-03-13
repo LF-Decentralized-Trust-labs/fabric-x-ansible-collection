@@ -19,38 +19,54 @@
 orderer:
   # Channel ID
   channel-id: {{ channel_id }}
-  # Consensus Type ("BFT" or "CFT")
+  # Consensus type of the ordering service: 'BFT' (Byzantine Fault Tolerant) or 'CFT' (Crash Fault Tolerant / Raft).
+  # Defaults to 'CFT' if not specified. Affects how the sidecar interacts with orderers.
   consensus-type: BFT
-  # Connection settings
-  connection:
-    # HLFX Orderer endpoints
-    endpoints:
+  # Organizations map organization MSP IDs to their orderer connection details.
+  # It supports multi-organization deployments where each org has its own orderers and TLS root CAs.
+  # Each organization can have multiple orderer endpoints with different capabilities (broadcast, deliver).
+  organizations:
 {% for orderer_assembler in orderer_assemblers %}
-      - {{ hostvars[orderer_assembler].ansible_host }}:{{ hostvars[orderer_assembler].orderer_rpc_port }}
+    {{ hostvars[orderer_assembler].organization.name }}:
+      endpoints:
+        - id={{ hostvars[orderer_assembler].orderer_group }},deliver,{{ hostvars[orderer_assembler].ansible_host }}:{{ hostvars[orderer_assembler].orderer_rpc_port }}
+      # List of paths to CA certificate files for verifying orderer certificates.
+      # Each organization can have its own CA certificates.
+      ca-cert-paths:
+        - {{ committer_config_dir }}/tls/orderers/{{ orderer_assembler }}/ca.crt        
 {% endfor %}
 {% if (hostvars[orderer_assembler_ref_host].orderer_use_tls is defined) and hostvars[orderer_assembler_ref_host].orderer_use_tls %}
-    # Define TLS options and certificate paths used for secure communication
-    # between the sidecar and the orderers.
+    # Sidecar uses these TLS credentials when connecting to the orderers as a client.
     tls:
-      # Server CA certificates to trust if tls is enabled.
-      ca-cert-paths:
-{% for orderer_assembler in orderer_assemblers %}
-{% if (hostvars[orderer_assembler].orderer_use_tls is defined) and hostvars[orderer_assembler].orderer_use_tls %}
-        - {{ committer_config_dir }}/tls/orderers/{{ orderer_assembler }}/ca.crt
-{% endif %}
-{% endfor %}
 {% if (hostvars[orderer_assembler_ref_host].orderer_use_mtls is defined) and hostvars[orderer_assembler_ref_host].orderer_use_mtls %}
       # Path to the TLS key file (private key).
       key-path: {{ committer_config_dir }}/tls/server.key
       # Path to the TLS certificate file (public key).
       cert-path: {{ committer_config_dir }}/tls/server.crt
-      # TLS configuration modes ("none", "tls" or "mtls")
+      # TLS mode for orderer client connections: 'none' (no TLS), 'tls' (server auth only),
+      # or 'mtls' (mutual TLS with client cert verification).
       mode: mtls
 {% else %}
       # TLS configuration modes ("none", "tls" or "mtls")
       mode: tls
 {% endif %}
 {% endif %}
+  identity:
+    # Indicates to which MSP this client belongs to.
+    msp-id: {{ organization.name }}MSP
+    # Indicates the MSP folder to use as identity
+    msp-dir: {{ committer_config_dir }}/msp
+    # BCCSP (Blockchain crypto provider): Select which crypto implementation or
+    # library to use
+    bccsp:
+      Default: SW
+      # Settings for the SW crypto provider (i.e. when DEFAULT: SW)
+      SW:
+        # The default Hash and Security level needs refactoring to be
+        # fully configurable. Changing these defaults requires coordination
+        # SHA2 is hardcoded in several places, not only BCCSP
+        Security: 256
+        Hash: SHA2
 
 # ---------------------------------------------------------------------------
 # HLFX Committer Coordinator connection settings

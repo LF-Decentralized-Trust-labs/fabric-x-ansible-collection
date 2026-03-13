@@ -1,0 +1,34 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Build a dictionary of unique system:arch combinations mapped to the hosts that share that platform.
+# This ensures we only build once per unique platform instead of once per service instance.
+- name: Reset bin_platforms
+  ansible.builtin.set_fact:
+    bin_platforms: {}
+
+- name: Build unique platform dictionary
+  vars:
+    bin_target_os: "{{ hostvars[current_host].ansible_facts.system }}"
+    bin_target_arch: "{{ hostvars[current_host].ansible_facts.architecture }}"
+    platform_key: "{{ bin_target_os }}:{{ bin_target_arch }}"
+  ansible.builtin.set_fact:
+    bin_platforms: >-
+      {{
+        bin_platforms
+        | combine(
+          {
+            platform_key: {
+              'os': bin_target_os,
+              'arch': bin_target_arch,
+              'hosts': bin_platforms[platform_key].hosts | default([]) + [current_host]
+            }
+          })
+      }}
+  loop: "{{ bin_hosts }}"
+  loop_control:
+    loop_var: current_host
+    label: "{{ current_host }}"

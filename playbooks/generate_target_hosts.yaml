@@ -1,0 +1,18 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# This playbook generates Makefile targets for all individual hosts in the inventory.
+# The generated targets are written to target_hosts.mk in the project root.
+# Usage: make targets
+
+- name: Generate Makefile targets for all inventory hosts
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Generate Makefile targets
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.utils
+        tasks_from: generate_makefile_targets

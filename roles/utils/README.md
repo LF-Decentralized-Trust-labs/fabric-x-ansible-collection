@@ -5,10 +5,35 @@ The role `hyperledger.fabricx.utils` can be used to run utility functions.
 ## Table of Contents <!-- omit in toc -->
 
 - [Tasks](#tasks)
+  - [generate_makefile_targets](#generate_makefile_targets)
   - [ping](#ping)
   - [select_one_host_per_machine](#select_one_host_per_machine)
 
 ## Tasks
+
+### generate_makefile_targets
+
+The task `generate_makefile_targets` can be used to generate Makefile targets for all individual hosts in the inventory. The generated targets are written to `target_hosts.mk` in the project root directory.
+
+```yaml
+- name: Generate Makefile targets for all inventory hosts
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: generate_makefile_targets
+```
+
+This is typically invoked via the Makefile:
+
+```bash
+make targets
+```
+
+After generation, you can target individual hosts:
+
+```bash
+make orderer-router-1 start
+make committer-validator stop
+```
 
 ### ping
 

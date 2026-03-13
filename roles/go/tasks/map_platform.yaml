@@ -1,0 +1,44 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that go_host_to_map has been defined
+  ansible.builtin.fail:
+    msg: "No host to map has been defined. Set it via 'go_host_to_map'."
+  when: go_host_to_map is not defined
+
+# We gather facts in order to get architecture and os running on the remote machine.
+- name: Gather host system facts
+  ansible.builtin.setup:
+  delegate_to: "{{ go_host_to_map }}"
+  delegate_facts: true
+  when:
+    - hostvars[go_host_to_map].ansible_facts.system is undefined or hostvars[go_host_to_map].ansible_facts.architecture is undefined
+
+- name: Map platform to GOOS and GOARCH
+  vars:
+    go_os_map:
+      Linux: linux
+      Darwin: darwin
+      Windows: windows
+      FreeBSD: freebsd
+      OpenBSD: openbsd
+      NetBSD: netbsd
+    go_arch_map:
+      x86_64: amd64
+      x86: 386
+      aarch64: arm64
+      armv7l: arm
+      armv6l: arm
+      ppc64le: ppc64le
+      ppc64: ppc64
+      s390x: s390x
+      riscv64: riscv64
+      loong64: loong64
+    go_host_os: "{{ hostvars[go_host_to_map].ansible_facts.system }}"
+    go_host_arch: "{{ hostvars[go_host_to_map].ansible_facts.architecture }}"
+  ansible.builtin.set_fact:
+    go_os: "{{ go_os_map[go_host_os] | default(go_host_os | lower) }}"
+    go_arch: "{{ go_arch_map[go_host_arch] | default(go_host_arch | lower) }}"

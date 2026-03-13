@@ -4,15 +4,19 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Compute Git directory name from Git URI
+  ansible.builtin.set_fact:
+    git_repo_name: "{{ (git_uri | urlsplit('path') | basename) | regex_replace('\\.git$', '') }}@{{ git_commit }}"
+
 - name: Ensure directory where to clone exists
   ansible.builtin.file:
-    path: "{{ git_dir }}"
+    path: "{{ git_dir }}/{{ git_repo_name }}"
     state: directory
     mode: "0o755"
 
 - name: Clone Git Repo {{ git_uri }}@{{ git_commit }}
   ansible.builtin.git:
     repo: "{{ git_uri }}"
-    dest: "{{ git_dir }}"
+    dest: "{{ git_dir }}/{{ git_repo_name }}"
     version: "{{ git_commit }}"
     force: true

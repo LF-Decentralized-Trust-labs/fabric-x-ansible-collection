@@ -6,7 +6,7 @@
 
 - name: Install {{ committer_bin_name }}
   vars:
-    bin_go_package: "{{ committer_bin_package }}@{{ committer_git_commit }}"
+    go_package: "{{ committer_bin_package }}@{{ committer_git_commit }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: go/install

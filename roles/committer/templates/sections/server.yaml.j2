@@ -4,6 +4,16 @@
 server:
   # The GRPC server endpoint
   endpoint: 0.0.0.0:{{ committer_rpc_port }}
+  # RateLimit directly impacts the rate by limiting it.
+	# Describes the rate limiting configuration for unary gRPC endpoints.
+  rate-limit:
+    # RequestsPerSecond is the maximum number of requests per second allowed.
+		# Set to 0 or negative to disable rate limiting.
+    requests-per-second: {{ committer_server_rate_limit_requests_per_second | default(0) }}
+    # Burst is the maximum number of requests allowed in a single burst.
+		# This allows handling sudden spikes of concurrent requests from multiple clients.
+		# Must be greater than 0 and less than or equal to RequestsPerSecond when rate limiting is enabled.
+    burst: {{ committer_server_rate_limit_burst | default(0) }}
   # Set the keepalive behavior for the gRPC server.
   keep-alive:
     params:

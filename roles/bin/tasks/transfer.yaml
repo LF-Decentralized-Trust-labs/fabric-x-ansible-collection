@@ -18,6 +18,6 @@
 
 - name: Transfer binary
   ansible.builtin.copy:
-    src: "{{ bin_output_dir }}/{{ bin_name }}"
+    src: "{{ bin_dir }}/{{ bin_name }}"
     dest: "{{ bin_remote_dir }}"
     mode: "0o755"

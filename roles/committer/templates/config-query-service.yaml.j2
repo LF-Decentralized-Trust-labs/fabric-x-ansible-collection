@@ -20,6 +20,8 @@
 min-batch-keys: {{ committer_query_service_min_batch_keys | default(1024) }}
 # A batch will execute once it waited this much time.
 max-batch-wait: {{ committer_query_service_max_batch_wait | default('100ms') }}
+# Maximum number of keys allowed in a single query request. Set to 0 to disable the limit.
+max-request-keys: {{ committer_query_service_max_request_keys | default(0) }}
 
 # ---------------------------------------------------------------------------
 # View limit settings

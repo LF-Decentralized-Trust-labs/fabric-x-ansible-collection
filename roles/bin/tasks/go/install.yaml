@@ -4,28 +4,33 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that the go binary package has been defined
-  ansible.builtin.fail:
-    msg: "No binary package has been defined, but required to install the binary. Set it via 'bin_go_package'."
+# We gather facts in order to get architecture and os running on the remote machine.
+- name: Gather host system facts
+  ansible.builtin.setup:
+  delegate_to: "{{ current_host }}"
+  delegate_facts: true
+  loop: "{{ bin_hosts }}"
+  loop_control:
+    loop_var: current_host
+    label: "{{ current_host }}"
   when:
-    - bin_go_package is not defined
+    - hostvars[current_host].ansible_facts.system is undefined or hostvars[current_host].ansible_facts.architecture is undefined
 
-- name: Set CC for cross-compilation on macOS with CGO_ENABLED
-  ansible.builtin.set_fact:
-    bin_go_cc_compiler: x86_64-unknown-linux-gnu-gcc
-  when:
-    - ansible_facts.system == 'Darwin'
-    - bin_cgo_enabled
-    - bin_target_os == 'linux'
-    - bin_target_arch == 'amd64'
+- name: Build unique platform dictionary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: map_platform_to_host
 
-- name: Install the go binary {{ bin_go_package }}
-  ansible.builtin.command: "go install {{ bin_go_package }}"
-  environment:
-    GOBIN: "{{ bin_output_dir }}"
-    GOOS: "{{ bin_target_os }}"
-    GOARCH: "{{ bin_target_arch }}"
-    CGO_ENABLED: "{{ 1 if bin_cgo_enabled else 0 }}"
-    CC: "{{ bin_go_cc_compiler | default('') if bin_cgo_enabled else '' }}"
-  register: bin_go_install_result
-  changed_when: bin_go_install_result.rc != 0
+- name: Install go package as binary
+  vars:
+    bin_target_os: "{{ bin_platforms[current_platform_key].os }}"
+    bin_target_arch: "{{ bin_platforms[current_platform_key].arch }}"
+    go_output_dir: "{{ bin_dir }}"
+    go_host_to_map: "{{ bin_platforms[current_platform_key].hosts[0] }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.go
+    tasks_from: install
+  loop: "{{ bin_platforms.keys() }}"
+  loop_control:
+    loop_var: current_platform_key
+    label: "{{ current_platform_key }}"

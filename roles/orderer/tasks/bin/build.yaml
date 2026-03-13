@@ -4,19 +4,15 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Clone the Fabric-X Orderer repository
-  vars:
-    git_uri: "{{ orderer_git_uri }}"
-    git_dir: "{{ orderer_git_dir }}"
-    git_commit: "{{ orderer_git_commit }}"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.git
-    tasks_from: clone
-
 - name: Build the binary {{ orderer_bin_name }}
   vars:
+    # Git vars
+    git_uri: "{{ orderer_git_uri }}"
+    git_commit: "{{ orderer_git_commit }}"
+    # Bin vars
     bin_name: "{{ orderer_bin_name }}"
-    bin_source_code_path: "{{ orderer_source_code_dir }}"
+    # Go vars
+    go_source_code_package: "{{ orderer_source_code_package }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
-    tasks_from: go/multiplatform_build
+    tasks_from: go/build

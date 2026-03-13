@@ -4,20 +4,17 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Clone the Fabric repository
-  vars:
-    git_uri: "{{ configtxgen_git_uri }}"
-    git_dir: "{{ configtxgen_git_dir }}"
-    git_commit: "{{ configtxgen_git_commit }}"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.git
-    tasks_from: clone
-
 - name: Build {{ configtxgen_bin_name }}
   vars:
+    # Git vars
+    git_uri: "{{ configtxgen_git_uri }}"
+    git_commit: "{{ configtxgen_git_commit }}"
+    # Bin vars
     bin_name: "{{ configtxgen_bin_name }}"
-    bin_source_code_path: "{{ configtxgen_source_code_dir }}"
-    bin_output_dir: "{{ cli_bin_dir }}"
+    bin_build_on_control_node: true
+    bin_dir: "{{ cli_bin_dir }}"
+    # Go vars
+    go_source_code_package: "{{ configtxgen_source_code_package }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: go/build
