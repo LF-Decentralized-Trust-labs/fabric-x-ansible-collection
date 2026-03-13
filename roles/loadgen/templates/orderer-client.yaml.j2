@@ -22,7 +22,7 @@ orderer-client:
     # Identity configuration for signing transactions and connecting to orderers.
     identity:
       # MSP (Membership Service Provider) ID identifying the organization.
-      msp-id: {{ organization.name }}
+      msp-id: {{ organization.name }}MSP
       # Path to the MSP directory containing certificates and keys.
       # Standard Fabric MSP structure with signcerts/, keystore/, cacerts/, etc.
       msp-dir: {{ loadgen_config_dir }}/msp

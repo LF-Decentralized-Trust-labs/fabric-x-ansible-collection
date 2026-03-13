@@ -1,0 +1,57 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# mTLS Monitoring clients
+# =========================
+- name: Transfer mTLS monitoring clients certificates
+  when:
+    - loadgen_monitoring_mtls_clients is defined
+  block:
+    - name: Ensure folder for TLS Certificates of mTLS clients exist
+      ansible.builtin.file:
+        path: "{{ loadgen_remote_config_dir }}/mtls/{{ current_loadgen_monitoring_mtls_client }}"
+        state: directory
+        mode: "0o755"
+      loop: "{{ loadgen_monitoring_mtls_clients }}"
+      loop_control:
+        loop_var: current_loadgen_monitoring_mtls_client
+        label: "{{ current_loadgen_monitoring_mtls_client }}"
+    - name: Copy TLS CA Certificates of mTLS clients
+      ansible.builtin.copy:
+        src: "{{ fetched_artifacts_dir }}/{{ current_loadgen_monitoring_mtls_client }}/tls/ca.crt"
+        dest: "{{ loadgen_remote_config_dir }}/mtls/{{ current_loadgen_monitoring_mtls_client }}/ca.crt"
+        mode: "0o644"
+      loop: "{{ loadgen_monitoring_mtls_clients }}"
+      loop_control:
+        loop_var: current_loadgen_monitoring_mtls_client
+        label: "{{ current_loadgen_monitoring_mtls_client }}"
+
+# =========================
+# mTLS Monitoring Orgs
+# =========================
+- name: Transfer mTLS Monitoring Org certificates
+  when:
+    - loadgen_monitoring_mtls_orgs is defined
+  block:
+    - name: Ensure folder for TLS Certificates of mTLS Orgs exist
+      ansible.builtin.file:
+        path: "{{ loadgen_remote_config_dir }}/mtls/{{ current_loadgen_monitoring_mtls_org.domain }}"
+        state: directory
+        mode: "0o755"
+      loop: "{{ loadgen_monitoring_mtls_orgs }}"
+      loop_control:
+        loop_var: current_loadgen_monitoring_mtls_org
+        label: "{{ current_loadgen_monitoring_mtls_org.domain }}"
+    - name: Copy TLS CA Certificates of mTLS Orgs
+      ansible.builtin.copy:
+        src: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ current_loadgen_monitoring_mtls_org.domain }}/msp/tlscacerts/tlsca.{{ current_loadgen_monitoring_mtls_org.domain }}-cert.pem"
+        dest: "{{ loadgen_remote_config_dir }}/mtls/{{ current_loadgen_monitoring_mtls_org.domain }}/ca.crt"
+        mode: "0o644"
+      loop: "{{ loadgen_monitoring_mtls_orgs }}"
+      loop_control:
+        loop_var: current_loadgen_monitoring_mtls_org
+        label: "{{ current_loadgen_monitoring_mtls_org.domain }}"

@@ -36,6 +36,7 @@ loadgen_admin_priv_key_file: "admin_priv_key.pem"
 # Miscellaneous
 # =========================
 loadgen_assert_metrics: false
+loadgen_generate_config_block: false
 
 # =========================
 # TLS Settings
@@ -44,8 +45,7 @@ loadgen_assert_metrics: false
 loadgen_use_tls: false
 loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
 # mTLS settings
-loadgen_use_mtls: false
-loadgen_monitoring_use_mtls: "{{ loadgen_use_mtls }}"
+loadgen_monitoring_use_mtls: false
 
 # =========================
 # Log Settings

@@ -6,7 +6,7 @@ generate:
   # Controls whether the loadgen generates a config transaction during the config phase.
   # When false, the config transaction is expected to be submitted outside the loadgen.
   # Ignored by the coordinator, VC, and verifier adapters.
-  config: {{ loadgen_generate_config | default(false) | bool | lower }}
+  config: {{ loadgen_generate_config_block | default(false) | bool | lower }}
   # Controls whether to generate namespace creation transactions during the namespaces phase.
   # Required for new deployments to set up the namespace structure before generating regular load.
   namespaces: {{ loadgen_generate_namespace | default(false) | bool | lower }}

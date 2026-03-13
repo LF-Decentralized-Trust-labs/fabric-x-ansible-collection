@@ -98,6 +98,7 @@ load-profile:
 {% endfor %}
 {% endif %}
 {% endif %}
+{% if loadgen_generate_config_block %}
     # Orderer endpoint specifications for transaction submission.
     # Format: id=<num>,msp-id=<org>,broadcast,deliver,<host>:<port>
     # Capabilities: 'broadcast' (submit txs), 'deliver' (receive blocks).
@@ -108,6 +109,7 @@ load-profile:
 {% for orderer_assembler in orderer_assembler_hosts %}
       - id={{ hostvars[orderer_assembler].orderer_group }},msp-id={{ hostvars[orderer_assembler].organization.name }},deliver,{{ hostvars[orderer_assembler].ansible_host }}:{{ hostvars[orderer_assembler].orderer_rpc_port }}
 {% endfor %}
+{% endif %}
 {% if loadgen_query_settings is defined %}
   # Describe query characteristics.
   query:
