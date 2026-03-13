@@ -17,7 +17,7 @@
 # service.
 # ---------------------------------------------------------------------------
 orderer:
-  # Channel ID
+  # The channel ID from which to fetch blocks.
   channel-id: {{ channel_id }}
   # Consensus type of the ordering service: 'BFT' (Byzantine Fault Tolerant) or 'CFT' (Crash Fault Tolerant / Raft).
   # Defaults to 'CFT' if not specified. Affects how the sidecar interacts with orderers.
@@ -25,10 +25,11 @@ orderer:
   # Organizations map organization MSP IDs to their orderer connection details.
   # It supports multi-organization deployments where each org has its own orderers and TLS root CAs.
   # Each organization can have multiple orderer endpoints with different capabilities (broadcast, deliver).
+  # Identity configuration for authenticating with orderers and signing requests.
   identity:
-    # Indicates to which MSP this client belongs to.
+    # MSP ID of the organization this sidecar represents.
     msp-id: {{ organization.name }}MSP
-    # Indicates the MSP folder to use as identity
+    # Path to the MSP directory containing certificates and keys for the identity.
     msp-dir: {{ committer_config_dir }}/msp
     # BCCSP (Blockchain crypto provider): Select which crypto implementation or
     # library to use
@@ -63,43 +64,43 @@ orderer:
       - {{ committer_config_dir }}/tls/orderers/{{ orderer_assembler }}/ca.crt
 {% endfor %}
 {% if (hostvars[orderer_assembler_ref_host].orderer_use_mtls is defined) and hostvars[orderer_assembler_ref_host].orderer_use_mtls %}
-    # Path to the TLS key file (private key).
+    # Path to the client's TLS private key file.
     key-path: {{ committer_config_dir }}/tls/server.key
-    # Path to the TLS certificate file (public key).
+    # Path to the client's TLS certificate file (public key) for authentication.
     cert-path: {{ committer_config_dir }}/tls/server.crt
     # TLS mode for orderer client connections: 'none' (no TLS), 'tls' (server auth only),
     # or 'mtls' (mutual TLS with client cert verification).
     mode: mtls
 {% else %}
-    # TLS configuration modes ("none", "tls" or "mtls")
+    # TLS mode for orderer client connections: 'none' (no TLS), 'tls' (server auth only),
+    # or 'mtls' (mutual TLS with client cert verification).
     mode: tls
 {% endif %}
 {% endif %}
 
 # ---------------------------------------------------------------------------
-# HLFX Committer Coordinator connection settings
-# The HLFX Committer Sidecar pushes the blocks to the HFLX Committer
-# Coordinator and pulls from the latter the block statuses.
+# Coordinator (committer) connection configuration
 # ---------------------------------------------------------------------------
 committer:
-  # HLFX Committer Coordinator endpoint
+  # Endpoint of the coordinator service to send blocks and receive transaction statuses.
+  # Format: host:port.
   endpoint: {{ hostvars[committer_coordinator].ansible_host }}:{{ hostvars[committer_coordinator].committer_rpc_port }}
 {% if (hostvars[committer_coordinator].committer_use_tls is defined) and hostvars[committer_coordinator].committer_use_tls %}
-  # Define TLS options and certificate paths used for secure communication
-  # between the sidecar and the coordinator.
   tls:
-    # Server CA certificates to trust if tls is enabled.
+    # List of paths to CA certificate files for verifying server certificates.
     ca-cert-paths:
       - {{ committer_config_dir }}/tls/coordinator/ca.crt
 {% if (hostvars[committer_coordinator].committer_use_mtls is defined) and hostvars[committer_coordinator].committer_use_mtls %}
-    # Path to the TLS key file (private key).
+    # Path to the client's TLS private key file.
     key-path: {{ committer_config_dir }}/tls/server.key
-    # Path to the TLS certificate file (public key).
+    # Path to the client's TLS certificate file (public key) for authentication.
     cert-path: {{ committer_config_dir }}/tls/server.crt
-    # TLS configuration modes ("none", "tls" or "mtls")
+    # TLS mode for coordinator client connections: 'none' (no TLS), 'tls' (server auth only),
+    # or 'mtls' (mutual TLS with client cert verification).
     mode: mtls
 {% else %}
-    # TLS configuration modes ("none", "tls" or "mtls")
+    # TLS mode for coordinator client connections: 'none' (no TLS), 'tls' (server auth only),
+    # or 'mtls' (mutual TLS with client cert verification).
     mode: tls
 {% endif %}
 {% endif %}
@@ -107,18 +108,25 @@ committer:
 # ---------------------------------------------------------------------------
 # Relay Settings
 # ---------------------------------------------------------------------------
-# Interval for setting the last committed block to the HLFX Committer Coordinator
+# How often the sidecar updates the coordinator with the last committed block number.
+# More frequent updates improve coordinator accuracy for dependency resolution but
+# increase network traffic and coordinator load.
 last-committed-block-set-interval: {{ committer_sidecar_last_committed_block_set_interval | default('5s') }}
-# maximum number of transaction allowed to wait in the sidecar
+# Maximum number of transactions that have been sent to the coordinator and are
+# waiting for their status response. When reached, the sidecar applies backpressure
+# to the orderer connection by pausing block fetching. Prevents memory exhaustion under high load.
 waiting-txs-limit: {{ committer_sidecar_waiting_txs_limit | default(20000000) }}
-# capacity of the channel/queue used between various components (relay, ledger)
+# Buffer size for internal Go channels used in the block processing pipeline
+# (block delivery, status updates, notifications). Larger buffers improve throughput
+# by reducing channel contention but increase memory usage.
 channel-buffer-size: {{ committer_sidecar_channel_buffer_size | default(100) }}
 
 # ---------------------------------------------------------------------------
 # Ledger settings
 # ---------------------------------------------------------------------------
 ledger:
-  # Path where to store the ledger
+  # Filesystem directory where the sidecar stores the local copy of the blockchain ledger.
+  # Must be persistent storage to survive restarts. The directory is created if it doesn't exist.
   path: {{ committer_config_dir }}/ledger
   # How often the block store fsyncs to durable storage. Every Nth block triggers
   # a full sync; intermediate blocks are written without fsync. Set to 0 or 1 to

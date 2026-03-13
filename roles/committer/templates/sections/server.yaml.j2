@@ -4,35 +4,34 @@
 server:
   # The GRPC server endpoint
   endpoint: 0.0.0.0:{{ committer_rpc_port }}
-  # RateLimit directly impacts the rate by limiting it.
-	# Describes the rate limiting configuration for unary gRPC endpoints.
+  # Rate limiting configuration for unary gRPC endpoints.
+  # Uses a token bucket algorithm to limit the number of requests per second.
   rate-limit:
-    # RequestsPerSecond is the maximum number of requests per second allowed.
-		# Set to 0 or negative to disable rate limiting.
+    # Maximum number of requests per second allowed.
+    # Set to 0 to disable rate limiting.
     requests-per-second: {{ committer_server_rate_limit_requests_per_second | default(0) }}
-    # Burst is the maximum number of requests allowed in a single burst.
-		# This allows handling sudden spikes of concurrent requests from multiple clients.
-		# Must be greater than 0 and less than or equal to RequestsPerSecond when rate limiting is enabled.
+    # Maximum number of requests allowed in a single burst.
+    # When rate limiting is enabled (requests-per-second > 0):
+    #   - Must be greater than 0
+    #   - Must be less than or equal to requests-per-second
     burst: {{ committer_server_rate_limit_burst | default(0) }}
   # Set the keepalive behavior for the gRPC server.
   keep-alive:
     params:
-      # After a duration of this time if the server doesn't see any activity it
-      # pings the client to see if the transport is still alive.
-      # If set below 1s, a minimum value of 1s will be used instead.
+      # Duration after which the server sends a keepalive ping if no data has been
+      # transmitted on the connection. Helps detect dead connections and prevent resource leaks.
       time: {{ committer_server_keep_alive_time | default('300s') }}
-      # After having pinged for keepalive check, the server waits for a duration
-      # of Timeout and if no activity is seen even after that the connection is
-      # closed.
+      # How long the server waits for a keepalive acknowledgment before closing the connection.
+      # Should be longer than params.time to allow for network delays.
       timeout: {{ committer_server_keep_alive_timeout | default('600s') }}
     # Used to set keepalive enforcement policy on the server-side.
     # Server will close connection with a client that violates this policy.
     enforcement-policy:
-      # The minimum amount of time a client should wait before sending a keepalive ping.
+      # Minimum time clients must wait between sending keepalive pings. Prevents clients
+      # from overwhelming the server with excessive pings. Clients violating this are disconnected.
       min-time: {{ committer_server_keep_alive_min_time | default('60s') }}
-      # If true, server allows keepalive pings even when there are no active
-      # streams(RPCs). If false, and client sends ping when there are no active
-      # streams, server will send GOAWAY and close the connection.
+      # Controls whether clients can send keepalive pings when no active streams exist.
+      # Set to false to prevent unnecessary pings and reduce server load.
       permit-without-stream: {{ committer_server_keep_alive_permit_without_stream | default(false) | bool | lower }}
   # Maximum number of concurrent streaming RPCs (Deliver + Notification) allowed per
   # client connection. Limits resource usage but may cause connection failures if clients
@@ -45,14 +44,15 @@ server:
   # is not built (for a server), since the relevant certificates paths are defined
   # in the YAML according to the selected mode.
   tls:
-    # Path to the TLS key file (private key).
+    # Path to the server's TLS private key file.
     key-path: {{ committer_config_dir }}/tls/server.key
-    # Path to the TLS certificate file (public key).
+    # Path to the server's TLS certificate file (public key).
     cert-path: {{ committer_config_dir }}/tls/server.crt
 {% if committer_use_mtls %}
-    # TLS configuration modes ("none", "tls" or "mtls")
+    # TLS mode for server connections: 'none' (no TLS), 'tls' (server auth only),
+    # or 'mtls' (mutual TLS with client cert verification).
     mode: mtls
-    # Client CA certificates to trust if mtls is enabled
+    # List of paths to CA certificate files for verifying client certificates (required for mtls).
     ca-cert-paths:
       # Accept mTLS connections from others within the same org
       - {{ committer_config_dir }}/tls/ca.crt
@@ -69,7 +69,8 @@ server:
 {% endfor %}
 {% endif %}
 {% else %}
-    # TLS configuration modes ("none", "tls" or "mtls")
+    # TLS mode for server connections: 'none' (no TLS), 'tls' (server auth only),
+    # or 'mtls' (mutual TLS with client cert verification).
     mode: tls
 {% endif %}
 {% endif %}

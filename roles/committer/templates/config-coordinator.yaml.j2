@@ -12,10 +12,11 @@
 {% include './sections/logging.yaml.j2' +%}
 
 # ---------------------------------------------------------------------------
-# HLFX Committer Verifiers connection settings
+# Verifier connection settings
 # ---------------------------------------------------------------------------
 verifier:
-  # List of HLFX Committer verifiers endpoints.
+  # List of verifier service endpoints. Multiple endpoints enable load distribution
+  # across verifier instances.
   endpoints:
 {% for host in committer_verifiers %}
     - {{ hostvars[host].ansible_host }}:{{ hostvars[host].committer_rpc_port }}
@@ -24,27 +25,30 @@ verifier:
   # Define TLS options and certificate paths used for secure communication
   # between the coordinator and the verifiers.
   tls:
-    # Server CA certificates to trust if tls is enabled.
+    # List of paths to CA certificate files for verifying server certificates.
     ca-cert-paths:
       - {{ committer_config_dir }}/tls/verifiers/ca.crt
 {% if (hostvars[committer_verifier_ref_host].committer_use_mtls is defined) and hostvars[committer_verifier_ref_host].committer_use_mtls %}
-    # Path to the TLS key file (private key).
+    # Path to the client's TLS private key file.
     key-path: {{ committer_config_dir }}/tls/server.key
-    # Path to the TLS certificate file (public key).
+    # Path to the client's TLS certificate file (public key) for authentication.
     cert-path: {{ committer_config_dir }}/tls/server.crt
-    # TLS configuration modes ("none", "tls" or "mtls")
+    # TLS mode for client connections to verifier: 'none' (no TLS), 'tls' (server auth only),
+    # or 'mtls' (mutual TLS with client cert verification).
     mode: mtls
 {% else %}
-    # TLS configuration modes ("none", "tls" or "mtls")
+    # TLS mode for client connections to verifier: 'none' (no TLS), 'tls' (server auth only),
+    # or 'mtls' (mutual TLS with client cert verification).
     mode: tls
 {% endif %}
 {% endif %}
 
 # ---------------------------------------------------------------------------
-# HLFX Committer Validators connection settings
+# Validator-committer connection settings
 # ---------------------------------------------------------------------------
 validator-committer:
-  # List of HLFX Committer validators endpoints.
+  # List of validator-committer (VC) service endpoints. Multiple endpoints enable
+  # load distribution across VC instances.
   endpoints:
 {% for host in committer_validators %}
     - {{ hostvars[host].ansible_host }}:{{ hostvars[host].committer_rpc_port }}
@@ -53,39 +57,39 @@ validator-committer:
   # Define TLS options and certificate paths used for secure communication
   # between the coordinator and the validators.
   tls:
-    # Server CA certificates to trust if tls is enabled.
+    # List of paths to CA certificate files for verifying server certificates.
     ca-cert-paths:
       - {{ committer_config_dir }}/tls/validators/ca.crt
 {% if (hostvars[committer_validator_ref_host].committer_use_mtls is defined) and hostvars[committer_validator_ref_host].committer_use_mtls %}
-    # Path to the TLS key file (private key).
+    # Path to the client's TLS private key file.
     key-path: {{ committer_config_dir }}/tls/server.key
-    # Path to the TLS certificate file (public key).
+    # Path to the client's TLS certificate file (public key) for authentication.
     cert-path: {{ committer_config_dir }}/tls/server.crt
-    # TLS configuration modes ("none", "tls" or "mtls")
+    # TLS mode for client connections to validator-committer: 'none' (no TLS), 'tls' (server auth only),
+    # or 'mtls' (mutual TLS with client cert verification).
     mode: mtls
 {% else %}
-    # TLS configuration modes ("none", "tls" or "mtls")
+    # TLS mode for client connections to validator-committer: 'none' (no TLS), 'tls' (server auth only),
+    # or 'mtls' (mutual TLS with client cert verification).
     mode: tls
 {% endif %}
 {% endif %}
 
 # ---------------------------------------------------------------------------
-# Dependency Graph settings
+# Dependency graph settings
 # ---------------------------------------------------------------------------
-# Configuration for dependency graph manager.
-# It specifies resource limits.
 dependency-graph:
-  # Number of local dependency-constructor goroutines that the dependency-graph
-  # manager starts. Each constructor builds a part of the transaction dependency
-  # graph in parallel. Increasing this lets the manager process more transactions
-  # concurrently, at the cost of more CPU and memory.
+  # Number of transaction batches that can be processed in parallel to construct
+  # batch-level (local) dependency graphs. Higher values enable parallel processing
+  # of multiple batches but increase CPU usage.
   num-of-local-dep-constructors: {{ committer_coordinator_dep_graph_constructors | default(4) }}
-  # Upper bound on how many transactions may be waiting inside the dependency-graph
-  # manager at any time.
+  # Maximum number of transactions allowed in the global dependency graph.
+  # This limit indirectly controls memory utilization. When reached, the
+  # coordinator applies backpressure to upstream services.
   waiting-txs-limit: {{ committer_coordinator_dep_graph_wait_tx_limit | default(20000000) }}
 
-# ---------------------------------------------------------------------------
-# Go-Routine settings
-# ---------------------------------------------------------------------------
-# Defines the buffer size per go-routine
+# Base buffer size per goroutine/endpoint for internal channels. The actual
+# buffer size is calculated as this value multiplied by the number of endpoints
+# (for verifier/validator-committer managers) or the number of local dependency
+# constructors. Larger values reduce contention but increase memory usage proportionally.
 per-channel-buffer-size-per-goroutine: {{ committer_coordinator_per_channel_buffer_size_per_goroutine | default(10) }}

@@ -14,16 +14,27 @@
 {% include './sections/database.yaml.j2' +%}
 
 # ---------------------------------------------------------------------------
-# Configuration for the resource limits.
+# Resource limit configurations
 # ---------------------------------------------------------------------------
 resource-limits:
-  # Maximum number of workers for the preparer
+  # Number of goroutines that prepare transactions for validation by extracting
+  # read/write sets and organizing data structures. Preparation is CPU-bound.
+  # Higher values enable parallel preparation but increase CPU and memory usage.
   max-workers-for-preparer: {{ committer_resource_limits_max_workers_for_preparer | default(1) }}
-  # Maximum number of workers for the validator
+  # Number of goroutines that perform MVCC validation checks against the current state.
+  # Validation is database-bound. Higher values enable parallel validation but increase
+  # database connection usage and contention.
   max-workers-for-validator: {{ committer_resource_limits_max_workers_for_validator | default(1) }}
-  # Maximum number of workers for the committer
+  # Number of goroutines that commit validated transactions to the database using
+  # stored procedures. Committing is database-bound. Higher values improve commit
+  # throughput but increase database load and connection usage. Should be tuned
+  # based on database capacity.
   max-workers-for-committer: {{ committer_resource_limits_max_workers_for_committer | default(20) }}
-  # Minimum transactions required to cut a batch immediately
+  # Minimum number of transactions that must accumulate before processing a batch
+  # through the validation pipeline. Larger batches improve database efficiency
+  # through bulk operations but increase latency. Set to 1 for lowest latency.
   min-transaction-batch-size: {{ committer_resource_limits_min_transaction_batch_size | default(1) }}
-  # Maximum time to wait for min-transaction-batch-size before cutting the batch
+  # Maximum time to wait for a batch to reach min-transaction-batch-size before
+  # processing it anyway. Ensures timely processing under low transaction rates.
+  # Balances latency vs. batching efficiency.
   timeout-for-min-transaction-batch-size: {{ committer_resource_limits_timeout_for_min_transaction_batch_size | default('2s') }}
