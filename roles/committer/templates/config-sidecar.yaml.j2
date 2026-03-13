@@ -129,10 +129,8 @@ ledger:
 # ---------------------------------------------------------------------------
 # Notification settings
 # ---------------------------------------------------------------------------
-{% if committer_sidecar_notification_max_timeout is defined %}
-# ---------------------------------------------------------------------------
-# Notification settings
-# ---------------------------------------------------------------------------
 notification:
-  max-timeout: {{ committer_sidecar_notification_max_timeout | default('10') }}
-{% endif %}
+  # Maximum time a client notification subscription can remain idle before being
+  # automatically closed. Prevents resource leaks from abandoned subscriptions.
+  # If a client doesn't specify a timeout, this value is used.
+  max-timeout: {{ committer_sidecar_notification_max_timeout | default('10m') }}

@@ -34,6 +34,10 @@ server:
       # streams(RPCs). If false, and client sends ping when there are no active
       # streams, server will send GOAWAY and close the connection.
       permit-without-stream: {{ committer_server_keep_alive_permit_without_stream | default(false) | bool | lower }}
+  # Maximum number of concurrent streaming RPCs (Deliver + Notification) allowed per
+  # client connection. Limits resource usage but may cause connection failures if clients
+  # need more streams. Set to 0 for unlimited (not recommended in production).
+  max-concurrent-streams: {{ committer_server_max_concurrent_streams | default(10) }}      
 {% if committer_use_tls %}
   # Define TLS options and certificate paths used for secure communication
   # between servers and clients. Credentials are built based on the configuration mode.
