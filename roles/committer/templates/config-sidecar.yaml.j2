@@ -120,6 +120,11 @@ channel-buffer-size: {{ committer_sidecar_channel_buffer_size | default(100) }}
 ledger:
   # Path where to store the ledger
   path: {{ committer_config_dir }}/ledger
+  # How often the block store fsyncs to durable storage. Every Nth block triggers
+  # a full sync; intermediate blocks are written without fsync. Set to 0 or 1 to
+  # sync every block (safest but slowest). Higher values improve write performance
+  # but risk losing more blocks on crash (recoverable from orderer).
+  sync-interval: {{ committer_sidecar_ledger_sync_interval | default(100) }}
 
 # ---------------------------------------------------------------------------
 # Notification settings

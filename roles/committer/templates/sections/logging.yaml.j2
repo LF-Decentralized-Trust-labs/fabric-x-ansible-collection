@@ -2,7 +2,10 @@
 # Log settings
 # ---------------------------------------------------------------------------
 logging:
-  # Log specification
+  # Log level specification. Can be a single level (e.g., "info", "debug") or
+  # module-specific levels (e.g., "info,coordinator=debug").
+  # Valid levels: debug, info, warning, error, panic, fatal.
   logSpec: {{ committer_log_level | lower }}
-  # Log format
+  # Log message format template. Supports color codes, timestamps, module names,
+  # function names, and log levels. See fabric-lib-go/common/flogging for details.
   format: "{{ committer_log_format }}"
