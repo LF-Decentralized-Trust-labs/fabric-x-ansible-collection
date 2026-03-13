@@ -9,7 +9,7 @@
     container_name: "{{ committer_container_name }}"
     container_image: "{{ committer_image }}"
     container_command: >-
-      committer start-vc
+      start-vc
       --config={{ committer_container_config_dir }}/{{ committer_validator_config_file }}
     container_ports:
       - "{{ committer_rpc_port }}:{{ committer_rpc_port }}"
