@@ -75,7 +75,7 @@ check-license-header:
 	./ci/check_license_header.sh
 
 # Check that no trailing spaces are added in the j2 files
-.PHONY: check-license-header
+.PHONY: check-trailing-spaces
 check-trailing-spaces:
 	@printf "$(COLOR_CYAN)🚩 Checking for trailing spaces in templates...$(COLOR_RESET)\n"
 	./ci/check_trailing_spaces.sh
