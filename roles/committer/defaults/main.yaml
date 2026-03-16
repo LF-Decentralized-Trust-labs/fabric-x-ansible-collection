@@ -16,10 +16,11 @@ committer_container_name: "{{ inventory_hostname }}"
 # =========================
 # Fabric-X Committer bin
 # =========================
-committer_git_uri: "https://github.com/hyperledger/fabric-x-committer.git"
-committer_git_commit: "v0.1.9"
+committer_git_hub_url: github.com
+committer_git_repo: "hyperledger/fabric-x-committer"
 committer_source_code_package: "cmd/committer"
-committer_bin_package: "github.com/hyperledger/fabric-x-committer/cmd/committer"
+committer_bin_package: "{{ committer_git_hub_url }}/{{ committer_git_repo }}/{{ committer_source_code_package }}"
+committer_git_commit: "v0.1.9"
 committer_bin_name: "committer"
 committer_use_bin: false
 

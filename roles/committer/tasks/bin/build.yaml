@@ -7,7 +7,8 @@
 - name: Build the binary {{ committer_bin_name }}
   vars:
     # Git vars
-    git_uri: "{{ committer_git_uri }}"
+    git_hub_url: "{{ committer_git_hub_url }}"
+    git_repo: "{{ committer_git_repo }}"
     git_commit: "{{ committer_git_commit }}"
     # Bin vars
     bin_name: "{{ committer_bin_name }}"

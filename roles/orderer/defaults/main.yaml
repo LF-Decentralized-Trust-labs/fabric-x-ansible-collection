@@ -16,10 +16,11 @@ orderer_container_name: "{{ inventory_hostname }}"
 # =========================
 # Fabric-X Orderer bin
 # =========================
-orderer_git_uri: "https://github.com/hyperledger/fabric-x-orderer.git"
-orderer_git_commit: "v0.0.24"
+orderer_git_hub_url: github.com
+orderer_git_repo: "hyperledger/fabric-x-orderer"
 orderer_source_code_package: "cmd/arma"
-orderer_bin_package: "github.com/hyperledger/fabric-x-orderer/cmd/arma"
+orderer_bin_package: "{{ orderer_git_hub_url }}/{{ orderer_git_repo }}/{{ orderer_source_code_package }}"
+orderer_git_commit: "v0.0.24"
 orderer_bin_name: "arma"
 orderer_use_bin: false
 

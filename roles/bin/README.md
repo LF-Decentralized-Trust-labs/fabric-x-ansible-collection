@@ -36,14 +36,21 @@ The task `build` allows to clone the source code of a `go` binary and build it:
 ```yaml
 - name: Build the sample-go binary
   vars:
-    git_uri: "https://github.com/sample/sample-go.git"
+    # Git vars
+    git_hub_url: github.com
+    git_repo: "sample/sample-go"
+    git_commit: "v1.0.0"
+    # Bin vars
     bin_name: sample-go
-    go_source_code_path: /tmp/sample-go/src
     bin_dir: /usr/local/bin
+    # Go vars
+    go_source_code_package: "cmd/sample-go"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: go/build
 ```
+
+**Note**: The `git_hub_url` and `git_repo` are separated to allow the git role to internally handle URL construction with either HTTPS or SSH protocols. The `git_repo` should not include the domain (e.g., `sample/sample-go` instead of `github.com/sample/sample-go`).
 
 #### install
 
