@@ -52,6 +52,7 @@ all:
               vars:
                 orderer_use_tls: true
                 orderer_use_mtls: true
+                orderer_image_tag: "0.0.23"
               children:
                 fabric_x_orderer_1:
                   vars:
@@ -210,7 +211,6 @@ all:
             users:
               - name: orderer-loadgen
                 namespace: 0
-                meta_namespace_admin: true
           loadgen_use_tls: true
           loadgen_type: orderer-client
           loadgen_metrics_port: 12010

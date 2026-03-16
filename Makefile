@@ -146,6 +146,12 @@ start:
 	@printf "$(COLOR_CYAN)🚩 Starting hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
 	ansible-playbook "$(PLAYBOOK_PATH)/60-start.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
+# Initialize the deployment nodes (e.g. make init).
+.PHONY: init
+init:
+	@printf "$(COLOR_CYAN)🚩 Initializing [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
+	ansible-playbook "$(PLAYBOOK_PATH)/66-init.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+
 # Stop the targeted hosts (e.g. make fabric_x stop).
 .PHONY: stop
 stop:

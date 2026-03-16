@@ -329,7 +329,6 @@ all:
             users:
               - name: orderer-loadgen
                 namespace: 0
-                meta_namespace_admin: true
           loadgen_tx_seed: 12345
         orderer-loadgen-2:
           ansible_host: "{{ host_machine_15 }}"

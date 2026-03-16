@@ -1,0 +1,8 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Create namespaces on Fabric-X Committer
+  ansible.builtin.import_playbook: hyperledger.fabricx.fxconfig.create_namespaces

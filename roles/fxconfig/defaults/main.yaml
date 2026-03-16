@@ -29,6 +29,13 @@ fxconfig_use_bin: false
 # =========================
 fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
 fxconfig_container_config_dir: "/tmp"
+fxconfig_config_file: fxconfig.yaml
+
+# =========================
+# Fxconfig logs
+# =========================
+fxconfig_log_level: info
+fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
 
 # =========================
 # Fxconfig TLS settings

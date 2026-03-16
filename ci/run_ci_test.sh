@@ -73,8 +73,7 @@ trap exit 1 INT
 source "${PROFILE_FILE}"
 
 # run network and tests
-run_cmd make setup
-run_cmd make start
+run_cmd make setup start init
 run_cmd sleep 10
 run_cmd make load_generators get-metrics ASSERT_METRICS=true
 
