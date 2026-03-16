@@ -16,7 +16,7 @@ logging:
   # Valid levels: debug, info, warning, error, panic, fatal.
   level: {{ fxconfig_log_level | lower }}
   # Log message format template. Supports color codes, timestamps, module names,
-  # function names, and log levels. See fabric-lib-go/common/flogging for details.  
+  # function names, and log levels. See fabric-lib-go/common/flogging for details.
   format: "{{ fxconfig_log_format }}"
 
 # Ordering service configuration
@@ -49,7 +49,7 @@ queries:
 {% if hostvars[committer_query_service_host].committer_use_mtls is defined and hostvars[committer_query_service_host].committer_use_mtls %}
     clientCert: {{ fxconfig_remote_config_dir }}/mtls/server.crt
     clientKey: {{ fxconfig_remote_config_dir }}/mtls/server.key
-{% endif %}      
+{% endif %}
 {% endif %}
 
 {% if committer_sidecar_host is defined %}
@@ -67,6 +67,6 @@ notifications:
 {% if hostvars[committer_sidecar_host].committer_use_mtls is defined and hostvars[committer_sidecar_host].committer_use_mtls %}
     clientCert: {{ fxconfig_remote_config_dir }}/mtls/server.crt
     clientKey: {{ fxconfig_remote_config_dir }}/mtls/server.key
-{% endif %}      
-{% endif %}    
+{% endif %}
+{% endif %}
 {% endif %}
