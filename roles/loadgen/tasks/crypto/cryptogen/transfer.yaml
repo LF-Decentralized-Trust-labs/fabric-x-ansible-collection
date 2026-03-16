@@ -7,6 +7,12 @@
 # =========================
 # Peer MSP
 # =========================
+- name: Ensure Hyperledger Fabric-X Loadgen config directory exists
+  ansible.builtin.file:
+    path: "{{ loadgen_remote_config_dir }}"
+    state: directory
+    mode: "0o755"
+
 - name: Transfer the MSP peer crypto material generated with cryptogen
   ansible.posix.synchronize:
     src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ organization.peer.name | default(inventory_hostname) }}.{{ organization.domain }}/msp"
