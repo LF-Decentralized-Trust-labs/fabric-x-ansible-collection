@@ -32,8 +32,8 @@ body:
       label: Breaking changes
       description: Are there breaking configuration changes in the new version?
       options:
-        - Yes, this new version is not backward compatible and I will provide details on how to support it in the `Configuration changes` section below.
-        - No breaking changes - the new version is backward compatible with current configuration.
+        - Yes - Details on how to support it are provide in the `Configuration changes` section below.
+        - No.
     validations:
       required: true
   - type: textarea
