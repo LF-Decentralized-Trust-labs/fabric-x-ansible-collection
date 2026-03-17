@@ -1,0 +1,69 @@
+name: Bug report
+description: Report a bug for `hyperledger.fabricx` Ansible collection
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: What went wrong? Include any error messages.
+      placeholder: Task X fails with Y on Z...
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: List exact steps, including playbook snippet if possible.
+      placeholder: |
+        1. Inventory used to trigger the bug;
+        2. Playbook/Task containing the bug;
+        3. Command to trigger the bug
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened?
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What actually happened?
+  - type: textarea
+    id: module
+    attributes:
+      label: Module / task affected
+      description: Which module(s) or task(s) in the collection?
+      placeholder: hyperledger.fabricx.module_name.task_name
+  - type: input
+    id: ansible_version
+    attributes:
+      label: Ansible and collection versions
+      description: Run `ansible --version` and `ansible-galaxy collection list | grep "hyperledger.fabricx"`
+      placeholder: "ex: ansible [core 2.20.0], hyperledger.fabricx  0.5.11"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Target OS / platform
+      placeholder: "ex: Ubuntu 22.04, RHEL 9, Darwin 14.x"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Full logs
+      description: Paste output from `ansible-playbook -vvv your-playbook.yml`
+      render: shell
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        **Additional context**
+        Add screenshots, related issues, or other info.
