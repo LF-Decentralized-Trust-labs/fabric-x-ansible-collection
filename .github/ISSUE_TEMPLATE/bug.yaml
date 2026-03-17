@@ -7,7 +7,10 @@ body:
     id: description
     attributes:
       label: Describe the bug
-      description: List exact steps triggering the bug, including inventory and playbook snippets if possible.
+      description: |
+        List exact steps triggering the bug, including inventory and playbook snippets if possible.
+
+        **Tip**: Include relevant playbook YAML for faster debugging.
       placeholder: Command `make start` fails with inventory `fabric-x.yaml` when running the playbook...
     validations:
       required: true
@@ -18,27 +21,30 @@ body:
       description: |
         **Tip**: `ansible --version`
 
-        **Tip** `ansible-galaxy collection list | grep "hyperledger.fabricx"`
-      placeholder: |
-        ansible [core 2.20.0], hyperledger.fabricx 0.5.11
+        **Tip**: `ansible-galaxy collection list | grep "hyperledger.fabricx"`
+      placeholder: ansible [core 2.20.0], hyperledger.fabricx 0.5.11
     validations:
       required: true
   - type: input
     id: os
     attributes:
       label: Target OS/platform
-      placeholder: |
-        ex: Ubuntu 22.04, RHEL 9, Darwin 14.x
+      description: |
+        **Linux**: `cat /etc/os-release`
+
+        **macOS**: `sw_vers`
+      placeholder: Ubuntu 22.04, RHEL 9, macOS 26.3.0
     validations:
       required: true
   - type: textarea
     id: additional_context
     attributes:
-      label: Additional context
+      label: Logs and screenshots
       description: |
-        Paste logs or attach screenshots showing the error.
+        Paste logs (e.g., `ansible-playbook -vvv`) or drag-drop files/images (.log, .txt, .png, .jpg).
 
-        **Tip**: You can attach files by dragging files in this area.
+        **How**: Click to highlight this area, then drag files—they auto-upload and link.
       render: shell
+      placeholder: Paste verbose logs here or drag screenshot/logfile...
     validations:
       required: true
