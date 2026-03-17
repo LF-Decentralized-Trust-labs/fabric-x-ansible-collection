@@ -49,7 +49,7 @@ body:
       description: |
         Paste logs (e.g., `ansible-playbook -vvv`) or drag-drop files/images (.log, .txt, .png, .jpg).
 
-        **How**: Click to highlight this area, then drag files—they auto-upload and link.
+        **How**: Click to highlight this area, then drag files.
       render: shell
       placeholder: Paste verbose logs here or drag screenshot/logfile...
     validations:

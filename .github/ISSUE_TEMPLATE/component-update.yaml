@@ -1,0 +1,54 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+name: Component Update
+description: Request support for a newer version of a component
+title: "[UPDATE] Update to `<component>:<version>`"
+labels: ["enhancement", "version-support"]
+body:
+  - type: input
+    id: component
+    attributes:
+      label: Component name
+      description: Which component needs version support?
+      placeholder: |
+        `fabric-x-orderer`, `fabric-x-committer`, `fabric-x-loadgen`, etc.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Target version
+      description: What version should be supported?
+      placeholder: v2.5.0, 3.1.2, etc.
+    validations:
+      required: true
+  - type: textarea
+    id: config_changes
+    attributes:
+      label: Configuration changes
+      description: |
+        List all configuration changes needed to support the new version.
+
+        Use markdown format to describe:
+        - New configuration parameters
+        - Deprecated/removed parameters
+        - Changed parameter formats or values
+        - Template updates required
+        - Links to release notes or documentation
+
+        **Set to "N/A" this section if you check "No breaking changes" below.**
+      render: markdown
+    validations:
+      required: true
+  - type: checkboxes
+    id: breaking_changes
+    attributes:
+      label: Breaking changes
+      description: Are there breaking configuration changes in the new version?
+      options:
+        - label: No breaking changes - the new version is backward compatible with current configuration
+          required: false
