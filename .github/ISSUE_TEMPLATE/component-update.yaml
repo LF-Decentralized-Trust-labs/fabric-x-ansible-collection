@@ -26,14 +26,14 @@ body:
       placeholder: v2.5.0
     validations:
       required: true
-  - type: checkboxes
+  - type: dropdown
     id: breaking_changes
     attributes:
       label: Breaking changes
       description: Are there breaking configuration changes in the new version?
       options:
-        - label: Yes, this new version is not backward compatible and I will provide details on how to port it in the `Configuration changes` section
-        - label: No breaking changes - the new version is backward compatible with current configuration
+        - Yes, this new version is not backward compatible and I will provide details on how to support it in the `Configuration changes` section below.
+        - No breaking changes - the new version is backward compatible with current configuration.
     validations:
       required: true
   - type: textarea
