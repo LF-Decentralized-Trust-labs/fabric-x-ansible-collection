@@ -33,6 +33,10 @@
     GOARCH: "{{ go_arch }}"
     CGO_ENABLED: "{{ 1 if go_cgo_enabled else 0 }}"
     CC: "{{ go_cc_compiler | default('') if go_cgo_enabled else '' }}"
-  ansible.builtin.command: "go install {{ go_package }}"
+  ansible.builtin.command: >-
+    go install {{ go_package }}
+    {% if go_tags is defined %}
+    -tags="{{ go_tags | join(',') }}"
+    {% endif %}
   register: go_install_result
   changed_when: go_install_result.rc != 0
