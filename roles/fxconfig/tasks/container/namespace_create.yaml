@@ -4,16 +4,33 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Ensure output directory exists
+  ansible.builtin.file:
+    path: "{{ fxconfig_output | dirname }}"
+    state: directory
+    mode: "0o755"
+
 - name: Create namespace {{ fxconfig_namespace }}
   vars:
     container_name: "{{ fxconfig_container_name }}-{{ fxconfig_namespace }}-create"
     container_image: "{{ fxconfig_image }}"
-    container_command: >-
-      {{ fxconfig_bin_name }} namespace
-      create {{ fxconfig_namespace }}
-      --config={{ fxconfig_container_config_dir }}/{{ fxconfig_config_file }}
+    container_env:
+      FXCONFIG_POLICY: "{{ fxconfig_namespace_policy }}"
+      FXCONFIG_LOGGING_LEVEL: "{{ fxconfig_log_level }}"
+      FXCONFIG_LOGGING_FORMAT: "{{ fxconfig_log_format }}"
+    # We use the shell command to overcome the issue of quote escaping within
+    # the docker_container plugin. In this way we can use expand the env
+    # variable (which is not escaped by the module).
+    container_command:
+      - sh
+      - -c
+      - >-
+        {{ fxconfig_bin_name }} namespace
+        create {{ fxconfig_namespace }}
+        --policy=$FXCONFIG_POLICY
+        --output=/tmp/{{ fxconfig_output | basename }}
     container_volumes:
-      - "{{ fxconfig_remote_config_dir }}:{{ fxconfig_container_config_dir }}:z"
+      - "{{ fxconfig_output | dirname }}:/tmp:z"
     container_run_detach_mode: false
     container_run_as_host_user: true
     container_autoremove: true

@@ -1,0 +1,54 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Define folder for endorsement
+  ansible.builtin.set_fact:
+    fxconfig_output_dir: "{{ fxconfig_output | dirname }}"
+
+- name: Ensure output directory for namespace transactions to endorse exists
+  ansible.builtin.file:
+    path: "{{ fxconfig_output_dir }}/{{ fxconfig_namespace }}/to_endorse"
+    state: directory
+    mode: "0o755"
+
+- name: Transfer namespace transaction
+  ansible.builtin.copy:
+    src: "{{ config_build_dir }}/fxconfig-artifacts/{{ fxconfig_namespace }}/to_endorse/ns.json"
+    dest: "{{ fxconfig_output_dir }}/{{ fxconfig_namespace }}/to_endorse/ns.json"
+    mode: preserve
+
+- name: Endorse namespace transaction
+  vars:
+    # The < /dev/null is due to the fact that the command auto-detects
+    # an stdin input. To prevent it, we nullify the stdin input.
+    bin_command: >-
+      {{ fxconfig_bin_name }} tx
+      endorse
+      {{ fxconfig_output_dir }}/{{ fxconfig_namespace }}/to_endorse/ns.json
+      --config={{ fxconfig_remote_config_dir }}/{{ fxconfig_config_file }}
+      --output={{ fxconfig_output }} < /dev/null
+    bin_run_with_tmux: false
+    bin_collect_logs: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start
+
+- name: Fetch endorsed transaction
+  vars:
+    endorser_users: >-
+      {{
+        organization.users
+        | selectattr('endorser', 'defined')
+        | selectattr('endorser', 'eq', true)
+        | list
+      }}
+    has_endorser_users: "{{ endorser_users | length > 0 }}"
+    fxconfig_user: "{{ (endorser_users | first) if has_endorser_users else (organization.users | first) }}"
+  ansible.builtin.fetch:
+    src: "{{ fxconfig_output }}"
+    dest: "{{ config_build_dir }}/fxconfig-artifacts/{{ fxconfig_namespace }}/endorsed/{{ fxconfig_user.name }}.json"
+    flat: true
+    mode: preserve

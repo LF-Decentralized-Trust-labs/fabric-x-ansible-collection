@@ -7,9 +7,22 @@
 - name: Transfer the fxconfig configuration files
   hosts: "{{ target_hosts | default('all') }}"
   tasks:
-    - name: Transfer the configuration files for fxconfig
+    - name: Transfer the configuration files for fxconfig on nodes declaring namespaces
       vars:
-        fxconfig_msp_config_path: "{{ remote_config_dir }}/users/{{ current_user.name }}@{{ organization.domain }}/msp"
+        # We default for now to the first in the list as the MSP
+        # to use for fxconfig endorsement.
+        # We may later decide to add an extra-property in the user
+        # object to identify a specific one having endorsing powers.
+        endorser_users: >-
+          {{
+            organization.users
+            | selectattr('endorser', 'defined')
+            | selectattr('endorser', 'eq', true)
+            | list
+          }}
+        has_endorser_users: "{{ endorser_users | length > 0 }}"
+        fxconfig_user: "{{ (endorser_users | first) if has_endorser_users else (organization.users | first) }}"
+        fxconfig_msp_config_path: "{{ remote_config_dir }}/users/{{ fxconfig_user.name }}@{{ organization.domain }}/msp"
         fxconfig_msp_id: "{{ organization.name }}MSP"
         orderer_router_host: >-
           {{
@@ -44,11 +57,7 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxconfig
         tasks_from: config/transfer
-      loop: "{{ organization.users }}"
-      loop_control:
-        loop_var: current_user
-        label: "{{ organization.domain }}:{{ current_user.name }}"
       when:
         - organization is defined
+        - organization.namespaces is defined
         - organization.users is defined
-        - current_user.namespace is defined

@@ -7,7 +7,7 @@
 # MSP identity for endorsing transactions
 msp:
   localMspID: {{ fxconfig_msp_id }}
-  configPath: {{ fxconfig_remote_config_dir }}/msp
+  configPath: {{ fxconfig_config_dir }}/msp
 
 # Logging configuration
 logging:
@@ -29,10 +29,10 @@ orderer:
   tls:
     enabled: true
     rootCerts:
-      - {{ fxconfig_remote_config_dir }}/tls/orderer/ca.crt
+      - {{ fxconfig_config_dir }}/tls/orderer/ca.crt
 {% if hostvars[orderer_router_host].orderer_use_mtls is defined and hostvars[orderer_router_host].orderer_use_mtls %}
-    clientCert: {{ fxconfig_remote_config_dir }}/mtls/server.crt
-    clientKey: {{ fxconfig_remote_config_dir }}/mtls/server.key
+    clientCert: {{ fxconfig_config_dir }}/mtls/server.crt
+    clientKey: {{ fxconfig_config_dir }}/mtls/server.key
 {% endif %}
 {% endif %}
 
@@ -45,15 +45,13 @@ queries:
   tls:
     enabled: true
     rootCerts:
-      - {{ fxconfig_remote_config_dir }}/tls/committer/ca.crt
+      - {{ fxconfig_config_dir }}/tls/committer/ca.crt
 {% if hostvars[committer_query_service_host].committer_use_mtls is defined and hostvars[committer_query_service_host].committer_use_mtls %}
-    clientCert: {{ fxconfig_remote_config_dir }}/mtls/server.crt
-    clientKey: {{ fxconfig_remote_config_dir }}/mtls/server.key
+    clientCert: {{ fxconfig_config_dir }}/mtls/server.crt
+    clientKey: {{ fxconfig_config_dir }}/mtls/server.key
 {% endif %}
 {% endif %}
 
-{% if committer_sidecar_host is defined %}
-# Notification service configuration
 notifications:
   address: {{ hostvars[committer_sidecar_host].ansible_host }}:{{ hostvars[committer_sidecar_host].committer_rpc_port }}
   connectionTimeout: {{ fxconfig_committer_sidecar_connection_timeout | default('30s') }}
@@ -63,10 +61,9 @@ notifications:
   tls:
     enabled: true
     rootCerts:
-      - {{ fxconfig_remote_config_dir }}/tls/committer/ca.crt
+      - {{ fxconfig_config_dir }}/tls/committer/ca.crt
 {% if hostvars[committer_sidecar_host].committer_use_mtls is defined and hostvars[committer_sidecar_host].committer_use_mtls %}
-    clientCert: {{ fxconfig_remote_config_dir }}/mtls/server.crt
-    clientKey: {{ fxconfig_remote_config_dir }}/mtls/server.key
-{% endif %}
+    clientCert: {{ fxconfig_config_dir }}/mtls/server.crt
+    clientKey: {{ fxconfig_config_dir }}/mtls/server.key
 {% endif %}
 {% endif %}

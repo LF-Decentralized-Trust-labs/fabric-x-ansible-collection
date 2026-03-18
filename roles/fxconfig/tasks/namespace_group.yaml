@@ -1,0 +1,36 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Group organization roles per FabricX namespace
+  vars:
+    current_organization: "{{ current_org_with_namespace[0] }}"
+    current_namespace: "{{ current_org_with_namespace[1] }}"
+    current_organization_role: "{{ current_organization.name }}MSP.{{ current_namespace.role | default('member') }}"
+  ansible.builtin.set_fact:
+    fxconfig_orgs_per_namespaces: >-
+      {{
+        fxconfig_orgs_per_namespaces | default({}) | combine({
+          current_namespace: {
+            'namespace': current_namespace,
+            'org_roles': (((fxconfig_orgs_per_namespaces | default({})).get(current_namespace, {}).get('org_roles', []) + [current_organization_role]) | unique | sort)
+          }
+        })
+      }}
+  with_subelements:
+    - >-
+      {{
+        groups['all']
+        | map('extract', hostvars)
+        | map('to_json')
+        | map('from_json')
+        | selectattr('organization', 'defined')
+        | map(attribute='organization')
+        | selectattr('namespaces', 'defined')
+      }}
+    - namespaces
+  loop_control:
+    loop_var: current_org_with_namespace
+    label: "{{ current_namespace }}:{{ current_organization.name }}"

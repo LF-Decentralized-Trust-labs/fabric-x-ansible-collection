@@ -1,0 +1,36 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure output directory for namespace transactions to endorse exists
+  ansible.builtin.file:
+    path: "{{ fxconfig_remote_config_dir }}/to_submit"
+    state: directory
+    mode: "0o755"
+
+- name: Transfer namespace transaction
+  ansible.builtin.copy:
+    src: "{{ fxconfig_tx_to_submit_path }}"
+    dest: "{{ fxconfig_remote_config_dir }}/to_submit/ns.json"
+    mode: preserve
+
+- name: Submit transaction with fxconfig container
+  vars:
+    container_name: "{{ fxconfig_container_name }}-submit"
+    container_image: "{{ fxconfig_image }}"
+    container_command: >-
+      {{ fxconfig_bin_name }} tx
+      submit
+      {{ fxconfig_container_config_dir }}/to_submit/ns.json
+      --config={{ fxconfig_container_config_dir }}/{{ fxconfig_config_file }}
+      --wait
+    container_volumes:
+      - "{{ fxconfig_remote_config_dir }}:{{ fxconfig_container_config_dir }}:z"
+    container_run_detach_mode: false
+    container_run_as_host_user: true
+    container_autoremove: true
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start

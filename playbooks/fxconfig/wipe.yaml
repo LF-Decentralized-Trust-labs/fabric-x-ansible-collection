@@ -13,4 +13,4 @@
         tasks_from: wipe
       when:
         - organization is defined
-        - organization.users is defined
+        - organization.namespaces is defined

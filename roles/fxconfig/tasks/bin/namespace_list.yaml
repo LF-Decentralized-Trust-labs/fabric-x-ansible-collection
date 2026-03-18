@@ -6,6 +6,9 @@
 
 - name: List Hyperledger Fabric-X Committer namespaces
   vars:
+    bin_env:
+      FXCONFIG_LOGGING_LEVEL: "{{ fxconfig_log_level }}"
+      FXCONFIG_LOGGING_FORMAT: "{{ fxconfig_log_format }}"
     bin_command: >-
       {{ fxconfig_bin_name }} namespace
       list

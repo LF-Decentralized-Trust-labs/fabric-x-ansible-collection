@@ -20,6 +20,7 @@
         | map('extract', hostvars)
         | selectattr('organization', 'defined')
         | selectattr('organization.users', 'defined')
+        | selectattr('organization.namespaces', 'defined')
         | selectattr('bin_build_on_control_node', 'defined')
         | selectattr('bin_build_on_control_node', '==', true)
         | selectattr('fxconfig_use_bin', 'defined')
@@ -31,7 +32,7 @@
     # =========================
     # Install on the control node
     # =========================
-    - name: Install the fxconfig binary on the control node
+    - name: Install the fxconfig binary on the control node for the remote nodes
       vars:
         bin_hosts: >-
           {{
@@ -45,10 +46,20 @@
         tasks_from: bin/install
       when:
         - bin_hosts | length > 0
+    - name: Install the fxconfig binary on the control node for the control node
+      vars:
+        bin_build_on_control_node: true
+        bin_dir: "{{ cli_bin_dir }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxconfig
+        tasks_from: bin/install
+      when:
+        - fxconfig_use_bin
+        - fxconfig_build_bin is undefined
     # =========================
     # Build on the control node
     # =========================
-    - name: Build the fxconfig binary on the control node
+    - name: Build the fxconfig binary on the control node for the remote nodes
       vars:
         bin_hosts: >-
           {{
@@ -63,6 +74,17 @@
         tasks_from: bin/build
       when:
         - bin_hosts | length > 0
+    - name: Build the fxconfig binary on the control node for the control node
+      vars:
+        bin_build_on_control_node: true
+        bin_dir: "{{ cli_bin_dir }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxconfig
+        tasks_from: bin/build
+      when:
+        - fxconfig_use_bin
+        - fxconfig_build_bin is defined
+        - fxconfig_build_bin
 
 - name: Ensure fxconfig binaries are on remote nodes
   hosts: "{{ target_hosts | default('all') }}"
@@ -72,7 +94,7 @@
         - fxconfig_use_bin is defined
         - fxconfig_use_bin
         - organization is defined
-        - organization.users is defined
+        - organization.namespaces is defined
       block:
         - name: Setup fxconfig binary using appropriate method
           vars:
