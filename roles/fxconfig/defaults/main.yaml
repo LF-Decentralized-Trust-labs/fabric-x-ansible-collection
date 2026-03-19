@@ -9,7 +9,7 @@
 # =========================
 fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 fxconfig_image_name: "fabric-x-tools"
-fxconfig_image_tag: "0.0.11"
+fxconfig_image_tag: "0.0.12"
 fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
 fxconfig_container_name: "fxconfig"
 
@@ -20,7 +20,7 @@ fxconfig_git_hub_url: github.com
 fxconfig_git_repo: "hyperledger/fabric-x"
 fxconfig_source_code_package: "tools/fxconfig"
 fxconfig_bin_package: "{{ fxconfig_git_hub_url }}/{{ fxconfig_git_repo }}/{{ fxconfig_source_code_package }}"
-fxconfig_git_commit: "v0.0.11"
+fxconfig_git_commit: "v0.0.12"
 fxconfig_bin_name: fxconfig
 fxconfig_use_bin: false
 

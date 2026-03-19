@@ -98,7 +98,7 @@ login-cr:
 
 # Build all the artifacts, the binaries and configuration files (e.g. make setup).
 .PHONY: setup
-setup: artifacts binaries configs
+setup: artifacts configs binaries
 
 # Build all the artifacts (e.g. make artifacts).
 .PHONY: artifacts

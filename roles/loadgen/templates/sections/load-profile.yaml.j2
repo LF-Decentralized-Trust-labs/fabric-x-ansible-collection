@@ -75,28 +75,25 @@ load-profile:
     #                        artifacts-path. Requires all peer organizations to sign. The 'seed' and
     #                        'key-path' fields are ignored when using MSP.
     namespace-policies:
-{% if organization is defined %}
-{% if organization.users is defined %}
-{% for user in organization.users %}
-{% if user.namespace is defined %}
+{% if organization.namespaces is defined %}
+{% for current_namespace in organization.namespaces %}
         # Namespace identifier
-        {{ user.namespace }}:
+        {{ current_namespace }}:
           # Signature scheme ("ECDSA", "EDDSA", "BLS" or "NONE").
           scheme: {{ loadgen_key_scheme | default('ECDSA') }}
           # How to find/generate the signature keys.
           key-path:
+{% set namespace_user = (organization.users | first) %}
             # Path to the signing key.
-            signing-key: {{ loadgen_config_dir }}/users/{{ user.name }}@{{ organization.domain }}/msp/keystore/priv_sk
+            signing-key: {{ loadgen_config_dir }}/users/{{ namespace_user.name }}@{{ organization.domain }}/msp/keystore/priv_sk
 {% if organization.fabric_ca_host is defined %}
             # Path to the signing certificate.
-            sign-certificate: {{ loadgen_config_dir }}/users/{{ user.name }}@{{ organization.domain }}/msp/signcerts/cert.pem
+            sign-certificate: {{ loadgen_config_dir }}/users/{{ namespace_user.name }}@{{ organization.domain }}/msp/signcerts/cert.pem
 {% else %}
             # Path to the signing certificate.
-            sign-certificate: {{ loadgen_config_dir }}/users/{{ user.name }}@{{ organization.domain }}/msp/signcerts/{{ user.name }}@{{ organization.domain }}-cert.pem
-{% endif %}
+            sign-certificate: {{ loadgen_config_dir }}/users/{{ namespace_user.name }}@{{ organization.domain }}/msp/signcerts/{{ namespace_user.name }}@{{ organization.domain }}-cert.pem
 {% endif %}
 {% endfor %}
-{% endif %}
 {% endif %}
 {% if loadgen_generate_config_block %}
     # Orderer endpoint specifications for transaction submission.

@@ -17,7 +17,7 @@
     container_env:
       FXCONFIG_POLICY: "{{ fxconfig_namespace_policy }}"
       FXCONFIG_LOGGING_LEVEL: "{{ fxconfig_log_level }}"
-      FXCONFIG_LOGGING_FORMAT: "{{ fxconfig_log_format }}"
+      FXCONFIG_LOGGING_FORMAT: "{{ fxconfig_log_format | quote }}"
     # We use the shell command to overcome the issue of quote escaping within
     # the docker_container plugin. In this way we can use expand the env
     # variable (which is not escaped by the module).

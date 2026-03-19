@@ -10,7 +10,7 @@
     container_image: "{{ fxconfig_image }}"
     container_env:
       FXCONFIG_LOGGING_LEVEL: "{{ fxconfig_log_level }}"
-      FXCONFIG_LOGGING_FORMAT: "{{ fxconfig_log_format }}"
+      FXCONFIG_LOGGING_FORMAT: "{{ fxconfig_log_format | quote }}"
     container_command: >-
       {{ fxconfig_bin_name }} namespace
       list
