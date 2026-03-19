@@ -23,3 +23,9 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: start
+
+- name: Print retrieved Fabric-X namespaces
+  ansible.builtin.debug:
+    msg: "{{ container_output.stdout_lines }}"
+  when:
+    - container_output is defined

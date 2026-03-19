@@ -10,7 +10,7 @@
     - name: Group organization roles per namespace
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxconfig
-        tasks_from: namespace_group
+        tasks_from: namespace/group
     - name: Create FabricX namespaces with fxconfig on the control node
       vars:
         bin_remote_dir: "{{ cli_bin_dir }}"
@@ -19,7 +19,7 @@
         fxconfig_output: "{{ config_build_dir }}/fxconfig-artifacts/{{ fxconfig_namespace }}/to_endorse/ns.json"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxconfig
-        tasks_from: namespace_create
+        tasks_from: namespace/create
       loop: "{{ fxconfig_orgs_per_namespaces.values() }}"
       loop_control:
         loop_var: current_namespace_with_orgs
@@ -86,3 +86,7 @@
       when:
         - organization is defined
         - organization.namespaces is defined
+    - name: List FabricX namespaces
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxconfig
+        tasks_from: namespace/list
