@@ -209,9 +209,7 @@ all:
             role: peer
             namespaces:
               - id: 0
-                policy:
-                  type: threshold
-                  user: orderer-loadgen
+                policy: threshold
             users:
               - name: orderer-loadgen
           loadgen_use_tls: true

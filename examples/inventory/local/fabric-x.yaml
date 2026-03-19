@@ -292,7 +292,8 @@ all:
               name: "{{ inventory_hostname }}"
               secret: "{{ inventory_hostname }}PWD"
             namespaces:
-              - 0
+              - id: 0
+                policy: threshold
             users:
               - name: orderer-loadgen
                 secret: "{{ inventory_hostname }}PWD"

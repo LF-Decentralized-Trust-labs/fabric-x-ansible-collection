@@ -286,7 +286,8 @@ all:
             <<: *Org1
             fabric_ca_host: fabric-ca-org1
             namespaces:
-              - 0
+              - id: 0
+                policy: threshold
             users:
               - name: orderer-loadgen
                 secret: "{{ inventory_hostname }}PWD"

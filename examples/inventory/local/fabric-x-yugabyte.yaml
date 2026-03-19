@@ -306,7 +306,8 @@ all:
             fabric_ca_host: fabric-ca-org1
             role: peer
             namespaces:
-              - 0
+              - id: 0
+                policy: threshold
             peer:
               name: "{{ inventory_hostname }}"
               secret: "{{ inventory_hostname }}PWD"

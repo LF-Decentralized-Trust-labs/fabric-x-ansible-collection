@@ -327,7 +327,8 @@ all:
             <<: *Org1
             role: peer
             namespaces:
-              - 0
+              - id: 0
+                policy: threshold
             users:
               - name: orderer-loadgen
           loadgen_tx_seed: 12345
@@ -337,7 +338,8 @@ all:
             <<: *Org1
             role: peer
             namespaces:
-              - 0
+              - id: 0
+                policy: threshold
             users:
               - name: orderer-loadgen
           loadgen_tx_seed: 67890
