@@ -1,0 +1,127 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check if yugabyte_hosts required variable is set
+  ansible.builtin.fail:
+    msg: "The variable 'yugabyte_hosts' must be defined to use this role. It must contain the list of hosts devoted for the YugabyteDB clusters."
+  when:
+    - yugabyte_hosts is not defined
+
+- name: Set Prometheus scrape services for Yugabyte clusters
+  vars:
+    current_yugabyte_cluster: >-
+      {{
+        yugabyte_hosts
+        | map('extract', hostvars)
+        | selectattr('yugabyte_cluster_id', 'defined')
+        | selectattr('yugabyte_cluster_id', '==', current_yugabyte_cluster_id)
+        | selectattr('yugabyte_component_type', 'defined')
+      }}
+    current_yugabyte_cluster_ref_host: >-
+      {{
+        current_yugabyte_cluster
+        | first
+      }}
+    current_yugabyte_cluster_masters: >-
+      {{
+        current_yugabyte_cluster
+        | selectattr('yugabyte_component_type', 'match', 'master')
+        | map(attribute='inventory_hostname')
+        | list
+      }}
+    current_yugabyte_cluster_tablets: >-
+      {{
+        current_yugabyte_cluster
+        | selectattr('yugabyte_component_type', 'match', 'tablet')
+        | map(attribute='inventory_hostname')
+        | list
+      }}
+    current_yugabyte_cluster_webserver_use_tls: >-
+      {{
+        current_yugabyte_cluster_ref_host.yugabyte_webserver_use_tls
+        | default(current_yugabyte_cluster_ref_host.yugabyte_use_tls)
+        | default(false)
+      }}
+    yugabyte_scrape_service:
+      job_name: yugabytedb.cluster-{{ current_yugabyte_cluster_id }}
+      use_tls: "{{ current_yugabyte_cluster_webserver_use_tls }}"
+      tls_ca_file: >-
+        {{
+          fetched_artifacts_dir ~ '/crypto/peerOrganizations/' ~ current_yugabyte_cluster_ref_host.organization.domain ~ '/msp/tlscacerts/tlsca.' ~ current_yugabyte_cluster_ref_host.organization.domain ~ '-cert.pem'
+          if current_yugabyte_cluster_webserver_use_tls
+          else ''
+        }}
+      relabel_configs:
+        - target_label: "node_prefix"
+          replacement: "cluster-{{ current_yugabyte_cluster_id }}"
+      metric_relabel_configs:
+        - source_labels:
+            - __name__
+          regex: "(.*)"
+          target_label: saved_name
+          replacement: "$1"
+        - source_labels:
+            - __name__
+          regex: "handler_latency_(yb_[^_]*)_([^_]*)_([^_]*)(.*)"
+          target_label: server_type
+          replacement: "$1"
+        - source_labels:
+            - __name__
+          regex: "handler_latency_(yb_[^_]*)_([^_]*)_([^_]*)(.*)"
+          target_label: service_type
+          replacement: "$2"
+        - source_labels:
+            - __name__
+          regex: "handler_latency_(yb_[^_]*)_([^_]*)_([^_]*)(_sum|_count)?"
+          target_label: service_method
+          replacement: "$3"
+        - source_labels:
+            - __name__
+          regex: "handler_latency_(yb_[^_]*)_([^_]*)_([^_]*)(_sum|_count)?"
+          target_label: __name__
+          replacement: "rpc_latency$4"
+      prometheus_metrics_path: /prometheus-metrics
+      targets:
+        - hosts: "{{ current_yugabyte_cluster_masters }}"
+          port_to_scrape: yugabyte_master_webserver_port
+          label:
+            group: yb-master
+            export_type: master_export
+        - hosts: "{{ current_yugabyte_cluster_tablets }}"
+          port_to_scrape: yugabyte_tablet_webserver_port
+          label:
+            group: yb-tserver
+            export_type: tserver_export
+        - hosts: "{{ current_yugabyte_cluster_tablets }}"
+          port_to_scrape: yugabyte_tablet_pgsql_web_port
+          label:
+            group: ysql
+            export_type: ysql_export
+        - hosts: "{{ current_yugabyte_cluster_tablets }}"
+          port_to_scrape: yugabyte_tablet_cql_web_port
+          label:
+            group: ycql
+            export_type: cql_export
+        - hosts: "{{ current_yugabyte_cluster_tablets }}"
+          port_to_scrape: yugabyte_tablet_cql_web_port
+          label:
+            group: yedis
+            export_type: redis_export
+  ansible.builtin.set_fact:
+    yugabyte_prometheus_scrape_services: "{{ (yugabyte_prometheus_scrape_services | default([])) + [yugabyte_scrape_service] }}"
+  loop: >-
+    {{
+      yugabyte_hosts
+      | map('extract', hostvars)
+      | selectattr('yugabyte_component_type', 'defined')
+      | selectattr('yugabyte_cluster_id', 'defined')
+      | map(attribute='yugabyte_cluster_id')
+      | list
+      | unique
+    }}
+  loop_control:
+    loop_var: current_yugabyte_cluster_id
+    label: "yugabyte-cluster:{{ current_yugabyte_cluster_id }}"

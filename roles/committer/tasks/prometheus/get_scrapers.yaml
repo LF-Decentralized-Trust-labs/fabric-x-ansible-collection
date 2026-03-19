@@ -1,0 +1,79 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check if committer_hosts required variable is set
+  ansible.builtin.fail:
+    msg: "The variable 'committer_hosts' must be defined to use this role. It must contain the list of hosts devoted for the Fabric-X Committer components."
+  when:
+    - committer_hosts is not defined
+
+- name: Set Prometheus scrape services for Fabric-X Committer
+  vars:
+    committer_hosts_with_vars: >-
+      {{
+        committer_hosts
+        | map('extract', hostvars)
+        | selectattr('committer_component_type', 'defined')
+      }}
+    committer_sidecar_hosts: >-
+      {{
+        committer_hosts_with_vars
+        | selectattr('committer_component_type', '==', 'sidecar')
+        | map(attribute='inventory_hostname')
+        | list
+      }}
+    committer_coordinator_hosts: >-
+      {{
+        committer_hosts_with_vars
+        | selectattr('committer_component_type', '==', 'coordinator')
+        | map(attribute='inventory_hostname')
+        | list
+      }}
+    committer_verifier_hosts: >-
+      {{
+        committer_hosts_with_vars
+        | selectattr('committer_component_type', '==', 'verifier')
+        | map(attribute='inventory_hostname')
+        | list
+      }}
+    committer_validator_hosts: >-
+      {{
+        committer_hosts_with_vars
+        | selectattr('committer_component_type', '==', 'validator')
+        | map(attribute='inventory_hostname')
+        | list
+      }}
+    committer_sidecar_ref_host: "{{ committer_sidecar_hosts | first }}"
+    committer_coordinator_ref_host: "{{ committer_coordinator_hosts | first }}"
+    committer_verifier_ref_host: "{{ committer_verifier_hosts | first }}"
+    committer_validator_ref_host: "{{ committer_validator_hosts | first }}"
+    committer_scrape_services:
+      - job_name: sidecar_service
+        use_tls: "{{ hostvars[committer_sidecar_ref_host].committer_monitoring_use_tls | default(hostvars[committer_sidecar_ref_host].committer_use_tls) | default(false) }}"
+        tls_ca_file: "{{ fetched_artifacts_dir }}/{{ committer_sidecar_ref_host }}/tls/ca.crt"
+        targets:
+          - hosts: "{{ committer_sidecar_hosts }}"
+            port_to_scrape: committer_metrics_port
+      - job_name: coordinators_service
+        use_tls: "{{ hostvars[committer_coordinator_ref_host].committer_monitoring_use_tls | default(hostvars[committer_coordinator_ref_host].committer_use_tls) | default(false) }}"
+        tls_ca_file: "{{ fetched_artifacts_dir }}/{{ committer_coordinator_ref_host }}/tls/ca.crt"
+        targets:
+          - hosts: "{{ committer_coordinator_hosts }}"
+            port_to_scrape: committer_metrics_port
+      - job_name: verifiers_service
+        use_tls: "{{ hostvars[committer_verifier_ref_host].committer_monitoring_use_tls | default(hostvars[committer_verifier_ref_host].committer_use_tls) | default(false) }}"
+        tls_ca_file: "{{ fetched_artifacts_dir }}/{{ committer_verifier_ref_host }}/tls/ca.crt"
+        targets:
+          - hosts: "{{ committer_verifier_hosts }}"
+            port_to_scrape: committer_metrics_port
+      - job_name: validators_service
+        use_tls: "{{ hostvars[committer_validator_ref_host].committer_monitoring_use_tls | default(hostvars[committer_validator_ref_host].committer_use_tls) | default(false) }}"
+        tls_ca_file: "{{ fetched_artifacts_dir }}/{{ committer_validator_ref_host }}/tls/ca.crt"
+        targets:
+          - hosts: "{{ committer_validator_hosts }}"
+            port_to_scrape: committer_metrics_port
+  ansible.builtin.set_fact:
+    committer_prometheus_scrape_services: "{{ committer_scrape_services }}"
