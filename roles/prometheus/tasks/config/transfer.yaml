@@ -47,7 +47,7 @@
     - service_to_scrape.use_tls
     - service_to_scrape.tls_ca_file is defined
 
-- name: Transfer TLS certificates
+- name: Transfer TLS CA certificates
   ansible.builtin.copy:
     src: "{{ service_to_scrape.tls_ca_file }}"
     dest: "{{ prometheus_remote_config_dir }}/tls/{{ service_to_scrape.job_name }}/ca.crt"
