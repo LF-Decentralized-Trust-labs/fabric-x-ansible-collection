@@ -25,7 +25,7 @@ The task `namespace/create` creates a new namespace and assigns it the given pub
 ```yaml
 - name: Create the namespace "workload"
   vars:
-    fxconfig_namespace: workload
+    fxconfig_namespace_id: workload
     channel_id: arma
     orderer_router_host: orderer-router-1
     fxconfig_msp_id: Org1MSP

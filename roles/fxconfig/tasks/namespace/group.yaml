@@ -4,18 +4,17 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Group organization roles per FabricX namespace
+- name: Set hosts per namespace
   vars:
-    current_organization: "{{ current_org_with_namespace[0] }}"
-    current_namespace: "{{ current_org_with_namespace[1] }}"
-    current_organization_role: "{{ current_organization.name }}MSP.{{ current_namespace.role | default('member') }}"
+    current_host: "{{ current_host_with_namespace[0].inventory_hostname }}"
+    current_namespace: "{{ current_host_with_namespace[1] }}"
   ansible.builtin.set_fact:
-    fxconfig_orgs_per_namespaces: >-
+    fxconfig_hosts_per_namespaces: >-
       {{
-        fxconfig_orgs_per_namespaces | default({}) | combine({
-          current_namespace: {
+        fxconfig_hosts_per_namespaces | default({}) | combine({
+          current_namespace.id: {
             'namespace': current_namespace,
-            'org_roles': (((fxconfig_orgs_per_namespaces | default({})).get(current_namespace, {}).get('org_roles', []) + [current_organization_role]) | unique | sort)
+            'hosts': (((fxconfig_hosts_per_namespaces | default({})).get(current_namespace.id, {}).get('hosts', []) + [current_host]) | unique | sort)
           }
         })
       }}
@@ -27,10 +26,43 @@
         | map('to_json')
         | map('from_json')
         | selectattr('organization', 'defined')
-        | map(attribute='organization')
-        | selectattr('namespaces', 'defined')
+        | selectattr('organization.namespaces', 'defined')
       }}
-    - namespaces
+    - organization.namespaces
   loop_control:
-    loop_var: current_org_with_namespace
-    label: "{{ current_namespace }}:{{ current_organization.name }}"
+    loop_var: current_host_with_namespace
+    label: "{{ current_host }}:{{ current_namespace.id }}"
+
+- name: Set threshold policy
+  vars:
+    current_host: "{{ current_host_with_namespace[0].inventory_hostname }}"
+    current_namespace: "{{ current_host_with_namespace[1] }}"
+    current_org_domain: "{{ hostvars[current_host].organization.domain }}"
+    actual_policy:
+      policy: "threshold:{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ current_org_domain }}/users/{{ current_namespace.policy.user }}@{{ current_org_domain }}/msp/signcerts/{{ current_namespace.policy.user }}@{{ current_org_domain }}-cert.pem"
+  ansible.builtin.set_fact:
+    fxconfig_hosts_per_namespaces: >-
+      {{
+        fxconfig_hosts_per_namespaces | default({}) | combine({
+          current_namespace.id: {
+            'namespace': (fxconfig_hosts_per_namespaces.get(current_namespace.id).get('namespace') | combine(actual_policy)),
+            'hosts': fxconfig_hosts_per_namespaces.get(current_namespace.id).get('hosts')
+          }
+        })
+      }}
+  with_subelements:
+    - >-
+      {{
+        groups['all']
+        | map('extract', hostvars)
+        | map('to_json')
+        | map('from_json')
+        | selectattr('organization', 'defined')
+        | selectattr('organization.namespaces', 'defined')
+      }}
+    - organization.namespaces
+  loop_control:
+    loop_var: current_host_with_namespace
+    label: "{{ current_namespace.id }}:{{ current_host }}"
+  when:
+    - current_namespace.policy.type == 'threshold'

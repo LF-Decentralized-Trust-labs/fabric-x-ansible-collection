@@ -4,30 +4,30 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Define folder for endorsement
+- name: Define fxconfig output directory
   ansible.builtin.set_fact:
     fxconfig_output_dir: "{{ fxconfig_output | dirname }}"
 
-- name: Ensure output directory for namespace transactions to endorse exists
+- name: Ensure fxconfig output directory exists
   ansible.builtin.file:
-    path: "{{ fxconfig_output_dir }}/{{ fxconfig_namespace }}/to_endorse"
+    path: "{{ fxconfig_output_dir }}"
     state: directory
     mode: "0o755"
 
-- name: Transfer namespace transaction
+- name: Transfer transaction to endorse
   ansible.builtin.copy:
-    src: "{{ config_build_dir }}/fxconfig-artifacts/{{ fxconfig_namespace }}/to_endorse/ns.json"
-    dest: "{{ fxconfig_output_dir }}/{{ fxconfig_namespace }}/to_endorse/ns.json"
+    src: "{{ fxconfig_tx_to_endorse }}"
+    dest: "{{ fxconfig_output_dir }}/tx_to_endorse.json"
     mode: preserve
 
 - name: Endorse namespace transaction
   vars:
-    container_name: "{{ fxconfig_container_name }}-{{ fxconfig_namespace }}-endorse"
+    container_name: "{{ fxconfig_container_name }}-endorse"
     container_image: "{{ fxconfig_image }}"
     container_command: >-
       {{ fxconfig_bin_name }} tx
       endorse
-      /tmp/{{ fxconfig_namespace }}/to_endorse/ns.json
+      /tmp/tx_to_endorse.json
       --config={{ fxconfig_container_config_dir }}/{{ fxconfig_config_file }}
       --output=/tmp/{{ fxconfig_output | basename }}
     container_volumes:
@@ -40,14 +40,9 @@
     name: hyperledger.fabricx.container
     tasks_from: start
 
-- name: Get the endorser user
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.fxconfig
-    tasks_from: get_endorser
-
 - name: Fetch endorsed transaction
   ansible.builtin.fetch:
     src: "{{ fxconfig_output }}"
-    dest: "{{ config_build_dir }}/fxconfig-artifacts/{{ fxconfig_namespace }}/endorsed/{{ fxconfig_endorser_user.name }}.json"
+    dest: "{{ fxconfig_tx_to_endorse | dirname }}/endorsed/{{ fxconfig_output | basename }}.json"
     flat: true
     mode: preserve

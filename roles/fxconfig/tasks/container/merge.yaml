@@ -4,11 +4,11 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Define folder for merge
+- name: Define fxconfig output directory
   ansible.builtin.set_fact:
     fxconfig_output_dir: "{{ fxconfig_output | dirname }}"
 
-- name: Ensure output directory for endorsed transactions to merge exists
+- name: Ensure fxconfig output directory exists
   ansible.builtin.file:
     path: "{{ fxconfig_output_dir }}"
     state: directory

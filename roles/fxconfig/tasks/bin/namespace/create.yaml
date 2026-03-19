@@ -16,14 +16,14 @@
     state: directory
     mode: "0o755"
 
-- name: Create namespace {{ fxconfig_namespace }}
+- name: Create namespace {{ fxconfig_namespace_id }}
   vars:
     bin_env:
       FXCONFIG_LOGGING_LEVEL: "{{ fxconfig_log_level }}"
       FXCONFIG_LOGGING_FORMAT: "{{ fxconfig_log_format | quote }}"
     bin_command: >-
       {{ fxconfig_bin_name }} namespace
-      create {{ fxconfig_namespace }}
+      create {{ fxconfig_namespace_id }}
       --policy="{{ fxconfig_namespace_policy }}"
       --output={{ fxconfig_output }}
     bin_run_with_tmux: false

@@ -7,37 +7,44 @@
 - name: Create Fabric-X namespaces transactions on the control node
   hosts: localhost
   tasks:
-    - name: Group organization roles per namespace
+    - name: Group hosts per namespace
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxconfig
         tasks_from: namespace/group
     - name: Create FabricX namespaces with fxconfig on the control node
       vars:
         bin_remote_dir: "{{ cli_bin_dir }}"
-        fxconfig_namespace: "{{ current_namespace_with_orgs.namespace.id }}"
-        fxconfig_namespace_policy: "{{ current_namespace_with_orgs.namespace.policy }}"
-        fxconfig_output: "{{ config_build_dir }}/fxconfig-artifacts/{{ fxconfig_namespace }}/to_endorse/ns.json"
+        fxconfig_namespace_id: "{{ current_namespace_with_hosts.namespace.id }}"
+        fxconfig_namespace_policy: "{{ current_namespace_with_hosts.namespace.policy }}"
+        fxconfig_output: "{{ config_build_dir }}/fxconfig-artifacts/{{ fxconfig_namespace_id }}/ns.json"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxconfig
         tasks_from: namespace/create
-      loop: "{{ fxconfig_orgs_per_namespaces.values() }}"
+      loop: "{{ fxconfig_hosts_per_namespaces.values() }}"
       loop_control:
-        loop_var: current_namespace_with_orgs
-        label: "{{ fxconfig_namespace }}"
+        loop_var: current_namespace_with_hosts
+        label: "{{ fxconfig_namespace_id }}"
       when:
-        - fxconfig_orgs_per_namespaces is defined
+        - fxconfig_hosts_per_namespaces is defined
 
 - name: Endorse Fabric-X namespace transactions
   hosts: "{{ target_hosts | default('all') }}"
   tasks:
+    - name: Get the endorser user
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxconfig
+        tasks_from: get_endorser
     - name: Endorse FabricX namespaces with fxconfig
+      vars:
+        fxconfig_tx_to_endorse: "{{ config_build_dir }}/fxconfig-artifacts/{{ fxconfig_namespace.id }}/ns.json"
+        fxconfig_output: "{{ fxconfig_remote_config_dir }}/{{ fxconfig_namespace.id }}/endorsed/{{ fxconfig_endorser_user.name }}.json"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxconfig
         tasks_from: endorse
       loop: "{{ organization.namespaces }}"
       loop_control:
         loop_var: fxconfig_namespace
-        label: "{{ fxconfig_namespace }}"
+        label: "{{ fxconfig_namespace.id }}"
       when:
         - organization is defined
         - organization.namespaces is defined
@@ -48,8 +55,8 @@
     - name: Merge endorsed FabricX namespaces transactions in one single multi-endorsed transaction
       vars:
         bin_remote_dir: "{{ cli_bin_dir }}"
-        fxconfig_endorsed_txs_dir: "{{ config_build_dir }}/fxconfig-artifacts/{{ fxconfig_namespace }}/endorsed"
-        fxconfig_output: "{{ config_build_dir }}/fxconfig-artifacts/{{ fxconfig_namespace }}/ns.json"
+        fxconfig_endorsed_txs_dir: "{{ config_build_dir }}/fxconfig-artifacts/{{ fxconfig_namespace.id }}/endorsed"
+        fxconfig_output: "{{ config_build_dir }}/fxconfig-artifacts/{{ fxconfig_namespace.id }}/merged.json"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxconfig
         tasks_from: merge
@@ -67,26 +74,31 @@
         }}
       loop_control:
         loop_var: fxconfig_namespace
-        label: "{{ fxconfig_namespace }}"
+        label: "{{ fxconfig_namespace.id }}"
 
-# TODO: submission should be run by one single node per namespace
 - name: Submit Fabric-X namespace transactions
   hosts: "{{ target_hosts | default('all') }}"
   tasks:
-    - name: Endorse FabricX namespaces with fxconfig
-      vars:
-        fxconfig_tx_to_submit_path: "{{ config_build_dir }}/fxconfig-artifacts/{{ fxconfig_namespace }}/ns.json"
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.fxconfig
-        tasks_from: submit
-      loop: "{{ organization.namespaces }}"
-      loop_control:
-        loop_var: fxconfig_namespace
-        label: "{{ fxconfig_namespace }}"
+    - name: Perform submission of FabricX namespace transactions
       when:
         - organization is defined
         - organization.namespaces is defined
-    - name: List FabricX namespaces
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.fxconfig
-        tasks_from: namespace/list
+      block:
+        - name: Group hosts per namespace
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.fxconfig
+            tasks_from: namespace/group
+          when:
+            - fxconfig_hosts_per_namespaces is undefined
+        - name: Submit FabricX namespaces with fxconfig
+          vars:
+            fxconfig_tx_to_submit_path: "{{ config_build_dir }}/fxconfig-artifacts/{{ fxconfig_namespace.id }}/merged.json"
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.fxconfig
+            tasks_from: submit
+          loop: "{{ organization.namespaces }}"
+          loop_control:
+            loop_var: fxconfig_namespace
+            label: "{{ fxconfig_namespace.id }}"
+          when:
+            - fxconfig_hosts_per_namespaces[fxconfig_namespace.id].hosts[0] == inventory_hostname # makes sure is run on a single node only

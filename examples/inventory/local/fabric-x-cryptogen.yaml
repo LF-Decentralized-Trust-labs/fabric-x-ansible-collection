@@ -208,7 +208,10 @@ all:
             <<: *Org1
             role: peer
             namespaces:
-              - 0
+              - id: 0
+                policy:
+                  type: threshold
+                  user: orderer-loadgen
             users:
               - name: orderer-loadgen
           loadgen_use_tls: true
