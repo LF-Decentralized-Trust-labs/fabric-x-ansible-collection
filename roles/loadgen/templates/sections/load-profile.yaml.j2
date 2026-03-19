@@ -78,7 +78,7 @@ load-profile:
 {% if organization.namespaces is defined %}
 {% for current_namespace in organization.namespaces %}
         # Namespace identifier
-        {{ current_namespace }}:
+        {{ current_namespace.id }}:
           # Signature scheme ("ECDSA", "EDDSA", "BLS" or "NONE").
           scheme: {{ loadgen_key_scheme | default('ECDSA') }}
           # How to find/generate the signature keys.
