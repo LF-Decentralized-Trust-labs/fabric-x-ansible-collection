@@ -1,0 +1,28 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the organization users hosts have been defined
+  ansible.builtin.fail:
+    msg: "Cannot define an endorser user since no users have been defined for this host under his organization. Set them via 'organization.users'."
+  when:
+    - organization.users is not defined
+
+- name: Define the Fabric user to use for endorsement
+  vars:
+    # We default for now to the first in the list as the MSP
+    # to use for fxconfig endorsement.
+    # We may later decide to add an extra-property in the user
+    # object to identify a specific one having endorsing powers.
+    endorser_users: >-
+      {{
+        organization.users
+        | selectattr('endorser', 'defined')
+        | selectattr('endorser', 'eq', true)
+        | list
+      }}
+    has_endorser_users: "{{ endorser_users | length > 0 }}"
+  ansible.builtin.set_fact:
+    fxconfig_endorser_user: "{{ (endorser_users | first) if has_endorser_users else (organization.users | first) }}"

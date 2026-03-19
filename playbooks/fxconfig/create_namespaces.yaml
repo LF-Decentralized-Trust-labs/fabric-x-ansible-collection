@@ -14,8 +14,8 @@
     - name: Create FabricX namespaces with fxconfig on the control node
       vars:
         bin_remote_dir: "{{ cli_bin_dir }}"
-        fxconfig_namespace: "{{ current_namespace_with_orgs.namespace }}"
-        fxconfig_namespace_policy: "AND({{ current_namespace_with_orgs.org_roles | map('regex_replace', '^(.*)$', \"'\\1'\") | join(', ') }})"
+        fxconfig_namespace: "{{ current_namespace_with_orgs.namespace.id }}"
+        fxconfig_namespace_policy: "{{ current_namespace_with_orgs.namespace.policy }}"
         fxconfig_output: "{{ config_build_dir }}/fxconfig-artifacts/{{ fxconfig_namespace }}/to_endorse/ns.json"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxconfig
