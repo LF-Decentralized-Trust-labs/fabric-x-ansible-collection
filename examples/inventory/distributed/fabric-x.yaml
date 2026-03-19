@@ -326,18 +326,20 @@ all:
           organization:
             <<: *Org1
             role: peer
+            namespaces:
+              - 0
             users:
               - name: orderer-loadgen
-                namespace: 0
           loadgen_tx_seed: 12345
         orderer-loadgen-2:
           ansible_host: "{{ host_machine_15 }}"
           organization:
             <<: *Org1
             role: peer
+            namespaces:
+              - 0
             users:
               - name: orderer-loadgen
-                namespace: 0
           loadgen_tx_seed: 67890
 
     # =========================

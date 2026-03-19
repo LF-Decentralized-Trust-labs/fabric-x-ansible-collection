@@ -285,10 +285,11 @@ all:
           organization:
             <<: *Org1
             fabric_ca_host: fabric-ca-org1
+            namespaces:
+              - 0
             users:
               - name: orderer-loadgen
                 secret: "{{ inventory_hostname }}PWD"
-                namespace: 0
           loadgen_type: orderer-client
           loadgen_metrics_port: 12010
           loadgen_web_port: 12000
