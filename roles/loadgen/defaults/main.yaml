@@ -47,7 +47,8 @@ loadgen_use_tls: false
 loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
 loadgen_http_protocol: "{{ 'https' if loadgen_use_tls else 'http' }}"
 # mTLS settings
-loadgen_monitoring_use_mtls: false
+loadgen_use_mtls: false
+loadgen_monitoring_use_mtls: "{{ loadgen_use_mtls }}"
 
 # =========================
 # Log Settings

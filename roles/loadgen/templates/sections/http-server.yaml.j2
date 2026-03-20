@@ -1,0 +1,6 @@
+# The HTTP endpoint for runtime rate limit adjustments.
+# It exposes the following API:
+# GET  /getRateLimit - Get the rate limit returning a JSON body { "rate": uint64 }.
+# POST /setRateLimit - Sets the rate limit using a JSON body { "rate": uint64 }.
+http-server:
+  endpoint: 0.0.0.0:{{ loadgen_web_port }}
