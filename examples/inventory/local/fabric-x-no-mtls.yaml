@@ -285,12 +285,16 @@ all:
           organization:
             <<: *Org1
             fabric_ca_host: fabric-ca-org1
-            namespaces:
-              - id: 0
-                policy: threshold
+            role: peer
+            peer:
+              name: "{{ inventory_hostname }}"
+              secret: "{{ inventory_hostname }}PWD"
             users:
               - name: orderer-loadgen
                 secret: "{{ inventory_hostname }}PWD"
+            namespaces:
+              - id: 0
+                policy: threshold
           loadgen_type: orderer-client
           loadgen_metrics_port: 12010
           loadgen_web_port: 12000

@@ -209,11 +209,11 @@ all:
           organization:
             <<: *Org1
             role: peer
+            users:
+              - name: orderer-loadgen
             namespaces:
               - id: 0
                 policy: threshold
-            users:
-              - name: orderer-loadgen
           loadgen_use_tls: true
           loadgen_type: orderer-client
           loadgen_metrics_port: 12010

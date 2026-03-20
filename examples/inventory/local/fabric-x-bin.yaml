@@ -307,12 +307,12 @@ all:
             peer:
               name: "{{ inventory_hostname }}"
               secret: "{{ inventory_hostname }}PWD"
-            namespaces:
-              - id: 0
-                policy: threshold
             users:
               - name: orderer-loadgen
                 secret: "{{ inventory_hostname }}PWD"
+            namespaces:
+              - id: 0
+                policy: threshold
           loadgen_type: orderer-client
           loadgen_use_tls: true
           loadgen_metrics_port: 12010
