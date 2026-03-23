@@ -4,6 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Build Fabric CA server binaries
+  ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.binaries
+
+- name: Build Fabric CA client binaries
+  ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_client.binaries
+
 - name: Build Fabric-X Orderer binaries
   ansible.builtin.import_playbook: hyperledger.fabricx.orderer.binaries
 

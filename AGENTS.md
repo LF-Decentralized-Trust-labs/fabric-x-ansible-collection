@@ -163,19 +163,19 @@ Numbered sequencing playbooks that wire the collection playbooks together for a 
 
 | File                          | Purpose                           |
 | ----------------------------- | --------------------------------- |
-| `10-run-command.yaml`         | Run an arbitrary shell command    |
+| `10-binaries.yaml`            | Build/transfer component binaries |
 | `20-generate-crypto.yaml`     | Generate crypto material          |
 | `21-build-genesis-block.yaml` | Build the genesis block           |
-| `30-binaries.yaml`            | Build/transfer component binaries |
-| `40-config.yaml`              | Push configs to remote nodes      |
-| `60-start.yaml`               | Start all components              |
-| `70-stop.yaml`                | Stop all components               |
-| `80-teardown.yaml`            | Teardown (stop + delete data)     |
-| `90-ping.yaml`                | Port health check                 |
+| `30-configs.yaml`             | Push configs to remote nodes      |
+| `40-start.yaml`               | Start all components              |
+| `50-stop.yaml`                | Stop all components               |
+| `60-teardown.yaml`            | Teardown (stop + delete data)     |
+| `70-ping.yaml`                | Port health check                 |
 | `93-get-metrics.yaml`         | Metrics collection                |
 | `96-fetch-logs.yaml`          | Fetch remote logs                 |
 | `100-wipe.yaml`               | Wipe configs/bins from remotes    |
 | `110-hard-wipe.yaml`          | Wipe deploy folder from remotes   |
+| `999-run-command.yaml`        | Run an arbitrary shell command    |
 
 ---
 
