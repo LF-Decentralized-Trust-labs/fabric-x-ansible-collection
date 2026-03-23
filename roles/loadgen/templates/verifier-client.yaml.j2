@@ -19,7 +19,7 @@ verifier-client:
     # Server CA certificates to trust if tls is enabled.
     ca-cert-paths:
       - {{ loadgen_config_dir }}/tls/verifiers/ca.crt
-    # TODO: currently this section must be set even for TLS only: https://github.com/hyperledger/fabric-x-committer/pull/464      
+    # TODO: currently this section must be set even for TLS only: https://github.com/hyperledger/fabric-x-committer/pull/464
     # Path to the client's TLS private key file.
     key-path: {{ loadgen_config_dir }}/tls/server.key
     # Path to the client's TLS certificate file (public key) for authentication.

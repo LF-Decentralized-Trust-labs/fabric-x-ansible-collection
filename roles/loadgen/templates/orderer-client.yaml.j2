@@ -109,7 +109,7 @@ orderer-client:
       # Path to the client's TLS private key file.
       key-path: {{ loadgen_config_dir }}/tls/server.key
       # Path to the client's TLS certificate file (public key) for authentication.
-      cert-path: {{ loadgen_config_dir }}/tls/server.crt      
+      cert-path: {{ loadgen_config_dir }}/tls/server.crt
 {% if (hostvars[committer_sidecar_host].committer_use_mtls is defined) and hostvars[committer_sidecar_host].committer_use_mtls %}
       # TLS mode for sidecar client connections: 'none' (no TLS), 'tls' (server auth only),
       # or 'mtls' (mutual TLS with client cert verification).
