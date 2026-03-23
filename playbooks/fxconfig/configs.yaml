@@ -42,6 +42,14 @@
             | sort
             | first
           }}
+        meta_namespace_admin: >-
+          {{
+            organization.users
+            | selectattr('meta_namespace_admin', 'defined')
+            | selectattr('meta_namespace_admin', '==', true)
+            | first
+          }}
+        fxconfig_msp_config_path: "{{ remote_config_dir }}/users/{{ meta_namespace_admin.name }}@{{ organization.domain }}/msp"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxconfig
         tasks_from: config/transfer
