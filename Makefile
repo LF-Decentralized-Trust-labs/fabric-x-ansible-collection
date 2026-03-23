@@ -98,7 +98,7 @@ login-cr:
 
 # Build all the artifacts, the binaries and configuration files (e.g. make setup).
 .PHONY: setup
-setup: artifacts configs binaries
+setup: binaries artifacts configs
 
 # Build all the artifacts (e.g. make artifacts).
 .PHONY: artifacts
@@ -120,7 +120,7 @@ genesis-block:
 .PHONY: binaries
 binaries:
 	@printf "$(COLOR_CYAN)🚩 Building/installing binaries for hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	ansible-playbook "$(PLAYBOOK_PATH)/30-binaries.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+	ansible-playbook "$(PLAYBOOK_PATH)/10-binaries.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
 # Clean all the artifacts (configs and bins) built on the controller node (e.g. make clean).
 .PHONY: clean
@@ -138,13 +138,13 @@ clean-cache:
 .PHONY: configs
 configs:
 	@printf "$(COLOR_CYAN)🚩 Creating and shipping configs to remote nodes [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	ansible-playbook "$(PLAYBOOK_PATH)/40-configs.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+	ansible-playbook "$(PLAYBOOK_PATH)/30-configs.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
 # Start the targeted hosts (e.g. make fabric_x start).
 .PHONY: start
 start:
 	@printf "$(COLOR_CYAN)🚩 Starting hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	ansible-playbook "$(PLAYBOOK_PATH)/60-start.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+	ansible-playbook "$(PLAYBOOK_PATH)/40-start.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
 # Initialize the deployment nodes (e.g. make init).
 .PHONY: init
@@ -156,13 +156,13 @@ init:
 .PHONY: stop
 stop:
 	@printf "$(COLOR_CYAN)🚩 Stopping hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	ansible-playbook "$(PLAYBOOK_PATH)/70-stop.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+	ansible-playbook "$(PLAYBOOK_PATH)/50-stop.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
 # Teardown the targeted hosts (e.g. make fabric_x teardown).
 .PHONY: teardown
 teardown:
 	@printf "$(COLOR_CYAN)🚩 Tearing down hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	ansible-playbook "$(PLAYBOOK_PATH)/80-teardown.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+	ansible-playbook "$(PLAYBOOK_PATH)/60-teardown.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
 # Update the targeted hosts (e.g. make fabric_x update).
 .PHONY: update
@@ -202,13 +202,13 @@ targets:
 .PHONY: run-command
 run-command:
 	@printf "$(COLOR_CYAN)🚩 Running command on hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]: $(COLOR_RESET)$(COMMAND)\n"
-	ansible-playbook "$(PLAYBOOK_PATH)/10-run-command.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)", "command": "$(COMMAND)"}'
+	ansible-playbook "$(PLAYBOOK_PATH)/999-run-command.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)", "command": "$(COMMAND)"}'
 
 # Ping the targeted host to check whether is reachable (e.g. make fabric_x ping).
 .PHONY: ping
 ping:
 	@printf "$(COLOR_CYAN)🚩 Checking component ports on hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	ansible-playbook "$(PLAYBOOK_PATH)/90-ping.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}';
+	ansible-playbook "$(PLAYBOOK_PATH)/70-ping.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}';
 
 # Get the metrics from the targeted components and assert they are working correctly (e.g make load_generators get-metrics).
 .PHONY: get-metrics

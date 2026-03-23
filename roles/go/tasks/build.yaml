@@ -35,6 +35,9 @@
     go build
     -C {{ go_source_code_path }}/{{ go_source_code_package }}
     -o {{ go_output_name }}
+    {% if go_tags is defined and go_tags | length > 0 %}
+    -tags="{{ go_tags | join(',') }}"
+    {% endif %}
   environment:
     GOOS: "{{ go_os }}"
     GOARCH: "{{ go_arch }}"
