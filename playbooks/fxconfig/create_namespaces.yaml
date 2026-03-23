@@ -22,8 +22,6 @@
           | length > 0
     - name: Create FabricX namespaces with fxconfig
       vars:
-        fxconfig_msp_config_path: "{{ remote_config_dir }}/users/{{ current_user.name }}@{{ organization.domain }}/msp"
-        fxconfig_msp_id: "{{ organization.name }}MSP"
         orderer_router_host: >-
           {{
             groups['all']
