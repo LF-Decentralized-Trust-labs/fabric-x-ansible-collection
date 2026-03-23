@@ -20,7 +20,6 @@
         - name: Transfer the configuration files for fxconfig on nodes declaring namespaces
           vars:
             fxconfig_msp_config_path: "{{ remote_config_dir }}/users/{{ fxconfig_endorser_user.name }}@{{ organization.domain }}/msp"
-            fxconfig_msp_id: "{{ organization.name }}MSP"
             orderer_router_host: >-
               {{
                 groups['all']
