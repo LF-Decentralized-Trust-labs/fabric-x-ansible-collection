@@ -19,15 +19,18 @@ vc-client:
     # Server CA certificates to trust if tls is enabled.
     ca-cert-paths:
       - {{ loadgen_config_dir }}/tls/validators/ca.crt
-{% if (hostvars[committer_validator_ref_host].committer_use_mtls is defined) and hostvars[committer_validator_ref_host].committer_use_mtls %}
-    # Path to the TLS key file (private key).
+    # TODO: currently this section must be set even for TLS only: https://github.com/hyperledger/fabric-x-committer/pull/464
+    # Path to the client's TLS private key file.
     key-path: {{ loadgen_config_dir }}/tls/server.key
-    # Path to the TLS certificate file (public key).
+    # Path to the client's TLS certificate file (public key) for authentication.
     cert-path: {{ loadgen_config_dir }}/tls/server.crt
-    # TLS configuration modes ("none", "tls" or "mtls")
+{% if (hostvars[committer_validator_ref_host].committer_use_mtls is defined) and hostvars[committer_validator_ref_host].committer_use_mtls %}
+    # TLS mode for orderer client connections: 'none' (no TLS), 'tls' (server auth only),
+    # or 'mtls' (mutual TLS with client cert verification).
     mode: mtls
 {% else %}
-    # TLS configuration modes ("none", "tls" or "mtls")
+    # TLS mode for orderer client connections: 'none' (no TLS), 'tls' (server auth only),
+    # or 'mtls' (mutual TLS with client cert verification).
     mode: tls
 {% endif %}
 {% endif %}

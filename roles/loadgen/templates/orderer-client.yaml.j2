@@ -77,11 +77,12 @@ orderer-client:
         - {{ loadgen_config_dir }}/tls/orderers/{{ orderer_assembler }}/server.crt
 {% endif %}
 {% endfor %}
-{% if (hostvars[orderer_ref_host].orderer_use_mtls is defined) and hostvars[orderer_ref_host].orderer_use_mtls %}
+      # TODO: currently this section must be set even for TLS only: https://github.com/hyperledger/fabric-x-committer/pull/464
       # Path to the client's TLS private key file.
       key-path: {{ loadgen_config_dir }}/tls/server.key
       # Path to the client's TLS certificate file (public key) for authentication.
       cert-path: {{ loadgen_config_dir }}/tls/server.crt
+{% if (hostvars[orderer_ref_host].orderer_use_mtls is defined) and hostvars[orderer_ref_host].orderer_use_mtls %}
       # TLS mode for orderer client connections: 'none' (no TLS), 'tls' (server auth only),
       # or 'mtls' (mutual TLS with client cert verification).
       mode: mtls
@@ -104,11 +105,12 @@ orderer-client:
       # List of paths to CA certificate files for verifying server certificates.
       ca-cert-paths:
         - {{ loadgen_config_dir }}/tls/sidecar/ca.crt
-{% if (hostvars[committer_sidecar_host].committer_use_mtls is defined) and hostvars[committer_sidecar_host].committer_use_mtls %}
+      # TODO: currently this section must be set even for TLS only: https://github.com/hyperledger/fabric-x-committer/pull/464
       # Path to the client's TLS private key file.
       key-path: {{ loadgen_config_dir }}/tls/server.key
       # Path to the client's TLS certificate file (public key) for authentication.
-      cert-path: {{ loadgen_config_dir }}/tls/server.crt
+      cert-path: {{ loadgen_config_dir }}/tls/server.crt      
+{% if (hostvars[committer_sidecar_host].committer_use_mtls is defined) and hostvars[committer_sidecar_host].committer_use_mtls %}
       # TLS mode for sidecar client connections: 'none' (no TLS), 'tls' (server auth only),
       # or 'mtls' (mutual TLS with client cert verification).
       mode: mtls
