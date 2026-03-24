@@ -4,11 +4,19 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Ensure Fabric CA data directory exists
+  ansible.builtin.file:
+    path: "{{ fabric_ca_server_remote_data_dir }}"
+    state: directory
+    mode: "0o755"
+  when: postgres_db_host is not defined
+
 - name: Start Fabric CA server binary
   vars:
     bin_env:
-      FABRIC_CA_HOME: "{{ fabric_ca_remote_config_dir }}"
-    bin_command: fabric-ca-server start
+      FABRIC_CA_HOME: "{{ fabric_ca_server_remote_config_dir }}"
+    bin_command: >-
+      fabric-ca-server start
     bin_wait_until_running: true
     bin_wait_port: "{{ fabric_ca_port }}"
   ansible.builtin.include_role:

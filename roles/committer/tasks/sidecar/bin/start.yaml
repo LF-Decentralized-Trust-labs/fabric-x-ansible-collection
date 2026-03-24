@@ -4,6 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Ensure Committer Sidecar data directory exists
+  ansible.builtin.file:
+    path: "{{ committer_remote_data_dir }}"
+    state: directory
+    mode: "0o755"
+
 - name: Start Hyperledger Fabric-X Committer Sidecar binary
   vars:
     bin_command: >-

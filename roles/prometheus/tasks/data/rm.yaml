@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Remove Fabric CA Admin MSP
+- name: Remove Prometheus data directory
   ansible.builtin.file:
-    path: "{{ fabric_ca_remote_config_dir }}/{{ fabric_ca_admin.name }}"
+    path: "{{ prometheus_remote_data_dir }}"
     state: absent

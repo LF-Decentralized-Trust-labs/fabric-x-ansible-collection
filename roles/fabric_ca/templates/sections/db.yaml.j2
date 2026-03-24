@@ -26,9 +26,9 @@ db:
     enabled: {{ hostvars[postgres_db_host].postgres_use_tls | default(false) | lower }}
 {% if hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
     certfiles:
-      - {{ fabric_ca_config_dir }}/db/tls/cert.pem
+      - {{ fabric_ca_server_config_dir }}/db/tls/cert.pem
 {% endif %}
 {% else %}
   type: sqlite3
-  datasource: fabric-ca-server.db
+  datasource: {{ fabric_ca_server_data_dir }}/fabric-ca-server.db
 {% endif %}

@@ -4,15 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Remove ElasticSearch container
+- name: Teardown ElasticSearch
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
-    tasks_from: container/rm
-
-- name: Clean ElasticSearch volume
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.elasticsearch
-    tasks_from: container/clean
+    tasks_from: teardown
 
 - name: Clean ElasticSearch crypto material
   ansible.builtin.include_role:

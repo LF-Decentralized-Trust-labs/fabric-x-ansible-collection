@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Remove Fabric CA database
+- name: Remove Fabric-X Committer data directory
   ansible.builtin.file:
-    path: "{{ fabric_ca_remote_config_dir }}/fabric-ca-server.db"
+    path: "{{ committer_remote_data_dir }}"
     state: absent

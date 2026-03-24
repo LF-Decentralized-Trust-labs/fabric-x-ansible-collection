@@ -26,21 +26,21 @@
         | join(',')
       }}
 
-- name: Ensure Yugabyte DB volume dir exists
+- name: Ensure Yugabyte DB data directory exists
   ansible.builtin.file:
-    path: "{{ yugabyte_remote_config_dir }}/data"
+    path: "{{ yugabyte_remote_data_dir }}"
     state: directory
     mode: "0o755"
 
 - name: Set YugabyteDB Master mandatory volumes and flags
   ansible.builtin.set_fact:
     yugabyte_master_volumes:
-      - "{{ yugabyte_remote_config_dir }}/data:/var/data:z"
+      - "{{ yugabyte_remote_data_dir }}:{{ yugabyte_container_data_dir }}:z"
 
 - name: Add YugabyteDB Master volumes for TLS certificates
   vars:
     yugabyte_master_tls_volumes:
-      - "{{ yugabyte_remote_config_dir }}/tls:/var/tls:z"
+      - "{{ yugabyte_remote_config_dir }}/tls:/var/tls:z,ro"
   ansible.builtin.set_fact:
     yugabyte_master_volumes: "{{ yugabyte_master_volumes + yugabyte_master_tls_volumes }}"
   when:
@@ -60,7 +60,7 @@
       --replication_factor={{ yugabyte_master_hosts | length }}
       --minloglevel={{ yugabyte_logs_level }}
       --stderrthreshold={{ yugabyte_logs_level }}
-      --fs_data_dirs=/var/data
+      --fs_data_dirs={{ yugabyte_container_data_dir }}
       {% if yugabyte_use_tls %}
       --certs_dir=/var/tls
       {% endif %}

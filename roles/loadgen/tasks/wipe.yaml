@@ -4,17 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Remove Fabric-X Loadgen container
+- name: Teardown Fabric-X Loadgen
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
-    tasks_from: container/rm
-  when: not loadgen_use_bin
-
-- name: Stop Fabric-X Loadgen binary
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.loadgen
-    tasks_from: bin/stop
-  when: loadgen_use_bin
+    tasks_from: teardown
 
 - name: Remove Fabric-X Loadgen binary
   ansible.builtin.include_role:

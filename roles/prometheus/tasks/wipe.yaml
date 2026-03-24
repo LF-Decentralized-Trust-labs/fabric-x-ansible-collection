@@ -4,15 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Remove Prometheus container
+- name: Teardown Prometheus
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
-    tasks_from: container/rm
-
-- name: Remove Prometheus container data
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.prometheus
-    tasks_from: container/clean
+    tasks_from: teardown
 
 - name: Remove Prometheus crypto files
   ansible.builtin.include_role:

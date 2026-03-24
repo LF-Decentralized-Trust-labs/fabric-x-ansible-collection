@@ -15,7 +15,7 @@
       - "{{ committer_rpc_port }}:{{ committer_rpc_port }}"
       - "{{ committer_metrics_port }}:{{ committer_metrics_port }}"
     container_volumes:
-      - "{{ committer_remote_config_dir }}:{{ committer_container_config_dir }}:z"
+      - "{{ committer_remote_config_dir }}:{{ committer_container_config_dir }}:z,ro"
     container_wait_until_running: true
     container_run_as_host_user: true
     container_wait_port: "{{ committer_rpc_port }}"

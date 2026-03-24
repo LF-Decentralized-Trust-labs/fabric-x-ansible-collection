@@ -95,7 +95,7 @@ channel-buffer-size: {{ committer_sidecar_channel_buffer_size | default(100) }}
 # ---------------------------------------------------------------------------
 ledger:
   # Path where to store the ledger
-  path: {{ committer_config_dir }}/ledger
+  path: {{ committer_data_dir }}/ledger
 
 # ---------------------------------------------------------------------------
 # Notification settings
