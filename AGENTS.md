@@ -83,32 +83,32 @@ This document describes the structure, conventions, and workflows of the `hyperl
 Every Fabric-X component is managed by a dedicated role under `roles/`.
 Roles are referenced as `hyperledger.fabricx.<role_name>`.
 
-| Role                | Component managed                         |
-| ------------------- | ----------------------------------------- |
-| `armageddon`        | Genesis block builder (armageddon CLI)    |
-| `bin`               | Generic binary build/install helpers      |
-| `committer`         | Fabric-X Committer node                   |
-| `configtxgen`       | configtxgen CLI wrapper                   |
-| `container`         | Generic container helpers (start/stop/rm) |
-| `cryptogen`         | Crypto material generation                |
-| `elasticsearch`     | Elasticsearch log backend                 |
-| `fabric_ca_client`  | Fabric CA client binary                   |
-| `fabric_ca_server`  | Fabric CA server                          |
-| `fxconfig`          | fxconfig configuration tool               |
-| `git`               | Git clone helper                          |
-| `grafana`           | Grafana dashboard                         |
-| `jaeger`            | Jaeger tracing backend                    |
-| `loadgen`           | Load generator                            |
-| `node_exporter`     | Prometheus Node Exporter                  |
-| `openssl`           | OpenSSL certificate helpers               |
-| `orderer`           | Fabric-X Orderer (consenter + router)     |
-| `package`           | OS package installation (apt / brew)      |
-| `postgres`          | PostgreSQL database                       |
-| `postgres_exporter` | Prometheus Postgres Exporter              |
-| `prometheus`        | Prometheus monitoring                     |
-| `tmux`              | tmux session helpers                      |
-| `utils`             | Miscellaneous utility tasks               |
-| `yugabyte`          | YugabyteDB                                |
+| Role                | Component managed                                                         |
+| ------------------- | ------------------------------------------------------------------------- |
+| `armageddon`        | Genesis block builder (armageddon CLI)                                    |
+| `bin`               | Generic binary build/install helpers                                      |
+| `committer`         | Fabric-X Committer (validator/verifier/coordinator/sidecar/query-service) |
+| `configtxgen`       | configtxgen CLI wrapper                                                   |
+| `container`         | Generic container helpers (start/stop/rm)                                 |
+| `cryptogen`         | Crypto material generation                                                |
+| `elasticsearch`     | Elasticsearch log backend                                                 |
+| `fabric_ca`         | Fabric CA server and client                                               |
+| `fxconfig`          | fxconfig configuration tool                                               |
+| `git`               | Git clone helper                                                          |
+| `go`                | Go binary build, install, and platform-mapping helpers                    |
+| `grafana`           | Grafana dashboard                                                         |
+| `jaeger`            | Jaeger tracing backend                                                    |
+| `loadgen`           | Load generator                                                            |
+| `node_exporter`     | Prometheus Node Exporter                                                  |
+| `openssl`           | OpenSSL certificate helpers                                               |
+| `orderer`           | Fabric-X Orderer (consenter/batcher/assembler/router)                     |
+| `package`           | OS package installation (apt / brew)                                      |
+| `postgres`          | PostgreSQL database                                                       |
+| `postgres_exporter` | Prometheus Postgres Exporter                                              |
+| `prometheus`        | Prometheus monitoring                                                     |
+| `tmux`              | tmux session helpers                                                      |
+| `utils`             | Miscellaneous utility tasks                                               |
+| `yugabyte`          | YugabyteDB                                                                |
 
 ### Role internal structure
 
@@ -127,18 +127,21 @@ roles/<role>/
 │   ├── ping.yaml         # Health / port check
 │   ├── fetch_logs.yaml   # Pull logs to controller
 │   ├── get_metrics.yaml  # Scrape metrics
-│   ├── generate_crypto.yaml
-│   ├── configs.yaml
 │   ├── bin/              # Binary-mode sub-tasks
 │   │   ├── build.yaml
 │   │   ├── install.yaml
 │   │   ├── transfer.yaml
 │   ├── container/        # Container-mode sub-tasks
-│   └── config/           # Config generation sub-tasks
+│   ├── config/           # Config generation sub-tasks
+│   └── <sub_component>/  # Per-sub-component tasks (e.g. orderer_consenter/, validator/)
 └── templates/            # Jinja2 templates (*.j2)
 ```
 
 Not every role implements every task — only those relevant to its component.
+
+### Sub-component dispatch pattern
+
+Roles that manage multiple sub-components (e.g. `orderer` with `consenter`, `batcher`, `assembler`, `router`; or `committer` with `validator`, `verifier`, `coordinator`, `sidecar`, `query-service`) use a **dispatch pattern**: the top-level task file (e.g. `start.yaml`) reads a `<role>_component_type` variable and delegates to the matching sub-component task directory via `ansible.builtin.include_role … tasks_from: <sub_component>/start`. Each sub-component directory in turn contains its own `bin/` and `container/` sub-tasks.
 
 ### Using a role task from a playbook
 
