@@ -75,10 +75,10 @@ The task `server/stop` stops a Fabric CA server:
 
 ### server/teardown
 
-The task `server/teardown` tears down a Fabric CA server:
+The task `server/teardown` tears down a Fabric CA server and removes all the artifacts generated during runtime:
 
 ```yaml
-- name: Stop a Fabric CA server
+- name: Teardown a Fabric CA server
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/teardown
@@ -185,7 +185,7 @@ It uses the `fabric-ca-client` CLI utility (either as container or as binary by 
       secret: orderer-router-1-PWD
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
-    tasks_from: client/re-enroll
+    tasks_from: client/reenroll
 ```
 
 ### client/identity_list

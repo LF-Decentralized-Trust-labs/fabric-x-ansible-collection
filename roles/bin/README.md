@@ -9,6 +9,7 @@ The role `hyperledger.fabricx.bin` can be used to handle a binary run on a targe
   - [go](#go)
     - [build](#build)
     - [install](#install)
+  - [map_platform_to_host](#map_platform_to_host)
   - [transfer](#transfer)
   - [start](#start)
   - [stop](#stop)
@@ -58,6 +59,21 @@ The task `install` allows to install a go binary with the `go install` paradigm.
     name: hyperledger.fabricx.bin
     tasks_from: go/install
 ```
+
+### map_platform_to_host
+
+The task `map_platform_to_host` builds a dictionary of unique OS/architecture platform combinations from a list of hosts. It deduplicates platforms so that cross-compilation is performed only once per unique platform rather than once per host instance.
+
+```yaml
+- name: Build the unique platform map for the target hosts
+  vars:
+    bin_hosts: "{{ groups['orderers'] }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: map_platform_to_host
+```
+
+After execution, the `bin_platforms` fact contains a dictionary keyed by `<os>:<arch>` strings, each holding the OS, architecture, and the list of hosts sharing that platform.
 
 ### transfer
 

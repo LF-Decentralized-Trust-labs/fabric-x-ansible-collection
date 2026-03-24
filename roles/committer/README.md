@@ -5,6 +5,10 @@ The role `hyperledger.fabricx.committer` can be used to run the Fabric-X `commit
 ## Table of Contents <!-- omit in toc -->
 
 - [Tasks](#tasks)
+  - [crypto/setup](#cryptosetup)
+  - [crypto/fetch](#cryptofetch)
+  - [crypto/rm](#cryptorm)
+  - [config/transfer](#configtransfer)
   - [start](#start)
   - [stop](#stop)
   - [teardown](#teardown)
@@ -14,6 +18,55 @@ The role `hyperledger.fabricx.committer` can be used to run the Fabric-X `commit
   - [get_metrics](#get_metrics)
 
 ## Tasks
+
+### crypto/setup
+
+The task `crypto/setup` allows to generate and/or transfer the crypto material needed to run a Fabric-X Committer component. The task supports two modes:
+
+- with `cryptogen` (see [hyperledger.fabricx.cryptogen](../cryptogen/README.md)): the crypto material generated on the control node with `cryptogen` is transferred to the remote node;
+- with `fabric-ca` (see [hyperledger.fabricx.fabric_ca](../fabric_ca/README.md)): the crypto material is generated directly on the remote node querying the reference `fabric_ca` host.
+
+```yaml
+- name: Setup the crypto material for Fabric-X Committer
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: crypto/setup
+```
+
+### crypto/fetch
+
+The task `crypto/fetch` allows to fetch the Fabric-X Committer TLS certificate on the control node. This operation is important for sharing the TLS CA certificate with clients that need to establish a trusted connection to the committer.
+
+```yaml
+- name: Fetch the Fabric-X Committer TLS certificate
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: crypto/fetch
+```
+
+### crypto/rm
+
+The task `crypto/rm` removes the TLS crypto material generated for a Fabric-X Committer component:
+
+```yaml
+- name: Remove the Fabric-X Committer crypto files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: crypto/rm
+```
+
+### config/transfer
+
+The task `config/transfer` allows to transfer the configuration files for a Fabric-X Committer component on the remote node. The component type is determined by the `committer_component_type` variable (`validator`, `verifier`, `coordinator`, `sidecar`, or `query-service`):
+
+```yaml
+- name: Transfer the Fabric-X Committer configuration files
+  vars:
+    committer_component_type: validator # or verifier, coordinator, sidecar, query-service
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: config/transfer
+```
 
 ### start
 
