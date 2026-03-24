@@ -16,6 +16,7 @@ The role `hyperledger.fabricx.orderer` can be used to run the Fabric-X `orderer`
   - [wipe](#wipe)
   - [fetch_logs](#fetch_logs)
   - [ping](#ping)
+  - [get_metrics](#get_metrics)
 
 ## Tasks
 
@@ -151,4 +152,15 @@ The task `ping` allows to ping the Fabric-X Orderer components on their opened p
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: ping
+```
+
+### get_metrics
+
+The task `get_metrics` allows to fetch the metrics from the Fabric-X Orderer components and print them on stdout.
+
+```yaml
+- name: Fetch the Fabric-X Orderer metrics
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: get_metrics
 ```

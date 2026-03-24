@@ -21,7 +21,6 @@ The role allows to run YugabyteDB as **container only** (binary is not currently
   - [wipe](#wipe)
   - [fetch_logs](#fetch_logs)
   - [ping](#ping)
-  - [get_metrics](#get_metrics)
 
 ## Tasks
 
@@ -193,15 +192,4 @@ The task `ping` allows to ping the Yugabyte DB Cluster components on their opene
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: ping
-```
-
-### get_metrics
-
-The task `get_metrics` allows to fetch the Yugabyte DB metrics.
-
-```yaml
-- name: Fetch the Yugabyte DB Cluster metrics
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.yugabyte
-    tasks_from: get_metrics
 ```
