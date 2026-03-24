@@ -4,42 +4,23 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Remove Fabric-X Orderer batcher container
+- name: Teardown Fabric-X Orderer Batcher
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
-    tasks_from: container/rm
-  when: not orderer_use_bin
+    tasks_from: orderer_batcher/teardown
 
-- name: Clean Fabric-X Orderer batcher container volumes
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: orderer_batcher/container/clean
-  when: not orderer_use_bin
-
-- name: Stop Fabric-X Orderer batcher binary
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: bin/stop
-  when: orderer_use_bin
-
-- name: Remove Fabric-X Orderer batcher binary
+- name: Remove Fabric-X Orderer Batcher binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: bin/rm
   when: orderer_use_bin
 
-- name: Clean Fabric-X Orderer batcher binary artifacts
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: orderer_batcher/bin/clean
-  when: orderer_use_bin
-
-- name: Remove Fabric-X Orderer batcher crypto files
+- name: Remove Fabric-X Orderer Batcher crypto files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: crypto/rm
 
-- name: Remove Fabric-X Orderer batcher configuration files
+- name: Remove Fabric-X Orderer Batcher configuration files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: config/rm

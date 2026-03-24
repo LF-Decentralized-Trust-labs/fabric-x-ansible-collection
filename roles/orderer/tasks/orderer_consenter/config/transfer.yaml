@@ -14,16 +14,9 @@
     mode: "0o755"
 
 - name: Create Fabric-X Orderer Consenter config
-  vars:
-    orderer_config_dir: >-
-      {{
-        orderer_remote_config_dir
-        if orderer_use_bin
-        else orderer_container_config_dir
-      }}
   ansible.builtin.template:
     src: config-consenter.yaml.j2
-    dest: "{{ orderer_remote_config_file }}"
+    dest: "{{ orderer_remote_config_dir }}/{{ orderer_config_file }}"
     mode: "0o640"
 
 # =========================

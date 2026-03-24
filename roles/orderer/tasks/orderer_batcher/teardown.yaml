@@ -10,20 +10,13 @@
     tasks_from: container/rm
   when: not orderer_use_bin
 
-- name: Clean Fabric-X Orderer batcher container volumes
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: orderer_batcher/container/clean
-  when: not orderer_use_bin
-
 - name: Stop Fabric-X Orderer batcher binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: bin/stop
   when: orderer_use_bin
 
-- name: Clean Fabric-X Orderer batcher binary db
+- name: Clean Fabric-X Orderer batcher container volumes
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
-    tasks_from: orderer_batcher/bin/clean
-  when: orderer_use_bin
+    tasks_from: data/rm
