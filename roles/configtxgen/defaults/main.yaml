@@ -28,6 +28,7 @@ configtxgen_use_bin: false
 # =========================
 configtxgen_artifacts_dir: "{{ config_build_dir }}/configtxgen-artifacts"
 configtxgen_container_artifacts_dir: "/tmp/configtxgen-artifacts"
+configtxgen_container_config_dir: "/tmp/config"
 configtxgen_container_crypto_artifacts_dir: "/tmp/crypto-artifacts"
 configtxgen_armageddon_container_artifacts_dir: "/tmp/armageddon-artifacts"
 configtxgen_armageddon_binpb_file: "shared_config.binpb"
