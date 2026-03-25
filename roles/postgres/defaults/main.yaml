@@ -18,7 +18,7 @@ postgres_container_name: "{{ inventory_hostname }}"
 # =========================
 postgres_remote_config_dir: "{{ remote_config_dir }}"
 postgres_remote_data_dir: "{{ remote_data_dir }}"
-postgres_container_config_dir: /var/lib/postgresql
+postgres_container_config_dir: /var/lib/postgresql/config
 postgres_container_data_dir: /var/lib/postgresql/data
 
 # =========================
