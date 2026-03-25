@@ -32,11 +32,10 @@
   hosts: "{{ target_hosts | default('fabric_cas') }}:&fabric_cas"
   vars:
     idemixgen_artifacts_dir: "{{ config_build_dir }}/idemixgen-artifacts"
-    fabric_ca_remote_config_dir: "{{ remote_config_dir }}"
   tasks:
     - name: Ensure Idemix CA directory exists
       ansible.builtin.file:
-        path: "{{ fabric_ca_remote_config_dir }}/idemix"
+        path: "{{ fabric_ca_server_remote_config_dir }}/idemix"
         state: directory
         mode: "0o755"
         recurse: true
@@ -47,7 +46,7 @@
     - name: Transfer Idemix CA crypto material
       ansible.posix.synchronize:
         src: "{{ idemixgen_artifacts_dir }}/{{ organization.domain }}/"
-        dest: "{{ fabric_ca_remote_config_dir }}/idemix"
+        dest: "{{ fabric_ca_server_remote_config_dir }}/idemix"
       when:
         - organization is defined
         - organization.type is defined
