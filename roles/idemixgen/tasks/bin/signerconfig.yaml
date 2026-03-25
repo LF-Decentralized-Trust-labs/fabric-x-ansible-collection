@@ -1,0 +1,46 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the idemixgen CA dir has been defined
+  ansible.builtin.fail:
+    msg: "No idemixgen CA dir is indicated. Set it via 'idemixgen_ca_input_dir'."
+  when: idemixgen_ca_input_dir is not defined
+
+- name: Check that the idemixgen output dir has been defined
+  ansible.builtin.fail:
+    msg: "No idemixgen output dir is indicated. Set it via 'idemixgen_output_dir'."
+  when: idemixgen_output_dir is not defined
+
+- name: Clean the /msp folder in the output dir
+  ansible.builtin.file:
+    path: "{{ idemixgen_output_dir }}/msp"
+    state: absent
+
+- name: Clean the /user folder in the output dir
+  ansible.builtin.file:
+    path: "{{ idemixgen_output_dir }}/user"
+    state: absent
+
+- name: Generate the idemix signer crypto material
+  vars:
+    bin_run_with_tmux: false
+    bin_remote_dir: "{{ cli_bin_dir }}"
+    bin_command: >-
+      {{ idemixgen_bin_name }} signerconfig
+      --ca-input {{ idemixgen_ca_input_dir }}
+      --output {{ idemixgen_output_dir }}
+      --org-unit {{ idemixgen_org_domain }}
+      --enrollmentId {{ idemixgen_enrollment_id }}
+      --revocationHandle {{ idemixgen_rev_handle }}
+      --curve {{ idemixgen_curve_id }}
+      --admin
+      {% if idemixgen_use_aries %}
+      --aries
+      {% endif %}
+    bin_collect_logs: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start
