@@ -16,7 +16,7 @@
       list
       --config={{ fxconfig_container_config_dir }}/{{ fxconfig_config_file }}
     container_volumes:
-      - "{{ fxconfig_remote_config_dir }}:{{ fxconfig_container_config_dir }}:z"
+      - "{{ fxconfig_remote_config_dir }}:{{ fxconfig_container_config_dir }}:z,ro"
     container_run_detach_mode: false
     container_run_as_host_user: true
     container_autoremove: true

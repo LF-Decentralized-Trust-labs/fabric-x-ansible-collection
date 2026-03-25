@@ -22,7 +22,7 @@
   vars:
     threshold_pubkey_path: "{{ fxconfig_namespace_policy | split(':') | last }}"
     threshold_pubkey_container_path: /tmp/pubkey.pem
-    threshold_policy_pem_volume: "{{ threshold_pubkey_path }}:{{ threshold_pubkey_container_path }}:z"
+    threshold_policy_pem_volume: "{{ threshold_pubkey_path }}:{{ threshold_pubkey_container_path }}:z,ro"
   ansible.builtin.set_fact:
     fxconfig_threshold_namespace_policy: "threshold:{{ threshold_pubkey_container_path }}"
     fxconfig_volumes: "{{ fxconfig_volumes + [threshold_policy_pem_volume] }}"

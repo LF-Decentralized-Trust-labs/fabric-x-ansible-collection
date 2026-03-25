@@ -52,7 +52,7 @@
       vars:
         current_endorsed_tx_filename: "{{ current_endorsed_tx_path | basename }}"
         fxconfig_endorsed_tx_volume: "{{ fxconfig_container_config_dir }}/{{ current_endorsed_tx_filename }}"
-        fxconfig_endorsed_tx_volume_map: "{{ current_endorsed_tx_path }}:{{ fxconfig_endorsed_tx_volume }}:z"
+        fxconfig_endorsed_tx_volume_map: "{{ current_endorsed_tx_path }}:{{ fxconfig_endorsed_tx_volume }}:z,ro"
       ansible.builtin.set_fact:
         fxconfig_endorsed_tx_volumes: "{{ fxconfig_endorsed_tx_volumes + [fxconfig_endorsed_tx_volume] }}"
         fxconfig_volumes: "{{ fxconfig_volumes + [fxconfig_endorsed_tx_volume_map] }}"
