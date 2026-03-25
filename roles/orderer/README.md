@@ -1,6 +1,6 @@
 # hyperledger.fabricx.orderer
 
-The role `hyperledger.fabricx.orderer` can be used to run the Fabric-X `orderer` component.
+The role `hyperledger.fabricx.orderer` can be used to run the Fabric-X `orderer` components (i.e. `consenter`, `batcher`, `assembler` and `router`).
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -80,11 +80,12 @@ The task `config/rm` removes the Fabric-X Orderer configuration files on the rem
 
 ### start
 
-The task `start` allows to start the Fabric-X Orderer either as binary or as container.
+The task `start` allows to start the Fabric-X Orderer either as binary or as container. The sub-component to start is determined by the `orderer_component_type` variable (`consenter`, `batcher`, `assembler`, or `router`):
 
 ```yaml
 - name: Start the Fabric-X Orderer
   vars:
+    orderer_component_type: consenter # or batcher, assembler, router
     orderer_use_bin: true # set to false or unset for container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -93,11 +94,12 @@ The task `start` allows to start the Fabric-X Orderer either as binary or as con
 
 ### stop
 
-The task `stop` allows to stop the Fabric-X Orderer running as binary or as container.
+The task `stop` allows to stop the Fabric-X Orderer running as binary or as container. The sub-component to stop is determined by the `orderer_component_type` variable:
 
 ```yaml
 - name: Stop the Fabric-X Orderer
   vars:
+    orderer_component_type: consenter # or batcher, assembler, router
     orderer_use_bin: true # set to false or unset for container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -106,11 +108,12 @@ The task `stop` allows to stop the Fabric-X Orderer running as binary or as cont
 
 ### teardown
 
-The task `teardown` allows to shut down the Fabric-X Orderer running as binary or as container and remove all the artifacts being generated during runtime.
+The task `teardown` allows to shut down the Fabric-X Orderer running as binary or as container and remove all the artifacts being generated during runtime. The sub-component to teardown is determined by the `orderer_component_type` variable:
 
 ```yaml
 - name: Teardown the Fabric-X Orderer
   vars:
+    orderer_component_type: consenter # or batcher, assembler, router
     orderer_use_bin: true # set to false or unset for container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -119,11 +122,12 @@ The task `teardown` allows to shut down the Fabric-X Orderer running as binary o
 
 ### wipe
 
-The task `wipe` allows to shut down the Fabric-X Orderer running as binary or as container, remove all the artifacts (configuration files, binaries and all the runtime-generated artifacts).
+The task `wipe` allows to shut down the Fabric-X Orderer running as binary or as container, remove all the artifacts (configuration files, binaries and all the runtime-generated artifacts). The sub-component to wipe is determined by the `orderer_component_type` variable:
 
 ```yaml
 - name: Wipe the Fabric-X Orderer
   vars:
+    orderer_component_type: consenter # or batcher, assembler, router
     orderer_use_bin: true # set to false or unset for container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -132,11 +136,12 @@ The task `wipe` allows to shut down the Fabric-X Orderer running as binary or as
 
 ### fetch_logs
 
-The task `fetch_logs` allows to fetch the logs from the Fabric-X Orderer components from the remote hosts to the control node.
+The task `fetch_logs` allows to fetch the logs from the Fabric-X Orderer components from the remote hosts to the control node. The sub-component whose logs are fetched is determined by the `orderer_component_type` variable:
 
 ```yaml
 - name: Fetch the Fabric-X Orderer logs
   vars:
+    orderer_component_type: consenter # or batcher, assembler, router
     orderer_use_bin: true # set to false or unset for container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer

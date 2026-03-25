@@ -28,6 +28,7 @@ armageddon_use_bin: false
 # =========================
 armageddon_artifacts_dir: "{{ config_build_dir }}/armageddon-artifacts"
 armageddon_container_output_dir: "/tmp/out"
+armageddon_container_config_dir: "/tmp/config"
 armageddon_container_crypto_artifacts_dir: "/tmp/crypto"
 armageddon_config_file: armageddon.yaml
 armageddon_shared_config_file: shared_config.yaml

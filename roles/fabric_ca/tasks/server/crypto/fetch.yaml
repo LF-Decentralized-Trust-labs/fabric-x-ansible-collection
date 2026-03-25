@@ -17,13 +17,13 @@
 
 - name: Fetch the CA certificate
   ansible.builtin.fetch:
-    src: "{{ fabric_ca_remote_config_dir }}/ca-cert.pem"
+    src: "{{ fabric_ca_server_remote_config_dir }}/ca-cert.pem"
     dest: "{{ fabric_ca_org_dir }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem"
     flat: true
 
 - name: Fetch the TLS CA certificate
   ansible.builtin.fetch:
-    src: "{{ fabric_ca_remote_config_dir }}/ca-cert.pem"
+    src: "{{ fabric_ca_server_remote_config_dir }}/ca-cert.pem"
     dest: "{{ fabric_ca_org_dir }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
     flat: true
 
@@ -33,6 +33,6 @@
 # fail with the error "administrators must be declared when no admin ou classification is set".
 - name: Fetch the Admin CA certificate
   ansible.builtin.fetch:
-    src: "{{ fabric_ca_remote_config_dir }}/{{ fabric_ca_admin.name }}/msp/signcerts/cert.pem"
+    src: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_admin.name }}/msp/signcerts/cert.pem"
     dest: "{{ fabric_ca_org_dir }}/msp/admincerts/Admin@{{ organization.domain }}-cert.pem"
     flat: true

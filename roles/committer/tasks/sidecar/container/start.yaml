@@ -4,6 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Ensure Committer Sidecar data directory exists
+  ansible.builtin.file:
+    path: "{{ committer_remote_data_dir }}"
+    state: directory
+    mode: "0o755"
+
 - name: Start Hyperledger Fabric-X Committer Sidecar container
   vars:
     container_name: "{{ committer_container_name }}"
@@ -15,7 +21,8 @@
       - "{{ committer_rpc_port }}:{{ committer_rpc_port }}"
       - "{{ committer_metrics_port }}:{{ committer_metrics_port }}"
     container_volumes:
-      - "{{ committer_remote_config_dir }}:{{ committer_container_config_dir }}:z"
+      - "{{ committer_remote_config_dir }}:{{ committer_container_config_dir }}:z,ro"
+      - "{{ committer_remote_data_dir }}:{{ committer_container_data_dir }}:z"
     container_wait_until_running: true
     container_run_as_host_user: true
     container_wait_port: "{{ committer_rpc_port }}"

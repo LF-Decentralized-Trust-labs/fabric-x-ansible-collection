@@ -4,15 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Remove the Yugabyte DB containers
+- name: Teardown Yugabyte DB
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
-    tasks_from: container/rm
-
-- name: Clean Yugabyte DB volumes
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.yugabyte
-    tasks_from: container/clean
+    tasks_from: teardown
 
 - name: Remove Yugabyte crypto files
   ansible.builtin.include_role:

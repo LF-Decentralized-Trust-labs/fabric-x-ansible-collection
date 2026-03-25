@@ -4,26 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Remove Fabric-X Committer sidecar container
+- name: Teardown Fabric-X Committer sidecar
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
-    tasks_from: container/rm
-  when:
-    - not committer_use_bin
-
-- name: Clean Fabric-X Committer Sidecar volumes
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: sidecar/container/clean
-  when:
-    - not committer_use_bin
-
-- name: Stop Fabric-X Committer sidecar binary
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: bin/stop
-  when:
-    - committer_use_bin
+    tasks_from: sidecar/teardown
 
 - name: Remove Fabric-X Committer sidecar binary
   ansible.builtin.include_role:
@@ -32,14 +16,12 @@
   when:
     - committer_use_bin
 
-- name: Clean Fabric-X Committer Sidecar data
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: sidecar/bin/clean
-  when:
-    - committer_use_bin
-
 - name: Remove Fabric-X Committer sidecar configuration files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: config/rm
+
+- name: Remove Fabric-X Committer sidecar crypto material
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: crypto/rm

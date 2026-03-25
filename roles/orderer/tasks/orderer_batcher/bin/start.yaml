@@ -8,7 +8,7 @@
   vars:
     bin_command: >-
       {{ orderer_bin_name }} batcher
-      --config={{ orderer_remote_config_file }}
+      --config={{ orderer_remote_config_dir }}/{{ orderer_config_file }}
     bin_wait_until_running: true
     bin_wait_port: "{{ orderer_rpc_port }}"
   ansible.builtin.include_role:

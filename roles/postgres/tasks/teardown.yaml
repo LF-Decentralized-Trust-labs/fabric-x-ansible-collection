@@ -9,7 +9,7 @@
     name: hyperledger.fabricx.postgres
     tasks_from: container/rm
 
-- name: Clean Postgres DB data
+- name: Remove Postgres DB data
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
-    tasks_from: container/clean
+    tasks_from: data/rm

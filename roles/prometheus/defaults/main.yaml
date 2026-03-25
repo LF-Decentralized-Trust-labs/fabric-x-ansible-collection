@@ -17,7 +17,9 @@ prometheus_container_name: "{{ inventory_hostname }}"
 # Paths/Locations
 # =========================
 prometheus_remote_config_dir: "{{ remote_config_dir }}"
+prometheus_remote_data_dir: "{{ remote_data_dir }}"
 prometheus_container_config_dir: "/etc/prometheus/config"
+prometheus_container_data_dir: "/data"
 prometheus_config_file: prometheus.yaml
 prometheus_web_config_file: web-config.yaml
 prometheus_http_config_file: http-config.yaml

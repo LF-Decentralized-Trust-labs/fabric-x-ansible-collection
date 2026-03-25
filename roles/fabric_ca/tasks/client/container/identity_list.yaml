@@ -7,11 +7,11 @@
 - name: Set volumes for Fabric-CA client
   ansible.builtin.set_fact:
     fabric_ca_volumes:
-      - "{{ fabric_ca_msp_dir }}:{{ fabric_ca_container_config_dir }}/msp:z"
+      - "{{ fabric_ca_msp_dir }}:{{ fabric_ca_client_container_config_dir }}/msp:z"
 
 - name: Set volumes for TLS certificates
   vars:
-    fabric_ca_tls_certfile_volume: "{{ fabric_ca_tls_certfile }}:{{ fabric_ca_container_config_dir }}/tls-cert.pem:z"
+    fabric_ca_tls_certfile_volume: "{{ fabric_ca_tls_certfile }}:{{ fabric_ca_client_container_config_dir }}/tls-cert.pem:z"
   ansible.builtin.set_fact:
     fabric_ca_volumes: "{{ fabric_ca_volumes + [fabric_ca_tls_certfile_volume] }}"
   when:
@@ -23,13 +23,13 @@
     container_name: "{{ fabric_ca_name }}-identity-list"
     container_image: "{{ fabric_ca_image }}"
     container_env:
-      FABRIC_CA_CLIENT_HOME: "{{ fabric_ca_container_config_dir }}"
+      FABRIC_CA_CLIENT_HOME: "{{ fabric_ca_client_container_config_dir }}"
     container_command: >-
       {{ fabric_ca_client_bin_name }} identity list
       -u {{ fabric_ca_scheme }}://{{ hostvars[fabric_ca_host].ansible_host }}:{{ hostvars[fabric_ca_host].fabric_ca_port }}
       --caname {{ fabric_ca_name }}
       {% if fabric_ca_use_tls and (fabric_ca_tls_certfile is defined) %}
-      --tls.certfiles {{ fabric_ca_container_config_dir }}/tls-cert.pem
+      --tls.certfiles {{ fabric_ca_client_container_config_dir }}/tls-cert.pem
       {% endif %}
     container_volumes: "{{ fabric_ca_volumes }}"
     container_autoremove: true

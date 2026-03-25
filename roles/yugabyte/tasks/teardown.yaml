@@ -9,7 +9,7 @@
     name: hyperledger.fabricx.yugabyte
     tasks_from: container/rm
 
-- name: Clean Yugabyte DB volumes
+- name: Remove Yugabyte DB data
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
-    tasks_from: container/clean
+    tasks_from: data/rm

@@ -4,19 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Remove Fabric-X Committer coordinator container
+- name: Teardown Fabric-X Committer coordinator
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
-    tasks_from: container/rm
-  when:
-    - not committer_use_bin
-
-- name: Stop Fabric-X Committer coordinator binary
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: bin/stop
-  when:
-    - committer_use_bin
+    tasks_from: coordinator/teardown
 
 - name: Remove Fabric-X Committer coordinator binary
   ansible.builtin.include_role:
@@ -29,3 +20,8 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: config/rm
+
+- name: Remove Fabric-X Committer coordinator crypto material
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: crypto/rm

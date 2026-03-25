@@ -9,7 +9,7 @@
     name: hyperledger.fabricx.prometheus
     tasks_from: container/rm
 
-- name: Remove Prometheus container data
+- name: Remove Prometheus data
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
-    tasks_from: container/clean
+    tasks_from: data/rm

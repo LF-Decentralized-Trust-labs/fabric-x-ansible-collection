@@ -4,10 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Remove Jaeger container
+- name: Teardown Jaeger
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
-    tasks_from: container/rm
+    tasks_from: teardown
 
 - name: Remove Jaeger configuration files
   ansible.builtin.include_role:

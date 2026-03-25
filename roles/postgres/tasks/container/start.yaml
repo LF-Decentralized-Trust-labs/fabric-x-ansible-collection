@@ -6,7 +6,7 @@
 
 - name: Create Postgres DB data volume
   vars:
-    container_volume_path: "{{ postgres_remote_config_dir }}/data"
+    container_volume_path: "{{ postgres_remote_data_dir }}"
     container_volume_mode: "0o755"
     container_volume_uid: "999"
     container_volume_gid: "999"
@@ -34,7 +34,7 @@
       POSTGRES_DB: "{{ postgres_db }}"
       POSTGRES_USER: "{{ postgres_user }}"
       POSTGRES_PASSWORD: "{{ postgres_password }}"
-      PGDATA: "{{ postgres_container_config_dir }}/data/pgdata"
+      PGDATA: "{{ postgres_container_data_dir }}/pgdata"
     container_command: >-
       postgres
       -c port={{ postgres_port }}
@@ -55,8 +55,8 @@
     container_ports:
       - "{{ postgres_port }}:{{ postgres_port }}"
     container_volumes:
-      - "{{ postgres_remote_config_dir }}:{{ postgres_container_config_dir }}:z"
-      - "{{ postgres_remote_config_dir }}/data:{{ postgres_container_config_dir }}/data:z" # necessary volume to override default named volume inside Postgres image
+      - "{{ postgres_remote_config_dir }}:{{ postgres_container_config_dir }}:z,ro"
+      - "{{ postgres_remote_data_dir }}:{{ postgres_container_data_dir }}:z"
     container_healthcheck_test: >-
       pg_isready
       -d {{ postgres_db }}
