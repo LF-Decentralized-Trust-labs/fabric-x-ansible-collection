@@ -57,7 +57,7 @@
     container_healthcheck_test: >-
       wget --spider -q http://localhost:{{ jaeger_admin_port }}
     container_volumes:
-      - "{{ jaeger_remote_config_dir }}:{{ jaeger_container_config_dir }}"
+      - "{{ jaeger_remote_config_dir }}:{{ jaeger_container_config_dir }}:z,ro"
     container_wait_until_running: true
     container_run_as_host_user: true
     container_wait_port: "{{ jaeger_ui_port }}"

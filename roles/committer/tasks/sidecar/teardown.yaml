@@ -11,13 +11,6 @@
   when:
     - not committer_use_bin
 
-- name: Clean Fabric-X Committer sidecar binary repo
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: sidecar/bin/clean
-  when:
-    - not committer_use_bin
-
 - name: Stop Fabric-X Committer sidecar binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
@@ -25,9 +18,7 @@
   when:
     - committer_use_bin
 
-- name: Clean Fabric-X Committer sidecar binary repo
+- name: Remove Fabric-X Committer Sidecar data
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
-    tasks_from: sidecar/bin/clean
-  when:
-    - committer_use_bin
+    tasks_from: data/rm

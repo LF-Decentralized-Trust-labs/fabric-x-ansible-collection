@@ -4,30 +4,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Start Fabric-X Orderer consenters
+- name: Start Fabric-X Orderer container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
-    tasks_from: orderer_consenter/start
+    tasks_from: container/start
   when:
-    - orderer_component_type == 'consenter'
+    - not orderer_use_bin
 
-- name: Start Fabric-X Orderer batchers
+- name: Start Fabric-X Orderer binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
-    tasks_from: orderer_batcher/start
+    tasks_from: bin/start
   when:
-    - orderer_component_type == 'batcher'
-
-- name: Start Fabric-X Orderer assemblers
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: orderer_assembler/start
-  when:
-    - orderer_component_type == 'assembler'
-
-- name: Start Fabric-X Orderer routers
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: orderer_router/start
-  when:
-    - orderer_component_type == 'router'
+    - orderer_use_bin

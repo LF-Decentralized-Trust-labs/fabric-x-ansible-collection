@@ -17,6 +17,8 @@ yugabyte_container_name: "{{ inventory_hostname }}"
 # Locations/Paths
 # =========================
 yugabyte_remote_config_dir: "{{ remote_config_dir }}"
+yugabyte_remote_data_dir: "{{ remote_data_dir }}"
+yugabyte_container_data_dir: "/var/data"
 yugabyte_init_script_file: "01-yb-init.sql"
 
 # =========================

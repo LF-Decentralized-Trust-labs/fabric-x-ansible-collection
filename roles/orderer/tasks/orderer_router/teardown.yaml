@@ -15,3 +15,8 @@
     name: hyperledger.fabricx.orderer
     tasks_from: bin/stop
   when: orderer_use_bin
+
+- name: Remove Fabric-X Orderer Router data
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: data/rm

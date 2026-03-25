@@ -134,7 +134,7 @@ channel-buffer-size: {{ committer_sidecar_channel_buffer_size | default(100) }}
 ledger:
   # Filesystem directory where the sidecar stores the local copy of the blockchain ledger.
   # Must be persistent storage to survive restarts. The directory is created if it doesn't exist.
-  path: {{ committer_config_dir }}/ledger
+  path: {{ committer_data_dir }}/ledger
   # How often the block store fsyncs to durable storage. Every Nth block triggers
   # a full sync; intermediate blocks are written without fsync. Set to 0 or 1 to
   # sync every block (safest but slowest). Higher values improve write performance

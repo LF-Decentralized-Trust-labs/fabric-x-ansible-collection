@@ -28,7 +28,7 @@
 - name: Set volumes for Fabric-CA client
   ansible.builtin.set_fact:
     fabric_ca_volumes:
-      - "{{ fabric_ca_msp_dir }}:{{ fabric_ca_container_config_dir }}:z"
+      - "{{ fabric_ca_msp_dir }}:{{ fabric_ca_client_container_config_dir }}:z"
   when:
     - not fabric_ca_msp_cert.stat.exists
 
@@ -47,12 +47,12 @@
     container_name: "{{ fabric_ca_name }}-enroll-{{ fabric_ca_identity.name }}"
     container_image: "{{ fabric_ca_image }}"
     container_env:
-      FABRIC_CA_CLIENT_HOME: "{{ fabric_ca_container_config_dir }}"
+      FABRIC_CA_CLIENT_HOME: "{{ fabric_ca_client_container_config_dir }}"
     container_command: >-
       {{ fabric_ca_client_bin_name }} enroll
       -u {{ fabric_ca_scheme }}://{{ fabric_ca_identity.name }}:{{ fabric_ca_identity.secret }}@{{ hostvars[fabric_ca_host].ansible_host }}:{{ hostvars[fabric_ca_host].fabric_ca_port }}
       --caname {{ fabric_ca_name }}
-      --mspdir {{ fabric_ca_container_config_dir }}
+      --mspdir {{ fabric_ca_client_container_config_dir }}
       {% if fabric_ca_enrollment_profile is defined %}
       --enrollment.profile {{ fabric_ca_enrollment_profile }}
       {% endif %}

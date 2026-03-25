@@ -6,6 +6,7 @@ The role `hyperledger.fabricx.git` can be used to perform `git` operations on a 
 
 - [Prerequisites](#prerequisites)
 - [Tasks](#tasks)
+  - [install](#install)
   - [clone](#clone)
 
 ## Prerequisites
@@ -14,7 +15,16 @@ The role requires `git` to be installed on the targeted node.
 
 ## Tasks
 
-Here the list of the most important tasks.
+### install
+
+The task `install` installs `git` on the targeted node:
+
+```yaml
+- name: Install git
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.git
+    tasks_from: install
+```
 
 ### clone
 

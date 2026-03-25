@@ -28,8 +28,11 @@ orderer_use_bin: false
 # Paths/Locations
 # =========================
 orderer_remote_config_dir: "{{ remote_config_dir }}"
+orderer_remote_data_dir: "{{ remote_data_dir }}"
 orderer_container_config_dir: "/config"
-orderer_remote_config_file: "{{ orderer_remote_config_dir }}/{{ orderer_config_file }}"
+orderer_container_data_dir: "/data"
+orderer_config_dir: "{{ orderer_remote_config_dir if orderer_use_bin else orderer_container_config_dir }}"
+orderer_data_dir: "{{ orderer_remote_data_dir if orderer_use_bin else orderer_container_data_dir }}"
 orderer_config_file: "node_config.yaml"
 
 # =========================

@@ -17,7 +17,9 @@ elasticsearch_container_name: "{{ inventory_hostname }}"
 # Elasticsearch Paths
 # =========================
 elasticsearch_remote_config_dir: "{{ remote_config_dir }}"
+elasticsearch_remote_data_dir: "{{ remote_data_dir }}"
 elasticsearch_container_config_dir: "/usr/share/elasticsearch"
+elasticsearch_container_data_dir: "/usr/share/elasticsearch/data"
 
 # =========================
 # TLS Settings
