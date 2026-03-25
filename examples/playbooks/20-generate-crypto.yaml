@@ -19,16 +19,6 @@
 ######################################
 # Crypto material with Fabric CA
 ######################################
-- name: Build Fabric CA server binaries
-  ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.binaries
-  when:
-    - "'fabric_cas' in groups"
-
-- name: Build Fabric CA client binaries
-  ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_client.binaries
-  when:
-    - "'fabric_cas' in groups"
-
 - name: Setup Fabric CA crypto material
   ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.generate_crypto
   when:

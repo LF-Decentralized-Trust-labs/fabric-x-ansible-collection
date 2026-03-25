@@ -4,12 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that the meta namespace admin MSP path is defined
-  ansible.builtin.fail:
-    msg: "No path to the meta namespace admin MSP is indicated. Set it via 'fxconfig_msp_config_path'."
-  when:
-    - fxconfig_msp_config_path is not defined
-
 - name: Create namespace {{ fxconfig_namespace }}
   vars:
     container_name: "{{ fxconfig_container_name }}-{{ fxconfig_namespace }}-create"
@@ -19,7 +13,7 @@
       create {{ fxconfig_namespace }}
       --channel {{ channel_id }}
       --orderer {{ hostvars[orderer_router_host].ansible_host }}:{{ hostvars[orderer_router_host].orderer_rpc_port }}
-      --mspConfigPath {{ fxconfig_container_config_dir }}/meta_namespace_admin_msp
+      --mspConfigPath {{ fxconfig_container_config_dir }}/msp
       --mspID {{ fxconfig_msp_id }}
       --pk {{ fxconfig_container_config_dir }}/namespaces/{{ fxconfig_namespace }}/pubkey.pem
       {% if hostvars[orderer_router_host].orderer_use_tls is defined and hostvars[orderer_router_host].orderer_use_tls %}
@@ -30,8 +24,7 @@
       --keyfile {{ fxconfig_container_config_dir }}/mtls/server.key
       {% endif %}
     container_volumes:
-      - "{{ fxconfig_remote_config_dir }}:{{ fxconfig_container_config_dir }}:z"
-      - "{{ fxconfig_msp_config_path }}:{{ fxconfig_container_config_dir }}/meta_namespace_admin_msp:z"
+      - "{{ fxconfig_remote_config_dir }}:{{ fxconfig_container_config_dir }}:z,ro"
     container_run_detach_mode: false
     container_run_as_host_user: true
     container_autoremove: true

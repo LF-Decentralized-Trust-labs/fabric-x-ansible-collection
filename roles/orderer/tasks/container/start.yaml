@@ -4,6 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Ensure the data directory for Fabric-X Orderer exists
+  ansible.builtin.file:
+    path: "{{ orderer_remote_data_dir }}"
+    state: directory
+    mode: "0o755"
+
 - name: Start Fabric-X Orderer consenters containers
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer

@@ -7,6 +7,7 @@ The role `hyperledger.fabricx.go` provides tasks for building and installing Go 
 - [Prerequisites](#prerequisites)
 - [Variables](#variables)
 - [Tasks](#tasks)
+  - [install_go](#install_go)
   - [map_platform](#map_platform)
   - [build](#build)
   - [install](#install)
@@ -34,6 +35,19 @@ The following variables can be used to customize the role:
 | `go_arch`             | Mapped GOARCH value (set by map_platform)     | `""`                          |
 
 ## Tasks
+
+### install_go
+
+The task `install_go` installs the Go runtime on the targeted node. If Go is already installed, the task is a no-op.
+
+```yaml
+- name: Install Go
+  vars:
+    go_version: "1.23.0"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.go
+    tasks_from: install_go
+```
 
 ### map_platform
 

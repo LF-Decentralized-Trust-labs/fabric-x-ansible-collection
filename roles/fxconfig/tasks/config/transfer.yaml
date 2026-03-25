@@ -4,6 +4,28 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Check that the meta namespace admin MSP path is defined
+  ansible.builtin.fail:
+    msg: "No path to the meta namespace admin MSP is indicated. Set it via 'fxconfig_msp_config_path'."
+  when:
+    - fxconfig_msp_config_path is undefined
+
+# =========================
+# MSP material
+# =========================
+- name: Ensure the MSP directory for fxconfig exists
+  ansible.builtin.file:
+    path: "{{ fxconfig_remote_config_dir }}/msp"
+    state: directory
+    mode: "0o755"
+
+- name: Transfer the MSP crypto material to use for signing fxconfig transactions
+  ansible.builtin.copy:
+    src: "{{ fxconfig_msp_config_path }}/"
+    dest: "{{ fxconfig_remote_config_dir }}/msp"
+    remote_src: true
+    mode: "preserve"
+
 # =========================
 # Namespaces keys
 # =========================

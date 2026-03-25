@@ -9,7 +9,7 @@
     name: hyperledger.fabricx.elasticsearch
     tasks_from: container/rm
 
-- name: Clean ElasticSearch volume
+- name: Remove ElasticSearch data
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
-    tasks_from: container/clean
+    tasks_from: data/rm

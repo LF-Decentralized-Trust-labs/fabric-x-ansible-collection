@@ -4,9 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Clean Elasticsearch volume
+- name: Remove ElasticSearch data volume
   vars:
-    container_volume_path: "{{ elasticsearch_remote_config_dir }}/data"
+    container_volume_path: "{{ elasticsearch_remote_data_dir }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: volume/rm

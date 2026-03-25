@@ -11,16 +11,14 @@
   when:
     - not fabric_ca_server_use_bin
 
-- name: Clean Fabric CA runtime artifacts
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.fabric_ca
-    tasks_from: server/container/clean
-  when:
-    - not fabric_ca_server_use_bin
-
 - name: Stop Fabric CA binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/bin/stop
   when:
     - fabric_ca_server_use_bin
+
+- name: Remove Fabric CA data
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/data/rm

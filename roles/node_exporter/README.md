@@ -17,6 +17,7 @@ The role allows to run Node Exporter as **container only** (binary is not curren
   - [teardown](#teardown)
   - [wipe](#wipe)
   - [fetch_logs](#fetch_logs)
+  - [ping](#ping)
   - [get_host_set](#get_host_set)
 
 ## Tasks
@@ -129,6 +130,17 @@ The task `fetch_logs` allows to fetch the logs from the Node Exporter instance.
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: fetch_logs
+```
+
+### ping
+
+The task `ping` allows to ping the Node Exporter instance on its opened port. It is useful to check whether the instance is running or if it is not running/reachable.
+
+```yaml
+- name: Ping Node Exporter
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.node_exporter
+    tasks_from: ping
 ```
 
 ### get_host_set

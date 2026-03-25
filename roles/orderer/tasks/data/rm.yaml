@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Clean the Fabric-X Orderer assembler FileStore
+- name: Remove the Fabric-X Orderer data directory
   ansible.builtin.file:
-    path: "{{ orderer_remote_config_dir }}/store"
+    path: "{{ orderer_remote_data_dir }}"
     state: absent

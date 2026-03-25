@@ -18,11 +18,12 @@
       {{ configtxgen_bin_name }}
       -channelID {{ configtxgen_channel_id }}
       -profile {{ configtxgen_profile_id }}
-      -configPath {{ configtxgen_container_artifacts_dir }}
+      -configPath {{ configtxgen_container_config_dir }}
       --outputBlock {{ configtxgen_container_artifacts_dir }}/{{ configtxgen_channel_id }}_block.pb
     container_volumes:
-      - "{{ fetched_artifacts_dir }}:{{ configtxgen_container_crypto_artifacts_dir }}:z"
-      - "{{ armageddon_artifacts_dir }}:{{ configtxgen_armageddon_container_artifacts_dir }}:z"
+      - "{{ configtxgen_artifacts_dir }}/{{ configtxgen_config_file }}:{{ configtxgen_container_config_dir }}/{{ configtxgen_config_file }}:z,ro"
+      - "{{ armageddon_artifacts_dir }}:{{ configtxgen_armageddon_container_artifacts_dir }}:z,ro"
+      - "{{ fetched_artifacts_dir }}:{{ configtxgen_container_crypto_artifacts_dir }}:z,ro"
       - "{{ configtxgen_artifacts_dir }}:{{ configtxgen_container_artifacts_dir }}:z"
     container_run_detach_mode: false
     container_run_as_host_user: true

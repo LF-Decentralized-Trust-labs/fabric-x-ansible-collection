@@ -6,6 +6,7 @@ The role `hyperledger.fabricx.openssl` can be used to run the `openssl` CLI util
 
 - [Tasks](#tasks)
   - [install](#install)
+  - [generate_keypair](#generate_keypair)
   - [generate_self_signed_cert](#generate_self_signed_cert)
   - [generate_csr](#generate_csr)
   - [generate_cert](#generate_cert)
@@ -21,6 +22,22 @@ The `install` task allows to install the `openssl` binary utility on a machine (
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openssl
     tasks_from: install
+```
+
+### generate_keypair
+
+The `generate_keypair` task allows to generate an asymmetric key pair (private key and corresponding public key) without producing a certificate:
+
+```yaml
+- name: Generate an asymmetric key pair using openssl
+  vars:
+    openssl_private_key_path: /tmp/privKey.pem
+    openssl_public_key_path: /tmp/pubKey.pem
+    openssl_key_alg: EC
+    openssl_key_opt: ec_paramgen_curve:P-256
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openssl
+    tasks_from: generate_keypair
 ```
 
 ### generate_self_signed_cert

@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Clean the Yugabyte DB volume
+- name: Remove Fabric CA data directory
   ansible.builtin.file:
-    path: "{{ yugabyte_remote_config_dir }}/data"
+    path: "{{ fabric_ca_server_remote_data_dir }}"
     state: absent

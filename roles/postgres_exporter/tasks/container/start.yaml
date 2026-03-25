@@ -27,7 +27,7 @@
     container_ports:
       - "{{ postgres_exporter_port }}:{{ postgres_exporter_port }}"
     container_volumes:
-      - "{{ postgres_exporter_remote_config_dir }}:{{ postgres_exporter_container_config_dir }}:z"
+      - "{{ postgres_exporter_remote_config_dir }}:{{ postgres_exporter_container_config_dir }}:z,ro"
     # There is a problem using `wget` for healthcheck when running with TLS:
     # https://github.com/docker-library/busybox/issues/162
     # Since `postgres-exporter` uses `busybox` as base image, wget is not working as expected.

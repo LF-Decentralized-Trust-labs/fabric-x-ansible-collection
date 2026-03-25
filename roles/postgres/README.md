@@ -10,6 +10,7 @@ The role allows to run Postgres as **container only** (binary is not currently s
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
   - [crypto/rm](#cryptorm)
+  - [config/transfer](#configtransfer)
   - [config/rm](#configrm)
   - [start](#start)
   - [stop](#stop)
@@ -55,6 +56,17 @@ The task `crypto/rm` removes the crypto material generated for Postgres on the r
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: crypto/rm
+```
+
+### config/transfer
+
+The task `config/transfer` transfers the Postgres configuration files on the remote node. When mTLS is enabled and `postgres_mtls_clients` is defined, it also transfers the `pg_hba.conf` to enforce mutual TLS connections:
+
+```yaml
+- name: Transfer the Postgres configuration files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: config/transfer
 ```
 
 ### config/rm

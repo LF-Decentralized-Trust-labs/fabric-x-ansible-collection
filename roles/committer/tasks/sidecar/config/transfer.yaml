@@ -21,12 +21,6 @@
 
 - name: Generate Hyperledger Fabric-X Committer Sidecar config
   vars:
-    committer_config_dir: >-
-      {{
-        committer_remote_config_dir
-        if committer_use_bin
-        else committer_container_config_dir
-      }}
     orderer_assembler_ref_host: >-
       {{
         orderer_assemblers

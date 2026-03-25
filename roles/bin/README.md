@@ -9,6 +9,7 @@ The role `hyperledger.fabricx.bin` can be used to handle a binary run on a targe
   - [go](#go)
     - [build](#build)
     - [install](#install)
+  - [map_platform_to_host](#map_platform_to_host)
   - [transfer](#transfer)
   - [start](#start)
   - [stop](#stop)
@@ -27,18 +28,19 @@ The role requires:
 
 ### go
 
-The tasks in the [`go`](./tasks/go) section allow to build or install a `go` binary.
+The tasks in the [`go`](./tasks/go) section are thin wrappers that orchestrate cloning, platform detection, and cross-compilation by delegating to the [`hyperledger.fabricx.go`](../go/README.md) role.
 
 #### build
 
-The task `build` allows to clone the source code of a `go` binary and build it:
+The task `build` clones the source code of a `go` binary, detects the target platform for each host in `bin_hosts`, and builds a cross-compiled binary for each unique platform via `hyperledger.fabricx.go`:
 
 ```yaml
 - name: Build the sample-go binary
   vars:
     git_uri: "https://github.com/sample/sample-go.git"
     bin_name: sample-go
-    go_source_code_path: /tmp/sample-go/src
+    bin_hosts: "{{ groups['orderers'] }}"
+    bin_source_code_dir: /tmp/sample-go/src
     bin_dir: /usr/local/bin
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
@@ -47,17 +49,33 @@ The task `build` allows to clone the source code of a `go` binary and build it:
 
 #### install
 
-The task `install` allows to install a go binary with the `go install` paradigm.
+The task `install` detects the target platform for each host in `bin_hosts` and installs a go binary with the `go install` paradigm via `hyperledger.fabricx.go`:
 
 ```yaml
 - name: Install the sample-go binary
   vars:
     go_package: github.com/example/sample-go/cmd
+    bin_hosts: "{{ groups['orderers'] }}"
     bin_dir: /usr/local/bin
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: go/install
 ```
+
+### map_platform_to_host
+
+The task `map_platform_to_host` builds a dictionary of unique OS/architecture platform combinations from a list of hosts. It deduplicates platforms so that cross-compilation is performed only once per unique platform rather than once per host instance.
+
+```yaml
+- name: Build the unique platform map for the target hosts
+  vars:
+    bin_hosts: "{{ groups['orderers'] }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: map_platform_to_host
+```
+
+After execution, the `bin_platforms` fact contains a dictionary keyed by `<os>:<arch>` strings, each holding the OS, architecture, and the list of hosts sharing that platform.
 
 ### transfer
 

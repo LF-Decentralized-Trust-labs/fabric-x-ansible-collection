@@ -4,6 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Ensure Prometheus data directory exists
+  ansible.builtin.file:
+    path: "{{ prometheus_remote_data_dir }}"
+    state: directory
+    mode: "0o755"
+
 - name: Start Prometheus container
   vars:
     container_name: "{{ prometheus_container_name }}"
@@ -11,7 +17,7 @@
     container_command: >-
       --web.listen-address=:{{ prometheus_port }}
       --config.file={{ prometheus_container_config_dir }}/{{ prometheus_config_file }}
-      --storage.tsdb.path={{ prometheus_container_config_dir }}/data
+      --storage.tsdb.path={{ prometheus_container_data_dir }}
       --web.console.libraries=/usr/share/prometheus/console_libraries
       --web.console.templates=/usr/share/prometheus/consoles
       --web.enable-remote-write-receiver
@@ -23,7 +29,8 @@
     container_ports:
       - "{{ prometheus_port }}:{{ prometheus_port }}"
     container_volumes:
-      - "{{ prometheus_remote_config_dir }}:{{ prometheus_container_config_dir }}:z"
+      - "{{ prometheus_remote_config_dir }}:{{ prometheus_container_config_dir }}:z,ro"
+      - "{{ prometheus_remote_data_dir }}:{{ prometheus_container_data_dir }}:z"
     container_healthcheck_test: >-
       promtool check
       healthy

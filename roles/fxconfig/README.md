@@ -9,6 +9,8 @@ The role `hyperledger.fabricx.fxconfig` can be used to run the `fxconfig` CLI ut
   - [namespace_create](#namespace_create)
   - [namespaces_create](#namespaces_create)
   - [namespace_list](#namespace_list)
+  - [config/transfer](#configtransfer)
+  - [wipe](#wipe)
 
 ## Prerequisites
 
@@ -69,5 +71,36 @@ The task `namespace_list` lists all the namespaces currently created on a Fabric
     committer_query_service_host: committer-query-service
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
-    tasks_from: namespace_create
+    tasks_from: namespace_list
+```
+
+### config/transfer
+
+The task `config/transfer` transfers the MSP signing material, namespace endorsement public keys, and TLS certificates to the remote node so that `fxconfig` can authenticate its requests to the Fabric-X Orderer and Committer:
+
+```yaml
+- name: Transfer the fxconfig configuration material
+  vars:
+    fxconfig_msp_config_path: /tmp/meta-ns-admin/msp
+    fxconfig_namespaces:
+      - name: workload
+        user:
+          name: User1
+          organization: "{{ hostvars[inventory_hostname].organization }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxconfig
+    tasks_from: config/transfer
+```
+
+### wipe
+
+The task `wipe` removes the `fxconfig` binary from the remote node (when `fxconfig_use_bin` is set):
+
+```yaml
+- name: Wipe fxconfig
+  vars:
+    fxconfig_use_bin: true
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxconfig
+    tasks_from: wipe
 ```
