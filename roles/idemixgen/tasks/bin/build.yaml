@@ -1,0 +1,20 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Build {{ idemixgen_bin_name }}
+  vars:
+    # Git vars
+    git_uri: "{{ idemixgen_git_uri }}"
+    git_commit: "{{ idemixgen_git_commit }}"
+    # Bin vars
+    bin_name: "{{ idemixgen_bin_name }}"
+    bin_build_on_control_node: true
+    bin_dir: "{{ cli_bin_dir }}"
+    # Go vars
+    go_source_code_package: "{{ idemixgen_source_code_package }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: go/build

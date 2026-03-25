@@ -1,0 +1,38 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Idemixgen image
+# =========================
+idemixgen_registry_endpoint: "{{ lookup('env', 'IDEMIXGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+idemixgen_image_name: "fabric-x-tools"
+idemixgen_image_tag: "0.0.9"
+idemixgen_image: "{{ idemixgen_registry_endpoint }}/{{ idemixgen_image_name }}:{{ idemixgen_image_tag }}"
+idemixgen_container_name: "idemixgen"
+
+# =========================
+# Idemixgen binary
+# =========================
+idemixgen_git_uri: "https://github.com/IBM/idemix.git"
+idemixgen_git_commit: "832db18b9478"
+idemixgen_source_code_package: "tools/idemixgen"
+idemixgen_bin_package: "github.com/IBM/idemix/tools/idemixgen"
+idemixgen_bin_name: "idemixgen"
+idemixgen_use_bin: false
+
+# =========================
+# Paths/Locations
+# =========================
+idemixgen_output_dir: "{{ config_build_dir }}/idemixgen-artifacts"
+idemixgen_container_output_dir: /tmp/out
+
+# =========================
+# Miscellaneous
+# =========================
+idemixgen_use_aries: false
+idemixgen_curve_id: BLS12_381_BBS
+idemixgen_enrollment_id: "{{ inventory_hostname }}"
+idemixgen_rev_handle: "{{ range(100, 999) | random }}"
