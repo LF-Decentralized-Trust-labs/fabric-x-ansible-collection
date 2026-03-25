@@ -60,11 +60,11 @@
     tasks_from: start
   when:
     - (
-        (fabric_ca_enrollment_type | default('bccsp')) == 'idemix'
+        fabric_ca_enrollment_type == 'idemix'
         and not fabric_ca_idemix_signer.stat.exists
       )
       or (
-        (fabric_ca_enrollment_type | default('bccsp')) == 'bccsp'
+        fabric_ca_enrollment_type == 'bccsp'
         and not fabric_ca_msp_cert.stat.exists
       )
 
