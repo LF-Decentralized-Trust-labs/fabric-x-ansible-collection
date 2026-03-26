@@ -14,7 +14,7 @@
           name: "{{ fabric_ca_admin.name }}"
           secret: "{{ fabric_ca_admin.secret }}"
         fabric_ca_msp_dir: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_admin.name }}/msp"
-        fabric_ca_tls_certfile: "{{ fabric_ca_server_remote_config_dir }}/tls-cert.pem"
+        fabric_ca_tls_certfile: "{{ fabric_ca_server_tls_cert_path }}"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fabric_ca
         tasks_from: client/enroll

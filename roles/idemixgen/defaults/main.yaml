@@ -9,9 +9,9 @@
 # =========================
 idemixgen_registry_endpoint: "{{ lookup('env', 'IDEMIXGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 idemixgen_image_name: "fabric-x-tools"
-idemixgen_image_tag: "0.0.13"
+idemixgen_image_tag: "0.0.14"
 idemixgen_image: "{{ idemixgen_registry_endpoint }}/{{ idemixgen_image_name }}:{{ idemixgen_image_tag }}"
-idemixgen_container_name: "idemixgen"
+idemixgen_container_name: "idemixgen-{{ inventory_hostname }}"
 
 # =========================
 # Idemixgen binary
@@ -33,6 +33,6 @@ idemixgen_container_output_dir: /tmp/out
 # Miscellaneous
 # =========================
 idemixgen_use_aries: false
-idemixgen_curve_id: BLS12_381_BBS
+idemixgen_curve_id: FP256BN_AMCL
 idemixgen_enrollment_id: "{{ inventory_hostname }}"
 idemixgen_rev_handle: "{{ range(100, 999) | random }}"

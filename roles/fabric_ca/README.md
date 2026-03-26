@@ -6,6 +6,9 @@ The role `hyperledger.fabricx.fabric_ca` can be used to run an Hyperledger Fabri
 
 - [Prerequisites](#prerequisites)
 - [Tasks](#tasks)
+  - [server/crypto/setup](#servercryptosetup)
+  - [server/crypto/x509/setup](#servercryptox509setup)
+  - [server/crypto/idemix/setup](#servercryptoidemixsetup)
   - [server/config/transfer](#serverconfigtransfer)
   - [server/crypto/fetch](#servercryptofetch)
   - [server/start](#serverstart)
@@ -28,6 +31,57 @@ The role requires:
 - `go` to be installed (only if you plan to use binaries with `fabric_ca_server_use_bin: true` or `fabric_ca_client_use_bin: true`).
 
 ## Tasks
+
+### server/crypto/setup
+
+The task `server/crypto/setup` pre-generates x509 and Idemix crypto material for a Fabric CA server.
+It is an orchestrator over `server/crypto/x509/setup` and `server/crypto/idemix/setup`:
+
+```yaml
+- name: Setup the Fabric CA server crypto material
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/crypto/setup
+```
+
+This pre-generation step is required to avoid first-boot crypto auto-generation by `fabric-ca-server` under `FABRIC_CA_HOME`. That behavior conflicts with read-only config mounts (for example ConfigMaps).
+
+### server/crypto/x509/setup
+
+The task `server/crypto/x509/setup` pre-generates Fabric CA x509 material:
+
+```yaml
+- name: Setup the Fabric CA server x509 crypto material
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/crypto/x509/setup
+```
+
+The task covers both:
+
+- CA signing key/certificate (`ca-key.pem`, `ca-cert.pem`)
+- Fabric CA server TLS key/certificate (`tls-key.pem`, `tls-cert.pem`)
+
+TLS artifacts are generated here as well because Fabric CA can auto-generate TLS material at bootstrap time.
+Pre-generating them keeps startup compatible with read-only config folders and keeps certificate ownership explicit.
+
+For TLS CSR generation, SAN entries are derived from `fabric_ca_csr_hosts`:
+
+- host values matching IPv4 format become `IP:<value>`
+- all other values become `DNS:<value>`
+
+This conversion is needed because OpenSSL SAN syntax requires explicit entry types (`IP:` / `DNS:`).
+
+### server/crypto/idemix/setup
+
+The task `server/crypto/idemix/setup` pre-generates Fabric CA Idemix material:
+
+```yaml
+- name: Setup the Fabric CA server Idemix crypto material
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/crypto/idemix/setup
+```
 
 ### server/config/transfer
 

@@ -1,0 +1,125 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure Fabric CA config directory exists
+  ansible.builtin.file:
+    path: "{{ fabric_ca_server_remote_config_dir }}"
+    state: directory
+    mode: "0750"
+
+- name: Check if Fabric CA root key already exists
+  ansible.builtin.stat:
+    path: "{{ fabric_ca_server_ca_private_key_path }}"
+  register: fabric_ca_server_ca_key_stat
+
+- name: Check if Fabric CA root certificate already exists
+  ansible.builtin.stat:
+    path: "{{ fabric_ca_server_ca_cert_path }}"
+  register: fabric_ca_server_ca_cert_stat
+
+- name: Normalize Fabric CA root key/certificate files
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ fabric_ca_server_ca_private_key_path }}"
+    - "{{ fabric_ca_server_ca_cert_path }}"
+  when:
+    - (fabric_ca_server_ca_key_stat.stat.exists and not fabric_ca_server_ca_cert_stat.stat.exists) or
+      (fabric_ca_server_ca_cert_stat.stat.exists and not fabric_ca_server_ca_key_stat.stat.exists)
+
+- name: Generate Fabric CA root x509 keypair and certificate
+  vars:
+    openssl_private_key_path: "{{ fabric_ca_server_ca_private_key_path }}"
+    openssl_cert_path: "{{ fabric_ca_server_ca_cert_path }}"
+    openssl_common_name: "{{ fabric_ca_csr_cn }}"
+    openssl_organization: "{{ organization.domain if organization is defined and organization.domain is defined else fabric_ca_name }}"
+    openssl_basic_constraints: "critical, CA:true"
+    openssl_key_usage: "critical, keyCertSign, cRLSign, digitalSignature"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openssl
+    tasks_from: generate_self_signed_cert
+  when:
+    - not (fabric_ca_server_ca_key_stat.stat.exists and fabric_ca_server_ca_cert_stat.stat.exists)
+
+- name: Check if Fabric CA TLS key already exists
+  ansible.builtin.stat:
+    path: "{{ fabric_ca_server_tls_private_key_path }}"
+  register: fabric_ca_server_tls_key_stat
+
+- name: Check if Fabric CA TLS certificate already exists
+  ansible.builtin.stat:
+    path: "{{ fabric_ca_server_tls_cert_path }}"
+  register: fabric_ca_server_tls_cert_stat
+
+- name: Normalize Fabric CA TLS key/certificate files
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ fabric_ca_server_tls_private_key_path }}"
+    - "{{ fabric_ca_server_tls_cert_path }}"
+  when:
+    - (fabric_ca_server_tls_key_stat.stat.exists and not fabric_ca_server_tls_cert_stat.stat.exists) or
+      (fabric_ca_server_tls_cert_stat.stat.exists and not fabric_ca_server_tls_key_stat.stat.exists)
+
+- name: Build Fabric CA TLS SAN entries from CSR hosts
+  vars:
+    fabric_ca_server_ipv4_regex: '^[0-9]{1,3}(\\.[0-9]{1,3}){3}$'
+  ansible.builtin.set_fact:
+    fabric_ca_server_tls_san_entries: >-
+      {{
+        (
+          (
+            (fabric_ca_csr_hosts | default([]))
+            | select('match', fabric_ca_server_ipv4_regex)
+            | map('regex_replace', '^', 'IP:')
+            | list
+          )
+          +
+          (
+            (fabric_ca_csr_hosts | default([]))
+            | reject('match', fabric_ca_server_ipv4_regex)
+            | map('regex_replace', '^', 'DNS:')
+            | list
+          )
+        ) | unique
+      }}
+
+- name: Generate Fabric CA TLS CSR
+  vars:
+    openssl_private_key_path: "{{ fabric_ca_server_tls_private_key_path }}"
+    openssl_csr_path: "{{ fabric_ca_server_remote_config_dir }}/tls.csr"
+    openssl_ext_file_path: "{{ fabric_ca_server_remote_config_dir }}/tls.ext"
+    openssl_common_name: "{{ fabric_ca_csr_cn }}"
+    openssl_organization: "{{ organization.domain if organization is defined and organization.domain is defined else fabric_ca_name }}"
+    openssl_san_entries: "{{ fabric_ca_server_tls_san_entries }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openssl
+    tasks_from: generate_csr
+  when:
+    - not (fabric_ca_server_tls_key_stat.stat.exists and fabric_ca_server_tls_cert_stat.stat.exists)
+
+- name: Generate Fabric CA TLS certificate from CSR
+  vars:
+    openssl_ca_private_key_path: "{{ fabric_ca_server_ca_private_key_path }}"
+    openssl_ca_cert_path: "{{ fabric_ca_server_ca_cert_path }}"
+    openssl_csr_path: "{{ fabric_ca_server_remote_config_dir }}/tls.csr"
+    openssl_cert_path: "{{ fabric_ca_server_tls_cert_path }}"
+    openssl_ext_file_path: "{{ fabric_ca_server_remote_config_dir }}/tls.ext"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openssl
+    tasks_from: generate_cert
+  when:
+    - not (fabric_ca_server_tls_key_stat.stat.exists and fabric_ca_server_tls_cert_stat.stat.exists)
+
+- name: Remove transient Fabric CA TLS CSR and ext files
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ fabric_ca_server_remote_config_dir }}/tls.csr"
+    - "{{ fabric_ca_server_remote_config_dir }}/tls.ext"

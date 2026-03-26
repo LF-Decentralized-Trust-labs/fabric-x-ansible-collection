@@ -11,4 +11,6 @@
 tls:
   # Enable TLS (default: false)
   enabled: {{ fabric_ca_use_tls | lower }}
-
+  # TLS for the server's listening port
+  certfile: "{{ fabric_ca_server_tls_cert_file }}"
+  keyfile: "{{ fabric_ca_server_tls_private_key_file }}"
