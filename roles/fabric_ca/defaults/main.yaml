@@ -61,6 +61,7 @@ fabric_ca_name: "{{ inventory_hostname }}"
 # =========================
 # CA x509 file settings
 # =========================
+fabric_ca_server_openssl_curve: "P-256"
 fabric_ca_server_ca_private_key_file: "ca-key.pem"
 fabric_ca_server_ca_cert_file: "ca-cert.pem"
 fabric_ca_server_ca_private_key_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_private_key_file }}"

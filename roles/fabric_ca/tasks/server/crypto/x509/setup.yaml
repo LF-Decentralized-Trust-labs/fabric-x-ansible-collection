@@ -35,6 +35,8 @@
   vars:
     openssl_private_key_path: "{{ fabric_ca_server_ca_private_key_path }}"
     openssl_cert_path: "{{ fabric_ca_server_ca_cert_path }}"
+    openssl_key_type: ec
+    openssl_key_opt: "ec_paramgen_curve:{{ fabric_ca_server_openssl_curve }}"
     openssl_common_name: "{{ fabric_ca_csr_cn }}"
     openssl_organization: "{{ organization.domain if organization is defined and organization.domain is defined else fabric_ca_name }}"
     openssl_basic_constraints: "critical, CA:true"
@@ -94,6 +96,8 @@
     openssl_private_key_path: "{{ fabric_ca_server_tls_private_key_path }}"
     openssl_csr_path: "{{ fabric_ca_server_remote_config_dir }}/tls.csr"
     openssl_ext_file_path: "{{ fabric_ca_server_remote_config_dir }}/tls.ext"
+    openssl_key_type: ec
+    openssl_key_opt: "ec_paramgen_curve:{{ fabric_ca_server_openssl_curve }}"
     openssl_common_name: "{{ fabric_ca_csr_cn }}"
     openssl_organization: "{{ organization.domain if organization is defined and organization.domain is defined else fabric_ca_name }}"
     openssl_san_entries: "{{ fabric_ca_server_tls_san_entries }}"
