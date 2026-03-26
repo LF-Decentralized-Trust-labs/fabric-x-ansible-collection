@@ -51,7 +51,6 @@ fabric_ca_log_level: "INFO"
 fabric_ca_scheme: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
 fabric_ca_use_tls: false
 fabric_ca_enable_nodeous: true
-fabric_ca_tls_root_cert: "{{ fabric_ca_server_ca_cert_path }}"
 
 # =========================
 # CA identity settings
@@ -64,27 +63,17 @@ fabric_ca_name: "{{ inventory_hostname }}"
 fabric_ca_server_openssl_curve: "P-256"
 fabric_ca_server_ca_private_key_file: "ca-key.pem"
 fabric_ca_server_ca_cert_file: "ca-cert.pem"
-fabric_ca_server_ca_private_key_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_private_key_file }}"
-fabric_ca_server_ca_cert_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_cert_file }}"
 
 # =========================
 # CA TLS file settings
 # =========================
 fabric_ca_server_tls_private_key_file: "tls-key.pem"
 fabric_ca_server_tls_cert_file: "tls-cert.pem"
-fabric_ca_server_tls_private_key_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_tls_private_key_file }}"
-fabric_ca_server_tls_cert_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_tls_cert_file }}"
 
 # =========================
 # CA Idemix file settings
 # =========================
-fabric_ca_server_msp_dir: "{{ fabric_ca_server_remote_config_dir }}/msp"
-fabric_ca_server_keystore_dir: "{{ fabric_ca_server_msp_dir }}/keystore"
 fabric_ca_server_idemixgen_output_dir: "{{ fabric_ca_server_remote_config_dir }}/idemixgen-artifacts"
-fabric_ca_server_idemix_issuer_public_key_path: "{{ fabric_ca_server_remote_config_dir }}/IssuerPublicKey"
-fabric_ca_server_idemix_issuer_revocation_public_key_path: "{{ fabric_ca_server_remote_config_dir }}/IssuerRevocationPublicKey"
-fabric_ca_server_idemix_issuer_secret_key_path: "{{ fabric_ca_server_keystore_dir }}/IssuerSecretKey"
-fabric_ca_server_idemix_issuer_revocation_private_key_path: "{{ fabric_ca_server_keystore_dir }}/IssuerRevocationPrivateKey"
 
 # =========================
 # CSR settings

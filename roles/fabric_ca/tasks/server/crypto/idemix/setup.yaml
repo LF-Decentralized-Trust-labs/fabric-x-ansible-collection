@@ -14,10 +14,10 @@
   ansible.builtin.stat:
     path: "{{ item }}"
   loop:
-    - "{{ fabric_ca_server_idemix_issuer_public_key_path }}"
-    - "{{ fabric_ca_server_idemix_issuer_revocation_public_key_path }}"
-    - "{{ fabric_ca_server_idemix_issuer_secret_key_path }}"
-    - "{{ fabric_ca_server_idemix_issuer_revocation_private_key_path }}"
+    - "{{ fabric_ca_server_remote_config_dir }}/IssuerPublicKey"
+    - "{{ fabric_ca_server_remote_config_dir }}/IssuerRevocationPublicKey"
+    - "{{ fabric_ca_server_remote_config_dir }}/msp/keystore/IssuerSecretKey"
+    - "{{ fabric_ca_server_remote_config_dir }}/msp/keystore/IssuerRevocationPrivateKey"
   register: fabric_ca_server_idemix_files_stat
 
 - name: Set whether Fabric CA Idemix crypto generation is required
@@ -31,6 +31,7 @@
 - name: Generate Fabric CA Idemix issuer crypto material with idemixgen
   vars:
     idemixgen_output_dir: "{{ fabric_ca_server_idemixgen_output_dir }}"
+    idemixgen_curve_id: "FP256BN_AMCL"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.idemixgen
     tasks_from: ca-keygen
@@ -39,7 +40,7 @@
 
 - name: Ensure Fabric CA msp/keystore directory exists
   ansible.builtin.file:
-    path: "{{ fabric_ca_server_idemix_issuer_secret_key_path | dirname }}"
+    path: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore"
     state: directory
     mode: "0750"
   when:
@@ -49,16 +50,16 @@
   vars:
     fabric_ca_server_idemix_files_to_copy:
       - src: "{{ fabric_ca_server_idemixgen_output_dir }}/msp/IssuerPublicKey"
-        dest: "{{ fabric_ca_server_idemix_issuer_public_key_path }}"
+        dest: "{{ fabric_ca_server_remote_config_dir }}/IssuerPublicKey"
         mode: "0644"
       - src: "{{ fabric_ca_server_idemixgen_output_dir }}/msp/RevocationPublicKey"
-        dest: "{{ fabric_ca_server_idemix_issuer_revocation_public_key_path }}"
+        dest: "{{ fabric_ca_server_remote_config_dir }}/IssuerRevocationPublicKey"
         mode: "0644"
       - src: "{{ fabric_ca_server_idemixgen_output_dir }}/ca/IssuerSecretKey"
-        dest: "{{ fabric_ca_server_idemix_issuer_secret_key_path }}"
+        dest: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore/IssuerSecretKey"
         mode: "0600"
       - src: "{{ fabric_ca_server_idemixgen_output_dir }}/ca/RevocationKey"
-        dest: "{{ fabric_ca_server_idemix_issuer_revocation_private_key_path }}"
+        dest: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore/IssuerRevocationPrivateKey"
         mode: "0600"
   ansible.builtin.copy:
     src: "{{ item.src }}"

@@ -33,6 +33,6 @@ idemixgen_container_output_dir: /tmp/out
 # Miscellaneous
 # =========================
 idemixgen_use_aries: false
-idemixgen_curve_id: FP256BN_AMCL
+idemixgen_curve_id: BLS12_381_BBS
 idemixgen_enrollment_id: "{{ inventory_hostname }}"
 idemixgen_rev_handle: "{{ range(100, 999) | random }}"

@@ -17,13 +17,13 @@
 
 - name: Fetch the CA certificate
   ansible.builtin.fetch:
-    src: "{{ fabric_ca_server_ca_cert_path }}"
+    src: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_cert_file }}"
     dest: "{{ fabric_ca_org_dir }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem"
     flat: true
 
 - name: Fetch the TLS CA certificate
   ansible.builtin.fetch:
-    src: "{{ fabric_ca_server_ca_cert_path }}"
+    src: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_cert_file }}"
     dest: "{{ fabric_ca_org_dir }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
     flat: true
 

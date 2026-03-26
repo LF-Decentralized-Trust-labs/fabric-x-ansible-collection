@@ -83,6 +83,14 @@ The task `server/crypto/idemix/setup` pre-generates Fabric CA Idemix material:
     tasks_from: server/crypto/idemix/setup
 ```
 
+The generated Idemix artifacts are copied to Fabric CA expected default locations under the server
+config directory:
+
+- `IssuerPublicKey`
+- `IssuerRevocationPublicKey`
+- `msp/keystore/IssuerSecretKey`
+- `msp/keystore/IssuerRevocationPrivateKey`
+
 ### server/config/transfer
 
 The task `server/config/transfer` generates the configuration file for a Fabric CA server:

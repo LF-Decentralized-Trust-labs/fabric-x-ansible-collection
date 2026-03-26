@@ -11,9 +11,9 @@ ca:
   # Name of this CA
   name: "{{ fabric_ca_name }}"
   # Key file (is only used to import a private key into BCCSP)
-  keyfile: "{{ fabric_ca_server_ca_private_key_file }}"
+  keyfile: "{{ fabric_ca_server_config_dir }}/{{ fabric_ca_server_ca_private_key_file }}"
   # Certificate file (default: ca-cert.pem)
-  certfile: "{{ fabric_ca_server_ca_cert_file }}"
+  certfile: "{{ fabric_ca_server_config_dir }}/{{ fabric_ca_server_ca_cert_file }}"
   # Chain file
   chainfile:
   # Ignore Certificate Expiration in the case of re-enroll
