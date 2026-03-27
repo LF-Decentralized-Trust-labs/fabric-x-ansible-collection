@@ -4,6 +4,7 @@ The role `hyperledger.fabricx.orderer` can be used to run the Fabric-X `orderer`
 
 ## Table of Contents <!-- omit in toc -->
 
+- [Variables](#variables)
 - [Tasks](#tasks)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
@@ -14,9 +15,37 @@ The role `hyperledger.fabricx.orderer` can be used to run the Fabric-X `orderer`
   - [stop](#stop)
   - [teardown](#teardown)
   - [wipe](#wipe)
-  - [fetch_logs](#fetch_logs)
+  - [fetch\_logs](#fetch_logs)
   - [ping](#ping)
-  - [get_metrics](#get_metrics)
+  - [get\_metrics](#get_metrics)
+
+## Variables
+
+| Variable                       | Default                                                         | Description                                                               |
+| ------------------------------ | --------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `orderer_registry_endpoint`    | `$ORDERER_REGISTRY_ENDPOINT` or `docker.io/hyperledger`         | Container registry endpoint                                               |
+| `orderer_image_name`           | `fabric-x-orderer`                                              | Container image name                                                      |
+| `orderer_image_tag`            | `0.0.21`                                                        | Container image tag                                                       |
+| `orderer_image`                | `{{ registry }}/{{ name }}:{{ tag }}`                           | Full container image reference                                            |
+| `orderer_container_name`       | `{{ inventory_hostname }}`                                      | Name given to the container                                               |
+| `orderer_git_uri`              | `https://github.com/hyperledger/fabric-x-orderer.git`           | Git repository used to build the binary                                   |
+| `orderer_git_commit`           | `v0.0.21`                                                       | Git ref (tag or commit) to check out                                      |
+| `orderer_source_code_package`  | `cmd/arma`                                                      | Go source package path within the repository                              |
+| `orderer_bin_package`          | `github.com/hyperledger/fabric-x-orderer/cmd/arma`              | Fully-qualified Go package used for `go install`                          |
+| `orderer_bin_name`             | `arma`                                                          | Name of the produced binary                                               |
+| `orderer_use_bin`              | `false`                                                         | Set to `true` to use the native binary instead of a container             |
+| `orderer_remote_config_dir`    | `{{ remote_config_dir }}`                                       | Configuration directory on the remote node                                |
+| `orderer_remote_data_dir`      | `{{ remote_data_dir }}`                                         | Data directory on the remote node                                         |
+| `orderer_container_config_dir` | `/config`                                                       | Configuration directory inside the container                              |
+| `orderer_container_data_dir`   | `/data`                                                         | Data directory inside the container                                       |
+| `orderer_config_dir`           | auto-selected                                                   | Active config directory (remote or container, based on `orderer_use_bin`) |
+| `orderer_data_dir`             | auto-selected                                                   | Active data directory (remote or container, based on `orderer_use_bin`)   |
+| `orderer_config_file`          | `node_config.yaml`                                              | Orderer node configuration file name                                      |
+| `orderer_use_tls`              | `false`                                                         | Enable TLS                                                                |
+| `orderer_use_mtls`             | `false`                                                         | Enable mutual TLS                                                         |
+| `orderer_http_protocol`        | `https` or `http`                                               | HTTP protocol derived from `orderer_use_tls`                              |
+| `orderer_crypto_name`          | `{{ organization.orderer.name }}` or `{{ inventory_hostname }}` | Identity name used for crypto material lookup                             |
+| `orderer_genesis_block_file`   | `{{ channel_id }}_block.pb`                                     | Genesis block file name                                                   |
 
 ## Tasks
 

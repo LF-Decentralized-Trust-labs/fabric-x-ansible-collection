@@ -5,10 +5,11 @@ The role `hyperledger.fabricx.fxconfig` can be used to run the `fxconfig` CLI ut
 ## Table of Contents <!-- omit in toc -->
 
 - [Prerequisites](#prerequisites)
+- [Variables](#variables)
 - [Tasks](#tasks)
-  - [namespace_create](#namespace_create)
-  - [namespaces_create](#namespaces_create)
-  - [namespace_list](#namespace_list)
+  - [namespace\_create](#namespace_create)
+  - [namespaces\_create](#namespaces_create)
+  - [namespace\_list](#namespace_list)
   - [config/transfer](#configtransfer)
   - [wipe](#wipe)
 
@@ -17,6 +18,28 @@ The role `hyperledger.fabricx.fxconfig` can be used to run the `fxconfig` CLI ut
 The role requires:
 
 - `go` to be installed if you plan to use it as binary through the `fxconfig_use_bin` variable.
+
+## Variables
+
+| Variable                         | Default                                                  | Description                                                   |
+| -------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------- |
+| `fxconfig_registry_endpoint`     | `$FXCONFIG_REGISTRY_ENDPOINT` or `docker.io/hyperledger` | Container registry endpoint                                   |
+| `fxconfig_image_name`            | `fabric-x-tools`                                         | Container image name                                          |
+| `fxconfig_image_tag`             | `0.0.8`                                                  | Container image tag                                           |
+| `fxconfig_image`                 | `{{ registry }}/{{ name }}:{{ tag }}`                    | Full container image reference                                |
+| `fxconfig_container_name`        | `fxconfig`                                               | Name given to the ephemeral container                         |
+| `fxconfig_git_uri`               | `https://github.com/hyperledger/fabric-x.git`            | Git repository used to build the binary                       |
+| `fxconfig_git_commit`            | `v0.0.8`                                                 | Git ref (tag or commit) to check out                          |
+| `fxconfig_source_code_package`   | `tools/fxconfig`                                         | Go source package path within the repository                  |
+| `fxconfig_bin_name`              | `fxconfig`                                               | Name of the produced binary                                   |
+| `fxconfig_bin_package`           | `github.com/hyperledger/fabric-x/tools/fxconfig`         | Fully-qualified Go package used for `go install`              |
+| `fxconfig_use_bin`               | `false`                                                  | Set to `true` to use the native binary instead of a container |
+| `fxconfig_remote_config_dir`     | `{{ remote_config_dir }}/fxconfig`                       | Configuration directory on the remote node                    |
+| `fxconfig_container_config_dir`  | `/tmp`                                                   | Configuration directory inside the container                  |
+| `fxconfig_use_tls`               | `false`                                                  | Enable TLS when communicating with the Orderer/Committer      |
+| `fxconfig_mtls_client_cert_path` | `{{ remote_config_dir }}/tls/server.crt`                 | mTLS client certificate path                                  |
+| `fxconfig_mtls_client_key_path`  | `{{ remote_config_dir }}/tls/server.key`                 | mTLS client private key path                                  |
+| `fxconfig_msp_id`                | `{{ organization.name }}MSP`                             | MSP ID used to authenticate requests                          |
 
 ## Tasks
 

@@ -4,6 +4,7 @@ The role `hyperledger.fabricx.loadgen` can be used to run a Load generator to te
 
 ## Table of Contents <!-- omit in toc -->
 
+- [Variables](#variables)
 - [Tasks](#tasks)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
@@ -14,10 +15,33 @@ The role `hyperledger.fabricx.loadgen` can be used to run a Load generator to te
   - [stop](#stop)
   - [teardown](#teardown)
   - [wipe](#wipe)
-  - [fetch_logs](#fetch_logs)
+  - [fetch\_logs](#fetch_logs)
   - [ping](#ping)
-  - [get_metrics](#get_metrics)
-  - [limit_rate](#limit_rate)
+  - [get\_metrics](#get_metrics)
+  - [limit\_rate](#limit_rate)
+
+## Variables
+
+| Variable                       | Default                                                 | Description                                                   |
+| ------------------------------ | ------------------------------------------------------- | ------------------------------------------------------------- |
+| `loadgen_registry_endpoint`    | `$LOADGEN_REGISTRY_ENDPOINT` or `docker.io/hyperledger` | Container registry endpoint                                   |
+| `loadgen_image_name`           | `fabric-x-loadgen`                                      | Container image name                                          |
+| `loadgen_image_tag`            | `0.1.7`                                                 | Container image tag                                           |
+| `loadgen_image`                | `{{ registry }}/{{ name }}:{{ tag }}`                   | Full container image reference                                |
+| `loadgen_container_name`       | `{{ inventory_hostname }}`                              | Name given to the container                                   |
+| `loadgen_git_uri`              | `https://github.com/hyperledger/fabric-x-committer.git` | Git repository used to build the binary                       |
+| `loadgen_git_commit`           | `v0.1.7`                                                | Git ref (tag or commit) to check out                          |
+| `loadgen_source_code_package`  | `cmd/loadgen`                                           | Go source package path within the repository                  |
+| `loadgen_bin_package`          | `github.com/hyperledger/fabric-x-committer/cmd/loadgen` | Fully-qualified Go package used for `go install`              |
+| `loadgen_bin_name`             | `loadgen`                                               | Name of the produced binary                                   |
+| `loadgen_use_bin`              | `false`                                                 | Set to `true` to use the native binary instead of a container |
+| `loadgen_remote_config_dir`    | `{{ remote_config_dir }}`                               | Configuration directory on the remote node                    |
+| `loadgen_container_config_dir` | `/config`                                               | Configuration directory inside the container                  |
+| `loadgen_config_file`          | `config-loadgen.yaml`                                   | Load generator configuration file name                        |
+| `loadgen_admin_pub_key_file`   | `admin_pub_key.pem`                                     | Admin public key file name                                    |
+| `loadgen_admin_priv_key_file`  | `admin_priv_key.pem`                                    | Admin private key file name                                   |
+| `loadgen_assert_metrics`       | `false`                                                 | Assert metrics values after the load test                     |
+| `loadgen_use_tls`              | `false`                                                 | Enable TLS                                                    |
 
 ## Tasks
 

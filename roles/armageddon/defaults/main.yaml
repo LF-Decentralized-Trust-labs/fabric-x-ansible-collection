@@ -9,7 +9,7 @@
 # =========================
 armageddon_registry_endpoint: "{{ lookup('env', 'ARMAGEDDON_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 armageddon_image_name: "fabric-x-orderer"
-armageddon_image_tag: "0.0.20"
+armageddon_image_tag: "0.0.21"
 armageddon_image: "{{ armageddon_registry_endpoint }}/{{ armageddon_image_name }}:{{ armageddon_image_tag }}"
 armageddon_container_name: "armageddon"
 
@@ -17,7 +17,7 @@ armageddon_container_name: "armageddon"
 # Armageddon binary
 # =========================
 armageddon_git_uri: "https://github.com/hyperledger/fabric-x-orderer.git"
-armageddon_git_commit: "v0.0.20"
+armageddon_git_commit: "v0.0.21"
 armageddon_source_code_package: "cmd/armageddon"
 armageddon_bin_package: "github.com/hyperledger/fabric-x-orderer/cmd/armageddon"
 armageddon_bin_name: "armageddon"
