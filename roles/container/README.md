@@ -5,6 +5,7 @@ The role `hyperledger.fabricx.container` can be used to handle a container on a 
 ## Table of Contents <!-- omit in toc -->
 
 - [Prerequisites](#prerequisites)
+- [Variables](#variables)
 - [Tasks](#tasks)
   - [registry/login](#registrylogin)
   - [network/create](#networkcreate)
@@ -12,16 +13,51 @@ The role `hyperledger.fabricx.container` can be used to handle a container on a 
   - [volume/create](#volumecreate)
   - [volume/rm](#volumerm)
   - [install](#install)
-  - [get_container_client](#get_container_client)
+  - [get\_container\_client](#get_container_client)
   - [start](#start)
   - [stop](#stop)
   - [rm](#rm)
   - [exec](#exec)
-  - [fetch_logs](#fetch_logs)
+  - [fetch\_logs](#fetch_logs)
 
 ## Prerequisites
 
 The role requires either `podman` or `docker` to be installed on the targeted node.
+
+## Variables
+
+| Variable                         | Default                                              | Description                                                                      |
+| -------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `container_client`               | `$CONTAINER_CLIENT` or auto-detected                 | Container engine to use (`podman` or `docker`)                                   |
+| `container_run_detach_mode`      | `true`                                               | Run the container in detached mode                                               |
+| `container_healthcheck_interval` | `30s`                                                | Container healthcheck interval                                                   |
+| `container_autoremove`           | `false`                                              | Automatically remove the container when it stops                                 |
+| `container_ignore_errors`        | `false`                                              | Ignore errors when running the container                                         |
+| `container_host_uid`             | `{{ ansible_facts.user_uid }}`                       | UID of the host user                                                             |
+| `container_host_gid`             | `{{ ansible_facts.user_gid }}`                       | GID of the host user                                                             |
+| `container_host_user`            | `uid:gid`                                            | Host user identity passed to the container                                       |
+| `container_host_user_is_root`    | derived                                              | Whether the host user is root                                                    |
+| `container_run_as_host_user`     | `false`                                              | Run the container as the host user                                               |
+| `container_fetched_logs_dir`     | `{{ fetched_artifacts_dir }}/{{ container_name }}`   | Directory on the controller where logs are fetched                               |
+| `container_fetched_logs_file`    | `logs.txt`                                           | Fetched log file name                                                            |
+| `container_remote_logs_dir`      | `{{ remote_node_dir }}/logs`                         | Logs directory on the remote node                                                |
+| `container_remote_logs_file`     | `logs.txt`                                           | Log file name on the remote node                                                 |
+| `container_debug`                | `$DEBUG` or `false`                                  | Enable debug mode                                                                |
+| `container_log_driver`           | `json-file`                                          | Container log driver                                                             |
+| `container_log_max_size`         | `1g`                                                 | Maximum log file size                                                            |
+| `container_log_lines`            | `0`                                                  | Number of log lines to tail (0 = all)                                            |
+| `container_on_mac`               | derived                                              | Whether the host is running macOS                                                |
+| `container_network_mode`         | `host` (Linux) or `bridge` (macOS)                   | Container network mode                                                           |
+| `container_network_driver`       | `bridge`                                             | Network driver                                                                   |
+| `container_network_attachable`   | `true`                                               | Make the network attachable (docker-only; podman networks are always attachable) |
+| `container_network_internal`     | `false`                                              | Create an internal (isolated) network                                            |
+| `container_hostname`             | `{{ container_name }}` or `{{ inventory_hostname }}` | Container hostname                                                               |
+| `container_run_until`            | `null`                                               | Ansible `until` condition to retry the run                                       |
+| `container_run_delay`            | `0`                                                  | Delay in seconds between retries                                                 |
+| `container_run_retries`          | `0`                                                  | Number of retries                                                                |
+| `container_wait_until_running`   | `false`                                              | Wait for the container to be running after start                                 |
+| `container_wait_delay`           | `1`                                                  | Delay in seconds between wait checks                                             |
+| `container_wait_timeout`         | `60`                                                 | Timeout in seconds for the wait                                                  |
 
 ## Tasks
 

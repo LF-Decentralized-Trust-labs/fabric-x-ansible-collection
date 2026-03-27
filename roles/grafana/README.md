@@ -15,6 +15,7 @@ The role allows to run Grafana as **container only** (binary is not currently su
 
 ## Table of Contents <!-- omit in toc -->
 
+- [Variables](#variables)
 - [Tasks](#tasks)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
@@ -25,8 +26,27 @@ The role allows to run Grafana as **container only** (binary is not currently su
   - [stop](#stop)
   - [teardown](#teardown)
   - [wipe](#wipe)
-  - [fetch_logs](#fetch_logs)
+  - [fetch\_logs](#fetch_logs)
   - [ping](#ping)
+
+## Variables
+
+| Variable                       | Default                                             | Description                                  |
+| ------------------------------ | --------------------------------------------------- | -------------------------------------------- |
+| `grafana_registry_endpoint`    | `$GRAFANA_REGISTRY_ENDPOINT` or `docker.io/grafana` | Container registry endpoint                  |
+| `grafana_image_name`           | `grafana-oss`                                       | Container image name                         |
+| `grafana_image_tag`            | `latest`                                            | Container image tag                          |
+| `grafana_image`                | `{{ registry }}/{{ name }}:{{ tag }}`               | Full container image reference               |
+| `grafana_container_name`       | `{{ inventory_hostname }}`                          | Name given to the container                  |
+| `grafana_remote_config_dir`    | `{{ remote_config_dir }}`                           | Configuration directory on the remote node   |
+| `grafana_container_config_dir` | `/etc/grafana/provisioning`                         | Configuration directory inside the container |
+| `grafana_datasource_file`      | `datasources.yaml`                                  | Datasource provisioning file name            |
+| `grafana_dashboards_file`      | `dashboards.yaml`                                   | Dashboards provisioning file name            |
+| `grafana_dashboard_file`       | `dashboard.json`                                    | Dashboard definition file name               |
+| `grafana_use_tls`              | `false`                                             | Enable TLS                                   |
+| `grafana_tls_private_key_file` | `server.key`                                        | TLS private key file name                    |
+| `grafana_tls_cert_file`        | `server.crt`                                        | TLS certificate file name                    |
+| `grafana_web_port`             | `3000`                                              | Grafana web UI port                          |
 
 ## Tasks
 

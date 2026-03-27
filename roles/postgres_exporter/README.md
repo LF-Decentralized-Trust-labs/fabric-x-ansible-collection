@@ -9,6 +9,7 @@ The role supports running one exporter per database instance.
 ## Table of Contents <!-- omit in toc -->
 
 - [Postgres Exporter Metrics](#postgres-exporter-metrics)
+- [Variables](#variables)
 - [Tasks](#tasks)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
@@ -19,7 +20,7 @@ The role supports running one exporter per database instance.
   - [stop](#stop)
   - [teardown](#teardown)
   - [wipe](#wipe)
-  - [fetch_logs](#fetch_logs)
+  - [fetch\_logs](#fetch_logs)
   - [ping](#ping)
 
 ## Postgres Exporter Metrics
@@ -38,6 +39,23 @@ When the `prometheus_postgres_exporters` variable is set, Prometheus scrapes the
 - **pg*stat_bgwriter* metrics** – Background writer activity (checkpoints, buffers written)
 - **pg*stat_statements* metrics** (if extension is enabled) – Query execution counts, total/mean execution time, I/O stats
 - **pg_cache_hit_ratio** – Calculated metric for cache efficiency
+
+## Variables
+
+| Variable                                 | Default                                                                   | Description                                  |
+| ---------------------------------------- | ------------------------------------------------------------------------- | -------------------------------------------- |
+| `postgres_exporter_registry_endpoint`    | `$POSTGRES_EXPORTER_REGISTRY_ENDPOINT` or `docker.io/prometheuscommunity` | Container registry endpoint                  |
+| `postgres_exporter_image_name`           | `postgres-exporter`                                                       | Container image name                         |
+| `postgres_exporter_image_tag`            | `latest`                                                                  | Container image tag                          |
+| `postgres_exporter_image`                | `{{ registry }}/{{ name }}:{{ tag }}`                                     | Full container image reference               |
+| `postgres_exporter_container_name`       | `{{ inventory_hostname }}`                                                | Name given to the container                  |
+| `postgres_exporter_remote_config_dir`    | `{{ remote_config_dir }}`                                                 | Configuration directory on the remote node   |
+| `postgres_exporter_container_config_dir` | `/var/config`                                                             | Configuration directory inside the container |
+| `postgres_exporter_config_file`          | `postgres_exporter.yaml`                                                  | Exporter configuration file name             |
+| `postgres_exporter_web_config_file`      | `web-config.yaml`                                                         | Web (TLS) configuration file name            |
+| `postgres_exporter_use_tls`              | `false`                                                                   | Enable TLS                                   |
+| `postgres_exporter_tls_private_key_file` | `server.key`                                                              | TLS private key file name                    |
+| `postgres_exporter_tls_cert_file`        | `server.crt`                                                              | TLS certificate file name                    |
 
 ## Tasks
 

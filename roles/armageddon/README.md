@@ -4,9 +4,32 @@ The role `hyperledger.fabricx.armageddon` can be used to run the `armageddon` CL
 
 ## Table of Contents <!-- omit in toc -->
 
+- [Variables](#variables)
 - [Tasks](#tasks)
   - [config/build](#configbuild)
-  - [create_shared_config](#create_shared_config)
+  - [create\_shared\_config](#create_shared_config)
+
+## Variables
+
+| Variable                                    | Default                                                    | Description                                                   |
+| ------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------- |
+| `armageddon_registry_endpoint`              | `$ARMAGEDDON_REGISTRY_ENDPOINT` or `docker.io/hyperledger` | Container registry endpoint                                   |
+| `armageddon_image_name`                     | `fabric-x-orderer`                                         | Container image name                                          |
+| `armageddon_image_tag`                      | `0.0.21`                                                   | Container image tag                                           |
+| `armageddon_image`                          | `{{ registry }}/{{ name }}:{{ tag }}`                      | Full container image reference                                |
+| `armageddon_container_name`                 | `armageddon`                                               | Name given to the ephemeral container                         |
+| `armageddon_git_uri`                        | `https://github.com/hyperledger/fabric-x-orderer.git`      | Git repository used to build the binary                       |
+| `armageddon_git_commit`                     | `v0.0.21`                                                  | Git ref (tag or commit) to check out                          |
+| `armageddon_source_code_package`            | `cmd/armageddon`                                           | Go source package path within the repository                  |
+| `armageddon_bin_package`                    | `github.com/hyperledger/fabric-x-orderer/cmd/armageddon`   | Fully-qualified Go package used for `go install`              |
+| `armageddon_bin_name`                       | `armageddon`                                               | Name of the produced binary                                   |
+| `armageddon_use_bin`                        | `false`                                                    | Set to `true` to use the native binary instead of a container |
+| `armageddon_artifacts_dir`                  | `{{ config_build_dir }}/armageddon-artifacts`              | Directory on the controller where artifacts are written       |
+| `armageddon_container_output_dir`           | `/tmp/out`                                                 | Output directory inside the container                         |
+| `armageddon_container_config_dir`           | `/tmp/config`                                              | Config directory inside the container                         |
+| `armageddon_container_crypto_artifacts_dir` | `/tmp/crypto`                                              | Crypto artifacts directory inside the container               |
+| `armageddon_config_file`                    | `armageddon.yaml`                                          | Name of the armageddon configuration file                     |
+| `armageddon_shared_config_file`             | `shared_config.yaml`                                       | Name of the shared configuration file                         |
 
 ## Tasks
 

@@ -4,12 +4,35 @@ The role `hyperledger.fabricx.openssl` can be used to run the `openssl` CLI util
 
 ## Table of Contents <!-- omit in toc -->
 
+- [Variables](#variables)
 - [Tasks](#tasks)
   - [install](#install)
-  - [generate_keypair](#generate_keypair)
-  - [generate_self_signed_cert](#generate_self_signed_cert)
-  - [generate_csr](#generate_csr)
-  - [generate_cert](#generate_cert)
+  - [generate\_keypair](#generate_keypair)
+  - [generate\_self\_signed\_cert](#generate_self_signed_cert)
+  - [generate\_csr](#generate_csr)
+  - [generate\_cert](#generate_cert)
+
+## Variables
+
+| Variable                     | Default                             | Description                                                          |
+| ---------------------------- | ----------------------------------- | -------------------------------------------------------------------- |
+| `openssl_remote_config_dir`  | `{{ remote_node_dir }}/openssl`     | Directory on the remote node where generated files are stored        |
+| `openssl_clean_after_gen`    | `false`                             | Remove intermediate files (CSR, config) after certificate generation |
+| `openssl_ca_cert_file`       | `ca.crt`                            | CA certificate file name                                             |
+| `openssl_key_alg`            | `RSA`                               | Key algorithm (`RSA` or `EC`)                                        |
+| `openssl_key_type`           | `rsa:4096`                          | Key type and size passed to `openssl genrsa` or `openssl ecparam`    |
+| `openssl_cert_duration`      | `365`                               | Certificate validity in days                                         |
+| `openssl_default_md`         | `sha256`                            | Message digest algorithm for the CSR                                 |
+| `openssl_country`            | `US`                                | Distinguished Name country field                                     |
+| `openssl_state`              | `California`                        | Distinguished Name state field                                       |
+| `openssl_organization`       | `MyOrg Inc.`                        | Distinguished Name organization field                                |
+| `openssl_common_name`        | `example.com`                       | Distinguished Name common name field                                 |
+| `openssl_basic_constraints`  | `CA:false`                          | X.509 basic constraints extension                                    |
+| `openssl_key_usage`          | `keyEncipherment, digitalSignature` | X.509 key usage extension                                            |
+| `openssl_extended_key_usage` | `serverAuth, clientAuth`            | X.509 extended key usage extension                                   |
+| `openssl_san_dns_entries`    | `[DNS:{{ ansible_host }}]`          | SAN DNS entries                                                      |
+| `openssl_san_ip_entries`     | all host IPv4 addresses             | SAN IP entries                                                       |
+| `openssl_san_entries`        | `san_dns_entries + san_ip_entries`  | Combined SAN entries                                                 |
 
 ## Tasks
 
