@@ -1,0 +1,24 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Apply Fabric-X Orderer Router StatefulSet
+  vars:
+    orderer_k8s_command: router
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/statefulset.yaml.j2
+    wait: "{{ orderer_k8s_wait }}"
+    wait_timeout: "{{ orderer_k8s_wait_timeout }}"
+    wait_condition:
+      type: Ready
+      status: "True"
+
+- name: Apply Fabric-X Orderer Router Service
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/service.yaml.j2

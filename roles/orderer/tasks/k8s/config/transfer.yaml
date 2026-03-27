@@ -1,0 +1,30 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Resolve Fabric-X Orderer MSP CA cert path
+  ansible.builtin.set_fact:
+    orderer_msp_cacert_path: "{{ query('fileglob', orderer_remote_config_dir + '/msp/cacerts/*.pem') | first }}"
+
+- name: Resolve Fabric-X Orderer MSP signcert path
+  ansible.builtin.set_fact:
+    orderer_msp_signcert_path: "{{ query('fileglob', orderer_remote_config_dir + '/msp/signcerts/*.pem') | first }}"
+
+- name: Render Fabric-X Orderer node configuration
+  ansible.builtin.set_fact:
+    orderer_node_config_content: "{{ lookup('template', 'config-' + orderer_component_type + '.yaml.j2') }}"
+
+- name: Apply Fabric-X Orderer ConfigMap
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/configmap.yaml.j2
+
+- name: Apply Fabric-X Orderer Secret
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/secret.yaml.j2
+  no_log: true

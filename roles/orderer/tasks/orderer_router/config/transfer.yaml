@@ -37,3 +37,12 @@
     tasks_from: config/mtls/transfer
   when:
     - orderer_use_mtls
+
+# =========================
+# Config (Kubernetes)
+# =========================
+- name: Transfer Fabric-X Orderer Router K8s config
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: k8s/config/transfer
+  when: orderer_use_k8s

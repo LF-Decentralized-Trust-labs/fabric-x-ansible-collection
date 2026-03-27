@@ -1,0 +1,33 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start Fabric-X Orderer Consenter as Kubernetes workload
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_consenter/k8s/start
+  when:
+    - orderer_component_type == 'consenter'
+
+- name: Start Fabric-X Orderer Batcher as Kubernetes workload
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_batcher/k8s/start
+  when:
+    - orderer_component_type == 'batcher'
+
+- name: Start Fabric-X Orderer Assembler as Kubernetes workload
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_assembler/k8s/start
+  when:
+    - orderer_component_type == 'assembler'
+
+- name: Start Fabric-X Orderer Router as Kubernetes workload
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: orderer_router/k8s/start
+  when:
+    - orderer_component_type == 'router'

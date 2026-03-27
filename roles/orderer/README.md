@@ -2,6 +2,38 @@
 
 The role `hyperledger.fabricx.orderer` can be used to run the Fabric-X `orderer` components (i.e. `consenter`, `batcher`, `assembler` and `router`).
 
+Three deployment modes are supported:
+
+| Mode | Variable | Description |
+| --- | --- | --- |
+| Container (default) | `orderer_use_bin: false`, `orderer_use_k8s: false` | Runs components as Docker/Podman containers |
+| Binary | `orderer_use_bin: true` | Runs components as native OS processes |
+| Kubernetes | `orderer_use_k8s: true` | Deploys components as K8s StatefulSets |
+
+## Kubernetes mode
+
+In Kubernetes mode, Ansible runs on the control node (`ansible_connection: local`) and applies K8s manifests via the API server. Crypto material and configuration are generated locally (same flow as container/binary modes) and shipped to the cluster as ConfigMaps and Secrets. Each component instance gets:
+
+- **ConfigMap** — node configuration, genesis block (`binaryData`), MSP/TLS public material
+- **Secret** — private key (`msp/keystore/priv_sk`) and TLS private key (`tls/server.key`)
+- **Service** — headless ClusterIP for stable StatefulSet DNS
+- **StatefulSet** — single replica with `subPath`-mounted config/secret volumes + PVC for `/data`
+
+Use the dedicated K8s inventory at `examples/inventory/k8s/fabric-x-orderer.yaml` as a starting point. Key inventory settings:
+
+```yaml
+# group_vars
+ansible_connection: local
+orderer_use_k8s: true
+k8s_namespace: "fabricx"
+
+# per-host: ansible_host must resolve to the K8s Service DNS
+orderer-consenter-1:
+  ansible_host: orderer-consenter-1.fabricx.svc.cluster.local
+```
+
+**Prerequisites**: `pip install kubernetes` and `ansible-galaxy collection install kubernetes.core` on the control node.
+
 ## Table of Contents <!-- omit in toc -->
 
 - [Tasks](#tasks)

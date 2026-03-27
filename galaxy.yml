@@ -24,3 +24,4 @@ dependencies:
   community.general: ">=10.3.0"
   community.docker: ">=4.3.1"
   containers.podman: ">=1.16.2"
+  kubernetes.core: ">=3.1.0"

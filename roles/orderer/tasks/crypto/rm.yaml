@@ -8,8 +8,10 @@
   ansible.builtin.file:
     path: "{{ orderer_remote_config_dir }}/msp"
     state: absent
+  when: not orderer_use_k8s
 
 - name: Remove Fabric-X Orderer TLS directory
   ansible.builtin.file:
     path: "{{ orderer_remote_config_dir }}/tls"
     state: absent
+  when: not orderer_use_k8s
