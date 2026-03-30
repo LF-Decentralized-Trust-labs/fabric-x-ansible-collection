@@ -28,53 +28,50 @@
         (fabric_ca_server_idemix_files_stat.results | length)
       }}
 
-- name: Generate Fabric CA Idemix issuer crypto material with idemixgen
-  vars:
-    idemixgen_output_dir: "{{ fabric_ca_server_idemixgen_output_dir }}"
-    idemixgen_curve_id: "FP256BN_AMCL"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.idemixgen
-    tasks_from: ca-keygen
+- name: Generate and place Fabric CA Idemix crypto material
   when:
     - fabric_ca_server_idemix_generation_required
+  block:
+    - name: Generate Fabric CA Idemix issuer crypto material with idemixgen
+      vars:
+        idemixgen_output_dir: "{{ fabric_ca_server_idemixgen_output_dir }}"
+        idemixgen_curve_id: "FP256BN_AMCL"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.idemixgen
+        tasks_from: ca-keygen
 
-- name: Ensure Fabric CA msp/keystore directory exists
-  ansible.builtin.file:
-    path: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore"
-    state: directory
-    mode: "0750"
-  when:
-    - fabric_ca_server_idemix_generation_required
+    - name: Ensure Fabric CA msp/keystore directory exists
+      ansible.builtin.file:
+        path: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore"
+        state: directory
+        mode: "0750"
 
-- name: Place generated Idemix material into Fabric CA expected paths
-  vars:
-    fabric_ca_server_idemix_files_to_copy:
-      - src: "{{ fabric_ca_server_idemixgen_output_dir }}/msp/IssuerPublicKey"
-        dest: "{{ fabric_ca_server_remote_config_dir }}/IssuerPublicKey"
-        mode: "0644"
-      - src: "{{ fabric_ca_server_idemixgen_output_dir }}/msp/RevocationPublicKey"
-        dest: "{{ fabric_ca_server_remote_config_dir }}/IssuerRevocationPublicKey"
-        mode: "0644"
-      - src: "{{ fabric_ca_server_idemixgen_output_dir }}/ca/IssuerSecretKey"
-        dest: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore/IssuerSecretKey"
-        mode: "0600"
-      - src: "{{ fabric_ca_server_idemixgen_output_dir }}/ca/RevocationKey"
-        dest: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore/IssuerRevocationPrivateKey"
-        mode: "0600"
-  ansible.builtin.copy:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    mode: "{{ item.mode }}"
-    remote_src: true
-  loop: "{{ fabric_ca_server_idemix_files_to_copy }}"
-  loop_control:
-    label: "{{ item.dest }}"
-  when:
-    - fabric_ca_server_idemix_generation_required
+    - name: Place generated Idemix material into Fabric CA expected paths
+      vars:
+        fabric_ca_server_idemix_files_to_copy:
+          - src: "{{ fabric_ca_server_idemixgen_output_dir }}/msp/IssuerPublicKey"
+            dest: "{{ fabric_ca_server_remote_config_dir }}/IssuerPublicKey"
+            mode: "0644"
+          - src: "{{ fabric_ca_server_idemixgen_output_dir }}/msp/RevocationPublicKey"
+            dest: "{{ fabric_ca_server_remote_config_dir }}/IssuerRevocationPublicKey"
+            mode: "0644"
+          - src: "{{ fabric_ca_server_idemixgen_output_dir }}/ca/IssuerSecretKey"
+            dest: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore/IssuerSecretKey"
+            mode: "0600"
+          - src: "{{ fabric_ca_server_idemixgen_output_dir }}/ca/RevocationKey"
+            dest: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore/IssuerRevocationPrivateKey"
+            mode: "0600"
+      ansible.builtin.copy:
+        src: "{{ current_fabric_ca_idemix_file.src }}"
+        dest: "{{ current_fabric_ca_idemix_file.dest }}"
+        mode: "{{ current_fabric_ca_idemix_file.mode }}"
+        remote_src: true
+      loop: "{{ fabric_ca_server_idemix_files_to_copy }}"
+      loop_control:
+        loop_var: current_fabric_ca_idemix_file
+        label: "{{ current_fabric_ca_idemix_file.dest }}"
 
-- name: Remove transient idemixgen output directory
-  ansible.builtin.file:
-    path: "{{ fabric_ca_server_idemixgen_output_dir }}"
-    state: absent
-  when:
-    - fabric_ca_server_idemix_generation_required
+    - name: Remove transient idemixgen output directory
+      ansible.builtin.file:
+        path: "{{ fabric_ca_server_idemixgen_output_dir }}"
+        state: absent
