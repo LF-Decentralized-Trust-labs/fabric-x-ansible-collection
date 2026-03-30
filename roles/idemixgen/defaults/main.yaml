@@ -9,7 +9,7 @@
 # =========================
 idemixgen_registry_endpoint: "{{ lookup('env', 'IDEMIXGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 idemixgen_image_name: "fabric-x-tools"
-idemixgen_image_tag: "0.0.13"
+idemixgen_image_tag: "0.0.14"
 idemixgen_image: "{{ idemixgen_registry_endpoint }}/{{ idemixgen_image_name }}:{{ idemixgen_image_tag }}"
 idemixgen_container_name: "idemixgen"
 

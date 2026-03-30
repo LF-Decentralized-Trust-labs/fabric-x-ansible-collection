@@ -22,7 +22,7 @@ When running in binary mode (`idemixgen_use_bin: true`), the role requires:
 | -------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------- |
 | `idemixgen_registry_endpoint`    | `$IDEMIXGEN_REGISTRY_ENDPOINT` or `docker.io/hyperledger` | Container registry endpoint                                   |
 | `idemixgen_image_name`           | `fabric-x-tools`                                          | Container image name                                          |
-| `idemixgen_image_tag`            | `0.0.13`                                                  | Container image tag                                           |
+| `idemixgen_image_tag`            | `0.0.14`                                                  | Container image tag                                           |
 | `idemixgen_image`                | `{{ registry }}/{{ name }}:{{ tag }}`                     | Full container image reference                                |
 | `idemixgen_container_name`       | `idemixgen`                                               | Name given to the ephemeral container                         |
 | `idemixgen_git_uri`              | `https://github.com/IBM/idemix.git`                       | Git repository used to build the binary                       |
