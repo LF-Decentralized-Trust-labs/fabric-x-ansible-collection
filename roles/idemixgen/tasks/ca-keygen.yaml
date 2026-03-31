@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start idemixgen ca-keygen as container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.idemixgen
+    tasks_from: container/ca-keygen
+  when:
+    - not idemixgen_use_bin
+
+- name: Install idemixgen as binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.idemixgen
+    tasks_from: bin/install
+  when:
+    - idemixgen_use_bin
+
+- name: Start idemixgen ca-keygen as binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.idemixgen
+    tasks_from: bin/ca-keygen
+  when:
+    - idemixgen_use_bin

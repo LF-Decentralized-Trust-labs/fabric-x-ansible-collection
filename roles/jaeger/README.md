@@ -6,6 +6,7 @@ The role allows to run `jaeger` as **container only** (binary is not currently s
 
 ## Table of Contents <!-- omit in toc -->
 
+- [Variables](#variables)
 - [Tasks](#tasks)
   - [config/transfer](#configtransfer)
   - [config/rm](#configrm)
@@ -13,8 +14,26 @@ The role allows to run `jaeger` as **container only** (binary is not currently s
   - [stop](#stop)
   - [teardown](#teardown)
   - [wipe](#wipe)
-  - [fetch_logs](#fetch_logs)
+  - [fetch\_logs](#fetch_logs)
   - [ping](#ping)
+
+## Variables
+
+| Variable                      | Default                                                  | Description                                  |
+| ----------------------------- | -------------------------------------------------------- | -------------------------------------------- |
+| `jaeger_registry_endpoint`    | `$JAEGER_REGISTRY_ENDPOINT` or `docker.io/jaegertracing` | Container registry endpoint                  |
+| `jaeger_image_name`           | `all-in-one`                                             | Container image name                         |
+| `jaeger_image_tag`            | `latest`                                                 | Container image tag                          |
+| `jaeger_image`                | `{{ registry }}/{{ name }}:{{ tag }}`                    | Full container image reference               |
+| `jaeger_container_name`       | `{{ inventory_hostname }}`                               | Name given to the container                  |
+| `jaeger_remote_config_dir`    | `{{ remote_config_dir }}`                                | Configuration directory on the remote node   |
+| `jaeger_container_config_dir` | `/var/config`                                            | Configuration directory inside the container |
+| `jaeger_ui_port`              | `16686`                                                  | Jaeger UI port                               |
+| `jaeger_admin_port`           | `14269`                                                  | Jaeger admin port                            |
+| `jaeger_http_server_port`     | `14268`                                                  | Jaeger HTTP server port                      |
+| `jaeger_http_collector_port`  | `4318`                                                   | Jaeger HTTP collector port (OTLP)            |
+| `jaeger_grpc_server_port`     | `14250`                                                  | Jaeger gRPC server port                      |
+| `jaeger_collector_port`       | `4317`                                                   | Jaeger gRPC collector port (OTLP)            |
 
 ## Tasks
 

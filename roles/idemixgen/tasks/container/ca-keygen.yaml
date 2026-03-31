@@ -1,0 +1,46 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the idemixgen output dir has been defined
+  ansible.builtin.fail:
+    msg: "No idemixgen output dir is indicated. Set it via 'idemixgen_output_dir'."
+  when: idemixgen_output_dir is not defined
+
+- name: Clean the /ca folder in the output dir
+  ansible.builtin.file:
+    path: "{{ idemixgen_output_dir }}/ca"
+    state: absent
+
+- name: Clean the /msp folder in the output dir
+  ansible.builtin.file:
+    path: "{{ idemixgen_output_dir }}/msp"
+    state: absent
+
+- name: Create the idemix output dir
+  ansible.builtin.file:
+    path: "{{ idemixgen_output_dir }}"
+    state: directory
+    mode: "0o750"
+
+- name: Generate the idemix CA key material
+  vars:
+    container_name: "{{ idemixgen_container_name }}"
+    container_image: "{{ idemixgen_image }}"
+    container_command: >-
+      {{ idemixgen_bin_name }} ca-keygen
+      --curve {{ idemixgen_curve_id }}
+      --output {{ idemixgen_container_output_dir }}
+      {% if idemixgen_use_aries %}
+      --aries
+      {% endif %}
+    container_volumes:
+      - "{{ idemixgen_output_dir }}:{{ idemixgen_container_output_dir }}:z"
+    container_run_detach_mode: false
+    container_run_as_host_user: true
+    container_autoremove: true
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start

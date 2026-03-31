@@ -6,21 +6,49 @@ The role allows to run YugabyteDB as **container only** (binary is not currently
 
 ## Table of Contents <!-- omit in toc -->
 
+- [Variables](#variables)
 - [Tasks](#tasks)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
   - [crypto/rm](#cryptorm)
-  - [crypto/openssl/generate_csr](#cryptoopensslgenerate_csr)
-  - [crypto/openssl/fetch_csr](#cryptoopensslfetch_csr)
-  - [crypto/openssl/transfer_cert](#cryptoopenssltransfer_cert)
+  - [crypto/openssl/generate\_csr](#cryptoopensslgenerate_csr)
+  - [crypto/openssl/fetch\_csr](#cryptoopensslfetch_csr)
+  - [crypto/openssl/transfer\_cert](#cryptoopenssltransfer_cert)
   - [config/transfer](#configtransfer)
   - [config/rm](#configrm)
   - [start](#start)
   - [stop](#stop)
   - [teardown](#teardown)
   - [wipe](#wipe)
-  - [fetch_logs](#fetch_logs)
+  - [fetch\_logs](#fetch_logs)
   - [ping](#ping)
+
+## Variables
+
+| Variable                            | Default                                                 | Description                                               |
+| ----------------------------------- | ------------------------------------------------------- | --------------------------------------------------------- |
+| `yugabyte_registry_endpoint`        | `$YUGABYTE_REGISTRY_ENDPOINT` or `docker.io/yugabytedb` | Container registry endpoint                               |
+| `yugabyte_image_name`               | `yugabyte`                                              | Container image name                                      |
+| `yugabyte_image_tag`                | `2025.2.1.0-b141`                                       | Container image tag                                       |
+| `yugabyte_image`                    | `{{ registry }}/{{ name }}:{{ tag }}`                   | Full container image reference                            |
+| `yugabyte_container_name`           | `{{ inventory_hostname }}`                              | Name given to the container                               |
+| `yugabyte_remote_config_dir`        | `{{ remote_config_dir }}`                               | Configuration directory on the remote node                |
+| `yugabyte_remote_data_dir`          | `{{ remote_data_dir }}`                                 | Data directory on the remote node                         |
+| `yugabyte_container_data_dir`       | `/var/data`                                             | Data directory inside the container                       |
+| `yugabyte_init_script_file`         | `01-yb-init.sql`                                        | Initialization SQL script file name                       |
+| `yugabyte_logs_level`               | `3`                                                     | Log verbosity level (0=INFO, 1=WARNING, 2=ERROR, 3=FATAL) |
+| `yugabyte_use_tls`                  | `false`                                                 | Enable TLS for all YugabyteDB channels                    |
+| `yugabyte_webserver_use_tls`        | `{{ yugabyte_use_tls }}`                                | Enable TLS for the webserver                              |
+| `yugabyte_client_to_server_use_tls` | `{{ yugabyte_use_tls }}`                                | Enable client-to-server TLS                               |
+| `yugabyte_node_to_node_use_tls`     | `{{ yugabyte_use_tls }}`                                | Enable node-to-node TLS                                   |
+| `yugabyte_master_webserver_port`    | `7000`                                                  | Master webserver port                                     |
+| `yugabyte_tablet_rpc_bind_port`     | `9100`                                                  | Tablet server RPC port                                    |
+| `yugabyte_tablet_webserver_port`    | `9000`                                                  | Tablet server webserver port                              |
+| `yugabyte_tablet_redis_web_port`    | `11000`                                                 | Redis webserver port                                      |
+| `yugabyte_tablet_cql_web_port`      | `12000`                                                 | CQL webserver port                                        |
+| `yugabyte_tablet_pgsql_web_port`    | `13000`                                                 | YSQL webserver port                                       |
+| `yugabyte_tablet_cql_bind_port`     | `9042`                                                  | CQL (Cassandra) client port                               |
+| `yugabyte_tablet_redis_rpc_port`    | `6379`                                                  | Redis client port                                         |
 
 ## Tasks
 
