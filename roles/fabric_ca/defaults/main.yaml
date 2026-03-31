@@ -51,12 +51,29 @@ fabric_ca_log_level: "INFO"
 fabric_ca_scheme: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
 fabric_ca_use_tls: false
 fabric_ca_enable_nodeous: true
-fabric_ca_tls_root_cert: "{{ fabric_ca_server_remote_config_dir }}/ca-cert.pem"
 
 # =========================
-# CA settings
+# CA identity settings
 # =========================
 fabric_ca_name: "{{ inventory_hostname }}"
+
+# =========================
+# CA x509 file settings
+# =========================
+fabric_ca_server_openssl_curve: "P-256"
+fabric_ca_server_ca_private_key_file: "ca-key.pem"
+fabric_ca_server_ca_cert_file: "ca-cert.pem"
+
+# =========================
+# CA TLS file settings
+# =========================
+fabric_ca_server_tls_private_key_file: "tls-key.pem"
+fabric_ca_server_tls_cert_file: "tls-cert.pem"
+
+# =========================
+# CA Idemix file settings
+# =========================
+fabric_ca_server_idemixgen_output_dir: "{{ fabric_ca_server_remote_config_dir }}/idemixgen-artifacts"
 
 # =========================
 # CSR settings
