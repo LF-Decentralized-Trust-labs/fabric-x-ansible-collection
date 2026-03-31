@@ -56,6 +56,9 @@ fabric_ca_enable_nodeous: true
 # CA identity settings
 # =========================
 fabric_ca_name: "{{ inventory_hostname }}"
+fabric_ca_enrollment_type: bccsp  # bccsp or idemix
+# Signing profile used when enrolling Idemix credentials.
+fabric_ca_idemix_enrollment_profile: idemix
 
 # =========================
 # CA x509 file settings
