@@ -25,11 +25,11 @@ The role `hyperledger.fabricx.orderer` can be used to run the Fabric-X `orderer`
 | ------------------------------ | --------------------------------------------------------------- | ------------------------------------------------------------------------- |
 | `orderer_registry_endpoint`    | `$ORDERER_REGISTRY_ENDPOINT` or `docker.io/hyperledger`         | Container registry endpoint                                               |
 | `orderer_image_name`           | `fabric-x-orderer`                                              | Container image name                                                      |
-| `orderer_image_tag`            | `0.0.21`                                                        | Container image tag                                                       |
+| `orderer_image_tag`            | `0.0.22-1`                                                        | Container image tag                                                       |
 | `orderer_image`                | `{{ registry }}/{{ name }}:{{ tag }}`                           | Full container image reference                                            |
 | `orderer_container_name`       | `{{ inventory_hostname }}`                                      | Name given to the container                                               |
 | `orderer_git_uri`              | `https://github.com/hyperledger/fabric-x-orderer.git`           | Git repository used to build the binary                                   |
-| `orderer_git_commit`           | `v0.0.21`                                                       | Git ref (tag or commit) to check out                                      |
+| `orderer_git_commit`           | `v0.0.22-1`                                                       | Git ref (tag or commit) to check out                                      |
 | `orderer_source_code_package`  | `cmd/arma`                                                      | Go source package path within the repository                              |
 | `orderer_bin_package`          | `github.com/hyperledger/fabric-x-orderer/cmd/arma`              | Fully-qualified Go package used for `go install`                          |
 | `orderer_bin_name`             | `arma`                                                          | Name of the produced binary                                               |

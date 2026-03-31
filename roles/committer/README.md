@@ -24,11 +24,11 @@ The role `hyperledger.fabricx.committer` can be used to run the Fabric-X `commit
 | ------------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------- |
 | `committer_registry_endpoint`         | `$COMMITTER_REGISTRY_ENDPOINT` or `docker.io/hyperledger` | Container registry endpoint                                                 |
 | `committer_image_name`                | `fabric-x-committer`                                      | Container image name                                                        |
-| `committer_image_tag`                 | `0.1.7`                                                   | Container image tag                                                         |
+| `committer_image_tag`                 | `0.1.7-1`                                                   | Container image tag                                                         |
 | `committer_image`                     | `{{ registry }}/{{ name }}:{{ tag }}`                     | Full container image reference                                              |
 | `committer_container_name`            | `{{ inventory_hostname }}`                                | Name given to the container                                                 |
 | `committer_git_uri`                   | `https://github.com/hyperledger/fabric-x-committer.git`   | Git repository used to build the binary                                     |
-| `committer_git_commit`                | `v0.1.7`                                                  | Git ref (tag or commit) to check out                                        |
+| `committer_git_commit`                | `v0.1.7-1`                                                  | Git ref (tag or commit) to check out                                        |
 | `committer_source_code_package`       | `cmd/committer`                                           | Go source package path within the repository                                |
 | `committer_bin_package`               | `github.com/hyperledger/fabric-x-committer/cmd/committer` | Fully-qualified Go package used for `go install`                            |
 | `committer_bin_name`                  | `committer`                                               | Name of the produced binary                                                 |
