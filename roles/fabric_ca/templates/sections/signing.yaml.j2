@@ -36,9 +36,7 @@ signing:
             - client auth
             - key agreement
          expiry: 8760h
-{% if organization.type is defined and organization.type == 'idemix' %}
       idemix:
          usage:
             - digital signature
          expiry: 8760h
-{% endif %}

@@ -6,8 +6,6 @@
 
 - name: Setup Fabric-CA crypto material
   hosts: "{{ target_hosts | default('fabric_cas') }}:&fabric_cas"
-  vars:
-    idemixgen_artifacts_dir: "{{ config_build_dir }}/idemixgen-artifacts"
   tasks:
     - name: Setup Fabric CA server x509 and Idemix crypto material
       ansible.builtin.include_role:
