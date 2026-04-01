@@ -195,6 +195,7 @@ Here there is a list of the most used commands:
 | `run-command`           | Run a generic command on the targeted hosts.                                 |
 | `ping`                  | Check that the component ports are open.                                     |
 | `get-metrics`           | Get the metrics from the targeted components.                                |
+| `fetch-crypto`          | Fetch the crypto material from the targeted hosts.                           |
 | `fetch-logs`            | Fetch the logs from the targeted hosts.                                      |
 | `limit-rate`            | Set the TPS rate on the load generators.                                     |
 

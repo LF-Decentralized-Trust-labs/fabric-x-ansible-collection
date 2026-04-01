@@ -7,12 +7,18 @@
 - name: Stop Fabric CAs
   hosts: "{{ target_hosts | default('fabric_cas') }}:&fabric_cas"
   tasks:
+    # =========================
+    # Fabric CA Server
+    # =========================
     - name: Stop Fabric CA servers
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fabric_ca
         tasks_from: server/stop
       when:
         - fabric_ca_port is defined
+    # =========================
+    # Postgres
+    # =========================
     - name: Stop Fabric CA DBs
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres

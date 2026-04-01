@@ -7,18 +7,27 @@
 - name: Ping the Fabric-X Committer
   hosts: "{{ target_hosts | default('fabric_x_committer') }}:&fabric_x_committer"
   tasks:
+    # =========================
+    # Postgres
+    # =========================
     - name: Check that the Fabric-X Committer Postgres DB port is open
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres
         tasks_from: ping
       when:
         - postgres_port is defined
+    # =========================
+    # Yugabyte
+    # =========================
     - name: Check that the Fabric-X Committer Yugabyte DB ports are open
       ansible.builtin.include_role:
         name: hyperledger.fabricx.yugabyte
         tasks_from: ping
       when:
         - yugabyte_component_type is defined
+    # =========================
+    # HLFX Committer
+    # =========================
     - name: Ping the Fabric-X Committer
       ansible.builtin.include_role:
         name: hyperledger.fabricx.committer
