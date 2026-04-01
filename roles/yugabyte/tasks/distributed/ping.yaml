@@ -28,3 +28,14 @@
     name: hyperledger.fabricx.utils
     tasks_from: ping
   when: yugabyte_component_type == 'tablet'
+
+- name: Check that the Yugabyte Redis (YEDIS) port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ yugabyte_tablet_redis_web_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - yugabyte_component_type == 'tablet'
+    - yugabyte_enable_redis | default(false)

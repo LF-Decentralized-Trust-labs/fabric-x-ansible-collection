@@ -254,7 +254,7 @@
                 group: ycql
                 export_type: cql_export
             - hosts: "{{ current_yugabyte_cluster_tablets }}"
-              port_to_scrape: yugabyte_tablet_cql_web_port
+              port_to_scrape: yugabyte_tablet_redis_web_port
               label:
                 group: yedis
                 export_type: redis_export
