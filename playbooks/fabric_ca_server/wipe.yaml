@@ -7,6 +7,9 @@
 - name: Wipe Fabric CAs
   hosts: "{{ target_hosts | default('fabric_cas') }}:&fabric_cas"
   tasks:
+    # =========================
+    # Fabric CA Server
+    # =========================
     - name: Wipe Fabric CA servers
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fabric_ca
@@ -21,6 +24,9 @@
         - fabric_ca_port is defined
         - fabric_ca_client_use_bin is defined
         - fabric_ca_client_use_bin
+    # =========================
+    # Postgres
+    # =========================
     - name: Wipe Fabric CA DBs
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres

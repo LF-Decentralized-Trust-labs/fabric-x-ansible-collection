@@ -7,12 +7,18 @@
 - name: Start Hyperledger Fabric-X Committer
   hosts: "{{ target_hosts | default('fabric_x_committer') }}:&fabric_x_committer"
   tasks:
+    # =========================
+    # Postgres
+    # =========================
     - name: Start Hyperledger Fabric-X Committer Postgres DB
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres
         tasks_from: start
       when:
         - postgres_port is defined
+    # =========================
+    # Yugabyte
+    # =========================
     - name: Start Hyperledger Fabric-X Committer Yugabyte DB
       vars:
         yugabyte_cluster: >-
@@ -30,6 +36,9 @@
         tasks_from: start
       when:
         - yugabyte_component_type is defined
+    # =========================
+    # HLFX Committer
+    # =========================
     - name: Start Hyperledger Fabric-X Committer services
       ansible.builtin.include_role:
         name: hyperledger.fabricx.committer
