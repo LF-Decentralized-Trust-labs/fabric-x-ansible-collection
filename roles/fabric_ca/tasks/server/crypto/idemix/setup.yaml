@@ -12,21 +12,34 @@
 
 - name: Check if Fabric CA Idemix crypto files already exist
   ansible.builtin.stat:
-    path: "{{ item }}"
+    path: "{{ current_fabric_ca_idemix_file }}"
   loop:
     - "{{ fabric_ca_server_remote_config_dir }}/IssuerPublicKey"
     - "{{ fabric_ca_server_remote_config_dir }}/IssuerRevocationPublicKey"
     - "{{ fabric_ca_server_remote_config_dir }}/msp/keystore/IssuerSecretKey"
     - "{{ fabric_ca_server_remote_config_dir }}/msp/keystore/IssuerRevocationPrivateKey"
+  loop_control:
+    loop_var: current_fabric_ca_idemix_file
+    label: "{{ current_fabric_ca_idemix_file | basename }}"
   register: fabric_ca_server_idemix_files_stat
 
 - name: Set whether Fabric CA Idemix crypto generation is required
-  ansible.builtin.set_fact:
-    fabric_ca_server_idemix_generation_required: >-
+  vars:
+    fabric_ca_server_expected_idemix_files_count: >-
       {{
-        (fabric_ca_server_idemix_files_stat.results | selectattr('stat.exists') | list | length) <
-        (fabric_ca_server_idemix_files_stat.results | length)
+        fabric_ca_server_idemix_files_stat.results
+        | list
+        | length
       }}
+    fabric_ca_server_existing_idemix_files_count: >-
+      {{
+        fabric_ca_server_idemix_files_stat.results
+        | selectattr('stat.exists')
+        | list
+        | length
+      }}
+  ansible.builtin.set_fact:
+    fabric_ca_server_idemix_generation_required: "{{ fabric_ca_server_existing_idemix_files_count < fabric_ca_server_expected_idemix_files_count }}"
 
 - name: Generate and place Fabric CA Idemix crypto material
   when:
@@ -39,13 +52,11 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.idemixgen
         tasks_from: ca-keygen
-
     - name: Ensure Fabric CA msp/keystore directory exists
       ansible.builtin.file:
         path: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore"
         state: directory
         mode: "0750"
-
     - name: Place generated Idemix material into Fabric CA expected paths
       vars:
         fabric_ca_server_idemix_files_to_copy:
@@ -70,7 +81,6 @@
       loop_control:
         loop_var: current_fabric_ca_idemix_file
         label: "{{ current_fabric_ca_idemix_file.dest }}"
-
     - name: Remove transient idemixgen output directory
       ansible.builtin.file:
         path: "{{ fabric_ca_server_idemixgen_output_dir }}"
