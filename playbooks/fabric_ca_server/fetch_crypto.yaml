@@ -4,22 +4,15 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Init Fabric-CA servers
-  hosts: "{{ target_hosts | default('fabric_ca_servers') }}:&fabric_ca_servers"
+- name: Fetch the Fabric CAs crypto material
+  hosts: "{{ target_hosts | default('fabric_cas') }}:&fabric_cas"
   tasks:
-    - name: Enroll Fabric CA admin
-      vars:
-        fabric_ca_host: "{{ inventory_hostname }}"
-        fabric_ca_identity:
-          name: "{{ fabric_ca_admin.name }}"
-          secret: "{{ fabric_ca_admin.secret }}"
-        fabric_ca_msp_dir: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_admin.name }}/msp"
-        fabric_ca_tls_certfile: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_tls_cert_file }}"
+    - name: Fetch the Fabric CA DB certificates
       ansible.builtin.include_role:
-        name: hyperledger.fabricx.fabric_ca
-        tasks_from: client/enroll
+        name: hyperledger.fabricx.postgres
+        tasks_from: crypto/fetch
       when:
-        - fabric_ca_admin is defined
+        - postgres_port is defined
     - name: Fetch the Fabric CA certificates
       vars:
         fabric_ca_orderer_organization: >-
@@ -35,3 +28,5 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fabric_ca
         tasks_from: server/crypto/fetch
+      when:
+        - fabric_ca_port is defined

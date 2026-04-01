@@ -5,7 +5,11 @@ The role `hyperledger.fabricx.fabric_ca` can be used to run an Hyperledger Fabri
 ## Table of Contents <!-- omit in toc -->
 
 - [Prerequisites](#prerequisites)
+- [Variables](#variables)
 - [Tasks](#tasks)
+  - [server/crypto/setup](#servercryptosetup)
+  - [server/crypto/x509/setup](#servercryptox509setup)
+  - [server/crypto/idemix/setup](#servercryptoidemixsetup)
   - [server/config/transfer](#serverconfigtransfer)
   - [server/crypto/fetch](#servercryptofetch)
   - [server/start](#serverstart)
@@ -13,11 +17,11 @@ The role `hyperledger.fabricx.fabric_ca` can be used to run an Hyperledger Fabri
   - [server/teardown](#serverteardown)
   - [server/wipe](#serverwipe)
   - [server/ping](#serverping)
-  - [server/fetch_logs](#serverfetch_logs)
+  - [server/fetch\_logs](#serverfetch_logs)
   - [client/register](#clientregister)
   - [client/enroll](#clientenroll)
   - [client/reenroll](#clientreenroll)
-  - [client/identity_list](#clientidentity_list)
+  - [client/identity\_list](#clientidentity_list)
   - [client/revoke](#clientrevoke)
   - [client/gencrl](#clientgencrl)
 
@@ -27,7 +31,105 @@ The role requires:
 
 - `go` to be installed (only if you plan to use binaries with `fabric_ca_server_use_bin: true` or `fabric_ca_client_use_bin: true`).
 
+## Variables
+
+| Variable                                  | Default                                                   | Description                                                                        |
+| ----------------------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `fabric_ca_registry_endpoint`             | `$FABRIC_CA_REGISTRY_ENDPOINT` or `docker.io/hyperledger` | Container registry endpoint                                                        |
+| `fabric_ca_image_name`                    | `fabric-ca`                                               | Container image name                                                               |
+| `fabric_ca_image_tag`                     | `1.5.15`                                                  | Container image tag                                                                |
+| `fabric_ca_image`                         | `{{ registry }}/{{ name }}:{{ tag }}`                     | Full container image reference                                                     |
+| `fabric_ca_container_name`                | `{{ inventory_hostname }}`                                | Name given to the container                                                        |
+| `fabric_ca_git_uri`                       | `https://github.com/hyperledger/fabric-ca.git`            | Git repository used to build the binaries                                          |
+| `fabric_ca_git_commit`                    | `v1.5.15`                                                 | Git ref (tag or commit) to check out                                               |
+| `fabric_ca_server_source_code_package`    | `cmd/fabric-ca-server`                                    | Go source package path for the server binary                                       |
+| `fabric_ca_server_bin_package`            | `github.com/hyperledger/fabric-ca/cmd/fabric-ca-server`   | Fully-qualified Go package for `go install` (server)                               |
+| `fabric_ca_server_bin_name`               | `fabric-ca-server`                                        | Name of the server binary                                                          |
+| `fabric_ca_server_use_bin`                | `false`                                                   | Set to `true` to run the CA server as a native binary                              |
+| `fabric_ca_client_source_code_package`    | `cmd/fabric-ca-client`                                    | Go source package path for the client binary                                       |
+| `fabric_ca_client_bin_package`            | `github.com/hyperledger/fabric-ca/cmd/fabric-ca-client`   | Fully-qualified Go package for `go install` (client)                               |
+| `fabric_ca_client_bin_name`               | `fabric-ca-client`                                        | Name of the client binary                                                          |
+| `fabric_ca_client_use_bin`                | `false`                                                   | Set to `true` to run the CA client as a native binary                              |
+| `fabric_ca_server_remote_config_dir`      | `{{ remote_config_dir }}`                                 | Configuration directory on the remote node                                         |
+| `fabric_ca_server_remote_data_dir`        | `{{ remote_data_dir }}`                                   | Data directory on the remote node                                                  |
+| `fabric_ca_server_container_config_dir`   | `/config`                                                 | Server configuration directory inside the container                                |
+| `fabric_ca_client_container_config_dir`   | `/config`                                                 | Client configuration directory inside the container                                |
+| `fabric_ca_server_container_data_dir`     | `/data`                                                   | Server data directory inside the container                                         |
+| `fabric_ca_server_config_dir`             | auto-selected                                             | Active config directory (remote or container, based on `fabric_ca_server_use_bin`) |
+| `fabric_ca_server_data_dir`               | auto-selected                                             | Active data directory (remote or container, based on `fabric_ca_server_use_bin`)   |
+| `fabric_ca_log_level`                     | `INFO`                                                    | Log level                                                                          |
+| `fabric_ca_use_tls`                       | `false`                                                   | Enable TLS                                                                         |
+| `fabric_ca_scheme`                        | `https` or `http`                                         | URL scheme derived from `fabric_ca_use_tls`                                        |
+| `fabric_ca_enable_nodeous`                | `true`                                                    | Enable NodeOUs in the MSP configuration                                            |
+| `fabric_ca_tls_root_cert`                 | `{{ fabric_ca_server_remote_config_dir }}/ca-cert.pem`    | Path to the CA TLS root certificate                                                |
+| `fabric_ca_name`                          | `{{ inventory_hostname }}`                                | Name of the CA                                                                     |
+| `fabric_ca_csr_cn`                        | `{{ fabric_ca_name }}`                                    | Common Name (CN) for the CA CSR                                                    |
+| `fabric_ca_csr_hosts`                     | `[ansible_host, inventory_hostname]`                      | SAN hosts for the CA CSR                                                           |
+| `fabric_ca_csr_expiry`                    | `131400h`                                                 | Certificate expiry (15 years)                                                      |
+| `fabric_ca_cryptogenize_tls_ca_cert_file` | `ca.crt`                                                  | TLS CA certificate file name (cryptogenize mode)                                   |
+| `fabric_ca_cryptogenize_tls_cert_file`    | `server.crt`                                              | TLS server certificate file name (cryptogenize mode)                               |
+| `fabric_ca_cryptogenize_tls_key_file`     | `server.key`                                              | TLS server key file name (cryptogenize mode)                                       |
+
 ## Tasks
+
+### server/crypto/setup
+
+The task `server/crypto/setup` pre-generates x509 and Idemix crypto material for a Fabric CA server.
+It is an orchestrator over `server/crypto/x509/setup` and `server/crypto/idemix/setup`:
+
+```yaml
+- name: Setup the Fabric CA server crypto material
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/crypto/setup
+```
+
+This pre-generation step is required to avoid first-boot crypto auto-generation by `fabric-ca-server` under `FABRIC_CA_HOME`. That behavior conflicts with read-only config mounts (for example ConfigMaps).
+
+### server/crypto/x509/setup
+
+The task `server/crypto/x509/setup` pre-generates Fabric CA x509 material:
+
+```yaml
+- name: Setup the Fabric CA server x509 crypto material
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/crypto/x509/setup
+```
+
+The task covers both:
+
+- CA signing key/certificate (`ca-key.pem`, `ca-cert.pem`)
+- Fabric CA server TLS key/certificate (`tls-key.pem`, `tls-cert.pem`)
+
+TLS artifacts are generated here as well because Fabric CA can auto-generate TLS material at bootstrap time.
+Pre-generating them keeps startup compatible with read-only config folders and keeps certificate ownership explicit.
+
+For TLS CSR generation, SAN entries are derived from `fabric_ca_csr_hosts`:
+
+- host values matching IPv4 format become `IP:<value>`
+- all other values become `DNS:<value>`
+
+This conversion is needed because OpenSSL SAN syntax requires explicit entry types (`IP:` / `DNS:`).
+
+### server/crypto/idemix/setup
+
+The task `server/crypto/idemix/setup` pre-generates Fabric CA Idemix material:
+
+```yaml
+- name: Setup the Fabric CA server Idemix crypto material
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/crypto/idemix/setup
+```
+
+The generated Idemix artifacts are copied to Fabric CA expected default locations under the server
+config directory:
+
+- `IssuerPublicKey`
+- `IssuerRevocationPublicKey`
+- `msp/keystore/IssuerSecretKey`
+- `msp/keystore/IssuerRevocationPrivateKey`
 
 ### server/config/transfer
 

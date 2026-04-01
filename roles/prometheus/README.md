@@ -6,6 +6,7 @@ The role allows to run Prometheus as **container only** (binary is not currently
 
 ## Table of Contents <!-- omit in toc -->
 
+- [Variables](#variables)
 - [Tasks](#tasks)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
@@ -16,8 +17,30 @@ The role allows to run Prometheus as **container only** (binary is not currently
   - [stop](#stop)
   - [teardown](#teardown)
   - [wipe](#wipe)
-  - [fetch_logs](#fetch_logs)
+  - [fetch\_logs](#fetch_logs)
   - [ping](#ping)
+
+## Variables
+
+| Variable                          | Default                                             | Description                                  |
+| --------------------------------- | --------------------------------------------------- | -------------------------------------------- |
+| `prometheus_registry_endpoint`    | `$PROMETHEUS_REGISTRY_ENDPOINT` or `docker.io/prom` | Container registry endpoint                  |
+| `prometheus_image_name`           | `prometheus`                                        | Container image name                         |
+| `prometheus_image_tag`            | `latest`                                            | Container image tag                          |
+| `prometheus_image`                | `{{ registry }}/{{ name }}:{{ tag }}`               | Full container image reference               |
+| `prometheus_container_name`       | `{{ inventory_hostname }}`                          | Name given to the container                  |
+| `prometheus_remote_config_dir`    | `{{ remote_config_dir }}`                           | Configuration directory on the remote node   |
+| `prometheus_remote_data_dir`      | `{{ remote_data_dir }}`                             | Data directory on the remote node            |
+| `prometheus_container_config_dir` | `/etc/prometheus/config`                            | Configuration directory inside the container |
+| `prometheus_container_data_dir`   | `/data`                                             | Data directory inside the container          |
+| `prometheus_config_file`          | `prometheus.yaml`                                   | Prometheus configuration file name           |
+| `prometheus_web_config_file`      | `web-config.yaml`                                   | Web (TLS) configuration file name            |
+| `prometheus_http_config_file`     | `http-config.yaml`                                  | HTTP client configuration file name          |
+| `prometheus_use_tls`              | `false`                                             | Enable TLS                                   |
+| `prometheus_tls_private_key_file` | `server.key`                                        | TLS private key file name                    |
+| `prometheus_tls_cert_file`        | `server.crt`                                        | TLS certificate file name                    |
+| `prometheus_port`                 | `9090`                                              | Prometheus web UI and metrics port           |
+| `prometheus_scrape_interval`      | `2s`                                                | Default scrape interval                      |
 
 ## Tasks
 

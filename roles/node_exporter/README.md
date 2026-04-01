@@ -6,6 +6,7 @@ The role allows to run Node Exporter as **container only** (binary is not curren
 
 ## Table of Contents <!-- omit in toc -->
 
+- [Variables](#variables)
 - [Tasks](#tasks)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
@@ -16,9 +17,26 @@ The role allows to run Node Exporter as **container only** (binary is not curren
   - [stop](#stop)
   - [teardown](#teardown)
   - [wipe](#wipe)
-  - [fetch_logs](#fetch_logs)
+  - [fetch\_logs](#fetch_logs)
   - [ping](#ping)
-  - [get_host_set](#get_host_set)
+  - [get\_host\_set](#get_host_set)
+
+## Variables
+
+| Variable                             | Default                                                | Description                                  |
+| ------------------------------------ | ------------------------------------------------------ | -------------------------------------------- |
+| `node_exporter_registry_endpoint`    | `$NODE_EXPORTER_REGISTRY_ENDPOINT` or `docker.io/prom` | Container registry endpoint                  |
+| `node_exporter_image_name`           | `node-exporter`                                        | Container image name                         |
+| `node_exporter_image_tag`            | `latest`                                               | Container image tag                          |
+| `node_exporter_image`                | `{{ registry }}/{{ name }}:{{ tag }}`                  | Full container image reference               |
+| `node_exporter_container_name`       | `node-exporter`                                        | Name given to the container                  |
+| `node_exporter_remote_config_dir`    | `{{ remote_deploy_dir }}/node-exporter/config`         | Configuration directory on the remote node   |
+| `node_exporter_container_config_dir` | `/var/config`                                          | Configuration directory inside the container |
+| `node_exporter_web_config_file`      | `web-config.yaml`                                      | Web configuration file name                  |
+| `node_exporter_root_fs_flags`        | `ro,rslave`                                            | Mount flags for the root filesystem volume   |
+| `node_exporter_use_tls`              | `false`                                                | Enable TLS                                   |
+| `node_exporter_tls_private_key_file` | `server.key`                                           | TLS private key file name                    |
+| `node_exporter_tls_cert_file`        | `server.crt`                                           | TLS certificate file name                    |
 
 ## Tasks
 

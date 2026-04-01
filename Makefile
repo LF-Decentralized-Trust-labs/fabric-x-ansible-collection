@@ -216,6 +216,12 @@ fetch-logs:
 	@printf "$(COLOR_CYAN)🚩 Fetching logs from hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
 	ansible-playbook "$(PLAYBOOK_PATH)/96-fetch-logs.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
+# Fetch the crypto material from the targeted hosts (e.g. make fabric_x fetch-crypto).
+.PHONY: fetch-crypto
+fetch-crypto:
+	@printf "$(COLOR_CYAN)🚩 Fetching crypto material from hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
+	ansible-playbook "$(PLAYBOOK_PATH)/95-fetch-crypto.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+
 # Set the TPS limit rate (e.g. make limit-rate LIMIT=1000).
 .PHONY: limit-rate
 limit-rate:

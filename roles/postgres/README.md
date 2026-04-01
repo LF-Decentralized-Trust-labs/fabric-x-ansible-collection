@@ -6,6 +6,7 @@ The role allows to run Postgres as **container only** (binary is not currently s
 
 ## Table of Contents <!-- omit in toc -->
 
+- [Variables](#variables)
 - [Tasks](#tasks)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
@@ -16,8 +17,26 @@ The role allows to run Postgres as **container only** (binary is not currently s
   - [stop](#stop)
   - [teardown](#teardown)
   - [wipe](#wipe)
-  - [fetch_logs](#fetch_logs)
+  - [fetch\_logs](#fetch_logs)
   - [ping](#ping)
+
+## Variables
+
+| Variable                        | Default                                              | Description                                  |
+| ------------------------------- | ---------------------------------------------------- | -------------------------------------------- |
+| `postgres_registry_endpoint`    | `$POSTGRES_REGISTRY_ENDPOINT` or `docker.io/library` | Container registry endpoint                  |
+| `postgres_image_name`           | `postgres`                                           | Container image name                         |
+| `postgres_image_tag`            | `16.4`                                               | Container image tag                          |
+| `postgres_image`                | `{{ registry }}/{{ name }}:{{ tag }}`                | Full container image reference               |
+| `postgres_container_name`       | `{{ inventory_hostname }}`                           | Name given to the container                  |
+| `postgres_remote_config_dir`    | `{{ remote_config_dir }}`                            | Configuration directory on the remote node   |
+| `postgres_remote_data_dir`      | `{{ remote_data_dir }}`                              | Data directory on the remote node            |
+| `postgres_container_config_dir` | `/var/lib/postgresql/config`                         | Configuration directory inside the container |
+| `postgres_container_data_dir`   | `/var/lib/postgresql/data`                           | Data directory inside the container          |
+| `postgres_use_tls`              | `false`                                              | Enable TLS                                   |
+| `postgres_use_mtls`             | `false`                                              | Enable mutual TLS                            |
+| `postgres_tls_private_key_file` | `server.key`                                         | TLS private key file name                    |
+| `postgres_tls_cert_file`        | `server.crt`                                         | TLS certificate file name                    |
 
 ## Tasks
 

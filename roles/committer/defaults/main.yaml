@@ -9,7 +9,7 @@
 # =========================
 committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 committer_image_name: "fabric-x-committer"
-committer_image_tag: "0.1.7"
+committer_image_tag: "0.1.7-1"
 committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
 committer_container_name: "{{ inventory_hostname }}"
 
@@ -17,7 +17,7 @@ committer_container_name: "{{ inventory_hostname }}"
 # Fabric-X Committer bin
 # =========================
 committer_git_uri: "https://github.com/hyperledger/fabric-x-committer.git"
-committer_git_commit: "v0.1.7"
+committer_git_commit: "v0.1.7-1"
 committer_source_code_package: "cmd/committer"
 committer_bin_package: "github.com/hyperledger/fabric-x-committer/cmd/committer"
 committer_bin_name: "committer"

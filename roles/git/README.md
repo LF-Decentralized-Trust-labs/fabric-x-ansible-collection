@@ -5,6 +5,7 @@ The role `hyperledger.fabricx.git` can be used to perform `git` operations on a 
 ## Table of Contents <!-- omit in toc -->
 
 - [Prerequisites](#prerequisites)
+- [Variables](#variables)
 - [Tasks](#tasks)
   - [install](#install)
   - [clone](#clone)
@@ -12,6 +13,12 @@ The role `hyperledger.fabricx.git` can be used to perform `git` operations on a 
 ## Prerequisites
 
 The role requires `git` to be installed on the targeted node.
+
+## Variables
+
+| Variable     | Default | Description                                   |
+| ------------ | ------- | --------------------------------------------- |
+| `git_commit` | `main`  | Git ref (branch, tag, or commit) to check out |
 
 ## Tasks
 
