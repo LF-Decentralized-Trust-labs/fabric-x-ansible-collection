@@ -89,10 +89,11 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.openssl
         tasks_from: generate_cert
-    - name: Remove transient Fabric CA TLS CSR and ext files
+    - name: Remove transient Fabric CA TLS CSR file
       ansible.builtin.file:
-        path: "{{ item }}"
+        path: "{{ fabric_ca_server_remote_config_dir }}/tls.csr"
         state: absent
-      loop:
-        - "{{ fabric_ca_server_remote_config_dir }}/tls.csr"
-        - "{{ fabric_ca_server_remote_config_dir }}/tls.ext"
+    - name: Remove transient Fabric CA TLS EXT files
+      ansible.builtin.file:
+        path: "{{ fabric_ca_server_remote_config_dir }}/tls.ext"
+        state: absent
