@@ -7,12 +7,18 @@
 - name: Fetch the Fabric CAs logs
   hosts: "{{ target_hosts | default('fabric_cas') }}:&fabric_cas"
   tasks:
+    # =========================
+    # Postgres
+    # =========================
     - name: Fetch the logs from the Fabric CA DBs
       ansible.builtin.include_role:
         name: hyperledger.fabricx.postgres
         tasks_from: fetch_logs
       when:
         - postgres_port is defined
+    # =========================
+    # Fabric CA Server
+    # =========================
     - name: Fetch the logs from the Fabric CA servers
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fabric_ca
