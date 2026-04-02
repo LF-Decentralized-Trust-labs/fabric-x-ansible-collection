@@ -8,7 +8,6 @@
   ansible.builtin.file:
     path: "{{ orderer_remote_config_dir }}"
     state: absent
-  when: not orderer_use_k8s
 
 - name: Remove Fabric-X Orderer K8s config
   ansible.builtin.include_role:
