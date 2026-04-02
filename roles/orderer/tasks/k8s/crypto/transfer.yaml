@@ -1,0 +1,34 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Resolve dynamic cert paths via glob
+# =========================
+- name: Resolve Fabric-X Orderer MSP cert paths
+  ansible.builtin.set_fact:
+    orderer_k8s_msp_cacert_path: "{{ query('fileglob', orderer_remote_config_dir + '/msp/cacerts/*.pem') | first }}"
+    orderer_k8s_msp_signcert_path: "{{ query('fileglob', orderer_remote_config_dir + '/msp/signcerts/*.pem') | first }}"
+    orderer_k8s_msp_tlscacert_path: "{{ query('fileglob', orderer_remote_config_dir + '/msp/tlscacerts/*.pem') | first }}"
+
+- name: Resolve Fabric-X Orderer MSP admin cert path
+  ansible.builtin.set_fact:
+    orderer_k8s_msp_admincert_path: "{{ query('fileglob', orderer_remote_config_dir + '/msp/admincerts/*.pem') | first }}"
+  when: query('fileglob', orderer_remote_config_dir + '/msp/admincerts/*.pem') | length > 0
+
+# =========================
+# Apply Secret
+# =========================
+- name: Apply Fabric-X Orderer Secret
+  vars:
+    orderer_k8s_msp_keystore_path: "{{ orderer_remote_config_dir }}/msp/keystore/priv_sk"
+    orderer_k8s_tls_server_key_path: "{{ orderer_remote_config_dir }}/tls/server.key"
+    orderer_k8s_tls_server_cert_path: "{{ orderer_remote_config_dir }}/tls/server.crt"
+    orderer_k8s_tls_ca_cert_path: "{{ orderer_remote_config_dir }}/tls/ca.crt"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/secret.yaml.j2
+  no_log: true

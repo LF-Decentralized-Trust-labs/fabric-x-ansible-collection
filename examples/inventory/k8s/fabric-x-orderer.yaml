@@ -4,16 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# This inventory deploys the Hyperledger Fabric-X orderer components as Kubernetes workloads.
-# Crypto material and configuration are generated on the control node (ansible_connection: local)
-# and shipped to the cluster via ConfigMaps and Secrets.
-#
-# Prerequisites on the control node:
-#   pip install kubernetes
-#   ansible-galaxy collection install kubernetes.core
-#
-# Set KUBECONFIG or use k8s_kubeconfig / k8s_context in group_vars.
-
 all:
   vars:
     # =========================
@@ -32,16 +22,6 @@ all:
       orderer_org_4: &OrdererOrg4
         name: OrdererOrg4
         domain: ordererorg4.example.com
-    # -------------------------------------------------------
-    # Kubernetes settings
-    # -------------------------------------------------------
-    k8s_namespace: "fabricx"
-    k8s_storage_class: "standard"
-    k8s_storage_size: "10Gi"
-    k8s_image_pull_policy: "IfNotPresent"
-    # k8s_image_pull_secret: "regcred"
-    # k8s_kubeconfig: "/path/to/kubeconfig"
-    # k8s_context: "my-context"
   children:
     fabric_x_orderers:
       vars:
@@ -63,21 +43,21 @@ all:
           hosts:
             orderer-router-1:
               orderer_component_type: router
-              orderer_rpc_port: 7050
-              orderer_metrics_port: 7060
+              orderer_rpc_port: 30050
+              orderer_metrics_port: 30060
             orderer-consenter-1:
               orderer_component_type: consenter
-              orderer_rpc_port: 7051
-              orderer_metrics_port: 7061
+              orderer_rpc_port: 30051
+              orderer_metrics_port: 30061
             orderer-assembler-1:
               orderer_component_type: assembler
-              orderer_rpc_port: 7052
-              orderer_metrics_port: 7062
+              orderer_rpc_port: 30052
+              orderer_metrics_port: 30062
             orderer-batcher-1:
               orderer_component_type: batcher
               orderer_shard_id: 1
-              orderer_rpc_port: 7053
-              orderer_metrics_port: 7063
+              orderer_rpc_port: 30053
+              orderer_metrics_port: 30063
         fabric_x_orderer_2:
           vars:
             organization:
@@ -89,21 +69,21 @@ all:
           hosts:
             orderer-router-2:
               orderer_component_type: router
-              orderer_rpc_port: 7150
-              orderer_metrics_port: 7160
+              orderer_rpc_port: 30150
+              orderer_metrics_port: 30160
             orderer-consenter-2:
               orderer_component_type: consenter
-              orderer_rpc_port: 7151
-              orderer_metrics_port: 7161
+              orderer_rpc_port: 30151
+              orderer_metrics_port: 30161
             orderer-assembler-2:
               orderer_component_type: assembler
-              orderer_rpc_port: 7152
-              orderer_metrics_port: 7162
+              orderer_rpc_port: 30152
+              orderer_metrics_port: 30162
             orderer-batcher-2:
               orderer_component_type: batcher
               orderer_shard_id: 1
-              orderer_rpc_port: 7153
-              orderer_metrics_port: 7163
+              orderer_rpc_port: 30153
+              orderer_metrics_port: 30163
         fabric_x_orderer_3:
           vars:
             organization:
@@ -115,21 +95,21 @@ all:
           hosts:
             orderer-router-3:
               orderer_component_type: router
-              orderer_rpc_port: 7250
-              orderer_metrics_port: 7260
+              orderer_rpc_port: 30250
+              orderer_metrics_port: 30260
             orderer-consenter-3:
               orderer_component_type: consenter
-              orderer_rpc_port: 7251
-              orderer_metrics_port: 7261
+              orderer_rpc_port: 30251
+              orderer_metrics_port: 30261
             orderer-assembler-3:
               orderer_component_type: assembler
-              orderer_rpc_port: 7252
-              orderer_metrics_port: 7262
+              orderer_rpc_port: 30252
+              orderer_metrics_port: 30262
             orderer-batcher-3:
               orderer_component_type: batcher
               orderer_shard_id: 1
-              orderer_rpc_port: 7253
-              orderer_metrics_port: 7263
+              orderer_rpc_port: 30253
+              orderer_metrics_port: 30263
         fabric_x_orderer_4:
           vars:
             organization:
@@ -141,18 +121,18 @@ all:
           hosts:
             orderer-router-4:
               orderer_component_type: router
-              orderer_rpc_port: 7350
-              orderer_metrics_port: 7360
+              orderer_rpc_port: 30350
+              orderer_metrics_port: 30360
             orderer-consenter-4:
               orderer_component_type: consenter
-              orderer_rpc_port: 7351
-              orderer_metrics_port: 7361
+              orderer_rpc_port: 30351
+              orderer_metrics_port: 30361
             orderer-assembler-4:
               orderer_component_type: assembler
-              orderer_rpc_port: 7352
-              orderer_metrics_port: 7362
+              orderer_rpc_port: 30352
+              orderer_metrics_port: 30362
             orderer-batcher-4:
               orderer_component_type: batcher
               orderer_shard_id: 1
-              orderer_rpc_port: 7353
-              orderer_metrics_port: 7363
+              orderer_rpc_port: 30353
+              orderer_metrics_port: 30363

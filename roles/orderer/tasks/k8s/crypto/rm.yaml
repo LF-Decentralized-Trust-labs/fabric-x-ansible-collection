@@ -4,10 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Delete Fabric-X Orderer ConfigMap
+- name: Delete Fabric-X Orderer Secret
   kubernetes.core.k8s:
     state: absent
     api_version: v1
-    kind: ConfigMap
-    name: "{{ orderer_k8s_resource_name }}-config"
+    kind: Secret
+    name: "{{ orderer_k8s_resource_name }}-secret"
     namespace: "{{ k8s_namespace }}"

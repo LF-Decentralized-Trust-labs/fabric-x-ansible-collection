@@ -15,14 +15,14 @@ metadata:
     app.kubernetes.io/part-of: fabric-x-orderer
 data:
   node-config.yaml: |
-    {{ orderer_node_config_content | indent(4) }}
-  msp-signcert.pem: |
-    {{ lookup('file', orderer_msp_signcert_path) | indent(4) }}
-  msp-cacert.pem: |
-    {{ lookup('file', orderer_msp_cacert_path) | indent(4) }}
-  tls-server.crt: |
-    {{ lookup('file', orderer_remote_config_dir + '/tls/server.crt') | indent(4) }}
-  tls-ca.crt: |
-    {{ lookup('file', orderer_remote_config_dir + '/tls/ca.crt') | indent(4) }}
+    {{ orderer_k8s_node_config_content | indent(4) }}
+{% for cert in orderer_k8s_mtls_client_certs | default([]) %}
+  mtls-client-{{ cert.name }}-ca.crt: |
+    {{ lookup('file', cert.path) | indent(4) }}
+{% endfor %}
+{% for cert in orderer_k8s_mtls_org_certs | default([]) %}
+  mtls-org-{{ cert.domain }}-ca.crt: |
+    {{ lookup('file', cert.path) | indent(4) }}
+{% endfor %}
 binaryData:
-  genesis.block: {{ lookup('file', orderer_remote_config_dir + '/genesis.block') | b64encode }}
+  genesis.block: {{ orderer_k8s_genesis_block_b64 }}
