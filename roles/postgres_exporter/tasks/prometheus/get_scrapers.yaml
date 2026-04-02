@@ -1,0 +1,27 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check if postgres_exporter_hosts required variable is set
+  ansible.builtin.fail:
+    msg: "The variable 'postgres_exporter_hosts' must be defined to use this role. It must contain the list of hosts devoted for the Postgres Exporters."
+  when:
+    - postgres_exporter_hosts is not defined
+
+- name: Set Prometheus scrape services for Postgres Exporters
+  vars:
+    postgres_exporter_scrape_service:
+      job_name: "postgres_exporter.{{ current_postgres_exporter }}"
+      use_tls: "{{ hostvars[current_postgres_exporter].postgres_exporter_use_tls | default(false) }}"
+      tls_ca_file: "{{ fetched_artifacts_dir }}/{{ current_postgres_exporter }}/tls/ca.crt"
+      targets:
+        - hosts: "{{ [current_postgres_exporter] }}"
+          port_to_scrape: postgres_exporter_port
+  ansible.builtin.set_fact:
+    postgres_exporter_prometheus_scrape_services: "{{ (postgres_exporter_prometheus_scrape_services | default([])) + [postgres_exporter_scrape_service] }}"
+  loop: "{{ postgres_exporter_hosts }}"
+  loop_control:
+    loop_var: current_postgres_exporter
+    label: "{{ current_postgres_exporter }}"

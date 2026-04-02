@@ -241,6 +241,8 @@ all:
               vars:
                 committer_use_tls: true
                 committer_use_mtls: true
+                committer_monitoring_mtls_clients:
+                  - prometheus
                 organization:
                   <<: *Org1
                   fabric_ca_host: fabric-ca-org1
@@ -311,12 +313,14 @@ all:
             users:
               - name: orderer-loadgen
                 secret: "{{ inventory_hostname }}PWD"
-                namespace: 0
-                meta_namespace_admin: true
+            namespaces:
+              - id: 0
+                policy: threshold
           loadgen_type: orderer-client
           loadgen_use_tls: true
           loadgen_metrics_port: 12010
           loadgen_web_port: 12000
+          loadgen_rpc_port: 12020
 
     # =========================
     # Monitoring Infra

@@ -1,0 +1,28 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# mTLS material
+# =========================
+- name: Create folder for mTLS material
+  ansible.builtin.file:
+    path: "{{ fxconfig_remote_config_dir }}/mtls"
+    state: directory
+    mode: "0o755"
+
+- name: Copy TLS cert to use for mTLS connection
+  ansible.builtin.copy:
+    src: "{{ fxconfig_mtls_client_cert_path }}"
+    dest: "{{ fxconfig_remote_config_dir }}/mtls/server.crt"
+    remote_src: true
+    mode: preserve
+
+- name: Copy TLS key to use for mTLS connection
+  ansible.builtin.copy:
+    src: "{{ fxconfig_mtls_client_key_path }}"
+    dest: "{{ fxconfig_remote_config_dir }}/mtls/server.key"
+    remote_src: true
+    mode: preserve

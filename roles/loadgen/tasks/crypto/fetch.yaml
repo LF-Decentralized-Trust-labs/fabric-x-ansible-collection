@@ -37,7 +37,7 @@
     dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/ca.crt"
     flat: true
   when:
-    - loadgen_use_tls
+    - loadgen_use_tls or loadgen_monitoring_use_tls
 
 - name: Fetch Hyperledger Fabric-X Loadgen TLS certificate
   ansible.builtin.fetch:
@@ -45,4 +45,4 @@
     dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/server.crt"
     flat: true
   when:
-    - loadgen_use_tls
+    - loadgen_use_tls or loadgen_monitoring_use_tls

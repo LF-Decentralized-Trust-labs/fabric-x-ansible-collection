@@ -9,30 +9,34 @@
 # =========================
 fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 fxconfig_image_name: "fabric-x-tools"
-fxconfig_image_tag: "0.0.8"
+fxconfig_image_tag: "0.0.12"
 fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
 fxconfig_container_name: "fxconfig"
 
 # =========================
 # Fxconfig binary
 # =========================
-fxconfig_git_uri: "https://github.com/hyperledger/fabric-x.git"
-fxconfig_git_commit: "v0.0.8"
+fxconfig_git_hub_url: github.com
+fxconfig_git_repo: "hyperledger/fabric-x"
 fxconfig_source_code_package: "tools/fxconfig"
+fxconfig_bin_package: "{{ fxconfig_git_hub_url }}/{{ fxconfig_git_repo }}/{{ fxconfig_source_code_package }}"
+fxconfig_git_commit: "v0.0.12"
 fxconfig_bin_name: fxconfig
-fxconfig_bin_package: github.com/hyperledger/fabric-x/tools/fxconfig
 fxconfig_use_bin: false
 
 # =========================
 # Paths/Locations
 # =========================
 fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
-fxconfig_container_config_dir: "/tmp"
+fxconfig_container_config_dir: "/config"
+fxconfig_config_file: fxconfig.yaml
+fxconfig_output: "{{ fxconfig_remote_config_dir }}/tx.json"
 
 # =========================
-# Fxconfig TLS settings
+# Fxconfig logs
 # =========================
-fxconfig_use_tls: false
+fxconfig_log_level: info
+fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
 
 # =========================
 # Fxconfig mTLS settings

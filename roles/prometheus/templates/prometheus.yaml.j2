@@ -24,6 +24,10 @@ scrape_configs:
     scheme: https
     tls_config:
       ca_file: {{ prometheus_container_config_dir }}/tls/{{ service_to_scrape.job_name }}/ca.crt
+{% if service_to_scrape.use_mtls is defined and service_to_scrape.use_mtls %}
+      cert_file: {{ prometheus_container_config_dir }}/tls/{{ prometheus_tls_cert_file }}
+      key_file: {{ prometheus_container_config_dir }}/tls/{{ prometheus_tls_private_key_file }}
+{% endif %}
 {% endif %}
 {% if service_to_scrape.relabel_configs is defined %}
     relabel_configs:

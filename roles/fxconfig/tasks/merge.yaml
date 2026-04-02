@@ -4,16 +4,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Create namespace with fxconfig binary
+- name: Merge transactions with fxconfig binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
-    tasks_from: bin/namespace_create
+    tasks_from: bin/merge
   when:
     - fxconfig_use_bin
 
-- name: Create namespace with fxconfig container
+- name: Merge transactions with fxconfig container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
-    tasks_from: container/namespace_create
+    tasks_from: container/merge
   when:
     - not fxconfig_use_bin

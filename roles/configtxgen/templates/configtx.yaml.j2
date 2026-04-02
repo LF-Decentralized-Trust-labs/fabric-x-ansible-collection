@@ -444,6 +444,11 @@ Orderer: &OrdererDefaults
 {% endfor %}
 {% endfor %}
 
+  Arma:
+    # This includes the ARMA shared config data.
+    # It is only used if the orderer type is "arma".
+    Path: {{ armageddon_artifacts }}/{{ configtxgen_armageddon_binpb_file }}
+
   # Organizations lists the orgs participating on the orderer side of the
   # network.
   Organizations:
@@ -525,11 +530,7 @@ Profiles:
     <<: *ChannelDefaults
     Orderer:
       <<: *OrdererDefaults
-      Arma:
-        Path: {{ armageddon_artifacts }}/{{ configtxgen_armageddon_binpb_file }}
     Consortium: SampleConsortium
     Application:
       <<: *ApplicationDefaults
-{% if configtxgen_meta_namespace_admin is defined %}
-      MetaNamespaceVerificationKeyPath: {{ crypto_artifacts_dir }}/crypto/peerOrganizations/{{ configtxgen_meta_namespace_admin.organization.domain }}/users/{{ configtxgen_meta_namespace_admin.name }}@{{ configtxgen_meta_namespace_admin.organization.domain }}/msp/signcerts/{{ configtxgen_meta_namespace_admin.name }}@{{ configtxgen_meta_namespace_admin.organization.domain }}-cert.pem
-{% endif %}
+

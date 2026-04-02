@@ -16,10 +16,11 @@ armageddon_container_name: "armageddon"
 # =========================
 # Armageddon binary
 # =========================
-armageddon_git_uri: "https://github.com/hyperledger/fabric-x-orderer.git"
-armageddon_git_commit: "v0.0.21-1"
+armageddon_git_hub_url: github.com
+armageddon_git_repo: "hyperledger/fabric-x-orderer"
 armageddon_source_code_package: "cmd/armageddon"
-armageddon_bin_package: "github.com/hyperledger/fabric-x-orderer/cmd/armageddon"
+armageddon_git_commit: "v0.0.20"
+armageddon_bin_package: "{{ armageddon_git_hub_url }}/{{ armageddon_git_repo }}/{{ armageddon_source_code_package }}"
 armageddon_bin_name: "armageddon"
 armageddon_use_bin: false
 

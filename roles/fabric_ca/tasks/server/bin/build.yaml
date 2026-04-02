@@ -7,7 +7,8 @@
 - name: Build the binary {{ fabric_ca_server_bin_name }}
   vars:
     # Git vars
-    git_uri: "{{ fabric_ca_git_uri }}"
+    git_hub_url: "{{ fabric_ca_git_hub_url }}"
+    git_repo: "{{ fabric_ca_git_repo }}"
     git_commit: "{{ fabric_ca_git_commit }}"
     # Bin vars
     bin_name: "{{ fabric_ca_server_bin_name }}"

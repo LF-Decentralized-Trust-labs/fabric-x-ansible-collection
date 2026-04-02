@@ -1,0 +1,47 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# HLFX Orderer TLS certs
+# =========================
+- name: Ensure the directory for the Hyperledger Fabric-X Orderer Router CA certificate exist
+  ansible.builtin.file:
+    path: "{{ fxconfig_remote_config_dir }}/tls/orderer"
+    state: directory
+    mode: "0o755"
+  when:
+    - hostvars[orderer_router_host].orderer_use_tls is defined
+    - hostvars[orderer_router_host].orderer_use_tls
+
+- name: Transfer the Hyperledger Fabric-X Orderer Router TLS certificate to trust
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/{{ orderer_router_host }}/tls/ca.crt"
+    dest: "{{ fxconfig_remote_config_dir }}/tls/orderer/ca.crt"
+    mode: "0o644"
+  when:
+    - hostvars[orderer_router_host].orderer_use_tls is defined
+    - hostvars[orderer_router_host].orderer_use_tls
+
+# =========================
+# HLFX Committer TLS cert
+# =========================
+- name: Ensure the directory for the Hyperledger Fabric-X Committer Query-Service CA certificate exist
+  ansible.builtin.file:
+    path: "{{ fxconfig_remote_config_dir }}/tls/committer"
+    state: directory
+    mode: "0o755"
+  when:
+    - hostvars[committer_query_service_host].committer_use_tls is defined
+    - hostvars[committer_query_service_host].committer_use_tls
+
+- name: Transfer the Hyperledger Fabric-X Committer Query-Service TLS certificate to trust
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/{{ committer_query_service_host }}/tls/ca.crt"
+    dest: "{{ fxconfig_remote_config_dir }}/tls/committer/ca.crt"
+    mode: "0o644"
+  when:
+    - hostvars[committer_query_service_host].committer_use_tls is defined
+    - hostvars[committer_query_service_host].committer_use_tls

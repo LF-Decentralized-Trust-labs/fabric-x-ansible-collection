@@ -1,0 +1,69 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Set hosts per namespace
+  vars:
+    current_host: "{{ current_host_with_namespace[0].inventory_hostname }}"
+    current_namespace: "{{ current_host_with_namespace[1] }}"
+  ansible.builtin.set_fact:
+    fxconfig_hosts_per_namespaces: >-
+      {{
+        fxconfig_hosts_per_namespaces | default({}) | combine({
+          current_namespace.id: {
+            'namespace': current_namespace,
+            'hosts': (((fxconfig_hosts_per_namespaces | default({})).get(current_namespace.id, {}).get('hosts', []) + [current_host]) | unique | sort)
+          }
+        })
+      }}
+  with_subelements:
+    - >-
+      {{
+        groups['all']
+        | map('extract', hostvars)
+        | map('to_json')
+        | map('from_json')
+        | selectattr('organization', 'defined')
+        | selectattr('organization.namespaces', 'defined')
+      }}
+    - organization.namespaces
+  loop_control:
+    loop_var: current_host_with_namespace
+    label: "{{ current_host }}:{{ current_namespace.id }}"
+
+- name: Set threshold policy
+  vars:
+    current_host: "{{ current_host_with_namespace[0].inventory_hostname }}"
+    current_namespace: "{{ current_host_with_namespace[1] }}"
+    current_org_domain: "{{ hostvars[current_host].organization.domain }}"
+    fxconfig_endorser_user: "{{ current_namespace.user | default(hostvars[current_host].organization.users | map(attribute='name') | first) }}"
+    actual_policy:
+      policy: "threshold:{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ current_org_domain }}/users/{{ fxconfig_endorser_user }}@{{ current_org_domain }}/msp/signcerts/{{ fxconfig_endorser_user }}@{{ current_org_domain }}-cert.pem"
+  ansible.builtin.set_fact:
+    fxconfig_hosts_per_namespaces: >-
+      {{
+        fxconfig_hosts_per_namespaces | default({}) | combine({
+          current_namespace.id: {
+            'namespace': (fxconfig_hosts_per_namespaces.get(current_namespace.id).get('namespace') | combine(actual_policy)),
+            'hosts': fxconfig_hosts_per_namespaces.get(current_namespace.id).get('hosts')
+          }
+        })
+      }}
+  with_subelements:
+    - >-
+      {{
+        groups['all']
+        | map('extract', hostvars)
+        | map('to_json')
+        | map('from_json')
+        | selectattr('organization', 'defined')
+        | selectattr('organization.namespaces', 'defined')
+      }}
+    - organization.namespaces
+  loop_control:
+    loop_var: current_host_with_namespace
+    label: "{{ current_namespace.id }}:{{ current_host }}"
+  when:
+    - current_namespace.policy == 'threshold'

@@ -171,6 +171,7 @@ Numbered sequencing playbooks that wire the collection playbooks together for a 
 | `21-build-genesis-block.yaml` | Build the genesis block           |
 | `30-configs.yaml`             | Push configs to remote nodes      |
 | `40-start.yaml`               | Start all components              |
+| `41-init.yaml`                | Initialize deployment nodes       |
 | `50-stop.yaml`                | Stop all components               |
 | `60-teardown.yaml`            | Teardown (stop + delete data)     |
 | `70-ping.yaml`                | Port health check                 |

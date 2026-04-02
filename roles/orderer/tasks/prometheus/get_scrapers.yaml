@@ -1,0 +1,67 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check if orderer_hosts required variable is set
+  ansible.builtin.fail:
+    msg: "The variable 'orderer_hosts' must be defined to use this role. It must contain the list of hosts devoted for the Fabric-X Orderer components."
+  when:
+    - orderer_hosts is not defined
+
+- name: Set Prometheus scrape services for Fabric-X Orderer
+  vars:
+    orderer_hosts_with_vars: >-
+      {{
+        orderer_hosts
+        | map('extract', hostvars)
+        | selectattr('orderer_component_type', 'defined')
+      }}
+    orderer_assembler_hosts: >-
+      {{
+        orderer_hosts_with_vars
+        | selectattr('orderer_component_type', '==', 'assembler')
+        | map(attribute='inventory_hostname')
+        | list
+      }}
+    orderer_consenter_hosts: >-
+      {{
+        orderer_hosts_with_vars
+        | selectattr('orderer_component_type', '==', 'consenter')
+        | map(attribute='inventory_hostname')
+        | list
+      }}
+    orderer_router_hosts: >-
+      {{
+        orderer_hosts_with_vars
+        | selectattr('orderer_component_type', '==', 'router')
+        | map(attribute='inventory_hostname')
+        | list
+      }}
+    orderer_batcher_hosts: >-
+      {{
+        orderer_hosts_with_vars
+        | selectattr('orderer_component_type', '==', 'batcher')
+        | map(attribute='inventory_hostname')
+        | list
+      }}
+    orderer_scrape_services:
+      - job_name: assembler_service
+        targets:
+          - hosts: "{{ orderer_assembler_hosts }}"
+            port_to_scrape: orderer_metrics_port
+      - job_name: consenter_service
+        targets:
+          - hosts: "{{ orderer_consenter_hosts }}"
+            port_to_scrape: orderer_metrics_port
+      - job_name: router_service
+        targets:
+          - hosts: "{{ orderer_router_hosts }}"
+            port_to_scrape: orderer_metrics_port
+      - job_name: batcher_service
+        targets:
+          - hosts: "{{ orderer_batcher_hosts }}"
+            port_to_scrape: orderer_metrics_port
+  ansible.builtin.set_fact:
+    orderer_prometheus_scrape_services: "{{ orderer_scrape_services }}"

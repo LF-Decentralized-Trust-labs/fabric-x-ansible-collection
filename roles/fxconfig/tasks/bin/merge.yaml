@@ -1,0 +1,62 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Define fxconfig output directory
+  ansible.builtin.set_fact:
+    fxconfig_output_dir: "{{ fxconfig_output | dirname }}"
+
+- name: Ensure fxconfig output directory exists
+  ansible.builtin.file:
+    path: "{{ fxconfig_output_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Find all endorsed transactions in JSON format to merge
+  ansible.builtin.find:
+    paths: "{{ fxconfig_endorsed_txs_dir }}"
+    patterns: "*.json"
+    recurse: true
+    file_type: file
+  register: fxconfig_endorsed_txs_find_result
+
+- name: Set found endorsed transactions
+  ansible.builtin.set_fact:
+    fxconfig_endorsed_txs: >-
+      {{
+        fxconfig_endorsed_txs_find_result.files
+        | map(attribute='path')
+        | list
+      }}
+
+- name: Set single endorsed as merged one
+  ansible.builtin.copy:
+    src: "{{ fxconfig_endorsed_txs[0] }}"
+    dest: "{{ fxconfig_output }}"
+    mode: preserve
+  when:
+    - fxconfig_endorsed_txs | length == 1
+
+- name: Merge multiple endorsed transactions in a single one
+  vars:
+    bin_env:
+      FXCONFIG_LOGGING_LEVEL: "{{ fxconfig_log_level }}"
+      FXCONFIG_LOGGING_FORMAT: "{{ fxconfig_log_format | quote }}"
+    bin_command: >-
+      {{ fxconfig_bin_name }} tx
+      merge
+      {% if fxconfig_endorsed_txs is defined %}
+      {% for fxconfig_endorsed_tx in fxconfig_endorsed_txs %}
+      {{ fxconfig_endorsed_tx }}
+      {% endfor %}
+      {% endif %}
+      --output={{ fxconfig_output }}
+    bin_run_with_tmux: false
+    bin_collect_logs: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start
+  when:
+    - fxconfig_endorsed_txs | length > 1

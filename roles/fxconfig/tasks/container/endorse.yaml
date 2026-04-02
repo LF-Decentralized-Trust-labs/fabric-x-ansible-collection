@@ -1,0 +1,48 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Define fxconfig output directory
+  ansible.builtin.set_fact:
+    fxconfig_output_dir: "{{ fxconfig_output | dirname }}"
+
+- name: Ensure fxconfig output directory exists
+  ansible.builtin.file:
+    path: "{{ fxconfig_output_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Transfer transaction to endorse
+  ansible.builtin.copy:
+    src: "{{ fxconfig_tx_to_endorse }}"
+    dest: "{{ fxconfig_output_dir }}/tx_to_endorse.json"
+    mode: preserve
+
+- name: Endorse namespace transaction
+  vars:
+    container_name: "{{ fxconfig_container_name }}-endorse"
+    container_image: "{{ fxconfig_image }}"
+    container_command: >-
+      {{ fxconfig_bin_name }} tx
+      endorse
+      /tmp/tx_to_endorse.json
+      --config={{ fxconfig_container_config_dir }}/{{ fxconfig_config_file }}
+      --output=/tmp/{{ fxconfig_output | basename }}
+    container_volumes:
+      - "{{ fxconfig_remote_config_dir }}:{{ fxconfig_container_config_dir }}:z,ro"
+      - "{{ fxconfig_output_dir }}:/tmp:z"
+    container_run_detach_mode: false
+    container_run_as_host_user: true
+    container_autoremove: true
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start
+
+- name: Fetch endorsed transaction
+  ansible.builtin.fetch:
+    src: "{{ fxconfig_output }}"
+    dest: "{{ fxconfig_tx_to_endorse | dirname }}/endorsed/{{ fxconfig_output | basename }}.json"
+    flat: true
+    mode: preserve

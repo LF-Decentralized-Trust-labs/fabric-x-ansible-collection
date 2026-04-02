@@ -18,6 +18,9 @@
         targeted_hosts
         | default(groups['all'])
         | map('extract', hostvars)
+        | selectattr('organization', 'defined')
+        | selectattr('organization.users', 'defined')
+        | selectattr('organization.namespaces', 'defined')
         | selectattr('bin_build_on_control_node', 'defined')
         | selectattr('bin_build_on_control_node', '==', true)
         | selectattr('fxconfig_use_bin', 'defined')
@@ -29,70 +32,65 @@
     # =========================
     # Install on the control node
     # =========================
-    - name: Find all the meta namespace admin hosts where to install fxconfig on the control node
-      ansible.builtin.set_fact:
-        fxconfig_install_hosts: "{{ fxconfig_install_hosts | default([]) + [current_host.inventory_hostname] }}"
-      loop: >-
-        {{
-          base_bin_hosts
-          | map('extract', hostvars)
-          | map('to_json')
-          | map('from_json')
-          | selectattr('fxconfig_build_bin', 'undefined')
-          | selectattr('organization', 'defined')
-          | selectattr('organization.users', 'defined')
-        }}
-      loop_control:
-        loop_var: current_host
-        label: "{{ current_host.inventory_hostname }}:{{ current_host.organization.domain }}"
-      when:
-        - current_host.organization.users
-          | selectattr('meta_namespace_admin', 'defined')
-          | selectattr('meta_namespace_admin', '==', true)
-          | length > 0
-    - name: Install the fxconfig binary on the control node
+    - name: Install the fxconfig binary on the control node for the remote nodes
       vars:
-        bin_hosts: "{{ fxconfig_install_hosts }}"
+        bin_hosts: >-
+          {{
+            base_bin_hosts
+            | map('extract', hostvars)
+            | selectattr('fxconfig_build_bin', 'undefined')
+            | map(attribute='inventory_hostname')
+          }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxconfig
         tasks_from: bin/install
       when:
-        - fxconfig_install_hosts is defined
-        - fxconfig_install_hosts | length > 0
+        - bin_hosts | length > 0
     # =========================
     # Build on the control node
     # =========================
-    - name: Find all the meta namespace admin hosts where to build fxconfig on the control node
-      ansible.builtin.set_fact:
-        fxconfig_build_hosts: "{{ fxconfig_build_hosts | default([]) + [current_host.inventory_hostname] }}"
-      loop: >-
-        {{
-          base_bin_hosts
-          | map('extract', hostvars)
-          | map('to_json')
-          | map('from_json')
-          | selectattr('fxconfig_build_bin', 'defined')
-          | selectattr('fxconfig_build_bin', '==', true)
-          | selectattr('organization', 'defined')
-          | selectattr('organization.users', 'defined')
-        }}
-      loop_control:
-        loop_var: current_host
-        label: "{{ current_host.inventory_hostname }}:{{ current_host.organization.domain }}"
-      when:
-        - current_host.organization.users
-          | selectattr('meta_namespace_admin', 'defined')
-          | selectattr('meta_namespace_admin', '==', true)
-          | length > 0
-    - name: Build the fxconfig binary on the control node
+    - name: Build the fxconfig binary on the control node for the remote nodes
       vars:
-        bin_hosts: "{{ fxconfig_build_hosts }}"
+        bin_hosts: >-
+          {{
+            base_bin_hosts
+            | map('extract', hostvars)
+            | selectattr('fxconfig_build_bin', 'defined')
+            | selectattr('fxconfig_build_bin', 'eq', true)
+            | map(attribute='inventory_hostname')
+          }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxconfig
         tasks_from: bin/build
       when:
-        - fxconfig_build_hosts is defined
-        - fxconfig_build_hosts | length > 0
+        - bin_hosts | length > 0
+    # =========================
+    # Build/Install for the control node
+    # =========================
+    - name: Handle fxconfig build for the control node
+      when:
+        - fxconfig_use_bin is defined
+        - fxconfig_use_bin
+      block:
+        - name: Build the fxconfig binary on the control node for the control node
+          vars:
+            bin_build_on_control_node: true
+            bin_dir: "{{ cli_bin_dir }}"
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.fxconfig
+            tasks_from: bin/build
+          when:
+            - fxconfig_build_bin is defined
+            - fxconfig_build_bin
+        - name: Install the fxconfig binary on the control node for the control node
+          vars:
+            bin_build_on_control_node: true
+            bin_dir: "{{ cli_bin_dir }}"
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.fxconfig
+            tasks_from: bin/install
+          when:
+            - fxconfig_build_bin is undefined
 
 - name: Ensure fxconfig binaries are on remote nodes
   hosts: "{{ target_hosts | default('all') }}"
@@ -102,11 +100,7 @@
         - fxconfig_use_bin is defined
         - fxconfig_use_bin
         - organization is defined
-        - organization.users is defined
-        - organization.users
-          | selectattr('meta_namespace_admin', 'defined')
-          | selectattr('meta_namespace_admin', '==', true)
-          | length > 0
+        - organization.namespaces is defined
       block:
         - name: Setup fxconfig binary using appropriate method
           vars:

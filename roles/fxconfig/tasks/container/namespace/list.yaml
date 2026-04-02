@@ -1,0 +1,31 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: List namespaces with fxconfig container
+  vars:
+    container_name: "{{ fxconfig_container_name }}-namespace-list"
+    container_image: "{{ fxconfig_image }}"
+    container_env:
+      FXCONFIG_LOGGING_LEVEL: "{{ fxconfig_log_level }}"
+      FXCONFIG_LOGGING_FORMAT: "{{ fxconfig_log_format | quote }}"
+    container_command: >-
+      {{ fxconfig_bin_name }} namespace
+      list
+      --config={{ fxconfig_container_config_dir }}/{{ fxconfig_config_file }}
+    container_volumes:
+      - "{{ fxconfig_remote_config_dir }}:{{ fxconfig_container_config_dir }}:z,ro"
+    container_run_detach_mode: false
+    container_run_as_host_user: true
+    container_autoremove: true
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start
+
+- name: Print retrieved Fabric-X namespaces
+  ansible.builtin.debug:
+    msg: "{{ container_output.stdout_lines }}"
+  when:
+    - container_output is defined

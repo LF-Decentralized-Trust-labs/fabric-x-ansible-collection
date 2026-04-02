@@ -9,17 +9,18 @@
 # =========================
 committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 committer_image_name: "fabric-x-committer"
-committer_image_tag: "0.1.7-1"
+committer_image_tag: "0.1.9"
 committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
 committer_container_name: "{{ inventory_hostname }}"
 
 # =========================
 # Fabric-X Committer bin
 # =========================
-committer_git_uri: "https://github.com/hyperledger/fabric-x-committer.git"
-committer_git_commit: "v0.1.7-1"
+committer_git_hub_url: github.com
+committer_git_repo: "hyperledger/fabric-x-committer"
 committer_source_code_package: "cmd/committer"
-committer_bin_package: "github.com/hyperledger/fabric-x-committer/cmd/committer"
+committer_bin_package: "{{ committer_git_hub_url }}/{{ committer_git_repo }}/{{ committer_source_code_package }}"
+committer_git_commit: "v0.1.9"
 committer_bin_name: "committer"
 committer_use_bin: false
 
@@ -41,13 +42,16 @@ committer_query_service_config_file: "config-query-service.yml"
 # =========================
 # Fabric-X Committer TLS/mTLS
 # =========================
+# TLS settings
 committer_use_tls: false
+committer_monitoring_use_tls: "{{ committer_use_tls }}"
+# mTLS settings
 committer_use_mtls: false
+committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
 committer_http_protocol: "{{ 'https' if committer_use_tls else 'http' }}"
 
 # =========================
 # Miscellaneous
 # =========================
-committer_log_level: "INFO"
-committer_enable_logs: true
-committer_enable_dev_logs: true
+committer_log_level: "info"
+committer_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
