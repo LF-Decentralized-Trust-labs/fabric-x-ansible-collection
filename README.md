@@ -49,7 +49,7 @@ To install the `hyperledger.fabricx` collection on your control node, run:
 ```shell
 git clone https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection.git ~/.ansible/collections/ansible_collections/hyperledger/fabricx
 cd ~/.ansible/collections/ansible_collections/hyperledger/fabricx
-ansible-galaxy collection install -r requirements.yml
+make install
 ```
 
 **NOTE**: This is the recommended way if you plan to develop and change the scripts, since it allows to test directly the modified scripts avoiding to reinstall the collection at every change.
@@ -88,15 +88,16 @@ For more information, please look at the [Roles](./roles/README.md) documentatio
 To run such Ansible collection, you need to have the following prerequisites installed on your control node:
 
 - `python`;
-- [`ansible`](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) >= **2.16**;
 - [`podman`](https://podman.io/docs/installation) or [`docker`](https://docs.docker.com/engine/install/);
 - [`go`](https://go.dev/doc/install).
 
 After having cloned this repository, run:
 
 ```shell
-pip install -r requirements.txt
+make install
 ```
+
+This installs the control-node dependencies only. `make install` is a wrapper for `install-venv` + `install-collections`.
 
 ### Setup the remote nodes
 
@@ -184,7 +185,10 @@ Here there is a list of the most used commands:
 
 | Command                 | Usage                                                                        |
 | ----------------------- | ---------------------------------------------------------------------------- |
-| `install`               | Build and install the collection locally.                                    |
+| `build`                 | Build the collection artifact using `ansible-galaxy`                         |
+| `install`               | Wrapper for `install-venv` + `install-collections`.                          |
+| `install-venv`          | Create `.venv` and install Python packages                                   |
+| `install-collections`   | Install the Ansible collections required by this repository.                 |
 | `lint`                  | Run `ansible-lint` checks.                                                   |
 | `check-license-header`  | Verify license headers on all files.                                         |
 | `check-trailing-spaces` | Check for trailing spaces in `.j2` files.                                    |

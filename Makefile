@@ -6,14 +6,31 @@
 
 # exported vars
 PROJECT_DIR := $(CURDIR)
+OUT_DIR ?= $(PROJECT_DIR)/out
+
+# venv
+VENV_DIR := $(PROJECT_DIR)/.venv
+VENV_BIN_DIR := $(VENV_DIR)/bin
+
+# Ansible vars
 ANSIBLE_CONFIG ?= $(PROJECT_DIR)/examples/ansible.cfg
 ANSIBLE_CACHE_PLUGIN ?= jsonfile
-ANSIBLE_CACHE_PLUGIN_CONNECTION ?= $(PROJECT_DIR)/out/ansible_fact_cache
+ANSIBLE_CACHE_PLUGIN_CONNECTION ?= $(OUT_DIR)/ansible_fact_cache
+ANSIBLE_PYTHON_INTERPRETER := $(VENV_DIR)/bin/python
 
+# Ansible commands
+# We default to the venv-installed commands, but users can
+# still override them from the command line if needed.
+ANSIBLE_PLAYBOOK ?= $(VENV_BIN_DIR)/ansible-playbook
+ANSIBLE_GALAXY ?= $(VENV_BIN_DIR)/ansible-galaxy
+ANSIBLE_LINT ?= $(VENV_BIN_DIR)/ansible-lint
+
+# Ansible
 export ANSIBLE_CONFIG
 export ANSIBLE_CACHE_PLUGIN
 export ANSIBLE_CACHE_PLUGIN_CONNECTION
 export PROJECT_DIR
+export ANSIBLE_PYTHON_INTERPRETER := $(VENV_DIR)/bin/python
 
 # Color codes for echo messages
 COLOR_CYAN := \033[0;36m
@@ -54,19 +71,35 @@ help:
 		} \
 	' $(MAKEFILE_LIST)
 
-# Install the hyperledger.fabricx Ansible collection locally
-.PHONY: install
-install:
+# Build the hyperledger.fabricx Ansible collection locally
+.PHONY: build
+build:
 	@printf "$(COLOR_CYAN)🚩 Building and installing hyperledger.fabricx collection...$(COLOR_RESET)\n"
-	@ansible-galaxy collection build -f
-	@ansible-galaxy collection install $$(ls -1 | grep fabricx) -f
-	@rm -f $$(ls -1 | grep fabricx)
+	@$(ANSIBLE_GALAXY) collection build -f
+
+# Setup the control node (e.g. make install).
+.PHONY: install
+install: install-venv install-collections
+
+# Install venv for local Python setup
+.PHONY: install-venv
+install-venv:
+	@printf "$(COLOR_CYAN)🚩 Installing venv...$(COLOR_RESET)\n"
+	python3 -m venv $(VENV_DIR)
+	$(VENV_BIN_DIR)/python -m pip install --upgrade pip
+	$(VENV_BIN_DIR)/pip install -r $(PROJECT_DIR)/requirements.txt
+
+# Install the Ansible collections needed to run the scripts.
+.PHONY: install-collections
+install-collections:
+	@printf "$(COLOR_CYAN)🚩 Installing Ansible collections...$(COLOR_RESET)\n"
+	$(ANSIBLE_GALAXY) collection install -r requirements.yml	
 
 # Check the linting correctness (e.g. make lint)
 .PHONY: lint
 lint:
 	@printf "$(COLOR_CYAN)🚩 Running ansible-lint checks...$(COLOR_RESET)\n"
-	ansible-lint --offline roles playbooks examples
+	$(ANSIBLE_LINT) --offline roles playbooks examples
 
 # Check the license header
 .PHONY: check-license-header
@@ -88,13 +121,13 @@ check-trailing-spaces:
 .PHONY: install-prerequisites
 install-prerequisites:
 	@printf "$(COLOR_CYAN)🚩 Installing prerequisites on remote hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	ansible-playbook hyperledger.fabricx.install_prerequisites --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+	$(ANSIBLE_PLAYBOOK) hyperledger.fabricx.install_prerequisites --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
 # Log the container engine within a Container Registry (aka CR) (e.g. make login-cr CONTAINER_REGISTRY=icr.io CONTAINER_REGISTRY_USERNAME=iamapikey CONTAINER_REGISTRY_PASSWORD=my_api_key).
 .PHONY: login-cr
 login-cr:
 	@printf "$(COLOR_CYAN)🚩 Logging into container registry [$(COLOR_GREEN)$(CONTAINER_REGISTRY)$(COLOR_CYAN)] for hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	ansible-playbook hyperledger.fabricx.log_in_container_registry --extra-vars '{"target_hosts": "$(TARGET_HOSTS)", "container_registry": "$(CONTAINER_REGISTRY)", "container_registry_username": "$(CONTAINER_REGISTRY_USERNAME)", "container_registry_password": "$(CONTAINER_REGISTRY_PASSWORD)"}'
+	$(ANSIBLE_PLAYBOOK) hyperledger.fabricx.log_in_container_registry --extra-vars '{"target_hosts": "$(TARGET_HOSTS)", "container_registry": "$(CONTAINER_REGISTRY)", "container_registry_username": "$(CONTAINER_REGISTRY_USERNAME)", "container_registry_password": "$(CONTAINER_REGISTRY_PASSWORD)"}'
 
 # Build all the artifacts, the binaries and configuration files (e.g. make setup).
 .PHONY: setup
@@ -108,25 +141,25 @@ artifacts: generate-crypto genesis-block
 .PHONY: generate-crypto
 generate-crypto:
 	@printf "$(COLOR_CYAN)🚩 Generating crypto material for hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	ansible-playbook "$(PLAYBOOK_PATH)/20-generate-crypto.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+	$(ANSIBLE_PLAYBOOK) "$(PLAYBOOK_PATH)/20-generate-crypto.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
 # Build the genesis block for the network (e.g. make genesis-block).
 .PHONY: genesis-block
 genesis-block:
 	@printf "$(COLOR_CYAN)🚩 Building genesis block for hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	ansible-playbook "$(PLAYBOOK_PATH)/21-build-genesis-block.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+	$(ANSIBLE_PLAYBOOK) "$(PLAYBOOK_PATH)/21-build-genesis-block.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
 # Build the targeted binaries on the controller node (e.g. make binaries).
 .PHONY: binaries
 binaries:
 	@printf "$(COLOR_CYAN)🚩 Building/installing binaries for hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	ansible-playbook "$(PLAYBOOK_PATH)/10-binaries.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+	$(ANSIBLE_PLAYBOOK) "$(PLAYBOOK_PATH)/10-binaries.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
 # Clean all the artifacts (configs and bins) built on the controller node (e.g. make clean).
 .PHONY: clean
 clean: clean-cache
 	@printf "$(COLOR_CYAN)🚩 Cleaning local artifacts and cache...$(COLOR_RESET)\n"
-	rm -rf ./out
+	rm -rf $(OUT_DIR)
 
 # Clean the Ansible cache (e.g. make clean-cache).
 .PHONY: clean-cache
@@ -138,25 +171,25 @@ clean-cache:
 .PHONY: configs
 configs:
 	@printf "$(COLOR_CYAN)🚩 Creating and shipping configs to remote nodes [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	ansible-playbook "$(PLAYBOOK_PATH)/30-configs.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+	$(ANSIBLE_PLAYBOOK) "$(PLAYBOOK_PATH)/30-configs.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
 # Start the targeted hosts (e.g. make fabric_x start).
 .PHONY: start
 start:
 	@printf "$(COLOR_CYAN)🚩 Starting hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	ansible-playbook "$(PLAYBOOK_PATH)/40-start.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+	$(ANSIBLE_PLAYBOOK) "$(PLAYBOOK_PATH)/40-start.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
 # Stop the targeted hosts (e.g. make fabric_x stop).
 .PHONY: stop
 stop:
 	@printf "$(COLOR_CYAN)🚩 Stopping hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	ansible-playbook "$(PLAYBOOK_PATH)/50-stop.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+	$(ANSIBLE_PLAYBOOK) "$(PLAYBOOK_PATH)/50-stop.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
 # Teardown the targeted hosts (e.g. make fabric_x teardown).
 .PHONY: teardown
 teardown:
 	@printf "$(COLOR_CYAN)🚩 Tearing down hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	ansible-playbook "$(PLAYBOOK_PATH)/60-teardown.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+	$(ANSIBLE_PLAYBOOK) "$(PLAYBOOK_PATH)/60-teardown.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
 # Update the targeted hosts (e.g. make fabric_x update).
 .PHONY: update
@@ -174,13 +207,13 @@ hard-restart: teardown start
 .PHONY: wipe
 wipe:
 	@printf "$(COLOR_CYAN)🚩 Wiping configs and binaries from remote hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	ansible-playbook "$(PLAYBOOK_PATH)/100-wipe.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+	$(ANSIBLE_PLAYBOOK) "$(PLAYBOOK_PATH)/100-wipe.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
 # Wipe the deploy folder from the remote hosts (e.g. make fabric_x hard-wipe).
 .PHONY: hard-wipe
 hard-wipe:
 	@printf "$(COLOR_CYAN)🚩 Wiping deploy folder from remote hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	ansible-playbook "$(PLAYBOOK_PATH)/110-hard-wipe.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+	$(ANSIBLE_PLAYBOOK) "$(PLAYBOOK_PATH)/110-hard-wipe.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
 # =======================
 # Utils
@@ -190,40 +223,40 @@ hard-wipe:
 .PHONY: targets
 targets:
 	@printf "$(COLOR_CYAN)🚩 Generating Makefile targets for all inventory hosts...$(COLOR_RESET)\n"
-	ansible-playbook "hyperledger.fabricx.generate_target_hosts"
+	$(ANSIBLE_PLAYBOOK) "hyperledger.fabricx.generate_target_hosts"
 
 # Run a generic command on the targeted hosts (e.g. make run-command COMMAND="echo 'hello-world'")
 .PHONY: run-command
 run-command:
 	@printf "$(COLOR_CYAN)🚩 Running command on hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]: $(COLOR_RESET)$(COMMAND)\n"
-	ansible-playbook "$(PLAYBOOK_PATH)/999-run-command.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)", "command": "$(COMMAND)"}'
+	$(ANSIBLE_PLAYBOOK) "$(PLAYBOOK_PATH)/999-run-command.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)", "command": "$(COMMAND)"}'
 
 # Ping the targeted host to check whether is reachable (e.g. make fabric_x ping).
 .PHONY: ping
 ping:
 	@printf "$(COLOR_CYAN)🚩 Checking component ports on hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	ansible-playbook "$(PLAYBOOK_PATH)/70-ping.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}';
+	$(ANSIBLE_PLAYBOOK) "$(PLAYBOOK_PATH)/70-ping.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}';
 
 # Get the metrics from the targeted components and assert they are working correctly (e.g make load_generators get-metrics).
 .PHONY: get-metrics
 get-metrics:
 	@printf "$(COLOR_CYAN)🚩 Collecting metrics from hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	ansible-playbook "$(PLAYBOOK_PATH)/93-get-metrics.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)", "assert_metrics": "$(ASSERT_METRICS)"}'
+	$(ANSIBLE_PLAYBOOK) "$(PLAYBOOK_PATH)/93-get-metrics.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)", "assert_metrics": "$(ASSERT_METRICS)"}'
 
 # Fetch the logs from the targeted hosts (e.g. make fabric_x fetch-logs).
 .PHONY: fetch-logs
 fetch-logs:
 	@printf "$(COLOR_CYAN)🚩 Fetching logs from hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	ansible-playbook "$(PLAYBOOK_PATH)/96-fetch-logs.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+	$(ANSIBLE_PLAYBOOK) "$(PLAYBOOK_PATH)/96-fetch-logs.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
 # Fetch the crypto material from the targeted hosts (e.g. make fabric_x fetch-crypto).
 .PHONY: fetch-crypto
 fetch-crypto:
 	@printf "$(COLOR_CYAN)🚩 Fetching crypto material from hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	ansible-playbook "$(PLAYBOOK_PATH)/95-fetch-crypto.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+	$(ANSIBLE_PLAYBOOK) "$(PLAYBOOK_PATH)/95-fetch-crypto.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
 # Set the TPS limit rate (e.g. make limit-rate LIMIT=1000).
 .PHONY: limit-rate
 limit-rate:
 	@printf "$(COLOR_CYAN)🚩 Setting TPS rate limit to $(COLOR_GREEN)$(LIMIT)$(COLOR_CYAN)...$(COLOR_RESET)\n"
-	ansible-playbook hyperledger.fabricx.loadgen.limit_rate --extra-vars '{"loadgen_limit_rate": "$(LIMIT)"}';
+	$(ANSIBLE_PLAYBOOK) hyperledger.fabricx.loadgen.limit_rate --extra-vars '{"loadgen_limit_rate": "$(LIMIT)"}';

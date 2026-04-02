@@ -4,6 +4,9 @@ out/
 out.*working/
 target_hosts.mk
 
+# python
+.venv/
+
 # ansible
 .ansible/
 # tests/integration/inventory

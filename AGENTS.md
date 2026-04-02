@@ -223,7 +223,10 @@ Run `make help` to see all commands. The most important ones are:
 
 | Command                 | Description                                                |
 | ----------------------- | ---------------------------------------------------------- |
-| `install`               | Build and install the collection locally                   |
+| `build`                 | Build the collection artifact using `ansible-galaxy`       |
+| `install`               | `install-venv` + `install-collections`                     |
+| `install-venv`          | Create `.venv` and install Python packages                 |
+| `install-collections`   | Install the Ansible collections required by the repository |
 | `lint`                  | Run `ansible-lint`                                         |
 | `check-license-header`  | Verify license headers on all files                        |
 | `check-trailing-spaces` | Check for trailing spaces in `.j2` files                   |
@@ -368,7 +371,7 @@ Publishes the collection to Ansible Galaxy on release.
 Install with:
 
 ```shell
-ansible-galaxy collection install -r requirements.yml
+.venv/bin/ansible-galaxy collection install -r requirements.yml
 ```
 
 ### Python packages (`requirements.txt`)
@@ -376,7 +379,7 @@ ansible-galaxy collection install -r requirements.yml
 Install with:
 
 ```shell
-pip install -r requirements.txt
+make install-venv
 ```
 
 ### Controller node prerequisites
@@ -384,9 +387,13 @@ pip install -r requirements.txt
 | Tool                 | Minimum version |
 | -------------------- | --------------- |
 | Python               | any recent 3.x  |
-| Ansible              | 2.16            |
+| Ansible Core         | 2.17            |
 | Podman **or** Docker | latest stable   |
 | Go                   | latest stable   |
+
+The `Makefile` defaults to the `.venv`-scoped commands `.venv/bin/ansible-playbook`, `.venv/bin/ansible-galaxy`, and `.venv/bin/ansible-lint`. If a developer needs to use a different Ansible installation, they can override `ANSIBLE_PLAYBOOK`, `ANSIBLE_GALAXY`, and `ANSIBLE_LINT` when invoking `make`.
+
+For control-node setup, prefer `make install`, which is a wrapper for `install-venv` + `install-collections`. Remote host setup remains a separate step via `make install-prerequisites`.
 
 ### Remote node prerequisites
 
