@@ -230,7 +230,7 @@ Run `make help` to see all commands. The most important ones are:
 | `check-trailing-spaces` | Check for trailing spaces in `.j2` files                   |
 | `install-prerequisites` | Install prerequisites on remote hosts                      |
 | `login-cr`              | Log into a container registry                              |
-| `setup`                 | `artifacts` + `binaries` + `configs`                       |
+| `setup`                 | `binaries` + `artifacts` + `configs`                       |
 | `artifacts`             | `generate-crypto` + `genesis-block`                        |
 | `generate-crypto`       | Generate crypto material on controller                     |
 | `genesis-block`         | Build genesis block                                        |
@@ -251,6 +251,7 @@ Run `make help` to see all commands. The most important ones are:
 | `ping`                  | Check that component ports are open                        |
 | `get-metrics`           | Collect metrics from components                            |
 | `fetch-logs`            | Pull logs from remote hosts                                |
+| `fetch-crypto`          | Fetch crypto material from remote hosts                    |
 | `limit-rate`            | Adjust load-generator TPS (`LIMIT=<n>`)                    |
 
 ---

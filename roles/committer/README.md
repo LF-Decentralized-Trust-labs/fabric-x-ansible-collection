@@ -4,6 +4,7 @@ The role `hyperledger.fabricx.committer` can be used to run the Fabric-X `commit
 
 ## Table of Contents <!-- omit in toc -->
 
+- [Variables](#variables)
 - [Tasks](#tasks)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
@@ -13,9 +14,42 @@ The role `hyperledger.fabricx.committer` can be used to run the Fabric-X `commit
   - [stop](#stop)
   - [teardown](#teardown)
   - [wipe](#wipe)
-  - [fetch_logs](#fetch_logs)
+  - [fetch\_logs](#fetch_logs)
   - [ping](#ping)
-  - [get_metrics](#get_metrics)
+  - [get\_metrics](#get_metrics)
+
+## Variables
+
+| Variable                              | Default                                                   | Description                                                                 |
+| ------------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `committer_registry_endpoint`         | `$COMMITTER_REGISTRY_ENDPOINT` or `docker.io/hyperledger` | Container registry endpoint                                                 |
+| `committer_image_name`                | `fabric-x-committer`                                      | Container image name                                                        |
+| `committer_image_tag`                 | `0.1.7-1`                                                   | Container image tag                                                         |
+| `committer_image`                     | `{{ registry }}/{{ name }}:{{ tag }}`                     | Full container image reference                                              |
+| `committer_container_name`            | `{{ inventory_hostname }}`                                | Name given to the container                                                 |
+| `committer_git_uri`                   | `https://github.com/hyperledger/fabric-x-committer.git`   | Git repository used to build the binary                                     |
+| `committer_git_commit`                | `v0.1.7-1`                                                  | Git ref (tag or commit) to check out                                        |
+| `committer_source_code_package`       | `cmd/committer`                                           | Go source package path within the repository                                |
+| `committer_bin_package`               | `github.com/hyperledger/fabric-x-committer/cmd/committer` | Fully-qualified Go package used for `go install`                            |
+| `committer_bin_name`                  | `committer`                                               | Name of the produced binary                                                 |
+| `committer_use_bin`                   | `false`                                                   | Set to `true` to use the native binary instead of a container               |
+| `committer_remote_config_dir`         | `{{ remote_config_dir }}`                                 | Configuration directory on the remote node                                  |
+| `committer_remote_data_dir`           | `{{ remote_data_dir }}`                                   | Data directory on the remote node                                           |
+| `committer_container_config_dir`      | `/config`                                                 | Configuration directory inside the container                                |
+| `committer_container_data_dir`        | `/data`                                                   | Data directory inside the container                                         |
+| `committer_config_dir`                | auto-selected                                             | Active config directory (remote or container, based on `committer_use_bin`) |
+| `committer_data_dir`                  | auto-selected                                             | Active data directory (remote or container, based on `committer_use_bin`)   |
+| `committer_verifier_config_file`      | `config-verifier.yml`                                     | Verifier component configuration file name                                  |
+| `committer_validator_config_file`     | `config-validator.yml`                                    | Validator component configuration file name                                 |
+| `committer_coordinator_config_file`   | `config-coordinator.yml`                                  | Coordinator component configuration file name                               |
+| `committer_sidecar_config_file`       | `config-sidecar.yml`                                      | Sidecar component configuration file name                                   |
+| `committer_query_service_config_file` | `config-query-service.yml`                                | Query-service component configuration file name                             |
+| `committer_use_tls`                   | `false`                                                   | Enable TLS                                                                  |
+| `committer_use_mtls`                  | `false`                                                   | Enable mutual TLS                                                           |
+| `committer_http_protocol`             | `https` or `http`                                         | HTTP protocol derived from `committer_use_tls`                              |
+| `committer_log_level`                 | `INFO`                                                    | Log level                                                                   |
+| `committer_enable_logs`               | `true`                                                    | Enable logging                                                              |
+| `committer_enable_dev_logs`           | `true`                                                    | Enable development log format                                               |
 
 ## Tasks
 

@@ -5,6 +5,7 @@ The role `hyperledger.fabricx.cryptogen` can be used to run the `cryptogen` CLI 
 ## Table of Contents <!-- omit in toc -->
 
 - [Prerequisites](#prerequisites)
+- [Variables](#variables)
 - [Tasks](#tasks)
   - [config/build](#configbuild)
   - [start](#start)
@@ -15,6 +16,30 @@ The role `hyperledger.fabricx.cryptogen` can be used to run the `cryptogen` CLI 
 The role requires:
 
 - `go` to be installed.
+
+## Variables
+
+| Variable                            | Default                                                   | Description                                                   |
+| ----------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------- |
+| `cryptogen_registry_endpoint`       | `$CRYPTOGEN_REGISTRY_ENDPOINT` or `docker.io/hyperledger` | Container registry endpoint                                   |
+| `cryptogen_image_name`              | `fabric-x-tools`                                          | Container image name                                          |
+| `cryptogen_image_tag`               | `0.0.8`                                                   | Container image tag                                           |
+| `cryptogen_image`                   | `{{ registry }}/{{ name }}:{{ tag }}`                     | Full container image reference                                |
+| `cryptogen_container_name`          | `cryptogen`                                               | Name given to the ephemeral container                         |
+| `cryptogen_git_uri`                 | `https://github.com/hyperledger/fabric-x.git`             | Git repository used to build the binary                       |
+| `cryptogen_git_commit`              | `v0.0.8`                                                  | Git ref (tag or commit) to check out                          |
+| `cryptogen_source_code_package`     | `tools/cryptogen`                                         | Go source package path within the repository                  |
+| `cryptogen_bin_package`             | `github.com/hyperledger/fabric-x/tools/cryptogen`         | Fully-qualified Go package used for `go install`              |
+| `cryptogen_bin_name`                | `cryptogen`                                               | Name of the produced binary                                   |
+| `cryptogen_use_bin`                 | `false`                                                   | Set to `true` to use the native binary instead of a container |
+| `cryptogen_artifacts_dir`           | `{{ config_build_dir }}/cryptogen-artifacts`              | Directory on the controller where artifacts are written       |
+| `cryptogen_output_dir`              | `{{ cryptogen_artifacts_dir }}/crypto`                    | Crypto output directory on the controller                     |
+| `cryptogen_container_artifacts_dir` | `/tmp/cryptogen-artifacts`                                | Artifacts directory inside the container                      |
+| `cryptogen_container_output_dir`    | `{{ cryptogen_container_artifacts_dir }}/crypto`          | Crypto output directory inside the container                  |
+| `cryptogen_config_file`             | `crypto-config.yaml`                                      | Name of the cryptogen configuration file                      |
+| `cryptogen_orderers_by_org`         | `{}`                                                      | Map of orderers grouped by organization                       |
+| `cryptogen_peers_by_org`            | `{}`                                                      | Map of peers grouped by organization                          |
+| `cryptogen_users_by_org`            | `{}`                                                      | Map of users grouped by organization                          |
 
 ## Tasks
 

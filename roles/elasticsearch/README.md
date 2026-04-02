@@ -4,6 +4,7 @@ The role `hyperledger.fabricx.elasticsearch` can be used to run an ElasticSearch
 
 ## Table of Contents <!-- omit in toc -->
 
+- [Variables](#variables)
 - [Tasks](#tasks)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
@@ -13,8 +14,25 @@ The role `hyperledger.fabricx.elasticsearch` can be used to run an ElasticSearch
   - [stop](#stop)
   - [teardown](#teardown)
   - [wipe](#wipe)
-  - [fetch_logs](#fetch_logs)
+  - [fetch\_logs](#fetch_logs)
   - [ping](#ping)
+
+## Variables
+
+| Variable                             | Default                                                   | Description                                  |
+| ------------------------------------ | --------------------------------------------------------- | -------------------------------------------- |
+| `elasticsearch_registry_endpoint`    | `$ELASTICSEARCH_REGISTRY_ENDPOINT` or `docker.io/library` | Container registry endpoint                  |
+| `elasticsearch_image_name`           | `elasticsearch`                                           | Container image name                         |
+| `elasticsearch_image_tag`            | `8.19.6`                                                  | Container image tag                          |
+| `elasticsearch_image`                | `{{ registry }}/{{ name }}:{{ tag }}`                     | Full container image reference               |
+| `elasticsearch_container_name`       | `{{ inventory_hostname }}`                                | Name given to the container                  |
+| `elasticsearch_remote_config_dir`    | `{{ remote_config_dir }}`                                 | Configuration directory on the remote node   |
+| `elasticsearch_remote_data_dir`      | `{{ remote_data_dir }}`                                   | Data directory on the remote node            |
+| `elasticsearch_container_config_dir` | `/usr/share/elasticsearch`                                | Configuration directory inside the container |
+| `elasticsearch_container_data_dir`   | `/usr/share/elasticsearch/data`                           | Data directory inside the container          |
+| `elasticsearch_use_tls`              | `false`                                                   | Enable TLS                                   |
+| `elasticsearch_tls_private_key_file` | `server.key`                                              | TLS private key file name                    |
+| `elasticsearch_tls_cert_file`        | `server.crt`                                              | TLS certificate file name                    |
 
 ## Tasks
 

@@ -9,8 +9,9 @@ This repository contains the `hyperledger.fabricx` Ansible collection, which can
 ## Table of Contents <!-- omit in toc -->
 
 - [Installation](#installation)
-  - [Option 1: Clone the repository under `COLLECTIONS_PATHS`](#option-1-clone-the-repository-under-collections_paths)
-  - [Option 2: Install from source](#option-2-install-from-source)
+  - [Option 1: Install from Ansible Galaxy](#option-1-install-from-ansible-galaxy)
+  - [Option 2: Install cloning the repository under `COLLECTIONS_PATHS` (for development)](#option-2-install-cloning-the-repository-under-collections_paths-for-development)
+  - [Option 3: Install from source](#option-3-install-from-source)
 - [Usage](#usage)
 - [Prerequisites](#prerequisites)
   - [Setup the control node](#setup-the-control-node)
@@ -27,7 +28,21 @@ This repository contains the `hyperledger.fabricx` Ansible collection, which can
 
 ## Installation
 
-### Option 1: Clone the repository under `COLLECTIONS_PATHS`
+### Option 1: Install from Ansible Galaxy
+
+To install the latest published version of the `hyperledger.fabricx` collection from [Ansible Galaxy](https://galaxy.ansible.com/ui/repo/published/hyperledger/fabricx/), run:
+
+```shell
+ansible-galaxy collection install hyperledger.fabricx
+```
+
+Then install the collection's dependencies:
+
+```shell
+ansible-galaxy collection install -r ~/.ansible/collections/ansible_collections/hyperledger/fabricx/requirements.yml
+```
+
+### Option 2: Install cloning the repository under `COLLECTIONS_PATHS` (for development)
 
 To install the `hyperledger.fabricx` collection on your control node, run:
 
@@ -39,7 +54,7 @@ ansible-galaxy collection install -r requirements.yml
 
 **NOTE**: This is the recommended way if you plan to develop and change the scripts, since it allows to test directly the modified scripts avoiding to reinstall the collection at every change.
 
-### Option 2: Install from source
+### Option 3: Install from source
 
 If you don't know where the `COLLECTIONS_PATHS` is located, or you don't plan to develop/change the Ansible scripts within the collection, you can install from source using the commands:
 
@@ -175,7 +190,7 @@ Here there is a list of the most used commands:
 | `check-trailing-spaces` | Check for trailing spaces in `.j2` files.                                    |
 | `install-prerequisites` | Install the needed prerequisites on the remote hosts.                        |
 | `login-cr`              | Log a container engine within a container registry.                          |
-| `setup`                 | Wrapper for `artifacts` + `binaries` + `configs`.                            |
+| `setup`                 | Wrapper for `binaries` + `artifacts` + `configs`.                            |
 | `artifacts`             | Wrapper for `generate-crypto` + `genesis-block`.                             |
 | `generate-crypto`       | Generate the crypto material on the controller node.                         |
 | `genesis-block`         | Build the genesis block for the network.                                     |
@@ -195,6 +210,7 @@ Here there is a list of the most used commands:
 | `run-command`           | Run a generic command on the targeted hosts.                                 |
 | `ping`                  | Check that the component ports are open.                                     |
 | `get-metrics`           | Get the metrics from the targeted components.                                |
+| `fetch-crypto`          | Fetch the crypto material from the targeted hosts.                           |
 | `fetch-logs`            | Fetch the logs from the targeted hosts.                                      |
 | `limit-rate`            | Set the TPS rate on the load generators.                                     |
 
