@@ -31,4 +31,3 @@
     state: present
     template:
       path: k8s/secret.yaml.j2
-  no_log: true
