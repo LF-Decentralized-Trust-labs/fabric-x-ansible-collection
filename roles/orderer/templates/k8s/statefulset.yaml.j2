@@ -26,6 +26,8 @@ spec:
         app.kubernetes.io/component: {{ orderer_component_type }}
         app.kubernetes.io/part-of: fabric-x-orderer
     spec:
+      securityContext:
+        fsGroup: {{ orderer_k8s_fs_group }}
       containers:
         - name: {{ orderer_component_type }}
           image: {{ orderer_image }}
@@ -108,7 +110,7 @@ spec:
         - name: secret
           secret:
             secretName: {{ orderer_k8s_resource_name }}-secret
-            defaultMode: 0600
+            defaultMode: 0640
 {% if k8s_image_pull_secret is defined and k8s_image_pull_secret %}
       imagePullSecrets:
         - name: {{ k8s_image_pull_secret }}

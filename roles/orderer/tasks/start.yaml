@@ -18,7 +18,7 @@
   when:
     - orderer_use_bin
 
-- name: Start Fabric-X Orderer as Kubernetes workload
+- name: Start Fabric-X Orderer on k8s
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: k8s/start

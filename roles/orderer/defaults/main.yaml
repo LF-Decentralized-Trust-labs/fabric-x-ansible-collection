@@ -31,7 +31,7 @@ orderer_use_k8s: false
 orderer_k8s_resource_name: "{{ inventory_hostname }}"
 orderer_k8s_wait: true
 orderer_k8s_wait_timeout: 120
-
+orderer_k8s_fs_group: 10001
 
 # =========================
 # Paths/Locations
