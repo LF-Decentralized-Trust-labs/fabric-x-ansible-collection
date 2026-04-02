@@ -49,7 +49,7 @@ To install the `hyperledger.fabricx` collection on your control node, run:
 ```shell
 git clone https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection.git ~/.ansible/collections/ansible_collections/hyperledger/fabricx
 cd ~/.ansible/collections/ansible_collections/hyperledger/fabricx
-make install
+make install-deps
 ```
 
 **NOTE**: This is the recommended way if you plan to develop and change the scripts, since it allows to test directly the modified scripts avoiding to reinstall the collection at every change.
@@ -61,7 +61,7 @@ If you don't know where the `COLLECTIONS_PATHS` is located, or you don't plan to
 ```shell
 git clone https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection.git
 cd fabric-x-ansible-collection
-make install
+make install-deps
 ```
 
 ## Usage
@@ -94,10 +94,8 @@ To run such Ansible collection, you need to have the following prerequisites ins
 After having cloned this repository, run:
 
 ```shell
-make install
+make install-deps
 ```
-
-This installs the control-node dependencies only. `make install` is a wrapper for `install-venv` + `install-collections`.
 
 ### Setup the remote nodes
 
@@ -185,8 +183,8 @@ Here there is a list of the most used commands:
 
 | Command                 | Usage                                                                        |
 | ----------------------- | ---------------------------------------------------------------------------- |
-| `build`                 | Build the collection artifact using `ansible-galaxy`                         |
-| `install`               | Wrapper for `install-venv` + `install-collections`.                          |
+| `install`               | Build and install the `hyperledger.fabricx` collection locally.              |
+| `install-deps`          | Wrapper for `install-venv` + `install-collections`.                          |
 | `install-venv`          | Create `.venv` and install Python packages                                   |
 | `install-collections`   | Install the Ansible collections required by this repository.                 |
 | `lint`                  | Run `ansible-lint` checks.                                                   |

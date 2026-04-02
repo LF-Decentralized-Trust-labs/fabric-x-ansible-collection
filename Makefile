@@ -8,7 +8,11 @@
 PROJECT_DIR := $(CURDIR)
 OUT_DIR ?= $(PROJECT_DIR)/out
 
+# Load local overrides from a .env file if present
+-include $(PROJECT_DIR)/.env
+
 # venv
+USE_VENV ?= true
 VENV_DIR := $(PROJECT_DIR)/.venv
 VENV_BIN_DIR := $(VENV_DIR)/bin
 
@@ -16,21 +20,27 @@ VENV_BIN_DIR := $(VENV_DIR)/bin
 ANSIBLE_CONFIG ?= $(PROJECT_DIR)/examples/ansible.cfg
 ANSIBLE_CACHE_PLUGIN ?= jsonfile
 ANSIBLE_CACHE_PLUGIN_CONNECTION ?= $(OUT_DIR)/ansible_fact_cache
-ANSIBLE_PYTHON_INTERPRETER := $(VENV_DIR)/bin/python
-
-# Ansible commands
-# We default to the venv-installed commands, but users can
-# still override them from the command line if needed.
-ANSIBLE_PLAYBOOK ?= $(VENV_BIN_DIR)/ansible-playbook
-ANSIBLE_GALAXY ?= $(VENV_BIN_DIR)/ansible-galaxy
-ANSIBLE_LINT ?= $(VENV_BIN_DIR)/ansible-lint
 
 # Ansible
 export ANSIBLE_CONFIG
 export ANSIBLE_CACHE_PLUGIN
 export ANSIBLE_CACHE_PLUGIN_CONNECTION
 export PROJECT_DIR
-export ANSIBLE_PYTHON_INTERPRETER := $(VENV_DIR)/bin/python
+
+# Ansible commands
+# Set USE_VENV=false to fall back to system-installed Ansible commands.
+# Defaults to true (venv-based commands).
+ifeq ($(USE_VENV),true)
+ANSIBLE_PLAYBOOK ?= $(VENV_BIN_DIR)/ansible-playbook
+ANSIBLE_GALAXY ?= $(VENV_BIN_DIR)/ansible-galaxy
+ANSIBLE_LINT ?= $(VENV_BIN_DIR)/ansible-lint
+ANSIBLE_PYTHON_INTERPRETER ?= $(VENV_BIN_DIR)/python
+export ANSIBLE_PYTHON_INTERPRETER
+else
+ANSIBLE_PLAYBOOK ?= ansible-playbook
+ANSIBLE_GALAXY ?= ansible-galaxy
+ANSIBLE_LINT ?= ansible-lint
+endif
 
 # Color codes for echo messages
 COLOR_CYAN := \033[0;36m
@@ -71,15 +81,9 @@ help:
 		} \
 	' $(MAKEFILE_LIST)
 
-# Build the hyperledger.fabricx Ansible collection locally
-.PHONY: build
-build:
-	@printf "$(COLOR_CYAN)🚩 Building and installing hyperledger.fabricx collection...$(COLOR_RESET)\n"
-	@$(ANSIBLE_GALAXY) collection build -f
-
-# Setup the control node (e.g. make install).
-.PHONY: install
-install: install-venv install-collections
+# Install the dependencies needed to run this collection (e.g. make install-deps).
+.PHONY: install-deps
+install-deps: install-venv install-collections
 
 # Install venv for local Python setup
 .PHONY: install-venv
@@ -89,11 +93,19 @@ install-venv:
 	$(VENV_BIN_DIR)/python -m pip install --upgrade pip
 	$(VENV_BIN_DIR)/pip install -r $(PROJECT_DIR)/requirements.txt
 
+# Install the hyperledger.fabricx Ansible collection locally
+.PHONY: install
+install:
+	@printf "$(COLOR_CYAN)🚩 Building and installing hyperledger.fabricx collection...$(COLOR_RESET)\n"
+	$(ANSIBLE_GALAXY) collection build -f
+	$(ANSIBLE_GALAXY) collection install $$(ls -1 | grep fabricx) -f
+	@rm -f $$(ls -1 | grep fabricx)
+
 # Install the Ansible collections needed to run the scripts.
 .PHONY: install-collections
 install-collections:
 	@printf "$(COLOR_CYAN)🚩 Installing Ansible collections...$(COLOR_RESET)\n"
-	$(ANSIBLE_GALAXY) collection install -r requirements.yml	
+	$(ANSIBLE_GALAXY) collection install -r requirements.yml
 
 # Check the linting correctness (e.g. make lint)
 .PHONY: lint

@@ -59,13 +59,6 @@ jobs:
         with:
           python-version: "3.x"
 
-      # Install the latest Ansible
-      - name: Install Ansible
-        run: |
-          python -m pip install --upgrade pip
-          pip install ansible ansible-core
-          ansible --version
-
       # Install the required packages
       - name: Install all the required packages and collections
         env:
@@ -73,9 +66,7 @@ jobs:
           ANSIBLE_CACHE_PLUGIN: jsonfile
           ANSIBLE_CACHE_PLUGIN_CONNECTION: /tmp/ansible_fact_cache
         run: |
-          pip install -r requirements.txt
-          ansible-galaxy collection install -r requirements.yml
-          make install install-prerequisites
+          make install install-deps install-prerequisites
 
       # Run the Hyperledger Fabric-X inventory
       - name: Test the (${{ matrix.inventory }}) inventory

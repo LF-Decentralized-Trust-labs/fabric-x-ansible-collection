@@ -29,15 +29,9 @@ jobs:
         with:
           python-version: "3.11"
 
-      # Install Ansible and ansible-lint
-      - name: Install Ansible and ansible-lint
-        run: |
-          python -m pip install --upgrade pip
-          pip install ansible ansible-lint
-
       # Run the lint target from your Makefile
       - name: Run lint
-        run: make install lint check-trailing-spaces
+        run: make install-deps lint check-trailing-spaces
 
         # Check that all the files have the license header
       - name: Run the license check
