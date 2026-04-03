@@ -66,7 +66,7 @@ jobs:
           ANSIBLE_CACHE_PLUGIN: jsonfile
           ANSIBLE_CACHE_PLUGIN_CONNECTION: /tmp/ansible_fact_cache
         run: |
-          make install install-deps install-prerequisites
+          make install install-deps install-remote-node-deps
 
       # Run the Hyperledger Fabric-X inventory
       - name: Test the (${{ matrix.inventory }}) inventory

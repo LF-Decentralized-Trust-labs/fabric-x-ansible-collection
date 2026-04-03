@@ -40,6 +40,7 @@ else
 ANSIBLE_PLAYBOOK ?= ansible-playbook
 ANSIBLE_GALAXY ?= ansible-galaxy
 ANSIBLE_LINT ?= ansible-lint
+ANSIBLE_PYTHON_INTERPRETER ?= python3
 endif
 
 # Color codes for echo messages
@@ -81,18 +82,6 @@ help:
 		} \
 	' $(MAKEFILE_LIST)
 
-# Install the dependencies needed to run this collection (e.g. make install-deps).
-.PHONY: install-deps
-install-deps: install-venv install-collections
-
-# Install venv for local Python setup
-.PHONY: install-venv
-install-venv:
-	@printf "$(COLOR_CYAN)🚩 Installing venv...$(COLOR_RESET)\n"
-	python3 -m venv $(VENV_DIR)
-	$(VENV_BIN_DIR)/python -m pip install --upgrade pip
-	$(VENV_BIN_DIR)/pip install -r $(PROJECT_DIR)/requirements.txt
-
 # Install the hyperledger.fabricx Ansible collection locally
 .PHONY: install
 install:
@@ -101,11 +90,33 @@ install:
 	$(ANSIBLE_GALAXY) collection install $$(ls -1 | grep fabricx) -f
 	@rm -f $$(ls -1 | grep fabricx)
 
+# Install the dependencies needed to run this collection (e.g. make install-deps).
+.PHONY: install-deps
+install-deps: install-venv install-python-deps install-ansible-deps
+
+# Install venv for local Python setup
+.PHONY: install-venv
+install-venv:
+	@printf "$(COLOR_CYAN)🚩 Installing venv...$(COLOR_RESET)\n"
+	python3 -m venv $(VENV_DIR)
+
+.PHONY: install-python-deps
+install-python-deps:
+	@printf "$(COLOR_CYAN)🚩 Installing Python dependencies...$(COLOR_RESET)\n"
+	$(ANSIBLE_PYTHON_INTERPRETER) -m pip install --upgrade pip
+	$(ANSIBLE_PYTHON_INTERPRETER) -m pip install -r $(PROJECT_DIR)/requirements.txt
+
 # Install the Ansible collections needed to run the scripts.
-.PHONY: install-collections
-install-collections:
-	@printf "$(COLOR_CYAN)🚩 Installing Ansible collections...$(COLOR_RESET)\n"
+.PHONY: install-ansible-deps
+install-ansible-deps:
+	@printf "$(COLOR_CYAN)🚩 Installing Ansible dependencies...$(COLOR_RESET)\n"
 	$(ANSIBLE_GALAXY) collection install -r requirements.yml
+
+# Install the utilities needed to run the components on the targeted remote hosts (e.g. make install-remote-node-deps).
+.PHONY: install-remote-node-deps
+install-remote-node-deps:
+	@printf "$(COLOR_CYAN)🚩 Installing prerequisites on remote hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
+	$(ANSIBLE_PLAYBOOK) hyperledger.fabricx.install_prerequisites --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
 # Check the linting correctness (e.g. make lint)
 .PHONY: lint
@@ -128,12 +139,6 @@ check-trailing-spaces:
 # =======================
 # Deployment
 # =======================
-
-# Install the utilities needed to run the components on the targeted remote hosts (e.g. make install-prerequisites).
-.PHONY: install-prerequisites
-install-prerequisites:
-	@printf "$(COLOR_CYAN)🚩 Installing prerequisites on remote hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	$(ANSIBLE_PLAYBOOK) hyperledger.fabricx.install_prerequisites --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
 # Log the container engine within a Container Registry (aka CR) (e.g. make login-cr CONTAINER_REGISTRY=icr.io CONTAINER_REGISTRY_USERNAME=iamapikey CONTAINER_REGISTRY_PASSWORD=my_api_key).
 .PHONY: login-cr
