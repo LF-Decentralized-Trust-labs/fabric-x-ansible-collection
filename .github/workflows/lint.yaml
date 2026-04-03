@@ -31,7 +31,7 @@ jobs:
 
       # Run the lint target from your Makefile
       - name: Run lint
-        run: make install-deps lint check-trailing-spaces
+        run: make install lint check-trailing-spaces
 
         # Check that all the files have the license header
       - name: Run the license check
