@@ -415,6 +415,8 @@ The `Makefile` defaults to the `.venv`-scoped commands `.venv/bin/ansible-playbo
 
 For control-node setup, prefer `make install-deps`, which is a wrapper for `install-venv` + `install-ansible-deps`. Remote host setup remains a separate step via `make install-remote-node-deps`.
 
+**WARNING**: Never run `make install` when the repository is cloned directly into the Ansible collections path (the developer setup). Doing so would overwrite the live checkout with a built artifact, losing any uncommitted changes. The Makefile guards against this and will abort, but do not attempt to bypass it.
+
 ### Remote node prerequisites
 
 Install automatically via:

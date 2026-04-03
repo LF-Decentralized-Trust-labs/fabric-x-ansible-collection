@@ -10,7 +10,7 @@ This repository contains the `hyperledger.fabricx` Ansible collection, which can
 
 - [Installation](#installation)
   - [Option 1: Install from Ansible Galaxy](#option-1-install-from-ansible-galaxy)
-  - [Option 2: Install cloning the repository under `COLLECTIONS_PATHS` (for development)](#option-2-install-cloning-the-repository-under-collections_paths-for-development)
+  - [Option 2: Install cloning the repository under `ANSIBLE_COLLECTIONS_PATHS` (for development)](#option-2-install-cloning-the-repository-under-ansible_collections_paths-for-development)
   - [Option 3: Install from source](#option-3-install-from-source)
 - [Usage](#usage)
 - [Prerequisites](#prerequisites)
@@ -42,7 +42,7 @@ Then install the collection's dependencies:
 ansible-galaxy collection install -r ~/.ansible/collections/ansible_collections/hyperledger/fabricx/requirements.yml
 ```
 
-### Option 2: Install cloning the repository under `COLLECTIONS_PATHS` (for development)
+### Option 2: Install cloning the repository under `ANSIBLE_COLLECTIONS_PATHS` (for development)
 
 To install the `hyperledger.fabricx` collection on your control node, run:
 
@@ -54,6 +54,8 @@ make install-deps
 
 **NOTE**: This is the recommended way if you plan to develop and change the scripts, since it allows to test directly the modified scripts avoiding to reinstall the collection at every change.
 
+**WARNING**: Do not run `make install` with this setup — the collection is already live from the cloned directory. Running it would overwrite your checkout with a built artifact. Use `make install-deps` to install dependencies only. The Makefile will also guard against this and abort if it detects the risk.
+
 ### Option 3: Install from source
 
 If you don't know where the `COLLECTIONS_PATHS` is located, or you don't plan to develop/change the Ansible scripts within the collection, you can install from source using the commands:
@@ -61,7 +63,7 @@ If you don't know where the `COLLECTIONS_PATHS` is located, or you don't plan to
 ```shell
 git clone https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection.git
 cd fabric-x-ansible-collection
-make install-deps
+make install
 ```
 
 ## Usage
