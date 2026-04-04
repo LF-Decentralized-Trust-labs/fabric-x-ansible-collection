@@ -241,7 +241,6 @@ all:
               vars:
                 committer_use_tls: true
                 committer_use_mtls: true
-                yugabyte_enable_redis: false
                 organization:
                   <<: *Org1
                   fabric_ca_host: fabric-ca-org1
