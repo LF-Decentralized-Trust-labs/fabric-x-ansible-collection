@@ -9,7 +9,7 @@
     name: hyperledger.fabricx.orderer
     tasks_from: container/stop
   when:
-    - not orderer_use_bin
+    - orderer_use_container
 
 - name: Stop Fabric-X Orderer binary
   ansible.builtin.include_role:

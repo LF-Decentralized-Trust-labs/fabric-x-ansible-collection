@@ -8,3 +8,13 @@
   ansible.builtin.file:
     path: "{{ orderer_remote_data_dir }}"
     state: absent
+  when: not orderer_use_k8s
+
+- name: Delete the Fabric-X Orderer PersistentVolumeClaim
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: PersistentVolumeClaim
+    name: "data-{{ inventory_hostname }}-0"
+    namespace: "{{ k8s_namespace }}"
+  when: orderer_use_k8s

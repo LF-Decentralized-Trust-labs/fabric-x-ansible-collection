@@ -12,6 +12,7 @@ orderer_image_name: "fabric-x-orderer"
 orderer_image_tag: "0.0.21-1"
 orderer_image: "{{ orderer_registry_endpoint }}/{{ orderer_image_name }}:{{ orderer_image_tag }}"
 orderer_container_name: "{{ inventory_hostname }}"
+orderer_use_container: "{{ (not orderer_use_bin) and (not orderer_use_k8s) }}"
 
 # =========================
 # Fabric-X Orderer bin
@@ -22,6 +23,15 @@ orderer_source_code_package: "cmd/arma"
 orderer_bin_package: "github.com/hyperledger/fabric-x-orderer/cmd/arma"
 orderer_bin_name: "arma"
 orderer_use_bin: false
+
+# =========================
+# Fabric-X Orderer K8s mode
+# =========================
+orderer_use_k8s: false
+orderer_k8s_resource_name: "{{ inventory_hostname }}"
+orderer_k8s_wait: true
+orderer_k8s_wait_timeout: 120
+orderer_k8s_fs_group: 10001
 
 # =========================
 # Paths/Locations

@@ -1,0 +1,33 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check if Fabric-X Orderer Consenter MSP admin certs directory exists
+  ansible.builtin.stat:
+    path: "{{ orderer_remote_config_dir }}/msp/admincerts"
+  register: orderer_admincerts_stat
+
+- name: Apply Fabric-X Orderer Consenter Service
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/service.yaml.j2
+
+- name: Apply Fabric-X Orderer Consenter NodePort Service
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/service-nodeport.yaml.j2
+
+- name: Apply Fabric-X Orderer Consenter StatefulSet
+  vars:
+    orderer_k8s_command: consensus
+    orderer_k8s_has_admincerts: "{{ orderer_admincerts_stat.stat.exists and orderer_admincerts_stat.stat.isdir }}"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/statefulset.yaml.j2
+    wait: "{{ orderer_k8s_wait }}"
+    wait_timeout: "{{ orderer_k8s_wait_timeout }}"

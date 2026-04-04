@@ -219,39 +219,62 @@ This sets `TARGET_HOSTS=fabric_x_orderers` for the underlying playbook call.
 
 ## Makefile Entrypoints
 
+### Local configuration (`.env`)
+
+Create a git-ignored `.env` file at the repository root to override variables without editing the `Makefile`:
+
+```shell
+# .env
+USE_VENV=false       # fall back to system Ansible; disables .venv path resolution
+                     # and lets Ansible auto-detect the Python interpreter
+```
+
+The file is loaded via `-include $(PROJECT_DIR)/.env` before the `USE_VENV ?= true` default, so values set there take precedence over Makefile defaults but are still overridable from the command line (e.g. `make USE_VENV=true start`).
+
+### `USE_VENV` behaviour
+
+| `USE_VENV`       | `ANSIBLE_PLAYBOOK`               | `ANSIBLE_PYTHON_INTERPRETER`      |
+| ---------------- | -------------------------------- | --------------------------------- |
+| `true` (default) | `.venv/bin/ansible-playbook`     | `.venv/bin/python` (exported)     |
+| `false`          | `ansible-playbook` (system PATH) | `python3` (fallback, overridable) |
+
 Run `make help` to see all commands. The most important ones are:
 
-| Command                 | Description                                                |
-| ----------------------- | ---------------------------------------------------------- |
-| `install`               | Build and install the collection locally                   |
-| `lint`                  | Run `ansible-lint`                                         |
-| `check-license-header`  | Verify license headers on all files                        |
-| `check-trailing-spaces` | Check for trailing spaces in `.j2` files                   |
-| `install-prerequisites` | Install prerequisites on remote hosts                      |
-| `login-cr`              | Log into a container registry                              |
-| `setup`                 | `binaries` + `artifacts` + `configs`                       |
-| `artifacts`             | `generate-crypto` + `genesis-block`                        |
-| `generate-crypto`       | Generate crypto material on controller                     |
-| `genesis-block`         | Build genesis block                                        |
-| `binaries`              | Build/install binaries on controller or remotes            |
-| `clean`                 | Remove local `out/` directory                              |
-| `clean-cache`           | Clean the Ansible cache                                    |
-| `configs`               | Create/Ship the configs to remote nodes                    |
-| `start`                 | Start targeted components                                  |
-| `stop`                  | Stop targeted components (keep data)                       |
-| `teardown`              | Stop + delete data                                         |
-| `update`                | Update targeted components (`stop` + `binaries` + `start`) |
-| `restart`               | Restart targeted components (`stop` + `start`)             |
-| `hard-restart`          | Hard restart targeted components (`teardown` + `start`)    |
-| `wipe`                  | Remove configs/bins from remotes                           |
-| `hard-wipe`             | Remove deploy folder from remotes                          |
-| `targets`               | Generate Makefile targets for all inventory hosts          |
-| `run-command`           | Run arbitrary command on remotes (`COMMAND="…"`)           |
-| `ping`                  | Check that component ports are open                        |
-| `get-metrics`           | Collect metrics from components                            |
-| `fetch-logs`            | Pull logs from remote hosts                                |
-| `fetch-crypto`          | Fetch crypto material from remote hosts                    |
-| `limit-rate`            | Adjust load-generator TPS (`LIMIT=<n>`)                    |
+| Command                    | Description                                                                  |
+| -------------------------- | ---------------------------------------------------------------------------- |
+| `install`                  | Build and install the `hyperledger.fabricx` collection locally.              |
+| `install-deps`             | Wrapper for `install-venv` + `install-python-deps` + `install-ansible-deps`. |
+| `install-venv`             | Install a `venv` environment.                                                |
+| `install-python-deps`      | Install Python dependencies on the control node.                             |
+| `install-ansible-deps`     | Install the Ansible collections required by this repository.                 |
+| `install-remote-node-deps` | Install the needed dependencies on the remote hosts.                         |
+| `lint`                     | Run `ansible-lint`                                                           |
+| `check-license-header`     | Verify license headers on all files                                          |
+| `check-trailing-spaces`    | Check for trailing spaces in `.j2` files                                     |
+| `login-cr`                 | Log into a container registry                                                |
+| `setup`                    | `binaries` + `artifacts` + `configs`                                         |
+| `artifacts`                | `generate-crypto` + `genesis-block`                                          |
+| `generate-crypto`          | Generate crypto material on controller                                       |
+| `genesis-block`            | Build genesis block                                                          |
+| `binaries`                 | Build/install binaries on controller or remotes                              |
+| `clean`                    | Remove local `out/` directory                                                |
+| `clean-cache`              | Clean the Ansible cache                                                      |
+| `configs`                  | Create/Ship the configs to remote nodes                                      |
+| `start`                    | Start targeted components                                                    |
+| `stop`                     | Stop targeted components (keep data)                                         |
+| `teardown`                 | Stop + delete data                                                           |
+| `update`                   | Update targeted components (`stop` + `binaries` + `start`)                   |
+| `restart`                  | Restart targeted components (`stop` + `start`)                               |
+| `hard-restart`             | Hard restart targeted components (`teardown` + `start`)                      |
+| `wipe`                     | Remove configs/bins from remotes                                             |
+| `hard-wipe`                | Remove deploy folder from remotes                                            |
+| `targets`                  | Generate Makefile targets for all inventory hosts                            |
+| `run-command`              | Run arbitrary command on remotes (`COMMAND="…"`)                             |
+| `ping`                     | Check that component ports are open                                          |
+| `get-metrics`              | Collect metrics from components                                              |
+| `fetch-logs`               | Pull logs from remote hosts                                                  |
+| `fetch-crypto`             | Fetch crypto material from remote hosts                                      |
+| `limit-rate`               | Adjust load-generator TPS (`LIMIT=<n>`)                                      |
 
 ---
 
@@ -261,7 +284,7 @@ Run `make help` to see all commands. The most important ones are:
 
 Runs on every push/PR to `main`:
 
-1. `make install lint check-trailing-spaces` — installs the collection, then runs `ansible-lint` on `roles/`, `playbooks/`, and `examples/`.
+1. `make install-deps lint check-trailing-spaces` — installs the dependencies, then runs `ansible-lint` on `roles/`, `playbooks/`, and `examples/`.
 1. `make check-trailing-spaces` — checks that no trailing spaces are left within `.j2` templates.
 1. `make check-license-header` — verifies Apache-2.0 license headers.
 
@@ -368,7 +391,7 @@ Publishes the collection to Ansible Galaxy on release.
 Install with:
 
 ```shell
-ansible-galaxy collection install -r requirements.yml
+.venv/bin/ansible-galaxy collection install -r requirements.yml
 ```
 
 ### Python packages (`requirements.txt`)
@@ -376,7 +399,7 @@ ansible-galaxy collection install -r requirements.yml
 Install with:
 
 ```shell
-pip install -r requirements.txt
+make install-venv
 ```
 
 ### Controller node prerequisites
@@ -384,16 +407,22 @@ pip install -r requirements.txt
 | Tool                 | Minimum version |
 | -------------------- | --------------- |
 | Python               | any recent 3.x  |
-| Ansible              | 2.16            |
+| Ansible Core         | 2.17            |
 | Podman **or** Docker | latest stable   |
 | Go                   | latest stable   |
+
+The `Makefile` defaults to the `.venv`-scoped commands `.venv/bin/ansible-playbook`, `.venv/bin/ansible-galaxy`, and `.venv/bin/ansible-lint`. If a developer needs to use a different Ansible installation, they can override `ANSIBLE_PLAYBOOK`, `ANSIBLE_GALAXY`, and `ANSIBLE_LINT` when invoking `make`.
+
+For control-node setup, prefer `make install-deps`, which is a wrapper for `install-venv` + `install-ansible-deps`. Remote host setup remains a separate step via `make install-remote-node-deps`.
+
+**WARNING**: Never run `make install` when the repository is cloned directly into the Ansible collections path (the developer setup). Doing so would overwrite the live checkout with a built artifact, losing any uncommitted changes. The Makefile guards against this and will abort, but do not attempt to bypass it.
 
 ### Remote node prerequisites
 
 Install automatically via:
 
 ```shell
-make install-prerequisites
+make install-remote-node-deps
 ```
 
 > **Note**: The remote user must have passwordless `sudo` access.
