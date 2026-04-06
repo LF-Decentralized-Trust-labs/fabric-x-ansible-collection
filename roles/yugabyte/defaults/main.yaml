@@ -43,7 +43,8 @@ yugabyte_master_webserver_port: 7000
 # =========================
 # Yugabyte Tablet ports
 # =========================
-yugabyte_enable_redis: true
+yugabyte_enable_redis: false
+yugabyte_redis_supported: false
 yugabyte_tablet_rpc_bind_port: 9100
 yugabyte_tablet_webserver_port: 9000
 yugabyte_tablet_redis_web_port: 11000

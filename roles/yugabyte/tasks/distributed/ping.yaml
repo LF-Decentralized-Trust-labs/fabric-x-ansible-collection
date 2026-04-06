@@ -37,4 +37,5 @@
     tasks_from: ping
   when:
     - yugabyte_component_type == 'tablet'
-    - yugabyte_enable_redis | default(false)
+    - yugabyte_enable_redis
+    - yugabyte_redis_supported
