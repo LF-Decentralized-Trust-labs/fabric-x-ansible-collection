@@ -14,17 +14,6 @@
       when:
         - postgres_port is defined
     - name: Fetch the Fabric CA certificates
-      vars:
-        fabric_ca_orderer_organization: >-
-          {{
-            groups['all']
-            | map('extract', hostvars)
-            | selectattr('organization', 'defined')
-            | selectattr('organization.domain', '==', organization.domain)
-            | selectattr('organization.role', 'defined')
-            | selectattr('organization.role', '==', 'orderer')
-            | length > 0
-          }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fabric_ca
         tasks_from: server/crypto/fetch

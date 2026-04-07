@@ -16,6 +16,14 @@
         tasks_from: server/crypto/setup
       when:
         - fabric_ca_port is defined
+
+    - name: Fetch the Fabric CA certificates
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: server/crypto/fetch
+      when:
+        - fabric_ca_port is defined
+
     # =========================
     # Postgres
     # =========================
