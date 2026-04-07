@@ -20,9 +20,3 @@
         tasks_from: client/enroll
       when:
         - fabric_ca_admin is defined
-    - name: Fetch the Fabric CA certificates
-      vars:
-        fabric_ca_fetch_admin_only: true
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.fabric_ca
-        tasks_from: server/crypto/fetch

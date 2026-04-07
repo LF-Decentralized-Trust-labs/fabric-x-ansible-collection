@@ -69,9 +69,7 @@ spec:
               mountPath: {{ orderer_container_config_dir }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem
               subPath: msp-cacert.pem
               readOnly: true
-            # NodeOUs configuration: tells Fabric to classify identities by OU
-            # (admin, orderer, peer, client) so admin rights are derived from
-            # the genesis block rather than from admincerts on disk.
+            # NodeOUs configuration: tells Fabric to classify identities by OU.
             - name: secret
               mountPath: {{ orderer_container_config_dir }}/msp/config.yaml
               subPath: msp-config.yaml

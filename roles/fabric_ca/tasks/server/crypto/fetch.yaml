@@ -33,35 +33,16 @@
     src: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_cert_file }}"
     dest: "{{ fabric_ca_org_dir }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem"
     flat: true
-  when:
-    - not fabric_ca_fetch_admin_only
 
 - name: Fetch the TLS CA certificate
   ansible.builtin.fetch:
     src: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_cert_file }}"
     dest: "{{ fabric_ca_org_dir }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
     flat: true
-  when:
-    - not fabric_ca_fetch_admin_only
 
-# Despite admincerts being deprecated, we must fetch also the admin cert in order to build a proper
-# config block for the ordering service.
-# If we don't fetch the admin certificate, the genesis block is built without it and the orderers
-# fail with the error "administrators must be declared when no admin ou classification is set".
-- name: Check if the Admin CA certificate exists
-  ansible.builtin.stat:
-    path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_admin.name }}/msp/signcerts/cert.pem"
-  register: fabric_ca_admin_cert
-  when:
-    - fabric_ca_admin is defined
-    - fabric_ca_admin.name is defined
-
-- name: Fetch the Admin CA certificate
-  ansible.builtin.fetch:
-    src: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_admin.name }}/msp/signcerts/cert.pem"
-    dest: "{{ fabric_ca_org_dir }}/msp/admincerts/Admin@{{ organization.domain }}-cert.pem"
-    flat: true
-  when:
-    - fabric_ca_admin is defined
-    - fabric_ca_admin.name is defined
-    - fabric_ca_admin_cert.stat.exists
+- name: Create a NodeOUs config file
+  ansible.builtin.template:
+    src: nodeous-config.yaml.j2
+    dest: "{{ fabric_ca_org_dir }}/msp/config.yaml"
+    mode: "0644"
+  delegate_to: localhost
