@@ -266,11 +266,9 @@ all:
                       yugabyte_tablet_pgsql_bind_port: 5320
                       yugabyte_tablet_rpc_bind_port: 5330
                       yugabyte_tablet_webserver_port: 5340
-                      yugabyte_tablet_redis_web_port: 5350
                       yugabyte_tablet_cql_web_port: 5360
                       yugabyte_tablet_pgsql_web_port: 5370
                       yugabyte_tablet_cql_bind_port: 5380
-                      yugabyte_tablet_redis_rpc_port: 5390
               hosts:
                 committer-validator:
                   yugabyte_cluster_ref_id: 1
