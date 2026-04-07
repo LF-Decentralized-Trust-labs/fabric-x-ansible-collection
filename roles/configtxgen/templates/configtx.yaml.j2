@@ -432,7 +432,7 @@ Orderer: &OrdererDefaults
   ConsenterMapping:
 {% for orderer_org_domain, orderer_org_info in configtxgen_orderers_by_org.items() %}
 {% for orderer in orderer_org_info.orderers %}
-{% if hostvars[orderer.name].orderer_component_type == 'consenter' %}
+{% if hostvars[orderer.name].orderer_component_type == 'consensus' %}
     - ID: {{ hostvars[orderer.name].orderer_group }}
       Host: {{ hostvars[orderer.name].ansible_host }}
       Port: {{ hostvars[orderer.name].orderer_rpc_port }}

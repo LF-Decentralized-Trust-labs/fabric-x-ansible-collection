@@ -1,0 +1,31 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # Headless Service — required by the StatefulSet for stable DNS-based pod addressing.
+  name: {{ orderer_k8s_resource_name }}
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ orderer_k8s_resource_name }}
+    app.kubernetes.io/component: {{ orderer_component_type }}
+    app.kubernetes.io/part-of: fabric-x-orderer
+spec:
+  # clusterIP: None makes this a headless Service — no virtual IP is assigned,
+  # DNS resolves directly to the pod IP, which is needed by the StatefulSet.
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: {{ orderer_k8s_resource_name }}
+  ports:
+    # gRPC port used by Fabric peers and other orderer components.
+    - name: rpc
+      port: {{ orderer_rpc_port }}
+      targetPort: {{ orderer_rpc_port }}
+    # Prometheus metrics scrape endpoint.
+    - name: metrics
+      port: {{ orderer_metrics_port }}
+      targetPort: {{ orderer_metrics_port }}

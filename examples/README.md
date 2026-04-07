@@ -249,7 +249,7 @@ fabric_x_orderer_1:
       orderer_rpc_port: 7051
     orderer-consenter-1:
       ansible_host: myremotemachine3.cloud.com # <- 3rd machine on the cloud
-      orderer_component_type: consenter
+      orderer_component_type: consensus
       orderer_rpc_port: 7052
     orderer-assembler-1:
       ansible_host: myremotemachine4.cloud.com # <- 4th machine on the cloud

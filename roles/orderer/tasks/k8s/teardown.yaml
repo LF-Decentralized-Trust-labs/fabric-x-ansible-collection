@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Fabric-X Orderer Kubernetes workload
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: k8s/rm
+
+- name: Remove Fabric-X Orderer data
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: data/rm

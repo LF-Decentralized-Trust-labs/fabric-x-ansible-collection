@@ -4,16 +4,26 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Stop Fabric-X Orderer container
+- name: Stop Fabric-X Orderer router nodes
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
-    tasks_from: container/stop
-  when:
-    - not orderer_use_bin
+    tasks_from: "{{ orderer_deployment_mode }}/stop"
+  when: orderer_component_type == 'router'
 
-- name: Stop Fabric-X Orderer binary
+- name: Stop Fabric-X Orderer assembler nodes
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
-    tasks_from: bin/stop
-  when:
-    - orderer_use_bin
+    tasks_from: "{{ orderer_deployment_mode }}/stop"
+  when: orderer_component_type == 'assembler'
+
+- name: Stop Fabric-X Orderer batcher nodes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: "{{ orderer_deployment_mode }}/stop"
+  when: orderer_component_type == 'batcher'
+
+- name: Stop Fabric-X Orderer consensus nodes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: "{{ orderer_deployment_mode }}/stop"
+  when: orderer_component_type == 'consensus'

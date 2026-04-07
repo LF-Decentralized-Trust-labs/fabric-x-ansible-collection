@@ -13,3 +13,9 @@
   ansible.builtin.file:
     path: "{{ orderer_remote_config_dir }}/tls"
     state: absent
+
+- name: Delete Fabric-X Orderer K8s crypto Secret
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: k8s/crypto/rm
+  when: orderer_use_k8s

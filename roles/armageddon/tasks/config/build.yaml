@@ -42,10 +42,10 @@
         | selectattr('orderer_component_type', '==', 'assembler')
         | first
       }}
-    orderer_group_consenter: >-
+    orderer_group_consensus: >-
       {{
         orderer_group_instances
-        | selectattr('orderer_component_type', '==', 'consenter')
+        | selectattr('orderer_component_type', '==', 'consensus')
         | first
       }}
     orderer_group_router: >-
@@ -67,7 +67,7 @@
           orderer_group: {
             'organizations': orderer_group_organization_domains,
             'assembler': orderer_group_assembler,
-            'consenter': orderer_group_consenter,
+            'consensus': orderer_group_consensus,
             'router': orderer_group_router,
             'batchers': orderer_group_batchers
           }

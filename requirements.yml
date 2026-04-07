@@ -13,3 +13,5 @@ collections:
     version: ">=4.3.1"
   - name: containers.podman
     version: ">=1.16.2"
+  - name: kubernetes.core
+    version: ">=6.3.0"

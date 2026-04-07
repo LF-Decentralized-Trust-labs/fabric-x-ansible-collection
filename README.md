@@ -1,6 +1,6 @@
 # Hyperledger Fabric-X Ansible Collection
 
-![Tests](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/test.yaml/badge.svg) ![Lint](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/lint.yaml/badge.svg) ![Publish](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/publish.yaml/badge.svg)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE) ![Tests](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/test.yaml/badge.svg) ![Lint](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/lint.yaml/badge.svg) ![Publish](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/publish.yaml/badge.svg)
 
 Hyperledger Fabric-X is an open source project that builds on top of Hyperledger Fabric and tailored specifically for digital assets use-cases. Fabric-X builds on the core principles of Hyperledger Fabric (_sovereign_, _horizontally scalable smart contract execution_ and a _modular_, _agile_ architecture) making it well-suited to meet the governance and compliance needs of regulated digital assets.
 
@@ -10,7 +10,7 @@ This repository contains the `hyperledger.fabricx` Ansible collection, which can
 
 - [Installation](#installation)
   - [Option 1: Install from Ansible Galaxy](#option-1-install-from-ansible-galaxy)
-  - [Option 2: Install cloning the repository under `COLLECTIONS_PATHS` (for development)](#option-2-install-cloning-the-repository-under-collections_paths-for-development)
+  - [Option 2: Install cloning the repository under `ANSIBLE_COLLECTIONS_PATHS` (for development)](#option-2-install-cloning-the-repository-under-ansible_collections_paths-for-development)
   - [Option 3: Install from source](#option-3-install-from-source)
 - [Usage](#usage)
 - [Prerequisites](#prerequisites)
@@ -42,17 +42,19 @@ Then install the collection's dependencies:
 ansible-galaxy collection install -r ~/.ansible/collections/ansible_collections/hyperledger/fabricx/requirements.yml
 ```
 
-### Option 2: Install cloning the repository under `COLLECTIONS_PATHS` (for development)
+### Option 2: Install cloning the repository under `ANSIBLE_COLLECTIONS_PATHS` (for development)
 
 To install the `hyperledger.fabricx` collection on your control node, run:
 
 ```shell
 git clone https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection.git ~/.ansible/collections/ansible_collections/hyperledger/fabricx
 cd ~/.ansible/collections/ansible_collections/hyperledger/fabricx
-ansible-galaxy collection install -r requirements.yml
+make install-deps
 ```
 
 **NOTE**: This is the recommended way if you plan to develop and change the scripts, since it allows to test directly the modified scripts avoiding to reinstall the collection at every change.
+
+**WARNING**: Do not run `make install` with this setup — the collection is already live from the cloned directory. Running it would overwrite your checkout with a built artifact. Use `make install-deps` to install dependencies only. The Makefile will also guard against this and abort if it detects the risk.
 
 ### Option 3: Install from source
 
@@ -88,14 +90,13 @@ For more information, please look at the [Roles](./roles/README.md) documentatio
 To run such Ansible collection, you need to have the following prerequisites installed on your control node:
 
 - `python`;
-- [`ansible`](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) >= **2.16**;
 - [`podman`](https://podman.io/docs/installation) or [`docker`](https://docs.docker.com/engine/install/);
 - [`go`](https://go.dev/doc/install).
 
 After having cloned this repository, run:
 
 ```shell
-pip install -r requirements.txt
+make install-deps
 ```
 
 ### Setup the remote nodes
@@ -103,7 +104,7 @@ pip install -r requirements.txt
 The collection comes with a playbook that can be used to automatically setup all the remote nodes at once. From your control node, run:
 
 ```shell
-make install-prerequisites
+make install-remote-node-deps
 ```
 
 **IMPORTANT**: the playbook install all the needed packages requiring the `sudo` permission. Make sure to have a passwordless `sudo` user in order to let the playbook succeed.
@@ -182,37 +183,41 @@ make help
 
 Here there is a list of the most used commands:
 
-| Command                 | Usage                                                                        |
-| ----------------------- | ---------------------------------------------------------------------------- |
-| `install`               | Build and install the collection locally.                                    |
-| `lint`                  | Run `ansible-lint` checks.                                                   |
-| `check-license-header`  | Verify license headers on all files.                                         |
-| `check-trailing-spaces` | Check for trailing spaces in `.j2` files.                                    |
-| `install-prerequisites` | Install the needed prerequisites on the remote hosts.                        |
-| `login-cr`              | Log a container engine within a container registry.                          |
-| `setup`                 | Wrapper for `binaries` + `artifacts` + `configs`.                            |
-| `artifacts`             | Wrapper for `generate-crypto` + `genesis-block`.                             |
-| `generate-crypto`       | Generate the crypto material on the controller node.                         |
-| `genesis-block`         | Build the genesis block for the network.                                     |
-| `binaries`              | Build/install binaries on controller or remote nodes for the targeted hosts. |
-| `clean`                 | Clean all the artifacts and binaries built on the controller node.           |
-| `clean-cache`           | Clean the Ansible cache.                                                     |
-| `configs`               | Create/Ship the configs to the remote nodes.                                 |
-| `start`                 | Start the targeted hosts.                                                    |
-| `stop`                  | Stop the targeted hosts without deleting the data.                           |
-| `teardown`              | Teardown the targeted hosts (stop and delete data).                          |
-| `update`                | Update the targeted hosts (stop + binaries + start).                         |
-| `restart`               | Restart the targeted hosts (stop + start).                                   |
-| `hard-restart`          | Hard restart the targeted hosts (teardown + start).                          |
-| `wipe`                  | Wipe out the config artifacts and the binaries from the remote hosts.        |
-| `hard-wipe`             | Wipe the deploy folder from the remote hosts.                                |
-| `targets`               | Generate Makefile targets for all inventory hosts.                           |
-| `run-command`           | Run a generic command on the targeted hosts.                                 |
-| `ping`                  | Check that the component ports are open.                                     |
-| `get-metrics`           | Get the metrics from the targeted components.                                |
-| `fetch-crypto`          | Fetch the crypto material from the targeted hosts.                           |
-| `fetch-logs`            | Fetch the logs from the targeted hosts.                                      |
-| `limit-rate`            | Set the TPS rate on the load generators.                                     |
+| Command                    | Usage                                                                        |
+| -------------------------- | ---------------------------------------------------------------------------- |
+| `install`                  | Build and install the `hyperledger.fabricx` collection locally.              |
+| `install-deps`             | Wrapper for `install-venv` + `install-python-deps` + `install-ansible-deps`. |
+| `install-venv`             | Install a `venv` environment.                                                |
+| `install-python-deps`      | Install Python dependencies on the control node.                             |
+| `install-ansible-deps`     | Install the Ansible collections required by this repository.                 |
+| `install-remote-node-deps` | Install the needed dependencies on the remote hosts.                         |
+| `lint`                     | Run `ansible-lint` checks.                                                   |
+| `check-license-header`     | Verify license headers on all files.                                         |
+| `check-trailing-spaces`    | Check for trailing spaces in `.j2` files.                                    |
+| `login-cr`                 | Log a container engine within a container registry.                          |
+| `setup`                    | Wrapper for `binaries` + `artifacts` + `configs`.                            |
+| `artifacts`                | Wrapper for `generate-crypto` + `genesis-block`.                             |
+| `generate-crypto`          | Generate the crypto material on the controller node.                         |
+| `genesis-block`            | Build the genesis block for the network.                                     |
+| `binaries`                 | Build/install binaries on controller or remote nodes for the targeted hosts. |
+| `clean`                    | Clean all the artifacts and binaries built on the controller node.           |
+| `clean-cache`              | Clean the Ansible cache.                                                     |
+| `configs`                  | Create/Ship the configs to the remote nodes.                                 |
+| `start`                    | Start the targeted hosts.                                                    |
+| `stop`                     | Stop the targeted hosts without deleting the data.                           |
+| `teardown`                 | Teardown the targeted hosts (stop and delete data).                          |
+| `update`                   | Update the targeted hosts (stop + binaries + start).                         |
+| `restart`                  | Restart the targeted hosts (stop + start).                                   |
+| `hard-restart`             | Hard restart the targeted hosts (teardown + start).                          |
+| `wipe`                     | Wipe out the config artifacts and the binaries from the remote hosts.        |
+| `hard-wipe`                | Wipe the deploy folder from the remote hosts.                                |
+| `targets`                  | Generate Makefile targets for all inventory hosts.                           |
+| `run-command`              | Run a generic command on the targeted hosts.                                 |
+| `ping`                     | Check that the component ports are open.                                     |
+| `get-metrics`              | Get the metrics from the targeted components.                                |
+| `fetch-crypto`             | Fetch the crypto material from the targeted hosts.                           |
+| `fetch-logs`               | Fetch the logs from the targeted hosts.                                      |
+| `limit-rate`               | Set the TPS rate on the load generators.                                     |
 
 ### Restrict commands to a group of hosts
 

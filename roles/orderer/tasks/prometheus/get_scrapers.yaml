@@ -28,7 +28,7 @@
     orderer_consenter_hosts: >-
       {{
         orderer_hosts_with_vars
-        | selectattr('orderer_component_type', '==', 'consenter')
+        | selectattr('orderer_component_type', '==', 'consensus')
         | map(attribute='inventory_hostname')
         | list
       }}

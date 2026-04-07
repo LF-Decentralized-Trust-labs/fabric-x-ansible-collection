@@ -32,3 +32,12 @@
   when:
     - organization is defined
     - organization.fabric_ca_host is defined
+
+# =========================
+# Kubernetes
+# =========================
+- name: Apply Fabric-X Orderer K8s crypto Secret
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: k8s/crypto/transfer
+  when: orderer_use_k8s
