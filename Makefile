@@ -205,7 +205,7 @@ start:
 .PHONY: init
 init:
 	@printf "$(COLOR_CYAN)🚩 Initializing [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	ansible-playbook "$(PLAYBOOK_PATH)/41-init.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
+	$(ANSIBLE_PLAYBOOK) "$(PLAYBOOK_PATH)/41-init.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'
 
 # Stop the targeted hosts (e.g. make fabric_x stop).
 .PHONY: stop
