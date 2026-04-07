@@ -60,12 +60,10 @@ spec:
               mountPath: {{ orderer_container_config_dir }}/msp/tlscacerts/tlsca.crt
               subPath: msp-tlscacert.pem
               readOnly: true
-{% if orderer_k8s_has_admincerts | default(false) %}
             - name: secret
-              mountPath: {{ orderer_container_config_dir }}/msp/admincerts/admin.crt
-              subPath: msp-admincert.pem
+              mountPath: {{ orderer_container_config_dir }}/msp/config.yaml
+              subPath: msp-config.yaml
               readOnly: true
-{% endif %}
             - name: secret
               mountPath: {{ orderer_container_config_dir }}/tls/server.key
               subPath: tls-server.key

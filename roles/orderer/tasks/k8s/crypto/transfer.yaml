@@ -13,16 +13,12 @@
     orderer_k8s_msp_signcert_path: "{{ query('fileglob', orderer_remote_config_dir + '/msp/signcerts/*.pem') | first }}"
     orderer_k8s_msp_tlscacert_path: "{{ query('fileglob', orderer_remote_config_dir + '/msp/tlscacerts/*.pem') | first }}"
 
-- name: Resolve Fabric-X Orderer MSP admin cert path
-  ansible.builtin.set_fact:
-    orderer_k8s_msp_admincert_path: "{{ query('fileglob', orderer_remote_config_dir + '/msp/admincerts/*.pem') | first }}"
-  when: query('fileglob', orderer_remote_config_dir + '/msp/admincerts/*.pem') | length > 0
-
 # =========================
 # Apply Secret
 # =========================
 - name: Apply Fabric-X Orderer Secret
   vars:
+    orderer_k8s_msp_config_path: "{{ orderer_remote_config_dir }}/msp/config.yaml"
     orderer_k8s_msp_keystore_path: "{{ orderer_remote_config_dir }}/msp/keystore/priv_sk"
     orderer_k8s_tls_server_key_path: "{{ orderer_remote_config_dir }}/tls/server.key"
     orderer_k8s_tls_server_cert_path: "{{ orderer_remote_config_dir }}/tls/server.crt"

@@ -15,7 +15,7 @@ OrdererOrgs:
   # ---------------------------------------------------------------------------
   - Name: {{ orderer_org_info.name }}
     Domain: {{ orderer_org_info.domain }}
-    EnableNodeOUs: {{ orderer_org_info.enable_organizational_units | default(false) | lower }}
+    EnableNodeOUs: true
 {% if orderer_org_info.orderers is defined and orderer_org_info.orderers | length > 0 %}
     # ---------------------------------------------------------------------------
     # "Specs"
@@ -53,7 +53,7 @@ PeerOrgs:
   # ---------------------------------------------------------------------------
   - Name: {{ peer_org_info.name }}
     Domain: {{ peer_org_info.domain }}
-    EnableNodeOUs: {{ peer_org_info.enable_organizational_units | default(false) | lower }}
+    EnableNodeOUs: true
 {% if peer_org_info.peers is defined and peer_org_info.peers | length > 0 %}
     # ---------------------------------------------------------------------------
     # "Specs"

@@ -11,7 +11,6 @@
       vars:
         org_domain: "{{ hostvars[orderer].organization.domain }}"
         org_name: "{{ hostvars[orderer].organization.name }}"
-        org_enable_organizational_units: "{{ hostvars[orderer].organization.enable_organizational_units | default(false) }}"
         orderer_info:
           name: "{{ orderer }}"
       ansible.builtin.set_fact:
@@ -21,7 +20,6 @@
               org_domain: {
                 'name': org_name,
                 'domain': org_domain,
-                'enable_organizational_units': org_enable_organizational_units,
                 'orderers': (cryptogen_orderers_by_org | default({})).get(org_domain, {}).get('orderers', []) + [orderer_info]
               }
             })
@@ -42,7 +40,6 @@
       vars:
         org_domain: "{{ hostvars[peer].organization.domain }}"
         org_name: "{{ hostvars[peer].organization.name }}"
-        org_enable_organizational_units: "{{ hostvars[peer].organization.enable_organizational_units | default(false) }}"
         peer_info:
           name: "{{ peer }}"
       ansible.builtin.set_fact:
@@ -52,7 +49,6 @@
               org_domain: {
                 'name': org_name,
                 'domain': org_domain,
-                'enable_organizational_units': org_enable_organizational_units,
                 'peers': (cryptogen_peers_by_org | default({})).get(org_domain, {}).get('peers', []) + [peer_info]
               }
             })
@@ -73,7 +69,6 @@
       vars:
         org_domain: "{{ hostvars[peer].organization.domain }}"
         org_name: "{{ hostvars[peer].organization.name }}"
-        org_enable_organizational_units: "{{ hostvars[peer].organization.enable_organizational_units | default(false) }}"
         users: "{{ hostvars[peer].organization.users }}"
       ansible.builtin.set_fact:
         cryptogen_peers_by_org: >-
@@ -82,7 +77,6 @@
               org_domain: {
                 'name': org_name,
                 'domain': org_domain,
-                'enable_organizational_units': org_enable_organizational_units,
                 'users': (cryptogen_peers_by_org | default({})).get(org_domain, {}).get('users', []) + users,
                 'peers': (cryptogen_peers_by_org | default({})).get(org_domain, {}).get('peers', [])
               }
