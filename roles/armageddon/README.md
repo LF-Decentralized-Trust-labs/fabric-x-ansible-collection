@@ -15,11 +15,11 @@ The role `hyperledger.fabricx.armageddon` can be used to run the `armageddon` CL
 | ------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------- |
 | `armageddon_registry_endpoint`              | `$ARMAGEDDON_REGISTRY_ENDPOINT` or `docker.io/hyperledger` | Container registry endpoint                                   |
 | `armageddon_image_name`                     | `fabric-x-orderer`                                         | Container image name                                          |
-| `armageddon_image_tag`                      | `0.0.21`                                                   | Container image tag                                           |
+| `armageddon_image_tag`                      | `0.0.21-1`                                                   | Container image tag                                           |
 | `armageddon_image`                          | `{{ registry }}/{{ name }}:{{ tag }}`                      | Full container image reference                                |
 | `armageddon_container_name`                 | `armageddon`                                               | Name given to the ephemeral container                         |
 | `armageddon_git_uri`                        | `https://github.com/hyperledger/fabric-x-orderer.git`      | Git repository used to build the binary                       |
-| `armageddon_git_commit`                     | `v0.0.21`                                                  | Git ref (tag or commit) to check out                          |
+| `armageddon_git_commit`                     | `v0.0.21-1`                                                  | Git ref (tag or commit) to check out                          |
 | `armageddon_source_code_package`            | `cmd/armageddon`                                           | Go source package path within the repository                  |
 | `armageddon_bin_package`                    | `github.com/hyperledger/fabric-x-orderer/cmd/armageddon`   | Fully-qualified Go package used for `go install`              |
 | `armageddon_bin_name`                       | `armageddon`                                               | Name of the produced binary                                   |
