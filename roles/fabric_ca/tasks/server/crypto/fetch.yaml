@@ -35,35 +35,16 @@
     src: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_cert_file }}"
     dest: "{{ fabric_ca_org_dir }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem"
     flat: true
+  when:
+    - not (fabric_ca_fetch_admin_only | default(false))
 
 - name: Fetch the TLS CA certificate
   ansible.builtin.fetch:
     src: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_cert_file }}"
     dest: "{{ fabric_ca_org_dir }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
     flat: true
-
-- name: Check if Idemix public keys exist
-  ansible.builtin.stat:
-    path: "{{ current_idemix_public_key_src }}"
-  loop:
-    - "{{ fabric_ca_server_remote_config_dir }}/IssuerPublicKey"
-    - "{{ fabric_ca_server_remote_config_dir }}/IssuerRevocationPublicKey"
-  loop_control:
-    loop_var: current_idemix_public_key_src
-    label: "{{ current_idemix_public_key_src | basename }}"
-  register: fabric_ca_idemix_public_keys
-
-- name: Fetch Idemix public keys
-  ansible.builtin.fetch:
-    src: "{{ current_idemix_public_key_stat.item }}"
-    dest: "{{ fabric_ca_org_dir }}/{{ current_idemix_public_key_stat.item | basename }}"
-    flat: true
-  loop: "{{ fabric_ca_idemix_public_keys.results }}"
-  loop_control:
-    loop_var: current_idemix_public_key_stat
-    label: "{{ current_idemix_public_key_stat.item | basename }}"
   when:
-    - current_idemix_public_key_stat.stat.exists | default(false)
+    - not (fabric_ca_fetch_admin_only | default(false))
 
 # Despite admincerts being deprecated, we must fetch also the admin cert in order to build a proper
 # config block for the ordering service.
