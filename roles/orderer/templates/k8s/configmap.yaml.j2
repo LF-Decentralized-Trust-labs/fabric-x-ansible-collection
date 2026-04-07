@@ -14,15 +14,19 @@ metadata:
     app.kubernetes.io/component: {{ orderer_component_type }}
     app.kubernetes.io/part-of: fabric-x-orderer
 data:
+  # Main orderer node configuration passed via --config at startup.
   node-config.yaml: |
     {{ orderer_k8s_node_config_content | indent(4) }}
+  # mTLS CA certs for individual clients allowed to connect to this orderer.
 {% for cert in orderer_k8s_mtls_client_certs | default([]) %}
   mtls-client-{{ cert.name }}-ca.crt: |
     {{ lookup('file', cert.path) | indent(4) }}
 {% endfor %}
+  # mTLS CA certs for peer organisations whose nodes connect to this orderer.
 {% for cert in orderer_k8s_mtls_org_certs | default([]) %}
   mtls-org-{{ cert.domain }}-ca.crt: |
     {{ lookup('file', cert.path) | indent(4) }}
 {% endfor %}
 binaryData:
+  # Genesis block used to bootstrap the orderer channel configuration.
   genesis.block: {{ orderer_k8s_genesis_block_b64 }}
