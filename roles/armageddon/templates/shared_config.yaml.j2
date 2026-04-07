@@ -28,10 +28,10 @@ Parties:
         Port: {{ orderer_batcher.orderer_rpc_port }}
 {% endfor %}
     ConsenterConfig:
-      SignCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_group.consenter.organization.domain }}/orderers/{{ orderer_group.consenter.organization.orderer.name | default(orderer_group.consenter.inventory_hostname) }}.{{ orderer_group.consenter.organization.domain }}/msp/signcerts/{{ orderer_group.consenter.organization.orderer.name | default(orderer_group.consenter.inventory_hostname) }}.{{ orderer_group.consenter.organization.domain }}-cert.pem
-      TLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_group.consenter.organization.domain }}/orderers/{{ orderer_group.consenter.organization.orderer.name | default(orderer_group.consenter.inventory_hostname) }}.{{ orderer_group.consenter.organization.domain }}/tls/server.crt
-      Host: {{ orderer_group.consenter.ansible_host }}
-      Port: {{ orderer_group.consenter.orderer_rpc_port}}
+      SignCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_group.consensus.organization.domain }}/orderers/{{ orderer_group.consensus.organization.orderer.name | default(orderer_group.consensus.inventory_hostname) }}.{{ orderer_group.consensus.organization.domain }}/msp/signcerts/{{ orderer_group.consensus.organization.orderer.name | default(orderer_group.consensus.inventory_hostname) }}.{{ orderer_group.consensus.organization.domain }}-cert.pem
+      TLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_group.consensus.organization.domain }}/orderers/{{ orderer_group.consensus.organization.orderer.name | default(orderer_group.consensus.inventory_hostname) }}.{{ orderer_group.consensus.organization.domain }}/tls/server.crt
+      Host: {{ orderer_group.consensus.ansible_host }}
+      Port: {{ orderer_group.consensus.orderer_rpc_port}}
     AssemblerConfig:
       TLSCert: {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ orderer_group.assembler.organization.domain}}/orderers/{{ orderer_group.assembler.organization.orderer.name | default(orderer_group.assembler.inventory_hostname) }}.{{ orderer_group.assembler.organization.domain}}/tls/server.crt
       Host: {{ orderer_group.assembler.ansible_host }}
