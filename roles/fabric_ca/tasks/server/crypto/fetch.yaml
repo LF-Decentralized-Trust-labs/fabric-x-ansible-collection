@@ -45,3 +45,4 @@
     src: nodeous-config.yaml.j2
     dest: "{{ fabric_ca_org_dir }}/msp/config.yaml"
     mode: "0644"
+  delegate_to: localhost
