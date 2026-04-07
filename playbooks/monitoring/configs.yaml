@@ -55,7 +55,7 @@
                     | default([])
                     | map('extract', hostvars)
                     | selectattr('orderer_component_type', 'defined')
-                    | selectattr('orderer_component_type', '==', 'consenter')
+                    | selectattr('orderer_component_type', '==', 'consensus')
                     | map(attribute='inventory_hostname')
                     | list
                   }}
