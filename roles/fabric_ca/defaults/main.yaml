@@ -44,20 +44,18 @@ fabric_ca_server_data_dir: "{{ fabric_ca_server_remote_data_dir if fabric_ca_ser
 # General settings
 # =========================
 fabric_ca_log_level: "INFO"
-fabric_ca_fetch_admin_only: false
 
 # =========================
 # TLS settings
 # =========================
 fabric_ca_scheme: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
 fabric_ca_use_tls: false
-fabric_ca_enable_nodeous: true
 
 # =========================
 # CA identity settings
 # =========================
 fabric_ca_name: "{{ inventory_hostname }}"
-fabric_ca_enrollment_type: bccsp  # bccsp or idemix
+fabric_ca_enrollment_type: bccsp # bccsp or idemix
 # Signing profile used when enrolling Idemix credentials.
 fabric_ca_idemix_enrollment_profile: idemix
 

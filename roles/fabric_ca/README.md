@@ -17,11 +17,11 @@ The role `hyperledger.fabricx.fabric_ca` can be used to run an Hyperledger Fabri
   - [server/teardown](#serverteardown)
   - [server/wipe](#serverwipe)
   - [server/ping](#serverping)
-  - [server/fetch\_logs](#serverfetch_logs)
+  - [server/fetch_logs](#serverfetch_logs)
   - [client/register](#clientregister)
   - [client/enroll](#clientenroll)
   - [client/reenroll](#clientreenroll)
-  - [client/identity\_list](#clientidentity_list)
+  - [client/identity_list](#clientidentity_list)
   - [client/revoke](#clientrevoke)
   - [client/gencrl](#clientgencrl)
 
@@ -60,7 +60,6 @@ The role requires:
 | `fabric_ca_log_level`                     | `INFO`                                                    | Log level                                                                          |
 | `fabric_ca_use_tls`                       | `false`                                                   | Enable TLS                                                                         |
 | `fabric_ca_scheme`                        | `https` or `http`                                         | URL scheme derived from `fabric_ca_use_tls`                                        |
-| `fabric_ca_enable_nodeous`                | `true`                                                    | Enable NodeOUs in the MSP configuration                                            |
 | `fabric_ca_tls_root_cert`                 | `{{ fabric_ca_server_remote_config_dir }}/ca-cert.pem`    | Path to the CA TLS root certificate                                                |
 | `fabric_ca_name`                          | `{{ inventory_hostname }}`                                | Name of the CA                                                                     |
 | `fabric_ca_csr_cn`                        | `{{ fabric_ca_name }}`                                    | Common Name (CN) for the CA CSR                                                    |
