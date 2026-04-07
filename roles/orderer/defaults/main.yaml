@@ -12,7 +12,6 @@ orderer_image_name: "fabric-x-orderer"
 orderer_image_tag: "0.0.21-1"
 orderer_image: "{{ orderer_registry_endpoint }}/{{ orderer_image_name }}:{{ orderer_image_tag }}"
 orderer_container_name: "{{ inventory_hostname }}"
-orderer_use_container: "{{ (not orderer_use_bin) and (not orderer_use_k8s) }}"
 
 # =========================
 # Fabric-X Orderer bin
@@ -22,12 +21,10 @@ orderer_git_commit: "v0.0.21-1"
 orderer_source_code_package: "cmd/arma"
 orderer_bin_package: "github.com/hyperledger/fabric-x-orderer/cmd/arma"
 orderer_bin_name: "arma"
-orderer_use_bin: false
 
 # =========================
 # Fabric-X Orderer K8s mode
 # =========================
-orderer_use_k8s: false
 orderer_k8s_resource_name: "{{ inventory_hostname }}"
 orderer_k8s_wait: true
 orderer_k8s_wait_timeout: 120
@@ -52,6 +49,14 @@ orderer_config_file: "node_config.yaml"
 orderer_use_tls: false
 orderer_use_mtls: false
 orderer_http_protocol: "{{ 'https' if orderer_use_tls else 'http' }}"
+
+# =========================
+# Fabric-X Orderer Deployment Mode
+# =========================
+orderer_use_bin: false
+orderer_use_k8s: false
+orderer_use_container: "{{ (not orderer_use_bin) and (not orderer_use_k8s) }}"
+orderer_deployment_mode: "{%- if orderer_use_bin -%}bin{%- elif orderer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
 
 # =========================
 # Miscellaneous
