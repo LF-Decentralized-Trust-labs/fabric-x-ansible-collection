@@ -239,7 +239,6 @@ In Kubernetes mode (`orderer_use_k8s: true`), Ansible runs entirely on the contr
 | `msp-keystore-priv-sk` | `msp/keystore/priv_sk`                   |
 | `msp-signcert.pem`     | `msp/signcerts/<name>.pem`               |
 | `msp-cacert.pem`       | `msp/cacerts/<name>.pem`                 |
-| `msp-tlscacert.pem`    | `msp/tlscacerts/<name>.pem`              |
 | `msp-config.yaml`      | `msp/config.yaml`                        |
 | `tls-server.key`       | `tls/server.key`                         |
 | `tls-server.crt`       | `tls/server.crt`                         |

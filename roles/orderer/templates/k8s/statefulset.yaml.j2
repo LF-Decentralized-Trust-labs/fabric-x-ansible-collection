@@ -53,12 +53,8 @@ spec:
               subPath: msp-signcert.pem
               readOnly: true
             - name: secret
-              mountPath: {{ orderer_container_config_dir }}/msp/cacerts/ca.crt
+              mountPath: {{ orderer_container_config_dir }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem
               subPath: msp-cacert.pem
-              readOnly: true
-            - name: secret
-              mountPath: {{ orderer_container_config_dir }}/msp/tlscacerts/tlsca.crt
-              subPath: msp-tlscacert.pem
               readOnly: true
             - name: secret
               mountPath: {{ orderer_container_config_dir }}/msp/config.yaml
