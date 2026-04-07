@@ -65,8 +65,6 @@
       - "{{ yugabyte_tablet_pgsql_bind_port }}:{{ yugabyte_tablet_pgsql_bind_port }}"
       - "{{ yugabyte_tablet_rpc_bind_port }}:{{ yugabyte_tablet_rpc_bind_port }}"
       - "{{ yugabyte_tablet_webserver_port }}:{{ yugabyte_tablet_webserver_port }}"
-      - "{{ yugabyte_tablet_redis_rpc_port }}:{{ yugabyte_tablet_redis_rpc_port }}"
-      - "{{ yugabyte_tablet_redis_web_port }}:{{ yugabyte_tablet_redis_web_port }}"
       - "{{ yugabyte_tablet_pgsql_web_port }}:{{ yugabyte_tablet_pgsql_web_port }}"
       - "{{ yugabyte_tablet_cql_bind_port }}:{{ yugabyte_tablet_cql_bind_port }}"
       - "{{ yugabyte_tablet_cql_web_port }}:{{ yugabyte_tablet_cql_web_port }}"
@@ -79,8 +77,6 @@
       --webserver_port={{ yugabyte_tablet_webserver_port }}
       --pgsql_proxy_bind_address=0.0.0.0:{{ yugabyte_tablet_pgsql_bind_port }}
       --pgsql_proxy_webserver_port={{ yugabyte_tablet_pgsql_web_port }}
-      --redis_proxy_bind_address=0.0.0.0:{{ yugabyte_tablet_redis_rpc_port }}
-      --redis_proxy_webserver_port={{ yugabyte_tablet_redis_web_port }}
       --cql_proxy_bind_address=0.0.0.0:{{ yugabyte_tablet_cql_bind_port }}
       --cql_proxy_webserver_port={{ yugabyte_tablet_cql_web_port }}
       --minloglevel={{ yugabyte_logs_level }}
