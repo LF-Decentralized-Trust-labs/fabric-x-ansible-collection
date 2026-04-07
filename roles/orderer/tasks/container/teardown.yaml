@@ -4,14 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Stop Fabric-X Orderer consenter container
+- name: Remove Fabric-X Orderer container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
-    tasks_from: container/stop
-  when: not orderer_use_bin
+    tasks_from: container/rm
 
-- name: Stop Fabric-X Orderer consenter binary
+- name: Remove Fabric-X Orderer data
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
-    tasks_from: bin/stop
-  when: orderer_use_bin
+    tasks_from: data/rm

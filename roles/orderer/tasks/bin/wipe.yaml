@@ -4,23 +4,22 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Teardown Fabric-X Orderer Assembler
+- name: Teardown Fabric-X Orderer binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
-    tasks_from: orderer_assembler/teardown
+    tasks_from: bin/teardown
 
-- name: Remove Fabric-X Orderer Assembler binary
+- name: Remove Fabric-X Orderer binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: bin/rm
-  when: orderer_use_bin
 
-- name: Remove Fabric-X Orderer Assembler crypto files
+- name: Remove Fabric-X Orderer crypto files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: crypto/rm
 
-- name: Remove Fabric-X Orderer Assembler configuration files
+- name: Remove Fabric-X Orderer configuration files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: config/rm

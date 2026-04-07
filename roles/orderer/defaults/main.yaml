@@ -32,6 +32,8 @@ orderer_k8s_resource_name: "{{ inventory_hostname }}"
 orderer_k8s_wait: true
 orderer_k8s_wait_timeout: 120
 orderer_k8s_fs_group: 10001
+orderer_k8s_rpc_node_port: "{{ orderer_rpc_port }}"
+orderer_k8s_metrics_node_port: "{{ orderer_metrics_port }}"
 
 # =========================
 # Paths/Locations

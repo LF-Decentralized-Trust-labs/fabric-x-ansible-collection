@@ -40,7 +40,7 @@ spec:
           image: {{ orderer_image }}
           imagePullPolicy: {{ k8s_image_pull_policy }}
           args:
-            - "{{ orderer_k8s_command }}"
+            - "{{ orderer_component_type }}"
             - --config={{ orderer_container_config_dir }}/node_config.yaml
           ports:
             - name: rpc

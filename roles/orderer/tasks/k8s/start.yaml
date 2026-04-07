@@ -4,30 +4,22 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Start Fabric-X Orderer Consenter on k8s
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: orderer_consenter/k8s/start
-  when:
-    - orderer_component_type == 'consenter'
+- name: Apply Fabric-X Orderer Service
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/service.yaml.j2
 
-- name: Start Fabric-X Orderer Batcher on k8s
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: orderer_batcher/k8s/start
-  when:
-    - orderer_component_type == 'batcher'
+- name: Apply Fabric-X Orderer NodePort Service
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/service-nodeport.yaml.j2
 
-- name: Start Fabric-X Orderer Assembler on k8s
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: orderer_assembler/k8s/start
-  when:
-    - orderer_component_type == 'assembler'
-
-- name: Start Fabric-X Orderer Router on k8s
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: orderer_router/k8s/start
-  when:
-    - orderer_component_type == 'router'
+- name: Apply Fabric-X Orderer StatefulSet
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/statefulset.yaml.j2
+    wait: "{{ orderer_k8s_wait }}"
+    wait_timeout: "{{ orderer_k8s_wait_timeout }}"

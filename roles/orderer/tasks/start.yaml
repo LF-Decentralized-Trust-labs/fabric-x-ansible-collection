@@ -4,23 +4,30 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Start Fabric-X Orderer container
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: container/start
-  when:
-    - orderer_use_container
+- name: Start Fabric-X Orderer nodes
+  vars:
+    orderer_mode: "{{ 'k8s' if orderer_use_k8s else ('bin' if orderer_use_bin else 'container') }}"
+  block:
+    - name: Start Fabric-X Orderer consensus nodes
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.orderer
+        tasks_from: "{{ orderer_mode }}/start"
+      when: orderer_component_type == 'consensus'
 
-- name: Start Fabric-X Orderer binary
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: bin/start
-  when:
-    - orderer_use_bin
+    - name: Start Fabric-X Orderer batcher nodes
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.orderer
+        tasks_from: "{{ orderer_mode }}/start"
+      when: orderer_component_type == 'batcher'
 
-- name: Start Fabric-X Orderer on k8s
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: k8s/start
-  when:
-    - orderer_use_k8s
+    - name: Start Fabric-X Orderer assembler nodes
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.orderer
+        tasks_from: "{{ orderer_mode }}/start"
+      when: orderer_component_type == 'assembler'
+
+    - name: Start Fabric-X Orderer router nodes
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.orderer
+        tasks_from: "{{ orderer_mode }}/start"
+      when: orderer_component_type == 'router'
