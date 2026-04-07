@@ -1,0 +1,151 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  # One StatefulSet per orderer node instance.
+  name: {{ orderer_k8s_resource_name }}
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ orderer_k8s_resource_name }}
+    app.kubernetes.io/component: {{ orderer_component_type }}
+    app.kubernetes.io/part-of: fabric-x-orderer
+spec:
+  # Must match the headless Service name so DNS-based pod addressing works.
+  serviceName: {{ orderer_k8s_resource_name }}
+  # One replica per orderer node — horizontal scaling is done by adding nodes
+  # to the Fabric network, not by scaling this pod.
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ orderer_k8s_resource_name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ orderer_k8s_resource_name }}
+        app.kubernetes.io/component: {{ orderer_component_type }}
+        app.kubernetes.io/part-of: fabric-x-orderer
+    spec:
+      securityContext:
+        # Ensures files mounted from Secrets and ConfigMaps are readable by
+        # the orderer process running as a non-root user inside the container.
+        fsGroup: {{ orderer_k8s_fs_group }}
+      containers:
+        - name: {{ orderer_component_type }}
+          # Fabric-X orderer image containing all component binaries.
+          image: {{ orderer_image }}
+          imagePullPolicy: {{ k8s_image_pull_policy }}
+          args:
+            - "{{ orderer_component_type }}"
+            - --config={{ orderer_container_config_dir }}/node_config.yaml
+          ports:
+            - name: rpc
+              # gRPC port used by Fabric peers and other orderer components.
+              containerPort: {{ orderer_rpc_port }}
+              protocol: TCP
+            - name: metrics
+              # Prometheus metrics scrape endpoint.
+              containerPort: {{ orderer_metrics_port }}
+              protocol: TCP
+          volumeMounts:
+            # Private signing key for this orderer node's MSP identity.
+            - name: secret
+              mountPath: {{ orderer_container_config_dir }}/msp/keystore/priv_sk
+              subPath: msp-keystore-priv-sk
+              readOnly: true
+            # Node signing certificate issued by the organisation CA.
+            - name: secret
+              mountPath: {{ orderer_container_config_dir }}/msp/signcerts/cert.pem
+              subPath: msp-signcert.pem
+              readOnly: true
+            # Organisation CA certificate. The filename must match the
+            # Certificate reference inside msp/config.yaml so that Fabric's
+            # NodeOUs resolution can locate it at runtime.
+            - name: secret
+              mountPath: {{ orderer_container_config_dir }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem
+              subPath: msp-cacert.pem
+              readOnly: true
+            # NodeOUs configuration: tells Fabric to classify identities by OU
+            # (admin, orderer, peer, client) so admin rights are derived from
+            # the genesis block rather than from admincerts on disk.
+            - name: secret
+              mountPath: {{ orderer_container_config_dir }}/msp/config.yaml
+              subPath: msp-config.yaml
+              readOnly: true
+            # TLS private key used to authenticate this orderer to its peers.
+            - name: secret
+              mountPath: {{ orderer_container_config_dir }}/tls/server.key
+              subPath: tls-server.key
+              readOnly: true
+            # TLS server certificate presented during the TLS handshake.
+            - name: secret
+              mountPath: {{ orderer_container_config_dir }}/tls/server.crt
+              subPath: tls-server.crt
+              readOnly: true
+            # TLS CA certificate used to verify incoming TLS connections.
+            - name: secret
+              mountPath: {{ orderer_container_config_dir }}/tls/ca.crt
+              subPath: tls-ca.crt
+              readOnly: true
+            # Main orderer node configuration file (ports, storage paths, etc.).
+            - name: config
+              mountPath: {{ orderer_container_config_dir }}/node_config.yaml
+              subPath: node-config.yaml
+            # Genesis block used to bootstrap the orderer channel on first start.
+            - name: config
+              mountPath: {{ orderer_container_config_dir }}/genesis.block
+              subPath: genesis.block
+{% if orderer_use_mtls and orderer_mtls_clients is defined %}
+{% for client in orderer_mtls_clients %}
+            # mTLS CA cert for client {{ client }} — allows this specific client to connect.
+            - name: config
+              mountPath: {{ orderer_container_config_dir }}/mtls/{{ client }}/ca.crt
+              subPath: mtls-client-{{ client }}-ca.crt
+{% endfor %}
+{% endif %}
+{% if orderer_use_mtls and orderer_mtls_orgs is defined %}
+{% for org in orderer_mtls_orgs %}
+            # mTLS CA cert for org {{ org.domain }} — allows peers from this organisation to connect.
+            - name: config
+              mountPath: {{ orderer_container_config_dir }}/mtls/{{ org.domain }}/ca.crt
+              subPath: mtls-org-{{ org.domain }}-ca.crt
+{% endfor %}
+{% endif %}
+            # Persistent volume for ledger data and orderer state.
+            - name: data
+              mountPath: {{ orderer_container_data_dir }}
+      volumes:
+        - name: config
+          # ConfigMap holds non-sensitive runtime configuration: node config,
+          # genesis block, and mTLS CA certificates.
+          configMap:
+            name: {{ orderer_k8s_resource_name }}-config
+            defaultMode: 0640
+        - name: secret
+          # Secret holds all sensitive crypto material: MSP identity and TLS keys.
+          secret:
+            secretName: {{ orderer_k8s_resource_name }}-secret
+            defaultMode: 0640
+{% if k8s_image_pull_secret is defined and k8s_image_pull_secret %}
+      imagePullSecrets:
+        # Secret used to pull the orderer image from a private registry.
+        - name: {{ k8s_image_pull_secret }}
+{% endif %}
+  volumeClaimTemplates:
+    # PVC name — Kubernetes appends the pod ordinal (e.g. data-<name>-0).
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          # Each orderer pod owns its own volume; no sharing between replicas.
+          - ReadWriteOnce
+{% if k8s_storage_class is defined and k8s_storage_class %}
+        storageClassName: {{ k8s_storage_class }}
+{% endif %}
+        resources:
+          requests:
+            storage: {{ k8s_storage_size }}

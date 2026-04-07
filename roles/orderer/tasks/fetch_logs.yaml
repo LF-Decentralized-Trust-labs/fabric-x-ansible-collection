@@ -4,30 +4,20 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Fetch the logs from the Fabric-X Orderer consenters
+- name: Fetch the logs from the Fabric-X Orderer on Kubernetes
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
-    tasks_from: orderer_consenter/fetch_logs
-  when:
-    - orderer_component_type == 'consenter'
+    tasks_from: k8s/fetch_logs
+  when: orderer_use_k8s
 
-- name: Fetch the logs from the Fabric-X Orderer batchers
+- name: Fetch the logs from the Fabric-X Orderer container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
-    tasks_from: orderer_batcher/fetch_logs
-  when:
-    - orderer_component_type == 'batcher'
+    tasks_from: container/fetch_logs
+  when: orderer_use_container
 
-- name: Fetch the logs from the Fabric-X Orderer assemblers
+- name: Fetch the logs from the Fabric-X Orderer binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
-    tasks_from: orderer_assembler/fetch_logs
-  when:
-    - orderer_component_type == 'assembler'
-
-- name: Fetch the logs from the Fabric-X Orderer routers
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: orderer_router/fetch_logs
-  when:
-    - orderer_component_type == 'router'
+    tasks_from: bin/fetch_logs
+  when: orderer_use_bin

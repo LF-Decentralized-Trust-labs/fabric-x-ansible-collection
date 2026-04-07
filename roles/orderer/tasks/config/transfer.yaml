@@ -4,30 +4,45 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Copy consenter config
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: orderer_consenter/config/transfer
-  when:
-    - orderer_component_type == 'consenter'
+# =========================
+# Config
+# =========================
+- name: Ensure Fabric-X Orderer config directory exists
+  ansible.builtin.file:
+    path: "{{ orderer_remote_config_dir }}"
+    state: directory
+    mode: "0o755"
 
-- name: Copy assembler config
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: orderer_assembler/config/transfer
-  when:
-    - orderer_component_type == 'assembler'
+- name: Create Fabric-X Orderer config
+  ansible.builtin.template:
+    src: config-{{ orderer_component_type }}.yaml.j2
+    dest: "{{ orderer_remote_config_dir }}/{{ orderer_config_file }}"
+    mode: "0o640"
 
-- name: Copy batcher config
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: orderer_batcher/config/transfer
-  when:
-    - orderer_component_type == 'batcher'
+# =========================
+# Genesis block
+# =========================
+- name: Copy Genesis block to use for the genesis setup phase
+  ansible.builtin.copy:
+    src: "{{ configtxgen_artifacts_dir }}/{{ orderer_genesis_block_file }}"
+    dest: "{{ orderer_remote_config_dir }}/genesis.block"
+    mode: "0o644"
 
-- name: Copy router config
+# =========================
+# mTLS
+# =========================
+- name: Transfer mTLS certificates
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
-    tasks_from: orderer_router/config/transfer
+    tasks_from: config/mtls/transfer
   when:
-    - orderer_component_type == 'router'
+    - orderer_use_mtls
+
+# =========================
+# Config (Kubernetes)
+# =========================
+- name: Transfer Fabric-X Orderer K8s config
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: k8s/config/transfer
+  when: orderer_use_k8s

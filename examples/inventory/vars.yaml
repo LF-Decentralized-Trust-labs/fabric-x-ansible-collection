@@ -8,7 +8,7 @@
 # Control Node Paths
 # =========================
 project_dir: "{{ lookup('env', 'PROJECT_DIR') or '~/.ansible/collections/ansible_collections/hyperledger/fabricx' }}"
-out_dir: "{{ project_dir }}/out"
+out_dir: "{{ lookup('env', 'OUT_DIR') or project_dir + '/out' }}"
 control_node_dir: "{{ out_dir }}/control-node"
 cli_bin_dir: "{{ control_node_dir }}/cli"
 
