@@ -16,8 +16,6 @@
         | selectattr('organization.role', '==', 'orderer')
         | length > 0
       }}
-  when:
-    - fabric_ca_orderer_organization is not defined
 
 - name: Set the MSP folder
   vars:
@@ -36,7 +34,7 @@
     dest: "{{ fabric_ca_org_dir }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem"
     flat: true
   when:
-    - not (fabric_ca_fetch_admin_only | default(false))
+    - not fabric_ca_fetch_admin_only
 
 - name: Fetch the TLS CA certificate
   ansible.builtin.fetch:
@@ -44,7 +42,7 @@
     dest: "{{ fabric_ca_org_dir }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
     flat: true
   when:
-    - not (fabric_ca_fetch_admin_only | default(false))
+    - not fabric_ca_fetch_admin_only
 
 # Despite admincerts being deprecated, we must fetch also the admin cert in order to build a proper
 # config block for the ordering service.
@@ -66,4 +64,4 @@
   when:
     - fabric_ca_admin is defined
     - fabric_ca_admin.name is defined
-    - fabric_ca_admin_cert.stat.exists | default(false)
+    - fabric_ca_admin_cert.stat.exists

@@ -44,6 +44,7 @@ fabric_ca_server_data_dir: "{{ fabric_ca_server_remote_data_dir if fabric_ca_ser
 # General settings
 # =========================
 fabric_ca_log_level: "INFO"
+fabric_ca_fetch_admin_only: false
 
 # =========================
 # TLS settings
