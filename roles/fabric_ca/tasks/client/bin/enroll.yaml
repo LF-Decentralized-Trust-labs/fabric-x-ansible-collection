@@ -60,12 +60,12 @@
     tasks_from: start
   when:
     - (
-        fabric_ca_enrollment_type == 'idemix'
-        and not fabric_ca_idemix_signer.stat.exists
+      fabric_ca_enrollment_type == 'idemix'
+      and not fabric_ca_idemix_signer.stat.exists
       )
       or (
-        fabric_ca_enrollment_type == 'bccsp'
-        and not fabric_ca_msp_cert.stat.exists
+      fabric_ca_enrollment_type == 'bccsp'
+      and not fabric_ca_msp_cert.stat.exists
       )
 
 - name: Copy NodeOUs configuration file
@@ -75,7 +75,6 @@
     mode: "0o644"
   when:
     - fabric_ca_enrollment_type == 'bccsp'
-    - fabric_ca_enable_nodeous
 
 # TODO: we need to evaluate if we want to go with this path or handle per component locations based on whether they receive material through cryptogen or fabric-ca
 - name: Adjust crypto to be as cryptogen produced crypto

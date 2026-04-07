@@ -234,7 +234,7 @@ In Kubernetes mode (`orderer_use_k8s: true`), Ansible runs entirely on the contr
 
 ### K8s resources per component instance
 
-**Secret** (`<resource-name>-secret`): created during `crypto/setup`, contains all crypto files read directly from the control node. Admin identity is derived from the genesis block via NodeOUs — no `admincerts` are needed on disk.
+**Secret** (`<resource-name>-secret`): created during `crypto/setup`, contains all crypto files read directly from the control node:
 
 | Secret key             | Source file                |
 | ---------------------- | -------------------------- |
