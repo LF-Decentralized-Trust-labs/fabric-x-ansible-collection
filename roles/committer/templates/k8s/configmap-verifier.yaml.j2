@@ -16,7 +16,7 @@ metadata:
 data:
   # Main verifier configuration passed via --config at startup.
   config-verifier.yml: |
-    {{ committer_k8s_config_content | indent(4) }}
+    {{ lookup('file', committer_remote_config_dir + '/' + committer_verifier_config_file) | indent(4) }}
 {% if committer_use_mtls and committer_mtls_clients is defined %}
 {% for current_mtls_client in committer_mtls_clients %}
   # mTLS CA cert for client {{ current_mtls_client }}.

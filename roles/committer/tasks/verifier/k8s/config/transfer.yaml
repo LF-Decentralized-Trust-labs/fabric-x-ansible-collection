@@ -13,11 +13,18 @@
     tasks_from: namespace/create
 
 # =========================
+# Generate config on controller
+# =========================
+- name: Generate Hyperledger Fabric-X Committer verifier config on controller
+  ansible.builtin.template:
+    src: "config-verifier.yaml.j2"
+    dest: "{{ committer_remote_config_dir }}/{{ committer_verifier_config_file }}"
+    mode: "0o644"
+
+# =========================
 # Apply ConfigMap
 # =========================
 - name: Apply Fabric-X Committer verifier ConfigMap
-  vars:
-    committer_k8s_config_content: "{{ lookup('template', 'config-verifier.yaml.j2') }}"
   kubernetes.core.k8s:
     state: present
     template:

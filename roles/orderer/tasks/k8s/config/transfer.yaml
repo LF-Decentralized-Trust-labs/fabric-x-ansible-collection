@@ -21,11 +21,19 @@
   register: orderer_slurp_genesis
 
 # =========================
+# Generate config on controller
+# =========================
+- name: Generate Hyperledger Fabric-X Orderer config on controller
+  ansible.builtin.template:
+    src: "config-{{ orderer_component_type }}.yaml.j2"
+    dest: "{{ orderer_remote_config_dir }}/{{ orderer_config_file }}"
+    mode: "0o640"
+
+# =========================
 # Apply ConfigMap
 # =========================
 - name: Apply Fabric-X Orderer ConfigMap
   vars:
-    orderer_k8s_node_config_content: "{{ lookup('template', 'config-' + orderer_component_type + '.yaml.j2') }}"
     orderer_k8s_genesis_block_b64: "{{ orderer_slurp_genesis.content }}"
   kubernetes.core.k8s:
     state: present
