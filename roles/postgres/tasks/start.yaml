@@ -4,7 +4,14 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Start Postgres DB
+- name: Start Postgres DB on Kubernetes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: k8s/start
+  when: postgres_use_k8s
+
+- name: Start Postgres DB container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: container/start
+  when: postgres_use_container

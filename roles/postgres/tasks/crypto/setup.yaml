@@ -70,3 +70,12 @@
     mode: "0o644"
   when:
     - postgres_use_tls
+
+# =========================
+# Kubernetes
+# =========================
+- name: Apply Postgres DB K8s crypto Secret
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: k8s/crypto/transfer
+  when: postgres_use_k8s

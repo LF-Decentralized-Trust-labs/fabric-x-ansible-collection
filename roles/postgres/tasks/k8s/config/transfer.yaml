@@ -1,0 +1,27 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists
+  kubernetes.core.k8s:
+    state: present
+    api_version: v1
+    kind: Namespace
+    name: "{{ k8s_namespace }}"
+
+# =========================
+# mTLS
+# =========================
+- name: Apply Postgres DB ConfigMap
+  vars:
+    postgres_k8s_pg_hba_path: "{{ postgres_remote_config_dir }}/pg_hba.conf"
+    postgres_k8s_mtls_ca_bundle_path: "{{ postgres_remote_config_dir }}/mtls/ca-certs.pem"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/configmap.yaml.j2
