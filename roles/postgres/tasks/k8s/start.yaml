@@ -4,6 +4,17 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists for Postgres DB
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: k8s/namespace/create
+
+# =========================
+# Apply Resources
+# =========================
 - name: Apply Postgres DB Service
   kubernetes.core.k8s:
     state: present

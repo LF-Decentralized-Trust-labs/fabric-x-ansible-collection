@@ -4,6 +4,17 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists for Postgres DB
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: k8s/namespace/create
+
+# =========================
+# Apply Secret
+# =========================
 - name: Apply Postgres DB Secret
   vars:
     postgres_k8s_tls_server_key_path: "{{ postgres_remote_config_dir }}/tls/{{ postgres_tls_private_key_file }}"
