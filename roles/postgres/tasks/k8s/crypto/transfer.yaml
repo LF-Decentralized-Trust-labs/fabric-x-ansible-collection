@@ -9,8 +9,8 @@
 # =========================
 - name: Ensure Kubernetes namespace exists for Postgres DB
   ansible.builtin.include_role:
-    name: hyperledger.fabricx.postgres
-    tasks_from: k8s/namespace/create
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
 
 # =========================
 # Apply Secret
