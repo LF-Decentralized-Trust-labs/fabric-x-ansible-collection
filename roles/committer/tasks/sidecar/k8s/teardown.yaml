@@ -1,0 +1,18 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Fabric-X Committer sidecar Kubernetes workload
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: sidecar/k8s/rm
+
+- name: Delete Fabric-X Committer sidecar PersistentVolumeClaim
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: PersistentVolumeClaim
+    name: "data-{{ committer_k8s_resource_name }}-0"
+    namespace: "{{ k8s_namespace }}"

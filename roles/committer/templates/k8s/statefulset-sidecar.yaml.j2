@@ -1,0 +1,133 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ committer_k8s_resource_name }}
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ committer_k8s_resource_name }}
+    app.kubernetes.io/component: {{ committer_component_type }}
+    app.kubernetes.io/part-of: fabric-x-committer
+spec:
+  # Must match the headless Service name so DNS-based pod addressing works.
+  serviceName: {{ committer_k8s_resource_name }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ committer_k8s_resource_name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ committer_k8s_resource_name }}
+        app.kubernetes.io/component: {{ committer_component_type }}
+        app.kubernetes.io/part-of: fabric-x-committer
+    spec:
+      securityContext:
+        fsGroup: {{ committer_k8s_fs_group }}
+      containers:
+        - name: {{ committer_component_type }}
+          image: {{ committer_image }}
+          imagePullPolicy: {{ k8s_image_pull_policy }}
+          args:
+            - "committer"
+            - "start-sidecar"
+            - "--config={{ committer_container_config_dir }}/{{ committer_sidecar_config_file }}"
+          ports:
+            - name: rpc
+              containerPort: {{ committer_rpc_port }}
+              protocol: TCP
+            - name: metrics
+              containerPort: {{ committer_metrics_port }}
+              protocol: TCP
+          volumeMounts:
+            # Main sidecar configuration file.
+            - name: config
+              mountPath: {{ committer_container_config_dir }}/{{ committer_sidecar_config_file }}
+              subPath: config-sidecar.yml
+{% if committer_use_tls %}
+            # TLS private key.
+            - name: secret
+              mountPath: {{ committer_container_config_dir }}/tls/server.key
+              subPath: tls-server.key
+              readOnly: true
+            # TLS server certificate.
+            - name: secret
+              mountPath: {{ committer_container_config_dir }}/tls/server.crt
+              subPath: tls-server.crt
+              readOnly: true
+            # TLS CA certificate (also used for mTLS client trust).
+            - name: secret
+              mountPath: {{ committer_container_config_dir }}/tls/ca.crt
+              subPath: tls-ca.crt
+              readOnly: true
+{% endif %}
+{% if hostvars[committer_coordinator].committer_use_tls is defined and hostvars[committer_coordinator].committer_use_tls %}
+            # TLS CA certificate of the coordinator (upstream server).
+            - name: config
+              mountPath: {{ committer_container_config_dir }}/tls/coordinator/ca.crt
+              subPath: tls-coordinator-ca.crt
+              readOnly: true
+{% endif %}
+{% for assembler in orderer_assemblers %}
+{% if hostvars[assembler].orderer_use_tls is defined and hostvars[assembler].orderer_use_tls %}
+            # TLS CA certificate of orderer assembler {{ assembler }}.
+            - name: config
+              mountPath: {{ committer_container_config_dir }}/tls/orderers/{{ assembler }}/ca.crt
+              subPath: tls-orderers-{{ assembler }}-ca.crt
+              readOnly: true
+{% endif %}
+{% endfor %}
+{% if committer_use_mtls and committer_mtls_clients is defined %}
+{% for client in committer_mtls_clients %}
+            # mTLS CA cert for client {{ client }}.
+            - name: config
+              mountPath: {{ committer_container_config_dir }}/mtls/{{ client }}/ca.crt
+              subPath: mtls-client-{{ client }}-ca.crt
+              readOnly: true
+{% endfor %}
+{% endif %}
+{% if committer_use_mtls and committer_mtls_orgs is defined %}
+{% for org in committer_mtls_orgs %}
+            # mTLS CA cert for org {{ org.domain }}.
+            - name: config
+              mountPath: {{ committer_container_config_dir }}/mtls/{{ org.domain }}/ca.crt
+              subPath: mtls-org-{{ org.domain }}-ca.crt
+              readOnly: true
+{% endfor %}
+{% endif %}
+            # Persistent volume for the ledger.
+            - name: data
+              mountPath: {{ committer_container_data_dir }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ committer_k8s_resource_name }}-config
+            defaultMode: 0640
+{% if committer_use_tls %}
+        - name: secret
+          secret:
+            secretName: {{ committer_k8s_resource_name }}-secret
+            defaultMode: 0640
+{% endif %}
+{% if k8s_image_pull_secret is defined and k8s_image_pull_secret %}
+      imagePullSecrets:
+        - name: {{ k8s_image_pull_secret }}
+{% endif %}
+  volumeClaimTemplates:
+    # PVC name — Kubernetes appends the pod ordinal (e.g. data-<name>-0).
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+{% if k8s_storage_class is defined and k8s_storage_class %}
+        storageClassName: {{ k8s_storage_class }}
+{% endif %}
+        resources:
+          requests:
+            storage: {{ k8s_storage_size }}

@@ -1,0 +1,57 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists for Fabric-X Committer sidecar
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+# =========================
+# mTLS client/org cert lists
+# =========================
+- name: Prepare mTLS cert lists for Fabric-X Committer sidecar
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: k8s/config/mtls/transfer
+  when: committer_use_mtls
+
+# =========================
+# Orderer assembler CA cert list
+# =========================
+- name: Initialize orderer assembler CA cert list
+  ansible.builtin.set_fact:
+    committer_k8s_orderer_assembler_cas: []
+
+- name: Build orderer assembler CA cert list
+  vars:
+    committer_k8s_orderer_assembler_ca:
+      name: "{{ current_orderer_assembler }}"
+      path: "{{ fetched_artifacts_dir }}/{{ current_orderer_assembler }}/tls/ca.crt"
+  ansible.builtin.set_fact:
+    committer_k8s_orderer_assembler_cas: "{{ committer_k8s_orderer_assembler_cas + [committer_k8s_orderer_assembler_ca] }}"
+  loop: "{{ orderer_assemblers }}"
+  loop_control:
+    loop_var: current_orderer_assembler
+    label: "{{ current_orderer_assembler }}"
+  when:
+    - hostvars[current_orderer_assembler].orderer_use_tls is defined
+    - hostvars[current_orderer_assembler].orderer_use_tls
+
+# =========================
+# Apply ConfigMap
+# =========================
+- name: Apply Fabric-X Committer sidecar ConfigMap
+  vars:
+    orderer_assembler_ref_host: "{{ orderer_assemblers | first }}"
+    committer_k8s_config_content: "{{ lookup('template', 'config-sidecar.yaml.j2') }}"
+    committer_k8s_coordinator_ca_path: "{{ fetched_artifacts_dir }}/{{ committer_coordinator }}/tls/ca.crt"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/configmap-sidecar.yaml.j2

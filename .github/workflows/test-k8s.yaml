@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - inventory: "fabric-x-orderer"
+          - inventory: "fabric-x"
       fail-fast: false
 
     steps:

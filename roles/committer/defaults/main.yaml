@@ -24,6 +24,18 @@ committer_bin_name: "committer"
 committer_use_bin: false
 
 # =========================
+# Fabric-X Committer K8s mode
+# =========================
+committer_use_k8s: false
+committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
+committer_deployment_mode: "{%- if committer_use_bin -%}bin{%- elif committer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
+committer_k8s_resource_name: "{{ inventory_hostname }}"
+committer_k8s_wait_timeout: 120
+committer_k8s_fs_group: 10001
+committer_k8s_rpc_node_port: "{{ committer_rpc_port }}"
+committer_k8s_metrics_node_port: "{{ committer_metrics_port }}"
+
+# =========================
 # Paths/Locations
 # =========================
 committer_remote_config_dir: "{{ remote_config_dir }}"

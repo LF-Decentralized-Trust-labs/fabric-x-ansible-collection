@@ -4,37 +4,20 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Fetch the logs from the Fabric-X Committer validator persistence
+- name: Fetch the logs from the Fabric-X Committer on Kubernetes
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
-    tasks_from: validator/fetch_logs
-  when:
-    - committer_component_type == 'validator'
+    tasks_from: k8s/fetch_logs
+  when: committer_use_k8s
 
-- name: Fetch the logs from the Fabric-X Committer signature verifiers
+- name: Fetch the logs from the Fabric-X Committer container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
-    tasks_from: verifier/fetch_logs
-  when:
-    - committer_component_type == 'verifier'
+    tasks_from: container/fetch_logs
+  when: committer_use_container
 
-- name: Fetch the logs from the Fabric-X Committer coordinator
+- name: Fetch the logs from the Fabric-X Committer binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
-    tasks_from: coordinator/fetch_logs
-  when:
-    - committer_component_type == 'coordinator'
-
-- name: Fetch the logs from the Fabric-X Committer sidecar
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: sidecar/fetch_logs
-  when:
-    - committer_component_type == 'sidecar'
-
-- name: Fetch the logs from the Fabric-X Committer QueryService
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: query_service/fetch_logs
-  when:
-    - committer_component_type == 'query-service'
+    tasks_from: bin/fetch_logs
+  when: committer_use_bin

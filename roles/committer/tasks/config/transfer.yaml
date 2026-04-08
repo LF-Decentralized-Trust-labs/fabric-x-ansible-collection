@@ -4,12 +4,29 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Generate Hyperledger Fabric-X Committer validators k8s config
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: validator/k8s/config/transfer
+  when:
+    - committer_component_type == 'validator'
+    - committer_use_k8s
+
 - name: Generate Hyperledger Fabric-X Committer validators config files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: validator/config/transfer
   when:
     - committer_component_type == 'validator'
+    - not committer_use_k8s
+
+- name: Generate Hyperledger Fabric-X Committer verifiers k8s config
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: verifier/k8s/config/transfer
+  when:
+    - committer_component_type == 'verifier'
+    - committer_use_k8s
 
 - name: Generate Hyperledger Fabric-X Committer verifiers config files
   ansible.builtin.include_role:
@@ -17,6 +34,15 @@
     tasks_from: verifier/config/transfer
   when:
     - committer_component_type == 'verifier'
+    - not committer_use_k8s
+
+- name: Generate Hyperledger Fabric-X Committer coordinator k8s config
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: coordinator/k8s/config/transfer
+  when:
+    - committer_component_type == 'coordinator'
+    - committer_use_k8s
 
 - name: Generate Hyperledger Fabric-X Committer coordinator config files
   ansible.builtin.include_role:
@@ -24,6 +50,15 @@
     tasks_from: coordinator/config/transfer
   when:
     - committer_component_type == 'coordinator'
+    - not committer_use_k8s
+
+- name: Generate Hyperledger Fabric-X Committer sidecar k8s config
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: sidecar/k8s/config/transfer
+  when:
+    - committer_component_type == 'sidecar'
+    - committer_use_k8s
 
 - name: Generate Hyperledger Fabric-X Committer sidecar config files
   ansible.builtin.include_role:
@@ -31,6 +66,15 @@
     tasks_from: sidecar/config/transfer
   when:
     - committer_component_type == 'sidecar'
+    - not committer_use_k8s
+
+- name: Generate Hyperledger Fabric-X QueryService k8s config
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: query_service/k8s/config/transfer
+  when:
+    - committer_component_type == 'query-service'
+    - committer_use_k8s
 
 - name: Generate Hyperledger Fabric-X QueryService config files
   ansible.builtin.include_role:
@@ -38,3 +82,4 @@
     tasks_from: query_service/config/transfer
   when:
     - committer_component_type == 'query-service'
+    - not committer_use_k8s

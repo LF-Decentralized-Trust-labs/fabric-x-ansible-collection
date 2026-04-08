@@ -1,0 +1,39 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ committer_k8s_resource_name }}-config
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ committer_k8s_resource_name }}
+    app.kubernetes.io/component: {{ committer_component_type }}
+    app.kubernetes.io/part-of: fabric-x-committer
+data:
+  # Main coordinator configuration passed via --config at startup.
+  config-coordinator.yml: |
+    {{ committer_k8s_config_content | indent(4) }}
+{% if hostvars[committer_validator_ref_host].committer_use_tls is defined and hostvars[committer_validator_ref_host].committer_use_tls %}
+  # TLS CA certificate of the validators (used for upstream TLS).
+  tls-validators-ca.crt: |
+    {{ lookup('file', committer_k8s_validators_ca_path) | indent(4) }}
+{% endif %}
+{% if hostvars[committer_verifier_ref_host].committer_use_tls is defined and hostvars[committer_verifier_ref_host].committer_use_tls %}
+  # TLS CA certificate of the verifiers (used for upstream TLS).
+  tls-verifiers-ca.crt: |
+    {{ lookup('file', committer_k8s_verifiers_ca_path) | indent(4) }}
+{% endif %}
+{% for cert in committer_k8s_mtls_client_certs | default([]) %}
+  # mTLS CA cert for client {{ cert.name }}.
+  mtls-client-{{ cert.name }}-ca.crt: |
+    {{ lookup('file', cert.path) | indent(4) }}
+{% endfor %}
+{% for cert in committer_k8s_mtls_org_certs | default([]) %}
+  # mTLS CA cert for org {{ cert.domain }}.
+  mtls-org-{{ cert.domain }}-ca.crt: |
+    {{ lookup('file', cert.path) | indent(4) }}
+{% endfor %}

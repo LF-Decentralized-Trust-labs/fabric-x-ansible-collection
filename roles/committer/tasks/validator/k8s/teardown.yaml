@@ -1,0 +1,10 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Fabric-X Committer validator Kubernetes workload
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: validator/k8s/rm
