@@ -4,7 +4,14 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Fetch Postgres DB logs from Kubernetes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: k8s/fetch_logs
+  when: postgres_use_k8s
+
 - name: Fetch Postgres DB logs from container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: container/fetch_logs
+  when: postgres_use_container

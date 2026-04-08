@@ -28,6 +28,21 @@ postgres_use_tls: false
 postgres_use_mtls: false
 
 # =========================
+# Deployment mode
+# =========================
+postgres_use_k8s: false
+postgres_use_container: "{{ not postgres_use_k8s }}"
+
+# =========================
+# Kubernetes
+# =========================
+postgres_k8s_resource_name: "{{ inventory_hostname }}"
+postgres_k8s_wait: true
+postgres_k8s_wait_timeout: 120
+postgres_k8s_fs_group: 999
+postgres_k8s_port_node_port: "{{ postgres_port }}"
+
+# =========================
 # Miscellaneous
 # =========================
 postgres_tls_private_key_file: server.key

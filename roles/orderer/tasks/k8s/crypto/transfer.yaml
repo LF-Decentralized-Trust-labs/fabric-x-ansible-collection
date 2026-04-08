@@ -5,6 +5,14 @@
 #
 
 # =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists for Fabric-X Orderer
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+# =========================
 # Resolve dynamic cert paths via glob
 # =========================
 - name: Resolve Fabric-X Orderer MSP CA cert path for Fabric CA

@@ -22,3 +22,12 @@
     - postgres_mtls_clients is defined
     - postgres_mtls_clients
       | length > 0
+
+# =========================
+# Config (Kubernetes)
+# =========================
+- name: Transfer Postgres DB K8s config
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: k8s/config/transfer
+  when: postgres_use_k8s

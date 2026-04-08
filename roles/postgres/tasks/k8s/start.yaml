@@ -7,7 +7,7 @@
 # =========================
 # Namespace
 # =========================
-- name: Ensure Kubernetes namespace exists for Fabric-X Orderer
+- name: Ensure Kubernetes namespace exists for Postgres DB
   ansible.builtin.include_role:
     name: hyperledger.fabricx.k8s
     tasks_from: namespace/create
@@ -15,22 +15,22 @@
 # =========================
 # Apply Resources
 # =========================
-- name: Apply Fabric-X Orderer Service
+- name: Apply Postgres DB Service
   kubernetes.core.k8s:
     state: present
     template:
       path: k8s/service.yaml.j2
 
-- name: Apply Fabric-X Orderer NodePort Service
+- name: Apply Postgres DB NodePort Service
   kubernetes.core.k8s:
     state: present
     template:
       path: k8s/service-nodeport.yaml.j2
 
-- name: Apply Fabric-X Orderer StatefulSet
+- name: Apply Postgres DB StatefulSet
   kubernetes.core.k8s:
     state: present
     template:
       path: k8s/statefulset.yaml.j2
-    wait: "{{ orderer_k8s_wait }}"
-    wait_timeout: "{{ orderer_k8s_wait_timeout }}"
+    wait: "{{ postgres_k8s_wait }}"
+    wait_timeout: "{{ postgres_k8s_wait_timeout }}"

@@ -1,0 +1,27 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure fetched log directory exists
+  ansible.builtin.file:
+    path: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}"
+    state: directory
+    mode: "0o755"
+
+- name: Fetch Postgres DB pod logs
+  kubernetes.core.k8s_log:
+    namespace: "{{ k8s_namespace }}"
+    name: "{{ postgres_k8s_resource_name }}-0"
+    container: postgres
+    kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
+    context: "{{ k8s_context | default(omit) }}"
+  register: postgres_k8s_logs
+  failed_when: false
+
+- name: Write Postgres DB logs
+  ansible.builtin.copy:
+    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/logs.txt"
+    mode: "0o644"
+    content: "{{ postgres_k8s_logs.log | default('') }}"

@@ -7,12 +7,10 @@
 # =========================
 # Namespace
 # =========================
-- name: Ensure Kubernetes namespace exists
-  kubernetes.core.k8s:
-    state: present
-    api_version: v1
-    kind: Namespace
-    name: "{{ k8s_namespace }}"
+- name: Ensure Kubernetes namespace exists for Fabric-X Orderer
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
 
 # =========================
 # Genesis block
