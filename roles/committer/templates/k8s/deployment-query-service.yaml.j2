@@ -34,7 +34,7 @@ spec:
           args:
             - "committer"
             - "start-query"
-            - "--config={{ committer_container_config_dir }}/{{ committer_query_service_config_file }}"
+            - "--config={{ committer_container_config_dir }}/{{ committer_config_file }}"
           ports:
             - name: rpc
               containerPort: {{ committer_rpc_port }}
@@ -45,7 +45,7 @@ spec:
           volumeMounts:
             # Main query-service configuration file.
             - name: config
-              mountPath: {{ committer_container_config_dir }}/{{ committer_query_service_config_file }}
+              mountPath: {{ committer_container_config_dir }}/{{ committer_config_file }}
               subPath: config-query-service.yml
 {% if committer_use_tls %}
             # TLS private key.

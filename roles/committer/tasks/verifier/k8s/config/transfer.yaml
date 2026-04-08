@@ -18,7 +18,7 @@
 - name: Generate Hyperledger Fabric-X Committer verifier config on controller
   ansible.builtin.template:
     src: "config-verifier.yaml.j2"
-    dest: "{{ committer_remote_config_dir }}/{{ committer_verifier_config_file }}"
+    dest: "{{ committer_remote_config_dir }}/{{ committer_config_file }}"
     mode: "0o644"
 
 # =========================

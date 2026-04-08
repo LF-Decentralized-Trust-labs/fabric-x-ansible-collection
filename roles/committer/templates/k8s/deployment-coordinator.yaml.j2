@@ -34,7 +34,7 @@ spec:
           args:
             - "committer"
             - "start-coordinator"
-            - "--config={{ committer_container_config_dir }}/{{ committer_coordinator_config_file }}"
+            - "--config={{ committer_container_config_dir }}/{{ committer_config_file }}"
           ports:
             - name: rpc
               containerPort: {{ committer_rpc_port }}
@@ -45,7 +45,7 @@ spec:
           volumeMounts:
             # Main coordinator configuration file.
             - name: config
-              mountPath: {{ committer_container_config_dir }}/{{ committer_coordinator_config_file }}
+              mountPath: {{ committer_container_config_dir }}/{{ committer_config_file }}
               subPath: config-coordinator.yml
 {% if committer_use_tls %}
             # TLS private key.
@@ -64,14 +64,14 @@ spec:
               subPath: tls-ca.crt
               readOnly: true
 {% endif %}
-{% if hostvars[committer_validators | first].committer_use_tls is defined and hostvars[committer_validators | first].committer_use_tls %}
+{% if hostvars[committer_validator_ref_host].committer_use_tls is defined and hostvars[committer_validator_ref_host].committer_use_tls %}
             # TLS CA certificate of the validators (upstream servers).
             - name: config
               mountPath: {{ committer_container_config_dir }}/tls/validators/ca.crt
               subPath: tls-validators-ca.crt
               readOnly: true
 {% endif %}
-{% if hostvars[committer_verifiers | first].committer_use_tls is defined and hostvars[committer_verifiers | first].committer_use_tls %}
+{% if hostvars[committer_verifier_ref_host].committer_use_tls is defined and hostvars[committer_verifier_ref_host].committer_use_tls %}
             # TLS CA certificate of the verifiers (upstream servers).
             - name: config
               mountPath: {{ committer_container_config_dir }}/tls/verifiers/ca.crt

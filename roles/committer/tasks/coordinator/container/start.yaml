@@ -10,7 +10,7 @@
     container_image: "{{ committer_image }}"
     container_command: >-
       committer start-coordinator
-      --config={{ committer_container_config_dir }}/{{ committer_coordinator_config_file }}
+      --config={{ committer_container_config_dir }}/{{ committer_config_file }}
     container_ports:
       - "{{ committer_rpc_port }}:{{ committer_rpc_port }}"
       - "{{ committer_metrics_port }}:{{ committer_metrics_port }}"

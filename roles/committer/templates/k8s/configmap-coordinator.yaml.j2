@@ -16,7 +16,7 @@ metadata:
 data:
   # Main coordinator configuration passed via --config at startup.
   config-coordinator.yml: |
-    {{ lookup('file', committer_remote_config_dir + '/' + committer_coordinator_config_file) | indent(4) }}
+    {{ lookup('file', committer_remote_config_dir + '/' + committer_config_file) | indent(4) }}
 {% if hostvars[committer_validator_ref_host].committer_use_tls is defined and hostvars[committer_validator_ref_host].committer_use_tls %}
   # TLS CA certificate of the validators (used for upstream TLS).
   tls-validators-ca.crt: |

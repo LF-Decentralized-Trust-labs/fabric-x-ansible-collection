@@ -28,7 +28,7 @@
       }}
   ansible.builtin.template:
     src: "config-sidecar.yaml.j2"
-    dest: "{{ committer_remote_config_dir }}/{{ committer_sidecar_config_file }}"
+    dest: "{{ committer_remote_config_dir }}/{{ committer_config_file }}"
     mode: "0o644"
 
 # =========================

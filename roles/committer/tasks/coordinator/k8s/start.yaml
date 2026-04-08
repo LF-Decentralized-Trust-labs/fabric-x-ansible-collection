@@ -28,6 +28,9 @@
       path: k8s/service-nodeport.yaml.j2
 
 - name: Apply Fabric-X Committer coordinator Deployment
+  vars:
+    committer_validator_ref_host: "{{ committer_validators | first }}"
+    committer_verifier_ref_host: "{{ committer_verifiers | first }}"
   kubernetes.core.k8s:
     state: present
     template:

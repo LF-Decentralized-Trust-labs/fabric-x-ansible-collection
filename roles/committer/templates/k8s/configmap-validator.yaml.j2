@@ -16,7 +16,7 @@ metadata:
 data:
   # Main validator configuration passed via --config at startup.
   config-validator.yml: |
-    {{ lookup('file', committer_remote_config_dir + '/' + committer_validator_config_file) | indent(4) }}
+    {{ lookup('file', committer_remote_config_dir + '/' + committer_config_file) | indent(4) }}
 {% if hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
   # Postgres DB TLS CA certificate used to verify the database connection.
   tls-db-ca.crt: |

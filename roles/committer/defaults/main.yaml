@@ -44,11 +44,7 @@ committer_container_config_dir: "/config"
 committer_container_data_dir: "/data"
 committer_config_dir: "{{ committer_remote_config_dir if committer_use_bin else committer_container_config_dir }}"
 committer_data_dir: "{{ committer_remote_data_dir if committer_use_bin else committer_container_data_dir }}"
-committer_verifier_config_file: "config-verifier.yml"
-committer_validator_config_file: "config-validator.yml"
-committer_coordinator_config_file: "config-coordinator.yml"
-committer_sidecar_config_file: "config-sidecar.yml"
-committer_query_service_config_file: "config-query-service.yml"
+committer_config_file: "config-{{ committer_component_type }}.yml"
 
 # =========================
 # Fabric-X Committer TLS/mTLS

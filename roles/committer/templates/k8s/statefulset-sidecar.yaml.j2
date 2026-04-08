@@ -36,7 +36,7 @@ spec:
           args:
             - "committer"
             - "start-sidecar"
-            - "--config={{ committer_container_config_dir }}/{{ committer_sidecar_config_file }}"
+            - "--config={{ committer_container_config_dir }}/{{ committer_config_file }}"
           ports:
             - name: rpc
               containerPort: {{ committer_rpc_port }}
@@ -47,7 +47,7 @@ spec:
           volumeMounts:
             # Main sidecar configuration file.
             - name: config
-              mountPath: {{ committer_container_config_dir }}/{{ committer_sidecar_config_file }}
+              mountPath: {{ committer_container_config_dir }}/{{ committer_config_file }}
               subPath: config-sidecar.yml
 {% if committer_use_tls %}
             # TLS private key.

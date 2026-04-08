@@ -25,13 +25,13 @@
     state: directory
     mode: "0o755"
 
-- name: Generate {{ committer_coordinator_config_file }}
+- name: Generate {{ committer_config_file }}
   vars:
     committer_validator_ref_host: "{{ committer_validators | first }}"
     committer_verifier_ref_host: "{{ committer_verifiers | first }}"
   ansible.builtin.template:
     src: "config-coordinator.yaml.j2"
-    dest: "{{ committer_remote_config_dir }}/{{ committer_coordinator_config_file }}"
+    dest: "{{ committer_remote_config_dir }}/{{ committer_config_file }}"
     mode: "0o644"
 
 # =========================
