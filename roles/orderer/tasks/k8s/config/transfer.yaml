@@ -21,15 +21,6 @@
   register: orderer_slurp_genesis
 
 # =========================
-# Generate config on controller
-# =========================
-- name: Generate Hyperledger Fabric-X Orderer config on controller
-  ansible.builtin.template:
-    src: "config-{{ orderer_component_type }}.yaml.j2"
-    dest: "{{ orderer_remote_config_dir }}/{{ orderer_config_file }}"
-    mode: "0o640"
-
-# =========================
 # Apply ConfigMap
 # =========================
 - name: Apply Fabric-X Orderer ConfigMap

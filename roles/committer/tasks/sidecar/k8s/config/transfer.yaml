@@ -13,21 +13,6 @@
     tasks_from: namespace/create
 
 # =========================
-# Generate config on controller
-# =========================
-- name: Generate Hyperledger Fabric-X Committer sidecar config on controller
-  vars:
-    orderer_assembler_ref_host: >-
-      {{
-        orderer_assemblers
-        | first
-      }}
-  ansible.builtin.template:
-    src: "config-sidecar.yaml.j2"
-    dest: "{{ committer_remote_config_dir }}/{{ committer_config_file }}"
-    mode: "0o644"
-
-# =========================
 # Apply ConfigMap
 # =========================
 - name: Apply Fabric-X Committer sidecar ConfigMap

@@ -13,18 +13,6 @@
     tasks_from: namespace/create
 
 # =========================
-# Generate config on controller
-# =========================
-- name: Generate Hyperledger Fabric-X Committer coordinator config on controller
-  vars:
-    committer_validator_ref_host: "{{ committer_validators | first }}"
-    committer_verifier_ref_host: "{{ committer_verifiers | first }}"
-  ansible.builtin.template:
-    src: "config-coordinator.yaml.j2"
-    dest: "{{ committer_remote_config_dir }}/{{ committer_config_file }}"
-    mode: "0o644"
-
-# =========================
 # Apply ConfigMap
 # =========================
 - name: Apply Fabric-X Committer coordinator ConfigMap
