@@ -22,18 +22,24 @@ data:
   tls-coordinator-ca.crt: |
     {{ lookup('file', committer_k8s_coordinator_ca_path) | indent(4) }}
 {% endif %}
-{% for cert in committer_k8s_orderer_assembler_cas | default([]) %}
-  # TLS CA certificate of orderer assembler {{ cert.name }}.
-  tls-orderers-{{ cert.name }}-ca.crt: |
-    {{ lookup('file', cert.path) | indent(4) }}
+{% for current_orderer_assembler in orderer_assemblers %}
+{% if hostvars[current_orderer_assembler].orderer_use_tls is defined and hostvars[current_orderer_assembler].orderer_use_tls %}
+  # TLS CA certificate of orderer assembler {{ current_orderer_assembler }}.
+  tls-orderers-{{ current_orderer_assembler }}-ca.crt: |
+    {{ lookup('file', fetched_artifacts_dir + '/' + current_orderer_assembler + '/tls/ca.crt') | indent(4) }}
+{% endif %}
 {% endfor %}
-{% for cert in committer_k8s_mtls_client_certs | default([]) %}
-  # mTLS CA cert for client {{ cert.name }}.
-  mtls-client-{{ cert.name }}-ca.crt: |
-    {{ lookup('file', cert.path) | indent(4) }}
+{% if committer_use_mtls and committer_mtls_clients is defined %}
+{% for current_mtls_client in committer_mtls_clients %}
+  # mTLS CA cert for client {{ current_mtls_client }}.
+  mtls-client-{{ current_mtls_client }}-ca.crt: |
+    {{ lookup('file', committer_remote_config_dir + '/mtls/' + current_mtls_client + '/ca.crt') | indent(4) }}
 {% endfor %}
-{% for cert in committer_k8s_mtls_org_certs | default([]) %}
-  # mTLS CA cert for org {{ cert.domain }}.
-  mtls-org-{{ cert.domain }}-ca.crt: |
-    {{ lookup('file', cert.path) | indent(4) }}
+{% endif %}
+{% if committer_use_mtls and committer_mtls_orgs is defined %}
+{% for current_mtls_org in committer_mtls_orgs %}
+  # mTLS CA cert for org {{ current_mtls_org.domain }}.
+  mtls-org-{{ current_mtls_org.domain }}-ca.crt: |
+    {{ lookup('file', committer_remote_config_dir + '/mtls/' + current_mtls_org.domain + '/ca.crt') | indent(4) }}
 {% endfor %}
+{% endif %}

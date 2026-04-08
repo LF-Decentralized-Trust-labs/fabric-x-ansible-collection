@@ -21,56 +21,6 @@
   register: orderer_slurp_genesis
 
 # =========================
-# mTLS client certs (conditional)
-# =========================
-- name: Initialize mTLS client cert list
-  ansible.builtin.set_fact:
-    orderer_k8s_mtls_client_certs: []
-  when:
-    - orderer_use_mtls
-    - orderer_mtls_clients is defined
-
-- name: Build mTLS client cert list
-  vars:
-    orderer_k8s_mtls_client_cert:
-      name: "{{ current_orderer_mtls_client }}"
-      path: "{{ orderer_remote_config_dir }}/mtls/{{ current_orderer_mtls_client }}/ca.crt"
-  ansible.builtin.set_fact:
-    orderer_k8s_mtls_client_certs: "{{ orderer_k8s_mtls_client_certs + [orderer_k8s_mtls_client_cert] }}"
-  loop: "{{ orderer_mtls_clients }}"
-  loop_control:
-    loop_var: current_orderer_mtls_client
-    label: "{{ current_orderer_mtls_client }}"
-  when:
-    - orderer_use_mtls
-    - orderer_mtls_clients is defined
-
-# =========================
-# mTLS org certs (conditional)
-# =========================
-- name: Initialize mTLS org cert list
-  ansible.builtin.set_fact:
-    orderer_k8s_mtls_org_certs: []
-  when:
-    - orderer_use_mtls
-    - orderer_mtls_orgs is defined
-
-- name: Build mTLS org cert list
-  vars:
-    orderer_k8s_mtls_org_cert:
-      domain: "{{ current_orderer_mtls_org.domain }}"
-      path: "{{ orderer_remote_config_dir }}/mtls/{{ current_orderer_mtls_org.domain }}/ca.crt"
-  ansible.builtin.set_fact:
-    orderer_k8s_mtls_org_certs: "{{ orderer_k8s_mtls_org_certs + [orderer_k8s_mtls_org_cert] }}"
-  loop: "{{ orderer_mtls_orgs }}"
-  loop_control:
-    loop_var: current_orderer_mtls_org
-    label: "{{ current_orderer_mtls_org.domain }}"
-  when:
-    - orderer_use_mtls
-    - orderer_mtls_orgs is defined
-
-# =========================
 # Apply ConfigMap
 # =========================
 - name: Apply Fabric-X Orderer ConfigMap

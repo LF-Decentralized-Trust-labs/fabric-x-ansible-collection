@@ -13,15 +13,6 @@
     tasks_from: namespace/create
 
 # =========================
-# mTLS client/org cert lists
-# =========================
-- name: Prepare mTLS cert lists for Fabric-X Committer verifier
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: k8s/config/mtls/transfer
-  when: committer_use_mtls
-
-# =========================
 # Apply ConfigMap
 # =========================
 - name: Apply Fabric-X Committer verifier ConfigMap
