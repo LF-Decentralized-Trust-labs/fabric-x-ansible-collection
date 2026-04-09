@@ -26,10 +26,8 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: config/rm
-  when: not committer_use_k8s
 
 - name: Remove Fabric-X Committer verifier crypto material
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: crypto/rm
-  when: not committer_use_k8s
