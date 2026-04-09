@@ -37,7 +37,7 @@ OrdererOrgs:
           - {{ orderer_ip }}
 {% endfor %}
           - {{ hostvars[orderer.name].ansible_host }}
-{% if {{ hostvars[orderer.name].actual_host }} is defined %}
+{% if hostvars[orderer.name].actual_host is defined %}
           - {{ hostvars[orderer.name].actual_host }}
 {% endif %}
 {% endfor %}
