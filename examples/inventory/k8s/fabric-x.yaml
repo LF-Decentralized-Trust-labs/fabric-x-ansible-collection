@@ -200,19 +200,20 @@ all:
           postgres_db_host: committer-db
 
     # =========================
-    # HLFX Loadgen (k8s)
+    # HLFX LoadGens
     # =========================
     load_generators:
-      vars:
-        loadgen_use_k8s: true
-        loadgen_use_tls: true
-        organization:
-          <<: *Org1
-          role: peer
-          peer:
-            name: "{{ inventory_hostname }}"
       hosts:
-        loadgen-orderer-client:
+        orderer-loadgen:
+          loadgen_use_k8s: true
+          organization:
+            <<: *Org1
+            role: peer
+            users:
+              - name: orderer-loadgen
+                namespace: 0
+                meta_namespace_admin: true
+          loadgen_use_tls: true
           loadgen_type: orderer-client
-          loadgen_web_port: 30600
-          loadgen_metrics_port: 30610
+          loadgen_metrics_port: 30600
+          loadgen_web_port: 30610
