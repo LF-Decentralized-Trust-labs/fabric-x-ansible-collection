@@ -6,7 +6,7 @@
 
 - name: Send HTTP POST request to set the new limit
   ansible.builtin.uri:
-    url: "http://{{ ansible_host }}:{{ loadgen_web_port }}/setLimits"
+    url: "http://{{ actual_host }}:{{ loadgen_web_port }}/setLimits"
     method: POST
     body_format: json
     body: >-

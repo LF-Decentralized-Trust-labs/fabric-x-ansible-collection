@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists for Fabric-X Loadgen
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+# =========================
+# Apply Secret
+# =========================
+- name: Apply Fabric-X Loadgen Secret
+  vars:
+    loadgen_k8s_tls_server_key_path: "{{ loadgen_remote_config_dir }}/tls/server.key"
+    loadgen_k8s_tls_server_crt_path: "{{ loadgen_remote_config_dir }}/tls/server.crt"
+    loadgen_k8s_tls_ca_crt_path: "{{ loadgen_remote_config_dir }}/tls/ca.crt"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/secret.yaml.j2

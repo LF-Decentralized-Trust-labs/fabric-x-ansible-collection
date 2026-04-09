@@ -8,3 +8,9 @@
   ansible.builtin.file:
     path: "{{ loadgen_remote_config_dir }}/users"
     state: absent
+
+- name: Remove Fabric-X Loadgen Kubernetes Secret
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: k8s/crypto/rm
+  when: loadgen_use_k8s

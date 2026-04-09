@@ -1,0 +1,115 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ loadgen_k8s_resource_name }}
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ loadgen_k8s_resource_name }}
+    app.kubernetes.io/component: {{ loadgen_type }}
+    app.kubernetes.io/part-of: fabric-x-loadgen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ loadgen_k8s_resource_name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ loadgen_k8s_resource_name }}
+        app.kubernetes.io/component: {{ loadgen_type }}
+        app.kubernetes.io/part-of: fabric-x-loadgen
+    spec:
+      securityContext:
+        fsGroup: {{ loadgen_k8s_fs_group }}
+      containers:
+        - name: loadgen
+          image: {{ loadgen_image }}
+          imagePullPolicy: {{ k8s_image_pull_policy }}
+          args:
+            - "loadgen"
+            - "start"
+            - "--config={{ loadgen_container_config_dir }}/{{ loadgen_config_file }}"
+          ports:
+            - name: web
+              containerPort: {{ loadgen_web_port }}
+              protocol: TCP
+            - name: metrics
+              containerPort: {{ loadgen_metrics_port }}
+              protocol: TCP
+          volumeMounts:
+            # Main loadgen configuration file.
+            - name: config
+              mountPath: {{ loadgen_container_config_dir }}/{{ loadgen_config_file }}
+              subPath: config-loadgen.yaml
+{% if organization.users is defined %}
+{% for user in organization.users %}
+{% if user.namespace is defined %}
+            # MSP private signing key for user {{ user.name }}.
+            - name: secret
+              mountPath: {{ loadgen_container_config_dir }}/users/{{ user.name }}@{{ organization.domain }}/msp/keystore/priv_sk
+              subPath: user-{{ user.name }}-msp-keystore-priv-sk
+              readOnly: true
+{% if organization.fabric_ca_host is defined %}
+            # MSP signing certificate for user {{ user.name }} (Fabric CA).
+            - name: secret
+              mountPath: {{ loadgen_container_config_dir }}/users/{{ user.name }}@{{ organization.domain }}/msp/signcerts/cert.pem
+              subPath: user-{{ user.name }}-msp-signcert.pem
+              readOnly: true
+{% else %}
+            # MSP signing certificate for user {{ user.name }} (cryptogen).
+            - name: secret
+              mountPath: {{ loadgen_container_config_dir }}/users/{{ user.name }}@{{ organization.domain }}/msp/signcerts/{{ user.name }}@{{ organization.domain }}-cert.pem
+              subPath: user-{{ user.name }}-msp-signcert.pem
+              readOnly: true
+{% endif %}
+            # MSP CA certificate for user {{ user.name }}.
+            - name: secret
+              mountPath: {{ loadgen_container_config_dir }}/users/{{ user.name }}@{{ organization.domain }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem
+              subPath: user-{{ user.name }}-msp-cacert.pem
+              readOnly: true
+{% endif %}
+{% endfor %}
+{% endif %}
+{% if loadgen_use_tls %}
+            # TLS private key.
+            - name: secret
+              mountPath: {{ loadgen_container_config_dir }}/tls/server.key
+              subPath: tls-server.key
+              readOnly: true
+            # TLS server certificate.
+            - name: secret
+              mountPath: {{ loadgen_container_config_dir }}/tls/server.crt
+              subPath: tls-server.crt
+              readOnly: true
+            # TLS CA certificate.
+            - name: secret
+              mountPath: {{ loadgen_container_config_dir }}/tls/ca.crt
+              subPath: tls-ca.crt
+              readOnly: true
+            # TLS CA certificate of the verifiers (upstream servers).
+            - name: config
+              mountPath: {{ loadgen_container_config_dir }}/tls/verifiers/ca.crt
+              subPath: tls-verifiers-ca.crt
+              readOnly: true
+{% endif %}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ loadgen_k8s_resource_name }}-config
+            defaultMode: 0640
+{% if loadgen_use_tls %}
+        - name: secret
+          secret:
+            secretName: {{ loadgen_k8s_resource_name }}-secret
+            defaultMode: 0640
+{% endif %}
+{% if k8s_image_pull_secret is defined and k8s_image_pull_secret %}
+      imagePullSecrets:
+        - name: {{ k8s_image_pull_secret }}
+{% endif %}

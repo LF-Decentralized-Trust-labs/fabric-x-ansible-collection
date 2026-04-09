@@ -41,3 +41,18 @@ loadgen_assert_metrics: false
 # TLS Settings
 # =========================
 loadgen_use_tls: false
+
+# =========================
+# Kubernetes
+# =========================
+loadgen_use_k8s: false
+loadgen_use_container: "{{ (not loadgen_use_bin) and (not loadgen_use_k8s) }}"
+
+loadgen_k8s_resource_name: "{{ inventory_hostname }}"
+loadgen_k8s_wait: true
+loadgen_k8s_wait_timeout: 120
+loadgen_k8s_fs_group: 10001
+
+# NodePort for external access
+loadgen_k8s_web_node_port: "{{ loadgen_web_port }}"
+loadgen_k8s_metrics_node_port: "{{ loadgen_metrics_port }}"

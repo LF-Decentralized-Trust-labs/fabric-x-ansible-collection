@@ -1,0 +1,22 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Fabric-X Loadgen Deployment
+  kubernetes.core.k8s:
+    state: absent
+    kind: Deployment
+    name: "{{ loadgen_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace }}"
+
+- name: Remove Fabric-X Loadgen Services
+  kubernetes.core.k8s:
+    state: absent
+    kind: Service
+    name: "{{ item }}"
+    namespace: "{{ k8s_namespace }}"
+  loop:
+    - "{{ loadgen_k8s_resource_name }}"
+    - "{{ loadgen_k8s_resource_name }}-nodeport"

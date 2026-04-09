@@ -15,8 +15,6 @@
     namespace: "{{ k8s_namespace }}"
     name: "{{ postgres_k8s_resource_name }}-0"
     container: postgres
-    kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
-    context: "{{ k8s_context | default(omit) }}"
   register: postgres_k8s_logs
   failed_when: false
 

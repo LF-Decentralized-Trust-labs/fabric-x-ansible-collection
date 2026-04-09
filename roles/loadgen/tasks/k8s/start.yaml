@@ -1,0 +1,91 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists for Fabric-X Loadgen
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+# =========================
+# Apply Resources
+# =========================
+- name: Apply Fabric-X Loadgen Service
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/service.yaml.j2
+
+- name: Apply Fabric-X Loadgen NodePort Service
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/service-nodeport.yaml.j2
+
+- name: Apply Fabric-X Loadgen Deployment
+  vars:
+    committer_sidecar_host: >-
+      {{
+        committer_hosts
+        | map('extract', hostvars)
+        | selectattr('committer_component_type', 'defined')
+        | selectattr('committer_component_type', '==', 'sidecar')
+        | map(attribute='inventory_hostname')
+        | list
+        | first
+      }}
+    committer_coordinator_host: >-
+      {{
+        committer_hosts
+        | map('extract', hostvars)
+        | selectattr('committer_component_type', 'defined')
+        | selectattr('committer_component_type', '==', 'coordinator')
+        | map(attribute='inventory_hostname')
+        | list
+        | first
+      }}
+    committer_verifier_hosts: >-
+      {{
+        committer_hosts
+        | map('extract', hostvars)
+        | selectattr('committer_component_type', 'defined')
+        | selectattr('committer_component_type', '==', 'verifier')
+        | map(attribute='inventory_hostname')
+        | list
+      }}
+    committer_validator_hosts: >-
+      {{
+        committer_hosts
+        | map('extract', hostvars)
+        | selectattr('committer_component_type', 'defined')
+        | selectattr('committer_component_type', '==', 'validator')
+        | map(attribute='inventory_hostname')
+        | list
+      }}
+    orderer_router_hosts: >-
+      {{
+        orderer_hosts
+        | map('extract', hostvars)
+        | selectattr('orderer_component_type', '==', 'router')
+        | map(attribute='inventory_hostname')
+        | list
+      }}
+    orderer_assembler_hosts: >-
+      {{
+        orderer_hosts
+        | map('extract', hostvars)
+        | selectattr('orderer_component_type', '==', 'assembler')
+        | map(attribute='inventory_hostname')
+        | list
+      }}
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: "k8s/deployment-{{ loadgen_type }}.yaml.j2"
+    wait: "{{ loadgen_k8s_wait }}"
+    wait_timeout: "{{ loadgen_k8s_wait_timeout }}"

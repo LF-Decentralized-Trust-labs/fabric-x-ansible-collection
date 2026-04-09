@@ -32,6 +32,7 @@
     fabric_ca_csr_hosts:
       - "{{ inventory_hostname }}"
       - "{{ ansible_host }}"
+      - "{{ actual_host }}"
       - "{{ organization.orderer.name }}"
     fabric_ca_identity:
       name: "{{ organization.orderer.name }}"
@@ -53,6 +54,7 @@
     fabric_ca_csr_hosts:
       - "{{ inventory_hostname }}"
       - "{{ ansible_host }}"
+      - "{{ actual_host }}"
       - "{{ organization.orderer.name }}"
     fabric_ca_identity:
       name: "{{ organization.orderer.name }}"
