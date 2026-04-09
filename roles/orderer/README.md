@@ -23,9 +23,9 @@ Three deployment modes are supported:
   - [stop](#stop)
   - [teardown](#teardown)
   - [wipe](#wipe)
-  - [fetch\_logs](#fetch_logs)
+  - [fetch_logs](#fetch_logs)
   - [ping](#ping)
-  - [get\_metrics](#get_metrics)
+  - [get_metrics](#get_metrics)
 - [Kubernetes mode](#kubernetes-mode)
   - [K8s resources per component instance](#k8s-resources-per-component-instance)
   - [Inventory setup](#inventory-setup)
@@ -47,7 +47,6 @@ Three deployment modes are supported:
 | `orderer_use_bin`              | `false`                                                         | Set to `true` to use the native binary instead of a container             |
 | `orderer_use_k8s`              | `false`                                                         | Set to `true` to deploy as Kubernetes StatefulSets                        |
 | `orderer_k8s_resource_name`    | `{{ inventory_hostname }}`                                      | K8s resource name prefix (StatefulSet, Services, Secret, ConfigMap)       |
-| `orderer_k8s_wait`             | `true`                                                          | Wait for StatefulSet pods to become Ready after apply                     |
 | `orderer_k8s_wait_timeout`     | `120`                                                           | Timeout in seconds when waiting for pods to become Ready                  |
 | `orderer_remote_config_dir`    | `{{ remote_config_dir }}`                                       | Configuration directory on the remote node                                |
 | `orderer_remote_data_dir`      | `{{ remote_data_dir }}`                                         | Data directory on the remote node                                         |

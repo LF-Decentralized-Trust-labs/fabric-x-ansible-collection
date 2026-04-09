@@ -1,0 +1,24 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists for Fabric-X Committer query-service
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+# =========================
+# Apply ConfigMap
+# =========================
+- name: Apply Fabric-X Committer query-service ConfigMap
+  vars:
+    committer_k8s_db_ca_path: "{{ committer_remote_config_dir }}/tls/db/ca.crt"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/configmap-query-service.yaml.j2

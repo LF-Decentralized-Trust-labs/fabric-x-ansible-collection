@@ -15,6 +15,30 @@
     name: hyperledger.fabricx.container
     tasks_from: volume/create
 
+# Set the right permissions for the TLS key and certificate.
+# This is needed so that the Postgres process running as user 999
+# inside the container can read the TLS files.
+- name: Set right permissions for TLS private key
+  vars:
+    container_volume_path: "{{ postgres_remote_config_dir }}/tls/{{ postgres_tls_private_key_file }}"
+    container_volume_mode: "0o600"
+    container_volume_uid: "999"
+    container_volume_gid: "999"
+    container_volume_type: file
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: volume/create
+  when: postgres_use_tls
+
+# This operation is needed for systems where openssl runs with umask=027.
+# In this case the certificate will be created with permission 0o640, which
+# makes it unreadable from within Postgres (running with user 999).
+- name: Set right permissions for Postgres TLS certificate
+  ansible.builtin.file:
+    path: "{{ postgres_remote_config_dir }}/tls/{{ postgres_tls_cert_file }}"
+    mode: "0o644"
+  when: postgres_use_tls
+
 # We need to find which container client is used since
 # Docker on macOS doesn't allow `docker-unshare`.
 # Therefore, we cannot set the permissions for the user "999:999".

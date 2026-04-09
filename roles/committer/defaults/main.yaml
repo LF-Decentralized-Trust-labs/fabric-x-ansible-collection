@@ -24,6 +24,18 @@ committer_bin_name: "committer"
 committer_use_bin: false
 
 # =========================
+# Fabric-X Committer K8s mode
+# =========================
+committer_use_k8s: false
+committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
+committer_deployment_mode: "{%- if committer_use_bin -%}bin{%- elif committer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
+committer_k8s_resource_name: "{{ inventory_hostname }}"
+committer_k8s_wait_timeout: 120
+committer_k8s_fs_group: 10001
+committer_k8s_rpc_node_port: "{{ committer_rpc_port }}"
+committer_k8s_metrics_node_port: "{{ committer_metrics_port }}"
+
+# =========================
 # Paths/Locations
 # =========================
 committer_remote_config_dir: "{{ remote_config_dir }}"
@@ -32,11 +44,7 @@ committer_container_config_dir: "/config"
 committer_container_data_dir: "/data"
 committer_config_dir: "{{ committer_remote_config_dir if committer_use_bin else committer_container_config_dir }}"
 committer_data_dir: "{{ committer_remote_data_dir if committer_use_bin else committer_container_data_dir }}"
-committer_verifier_config_file: "config-verifier.yml"
-committer_validator_config_file: "config-validator.yml"
-committer_coordinator_config_file: "config-coordinator.yml"
-committer_sidecar_config_file: "config-sidecar.yml"
-committer_query_service_config_file: "config-query-service.yml"
+committer_config_file: "config-{{ committer_component_type }}.yml"
 
 # =========================
 # Fabric-X Committer TLS/mTLS

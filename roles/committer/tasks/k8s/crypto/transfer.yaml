@@ -1,0 +1,27 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists for Fabric-X Committer
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+# =========================
+# Apply Secret
+# =========================
+- name: Apply Fabric-X Committer Secret
+  vars:
+    committer_k8s_tls_server_key_path: "{{ committer_remote_config_dir }}/tls/server.key"
+    committer_k8s_tls_server_crt_path: "{{ committer_remote_config_dir }}/tls/server.crt"
+    committer_k8s_tls_ca_crt_path: "{{ committer_remote_config_dir }}/tls/ca.crt"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/secret.yaml.j2
+  when: committer_use_tls

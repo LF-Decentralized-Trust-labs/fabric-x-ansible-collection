@@ -1,0 +1,27 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists for Fabric-X Committer coordinator
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+# =========================
+# Apply ConfigMap
+# =========================
+- name: Apply Fabric-X Committer coordinator ConfigMap
+  vars:
+    committer_validator_ref_host: "{{ committer_validators | first }}"
+    committer_verifier_ref_host: "{{ committer_verifiers | first }}"
+    committer_k8s_validators_ca_path: "{{ committer_remote_config_dir }}/tls/validators/ca.crt"
+    committer_k8s_verifiers_ca_path: "{{ committer_remote_config_dir }}/tls/verifiers/ca.crt"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/configmap-coordinator.yaml.j2

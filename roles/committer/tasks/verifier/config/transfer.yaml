@@ -16,7 +16,7 @@
 - name: Generate Hyperledger Fabric-X Committer verifier config from template
   ansible.builtin.template:
     src: "config-verifier.yaml.j2"
-    dest: "{{ committer_remote_config_dir }}/{{ committer_verifier_config_file }}"
+    dest: "{{ committer_remote_config_dir }}/{{ committer_config_file }}"
     mode: "0o644"
 
 # =========================
@@ -28,3 +28,12 @@
     tasks_from: config/mtls/transfer
   when:
     - committer_use_mtls
+
+# =========================
+# Kubernetes
+# =========================
+- name: Generate Hyperledger Fabric-X Committer verifier k8s config
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: verifier/k8s/config/transfer
+  when: committer_use_k8s

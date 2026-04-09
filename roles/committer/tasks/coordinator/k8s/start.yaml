@@ -1,0 +1,39 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists for Fabric-X Committer coordinator
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+# =========================
+# Apply Resources
+# =========================
+- name: Apply Fabric-X Committer coordinator Service
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/service.yaml.j2
+
+- name: Apply Fabric-X Committer coordinator NodePort Service
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/service-nodeport.yaml.j2
+
+- name: Apply Fabric-X Committer coordinator Deployment
+  vars:
+    committer_validator_ref_host: "{{ committer_validators | first }}"
+    committer_verifier_ref_host: "{{ committer_verifiers | first }}"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/deployment-coordinator.yaml.j2
+    wait: true
+    wait_timeout: "{{ committer_k8s_wait_timeout }}"

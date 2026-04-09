@@ -4,6 +4,18 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# This inventory runs a full Hyperledger Fabric-X network (orderers + committer + postgres DB)
+# entirely on Kubernetes. All services are deployed as k8s workloads and are accessible
+# externally via NodePort services.
+#
+# Prerequisites:
+#   - A running Kubernetes cluster reachable from the control node
+#   - kubectl configured and pointing at the target cluster
+#   - cryptogen artifacts available under {{ cryptogen_artifacts_dir }}
+#
+# To use a remote k8s node (e.g. kind in CI, k3s), set K8S_NODE_IP to the node's IP address:
+#   export K8S_NODE_IP=<node-ip>
+
 all:
   vars:
     # =========================
@@ -22,7 +34,13 @@ all:
       orderer_org_4: &OrdererOrg4
         name: OrdererOrg4
         domain: ordererorg4.example.com
+      org1: &Org1
+        name: Org1
+        domain: org1.example.com
   children:
+    # =========================
+    # HLFX Orderers (k8s)
+    # =========================
     fabric_x_orderers:
       vars:
         # -------------------------------------------------------
@@ -136,3 +154,47 @@ all:
               orderer_shard_id: 1
               orderer_rpc_port: 30353
               orderer_metrics_port: 30363
+
+    # =========================
+    # HLFX Committer (k8s)
+    # =========================
+    fabric_x_committer:
+      vars:
+        committer_use_k8s: true
+        committer_use_tls: true
+        committer_use_mtls: true
+        organization:
+          <<: *Org1
+          role: peer
+          peer:
+            name: "{{ inventory_hostname }}"
+      hosts:
+        committer-db:
+          postgres_user: sc_user
+          postgres_password: sc_secret_pwd
+          postgres_db: sc_db
+          postgres_port: 30595
+          postgres_use_k8s: true
+          postgres_use_tls: true
+        committer-validator:
+          committer_component_type: validator
+          committer_rpc_port: 30500
+          committer_metrics_port: 30510
+          postgres_db_host: committer-db
+        committer-verifier:
+          committer_component_type: verifier
+          committer_rpc_port: 30520
+          committer_metrics_port: 30530
+        committer-coordinator:
+          committer_component_type: coordinator
+          committer_rpc_port: 30540
+          committer_metrics_port: 30550
+        committer-sidecar:
+          committer_component_type: sidecar
+          committer_rpc_port: 30560
+          committer_metrics_port: 30570
+        committer-query-service:
+          committer_component_type: query-service
+          committer_rpc_port: 30580
+          committer_metrics_port: 30590
+          postgres_db_host: committer-db

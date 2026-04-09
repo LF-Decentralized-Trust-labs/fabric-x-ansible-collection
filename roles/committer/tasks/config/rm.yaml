@@ -8,3 +8,9 @@
   ansible.builtin.file:
     path: "{{ committer_remote_config_dir }}"
     state: absent
+
+- name: Remove Fabric-X Committer k8s ConfigMap
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: k8s/config/rm
+  when: committer_use_k8s

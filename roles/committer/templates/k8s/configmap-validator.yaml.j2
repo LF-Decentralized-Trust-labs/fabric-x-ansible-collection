@@ -1,0 +1,38 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ committer_k8s_resource_name }}-config
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ committer_k8s_resource_name }}
+    app.kubernetes.io/component: {{ committer_component_type }}
+    app.kubernetes.io/part-of: fabric-x-committer
+data:
+  # Main validator configuration passed via --config at startup.
+  config-validator.yml: |
+    {{ lookup('file', committer_remote_config_dir + '/' + committer_config_file) | indent(4) }}
+{% if hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
+  # Postgres DB TLS CA certificate used to verify the database connection.
+  tls-db-ca.crt: |
+    {{ lookup('file', committer_k8s_db_ca_path) | indent(4) }}
+{% endif %}
+{% if committer_use_mtls and committer_mtls_clients is defined %}
+{% for current_mtls_client in committer_mtls_clients %}
+  # mTLS CA cert for client {{ current_mtls_client }}.
+  mtls-client-{{ current_mtls_client }}-ca.crt: |
+    {{ lookup('file', committer_remote_config_dir + '/mtls/' + current_mtls_client + '/ca.crt') | indent(4) }}
+{% endfor %}
+{% endif %}
+{% if committer_use_mtls and committer_mtls_orgs is defined %}
+{% for current_mtls_org in committer_mtls_orgs %}
+  # mTLS CA cert for org {{ current_mtls_org.domain }}.
+  mtls-org-{{ current_mtls_org.domain }}-ca.crt: |
+    {{ lookup('file', committer_remote_config_dir + '/mtls/' + current_mtls_org.domain + '/ca.crt') | indent(4) }}
+{% endfor %}
+{% endif %}

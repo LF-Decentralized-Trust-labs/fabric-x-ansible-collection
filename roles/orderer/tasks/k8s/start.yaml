@@ -32,5 +32,5 @@
     state: present
     template:
       path: k8s/statefulset.yaml.j2
-    wait: "{{ orderer_k8s_wait }}"
+    wait: true
     wait_timeout: "{{ orderer_k8s_wait_timeout }}"
