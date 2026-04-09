@@ -44,3 +44,12 @@
     tasks_from: config/mtls/transfer
   when:
     - committer_use_mtls
+
+# =========================
+# Kubernetes
+# =========================
+- name: Generate Hyperledger Fabric-X Committer validator k8s config
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: validator/k8s/config/transfer
+  when: committer_use_k8s
