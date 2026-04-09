@@ -26,7 +26,7 @@
       FABRIC_CA_CLIENT_HOME: "{{ fabric_ca_client_container_config_dir }}"
     container_command: >-
       fabric-ca-client gencrl
-      -u {{ fabric_ca_scheme }}://{{ hostvars[fabric_ca_host].ansible_host }}:{{ hostvars[fabric_ca_host].fabric_ca_port }}
+      -u {{ fabric_ca_scheme }}://{{ hostvars[fabric_ca_host].actual_host }}:{{ hostvars[fabric_ca_host].fabric_ca_port }}
       --caname {{ fabric_ca_name }}
       --mspdir {{ fabric_ca_client_container_config_dir }}
       {% if fabric_ca_use_tls and (fabric_ca_tls_certfile is defined) %}

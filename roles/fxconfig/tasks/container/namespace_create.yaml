@@ -12,7 +12,7 @@
       {{ fxconfig_container_name }} namespace
       create {{ fxconfig_namespace }}
       --channel {{ channel_id }}
-      --orderer {{ hostvars[orderer_router_host].ansible_host }}:{{ hostvars[orderer_router_host].orderer_rpc_port }}
+      --orderer {{ hostvars[orderer_router_host].actual_host }}:{{ hostvars[orderer_router_host].orderer_rpc_port }}
       --mspConfigPath {{ fxconfig_container_config_dir }}/msp
       --mspID {{ fxconfig_msp_id }}
       --pk {{ fxconfig_container_config_dir }}/namespaces/{{ fxconfig_namespace }}/pubkey.pem
