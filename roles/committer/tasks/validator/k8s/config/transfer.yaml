@@ -17,7 +17,7 @@
 # =========================
 - name: Apply Fabric-X Committer validator ConfigMap
   vars:
-    committer_k8s_db_ca_path: "{{ fetched_artifacts_dir }}/{{ postgres_db_host }}/tls/ca.crt"
+    committer_k8s_db_ca_path: "{{ committer_remote_config_dir }}/tls/db/ca.crt"
   kubernetes.core.k8s:
     state: present
     template:

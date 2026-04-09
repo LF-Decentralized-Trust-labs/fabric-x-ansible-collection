@@ -19,8 +19,8 @@
   vars:
     committer_validator_ref_host: "{{ committer_validators | first }}"
     committer_verifier_ref_host: "{{ committer_verifiers | first }}"
-    committer_k8s_validators_ca_path: "{{ fetched_artifacts_dir }}/{{ committer_validator_ref_host }}/tls/ca.crt"
-    committer_k8s_verifiers_ca_path: "{{ fetched_artifacts_dir }}/{{ committer_verifier_ref_host }}/tls/ca.crt"
+    committer_k8s_validators_ca_path: "{{ committer_remote_config_dir }}/tls/validators/ca.crt"
+    committer_k8s_verifiers_ca_path: "{{ committer_remote_config_dir }}/tls/verifiers/ca.crt"
   kubernetes.core.k8s:
     state: present
     template:

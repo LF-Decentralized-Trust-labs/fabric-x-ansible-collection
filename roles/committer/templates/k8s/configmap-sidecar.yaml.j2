@@ -26,7 +26,7 @@ data:
 {% if hostvars[current_orderer_assembler].orderer_use_tls is defined and hostvars[current_orderer_assembler].orderer_use_tls %}
   # TLS CA certificate of orderer assembler {{ current_orderer_assembler }}.
   tls-orderers-{{ current_orderer_assembler }}-ca.crt: |
-    {{ lookup('file', fetched_artifacts_dir + '/' + current_orderer_assembler + '/tls/ca.crt') | indent(4) }}
+    {{ lookup('file', committer_remote_config_dir + '/tls/orderers/' + current_orderer_assembler + '/ca.crt') | indent(4) }}
 {% endif %}
 {% endfor %}
 {% if committer_use_mtls and committer_mtls_clients is defined %}

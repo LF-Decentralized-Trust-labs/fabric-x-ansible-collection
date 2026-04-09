@@ -17,7 +17,7 @@
 # =========================
 - name: Apply Fabric-X Committer sidecar ConfigMap
   vars:
-    committer_k8s_coordinator_ca_path: "{{ fetched_artifacts_dir }}/{{ committer_coordinator }}/tls/ca.crt"
+    committer_k8s_coordinator_ca_path: "{{ committer_remote_config_dir }}/tls/coordinator/ca.crt"
   kubernetes.core.k8s:
     state: present
     template:
