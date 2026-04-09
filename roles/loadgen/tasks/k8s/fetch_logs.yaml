@@ -10,16 +10,17 @@
     state: directory
     mode: "0o755"
 
-- name: Fetch Postgres DB pod logs
+- name: Fetch Fabric-X Loadgen pod logs
   kubernetes.core.k8s_log:
     namespace: "{{ k8s_namespace }}"
-    name: "{{ postgres_k8s_resource_name }}-0"
-    container: postgres
-  register: postgres_k8s_logs
+    label_selectors:
+      - "app.kubernetes.io/name={{ loadgen_k8s_resource_name }}"
+    container: loadgen
+  register: loadgen_k8s_logs
   failed_when: false
 
-- name: Write Postgres DB logs
+- name: Write Fabric-X Loadgen logs
   ansible.builtin.copy:
     dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/logs.txt"
     mode: "0o644"
-    content: "{{ postgres_k8s_logs.log | default('') }}"
+    content: "{{ loadgen_k8s_logs.log | default('') }}"

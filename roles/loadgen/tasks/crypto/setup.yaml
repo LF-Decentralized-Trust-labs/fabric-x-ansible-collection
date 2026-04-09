@@ -40,3 +40,12 @@
   when:
     - organization is defined
     - organization.fabric_ca_host is defined
+
+# =========================
+# Kubernetes Secret
+# =========================
+- name: Transfer Fabric-X Loadgen Kubernetes Secret
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: k8s/crypto/transfer
+  when: loadgen_use_k8s

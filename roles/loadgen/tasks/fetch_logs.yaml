@@ -8,10 +8,16 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: container/fetch_logs
-  when: not loadgen_use_bin
+  when: loadgen_use_container
 
 - name: Fetch loadgen logs from binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: bin/fetch_logs
   when: loadgen_use_bin
+
+- name: Fetch loadgen logs from Kubernetes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: k8s/fetch_logs
+  when: loadgen_use_k8s

@@ -16,8 +16,6 @@
     label_selectors:
       - "app.kubernetes.io/name={{ committer_k8s_resource_name }}"
     container: "{{ committer_component_type }}"
-    kubeconfig: "{{ k8s_kubeconfig | default(omit) }}"
-    context: "{{ k8s_context | default(omit) }}"
   register: committer_k8s_logs
   failed_when: false
 
