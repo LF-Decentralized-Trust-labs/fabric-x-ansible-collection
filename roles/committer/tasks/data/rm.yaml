@@ -8,3 +8,12 @@
   ansible.builtin.file:
     path: "{{ committer_remote_data_dir }}"
     state: absent
+
+- name: Delete Fabric-X Committer sidecar PersistentVolumeClaim
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: PersistentVolumeClaim
+    name: "data-{{ committer_k8s_resource_name }}-0"
+    namespace: "{{ k8s_namespace }}"
+  when: committer_use_k8s

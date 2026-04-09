@@ -4,17 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Wipe Fabric-X Committer QueryService in k8s
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: query_service/k8s/wipe
-  when: committer_use_k8s
-
 - name: Teardown Fabric-X Committer QueryService
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: query_service/teardown
-  when: not committer_use_k8s
 
 - name: Remove Fabric-X Committer QueryService binary
   ansible.builtin.include_role:

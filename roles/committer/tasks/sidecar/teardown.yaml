@@ -26,4 +26,3 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: data/rm
-  when: not committer_use_k8s
