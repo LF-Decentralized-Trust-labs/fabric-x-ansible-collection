@@ -21,7 +21,7 @@ logging:
 
 # Ordering service configuration
 orderer:
-  address: {{ hostvars[orderer_router_host].ansible_host }}:{{ hostvars[orderer_router_host].orderer_rpc_port }}
+  address: {{ hostvars[orderer_router_host].actual_host }}:{{ hostvars[orderer_router_host].orderer_rpc_port }}
   channel: {{ channel_id }}
   connectionTimeout: {{ fxconfig_orderer_connection_timeout | default('30s') }}
 {% if hostvars[orderer_router_host].orderer_use_tls is defined and hostvars[orderer_router_host].orderer_use_tls %}
@@ -38,7 +38,7 @@ orderer:
 
 # Query service configuration
 queries:
-  address: {{ hostvars[committer_query_service_host].ansible_host }}:{{ hostvars[committer_query_service_host].committer_rpc_port }}
+  address: {{ hostvars[committer_query_service_host].actual_host }}:{{ hostvars[committer_query_service_host].committer_rpc_port }}
   connectionTimeout: {{ fxconfig_committer_query_service_connection_timeout | default('30s') }}
 {% if hostvars[committer_query_service_host].committer_use_tls is defined and hostvars[committer_query_service_host].committer_use_tls %}
   # Optional: Override parent TLS settings
@@ -53,7 +53,7 @@ queries:
 {% endif %}
 
 notifications:
-  address: {{ hostvars[committer_sidecar_host].ansible_host }}:{{ hostvars[committer_sidecar_host].committer_rpc_port }}
+  address: {{ hostvars[committer_sidecar_host].actual_host }}:{{ hostvars[committer_sidecar_host].committer_rpc_port }}
   connectionTimeout: {{ fxconfig_committer_sidecar_connection_timeout | default('30s') }}
   waitingTimeout: {{ fxconfig_committer_sidecar_waiting_timeout | default('30s') }}
 {% if hostvars[committer_sidecar_host].committer_use_tls is defined and hostvars[committer_sidecar_host].committer_use_tls %}
