@@ -92,6 +92,8 @@ spec:
               mountPath: {{ loadgen_container_config_dir }}/tls/ca.crt
               subPath: tls-ca.crt
               readOnly: true
+{% endif %}
+{% if (hostvars[committer_coordinator_host].committer_use_tls is defined) and hostvars[committer_coordinator_host].committer_use_tls %}
             # TLS CA certificate of the coordinator (upstream server).
             - name: config
               mountPath: {{ loadgen_container_config_dir }}/tls/coordinator/ca.crt
