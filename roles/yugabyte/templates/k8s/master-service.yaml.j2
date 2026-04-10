@@ -16,6 +16,11 @@ metadata:
 spec:
   # clusterIP: None makes this a headless Service — DNS resolves directly to pod IP.
   clusterIP: None
+  # Required so that the headless Service DNS resolves to the pod IP even before the
+  # readiness probe passes — without this, the probe itself cannot reach the pod via the
+  # service hostname, creating a circular dependency that prevents the pod from ever
+  # becoming ready.
+  publishNotReadyAddresses: true
   selector:
     app.kubernetes.io/name: {{ yugabyte_k8s_resource_name }}
   ports:

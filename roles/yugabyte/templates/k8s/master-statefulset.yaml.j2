@@ -27,9 +27,6 @@ spec:
         app.kubernetes.io/name: {{ yugabyte_k8s_resource_name }}
         app.kubernetes.io/part-of: yugabyte
     spec:
-      securityContext:
-        # Ensures files mounted from Secrets are readable by the yugabyte process.
-        fsGroup: {{ yugabyte_k8s_fs_group }}
       containers:
         - name: yugabyte
           image: {{ yugabyte_image }}
@@ -103,8 +100,20 @@ spec:
             successThreshold: 1
           volumeMounts:
 {% if yugabyte_use_tls %}
+            # CA certificate — trusted root for verifying peer certificates.
             - name: secret
-              mountPath: /var/tls
+              mountPath: /var/tls/ca.crt
+              subPath: ca.crt
+              readOnly: true
+            # Node certificate — presented to clients and peers during TLS handshake.
+            - name: secret
+              mountPath: /var/tls/node.{{ ansible_host }}.crt
+              subPath: node.{{ ansible_host }}.crt
+              readOnly: true
+            # Node private key — used to authenticate this master during TLS handshakes.
+            - name: secret
+              mountPath: /var/tls/node.{{ ansible_host }}.key
+              subPath: node.{{ ansible_host }}.key
               readOnly: true
 {% endif %}
             - name: data
@@ -113,7 +122,7 @@ spec:
         - name: secret
           secret:
             secretName: {{ yugabyte_k8s_resource_name }}-secret
-            defaultMode: 0640
+            defaultMode: 0600
 {% if k8s_image_pull_secret is defined and k8s_image_pull_secret %}
       imagePullSecrets:
         - name: {{ k8s_image_pull_secret }}
