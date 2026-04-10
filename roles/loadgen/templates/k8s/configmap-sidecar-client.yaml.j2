@@ -17,7 +17,7 @@ data:
   # Main loadgen configuration passed via --config at startup.
   config-loadgen.yaml: |
     {{ lookup('file', loadgen_remote_config_dir + '/' + loadgen_config_file) | indent(4) }}
-{% if loadgen_use_tls %}
+{% if (hostvars[committer_sidecar_host].committer_use_tls is defined) and hostvars[committer_sidecar_host].committer_use_tls %}
   # TLS CA certificate of the sidecar (used for upstream TLS verification).
   tls-sidecar-ca.crt: |
     {{ lookup('file', loadgen_remote_config_dir + '/tls/sidecar/ca.crt') | indent(4) }}
