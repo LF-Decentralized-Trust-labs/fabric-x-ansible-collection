@@ -63,7 +63,6 @@ yugabyte_use_container: "{{ not yugabyte_use_k8s }}"
 yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
 yugabyte_k8s_wait: true
 yugabyte_k8s_wait_timeout: 300
-yugabyte_k8s_fs_group: 1001
 
 # NodePort services
 yugabyte_k8s_master_rpc_node_port: "{{ yugabyte_master_rpc_bind_port }}"
