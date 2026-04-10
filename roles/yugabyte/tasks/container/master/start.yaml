@@ -62,7 +62,7 @@
     container_healthcheck_test: >-
       /home/yugabyte/bin/yb-admin
       --master_addresses {{ yugabyte_master_endpoints }}
-      {% if yugabyte_webserver_use_tls %}
+      {% if yugabyte_client_to_server_use_tls %}
       --certs_dir_name=/var/tls
       {% endif %}
       list_all_masters
