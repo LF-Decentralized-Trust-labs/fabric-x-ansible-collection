@@ -11,16 +11,16 @@ The role supports **container** and **Kubernetes** deployment modes (binary is n
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
   - [crypto/rm](#cryptorm)
-  - [crypto/openssl/generate\_csr](#cryptoopensslgenerate_csr)
-  - [crypto/openssl/fetch\_csr](#cryptoopensslfetch_csr)
-  - [crypto/openssl/transfer\_cert](#cryptoopenssltransfer_cert)
+  - [crypto/openssl/generate_csr](#cryptoopensslgenerate_csr)
+  - [crypto/openssl/fetch_csr](#cryptoopensslfetch_csr)
+  - [crypto/openssl/transfer_cert](#cryptoopenssltransfer_cert)
   - [config/transfer](#configtransfer)
   - [config/rm](#configrm)
   - [start](#start)
   - [stop](#stop)
   - [teardown](#teardown)
   - [wipe](#wipe)
-  - [fetch\_logs](#fetch_logs)
+  - [fetch_logs](#fetch_logs)
   - [ping](#ping)
 
 ## Variables
@@ -54,7 +54,6 @@ The role supports **container** and **Kubernetes** deployment modes (binary is n
 | `yugabyte_k8s_resource_name`              | `{{ inventory_hostname }}`                              | Name used for all Kubernetes resources                    |
 | `yugabyte_k8s_wait`                       | `true`                                                  | Wait for StatefulSet pods to become ready                 |
 | `yugabyte_k8s_wait_timeout`               | `300`                                                   | Timeout in seconds when waiting for pods                  |
-| `yugabyte_k8s_fs_group`                   | `1001`                                                  | fsGroup for pod security context (matches yugabyte UID)   |
 | `yugabyte_k8s_master_rpc_node_port`       | `{{ yugabyte_master_rpc_bind_port }}`                   | NodePort for master RPC                                   |
 | `yugabyte_k8s_master_webserver_node_port` | `{{ yugabyte_master_webserver_port }}`                  | NodePort for master webserver                             |
 | `yugabyte_k8s_tablet_pgsql_node_port`     | `{{ yugabyte_tablet_pgsql_bind_port }}`                 | NodePort for YSQL client                                  |
@@ -166,7 +165,7 @@ The task `start` allows to start the Yugabyte DB Cluster. Set `yugabyte_use_k8s:
 ```yaml
 - name: Start the Yugabyte DB Cluster
   vars:
-    yugabyte_use_k8s: true   # omit or set false for container mode
+    yugabyte_use_k8s: true # omit or set false for container mode
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: start
