@@ -21,10 +21,10 @@
     state: directory
     mode: "0o755"
 
-- name: Generate {{ committer_query_service_config_file }}
+- name: Generate {{ committer_config_file }}
   ansible.builtin.template:
     src: "config-query-service.yaml.j2"
-    dest: "{{ committer_remote_config_dir }}/{{ committer_query_service_config_file }}"
+    dest: "{{ committer_remote_config_dir }}/{{ committer_config_file }}"
     mode: "0o644"
 
 # =========================
@@ -51,3 +51,12 @@
     tasks_from: config/mtls/monitoring/transfer
   when:
     - committer_monitoring_use_mtls
+
+# =========================
+# Kubernetes
+# =========================
+- name: Generate Hyperledger Fabric-X QueryService k8s config
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: query_service/k8s/config/transfer
+  when: committer_use_k8s

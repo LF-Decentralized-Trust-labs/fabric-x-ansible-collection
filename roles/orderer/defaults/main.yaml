@@ -27,7 +27,6 @@ orderer_bin_name: "arma"
 # Fabric-X Orderer K8s mode
 # =========================
 orderer_k8s_resource_name: "{{ inventory_hostname }}"
-orderer_k8s_wait: true
 orderer_k8s_wait_timeout: 120
 orderer_k8s_fs_group: 10001
 orderer_k8s_rpc_node_port: "{{ orderer_rpc_port }}"
@@ -49,7 +48,8 @@ orderer_config_file: "node_config.yaml"
 # =========================
 orderer_use_tls: false
 orderer_use_mtls: false
-orderer_http_protocol: "{{ 'https' if orderer_use_tls else 'http' }}"
+# Currently the orderer does not enforce TLS on the http endpoint
+orderer_http_protocol: http
 
 # =========================
 # Fabric-X Orderer Deployment Mode

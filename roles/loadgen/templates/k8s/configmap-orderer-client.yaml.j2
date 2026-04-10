@@ -1,0 +1,40 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ loadgen_k8s_resource_name }}-config
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ loadgen_k8s_resource_name }}
+    app.kubernetes.io/component: {{ loadgen_type }}
+    app.kubernetes.io/part-of: fabric-x-loadgen
+data:
+  # Main loadgen configuration passed via --config at startup.
+  config-loadgen.yaml: |
+    {{ lookup('file', loadgen_remote_config_dir + '/' + loadgen_config_file) | indent(4) }}
+{% for current_orderer_router in orderer_router_hosts %}
+{% if hostvars[current_orderer_router].orderer_use_tls is defined and hostvars[current_orderer_router].orderer_use_tls %}
+  # TLS CA certificate for orderer router {{ current_orderer_router }}.
+  tls-orderers-{{ current_orderer_router }}-ca.crt: |
+    {{ lookup('file', loadgen_remote_config_dir + '/tls/orderers/' + current_orderer_router + '/ca.crt') | indent(4) }}
+{% endif %}
+{% endfor %}
+{% if orderer_assembler_hosts is defined %}
+{% for current_orderer_assembler in orderer_assembler_hosts %}
+{% if hostvars[current_orderer_assembler].orderer_use_tls is defined and hostvars[current_orderer_assembler].orderer_use_tls %}
+  # TLS CA certificate for orderer assembler {{ current_orderer_assembler }}.
+  tls-orderers-{{ current_orderer_assembler }}-ca.crt: |
+    {{ lookup('file', loadgen_remote_config_dir + '/tls/orderers/' + current_orderer_assembler + '/ca.crt') | indent(4) }}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% if committer_sidecar_host is defined and hostvars[committer_sidecar_host].committer_use_tls is defined and hostvars[committer_sidecar_host].committer_use_tls %}
+  # TLS CA certificate of the committer sidecar.
+  tls-sidecar-ca.crt: |
+    {{ lookup('file', loadgen_remote_config_dir + '/tls/sidecar/ca.crt') | indent(4) }}
+{% endif %}

@@ -1,0 +1,29 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Delete Yugabyte master StatefulSet
+  kubernetes.core.k8s:
+    state: absent
+    api_version: apps/v1
+    kind: StatefulSet
+    name: "{{ yugabyte_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace }}"
+
+- name: Delete Yugabyte master headless Service
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Service
+    name: "{{ yugabyte_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace }}"
+
+- name: Delete Yugabyte master NodePort Service
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Service
+    name: "{{ yugabyte_k8s_resource_name }}-nodeport"
+    namespace: "{{ k8s_namespace }}"

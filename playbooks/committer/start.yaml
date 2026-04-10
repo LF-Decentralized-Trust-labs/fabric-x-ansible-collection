@@ -40,6 +40,44 @@
     # HLFX Committer
     # =========================
     - name: Start Hyperledger Fabric-X Committer services
+      vars:
+        committer_verifiers: >-
+          {{
+            groups['fabric_x_committer']
+            | map('extract', hostvars)
+            | selectattr('committer_component_type', 'defined')
+            | selectattr('committer_component_type', '==', 'verifier')
+            | map(attribute='inventory_hostname')
+            | list
+          }}
+        committer_validators: >-
+          {{
+            groups['fabric_x_committer']
+            | map('extract', hostvars)
+            | selectattr('committer_component_type', 'defined')
+            | selectattr('committer_component_type', '==', 'validator')
+            | map(attribute='inventory_hostname')
+            | list
+          }}
+        committer_coordinator: >-
+          {{
+            groups['fabric_x_committer']
+            | map('extract', hostvars)
+            | selectattr('committer_component_type', 'defined')
+            | selectattr('committer_component_type', '==', 'coordinator')
+            | map(attribute='inventory_hostname')
+            | list
+            | first
+          }}
+        orderer_assemblers: >-
+          {{
+            groups['fabric_x_orderers']
+            | default([])
+            | map('extract', hostvars)
+            | selectattr('orderer_component_type', '==', 'assembler')
+            | map(attribute='inventory_hostname')
+            | list
+          }}
       ansible.builtin.include_role:
         name: hyperledger.fabricx.committer
         tasks_from: start

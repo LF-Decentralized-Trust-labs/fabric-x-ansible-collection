@@ -4,12 +4,20 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Remove Postgres DB Kubernetes workload
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: k8s/teardown
+  when: postgres_use_k8s
+
 - name: Remove Postgres DB container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: container/rm
+  when: postgres_use_container
 
 - name: Remove Postgres DB data
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: data/rm
+  when: postgres_use_container

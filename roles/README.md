@@ -38,6 +38,7 @@ The roles that come within such collection are listed hereafter. Click on them t
 - [`hyperledger.fabricx.go`](./go);
 - [`hyperledger.fabricx.grafana`](./grafana);
 - [`hyperledger.fabricx.jaeger`](./jaeger);
+- [`hyperledger.fabricx.k8s`](./k8s);
 - [`hyperledger.fabricx.loadgen`](./loadgen);
 - [`hyperledger.fabricx.node_exporter`](./node_exporter);
 - [`hyperledger.fabricx.openssl`](./openssl);

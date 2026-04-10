@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Collect Fabric-X Orderer metrics
+  ansible.builtin.import_playbook: hyperledger.fabricx.orderer.get_metrics
+
 - name: Collect Fabric-X Committer metrics
   ansible.builtin.import_playbook: hyperledger.fabricx.committer.get_metrics
 

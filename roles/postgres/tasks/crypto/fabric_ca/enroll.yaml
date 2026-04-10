@@ -32,7 +32,7 @@
     fabric_ca_enrollment_profile: tls
     fabric_ca_cryptogenize_tls_cert_file: "{{ postgres_tls_cert_file }}"
     fabric_ca_cryptogenize_tls_key_file: "{{ postgres_tls_private_key_file }}"
-    fabric_ca_csr_hosts: "{{ ansible_all_ipv4_addresses + [ansible_host] }}"
+    fabric_ca_csr_hosts: "{{ ansible_all_ipv4_addresses + [ansible_host, actual_host] }}"
     fabric_ca_identity:
       name: "{{ organization.peer.name }}"
       secret: "{{ organization.peer.secret }}"

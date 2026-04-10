@@ -4,6 +4,17 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists for Fabric-X Orderer
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+# =========================
+# Apply Resources
+# =========================
 - name: Apply Fabric-X Orderer Service
   kubernetes.core.k8s:
     state: present
@@ -21,5 +32,5 @@
     state: present
     template:
       path: k8s/statefulset.yaml.j2
-    wait: "{{ orderer_k8s_wait }}"
+    wait: true
     wait_timeout: "{{ orderer_k8s_wait_timeout }}"

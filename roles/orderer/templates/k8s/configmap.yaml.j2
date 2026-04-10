@@ -16,17 +16,21 @@ metadata:
 data:
   # Main orderer node configuration passed via --config at startup.
   node-config.yaml: |
-    {{ orderer_k8s_node_config_content | indent(4) }}
-  # mTLS CA certs for individual clients allowed to connect to this orderer.
-{% for cert in orderer_k8s_mtls_client_certs | default([]) %}
-  mtls-client-{{ cert.name }}-ca.crt: |
-    {{ lookup('file', cert.path) | indent(4) }}
+    {{ lookup('file', orderer_remote_config_dir + '/' + orderer_config_file) | indent(4) }}
+{% if orderer_use_mtls and orderer_mtls_clients is defined %}
+{% for current_mtls_client in orderer_mtls_clients %}
+  # mTLS CA cert for client {{ current_mtls_client }}.
+  mtls-client-{{ current_mtls_client }}-ca.crt: |
+    {{ lookup('file', orderer_remote_config_dir + '/mtls/' + current_mtls_client + '/ca.crt') | indent(4) }}
 {% endfor %}
-  # mTLS CA certs for peer organisations whose nodes connect to this orderer.
-{% for cert in orderer_k8s_mtls_org_certs | default([]) %}
-  mtls-org-{{ cert.domain }}-ca.crt: |
-    {{ lookup('file', cert.path) | indent(4) }}
+{% endif %}
+{% if orderer_use_mtls and orderer_mtls_orgs is defined %}
+{% for current_mtls_org in orderer_mtls_orgs %}
+  # mTLS CA cert for org {{ current_mtls_org.domain }}.
+  mtls-org-{{ current_mtls_org.domain }}-ca.crt: |
+    {{ lookup('file', orderer_remote_config_dir + '/mtls/' + current_mtls_org.domain + '/ca.crt') | indent(4) }}
 {% endfor %}
+{% endif %}
 binaryData:
   # Genesis block used to bootstrap the orderer channel configuration.
   genesis.block: {{ orderer_k8s_genesis_block_b64 }}

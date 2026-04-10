@@ -1,0 +1,119 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+name: Tests (k8s)
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  # Enable manual triggering
+  workflow_dispatch:
+
+jobs:
+  test-k8s:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        include:
+          - inventory: "fabric-x"
+          - inventory: "fabric-x-yugabyte"
+      fail-fast: false
+
+    steps:
+      # Checkout the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Install make
+      - name: Install make
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y make
+
+      # Install latest golang
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "stable"
+          cache: true
+
+      # Check that go is installed
+      - name: Verify Go installation
+        run: |
+          go version
+          echo "GOPATH: $GOPATH"
+          echo "GOROOT: $GOROOT"
+
+      # Install Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      # Install the required packages and collections.
+      # Note: install-remote-node-deps is intentionally skipped — it installs
+      # system packages (Docker, chrony, etc.) on remote hosts, which is not
+      # needed for the k8s deployment path where ansible_connection=local.
+      - name: Install all the required packages and collections
+        env:
+          ANSIBLE_CACHE_PLUGIN: jsonfile
+          ANSIBLE_CACHE_PLUGIN_CONNECTION: /tmp/ansible_fact_cache
+        run: |
+          make install
+
+      # Install kind (Kubernetes IN Docker) — pinned for reproducibility.
+      # kind creates a Kubernetes cluster inside Docker containers, which are
+      # already available on ubuntu-latest runners.
+      - name: Install kind
+        run: |
+          curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.24.0/kind-linux-amd64
+          chmod +x ./kind
+          sudo mv ./kind /usr/local/bin/kind
+          kind version
+
+      # Create a single-node kind cluster.
+      # The default StorageClass (local-path) handles the orderer PVCs (500Mi,
+      # ReadWriteOnce) automatically. NodePort range 30000-32767 covers all
+      # ports used in the k8s inventory (30050-30363).
+      - name: Create kind cluster
+        run: |
+          kind create cluster --wait 60s
+          kubectl cluster-info --context kind-kind
+
+      # Wait for the cluster nodes and local-path-provisioner to be fully ready
+      # before running any playbooks that create PVCs.
+      - name: Wait for cluster readiness
+        run: |
+          kubectl wait --for=condition=Ready nodes --all --timeout=60s
+          kubectl wait -n local-path-storage deployment/local-path-provisioner \
+            --for=condition=Available --timeout=60s
+          kubectl get nodes -o wide
+          kubectl get storageclass
+
+      # Get the kind control-plane container IP. NodePorts are reachable at
+      # this IP from the runner (not at localhost). Exported as K8S_NODE_IP
+      # so the k8s inventory's actual_host can resolve to the correct address.
+      - name: Export kind node IP
+        run: |
+          K8S_NODE_IP=$(docker inspect kind-control-plane \
+            --format '{{ .NetworkSettings.Networks.kind.IPAddress }}')
+          echo "K8S_NODE_IP=$K8S_NODE_IP" >> "$GITHUB_ENV"
+          echo "Kind node IP: $K8S_NODE_IP"
+
+      # Run the k8s deployment test
+      - name: Test the (${{ matrix.inventory }}) inventory
+        env:
+          PROJECT_DIR: ${{ github.workspace }}
+          CONTAINER_CLIENT: docker
+          ANSIBLE_INVENTORY: ./examples/inventory/k8s/${{ matrix.inventory }}.yaml
+          ANSIBLE_CACHE_PLUGIN: jsonfile
+          ANSIBLE_CACHE_PLUGIN_CONNECTION: /tmp/ansible_fact_cache
+          K8S_NODE_IP: ${{ env.K8S_NODE_IP }}
+        run: |
+          ./ci/run_ci_test.sh

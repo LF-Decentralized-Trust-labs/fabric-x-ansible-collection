@@ -8,3 +8,12 @@
   ansible.builtin.file:
     path: "{{ yugabyte_remote_config_dir }}"
     state: absent
+
+- name: Delete Yugabyte k8s ConfigMap
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: ConfigMap
+    name: "{{ yugabyte_k8s_resource_name }}-config"
+    namespace: "{{ k8s_namespace }}"
+  when: yugabyte_use_k8s

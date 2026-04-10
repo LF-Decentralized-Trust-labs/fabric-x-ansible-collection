@@ -8,10 +8,16 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: container/rm
-  when: not loadgen_use_bin
+  when: loadgen_use_container
 
 - name: Stop Fabric-X Loadgen binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: bin/stop
   when: loadgen_use_bin
+
+- name: Remove Fabric-X Loadgen Kubernetes resources
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: k8s/rm
+  when: loadgen_use_k8s

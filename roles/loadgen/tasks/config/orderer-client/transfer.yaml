@@ -128,3 +128,12 @@
     - committer_sidecar_host is defined
     - hostvars[committer_sidecar_host].committer_use_tls is defined
     - hostvars[committer_sidecar_host].committer_use_tls
+
+# =========================
+# Kubernetes ConfigMap
+# =========================
+- name: Transfer Fabric-X Loadgen Kubernetes ConfigMap
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: k8s/config/transfer
+  when: loadgen_use_k8s

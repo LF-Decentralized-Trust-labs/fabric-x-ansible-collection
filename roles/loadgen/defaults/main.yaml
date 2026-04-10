@@ -55,3 +55,17 @@ loadgen_monitoring_use_mtls: "{{ loadgen_use_mtls }}"
 # =========================
 loadgen_log_level: "info"
 loadgen_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
+
+# =========================
+# Kubernetes
+# =========================
+loadgen_use_k8s: false
+loadgen_use_container: "{{ (not loadgen_use_bin) and (not loadgen_use_k8s) }}"
+loadgen_k8s_resource_name: "{{ inventory_hostname }}"
+loadgen_k8s_wait: true
+loadgen_k8s_wait_timeout: 120
+loadgen_k8s_fs_group: 10001
+
+# NodePort for external access
+loadgen_k8s_web_node_port: "{{ loadgen_web_port }}"
+loadgen_k8s_metrics_node_port: "{{ loadgen_metrics_port }}"

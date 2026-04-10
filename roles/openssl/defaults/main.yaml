@@ -37,13 +37,37 @@ openssl_common_name: "example.com"
 openssl_basic_constraints: "CA:false"
 openssl_key_usage: "keyEncipherment, digitalSignature"
 openssl_extended_key_usage: "serverAuth, clientAuth"
-openssl_san_dns_entries:
-  - "DNS:{{ ansible_host }}"
+
+# Regex to identify IPv4 addresses (used to split hosts into DNS vs IP SANs).
+# Same pattern used in roles/fabric_ca/tasks/server/crypto/x509/setup.yaml.
+openssl_san_ipv4_regex: '^[0-9]{1,3}(\.[0-9]{1,3}){3}$'
+
+# Combined list of hostnames/IPs to include in the SANs.
+# actual_host covers the NodePort IP in k8s (always defined in inventory).
+openssl_san_hosts: >-
+  {{
+    [ansible_host, actual_host]
+    | unique
+    | list
+  }}
+
+openssl_san_dns_entries: >-
+  {{
+    openssl_san_hosts
+    | reject('match', openssl_san_ipv4_regex)
+    | map('regex_replace', '^', 'DNS:')
+    | list
+  }}
+
 openssl_san_ip_entries: >-
   {{
-    ansible_facts.all_ipv4_addresses
-    | default([])
+    (
+      openssl_san_hosts | select('match', openssl_san_ipv4_regex) | list
+      + (ansible_facts.all_ipv4_addresses | default([]))
+    )
+    | unique
     | map('regex_replace', '^', 'IP:')
     | list
   }}
+
 openssl_san_entries: "{{ openssl_san_dns_entries + openssl_san_ip_entries }}"

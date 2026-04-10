@@ -1,0 +1,24 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ loadgen_k8s_resource_name }}-config
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ loadgen_k8s_resource_name }}
+    app.kubernetes.io/component: {{ loadgen_type }}
+    app.kubernetes.io/part-of: fabric-x-loadgen
+data:
+  # Main loadgen configuration passed via --config at startup.
+  config-loadgen.yaml: |
+    {{ lookup('file', loadgen_remote_config_dir + '/' + loadgen_config_file) | indent(4) }}
+{% if loadgen_use_tls %}
+  # TLS CA certificate of the validators (used for upstream TLS verification).
+  tls-validators-ca.crt: |
+    {{ lookup('file', loadgen_remote_config_dir + '/tls/validators/ca.crt') | indent(4) }}
+{% endif %}

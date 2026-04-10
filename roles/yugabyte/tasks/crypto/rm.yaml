@@ -10,3 +10,12 @@
     state: absent
   when:
     - yugabyte_use_tls
+
+- name: Delete Yugabyte k8s Secret
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Secret
+    name: "{{ yugabyte_k8s_resource_name }}-secret"
+    namespace: "{{ k8s_namespace }}"
+  when: yugabyte_use_k8s

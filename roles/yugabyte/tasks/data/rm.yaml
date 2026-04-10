@@ -8,3 +8,13 @@
   ansible.builtin.file:
     path: "{{ yugabyte_remote_data_dir }}"
     state: absent
+  when: yugabyte_use_container
+
+- name: Delete Yugabyte data PVC
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: PersistentVolumeClaim
+    name: "data-{{ yugabyte_k8s_resource_name }}-0"
+    namespace: "{{ k8s_namespace }}"
+  when: yugabyte_use_k8s

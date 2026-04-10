@@ -84,6 +84,7 @@ fabric_ca_server_idemixgen_output_dir: "{{ fabric_ca_server_remote_config_dir }}
 fabric_ca_csr_cn: "{{ fabric_ca_name }}"
 fabric_ca_csr_hosts:
   - "{{ ansible_host }}"
+  - "{{ actual_host }}"
   - "{{ inventory_hostname }}"
 fabric_ca_csr_expiry: "131400h"
 

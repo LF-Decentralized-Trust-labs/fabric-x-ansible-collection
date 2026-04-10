@@ -8,3 +8,4 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: container/stop
+  when: yugabyte_use_container

@@ -10,3 +10,9 @@
     state: absent
   when:
     - committer_use_tls
+
+- name: Remove Fabric-X Committer k8s Secret
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: k8s/crypto/rm
+  when: committer_use_k8s
