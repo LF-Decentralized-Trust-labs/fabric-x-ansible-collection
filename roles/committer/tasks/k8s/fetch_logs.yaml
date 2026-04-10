@@ -4,23 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure fetched log directory exists
-  ansible.builtin.file:
-    path: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}"
-    state: directory
-    mode: "0o755"
-
-- name: Fetch Fabric-X Committer {{ committer_component_type }} pod logs
-  kubernetes.core.k8s_log:
-    namespace: "{{ k8s_namespace }}"
-    label_selectors:
+- name: Fetch Fabric-X Committer pod logs
+  vars:
+    k8s_pod_label_selectors:
       - "app.kubernetes.io/name={{ committer_k8s_resource_name }}"
-    container: "{{ committer_component_type }}"
-  register: committer_k8s_logs
-  failed_when: false
-
-- name: Write Fabric-X Committer {{ committer_component_type }} logs
-  ansible.builtin.copy:
-    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/logs.txt"
-    mode: "0o644"
-    content: "{{ committer_k8s_logs.log | default('') }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: fetch_logs

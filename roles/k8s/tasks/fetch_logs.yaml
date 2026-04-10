@@ -1,0 +1,33 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure remote logs directory exists
+  ansible.builtin.file:
+    path: "{{ k8s_remote_logs_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Fetch pod logs
+  kubernetes.core.k8s_log:
+    namespace: "{{ k8s_namespace }}"
+    label_selectors: "{{ k8s_pod_label_selectors }}"
+    container: "{{ k8s_pod_container | default(omit) }}"
+  register: k8s_fetched_pod_logs
+  failed_when: false
+
+- name: Write pod logs to remote file
+  ansible.builtin.copy:
+    content: "{{ k8s_fetched_pod_logs.log | default('') }}"
+    dest: "{{ k8s_remote_logs_dir }}/{{ k8s_remote_logs_file }}"
+    mode: "0o644"
+
+- name: Fetch pod logs to control node
+  ansible.builtin.fetch:
+    src: "{{ k8s_remote_logs_dir }}/{{ k8s_remote_logs_file }}"
+    dest: "{{ k8s_fetched_logs_dir }}/{{ k8s_fetched_logs_file }}"
+    validate_checksum: false
+    fail_on_missing: false
+    flat: true

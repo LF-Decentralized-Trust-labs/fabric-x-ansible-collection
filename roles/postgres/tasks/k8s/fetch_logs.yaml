@@ -4,22 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure fetched log directory exists
-  ansible.builtin.file:
-    path: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}"
-    state: directory
-    mode: "0o755"
-
 - name: Fetch Postgres DB pod logs
-  kubernetes.core.k8s_log:
-    namespace: "{{ k8s_namespace }}"
-    name: "{{ postgres_k8s_resource_name }}-0"
-    container: postgres
-  register: postgres_k8s_logs
-  failed_when: false
-
-- name: Write Postgres DB logs
-  ansible.builtin.copy:
-    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/logs.txt"
-    mode: "0o644"
-    content: "{{ postgres_k8s_logs.log | default('') }}"
+  vars:
+    k8s_pod_label_selectors:
+      - "app.kubernetes.io/name={{ postgres_k8s_resource_name }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: fetch_logs
