@@ -64,21 +64,43 @@ spec:
               subPath: tls-ca.crt
               readOnly: true
 {% endif %}
-{% if committer_use_mtls and committer_mtls_clients is defined %}
-{% for client in committer_mtls_clients %}
-            # mTLS CA cert for client {{ client }}.
+{% if committer_monitoring_use_mtls and committer_monitoring_mtls_clients is defined %}
+{% for committer_monitoring_mtls_client in committer_monitoring_mtls_clients %}
+{% if committer_monitoring_mtls_client not in (committer_mtls_clients | default([])) %}
+            # mTLS monitoring CA cert for client {{ committer_monitoring_mtls_client }}.
             - name: config
-              mountPath: {{ committer_container_config_dir }}/mtls/{{ client }}/ca.crt
-              subPath: mtls-client-{{ client }}-ca.crt
+              mountPath: {{ committer_container_config_dir }}/mtls/{{ committer_monitoring_mtls_client }}/ca.crt
+              subPath: mtls-client-{{ committer_monitoring_mtls_client }}-ca.crt
+              readOnly: true
+{% endif %}
+{% endfor %}
+{% endif %}
+{% if committer_monitoring_use_mtls and committer_monitoring_mtls_orgs is defined %}
+{% for committer_monitoring_mtls_org in committer_monitoring_mtls_orgs %}
+{% if committer_monitoring_mtls_org not in (committer_mtls_orgs | default([])) %}
+            # mTLS monitoring CA cert for org {{ committer_monitoring_mtls_org.domain }}.
+            - name: config
+              mountPath: {{ committer_container_config_dir }}/mtls/{{ committer_monitoring_mtls_org.domain }}/ca.crt
+              subPath: mtls-org-{{ committer_monitoring_mtls_org.domain }}-ca.crt
+              readOnly: true
+{% endif %}
+{% endfor %}
+{% endif %}
+{% if committer_use_mtls and committer_mtls_clients is defined %}
+{% for current_mtls_client in committer_mtls_clients %}
+            # mTLS CA cert for client {{ current_mtls_client }}.
+            - name: config
+              mountPath: {{ committer_container_config_dir }}/mtls/{{ current_mtls_client }}/ca.crt
+              subPath: mtls-client-{{ current_mtls_client }}-ca.crt
               readOnly: true
 {% endfor %}
 {% endif %}
 {% if committer_use_mtls and committer_mtls_orgs is defined %}
-{% for org in committer_mtls_orgs %}
-            # mTLS CA cert for org {{ org.domain }}.
+{% for current_mtls_org in committer_mtls_orgs %}
+            # mTLS CA cert for org {{ current_mtls_org.domain }}.
             - name: config
-              mountPath: {{ committer_container_config_dir }}/mtls/{{ org.domain }}/ca.crt
-              subPath: mtls-org-{{ org.domain }}-ca.crt
+              mountPath: {{ committer_container_config_dir }}/mtls/{{ current_mtls_org.domain }}/ca.crt
+              subPath: mtls-org-{{ current_mtls_org.domain }}-ca.crt
               readOnly: true
 {% endfor %}
 {% endif %}
