@@ -17,10 +17,17 @@ data:
   # Main query-service configuration passed via --config at startup.
   config-query-service.yml: |
     {{ lookup('file', committer_remote_config_dir + '/' + committer_config_file) | indent(4) }}
-{% if hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
+{% if postgres_db_host is defined and hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
   # Postgres DB TLS CA certificate used to verify the database connection.
   tls-db-ca.crt: |
     {{ lookup('file', committer_k8s_db_ca_path) | indent(4) }}
+{% elif yugabyte_cluster_ref_id is defined %}
+{% set yugabyte_cluster_ref_host = groups['all'] | map('extract', hostvars) | selectattr('yugabyte_cluster_id', 'defined') | selectattr('yugabyte_cluster_id', '==', yugabyte_cluster_ref_id) | map(attribute='inventory_hostname') | first %}
+{% if hostvars[yugabyte_cluster_ref_host].yugabyte_use_tls is defined and hostvars[yugabyte_cluster_ref_host].yugabyte_use_tls %}
+  # YugabyteDB TLS CA certificate used to verify the database connection.
+  tls-db-ca.crt: |
+    {{ lookup('file', committer_k8s_db_ca_path) | indent(4) }}
+{% endif %}
 {% endif %}
 {% if committer_use_mtls and committer_mtls_clients is defined %}
 {% for current_mtls_client in committer_mtls_clients %}

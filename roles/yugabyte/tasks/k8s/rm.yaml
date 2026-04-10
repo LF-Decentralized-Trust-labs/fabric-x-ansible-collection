@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Yugabyte master Kubernetes resources
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: k8s/master/rm
+  when: yugabyte_component_type == 'master'
+
+- name: Remove Yugabyte tablet server Kubernetes resources
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: k8s/tablet/rm
+  when: yugabyte_component_type == 'tablet'

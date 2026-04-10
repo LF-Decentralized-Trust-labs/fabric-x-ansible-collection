@@ -15,3 +15,9 @@
     src: "yugabyte-init-script.sql.j2"
     dest: "{{ yugabyte_remote_config_dir }}/init/{{ yugabyte_init_script_file }}"
     mode: "0o644"
+
+- name: Apply Yugabyte k8s ConfigMap
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: k8s/config/transfer
+  when: yugabyte_use_k8s

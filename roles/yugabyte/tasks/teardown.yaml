@@ -4,10 +4,17 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Remove Yugabyte DB Kubernetes resources
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: k8s/rm
+  when: yugabyte_use_k8s
+
 - name: Remove the Yugabyte DB containers
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: container/rm
+  when: yugabyte_use_container
 
 - name: Remove Yugabyte DB data
   ansible.builtin.include_role:

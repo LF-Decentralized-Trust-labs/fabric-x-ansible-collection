@@ -1,0 +1,50 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # NodePort Service — exposes yb-tserver outside the cluster for external clients.
+  name: {{ yugabyte_k8s_resource_name }}-nodeport
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ yugabyte_k8s_resource_name }}
+    app.kubernetes.io/part-of: yugabyte
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: {{ yugabyte_k8s_resource_name }}
+  ports:
+    # YSQL (PostgreSQL-compatible) client port.
+    - name: pgsql
+      port: {{ yugabyte_tablet_pgsql_bind_port }}
+      targetPort: {{ yugabyte_tablet_pgsql_bind_port }}
+      nodePort: {{ yugabyte_k8s_tablet_pgsql_node_port }}
+    # RPC port used for tserver-to-master and tserver-to-tserver communication.
+    - name: rpc
+      port: {{ yugabyte_tablet_rpc_bind_port }}
+      targetPort: {{ yugabyte_tablet_rpc_bind_port }}
+      nodePort: {{ yugabyte_k8s_tablet_rpc_node_port }}
+    # HTTP webserver port for the YB-TServer admin UI.
+    - name: webserver
+      port: {{ yugabyte_tablet_webserver_port }}
+      targetPort: {{ yugabyte_tablet_webserver_port }}
+      nodePort: {{ yugabyte_k8s_tablet_webserver_node_port }}
+    # HTTP webserver port for YSQL metrics and status.
+    - name: pgsql-web
+      port: {{ yugabyte_tablet_pgsql_web_port }}
+      targetPort: {{ yugabyte_tablet_pgsql_web_port }}
+      nodePort: {{ yugabyte_k8s_tablet_pgsql_web_node_port }}
+    # YCQL (Cassandra-compatible) client port.
+    - name: cql
+      port: {{ yugabyte_tablet_cql_bind_port }}
+      targetPort: {{ yugabyte_tablet_cql_bind_port }}
+      nodePort: {{ yugabyte_k8s_tablet_cql_bind_node_port }}
+    # HTTP webserver port for YCQL metrics and status.
+    - name: cql-web
+      port: {{ yugabyte_tablet_cql_web_port }}
+      targetPort: {{ yugabyte_tablet_cql_web_port }}
+      nodePort: {{ yugabyte_k8s_tablet_cql_web_node_port }}

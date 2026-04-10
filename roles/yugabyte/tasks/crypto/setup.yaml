@@ -33,3 +33,9 @@
     - organization.role is defined
     - organization.role == 'peer'
     - organization.fabric_ca_host is defined
+
+- name: Apply Yugabyte k8s Secret
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: k8s/crypto/transfer
+  when: yugabyte_use_k8s

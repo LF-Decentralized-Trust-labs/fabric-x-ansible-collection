@@ -38,13 +38,39 @@ yugabyte_node_to_node_use_tls: "{{ yugabyte_use_tls }}"
 # =========================
 # Yugabyte Master ports
 # =========================
+yugabyte_master_rpc_bind_port: 7100
 yugabyte_master_webserver_port: 7000
 
 # =========================
 # Yugabyte Tablet ports
 # =========================
+yugabyte_tablet_pgsql_bind_port: 5433
 yugabyte_tablet_rpc_bind_port: 9100
 yugabyte_tablet_webserver_port: 9000
 yugabyte_tablet_cql_web_port: 12000
 yugabyte_tablet_pgsql_web_port: 13000
 yugabyte_tablet_cql_bind_port: 9042
+
+# =========================
+# Deployment mode
+# =========================
+yugabyte_use_k8s: false
+yugabyte_use_container: "{{ not yugabyte_use_k8s }}"
+
+# =========================
+# Kubernetes
+# =========================
+yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
+yugabyte_k8s_wait: true
+yugabyte_k8s_wait_timeout: 300
+yugabyte_k8s_fs_group: 1001
+
+# NodePort services
+yugabyte_k8s_master_rpc_node_port: "{{ yugabyte_master_rpc_bind_port }}"
+yugabyte_k8s_master_webserver_node_port: "{{ yugabyte_master_webserver_port }}"
+yugabyte_k8s_tablet_pgsql_node_port: "{{ yugabyte_tablet_pgsql_bind_port }}"
+yugabyte_k8s_tablet_rpc_node_port: "{{ yugabyte_tablet_rpc_bind_port }}"
+yugabyte_k8s_tablet_webserver_node_port: "{{ yugabyte_tablet_webserver_port }}"
+yugabyte_k8s_tablet_pgsql_web_node_port: "{{ yugabyte_tablet_pgsql_web_port }}"
+yugabyte_k8s_tablet_cql_bind_node_port: "{{ yugabyte_tablet_cql_bind_port }}"
+yugabyte_k8s_tablet_cql_web_node_port: "{{ yugabyte_tablet_cql_web_port }}"
