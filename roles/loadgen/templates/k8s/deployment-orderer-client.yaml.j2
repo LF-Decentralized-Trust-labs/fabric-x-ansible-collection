@@ -42,6 +42,9 @@ spec:
             - name: metrics
               containerPort: {{ loadgen_metrics_port }}
               protocol: TCP
+            - name: rpc
+              containerPort: {{ loadgen_rpc_port }}
+              protocol: TCP
           volumeMounts:
             # Main loadgen configuration file.
             - name: config
@@ -76,7 +79,7 @@ spec:
 {% endif %}
 {% endfor %}
 {% endif %}
-{% if loadgen_use_tls %}
+{% if loadgen_use_tls or loadgen_monitoring_use_tls %}
             # TLS private key.
             - name: secret
               mountPath: {{ loadgen_container_config_dir }}/tls/server.key
@@ -92,6 +95,46 @@ spec:
               mountPath: {{ loadgen_container_config_dir }}/tls/ca.crt
               subPath: tls-ca.crt
               readOnly: true
+{% endif %}
+{% if loadgen_use_mtls and loadgen_mtls_clients is defined %}
+{% for current_loadgen_mtls_client in loadgen_mtls_clients %}
+            # mTLS CA certificate for client {{ current_loadgen_mtls_client }} (gRPC server).
+            - name: config
+              mountPath: {{ loadgen_container_config_dir }}/mtls/{{ current_loadgen_mtls_client }}/ca.crt
+              subPath: mtls-client-{{ current_loadgen_mtls_client }}-ca.crt
+              readOnly: true
+{% endfor %}
+{% endif %}
+{% if loadgen_use_mtls and loadgen_mtls_orgs is defined %}
+{% for current_loadgen_mtls_org in loadgen_mtls_orgs %}
+            # mTLS CA certificate for org {{ current_loadgen_mtls_org.domain }} (gRPC server).
+            - name: config
+              mountPath: {{ loadgen_container_config_dir }}/mtls/{{ current_loadgen_mtls_org.domain }}/ca.crt
+              subPath: mtls-org-{{ current_loadgen_mtls_org.domain }}-ca.crt
+              readOnly: true
+{% endfor %}
+{% endif %}
+{% if loadgen_monitoring_use_mtls and loadgen_monitoring_mtls_clients is defined %}
+{% for current_loadgen_monitoring_mtls_client in loadgen_monitoring_mtls_clients %}
+{% if current_loadgen_monitoring_mtls_client not in (loadgen_mtls_clients | default([])) %}
+            # mTLS CA certificate for client {{ current_loadgen_monitoring_mtls_client }} (monitoring).
+            - name: config
+              mountPath: {{ loadgen_container_config_dir }}/mtls/{{ current_loadgen_monitoring_mtls_client }}/ca.crt
+              subPath: mtls-client-{{ current_loadgen_monitoring_mtls_client }}-ca.crt
+              readOnly: true
+{% endif %}
+{% endfor %}
+{% endif %}
+{% if loadgen_monitoring_use_mtls and loadgen_monitoring_mtls_orgs is defined %}
+{% for current_loadgen_monitoring_mtls_org in loadgen_monitoring_mtls_orgs %}
+{% if current_loadgen_monitoring_mtls_org not in (loadgen_mtls_orgs | default([])) %}
+            # mTLS CA certificate for org {{ current_loadgen_monitoring_mtls_org.domain }} (monitoring).
+            - name: config
+              mountPath: {{ loadgen_container_config_dir }}/mtls/{{ current_loadgen_monitoring_mtls_org.domain }}/ca.crt
+              subPath: mtls-org-{{ current_loadgen_monitoring_mtls_org.domain }}-ca.crt
+              readOnly: true
+{% endif %}
+{% endfor %}
 {% endif %}
 {% for current_orderer_router in orderer_router_hosts %}
 {% if hostvars[current_orderer_router].orderer_use_tls is defined and hostvars[current_orderer_router].orderer_use_tls %}
@@ -125,7 +168,7 @@ spec:
           configMap:
             name: {{ loadgen_k8s_resource_name }}-config
             defaultMode: 0640
-{% if loadgen_use_tls %}
+{% if loadgen_use_tls or loadgen_monitoring_use_tls %}
         - name: secret
           secret:
             secretName: {{ loadgen_k8s_resource_name }}-secret

@@ -227,3 +227,4 @@ all:
           loadgen_type: orderer-client
           loadgen_metrics_port: 30600
           loadgen_web_port: 30610
+          loadgen_rpc_port: 30620

@@ -69,3 +69,4 @@ loadgen_k8s_fs_group: 10001
 # NodePort for external access
 loadgen_k8s_web_node_port: "{{ loadgen_web_port }}"
 loadgen_k8s_metrics_node_port: "{{ loadgen_metrics_port }}"
+loadgen_k8s_rpc_node_port: "{{ loadgen_rpc_port }}"

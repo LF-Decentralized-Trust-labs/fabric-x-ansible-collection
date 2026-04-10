@@ -28,3 +28,8 @@ spec:
       port: {{ loadgen_metrics_port }}
       targetPort: {{ loadgen_metrics_port }}
       nodePort: {{ loadgen_k8s_metrics_node_port }}
+    # gRPC API port exposed externally via NodePort.
+    - name: rpc
+      port: {{ loadgen_rpc_port }}
+      targetPort: {{ loadgen_rpc_port }}
+      nodePort: {{ loadgen_k8s_rpc_node_port }}
