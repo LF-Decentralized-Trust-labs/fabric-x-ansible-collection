@@ -1,0 +1,163 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  # One StatefulSet per YugabyteDB tablet (tserver) instance.
+  name: {{ yugabyte_k8s_resource_name }}
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ yugabyte_k8s_resource_name }}
+    app.kubernetes.io/part-of: yugabyte
+spec:
+  # Must match the headless Service name so DNS-based pod addressing works.
+  serviceName: {{ yugabyte_k8s_resource_name }}
+  # One replica per tablet instance — scaling is done by adding nodes to the cluster.
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ yugabyte_k8s_resource_name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ yugabyte_k8s_resource_name }}
+        app.kubernetes.io/part-of: yugabyte
+    spec:
+      containers:
+        - name: yugabyte
+          image: {{ yugabyte_image }}
+          imagePullPolicy: {{ k8s_image_pull_policy }}
+          command:
+            - bin/yb-tserver
+            - --tserver_master_addrs={{ yugabyte_master_endpoints }}
+            - --server_broadcast_addresses={{ ansible_host }}:{{ yugabyte_tablet_rpc_bind_port }}
+            - --rpc_bind_addresses=0.0.0.0:{{ yugabyte_tablet_rpc_bind_port }}
+            - --webserver_interface=0.0.0.0
+            - --webserver_port={{ yugabyte_tablet_webserver_port }}
+            - --pgsql_proxy_bind_address=0.0.0.0:{{ yugabyte_tablet_pgsql_bind_port }}
+            - --pgsql_proxy_webserver_port={{ yugabyte_tablet_pgsql_web_port }}
+            - --cql_proxy_bind_address=0.0.0.0:{{ yugabyte_tablet_cql_bind_port }}
+            - --cql_proxy_webserver_port={{ yugabyte_tablet_cql_web_port }}
+            - --minloglevel={{ yugabyte_logs_level }}
+            - --stderrthreshold={{ yugabyte_logs_level }}
+            - --yb_enable_read_committed_isolation=true
+            - --use_node_hostname_for_local_tserver=true
+            - --fs_data_dirs={{ yugabyte_container_data_dir }}
+{% if yugabyte_use_tls %}
+            - --certs_dir=/var/tls
+{% endif %}
+{% if yugabyte_node_to_node_use_tls %}
+            - --use_node_to_node_encryption=true
+{% endif %}
+{% if yugabyte_client_to_server_use_tls %}
+            - --allow_insecure_connections=false
+            - --use_client_to_server_encryption=true
+{% endif %}
+{% if yugabyte_webserver_use_tls %}
+            - --webserver_ca_certificate_file=/var/tls/ca.crt
+            - --webserver_certificate_file=/var/tls/node.{{ ansible_host }}.crt
+            - --webserver_private_key_file=/var/tls/node.{{ ansible_host }}.key
+            - --webserver_redirect_http_to_https=true
+{% endif %}
+          ports:
+            - name: pgsql
+              containerPort: {{ yugabyte_tablet_pgsql_bind_port }}
+              protocol: TCP
+            - name: rpc
+              containerPort: {{ yugabyte_tablet_rpc_bind_port }}
+              protocol: TCP
+            - name: webserver
+              containerPort: {{ yugabyte_tablet_webserver_port }}
+              protocol: TCP
+            - name: cql
+              containerPort: {{ yugabyte_tablet_cql_bind_port }}
+              protocol: TCP
+          readinessProbe:
+            # pg_isready verifies that the YSQL endpoint is accepting connections.
+            exec:
+              command:
+                - /home/yugabyte/postgres/bin/pg_isready
+                - -h
+                - localhost
+                - -d
+                - yugabyte
+                - -U
+                - yugabyte
+                - -p
+                - "{{ yugabyte_tablet_pgsql_bind_port }}"
+            initialDelaySeconds: {{ k8s_readiness_probe_initial_delay_seconds | default(20) }}
+            periodSeconds: {{ k8s_readiness_probe_period_seconds | default(15) }}
+            timeoutSeconds: {{ k8s_readiness_probe_timeout_seconds | default(10) }}
+            failureThreshold: {{ k8s_readiness_probe_failure_threshold | default(5) }}
+            successThreshold: 1
+          livenessProbe:
+            # Simpler check than readiness (no -d argument) — detects a hung tserver process
+            # that no longer accepts connections at all and triggers a restart.
+            exec:
+              command:
+                - /home/yugabyte/postgres/bin/pg_isready
+                - -h
+                - localhost
+                - -U
+                - yugabyte
+                - -p
+                - "{{ yugabyte_tablet_pgsql_bind_port }}"
+            initialDelaySeconds: {{ k8s_liveness_probe_initial_delay_seconds | default(60) }}
+            periodSeconds: {{ k8s_liveness_probe_period_seconds | default(30) }}
+            timeoutSeconds: {{ k8s_liveness_probe_timeout_seconds | default(15) }}
+            failureThreshold: {{ k8s_liveness_probe_failure_threshold | default(5) }}
+            successThreshold: 1
+          volumeMounts:
+{% if yugabyte_use_tls %}
+            # CA certificate — trusted root for verifying peer certificates.
+            - name: secret
+              mountPath: /var/tls/ca.crt
+              subPath: ca.crt
+              readOnly: true
+            # Node certificate — presented to clients and peers during TLS handshake.
+            - name: secret
+              mountPath: /var/tls/node.{{ ansible_host }}.crt
+              subPath: node.{{ ansible_host }}.crt
+              readOnly: true
+            # Node private key — used to authenticate this tablet server during TLS handshakes.
+            - name: secret
+              mountPath: /var/tls/node.{{ ansible_host }}.key
+              subPath: node.{{ ansible_host }}.key
+              readOnly: true
+{% endif %}
+            # Init script ConfigMap — mounted read-only; used once at DB init time.
+            - name: config
+              mountPath: /var/ybinit
+              readOnly: true
+            - name: data
+              mountPath: {{ yugabyte_container_data_dir }}
+      volumes:
+        - name: secret
+          secret:
+            secretName: {{ yugabyte_k8s_resource_name }}-secret
+            defaultMode: 0600
+        - name: config
+          configMap:
+            name: {{ yugabyte_k8s_resource_name }}-config
+            defaultMode: 0640
+{% if k8s_image_pull_secret is defined and k8s_image_pull_secret %}
+      imagePullSecrets:
+        - name: {{ k8s_image_pull_secret }}
+{% endif %}
+  volumeClaimTemplates:
+    # PVC name — Kubernetes appends the pod ordinal (e.g. data-<name>-0).
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+{% if k8s_storage_class is defined and k8s_storage_class %}
+        storageClassName: {{ k8s_storage_class }}
+{% endif %}
+        resources:
+          requests:
+            storage: {{ k8s_storage_size }}

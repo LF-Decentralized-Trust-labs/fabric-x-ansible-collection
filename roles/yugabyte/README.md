@@ -2,7 +2,7 @@
 
 The role `hyperledger.fabricx.yugabyte` can be used to run a `yugabyte` distributed DB cluster.
 
-The role allows to run YugabyteDB as **container only** (binary is not currently supported).
+The role supports **container** and **Kubernetes** deployment modes (binary is not currently supported).
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -11,44 +11,57 @@ The role allows to run YugabyteDB as **container only** (binary is not currently
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
   - [crypto/rm](#cryptorm)
-  - [crypto/openssl/generate\_csr](#cryptoopensslgenerate_csr)
-  - [crypto/openssl/fetch\_csr](#cryptoopensslfetch_csr)
-  - [crypto/openssl/transfer\_cert](#cryptoopenssltransfer_cert)
+  - [crypto/openssl/generate_csr](#cryptoopensslgenerate_csr)
+  - [crypto/openssl/fetch_csr](#cryptoopensslfetch_csr)
+  - [crypto/openssl/transfer_cert](#cryptoopenssltransfer_cert)
   - [config/transfer](#configtransfer)
   - [config/rm](#configrm)
   - [start](#start)
   - [stop](#stop)
   - [teardown](#teardown)
   - [wipe](#wipe)
-  - [fetch\_logs](#fetch_logs)
+  - [fetch_logs](#fetch_logs)
   - [ping](#ping)
 
 ## Variables
 
-| Variable                            | Default                                                 | Description                                               |
-| ----------------------------------- | ------------------------------------------------------- | --------------------------------------------------------- |
-| `yugabyte_registry_endpoint`        | `$YUGABYTE_REGISTRY_ENDPOINT` or `docker.io/yugabytedb` | Container registry endpoint                               |
-| `yugabyte_image_name`               | `yugabyte`                                              | Container image name                                      |
-| `yugabyte_image_tag`                | `2025.2.1.0-b141`                                       | Container image tag                                       |
-| `yugabyte_image`                    | `{{ registry }}/{{ name }}:{{ tag }}`                   | Full container image reference                            |
-| `yugabyte_container_name`           | `{{ inventory_hostname }}`                              | Name given to the container                               |
-| `yugabyte_remote_config_dir`        | `{{ remote_config_dir }}`                               | Configuration directory on the remote node                |
-| `yugabyte_remote_data_dir`          | `{{ remote_data_dir }}`                                 | Data directory on the remote node                         |
-| `yugabyte_container_data_dir`       | `/var/data`                                             | Data directory inside the container                       |
-| `yugabyte_init_script_file`         | `01-yb-init.sql`                                        | Initialization SQL script file name                       |
-| `yugabyte_logs_level`               | `3`                                                     | Log verbosity level (0=INFO, 1=WARNING, 2=ERROR, 3=FATAL) |
-| `yugabyte_use_tls`                  | `false`                                                 | Enable TLS for all YugabyteDB channels                    |
-| `yugabyte_webserver_use_tls`        | `{{ yugabyte_use_tls }}`                                | Enable TLS for the webserver                              |
-| `yugabyte_client_to_server_use_tls` | `{{ yugabyte_use_tls }}`                                | Enable client-to-server TLS                               |
-| `yugabyte_node_to_node_use_tls`     | `{{ yugabyte_use_tls }}`                                | Enable node-to-node TLS                                   |
-| `yugabyte_master_webserver_port`    | `7000`                                                  | Master webserver port                                     |
-| `yugabyte_tablet_rpc_bind_port`     | `9100`                                                  | Tablet server RPC port                                    |
-| `yugabyte_tablet_webserver_port`    | `9000`                                                  | Tablet server webserver port                              |
-| `yugabyte_tablet_redis_web_port`    | `11000`                                                 | Redis webserver port                                      |
-| `yugabyte_tablet_cql_web_port`      | `12000`                                                 | CQL webserver port                                        |
-| `yugabyte_tablet_pgsql_web_port`    | `13000`                                                 | YSQL webserver port                                       |
-| `yugabyte_tablet_cql_bind_port`     | `9042`                                                  | CQL (Cassandra) client port                               |
-| `yugabyte_tablet_redis_rpc_port`    | `6379`                                                  | Redis client port                                         |
+| Variable                                  | Default                                                 | Description                                               |
+| ----------------------------------------- | ------------------------------------------------------- | --------------------------------------------------------- |
+| `yugabyte_registry_endpoint`              | `$YUGABYTE_REGISTRY_ENDPOINT` or `docker.io/yugabytedb` | Container registry endpoint                               |
+| `yugabyte_image_name`                     | `yugabyte`                                              | Container image name                                      |
+| `yugabyte_image_tag`                      | `2025.2.1.0-b141`                                       | Container image tag                                       |
+| `yugabyte_image`                          | `{{ registry }}/{{ name }}:{{ tag }}`                   | Full container image reference                            |
+| `yugabyte_container_name`                 | `{{ inventory_hostname }}`                              | Name given to the container                               |
+| `yugabyte_remote_config_dir`              | `{{ remote_config_dir }}`                               | Configuration directory on the remote node                |
+| `yugabyte_remote_data_dir`                | `{{ remote_data_dir }}`                                 | Data directory on the remote node                         |
+| `yugabyte_container_data_dir`             | `/var/data`                                             | Data directory inside the container                       |
+| `yugabyte_init_script_file`               | `01-yb-init.sql`                                        | Initialization SQL script file name                       |
+| `yugabyte_logs_level`                     | `3`                                                     | Log verbosity level (0=INFO, 1=WARNING, 2=ERROR, 3=FATAL) |
+| `yugabyte_use_tls`                        | `false`                                                 | Enable TLS for all YugabyteDB channels                    |
+| `yugabyte_webserver_use_tls`              | `{{ yugabyte_use_tls }}`                                | Enable TLS for the webserver                              |
+| `yugabyte_client_to_server_use_tls`       | `{{ yugabyte_use_tls }}`                                | Enable client-to-server TLS                               |
+| `yugabyte_node_to_node_use_tls`           | `{{ yugabyte_use_tls }}`                                | Enable node-to-node TLS                                   |
+| `yugabyte_master_rpc_bind_port`           | `7100`                                                  | Master RPC port                                           |
+| `yugabyte_master_webserver_port`          | `7000`                                                  | Master webserver port                                     |
+| `yugabyte_tablet_pgsql_bind_port`         | `5433`                                                  | YSQL (PostgreSQL-compatible) client port                  |
+| `yugabyte_tablet_rpc_bind_port`           | `9100`                                                  | Tablet server RPC port                                    |
+| `yugabyte_tablet_webserver_port`          | `9000`                                                  | Tablet server webserver port                              |
+| `yugabyte_tablet_cql_web_port`            | `12000`                                                 | YCQL webserver port                                       |
+| `yugabyte_tablet_pgsql_web_port`          | `13000`                                                 | YSQL webserver port                                       |
+| `yugabyte_tablet_cql_bind_port`           | `9042`                                                  | YCQL (Cassandra-compatible) client port                   |
+| `yugabyte_use_k8s`                        | `false`                                                 | Deploy on Kubernetes instead of container                 |
+| `yugabyte_use_container`                  | `{{ not yugabyte_use_k8s }}`                            | Deploy as container (computed)                            |
+| `yugabyte_k8s_resource_name`              | `{{ inventory_hostname }}`                              | Name used for all Kubernetes resources                    |
+| `yugabyte_k8s_wait`                       | `true`                                                  | Wait for StatefulSet pods to become ready                 |
+| `yugabyte_k8s_wait_timeout`               | `300`                                                   | Timeout in seconds when waiting for pods                  |
+| `yugabyte_k8s_master_rpc_node_port`       | `{{ yugabyte_master_rpc_bind_port }}`                   | NodePort for master RPC                                   |
+| `yugabyte_k8s_master_webserver_node_port` | `{{ yugabyte_master_webserver_port }}`                  | NodePort for master webserver                             |
+| `yugabyte_k8s_tablet_pgsql_node_port`     | `{{ yugabyte_tablet_pgsql_bind_port }}`                 | NodePort for YSQL client                                  |
+| `yugabyte_k8s_tablet_rpc_node_port`       | `{{ yugabyte_tablet_rpc_bind_port }}`                   | NodePort for tablet RPC                                   |
+| `yugabyte_k8s_tablet_webserver_node_port` | `{{ yugabyte_tablet_webserver_port }}`                  | NodePort for tablet webserver                             |
+| `yugabyte_k8s_tablet_pgsql_web_node_port` | `{{ yugabyte_tablet_pgsql_web_port }}`                  | NodePort for YSQL webserver/metrics                       |
+| `yugabyte_k8s_tablet_cql_bind_node_port`  | `{{ yugabyte_tablet_cql_bind_port }}`                   | NodePort for YCQL client                                  |
+| `yugabyte_k8s_tablet_cql_web_node_port`   | `{{ yugabyte_tablet_cql_web_port }}`                    | NodePort for YCQL webserver/metrics                       |
 
 ## Tasks
 
@@ -79,7 +92,7 @@ The task `crypto/fetch` fetches on the control node the TLS certificate of a Yug
 
 ### crypto/rm
 
-The task `crypto/rm` removes the crypto material generated for Yugabyte:
+The task `crypto/rm` removes the crypto material generated for Yugabyte. In Kubernetes mode it also deletes the associated Secret:
 
 ```yaml
 - name: Remove the Yugabyte crypto files
@@ -125,7 +138,7 @@ The task `crypto/openssl/transfer_cert` allows to transfer the TLS certificate g
 
 ### config/transfer
 
-The task `config/transfer` transfers the Yugabyte configuration files on the remote node:
+The task `config/transfer` generates the Yugabyte initialization SQL script. In Kubernetes mode it also creates the associated ConfigMap:
 
 ```yaml
 - name: Transfer the Yugabyte configuration files
@@ -136,7 +149,7 @@ The task `config/transfer` transfers the Yugabyte configuration files on the rem
 
 ### config/rm
 
-The task `config/rm` removes the Yugabyte configuration files on the remote node:
+The task `config/rm` removes the Yugabyte configuration files. In Kubernetes mode it also deletes the associated ConfigMap:
 
 ```yaml
 - name: Remove the Yugabyte configuration files
@@ -147,21 +160,12 @@ The task `config/rm` removes the Yugabyte configuration files on the remote node
 
 ### start
 
-The task `start` allows to start the Yugabyte DB Cluster.
+The task `start` allows to start the Yugabyte DB Cluster. Set `yugabyte_use_k8s: true` to deploy on Kubernetes.
 
 ```yaml
 - name: Start the Yugabyte DB Cluster
   vars:
-    # ports for the Yugabyte cluster master
-    yugabyte_master_rpc_bind_port: 7100
-    yugabyte_master_webserver_port: 7000
-    # ports for the Yugabyte cluster tablet
-    yugabyte_tablet_pgsql_bind_port: 5432
-    yugabyte_tablet_rpc_bind_port: 9100
-    yugabyte_tablet_webserver_port: 9000
-    yugabyte_tablet_redis_web_port: 11000
-    yugabyte_tablet_cql_web_port: 12000
-    yugabyte_tablet_pgsql_web_port: 13000
+    yugabyte_use_k8s: true # omit or set false for container mode
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: start
@@ -169,7 +173,7 @@ The task `start` allows to start the Yugabyte DB Cluster.
 
 ### stop
 
-The task `stop` allows to stop the Yugabyte DB Cluster.
+The task `stop` allows to stop the Yugabyte DB Cluster (container mode only; Kubernetes manages pod liveness).
 
 ```yaml
 - name: Stop the Yugabyte DB Cluster
@@ -202,7 +206,7 @@ The task `wipe` allows to shut down the Yugabyte DB Cluster, remove all the arti
 
 ### fetch_logs
 
-The task `fetch_logs` allows to fetch the logs from the Yugabyte DB Cluster components from the remote hosts to the control node.
+The task `fetch_logs` allows to fetch the logs from the Yugabyte DB Cluster components from the remote hosts (or Kubernetes pods) to the control node.
 
 ```yaml
 - name: Fetch the Yugabyte DB Cluster logs

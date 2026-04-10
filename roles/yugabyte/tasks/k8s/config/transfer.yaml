@@ -1,0 +1,25 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists for Yugabyte DB
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+# =========================
+# ConfigMap (tablet only — holds the DB init script)
+# =========================
+- name: Apply Yugabyte DB ConfigMap
+  vars:
+    yugabyte_k8s_init_script_path: "{{ yugabyte_remote_config_dir }}/init/{{ yugabyte_init_script_file }}"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/configmap.yaml.j2
+  when: yugabyte_component_type == 'tablet'

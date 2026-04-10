@@ -64,12 +64,21 @@ spec:
               subPath: tls-ca.crt
               readOnly: true
 {% endif %}
-{% if hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
+{% if postgres_db_host is defined and hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
             # Postgres DB TLS CA certificate.
             - name: config
               mountPath: {{ committer_container_config_dir }}/tls/db/ca.crt
               subPath: tls-db-ca.crt
               readOnly: true
+{% elif yugabyte_cluster_ref_id is defined %}
+{% set yugabyte_cluster_ref_host = groups['all'] | map('extract', hostvars) | selectattr('yugabyte_cluster_id', 'defined') | selectattr('yugabyte_cluster_id', '==', yugabyte_cluster_ref_id) | map(attribute='inventory_hostname') | first %}
+{% if hostvars[yugabyte_cluster_ref_host].yugabyte_use_tls is defined and hostvars[yugabyte_cluster_ref_host].yugabyte_use_tls %}
+            # YugabyteDB TLS CA certificate.
+            - name: config
+              mountPath: {{ committer_container_config_dir }}/tls/db/ca.crt
+              subPath: tls-db-ca.crt
+              readOnly: true
+{% endif %}
 {% endif %}
 {% if committer_use_mtls and committer_mtls_clients is defined %}
 {% for client in committer_mtls_clients %}

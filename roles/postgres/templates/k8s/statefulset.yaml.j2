@@ -92,10 +92,10 @@ spec:
                 - {{ postgres_db }}
                 - -p
                 - "{{ postgres_port }}"
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 3
+            initialDelaySeconds: {{ k8s_readiness_probe_initial_delay_seconds | default(10) }}
+            periodSeconds: {{ k8s_readiness_probe_period_seconds | default(10) }}
+            timeoutSeconds: {{ k8s_readiness_probe_timeout_seconds | default(5) }}
+            failureThreshold: {{ k8s_readiness_probe_failure_threshold | default(3) }}
             successThreshold: 1
           livenessProbe:
             # pg_isready checks that the PostgreSQL process is alive. A simpler
@@ -108,10 +108,10 @@ spec:
                 - {{ postgres_user }}
                 - -p
                 - "{{ postgres_port }}"
-            initialDelaySeconds: 30
-            periodSeconds: 15
-            timeoutSeconds: 5
-            failureThreshold: 5
+            initialDelaySeconds: {{ k8s_liveness_probe_initial_delay_seconds | default(30) }}
+            periodSeconds: {{ k8s_liveness_probe_period_seconds | default(15) }}
+            timeoutSeconds: {{ k8s_liveness_probe_timeout_seconds | default(5) }}
+            failureThreshold: {{ k8s_liveness_probe_failure_threshold | default(5) }}
             successThreshold: 1
           volumeMounts:
 {% if postgres_use_tls %}

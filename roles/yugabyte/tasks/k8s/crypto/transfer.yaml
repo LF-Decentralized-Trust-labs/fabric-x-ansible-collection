@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists for Yugabyte DB
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+# =========================
+# Secret
+# =========================
+- name: Apply Yugabyte DB Secret
+  vars:
+    yugabyte_k8s_tls_key_path: "{{ yugabyte_remote_config_dir }}/tls/node.{{ ansible_host }}.key"
+    yugabyte_k8s_tls_cert_path: "{{ yugabyte_remote_config_dir }}/tls/node.{{ ansible_host }}.crt"
+    yugabyte_k8s_tls_ca_path: "{{ yugabyte_remote_config_dir }}/tls/ca.crt"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/secret.yaml.j2

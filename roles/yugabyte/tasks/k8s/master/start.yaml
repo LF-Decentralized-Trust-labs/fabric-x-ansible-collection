@@ -1,0 +1,36 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists for Yugabyte master
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+# =========================
+# Apply Resources
+# =========================
+- name: Apply Yugabyte master Service
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/master-service.yaml.j2
+
+- name: Apply Yugabyte master NodePort Service
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/master-service-nodeport.yaml.j2
+
+- name: Apply Yugabyte master StatefulSet
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/master-statefulset.yaml.j2
+    wait: "{{ yugabyte_k8s_wait }}"
+    wait_timeout: "{{ yugabyte_k8s_wait_timeout }}"

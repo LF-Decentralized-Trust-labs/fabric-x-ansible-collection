@@ -1,0 +1,49 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists for Yugabyte tablet
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+# =========================
+# Apply Resources
+# =========================
+- name: Apply Yugabyte tablet Service
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/tablet-service.yaml.j2
+
+- name: Apply Yugabyte tablet NodePort Service
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/tablet-service-nodeport.yaml.j2
+
+- name: Apply Yugabyte tablet StatefulSet
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/tablet-statefulset.yaml.j2
+    wait: "{{ yugabyte_k8s_wait }}"
+    wait_timeout: "{{ yugabyte_k8s_wait_timeout }}"
+
+# =========================
+# DB init (first tablet only)
+# =========================
+- name: Initialize DB in first tablet pod
+  kubernetes.core.k8s_exec:
+    namespace: "{{ k8s_namespace }}"
+    pod: "{{ yugabyte_k8s_resource_name }}-0"
+    container: yugabyte
+    command: >-
+      ysqlsh -h localhost -p {{ yugabyte_tablet_pgsql_bind_port }}
+      -U yugabyte -f /var/ybinit/{{ yugabyte_init_script_file }}
+  when: inventory_hostname == yugabyte_tablet_hosts[0]

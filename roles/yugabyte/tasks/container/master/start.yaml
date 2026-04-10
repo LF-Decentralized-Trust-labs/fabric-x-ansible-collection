@@ -4,28 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Set Yugabyte variables
-  vars:
-    _yb_masters: >-
-      {{
-        yugabyte_cluster
-        | map('extract', hostvars)
-        | selectattr('yugabyte_component_type', 'defined')
-        | selectattr('yugabyte_component_type', '==', 'master')
-        | map(attribute='inventory_hostname')
-        | list
-      }}
-  ansible.builtin.set_fact:
-    yugabyte_master_hosts: "{{ _yb_masters }}"
-    yugabyte_master_endpoints: >-
-      {{
-        _yb_masters
-        | map('extract', hostvars, 'ansible_host')
-        | zip(_yb_masters | map('extract', hostvars, 'yugabyte_master_rpc_bind_port'))
-        | map('join', ':')
-        | join(',')
-      }}
-
 - name: Ensure Yugabyte DB data directory exists
   ansible.builtin.file:
     path: "{{ yugabyte_remote_data_dir }}"
@@ -84,7 +62,7 @@
     container_healthcheck_test: >-
       /home/yugabyte/bin/yb-admin
       --master_addresses {{ yugabyte_master_endpoints }}
-      {% if yugabyte_webserver_use_tls %}
+      {% if yugabyte_client_to_server_use_tls %}
       --certs_dir_name=/var/tls
       {% endif %}
       list_all_masters
