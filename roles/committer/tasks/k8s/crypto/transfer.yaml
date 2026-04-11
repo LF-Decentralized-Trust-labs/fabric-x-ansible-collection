@@ -49,6 +49,7 @@
     committer_k8s_tls_ca_crt_path: "{{ committer_remote_config_dir }}/tls/ca.crt"
     committer_k8s_msp_signcerts_path: "{{ committer_remote_config_dir }}/msp/signcerts/{{ signcert_file }}"
     committer_k8s_msp_keystore_path: "{{ committer_remote_config_dir }}/msp/keystore/priv_sk"
+    committer_k8s_msp_config_path: "{{ committer_remote_config_dir }}/msp/config.yaml"
   kubernetes.core.k8s:
     state: present
     template:

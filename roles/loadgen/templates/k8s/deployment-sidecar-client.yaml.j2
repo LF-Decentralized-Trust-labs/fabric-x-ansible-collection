@@ -32,7 +32,6 @@ spec:
           image: {{ loadgen_image }}
           imagePullPolicy: {{ k8s_image_pull_policy }}
           args:
-            - "loadgen"
             - "start"
             - "--config={{ loadgen_container_config_dir }}/{{ loadgen_config_file }}"
           ports:

@@ -38,6 +38,7 @@ loadgen_admin_priv_key_file: "admin_priv_key.pem"
 # =========================
 loadgen_assert_metrics: false
 loadgen_generate_config_block: false
+loadgen_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}"
 
 # =========================
 # TLS Settings

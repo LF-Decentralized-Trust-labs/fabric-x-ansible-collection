@@ -32,7 +32,6 @@ spec:
           image: {{ loadgen_image }}
           imagePullPolicy: {{ k8s_image_pull_policy }}
           args:
-            - "loadgen"
             - "start"
             - "--config={{ loadgen_container_config_dir }}/{{ loadgen_config_file }}"
           ports:
@@ -50,9 +49,28 @@ spec:
             - name: config
               mountPath: {{ loadgen_container_config_dir }}/{{ loadgen_config_file }}
               subPath: config-loadgen.yaml
+            # Peer MSP private signing key.
+            - name: secret
+              mountPath: {{ loadgen_container_config_dir }}/msp/keystore/priv_sk
+              subPath: msp-keystore-priv-sk
+              readOnly: true
+            # Peer MSP signing certificate (Fabric CA).
+            - name: secret
+              mountPath: {{ loadgen_container_config_dir }}/msp/signcerts/cert.pem
+              subPath: msp-signcert.pem
+              readOnly: true
+            # Peer MSP CA certificate.
+            - name: secret
+              mountPath: {{ loadgen_container_config_dir }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem
+              subPath: msp-cacert.pem
+              readOnly: true
+            # Peer MSP NodeOUs config for identity classification.
+            - name: secret
+              mountPath: {{ loadgen_container_config_dir }}/msp/config.yaml
+              subPath: msp-config.yaml
+              readOnly: true
 {% if organization.users is defined %}
 {% for user in organization.users %}
-{% if user.namespace is defined %}
             # MSP private signing key for user {{ user.name }}.
             - name: secret
               mountPath: {{ loadgen_container_config_dir }}/users/{{ user.name }}@{{ organization.domain }}/msp/keystore/priv_sk
@@ -76,7 +94,6 @@ spec:
               mountPath: {{ loadgen_container_config_dir }}/users/{{ user.name }}@{{ organization.domain }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem
               subPath: user-{{ user.name }}-msp-cacert.pem
               readOnly: true
-{% endif %}
 {% endfor %}
 {% endif %}
 {% if loadgen_use_tls or loadgen_monitoring_use_tls %}
@@ -143,6 +160,11 @@ spec:
               mountPath: {{ loadgen_container_config_dir }}/tls/orderers/{{ current_orderer_router }}/ca.crt
               subPath: tls-orderers-{{ current_orderer_router }}-ca.crt
               readOnly: true
+            # TLS server certificate for orderer router {{ current_orderer_router }}.
+            - name: config
+              mountPath: {{ loadgen_container_config_dir }}/tls/orderers/{{ current_orderer_router }}/server.crt
+              subPath: tls-orderers-{{ current_orderer_router }}-server.crt
+              readOnly: true
 {% endif %}
 {% endfor %}
 {% if orderer_assembler_hosts is defined %}
@@ -152,6 +174,11 @@ spec:
             - name: config
               mountPath: {{ loadgen_container_config_dir }}/tls/orderers/{{ current_orderer_assembler }}/ca.crt
               subPath: tls-orderers-{{ current_orderer_assembler }}-ca.crt
+              readOnly: true
+            # TLS server certificate for orderer assembler {{ current_orderer_assembler }}.
+            - name: config
+              mountPath: {{ loadgen_container_config_dir }}/tls/orderers/{{ current_orderer_assembler }}/server.crt
+              subPath: tls-orderers-{{ current_orderer_assembler }}-server.crt
               readOnly: true
 {% endif %}
 {% endfor %}
@@ -168,12 +195,10 @@ spec:
           configMap:
             name: {{ loadgen_k8s_resource_name }}-config
             defaultMode: 0640
-{% if loadgen_use_tls or loadgen_monitoring_use_tls %}
         - name: secret
           secret:
             secretName: {{ loadgen_k8s_resource_name }}-secret
             defaultMode: 0640
-{% endif %}
 {% if k8s_image_pull_secret is defined and k8s_image_pull_secret %}
       imagePullSecrets:
         - name: {{ k8s_image_pull_secret }}
