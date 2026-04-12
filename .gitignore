@@ -3,6 +3,7 @@
 out/
 out.*working/
 target_hosts.mk
+.worktrees/
 
 # python
 .venv/

@@ -23,8 +23,21 @@ Namespace/name: `hyperledger.fabricx`. Authoritative version and deps: [`galaxy.
 3. **Lint** — run `make lint` before committing (`ansible-lint` over roles, playbooks, examples).
 4. **Idempotency** — all tasks must be idempotent; use `creates:`, `changed_when:`, or appropriate modules.
 5. **Task names** — every `ansible.builtin.*` task must have a `name:` field.
-6. **Defaults** — role variables with defaults go in `roles/<role>/defaults/main.yaml`; never hard-code values in tasks.
-7. **Templates** — Jinja2 templates go in `roles/<role>/templates/` with `.j2` extension.
+6. **Code order** — first `name:` field, then `vars:` (if needed), FQDN name of task and finally `when:` (if needed). For blocks: `name:`, then `when:`, then `block:`.
+7. **Defaults** — role variables with defaults go in `roles/<role>/defaults/main.yaml`; never hard-code values in tasks unless they are truly constant.
+8. **Templates** — Jinja2 templates go in `roles/<role>/templates/` with `.j2` extension.
+
+---
+
+## Working in isolation
+
+For large or multi-file changes, create a git worktree under `.worktrees/` rather than editing the main checkout directly. If you are unsure whether a change qualifies, ask before starting.
+
+```shell
+git worktree add .worktrees/<3-4-word-slug> -b worktree/<3-4-word-slug>
+```
+
+Do **not** remove the worktree when done — leave cleanup to the user.
 
 ---
 
