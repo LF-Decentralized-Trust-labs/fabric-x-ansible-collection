@@ -4,26 +4,23 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Wipe Fabric-X Orderer router nodes
+- name: Teardown Fabric-X Orderer nodes
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
-    tasks_from: "{{ orderer_deployment_mode }}/wipe"
-  when: orderer_component_type == 'router'
+    tasks_from: teardown
 
-- name: Wipe Fabric-X Orderer assembler nodes
+- name: Remove Fabric-X Orderer binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
-    tasks_from: "{{ orderer_deployment_mode }}/wipe"
-  when: orderer_component_type == 'assembler'
+    tasks_from: bin/rm
+  when: orderer_use_bin
 
-- name: Wipe Fabric-X Orderer batcher nodes
+- name: Remove Fabric-X Orderer crypto files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
-    tasks_from: "{{ orderer_deployment_mode }}/wipe"
-  when: orderer_component_type == 'batcher'
+    tasks_from: crypto/rm
 
-- name: Wipe Fabric-X Orderer consensus nodes
+- name: Remove Fabric-X Orderer configuration files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
-    tasks_from: "{{ orderer_deployment_mode }}/wipe"
-  when: orderer_component_type == 'consensus'
+    tasks_from: config/rm

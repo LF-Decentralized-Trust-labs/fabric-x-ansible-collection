@@ -7,7 +7,7 @@
 - name: Remove Postgres DB Kubernetes workload
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
-    tasks_from: k8s/teardown
+    tasks_from: k8s/rm
   when: postgres_use_k8s
 
 - name: Remove Postgres DB container
@@ -20,4 +20,3 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: data/rm
-  when: postgres_use_container
