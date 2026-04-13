@@ -1,6 +1,6 @@
 # hyperledger.fabricx.postgres_exporter
 
-> Runs a [Prometheus Postgres Exporter](https://github.com/prometheuscommunity/postgres_exporter) to collect PostgreSQL metrics.
+> Runs a [Prometheus Postgres Exporter](https://github.com/prometheus-community/postgres_exporter) to collect PostgreSQL metrics.
 
 <!-- @depends_on: hyperledger.fabricx.openssl, hyperledger.fabricx.postgres -->
 

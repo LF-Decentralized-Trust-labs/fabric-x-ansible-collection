@@ -127,6 +127,10 @@ Starts the Loadgen component:
 
 ```yaml
 - name: Start Loadgen
+  vars:
+    loadgen_type: orderer-client
+    loadgen_web_port: 8080
+    loadgen_metrics_port: 9090
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: start
@@ -205,7 +209,7 @@ Limits the request rate of Loadgen:
 ```yaml
 - name: Limit Loadgen rate
   vars:
-    loadgen_rate: 100
+    loadgen_limit_rate: 100
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: limit_rate

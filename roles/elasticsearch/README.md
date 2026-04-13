@@ -106,6 +106,9 @@ Starts the ElasticSearch container:
 
 ```yaml
 - name: Start ElasticSearch
+  vars:
+    elasticsearch_http_port: 9200
+    elasticsearch_transport_port: 9300
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: start
@@ -162,7 +165,8 @@ Health check for ElasticSearch:
 ```yaml
 - name: Ping ElasticSearch
   vars:
-    elasticsearch_port: 9200
+    elasticsearch_http_port: 9200
+    elasticsearch_transport_port: 9300
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: ping

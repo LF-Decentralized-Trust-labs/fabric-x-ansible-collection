@@ -65,7 +65,7 @@ Creates a container network:
 ```yaml
 - name: Create a container network
   vars:
-    container_network_name: my-network
+    container_network: my-network
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: network/create
@@ -78,7 +78,7 @@ Removes a container network:
 ```yaml
 - name: Remove a container network
   vars:
-    container_network_name: my-network
+    container_network: my-network
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: network/rm
@@ -98,7 +98,7 @@ Creates a container volume:
 ```yaml
 - name: Create a container volume
   vars:
-    container_volume_name: my-volume
+    container_volume_path: /path/to/volume
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: volume/create
@@ -111,7 +111,7 @@ Removes a container volume:
 ```yaml
 - name: Remove a container volume
   vars:
-    container_volume_name: my-volume
+    container_volume_path: /path/to/volume
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: volume/rm

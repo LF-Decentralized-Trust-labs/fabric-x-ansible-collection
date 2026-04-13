@@ -84,7 +84,7 @@ Generates a certificate from a CSR using a CA:
     openssl_csr_path: /tmp/csr.pem
     openssl_cert_path: /tmp/cert.pem
     openssl_ca_cert_path: /tmp/ca.crt
-    openssl_ca_key_path: /tmp/ca.key
+    openssl_ca_private_key_path: /tmp/ca.key
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openssl
     tasks_from: generate_cert
