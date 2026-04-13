@@ -34,7 +34,6 @@ spec:
           image: {{ committer_image }}
           imagePullPolicy: {{ k8s_image_pull_policy }}
           args:
-            - "committer"
             - "start-sidecar"
             - "--config={{ committer_container_config_dir }}/{{ committer_config_file }}"
           ports:
@@ -101,6 +100,11 @@ spec:
             - name: secret
               mountPath: {{ committer_container_config_dir }}/msp/cacerts/ca.pem
               subPath: msp-cacerts-ca.pem
+              readOnly: true
+            # NodeOUs configuration: tells Fabric to classify identities by OU.
+            - name: secret
+              mountPath: {{ committer_container_config_dir }}/msp/config.yaml
+              subPath: msp-config.yaml
               readOnly: true
 {% if committer_monitoring_use_mtls and committer_monitoring_mtls_clients is defined %}
 {% for committer_monitoring_mtls_client in committer_monitoring_mtls_clients %}

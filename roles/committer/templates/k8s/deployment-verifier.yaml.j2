@@ -32,7 +32,6 @@ spec:
           image: {{ committer_image }}
           imagePullPolicy: {{ k8s_image_pull_policy }}
           args:
-            - "committer"
             - "start-verifier"
             - "--config={{ committer_container_config_dir }}/{{ committer_config_file }}"
           ports:
