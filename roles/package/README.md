@@ -1,19 +1,29 @@
 # hyperledger.fabricx.package
 
-The role `hyperledger.fabricx.package` can be used to install a package on a machine.
+> Installs OS packages on target machines (apt / brew).
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Tasks](#tasks)
-  - [install](#install)
-  - [install_on_linux](#install_on_linux)
-  - [install_on_macos](#install_on_macos)
+  - [Lifecycle](#lifecycle)
+    - [install](#install)
+    - [install_on_linux](#install_on_linux)
+    - [install_on_macos](#install_on_macos)
+- [Variables](#variables)
 
 ## Tasks
 
-### install
+### Lifecycle
 
-The task `install` allows to install a package on the target machine:
+| Task                                              | Description               |
+| ------------------------------------------------- | ------------------------- |
+| [install](./tasks/install.yaml)                   | Installs package          |
+| [install_on_linux](./tasks/install_on_linux.yaml) | Installs package on Linux |
+| [install_on_macos](./tasks/install_on_macos.yaml) | Installs package on macOS |
+
+#### install
+
+Installs a package on the target machine:
 
 ```yaml
 - name: Install tmux
@@ -24,9 +34,9 @@ The task `install` allows to install a package on the target machine:
     tasks_from: install
 ```
 
-### install_on_linux
+#### install_on_linux
 
-The task `install_on_linux` allows to install a package on a Linux machine and, optionally, to start it also as daemon if needed (through the `package_service_name` flag):
+Installs a package on a Linux machine and, optionally, starts it as a daemon if needed (through the `package_service_name` flag):
 
 ```yaml
 - name: Install chrony on Linux
@@ -38,9 +48,9 @@ The task `install_on_linux` allows to install a package on a Linux machine and, 
     tasks_from: install_on_linux
 ```
 
-### install_on_macos
+#### install_on_macos
 
-The task `install_on_macos` allows to install a package on macOS (it requires `brew`):
+Installs a package on macOS (requires `brew`):
 
 ```yaml
 - name: Install chronyc on macOS
@@ -50,3 +60,9 @@ The task `install_on_macos` allows to install a package on macOS (it requires `b
     name: hyperledger.fabricx.package
     tasks_from: install_on_macos
 ```
+
+---
+
+## Variables
+
+See [`defaults/main.yaml`](defaults/main.yaml) for full variable documentation.

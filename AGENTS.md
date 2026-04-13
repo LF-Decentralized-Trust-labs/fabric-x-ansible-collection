@@ -1,87 +1,96 @@
 # AGENTS.md — AI Agent Guide for `hyperledger.fabricx`
 
-This document describes the structure, conventions, and workflows of the `hyperledger.fabricx` Ansible collection so that AI coding agents can contribute to it effectively.
+`hyperledger.fabricx` is an Ansible collection that automates deployment and lifecycle management of **Hyperledger Fabric-X** networks.
+Namespace/name: `hyperledger.fabricx`. Authoritative version and deps: [`galaxy.yml`](galaxy.yml).
 
 ---
 
-## Table of Contents
+## Rules — follow before every commit
 
-- [Project Overview](#project-overview)
-- [Repository Layout](#repository-layout)
-- [Roles](#roles)
-- [Playbooks](#playbooks)
-- [Inventory & Variables](#inventory--variables)
-- [Makefile Entrypoints](#makefile-entrypoints)
-- [CI Pipelines](#ci-pipelines)
-- [Code Conventions](#code-conventions)
-- [How to Add a New Role](#how-to-add-a-new-role)
-- [How to Add a New Playbook](#how-to-add-a-new-playbook)
-- [Dependencies](#dependencies)
+1. **License header** — every YAML, shell, and Jinja2 file must begin with:
 
----
+   ```yaml
+   #
+   # Copyright IBM Corp. All Rights Reserved.
+   #
+   # SPDX-License-Identifier: Apache-2.0
+   #
+   ```
 
-## Project Overview
+   CI enforces this via `ci/check_license_header.sh`.
 
-`hyperledger.fabricx` (version `0.5.9`) is an Ansible collection that automates the deployment and lifecycle management of **Hyperledger Fabric-X** networks. Fabric-X is an extension of Hyperledger Fabric targeted at regulated digital asset use-cases.
-
-- **Namespace / name**: `hyperledger.fabricx`
-- **License**: Apache-2.0
-- **Galaxy metadata**: [`galaxy.yml`](galaxy.yml)
-- **Repository**: <https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection>
+2. **No trailing spaces** in `.j2` files — enforced by `ci/check_trailing_spaces.sh`.
+3. **Lint** — run `make lint` before committing (`ansible-lint` over roles, playbooks, examples).
+4. **Idempotency** — all tasks must be idempotent; use `creates:`, `changed_when:`, or appropriate modules.
+5. **Task names** — every `ansible.builtin.*` task must have a `name:` field.
+6. **Code order** — first `name:` field, then `vars:` (if needed), FQDN name of task and finally `when:` (if needed). For blocks: `name:`, then `when:`, then `block:`.
+7. **Defaults** — role variables with defaults go in `roles/<role>/defaults/main.yaml`; never hard-code values in tasks unless they are truly constant.
+8. **Templates** — Jinja2 templates go in `roles/<role>/templates/` with `.j2` extension.
 
 ---
 
-## Repository Layout
+## Working in isolation
+
+For large or multi-file changes, create a git worktree under `.worktrees/` rather than editing the main checkout directly. If you are unsure whether a change qualifies, ask before starting.
+
+```shell
+git worktree add .worktrees/<3-4-word-slug> -b worktree/<3-4-word-slug>
+```
+
+Do **not** remove the worktree when done — leave cleanup to the user.
+
+---
+
+## Architecture
+
+### Always read the role README first
+
+Before modifying any role, read `roles/<role>/README.md`. It is the authoritative reference for that role: available tasks, variables, and which deployment modes (binary / container / k8s) it supports. Deployment mode support varies per role — do not assume.
+
+### Dispatch pattern
+
+Roles that manage multiple sub-components (e.g. `orderer`: consenter/batcher/assembler/router; `committer`: validator/verifier/coordinator/sidecar/query-service) use a dispatcher: the top-level task file reads `<role>_component_type` and delegates to the matching sub-component directory:
+
+```yaml
+ansible.builtin.include_role:
+  name: hyperledger.fabricx.<role>
+  tasks_from: <sub_component>/start # e.g. coordinator/start, assembler/bin/install
+```
+
+### Role layout
 
 ```text
-.
-├── galaxy.yml                  # Collection metadata (version, authors, deps)
-├── Makefile                    # Top-level developer entrypoints
-├── target_hosts.mk             # Predefined host-group shortcuts for make
-├── requirements.txt            # Python/pip dependencies (ansible-lint, etc.)
-├── requirements.yml            # Ansible collection dependencies
-├── .ansible-lint               # ansible-lint configuration
-├── ci/                         # CI helper shell scripts
-│   ├── check_license_header.sh
-│   ├── check_trailing_spaces.sh
-│   └── run_ci_test.sh
-├── .github/workflows/          # GitHub Actions workflows
-│   ├── lint.yaml
-│   ├── test.yaml
-│   └── publish.yaml
-├── examples/                   # Sample inventories, playbooks, images
-│   ├── ansible.cfg
-│   ├── inventory/
-│   │   ├── local/              # Single-machine inventories
-│   │   └── distributed/        # Multi-node inventories
-│   └── playbooks/              # Numbered orchestration playbooks
-├── playbooks/                  # Collection-level reusable playbooks
-│   ├── artifacts/
-│   ├── committer/
-│   ├── fabric_ca_client/
-│   ├── fabric_ca_server/
-│   ├── fxconfig/
-│   ├── loadgen/
-│   ├── monitoring/
-│   ├── orderer/
-│   └── yugabyte/
-├── roles/                      # Ansible roles (one per component)
-│   ├── README.md
-│   └── <role_name>/
-│       ├── README.md
-│       ├── defaults/main.yaml
-│       ├── tasks/
-│       └── templates/
-└── meta/
-    └── runtime.yml             # Minimum ansible-core version requirement
+roles/<role>/
+├── defaults/main.yaml          # all role variables and defaults
+├── tasks/
+│   ├── start.yaml              # top-level dispatcher (reads *_component_type)
+│   ├── <sub_component>/
+│   │   ├── bin/
+│   │   ├── container/
+│   │   └── k8s/
+└── templates/                  # *.j2 Jinja2 templates
 ```
 
 ---
 
-## Roles
+## Cross-role dependencies
 
-Every Fabric-X component is managed by a dedicated role under `roles/`.
-Roles are referenced as `hyperledger.fabricx.<role_name>`.
+These connections are not visible from within a single role:
+
+| Dependency                                         | Detail                                                                                                                                                                                                          |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `committer` → `postgres`                           | Started when `postgres_port` is defined in inventory                                                                                                                                                            |
+| `committer` → `yugabyte`                           | Started when `yugabyte_component_type` is defined in inventory                                                                                                                                                  |
+| `committer` ↔ `orderer`                            | Coordinator receives the assembler host list at startup                                                                                                                                                         |
+| `fxconfig` → `committer`, `orderer`                | Generates configs consumed by both; for k8s deployments also runs namespace creation                                                                                                                            |
+| `cryptogen` / `fabric_ca` → `orderer`, `committer` | Crypto artifacts must exist before either can be configured or started                                                                                                                                          |
+| `armageddon` / `configtxgen` → crypto              | Genesis block generation depends on crypto output                                                                                                                                                               |
+| `k8s` role → k8s deployments                       | Namespace setup is a prerequisite for any k8s-mode deployment                                                                                                                                                   |
+| Monitoring                                         | `prometheus` scrapes `committer`, `orderer`, `loadgen`, `yugabyte`; `postgres_exporter` scrapes postgres; `node_exporter` on all nodes; `grafana` for dashboards; `elasticsearch`/`jaeger` for logs and tracing |
+
+---
+
+## Role reference
 
 | Role                | Component managed                                                         |
 | ------------------- | ------------------------------------------------------------------------- |
@@ -97,7 +106,9 @@ Roles are referenced as `hyperledger.fabricx.<role_name>`.
 | `git`               | Git clone helper                                                          |
 | `go`                | Go binary build, install, and platform-mapping helpers                    |
 | `grafana`           | Grafana dashboard                                                         |
+| `idemixgen`         | idemixgen CLI wrapper                                                     |
 | `jaeger`            | Jaeger tracing backend                                                    |
+| `k8s`               | Shared Kubernetes helper (used by roles that deploy to k8s)               |
 | `loadgen`           | Load generator                                                            |
 | `node_exporter`     | Prometheus Node Exporter                                                  |
 | `openssl`           | OpenSSL certificate helpers                                               |
@@ -110,319 +121,25 @@ Roles are referenced as `hyperledger.fabricx.<role_name>`.
 | `utils`             | Miscellaneous utility tasks                                               |
 | `yugabyte`          | YugabyteDB                                                                |
 
-### Role internal structure
-
-Each role follows this directory convention:
-
-```text
-roles/<role>/
-├── README.md             # Role-level documentation (mandatory)
-├── defaults/
-│   └── main.yaml         # Default variable values
-├── tasks/
-│   ├── start.yaml        # Start the component
-│   ├── stop.yaml         # Stop without wiping data
-│   ├── teardown.yaml     # Stop and remove data
-│   ├── wipe.yaml         # Remove config artifacts / binaries
-│   ├── ping.yaml         # Health / port check
-│   ├── fetch_logs.yaml   # Pull logs to controller
-│   ├── get_metrics.yaml  # Scrape metrics
-│   ├── bin/              # Binary-mode sub-tasks
-│   │   ├── build.yaml
-│   │   ├── install.yaml
-│   │   ├── transfer.yaml
-│   ├── container/        # Container-mode sub-tasks
-│   ├── config/           # Config generation sub-tasks
-│   └── <sub_component>/  # Per-sub-component tasks (e.g. orderer_consenter/, validator/)
-└── templates/            # Jinja2 templates (*.j2)
-```
-
-Not every role implements every task — only those relevant to its component.
-
-### Sub-component dispatch pattern
-
-Roles that manage multiple sub-components (e.g. `orderer` with `consenter`, `batcher`, `assembler`, `router`; or `committer` with `validator`, `verifier`, `coordinator`, `sidecar`, `query-service`) use a **dispatch pattern**: the top-level task file (e.g. `start.yaml`) reads a `<role>_component_type` variable and delegates to the matching sub-component task directory via `ansible.builtin.include_role … tasks_from: <sub_component>/start`. Each sub-component directory in turn contains its own `bin/` and `container/` sub-tasks.
-
-### Using a role task from a playbook
-
-```yaml
-- name: Start Fabric-X Orderer
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: start
-```
-
 ---
 
-## Playbooks
-
-### Collection playbooks (`playbooks/`)
-
-Reusable playbooks organised by component. They are designed to be called by the example orchestration playbooks or directly by users. Each playbook accepts a `target_hosts` extra variable that restricts execution to a subset of the inventory.
-
-### Example orchestration playbooks (`examples/playbooks/`)
-
-Numbered sequencing playbooks that wire the collection playbooks together for a full lifecycle run:
-
-| File                          | Purpose                           |
-| ----------------------------- | --------------------------------- |
-| `10-binaries.yaml`            | Build/transfer component binaries |
-| `20-generate-crypto.yaml`     | Generate crypto material          |
-| `21-build-genesis-block.yaml` | Build the genesis block           |
-| `30-configs.yaml`             | Push configs to remote nodes      |
-| `40-start.yaml`               | Start all components              |
-| `50-stop.yaml`                | Stop all components               |
-| `60-teardown.yaml`            | Teardown (stop + delete data)     |
-| `70-ping.yaml`                | Port health check                 |
-| `93-get-metrics.yaml`         | Metrics collection                |
-| `96-fetch-logs.yaml`          | Fetch remote logs                 |
-| `100-wipe.yaml`               | Wipe configs/bins from remotes    |
-| `110-hard-wipe.yaml`          | Wipe deploy folder from remotes   |
-| `999-run-command.yaml`        | Run an arbitrary shell command    |
-
----
-
-## Inventory & Variables
-
-Sample inventories live under `examples/inventory/`:
-
-| Inventory                       | Description                         |
-| ------------------------------- | ----------------------------------- |
-| `local/fabric-x.yaml`           | Default containerised local network |
-| `local/fabric-x-yugabyte.yaml`  | Local network with YugabyteDB       |
-| `local/fabric-x-bin.yaml`       | Local network using native binaries |
-| `local/fabric-x-cryptogen.yaml` | Crypto generated with cryptogen CLI |
-| `local/fabric-x-no-tls.yaml`    | No TLS variant                      |
-| `local/fabric-x-no-mtls.yaml`   | No mTLS variant                     |
-| `distributed/fabric-x.yaml`     | Multi-node distributed network      |
-
-### Predefined host groups (`target_hosts.mk`)
-
-| Group                | Targets                                           |
-| -------------------- | ------------------------------------------------- |
-| `fabric_cas`         | Fabric CA servers                                 |
-| `fabric_x`           | All Fabric-X network nodes (orderers + committer) |
-| `fabric_x_orderers`  | All orderer nodes                                 |
-| `fabric_x_committer` | Committer components                              |
-| `load_generators`    | Load generator instances                          |
-| `monitoring`         | Monitoring stack (Grafana, Prometheus, etc.)      |
-
-Pass a group to any make target using prefix syntax:
+## Essential commands
 
 ```shell
-make fabric_x_orderers start
+make lint                  # validate before committing
+make start / stop / teardown / wipe   # lifecycle
+make install-deps          # set up control node (venv + python + ansible deps)
+make help                  # full command reference
 ```
 
-This sets `TARGET_HOSTS=fabric_x_orderers` for the underlying playbook call.
-
 ---
 
-## Makefile Entrypoints
-
-### Local configuration (`.env`)
-
-Create a git-ignored `.env` file at the repository root to override variables without editing the `Makefile`:
-
-```shell
-# .env
-USE_VENV=false       # fall back to system Ansible; disables .venv path resolution
-                     # and lets Ansible auto-detect the Python interpreter
-```
-
-The file is loaded via `-include $(PROJECT_DIR)/.env` before the `USE_VENV ?= true` default, so values set there take precedence over Makefile defaults but are still overridable from the command line (e.g. `make USE_VENV=true start`).
-
-### `USE_VENV` behaviour
-
-| `USE_VENV`       | `ANSIBLE_PLAYBOOK`               | `ANSIBLE_PYTHON_INTERPRETER`      |
-| ---------------- | -------------------------------- | --------------------------------- |
-| `true` (default) | `.venv/bin/ansible-playbook`     | `.venv/bin/python` (exported)     |
-| `false`          | `ansible-playbook` (system PATH) | `python3` (fallback, overridable) |
-
-Run `make help` to see all commands. The most important ones are:
-
-| Command                    | Description                                                                  |
-| -------------------------- | ---------------------------------------------------------------------------- |
-| `install`                  | Build and install the `hyperledger.fabricx` collection locally.              |
-| `install-deps`             | Wrapper for `install-venv` + `install-python-deps` + `install-ansible-deps`. |
-| `install-venv`             | Install a `venv` environment.                                                |
-| `install-python-deps`      | Install Python dependencies on the control node.                             |
-| `install-ansible-deps`     | Install the Ansible collections required by this repository.                 |
-| `install-remote-node-deps` | Install the needed dependencies on the remote hosts.                         |
-| `lint`                     | Run `ansible-lint`                                                           |
-| `check-license-header`     | Verify license headers on all files                                          |
-| `check-trailing-spaces`    | Check for trailing spaces in `.j2` files                                     |
-| `login-cr`                 | Log into a container registry                                                |
-| `setup`                    | `binaries` + `artifacts` + `configs`                                         |
-| `artifacts`                | `generate-crypto` + `genesis-block`                                          |
-| `generate-crypto`          | Generate crypto material on controller                                       |
-| `genesis-block`            | Build genesis block                                                          |
-| `binaries`                 | Build/install binaries on controller or remotes                              |
-| `clean`                    | Remove local `out/` directory                                                |
-| `clean-cache`              | Clean the Ansible cache                                                      |
-| `configs`                  | Create/Ship the configs to remote nodes                                      |
-| `start`                    | Start targeted components                                                    |
-| `stop`                     | Stop targeted components (keep data)                                         |
-| `teardown`                 | Stop + delete data                                                           |
-| `update`                   | Update targeted components (`stop` + `binaries` + `start`)                   |
-| `restart`                  | Restart targeted components (`stop` + `start`)                               |
-| `hard-restart`             | Hard restart targeted components (`teardown` + `start`)                      |
-| `wipe`                     | Remove configs/bins from remotes                                             |
-| `hard-wipe`                | Remove deploy folder from remotes                                            |
-| `targets`                  | Generate Makefile targets for all inventory hosts                            |
-| `run-command`              | Run arbitrary command on remotes (`COMMAND="…"`)                             |
-| `ping`                     | Check that component ports are open                                          |
-| `get-metrics`              | Collect metrics from components                                              |
-| `fetch-logs`               | Pull logs from remote hosts                                                  |
-| `fetch-crypto`             | Fetch crypto material from remote hosts                                      |
-| `limit-rate`               | Adjust load-generator TPS (`LIMIT=<n>`)                                      |
-
----
-
-## CI Pipelines
-
-### Lint (`.github/workflows/lint.yaml`)
-
-Runs on every push/PR to `main`:
-
-1. `make install-deps lint check-trailing-spaces` — installs the dependencies, then runs `ansible-lint` on `roles/`, `playbooks/`, and `examples/`.
-1. `make check-trailing-spaces` — checks that no trailing spaces are left within `.j2` templates.
-1. `make check-license-header` — verifies Apache-2.0 license headers.
-
-### Tests (`.github/workflows/test.yaml`)
-
-Matrix job that tests six inventories in parallel on every push/PR to `main`:
-
-- `fabric-x`, `fabric-x-yugabyte`, `fabric-x-bin`, `fabric-x-cryptogen`, `fabric-x-no-tls`, `fabric-x-no-mtls`.
-
-Each job runs `ci/run_ci_test.sh` with `CONTAINER_CLIENT=docker`.
-
-### Publish (`.github/workflows/publish.yaml`)
-
-Publishes the collection to Ansible Galaxy on release.
-
----
-
-## Code Conventions
-
-1. **License header** — Every YAML, shell, and Jinja2 file **must** begin with:
-
-   ```yaml
-   #
-   # Copyright IBM Corp. All Rights Reserved.
-   #
-   # SPDX-License-Identifier: Apache-2.0
-   #
-   ```
-
-   The CI `check-license-header` step enforces this.
-
-2. **No trailing spaces** — Jinja2 (`.j2`) template files must not have trailing whitespace. The CI `check-trailing-spaces` step enforces this.
-
-3. **YAML formatting** — Follow `ansible-lint` rules. Run `make lint` before opening a PR.
-
-4. **Task naming** — Every `ansible.builtin.*` task must have a descriptive `name:` field.
-
-5. **Idempotency** — All tasks must be idempotent. Use `creates:`, `changed_when:`, or appropriate Ansible modules.
-
-6. **Defaults** — Role variables with sensible defaults belong in `roles/<role>/defaults/main.yaml`. Do not hard-code values in tasks.
-
-7. **Templates** — Jinja2 templates go in `roles/<role>/templates/` and use the `.j2` extension.
-
-8. **Sub-task files** — Group related sub-tasks into subdirectories (`bin/`, `container/`, `config/`, `crypto/`) rather than cramming everything into the top-level `tasks/` directory.
-
-9. **Binary vs container mode** — Most components support both a native-binary mode and a container mode. Keep these implementations separate under `tasks/bin/` and `tasks/container/` respectively, with a dispatcher at the top-level task file.
-
----
-
-## How to Add a New Role
-
-1. Create the directory structure under `roles/<new_role>/`:
-
-   ```text
-   roles/<new_role>/
-   ├── README.md
-   ├── defaults/main.yaml
-   └── tasks/
-       └── start.yaml   # (add other tasks as needed)
-   ```
-
-2. Add the Apache-2.0 license header to **every** file you create.
-
-3. Register the new role in [`roles/README.md`](roles/README.md) (alphabetical order in the roles list).
-
-4. Add any sample playbooks under `playbooks/<new_role>/` following the same patterns as existing component playbooks.
-
-5. Run `make lint` and fix any reported issues before committing.
-
----
-
-## How to Add a New Playbook
-
-1. Create the YAML file under `playbooks/<component>/` with the Apache-2.0 header.
-
-1. Use `ansible.builtin.include_role` to delegate to the relevant role task:
-
-   ```yaml
-   - name: <Human-readable description>
-     hosts: "{{ target_hosts | default('all') }}"
-     gather_facts: false
-     tasks:
-       - name: <Action description>
-         ansible.builtin.include_role:
-           name: hyperledger.fabricx.<role>
-           tasks_from: <task_file_stem>
-   ```
-
-1. If the playbook should be user-facing, add a numbered wrapper in `examples/playbooks/` and a corresponding `make` target in [`Makefile`](Makefile).
-
----
-
-## Dependencies
-
-### Ansible collections (`requirements.yml`)
-
-| Collection          | Minimum version |
-| ------------------- | --------------- |
-| `ansible.posix`     | 1.6.2           |
-| `community.general` | 10.3.0          |
-| `community.docker`  | 4.3.1           |
-| `containers.podman` | 1.16.2          |
-
-Install with:
-
-```shell
-.venv/bin/ansible-galaxy collection install -r requirements.yml
-```
-
-### Python packages (`requirements.txt`)
-
-Install with:
-
-```shell
-make install-venv
-```
-
-### Controller node prerequisites
-
-| Tool                 | Minimum version |
-| -------------------- | --------------- |
-| Python               | any recent 3.x  |
-| Ansible Core         | 2.17            |
-| Podman **or** Docker | latest stable   |
-| Go                   | latest stable   |
-
-The `Makefile` defaults to the `.venv`-scoped commands `.venv/bin/ansible-playbook`, `.venv/bin/ansible-galaxy`, and `.venv/bin/ansible-lint`. If a developer needs to use a different Ansible installation, they can override `ANSIBLE_PLAYBOOK`, `ANSIBLE_GALAXY`, and `ANSIBLE_LINT` when invoking `make`.
-
-For control-node setup, prefer `make install-deps`, which is a wrapper for `install-venv` + `install-ansible-deps`. Remote host setup remains a separate step via `make install-remote-node-deps`.
-
-**WARNING**: Never run `make install` when the repository is cloned directly into the Ansible collections path (the developer setup). Doing so would overwrite the live checkout with a built artifact, losing any uncommitted changes. The Makefile guards against this and will abort, but do not attempt to bypass it.
-
-### Remote node prerequisites
-
-Install automatically via:
-
-```shell
-make install-remote-node-deps
-```
-
-> **Note**: The remote user must have passwordless `sudo` access.
+## Adding a role or playbook (rare)
+
+1. Create `roles/<new_role>/README.md`, `defaults/main.yaml`, and at least one task file.
+2. Add the Apache-2.0 license header to every file created.
+3. Register the role in [`roles/README.md`](roles/README.md) (alphabetical order).
+4. Add playbooks under `playbooks/<new_role>/` following existing patterns.
+5. Run `make lint` and fix any issues before committing.
+
+> **WARNING**: Never run `make install` when the repo is cloned directly into the Ansible collections path — it overwrites the live checkout with a built artifact.

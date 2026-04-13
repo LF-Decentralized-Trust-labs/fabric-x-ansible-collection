@@ -1,44 +1,47 @@
 # hyperledger.fabricx.elasticsearch
 
-The role `hyperledger.fabricx.elasticsearch` can be used to run an ElasticSearch container.
+> Runs an ElasticSearch container for log storage.
+
+<!-- @depends_on: hyperledger.fabricx.openssl -->
 
 ## Table of Contents <!-- omit in toc -->
 
-- [Variables](#variables)
+- [Depends On](#depends-on)
 - [Tasks](#tasks)
-  - [crypto/setup](#cryptosetup)
-  - [crypto/fetch](#cryptofetch)
-  - [crypto/rm](#cryptorm)
-  - [config/rm](#configrm)
-  - [start](#start)
-  - [stop](#stop)
-  - [teardown](#teardown)
-  - [wipe](#wipe)
-  - [fetch\_logs](#fetch_logs)
-  - [ping](#ping)
+  - [Crypto](#crypto)
+    - [crypto/setup](#cryptosetup)
+    - [crypto/fetch](#cryptofetch)
+    - [crypto/rm](#cryptorm)
+  - [Config](#config)
+    - [config/rm](#configrm)
+  - [Lifecycle](#lifecycle)
+    - [start](#start)
+    - [stop](#stop)
+    - [teardown](#teardown)
+    - [wipe](#wipe)
+    - [fetch_logs](#fetch_logs)
+    - [ping](#ping)
+- [Variables](#variables)
 
-## Variables
+## Depends On
 
-| Variable                             | Default                                                   | Description                                  |
-| ------------------------------------ | --------------------------------------------------------- | -------------------------------------------- |
-| `elasticsearch_registry_endpoint`    | `$ELASTICSEARCH_REGISTRY_ENDPOINT` or `docker.io/library` | Container registry endpoint                  |
-| `elasticsearch_image_name`           | `elasticsearch`                                           | Container image name                         |
-| `elasticsearch_image_tag`            | `8.19.6`                                                  | Container image tag                          |
-| `elasticsearch_image`                | `{{ registry }}/{{ name }}:{{ tag }}`                     | Full container image reference               |
-| `elasticsearch_container_name`       | `{{ inventory_hostname }}`                                | Name given to the container                  |
-| `elasticsearch_remote_config_dir`    | `{{ remote_config_dir }}`                                 | Configuration directory on the remote node   |
-| `elasticsearch_remote_data_dir`      | `{{ remote_data_dir }}`                                   | Data directory on the remote node            |
-| `elasticsearch_container_config_dir` | `/usr/share/elasticsearch`                                | Configuration directory inside the container |
-| `elasticsearch_container_data_dir`   | `/usr/share/elasticsearch/data`                           | Data directory inside the container          |
-| `elasticsearch_use_tls`              | `false`                                                   | Enable TLS                                   |
-| `elasticsearch_tls_private_key_file` | `server.key`                                              | TLS private key file name                    |
-| `elasticsearch_tls_cert_file`        | `server.crt`                                              | TLS certificate file name                    |
+| Role                                                  | Reason                     |
+| ----------------------------------------------------- | -------------------------- |
+| [`hyperledger.fabricx.openssl`](../openssl/README.md) | TLS certificate generation |
 
 ## Tasks
 
-### crypto/setup
+### Crypto
 
-The task `crypto/setup` allows to generate the crypto material needed to run ElasticSearch with TLS using [openssl](../openssl/README.md):
+| Task                                      | Description                   |
+| ----------------------------------------- | ----------------------------- |
+| [crypto/setup](./tasks/crypto/setup.yaml) | Generates TLS crypto material |
+| [crypto/fetch](./tasks/crypto/fetch.yaml) | Fetches TLS certificate       |
+| [crypto/rm](./tasks/crypto/rm.yaml)       | Removes TLS crypto material   |
+
+#### crypto/setup
+
+Generates the crypto material needed to run ElasticSearch with TLS using [openssl](../openssl/README.md):
 
 ```yaml
 - name: Setup the crypto material for ElasticSearch
@@ -47,9 +50,9 @@ The task `crypto/setup` allows to generate the crypto material needed to run Ela
     tasks_from: crypto/setup
 ```
 
-### crypto/fetch
+#### crypto/fetch
 
-The task `crypto/fetch` fetches the TLS certificate of a ElasticSearch running with TLS:
+Fetches the TLS certificate of a ElasticSearch running with TLS:
 
 ```yaml
 - name: Fetch the TLS certificate of ElasticSearch
@@ -58,9 +61,9 @@ The task `crypto/fetch` fetches the TLS certificate of a ElasticSearch running w
     tasks_from: crypto/fetch
 ```
 
-### crypto/rm
+#### crypto/rm
 
-The task `crypto/rm` removes the crypto material generated for ElasticSearch:
+Removes the crypto material generated for ElasticSearch:
 
 ```yaml
 - name: Remove the ElasticSearch crypto files
@@ -69,9 +72,15 @@ The task `crypto/rm` removes the crypto material generated for ElasticSearch:
     tasks_from: crypto/rm
 ```
 
-### config/rm
+### Config
 
-The task `config/rm` removes the ElasticSearch configuration files on the remote node:
+| Task                                | Description           |
+| ----------------------------------- | --------------------- |
+| [config/rm](./tasks/config/rm.yaml) | Removes configuration |
+
+#### config/rm
+
+Removes the ElasticSearch configuration files on the remote node:
 
 ```yaml
 - name: Remove the ElasticSearch configuration files
@@ -80,12 +89,23 @@ The task `config/rm` removes the ElasticSearch configuration files on the remote
     tasks_from: config/rm
 ```
 
-### start
+### Lifecycle
 
-The task `start` allows to start an ElasticSearch container:
+| Task                                  | Description                    |
+| ------------------------------------- | ------------------------------ |
+| [start](./tasks/start.yaml)           | Starts ElasticSearch container |
+| [stop](./tasks/stop.yaml)             | Stops ElasticSearch container  |
+| [teardown](./tasks/teardown.yaml)     | Removes container              |
+| [wipe](./tasks/wipe.yaml)             | Removes all data               |
+| [fetch_logs](./tasks/fetch_logs.yaml) | Collects logs                  |
+| [ping](./tasks/ping.yaml)             | Health check                   |
+
+#### start
+
+Starts the ElasticSearch container:
 
 ```yaml
-- name: Start an ElasticSearch container
+- name: Start ElasticSearch
   vars:
     elasticsearch_http_port: 9200
     elasticsearch_transport_port: 9300
@@ -94,57 +114,66 @@ The task `start` allows to start an ElasticSearch container:
     tasks_from: start
 ```
 
-### stop
+#### stop
 
-The task `stop` allows to stop an ElasticSearch container.
+Stops the ElasticSearch container:
 
 ```yaml
-- name: Stop ElasticSearch container
+- name: Stop ElasticSearch
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: stop
 ```
 
-### teardown
+#### teardown
 
-The task `teardown` allows to shut down an ElasticSearch container and remove all the data stored by the container on the persistent volume.
+Removes the ElasticSearch container:
 
 ```yaml
-- name: Teardown ElasticSearch container
+- name: Teardown ElasticSearch
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: teardown
 ```
 
-### wipe
+#### wipe
 
-The task `wipe` allows to shut down an ElasticSearch container and remove all the data stored by the container on the persistent volume.
+Removes all ElasticSearch data:
 
 ```yaml
-- name: Wipe ElasticSearch container
+- name: Wipe ElasticSearch
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: wipe
 ```
 
-### fetch_logs
+#### fetch_logs
 
-The task `fetch_logs` allows to fetch the logs from an ElasticSearch container.
+Collects ElasticSearch logs:
 
 ```yaml
-- name: Fetch ElasticSearch container
+- name: Fetch ElasticSearch logs
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: fetch_logs
 ```
 
-### ping
+#### ping
 
-The task `ping` allows to ping an ElasticSearch container. It is useful to check whether the instances are running or if they are not running/reachable.
+Health check for ElasticSearch:
 
 ```yaml
-- name: Ping ElasticSearch container
+- name: Ping ElasticSearch
+  vars:
+    elasticsearch_http_port: 9200
+    elasticsearch_transport_port: 9300
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: ping
 ```
+
+---
+
+## Variables
+
+See [`defaults/main.yaml`](defaults/main.yaml) for full variable documentation.

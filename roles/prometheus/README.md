@@ -1,52 +1,48 @@
 # hyperledger.fabricx.prometheus
 
-The role `hyperledger.fabricx.prometheus` can be used to run a Prometheus metrics collector.
+> Runs a Prometheus metrics collector.
 
-The role allows to run Prometheus as **container only** (binary is not currently supported).
+<!-- @depends_on: hyperledger.fabricx.openssl -->
 
 ## Table of Contents <!-- omit in toc -->
 
-- [Variables](#variables)
+- [Depends On](#depends-on)
 - [Tasks](#tasks)
-  - [crypto/setup](#cryptosetup)
-  - [crypto/fetch](#cryptofetch)
-  - [crypto/rm](#cryptorm)
-  - [config/transfer](#configtransfer)
-  - [config/rm](#configrm)
-  - [start](#start)
-  - [stop](#stop)
-  - [teardown](#teardown)
-  - [wipe](#wipe)
-  - [fetch\_logs](#fetch_logs)
-  - [ping](#ping)
+  - [Crypto](#crypto)
+    - [crypto/setup](#cryptosetup)
+    - [crypto/fetch](#cryptofetch)
+    - [crypto/rm](#cryptorm)
+  - [Config](#config)
+    - [config/transfer](#configtransfer)
+    - [config/rm](#configrm)
+  - [Lifecycle](#lifecycle)
+    - [start](#start)
+    - [stop](#stop)
+    - [teardown](#teardown)
+    - [wipe](#wipe)
+    - [fetch_logs](#fetch_logs)
+    - [ping](#ping)
+- [Variables](#variables)
 
-## Variables
+## Depends On
 
-| Variable                          | Default                                             | Description                                  |
-| --------------------------------- | --------------------------------------------------- | -------------------------------------------- |
-| `prometheus_registry_endpoint`    | `$PROMETHEUS_REGISTRY_ENDPOINT` or `docker.io/prom` | Container registry endpoint                  |
-| `prometheus_image_name`           | `prometheus`                                        | Container image name                         |
-| `prometheus_image_tag`            | `latest`                                            | Container image tag                          |
-| `prometheus_image`                | `{{ registry }}/{{ name }}:{{ tag }}`               | Full container image reference               |
-| `prometheus_container_name`       | `{{ inventory_hostname }}`                          | Name given to the container                  |
-| `prometheus_remote_config_dir`    | `{{ remote_config_dir }}`                           | Configuration directory on the remote node   |
-| `prometheus_remote_data_dir`      | `{{ remote_data_dir }}`                             | Data directory on the remote node            |
-| `prometheus_container_config_dir` | `/etc/prometheus/config`                            | Configuration directory inside the container |
-| `prometheus_container_data_dir`   | `/data`                                             | Data directory inside the container          |
-| `prometheus_config_file`          | `prometheus.yaml`                                   | Prometheus configuration file name           |
-| `prometheus_web_config_file`      | `web-config.yaml`                                   | Web (TLS) configuration file name            |
-| `prometheus_http_config_file`     | `http-config.yaml`                                  | HTTP client configuration file name          |
-| `prometheus_use_tls`              | `false`                                             | Enable TLS                                   |
-| `prometheus_tls_private_key_file` | `server.key`                                        | TLS private key file name                    |
-| `prometheus_tls_cert_file`        | `server.crt`                                        | TLS certificate file name                    |
-| `prometheus_port`                 | `9090`                                              | Prometheus web UI and metrics port           |
-| `prometheus_scrape_interval`      | `2s`                                                | Default scrape interval                      |
+| Role                                                  | Reason                     |
+| ----------------------------------------------------- | -------------------------- |
+| [`hyperledger.fabricx.openssl`](../openssl/README.md) | TLS certificate generation |
 
 ## Tasks
 
-### crypto/setup
+### Crypto
 
-The task `crypto/setup` allows to generate the crypto material needed to run Prometheus with TLS using [openssl](../openssl/README.md):
+| Task                                      | Description                   |
+| ----------------------------------------- | ----------------------------- |
+| [crypto/setup](./tasks/crypto/setup.yaml) | Generates TLS crypto material |
+| [crypto/fetch](./tasks/crypto/fetch.yaml) | Fetches TLS certificate       |
+| [crypto/rm](./tasks/crypto/rm.yaml)       | Removes TLS crypto material   |
+
+#### crypto/setup
+
+Generates the crypto material needed to run Prometheus with TLS using [openssl](../openssl/README.md):
 
 ```yaml
 - name: Setup the crypto material for Prometheus
@@ -55,9 +51,9 @@ The task `crypto/setup` allows to generate the crypto material needed to run Pro
     tasks_from: crypto/setup
 ```
 
-### crypto/fetch
+#### crypto/fetch
 
-The task `crypto/fetch` fetches the TLS certificate of Prometheus running with TLS:
+Fetches the TLS certificate of Prometheus running with TLS:
 
 ```yaml
 - name: Fetch the TLS certificate of Prometheus
@@ -66,9 +62,9 @@ The task `crypto/fetch` fetches the TLS certificate of Prometheus running with T
     tasks_from: crypto/fetch
 ```
 
-### crypto/rm
+#### crypto/rm
 
-The task `crypto/rm` removes the crypto material generated for Prometheus:
+Removes the crypto material generated for Prometheus:
 
 ```yaml
 - name: Remove the Prometheus crypto files
@@ -77,29 +73,27 @@ The task `crypto/rm` removes the crypto material generated for Prometheus:
     tasks_from: crypto/rm
 ```
 
-### config/transfer
+### Config
 
-The task `config/transfer` allows to generate the configuration file for a Prometheus service.
+| Task                                            | Description                        |
+| ----------------------------------------------- | ---------------------------------- |
+| [config/transfer](./tasks/config/transfer.yaml) | Transfers Prometheus configuration |
+| [config/rm](./tasks/config/rm.yaml)             | Removes configuration              |
 
-It supports multiple customizations, for an example please have a look at its usage in this [sample playbook](../../playbooks/monitoring/configs.yaml).
+#### config/transfer
+
+Transfers the Prometheus configuration files on the remote node:
 
 ```yaml
-- name: Generate the configuration for Prometheus
-  vars:
-    prometheus_scrape_interval: 2s
-    prometheus_scrape_services:
-      - job_name: prometheus
-        targets:
-          - hosts: "{{ prometheus_hosts }}"
-            port_to_scrape: prometheus_port
+- name: Transfer the Prometheus configuration files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: config/transfer
 ```
 
-### config/rm
+#### config/rm
 
-The task `config/rm` removes the Prometheus configuration files on the remote node:
+Removes the Prometheus configuration files on the remote node:
 
 ```yaml
 - name: Remove the Prometheus configuration files
@@ -108,22 +102,31 @@ The task `config/rm` removes the Prometheus configuration files on the remote no
     tasks_from: config/rm
 ```
 
-### start
+### Lifecycle
 
-The task `start` allows to start the Prometheus container.
+| Task                                  | Description                 |
+| ------------------------------------- | --------------------------- |
+| [start](./tasks/start.yaml)           | Starts Prometheus container |
+| [stop](./tasks/stop.yaml)             | Stops Prometheus container  |
+| [teardown](./tasks/teardown.yaml)     | Removes container           |
+| [wipe](./tasks/wipe.yaml)             | Removes all data            |
+| [fetch_logs](./tasks/fetch_logs.yaml) | Collects logs               |
+| [ping](./tasks/ping.yaml)             | Health check                |
+
+#### start
+
+Starts the Prometheus container:
 
 ```yaml
 - name: Start Prometheus
-  vars:
-    prometheus_port: 9090
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: start
 ```
 
-### stop
+#### stop
 
-The task `stop` allows to stop the Prometheus container.
+Stops the Prometheus container:
 
 ```yaml
 - name: Stop Prometheus
@@ -132,9 +135,9 @@ The task `stop` allows to stop the Prometheus container.
     tasks_from: stop
 ```
 
-### teardown
+#### teardown
 
-The task `teardown` allows to shut down Prometheus and remove all the artifacts being generated during runtime.
+Removes the Prometheus container:
 
 ```yaml
 - name: Teardown Prometheus
@@ -143,9 +146,9 @@ The task `teardown` allows to shut down Prometheus and remove all the artifacts 
     tasks_from: teardown
 ```
 
-### wipe
+#### wipe
 
-The task `wipe` allows to shut down Prometheus and remove all the artifacts (configuration files and all the runtime-generated artifacts).
+Removes all Prometheus data:
 
 ```yaml
 - name: Wipe Prometheus
@@ -154,9 +157,9 @@ The task `wipe` allows to shut down Prometheus and remove all the artifacts (con
     tasks_from: wipe
 ```
 
-### fetch_logs
+#### fetch_logs
 
-The task `fetch_logs` allows to fetch the logs from Prometheus components from the remote hosts to the control node.
+Collects Prometheus logs:
 
 ```yaml
 - name: Fetch Prometheus logs
@@ -165,13 +168,21 @@ The task `fetch_logs` allows to fetch the logs from Prometheus components from t
     tasks_from: fetch_logs
 ```
 
-### ping
+#### ping
 
-The task `ping` allows to ping Prometheus components on their opened ports. It is useful to check whether Prometheus is up and running.
+Health check for Prometheus:
 
 ```yaml
 - name: Ping Prometheus
+  vars:
+    prometheus_port: 9090
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: ping
 ```
+
+---
+
+## Variables
+
+See [`defaults/main.yaml`](defaults/main.yaml) for full variable documentation.

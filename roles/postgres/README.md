@@ -1,48 +1,50 @@
 # hyperledger.fabricx.postgres
 
-The role `hyperledger.fabricx.postgres` can be used to run a PostgreSQL DB.
+> Runs a PostgreSQL database instance as a container.
 
-The role allows to run Postgres as **container only** (binary is not currently supported).
+<!-- @depends_on: hyperledger.fabricx.openssl, hyperledger.fabricx.cryptogen, hyperledger.fabricx.fabric_ca -->
 
 ## Table of Contents <!-- omit in toc -->
 
-- [Variables](#variables)
+- [Depends On](#depends-on)
 - [Tasks](#tasks)
-  - [crypto/setup](#cryptosetup)
-  - [crypto/fetch](#cryptofetch)
-  - [crypto/rm](#cryptorm)
-  - [config/transfer](#configtransfer)
-  - [config/rm](#configrm)
-  - [start](#start)
-  - [stop](#stop)
-  - [teardown](#teardown)
-  - [wipe](#wipe)
-  - [fetch\_logs](#fetch_logs)
-  - [ping](#ping)
+  - [Crypto](#crypto)
+    - [crypto/setup](#cryptosetup)
+    - [crypto/fetch](#cryptofetch)
+    - [crypto/rm](#cryptorm)
+  - [Config](#config)
+    - [config/transfer](#configtransfer)
+    - [config/rm](#configrm)
+  - [Lifecycle](#lifecycle)
+    - [start](#start)
+    - [stop](#stop)
+    - [teardown](#teardown)
+    - [wipe](#wipe)
+    - [fetch_logs](#fetch_logs)
+    - [ping](#ping)
+- [Variables](#variables)
 
-## Variables
+## Depends On
 
-| Variable                        | Default                                              | Description                                  |
-| ------------------------------- | ---------------------------------------------------- | -------------------------------------------- |
-| `postgres_registry_endpoint`    | `$POSTGRES_REGISTRY_ENDPOINT` or `docker.io/library` | Container registry endpoint                  |
-| `postgres_image_name`           | `postgres`                                           | Container image name                         |
-| `postgres_image_tag`            | `16.4`                                               | Container image tag                          |
-| `postgres_image`                | `{{ registry }}/{{ name }}:{{ tag }}`                | Full container image reference               |
-| `postgres_container_name`       | `{{ inventory_hostname }}`                           | Name given to the container                  |
-| `postgres_remote_config_dir`    | `{{ remote_config_dir }}`                            | Configuration directory on the remote node   |
-| `postgres_remote_data_dir`      | `{{ remote_data_dir }}`                              | Data directory on the remote node            |
-| `postgres_container_config_dir` | `/var/lib/postgresql/config`                         | Configuration directory inside the container |
-| `postgres_container_data_dir`   | `/var/lib/postgresql/data`                           | Data directory inside the container          |
-| `postgres_use_tls`              | `false`                                              | Enable TLS                                   |
-| `postgres_use_mtls`             | `false`                                              | Enable mutual TLS                            |
-| `postgres_tls_private_key_file` | `server.key`                                         | TLS private key file name                    |
-| `postgres_tls_cert_file`        | `server.crt`                                         | TLS certificate file name                    |
+| Role                                                      | Reason                                           |
+| --------------------------------------------------------- | ------------------------------------------------ |
+| [`hyperledger.fabricx.openssl`](../openssl/README.md)     | TLS key/cert generation (without org definition) |
+| [`hyperledger.fabricx.cryptogen`](../cryptogen/README.md) | TLS crypto material (cryptogen mode)             |
+| [`hyperledger.fabricx.fabric_ca`](../fabric_ca/README.md) | TLS crypto material (Fabric-CA mode)             |
 
 ## Tasks
 
-### crypto/setup
+### Crypto
 
-The task `crypto/setup` transfers or generates the crypto material needed to run a Postgres DB with TLS. The task supports 3 operating modes:
+| Task                                      | Description                             |
+| ----------------------------------------- | --------------------------------------- |
+| [crypto/setup](./tasks/crypto/setup.yaml) | Generates/transfers TLS crypto material |
+| [crypto/fetch](./tasks/crypto/fetch.yaml) | Fetches TLS certificate to control node |
+| [crypto/rm](./tasks/crypto/rm.yaml)       | Removes TLS crypto material             |
+
+#### crypto/setup
+
+Generates/transfers the crypto material needed to run a Postgres DB with TLS. Supports 3 operating modes:
 
 - with `openssl` (see [hyperledger.fabricx.openssl](../openssl/README.md)) if the DB runs without an Hyperledger Fabric-X peer organization definition;
 - with `cryptogen` (see [hyperledger.fabricx.cryptogen](../cryptogen/README.md)): the crypto material generated on the control node with `cryptogen` is transferred to the remote node;
@@ -55,9 +57,9 @@ The task `crypto/setup` transfers or generates the crypto material needed to run
     tasks_from: crypto/setup
 ```
 
-### crypto/fetch
+#### crypto/fetch
 
-The task `crypto/fetch` allows to fetch the TLS certificate of a Postgres DB on the control node, so that it could be shared with the clients later.
+Fetches the TLS certificate of a Postgres DB on the control node, so that it could be shared with the clients later:
 
 ```yaml
 - name: Fetch the Postgres DB TLS certificate
@@ -66,9 +68,9 @@ The task `crypto/fetch` allows to fetch the TLS certificate of a Postgres DB on 
     tasks_from: crypto/fetch
 ```
 
-### crypto/rm
+#### crypto/rm
 
-The task `crypto/rm` removes the crypto material generated for Postgres on the remote node:
+Removes the crypto material generated for Postgres on the remote node:
 
 ```yaml
 - name: Remove the Postgres crypto files
@@ -77,9 +79,16 @@ The task `crypto/rm` removes the crypto material generated for Postgres on the r
     tasks_from: crypto/rm
 ```
 
-### config/transfer
+### Config
 
-The task `config/transfer` transfers the Postgres configuration files on the remote node. When mTLS is enabled and `postgres_mtls_clients` is defined, it also transfers the `pg_hba.conf` to enforce mutual TLS connections:
+| Task                                            | Description                        |
+| ----------------------------------------------- | ---------------------------------- |
+| [config/transfer](./tasks/config/transfer.yaml) | Transfers PostgreSQL configuration |
+| [config/rm](./tasks/config/rm.yaml)             | Removes configuration              |
+
+#### config/transfer
+
+Transfers the Postgres configuration files on the remote node:
 
 ```yaml
 - name: Transfer the Postgres configuration files
@@ -88,9 +97,9 @@ The task `config/transfer` transfers the Postgres configuration files on the rem
     tasks_from: config/transfer
 ```
 
-### config/rm
+#### config/rm
 
-The task `config/rm` removes the Postgres configuration files on the remote node:
+Removes the Postgres configuration files on the remote node:
 
 ```yaml
 - name: Remove the Postgres configuration files
@@ -99,70 +108,87 @@ The task `config/rm` removes the Postgres configuration files on the remote node
     tasks_from: config/rm
 ```
 
-### start
+### Lifecycle
 
-The task `start` allows to start the Postgres DB.
+| Task                                  | Description                 |
+| ------------------------------------- | --------------------------- |
+| [start](./tasks/start.yaml)           | Starts PostgreSQL container |
+| [stop](./tasks/stop.yaml)             | Stops PostgreSQL container  |
+| [teardown](./tasks/teardown.yaml)     | Removes container           |
+| [wipe](./tasks/wipe.yaml)             | Removes all data            |
+| [fetch_logs](./tasks/fetch_logs.yaml) | Collects logs               |
+| [ping](./tasks/ping.yaml)             | Health check                |
+
+#### start
+
+Starts the Postgres container:
 
 ```yaml
-- name: Start the Postgres DB
-  vars:
-    postgres_port: 5432
+- name: Start Postgres
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: start
 ```
 
-### stop
+#### stop
 
-The task `stop` allows to stop the Postgres DB.
+Stops the Postgres container:
 
 ```yaml
-- name: Stop the Postgres DB
+- name: Stop Postgres
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: stop
 ```
 
-### teardown
+#### teardown
 
-The task `teardown` allows to shut down the Postgres DB, and remove all the artifacts being generated during runtime.
+Removes the Postgres container:
 
 ```yaml
-- name: Teardown the Postgres DB
+- name: Teardown Postgres
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: teardown
 ```
 
-### wipe
+#### wipe
 
-The task `wipe` allows to shut down the Postgres DB, and remove all the artifacts (configuration files and all the runtime-generated artifacts).
+Removes all Postgres data:
 
 ```yaml
-- name: Wipe the Postgres DB
+- name: Wipe Postgres
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: wipe
 ```
 
-### fetch_logs
+#### fetch_logs
 
-The task `fetch_logs` allows to fetch the logs from the Postgres DB components from the remote hosts to the control node.
+Collects Postgres logs:
 
 ```yaml
-- name: Fetch the Postgres DB logs
+- name: Fetch Postgres logs
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: fetch_logs
 ```
 
-### ping
+#### ping
 
-The task `ping` allows to ping the Postgres DB components on their opened ports. It is useful to check whether the instances are running or if they are not running/reachable.
+Health check for Postgres:
 
 ```yaml
-- name: Ping the Postgres DB
+- name: Ping Postgres
+  vars:
+    postgres_port: 5432
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: ping
 ```
+
+---
+
+## Variables
+
+See [`defaults/main.yaml`](defaults/main.yaml) for full variable documentation.

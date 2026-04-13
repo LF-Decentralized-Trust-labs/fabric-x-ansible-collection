@@ -1,73 +1,57 @@
 # hyperledger.fabricx.yugabyte
 
-The role `hyperledger.fabricx.yugabyte` can be used to run a `yugabyte` distributed DB cluster.
+> Runs a Yugabyte distributed DB cluster (container and Kubernetes modes).
 
-The role supports **container** and **Kubernetes** deployment modes (binary is not currently supported).
+<!-- @depends_on: hyperledger.fabricx.cryptogen, hyperledger.fabricx.fabric_ca, hyperledger.fabricx.openssl, hyperledger.fabricx.k8s -->
 
 ## Table of Contents <!-- omit in toc -->
 
-- [Variables](#variables)
+- [Depends On](#depends-on)
 - [Tasks](#tasks)
-  - [crypto/setup](#cryptosetup)
-  - [crypto/fetch](#cryptofetch)
-  - [crypto/rm](#cryptorm)
-  - [crypto/openssl/generate_csr](#cryptoopensslgenerate_csr)
-  - [crypto/openssl/fetch_csr](#cryptoopensslfetch_csr)
-  - [crypto/openssl/transfer_cert](#cryptoopenssltransfer_cert)
-  - [config/transfer](#configtransfer)
-  - [config/rm](#configrm)
-  - [start](#start)
-  - [stop](#stop)
-  - [teardown](#teardown)
-  - [wipe](#wipe)
-  - [fetch_logs](#fetch_logs)
-  - [ping](#ping)
+  - [Crypto](#crypto)
+    - [crypto/setup](#cryptosetup)
+    - [crypto/fetch](#cryptofetch)
+    - [crypto/rm](#cryptorm)
+    - [crypto/openssl/generate_csr](#cryptoopensslgenerate_csr)
+    - [crypto/openssl/fetch_csr](#cryptoopensslfetch_csr)
+    - [crypto/openssl/transfer_cert](#cryptoopenssltransfer_cert)
+  - [Config](#config)
+    - [config/transfer](#configtransfer)
+    - [config/rm](#configrm)
+  - [Lifecycle](#lifecycle)
+    - [start](#start)
+    - [stop](#stop)
+    - [teardown](#teardown)
+    - [wipe](#wipe)
+    - [fetch_logs](#fetch_logs)
+    - [ping](#ping)
+- [Variables](#variables)
 
-## Variables
+## Depends On
 
-| Variable                                  | Default                                                 | Description                                               |
-| ----------------------------------------- | ------------------------------------------------------- | --------------------------------------------------------- |
-| `yugabyte_registry_endpoint`              | `$YUGABYTE_REGISTRY_ENDPOINT` or `docker.io/yugabytedb` | Container registry endpoint                               |
-| `yugabyte_image_name`                     | `yugabyte`                                              | Container image name                                      |
-| `yugabyte_image_tag`                      | `2025.2.1.0-b141`                                       | Container image tag                                       |
-| `yugabyte_image`                          | `{{ registry }}/{{ name }}:{{ tag }}`                   | Full container image reference                            |
-| `yugabyte_container_name`                 | `{{ inventory_hostname }}`                              | Name given to the container                               |
-| `yugabyte_remote_config_dir`              | `{{ remote_config_dir }}`                               | Configuration directory on the remote node                |
-| `yugabyte_remote_data_dir`                | `{{ remote_data_dir }}`                                 | Data directory on the remote node                         |
-| `yugabyte_container_data_dir`             | `/var/data`                                             | Data directory inside the container                       |
-| `yugabyte_init_script_file`               | `01-yb-init.sql`                                        | Initialization SQL script file name                       |
-| `yugabyte_logs_level`                     | `3`                                                     | Log verbosity level (0=INFO, 1=WARNING, 2=ERROR, 3=FATAL) |
-| `yugabyte_use_tls`                        | `false`                                                 | Enable TLS for all YugabyteDB channels                    |
-| `yugabyte_webserver_use_tls`              | `{{ yugabyte_use_tls }}`                                | Enable TLS for the webserver                              |
-| `yugabyte_client_to_server_use_tls`       | `{{ yugabyte_use_tls }}`                                | Enable client-to-server TLS                               |
-| `yugabyte_node_to_node_use_tls`           | `{{ yugabyte_use_tls }}`                                | Enable node-to-node TLS                                   |
-| `yugabyte_master_rpc_bind_port`           | `7100`                                                  | Master RPC port                                           |
-| `yugabyte_master_webserver_port`          | `7000`                                                  | Master webserver port                                     |
-| `yugabyte_tablet_pgsql_bind_port`         | `5433`                                                  | YSQL (PostgreSQL-compatible) client port                  |
-| `yugabyte_tablet_rpc_bind_port`           | `9100`                                                  | Tablet server RPC port                                    |
-| `yugabyte_tablet_webserver_port`          | `9000`                                                  | Tablet server webserver port                              |
-| `yugabyte_tablet_cql_web_port`            | `12000`                                                 | YCQL webserver port                                       |
-| `yugabyte_tablet_pgsql_web_port`          | `13000`                                                 | YSQL webserver port                                       |
-| `yugabyte_tablet_cql_bind_port`           | `9042`                                                  | YCQL (Cassandra-compatible) client port                   |
-| `yugabyte_use_k8s`                        | `false`                                                 | Deploy on Kubernetes instead of container                 |
-| `yugabyte_use_container`                  | `{{ not yugabyte_use_k8s }}`                            | Deploy as container (computed)                            |
-| `yugabyte_k8s_resource_name`              | `{{ inventory_hostname }}`                              | Name used for all Kubernetes resources                    |
-| `yugabyte_k8s_wait`                       | `true`                                                  | Wait for StatefulSet pods to become ready                 |
-| `yugabyte_k8s_wait_timeout`               | `300`                                                   | Timeout in seconds when waiting for pods                  |
-| `yugabyte_k8s_master_rpc_node_port`       | `{{ yugabyte_master_rpc_bind_port }}`                   | NodePort for master RPC                                   |
-| `yugabyte_k8s_master_webserver_node_port` | `{{ yugabyte_master_webserver_port }}`                  | NodePort for master webserver                             |
-| `yugabyte_k8s_tablet_pgsql_node_port`     | `{{ yugabyte_tablet_pgsql_bind_port }}`                 | NodePort for YSQL client                                  |
-| `yugabyte_k8s_tablet_rpc_node_port`       | `{{ yugabyte_tablet_rpc_bind_port }}`                   | NodePort for tablet RPC                                   |
-| `yugabyte_k8s_tablet_webserver_node_port` | `{{ yugabyte_tablet_webserver_port }}`                  | NodePort for tablet webserver                             |
-| `yugabyte_k8s_tablet_pgsql_web_node_port` | `{{ yugabyte_tablet_pgsql_web_port }}`                  | NodePort for YSQL webserver/metrics                       |
-| `yugabyte_k8s_tablet_cql_bind_node_port`  | `{{ yugabyte_tablet_cql_bind_port }}`                   | NodePort for YCQL client                                  |
-| `yugabyte_k8s_tablet_cql_web_node_port`   | `{{ yugabyte_tablet_cql_web_port }}`                    | NodePort for YCQL webserver/metrics                       |
+| Role                                                      | Reason                                |
+| --------------------------------------------------------- | ------------------------------------- |
+| [`hyperledger.fabricx.cryptogen`](../cryptogen/README.md) | Crypto material (cryptogen mode)      |
+| [`hyperledger.fabricx.fabric_ca`](../fabric_ca/README.md) | Crypto material (Fabric-CA mode)      |
+| [`hyperledger.fabricx.openssl`](../openssl/README.md)     | CSR and certificate generation        |
+| [`hyperledger.fabricx.k8s`](../k8s/README.md)             | Kubernetes namespace setup (k8s mode) |
 
 ## Tasks
 
-### crypto/setup
+### Crypto
 
-The task `crypto/setup` transfers or generates directly on the remote node the crypto material needed to run YugabyteDB. The task supports two operating modes:
+| Task                                                                      | Description                         |
+| ------------------------------------------------------------------------- | ----------------------------------- |
+| [crypto/setup](./tasks/crypto/setup.yaml)                                 | Generates/transfers crypto material |
+| [crypto/fetch](./tasks/crypto/fetch.yaml)                                 | Fetches TLS certificate             |
+| [crypto/rm](./tasks/crypto/rm.yaml)                                       | Removes crypto material             |
+| [crypto/openssl/generate_csr](./tasks/crypto/openssl/generate_csr.yaml)   | Generates key and CSR               |
+| [crypto/openssl/fetch_csr](./tasks/crypto/openssl/fetch_csr.yaml)         | Fetches CSR certificate             |
+| [crypto/openssl/transfer_cert](./tasks/crypto/openssl/transfer_cert.yaml) | Transfers TLS certificate           |
+
+#### crypto/setup
+
+Transfers or generates the crypto material needed to run YugabyteDB. Supports two modes:
 
 - with `cryptogen` (see [hyperledger.fabricx.cryptogen](../cryptogen/README.md)): the crypto material generated on the control node with `cryptogen` is transferred to the remote node;
 - with `fabric-ca` (see [hyperledger.fabricx.fabric_ca](../fabric_ca/README.md)): the crypto material is generated directly on the remote node querying the reference `fabric_ca` host.
@@ -79,9 +63,9 @@ The task `crypto/setup` transfers or generates directly on the remote node the c
     tasks_from: crypto/setup
 ```
 
-### crypto/fetch
+#### crypto/fetch
 
-The task `crypto/fetch` fetches on the control node the TLS certificate of a Yugabyte DB:
+Fetches on the control node the TLS certificate of a Yugabyte DB:
 
 ```yaml
 - name: Fetch the TLS certificate of Yugabyte DB
@@ -90,9 +74,9 @@ The task `crypto/fetch` fetches on the control node the TLS certificate of a Yug
     tasks_from: crypto/fetch
 ```
 
-### crypto/rm
+#### crypto/rm
 
-The task `crypto/rm` removes the crypto material generated for Yugabyte. In Kubernetes mode it also deletes the associated Secret:
+Removes the crypto material generated for Yugabyte. In Kubernetes mode it also deletes the associated Secret:
 
 ```yaml
 - name: Remove the Yugabyte crypto files
@@ -101,11 +85,9 @@ The task `crypto/rm` removes the crypto material generated for Yugabyte. In Kube
     tasks_from: crypto/rm
 ```
 
-### crypto/openssl/generate_csr
+#### crypto/openssl/generate_csr
 
-The task `crypto/openssl/generate_csr` allows to generate a private key and a CSR to be used to request a TLS certificate.
-
-The task uses `openssl` (see [hyperledger.fabricx.openssl](../openssl/README.md)) to generate the key and the corresponding CSR. Differently from Postgres, we produce a CSR to be able to generate certificates under the same CA for the entire Yugabyte cluster ([official Yugabyte guide](https://docs.yugabyte.com/stable/secure/tls-encryption/server-certificates/)).
+Generates a private key and a CSR to be used to request a TLS certificate. Uses `openssl` (see [hyperledger.fabricx.openssl](../openssl/README.md)) to generate the key and the corresponding CSR.
 
 ```yaml
 - name: Generate a CSR for Yugabyte DB
@@ -114,9 +96,9 @@ The task uses `openssl` (see [hyperledger.fabricx.openssl](../openssl/README.md)
     tasks_from: crypto/openssl/generate_csr
 ```
 
-### crypto/openssl/fetch_csr
+#### crypto/openssl/fetch_csr
 
-The task `crypto/openssl/fetch_csr` allows to fetch the CSR certificate of a Yugabyte DB on the control node, so that it could be used by a CA to generate a certificate.
+Fetches the CSR certificate of a Yugabyte DB on the control node, so that it could be used by a CA to generate a certificate:
 
 ```yaml
 - name: Fetch the Yugabyte DB CSR
@@ -125,9 +107,9 @@ The task `crypto/openssl/fetch_csr` allows to fetch the CSR certificate of a Yug
     tasks_from: crypto/openssl/fetch_csr
 ```
 
-### crypto/openssl/transfer_cert
+#### crypto/openssl/transfer_cert
 
-The task `crypto/openssl/transfer_cert` allows to transfer the TLS certificate generated by the CA on the control node to the Yugabyte DB.
+Transfers the TLS certificate generated by the CA on the control node to the Yugabyte DB:
 
 ```yaml
 - name: Transfer the Yugabyte DB TLS certificate
@@ -136,9 +118,16 @@ The task `crypto/openssl/transfer_cert` allows to transfer the TLS certificate g
     tasks_from: crypto/openssl/transfer_cert
 ```
 
-### config/transfer
+### Config
 
-The task `config/transfer` generates the Yugabyte initialization SQL script. In Kubernetes mode it also creates the associated ConfigMap:
+| Task                                            | Description                         |
+| ----------------------------------------------- | ----------------------------------- |
+| [config/transfer](./tasks/config/transfer.yaml) | Transfers initialization SQL script |
+| [config/rm](./tasks/config/rm.yaml)             | Removes configuration               |
+
+#### config/transfer
+
+Generates the Yugabyte initialization SQL script. In Kubernetes mode it also creates the associated ConfigMap:
 
 ```yaml
 - name: Transfer the Yugabyte configuration files
@@ -147,9 +136,9 @@ The task `config/transfer` generates the Yugabyte initialization SQL script. In 
     tasks_from: config/transfer
 ```
 
-### config/rm
+#### config/rm
 
-The task `config/rm` removes the Yugabyte configuration files. In Kubernetes mode it also deletes the associated ConfigMap:
+Removes the Yugabyte configuration files. In Kubernetes mode it also deletes the associated ConfigMap:
 
 ```yaml
 - name: Remove the Yugabyte configuration files
@@ -158,9 +147,20 @@ The task `config/rm` removes the Yugabyte configuration files. In Kubernetes mod
     tasks_from: config/rm
 ```
 
-### start
+### Lifecycle
 
-The task `start` allows to start the Yugabyte DB Cluster. Set `yugabyte_use_k8s: true` to deploy on Kubernetes.
+| Task                                  | Description                |
+| ------------------------------------- | -------------------------- |
+| [start](./tasks/start.yaml)           | Starts Yugabyte DB cluster |
+| [stop](./tasks/stop.yaml)             | Stops Yugabyte DB cluster  |
+| [teardown](./tasks/teardown.yaml)     | Removes runtime            |
+| [wipe](./tasks/wipe.yaml)             | Removes all data           |
+| [fetch_logs](./tasks/fetch_logs.yaml) | Collects logs              |
+| [ping](./tasks/ping.yaml)             | Health check               |
+
+#### start
+
+Starts the Yugabyte DB Cluster. Set `yugabyte_use_k8s: true` to deploy on Kubernetes.
 
 ```yaml
 - name: Start the Yugabyte DB Cluster
@@ -171,9 +171,9 @@ The task `start` allows to start the Yugabyte DB Cluster. Set `yugabyte_use_k8s:
     tasks_from: start
 ```
 
-### stop
+#### stop
 
-The task `stop` allows to stop the Yugabyte DB Cluster (container mode only; Kubernetes manages pod liveness).
+Stops the Yugabyte DB Cluster (container mode only; Kubernetes manages pod liveness):
 
 ```yaml
 - name: Stop the Yugabyte DB Cluster
@@ -182,9 +182,9 @@ The task `stop` allows to stop the Yugabyte DB Cluster (container mode only; Kub
     tasks_from: stop
 ```
 
-### teardown
+#### teardown
 
-The task `teardown` allows to shut down the Yugabyte DB Cluster and remove all the artifacts being generated during runtime.
+Shuts down the Yugabyte DB Cluster and removes all the artifacts being generated during runtime:
 
 ```yaml
 - name: Teardown the Yugabyte DB Cluster
@@ -193,9 +193,9 @@ The task `teardown` allows to shut down the Yugabyte DB Cluster and remove all t
     tasks_from: teardown
 ```
 
-### wipe
+#### wipe
 
-The task `wipe` allows to shut down the Yugabyte DB Cluster, remove all the artifacts (configuration files and all the runtime-generated artifacts).
+Shuts down the Yugabyte DB Cluster, removes all the artifacts (configuration files and all the runtime-generated artifacts):
 
 ```yaml
 - name: Wipe the Yugabyte DB Cluster
@@ -204,9 +204,9 @@ The task `wipe` allows to shut down the Yugabyte DB Cluster, remove all the arti
     tasks_from: wipe
 ```
 
-### fetch_logs
+#### fetch_logs
 
-The task `fetch_logs` allows to fetch the logs from the Yugabyte DB Cluster components from the remote hosts (or Kubernetes pods) to the control node.
+Fetches the logs from the Yugabyte DB Cluster components from the remote hosts (or Kubernetes pods) to the control node:
 
 ```yaml
 - name: Fetch the Yugabyte DB Cluster logs
@@ -215,9 +215,9 @@ The task `fetch_logs` allows to fetch the logs from the Yugabyte DB Cluster comp
     tasks_from: fetch_logs
 ```
 
-### ping
+#### ping
 
-The task `ping` allows to ping the Yugabyte DB Cluster components on their opened ports. It is useful to check whether the instances are running or if they are not running/reachable.
+Pings the Yugabyte DB Cluster components on their opened ports. Useful to check whether the instances are running or if they are not running/reachable:
 
 ```yaml
 - name: Ping the Yugabyte DB Cluster
@@ -225,3 +225,9 @@ The task `ping` allows to ping the Yugabyte DB Cluster components on their opene
     name: hyperledger.fabricx.yugabyte
     tasks_from: ping
 ```
+
+---
+
+## Variables
+
+See [`defaults/main.yaml`](defaults/main.yaml) for full variable documentation.
