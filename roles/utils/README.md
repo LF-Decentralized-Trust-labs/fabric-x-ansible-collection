@@ -1,19 +1,29 @@
 # hyperledger.fabricx.utils
 
-The role `hyperledger.fabricx.utils` can be used to run utility functions.
+> Provides utility functions for inventory management and port checking.
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Tasks](#tasks)
-  - [generate_makefile_targets](#generate_makefile_targets)
-  - [ping](#ping)
-  - [select_one_host_per_machine](#select_one_host_per_machine)
+  - [Lifecycle](#lifecycle)
+    - [generate_makefile_targets](#generate_makefile_targets)
+    - [ping](#ping)
+    - [select_one_host_per_machine](#select_one_host_per_machine)
+- [Variables](#variables)
 
 ## Tasks
 
-### generate_makefile_targets
+### Lifecycle
 
-The task `generate_makefile_targets` can be used to generate Makefile targets for all individual hosts in the inventory. The generated targets are written to `target_hosts.mk` in the project root directory.
+| Task                                                                    | Description                |
+| ----------------------------------------------------------------------- | -------------------------- |
+| [generate_makefile_targets](./tasks/generate_makefile_targets.yaml)     | Generates Makefile targets |
+| [ping](./tasks/ping.yaml)                                               | Checks port availability   |
+| [select_one_host_per_machine](./tasks/select_one_host_per_machine.yaml) | Creates machines group     |
+
+#### generate_makefile_targets
+
+Generates Makefile targets for all individual hosts in the inventory. The generated targets are written to `target_hosts.mk` in the project root directory.
 
 ```yaml
 - name: Generate Makefile targets for all inventory hosts
@@ -35,9 +45,9 @@ make orderer-router-1 start
 make committer-validator stop
 ```
 
-### ping
+#### ping
 
-The task `ping` can be used to check whether a set of ports on a given machine is open:
+Checks whether a set of ports on a given machine is open:
 
 ```yaml
 - name: Check that the port 9000 and 9001 are open
@@ -50,9 +60,9 @@ The task `ping` can be used to check whether a set of ports on a given machine i
     tasks_from: ping
 ```
 
-### select_one_host_per_machine
+#### select_one_host_per_machine
 
-The task `select_one_host_per_machine` can be used to create a group named `machines` that will contain exactly a single host per machine. It can be useful when you need to perform some operations that would collide and generate errors if run concurrently on the same machine (e.g. when 2 hosts are located on the same machine).
+Creates a group named `machines` that will contain exactly a single host per machine. It can be useful when you need to perform some operations that would collide and generate errors if run concurrently on the same machine (e.g. when 2 hosts are located on the same machine).
 
 ```yaml
 - name: Set the group "machines"
@@ -60,3 +70,9 @@ The task `select_one_host_per_machine` can be used to create a group named `mach
     name: hyperledger.fabricx.utils
     tasks_from: select_one_host_per_machine
 ```
+
+---
+
+## Variables
+
+See [`defaults/main.yaml`](defaults/main.yaml) for full variable documentation.

@@ -1,19 +1,29 @@
 # hyperledger.fabricx.tmux
 
-The role `hyperledger.fabricx.tmux` can be used to run a `tmux` session.
+> Runs `tmux` sessions for managing long-running processes.
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Tasks](#tasks)
-  - [install](#install)
-  - [start](#start)
-  - [stop](#stop)
+  - [Lifecycle](#lifecycle)
+    - [install](#install)
+    - [start](#start)
+    - [stop](#stop)
+- [Variables](#variables)
 
 ## Tasks
 
-### install
+### Lifecycle
 
-The task `install` installs the `tmux` package on the desired machine:
+| Task                            | Description         |
+| ------------------------------- | ------------------- |
+| [install](./tasks/install.yaml) | Installs tmux       |
+| [start](./tasks/start.yaml)     | Starts tmux session |
+| [stop](./tasks/stop.yaml)       | Stops tmux session  |
+
+#### install
+
+Installs the `tmux` package on the desired machine:
 
 ```yaml
 - name: Install tmux
@@ -22,11 +32,9 @@ The task `install` installs the `tmux` package on the desired machine:
     tasks_from: install
 ```
 
-### start
+#### start
 
-The task `start` allows to start a detached session of `tmux`.
-
-The task is idempotent, i.e. if a session with that name already exists, `tmux` doesn't restart the session.
+Starts a detached session of `tmux`. The task is idempotent, i.e. if a session with that name already exists, `tmux` doesn't restart the session.
 
 ```yaml
 - name: Start a "sample-session" with tmux
@@ -38,9 +46,9 @@ The task is idempotent, i.e. if a session with that name already exists, `tmux` 
     tasks_from: start
 ```
 
-### stop
+#### stop
 
-The task `stop` allows to stop a session of `tmux`.
+Stops a session of `tmux`:
 
 ```yaml
 - name: Stop the "sample-session" tmux session
@@ -50,3 +58,9 @@ The task `stop` allows to stop a session of `tmux`.
     name: hyperledger.fabricx.tmux
     tasks_from: stop
 ```
+
+---
+
+## Variables
+
+See [`defaults/main.yaml`](defaults/main.yaml) for full variable documentation.
