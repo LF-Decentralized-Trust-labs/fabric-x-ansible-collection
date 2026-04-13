@@ -59,7 +59,7 @@ orderer-client:
         # List of paths to CA certificate files for verifying orderer certificates.
         # Each organization can have its own CA certificates.
         ca-cert-paths:
-          - {{ loadgen_config_dir }}/tls/orderers/{{ orderer_router }}/ca.crt
+          - {{ loadgen_config_dir }}/tls/orderers/{{ orderer_router }}/server.crt
 {% endfor %}
 {% if (hostvars[orderer_ref_host].orderer_use_tls is defined) and hostvars[orderer_ref_host].orderer_use_tls %}
     # Loadgen uses these TLS credentials when connecting to the orderers as a client.
@@ -69,12 +69,12 @@ orderer-client:
       common-ca-cert-paths:
 {% for orderer_router in orderer_router_hosts %}
 {% if (hostvars[orderer_router].orderer_use_tls is defined) and hostvars[orderer_router].orderer_use_tls %}
-        - {{ loadgen_config_dir }}/tls/orderers/{{ orderer_router }}/server.crt
+        - {{ loadgen_config_dir }}/tls/orderers/{{ orderer_router }}/ca.crt
 {% endif %}
 {% endfor %}
 {% for orderer_assembler in orderer_assembler_hosts %}
 {% if (hostvars[orderer_assembler].orderer_use_tls is defined) and hostvars[orderer_assembler].orderer_use_tls %}
-        - {{ loadgen_config_dir }}/tls/orderers/{{ orderer_assembler }}/server.crt
+        - {{ loadgen_config_dir }}/tls/orderers/{{ orderer_assembler }}/ca.crt
 {% endif %}
 {% endfor %}
       # TODO: currently this section must be set even for TLS only: https://github.com/hyperledger/fabric-x-committer/pull/464

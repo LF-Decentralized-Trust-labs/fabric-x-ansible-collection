@@ -57,7 +57,7 @@ committer_monitoring_use_tls: "{{ committer_use_tls }}"
 committer_use_mtls: false
 committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
 committer_http_protocol: "{{ 'https' if committer_use_tls else 'http' }}"
-committer_crypto_name: "{{ organization.orderer.name | default(inventory_hostname) }}"
+committer_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}"
 
 # =========================
 # Miscellaneous

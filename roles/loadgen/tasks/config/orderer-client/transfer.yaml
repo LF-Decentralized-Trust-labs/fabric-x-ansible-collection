@@ -48,7 +48,7 @@
     - hostvars[current_orderer_router].orderer_use_tls is defined
     - hostvars[current_orderer_router].orderer_use_tls
 
-- name: Transfer Hyperledger Fabric-X Orderer Routers TLS CA certificates
+- name: Transfer Hyperledger Fabric-X Orderer Routers TLS server certificates
   ansible.builtin.copy:
     src: "{{ fetched_artifacts_dir }}/{{ current_orderer_router }}/tls/server.crt"
     dest: "{{ loadgen_remote_config_dir }}/tls/orderers/{{ current_orderer_router }}/server.crt"
@@ -92,7 +92,7 @@
     - hostvars[current_orderer_assembler].orderer_use_tls is defined
     - hostvars[current_orderer_assembler].orderer_use_tls
 
-- name: Transfer Hyperledger Fabric-X Orderer Assemblers TLS certificates
+- name: Transfer Hyperledger Fabric-X Orderer Assemblers TLS server certificates
   ansible.builtin.copy:
     src: "{{ fetched_artifacts_dir }}/{{ current_orderer_assembler }}/tls/server.crt"
     dest: "{{ loadgen_remote_config_dir }}/tls/orderers/{{ current_orderer_assembler }}/server.crt"

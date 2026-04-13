@@ -14,6 +14,7 @@
     container_ports:
       - "{{ loadgen_metrics_port }}:{{ loadgen_metrics_port }}"
       - "{{ loadgen_web_port }}:{{ loadgen_web_port }}"
+      - "{{ loadgen_rpc_port }}:{{ loadgen_rpc_port }}"
     container_volumes:
       - "{{ loadgen_remote_config_dir }}:{{ loadgen_container_config_dir }}:z,ro"
     container_wait_until_running: true

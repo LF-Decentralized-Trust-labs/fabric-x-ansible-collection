@@ -11,5 +11,5 @@ git_commit: "main"
 git_hub_url: "github.com"
 git_use_ssh: false
 git_https_uri: "https://{{ git_hub_url }}/{{ git_repo }}.git"
-git_ssh_uri: "git@:{{ git_hub_url }}:{{ git_repo }}.git"
+git_ssh_uri: "git@{{ git_hub_url }}:{{ git_repo }}.git"
 git_uri: "{{ git_ssh_uri if git_use_ssh else git_https_uri }}"

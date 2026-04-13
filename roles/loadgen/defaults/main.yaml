@@ -47,6 +47,7 @@ loadgen_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}
 loadgen_use_tls: false
 loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
 loadgen_http_protocol: "{{ 'https' if loadgen_use_tls else 'http' }}"
+loadgen_monitoring_http_protocol: "{{ 'https' if loadgen_monitoring_use_tls else 'http' }}"
 # mTLS settings
 loadgen_use_mtls: false
 loadgen_monitoring_use_mtls: "{{ loadgen_use_mtls }}"

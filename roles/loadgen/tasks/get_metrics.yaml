@@ -6,7 +6,7 @@
 
 - name: Get Fabric-X Loadgen metrics
   ansible.builtin.uri:
-    url: "{{ loadgen_http_protocol }}://{{ actual_host }}:{{ loadgen_metrics_port }}/metrics"
+    url: "{{ loadgen_monitoring_http_protocol }}://{{ actual_host }}:{{ loadgen_metrics_port }}/metrics"
     validate_certs: false
     method: GET
     return_content: true
