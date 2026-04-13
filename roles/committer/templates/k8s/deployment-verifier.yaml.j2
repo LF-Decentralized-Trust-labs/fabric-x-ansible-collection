@@ -30,7 +30,6 @@ spec:
       containers:
         - name: {{ committer_component_type }}
           image: {{ committer_image }}
-          imagePullPolicy: {{ k8s_image_pull_policy }}
           args:
             - "committer"
             - "start-verifier"
