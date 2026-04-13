@@ -98,7 +98,11 @@ Creates a container volume:
 ```yaml
 - name: Create a container volume
   vars:
-    container_volume_path: /path/to/volume
+    container_volume_path: /tmp/data
+    container_volume_mode: "0o750"
+    container_volume_uid: "999" # a rootless user could not create normally a folder with uid=999, but this task allows to create anyway
+    container_volume_gid: "999" # a rootless user could not create normally a folder with uid=999, but this task allows to create anyway
+    container_volume_type: directory
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: volume/create
