@@ -1,45 +1,34 @@
 # hyperledger.fabricx.jaeger
 
-The role `hyperledger.fabricx.jaeger` can be used to run a Jaeger instance for tracing.
-
-The role allows to run `jaeger` as **container only** (binary is not currently supported).
+> Runs a Jaeger instance for distributed tracing.
 
 ## Table of Contents <!-- omit in toc -->
 
-- [Variables](#variables)
 - [Tasks](#tasks)
-  - [config/transfer](#configtransfer)
-  - [config/rm](#configrm)
-  - [start](#start)
-  - [stop](#stop)
-  - [teardown](#teardown)
-  - [wipe](#wipe)
-  - [fetch\_logs](#fetch_logs)
-  - [ping](#ping)
-
-## Variables
-
-| Variable                      | Default                                                  | Description                                  |
-| ----------------------------- | -------------------------------------------------------- | -------------------------------------------- |
-| `jaeger_registry_endpoint`    | `$JAEGER_REGISTRY_ENDPOINT` or `docker.io/jaegertracing` | Container registry endpoint                  |
-| `jaeger_image_name`           | `all-in-one`                                             | Container image name                         |
-| `jaeger_image_tag`            | `latest`                                                 | Container image tag                          |
-| `jaeger_image`                | `{{ registry }}/{{ name }}:{{ tag }}`                    | Full container image reference               |
-| `jaeger_container_name`       | `{{ inventory_hostname }}`                               | Name given to the container                  |
-| `jaeger_remote_config_dir`    | `{{ remote_config_dir }}`                                | Configuration directory on the remote node   |
-| `jaeger_container_config_dir` | `/var/config`                                            | Configuration directory inside the container |
-| `jaeger_ui_port`              | `16686`                                                  | Jaeger UI port                               |
-| `jaeger_admin_port`           | `14269`                                                  | Jaeger admin port                            |
-| `jaeger_http_server_port`     | `14268`                                                  | Jaeger HTTP server port                      |
-| `jaeger_http_collector_port`  | `4318`                                                   | Jaeger HTTP collector port (OTLP)            |
-| `jaeger_grpc_server_port`     | `14250`                                                  | Jaeger gRPC server port                      |
-| `jaeger_collector_port`       | `4317`                                                   | Jaeger gRPC collector port (OTLP)            |
+  - [Config](#config)
+    - [config/transfer](#configtransfer)
+    - [config/rm](#configrm)
+  - [Lifecycle](#lifecycle)
+    - [start](#start)
+    - [stop](#stop)
+    - [teardown](#teardown)
+    - [wipe](#wipe)
+    - [fetch_logs](#fetch_logs)
+    - [ping](#ping)
+- [Variables](#variables)
 
 ## Tasks
 
-### config/transfer
+### Config
 
-The task `config/transfer` transfers the Jaeger configuration files on the remote node:
+| Task                                            | Description                    |
+| ----------------------------------------------- | ------------------------------ |
+| [config/transfer](./tasks/config/transfer.yaml) | Transfers Jaeger configuration |
+| [config/rm](./tasks/config/rm.yaml)             | Removes configuration          |
+
+#### config/transfer
+
+Transfers the Jaeger configuration files on the remote node:
 
 ```yaml
 - name: Transfer the Jaeger configuration files
@@ -48,9 +37,9 @@ The task `config/transfer` transfers the Jaeger configuration files on the remot
     tasks_from: config/transfer
 ```
 
-### config/rm
+#### config/rm
 
-The task `config/rm` removes the Jaeger configuration files on the remote node:
+Removes the Jaeger configuration files on the remote node:
 
 ```yaml
 - name: Remove the Jaeger configuration files
@@ -59,9 +48,20 @@ The task `config/rm` removes the Jaeger configuration files on the remote node:
     tasks_from: config/rm
 ```
 
-### start
+### Lifecycle
 
-The task `start` allows to start the Jaeger container.
+| Task                                  | Description             |
+| ------------------------------------- | ----------------------- |
+| [start](./tasks/start.yaml)           | Starts Jaeger container |
+| [stop](./tasks/stop.yaml)             | Stops Jaeger container  |
+| [teardown](./tasks/teardown.yaml)     | Removes container       |
+| [wipe](./tasks/wipe.yaml)             | Removes all data        |
+| [fetch_logs](./tasks/fetch_logs.yaml) | Collects logs           |
+| [ping](./tasks/ping.yaml)             | Health check            |
+
+#### start
+
+Starts the Jaeger container:
 
 ```yaml
 - name: Start Jaeger
@@ -73,9 +73,9 @@ The task `start` allows to start the Jaeger container.
     tasks_from: start
 ```
 
-### stop
+#### stop
 
-The task `stop` allows to stop the Jaeger container.
+Stops the Jaeger container:
 
 ```yaml
 - name: Stop Jaeger
@@ -84,9 +84,9 @@ The task `stop` allows to stop the Jaeger container.
     tasks_from: stop
 ```
 
-### teardown
+#### teardown
 
-The task `teardown` allows to shut down Jaeger and remove all the artifacts being generated during runtime.
+Removes the Jaeger container:
 
 ```yaml
 - name: Teardown Jaeger
@@ -95,9 +95,9 @@ The task `teardown` allows to shut down Jaeger and remove all the artifacts bein
     tasks_from: teardown
 ```
 
-### wipe
+#### wipe
 
-The task `wipe` allows to shut down Jaeger and remove all the artifacts (configuration files and all the runtime-generated artifacts).
+Removes all Jaeger data:
 
 ```yaml
 - name: Wipe Jaeger
@@ -106,9 +106,9 @@ The task `wipe` allows to shut down Jaeger and remove all the artifacts (configu
     tasks_from: wipe
 ```
 
-### fetch_logs
+#### fetch_logs
 
-The task `fetch_logs` allows to fetch the logs from Jaeger components from the remote hosts to the control node.
+Collects Jaeger logs:
 
 ```yaml
 - name: Fetch Jaeger logs
@@ -117,13 +117,21 @@ The task `fetch_logs` allows to fetch the logs from Jaeger components from the r
     tasks_from: fetch_logs
 ```
 
-### ping
+#### ping
 
-The task `ping` allows to ping Jaeger components on their opened ports. It is useful to check whether Jaeger is up and running.
+Health check for Jaeger:
 
 ```yaml
 - name: Ping Jaeger
+  vars:
+    jaeger_ui_port: 16686
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: ping
 ```
+
+---
+
+## Variables
+
+See [`defaults/main.yaml`](defaults/main.yaml) for full variable documentation.

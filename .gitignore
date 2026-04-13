@@ -4,6 +4,11 @@ out/
 out.*working/
 target_hosts.mk
 
+# Agents
+.worktrees/
+graphify-out/
+plans/
+
 # python
 .venv/
 

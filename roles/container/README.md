@@ -1,69 +1,44 @@
 # hyperledger.fabricx.container
 
-The role `hyperledger.fabricx.container` can be used to handle a container on a target node. The role allows to run a container with either `podman` or `docker`.
+> Handles container lifecycle management (supports `podman` and `docker`).
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Prerequisites](#prerequisites)
-- [Variables](#variables)
 - [Tasks](#tasks)
-  - [registry/login](#registrylogin)
-  - [network/create](#networkcreate)
-  - [network/rm](#networkrm)
-  - [volume/create](#volumecreate)
-  - [volume/rm](#volumerm)
-  - [install](#install)
-  - [get\_container\_client](#get_container_client)
-  - [start](#start)
-  - [stop](#stop)
-  - [rm](#rm)
-  - [exec](#exec)
-  - [fetch\_logs](#fetch_logs)
+  - [Registry](#registry)
+    - [registry/login](#registrylogin)
+  - [Network](#network)
+    - [network/create](#networkcreate)
+    - [network/rm](#networkrm)
+  - [Volume](#volume)
+    - [volume/create](#volumecreate)
+    - [volume/rm](#volumerm)
+  - [Lifecycle](#lifecycle)
+    - [install](#install)
+    - [get_container_client](#get_container_client)
+    - [start](#start)
+    - [stop](#stop)
+    - [rm](#rm)
+    - [exec](#exec)
+    - [fetch_logs](#fetch_logs)
+- [Variables](#variables)
 
 ## Prerequisites
 
-The role requires either `podman` or `docker` to be installed on the targeted node.
-
-## Variables
-
-| Variable                         | Default                                              | Description                                                                      |
-| -------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------- |
-| `container_client`               | `$CONTAINER_CLIENT` or auto-detected                 | Container engine to use (`podman` or `docker`)                                   |
-| `container_run_detach_mode`      | `true`                                               | Run the container in detached mode                                               |
-| `container_healthcheck_interval` | `30s`                                                | Container healthcheck interval                                                   |
-| `container_autoremove`           | `false`                                              | Automatically remove the container when it stops                                 |
-| `container_ignore_errors`        | `false`                                              | Ignore errors when running the container                                         |
-| `container_host_uid`             | `{{ ansible_facts.user_uid }}`                       | UID of the host user                                                             |
-| `container_host_gid`             | `{{ ansible_facts.user_gid }}`                       | GID of the host user                                                             |
-| `container_host_user`            | `uid:gid`                                            | Host user identity passed to the container                                       |
-| `container_host_user_is_root`    | derived                                              | Whether the host user is root                                                    |
-| `container_run_as_host_user`     | `false`                                              | Run the container as the host user                                               |
-| `container_fetched_logs_dir`     | `{{ fetched_artifacts_dir }}/{{ container_name }}`   | Directory on the controller where logs are fetched                               |
-| `container_fetched_logs_file`    | `logs.txt`                                           | Fetched log file name                                                            |
-| `container_remote_logs_dir`      | `{{ remote_node_dir }}/logs`                         | Logs directory on the remote node                                                |
-| `container_remote_logs_file`     | `logs.txt`                                           | Log file name on the remote node                                                 |
-| `container_debug`                | `$DEBUG` or `false`                                  | Enable debug mode                                                                |
-| `container_log_driver`           | `json-file`                                          | Container log driver                                                             |
-| `container_log_max_size`         | `1g`                                                 | Maximum log file size                                                            |
-| `container_log_lines`            | `0`                                                  | Number of log lines to tail (0 = all)                                            |
-| `container_on_mac`               | derived                                              | Whether the host is running macOS                                                |
-| `container_network_mode`         | `host` (Linux) or `bridge` (macOS)                   | Container network mode                                                           |
-| `container_network_driver`       | `bridge`                                             | Network driver                                                                   |
-| `container_network_attachable`   | `true`                                               | Make the network attachable (docker-only; podman networks are always attachable) |
-| `container_network_internal`     | `false`                                              | Create an internal (isolated) network                                            |
-| `container_hostname`             | `{{ container_name }}` or `{{ inventory_hostname }}` | Container hostname                                                               |
-| `container_run_until`            | `null`                                               | Ansible `until` condition to retry the run                                       |
-| `container_run_delay`            | `0`                                                  | Delay in seconds between retries                                                 |
-| `container_run_retries`          | `0`                                                  | Number of retries                                                                |
-| `container_wait_until_running`   | `false`                                              | Wait for the container to be running after start                                 |
-| `container_wait_delay`           | `1`                                                  | Delay in seconds between wait checks                                             |
-| `container_wait_timeout`         | `60`                                                 | Timeout in seconds for the wait                                                  |
+- `podman` or `docker` installed on the targeted node
 
 ## Tasks
 
-### registry/login
+### Registry
 
-The task `registry/login` allows to login a container engine within a certain Container Registry:
+| Task                                          | Description                    |
+| --------------------------------------------- | ------------------------------ |
+| [registry/login](./tasks/registry/login.yaml) | Logs into a container registry |
+
+#### registry/login
+
+Logs a container engine within a certain Container Registry:
 
 ```yaml
 - name: Log the container engine within container registry
@@ -76,38 +51,52 @@ The task `registry/login` allows to login a container engine within a certain Co
     tasks_from: registry/login
 ```
 
-### network/create
+### Network
 
-The task `network/create` allows to create a container network:
+| Task                                          | Description                 |
+| --------------------------------------------- | --------------------------- |
+| [network/create](./tasks/network/create.yaml) | Creates a container network |
+| [network/rm](./tasks/network/rm.yaml)         | Removes a container network |
+
+#### network/create
+
+Creates a container network:
 
 ```yaml
-- name: Create the container network "fabric-x"
+- name: Create a container network
   vars:
-    container_network: fabric-x
+    container_network: my-network
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: network/create
 ```
 
-### network/rm
+#### network/rm
 
-The task `network/rm` removes a container network:
+Removes a container network:
 
 ```yaml
-- name: Remove the container network "fabric-x"
+- name: Remove a container network
   vars:
-    container_network: fabric-x
+    container_network: my-network
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: network/rm
 ```
 
-### volume/create
+### Volume
 
-The task `volume/create` creates a container volume with the necessary permissions. It is useful when the container engine runs as `rootless` and cannot create volumes with specific `uid:gid`:
+| Task                                        | Description                |
+| ------------------------------------------- | -------------------------- |
+| [volume/create](./tasks/volume/create.yaml) | Creates a container volume |
+| [volume/rm](./tasks/volume/rm.yaml)         | Removes a container volume |
+
+#### volume/create
+
+Creates a container volume:
 
 ```yaml
-- name: Create Postgres DB data volume
+- name: Create a container volume
   vars:
     container_volume_path: /tmp/data
     container_volume_mode: "0o750"
@@ -119,68 +108,73 @@ The task `volume/create` creates a container volume with the necessary permissio
     tasks_from: volume/create
 ```
 
-### volume/rm
+#### volume/rm
 
-The task `volume/rm` removes a container volume. It is useful when the container volumes has been created with special permissions and a `rootless` user could not normally delete it (incurring in `Permission Denied`):
+Removes a container volume:
 
 ```yaml
-- name: Delete Postgres DB data volume
+- name: Remove a container volume
   vars:
-    container_volume_path: /tmp/data
+    container_volume_path: /path/to/volume
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: volume/rm
 ```
 
-### install
+### Lifecycle
 
-The task `install` allows to install either `podman` or `docker` on the machine.
+| Task                                                      | Description                        |
+| --------------------------------------------------------- | ---------------------------------- |
+| [install](./tasks/install.yaml)                           | Installs container engine          |
+| [get_container_client](./tasks/get_container_client.yaml) | Detects available container client |
+| [start](./tasks/start.yaml)                               | Starts a container                 |
+| [stop](./tasks/stop.yaml)                                 | Stops a container                  |
+| [rm](./tasks/rm.yaml)                                     | Removes a container                |
+| [exec](./tasks/exec.yaml)                                 | Executes command in container      |
+| [fetch_logs](./tasks/fetch_logs.yaml)                     | Collects container logs            |
 
-**NOTE**: only Linux is currently supported, and most specifically only RHEL/Fedora and Ubuntu distributions.
+#### install
+
+Installs the container engine:
 
 ```yaml
-- name: Install the container engine
-  vars:
-    container_client: "podman" # or docker
+- name: Install container engine
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: install
 ```
 
-In case no `container_client` is indicated, the task installs `podman` by default.
+#### get_container_client
 
-### get_container_client
-
-The task `get_container_client` returns the container client to use to handle the containers. It automatically detects which client is installed on the machine and sets the `container_client` fact accordingly.
+Detects available container client:
 
 ```yaml
-- name: Get the container client
+- name: Get container client
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: get_container_client
 ```
 
-### start
+#### start
 
-The task `start` command allows to start a container given a specific image. The [task](./tasks/start.yaml) comes with multiple options to fine-tune how to run the container.
+Starts a container:
 
 ```yaml
-- name: Start the container named "my-container" with the "docker.io/library/busybox" image
+- name: Start a container
   vars:
     container_name: my-container
-    container_image: docker.io/library/busybox
-    container_command: echo "Hello World"
+    container_image: my-image
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: start
 ```
 
-### stop
+#### stop
 
-The task `stop` allows to stop a container given its name.
+Stops a container:
 
 ```yaml
-- name: Stop the container named  "my-container"
+- name: Stop a container
   vars:
     container_name: my-container
   ansible.builtin.include_role:
@@ -188,12 +182,12 @@ The task `stop` allows to stop a container given its name.
     tasks_from: stop
 ```
 
-### rm
+#### rm
 
-The task `rm` allows to remove a container given its image.
+Removes a container:
 
 ```yaml
-- name: Stop the container named "my-container"
+- name: Remove a container
   vars:
     container_name: my-container
   ansible.builtin.include_role:
@@ -201,31 +195,35 @@ The task `rm` allows to remove a container given its image.
     tasks_from: rm
 ```
 
-### exec
+#### exec
 
-The task `exec` allows to run a command within the chosen container.
+Executes a command in a container:
 
 ```yaml
-- name: Exec a command in my-container
+- name: Execute command in container
   vars:
     container_name: my-container
-    container_command: echo "Hello World"
+    container_command: echo hello
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: exec
 ```
 
-### fetch_logs
+#### fetch_logs
 
-The task `fetch_logs` allows to fetch the logs of a container on the control node.
+Collects container logs:
 
 ```yaml
-- name: Fetch the logs from my-container container
+- name: Fetch container logs
   vars:
     container_name: my-container
-    container_fetched_logs_dir: /tmp
-    container_fetched_logs_file: my-container_logs.txt
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: fetch_logs
 ```
+
+---
+
+## Variables
+
+See [`defaults/main.yaml`](defaults/main.yaml) for full variable documentation.

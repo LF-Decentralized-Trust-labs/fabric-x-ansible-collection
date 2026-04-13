@@ -1,58 +1,49 @@
 # hyperledger.fabricx.grafana
 
-The role `hyperledger.fabricx.grafana` can be used to run a Grafana instance to visualize the Fabric-X components metrics.
+> Runs a Grafana instance to visualize Fabric-X component metrics.
 
-The role comes with 4 predefined dashboards:
-
-- A dashboard for the CommitterX metrics;
-- A dashboard for the Grafana metrics (useful to keep an eye on the CPU, RAM, network statuses of the machines);
-- A dashboard to look at the Yugabyte cluster stats;
-- A dashboard for Postgres Exporter metrics.
-
-Grafana fetches the metrics through `prometheus`.
-
-The role allows to run Grafana as **container only** (binary is not currently supported).
+<!-- @depends_on: hyperledger.fabricx.openssl, hyperledger.fabricx.prometheus -->
 
 ## Table of Contents <!-- omit in toc -->
 
-- [Variables](#variables)
+- [Depends On](#depends-on)
 - [Tasks](#tasks)
-  - [crypto/setup](#cryptosetup)
-  - [crypto/fetch](#cryptofetch)
-  - [crypto/rm](#cryptorm)
-  - [config/transfer](#configtransfer)
-  - [config/rm](#configrm)
-  - [start](#start)
-  - [stop](#stop)
-  - [teardown](#teardown)
-  - [wipe](#wipe)
-  - [fetch\_logs](#fetch_logs)
-  - [ping](#ping)
+  - [Crypto](#crypto)
+    - [crypto/setup](#cryptosetup)
+    - [crypto/fetch](#cryptofetch)
+    - [crypto/rm](#cryptorm)
+  - [Config](#config)
+    - [config/transfer](#configtransfer)
+    - [config/rm](#configrm)
+  - [Lifecycle](#lifecycle)
+    - [start](#start)
+    - [stop](#stop)
+    - [teardown](#teardown)
+    - [wipe](#wipe)
+    - [fetch_logs](#fetch_logs)
+    - [ping](#ping)
+- [Variables](#variables)
 
-## Variables
+## Depends On
 
-| Variable                       | Default                                             | Description                                  |
-| ------------------------------ | --------------------------------------------------- | -------------------------------------------- |
-| `grafana_registry_endpoint`    | `$GRAFANA_REGISTRY_ENDPOINT` or `docker.io/grafana` | Container registry endpoint                  |
-| `grafana_image_name`           | `grafana-oss`                                       | Container image name                         |
-| `grafana_image_tag`            | `latest`                                            | Container image tag                          |
-| `grafana_image`                | `{{ registry }}/{{ name }}:{{ tag }}`               | Full container image reference               |
-| `grafana_container_name`       | `{{ inventory_hostname }}`                          | Name given to the container                  |
-| `grafana_remote_config_dir`    | `{{ remote_config_dir }}`                           | Configuration directory on the remote node   |
-| `grafana_container_config_dir` | `/etc/grafana/provisioning`                         | Configuration directory inside the container |
-| `grafana_datasource_file`      | `datasources.yaml`                                  | Datasource provisioning file name            |
-| `grafana_dashboards_file`      | `dashboards.yaml`                                   | Dashboards provisioning file name            |
-| `grafana_dashboard_file`       | `dashboard.json`                                    | Dashboard definition file name               |
-| `grafana_use_tls`              | `false`                                             | Enable TLS                                   |
-| `grafana_tls_private_key_file` | `server.key`                                        | TLS private key file name                    |
-| `grafana_tls_cert_file`        | `server.crt`                                        | TLS certificate file name                    |
-| `grafana_web_port`             | `3000`                                              | Grafana web UI port                          |
+| Role                                                        | Reason                     |
+| ----------------------------------------------------------- | -------------------------- |
+| [`hyperledger.fabricx.openssl`](../openssl/README.md)       | TLS certificate generation |
+| [`hyperledger.fabricx.prometheus`](../prometheus/README.md) | Metrics data source        |
 
 ## Tasks
 
-### crypto/setup
+### Crypto
 
-The task `crypto/setup` allows to generate the crypto material needed to run Grafana with TLS using [openssl](../openssl/README.md):
+| Task                                      | Description                   |
+| ----------------------------------------- | ----------------------------- |
+| [crypto/setup](./tasks/crypto/setup.yaml) | Generates TLS crypto material |
+| [crypto/fetch](./tasks/crypto/fetch.yaml) | Fetches TLS certificate       |
+| [crypto/rm](./tasks/crypto/rm.yaml)       | Removes TLS crypto material   |
+
+#### crypto/setup
+
+Generates the crypto material needed to run Grafana with TLS using [openssl](../openssl/README.md):
 
 ```yaml
 - name: Setup the crypto material for Grafana
@@ -61,9 +52,9 @@ The task `crypto/setup` allows to generate the crypto material needed to run Gra
     tasks_from: crypto/setup
 ```
 
-### crypto/fetch
+#### crypto/fetch
 
-The task `crypto/fetch` fetches the TLS certificate of a Grafana running with TLS:
+Fetches the TLS certificate of a Grafana running with TLS:
 
 ```yaml
 - name: Fetch the TLS certificate of Grafana
@@ -72,9 +63,9 @@ The task `crypto/fetch` fetches the TLS certificate of a Grafana running with TL
     tasks_from: crypto/fetch
 ```
 
-### crypto/rm
+#### crypto/rm
 
-The task `crypto/rm` removes the crypto material generated for Grafana:
+Removes the crypto material generated for Grafana:
 
 ```yaml
 - name: Remove the Grafana crypto files
@@ -83,9 +74,16 @@ The task `crypto/rm` removes the crypto material generated for Grafana:
     tasks_from: crypto/rm
 ```
 
-### config/transfer
+### Config
 
-The task `config/transfer` transfers the Grafana configuration files on the remote node:
+| Task                                            | Description                     |
+| ----------------------------------------------- | ------------------------------- |
+| [config/transfer](./tasks/config/transfer.yaml) | Transfers Grafana configuration |
+| [config/rm](./tasks/config/rm.yaml)             | Removes configuration           |
+
+#### config/transfer
+
+Transfers the Grafana configuration files on the remote node:
 
 ```yaml
 - name: Transfer the Grafana configuration files
@@ -94,9 +92,9 @@ The task `config/transfer` transfers the Grafana configuration files on the remo
     tasks_from: config/transfer
 ```
 
-### config/rm
+#### config/rm
 
-The task `config/rm` removes the Grafana configuration files on the remote node:
+Removes the Grafana configuration files on the remote node:
 
 ```yaml
 - name: Remove the Grafana configuration files
@@ -105,9 +103,20 @@ The task `config/rm` removes the Grafana configuration files on the remote node:
     tasks_from: config/rm
 ```
 
-### start
+### Lifecycle
 
-The task `start` allows to start the Grafana container.
+| Task                                  | Description              |
+| ------------------------------------- | ------------------------ |
+| [start](./tasks/start.yaml)           | Starts Grafana container |
+| [stop](./tasks/stop.yaml)             | Stops Grafana container  |
+| [teardown](./tasks/teardown.yaml)     | Removes container        |
+| [wipe](./tasks/wipe.yaml)             | Removes all data         |
+| [fetch_logs](./tasks/fetch_logs.yaml) | Collects logs            |
+| [ping](./tasks/ping.yaml)             | Health check             |
+
+#### start
+
+Starts the Grafana container:
 
 ```yaml
 - name: Start Grafana
@@ -118,9 +127,9 @@ The task `start` allows to start the Grafana container.
     tasks_from: start
 ```
 
-### stop
+#### stop
 
-The task `stop` allows to stop the Grafana container.
+Stops the Grafana container:
 
 ```yaml
 - name: Stop Grafana
@@ -129,9 +138,9 @@ The task `stop` allows to stop the Grafana container.
     tasks_from: stop
 ```
 
-### teardown
+#### teardown
 
-The task `teardown` allows to shut down Grafana and remove all the artifacts being generated during runtime.
+Removes the Grafana container:
 
 ```yaml
 - name: Teardown Grafana
@@ -140,9 +149,9 @@ The task `teardown` allows to shut down Grafana and remove all the artifacts bei
     tasks_from: teardown
 ```
 
-### wipe
+#### wipe
 
-The task `wipe` allows to shut down Grafana and remove all the artifacts (configuration files and all the runtime-generated artifacts).
+Removes all Grafana data:
 
 ```yaml
 - name: Wipe Grafana
@@ -151,9 +160,9 @@ The task `wipe` allows to shut down Grafana and remove all the artifacts (config
     tasks_from: wipe
 ```
 
-### fetch_logs
+#### fetch_logs
 
-The task `fetch_logs` allows to fetch the logs from Grafana components from the remote hosts to the control node.
+Collects Grafana logs:
 
 ```yaml
 - name: Fetch Grafana logs
@@ -162,13 +171,21 @@ The task `fetch_logs` allows to fetch the logs from Grafana components from the 
     tasks_from: fetch_logs
 ```
 
-### ping
+#### ping
 
-The task `ping` allows to ping Grafana components on their opened ports. It is useful to check whether Grafana is up and running.
+Health check for Grafana:
 
 ```yaml
 - name: Ping Grafana
+  vars:
+    grafana_web_port: 3000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
     tasks_from: ping
 ```
+
+---
+
+## Variables
+
+See [`defaults/main.yaml`](defaults/main.yaml) for full variable documentation.
