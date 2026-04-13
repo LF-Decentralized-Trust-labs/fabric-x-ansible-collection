@@ -4,37 +4,23 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Wipe the Fabric-X Committer QueryService
+- name: Teardown the Fabric-X Committer components
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
-    tasks_from: query_service/wipe
-  when:
-    - committer_component_type == 'query-service'
+    tasks_from: teardown
 
-- name: Wipe the Fabric-X Committer sidecar
+- name: Remove Fabric-X Committer binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
-    tasks_from: sidecar/wipe
-  when:
-    - committer_component_type == 'sidecar'
+    tasks_from: bin/rm
+  when: committer_use_bin
 
-- name: Wipe the the Fabric-X Committer coordinator
+- name: Remove Fabric-X Committer configuration files
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
-    tasks_from: coordinator/wipe
-  when:
-    - committer_component_type == 'coordinator'
+    tasks_from: config/rm
 
-- name: Wipe the the Fabric-X Committer signature verifiers
+- name: Remove Fabric-X Committer crypto material
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
-    tasks_from: verifier/wipe
-  when:
-    - committer_component_type == 'verifier'
-
-- name: Wipe the the Fabric-X Committer validator persistence
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: validator/wipe
-  when:
-    - committer_component_type == 'validator'
+    tasks_from: crypto/rm
