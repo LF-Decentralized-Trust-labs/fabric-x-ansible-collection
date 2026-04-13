@@ -1,80 +1,61 @@
 # hyperledger.fabricx.fabric_ca
 
-The role `hyperledger.fabricx.fabric_ca` can be used to run an Hyperledger Fabric CA server and set it up using a Fabric CA client.
+> Runs a Hyperledger Fabric CA server and client for certificate management.
+
+<!-- @depends_on: hyperledger.fabricx.openssl -->
 
 ## Table of Contents <!-- omit in toc -->
 
+- [Depends On](#depends-on)
 - [Prerequisites](#prerequisites)
-- [Variables](#variables)
 - [Tasks](#tasks)
-  - [server/crypto/setup](#servercryptosetup)
-  - [server/crypto/x509/setup](#servercryptox509setup)
-  - [server/crypto/idemix/setup](#servercryptoidemixsetup)
-  - [server/config/transfer](#serverconfigtransfer)
-  - [server/crypto/fetch](#servercryptofetch)
-  - [server/start](#serverstart)
-  - [server/stop](#serverstop)
-  - [server/teardown](#serverteardown)
-  - [server/wipe](#serverwipe)
-  - [server/ping](#serverping)
-  - [server/fetch_logs](#serverfetch_logs)
-  - [client/register](#clientregister)
-  - [client/enroll](#clientenroll)
-  - [client/reenroll](#clientreenroll)
-  - [client/identity_list](#clientidentity_list)
-  - [client/revoke](#clientrevoke)
-  - [client/gencrl](#clientgencrl)
+  - [Server Crypto](#server-crypto)
+    - [server/crypto/setup](#servercryptosetup)
+    - [server/crypto/x509/setup](#servercryptox509setup)
+    - [server/crypto/idemix/setup](#servercryptoidemixsetup)
+    - [server/crypto/fetch](#servercryptofetch)
+  - [Server Config](#server-config)
+    - [server/config/transfer](#serverconfigtransfer)
+  - [Server Lifecycle](#server-lifecycle)
+    - [server/start](#serverstart)
+    - [server/stop](#serverstop)
+    - [server/teardown](#serverteardown)
+    - [server/wipe](#serverwipe)
+    - [server/ping](#serverping)
+    - [server/fetch_logs](#serverfetch_logs)
+  - [Client Tasks](#client-tasks)
+    - [client/register](#clientregister)
+    - [client/enroll](#clientenroll)
+    - [client/reenroll](#clientreenroll)
+    - [client/identity_list](#clientidentity_list)
+    - [client/revoke](#clientrevoke)
+    - [client/gencrl](#clientgencrl)
+- [Variables](#variables)
+
+## Depends On
+
+| Role                                                  | Reason                                  |
+| ----------------------------------------------------- | --------------------------------------- |
+| [`hyperledger.fabricx.openssl`](../openssl/README.md) | Used for CSR and certificate generation |
 
 ## Prerequisites
 
-The role requires:
-
-- `go` to be installed (only if you plan to use binaries with `fabric_ca_server_use_bin: true` or `fabric_ca_client_use_bin: true`).
-
-## Variables
-
-| Variable                                  | Default                                                   | Description                                                                        |
-| ----------------------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `fabric_ca_registry_endpoint`             | `$FABRIC_CA_REGISTRY_ENDPOINT` or `docker.io/hyperledger` | Container registry endpoint                                                        |
-| `fabric_ca_image_name`                    | `fabric-ca`                                               | Container image name                                                               |
-| `fabric_ca_image_tag`                     | `1.5.15`                                                  | Container image tag                                                                |
-| `fabric_ca_image`                         | `{{ registry }}/{{ name }}:{{ tag }}`                     | Full container image reference                                                     |
-| `fabric_ca_container_name`                | `{{ inventory_hostname }}`                                | Name given to the container                                                        |
-| `fabric_ca_git_uri`                       | `https://github.com/hyperledger/fabric-ca.git`            | Git repository used to build the binaries                                          |
-| `fabric_ca_git_commit`                    | `v1.5.15`                                                 | Git ref (tag or commit) to check out                                               |
-| `fabric_ca_server_source_code_package`    | `cmd/fabric-ca-server`                                    | Go source package path for the server binary                                       |
-| `fabric_ca_server_bin_package`            | `github.com/hyperledger/fabric-ca/cmd/fabric-ca-server`   | Fully-qualified Go package for `go install` (server)                               |
-| `fabric_ca_server_bin_name`               | `fabric-ca-server`                                        | Name of the server binary                                                          |
-| `fabric_ca_server_use_bin`                | `false`                                                   | Set to `true` to run the CA server as a native binary                              |
-| `fabric_ca_client_source_code_package`    | `cmd/fabric-ca-client`                                    | Go source package path for the client binary                                       |
-| `fabric_ca_client_bin_package`            | `github.com/hyperledger/fabric-ca/cmd/fabric-ca-client`   | Fully-qualified Go package for `go install` (client)                               |
-| `fabric_ca_client_bin_name`               | `fabric-ca-client`                                        | Name of the client binary                                                          |
-| `fabric_ca_client_use_bin`                | `false`                                                   | Set to `true` to run the CA client as a native binary                              |
-| `fabric_ca_server_remote_config_dir`      | `{{ remote_config_dir }}`                                 | Configuration directory on the remote node                                         |
-| `fabric_ca_server_remote_data_dir`        | `{{ remote_data_dir }}`                                   | Data directory on the remote node                                                  |
-| `fabric_ca_server_container_config_dir`   | `/config`                                                 | Server configuration directory inside the container                                |
-| `fabric_ca_client_container_config_dir`   | `/config`                                                 | Client configuration directory inside the container                                |
-| `fabric_ca_server_container_data_dir`     | `/data`                                                   | Server data directory inside the container                                         |
-| `fabric_ca_server_config_dir`             | auto-selected                                             | Active config directory (remote or container, based on `fabric_ca_server_use_bin`) |
-| `fabric_ca_server_data_dir`               | auto-selected                                             | Active data directory (remote or container, based on `fabric_ca_server_use_bin`)   |
-| `fabric_ca_log_level`                     | `INFO`                                                    | Log level                                                                          |
-| `fabric_ca_use_tls`                       | `false`                                                   | Enable TLS                                                                         |
-| `fabric_ca_scheme`                        | `https` or `http`                                         | URL scheme derived from `fabric_ca_use_tls`                                        |
-| `fabric_ca_tls_root_cert`                 | `{{ fabric_ca_server_remote_config_dir }}/ca-cert.pem`    | Path to the CA TLS root certificate                                                |
-| `fabric_ca_name`                          | `{{ inventory_hostname }}`                                | Name of the CA                                                                     |
-| `fabric_ca_csr_cn`                        | `{{ fabric_ca_name }}`                                    | Common Name (CN) for the CA CSR                                                    |
-| `fabric_ca_csr_hosts`                     | `[ansible_host, inventory_hostname]`                      | SAN hosts for the CA CSR                                                           |
-| `fabric_ca_csr_expiry`                    | `131400h`                                                 | Certificate expiry (15 years)                                                      |
-| `fabric_ca_cryptogenize_tls_ca_cert_file` | `ca.crt`                                                  | TLS CA certificate file name (cryptogenize mode)                                   |
-| `fabric_ca_cryptogenize_tls_cert_file`    | `server.crt`                                              | TLS server certificate file name (cryptogenize mode)                               |
-| `fabric_ca_cryptogenize_tls_key_file`     | `server.key`                                              | TLS server key file name (cryptogenize mode)                                       |
+- `go` to be installed (when using binary mode)
 
 ## Tasks
 
-### server/crypto/setup
+### Server Crypto
 
-The task `server/crypto/setup` pre-generates x509 and Idemix crypto material for a Fabric CA server.
-It is an orchestrator over `server/crypto/x509/setup` and `server/crypto/idemix/setup`:
+| Task                                                                  | Description                                   |
+| --------------------------------------------------------------------- | --------------------------------------------- |
+| [server/crypto/setup](./tasks/server/crypto/setup.yaml)               | Pre-generates x509 and Idemix crypto material |
+| [server/crypto/x509/setup](./tasks/server/crypto/x509/setup.yaml)     | Pre-generates Fabric CA x509 material         |
+| [server/crypto/idemix/setup](./tasks/server/crypto/idemix/setup.yaml) | Pre-generates Idemix crypto material          |
+| [server/crypto/fetch](./tasks/server/crypto/fetch.yaml)               | Fetches CA certificates                       |
+
+#### server/crypto/setup
+
+Pre-generates x509 and Idemix crypto material for a Fabric CA server. It is an orchestrator over `server/crypto/x509/setup` and `server/crypto/idemix/setup`:
 
 ```yaml
 - name: Setup the Fabric CA server crypto material
@@ -83,11 +64,9 @@ It is an orchestrator over `server/crypto/x509/setup` and `server/crypto/idemix/
     tasks_from: server/crypto/setup
 ```
 
-This pre-generation step is required to avoid first-boot crypto auto-generation by `fabric-ca-server` under `FABRIC_CA_HOME`. That behavior conflicts with read-only config mounts (for example ConfigMaps).
+#### server/crypto/x509/setup
 
-### server/crypto/x509/setup
-
-The task `server/crypto/x509/setup` pre-generates Fabric CA x509 material:
+Pre-generates Fabric CA x509 material:
 
 ```yaml
 - name: Setup the Fabric CA server x509 crypto material
@@ -96,24 +75,9 @@ The task `server/crypto/x509/setup` pre-generates Fabric CA x509 material:
     tasks_from: server/crypto/x509/setup
 ```
 
-The task covers both:
+#### server/crypto/idemix/setup
 
-- CA signing key/certificate (`ca-key.pem`, `ca-cert.pem`)
-- Fabric CA server TLS key/certificate (`tls-key.pem`, `tls-cert.pem`)
-
-TLS artifacts are generated here as well because Fabric CA can auto-generate TLS material at bootstrap time.
-Pre-generating them keeps startup compatible with read-only config folders and keeps certificate ownership explicit.
-
-For TLS CSR generation, SAN entries are derived from `fabric_ca_csr_hosts`:
-
-- host values matching IPv4 format become `IP:<value>`
-- all other values become `DNS:<value>`
-
-This conversion is needed because OpenSSL SAN syntax requires explicit entry types (`IP:` / `DNS:`).
-
-### server/crypto/idemix/setup
-
-The task `server/crypto/idemix/setup` pre-generates Fabric CA Idemix material:
+Pre-generates Idemix crypto material:
 
 ```yaml
 - name: Setup the Fabric CA server Idemix crypto material
@@ -122,228 +86,190 @@ The task `server/crypto/idemix/setup` pre-generates Fabric CA Idemix material:
     tasks_from: server/crypto/idemix/setup
 ```
 
-The generated Idemix artifacts are copied to Fabric CA expected default locations under the server
-config directory:
+#### server/crypto/fetch
 
-- `IssuerPublicKey`
-- `IssuerRevocationPublicKey`
-- `msp/keystore/IssuerSecretKey`
-- `msp/keystore/IssuerRevocationPrivateKey`
-
-### server/config/transfer
-
-The task `server/config/transfer` generates the configuration file for a Fabric CA server:
+Fetches CA certificates:
 
 ```yaml
-- name: Transfer the Fabric CA server configuration file
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.fabric_ca
-    tasks_from: server/config/transfer
-```
-
-### server/crypto/fetch
-
-The task `server/crypto/fetch` fetches on the control node the certificates of a Fabric CA server that need to be used to build the genesis block:
-
-```yaml
-- name: Fetch the Fabric CA server crypto material
+- name: Fetch the Fabric CA certificates
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/crypto/fetch
 ```
 
-### server/start
+### Server Config
 
-The task `server/start` starts a Fabric CA server (either as container or as binary if the `fabric_ca_use_bin` variable is set):
+| Task                                                          | Description                       |
+| ------------------------------------------------------------- | --------------------------------- |
+| [server/config/transfer](./tasks/server/config/transfer.yaml) | Transfers CA server configuration |
+
+#### server/config/transfer
+
+Transfers CA server configuration:
 
 ```yaml
-- name: Start a Fabric CA server
+- name: Transfer the Fabric CA server configuration
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/config/transfer
+```
+
+### Server Lifecycle
+
+| Task                                                | Description                |
+| --------------------------------------------------- | -------------------------- |
+| [server/start](./tasks/server/start.yaml)           | Starts the CA server       |
+| [server/stop](./tasks/server/stop.yaml)             | Stops the CA server        |
+| [server/teardown](./tasks/server/teardown.yaml)     | Removes CA server runtime  |
+| [server/wipe](./tasks/server/wipe.yaml)             | Removes CA server data     |
+| [server/ping](./tasks/server/ping.yaml)             | Health check for CA server |
+| [server/fetch_logs](./tasks/server/fetch_logs.yaml) | Collects CA server logs    |
+
+#### server/start
+
+Starts the CA server:
+
+```yaml
+- name: Start the Fabric CA server
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/start
 ```
 
-### server/stop
+#### server/stop
 
-The task `server/stop` stops a Fabric CA server:
+Stops the CA server:
 
 ```yaml
-- name: Stop a Fabric CA server
+- name: Stop the Fabric CA server
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/stop
 ```
 
-### server/teardown
+#### server/teardown
 
-The task `server/teardown` tears down a Fabric CA server and removes all the artifacts generated during runtime:
+Removes CA server runtime:
 
 ```yaml
-- name: Teardown a Fabric CA server
+- name: Teardown the Fabric CA server
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/teardown
 ```
 
-### server/wipe
+#### server/wipe
 
-The task `server/wipe` wipes a Fabric CA server removing all the data generated at runtime as well as any configuration file:
+Removes CA server data:
 
 ```yaml
-- name: Wipe a Fabric CA server
+- name: Wipe the Fabric CA server
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/wipe
 ```
 
-### server/ping
+#### server/ping
 
-The task `server/ping` pings a Fabric CA server to check if is up and running:
+Health check for CA server:
 
 ```yaml
-- name: Ping a Fabric CA server
+- name: Ping the Fabric CA server
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/ping
 ```
 
-### server/fetch_logs
+#### server/fetch_logs
 
-The task `server/fetch_logs` fetches the logs of a Fabric CA server:
+Collects CA server logs:
 
 ```yaml
-- name: Fetch the logs of a Fabric CA server
+- name: Fetch the Fabric CA server logs
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/fetch_logs
 ```
 
-### client/register
+### Client Tasks
 
-The task `client/register` registers an identity within a Fabric CA server.
+| Task                   | File                                                                 | Description            |
+| ---------------------- | -------------------------------------------------------------------- | ---------------------- |
+| `client/register`      | [tasks/client/register.yaml](./tasks/client/register.yaml)           | Registers an identity  |
+| `client/enroll`        | [tasks/client/enroll.yaml](./tasks/client/enroll.yaml)               | Enrolls an identity    |
+| `client/reenroll`      | [tasks/client/reenroll.yaml](./tasks/client/reenroll.yaml)           | Re-enrolls an identity |
+| `client/identity_list` | [tasks/client/identity_list.yaml](./tasks/client/identity_list.yaml) | Lists identities       |
+| `client/revoke`        | [tasks/client/revoke.yaml](./tasks/client/revoke.yaml)               | Revokes an identity    |
+| `client/gencrl`        | [tasks/client/gencrl.yaml](./tasks/client/gencrl.yaml)               | Generates CRL          |
 
-It uses the `fabric-ca-client` CLI utility (either as container or as binary by setting the variable `fabric_ca_client_use_bin: true`):
+#### client/register
+
+Registers an identity:
 
 ```yaml
-- name: Register the "orderer-router-1" user
-  vars:
-    fabric_ca_tls_certfile: /tmp/fabric-ca-orderer-org1/ca-cert.pem
-    fabric_ca_host: fabric-ca-orderer-org1
-    fabric_ca_msp_dir: /tmp/fabric-ca-orderer-org1/admin/msp
-    fabric_ca_identity:
-      name: orderer-router-1
-      secret: orderer-router-1-PWD
-      type: orderer
-      attrs:
-        hf.GenCRL: "true:ecert"
+- name: Register an identity
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/register
 ```
 
-### client/enroll
+#### client/enroll
 
-The task `client/enroll` enrolls a registered identity and generates its MSP crypto material.
-
-It uses the `fabric-ca-client` CLI utility (either as container or as binary by setting the variable `fabric_ca_client_use_bin: true`):
+Enrolls an identity:
 
 ```yaml
-- name: Enroll the "orderer-router-1" user
-  vars:
-    fabric_ca_host: fabric-ca-orderer-org1
-    fabric_ca_use_tls: true
-    fabric_ca_name: fabric-ca-orderer-org1
-    fabric_ca_msp_dir: /tmp/orderer-router-1/msp
-    fabric_ca_tls_certfile: /tmp/orderer-router-1/ca-cert.pem
-    fabric_ca_csr_hosts:
-      - orderer-router-1
-    fabric_ca_identity:
-      name: orderer-router-1
-      secret: orderer-router-1-PWD
+- name: Enroll an identity
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/enroll
 ```
 
-### client/reenroll
+#### client/reenroll
 
-The task `client/reenroll` re-enrolls a registered identity and generates new MSP crypto material.
-
-It uses the `fabric-ca-client` CLI utility (either as container or as binary by setting the variable `fabric_ca_client_use_bin: true`):
+Re-enrolls an identity:
 
 ```yaml
-- name: Re-enroll the "orderer-router-1" user
-  vars:
-    fabric_ca_host: fabric-ca-orderer-org1
-    fabric_ca_use_tls: true
-    fabric_ca_name: fabric-ca-orderer-org1
-    fabric_ca_msp_dir: /tmp/orderer-router-1/msp
-    fabric_ca_tls_certfile: /tmp/orderer-router-1/ca-cert.pem
-    fabric_ca_csr_hosts:
-      - orderer-router-1
-    fabric_ca_identity:
-      name: orderer-router-1
-      secret: orderer-router-1-PWD
+- name: Re-enroll an identity
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/reenroll
 ```
 
-### client/identity_list
+#### client/identity_list
 
-The task `client/identity_list` lists all the identities registered in a Fabric CA server.
-
-It uses the `fabric-ca-client` CLI utility (either as container or as binary by setting the variable `fabric_ca_client_use_bin: true`):
+Lists identities:
 
 ```yaml
-- name: Find all registered identities in "fabric-ca-orderer-org1" Fabric CA server
-  vars:
-    fabric_ca_host: fabric-ca-orderer-org1
-    fabric_ca_use_tls: true
-    fabric_ca_name: fabric-ca-orderer-org1
-    fabric_ca_msp_dir: /tmp/fabric-ca-orderer-org1/admin/msp
-    fabric_ca_tls_certfile: /tmp/fabric-ca-orderer-org1/ca-cert.pem
+- name: List identities
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/identity_list
 ```
 
-### client/revoke
+#### client/revoke
 
-The task `client/revoke` revokes an identity previously enrolled in a Fabric CA server.
-
-It uses the `fabric-ca-client` CLI utility (either as container or as binary by setting the variable `fabric_ca_client_use_bin: true`):
+Revokes an identity:
 
 ```yaml
-- name: Find all registered identities in "fabric-ca-orderer-org1" Fabric CA server
-  vars:
-    fabric_ca_host: fabric-ca-orderer-org1
-    fabric_ca_use_tls: true
-    fabric_ca_name: fabric-ca-orderer-org1
-    fabric_ca_msp_dir: /tmp/fabric-ca-orderer-org1/admin/msp
-    fabric_ca_tls_certfile: /tmp/fabric-ca-orderer-org1/ca-cert.pem
-    fabric_ca_identity:
-      name: orderer-router-1
+- name: Revoke an identity
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/revoke
 ```
 
-### client/gencrl
+#### client/gencrl
 
-The task `client/gencrl` generates the Certificate Revocation List for a given Fabric CA server. **NOTE** that only users registered with the `hf.GenCRL: true` attribute are allowed to generate such list.
-
-It uses the `fabric-ca-client` CLI utility (either as container or as binary by setting the variable `fabric_ca_client_use_bin: true`):
+Generates CRL:
 
 ```yaml
-- name: Find all registered identities in "fabric-ca-orderer-org1" Fabric CA server
-  vars:
-    fabric_ca_host: fabric-ca-orderer-org1
-    fabric_ca_use_tls: true
-    fabric_ca_name: fabric-ca-orderer-org1
-    fabric_ca_msp_dir: /tmp/fabric-ca-orderer-org1/admin/msp
-    fabric_ca_tls_certfile: /tmp/fabric-ca-orderer-org1/ca-cert.pem
+- name: Generate CRL
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/gencrl
 ```
+
+---
+
+## Variables
+
+See [`defaults/main.yaml`](defaults/main.yaml) for full variable documentation.

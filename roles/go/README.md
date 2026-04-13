@@ -1,44 +1,37 @@
 # hyperledger.fabricx.go
 
-The role `hyperledger.fabricx.go` provides tasks for building and installing Go binaries, as well as mapping platform information from Ansible facts to Go's GOOS and GOARCH values.
+> Provides tasks for building and installing Go binaries, and mapping Ansible facts to Go platform values (GOOS/GOARCH).
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Prerequisites](#prerequisites)
-- [Variables](#variables)
 - [Tasks](#tasks)
-  - [install_go](#install_go)
-  - [map_platform](#map_platform)
-  - [build](#build)
-  - [install](#install)
+  - [Lifecycle](#lifecycle)
+    - [install_go](#install_go)
+    - [map_platform](#map_platform)
+    - [build](#build)
+    - [install](#install)
+- [Variables](#variables)
 
 ## Prerequisites
 
-The role requires:
-
-- `go` to be installed on the controller node.
-- When `go_cgo_enabled` is `true`, a C compiler must be available for cross-compilation.
-
-## Variables
-
-The following variables can be used to customize the role:
-
-| Variable              | Description                                   | Default                       |
-| --------------------- | --------------------------------------------- | ----------------------------- |
-| `go_cgo_enabled`      | Enable CGO for cross-compilation              | `false`                       |
-| `go_output_dir`       | Output directory for binaries                 | `bin_dir` or `/usr/local/bin` |
-| `go_source_code_path` | Path to source code (build task)              | `""`                          |
-| `go_output_name`      | Name of output binary (build task)            | `""`                          |
-| `go_package`          | Go package to install (install task)          | `""`                          |
-| `go_host_to_map`      | Host to map platform from (map_platform task) | `""`                          |
-| `go_os`               | Mapped GOOS value (set by map_platform)       | `""`                          |
-| `go_arch`             | Mapped GOARCH value (set by map_platform)     | `""`                          |
+- `go` installed on the controller node
+- C compiler (when `go_cgo_enabled: true`)
 
 ## Tasks
 
-### install_go
+### Lifecycle
 
-The task `install_go` installs the Go runtime on the targeted node. If Go is already installed, the task is a no-op.
+| Task                                      | Description                       |
+| ----------------------------------------- | --------------------------------- |
+| [install_go](./tasks/install_go.yaml)     | Installs Go runtime               |
+| [map_platform](./tasks/map_platform.yaml) | Maps Ansible facts to GOOS/GOARCH |
+| [build](./tasks/build.yaml)               | Builds Go binary                  |
+| [install](./tasks/install.yaml)           | Installs Go binary                |
+
+#### install_go
+
+Installs the Go runtime on the targeted node. Idempotent — if Go is already installed, the task is a no-op.
 
 ```yaml
 - name: Install Go
@@ -49,95 +42,48 @@ The task `install_go` installs the Go runtime on the targeted node. If Go is alr
     tasks_from: install_go
 ```
 
-### map_platform
+#### map_platform
 
-The task `map_platform` maps Ansible facts (`ansible_facts.system` and `ansible_facts.architecture`) from a remote host to Go's `GOOS` and `GOARCH` values.
-
-This task accepts a `go_host_to_map` variable containing the hostname of a remote host. It reads the Ansible facts from that host and maps them to the appropriate Go platform values.
-
-**GOOS Mapping:**
-
-| Ansible `system` | GOOS    |
-| ---------------- | ------- |
-| Linux            | linux   |
-| Darwin           | darwin  |
-| Windows          | windows |
-| FreeBSD          | freebsd |
-| OpenBSD          | openbsd |
-| NetBSD           | netbsd  |
-
-**GOARCH Mapping:**
-
-| Ansible `architecture` | GOARCH  |
-| ---------------------- | ------- |
-| x86_64                 | amd64   |
-| x86                    | 386     |
-| aarch64                | arm64   |
-| armv7l                 | arm     |
-| armv6l                 | arm     |
-| ppc64le                | ppc64le |
-| ppc64                  | ppc64   |
-| s390x                  | s390x   |
-| riscv64                | riscv64 |
-| loong64                | loong64 |
+Maps Ansible facts (`ansible_facts.system`, `ansible_facts.architecture`) from a remote host to Go's `GOOS` and `GOARCH` values.
 
 ```yaml
-- name: Map platform for host
+- name: Map platform for target host
   vars:
-    go_host_to_map: "{{ inventory_hostname }}"
+    go_host_to_map: target-host
   ansible.builtin.include_role:
     name: hyperledger.fabricx.go
     tasks_from: map_platform
 ```
 
-### build
+#### build
 
-The task `build` compiles a Go binary from source code.
-
-Required variables:
-
-- `go_source_code_path`: Path to the source code directory
-- `go_output_name`: Name of the output binary
-
-Optional variables:
-
-- `go_os`: Target operating system (defaults to local OS)
-- `go_arch`: Target architecture (defaults to local architecture)
-- `go_cgo_enabled`: Enable CGO (defaults to false)
+Builds a Go binary from source:
 
 ```yaml
-- name: Build a Go binary
+- name: Build Go binary
   vars:
-    go_source_code_path: "/path/to/source"
-    go_output_name: "mybinary"
-    go_os: "linux"
-    go_arch: "amd64"
+    go_source_code_path: /path/to/source
+    go_output_name: my-binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.go
     tasks_from: build
 ```
 
-### install
+#### install
 
-The task `install` installs a Go binary package using `go install`.
-
-Required variables:
-
-- `go_package`: Full Go package path (e.g., `github.com/user/repo/cmd/tool`)
-
-Optional variables:
-
-- `go_output_dir`: Output directory for the binary
-- `go_os`: Target operating system
-- `go_arch`: Target architecture
-- `go_cgo_enabled`: Enable CGO
+Installs a Go binary using `go install`:
 
 ```yaml
-- name: Install a Go package
+- name: Install Go binary
   vars:
-    go_package: "github.com/hyperledger/fabric-x-committer/cmd/loadgen"
-    go_output_dir: "/usr/local/bin"
+    go_package: github.com/example/my-binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.go
     tasks_from: install
 ```
+
+---
+
+## Variables
+
+See [`defaults/main.yaml`](defaults/main.yaml) for full variable documentation.

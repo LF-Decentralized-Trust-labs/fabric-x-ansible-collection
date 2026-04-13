@@ -1,30 +1,32 @@
 # hyperledger.fabricx.git
 
-The role `hyperledger.fabricx.git` can be used to perform `git` operations on a node.
+> Performs `git` operations on a node.
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Prerequisites](#prerequisites)
-- [Variables](#variables)
 - [Tasks](#tasks)
-  - [install](#install)
-  - [clone](#clone)
+  - [Lifecycle](#lifecycle)
+    - [install](#install)
+    - [clone](#clone)
+- [Variables](#variables)
 
 ## Prerequisites
 
-The role requires `git` to be installed on the targeted node.
-
-## Variables
-
-| Variable     | Default | Description                                   |
-| ------------ | ------- | --------------------------------------------- |
-| `git_commit` | `main`  | Git ref (branch, tag, or commit) to check out |
+- `git` installed on the targeted node
 
 ## Tasks
 
-### install
+### Lifecycle
 
-The task `install` installs `git` on the targeted node:
+| Task                            | Description             |
+| ------------------------------- | ----------------------- |
+| [install](./tasks/install.yaml) | Installs git            |
+| [clone](./tasks/clone.yaml)     | Clones a Git repository |
+
+#### install
+
+Installs `git` on the targeted node:
 
 ```yaml
 - name: Install git
@@ -33,11 +35,9 @@ The task `install` installs `git` on the targeted node:
     tasks_from: install
 ```
 
-### clone
+#### clone
 
-The task `clone` allows to clone a Git Repository at a given commit in a given location on the file system.
-
-For example:
+Clones a Git repository at a given commit into a specified location:
 
 ```yaml
 - name: Clone the Fabric-X Orderer repository
@@ -49,3 +49,9 @@ For example:
     name: hyperledger.fabricx.git
     tasks_from: clone
 ```
+
+---
+
+## Variables
+
+See [`defaults/main.yaml`](defaults/main.yaml) for full variable documentation.

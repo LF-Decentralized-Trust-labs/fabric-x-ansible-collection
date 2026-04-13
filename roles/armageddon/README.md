@@ -1,41 +1,38 @@
 # hyperledger.fabricx.armageddon
 
-The role `hyperledger.fabricx.armageddon` can be used to run the `armageddon` CLI tool. The role allows to run it both as binary and as container.
+> Runs the `armageddon` CLI tool for genesis block and shared config generation.
+
+<!-- @depends_on: hyperledger.fabricx.cryptogen -->
 
 ## Table of Contents <!-- omit in toc -->
 
-- [Variables](#variables)
+- [Depends On](#depends-on)
+- [Prerequisites](#prerequisites)
 - [Tasks](#tasks)
-  - [config/build](#configbuild)
-  - [create_shared_config](#create_shared_config)
+  - [Config](#config)
+  - [Lifecycle](#lifecycle)
 
-## Variables
+## Depends On
 
-| Variable                                    | Default                                                    | Description                                                   |
-| ------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------- |
-| `armageddon_registry_endpoint`              | `$ARMAGEDDON_REGISTRY_ENDPOINT` or `docker.io/hyperledger` | Container registry endpoint                                   |
-| `armageddon_image_name`                     | `fabric-x-orderer`                                         | Container image name                                          |
-| `armageddon_image_tag`                      | `0.0.21-1`                                                 | Container image tag                                           |
-| `armageddon_image`                          | `{{ registry }}/{{ name }}:{{ tag }}`                      | Full container image reference                                |
-| `armageddon_container_name`                 | `armageddon`                                               | Name given to the ephemeral container                         |
-| `armageddon_git_uri`                        | `https://github.com/hyperledger/fabric-x-orderer.git`      | Git repository used to build the binary                       |
-| `armageddon_git_commit`                     | `v0.0.21-1`                                                | Git ref (tag or commit) to check out                          |
-| `armageddon_source_code_package`            | `cmd/armageddon`                                           | Go source package path within the repository                  |
-| `armageddon_bin_package`                    | `github.com/hyperledger/fabric-x-orderer/cmd/armageddon`   | Fully-qualified Go package used for `go install`              |
-| `armageddon_bin_name`                       | `armageddon`                                               | Name of the produced binary                                   |
-| `armageddon_use_bin`                        | `false`                                                    | Set to `true` to use the native binary instead of a container |
-| `armageddon_artifacts_dir`                  | `{{ config_build_dir }}/armageddon-artifacts`              | Directory on the controller where artifacts are written       |
-| `armageddon_container_output_dir`           | `/tmp/out`                                                 | Output directory inside the container                         |
-| `armageddon_container_config_dir`           | `/tmp/config`                                              | Config directory inside the container                         |
-| `armageddon_container_crypto_artifacts_dir` | `/tmp/crypto`                                              | Crypto artifacts directory inside the container               |
-| `armageddon_config_file`                    | `armageddon.yaml`                                          | Name of the armageddon configuration file                     |
-| `armageddon_shared_config_file`             | `shared_config.yaml`                                       | Name of the shared configuration file                         |
+| Role                                                      | Reason                                          |
+| --------------------------------------------------------- | ----------------------------------------------- |
+| [`hyperledger.fabricx.cryptogen`](../cryptogen/README.md) | Genesis block generation requires crypto output |
+
+## Prerequisites
+
+- `go` to be installed (when using binary mode)
 
 ## Tasks
 
-### config/build
+### Config
 
-The task `config/build` allows to generate the `shared_config.yaml` configuration file which is later used to build the `shared_config.binpb` protobuf.
+| Task                                      | Description                  |
+| ----------------------------------------- | ---------------------------- |
+| [config/build](./tasks/config/build.yaml) | Generates shared_config.yaml |
+
+#### config/build
+
+Generates the `shared_config.yaml` configuration file used to build the `shared_config.binpb` protobuf.
 
 ```yaml
 - name: Generate shared_config.yaml
@@ -44,9 +41,15 @@ The task `config/build` allows to generate the `shared_config.yaml` configuratio
     tasks_from: config/build
 ```
 
-### create_shared_config
+### Lifecycle
 
-The task `create_shared_config` allows to generate the `shared_config.binpb` serialized protobuf which contains all the necessary configuration to bootstrap the Fabric-X Orderer. This block can be embedded in the genesis block to provide such configuration to the orderers.
+| Task                                                      | Description                   |
+| --------------------------------------------------------- | ----------------------------- |
+| [create_shared_config](./tasks/create_shared_config.yaml) | Generates shared_config.binpb |
+
+#### create_shared_config
+
+Generates the `shared_config.binpb` serialized protobuf containing all necessary configuration to bootstrap the Fabric-X Orderer.
 
 ```yaml
 - name: Generate shared_config.binpb
@@ -54,3 +57,9 @@ The task `create_shared_config` allows to generate the `shared_config.binpb` ser
     name: hyperledger.fabricx.armageddon
     tasks_from: create_shared_config
 ```
+
+---
+
+## Variables
+
+See [`defaults/main.yaml`](defaults/main.yaml) for full variable documentation.

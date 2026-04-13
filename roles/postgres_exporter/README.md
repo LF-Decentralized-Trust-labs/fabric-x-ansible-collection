@@ -1,67 +1,49 @@
 # hyperledger.fabricx.postgres_exporter
 
-The role `hyperledger.fabricx.postgres_exporter` can be used to run a [Prometheus Postgres Exporter](https://github.com/prometheus-community/postgres_exporter) to collect PostgreSQL metrics.
+> Runs a [Prometheus Postgres Exporter](https://github.com/prometheuscommunity/postgres_exporter) to collect PostgreSQL metrics.
 
-The role allows to run Postgres Exporter as **container only** (binary is not currently supported).
-
-The role supports running one exporter per database instance.
+<!-- @depends_on: hyperledger.fabricx.openssl, hyperledger.fabricx.postgres -->
 
 ## Table of Contents <!-- omit in toc -->
 
-- [Postgres Exporter Metrics](#postgres-exporter-metrics)
-- [Variables](#variables)
+- [Depends On](#depends-on)
 - [Tasks](#tasks)
-  - [crypto/setup](#cryptosetup)
-  - [crypto/fetch](#cryptofetch)
-  - [crypto/rm](#cryptorm)
-  - [config/transfer](#configtransfer)
-  - [config/rm](#configrm)
-  - [start](#start)
-  - [stop](#stop)
-  - [teardown](#teardown)
-  - [wipe](#wipe)
-  - [fetch\_logs](#fetch_logs)
-  - [ping](#ping)
+  - [Crypto](#crypto)
+    - [crypto/setup](#cryptosetup)
+    - [crypto/fetch](#cryptofetch)
+    - [crypto/rm](#cryptorm)
+  - [Config](#config)
+    - [config/transfer](#configtransfer)
+    - [config/rm](#configrm)
+  - [Lifecycle](#lifecycle)
+    - [start](#start)
+    - [stop](#stop)
+    - [teardown](#teardown)
+    - [wipe](#wipe)
+    - [fetch_logs](#fetch_logs)
+    - [ping](#ping)
+- [Variables](#variables)
 
-## Postgres Exporter Metrics
+## Depends On
 
-When the `prometheus_postgres_exporters` variable is set, Prometheus scrapes the following main metric families from each PostgreSQL instance:
-
-- **pg_up** – Database availability (1 = up, 0 = down)
-- **pg_connections** – Current number of active connections
-- **pg_database_size_bytes** – Database size in bytes
-- **pg_stat_activity** – Information about active queries and sessions
-- **pg*stat_database* metrics** – Transaction counts, commit/rollback rates, tuple reads/inserts/updates/deletes
-- **pg*stat_replication* metrics** – Replication lag and streaming replication state
-- **pg_locks** – Lock counts by type and mode
-- **pg*index* metrics** – Index usage and size
-- **pg*table* metrics** – Table size and row counts
-- **pg*stat_bgwriter* metrics** – Background writer activity (checkpoints, buffers written)
-- **pg*stat_statements* metrics** (if extension is enabled) – Query execution counts, total/mean execution time, I/O stats
-- **pg_cache_hit_ratio** – Calculated metric for cache efficiency
-
-## Variables
-
-| Variable                                 | Default                                                                   | Description                                  |
-| ---------------------------------------- | ------------------------------------------------------------------------- | -------------------------------------------- |
-| `postgres_exporter_registry_endpoint`    | `$POSTGRES_EXPORTER_REGISTRY_ENDPOINT` or `docker.io/prometheuscommunity` | Container registry endpoint                  |
-| `postgres_exporter_image_name`           | `postgres-exporter`                                                       | Container image name                         |
-| `postgres_exporter_image_tag`            | `latest`                                                                  | Container image tag                          |
-| `postgres_exporter_image`                | `{{ registry }}/{{ name }}:{{ tag }}`                                     | Full container image reference               |
-| `postgres_exporter_container_name`       | `{{ inventory_hostname }}`                                                | Name given to the container                  |
-| `postgres_exporter_remote_config_dir`    | `{{ remote_config_dir }}`                                                 | Configuration directory on the remote node   |
-| `postgres_exporter_container_config_dir` | `/var/config`                                                             | Configuration directory inside the container |
-| `postgres_exporter_config_file`          | `postgres_exporter.yaml`                                                  | Exporter configuration file name             |
-| `postgres_exporter_web_config_file`      | `web-config.yaml`                                                         | Web (TLS) configuration file name            |
-| `postgres_exporter_use_tls`              | `false`                                                                   | Enable TLS                                   |
-| `postgres_exporter_tls_private_key_file` | `server.key`                                                              | TLS private key file name                    |
-| `postgres_exporter_tls_cert_file`        | `server.crt`                                                              | TLS certificate file name                    |
+| Role                                                    | Reason                       |
+| ------------------------------------------------------- | ---------------------------- |
+| [`hyperledger.fabricx.openssl`](../openssl/README.md)   | TLS certificate generation   |
+| [`hyperledger.fabricx.postgres`](../postgres/README.md) | Database instance to monitor |
 
 ## Tasks
 
-### crypto/setup
+### Crypto
 
-The task `crypto/setup` allows to generate the crypto material needed to run Postgres Exporter with TLS using [openssl](../openssl/README.md):
+| Task                                      | Description                   |
+| ----------------------------------------- | ----------------------------- |
+| [crypto/setup](./tasks/crypto/setup.yaml) | Generates TLS crypto material |
+| [crypto/fetch](./tasks/crypto/fetch.yaml) | Fetches TLS certificate       |
+| [crypto/rm](./tasks/crypto/rm.yaml)       | Removes TLS crypto material   |
+
+#### crypto/setup
+
+Generates the crypto material needed to run Postgres Exporter with TLS using [openssl](../openssl/README.md):
 
 ```yaml
 - name: Setup the crypto material for Postgres Exporter
@@ -70,9 +52,9 @@ The task `crypto/setup` allows to generate the crypto material needed to run Pos
     tasks_from: crypto/setup
 ```
 
-### crypto/fetch
+#### crypto/fetch
 
-The task `crypto/fetch` fetches the TLS certificate of a Postgres Exporter running with TLS:
+Fetches the TLS certificate of a Postgres Exporter running with TLS:
 
 ```yaml
 - name: Fetch the TLS certificate of Postgres Exporter
@@ -81,9 +63,9 @@ The task `crypto/fetch` fetches the TLS certificate of a Postgres Exporter runni
     tasks_from: crypto/fetch
 ```
 
-### crypto/rm
+#### crypto/rm
 
-The task `crypto/rm` removes the crypto material generated for Postgres Exporter:
+Removes the crypto material generated for Postgres Exporter:
 
 ```yaml
 - name: Remove the Postgres Exporter crypto files
@@ -92,9 +74,16 @@ The task `crypto/rm` removes the crypto material generated for Postgres Exporter
     tasks_from: crypto/rm
 ```
 
-### config/transfer
+### Config
 
-The task `config/transfer` transfers the Postgres Exporter configuration files on the remote node:
+| Task                                            | Description                      |
+| ----------------------------------------------- | -------------------------------- |
+| [config/transfer](./tasks/config/transfer.yaml) | Transfers exporter configuration |
+| [config/rm](./tasks/config/rm.yaml)             | Removes configuration            |
+
+#### config/transfer
+
+Transfers the Postgres Exporter configuration files on the remote node:
 
 ```yaml
 - name: Transfer the Postgres Exporter configuration files
@@ -103,9 +92,9 @@ The task `config/transfer` transfers the Postgres Exporter configuration files o
     tasks_from: config/transfer
 ```
 
-### config/rm
+#### config/rm
 
-The task `config/rm` removes the Postgres Exporter configuration files on the remote node:
+Removes the Postgres Exporter configuration files on the remote node:
 
 ```yaml
 - name: Remove the Postgres Exporter configuration files
@@ -114,9 +103,20 @@ The task `config/rm` removes the Postgres Exporter configuration files on the re
     tasks_from: config/rm
 ```
 
-### start
+### Lifecycle
 
-The task `start` allows to start the Postgres Exporter.
+| Task                                  | Description               |
+| ------------------------------------- | ------------------------- |
+| [start](./tasks/start.yaml)           | Starts exporter container |
+| [stop](./tasks/stop.yaml)             | Stops exporter container  |
+| [teardown](./tasks/teardown.yaml)     | Removes container         |
+| [wipe](./tasks/wipe.yaml)             | Removes all data          |
+| [fetch_logs](./tasks/fetch_logs.yaml) | Collects logs             |
+| [ping](./tasks/ping.yaml)             | Health check              |
+
+#### start
+
+Starts the Postgres Exporter container:
 
 ```yaml
 - name: Start Postgres Exporter
@@ -125,9 +125,9 @@ The task `start` allows to start the Postgres Exporter.
     tasks_from: start
 ```
 
-### stop
+#### stop
 
-The task `stop` allows to stop the Postgres Exporter.
+Stops the Postgres Exporter container:
 
 ```yaml
 - name: Stop Postgres Exporter
@@ -136,46 +136,52 @@ The task `stop` allows to stop the Postgres Exporter.
     tasks_from: stop
 ```
 
-### teardown
+#### teardown
 
-The task `teardown` allows to shut down the Postgres Exporter.
+Removes the Postgres Exporter container:
 
 ```yaml
-- name: Teardown the Postgres Exporter
+- name: Teardown Postgres Exporter
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: teardown
 ```
 
-### wipe
+#### wipe
 
-The task `wipe` allows to shut down and wipe all configuration files of a Postgres Postgres Exporter.
+Removes all Postgres Exporter data:
 
 ```yaml
-- name: Wipe the Postgres Exporter
+- name: Wipe Postgres Exporter
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: wipe
 ```
 
-### fetch_logs
+#### fetch_logs
 
-The task `fetch_logs` allows to fetch the logs from the Postgres Exporter.
+Collects Postgres Exporter logs:
 
 ```yaml
-- name: Fetch the Postgres Exporter logs
+- name: Fetch Postgres Exporter logs
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: fetch_logs
 ```
 
-### ping
+#### ping
 
-The task `ping` allows to ping the Postgres Exporter components on their opened ports. It is useful to check whether the instances are running or if they are not running/reachable.
+Health check for Postgres Exporter:
 
 ```yaml
-- name: Ping the Postgres Exporter
+- name: Ping Postgres Exporter
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: ping
 ```
+
+---
+
+## Variables
+
+See [`defaults/main.yaml`](defaults/main.yaml) for full variable documentation.

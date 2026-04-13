@@ -1,57 +1,54 @@
 # hyperledger.fabricx.committer
 
-The role `hyperledger.fabricx.committer` can be used to run the Fabric-X `committer` components (i.e. `validator`, `verifier`, `coordinator`, `sidecar` and `query-service`).
+> Runs Fabric-X Committer components (`validator`, `verifier`, `coordinator`, `sidecar`, `query-service`).
+
+<!-- @depends_on: hyperledger.fabricx.cryptogen, hyperledger.fabricx.fabric_ca, hyperledger.fabricx.orderer, hyperledger.fabricx.fxconfig, hyperledger.fabricx.postgres, hyperledger.fabricx.yugabyte -->
 
 ## Table of Contents <!-- omit in toc -->
 
-- [Variables](#variables)
+- [Depends On](#depends-on)
 - [Tasks](#tasks)
-  - [crypto/setup](#cryptosetup)
-  - [crypto/fetch](#cryptofetch)
-  - [crypto/rm](#cryptorm)
-  - [config/transfer](#configtransfer)
-  - [start](#start)
-  - [stop](#stop)
-  - [teardown](#teardown)
-  - [wipe](#wipe)
-  - [fetch_logs](#fetch_logs)
-  - [ping](#ping)
-  - [get_metrics](#get_metrics)
+  - [Crypto](#crypto)
+    - [crypto/setup](#cryptosetup)
+    - [crypto/fetch](#cryptofetch)
+    - [crypto/rm](#cryptorm)
+  - [Config](#config)
+    - [config/transfer](#configtransfer)
+    - [config/rm](#configrm)
+  - [Lifecycle](#lifecycle)
+    - [start](#start)
+    - [stop](#stop)
+    - [teardown](#teardown)
+    - [wipe](#wipe)
+    - [fetch_logs](#fetch_logs)
+    - [ping](#ping)
+    - [get_metrics](#get_metrics)
+- [Variables](#variables)
 
-## Variables
+## Depends On
 
-| Variable                         | Default                                                   | Description                                                                 |
-| -------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------- |
-| `committer_registry_endpoint`    | `$COMMITTER_REGISTRY_ENDPOINT` or `docker.io/hyperledger` | Container registry endpoint                                                 |
-| `committer_image_name`           | `fabric-x-committer`                                      | Container image name                                                        |
-| `committer_image_tag`            | `0.1.7-1`                                                 | Container image tag                                                         |
-| `committer_image`                | `{{ registry }}/{{ name }}:{{ tag }}`                     | Full container image reference                                              |
-| `committer_container_name`       | `{{ inventory_hostname }}`                                | Name given to the container                                                 |
-| `committer_git_uri`              | `https://github.com/hyperledger/fabric-x-committer.git`   | Git repository used to build the binary                                     |
-| `committer_git_commit`           | `v0.1.7-1`                                                | Git ref (tag or commit) to check out                                        |
-| `committer_source_code_package`  | `cmd/committer`                                           | Go source package path within the repository                                |
-| `committer_bin_package`          | `github.com/hyperledger/fabric-x-committer/cmd/committer` | Fully-qualified Go package used for `go install`                            |
-| `committer_bin_name`             | `committer`                                               | Name of the produced binary                                                 |
-| `committer_use_bin`              | `false`                                                   | Set to `true` to use the native binary instead of a container               |
-| `committer_remote_config_dir`    | `{{ remote_config_dir }}`                                 | Configuration directory on the remote node                                  |
-| `committer_remote_data_dir`      | `{{ remote_data_dir }}`                                   | Data directory on the remote node                                           |
-| `committer_container_config_dir` | `/config`                                                 | Configuration directory inside the container                                |
-| `committer_container_data_dir`   | `/data`                                                   | Data directory inside the container                                         |
-| `committer_config_dir`           | auto-selected                                             | Active config directory (remote or container, based on `committer_use_bin`) |
-| `committer_data_dir`             | auto-selected                                             | Active data directory (remote or container, based on `committer_use_bin`)   |
-| `committer_config_file`          | `config-<component_type>.yml`                             | Configuration file name (component-type aware)                              |
-| `committer_use_tls`              | `false`                                                   | Enable TLS                                                                  |
-| `committer_use_mtls`             | `false`                                                   | Enable mutual TLS                                                           |
-| `committer_http_protocol`        | `https` or `http`                                         | HTTP protocol derived from `committer_use_tls`                              |
-| `committer_log_level`            | `INFO`                                                    | Log level                                                                   |
-| `committer_enable_logs`          | `true`                                                    | Enable logging                                                              |
-| `committer_enable_dev_logs`      | `true`                                                    | Enable development log format                                               |
+| Role                                                      | Reason                                                    |
+| --------------------------------------------------------- | --------------------------------------------------------- |
+| [`hyperledger.fabricx.cryptogen`](../cryptogen/README.md) | Crypto material (cryptogen mode)                          |
+| [`hyperledger.fabricx.fabric_ca`](../fabric_ca/README.md) | Crypto material (Fabric-CA mode)                          |
+| [`hyperledger.fabricx.orderer`](../orderer/README.md)     | Coordinator ↔ assembler relationship                      |
+| [`hyperledger.fabricx.fxconfig`](../fxconfig/README.md)   | Generates node configuration                              |
+| [`hyperledger.fabricx.postgres`](../postgres/README.md)   | Database backend (when `postgres_port` defined)           |
+| [`hyperledger.fabricx.yugabyte`](../yugabyte/README.md)   | Database backend (when `yugabyte_component_type` defined) |
 
 ## Tasks
 
-### crypto/setup
+### Crypto
 
-The task `crypto/setup` allows to generate and/or transfer the crypto material needed to run a Fabric-X Committer component. The task supports two modes:
+| Task                                      | Description                             |
+| ----------------------------------------- | --------------------------------------- |
+| [crypto/setup](./tasks/crypto/setup.yaml) | Generates/transfers crypto material     |
+| [crypto/fetch](./tasks/crypto/fetch.yaml) | Fetches TLS certificate to control node |
+| [crypto/rm](./tasks/crypto/rm.yaml)       | Removes crypto material                 |
+
+#### crypto/setup
+
+Generates and/or transfers the crypto material needed to run a Fabric-X Committer component. Supports two modes:
 
 - with `cryptogen` (see [hyperledger.fabricx.cryptogen](../cryptogen/README.md)): the crypto material generated on the control node with `cryptogen` is transferred to the remote node;
 - with `fabric-ca` (see [hyperledger.fabricx.fabric_ca](../fabric_ca/README.md)): the crypto material is generated directly on the remote node querying the reference `fabric_ca` host.
@@ -63,9 +60,9 @@ The task `crypto/setup` allows to generate and/or transfer the crypto material n
     tasks_from: crypto/setup
 ```
 
-### crypto/fetch
+#### crypto/fetch
 
-The task `crypto/fetch` allows to fetch the Fabric-X Committer TLS certificate on the control node. This operation is important for sharing the TLS CA certificate with clients that need to establish a trusted connection to the committer.
+Fetches the Fabric-X Committer TLS certificate on the control node. This operation is important for sharing the TLS CA certificate with clients that need to establish a trusted connection to the committer.
 
 ```yaml
 - name: Fetch the Fabric-X Committer TLS certificate
@@ -74,9 +71,9 @@ The task `crypto/fetch` allows to fetch the Fabric-X Committer TLS certificate o
     tasks_from: crypto/fetch
 ```
 
-### crypto/rm
+#### crypto/rm
 
-The task `crypto/rm` removes the TLS crypto material generated for a Fabric-X Committer component:
+Removes the TLS crypto material generated for a Fabric-X Committer component:
 
 ```yaml
 - name: Remove the Fabric-X Committer crypto files
@@ -85,9 +82,16 @@ The task `crypto/rm` removes the TLS crypto material generated for a Fabric-X Co
     tasks_from: crypto/rm
 ```
 
-### config/transfer
+### Config
 
-The task `config/transfer` allows to transfer the configuration files for a Fabric-X Committer component on the remote node. The component type is determined by the `committer_component_type` variable (`validator`, `verifier`, `coordinator`, `sidecar`, or `query-service`):
+| Task                                            | Description                   |
+| ----------------------------------------------- | ----------------------------- |
+| [config/transfer](./tasks/config/transfer.yaml) | Transfers configuration files |
+| [config/rm](./tasks/config/rm.yaml)             | Removes configuration         |
+
+#### config/transfer
+
+Transfers the configuration files for a Fabric-X Committer component on the remote node. The component type is determined by the `committer_component_type` variable (`validator`, `verifier`, `coordinator`, `sidecar`, or `query-service`):
 
 ```yaml
 - name: Transfer the Fabric-X Committer configuration files
@@ -98,96 +102,110 @@ The task `config/transfer` allows to transfer the configuration files for a Fabr
     tasks_from: config/transfer
 ```
 
-### start
+#### config/rm
 
-The task `start` allows to start Hyperledger Fabric-X Committer either as binary or as container. The sub-component to start is determined by the `committer_component_type` variable (`validator`, `verifier`, `coordinator`, `sidecar`, or `query-service`):
+Removes the configuration files for a Fabric-X Committer component:
 
 ```yaml
-- name: Start Hyperledger Fabric-X Committer
+- name: Remove the Fabric-X Committer configuration files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: config/rm
+```
+
+### Lifecycle
+
+| Task                                    | Description                 |
+| --------------------------------------- | --------------------------- |
+| [start](./tasks/start.yaml)             | Starts committer components |
+| [stop](./tasks/stop.yaml)               | Stops committer components  |
+| [teardown](./tasks/teardown.yaml)       | Removes runtime components  |
+| [wipe](./tasks/wipe.yaml)               | Removes all data            |
+| [fetch_logs](./tasks/fetch_logs.yaml)   | Collects logs               |
+| [ping](./tasks/ping.yaml)               | Health check                |
+| [get_metrics](./tasks/get_metrics.yaml) | Retrieves metrics           |
+
+#### start
+
+Starts the Fabric-X Committer component. The component type is determined by the `committer_component_type` variable:
+
+```yaml
+- name: Start Fabric-X Committer
   vars:
     committer_component_type: validator # or verifier, coordinator, sidecar, query-service
-    committer_use_bin: true # set to false or unset for container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: start
 ```
 
-### stop
+#### stop
 
-The task `stop` allows to stop the Fabric-X Committer running as binary or as container. The sub-component to stop is determined by the `committer_component_type` variable:
+Stops the Fabric-X Committer component:
 
 ```yaml
-- name: Stop the Fabric-X Committer
-  vars:
-    committer_component_type: validator # or verifier, coordinator, sidecar, query-service
-    committer_use_bin: true # set to false or unset for container
+- name: Stop Fabric-X Committer
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: stop
 ```
 
-### teardown
+#### teardown
 
-The task `teardown` allows to shut down the Fabric-X Committer running as binary or as container and remove all the artifacts being generated during runtime. The sub-component to teardown is determined by the `committer_component_type` variable:
+Removes the Fabric-X Committer component:
 
 ```yaml
-- name: Teardown the Fabric-X Committer
-  vars:
-    committer_component_type: validator # or verifier, coordinator, sidecar, query-service
-    committer_use_bin: true # set to false or unset for container
+- name: Teardown Fabric-X Committer
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: teardown
 ```
 
-### wipe
+#### wipe
 
-The task `wipe` allows to shut down the Fabric-X Committer running as binary or as container, remove all the artifacts (configuration files, binaries and all the runtime-generated artifacts). The sub-component to wipe is determined by the `committer_component_type` variable:
+Removes all Fabric-X Committer data:
 
 ```yaml
-- name: Wipe the Fabric-X Committer
-  vars:
-    committer_component_type: validator # or verifier, coordinator, sidecar, query-service
-    committer_use_bin: true # set to false or unset for container
+- name: Wipe Fabric-X Committer
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: wipe
 ```
 
-### fetch_logs
+#### fetch_logs
 
-The task `fetch_logs` allows to fetch the logs from the Fabric-X Committer components from the remote hosts to the control node. The sub-component whose logs are fetched is determined by the `committer_component_type` variable:
+Collects Fabric-X Committer logs:
 
 ```yaml
-- name: Fetch the Fabric-X Committer logs
-  vars:
-    committer_component_type: validator # or verifier, coordinator, sidecar, query-service
-    committer_use_bin: true # set to false or unset for container
+- name: Fetch Fabric-X Committer logs
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: fetch_logs
 ```
 
-### ping
+#### ping
 
-The task `ping` allows to ping the Fabric-X Committer components on their opened ports. It is useful to check whether the instances are running or if they are not running/reachable. The sub-component to ping is determined by the `committer_component_type` variable:
+Health check for Fabric-X Committer:
 
 ```yaml
-- name: Ping the Fabric-X Committer
-  vars:
-    committer_component_type: validator # or verifier, coordinator, sidecar, query-service
+- name: Ping Fabric-X Committer
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: ping
 ```
 
-### get_metrics
+#### get_metrics
 
-The task `get_metrics` allows to fetch the metrics from the Fabric-X Committer components and print them on stdout.
+Retrieves Fabric-X Committer metrics:
 
 ```yaml
-- name: Fetch the Fabric-X Committer metrics
+- name: Get Fabric-X Committer metrics
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: get_metrics
 ```
+
+---
+
+## Variables
+
+See [`defaults/main.yaml`](defaults/main.yaml) for full variable documentation.
