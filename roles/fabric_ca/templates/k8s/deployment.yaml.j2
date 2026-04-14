@@ -30,7 +30,6 @@ spec:
       containers:
         - name: fabric-ca
           image: {{ fabric_ca_image }}
-          imagePullPolicy: {{ k8s_image_pull_policy }}
           command:
             - fabric-ca-server
             - start
