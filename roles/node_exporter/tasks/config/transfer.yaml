@@ -17,3 +17,9 @@
     mode: "0o644"
   when:
     - node_exporter_use_tls
+
+- name: Transfer Node Exporter configuration to Kubernetes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.node_exporter
+    tasks_from: k8s/config/transfer
+  when: node_exporter_use_k8s

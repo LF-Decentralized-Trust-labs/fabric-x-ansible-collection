@@ -4,7 +4,14 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Start the Node Exporter container
+- name: Start Node Exporter container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: container/start
+  when: node_exporter_use_container
+
+- name: Start Node Exporter on Kubernetes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.node_exporter
+    tasks_from: k8s/start
+  when: node_exporter_use_k8s

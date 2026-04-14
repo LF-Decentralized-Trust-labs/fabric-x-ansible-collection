@@ -4,15 +4,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure Node Exporter config directory exists
-  ansible.builtin.file:
-    path: "{{ node_exporter_remote_config_dir }}"
-    state: absent
-
-- name: Delete Node Exporter Kubernetes ConfigMap
+- name: Remove Node Exporter DaemonSet
   kubernetes.core.k8s:
     state: absent
-    kind: ConfigMap
+    kind: DaemonSet
     name: "{{ node_exporter_k8s_resource_name }}"
     namespace: "{{ k8s_namespace }}"
-  when: node_exporter_use_k8s
+
+- name: Remove Node Exporter Service
+  kubernetes.core.k8s:
+    state: absent
+    kind: Service
+    name: "{{ node_exporter_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace }}"

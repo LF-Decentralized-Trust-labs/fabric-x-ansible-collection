@@ -4,7 +4,14 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Remove the Node Exporter container
+- name: Remove Node Exporter container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: container/rm
+  when: node_exporter_use_container
+
+- name: Remove Node Exporter Kubernetes resources
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.node_exporter
+    tasks_from: k8s/rm
+  when: node_exporter_use_k8s
