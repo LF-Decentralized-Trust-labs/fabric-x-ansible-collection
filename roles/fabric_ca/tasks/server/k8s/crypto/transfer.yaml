@@ -15,15 +15,23 @@
 # =========================
 # Apply Secret
 # =========================
+- name: Slurp Fabric CA Idemix issuer public key
+  ansible.builtin.slurp:
+    src: "{{ fabric_ca_server_remote_config_dir }}/IssuerPublicKey"
+  register: fabric_ca_server_k8s_idemix_public_key_slurp
+
+- name: Slurp Fabric CA Idemix issuer secret key
+  ansible.builtin.slurp:
+    src: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore/IssuerSecretKey"
+  register: fabric_ca_server_k8s_idemix_secret_key_slurp
+
 - name: Apply Fabric CA Secret
   vars:
     fabric_ca_server_k8s_ca_key_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_private_key_file }}"
     fabric_ca_server_k8s_ca_cert_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_cert_file }}"
     fabric_ca_server_k8s_tls_key_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_tls_private_key_file }}"
     fabric_ca_server_k8s_tls_cert_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_tls_cert_file }}"
-    fabric_ca_server_k8s_idemix_public_key_path: "{{ fabric_ca_server_remote_config_dir }}/IssuerPublicKey"
     fabric_ca_server_k8s_idemix_revocation_public_key_path: "{{ fabric_ca_server_remote_config_dir }}/IssuerRevocationPublicKey"
-    fabric_ca_server_k8s_idemix_secret_key_path: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore/IssuerSecretKey"
     fabric_ca_server_k8s_idemix_revocation_private_key_path: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore/IssuerRevocationPrivateKey"
   kubernetes.core.k8s:
     state: present
