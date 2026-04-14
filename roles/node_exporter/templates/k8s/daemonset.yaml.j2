@@ -55,10 +55,15 @@ spec:
             - name: host-sys
               mountPath: /host/sys
               readOnly: true
-            - name: secret
-              mountPath: {{ node_exporter_container_config_dir }}/tls
-              readOnly: true
 {% if node_exporter_use_tls %}
+            - name: secret
+              mountPath: {{ node_exporter_container_config_dir }}/tls/{{ node_exporter_tls_cert_file }}
+              subPath: {{ node_exporter_tls_cert_file }}
+              readOnly: true
+            - name: secret
+              mountPath: {{ node_exporter_container_config_dir }}/tls/{{ node_exporter_tls_private_key_file }}
+              subPath: {{ node_exporter_tls_private_key_file }}
+              readOnly: true
             - name: config
               mountPath: {{ node_exporter_container_config_dir }}/{{ node_exporter_web_config_file }}
               subPath: {{ node_exporter_web_config_file }}
