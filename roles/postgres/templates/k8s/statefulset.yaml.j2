@@ -35,7 +35,6 @@ spec:
       containers:
         - name: postgres
           image: {{ postgres_image }}
-          imagePullPolicy: {{ k8s_image_pull_policy }}
           args:
             - postgres
             - -c

@@ -38,7 +38,6 @@ spec:
         - name: {{ orderer_component_type }}
           # Fabric-X orderer image containing all component binaries.
           image: {{ orderer_image }}
-          imagePullPolicy: {{ k8s_image_pull_policy }}
           args:
             - "{{ orderer_component_type }}"
             - --config={{ orderer_container_config_dir }}/node_config.yaml
