@@ -4,15 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Remove Fabric CA config directory
-  ansible.builtin.file:
-    path: "{{ fabric_ca_server_remote_config_dir }}"
-    state: absent
-
-- name: Delete Fabric CA Kubernetes ConfigMap
+- name: Delete Fabric CA Kubernetes Secret
   kubernetes.core.k8s:
     state: absent
-    kind: ConfigMap
+    kind: Secret
     name: "{{ fabric_ca_server_k8s_resource_name }}"
     namespace: "{{ k8s_namespace }}"
   when: fabric_ca_server_use_k8s
