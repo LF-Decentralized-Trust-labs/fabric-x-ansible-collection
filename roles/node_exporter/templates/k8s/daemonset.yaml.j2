@@ -26,6 +26,10 @@ spec:
     spec:
       tolerations:
         - operator: Exists
+      securityContext:
+        # Ensures files mounted from Secrets and ConfigMaps are readable by
+        # the node-exporter process running as a non-root user inside the container.
+        fsGroup: {{ node_exporter_k8s_fs_group }}
       containers:
         - name: node-exporter
           image: {{ node_exporter_image }}
