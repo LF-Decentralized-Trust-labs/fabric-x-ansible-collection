@@ -4,9 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# This inventory runs a full Hyperledger Fabric-X network (orderers + committer + YugabyteDB)
+# This inventory runs a full Hyperledger Fabric-X network (orderers + committer + postgres DB)
 # entirely on Kubernetes. All services are deployed as k8s workloads and are accessible
 # externally via NodePort services.
+# TLS is enabled but mutual TLS (mTLS) is disabled.
 # Crypto material is generated using Fabric CA.
 #
 # Prerequisites:
@@ -130,7 +131,6 @@ all:
                 # Orderer deployment mode
                 # -------------------------------------------------------
                 orderer_use_tls: true
-                orderer_use_mtls: true
                 orderer_use_k8s: true
               children:
                 fabric_x_orderer_1:
@@ -253,7 +253,6 @@ all:
               vars:
                 committer_use_k8s: true
                 committer_use_tls: true
-                committer_use_mtls: true
                 organization:
                   <<: *Org1
                   fabric_ca_host: fabric-ca-org1
@@ -261,34 +260,19 @@ all:
                   peer:
                     name: "{{ inventory_hostname }}"
                     secret: "{{ inventory_hostname }}PWD"
-              children:
-                committer_dbs:
-                  vars:
-                    yugabyte_use_k8s: true
-                    yugabyte_user: yugabyte
-                    yugabyte_password: yugabyte
-                    yugabyte_db: yugabyte
-                    yugabyte_cluster_id: 1
-                    yugabyte_use_tls: true
-                  hosts:
-                    yugabytedb-master-1:
-                      yugabyte_component_type: master
-                      yugabyte_master_rpc_bind_port: 30700
-                      yugabyte_master_webserver_port: 30710
-                    yugabytedb-tablet-1:
-                      yugabyte_component_type: tablet
-                      yugabyte_tablet_pgsql_bind_port: 30720
-                      yugabyte_tablet_rpc_bind_port: 30730
-                      yugabyte_tablet_webserver_port: 30740
-                      yugabyte_tablet_cql_web_port: 30750
-                      yugabyte_tablet_pgsql_web_port: 30760
-                      yugabyte_tablet_cql_bind_port: 30770
               hosts:
+                committer-db:
+                  postgres_user: sc_user
+                  postgres_password: sc_secret_pwd
+                  postgres_db: sc_db
+                  postgres_port: 30595
+                  postgres_use_k8s: true
+                  postgres_use_tls: true
                 committer-validator:
                   committer_component_type: validator
                   committer_rpc_port: 30500
                   committer_metrics_port: 30510
-                  yugabyte_cluster_ref_id: 1
+                  postgres_db_host: committer-db
                 committer-verifier:
                   committer_component_type: verifier
                   committer_rpc_port: 30520
@@ -305,7 +289,7 @@ all:
                   committer_component_type: query-service
                   committer_rpc_port: 30580
                   committer_metrics_port: 30590
-                  yugabyte_cluster_ref_id: 1
+                  postgres_db_host: committer-db
 
     # =========================
     # HLFX LoadGens
