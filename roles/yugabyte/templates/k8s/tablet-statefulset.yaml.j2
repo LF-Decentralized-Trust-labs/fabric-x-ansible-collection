@@ -30,7 +30,6 @@ spec:
       containers:
         - name: yugabyte
           image: {{ yugabyte_image }}
-          imagePullPolicy: {{ k8s_image_pull_policy }}
           command:
             - bin/yb-tserver
             - --tserver_master_addrs={{ yugabyte_master_endpoints }}
