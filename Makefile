@@ -86,10 +86,13 @@ help:
 .PHONY: install
 install: install-deps
 	@DEST=$$(echo "$${ANSIBLE_COLLECTIONS_PATH:-$(HOME)/.ansible/collections}" | cut -d: -f1)/ansible_collections/hyperledger/fabricx; \
-	if [ "$$(realpath $(PROJECT_DIR))" = "$$(realpath $$DEST 2>/dev/null)" ]; then \
-	  printf "$(COLOR_CYAN)⚠️  Skipping: PROJECT_DIR is the Galaxy install destination — running 'make install' would overwrite your checkout.$(COLOR_RESET)\n"; \
-	  exit 1; \
-	fi
+	REALPATH_DEST=$$(realpath $$DEST 2>/dev/null); \
+	REALPATH_PROJ=$$(realpath $(PROJECT_DIR)); \
+	case "$$REALPATH_PROJ" in \
+	  "$$REALPATH_DEST"|"$$REALPATH_DEST"/*) \
+	    printf "$(COLOR_CYAN)⚠️  Skipping: PROJECT_DIR is within the Galaxy install destination — running 'make install' would overwrite your checkout.$(COLOR_RESET)\n"; \
+	    exit 1 ;; \
+	esac
 	@printf "$(COLOR_CYAN)🚩 Building and installing hyperledger.fabricx collection...$(COLOR_RESET)\n"
 	$(ANSIBLE_GALAXY) collection build -f
 	$(ANSIBLE_GALAXY) collection install $$(ls -1 | grep fabricx) -f
