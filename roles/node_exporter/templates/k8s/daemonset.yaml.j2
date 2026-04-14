@@ -29,7 +29,6 @@ spec:
       containers:
         - name: node-exporter
           image: {{ node_exporter_image }}
-          imagePullPolicy: {{ k8s_image_pull_policy }}
           args:
             - --web.listen-address=:{{ node_exporter_port }}
             - --path.rootfs=/host/root
