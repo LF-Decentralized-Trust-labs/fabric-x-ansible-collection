@@ -15,6 +15,12 @@
     template:
       path: k8s/service.yaml.j2
 
+- name: Apply Postgres Exporter NodePort Service
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/service-nodeport.yaml.j2
+
 - name: Apply Postgres Exporter Deployment
   kubernetes.core.k8s:
     state: present
