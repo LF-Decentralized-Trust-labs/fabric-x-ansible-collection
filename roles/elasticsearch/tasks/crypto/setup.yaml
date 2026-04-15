@@ -39,3 +39,12 @@
     mode: "0o644"
   when:
     - elasticsearch_use_tls
+
+# =========================
+# Kubernetes
+# =========================
+- name: Apply ElasticSearch K8s crypto Secret
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.elasticsearch
+    tasks_from: k8s/crypto/transfer
+  when: elasticsearch_use_k8s

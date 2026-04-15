@@ -10,3 +10,13 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: volume/rm
+  when: elasticsearch_use_container
+
+- name: Delete ElasticSearch PersistentVolumeClaim
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: PersistentVolumeClaim
+    name: "data-{{ elasticsearch_k8s_resource_name }}-0"
+    namespace: "{{ k8s_namespace }}"
+  when: elasticsearch_use_k8s
