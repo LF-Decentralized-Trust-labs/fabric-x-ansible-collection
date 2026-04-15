@@ -1,0 +1,13 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Fetch ElasticSearch pod logs
+  vars:
+    k8s_pod_label_selectors:
+      - "app.kubernetes.io/name={{ elasticsearch_k8s_resource_name }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: fetch_logs

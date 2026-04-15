@@ -1,0 +1,29 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Set Postgres Exporter Data Source connection string for Kubernetes
+  vars:
+    base_data_source_name: >-
+      postgresql://{{ hostvars[postgres_db_host].postgres_user }}:{{ hostvars[postgres_db_host].postgres_password }}@{{ hostvars[postgres_db_host].ansible_host }}:{{ hostvars[postgres_db_host].postgres_port }}/{{ hostvars[postgres_db_host].postgres_db }}
+    data_source_name_with_tls: "sslmode=verify-full&sslrootcert={{ postgres_exporter_container_config_dir }}/tls/db-ca.crt"
+    data_source_name_without_tls: "sslmode=disable"
+  ansible.builtin.set_fact:
+    postgres_exporter_data_source_name: >-
+      {{ base_data_source_name }}?{{ data_source_name_with_tls if (hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls) else data_source_name_without_tls }}
+
+- name: Ensure Kubernetes namespace exists for Postgres Exporter
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+- name: Apply Postgres Exporter Secret
+  vars:
+    postgres_exporter_k8s_tls_key_path: "{{ postgres_exporter_remote_config_dir }}/tls/{{ postgres_exporter_tls_private_key_file }}"
+    postgres_exporter_k8s_tls_cert_path: "{{ postgres_exporter_remote_config_dir }}/tls/{{ postgres_exporter_tls_cert_file }}"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/secret.yaml.j2

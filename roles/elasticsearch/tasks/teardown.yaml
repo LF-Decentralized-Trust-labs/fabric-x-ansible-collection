@@ -8,6 +8,13 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: container/rm
+  when: elasticsearch_use_container
+
+- name: Remove ElasticSearch Kubernetes workload
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.elasticsearch
+    tasks_from: k8s/rm
+  when: elasticsearch_use_k8s
 
 - name: Remove ElasticSearch data
   ansible.builtin.include_role:

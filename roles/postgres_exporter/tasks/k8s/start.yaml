@@ -4,33 +4,27 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# =========================
-# Namespace
-# =========================
-- name: Ensure Kubernetes namespace exists for Node Exporter
+- name: Ensure Kubernetes namespace exists for Postgres Exporter
   ansible.builtin.include_role:
     name: hyperledger.fabricx.k8s
     tasks_from: namespace/create
 
-# =========================
-# Apply Resources
-# =========================
-- name: Apply Node Exporter Service
+- name: Apply Postgres Exporter Service
   kubernetes.core.k8s:
     state: present
     template:
       path: k8s/service.yaml.j2
 
-- name: Apply Node Exporter NodePort Service
+- name: Apply Postgres Exporter NodePort Service
   kubernetes.core.k8s:
     state: present
     template:
       path: k8s/service-nodeport.yaml.j2
 
-- name: Apply Node Exporter DaemonSet
+- name: Apply Postgres Exporter Deployment
   kubernetes.core.k8s:
     state: present
     template:
-      path: k8s/daemonset.yaml.j2
+      path: k8s/deployment.yaml.j2
     wait: true
-    wait_timeout: "{{ node_exporter_k8s_wait_timeout }}"
+    wait_timeout: "{{ postgres_exporter_k8s_wait_timeout }}"

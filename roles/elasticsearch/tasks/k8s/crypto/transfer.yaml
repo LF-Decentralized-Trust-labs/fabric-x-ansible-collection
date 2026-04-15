@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists for ElasticSearch
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+# =========================
+# Apply Secret
+# =========================
+- name: Apply ElasticSearch Secret
+  vars:
+    elasticsearch_k8s_tls_server_key_path: "{{ elasticsearch_remote_config_dir }}/tls/{{ elasticsearch_tls_private_key_file }}"
+    elasticsearch_k8s_tls_server_cert_path: "{{ elasticsearch_remote_config_dir }}/tls/{{ elasticsearch_tls_cert_file }}"
+    elasticsearch_k8s_tls_ca_cert_path: "{{ elasticsearch_remote_config_dir }}/tls/ca.crt"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/secret.yaml.j2
