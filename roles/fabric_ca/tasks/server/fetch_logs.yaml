@@ -8,12 +8,16 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/container/fetch_logs
-  when:
-    - not fabric_ca_server_use_bin
+  when: fabric_ca_server_use_container
 
 - name: Fetch logs from Fabric CA server binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/bin/fetch_logs
-  when:
-    - fabric_ca_server_use_bin
+  when: fabric_ca_server_use_bin
+
+- name: Fetch logs from Fabric CA server on Kubernetes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/k8s/fetch_logs
+  when: fabric_ca_server_use_k8s

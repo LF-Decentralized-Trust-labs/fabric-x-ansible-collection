@@ -52,7 +52,6 @@
   block:
     - name: Generate Fabric CA TLS CSR
       vars:
-        fabric_ca_server_ipv4_regex: '^[0-9]{1,3}(\\.[0-9]{1,3}){3}$'
         openssl_private_key_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_tls_private_key_file }}"
         openssl_csr_path: "{{ fabric_ca_server_remote_config_dir }}/tls.csr"
         openssl_ext_file_path: "{{ fabric_ca_server_remote_config_dir }}/tls.ext"
@@ -63,7 +62,7 @@
         openssl_san_ip_entries: >-
           {{
             (fabric_ca_csr_hosts | default([]))
-            | select('match', fabric_ca_server_ipv4_regex)
+            | select('match', openssl_san_ipv4_regex)
             | map('regex_replace', '^', 'IP:')
             | list
             | unique
@@ -71,7 +70,7 @@
         openssl_san_dns_entries: >-
           {{
             (fabric_ca_csr_hosts | default([]))
-            | reject('match', fabric_ca_server_ipv4_regex)
+            | reject('match', openssl_san_ipv4_regex)
             | map('regex_replace', '^', 'DNS:')
             | list
             | unique

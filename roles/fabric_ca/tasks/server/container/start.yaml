@@ -9,22 +9,6 @@
     fabric_ca_volumes:
       - "{{ fabric_ca_server_remote_config_dir }}:{{ fabric_ca_server_container_config_dir }}:z"
 
-- name: Ensure Fabric CA data directory exists
-  vars:
-    fabric_ca_data_volume: "{{ fabric_ca_server_remote_data_dir }}:{{ fabric_ca_server_container_data_dir }}:z"
-  ansible.builtin.set_fact:
-    fabric_ca_volumes: "{{ fabric_ca_volumes + [fabric_ca_data_volume] }}"
-  when:
-    - postgres_db_host is undefined
-
-- name: Create Fabric CA data directory
-  ansible.builtin.file:
-    path: "{{ fabric_ca_server_remote_data_dir }}"
-    state: directory
-    mode: "0o755"
-  when:
-    - postgres_db_host is undefined
-
 - name: Start Fabric CA server container
   vars:
     container_name: "{{ fabric_ca_container_name }}"

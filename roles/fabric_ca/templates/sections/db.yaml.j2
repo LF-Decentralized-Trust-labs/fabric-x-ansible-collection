@@ -1,15 +1,8 @@
 #############################################################################
 #  Database section
-#  Supported types are: "sqlite3", "postgres", and "mysql".
-#  The datasource value depends on the type.
-#  If the type is "sqlite3", the datasource value is a file name to use
-#  as the database store.  Since "sqlite3" is an embedded database, it
-#  may not be used if you want to run the fabric-ca-server in a cluster.
-#  To run the fabric-ca-server in a cluster, you must choose "postgres"
-#  or "mysql".
+#  PostgreSQL is the only supported backend.
 #############################################################################
 db:
-{% if postgres_db_host is defined %}
   type: postgres
   datasource: >-
     host={{ hostvars[postgres_db_host].ansible_host }}
@@ -27,8 +20,4 @@ db:
 {% if hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
     certfiles:
       - {{ fabric_ca_server_config_dir }}/db/tls/cert.pem
-{% endif %}
-{% else %}
-  type: sqlite3
-  datasource: {{ fabric_ca_server_data_dir }}/fabric-ca-server.db
 {% endif %}

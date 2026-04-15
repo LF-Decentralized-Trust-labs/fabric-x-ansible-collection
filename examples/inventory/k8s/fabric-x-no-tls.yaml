@@ -5,13 +5,13 @@
 #
 
 # This inventory runs a full Hyperledger Fabric-X network (orderers + committer + postgres DB)
-# entirely on Kubernetes. All services are deployed as k8s workloads and are accessible
-# externally via NodePort services.
+# entirely on Kubernetes with TLS disabled. All services are deployed as k8s workloads and are
+# accessible externally via NodePort services.
+# Crypto material is generated using Fabric CA.
 #
 # Prerequisites:
 #   - A running Kubernetes cluster reachable from the control node
 #   - kubectl configured and pointing at the target cluster
-#   - cryptogen artifacts available under {{ cryptogen_artifacts_dir }}
 #
 # To use a remote k8s node (e.g. kind in CI, k3s), set K8S_NODE_IP to the node's IP address:
 #   export K8S_NODE_IP=<node-ip>
@@ -56,7 +56,6 @@ all:
                 postgres_user: postgres
                 postgres_password: example
                 postgres_use_k8s: true
-                postgres_use_tls: true
               hosts:
                 fca-orderer-org1-db:
                   postgres_db: ordererOrg1DB
@@ -79,7 +78,6 @@ all:
             fabric_ca_servers:
               vars:
                 fabric_ca_server_use_k8s: true
-                fabric_ca_use_tls: true
                 fabric_ca_name: "{{ inventory_hostname }}"
                 fabric_ca_admin:
                   name: admin
@@ -129,8 +127,6 @@ all:
                 # -------------------------------------------------------
                 # Orderer deployment mode
                 # -------------------------------------------------------
-                orderer_use_tls: true
-                orderer_use_mtls: true
                 orderer_use_k8s: true
               children:
                 fabric_x_orderer_1:
@@ -252,8 +248,6 @@ all:
             fabric_x_committer:
               vars:
                 committer_use_k8s: true
-                committer_use_tls: true
-                committer_use_mtls: true
                 organization:
                   <<: *Org1
                   fabric_ca_host: fabric-ca-org1
@@ -268,7 +262,6 @@ all:
                   postgres_db: sc_db
                   postgres_port: 30595
                   postgres_use_k8s: true
-                  postgres_use_tls: true
                 committer-validator:
                   committer_component_type: validator
                   committer_rpc_port: 30500
@@ -311,17 +304,6 @@ all:
                 secret: "{{ inventory_hostname }}PWD"
                 namespace: 0
                 meta_namespace_admin: true
-          loadgen_use_tls: true
           loadgen_type: orderer-client
           loadgen_metrics_port: 30600
           loadgen_web_port: 30610
-
-    # =========================
-    # Monitoring Infra
-    # =========================
-    monitoring:
-      hosts:
-        node-exporter:
-          node_exporter_port: 9111
-          node_exporter_use_tls: true
-          node_exporter_use_k8s: true
