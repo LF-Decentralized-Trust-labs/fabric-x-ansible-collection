@@ -330,3 +330,13 @@ all:
           loadgen_type: orderer-client
           loadgen_metrics_port: 30600
           loadgen_web_port: 30610
+
+    # =========================
+    # Monitoring Infra
+    # =========================
+    monitoring:
+      hosts:
+        node-exporter:
+          node_exporter_port: 9111
+          node_exporter_use_tls: true
+          node_exporter_use_k8s: true

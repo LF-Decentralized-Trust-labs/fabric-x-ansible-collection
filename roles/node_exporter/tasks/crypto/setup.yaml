@@ -13,3 +13,9 @@
     tasks_from: crypto/openssl/generate_cert
   when:
     - node_exporter_use_tls
+
+- name: Apply Node Exporter Kubernetes Secret
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.node_exporter
+    tasks_from: k8s/crypto/transfer
+  when: node_exporter_use_k8s

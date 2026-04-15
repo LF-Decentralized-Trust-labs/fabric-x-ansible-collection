@@ -27,3 +27,13 @@ node_exporter_root_fs_flags: "ro,rslave"
 node_exporter_use_tls: false
 node_exporter_tls_private_key_file: server.key
 node_exporter_tls_cert_file: server.crt
+
+# =========================
+# Kubernetes
+# =========================
+node_exporter_use_k8s: false
+node_exporter_use_container: "{{ not node_exporter_use_k8s }}"
+
+node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
+node_exporter_k8s_wait_timeout: 120
+node_exporter_k8s_fs_group: 65534
