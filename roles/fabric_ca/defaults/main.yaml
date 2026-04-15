@@ -33,12 +33,23 @@ fabric_ca_client_use_bin: false
 # Paths, locations
 # =========================
 fabric_ca_server_remote_config_dir: "{{ remote_config_dir }}"
-fabric_ca_server_remote_data_dir: "{{ remote_data_dir }}"
 fabric_ca_server_container_config_dir: "/config"
 fabric_ca_client_container_config_dir: "/config"
-fabric_ca_server_container_data_dir: "/data"
 fabric_ca_server_config_dir: "{{ fabric_ca_server_remote_config_dir if fabric_ca_server_use_bin else fabric_ca_server_container_config_dir }}"
-fabric_ca_server_data_dir: "{{ fabric_ca_server_remote_data_dir if fabric_ca_server_use_bin else fabric_ca_server_container_data_dir }}"
+
+# =========================
+# Kubernetes
+# =========================
+fabric_ca_server_use_k8s: false
+fabric_ca_server_use_container: "{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) }}"
+
+fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
+fabric_ca_server_k8s_wait_timeout: 120
+fabric_ca_server_k8s_fs_group: 0
+
+# NodePort for external access
+fabric_ca_server_k8s_port_node_port: "{{ fabric_ca_port }}"
+fabric_ca_server_k8s_operations_node_port: "{{ fabric_ca_operations_port }}"
 
 # =========================
 # General settings

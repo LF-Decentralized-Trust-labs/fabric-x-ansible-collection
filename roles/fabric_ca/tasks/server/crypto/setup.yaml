@@ -13,3 +13,9 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/crypto/idemix/setup
+
+- name: Transfer Fabric CA crypto material to Kubernetes Secret
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/k8s/crypto/transfer
+  when: fabric_ca_server_use_k8s

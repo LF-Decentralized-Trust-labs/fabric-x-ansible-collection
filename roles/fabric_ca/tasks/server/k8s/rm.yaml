@@ -1,0 +1,22 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Fabric CA Deployment
+  kubernetes.core.k8s:
+    state: absent
+    kind: Deployment
+    name: "{{ fabric_ca_server_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace }}"
+
+- name: Remove Fabric CA Services
+  kubernetes.core.k8s:
+    state: absent
+    kind: Service
+    name: "{{ item }}"
+    namespace: "{{ k8s_namespace }}"
+  loop:
+    - "{{ fabric_ca_server_k8s_resource_name }}"
+    - "{{ fabric_ca_server_k8s_resource_name }}-nodeport"
