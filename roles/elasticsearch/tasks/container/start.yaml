@@ -27,6 +27,19 @@
     name: hyperledger.fabricx.container
     tasks_from: volume/create
 
+- name: Adjust Elasticsearch TLS private key permissions
+  vars:
+    container_volume_path: "{{ elasticsearch_remote_config_dir }}/tls/{{ elasticsearch_tls_private_key_file }}"
+    container_volume_mode: "0o600"
+    container_volume_uid: "1000"
+    container_volume_gid: "0"
+    container_volume_type: file
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: volume/create
+  when:
+    - elasticsearch_use_tls
+
 - name: Define the ElasticSearch volume for TLS
   vars:
     elasticsearch_tls_volume: "{{ elasticsearch_remote_config_dir }}/tls:{{ elasticsearch_container_config_dir }}/config/certs:z,ro"
