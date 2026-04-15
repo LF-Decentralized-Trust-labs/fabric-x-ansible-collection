@@ -9,10 +9,8 @@
     path: "{{ fabric_ca_server_remote_config_dir }}"
     state: absent
 
-- name: Delete Fabric CA Kubernetes ConfigMap
-  kubernetes.core.k8s:
-    state: absent
-    kind: ConfigMap
-    name: "{{ fabric_ca_server_k8s_resource_name }}"
-    namespace: "{{ k8s_namespace }}"
+- name: Remove Fabric CA Kubernetes ConfigMap
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/k8s/config/rm
   when: fabric_ca_server_use_k8s

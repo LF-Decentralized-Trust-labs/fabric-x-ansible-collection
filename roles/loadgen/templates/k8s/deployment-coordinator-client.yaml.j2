@@ -104,12 +104,10 @@ spec:
           configMap:
             name: {{ loadgen_k8s_resource_name }}-config
             defaultMode: 0640
-{% if loadgen_use_tls %}
         - name: secret
           secret:
             secretName: {{ loadgen_k8s_resource_name }}-secret
             defaultMode: 0640
-{% endif %}
 {% if k8s_image_pull_secret is defined and k8s_image_pull_secret %}
       imagePullSecrets:
         - name: {{ k8s_image_pull_secret }}
