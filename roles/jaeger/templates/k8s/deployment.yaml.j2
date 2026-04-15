@@ -1,0 +1,109 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ jaeger_k8s_resource_name }}
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ jaeger_k8s_resource_name }}
+    app.kubernetes.io/component: jaeger
+    app.kubernetes.io/part-of: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ jaeger_k8s_resource_name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ jaeger_k8s_resource_name }}
+        app.kubernetes.io/component: jaeger
+        app.kubernetes.io/part-of: monitoring
+    spec:
+      securityContext:
+        fsGroup: {{ jaeger_k8s_fs_group }}
+      containers:
+        - name: jaeger
+          image: {{ jaeger_image }}
+          args:
+            - "--query.http-server.host-port=0.0.0.0:{{ jaeger_ui_port }}"
+            - "--admin.http.host-port=0.0.0.0:{{ jaeger_admin_port }}"
+            - "--collector.http-server.host-port=0.0.0.0:{{ jaeger_http_server_port }}"
+            - "--collector.otlp.http.host-port=0.0.0.0:{{ jaeger_http_collector_port }}"
+            - "--collector.grpc-server.host-port=0.0.0.0:{{ jaeger_grpc_server_port }}"
+            - "--collector.otlp.grpc.host-port=0.0.0.0:{{ jaeger_collector_port }}"
+          env:
+            - name: JAEGER_SAMPLER_TYPE
+              value: "const"
+            - name: JAEGER_SAMPLER_PARAM
+              value: "1"
+            - name: COLLECTOR_OTLP_ENABLED
+              value: "true"
+            - name: SPAN_STORAGE_TYPE
+              value: "elasticsearch"
+            - name: ES_SERVER_URLS
+              value: "{{ 'https' if hostvars[elasticsearch_host].elasticsearch_use_tls is defined and hostvars[elasticsearch_host].elasticsearch_use_tls else 'http' }}://{{ hostvars[elasticsearch_host].ansible_host }}:{{ hostvars[elasticsearch_host].elasticsearch_http_port }}"
+            - name: ES_INDEX_ROLLOVER_FREQUENCY_SPANS
+              value: "hour"
+{% if hostvars[elasticsearch_host].elasticsearch_use_tls is defined and hostvars[elasticsearch_host].elasticsearch_use_tls %}
+            - name: ES_TLS_ENABLED
+              value: "true"
+            - name: ES_TLS_CA
+              value: "{{ jaeger_container_config_dir }}/tls/ca.crt"
+{% endif %}
+          ports:
+            - name: ui
+              containerPort: {{ jaeger_ui_port }}
+              protocol: TCP
+            - name: admin
+              containerPort: {{ jaeger_admin_port }}
+              protocol: TCP
+            - name: http-server
+              containerPort: {{ jaeger_http_server_port }}
+              protocol: TCP
+            - name: http-collector
+              containerPort: {{ jaeger_http_collector_port }}
+              protocol: TCP
+            - name: grpc-server
+              containerPort: {{ jaeger_grpc_server_port }}
+              protocol: TCP
+            - name: collector
+              containerPort: {{ jaeger_collector_port }}
+              protocol: TCP
+{% if hostvars[elasticsearch_host].elasticsearch_use_tls is defined and hostvars[elasticsearch_host].elasticsearch_use_tls %}
+          volumeMounts:
+            - name: config
+              mountPath: "{{ jaeger_container_config_dir }}/tls/ca.crt"
+              subPath: es-ca.crt
+              readOnly: true
+{% endif %}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ jaeger_admin_port }}
+            initialDelaySeconds: {{ k8s_readiness_probe_initial_delay_seconds | default(10) }}
+            periodSeconds: {{ k8s_readiness_probe_period_seconds | default(10) }}
+            timeoutSeconds: {{ k8s_readiness_probe_timeout_seconds | default(5) }}
+            failureThreshold: {{ k8s_readiness_probe_failure_threshold | default(3) }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: {{ jaeger_admin_port }}
+            initialDelaySeconds: {{ k8s_liveness_probe_initial_delay_seconds | default(30) }}
+            periodSeconds: {{ k8s_liveness_probe_period_seconds | default(15) }}
+            timeoutSeconds: {{ k8s_liveness_probe_timeout_seconds | default(5) }}
+            failureThreshold: {{ k8s_liveness_probe_failure_threshold | default(5) }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ jaeger_k8s_resource_name }}
+            defaultMode: 0640
+{% if k8s_image_pull_secret is defined and k8s_image_pull_secret %}
+      imagePullSecrets:
+        - name: {{ k8s_image_pull_secret }}
+{% endif %}

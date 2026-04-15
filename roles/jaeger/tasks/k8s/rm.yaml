@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Jaeger Deployment
+  kubernetes.core.k8s:
+    state: absent
+    kind: Deployment
+    name: "{{ jaeger_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace }}"
+
+- name: Remove Jaeger Service
+  kubernetes.core.k8s:
+    state: absent
+    kind: Service
+    name: "{{ jaeger_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace }}"
+
+- name: Remove Jaeger NodePort Service
+  kubernetes.core.k8s:
+    state: absent
+    kind: Service
+    name: "{{ jaeger_k8s_resource_name }}-nodeport"
+    namespace: "{{ k8s_namespace }}"

@@ -1,0 +1,14 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Delete Jaeger Kubernetes ConfigMap
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: ConfigMap
+    name: "{{ jaeger_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace }}"
+  when: jaeger_use_k8s
