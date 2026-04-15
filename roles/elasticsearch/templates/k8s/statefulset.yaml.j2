@@ -1,0 +1,158 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  # One StatefulSet per ElasticSearch instance.
+  name: {{ elasticsearch_k8s_resource_name }}
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ elasticsearch_k8s_resource_name }}
+    app.kubernetes.io/part-of: elasticsearch
+spec:
+  # Must match the headless Service name so DNS-based pod addressing works.
+  serviceName: {{ elasticsearch_k8s_resource_name }}
+  # Single-node ES -- scaling is done by adding nodes to the Fabric network,
+  # not by scaling this pod.
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ elasticsearch_k8s_resource_name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ elasticsearch_k8s_resource_name }}
+        app.kubernetes.io/part-of: elasticsearch
+    spec:
+      securityContext:
+        # Ensures files mounted from Secrets are readable by the elasticsearch
+        # process running as UID 1000 inside the container.
+        fsGroup: {{ elasticsearch_k8s_fs_group }}
+      containers:
+        - name: elasticsearch
+          image: {{ elasticsearch_image }}
+          env:
+            # Single-node discovery -- no cluster formation needed.
+            - name: discovery.type
+              value: single-node
+            - name: http.port
+              value: "{{ elasticsearch_http_port }}"
+            - name: transport.port
+              value: "{{ elasticsearch_transport_port }}"
+            - name: xpack.security.enabled
+              value: "{{ elasticsearch_use_tls | lower | string }}"
+            - name: xpack.security.http.ssl.enabled
+              value: "{{ elasticsearch_use_tls | lower | string }}"
+            - name: xpack.security.enrollment.enabled
+              value: "false"
+{% if elasticsearch_use_tls %}
+            # TLS certificate paths inside the container (mounted from Secret).
+            - name: xpack.security.http.ssl.key
+              value: {{ elasticsearch_container_config_dir }}/config/certs/{{ elasticsearch_tls_private_key_file }}
+            - name: xpack.security.http.ssl.certificate
+              value: {{ elasticsearch_container_config_dir }}/config/certs/{{ elasticsearch_tls_cert_file }}
+            # Allow unauthenticated access via anonymous superuser role.
+            - name: xpack.security.authc.anonymous.username
+              value: anonymous
+            - name: xpack.security.authc.anonymous.roles
+              value: superuser
+{% endif %}
+          ports:
+            - name: http
+              # ElasticSearch HTTP REST API port.
+              containerPort: {{ elasticsearch_http_port }}
+              protocol: TCP
+            - name: transport
+              # ElasticSearch transport port for node-to-node communication.
+              containerPort: {{ elasticsearch_transport_port }}
+              protocol: TCP
+          readinessProbe:
+            # Queries /_cluster/health to confirm ES is ready to serve requests.
+            exec:
+              command:
+                - curl
+                - -f
+                - --silent
+                - --show-error
+{% if elasticsearch_use_tls %}
+                - --cacert
+                - {{ elasticsearch_container_config_dir }}/config/certs/{{ elasticsearch_tls_cert_file }}
+                - https://localhost:{{ elasticsearch_http_port }}/_cluster/health
+{% else %}
+                - http://localhost:{{ elasticsearch_http_port }}/_cluster/health
+{% endif %}
+            initialDelaySeconds: {{ k8s_readiness_probe_initial_delay_seconds | default(20) }}
+            periodSeconds: {{ k8s_readiness_probe_period_seconds | default(10) }}
+            timeoutSeconds: {{ k8s_readiness_probe_timeout_seconds | default(5) }}
+            failureThreshold: {{ k8s_readiness_probe_failure_threshold | default(6) }}
+            successThreshold: 1
+          livenessProbe:
+            # A lighter check -- just verifies ES is still responding on the HTTP port.
+            exec:
+              command:
+                - curl
+                - -f
+                - --silent
+                - --show-error
+{% if elasticsearch_use_tls %}
+                - --cacert
+                - {{ elasticsearch_container_config_dir }}/config/certs/{{ elasticsearch_tls_cert_file }}
+                - https://localhost:{{ elasticsearch_http_port }}/_cluster/health
+{% else %}
+                - http://localhost:{{ elasticsearch_http_port }}/_cluster/health
+{% endif %}
+            initialDelaySeconds: {{ k8s_liveness_probe_initial_delay_seconds | default(60) }}
+            periodSeconds: {{ k8s_liveness_probe_period_seconds | default(15) }}
+            timeoutSeconds: {{ k8s_liveness_probe_timeout_seconds | default(5) }}
+            failureThreshold: {{ k8s_liveness_probe_failure_threshold | default(5) }}
+            successThreshold: 1
+          volumeMounts:
+{% if elasticsearch_use_tls %}
+            # TLS private key for this ElasticSearch node.
+            - name: secret
+              mountPath: {{ elasticsearch_container_config_dir }}/config/certs/{{ elasticsearch_tls_private_key_file }}
+              subPath: tls-server.key
+              readOnly: true
+            # TLS server certificate presented to connecting clients.
+            - name: secret
+              mountPath: {{ elasticsearch_container_config_dir }}/config/certs/{{ elasticsearch_tls_cert_file }}
+              subPath: tls-server.crt
+              readOnly: true
+            # TLS CA certificate used to verify incoming connections.
+            - name: secret
+              mountPath: {{ elasticsearch_container_config_dir }}/config/certs/ca.crt
+              subPath: tls-ca.crt
+              readOnly: true
+{% endif %}
+            # Persistent volume for ElasticSearch index data.
+            - name: data
+              mountPath: {{ elasticsearch_container_data_dir }}
+      volumes:
+        - name: secret
+          # Secret holds TLS crypto material (empty when TLS is disabled).
+          secret:
+            secretName: {{ elasticsearch_k8s_resource_name }}-secret
+            defaultMode: 0640
+{% if k8s_image_pull_secret is defined and k8s_image_pull_secret %}
+      imagePullSecrets:
+        # Secret used to pull the elasticsearch image from a private registry.
+        - name: {{ k8s_image_pull_secret }}
+{% endif %}
+  volumeClaimTemplates:
+    # PVC name -- Kubernetes appends the pod ordinal (e.g. data-<name>-0).
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          # Each ElasticSearch pod owns its own volume.
+          - ReadWriteOnce
+{% if k8s_storage_class is defined and k8s_storage_class %}
+        storageClassName: {{ k8s_storage_class }}
+{% endif %}
+        resources:
+          requests:
+            storage: {{ k8s_storage_size }}
