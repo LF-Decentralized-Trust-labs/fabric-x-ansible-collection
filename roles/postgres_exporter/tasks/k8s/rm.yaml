@@ -1,0 +1,19 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Postgres Exporter Deployment
+  kubernetes.core.k8s:
+    state: absent
+    kind: Deployment
+    name: "{{ postgres_exporter_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace }}"
+
+- name: Remove Postgres Exporter Service
+  kubernetes.core.k8s:
+    state: absent
+    kind: Service
+    name: "{{ postgres_exporter_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace }}"

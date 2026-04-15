@@ -13,3 +13,9 @@
     tasks_from: crypto/openssl/generate_cert
   when:
     - postgres_exporter_use_tls
+
+- name: Apply Postgres Exporter Kubernetes Secret
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres_exporter
+    tasks_from: k8s/crypto/transfer
+  when: postgres_exporter_use_k8s

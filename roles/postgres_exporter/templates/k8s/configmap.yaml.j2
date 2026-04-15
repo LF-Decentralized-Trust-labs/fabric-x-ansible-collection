@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ postgres_exporter_k8s_resource_name }}
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ postgres_exporter_k8s_resource_name }}
+    app.kubernetes.io/component: postgres-exporter
+    app.kubernetes.io/part-of: monitoring
+data:
+  {{ postgres_exporter_config_file }}: |
+{{ lookup('file', postgres_exporter_k8s_config_path) | indent(4, true) }}
+{% if postgres_exporter_use_tls %}
+  {{ postgres_exporter_web_config_file }}: |
+{{ lookup('file', postgres_exporter_k8s_web_config_path) | indent(4, true) }}
+{% endif %}
+{% if hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
+  db-ca.crt: |
+{{ lookup('file', postgres_exporter_k8s_db_ca_path) | indent(4, true) }}
+{% endif %}
