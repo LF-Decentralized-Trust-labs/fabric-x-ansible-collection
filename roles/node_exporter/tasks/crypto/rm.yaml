@@ -12,9 +12,7 @@
     - node_exporter_use_tls
 
 - name: Delete Node Exporter Kubernetes Secret
-  kubernetes.core.k8s:
-    state: absent
-    kind: Secret
-    name: "{{ node_exporter_k8s_resource_name }}"
-    namespace: "{{ k8s_namespace }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.node_exporter
+    tasks_from: k8s/crypto/rm
   when: node_exporter_use_k8s
