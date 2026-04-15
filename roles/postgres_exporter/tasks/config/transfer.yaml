@@ -41,3 +41,9 @@
   when:
     - hostvars[postgres_db_host].postgres_use_tls is defined
     - hostvars[postgres_db_host].postgres_use_tls
+
+- name: Transfer Postgres Exporter configuration to Kubernetes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres_exporter
+    tasks_from: k8s/config/transfer
+  when: postgres_exporter_use_k8s

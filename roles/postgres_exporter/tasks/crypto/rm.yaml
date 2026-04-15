@@ -10,3 +10,9 @@
     state: absent
   when:
     - postgres_exporter_use_tls
+
+- name: Delete Postgres Exporter Kubernetes Secret
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres_exporter
+    tasks_from: k8s/crypto/rm
+  when: postgres_exporter_use_k8s
