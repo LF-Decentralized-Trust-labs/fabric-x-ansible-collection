@@ -132,6 +132,12 @@ make install-deps          # set up control node (venv + python + ansible deps)
 make help                  # full command reference
 ```
 
+## Modifying a role or playbook
+
+1. If the modification introduces new tasks under `tasks/`, `tasks/config/` or `tasks/crypto`, update the role README.
+2. If the modification introduces new variables, put them in `defaults/main.yaml` only if it makes sense that such variables can have multiple values.
+3. Run `make lint` and fix any issues before committing.
+
 ---
 
 ## Adding a role or playbook (rare)
