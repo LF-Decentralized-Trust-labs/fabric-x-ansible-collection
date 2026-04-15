@@ -55,9 +55,9 @@ ASSERT_METRICS ?= false
 LIMIT ?= 1000
 
 # Vars to log into CR using env vars
-CONTAINER_REGISTRY ?=
-CONTAINER_REGISTRY_USERNAME ?=
-CONTAINER_REGISTRY_PASSWORD ?=
+REGISTRY_URL ?=
+REGISTRY_USERNAME ?=
+REGISTRY_PASSWORD ?=
 
 # include the predefined target groups
 include $(PROJECT_DIR)/target_groups.mk
@@ -154,11 +154,11 @@ check-trailing-spaces:
 # Deployment
 # =======================
 
-# Log the container engine within a Container Registry (aka CR) (e.g. make login-cr CONTAINER_REGISTRY=icr.io CONTAINER_REGISTRY_USERNAME=iamapikey CONTAINER_REGISTRY_PASSWORD=my_api_key).
+# Log the container engine within a Container Registry (aka CR) (e.g. make login-cr REGISTRY_URL=icr.io REGISTRY_USERNAME=iamapikey REGISTRY_PASSWORD=my_api_key).
 .PHONY: login-cr
 login-cr:
-	@printf "$(COLOR_CYAN)🚩 Logging into container registry [$(COLOR_GREEN)$(CONTAINER_REGISTRY)$(COLOR_CYAN)] for hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
-	$(ANSIBLE_PLAYBOOK) hyperledger.fabricx.log_in_container_registry --extra-vars '{"target_hosts": "$(TARGET_HOSTS)", "container_registry": "$(CONTAINER_REGISTRY)", "container_registry_username": "$(CONTAINER_REGISTRY_USERNAME)", "container_registry_password": "$(CONTAINER_REGISTRY_PASSWORD)"}'
+	@printf "$(COLOR_CYAN)🚩 Logging into container registry [$(COLOR_GREEN)$(REGISTRY_URL)$(COLOR_CYAN)] for hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
+	$(ANSIBLE_PLAYBOOK) hyperledger.fabricx.log_in_container_registry --extra-vars '{"target_hosts": "$(TARGET_HOSTS)", "registry_url": "$(REGISTRY_URL)", "registry_username": "$(REGISTRY_USERNAME)", "registry_password": "$(REGISTRY_PASSWORD)"}'
 
 # Build all the artifacts, the binaries and configuration files (e.g. make setup).
 .PHONY: setup

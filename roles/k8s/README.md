@@ -8,6 +8,8 @@
 - [Tasks](#tasks)
   - [Namespace](#namespace)
     - [namespace/create](#namespacecreate)
+  - [Registry](#registry)
+    - [registry/create_pull_secret](#registrycreate_pull_secret)
 - [Variables](#variables)
 
 ## Prerequisites
@@ -34,6 +36,30 @@ Ensures a Kubernetes namespace exists. Idempotent — if the namespace already e
   ansible.builtin.include_role:
     name: hyperledger.fabricx.k8s
     tasks_from: namespace/create
+```
+
+### Registry
+
+| Task                                                                    | Description                                                                                   |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| [registry/create_pull_secret](./tasks/registry/create_pull_secret.yaml) | Creates an `imagePullSecret` of type `kubernetes.io/dockerconfigjson` in the target namespace |
+
+#### registry/create_pull_secret
+
+Creates a Kubernetes Secret for pulling images from a private registry. Idempotent - if the secret already exists it is updated in place.
+
+Requires `k8s_image_pull_secret` to be set on the host, which is used as the secret name.
+
+```yaml
+- name: Create imagePullSecret
+  vars:
+    k8s_image_pull_secret: regcred
+    k8s_registry_url: icr.io
+    k8s_registry_username: iamapikey
+    k8s_registry_password: my_api_key
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: registry/create_pull_secret
 ```
 
 ---

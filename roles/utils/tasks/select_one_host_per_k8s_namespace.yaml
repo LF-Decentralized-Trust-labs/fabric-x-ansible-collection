@@ -1,0 +1,33 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# This task is useful whenever you need to run some commands
+# which can collide when run in the same namespace and cause
+# errors.
+- name: Create group "k8s_namespaces" with one host per k8s namespace
+  vars:
+    hostname_per_namespace: >-
+      {{
+        ansible_play_hosts
+        | map('extract', hostvars)
+        | selectattr('k8s_namespace', '==', item)
+        | selectattr('k8s_image_pull_secret', 'defined')
+        | map(attribute='inventory_hostname')
+        | sort
+        | first
+      }}
+  ansible.builtin.add_host:
+    name: "{{ hostname_per_namespace }}"
+    groups: k8s_namespaces
+  loop: >-
+    {{
+      ansible_play_hosts
+      | map('extract', hostvars)
+      | selectattr('k8s_image_pull_secret', 'defined')
+      | map(attribute='k8s_namespace')
+      | unique
+      | list
+    }}

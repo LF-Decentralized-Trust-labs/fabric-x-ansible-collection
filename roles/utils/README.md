@@ -9,17 +9,19 @@
     - [generate_makefile_targets](#generate_makefile_targets)
     - [ping](#ping)
     - [select_one_host_per_machine](#select_one_host_per_machine)
+    - [select_one_host_per_k8s_namespace](#select_one_host_per_k8s_namespace)
 - [Variables](#variables)
 
 ## Tasks
 
 ### Lifecycle
 
-| Task                                                                    | Description                |
-| ----------------------------------------------------------------------- | -------------------------- |
-| [generate_makefile_targets](./tasks/generate_makefile_targets.yaml)     | Generates Makefile targets |
-| [ping](./tasks/ping.yaml)                                               | Checks port availability   |
-| [select_one_host_per_machine](./tasks/select_one_host_per_machine.yaml) | Creates machines group     |
+| Task                                                                                | Description                  |
+| ----------------------------------------------------------------------------------- | ---------------------------- |
+| [generate_makefile_targets](./tasks/generate_makefile_targets.yaml)                 | Generates Makefile targets   |
+| [ping](./tasks/ping.yaml)                                                           | Checks port availability     |
+| [select_one_host_per_k8s_namespace](./tasks/select_one_host_per_k8s_namespace.yaml) | Creates k8s_namespaces group |
+| [select_one_host_per_machine](./tasks/select_one_host_per_machine.yaml)             | Creates machines group       |
 
 #### generate_makefile_targets
 
@@ -69,6 +71,17 @@ Creates a group named `machines` that will contain exactly a single host per mac
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: select_one_host_per_machine
+```
+
+#### select_one_host_per_k8s_namespace
+
+Creates a group named `k8s_namespaces` that will contain exactly a single host per Kubernetes namespace among hosts with `k8s_image_pull_secret` defined. It is useful when you need to perform an operation once per namespace instead of once per host.
+
+```yaml
+- name: Set the group "k8s_namespaces"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: select_one_host_per_k8s_namespace
 ```
 
 ---
