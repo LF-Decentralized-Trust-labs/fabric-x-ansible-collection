@@ -72,43 +72,26 @@ spec:
               protocol: TCP
           readinessProbe:
             # Queries /_cluster/health to confirm ES is ready to serve requests.
-            exec:
-              command:
-                - curl
-                - -f
-                - --silent
-                - --show-error
-{% if elasticsearch_use_tls %}
-                - --cacert
-                - {{ elasticsearch_container_config_dir }}/config/certs/{{ elasticsearch_tls_cert_file }}
-                - https://localhost:{{ elasticsearch_http_port }}/_cluster/health
-{% else %}
-                - http://localhost:{{ elasticsearch_http_port }}/_cluster/health
-{% endif %}
+            httpGet:
+              path: /_cluster/health
+              port: {{ elasticsearch_http_port }}
+              scheme: "{{ 'HTTPS' if elasticsearch_use_tls else 'HTTP' }}"
             initialDelaySeconds: {{ k8s_readiness_probe_initial_delay_seconds | default(20) }}
             periodSeconds: {{ k8s_readiness_probe_period_seconds | default(10) }}
             timeoutSeconds: {{ k8s_readiness_probe_timeout_seconds | default(5) }}
             failureThreshold: {{ k8s_readiness_probe_failure_threshold | default(6) }}
             successThreshold: 1
           livenessProbe:
-            # A lighter check -- just verifies ES is still responding on the HTTP port.
-            exec:
-              command:
-                - curl
-                - -f
-                - --silent
-                - --show-error
-{% if elasticsearch_use_tls %}
-                - --cacert
-                - {{ elasticsearch_container_config_dir }}/config/certs/{{ elasticsearch_tls_cert_file }}
-                - https://localhost:{{ elasticsearch_http_port }}/_cluster/health
-{% else %}
-                - http://localhost:{{ elasticsearch_http_port }}/_cluster/health
-{% endif %}
-            initialDelaySeconds: {{ k8s_liveness_probe_initial_delay_seconds | default(60) }}
-            periodSeconds: {{ k8s_liveness_probe_period_seconds | default(15) }}
-            timeoutSeconds: {{ k8s_liveness_probe_timeout_seconds | default(5) }}
-            failureThreshold: {{ k8s_liveness_probe_failure_threshold | default(5) }}
+            # Be generous here: ElasticSearch can pause under GC or heavy load,
+            # and we do not want Kubernetes to restart the pod too aggressively.
+            httpGet:
+              path: /_cluster/health
+              port: {{ elasticsearch_http_port }}
+              scheme: "{{ 'HTTPS' if elasticsearch_use_tls else 'HTTP' }}"
+            initialDelaySeconds: {{ k8s_liveness_probe_initial_delay_seconds | default(90) }}
+            periodSeconds: {{ k8s_liveness_probe_period_seconds | default(20) }}
+            timeoutSeconds: {{ k8s_liveness_probe_timeout_seconds | default(10) }}
+            failureThreshold: {{ k8s_liveness_probe_failure_threshold | default(10) }}
             successThreshold: 1
           volumeMounts:
 {% if elasticsearch_use_tls %}

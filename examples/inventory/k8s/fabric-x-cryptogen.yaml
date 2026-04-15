@@ -239,6 +239,12 @@ all:
           node_exporter_port: 30911
           node_exporter_use_tls: true
           node_exporter_use_k8s: true
+        # TODO: remove
+        elasticsearch:
+          elasticsearch_http_port: 30981
+          elasticsearch_transport_port: 30982
+          elasticsearch_use_tls: true
+          elasticsearch_use_k8s: true
         committer-db-exporter:
           postgres_db_host: committer-db
           postgres_exporter_port: 32110
