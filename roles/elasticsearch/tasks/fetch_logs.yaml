@@ -8,3 +8,10 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: container/fetch_logs
+  when: elasticsearch_use_container
+
+- name: Fetch ElasticSearch logs from Kubernetes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.elasticsearch
+    tasks_from: k8s/fetch_logs
+  when: elasticsearch_use_k8s

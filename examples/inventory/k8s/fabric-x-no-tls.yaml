@@ -314,5 +314,9 @@ all:
     monitoring:
       hosts:
         node-exporter:
-          node_exporter_port: 9111
+          node_exporter_port: 30911
           node_exporter_use_k8s: true
+        committer-db-exporter:
+          postgres_db_host: committer-db
+          postgres_exporter_port: 32110
+          postgres_exporter_use_k8s: true

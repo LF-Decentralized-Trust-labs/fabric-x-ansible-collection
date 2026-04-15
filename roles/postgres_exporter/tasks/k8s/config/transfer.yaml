@@ -1,0 +1,20 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure Kubernetes namespace exists for Postgres Exporter
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+- name: Apply Postgres Exporter ConfigMap
+  vars:
+    postgres_exporter_k8s_config_path: "{{ postgres_exporter_remote_config_dir }}/{{ postgres_exporter_config_file }}"
+    postgres_exporter_k8s_web_config_path: "{{ postgres_exporter_remote_config_dir }}/{{ postgres_exporter_web_config_file }}"
+    postgres_exporter_k8s_db_ca_path: "{{ postgres_exporter_remote_config_dir }}/tls/db/{{ postgres_db_host }}/ca.crt"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/configmap.yaml.j2

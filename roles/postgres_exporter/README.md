@@ -20,7 +20,7 @@
     - [stop](#stop)
     - [teardown](#teardown)
     - [wipe](#wipe)
-    - [fetch_logs](#fetch_logs)
+    - [fetch\_logs](#fetch_logs)
     - [ping](#ping)
 - [Variables](#variables)
 
@@ -116,7 +116,7 @@ Removes the Postgres Exporter configuration files on the remote node:
 
 #### start
 
-Starts the Postgres Exporter container:
+Starts a Postgres Exporter instance:
 
 ```yaml
 - name: Start Postgres Exporter
