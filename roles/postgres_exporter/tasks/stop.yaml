@@ -8,3 +8,4 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: container/stop
+  when: postgres_exporter_use_container
