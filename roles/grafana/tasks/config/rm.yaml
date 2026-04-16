@@ -10,10 +10,7 @@
     state: absent
 
 - name: Delete Grafana Kubernetes ConfigMap
-  kubernetes.core.k8s:
-    state: absent
-    api_version: v1
-    kind: ConfigMap
-    name: "{{ grafana_k8s_resource_name }}"
-    namespace: "{{ k8s_namespace }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.grafana
+    tasks_from: k8s/config/rm
   when: grafana_use_k8s
