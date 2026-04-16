@@ -61,3 +61,9 @@
     - service_to_scrape.use_tls is defined
     - service_to_scrape.use_tls
     - service_to_scrape.tls_ca_file is defined
+
+- name: Transfer Prometheus k8s ConfigMap
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: k8s/config/transfer
+  when: prometheus_use_k8s

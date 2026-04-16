@@ -340,3 +340,7 @@ all:
           node_exporter_port: 30911
           node_exporter_use_tls: true
           node_exporter_use_k8s: true
+        prometheus:
+          prometheus_port: 32090
+          prometheus_use_tls: true
+          prometheus_use_k8s: true

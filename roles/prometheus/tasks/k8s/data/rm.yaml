@@ -1,0 +1,14 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Delete Prometheus data PVC
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: PersistentVolumeClaim
+    # Kubernetes auto-names the PVC as <template-name>-<statefulset-name>-<ordinal>.
+    name: "data-{{ prometheus_k8s_resource_name }}-0"
+    namespace: "{{ k8s_namespace }}"

@@ -244,3 +244,7 @@ all:
           postgres_exporter_port: 32110
           postgres_exporter_use_tls: true
           postgres_exporter_use_k8s: true
+        prometheus:
+          prometheus_port: 32090
+          prometheus_use_tls: true
+          prometheus_use_k8s: true

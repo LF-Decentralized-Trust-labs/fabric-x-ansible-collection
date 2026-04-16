@@ -1,0 +1,33 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ prometheus_k8s_resource_name }}-config
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ prometheus_k8s_resource_name }}
+    app.kubernetes.io/part-of: prometheus
+data:
+  # Main Prometheus scrape configuration.
+  {{ prometheus_config_file }}: |
+{{ lookup('file', prometheus_k8s_config_path) | indent(4, true) }}
+{% if prometheus_use_tls %}
+  # TLS web server configuration.
+  {{ prometheus_web_config_file }}: |
+{{ lookup('file', prometheus_k8s_web_config_path) | indent(4, true) }}
+  # HTTP client configuration used by promtool over TLS.
+  {{ prometheus_http_config_file }}: |
+{{ lookup('file', prometheus_k8s_http_config_path) | indent(4, true) }}
+{% endif %}
+{% for service_to_scrape in prometheus_scrape_services | default([]) %}
+{% if service_to_scrape.use_tls is defined and service_to_scrape.use_tls and service_to_scrape.tls_ca_file is defined %}
+  # CA certificate for scraping {{ service_to_scrape.job_name }} over TLS.
+  tls-{{ service_to_scrape.job_name }}-ca.crt: |
+{{ lookup('file', prometheus_remote_config_dir + '/tls/' + service_to_scrape.job_name + '/ca.crt') | indent(4, true) }}
+{% endif %}
+{% endfor %}
