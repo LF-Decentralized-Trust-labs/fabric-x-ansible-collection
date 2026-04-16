@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Node Exporter DaemonSet
+  kubernetes.core.k8s:
+    state: absent
+    kind: DaemonSet
+    name: "{{ node_exporter_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace }}"
+
+- name: Remove Node Exporter Service
+  kubernetes.core.k8s:
+    state: absent
+    kind: Service
+    name: "{{ node_exporter_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace }}"
+
+- name: Remove Node Exporter NodePort Service
+  kubernetes.core.k8s:
+    state: absent
+    kind: Service
+    name: "{{ node_exporter_k8s_resource_name }}-nodeport"
+    namespace: "{{ k8s_namespace }}"

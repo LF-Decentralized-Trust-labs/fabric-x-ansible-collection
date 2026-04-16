@@ -1,6 +1,6 @@
 # hyperledger.fabricx.fabric_ca
 
-> Runs a Hyperledger Fabric CA server and client for certificate management.
+> Runs a Hyperledger Fabric CA server and client for certificate management across binary, container, and Kubernetes deployments.
 
 <!-- @depends_on: hyperledger.fabricx.openssl -->
 
@@ -41,6 +41,8 @@
 ## Prerequisites
 
 - `go` to be installed (when using binary mode)
+- `postgres_db_host` to be defined for the Fabric CA server; SQLite is no longer supported
+- a reachable Kubernetes cluster with `kubernetes.core` configured (when using k8s mode)
 
 ## Tasks
 

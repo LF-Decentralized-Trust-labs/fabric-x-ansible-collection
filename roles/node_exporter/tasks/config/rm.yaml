@@ -8,3 +8,9 @@
   ansible.builtin.file:
     path: "{{ node_exporter_remote_config_dir }}"
     state: absent
+
+- name: Delete Node Exporter Kubernetes ConfigMap
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.node_exporter
+    tasks_from: k8s/config/rm
+  when: node_exporter_use_k8s

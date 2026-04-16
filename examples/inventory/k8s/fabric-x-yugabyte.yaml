@@ -4,14 +4,14 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# This inventory runs a full Hyperledger Fabric-X network (orderers + committer + postgres DB)
+# This inventory runs a full Hyperledger Fabric-X network (orderers + committer + YugabyteDB)
 # entirely on Kubernetes. All services are deployed as k8s workloads and are accessible
 # externally via NodePort services.
+# Crypto material is generated using Fabric CA.
 #
 # Prerequisites:
 #   - A running Kubernetes cluster reachable from the control node
 #   - kubectl configured and pointing at the target cluster
-#   - cryptogen artifacts available under {{ cryptogen_artifacts_dir }}
 #
 # To use a remote k8s node (e.g. kind in CI, k3s), set K8S_NODE_IP to the node's IP address:
 #   export K8S_NODE_IP=<node-ip>
@@ -44,6 +44,79 @@ all:
     network:
       children:
         # =========================
+        # Hyperledger Fabric CAs (k8s)
+        # =========================
+        fabric_cas:
+          children:
+            # =========================
+            # Hyperledger Fabric CA DBs (k8s)
+            # =========================
+            fabric_ca_dbs:
+              vars:
+                postgres_user: postgres
+                postgres_password: example
+                postgres_use_k8s: true
+                postgres_use_tls: true
+              hosts:
+                fca-orderer-org1-db:
+                  postgres_db: ordererOrg1DB
+                  postgres_port: 30810
+                fca-orderer-org2-db:
+                  postgres_db: ordererOrg2DB
+                  postgres_port: 30820
+                fca-orderer-org3-db:
+                  postgres_db: ordererOrg3DB
+                  postgres_port: 30830
+                fca-orderer-org4-db:
+                  postgres_db: ordererOrg4DB
+                  postgres_port: 30840
+                fca-org1-db:
+                  postgres_db: Org1DB
+                  postgres_port: 30860
+            # =========================
+            # Hyperledger Fabric CA Servers (k8s)
+            # =========================
+            fabric_ca_servers:
+              vars:
+                fabric_ca_server_use_k8s: true
+                fabric_ca_use_tls: true
+                fabric_ca_name: "{{ inventory_hostname }}"
+                fabric_ca_admin:
+                  name: admin
+                  secret: adminPWD
+                  attrs:
+                    hf.Registrar.Roles: "*"
+                    hf.Registrar.Attributes: "*"
+                    hf.GenCRL: "true"
+                    hf.Revoker: "true"
+              hosts:
+                fabric-ca-orderer-org1:
+                  fabric_ca_port: 30919
+                  fabric_ca_operations_port: 30920
+                  organization: *OrdererOrg1
+                  postgres_db_host: fca-orderer-org1-db
+                fabric-ca-orderer-org2:
+                  fabric_ca_port: 30929
+                  fabric_ca_operations_port: 30930
+                  organization: *OrdererOrg2
+                  postgres_db_host: fca-orderer-org2-db
+                fabric-ca-orderer-org3:
+                  fabric_ca_port: 30939
+                  fabric_ca_operations_port: 30940
+                  organization: *OrdererOrg3
+                  postgres_db_host: fca-orderer-org3-db
+                fabric-ca-orderer-org4:
+                  fabric_ca_port: 30949
+                  fabric_ca_operations_port: 30950
+                  organization: *OrdererOrg4
+                  postgres_db_host: fca-orderer-org4-db
+                fabric-ca-org1:
+                  fabric_ca_port: 30969
+                  fabric_ca_operations_port: 30970
+                  organization: *Org1
+                  postgres_db_host: fca-org1-db
+
+        # =========================
         # Hyperledger Fabric-X
         # =========================
         fabric_x:
@@ -64,9 +137,11 @@ all:
                   vars:
                     organization:
                       <<: *OrdererOrg1
+                      fabric_ca_host: fabric-ca-orderer-org1
                       role: orderer
                       orderer:
                         name: "{{ inventory_hostname }}"
+                        secret: "{{ inventory_hostname }}PWD"
                     orderer_group: 1
                   hosts:
                     orderer-router-1:
@@ -90,9 +165,11 @@ all:
                   vars:
                     organization:
                       <<: *OrdererOrg2
+                      fabric_ca_host: fabric-ca-orderer-org2
                       role: orderer
                       orderer:
                         name: "{{ inventory_hostname }}"
+                        secret: "{{ inventory_hostname }}PWD"
                     orderer_group: 2
                   hosts:
                     orderer-router-2:
@@ -116,9 +193,11 @@ all:
                   vars:
                     organization:
                       <<: *OrdererOrg3
+                      fabric_ca_host: fabric-ca-orderer-org3
                       role: orderer
                       orderer:
                         name: "{{ inventory_hostname }}"
+                        secret: "{{ inventory_hostname }}PWD"
                     orderer_group: 3
                   hosts:
                     orderer-router-3:
@@ -142,9 +221,11 @@ all:
                   vars:
                     organization:
                       <<: *OrdererOrg4
+                      fabric_ca_host: fabric-ca-orderer-org4
                       role: orderer
                       orderer:
                         name: "{{ inventory_hostname }}"
+                        secret: "{{ inventory_hostname }}PWD"
                     orderer_group: 4
                   hosts:
                     orderer-router-4:
@@ -175,9 +256,11 @@ all:
                 committer_use_mtls: true
                 organization:
                   <<: *Org1
+                  fabric_ca_host: fabric-ca-org1
                   role: peer
                   peer:
                     name: "{{ inventory_hostname }}"
+                    secret: "{{ inventory_hostname }}PWD"
               children:
                 committer_dbs:
                   vars:
@@ -233,7 +316,11 @@ all:
           loadgen_use_k8s: true
           organization:
             <<: *Org1
+            fabric_ca_host: fabric-ca-org1
             role: peer
+            peer:
+              name: "{{ inventory_hostname }}"
+              secret: "{{ inventory_hostname }}PWD"
             users:
               - name: orderer-loadgen
             namespaces:
@@ -244,3 +331,13 @@ all:
           loadgen_metrics_port: 30600
           loadgen_web_port: 30610
           loadgen_rpc_port: 30620
+
+    # =========================
+    # Monitoring Infra
+    # =========================
+    monitoring:
+      hosts:
+        node-exporter:
+          node_exporter_port: 30911
+          node_exporter_use_tls: true
+          node_exporter_use_k8s: true

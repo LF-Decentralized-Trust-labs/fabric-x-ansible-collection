@@ -80,7 +80,7 @@
       loop: "{{ fabric_ca_server_idemix_files_to_copy }}"
       loop_control:
         loop_var: current_fabric_ca_idemix_file
-        label: "{{ current_fabric_ca_idemix_file.dest }}"
+        label: "{{ current_fabric_ca_idemix_file.dest | basename }}"
     - name: Remove transient idemixgen output directory
       ansible.builtin.file:
         path: "{{ fabric_ca_server_idemixgen_output_dir }}"

@@ -1,0 +1,22 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists for Fabric CA
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+- name: Apply Fabric CA ConfigMap
+  vars:
+    fabric_ca_server_k8s_config_file_path: "{{ fabric_ca_server_remote_config_dir }}/fabric-ca-server-config.yaml"
+    fabric_ca_server_k8s_db_tls_cert_local_path: "{{ fabric_ca_server_remote_config_dir }}/db/tls/cert.pem"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/configmap.yaml.j2

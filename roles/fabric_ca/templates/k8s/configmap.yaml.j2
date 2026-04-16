@@ -1,0 +1,21 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ fabric_ca_server_k8s_resource_name }}
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ fabric_ca_server_k8s_resource_name }}
+    app.kubernetes.io/component: fabric-ca
+data:
+  fabric-ca-server-config.yaml: |
+    {{ lookup('file', fabric_ca_server_k8s_config_file_path) | indent(4) }}
+{% if hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
+  cert.pem: |
+    {{ lookup('file', fabric_ca_server_k8s_db_tls_cert_local_path) | indent(4) }}
+{% endif %}

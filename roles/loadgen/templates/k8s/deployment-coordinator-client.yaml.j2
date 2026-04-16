@@ -30,7 +30,6 @@ spec:
       containers:
         - name: loadgen
           image: {{ loadgen_image }}
-          imagePullPolicy: {{ k8s_image_pull_policy }}
           args:
             - "start"
             - "--config={{ loadgen_container_config_dir }}/{{ loadgen_config_file }}"

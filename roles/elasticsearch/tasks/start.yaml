@@ -8,3 +8,10 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: container/start
+  when: elasticsearch_use_container
+
+- name: Start ElasticSearch on Kubernetes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.elasticsearch
+    tasks_from: k8s/start
+  when: elasticsearch_use_k8s
