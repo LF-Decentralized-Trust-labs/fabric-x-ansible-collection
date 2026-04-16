@@ -9,9 +9,9 @@ apiVersion: 1
 
 # List of dashboard providers
 providers:
-  # Human‑readable name for this provider
+  # Human-readable name for this provider
   - name: "Fabric-X Dashboards"
-    # Provider type – reads dashboards from files
+    # Provider type - reads dashboards from files
     type: file
     # Allow dashboards to be deleted via the UI/API (false = protected)
     disableDeletion: false
@@ -19,7 +19,7 @@ providers:
     updateIntervalSeconds: 10
     # Prevent UI from modifying provisioned dashboards
     allowUiUpdates: false
-    # Provider‑specific options
+    # Provider-specific options
     options:
       # Directory containing dashboard JSON files
       path: {{ grafana_container_config_dir }}/dashboards
