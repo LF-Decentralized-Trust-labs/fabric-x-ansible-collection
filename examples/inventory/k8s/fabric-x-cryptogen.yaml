@@ -244,3 +244,8 @@ all:
           postgres_exporter_port: 32110
           postgres_exporter_use_tls: true
           postgres_exporter_use_k8s: true
+        elasticsearch:
+          elasticsearch_http_port: 32200
+          elasticsearch_transport_port: 32201
+          elasticsearch_use_k8s: true
+          elasticsearch_use_tls: true
