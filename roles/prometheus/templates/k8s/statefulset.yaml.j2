@@ -94,11 +94,6 @@ spec:
           secret:
             secretName: {{ prometheus_k8s_resource_name }}-secret
             defaultMode: 0640
-            items:
-              - key: tls-server.key
-                path: {{ prometheus_tls_private_key_file }}
-              - key: tls-server.crt
-                path: {{ prometheus_tls_cert_file }}
 {% if k8s_image_pull_secret is defined and k8s_image_pull_secret %}
       imagePullSecrets:
         - name: {{ k8s_image_pull_secret }}
