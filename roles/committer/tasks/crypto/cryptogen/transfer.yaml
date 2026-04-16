@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure Hyperledger Fabric-X Committer TLS directory exists
+- name: Ensure Hyperledger Fabric-X Committer config directory exists
   ansible.builtin.file:
     path: "{{ committer_remote_config_dir }}"
     state: directory

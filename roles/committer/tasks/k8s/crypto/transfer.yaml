@@ -15,21 +15,24 @@
 # =========================
 # Resolve dynamic cert paths via glob
 # =========================
-- name: Resolve Fabric-X Committer MSP CA cert path for Fabric CA
-  ansible.builtin.set_fact:
-    committer_k8s_msp_cacerts_path: >-
-      {{
-        query('fileglob', committer_remote_config_dir + '/msp/cacerts/*.pem')
-        | first
-      }}
-  when:
-    - organization.fabric_ca_host is defined
-
 - name: Resolve Fabric-X Committer MSP CA cert path
-  ansible.builtin.set_fact:
-    committer_k8s_msp_cacerts_path: "{{ committer_remote_config_dir }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem"
   when:
-    - organization.fabric_ca_host is undefined
+    - committer_component_type == 'sidecar'
+  block:
+    - name: Resolve Fabric-X Committer MSP CA cert path for Fabric CA
+      ansible.builtin.set_fact:
+        committer_k8s_msp_cacerts_path: >-
+          {{
+            query('fileglob', committer_remote_config_dir + '/msp/cacerts/*.pem')
+            | first
+          }}
+      when:
+        - organization.fabric_ca_host is defined
+    - name: Resolve Fabric-X Committer MSP CA cert path for cryptogen
+      ansible.builtin.set_fact:
+        committer_k8s_msp_cacerts_path: "{{ committer_remote_config_dir }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem"
+      when:
+        - organization.fabric_ca_host is undefined
 
 # =========================
 # Apply Secret
