@@ -32,35 +32,20 @@
   when:
     - prometheus_use_tls
 
-- name: Ensure TLS folder exists
-  ansible.builtin.file:
-    path: "{{ prometheus_remote_config_dir }}/tls/{{ service_to_scrape.job_name }}"
-    state: directory
-    mode: "0o755"
-  loop: "{{ prometheus_scrape_services }}"
-  loop_control:
-    loop_var: service_to_scrape
-    label: "{{ service_to_scrape.job_name }}"
-  when:
-    - prometheus_scrape_services is defined
-    - service_to_scrape.use_tls is defined
-    - service_to_scrape.use_tls
-    - service_to_scrape.tls_ca_file is defined
-
 - name: Transfer TLS certificates
   ansible.builtin.copy:
-    src: "{{ service_to_scrape.tls_ca_file }}"
-    dest: "{{ prometheus_remote_config_dir }}/tls/{{ service_to_scrape.job_name }}/ca.crt"
+    src: "{{ current_service_to_scrape.tls_ca_file }}"
+    dest: "{{ prometheus_remote_config_dir }}/tls-{{ current_service_to_scrape.job_name }}-ca.crt"
     mode: preserve
   loop: "{{ prometheus_scrape_services }}"
   loop_control:
-    loop_var: service_to_scrape
-    label: "{{ service_to_scrape.job_name }}"
+    loop_var: current_service_to_scrape
+    label: "{{ current_service_to_scrape.job_name }}"
   when:
     - prometheus_scrape_services is defined
-    - service_to_scrape.use_tls is defined
-    - service_to_scrape.use_tls
-    - service_to_scrape.tls_ca_file is defined
+    - current_service_to_scrape.use_tls is defined
+    - current_service_to_scrape.use_tls
+    - current_service_to_scrape.tls_ca_file is defined
 
 - name: Transfer Prometheus k8s ConfigMap
   ansible.builtin.include_role:

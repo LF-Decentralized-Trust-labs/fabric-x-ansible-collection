@@ -73,42 +73,16 @@ spec:
             # Persistent TSDB storage.
             - name: data
               mountPath: {{ prometheus_container_data_dir }}
-            # Main scrape configuration.
+            # All Prometheus config files and TLS CA certs from the ConfigMap.
             - name: config
-              mountPath: {{ prometheus_container_config_dir }}/{{ prometheus_config_file }}
-              subPath: {{ prometheus_config_file }}
+              mountPath: {{ prometheus_container_config_dir }}
               readOnly: true
 {% if prometheus_use_tls %}
-            # TLS web server configuration.
-            - name: config
-              mountPath: {{ prometheus_container_config_dir }}/{{ prometheus_web_config_file }}
-              subPath: {{ prometheus_web_config_file }}
-              readOnly: true
-            # HTTP client config used by promtool for TLS checks.
-            - name: config
-              mountPath: {{ prometheus_container_config_dir }}/{{ prometheus_http_config_file }}
-              subPath: {{ prometheus_http_config_file }}
-              readOnly: true
-            # TLS private key for the Prometheus HTTPS server.
+            # TLS keypair for the Prometheus HTTPS server.
             - name: secret
-              mountPath: {{ prometheus_container_config_dir }}/tls/{{ prometheus_tls_private_key_file }}
-              subPath: tls-server.key
-              readOnly: true
-            # TLS certificate for the Prometheus HTTPS server.
-            - name: secret
-              mountPath: {{ prometheus_container_config_dir }}/tls/{{ prometheus_tls_cert_file }}
-              subPath: tls-server.crt
+              mountPath: {{ prometheus_container_config_dir }}/tls
               readOnly: true
 {% endif %}
-{% for service_to_scrape in prometheus_scrape_services | default([]) %}
-{% if service_to_scrape.use_tls is defined and service_to_scrape.use_tls and service_to_scrape.tls_ca_file is defined %}
-            # CA cert for {{ service_to_scrape.job_name }} scrape target.
-            - name: config
-              mountPath: {{ prometheus_container_config_dir }}/tls/{{ service_to_scrape.job_name }}/ca.crt
-              subPath: tls-{{ service_to_scrape.job_name }}-ca.crt
-              readOnly: true
-{% endif %}
-{% endfor %}
       volumes:
         - name: config
           # ConfigMap holds Prometheus config and optional TLS CA certs for scrape targets.
@@ -120,6 +94,11 @@ spec:
           secret:
             secretName: {{ prometheus_k8s_resource_name }}-secret
             defaultMode: 0640
+            items:
+              - key: tls-server.key
+                path: {{ prometheus_tls_private_key_file }}
+              - key: tls-server.crt
+                path: {{ prometheus_tls_cert_file }}
 {% if k8s_image_pull_secret is defined and k8s_image_pull_secret %}
       imagePullSecrets:
         - name: {{ k8s_image_pull_secret }}

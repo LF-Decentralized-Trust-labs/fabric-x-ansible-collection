@@ -24,10 +24,12 @@ data:
   {{ prometheus_http_config_file }}: |
 {{ lookup('file', prometheus_k8s_http_config_path) | indent(4, true) }}
 {% endif %}
-{% for service_to_scrape in prometheus_scrape_services | default([]) %}
-{% if service_to_scrape.use_tls is defined and service_to_scrape.use_tls and service_to_scrape.tls_ca_file is defined %}
-  # CA certificate for scraping {{ service_to_scrape.job_name }} over TLS.
-  tls-{{ service_to_scrape.job_name }}-ca.crt: |
-{{ lookup('file', prometheus_remote_config_dir + '/tls/' + service_to_scrape.job_name + '/ca.crt') | indent(4, true) }}
+{% if prometheus_scrape_services is defined %}
+{% for current_service_to_scrape in prometheus_scrape_services %}
+{% if current_service_to_scrape.use_tls is defined and current_service_to_scrape.use_tls and current_service_to_scrape.tls_ca_file is defined %}
+  # CA certificate for scraping {{ current_service_to_scrape.job_name }} over TLS.
+  tls-{{ current_service_to_scrape.job_name }}-ca.crt: |
+{{ lookup('file', prometheus_remote_config_dir + '/tls-' + current_service_to_scrape.job_name + '-ca.crt') | indent(4, true) }}
 {% endif %}
 {% endfor %}
+{% endif %}
