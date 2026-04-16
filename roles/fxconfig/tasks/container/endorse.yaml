@@ -43,6 +43,6 @@
 - name: Fetch endorsed transaction
   ansible.builtin.fetch:
     src: "{{ fxconfig_output }}"
-    dest: "{{ fxconfig_tx_to_endorse | dirname }}/endorsed/{{ fxconfig_output | basename }}.json"
+    dest: "{{ fxconfig_tx_to_endorse | dirname }}/endorsed/{{ fxconfig_output | basename }}"
     flat: true
     mode: preserve

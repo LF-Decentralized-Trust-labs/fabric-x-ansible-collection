@@ -10,6 +10,6 @@
   when:
     - git_repo is not defined
 
-- name: Compute Git Repository name from Git URI
+- name: Compute Git Repository name from Git Repository
   ansible.builtin.set_fact:
     git_repo_name: "{{ (git_repo | basename) }}@{{ git_commit }}"
