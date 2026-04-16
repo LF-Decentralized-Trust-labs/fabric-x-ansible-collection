@@ -307,13 +307,14 @@ all:
               secret: "{{ inventory_hostname }}PWD"
             users:
               - name: orderer-loadgen
-                secret: "{{ inventory_hostname }}PWD"
-                namespace: 0
-                meta_namespace_admin: true
+            namespaces:
+              - id: 0
+                policy: threshold
           loadgen_use_tls: true
           loadgen_type: orderer-client
           loadgen_metrics_port: 30600
           loadgen_web_port: 30610
+          loadgen_rpc_port: 30620
 
     # =========================
     # Monitoring Infra
