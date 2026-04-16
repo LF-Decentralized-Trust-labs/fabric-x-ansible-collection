@@ -28,7 +28,7 @@
     - hostvars[elasticsearch_host].elasticsearch_use_tls is defined
     - hostvars[elasticsearch_host].elasticsearch_use_tls
 
-- name: Transfer Jaeger Kubernetes ConfigMap and Secret
+- name: Transfer Jaeger Kubernetes ConfigMap
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: k8s/config/transfer
