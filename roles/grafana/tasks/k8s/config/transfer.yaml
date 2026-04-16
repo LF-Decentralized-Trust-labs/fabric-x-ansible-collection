@@ -17,7 +17,6 @@
 # =========================
 - name: Apply Grafana ConfigMap
   vars:
-    grafana_dashboard_files: "{{ query('fileglob', grafana_remote_config_dir + '/dashboards/*.json') | sort }}"
     grafana_k8s_datasources_path: "{{ grafana_remote_config_dir }}/datasources/{{ grafana_datasource_file }}"
     grafana_k8s_dashboards_path: "{{ grafana_remote_config_dir }}/dashboards/{{ grafana_dashboards_file }}"
     grafana_k8s_prometheus_ca_path: "{{ grafana_remote_config_dir }}/tls/{{ prometheus_host }}/ca.crt"
@@ -25,3 +24,18 @@
     state: present
     template:
       path: k8s/configmap.yaml.j2
+
+# =========================
+# Apply Dashboard ConfigMaps
+# =========================
+- name: Apply Grafana dashboard ConfigMap
+  vars:
+    grafana_dashboard_files: "{{ query('fileglob', grafana_remote_config_dir + '/dashboards/*.json') | sort }}"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/configmap-dashboard.yaml.j2
+  loop: "{{ grafana_dashboard_files }}"
+  loop_control:
+    loop_var: current_grafana_dashboard
+    label: "{{ current_grafana_dashboard | basename }}"
