@@ -14,10 +14,6 @@
 
 - name: Log into Container Registry
   hosts: "{{ target_hosts | default('machines') }}:&machines"
-  vars:
-    container_registry: "{{ registry_url }}"
-    container_registry_username: "{{ registry_username }}"
-    container_registry_password: "{{ registry_password }}"
   tasks:
     - name: Login the container engine in a container registry
       ansible.builtin.include_role:
@@ -35,9 +31,9 @@
 - name: Create imagePullSecret in Kubernetes clusters
   hosts: "{{ target_hosts | default('k8s_namespaces') }}:&k8s_namespaces"
   vars:
-    k8s_registry_url: "{{ registry_url }}"
-    k8s_registry_username: "{{ registry_username }}"
-    k8s_registry_password: "{{ registry_password }}"
+    k8s_registry_url: "{{ container_registry }}"
+    k8s_registry_username: "{{ container_registry_username }}"
+    k8s_registry_password: "{{ container_registry_password }}"
   tasks:
     - name: Create imagePullSecret in Kubernetes cluster
       ansible.builtin.include_role:
