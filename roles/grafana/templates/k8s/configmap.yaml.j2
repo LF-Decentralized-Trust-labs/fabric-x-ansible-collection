@@ -1,0 +1,28 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ grafana_k8s_resource_name }}
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ grafana_k8s_resource_name }}
+    app.kubernetes.io/component: grafana
+    app.kubernetes.io/part-of: monitoring
+data:
+  datasources.yaml: |
+{{ lookup('file', grafana_k8s_datasources_path) | indent(4, true) }}
+  dashboards.yaml: |
+{{ lookup('file', grafana_k8s_dashboards_path) | indent(4, true) }}
+{% for current_grafana_dashboard_file in grafana_dashboard_files %}
+  {{ current_grafana_dashboard_file | basename }}: |
+{{ lookup('file', current_grafana_dashboard_file) | indent(4, true) }}
+{% endfor %}
+{% if hostvars[prometheus_host].prometheus_use_tls is defined and hostvars[prometheus_host].prometheus_use_tls %}
+  prometheus-ca.crt: |
+{{ lookup('file', grafana_k8s_prometheus_ca_path) | indent(4, true) }}
+{% endif %}

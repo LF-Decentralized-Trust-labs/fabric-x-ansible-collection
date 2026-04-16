@@ -45,3 +45,9 @@
   when:
     - hostvars[prometheus_host].prometheus_use_tls is defined
     - hostvars[prometheus_host].prometheus_use_tls
+
+- name: Transfer Grafana Kubernetes configuration
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.grafana
+    tasks_from: k8s/config/transfer
+  when: grafana_use_k8s

@@ -21,3 +21,15 @@
     src: "{{ grafana_dashboard_path }}"
     dest: "{{ grafana_remote_config_dir }}/dashboards/{{ grafana_dashboard_file }}"
     mode: "0o640"
+
+- name: Transfer Grafana Kubernetes configuration
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.grafana
+    tasks_from: k8s/config/transfer
+  when: grafana_use_k8s
+
+- name: Start Grafana on Kubernetes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.grafana
+    tasks_from: k8s/start
+  when: grafana_use_k8s

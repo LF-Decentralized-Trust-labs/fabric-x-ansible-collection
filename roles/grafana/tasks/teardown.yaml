@@ -8,3 +8,10 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
     tasks_from: container/rm
+  when: grafana_use_container
+
+- name: Remove Grafana Kubernetes workload
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.grafana
+    tasks_from: k8s/rm
+  when: grafana_use_k8s

@@ -10,3 +10,12 @@
     state: absent
   when:
     - grafana_use_tls
+
+- name: Delete Grafana Kubernetes Secret
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Secret
+    name: "{{ grafana_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace }}"
+  when: grafana_use_k8s
