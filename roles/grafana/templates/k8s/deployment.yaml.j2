@@ -65,7 +65,7 @@ spec:
               subPath: dashboards.yaml
               readOnly: true
 {% for current_grafana_dashboard_file in grafana_dashboard_files %}
-            - name: dashboard-{{ current_grafana_dashboard_file | basename | replace('.json', '') | lower | replace('_', '-') }}
+            - name: {{ current_grafana_dashboard_file | basename | replace('.json', '') | lower | replace('_', '-') }}
               mountPath: {{ grafana_container_config_dir }}/dashboards/{{ current_grafana_dashboard_file | basename }}
               subPath: {{ current_grafana_dashboard_file | basename }}
               readOnly: true
@@ -113,9 +113,9 @@ spec:
           configMap:
             name: {{ grafana_k8s_resource_name }}
 {% for current_grafana_dashboard_file in grafana_dashboard_files %}
-        - name: dashboard-{{ current_grafana_dashboard_file | basename | replace('.json', '') | lower | replace('_', '-') }}
+        - name: {{ current_grafana_dashboard_file | basename | replace('.json', '') | lower | replace('_', '-') }}
           configMap:
-            name: {{ grafana_k8s_resource_name }}-dashboard-{{ current_grafana_dashboard_file | basename | replace('.json', '') | lower | replace('_', '-') }}
+            name: {{ grafana_k8s_resource_name }}-{{ current_grafana_dashboard_file | basename | replace('.json', '') | lower | replace('_', '-') }}
 {% endfor %}
         - name: secret
           secret:

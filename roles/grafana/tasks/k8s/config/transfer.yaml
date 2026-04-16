@@ -24,18 +24,3 @@
     state: present
     template:
       path: k8s/configmap.yaml.j2
-
-# =========================
-# Apply Dashboard ConfigMaps
-# =========================
-- name: Apply Grafana dashboard ConfigMap
-  vars:
-    grafana_dashboard_files: "{{ query('fileglob', grafana_remote_config_dir + '/dashboards/*.json') | sort }}"
-  kubernetes.core.k8s:
-    state: present
-    template:
-      path: k8s/configmap-dashboard.yaml.j2
-  loop: "{{ grafana_dashboard_files }}"
-  loop_control:
-    loop_var: current_grafana_dashboard
-    label: "{{ current_grafana_dashboard | basename }}"

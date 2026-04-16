@@ -19,7 +19,7 @@
     state: absent
     api_version: v1
     kind: ConfigMap
-    name: "{{ grafana_k8s_resource_name }}-dashboard-{{ current_grafana_dashboard | basename | replace('.json', '') | lower | replace('_', '-') }}"
+    name: "{{ grafana_k8s_resource_name }}-{{ current_grafana_dashboard | basename | replace('.json', '') | lower | replace('_', '-') }}"
     namespace: "{{ k8s_namespace }}"
   loop: "{{ grafana_dashboard_files }}"
   loop_control:
