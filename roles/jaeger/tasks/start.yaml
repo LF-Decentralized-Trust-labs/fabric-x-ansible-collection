@@ -8,3 +8,10 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: container/start
+  when: jaeger_use_container
+
+- name: Start Jaeger on Kubernetes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.jaeger
+    tasks_from: k8s/start
+  when: jaeger_use_k8s

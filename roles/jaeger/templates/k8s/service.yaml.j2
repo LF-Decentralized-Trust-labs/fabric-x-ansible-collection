@@ -1,0 +1,38 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ jaeger_k8s_resource_name }}
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ jaeger_k8s_resource_name }}
+    app.kubernetes.io/component: jaeger
+    app.kubernetes.io/part-of: monitoring
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: {{ jaeger_k8s_resource_name }}
+  ports:
+    - name: ui
+      port: {{ jaeger_ui_port }}
+      targetPort: {{ jaeger_ui_port }}
+    - name: admin
+      port: {{ jaeger_admin_port }}
+      targetPort: {{ jaeger_admin_port }}
+    - name: http-server
+      port: {{ jaeger_http_server_port }}
+      targetPort: {{ jaeger_http_server_port }}
+    - name: http-collector
+      port: {{ jaeger_http_collector_port }}
+      targetPort: {{ jaeger_http_collector_port }}
+    - name: grpc-server
+      port: {{ jaeger_grpc_server_port }}
+      targetPort: {{ jaeger_grpc_server_port }}
+    - name: collector
+      port: {{ jaeger_collector_port }}
+      targetPort: {{ jaeger_collector_port }}
