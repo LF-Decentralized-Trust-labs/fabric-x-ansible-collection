@@ -220,11 +220,7 @@ all:
           loadgen_use_k8s: true
           organization:
             <<: *Org1
-            fabric_ca_host: fabric-ca-org1
             role: peer
-            peer:
-              name: "{{ inventory_hostname }}"
-              secret: "{{ inventory_hostname }}PWD"
             users:
               - name: orderer-loadgen
             namespaces:
