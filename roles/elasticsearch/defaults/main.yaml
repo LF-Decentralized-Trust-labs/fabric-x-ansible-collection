@@ -27,3 +27,18 @@ elasticsearch_container_data_dir: "/usr/share/elasticsearch/data"
 elasticsearch_use_tls: false
 elasticsearch_tls_private_key_file: server.key
 elasticsearch_tls_cert_file: server.crt
+
+# =========================
+# Deployment mode
+# =========================
+elasticsearch_use_k8s: false
+elasticsearch_use_container: "{{ not elasticsearch_use_k8s }}"
+
+# =========================
+# Kubernetes
+# =========================
+elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
+elasticsearch_k8s_wait_timeout: 120
+elasticsearch_k8s_fs_group: 1000
+elasticsearch_k8s_http_node_port: "{{ elasticsearch_http_port }}"
+elasticsearch_k8s_transport_node_port: "{{ elasticsearch_transport_port }}"

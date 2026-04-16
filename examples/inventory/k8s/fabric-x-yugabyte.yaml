@@ -337,6 +337,6 @@ all:
     monitoring:
       hosts:
         node-exporter:
-          node_exporter_port: 9111
+          node_exporter_port: 30911
           node_exporter_use_tls: true
           node_exporter_use_k8s: true

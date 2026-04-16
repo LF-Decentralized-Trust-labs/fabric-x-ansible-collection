@@ -10,3 +10,10 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: container/fetch_logs
+  when: postgres_exporter_use_container
+
+- name: Fetch Postgres Exporter logs from Kubernetes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres_exporter
+    tasks_from: k8s/fetch_logs
+  when: postgres_exporter_use_k8s
