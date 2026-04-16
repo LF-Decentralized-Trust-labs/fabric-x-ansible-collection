@@ -54,9 +54,9 @@ Requires `k8s_image_pull_secret` to be set on the host, which is used as the sec
 - name: Create imagePullSecret
   vars:
     k8s_image_pull_secret: regcred
-    k8s_registry_url: icr.io
-    k8s_registry_username: iamapikey
-    k8s_registry_password: my_api_key
+    k8s_container_registry: icr.io
+    k8s_container_registry_username: iamapikey
+    k8s_container_registry_password: my_api_key
   ansible.builtin.include_role:
     name: hyperledger.fabricx.k8s
     tasks_from: registry/create_pull_secret
