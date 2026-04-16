@@ -8,3 +8,8 @@
   ansible.builtin.file:
     path: "{{ jaeger_remote_config_dir }}"
     state: absent
+
+- name: Remove Jaeger Kubernetes config resources
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.jaeger
+    tasks_from: k8s/config/rm

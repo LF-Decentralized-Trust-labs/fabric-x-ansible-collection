@@ -27,4 +27,3 @@
     registry: "{{ container_registry }}"
     username: "{{ container_registry_username }}"
     password: "{{ container_registry_password }}"
-    authfile: "{{ container_authfile | default(omit) }}"

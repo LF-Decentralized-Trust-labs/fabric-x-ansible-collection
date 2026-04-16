@@ -1,0 +1,24 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists for Jaeger
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+# =========================
+# Apply Config Resources
+# =========================
+- name: Apply Jaeger ConfigMap
+  vars:
+    jaeger_es_ca_cert_path: "{{ jaeger_remote_config_dir }}/tls/{{ elasticsearch_host }}/ca.crt"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/configmap.yaml.j2

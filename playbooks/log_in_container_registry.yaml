@@ -19,3 +19,23 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.container
         tasks_from: registry/login
+
+- name: Select one host per k8s namespace for imagePullSecret creation
+  hosts: "{{ target_hosts | default('all') }}"
+  tasks:
+    - name: Set the group "k8s_namespaces"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.utils
+        tasks_from: select_one_host_per_k8s_namespace
+
+- name: Create imagePullSecret in Kubernetes clusters
+  hosts: "{{ target_hosts | default('k8s_namespaces') }}:&k8s_namespaces"
+  vars:
+    k8s_container_registry: "{{ container_registry }}"
+    k8s_container_registry_username: "{{ container_registry_username }}"
+    k8s_container_registry_password: "{{ container_registry_password }}"
+  tasks:
+    - name: Create imagePullSecret in Kubernetes cluster
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.k8s
+        tasks_from: registry/create_pull_secret

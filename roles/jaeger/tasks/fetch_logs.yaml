@@ -8,3 +8,10 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: container/fetch_logs
+  when: jaeger_use_container
+
+- name: Fetch Jaeger pod logs
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.jaeger
+    tasks_from: k8s/fetch_logs
+  when: jaeger_use_k8s

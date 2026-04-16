@@ -8,3 +8,4 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: container/stop
+  when: jaeger_use_container

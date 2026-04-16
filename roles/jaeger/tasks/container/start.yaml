@@ -19,8 +19,6 @@
       ES_INDEX_ROLLOVER_FREQUENCY_SPANS: "hour"
   ansible.builtin.set_fact:
     jaeger_env: "{{ jaeger_env | combine(jaeger_es_env) }}"
-  when:
-    - elasticsearch_host is defined
 
 - name: Define Jaeger env variables to connect to ElasticSearch with TLS
   vars:
@@ -31,7 +29,6 @@
   ansible.builtin.set_fact:
     jaeger_env: "{{ jaeger_env | combine(jaeger_es_tls_env) }}"
   when:
-    - elasticsearch_host is defined
     - hostvars[elasticsearch_host].elasticsearch_use_tls is defined
     - hostvars[elasticsearch_host].elasticsearch_use_tls
 
