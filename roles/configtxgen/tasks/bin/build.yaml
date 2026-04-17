@@ -7,7 +7,8 @@
 - name: Build {{ configtxgen_bin_name }}
   vars:
     # Git vars
-    git_uri: "{{ configtxgen_git_uri }}"
+    git_hub_url: "{{ configtxgen_git_hub_url }}"
+    git_repo: "{{ configtxgen_git_repo }}"
     git_commit: "{{ configtxgen_git_commit }}"
     # Bin vars
     bin_name: "{{ configtxgen_bin_name }}"
