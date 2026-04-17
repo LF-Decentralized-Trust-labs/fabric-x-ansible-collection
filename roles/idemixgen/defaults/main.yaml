@@ -16,10 +16,11 @@ idemixgen_container_name: "idemixgen-{{ inventory_hostname }}"
 # =========================
 # Idemixgen binary
 # =========================
-idemixgen_git_uri: "https://github.com/IBM/idemix.git"
+idemixgen_git_hub_url: "github.com"
+idemixgen_git_repo: "IBM/idemix"
 idemixgen_git_commit: "v0.0.2"
 idemixgen_source_code_package: "tools/idemixgen"
-idemixgen_bin_package: "github.com/IBM/idemix/tools/idemixgen"
+idemixgen_bin_package: "{{ idemixgen_git_hub_url }}/{{ idemixgen_git_repo }}/{{ idemixgen_source_code_package }}"
 idemixgen_bin_name: "idemixgen"
 idemixgen_use_bin: false
 

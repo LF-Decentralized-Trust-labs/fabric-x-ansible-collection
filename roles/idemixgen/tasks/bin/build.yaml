@@ -7,7 +7,8 @@
 - name: Build {{ idemixgen_bin_name }}
   vars:
     # Git vars
-    git_uri: "{{ idemixgen_git_uri }}"
+    git_hub_url: "{{ idemixgen_git_hub_url }}"
+    git_repo: "{{ idemixgen_git_repo }}"
     git_commit: "{{ idemixgen_git_commit }}"
     # Bin vars
     bin_name: "{{ idemixgen_bin_name }}"
