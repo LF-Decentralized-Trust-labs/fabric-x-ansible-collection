@@ -46,36 +46,28 @@
         | map(attribute='inventory_hostname')
         | list
       }}
-    committer_sidecar_ref_host: "{{ committer_sidecar_hosts | first }}"
-    committer_coordinator_ref_host: "{{ committer_coordinator_hosts | first }}"
-    committer_verifier_ref_host: "{{ committer_verifier_hosts | first }}"
-    committer_validator_ref_host: "{{ committer_validator_hosts | first }}"
     committer_scrape_services:
       - job_name: sidecar_service
-        use_tls: "{{ hostvars[committer_sidecar_ref_host].committer_monitoring_use_tls | default(hostvars[committer_sidecar_ref_host].committer_use_tls) | default(false) }}"
-        use_mtls: "{{ hostvars[committer_sidecar_ref_host].committer_monitoring_use_mtls | default(hostvars[committer_sidecar_ref_host].committer_use_mtls) | default(false) }}"
-        tls_ca_file: "{{ fetched_artifacts_dir }}/{{ committer_sidecar_ref_host }}/tls/ca.crt"
+        use_tls: false
+        use_mtls: false
         targets:
           - hosts: "{{ committer_sidecar_hosts }}"
             port_to_scrape: committer_metrics_port
       - job_name: coordinators_service
-        use_tls: "{{ hostvars[committer_coordinator_ref_host].committer_monitoring_use_tls | default(hostvars[committer_coordinator_ref_host].committer_use_tls) | default(false) }}"
-        use_mtls: "{{ hostvars[committer_coordinator_ref_host].committer_monitoring_use_mtls | default(hostvars[committer_coordinator_ref_host].committer_use_mtls) | default(false) }}"
-        tls_ca_file: "{{ fetched_artifacts_dir }}/{{ committer_coordinator_ref_host }}/tls/ca.crt"
+        use_tls: false
+        use_mtls: false
         targets:
           - hosts: "{{ committer_coordinator_hosts }}"
             port_to_scrape: committer_metrics_port
       - job_name: verifiers_service
-        use_tls: "{{ hostvars[committer_verifier_ref_host].committer_monitoring_use_tls | default(hostvars[committer_verifier_ref_host].committer_use_tls) | default(false) }}"
-        use_mtls: "{{ hostvars[committer_verifier_ref_host].committer_monitoring_use_mtls | default(hostvars[committer_verifier_ref_host].committer_use_mtls) | default(false) }}"
-        tls_ca_file: "{{ fetched_artifacts_dir }}/{{ committer_verifier_ref_host }}/tls/ca.crt"
+        use_tls: false
+        use_mtls: false
         targets:
           - hosts: "{{ committer_verifier_hosts }}"
             port_to_scrape: committer_metrics_port
       - job_name: validators_service
-        use_tls: "{{ hostvars[committer_validator_ref_host].committer_monitoring_use_tls | default(hostvars[committer_validator_ref_host].committer_use_tls) | default(false) }}"
-        use_mtls: "{{ hostvars[committer_validator_ref_host].committer_monitoring_use_mtls | default(hostvars[committer_validator_ref_host].committer_use_mtls) | default(false) }}"
-        tls_ca_file: "{{ fetched_artifacts_dir }}/{{ committer_validator_ref_host }}/tls/ca.crt"
+        use_tls: false
+        use_mtls: false
         targets:
           - hosts: "{{ committer_validator_hosts }}"
             port_to_scrape: committer_metrics_port
