@@ -1,0 +1,22 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check if loadgen_hosts required variable is set
+  ansible.builtin.fail:
+    msg: "The variable 'loadgen_hosts' must be defined to use this role. It must contain the list of hosts devoted for the Fabric-X Load Generators."
+  when:
+    - loadgen_hosts is not defined
+
+- name: Set Prometheus scrape services for Fabric-X Loadgen
+  vars:
+    loadgen_scrape_service:
+      job_name: blockgens_service
+      use_tls: false
+      targets:
+        - hosts: "{{ loadgen_hosts }}"
+          port_to_scrape: loadgen_metrics_port
+  ansible.builtin.set_fact:
+    loadgen_prometheus_scrape_services: "{{ [loadgen_scrape_service] }}"
