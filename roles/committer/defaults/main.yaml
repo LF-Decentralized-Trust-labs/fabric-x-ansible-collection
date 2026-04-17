@@ -62,5 +62,8 @@ committer_crypto_name: "{{ organization.peer.name | default(inventory_hostname) 
 # =========================
 # Miscellaneous
 # =========================
+# Filename of the config block placed in the sidecar's config dir.
+# Source is {{ configtxgen_artifacts_dir }}/{{ channel_id }}_block.pb (genesis block).
+committer_sidecar_config_block_file: "config-block.pb.bin"
 committer_log_level: "info"
 committer_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"

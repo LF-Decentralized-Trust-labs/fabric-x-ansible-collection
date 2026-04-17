@@ -9,7 +9,7 @@
 # =========================
 loadgen_registry_endpoint: "{{ lookup('env', 'LOADGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 loadgen_image_name: "fabric-x-loadgen"
-loadgen_image_tag: "0.1.9"
+loadgen_image_tag: "1.0.0-alpha"
 loadgen_image: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
 loadgen_container_name: "{{ inventory_hostname }}"
 
@@ -18,7 +18,7 @@ loadgen_container_name: "{{ inventory_hostname }}"
 # =========================
 loadgen_git_hub_url: "github.com"
 loadgen_git_repo: "hyperledger/fabric-x-committer"
-loadgen_git_commit: "v0.1.9"
+loadgen_git_commit: "v1.0.0-alpha"
 loadgen_source_code_package: "cmd/loadgen"
 loadgen_bin_package: "{{ loadgen_git_hub_url }}/{{ loadgen_git_repo }}/{{ loadgen_source_code_package }}"
 loadgen_bin_name: "loadgen"
@@ -30,6 +30,8 @@ loadgen_use_bin: false
 loadgen_remote_config_dir: "{{ remote_config_dir }}"
 loadgen_container_config_dir: "/config"
 loadgen_config_file: "config-loadgen.yaml"
+# Filename of the config block placed in the loadgen's config dir.
+loadgen_config_block_file: "config-block.pb.bin"
 loadgen_admin_pub_key_file: "admin_pub_key.pem"
 loadgen_admin_priv_key_file: "admin_priv_key.pem"
 

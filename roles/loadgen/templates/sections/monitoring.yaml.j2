@@ -55,6 +55,12 @@ monitoring:
     burst: {{ loadgen_monitoring_rate_limit_burst | default(0) }}
   # Latency tracking configuration for measuring transaction processing times.
   latency:
+    # Maximal number of TX entries to hold in memory when tracking TXs latency.
+    # This size will be pre-allocated (~1 MB for 10,000 entries), thus it is important
+    # to use a sensible value. Hash collisions may cause some measurements to be lost
+    # if this value is too small relative to the sampling rate. Recommended: 10,000 for
+    # 1-10% sampling rates.
+    max-tracked-txs: {{ loadgen_monitoring_latency_max_tracked_txs | default(10000) }}
     sampler:
 {% if loadgen_latency_sampler_prefix is defined %}
       # Prefix checks for TXs that have the given prefix.

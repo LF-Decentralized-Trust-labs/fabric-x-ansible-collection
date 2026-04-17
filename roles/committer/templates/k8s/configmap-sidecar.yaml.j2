@@ -22,16 +22,6 @@ data:
   tls-coordinator-ca.crt: |
     {{ lookup('file', committer_k8s_coordinator_ca_path) | indent(4) }}
 {% endif %}
-{% for current_orderer_assembler in orderer_assemblers %}
-{% if hostvars[current_orderer_assembler].orderer_use_tls is defined and hostvars[current_orderer_assembler].orderer_use_tls %}
-  # TLS CA certificate of orderer assembler {{ current_orderer_assembler }}.
-  tls-orderers-{{ current_orderer_assembler }}-ca.crt: |
-    {{ lookup('file', committer_remote_config_dir + '/tls/orderers/' + current_orderer_assembler + '/ca.crt') | indent(4) }}
-  # TLS server certificate of orderer assembler {{ current_orderer_assembler }} (per-org ca-cert-paths).
-  tls-orderers-{{ current_orderer_assembler }}-server.crt: |
-    {{ lookup('file', committer_remote_config_dir + '/tls/orderers/' + current_orderer_assembler + '/server.crt') | indent(4) }}
-{% endif %}
-{% endfor %}
 {% if committer_monitoring_use_mtls and committer_monitoring_mtls_clients is defined %}
 {% for committer_monitoring_mtls_client in committer_monitoring_mtls_clients %}
 {% if committer_monitoring_mtls_client not in (committer_mtls_clients | default([])) %}
@@ -64,3 +54,6 @@ data:
     {{ lookup('file', committer_remote_config_dir + '/mtls/' + current_mtls_org.domain + '/ca.crt') | indent(4) }}
 {% endfor %}
 {% endif %}
+binaryData:
+  # Config block used to bootstrap orderer endpoint and TLS credential discovery.
+  config-block.pb.bin: {{ committer_k8s_config_block_b64 }}
