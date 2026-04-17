@@ -21,7 +21,8 @@
   with_subelements:
     - >-
       {{
-        groups['all']
+        fxconfig_hosts
+        | default(groups['all'])
         | map('extract', hostvars)
         | map('to_json')
         | map('from_json')
@@ -54,7 +55,8 @@
   with_subelements:
     - >-
       {{
-        groups['all']
+        fxconfig_hosts
+        | default(groups['all'])
         | map('extract', hostvars)
         | map('to_json')
         | map('from_json')
