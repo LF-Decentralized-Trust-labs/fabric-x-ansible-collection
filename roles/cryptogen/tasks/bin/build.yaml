@@ -7,7 +7,8 @@
 - name: Build {{ cryptogen_bin_name }}
   vars:
     # Git vars
-    git_uri: "{{ cryptogen_git_uri }}"
+    git_hub_url: "{{ cryptogen_git_hub_url }}"
+    git_repo: "{{ cryptogen_git_repo }}"
     git_commit: "{{ cryptogen_git_commit }}"
     # Bin vars
     bin_name: "{{ cryptogen_bin_name }}"

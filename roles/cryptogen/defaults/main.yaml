@@ -16,10 +16,11 @@ cryptogen_container_name: "cryptogen"
 # =========================
 # Cryptogen bin
 # =========================
-cryptogen_git_uri: "https://github.com/hyperledger/fabric-x.git"
+cryptogen_git_hub_url: "github.com"
+cryptogen_git_repo: "hyperledger/fabric-x"
 cryptogen_git_commit: "v0.0.8"
 cryptogen_source_code_package: "tools/cryptogen"
-cryptogen_bin_package: "github.com/hyperledger/fabric-x/tools/cryptogen"
+cryptogen_bin_package: "{{ cryptogen_git_hub_url }}/{{ cryptogen_git_repo }}/{{ cryptogen_source_code_package }}"
 cryptogen_bin_name: "cryptogen"
 cryptogen_use_bin: false
 

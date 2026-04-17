@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the Git Repository has been defined
+  ansible.builtin.fail:
+    msg: "No Git Repository has been defined. Set it via 'git_repo'."
+  when:
+    - git_repo is not defined
+
+- name: Compute Git Repository name from Git Repository
+  ansible.builtin.set_fact:
+    git_repo_name: "{{ (git_repo | basename) }}@{{ git_commit }}"

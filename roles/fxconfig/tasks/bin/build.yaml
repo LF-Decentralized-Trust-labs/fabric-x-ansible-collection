@@ -7,7 +7,8 @@
 - name: Build {{ fxconfig_bin_name }}
   vars:
     # Git vars
-    git_uri: "{{ fxconfig_git_uri }}"
+    git_hub_url: "{{ fxconfig_git_hub_url }}"
+    git_repo: "{{ fxconfig_git_repo }}"
     git_commit: "{{ fxconfig_git_commit }}"
     # Bin vars
     bin_name: "{{ fxconfig_bin_name }}"

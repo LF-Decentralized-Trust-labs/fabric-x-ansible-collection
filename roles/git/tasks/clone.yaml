@@ -4,9 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Compute Git directory name from Git URI
-  ansible.builtin.set_fact:
-    git_repo_name: "{{ (git_uri | urlsplit('path') | basename) | regex_replace('\\.git$', '') }}@{{ git_commit }}"
+- name: Compute Git directory name from Git Repo name
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.git
+    tasks_from: get_repo_name
 
 - name: Ensure directory where to clone exists
   ansible.builtin.file:
