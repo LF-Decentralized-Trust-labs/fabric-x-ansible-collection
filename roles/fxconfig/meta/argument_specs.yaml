@@ -1,0 +1,1042 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+argument_specs:
+
+  bin/build:
+    short_description: Build the fxconfig binary
+    description:
+      - "Builds the fxconfig Go binary by delegating compilation to the shared bin role."
+    options:
+      fxconfig_git_hub_url:
+        type: str
+        required: false
+        default: "github.com"
+        description:
+          - "Defines the Git host used to resolve the Fabric-X source repository. Example: C(github.com)."
+      fxconfig_git_repo:
+        type: str
+        required: false
+        default: "hyperledger/fabric-x"
+        description:
+          - "Defines the Fabric-X source repository path relative to the Git host. Example: C(hyperledger/fabric-x)."
+      fxconfig_git_commit:
+        type: str
+        required: false
+        default: "v0.0.12"
+        description:
+          - "Selects the Git ref used to build the fxconfig binary. Example: C(v0.0.12)."
+      fxconfig_source_code_package:
+        type: str
+        required: false
+        default: "tools/fxconfig"
+        description:
+          - "Defines the Go package path containing the fxconfig source code. Example: C(tools/fxconfig)."
+      fxconfig_bin_name:
+        type: str
+        required: false
+        default: "fxconfig"
+        description:
+          - "Defines the binary name exposed on the target host. Example: C(fxconfig)."
+
+  bin/endorse:
+    short_description: Endorse a namespace transaction with the fxconfig binary
+    description:
+      - "Copies a transaction to the target host, endorses it with the local fxconfig binary, and fetches the endorsed JSON artifact."
+    options:
+      fxconfig_bin_name:
+        type: str
+        required: false
+        default: "fxconfig"
+        description:
+          - "Defines the binary used to endorse transactions. Example: C(fxconfig)."
+      fxconfig_config_file:
+        type: str
+        required: false
+        default: "fxconfig.yaml"
+        description:
+          - "Defines the fxconfig configuration filename stored under the remote config directory. Example: C(fxconfig.yaml)."
+      fxconfig_output:
+        type: path
+        required: false
+        default: "{{ fxconfig_remote_config_dir }}/tx.json"
+        description:
+          - "Defines where the endorsed transaction is written on the managed host. Example: C(/opt/hlf/config/fxconfig/tx.json)."
+      fxconfig_remote_config_dir:
+        type: path
+        required: false
+        default: "{{ remote_config_dir }}/fxconfig"
+        description:
+          - "Defines the remote directory that stores fxconfig configuration and transaction artifacts. Example: C(/opt/hlf/config/fxconfig)."
+      fxconfig_tx_to_endorse:
+        type: path
+        required: true
+        description:
+          - "Supplies the JSON transaction file to endorse. Example: C(/tmp/fxconfig-artifacts/workload/ns.json)."
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Provides the base remote configuration directory used by the role defaults. Example: C(/opt/hlf/config)."
+
+  bin/install:
+    short_description: Install the fxconfig binary
+    description:
+      - "Installs the fxconfig Go package by delegating to the shared bin role."
+    options:
+      fxconfig_bin_package:
+        type: str
+        required: false
+        default: "{{ fxconfig_git_hub_url }}/{{ fxconfig_git_repo }}/{{ fxconfig_source_code_package }}"
+        description:
+          - "Defines the Go package path used for installation. Example: C(github.com/hyperledger/fabric-x/tools/fxconfig)."
+      fxconfig_git_commit:
+        type: str
+        required: false
+        default: "v0.0.12"
+        description:
+          - "Selects the Git ref appended to the Go package version during installation. Example: C(v0.0.12)."
+
+  bin/merge:
+    short_description: Merge endorsed transactions with the fxconfig binary
+    description:
+      - "Collects endorsed transaction files and merges them into a single transaction using the local fxconfig binary."
+    options:
+      fxconfig_bin_name:
+        type: str
+        required: false
+        default: "fxconfig"
+        description:
+          - "Defines the binary used to merge endorsed transactions. Example: C(fxconfig)."
+      fxconfig_endorsed_txs_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the directory containing endorsed JSON transactions to merge. Example: C(/tmp/fxconfig-artifacts/workload/endorsed)."
+      fxconfig_log_format:
+        type: str
+        required: false
+        default: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
+        description:
+          - "Defines the log format passed to the fxconfig binary during merge operations."
+      fxconfig_log_level:
+        type: str
+        required: false
+        default: "info"
+        description:
+          - "Defines the log level passed to the fxconfig binary during merge operations. Example: C(info)."
+      fxconfig_output:
+        type: path
+        required: false
+        default: "{{ fxconfig_remote_config_dir }}/tx.json"
+        description:
+          - "Defines where the merged transaction is written on the managed host. Example: C(/opt/hlf/config/fxconfig/tx.json)."
+      fxconfig_remote_config_dir:
+        type: path
+        required: false
+        default: "{{ remote_config_dir }}/fxconfig"
+        description:
+          - "Defines the remote directory used by the default output path. Example: C(/opt/hlf/config/fxconfig)."
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Provides the base remote configuration directory used by the role defaults. Example: C(/opt/hlf/config)."
+
+  bin/namespace/create:
+    short_description: Create a namespace transaction with the fxconfig binary
+    description:
+      - "Creates a namespace transaction JSON file with the local fxconfig binary."
+    options:
+      fxconfig_bin_name:
+        type: str
+        required: false
+        default: "fxconfig"
+        description:
+          - "Defines the binary used to create namespace transactions. Example: C(fxconfig)."
+      fxconfig_log_format:
+        type: str
+        required: false
+        default: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
+        description:
+          - "Defines the log format passed to the fxconfig binary during namespace creation."
+      fxconfig_log_level:
+        type: str
+        required: false
+        default: "info"
+        description:
+          - "Defines the log level passed to the fxconfig binary during namespace creation. Example: C(info)."
+      fxconfig_namespace_id:
+        type: str
+        required: true
+        description:
+          - "Defines the namespace identifier to create. Example: C(workload)."
+      fxconfig_namespace_policy:
+        type: str
+        required: true
+        description:
+          - "Defines the endorsement policy embedded into the namespace transaction. Example: C(threshold:/tmp/pubkey.pem)."
+      fxconfig_output:
+        type: path
+        required: false
+        default: "{{ fxconfig_remote_config_dir }}/tx.json"
+        description:
+          - "Defines where the generated namespace transaction is written. Example: C(/opt/hlf/config/fxconfig/tx.json)."
+      fxconfig_remote_config_dir:
+        type: path
+        required: false
+        default: "{{ remote_config_dir }}/fxconfig"
+        description:
+          - "Defines the remote directory used by the default output path. Example: C(/opt/hlf/config/fxconfig)."
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Provides the base remote configuration directory used by the role defaults. Example: C(/opt/hlf/config)."
+
+  bin/namespace/list:
+    short_description: List namespaces with the fxconfig binary
+    description:
+      - "Lists namespaces from the configured Fabric-X network by invoking the local fxconfig binary."
+    options:
+      fxconfig_bin_name:
+        type: str
+        required: false
+        default: "fxconfig"
+        description:
+          - "Defines the binary used to list namespaces. Example: C(fxconfig)."
+      fxconfig_config_file:
+        type: str
+        required: false
+        default: "fxconfig.yaml"
+        description:
+          - "Defines the fxconfig configuration filename stored under the remote config directory. Example: C(fxconfig.yaml)."
+      fxconfig_log_format:
+        type: str
+        required: false
+        default: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
+        description:
+          - "Defines the log format passed to the fxconfig binary during namespace listing."
+      fxconfig_log_level:
+        type: str
+        required: false
+        default: "info"
+        description:
+          - "Defines the log level passed to the fxconfig binary during namespace listing. Example: C(info)."
+      fxconfig_remote_config_dir:
+        type: path
+        required: false
+        default: "{{ remote_config_dir }}/fxconfig"
+        description:
+          - "Defines the directory containing the rendered fxconfig configuration file. Example: C(/opt/hlf/config/fxconfig)."
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Provides the base remote configuration directory used by the role defaults. Example: C(/opt/hlf/config)."
+
+  bin/rm:
+    short_description: Remove the fxconfig binary
+    description:
+      - "Removes the fxconfig binary from the managed host by delegating to the shared bin role."
+    options:
+      fxconfig_bin_name:
+        type: str
+        required: false
+        default: "fxconfig"
+        description:
+          - "Defines the binary name to remove. Example: C(fxconfig)."
+
+  bin/submit:
+    short_description: Submit a namespace transaction with the fxconfig binary
+    description:
+      - "Transfers a merged transaction to the managed host and submits it with the local fxconfig binary."
+    options:
+      fxconfig_bin_name:
+        type: str
+        required: false
+        default: "fxconfig"
+        description:
+          - "Defines the binary used to submit namespace transactions. Example: C(fxconfig)."
+      fxconfig_config_file:
+        type: str
+        required: false
+        default: "fxconfig.yaml"
+        description:
+          - "Defines the fxconfig configuration filename stored under the remote config directory. Example: C(fxconfig.yaml)."
+      fxconfig_remote_config_dir:
+        type: path
+        required: false
+        default: "{{ remote_config_dir }}/fxconfig"
+        description:
+          - "Defines the directory that stores fxconfig configuration and the transaction staged for submission. Example: C(/opt/hlf/config/fxconfig)."
+      fxconfig_tx_to_submit_path:
+        type: path
+        required: true
+        description:
+          - "Supplies the merged namespace transaction JSON file to submit. Example: C(/tmp/fxconfig-artifacts/workload/merged.json)."
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Provides the base remote configuration directory used by the role defaults. Example: C(/opt/hlf/config)."
+
+  bin/transfer:
+    short_description: Transfer the fxconfig binary
+    description:
+      - "Transfers the fxconfig binary to the managed host by delegating to the shared bin role."
+    options:
+      fxconfig_bin_name:
+        type: str
+        required: false
+        default: "fxconfig"
+        description:
+          - "Defines the binary name to transfer. Example: C(fxconfig)."
+
+  config/mtls/transfer:
+    short_description: Transfer fxconfig mTLS client material
+    description:
+      - "Copies the client certificate and key used by fxconfig for mTLS connections into the role-specific configuration directory."
+    options:
+      fxconfig_mtls_client_cert_path:
+        type: path
+        required: false
+        default: "{{ remote_config_dir }}/tls/server.crt"
+        description:
+          - "Defines the source certificate path copied into the fxconfig mTLS directory. Example: C(/opt/hlf/config/tls/server.crt)."
+      fxconfig_mtls_client_key_path:
+        type: path
+        required: false
+        default: "{{ remote_config_dir }}/tls/server.key"
+        description:
+          - "Defines the source private key path copied into the fxconfig mTLS directory. Example: C(/opt/hlf/config/tls/server.key)."
+      fxconfig_remote_config_dir:
+        type: path
+        required: false
+        default: "{{ remote_config_dir }}/fxconfig"
+        description:
+          - "Defines the directory where the role stores fxconfig configuration artifacts. Example: C(/opt/hlf/config/fxconfig)."
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Provides the base remote configuration directory used by the role defaults. Example: C(/opt/hlf/config)."
+
+  config/tls/transfer:
+    short_description: Transfer fxconfig TLS trust material
+    description:
+      - "Copies the Orderer Router and Committer Query-Service CA certificates required by the rendered fxconfig configuration."
+    options:
+      committer_query_service_host:
+        type: str
+        required: true
+        description:
+          - "Identifies the inventory host that runs the Committer Query-Service. Example: C(committer-query-service-1)."
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the local directory that stores fetched TLS artifacts. Example: C(/tmp/fabricx-artifacts)."
+      fxconfig_remote_config_dir:
+        type: path
+        required: false
+        default: "{{ remote_config_dir }}/fxconfig"
+        description:
+          - "Defines the directory where the role stores fxconfig TLS trust material. Example: C(/opt/hlf/config/fxconfig)."
+      orderer_router_host:
+        type: str
+        required: true
+        description:
+          - "Identifies the inventory host that runs the Orderer Router component. Example: C(orderer-router-1)."
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Provides the base remote configuration directory used by the role defaults. Example: C(/opt/hlf/config)."
+
+  config/transfer:
+    short_description: Transfer fxconfig configuration material
+    description:
+      - "Renders the fxconfig configuration file, copies MSP material, and conditionally stages TLS and mTLS assets."
+    options:
+      channel_id:
+        type: str
+        required: true
+        description:
+          - "Defines the Fabric-X channel name embedded in the generated configuration. Example: C(arma)."
+      committer_query_service_host:
+        type: str
+        required: true
+        description:
+          - "Identifies the inventory host that runs the Committer Query-Service. Example: C(committer-query-service-1)."
+      committer_query_service_connection_timeout:
+        type: str
+        required: false
+        default: "30s"
+        description:
+          - "Defines the timeout used for query-service connections in the rendered configuration. Example: C(30s)."
+      committer_sidecar_connection_timeout:
+        type: str
+        required: false
+        default: "30s"
+        description:
+          - "Defines the timeout used for sidecar notification connections in the rendered configuration. Example: C(30s)."
+      committer_sidecar_host:
+        type: str
+        required: true
+        description:
+          - "Identifies the inventory host that runs the Committer Sidecar component. Example: C(committer-sidecar-1)."
+      committer_sidecar_waiting_timeout:
+        type: str
+        required: false
+        default: "30s"
+        description:
+          - "Defines how long fxconfig waits for sidecar notifications in the rendered configuration. Example: C(30s)."
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the local directory that stores fetched TLS artifacts for optional TLS setup. Example: C(/tmp/fabricx-artifacts)."
+      fxconfig_config_file:
+        type: str
+        required: false
+        default: "fxconfig.yaml"
+        description:
+          - "Defines the filename used for the rendered fxconfig configuration. Example: C(fxconfig.yaml)."
+      fxconfig_container_config_dir:
+        type: path
+        required: false
+        default: "/config"
+        description:
+          - "Defines the configuration directory mounted inside the fxconfig container image. Example: C(/config)."
+      fxconfig_log_format:
+        type: str
+        required: false
+        default: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
+        description:
+          - "Defines the log format written into the rendered fxconfig configuration."
+      fxconfig_log_level:
+        type: str
+        required: false
+        default: "info"
+        description:
+          - "Defines the log level written into the rendered fxconfig configuration. Example: C(info)."
+      fxconfig_msp_config_path:
+        type: path
+        required: true
+        description:
+          - "Defines the source MSP directory copied into the fxconfig configuration directory. Example: C(/opt/hlf/config/users/User1@example.com/msp)."
+      fxconfig_msp_id:
+        type: str
+        required: false
+        default: "{{ organization.name }}MSP"
+        description:
+          - "Defines the MSP identifier written into the rendered fxconfig configuration. Example: C(Org1MSP)."
+      fxconfig_mtls_client_cert_path:
+        type: path
+        required: false
+        default: "{{ remote_config_dir }}/tls/server.crt"
+        description:
+          - "Defines the source certificate path used when mTLS is enabled. Example: C(/opt/hlf/config/tls/server.crt)."
+      fxconfig_mtls_client_key_path:
+        type: path
+        required: false
+        default: "{{ remote_config_dir }}/tls/server.key"
+        description:
+          - "Defines the source private key path used when mTLS is enabled. Example: C(/opt/hlf/config/tls/server.key)."
+      fxconfig_orderer_connection_timeout:
+        type: str
+        required: false
+        default: "30s"
+        description:
+          - "Defines the timeout used for orderer connections in the rendered configuration. Example: C(30s)."
+      fxconfig_remote_config_dir:
+        type: path
+        required: false
+        default: "{{ remote_config_dir }}/fxconfig"
+        description:
+          - "Defines the directory where the role stores rendered configuration, MSP material, and optional TLS assets. Example: C(/opt/hlf/config/fxconfig)."
+      fxconfig_use_bin:
+        type: bool
+        required: false
+        default: false
+        description:
+          - "Selects whether the rendered configuration should target the host binary layout instead of the container layout."
+      orderer_router_host:
+        type: str
+        required: true
+        description:
+          - "Identifies the inventory host that runs the Orderer Router component. Example: C(orderer-router-1)."
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Provides the base remote configuration directory used by multiple fxconfig defaults. Example: C(/opt/hlf/config)."
+
+  container/endorse:
+    short_description: Endorse a namespace transaction with the fxconfig container
+    description:
+      - "Copies a transaction to the target host, endorses it with a transient fxconfig container, and fetches the endorsed JSON artifact."
+    options:
+      fxconfig_bin_name:
+        type: str
+        required: false
+        default: "fxconfig"
+        description:
+          - "Defines the command executed inside the fxconfig container. Example: C(fxconfig)."
+      fxconfig_config_file:
+        type: str
+        required: false
+        default: "fxconfig.yaml"
+        description:
+          - "Defines the fxconfig configuration filename mounted into the container. Example: C(fxconfig.yaml)."
+      fxconfig_container_config_dir:
+        type: path
+        required: false
+        default: "/config"
+        description:
+          - "Defines the directory inside the container where configuration is mounted. Example: C(/config)."
+      fxconfig_container_name:
+        type: str
+        required: false
+        default: "fxconfig"
+        description:
+          - "Defines the base container name used for transient endorse runs. Example: C(fxconfig)."
+      fxconfig_image:
+        type: str
+        required: false
+        default: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
+        description:
+          - "Defines the container image used to run fxconfig commands. Example: C(docker.io/hyperledger/fabric-x-tools:0.0.12)."
+      fxconfig_image_name:
+        type: str
+        required: false
+        default: "fabric-x-tools"
+        description:
+          - "Defines the image name component used by the default fxconfig container image. Example: C(fabric-x-tools)."
+      fxconfig_image_tag:
+        type: str
+        required: false
+        default: "0.0.12"
+        description:
+          - "Defines the image tag component used by the default fxconfig container image. Example: C(0.0.12)."
+      fxconfig_output:
+        type: path
+        required: false
+        default: "{{ fxconfig_remote_config_dir }}/tx.json"
+        description:
+          - "Defines where the endorsed transaction is written on the managed host. Example: C(/opt/hlf/config/fxconfig/tx.json)."
+      fxconfig_registry_endpoint:
+        type: str
+        required: false
+        default: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+        description:
+          - "Defines the container registry endpoint used by the default fxconfig image. Example: C(docker.io/hyperledger)."
+      fxconfig_remote_config_dir:
+        type: path
+        required: false
+        default: "{{ remote_config_dir }}/fxconfig"
+        description:
+          - "Defines the directory mounted into the fxconfig container for configuration and transaction data. Example: C(/opt/hlf/config/fxconfig)."
+      fxconfig_tx_to_endorse:
+        type: path
+        required: true
+        description:
+          - "Supplies the JSON transaction file to endorse. Example: C(/tmp/fxconfig-artifacts/workload/ns.json)."
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Provides the base remote configuration directory used by the role defaults. Example: C(/opt/hlf/config)."
+
+  container/merge:
+    short_description: Merge endorsed transactions with the fxconfig container
+    description:
+      - "Collects endorsed transactions and merges them into a single artifact by running fxconfig in a transient container."
+    options:
+      fxconfig_bin_name:
+        type: str
+        required: false
+        default: "fxconfig"
+        description:
+          - "Defines the command executed inside the fxconfig container. Example: C(fxconfig)."
+      fxconfig_container_config_dir:
+        type: path
+        required: false
+        default: "/config"
+        description:
+          - "Defines the directory inside the container used to mount endorsed transactions. Example: C(/config)."
+      fxconfig_container_name:
+        type: str
+        required: false
+        default: "fxconfig"
+        description:
+          - "Defines the base container name used for transient merge runs. Example: C(fxconfig)."
+      fxconfig_endorsed_txs_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the directory containing endorsed JSON transactions to merge. Example: C(/tmp/fxconfig-artifacts/workload/endorsed)."
+      fxconfig_image:
+        type: str
+        required: false
+        default: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
+        description:
+          - "Defines the container image used to run fxconfig commands. Example: C(docker.io/hyperledger/fabric-x-tools:0.0.12)."
+      fxconfig_image_name:
+        type: str
+        required: false
+        default: "fabric-x-tools"
+        description:
+          - "Defines the image name component used by the default fxconfig container image. Example: C(fabric-x-tools)."
+      fxconfig_image_tag:
+        type: str
+        required: false
+        default: "0.0.12"
+        description:
+          - "Defines the image tag component used by the default fxconfig container image. Example: C(0.0.12)."
+      fxconfig_log_format:
+        type: str
+        required: false
+        default: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
+        description:
+          - "Defines the log format passed to the fxconfig container during merge operations."
+      fxconfig_log_level:
+        type: str
+        required: false
+        default: "info"
+        description:
+          - "Defines the log level passed to the fxconfig container during merge operations. Example: C(info)."
+      fxconfig_output:
+        type: path
+        required: false
+        default: "{{ fxconfig_remote_config_dir }}/tx.json"
+        description:
+          - "Defines where the merged transaction is written on the managed host. Example: C(/opt/hlf/config/fxconfig/tx.json)."
+      fxconfig_registry_endpoint:
+        type: str
+        required: false
+        default: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+        description:
+          - "Defines the container registry endpoint used by the default fxconfig image. Example: C(docker.io/hyperledger)."
+      fxconfig_remote_config_dir:
+        type: path
+        required: false
+        default: "{{ remote_config_dir }}/fxconfig"
+        description:
+          - "Defines the remote directory used by the default output path. Example: C(/opt/hlf/config/fxconfig)."
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Provides the base remote configuration directory used by the role defaults. Example: C(/opt/hlf/config)."
+
+  container/namespace/create:
+    short_description: Create a namespace transaction with the fxconfig container
+    description:
+      - "Creates a namespace transaction JSON file by running fxconfig in a transient container."
+    options:
+      fxconfig_bin_name:
+        type: str
+        required: false
+        default: "fxconfig"
+        description:
+          - "Defines the command executed inside the fxconfig container. Example: C(fxconfig)."
+      fxconfig_container_name:
+        type: str
+        required: false
+        default: "fxconfig"
+        description:
+          - "Defines the base container name used for transient namespace-creation runs. Example: C(fxconfig)."
+      fxconfig_image:
+        type: str
+        required: false
+        default: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
+        description:
+          - "Defines the container image used to run fxconfig commands. Example: C(docker.io/hyperledger/fabric-x-tools:0.0.12)."
+      fxconfig_image_name:
+        type: str
+        required: false
+        default: "fabric-x-tools"
+        description:
+          - "Defines the image name component used by the default fxconfig container image. Example: C(fabric-x-tools)."
+      fxconfig_image_tag:
+        type: str
+        required: false
+        default: "0.0.12"
+        description:
+          - "Defines the image tag component used by the default fxconfig container image. Example: C(0.0.12)."
+      fxconfig_log_format:
+        type: str
+        required: false
+        default: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
+        description:
+          - "Defines the log format passed to the fxconfig container during namespace creation."
+      fxconfig_log_level:
+        type: str
+        required: false
+        default: "info"
+        description:
+          - "Defines the log level passed to the fxconfig container during namespace creation. Example: C(info)."
+      fxconfig_namespace_id:
+        type: str
+        required: true
+        description:
+          - "Defines the namespace identifier to create. Example: C(workload)."
+      fxconfig_namespace_policy:
+        type: str
+        required: true
+        description:
+          - "Defines the endorsement policy embedded into the namespace transaction. Example: C(threshold:/tmp/pubkey.pem)."
+      fxconfig_output:
+        type: path
+        required: false
+        default: "{{ fxconfig_remote_config_dir }}/tx.json"
+        description:
+          - "Defines where the generated namespace transaction is written. Example: C(/opt/hlf/config/fxconfig/tx.json)."
+      fxconfig_registry_endpoint:
+        type: str
+        required: false
+        default: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+        description:
+          - "Defines the container registry endpoint used by the default fxconfig image. Example: C(docker.io/hyperledger)."
+      fxconfig_remote_config_dir:
+        type: path
+        required: false
+        default: "{{ remote_config_dir }}/fxconfig"
+        description:
+          - "Defines the remote directory used by the default output path. Example: C(/opt/hlf/config/fxconfig)."
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Provides the base remote configuration directory used by the role defaults. Example: C(/opt/hlf/config)."
+
+  container/namespace/list:
+    short_description: List namespaces with the fxconfig container
+    description:
+      - "Lists namespaces from the configured Fabric-X network by running fxconfig in a transient container."
+    options:
+      fxconfig_bin_name:
+        type: str
+        required: false
+        default: "fxconfig"
+        description:
+          - "Defines the command executed inside the fxconfig container. Example: C(fxconfig)."
+      fxconfig_config_file:
+        type: str
+        required: false
+        default: "fxconfig.yaml"
+        description:
+          - "Defines the fxconfig configuration filename mounted into the container. Example: C(fxconfig.yaml)."
+      fxconfig_container_config_dir:
+        type: path
+        required: false
+        default: "/config"
+        description:
+          - "Defines the directory inside the container where configuration is mounted. Example: C(/config)."
+      fxconfig_container_name:
+        type: str
+        required: false
+        default: "fxconfig"
+        description:
+          - "Defines the base container name used for transient namespace-list runs. Example: C(fxconfig)."
+      fxconfig_image:
+        type: str
+        required: false
+        default: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
+        description:
+          - "Defines the container image used to run fxconfig commands. Example: C(docker.io/hyperledger/fabric-x-tools:0.0.12)."
+      fxconfig_image_name:
+        type: str
+        required: false
+        default: "fabric-x-tools"
+        description:
+          - "Defines the image name component used by the default fxconfig container image. Example: C(fabric-x-tools)."
+      fxconfig_image_tag:
+        type: str
+        required: false
+        default: "0.0.12"
+        description:
+          - "Defines the image tag component used by the default fxconfig container image. Example: C(0.0.12)."
+      fxconfig_log_format:
+        type: str
+        required: false
+        default: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
+        description:
+          - "Defines the log format passed to the fxconfig container during namespace listing."
+      fxconfig_log_level:
+        type: str
+        required: false
+        default: "info"
+        description:
+          - "Defines the log level passed to the fxconfig container during namespace listing. Example: C(info)."
+      fxconfig_registry_endpoint:
+        type: str
+        required: false
+        default: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+        description:
+          - "Defines the container registry endpoint used by the default fxconfig image. Example: C(docker.io/hyperledger)."
+      fxconfig_remote_config_dir:
+        type: path
+        required: false
+        default: "{{ remote_config_dir }}/fxconfig"
+        description:
+          - "Defines the directory mounted into the fxconfig container for configuration. Example: C(/opt/hlf/config/fxconfig)."
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Provides the base remote configuration directory used by the role defaults. Example: C(/opt/hlf/config)."
+
+  container/submit:
+    short_description: Submit a namespace transaction with the fxconfig container
+    description:
+      - "Transfers a merged transaction to the managed host and submits it by running fxconfig in a transient container."
+    options:
+      fxconfig_bin_name:
+        type: str
+        required: false
+        default: "fxconfig"
+        description:
+          - "Defines the command executed inside the fxconfig container. Example: C(fxconfig)."
+      fxconfig_config_file:
+        type: str
+        required: false
+        default: "fxconfig.yaml"
+        description:
+          - "Defines the fxconfig configuration filename mounted into the container. Example: C(fxconfig.yaml)."
+      fxconfig_container_config_dir:
+        type: path
+        required: false
+        default: "/config"
+        description:
+          - "Defines the directory inside the container where configuration is mounted. Example: C(/config)."
+      fxconfig_container_name:
+        type: str
+        required: false
+        default: "fxconfig"
+        description:
+          - "Defines the base container name used for transient submit runs. Example: C(fxconfig)."
+      fxconfig_image:
+        type: str
+        required: false
+        default: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
+        description:
+          - "Defines the container image used to run fxconfig commands. Example: C(docker.io/hyperledger/fabric-x-tools:0.0.12)."
+      fxconfig_image_name:
+        type: str
+        required: false
+        default: "fabric-x-tools"
+        description:
+          - "Defines the image name component used by the default fxconfig container image. Example: C(fabric-x-tools)."
+      fxconfig_image_tag:
+        type: str
+        required: false
+        default: "0.0.12"
+        description:
+          - "Defines the image tag component used by the default fxconfig container image. Example: C(0.0.12)."
+      fxconfig_registry_endpoint:
+        type: str
+        required: false
+        default: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+        description:
+          - "Defines the container registry endpoint used by the default fxconfig image. Example: C(docker.io/hyperledger)."
+      fxconfig_remote_config_dir:
+        type: path
+        required: false
+        default: "{{ remote_config_dir }}/fxconfig"
+        description:
+          - "Defines the directory mounted into the fxconfig container for configuration and the staged transaction. Example: C(/opt/hlf/config/fxconfig)."
+      fxconfig_tx_to_submit_path:
+        type: path
+        required: true
+        description:
+          - "Supplies the merged namespace transaction JSON file to submit. Example: C(/tmp/fxconfig-artifacts/workload/merged.json)."
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Provides the base remote configuration directory used by the role defaults. Example: C(/opt/hlf/config)."
+
+  endorse:
+    short_description: Endorse a namespace transaction
+    description:
+      - "Dispatches transaction endorsement to either the host binary or a transient container based on C(fxconfig_use_bin)."
+    options:
+      fxconfig_output:
+        type: path
+        required: false
+        default: "{{ fxconfig_remote_config_dir }}/tx.json"
+        description:
+          - "Defines where the endorsed transaction is written on the managed host. Example: C(/opt/hlf/config/fxconfig/tx.json)."
+      fxconfig_tx_to_endorse:
+        type: path
+        required: true
+        description:
+          - "Supplies the JSON transaction file to endorse. Example: C(/tmp/fxconfig-artifacts/workload/ns.json)."
+      fxconfig_use_bin:
+        type: bool
+        required: false
+        default: false
+        description:
+          - "Selects whether the role endorses transactions with the host binary instead of the container workflow."
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Provides the base remote configuration directory used by role defaults that back the default output path. Example: C(/opt/hlf/config)."
+
+  get_endorser:
+    short_description: Resolve the namespace endorser user
+    description:
+      - "Selects the preferred endorser from the current host organization and stores it in C(fxconfig_endorser_user)."
+    options:
+      organization:
+        type: dict
+        required: true
+        description:
+          - "Defines the current host organization, including its users list and optional endorser flags. Example: C({'name': 'Org1', 'users': [{'name': 'User1', 'endorser': true}]})."
+
+  merge:
+    short_description: Merge endorsed namespace transactions
+    description:
+      - "Dispatches merge operations to either the host binary or a transient container based on C(fxconfig_use_bin)."
+    options:
+      fxconfig_endorsed_txs_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the directory containing endorsed JSON transactions to merge. Example: C(/tmp/fxconfig-artifacts/workload/endorsed)."
+      fxconfig_output:
+        type: path
+        required: false
+        default: "{{ fxconfig_remote_config_dir }}/tx.json"
+        description:
+          - "Defines where the merged transaction is written on the managed host. Example: C(/opt/hlf/config/fxconfig/tx.json)."
+      fxconfig_use_bin:
+        type: bool
+        required: false
+        default: false
+        description:
+          - "Selects whether the role merges transactions with the host binary instead of the container workflow."
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Provides the base remote configuration directory used by role defaults that back the default output path. Example: C(/opt/hlf/config)."
+
+  namespace/create:
+    short_description: Create a namespace transaction
+    description:
+      - "Dispatches namespace transaction creation to either the host binary or a transient container based on C(fxconfig_use_bin)."
+    options:
+      fxconfig_namespace_id:
+        type: str
+        required: true
+        description:
+          - "Defines the namespace identifier to create. Example: C(workload)."
+      fxconfig_namespace_policy:
+        type: str
+        required: true
+        description:
+          - "Defines the endorsement policy embedded into the namespace transaction. Example: C(threshold:/tmp/pubkey.pem)."
+      fxconfig_output:
+        type: path
+        required: false
+        default: "{{ fxconfig_remote_config_dir }}/tx.json"
+        description:
+          - "Defines where the generated namespace transaction is written. Example: C(/opt/hlf/config/fxconfig/tx.json)."
+      fxconfig_use_bin:
+        type: bool
+        required: false
+        default: false
+        description:
+          - "Selects whether the role creates namespace transactions with the host binary instead of the container workflow."
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Provides the base remote configuration directory used by role defaults that back the default output path. Example: C(/opt/hlf/config)."
+
+  namespace/group:
+    short_description: Group hosts by declared namespaces
+    description:
+      - "Builds a namespace-to-host mapping from inventory organization data and expands threshold policies to certificate paths."
+    options:
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the local directory that stores fetched crypto artifacts used to construct threshold policy certificate paths. Example: C(/tmp/fabricx-artifacts)."
+      fxconfig_hosts:
+        type: list
+        required: false
+        default: "{{ groups['all'] }}"
+        description:
+          - "Limits namespace grouping to a subset of inventory hosts. By default all hosts are considered."
+      organization:
+        type: dict
+        required: true
+        description:
+          - "Defines organization metadata on participating hosts, including domain, users, and namespaces. Example: C({'domain': 'org1.example.com', 'users': [{'name': 'User1'}], 'namespaces': [{'id': 'workload', 'policy': 'threshold'}]})."
+
+  namespace/list:
+    short_description: List namespaces
+    description:
+      - "Dispatches namespace listing to either the host binary or a transient container based on C(fxconfig_use_bin)."
+    options:
+      fxconfig_use_bin:
+        type: bool
+        required: false
+        default: false
+        description:
+          - "Selects whether the role lists namespaces with the host binary instead of the container workflow."
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Provides the base remote configuration directory used by role defaults that back the default configuration path. Example: C(/opt/hlf/config)."
+
+  submit:
+    short_description: Submit a namespace transaction
+    description:
+      - "Dispatches merged transaction submission to either the host binary or a transient container based on C(fxconfig_use_bin)."
+    options:
+      fxconfig_tx_to_submit_path:
+        type: path
+        required: true
+        description:
+          - "Supplies the merged namespace transaction JSON file to submit. Example: C(/tmp/fxconfig-artifacts/workload/merged.json)."
+      fxconfig_use_bin:
+        type: bool
+        required: false
+        default: false
+        description:
+          - "Selects whether the role submits transactions with the host binary instead of the container workflow."
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Provides the base remote configuration directory used by role defaults that back the default staging path. Example: C(/opt/hlf/config)."
+
+  wipe:
+    short_description: Remove fxconfig binaries when enabled
+    description:
+      - "Removes the fxconfig binary from the managed host when the binary workflow is enabled."
+    options:
+      fxconfig_bin_name:
+        type: str
+        required: false
+        default: "fxconfig"
+        description:
+          - "Defines the binary name to remove. Example: C(fxconfig)."
+      fxconfig_use_bin:
+        type: bool
+        required: false
+        default: false
+        description:
+          - "Selects whether the role removes the host binary. When false, the wipe entry point is a no-op."
