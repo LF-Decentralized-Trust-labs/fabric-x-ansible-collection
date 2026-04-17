@@ -16,10 +16,10 @@ configtxgen_container_name: "configtxgen"
 # =========================
 # Configtxgen binary
 # =========================
-configtxgen_git_hub_url: github.com
+configtxgen_git_hub_url: "github.com"
 configtxgen_git_repo: "hyperledger/fabric-x"
-configtxgen_source_code_package: "tools/configtxgen"
 configtxgen_git_commit: "v0.0.8"
+configtxgen_source_code_package: "tools/configtxgen"
 configtxgen_bin_package: "{{ configtxgen_git_hub_url }}/{{ configtxgen_git_repo }}/{{ configtxgen_source_code_package }}"
 configtxgen_bin_name: "configtxgen"
 configtxgen_use_bin: false
