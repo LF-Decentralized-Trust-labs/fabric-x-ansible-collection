@@ -1,0 +1,1460 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+argument_specs:
+
+  start:
+    short_description: Start the load generator
+    description:
+      - Start the Fabric-X load generator using the configured runtime mode.
+      - Exactly one runtime mode should be enabled for predictable execution.
+    options:
+      loadgen_use_container:
+        type: bool
+        required: false
+        default: true
+        description:
+          - Run the load generator as a local container.
+      loadgen_use_bin:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Run the load generator as a local binary.
+      loadgen_use_k8s:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Run the load generator on Kubernetes.
+
+  stop:
+    short_description: Stop the load generator
+    description:
+      - Stop the Fabric-X load generator in the configured runtime mode.
+    options:
+      loadgen_use_container:
+        type: bool
+        required: false
+        default: true
+        description:
+          - Stop a containerized load generator.
+      loadgen_use_bin:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Stop a binary load generator.
+
+  teardown:
+    short_description: Remove runtime artifacts
+    description:
+      - Remove runtime resources for the configured load generator deployment.
+    options:
+      loadgen_use_container:
+        type: bool
+        required: false
+        default: true
+        description:
+          - Remove the container runtime resources.
+      loadgen_use_bin:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Stop the binary runtime before cleanup.
+      loadgen_use_k8s:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Remove Kubernetes resources.
+
+  wipe:
+    short_description: Remove all load generator data
+    description:
+      - Remove runtime resources, binary artifacts, crypto material, and generated configuration.
+    options:
+      loadgen_use_bin:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Remove the installed binary during cleanup.
+
+  fetch_logs:
+    short_description: Collect runtime logs
+    description:
+      - Collect load generator logs from the configured runtime mode.
+    options:
+      loadgen_use_container:
+        type: bool
+        required: false
+        default: true
+        description:
+          - Collect logs from the container runtime.
+      loadgen_use_bin:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Collect logs from the binary runtime.
+      loadgen_use_k8s:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Collect logs from Kubernetes pods.
+
+  get_metrics:
+    short_description: Fetch exported metrics
+    description:
+      - Query the load generator metrics endpoint over HTTP or HTTPS.
+    options:
+      actual_host:
+        type: str
+        required: true
+        description:
+          - "Hostname or address of the target load generator. Example: C(loadgen01.example.com)."
+      loadgen_metrics_port:
+        type: int
+        required: true
+        description:
+          - Port exposing Prometheus metrics.
+      loadgen_monitoring_http_protocol:
+        type: str
+        required: false
+        default: "{{ 'https' if loadgen_monitoring_use_tls else 'http' }}"
+        description:
+          - Protocol used to reach the monitoring endpoint.
+      loadgen_assert_metrics:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Assert that the latency metric is greater than zero instead of just printing metrics.
+
+  limit_rate:
+    short_description: Update the runtime rate limit
+    description:
+      - Send an HTTP request to update the load generation rate.
+    options:
+      actual_host:
+        type: str
+        required: true
+        description:
+          - "Hostname or address of the target load generator. Example: C(loadgen01.example.com)."
+      loadgen_web_port:
+        type: int
+        required: true
+        description:
+          - HTTP control port exposed by the load generator.
+      loadgen_limit_rate:
+        type: int
+        required: true
+        description:
+          - New transaction rate limit to apply per second.
+
+  ping:
+    short_description: Check the HTTP endpoint
+    description:
+      - Verify that the load generator HTTP control port is reachable.
+    options:
+      loadgen_web_port:
+        type: int
+        required: true
+        description:
+          - HTTP control port to probe.
+
+  prometheus/get_scrapers:
+    short_description: Build Prometheus scrape targets
+    description:
+      - Build the Prometheus scrape service definition for all load generator hosts.
+    options:
+      loadgen_hosts:
+        type: list
+        elements: str
+        required: true
+        description:
+          - Inventory hosts running the load generator.
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - Local directory that stores fetched TLS artifacts.
+      loadgen_metrics_port:
+        type: int
+        required: true
+        description:
+          - Metrics port to scrape on each load generator host.
+
+  bin/build:
+    short_description: Build the load generator binary
+    description:
+      - Build the Fabric-X load generator binary from source through the shared bin role.
+    options:
+      loadgen_bin_name:
+        type: str
+        required: false
+        default: "loadgen"
+        description:
+          - Name of the generated binary.
+      loadgen_git_hub_url:
+        type: str
+        required: false
+        default: "github.com"
+        description:
+          - Git hosting endpoint for the source repository.
+      loadgen_git_repo:
+        type: str
+        required: false
+        default: "hyperledger/fabric-x-committer"
+        description:
+          - Source repository containing the load generator package.
+      loadgen_git_commit:
+        type: str
+        required: false
+        default: "v0.1.9"
+        description:
+          - Git reference to build.
+      loadgen_source_code_package:
+        type: str
+        required: false
+        default: "cmd/loadgen"
+        description:
+          - Go package path to build from the repository.
+
+  bin/install:
+    short_description: Install the load generator binary
+    description:
+      - Install the Fabric-X load generator binary through the shared bin role.
+    options:
+      loadgen_bin_name:
+        type: str
+        required: false
+        default: "loadgen"
+        description:
+          - Name of the installed binary.
+      loadgen_bin_package:
+        type: str
+        required: false
+        default: "{{ loadgen_git_hub_url }}/{{ loadgen_git_repo }}/{{ loadgen_source_code_package }}"
+        description:
+          - Go package used for installation.
+      loadgen_git_commit:
+        type: str
+        required: false
+        default: "v0.1.9"
+        description:
+          - Git reference to install.
+
+  bin/rm:
+    short_description: Remove the load generator binary
+    description:
+      - Remove the installed Fabric-X load generator binary.
+    options:
+      loadgen_bin_name:
+        type: str
+        required: false
+        default: "loadgen"
+        description:
+          - Name of the binary to remove.
+
+  bin/start:
+    short_description: Start the binary runtime
+    description:
+      - Start the Fabric-X load generator as a local binary process.
+    options:
+      loadgen_bin_name:
+        type: str
+        required: false
+        default: "loadgen"
+        description:
+          - Executable name used to start the process.
+      loadgen_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory containing the rendered load generator configuration.
+      loadgen_config_file:
+        type: str
+        required: false
+        default: "config-loadgen.yaml"
+        description:
+          - Load generator configuration filename.
+      loadgen_web_port:
+        type: int
+        required: true
+        description:
+          - HTTP control port to wait for after startup.
+
+  bin/stop:
+    short_description: Stop the binary runtime
+    description:
+      - Stop the Fabric-X load generator binary process.
+    options: {}
+
+  bin/transfer:
+    short_description: Transfer the load generator binary
+    description:
+      - Transfer the Fabric-X load generator binary through the shared bin role.
+    options:
+      loadgen_bin_name:
+        type: str
+        required: false
+        default: "loadgen"
+        description:
+          - Name of the binary to transfer.
+
+  bin/fetch_logs:
+    short_description: Fetch binary logs
+    description:
+      - Collect logs from a binary-based load generator runtime.
+    options: {}
+
+  container/start:
+    short_description: Start the container runtime
+    description:
+      - Start the Fabric-X load generator as a local container.
+    options:
+      loadgen_container_name:
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description:
+          - Container name to create or replace.
+      loadgen_image:
+        type: str
+        required: false
+        default: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
+        description:
+          - Container image used for the load generator.
+      loadgen_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Host directory containing the rendered load generator configuration.
+      loadgen_container_config_dir:
+        type: path
+        required: false
+        default: "/config"
+        description:
+          - Config mount path inside the container.
+      loadgen_config_file:
+        type: str
+        required: false
+        default: "config-loadgen.yaml"
+        description:
+          - Load generator configuration filename.
+      loadgen_web_port:
+        type: int
+        required: true
+        description:
+          - HTTP control port exposed by the container.
+      loadgen_metrics_port:
+        type: int
+        required: true
+        description:
+          - Metrics port exposed by the container.
+      loadgen_rpc_port:
+        type: int
+        required: true
+        description:
+          - gRPC control port exposed by the container.
+
+  container/stop:
+    short_description: Stop the container runtime
+    description:
+      - Stop the Fabric-X load generator container.
+    options:
+      loadgen_container_name:
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description:
+          - Container name to stop.
+      loadgen_image:
+        type: str
+        required: false
+        default: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
+        description:
+          - Container image recorded for the runtime.
+
+  container/rm:
+    short_description: Remove the container runtime
+    description:
+      - Remove the Fabric-X load generator container and image reference.
+    options:
+      loadgen_container_name:
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description:
+          - Container name to remove.
+      loadgen_image:
+        type: str
+        required: false
+        default: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
+        description:
+          - Container image recorded for the runtime.
+
+  container/fetch_logs:
+    short_description: Fetch container logs
+    description:
+      - Collect logs from a containerized load generator runtime.
+    options:
+      loadgen_container_name:
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description:
+          - Container name to collect logs from.
+
+  crypto/setup:
+    short_description: Prepare crypto material
+    description:
+      - Prepare the load generator MSP and TLS artifacts using cryptogen or Fabric CA.
+    options:
+      organization:
+        type: dict
+        required: true
+        description:
+          - Organization definition assigned to the load generator. It must describe a peer organization.
+      loadgen_use_k8s:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Also create a Kubernetes Secret after preparing crypto material.
+
+  crypto/cryptogen/transfer:
+    short_description: Transfer cryptogen artifacts
+    description:
+      - Transfer MSP and TLS artifacts generated by cryptogen to the load generator host.
+    options:
+      organization:
+        type: dict
+        required: true
+        description:
+          - Peer organization definition used to locate generated artifacts.
+      cryptogen_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - Local directory containing cryptogen output.
+      loadgen_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory where MSP and TLS artifacts are stored.
+      loadgen_use_tls:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Transfer TLS artifacts for the main gRPC endpoint.
+      loadgen_monitoring_use_tls:
+        type: bool
+        required: false
+        default: "{{ loadgen_use_tls }}"
+        description:
+          - Transfer TLS artifacts for the monitoring endpoint.
+
+  crypto/fabric_ca/enroll:
+    short_description: Enroll identities with Fabric CA
+    description:
+      - Enroll the load generator peer and user identities against Fabric CA.
+    options:
+      organization:
+        type: dict
+        required: true
+        description:
+          - Peer organization definition containing Fabric CA connection data.
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - Local directory containing fetched TLS CA certificates.
+      loadgen_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory where MSP and TLS artifacts are stored.
+      actual_host:
+        type: str
+        required: true
+        description:
+          - "Canonical hostname or address used in TLS CSR host lists. Example: C(loadgen01.example.com)."
+      loadgen_use_tls:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Enroll a TLS identity for the main gRPC endpoint.
+      loadgen_monitoring_use_tls:
+        type: bool
+        required: false
+        default: "{{ loadgen_use_tls }}"
+        description:
+          - Enroll a TLS identity for the monitoring endpoint.
+
+  crypto/fetch:
+    short_description: Fetch generated certificates
+    description:
+      - Fetch load generator MSP signcerts and TLS certificates back to the control node.
+    options:
+      organization:
+        type: dict
+        required: false
+        description:
+          - Organization definition used when fetching user signcerts.
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - Local directory where fetched artifacts are written.
+      loadgen_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory containing generated MSP and TLS artifacts.
+      loadgen_use_tls:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Fetch TLS artifacts for the main gRPC endpoint.
+      loadgen_monitoring_use_tls:
+        type: bool
+        required: false
+        default: "{{ loadgen_use_tls }}"
+        description:
+          - Fetch TLS artifacts for the monitoring endpoint.
+
+  crypto/rm:
+    short_description: Remove crypto material
+    description:
+      - Remove load generator MSP and TLS artifacts from the host and optionally from Kubernetes.
+    options:
+      loadgen_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory containing generated MSP and TLS artifacts.
+      loadgen_use_tls:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Remove TLS artifacts for the main gRPC endpoint.
+      loadgen_monitoring_use_tls:
+        type: bool
+        required: false
+        default: "{{ loadgen_use_tls }}"
+        description:
+          - Remove TLS artifacts for the monitoring endpoint.
+      loadgen_use_k8s:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Also remove the Kubernetes Secret.
+
+  config/transfer:
+    short_description: Dispatch configuration rendering
+    description:
+      - Render and transfer load generator configuration for the selected adapter type.
+    options:
+      loadgen_type:
+        type: str
+        required: true
+        choices:
+          - orderer-client
+          - coordinator-client
+          - verifier-client
+          - validator-client
+          - sidecar-client
+        description:
+          - Adapter configuration to render.
+      committer_hosts:
+        type: list
+        elements: str
+        required: false
+        description:
+          - Committer hosts used to derive coordinator, sidecar, validator, and verifier targets.
+      orderer_hosts:
+        type: list
+        elements: str
+        required: false
+        description:
+          - Orderer hosts used to derive router and assembler targets for the orderer client.
+      loadgen_monitoring_use_mtls:
+        type: bool
+        required: false
+        default: "{{ loadgen_use_mtls }}"
+        description:
+          - Transfer additional monitoring mTLS CA bundles after rendering the config.
+
+  config/orderer-client/transfer:
+    short_description: Render orderer client configuration
+    description:
+      - Render the orderer-client load generator configuration and related TLS assets.
+    options:
+      loadgen_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory where the configuration is written.
+      loadgen_container_config_dir:
+        type: path
+        required: false
+        default: "/config"
+        description:
+          - Config path used inside a container or pod.
+      loadgen_config_file:
+        type: str
+        required: false
+        default: "config-loadgen.yaml"
+        description:
+          - Load generator configuration filename.
+      loadgen_use_bin:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Render host paths suitable for a binary deployment.
+      loadgen_use_k8s:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Also publish the rendered configuration as a Kubernetes ConfigMap.
+      loadgen_web_port:
+        type: int
+        required: true
+        description:
+          - HTTP control port rendered into the config.
+      loadgen_metrics_port:
+        type: int
+        required: true
+        description:
+          - Metrics port rendered into the config.
+      loadgen_rpc_port:
+        type: int
+        required: true
+        description:
+          - gRPC control port rendered into the config.
+      channel_id:
+        type: str
+        required: true
+        description:
+          - "Channel identifier used in generated transactions. Example: C(system-channel)."
+      organization:
+        type: dict
+        required: true
+        description:
+          - Organization definition used to render MSP settings and orderer endpoints.
+      orderer_router_hosts:
+        type: list
+        elements: str
+        required: true
+        description:
+          - Orderer router hosts targeted by the orderer client.
+      orderer_assembler_hosts:
+        type: list
+        elements: str
+        required: false
+        description:
+          - Orderer assembler hosts used for deliver endpoints.
+      committer_sidecar_host:
+        type: str
+        required: false
+        description:
+          - Optional sidecar host used for block delivery.
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - Local directory containing fetched orderer and sidecar TLS artifacts.
+      loadgen_generate_config_block:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Render the config-transaction generation phase into the config.
+      loadgen_use_mtls:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Enable mTLS for the main gRPC endpoint in the generated config.
+      loadgen_monitoring_use_mtls:
+        type: bool
+        required: false
+        default: "{{ loadgen_use_mtls }}"
+        description:
+          - Enable mTLS for the monitoring endpoint in the generated config.
+
+  config/coordinator-client/transfer:
+    short_description: Render coordinator client configuration
+    description:
+      - Render the coordinator-client load generator configuration and related TLS assets.
+    options:
+      loadgen_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory where the configuration is written.
+      loadgen_container_config_dir:
+        type: path
+        required: false
+        default: "/config"
+        description:
+          - Config path used inside a container or pod.
+      loadgen_config_file:
+        type: str
+        required: false
+        default: "config-loadgen.yaml"
+        description:
+          - Load generator configuration filename.
+      loadgen_use_bin:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Render host paths suitable for a binary deployment.
+      loadgen_use_k8s:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Also publish the rendered configuration as a Kubernetes ConfigMap.
+      loadgen_web_port:
+        type: int
+        required: true
+        description:
+          - HTTP control port rendered into the config.
+      loadgen_metrics_port:
+        type: int
+        required: true
+        description:
+          - Metrics port rendered into the config.
+      loadgen_rpc_port:
+        type: int
+        required: true
+        description:
+          - gRPC control port rendered into the config.
+      channel_id:
+        type: str
+        required: true
+        description:
+          - "Channel identifier used in generated transactions. Example: C(system-channel)."
+      committer_coordinator_host:
+        type: str
+        required: false
+        description:
+          - Coordinator host to target when TLS artifacts are required.
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - Local directory containing fetched coordinator TLS artifacts.
+      loadgen_use_mtls:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Enable mTLS for the main gRPC endpoint in the generated config.
+      loadgen_monitoring_use_mtls:
+        type: bool
+        required: false
+        default: "{{ loadgen_use_mtls }}"
+        description:
+          - Enable mTLS for the monitoring endpoint in the generated config.
+
+  config/verifier-client/transfer:
+    short_description: Render verifier client configuration
+    description:
+      - Render the verifier-client load generator configuration and related TLS assets.
+    options:
+      loadgen_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory where the configuration is written.
+      loadgen_container_config_dir:
+        type: path
+        required: false
+        default: "/config"
+        description:
+          - Config path used inside a container or pod.
+      loadgen_config_file:
+        type: str
+        required: false
+        default: "config-loadgen.yaml"
+        description:
+          - Load generator configuration filename.
+      loadgen_use_bin:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Render host paths suitable for a binary deployment.
+      loadgen_use_k8s:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Also publish the rendered configuration as a Kubernetes ConfigMap.
+      loadgen_web_port:
+        type: int
+        required: true
+        description:
+          - HTTP control port rendered into the config.
+      loadgen_metrics_port:
+        type: int
+        required: true
+        description:
+          - Metrics port rendered into the config.
+      loadgen_rpc_port:
+        type: int
+        required: true
+        description:
+          - gRPC control port rendered into the config.
+      channel_id:
+        type: str
+        required: true
+        description:
+          - "Channel identifier used in generated transactions. Example: C(system-channel)."
+      committer_verifier_hosts:
+        type: list
+        elements: str
+        required: true
+        description:
+          - Verifier hosts targeted by the verifier client.
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - Local directory containing fetched verifier TLS artifacts.
+      loadgen_use_mtls:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Enable mTLS for the main gRPC endpoint in the generated config.
+      loadgen_monitoring_use_mtls:
+        type: bool
+        required: false
+        default: "{{ loadgen_use_mtls }}"
+        description:
+          - Enable mTLS for the monitoring endpoint in the generated config.
+
+  config/validator-client/transfer:
+    short_description: Render validator client configuration
+    description:
+      - Render the validator-client load generator configuration and related TLS assets.
+    options:
+      loadgen_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory where the configuration is written.
+      loadgen_container_config_dir:
+        type: path
+        required: false
+        default: "/config"
+        description:
+          - Config path used inside a container or pod.
+      loadgen_config_file:
+        type: str
+        required: false
+        default: "config-loadgen.yaml"
+        description:
+          - Load generator configuration filename.
+      loadgen_use_bin:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Render host paths suitable for a binary deployment.
+      loadgen_use_k8s:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Also publish the rendered configuration as a Kubernetes ConfigMap.
+      loadgen_web_port:
+        type: int
+        required: true
+        description:
+          - HTTP control port rendered into the config.
+      loadgen_metrics_port:
+        type: int
+        required: true
+        description:
+          - Metrics port rendered into the config.
+      loadgen_rpc_port:
+        type: int
+        required: true
+        description:
+          - gRPC control port rendered into the config.
+      channel_id:
+        type: str
+        required: true
+        description:
+          - "Channel identifier used in generated transactions. Example: C(system-channel)."
+      committer_validator_hosts:
+        type: list
+        elements: str
+        required: true
+        description:
+          - Validator hosts targeted by the validator client.
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - Local directory containing fetched validator TLS artifacts.
+      loadgen_use_mtls:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Enable mTLS for the main gRPC endpoint in the generated config.
+      loadgen_monitoring_use_mtls:
+        type: bool
+        required: false
+        default: "{{ loadgen_use_mtls }}"
+        description:
+          - Enable mTLS for the monitoring endpoint in the generated config.
+
+  config/sidecar-client/transfer:
+    short_description: Render sidecar client configuration
+    description:
+      - Render the sidecar-client load generator configuration and related TLS assets.
+    options:
+      loadgen_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory where the configuration is written.
+      loadgen_container_config_dir:
+        type: path
+        required: false
+        default: "/config"
+        description:
+          - Config path used inside a container or pod.
+      loadgen_config_file:
+        type: str
+        required: false
+        default: "config-loadgen.yaml"
+        description:
+          - Load generator configuration filename.
+      loadgen_use_bin:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Render host paths suitable for a binary deployment.
+      loadgen_use_k8s:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Also publish the rendered configuration as a Kubernetes ConfigMap.
+      loadgen_web_port:
+        type: int
+        required: true
+        description:
+          - HTTP control port rendered into the config.
+      loadgen_metrics_port:
+        type: int
+        required: true
+        description:
+          - Metrics port rendered into the config.
+      loadgen_rpc_port:
+        type: int
+        required: true
+        description:
+          - gRPC control port rendered into the config.
+      channel_id:
+        type: str
+        required: true
+        description:
+          - "Channel identifier used in generated transactions. Example: C(system-channel)."
+      committer_verifier_hosts:
+        type: list
+        elements: str
+        required: true
+        description:
+          - Verifier hosts used to derive the sidecar target.
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - Local directory containing fetched sidecar TLS artifacts.
+      loadgen_mock_orderer_ports:
+        type: list
+        elements: int
+        required: true
+        description:
+          - Mock orderer ports exposed by the sidecar client configuration.
+      loadgen_use_mtls:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Enable mTLS for the main gRPC endpoint in the generated config.
+      loadgen_monitoring_use_mtls:
+        type: bool
+        required: false
+        default: "{{ loadgen_use_mtls }}"
+        description:
+          - Enable mTLS for the monitoring endpoint in the generated config.
+
+  config/mtls/monitoring/transfer:
+    short_description: Transfer monitoring mTLS CA bundles
+    description:
+      - Transfer CA bundles trusted by the monitoring endpoint for mTLS clients and organizations.
+    options:
+      loadgen_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory containing monitoring mTLS CA bundles.
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - Local directory containing fetched TLS artifacts.
+      loadgen_monitoring_mtls_clients:
+        type: list
+        elements: str
+        required: false
+        description:
+          - Additional client identities trusted by the monitoring endpoint.
+      loadgen_monitoring_mtls_orgs:
+        type: list
+        elements: dict
+        required: false
+        description:
+          - Additional organizations trusted by the monitoring endpoint.
+
+  config/rm:
+    short_description: Remove rendered configuration
+    description:
+      - Remove host-side configuration files and optionally the Kubernetes ConfigMap.
+    options:
+      loadgen_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory containing rendered configuration files.
+      loadgen_use_k8s:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Also remove the Kubernetes ConfigMap.
+
+  k8s/start:
+    short_description: Start the Kubernetes deployment
+    description:
+      - Create the Kubernetes Service, NodePort Service, and Deployment for the load generator.
+    options:
+      k8s_namespace:
+        type: str
+        required: true
+        description:
+          - Kubernetes namespace where resources are created.
+      loadgen_type:
+        type: str
+        required: true
+        choices:
+          - orderer-client
+          - coordinator-client
+          - verifier-client
+          - validator-client
+          - sidecar-client
+        description:
+          - Adapter deployment to render.
+      loadgen_k8s_resource_name:
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description:
+          - Base name used for Kubernetes resources.
+      loadgen_image:
+        type: str
+        required: false
+        default: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
+        description:
+          - Container image used by the Deployment.
+      loadgen_container_config_dir:
+        type: path
+        required: false
+        default: "/config"
+        description:
+          - Config mount path inside the pod.
+      loadgen_config_file:
+        type: str
+        required: false
+        default: "config-loadgen.yaml"
+        description:
+          - Load generator configuration filename.
+      loadgen_web_port:
+        type: int
+        required: true
+        description:
+          - HTTP control port exposed by the Services and Deployment.
+      loadgen_metrics_port:
+        type: int
+        required: true
+        description:
+          - Metrics port exposed by the Services and Deployment.
+      loadgen_rpc_port:
+        type: int
+        required: true
+        description:
+          - gRPC control port exposed by the Services and Deployment.
+      loadgen_k8s_web_node_port:
+        type: int
+        required: false
+        default: "{{ loadgen_web_port }}"
+        description:
+          - NodePort used for the HTTP control port.
+      loadgen_k8s_metrics_node_port:
+        type: int
+        required: false
+        default: "{{ loadgen_metrics_port }}"
+        description:
+          - NodePort used for the metrics port.
+      loadgen_k8s_rpc_node_port:
+        type: int
+        required: false
+        default: "{{ loadgen_rpc_port }}"
+        description:
+          - NodePort used for the gRPC control port.
+      loadgen_k8s_wait:
+        type: bool
+        required: false
+        default: true
+        description:
+          - Wait for the Deployment rollout to complete.
+      loadgen_k8s_wait_timeout:
+        type: int
+        required: false
+        default: 120
+        description:
+          - Deployment wait timeout in seconds.
+      loadgen_k8s_fs_group:
+        type: int
+        required: false
+        default: 10001
+        description:
+          - Pod filesystem group used to read mounted config and secrets.
+      loadgen_use_tls:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Mount TLS material for the main gRPC endpoint.
+      loadgen_monitoring_use_tls:
+        type: bool
+        required: false
+        default: "{{ loadgen_use_tls }}"
+        description:
+          - Mount TLS material for the monitoring endpoint.
+      loadgen_use_mtls:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Mount mTLS CA bundles for the main gRPC endpoint.
+      loadgen_monitoring_use_mtls:
+        type: bool
+        required: false
+        default: "{{ loadgen_use_mtls }}"
+        description:
+          - Mount mTLS CA bundles for the monitoring endpoint.
+      loadgen_mtls_clients:
+        type: list
+        elements: str
+        required: false
+        description:
+          - Additional client identities trusted by the main gRPC endpoint.
+      loadgen_mtls_orgs:
+        type: list
+        elements: dict
+        required: false
+        description:
+          - Additional organizations trusted by the main gRPC endpoint.
+      loadgen_monitoring_mtls_clients:
+        type: list
+        elements: str
+        required: false
+        description:
+          - Additional client identities trusted by the monitoring endpoint.
+      loadgen_monitoring_mtls_orgs:
+        type: list
+        elements: dict
+        required: false
+        description:
+          - Additional organizations trusted by the monitoring endpoint.
+      committer_hosts:
+        type: list
+        elements: str
+        required: false
+        description:
+          - Committer hosts used to derive coordinator, sidecar, validator, and verifier targets.
+      orderer_hosts:
+        type: list
+        elements: str
+        required: false
+        description:
+          - Orderer hosts used to derive router and assembler targets for the orderer client.
+      organization:
+        type: dict
+        required: false
+        description:
+          - Organization definition used by templates that mount MSP user artifacts.
+      k8s_image_pull_secret:
+        type: str
+        required: false
+        description:
+          - Optional image pull secret used by the pod.
+
+  k8s/rm:
+    short_description: Remove Kubernetes resources
+    description:
+      - Remove the Kubernetes Deployment and Services created for the load generator.
+    options:
+      k8s_namespace:
+        type: str
+        required: true
+        description:
+          - Kubernetes namespace where resources are removed.
+      loadgen_k8s_resource_name:
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description:
+          - Base name of the Kubernetes resources to remove.
+
+  k8s/fetch_logs:
+    short_description: Fetch pod logs
+    description:
+      - Collect logs from the Kubernetes pod running the load generator.
+    options:
+      loadgen_k8s_resource_name:
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description:
+          - Base label used to select the target pod.
+
+  k8s/config/transfer:
+    short_description: Publish the Kubernetes ConfigMap
+    description:
+      - Publish the rendered load generator configuration and CA bundles as a ConfigMap.
+    options:
+      k8s_namespace:
+        type: str
+        required: true
+        description:
+          - Kubernetes namespace where the ConfigMap is created.
+      loadgen_type:
+        type: str
+        required: true
+        choices:
+          - orderer-client
+          - coordinator-client
+          - verifier-client
+          - validator-client
+          - sidecar-client
+        description:
+          - Adapter configuration to publish.
+      loadgen_k8s_resource_name:
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description:
+          - Base name used for the ConfigMap.
+      loadgen_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Host directory containing the rendered configuration and CA bundles.
+      loadgen_config_file:
+        type: str
+        required: false
+        default: "config-loadgen.yaml"
+        description:
+          - Load generator configuration filename.
+      loadgen_use_mtls:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Include main endpoint mTLS CA bundles in the ConfigMap.
+      loadgen_monitoring_use_mtls:
+        type: bool
+        required: false
+        default: "{{ loadgen_use_mtls }}"
+        description:
+          - Include monitoring mTLS CA bundles in the ConfigMap.
+      loadgen_mtls_clients:
+        type: list
+        elements: str
+        required: false
+        description:
+          - Additional client identities trusted by the main gRPC endpoint.
+      loadgen_mtls_orgs:
+        type: list
+        elements: dict
+        required: false
+        description:
+          - Additional organizations trusted by the main gRPC endpoint.
+      loadgen_monitoring_mtls_clients:
+        type: list
+        elements: str
+        required: false
+        description:
+          - Additional client identities trusted by the monitoring endpoint.
+      loadgen_monitoring_mtls_orgs:
+        type: list
+        elements: dict
+        required: false
+        description:
+          - Additional organizations trusted by the monitoring endpoint.
+      orderer_router_hosts:
+        type: list
+        elements: str
+        required: false
+        description:
+          - Orderer router hosts referenced by the orderer-client ConfigMap.
+      orderer_assembler_hosts:
+        type: list
+        elements: str
+        required: false
+        description:
+          - Orderer assembler hosts referenced by the orderer-client ConfigMap.
+      committer_sidecar_host:
+        type: str
+        required: false
+        description:
+          - Sidecar host referenced by orderer-client or sidecar-client ConfigMaps.
+      committer_coordinator_host:
+        type: str
+        required: false
+        description:
+          - Coordinator host referenced by the coordinator-client ConfigMap.
+      committer_verifier_ref_host:
+        type: str
+        required: false
+        description:
+          - Reference verifier host referenced by the verifier-client ConfigMap.
+      committer_validator_ref_host:
+        type: str
+        required: false
+        description:
+          - Reference validator host referenced by the validator-client ConfigMap.
+
+  k8s/config/rm:
+    short_description: Remove the Kubernetes ConfigMap
+    description:
+      - Remove the ConfigMap created for the load generator configuration.
+    options:
+      k8s_namespace:
+        type: str
+        required: true
+        description:
+          - Kubernetes namespace where the ConfigMap is removed.
+      loadgen_k8s_resource_name:
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description:
+          - Base name used for the ConfigMap.
+
+  k8s/crypto/transfer:
+    short_description: Publish the Kubernetes Secret
+    description:
+      - Publish the load generator MSP and TLS material as a Kubernetes Secret.
+    options:
+      k8s_namespace:
+        type: str
+        required: true
+        description:
+          - Kubernetes namespace where the Secret is created.
+      loadgen_k8s_resource_name:
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description:
+          - Base name used for the Secret.
+      loadgen_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Host directory containing the generated MSP and TLS material.
+      organization:
+        type: dict
+        required: true
+        description:
+          - Organization definition used to resolve MSP files and user artifacts.
+      loadgen_crypto_name:
+        type: str
+        required: false
+        default: "{{ organization.peer.name | default(inventory_hostname) }}"
+        description:
+          - Crypto identity name used to build the cryptogen signcert filename.
+      loadgen_type:
+        type: str
+        required: true
+        choices:
+          - orderer-client
+          - coordinator-client
+          - verifier-client
+          - validator-client
+          - sidecar-client
+        description:
+          - Adapter deployment associated with the Secret.
+      loadgen_use_tls:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Include TLS server material in the Secret.
+      loadgen_monitoring_use_tls:
+        type: bool
+        required: false
+        default: "{{ loadgen_use_tls }}"
+        description:
+          - Include monitoring TLS material in the Secret.
+
+  k8s/crypto/rm:
+    short_description: Remove the Kubernetes Secret
+    description:
+      - Remove the Secret created for load generator MSP and TLS material.
+    options:
+      k8s_namespace:
+        type: str
+        required: true
+        description:
+          - Kubernetes namespace where the Secret is removed.
+      loadgen_k8s_resource_name:
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description:
+          - Base name used for the Secret.
+      loadgen_use_tls:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Remove the Secret only when TLS material was created.
