@@ -1,0 +1,828 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+argument_specs:
+
+  ping:
+    short_description: Check the committer gRPC endpoint
+    description:
+      - Validate that the Fabric-X Committer RPC port is reachable.
+    options:
+      committer_rpc_port:
+        type: int
+        required: true
+        description:
+          - gRPC port exposed by the committer component.
+
+  validator/start:
+    short_description: Start a validator component
+    description:
+      - Start a validator in bin, container, or Kubernetes mode.
+      - The role derives the deployment mode from `committer_use_bin` and `committer_use_k8s`.
+    options:
+      committer_component_type:
+        type: str
+        required: true
+        choices: [validator]
+        description:
+          - Committer component to start. Use `validator` for this entry point.
+      committer_rpc_port:
+        type: int
+        required: true
+        description:
+          - RPC port exposed by the validator.
+      committer_metrics_port:
+        type: int
+        required: true
+        description:
+          - Metrics port exposed by the validator.
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Base remote directory for generated committer configuration files.
+      committer_use_bin:
+        type: bool
+        default: false
+        description:
+          - Start the validator as a host binary.
+      committer_use_k8s:
+        type: bool
+        default: false
+        description:
+          - Start the validator on Kubernetes. When true, set `k8s_namespace`.
+      committer_bin_name:
+        type: str
+        default: committer
+        description:
+          - Binary name to execute in bin mode.
+      committer_container_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Container name to use in container mode.
+      committer_image:
+        type: str
+        default: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
+        description:
+          - Container image to run in container or Kubernetes mode.
+      committer_k8s_resource_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Base Kubernetes resource name used for services and workloads.
+      committer_k8s_wait_timeout:
+        type: int
+        default: 120
+        description:
+          - Wait timeout in seconds for the Kubernetes workload to become ready.
+      committer_k8s_fs_group:
+        type: int
+        default: 10001
+        description:
+          - Filesystem group assigned to the Kubernetes pod security context.
+      committer_use_tls:
+        type: bool
+        default: false
+        description:
+          - Mount TLS material into the workload when enabled.
+      k8s_namespace:
+        type: str
+        description:
+          - Kubernetes namespace used when `committer_use_k8s` is true.
+      postgres_db_host:
+        type: str
+        description:
+          - Postgres host inventory name. Needed when validator DB TLS assets are mounted from Postgres.
+      yugabyte_cluster_ref_id:
+        type: str
+        description:
+          - Yugabyte cluster identifier. Needed when validator DB TLS assets are mounted from Yugabyte.
+
+  verifier/start:
+    short_description: Start a verifier component
+    description:
+      - Start a verifier in bin, container, or Kubernetes mode.
+    options:
+      committer_component_type:
+        type: str
+        required: true
+        choices: [verifier]
+        description:
+          - Committer component to start. Use `verifier` for this entry point.
+      committer_rpc_port:
+        type: int
+        required: true
+        description:
+          - RPC port exposed by the verifier.
+      committer_metrics_port:
+        type: int
+        required: true
+        description:
+          - Metrics port exposed by the verifier.
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Base remote directory for generated committer configuration files.
+      committer_use_bin:
+        type: bool
+        default: false
+        description:
+          - Start the verifier as a host binary.
+      committer_use_k8s:
+        type: bool
+        default: false
+        description:
+          - Start the verifier on Kubernetes. When true, set `k8s_namespace`.
+      committer_bin_name:
+        type: str
+        default: committer
+        description:
+          - Binary name to execute in bin mode.
+      committer_container_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Container name to use in container mode.
+      committer_image:
+        type: str
+        default: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
+        description:
+          - Container image to run in container or Kubernetes mode.
+      committer_k8s_resource_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Base Kubernetes resource name used for services and workloads.
+      committer_k8s_wait_timeout:
+        type: int
+        default: 120
+        description:
+          - Wait timeout in seconds for the Kubernetes workload to become ready.
+      committer_k8s_fs_group:
+        type: int
+        default: 10001
+        description:
+          - Filesystem group assigned to the Kubernetes pod security context.
+      committer_use_tls:
+        type: bool
+        default: false
+        description:
+          - Mount TLS material into the workload when enabled.
+      k8s_namespace:
+        type: str
+        description:
+          - Kubernetes namespace used when `committer_use_k8s` is true.
+
+  coordinator/start:
+    short_description: Start a coordinator component
+    description:
+      - Start a coordinator in bin, container, or Kubernetes mode.
+      - Coordinators connect to validator and verifier hosts that must already be configured.
+    options:
+      committer_component_type:
+        type: str
+        required: true
+        choices: [coordinator]
+        description:
+          - Committer component to start. Use `coordinator` for this entry point.
+      committer_rpc_port:
+        type: int
+        required: true
+        description:
+          - RPC port exposed by the coordinator.
+      committer_metrics_port:
+        type: int
+        required: true
+        description:
+          - Metrics port exposed by the coordinator.
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Base remote directory for generated committer configuration files.
+      committer_use_bin:
+        type: bool
+        default: false
+        description:
+          - Start the coordinator as a host binary.
+      committer_use_k8s:
+        type: bool
+        default: false
+        description:
+          - Start the coordinator on Kubernetes. When true, set `k8s_namespace`.
+      committer_bin_name:
+        type: str
+        default: committer
+        description:
+          - Binary name to execute in bin mode.
+      committer_container_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Container name to use in container mode.
+      committer_image:
+        type: str
+        default: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
+        description:
+          - Container image to run in container or Kubernetes mode.
+      committer_k8s_resource_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Base Kubernetes resource name used for services and workloads.
+      committer_k8s_wait_timeout:
+        type: int
+        default: 120
+        description:
+          - Wait timeout in seconds for the Kubernetes workload to become ready.
+      committer_k8s_fs_group:
+        type: int
+        default: 10001
+        description:
+          - Filesystem group assigned to the Kubernetes pod security context.
+      committer_use_tls:
+        type: bool
+        default: false
+        description:
+          - Mount TLS material into the workload when enabled.
+      k8s_namespace:
+        type: str
+        description:
+          - Kubernetes namespace used when `committer_use_k8s` is true.
+      committer_validators:
+        type: list
+        description:
+          - Inventory hosts for validator components. Needed when starting the coordinator on Kubernetes.
+      committer_verifiers:
+        type: list
+        description:
+          - Inventory hosts for verifier components. Needed when starting the coordinator on Kubernetes.
+
+  sidecar/start:
+    short_description: Start a sidecar component
+    description:
+      - Start a sidecar in bin, container, or Kubernetes mode.
+      - Sidecars require persistent data storage and connect to coordinator and orderer hosts.
+    options:
+      committer_component_type:
+        type: str
+        required: true
+        choices: [sidecar]
+        description:
+          - Committer component to start. Use `sidecar` for this entry point.
+      committer_rpc_port:
+        type: int
+        required: true
+        description:
+          - RPC port exposed by the sidecar.
+      committer_metrics_port:
+        type: int
+        required: true
+        description:
+          - Metrics port exposed by the sidecar.
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Base remote directory for generated committer configuration files.
+      remote_data_dir:
+        type: path
+        required: true
+        description:
+          - Base remote directory for persistent committer data.
+      committer_use_bin:
+        type: bool
+        default: false
+        description:
+          - Start the sidecar as a host binary.
+      committer_use_k8s:
+        type: bool
+        default: false
+        description:
+          - Start the sidecar on Kubernetes. When true, set `k8s_namespace` and `k8s_storage_size`.
+      committer_bin_name:
+        type: str
+        default: committer
+        description:
+          - Binary name to execute in bin mode.
+      committer_container_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Container name to use in container mode.
+      committer_image:
+        type: str
+        default: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
+        description:
+          - Container image to run in container or Kubernetes mode.
+      committer_k8s_resource_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Base Kubernetes resource name used for services and workloads.
+      committer_k8s_wait_timeout:
+        type: int
+        default: 120
+        description:
+          - Wait timeout in seconds for the Kubernetes workload to become ready.
+      committer_k8s_fs_group:
+        type: int
+        default: 10001
+        description:
+          - Filesystem group assigned to the Kubernetes pod security context.
+      committer_use_tls:
+        type: bool
+        default: false
+        description:
+          - Mount TLS material into the workload when enabled.
+      k8s_namespace:
+        type: str
+        description:
+          - Kubernetes namespace used when `committer_use_k8s` is true.
+      k8s_storage_size:
+        type: str
+        description:
+          - Persistent volume size requested by the sidecar StatefulSet.
+      committer_coordinator:
+        type: str
+        description:
+          - Inventory host name of the coordinator used by the sidecar.
+      orderer_assemblers:
+        type: list
+        description:
+          - Inventory host names of orderer assembler nodes used by the sidecar.
+
+  query_service/start:
+    short_description: Start a query-service component
+    description:
+      - Start a query-service in bin, container, or Kubernetes mode.
+    options:
+      committer_component_type:
+        type: str
+        required: true
+        choices: [query-service]
+        description:
+          - Committer component to start. Use `query-service` for this entry point.
+      committer_rpc_port:
+        type: int
+        required: true
+        description:
+          - RPC port exposed by the query-service.
+      committer_metrics_port:
+        type: int
+        required: true
+        description:
+          - Metrics port exposed by the query-service.
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Base remote directory for generated committer configuration files.
+      committer_use_bin:
+        type: bool
+        default: false
+        description:
+          - Start the query-service as a host binary.
+      committer_use_k8s:
+        type: bool
+        default: false
+        description:
+          - Start the query-service on Kubernetes. When true, set `k8s_namespace`.
+      committer_bin_name:
+        type: str
+        default: committer
+        description:
+          - Binary name to execute in bin mode.
+      committer_container_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Container name to use in container mode.
+      committer_image:
+        type: str
+        default: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
+        description:
+          - Container image to run in container or Kubernetes mode.
+      committer_k8s_resource_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Base Kubernetes resource name used for services and workloads.
+      committer_k8s_wait_timeout:
+        type: int
+        default: 120
+        description:
+          - Wait timeout in seconds for the Kubernetes workload to become ready.
+      committer_k8s_fs_group:
+        type: int
+        default: 10001
+        description:
+          - Filesystem group assigned to the Kubernetes pod security context.
+      committer_use_tls:
+        type: bool
+        default: false
+        description:
+          - Mount TLS material into the workload when enabled.
+      k8s_namespace:
+        type: str
+        description:
+          - Kubernetes namespace used when `committer_use_k8s` is true.
+      postgres_db_host:
+        type: str
+        description:
+          - Postgres host inventory name. Needed when query-service DB TLS assets are mounted from Postgres.
+      yugabyte_cluster_ref_id:
+        type: str
+        description:
+          - Yugabyte cluster identifier. Needed when query-service DB TLS assets are mounted from Yugabyte.
+
+  stop:
+    short_description: Stop a committer process
+    description:
+      - Stop the selected component in bin or container mode.
+      - Kubernetes teardown is handled through the teardown entry points instead.
+    options:
+      committer_component_type:
+        type: str
+        required: true
+        choices: [validator, verifier, coordinator, sidecar, query-service]
+        description:
+          - Committer component to stop.
+      committer_use_bin:
+        type: bool
+        default: false
+        description:
+          - Use bin mode for the stop operation.
+      committer_use_k8s:
+        type: bool
+        default: false
+        description:
+          - Kubernetes mode is ignored by this entry point.
+      committer_container_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Container name to stop in container mode.
+
+  teardown:
+    short_description: Teardown a selected component
+    description:
+      - Remove the selected component according to its deployment mode.
+      - Sidecar teardown also removes sidecar data.
+    options:
+      committer_component_type:
+        type: str
+        required: true
+        choices: [validator, verifier, coordinator, sidecar, query-service]
+        description:
+          - Committer component to tear down.
+      committer_use_bin:
+        type: bool
+        default: false
+        description:
+          - Teardown the host binary process and assets for the selected component.
+      committer_use_k8s:
+        type: bool
+        default: false
+        description:
+          - Remove Kubernetes resources for the selected component.
+      committer_container_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Container name to remove in container mode.
+      remote_data_dir:
+        type: path
+        description:
+          - Base remote directory for sidecar data. Needed when tearing down a sidecar.
+      committer_k8s_resource_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Base Kubernetes resource name used for services and workloads.
+      k8s_namespace:
+        type: str
+        description:
+          - Kubernetes namespace used when `committer_use_k8s` is true.
+
+  query_service/teardown:
+    short_description: Teardown the query-service
+    description:
+      - Remove the query-service according to its deployment mode.
+    options:
+      committer_use_bin:
+        type: bool
+        default: false
+        description:
+          - Stop the query-service binary.
+      committer_use_k8s:
+        type: bool
+        default: false
+        description:
+          - Remove Kubernetes resources for the query-service.
+      committer_container_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Container name to remove in container mode.
+      committer_k8s_resource_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Base Kubernetes resource name used for services and workloads.
+      k8s_namespace:
+        type: str
+        description:
+          - Kubernetes namespace used when `committer_use_k8s` is true.
+
+  sidecar/teardown:
+    short_description: Teardown the sidecar
+    description:
+      - Remove the sidecar according to its deployment mode and delete sidecar data.
+    options:
+      committer_use_bin:
+        type: bool
+        default: false
+        description:
+          - Stop the sidecar binary.
+      committer_use_k8s:
+        type: bool
+        default: false
+        description:
+          - Remove Kubernetes resources for the sidecar.
+      committer_container_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Container name to remove in container mode.
+      remote_data_dir:
+        type: path
+        required: true
+        description:
+          - Base remote directory for sidecar data.
+      committer_k8s_resource_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Base Kubernetes resource name used for services and workloads.
+      k8s_namespace:
+        type: str
+        description:
+          - Kubernetes namespace used when `committer_use_k8s` is true.
+
+  coordinator/teardown:
+    short_description: Teardown the coordinator
+    description:
+      - Remove the coordinator according to its deployment mode.
+    options:
+      committer_use_bin:
+        type: bool
+        default: false
+        description:
+          - Stop the coordinator binary.
+      committer_use_k8s:
+        type: bool
+        default: false
+        description:
+          - Remove Kubernetes resources for the coordinator.
+      committer_container_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Container name to remove in container mode.
+      committer_k8s_resource_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Base Kubernetes resource name used for services and workloads.
+      k8s_namespace:
+        type: str
+        description:
+          - Kubernetes namespace used when `committer_use_k8s` is true.
+
+  wipe:
+    short_description: Remove all committer artifacts
+    description:
+      - Tear down the selected component and remove binary, config, and crypto assets.
+    options:
+      committer_component_type:
+        type: str
+        required: true
+        choices: [validator, verifier, coordinator, sidecar, query-service]
+        description:
+          - Committer component whose artifacts will be removed.
+      committer_use_bin:
+        type: bool
+        default: false
+        description:
+          - Remove the binary in bin mode.
+      committer_use_k8s:
+        type: bool
+        default: false
+        description:
+          - Remove Kubernetes config and secret resources when enabled.
+      committer_container_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Container name to remove in container mode.
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Base remote directory for generated committer configuration files.
+      remote_data_dir:
+        type: path
+        description:
+          - Base remote directory for sidecar data. Needed when wiping a sidecar.
+      committer_use_tls:
+        type: bool
+        default: false
+        description:
+          - Remove TLS material when enabled.
+      committer_k8s_resource_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Base Kubernetes resource name used for services and workloads.
+      k8s_namespace:
+        type: str
+        description:
+          - Kubernetes namespace used when `committer_use_k8s` is true.
+
+  fetch_logs:
+    short_description: Collect committer logs
+    description:
+      - Fetch logs from the selected deployment mode.
+    options:
+      committer_use_bin:
+        type: bool
+        default: false
+        description:
+          - Fetch logs from the host binary process.
+      committer_use_k8s:
+        type: bool
+        default: false
+        description:
+          - Fetch pod logs from Kubernetes.
+      committer_container_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Container name to inspect in container mode.
+      committer_k8s_resource_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Base Kubernetes resource name used to select pods.
+
+  get_metrics:
+    short_description: Retrieve Prometheus metrics
+    description:
+      - Query the component metrics endpoint and print the response body.
+      - This task is a no-op when `committer_metrics_port` is not defined.
+    options:
+      actual_host:
+        type: str
+        required: true
+        description:
+          - Hostname or IP address used to reach the metrics endpoint.
+      committer_metrics_port:
+        type: int
+        description:
+          - Metrics port to query.
+      committer_use_tls:
+        type: bool
+        default: false
+        description:
+          - Use HTTPS when enabled.
+
+  crypto/setup:
+    short_description: Prepare crypto material
+    description:
+      - Transfer cryptogen artifacts or enroll with Fabric CA for the selected component.
+      - When `committer_use_k8s` is true, also create the Kubernetes secret for the component.
+    options:
+      organization:
+        type: dict
+        required: true
+        description:
+          - Organization definition for the committer host. It must describe a peer organization.
+      committer_component_type:
+        type: str
+        required: true
+        choices: [validator, verifier, coordinator, sidecar, query-service]
+        description:
+          - Committer component whose crypto material will be prepared.
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Base remote directory where crypto material is written.
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - Control-node directory used to read or write fetched crypto artifacts.
+      cryptogen_artifacts_dir:
+        type: path
+        description:
+          - Control-node directory containing cryptogen output. Needed when `organization.fabric_ca_host` is not set.
+      committer_use_tls:
+        type: bool
+        default: false
+        description:
+          - Generate or transfer TLS material when enabled.
+      committer_use_k8s:
+        type: bool
+        default: false
+        description:
+          - Create the Kubernetes secret when enabled.
+      committer_k8s_resource_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Base Kubernetes resource name used for the generated secret.
+      k8s_namespace:
+        type: str
+        description:
+          - Kubernetes namespace used when `committer_use_k8s` is true.
+
+  crypto/fetch:
+    short_description: Fetch TLS certificates
+    description:
+      - Fetch the committer TLS CA certificate and server certificate to the control node.
+      - This task runs only when `committer_use_tls` is true.
+    options:
+      remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Base remote directory where committer TLS files are stored.
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - Control-node directory where fetched TLS files are written.
+      committer_use_tls:
+        type: bool
+        default: false
+        description:
+          - Fetch TLS files only when enabled.
+
+  bin/install:
+    short_description: Install the committer binary
+    description:
+      - Install the committer binary through the shared `bin` role Go installer entry point.
+    options:
+      committer_bin_name:
+        type: str
+        default: committer
+        description:
+          - Binary name to install.
+      committer_bin_package:
+        type: str
+        default: "{{ committer_git_hub_url }}/{{ committer_git_repo }}/{{ committer_source_code_package }}"
+        description:
+          - Go package path to install.
+      committer_git_commit:
+        type: str
+        default: v0.1.9
+        description:
+          - Git ref used for installation.
+
+  bin/build:
+    short_description: Build the committer binary
+    description:
+      - Build the committer binary through the shared `bin` role Go build entry point.
+    options:
+      committer_bin_name:
+        type: str
+        default: committer
+        description:
+          - Binary name produced by the build.
+      committer_git_hub_url:
+        type: str
+        default: github.com
+        description:
+          - GitHub host used to fetch the source repository.
+      committer_git_repo:
+        type: str
+        default: hyperledger/fabric-x-committer
+        description:
+          - Git repository that contains the committer source.
+      committer_git_commit:
+        type: str
+        default: v0.1.9
+        description:
+          - Git ref used for the build.
+      committer_source_code_package:
+        type: str
+        default: cmd/committer
+        description:
+          - Go package path used as the build target.
