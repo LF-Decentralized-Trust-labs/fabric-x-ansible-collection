@@ -342,3 +342,14 @@ all:
           node_exporter_port: 30911
           node_exporter_use_tls: true
           node_exporter_use_k8s: true
+        prometheus:
+          prometheus_port: 32090
+          prometheus_use_tls: true
+          prometheus_use_k8s: true
+        grafana:
+          grafana_username: admin
+          grafana_password: adminPWD
+          grafana_web_port: 30300
+          prometheus_host: prometheus
+          grafana_use_tls: true
+          grafana_use_k8s: true

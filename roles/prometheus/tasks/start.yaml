@@ -8,3 +8,10 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: container/start
+  when: prometheus_use_container
+
+- name: Start Prometheus on Kubernetes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: k8s/start
+  when: prometheus_use_k8s

@@ -36,3 +36,19 @@ prometheus_tls_cert_file: server.crt
 # =========================
 prometheus_port: 9090
 prometheus_scrape_interval: 2s
+
+# =========================
+# Deployment Mode
+# =========================
+prometheus_use_k8s: false
+prometheus_use_container: "{{ not prometheus_use_k8s }}"
+
+# =========================
+# Kubernetes
+# =========================
+prometheus_k8s_resource_name: "{{ inventory_hostname }}"
+prometheus_k8s_wait_timeout: 120
+# prom/prometheus container image runs as nobody (UID 65534).
+prometheus_k8s_fs_group: 65534
+
+prometheus_k8s_node_port: "{{ prometheus_port }}"

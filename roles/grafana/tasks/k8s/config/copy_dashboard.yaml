@@ -1,0 +1,13 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Apply Grafana dashboard ConfigMap
+  vars:
+    grafana_dashboard_name: "{{ grafana_k8s_resource_name }}-{{ grafana_dashboard_file | replace('.json', '') | lower | replace('_', '-') }}"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/configmap-dashboard.yaml.j2

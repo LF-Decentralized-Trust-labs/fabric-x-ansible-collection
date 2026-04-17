@@ -8,3 +8,4 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: container/stop
+  when: prometheus_use_container

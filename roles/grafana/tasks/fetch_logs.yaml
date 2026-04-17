@@ -4,7 +4,14 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Fetch grafana logs from container
+- name: Fetch the logs from the Grafana container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
     tasks_from: container/fetch_logs
+  when: grafana_use_container
+
+- name: Fetch Grafana pod logs
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.grafana
+    tasks_from: k8s/fetch_logs
+  when: grafana_use_k8s

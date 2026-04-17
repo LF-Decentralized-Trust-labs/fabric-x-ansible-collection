@@ -10,3 +10,9 @@
     state: absent
   when:
     - grafana_use_tls
+
+- name: Delete Grafana Kubernetes Secret
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.grafana
+    tasks_from: k8s/crypto/rm
+  when: grafana_use_k8s

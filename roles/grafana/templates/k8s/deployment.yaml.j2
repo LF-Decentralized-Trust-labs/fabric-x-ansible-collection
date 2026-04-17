@@ -1,0 +1,126 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ grafana_k8s_resource_name }}
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ grafana_k8s_resource_name }}
+    app.kubernetes.io/component: grafana
+    app.kubernetes.io/part-of: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ grafana_k8s_resource_name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ grafana_k8s_resource_name }}
+        app.kubernetes.io/component: grafana
+        app.kubernetes.io/part-of: monitoring
+    spec:
+      securityContext:
+        fsGroup: {{ grafana_k8s_fs_group }}
+      containers:
+        - name: grafana
+          image: {{ grafana_image }}
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ grafana_k8s_resource_name }}
+                  key: admin-user
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ grafana_k8s_resource_name }}
+                  key: admin-password
+            - name: GF_SERVER_HTTP_PORT
+              value: "{{ grafana_web_port }}"
+{% if grafana_use_tls %}
+            - name: GF_SERVER_PROTOCOL
+              value: "https"
+            - name: GF_SERVER_CERT_KEY
+              value: "{{ grafana_container_config_dir }}/tls/{{ grafana_tls_private_key_file }}"
+            - name: GF_SERVER_CERT_FILE
+              value: "{{ grafana_container_config_dir }}/tls/{{ grafana_tls_cert_file }}"
+{% endif %}
+          ports:
+            - name: web
+              containerPort: {{ grafana_web_port }}
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: {{ grafana_container_config_dir }}/datasources/{{ grafana_datasource_file }}
+              subPath: datasources.yaml
+              readOnly: true
+            - name: config
+              mountPath: {{ grafana_container_config_dir }}/dashboards/{{ grafana_dashboards_file }}
+              subPath: dashboards.yaml
+              readOnly: true
+{% for current_grafana_dashboard_file in grafana_dashboard_files %}
+            - name: {{ current_grafana_dashboard_file | basename | replace('.json', '') | lower | replace('_', '-') }}
+              mountPath: {{ grafana_container_config_dir }}/dashboards/{{ current_grafana_dashboard_file | basename }}
+              subPath: {{ current_grafana_dashboard_file | basename }}
+              readOnly: true
+{% endfor %}
+{% if hostvars[prometheus_host].prometheus_use_tls is defined and hostvars[prometheus_host].prometheus_use_tls %}
+            - name: config
+              mountPath: {{ grafana_container_config_dir }}/tls/{{ prometheus_host }}/ca.crt
+              subPath: prometheus-ca.crt
+              readOnly: true
+{% endif %}
+{% if grafana_use_tls %}
+            - name: secret
+              mountPath: {{ grafana_container_config_dir }}/tls/{{ grafana_tls_private_key_file }}
+              subPath: server.key
+              readOnly: true
+            - name: secret
+              mountPath: {{ grafana_container_config_dir }}/tls/{{ grafana_tls_cert_file }}
+              subPath: server.crt
+              readOnly: true
+{% endif %}
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: {{ grafana_web_port }}
+{% if grafana_use_tls %}
+              scheme: HTTPS
+{% endif %}
+            initialDelaySeconds: {{ k8s_readiness_probe_initial_delay_seconds | default(10) }}
+            periodSeconds: {{ k8s_readiness_probe_period_seconds | default(10) }}
+            timeoutSeconds: {{ k8s_readiness_probe_timeout_seconds | default(5) }}
+            failureThreshold: {{ k8s_readiness_probe_failure_threshold | default(3) }}
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: {{ grafana_web_port }}
+{% if grafana_use_tls %}
+              scheme: HTTPS
+{% endif %}
+            initialDelaySeconds: {{ k8s_liveness_probe_initial_delay_seconds | default(30) }}
+            periodSeconds: {{ k8s_liveness_probe_period_seconds | default(15) }}
+            timeoutSeconds: {{ k8s_liveness_probe_timeout_seconds | default(5) }}
+            failureThreshold: {{ k8s_liveness_probe_failure_threshold | default(5) }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ grafana_k8s_resource_name }}
+{% for current_grafana_dashboard_file in grafana_dashboard_files %}
+        - name: {{ current_grafana_dashboard_file | basename | replace('.json', '') | lower | replace('_', '-') }}
+          configMap:
+            name: {{ grafana_k8s_resource_name }}-{{ current_grafana_dashboard_file | basename | replace('.json', '') | lower | replace('_', '-') }}
+{% endfor %}
+        - name: secret
+          secret:
+            secretName: {{ grafana_k8s_resource_name }}
+{% if k8s_image_pull_secret is defined and k8s_image_pull_secret %}
+      imagePullSecrets:
+        - name: {{ k8s_image_pull_secret }}
+{% endif %}

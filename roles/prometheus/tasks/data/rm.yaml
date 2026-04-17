@@ -8,3 +8,10 @@
   ansible.builtin.file:
     path: "{{ prometheus_remote_data_dir }}"
     state: absent
+  when: prometheus_use_container
+
+- name: Delete Prometheus data PVC
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: k8s/data/rm
+  when: prometheus_use_k8s

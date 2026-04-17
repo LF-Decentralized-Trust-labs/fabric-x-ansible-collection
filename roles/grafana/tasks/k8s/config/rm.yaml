@@ -1,0 +1,27 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Delete Grafana ConfigMap
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: ConfigMap
+    name: "{{ grafana_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace }}"
+
+- name: Delete Grafana dashboard ConfigMap
+  vars:
+    grafana_dashboard_files: "{{ query('fileglob', grafana_remote_config_dir + '/dashboards/*.json') | sort }}"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: ConfigMap
+    name: "{{ grafana_k8s_resource_name }}-{{ current_grafana_dashboard | basename | replace('.json', '') | lower | replace('_', '-') }}"
+    namespace: "{{ k8s_namespace }}"
+  loop: "{{ grafana_dashboard_files }}"
+  loop_control:
+    loop_var: current_grafana_dashboard
+    label: "{{ current_grafana_dashboard | basename }}"
