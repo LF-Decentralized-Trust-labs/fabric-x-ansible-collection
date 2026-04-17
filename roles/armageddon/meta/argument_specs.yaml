@@ -1,0 +1,264 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+argument_specs:
+
+  config/build:
+    short_description: Build the shared Armageddon YAML configuration
+    description:
+      - Build the `shared_config.yaml` file consumed by the Armageddon shared-config generation flow.
+      - This entry point collects orderer topology from inventory and requires fetched crypto artifacts when `armageddon_use_bin` is true.
+    options:
+      armageddon_orderer_hosts:
+        type: list
+        required: true
+        description:
+          - List of inventory hosts that make up the Fabric-X orderer topology for the generated shared configuration.
+          - Set this to the orderer hosts that expose `orderer_group`, `orderer_component_type`, `organization`, `ansible_host`, and `orderer_rpc_port`.
+      armageddon_use_bin:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Select whether the role should later run Armageddon as a local binary instead of a container.
+          - When this is true, `fetched_artifacts_dir` must contain the fetched crypto artifacts used by the template.
+      armageddon_artifacts_dir:
+        type: path
+        required: false
+        default: "{{ config_build_dir }}/armageddon-artifacts"
+        description:
+          - Directory where the role writes generated Armageddon artifacts.
+          - Override this if the generated configuration should be stored outside the default build directory.
+      armageddon_container_crypto_artifacts_dir:
+        type: path
+        required: false
+        default: "/tmp/crypto"
+        description:
+          - Container path used in the generated configuration when Armageddon is run in container mode.
+          - This path is embedded into `shared_config.yaml` when `armageddon_use_bin` is false.
+      armageddon_shared_config_file:
+        type: str
+        required: false
+        default: shared_config.yaml
+        description:
+          - Name of the generated Armageddon shared configuration file.
+          - "Example: `shared_config.yaml`."
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - Directory containing fetched crypto artifacts for the network.
+          - This is used directly when `armageddon_use_bin` is true so the generated configuration can reference certificates under `crypto/ordererOrganizations/...`.
+      config_build_dir:
+        type: path
+        required: true
+        description:
+          - Base directory used by the default `armageddon_artifacts_dir` value.
+          - Set this unless you override `armageddon_artifacts_dir` explicitly.
+
+  create_shared_config:
+    short_description: Generate the shared-config protobuf
+    description:
+      - Dispatch the shared-config generation flow to either the binary or container implementation.
+      - This entry point validates the execution mode selection before the concrete sub-entry point runs.
+    options:
+      armageddon_use_bin:
+        type: bool
+        required: false
+        default: false
+        description:
+          - Select whether the role should run Armageddon as a local binary instead of a container.
+          - When true, this entry point includes `bin/install` and `bin/create_shared_config`; otherwise it includes `container/create_shared_config`.
+
+  bin/install:
+    short_description: Install the Armageddon binary
+    description:
+      - Install the Armageddon CLI through the shared binary helper role.
+      - This entry point prepares the local binary used by subsequent binary-mode Armageddon commands.
+    options:
+      armageddon_bin_name:
+        type: str
+        required: false
+        default: "armageddon"
+        description:
+          - Name of the Armageddon executable to install.
+          - "Example: `armageddon`."
+      armageddon_bin_package:
+        type: str
+        required: false
+        default: "{{ armageddon_git_hub_url }}/{{ armageddon_git_repo }}/{{ armageddon_source_code_package }}"
+        description:
+          - Go package path used to install the Armageddon binary.
+          - Override this to install Armageddon from an alternate module path.
+      armageddon_git_commit:
+        type: str
+        required: false
+        default: "v0.0.23"
+        description:
+          - Git ref appended to the Go package path during installation.
+          - "Example: `v0.0.23`."
+      cli_bin_dir:
+        type: path
+        required: true
+        description:
+          - Directory where the Armageddon binary is installed on the control node.
+          - This path is passed to the binary helper role as the installation target.
+
+  bin/build:
+    short_description: Build the Armageddon binary from source
+    description:
+      - Build the Armageddon CLI from source through the shared Go build helper.
+      - This entry point is used when the binary should be built from a specific repository ref.
+    options:
+      armageddon_git_hub_url:
+        type: str
+        required: false
+        default: "github.com"
+        description:
+          - Git hosting domain used to resolve the Armageddon repository.
+          - "Example: `github.com`."
+      armageddon_git_repo:
+        type: str
+        required: false
+        default: "hyperledger/fabric-x-orderer"
+        description:
+          - Repository path for the Armageddon source code.
+          - "Example: `hyperledger/fabric-x-orderer`."
+      armageddon_git_commit:
+        type: str
+        required: false
+        default: "v0.0.23"
+        description:
+          - Git ref checked out for the Armageddon build.
+          - "Example: `v0.0.23`."
+      armageddon_bin_name:
+        type: str
+        required: false
+        default: "armageddon"
+        description:
+          - Name of the built Armageddon executable.
+          - "Example: `armageddon`."
+      armageddon_source_code_package:
+        type: str
+        required: false
+        default: "cmd/armageddon"
+        description:
+          - Go source package within the repository that produces the Armageddon binary.
+          - "Example: `cmd/armageddon`."
+      cli_bin_dir:
+        type: path
+        required: true
+        description:
+          - Directory where the built Armageddon binary is placed on the control node.
+          - This path is passed to the binary helper role as the output directory.
+
+  bin/create_shared_config:
+    short_description: Generate the shared-config protobuf with the binary
+    description:
+      - Run the Armageddon binary to generate `shared_config.binpb` from the rendered YAML configuration.
+      - The binary must already be installed and the shared configuration file must already exist in the artifacts directory.
+    options:
+      armageddon_bin_name:
+        type: str
+        required: false
+        default: "armageddon"
+        description:
+          - Name of the Armageddon executable to run.
+          - "Example: `armageddon`."
+      armageddon_artifacts_dir:
+        type: path
+        required: false
+        default: "{{ config_build_dir }}/armageddon-artifacts"
+        description:
+          - Directory containing the rendered shared configuration and receiving the generated protobuf output.
+          - Override this if Armageddon artifacts are stored outside the default build directory.
+      armageddon_shared_config_file:
+        type: str
+        required: false
+        default: shared_config.yaml
+        description:
+          - Name of the input shared configuration file consumed by the Armageddon binary.
+          - "Example: `shared_config.yaml`."
+      cli_bin_dir:
+        type: path
+        required: true
+        description:
+          - Directory where the Armageddon binary is available on the target execution host.
+          - This path is passed to the binary helper role as the remote binary directory.
+      config_build_dir:
+        type: path
+        required: true
+        description:
+          - Base directory used by the default `armageddon_artifacts_dir` value.
+          - Set this unless you override `armageddon_artifacts_dir` explicitly.
+
+  container/create_shared_config:
+    short_description: Generate the shared-config protobuf with a container
+    description:
+      - Run the Armageddon container to generate `shared_config.binpb` from the rendered YAML configuration.
+      - This entry point mounts the rendered config, fetched crypto artifacts, and output directory into the container.
+    options:
+      armageddon_container_name:
+        type: str
+        required: false
+        default: "armageddon"
+        description:
+          - Name assigned to the Armageddon container at runtime.
+          - "Example: `armageddon`."
+      armageddon_image:
+        type: str
+        required: false
+        default: "{{ armageddon_registry_endpoint }}/{{ armageddon_image_name }}:{{ armageddon_image_tag }}"
+        description:
+          - Fully qualified container image reference used to run Armageddon.
+          - Override this to pin a different registry, repository, or tag.
+      armageddon_container_config_dir:
+        type: path
+        required: false
+        default: "/tmp/config"
+        description:
+          - Container directory where the rendered shared configuration file is mounted.
+          - "Example: `/tmp/config`."
+      armageddon_shared_config_file:
+        type: str
+        required: false
+        default: shared_config.yaml
+        description:
+          - Name of the shared configuration file mounted into the Armageddon container.
+          - "Example: `shared_config.yaml`."
+      armageddon_container_output_dir:
+        type: path
+        required: false
+        default: "/tmp/out"
+        description:
+          - Container directory where Armageddon writes the generated protobuf output.
+          - "Example: `/tmp/out`."
+      armageddon_artifacts_dir:
+        type: path
+        required: false
+        default: "{{ config_build_dir }}/armageddon-artifacts"
+        description:
+          - Host directory containing the rendered shared configuration and receiving the generated protobuf output.
+          - Override this if Armageddon artifacts are stored outside the default build directory.
+      armageddon_container_crypto_artifacts_dir:
+        type: path
+        required: false
+        default: "/tmp/crypto"
+        description:
+          - Container directory where fetched crypto artifacts are mounted read-only.
+          - "Example: `/tmp/crypto`."
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - Host directory containing fetched crypto artifacts for the network.
+          - This directory is mounted into the Armageddon container read-only.
+      config_build_dir:
+        type: path
+        required: true
+        description:
+          - Base directory used by the default `armageddon_artifacts_dir` value.
+          - Set this unless you override `armageddon_artifacts_dir` explicitly.
