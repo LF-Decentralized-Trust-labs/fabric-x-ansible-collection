@@ -1,0 +1,1604 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+argument_specs:
+
+  client/enroll:
+    short_description: Dispatch client enrollment
+    description:
+      - "Selects the Fabric CA client enrollment implementation."
+    options:
+      fabric_ca_client_use_bin:
+        type: bool
+        default: false
+        description:
+          - "Uses the binary client flow instead of the container client flow."
+
+  client/register:
+    short_description: Dispatch client registration
+    description:
+      - "Selects the Fabric CA client registration implementation."
+    options:
+      fabric_ca_client_use_bin:
+        type: bool
+        default: false
+        description:
+          - "Uses the binary client flow instead of the container client flow."
+
+  client/reenroll:
+    short_description: Dispatch client reenrollment
+    description:
+      - "Selects the Fabric CA client reenrollment implementation."
+    options:
+      fabric_ca_client_use_bin:
+        type: bool
+        default: false
+        description:
+          - "Uses the binary client flow instead of the container client flow."
+
+  client/identity_list:
+    short_description: Dispatch client identity listing
+    description:
+      - "Selects the Fabric CA client identity listing implementation."
+    options:
+      fabric_ca_client_use_bin:
+        type: bool
+        default: false
+        description:
+          - "Uses the binary client flow instead of the container client flow."
+
+  client/revoke:
+    short_description: Dispatch client revocation
+    description:
+      - "Selects the Fabric CA client revocation implementation."
+    options:
+      fabric_ca_client_use_bin:
+        type: bool
+        default: false
+        description:
+          - "Uses the binary client flow instead of the container client flow."
+
+  client/gencrl:
+    short_description: Dispatch client CRL generation
+    description:
+      - "Selects the Fabric CA client CRL generation implementation."
+    options:
+      fabric_ca_client_use_bin:
+        type: bool
+        default: false
+        description:
+          - "Uses the binary client flow instead of the container client flow."
+
+  client/cryptogenize:
+    short_description: Normalize enrolled MSP output
+    description:
+      - "Copies enrolled client material into cryptogen-compatible filenames."
+    options:
+      fabric_ca_msp_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the MSP directory to normalize after enrollment. Example: C(/var/hyperledger/msp)."
+      fabric_ca_enrollment_profile:
+        type: str
+        required: false
+        description:
+          - "Selects the enrollment profile that determines whether TLS-specific files are copied."
+      fabric_ca_cryptogenize_tls_ca_cert_file:
+        type: str
+        default: ca.crt
+        description:
+          - "Sets the destination filename for the copied TLS CA certificate."
+      fabric_ca_cryptogenize_tls_cert_file:
+        type: str
+        default: server.crt
+        description:
+          - "Sets the destination filename for the copied TLS sign certificate."
+      fabric_ca_cryptogenize_tls_key_file:
+        type: str
+        default: server.key
+        description:
+          - "Sets the destination filename for the copied TLS private key."
+
+  client/bin/build:
+    short_description: Build the Fabric CA client binary
+    description:
+      - "Builds the Fabric CA client binary from source through the shared Go helper roles."
+    options:
+      fabric_ca_git_hub_url:
+        type: str
+        default: github.com
+        description:
+          - "Sets the GitHub host used when building the Fabric CA client source."
+      fabric_ca_git_repo:
+        type: str
+        default: hyperledger/fabric-ca
+        description:
+          - "Sets the Fabric CA source repository used for the build."
+      fabric_ca_git_commit:
+        type: str
+        default: v1.5.15
+        description:
+          - "Pins the Fabric CA source revision used for the build."
+      fabric_ca_client_bin_name:
+        type: str
+        default: fabric-ca-client
+        description:
+          - "Sets the output binary name for the Fabric CA client."
+      fabric_ca_client_source_code_package:
+        type: str
+        default: cmd/fabric-ca-client
+        description:
+          - "Sets the Go package path used to build the Fabric CA client."
+
+  client/bin/install:
+    short_description: Install the Fabric CA client binary
+    description:
+      - "Installs the Fabric CA client binary through the shared Go install helper."
+    options:
+      fabric_ca_client_bin_package:
+        type: str
+        default: "{{ fabric_ca_git_hub_url }}/{{ fabric_ca_git_repo }}/{{ fabric_ca_client_source_code_package }}"
+        description:
+          - "Sets the Go package to install for the Fabric CA client."
+      fabric_ca_git_commit:
+        type: str
+        default: v1.5.15
+        description:
+          - "Pins the Fabric CA source revision used for installation."
+
+  client/bin/transfer:
+    short_description: Transfer the Fabric CA client binary
+    description:
+      - "Copies the built Fabric CA client binary to the managed host."
+    options:
+      fabric_ca_client_bin_name:
+        type: str
+        default: fabric-ca-client
+        description:
+          - "Sets the client binary name to transfer."
+
+  client/bin/rm:
+    short_description: Remove the Fabric CA client binary
+    description:
+      - "Removes the Fabric CA client binary from the managed host."
+    options:
+      fabric_ca_client_bin_name:
+        type: str
+        default: fabric-ca-client
+        description:
+          - "Sets the client binary name to remove."
+
+  client/bin/enroll:
+    short_description: Enroll an identity with the client binary
+    description:
+      - "Enrolls a Fabric CA identity with the locally installed client binary and normalizes BCCSP output when needed."
+    options:
+      fabric_ca_msp_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the MSP directory where enrollment material is written. Example: C(/var/hyperledger/msp)."
+      fabric_ca_identity:
+        type: dict
+        required: true
+        description:
+          - "Supplies the identity data used for enrollment. This dictionary must include C(name) and C(secret)."
+          - "Store the enrollment secret in an Ansible Vault."
+      fabric_ca_enrollment_type:
+        type: str
+        default: bccsp
+        choices:
+          - bccsp
+          - idemix
+        description:
+          - "Selects whether the client enrolls BCCSP or Idemix credentials."
+      fabric_ca_host:
+        type: str
+        required: true
+        description:
+          - "Names the inventory host that runs the target Fabric CA server."
+      fabric_ca_client_bin_name:
+        type: str
+        default: fabric-ca-client
+        description:
+          - "Sets the client binary name used to run the enrollment command."
+      fabric_ca_scheme:
+        type: str
+        default: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
+        description:
+          - "Sets the scheme used to connect to the Fabric CA server."
+      fabric_ca_port:
+        type: int
+        required: true
+        description:
+          - "Sets the Fabric CA enrollment API port exposed by the target server."
+      fabric_ca_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the CA name passed with the enrollment request."
+      fabric_ca_idemix_enrollment_profile:
+        type: str
+        default: idemix
+        description:
+          - "Sets the enrollment profile used when C(fabric_ca_enrollment_type) is C(idemix)."
+      fabric_ca_enrollment_profile:
+        type: str
+        required: false
+        description:
+          - "Sets an optional enrollment profile such as C(tls) for BCCSP reenrollment and enrollment."
+      fabric_ca_csr_hosts:
+        type: list
+        required: false
+        description:
+          - "Overrides the CSR SAN host entries requested during BCCSP enrollment."
+      fabric_ca_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Enables TLS when connecting to the Fabric CA server."
+      fabric_ca_tls_certfile:
+        type: path
+        required: false
+        description:
+          - "Sets the TLS root certificate file presented to the client when TLS is enabled."
+
+  client/bin/register:
+    short_description: Register an identity with the client binary
+    description:
+      - "Registers a new Fabric CA identity with the locally installed client binary when it does not already exist."
+    options:
+      fabric_ca_msp_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the client MSP directory used to authenticate the registration request."
+      fabric_ca_identity:
+        type: dict
+        required: true
+        description:
+          - "Supplies the identity to register. This dictionary must include C(name), C(secret), and C(type)."
+          - "Store the registration secret in an Ansible Vault."
+      fabric_ca_host:
+        type: str
+        required: true
+        description:
+          - "Names the inventory host that runs the target Fabric CA server."
+      fabric_ca_client_bin_name:
+        type: str
+        default: fabric-ca-client
+        description:
+          - "Sets the client binary name used to run the registration command."
+      fabric_ca_scheme:
+        type: str
+        default: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
+        description:
+          - "Sets the scheme used to connect to the Fabric CA server."
+      fabric_ca_port:
+        type: int
+        required: true
+        description:
+          - "Sets the Fabric CA enrollment API port exposed by the target server."
+      fabric_ca_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the CA name passed with the registration request."
+      fabric_ca_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Enables TLS when connecting to the Fabric CA server."
+      fabric_ca_tls_certfile:
+        type: path
+        required: false
+        description:
+          - "Sets the TLS root certificate file presented to the client when TLS is enabled."
+
+  client/bin/reenroll:
+    short_description: Reenroll an identity with the client binary
+    description:
+      - "Reenrolls an existing Fabric CA identity with the locally installed client binary and normalizes the generated material."
+    options:
+      fabric_ca_msp_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the MSP directory where reenrolled material is written."
+      fabric_ca_identity:
+        type: dict
+        required: true
+        description:
+          - "Supplies the identity data used for reenrollment. This dictionary must include C(name) and C(secret)."
+          - "Store the enrollment secret in an Ansible Vault."
+      fabric_ca_host:
+        type: str
+        required: true
+        description:
+          - "Names the inventory host that runs the target Fabric CA server."
+      fabric_ca_client_bin_name:
+        type: str
+        default: fabric-ca-client
+        description:
+          - "Sets the client binary name used to run the reenrollment command."
+      fabric_ca_scheme:
+        type: str
+        default: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
+        description:
+          - "Sets the scheme used to connect to the Fabric CA server."
+      fabric_ca_port:
+        type: int
+        required: true
+        description:
+          - "Sets the Fabric CA enrollment API port exposed by the target server."
+      fabric_ca_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the CA name passed with the reenrollment request."
+      fabric_ca_enrollment_profile:
+        type: str
+        required: false
+        description:
+          - "Sets an optional enrollment profile such as C(tls) for reenrollment."
+      fabric_ca_csr_hosts:
+        type: list
+        required: false
+        description:
+          - "Overrides the CSR SAN host entries requested during reenrollment."
+      fabric_ca_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Enables TLS when connecting to the Fabric CA server."
+      fabric_ca_tls_certfile:
+        type: path
+        required: false
+        description:
+          - "Sets the TLS root certificate file presented to the client when TLS is enabled."
+
+  client/bin/identity_list:
+    short_description: List Fabric CA identities with the client binary
+    description:
+      - "Lists identities registered in the target Fabric CA server with the locally installed client binary."
+    options:
+      fabric_ca_msp_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the client MSP directory used to authenticate the identity list request."
+      fabric_ca_host:
+        type: str
+        required: true
+        description:
+          - "Names the inventory host that runs the target Fabric CA server."
+      fabric_ca_client_bin_name:
+        type: str
+        default: fabric-ca-client
+        description:
+          - "Sets the client binary name used to run the identity list command."
+      fabric_ca_scheme:
+        type: str
+        default: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
+        description:
+          - "Sets the scheme used to connect to the Fabric CA server."
+      fabric_ca_port:
+        type: int
+        required: true
+        description:
+          - "Sets the Fabric CA enrollment API port exposed by the target server."
+      fabric_ca_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the CA name passed with the identity list request."
+      fabric_ca_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Enables TLS when connecting to the Fabric CA server."
+      fabric_ca_tls_certfile:
+        type: path
+        required: false
+        description:
+          - "Sets the TLS root certificate file presented to the client when TLS is enabled."
+
+  client/bin/revoke:
+    short_description: Revoke an identity with the client binary
+    description:
+      - "Revokes an enrolled Fabric CA identity with the locally installed client binary."
+    options:
+      fabric_ca_msp_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the client MSP directory used to authenticate the revoke request."
+      fabric_ca_identity:
+        type: dict
+        required: true
+        description:
+          - "Supplies the identity data to revoke. This dictionary must include C(name) and can include C(reason)."
+      fabric_ca_host:
+        type: str
+        required: true
+        description:
+          - "Names the inventory host that runs the target Fabric CA server."
+      fabric_ca_client_bin_name:
+        type: str
+        default: fabric-ca-client
+        description:
+          - "Sets the client binary name used to run the revoke command."
+      fabric_ca_scheme:
+        type: str
+        default: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
+        description:
+          - "Sets the scheme used to connect to the Fabric CA server."
+      fabric_ca_port:
+        type: int
+        required: true
+        description:
+          - "Sets the Fabric CA enrollment API port exposed by the target server."
+      fabric_ca_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the CA name passed with the revoke request."
+      fabric_ca_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Enables TLS when connecting to the Fabric CA server."
+      fabric_ca_tls_certfile:
+        type: path
+        required: false
+        description:
+          - "Sets the TLS root certificate file presented to the client when TLS is enabled."
+
+  client/bin/gencrl:
+    short_description: Generate a CRL with the client binary
+    description:
+      - "Generates a certificate revocation list from the target Fabric CA server with the locally installed client binary."
+    options:
+      fabric_ca_msp_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the client MSP directory used to authenticate the CRL generation request."
+      fabric_ca_host:
+        type: str
+        required: true
+        description:
+          - "Names the inventory host that runs the target Fabric CA server."
+      fabric_ca_scheme:
+        type: str
+        default: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
+        description:
+          - "Sets the scheme used to connect to the Fabric CA server."
+      fabric_ca_port:
+        type: int
+        required: true
+        description:
+          - "Sets the Fabric CA enrollment API port exposed by the target server."
+      fabric_ca_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the CA name passed with the CRL generation request."
+      fabric_ca_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Enables TLS when connecting to the Fabric CA server."
+      fabric_ca_tls_certfile:
+        type: path
+        required: false
+        description:
+          - "Sets the TLS root certificate file presented to the client when TLS is enabled."
+
+  client/container/enroll:
+    short_description: Enroll an identity with the client container
+    description:
+      - "Enrolls a Fabric CA identity with a transient container and normalizes BCCSP output when needed."
+    options:
+      fabric_ca_msp_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the MSP directory where enrollment material is written."
+      fabric_ca_identity:
+        type: dict
+        required: true
+        description:
+          - "Supplies the identity data used for enrollment. This dictionary must include C(name) and C(secret)."
+          - "Store the enrollment secret in an Ansible Vault."
+      fabric_ca_enrollment_type:
+        type: str
+        default: bccsp
+        choices:
+          - bccsp
+          - idemix
+        description:
+          - "Selects whether the client enrolls BCCSP or Idemix credentials."
+      fabric_ca_host:
+        type: str
+        required: true
+        description:
+          - "Names the inventory host that runs the target Fabric CA server."
+      fabric_ca_image:
+        type: str
+        default: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
+        description:
+          - "Sets the Fabric CA container image used for the client flow."
+      fabric_ca_client_bin_name:
+        type: str
+        default: fabric-ca-client
+        description:
+          - "Sets the client binary name executed inside the container."
+      fabric_ca_client_container_config_dir:
+        type: path
+        default: /config
+        description:
+          - "Sets the in-container configuration directory mounted for client commands."
+      fabric_ca_scheme:
+        type: str
+        default: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
+        description:
+          - "Sets the scheme used to connect to the Fabric CA server."
+      fabric_ca_port:
+        type: int
+        required: true
+        description:
+          - "Sets the Fabric CA enrollment API port exposed by the target server."
+      fabric_ca_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the CA name passed with the enrollment request."
+      fabric_ca_idemix_enrollment_profile:
+        type: str
+        default: idemix
+        description:
+          - "Sets the enrollment profile used when C(fabric_ca_enrollment_type) is C(idemix)."
+      fabric_ca_enrollment_profile:
+        type: str
+        required: false
+        description:
+          - "Sets an optional enrollment profile such as C(tls) for BCCSP reenrollment and enrollment."
+      fabric_ca_csr_hosts:
+        type: list
+        required: false
+        description:
+          - "Overrides the CSR SAN host entries requested during BCCSP enrollment."
+      fabric_ca_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Enables TLS when connecting to the Fabric CA server."
+      fabric_ca_tls_certfile:
+        type: path
+        required: false
+        description:
+          - "Sets the TLS root certificate file mounted into the client container when TLS is enabled."
+
+  client/container/register:
+    short_description: Register an identity with the client container
+    description:
+      - "Registers a new Fabric CA identity with a transient container when it does not already exist."
+    options:
+      fabric_ca_msp_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the client MSP directory used to authenticate the registration request."
+      fabric_ca_identity:
+        type: dict
+        required: true
+        description:
+          - "Supplies the identity to register. This dictionary must include C(name), C(secret), and C(type)."
+          - "Store the registration secret in an Ansible Vault."
+      fabric_ca_host:
+        type: str
+        required: true
+        description:
+          - "Names the inventory host that runs the target Fabric CA server."
+      fabric_ca_image:
+        type: str
+        default: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
+        description:
+          - "Sets the Fabric CA container image used for the client flow."
+      fabric_ca_client_bin_name:
+        type: str
+        default: fabric-ca-client
+        description:
+          - "Sets the client binary name executed inside the container."
+      fabric_ca_client_container_config_dir:
+        type: path
+        default: /config
+        description:
+          - "Sets the in-container configuration directory mounted for client commands."
+      fabric_ca_scheme:
+        type: str
+        default: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
+        description:
+          - "Sets the scheme used to connect to the Fabric CA server."
+      fabric_ca_port:
+        type: int
+        required: true
+        description:
+          - "Sets the Fabric CA enrollment API port exposed by the target server."
+      fabric_ca_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the CA name passed with the registration request."
+      fabric_ca_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Enables TLS when connecting to the Fabric CA server."
+      fabric_ca_tls_certfile:
+        type: path
+        required: false
+        description:
+          - "Sets the TLS root certificate file mounted into the client container when TLS is enabled."
+
+  client/container/reenroll:
+    short_description: Reenroll an identity with the client container
+    description:
+      - "Reenrolls an existing Fabric CA identity with a transient container and normalizes the generated material."
+    options:
+      fabric_ca_msp_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the MSP directory where reenrolled material is written."
+      fabric_ca_identity:
+        type: dict
+        required: true
+        description:
+          - "Supplies the identity data used for reenrollment. This dictionary must include C(name) and C(secret)."
+          - "Store the enrollment secret in an Ansible Vault."
+      fabric_ca_host:
+        type: str
+        required: true
+        description:
+          - "Names the inventory host that runs the target Fabric CA server."
+      fabric_ca_image:
+        type: str
+        default: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
+        description:
+          - "Sets the Fabric CA container image used for the client flow."
+      fabric_ca_client_bin_name:
+        type: str
+        default: fabric-ca-client
+        description:
+          - "Sets the client binary name executed inside the container."
+      fabric_ca_client_container_config_dir:
+        type: path
+        default: /config
+        description:
+          - "Sets the in-container configuration directory mounted for client commands."
+      fabric_ca_scheme:
+        type: str
+        default: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
+        description:
+          - "Sets the scheme used to connect to the Fabric CA server."
+      fabric_ca_port:
+        type: int
+        required: true
+        description:
+          - "Sets the Fabric CA enrollment API port exposed by the target server."
+      fabric_ca_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the CA name passed with the reenrollment request."
+      fabric_ca_enrollment_profile:
+        type: str
+        required: false
+        description:
+          - "Sets an optional enrollment profile such as C(tls) for reenrollment."
+      fabric_ca_csr_hosts:
+        type: list
+        required: false
+        description:
+          - "Overrides the CSR SAN host entries requested during reenrollment."
+      fabric_ca_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Enables TLS when connecting to the Fabric CA server."
+      fabric_ca_tls_certfile:
+        type: path
+        required: false
+        description:
+          - "Sets the TLS root certificate file mounted into the client container when TLS is enabled."
+
+  client/container/identity_list:
+    short_description: List Fabric CA identities with the client container
+    description:
+      - "Lists identities registered in the target Fabric CA server with a transient client container."
+    options:
+      fabric_ca_msp_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the client MSP directory used to authenticate the identity list request."
+      fabric_ca_host:
+        type: str
+        required: true
+        description:
+          - "Names the inventory host that runs the target Fabric CA server."
+      fabric_ca_image:
+        type: str
+        default: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
+        description:
+          - "Sets the Fabric CA container image used for the client flow."
+      fabric_ca_client_bin_name:
+        type: str
+        default: fabric-ca-client
+        description:
+          - "Sets the client binary name executed inside the container."
+      fabric_ca_client_container_config_dir:
+        type: path
+        default: /config
+        description:
+          - "Sets the in-container configuration directory mounted for client commands."
+      fabric_ca_scheme:
+        type: str
+        default: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
+        description:
+          - "Sets the scheme used to connect to the Fabric CA server."
+      fabric_ca_port:
+        type: int
+        required: true
+        description:
+          - "Sets the Fabric CA enrollment API port exposed by the target server."
+      fabric_ca_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the CA name passed with the identity list request."
+      fabric_ca_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Enables TLS when connecting to the Fabric CA server."
+      fabric_ca_tls_certfile:
+        type: path
+        required: false
+        description:
+          - "Sets the TLS root certificate file mounted into the client container when TLS is enabled."
+
+  client/container/revoke:
+    short_description: Revoke an identity with the client container
+    description:
+      - "Revokes an enrolled Fabric CA identity with a transient client container."
+    options:
+      fabric_ca_msp_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the client MSP directory used to authenticate the revoke request."
+      fabric_ca_identity:
+        type: dict
+        required: true
+        description:
+          - "Supplies the identity data to revoke. This dictionary must include C(name) and can include C(reason)."
+      fabric_ca_host:
+        type: str
+        required: true
+        description:
+          - "Names the inventory host that runs the target Fabric CA server."
+      fabric_ca_image:
+        type: str
+        default: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
+        description:
+          - "Sets the Fabric CA container image used for the client flow."
+      fabric_ca_client_container_config_dir:
+        type: path
+        default: /config
+        description:
+          - "Sets the in-container configuration directory mounted for client commands."
+      fabric_ca_scheme:
+        type: str
+        default: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
+        description:
+          - "Sets the scheme used to connect to the Fabric CA server."
+      fabric_ca_port:
+        type: int
+        required: true
+        description:
+          - "Sets the Fabric CA enrollment API port exposed by the target server."
+      fabric_ca_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the CA name passed with the revoke request."
+      fabric_ca_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Enables TLS when connecting to the Fabric CA server."
+      fabric_ca_tls_certfile:
+        type: path
+        required: false
+        description:
+          - "Sets the TLS root certificate file mounted into the client container when TLS is enabled."
+
+  client/container/gencrl:
+    short_description: Generate a CRL with the client container
+    description:
+      - "Generates a certificate revocation list from the target Fabric CA server with a transient client container."
+    options:
+      fabric_ca_msp_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the client MSP directory used to authenticate the CRL generation request."
+      fabric_ca_host:
+        type: str
+        required: true
+        description:
+          - "Names the inventory host that runs the target Fabric CA server."
+      fabric_ca_image:
+        type: str
+        default: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
+        description:
+          - "Sets the Fabric CA container image used for the client flow."
+      fabric_ca_client_container_config_dir:
+        type: path
+        default: /config
+        description:
+          - "Sets the in-container configuration directory mounted for client commands."
+      fabric_ca_scheme:
+        type: str
+        default: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
+        description:
+          - "Sets the scheme used to connect to the Fabric CA server."
+      fabric_ca_port:
+        type: int
+        required: true
+        description:
+          - "Sets the Fabric CA enrollment API port exposed by the target server."
+      fabric_ca_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the CA name passed with the CRL generation request."
+      fabric_ca_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Enables TLS when connecting to the Fabric CA server."
+      fabric_ca_tls_certfile:
+        type: path
+        required: false
+        description:
+          - "Sets the TLS root certificate file mounted into the client container when TLS is enabled."
+
+  server/start:
+    short_description: Dispatch Fabric CA server startup
+    description:
+      - "Selects the configured Fabric CA server runtime and starts it."
+    options:
+      fabric_ca_server_use_container:
+        type: bool
+        required: false
+        description:
+          - "Enables the container server runtime."
+      fabric_ca_server_use_bin:
+        type: bool
+        default: false
+        description:
+          - "Enables the binary server runtime."
+      fabric_ca_server_use_k8s:
+        type: bool
+        default: false
+        description:
+          - "Enables the Kubernetes server runtime."
+
+  server/stop:
+    short_description: Dispatch Fabric CA server stop
+    description:
+      - "Selects the configured Fabric CA server runtime and stops it."
+    options:
+      fabric_ca_server_use_container:
+        type: bool
+        required: false
+        description:
+          - "Enables the container server runtime."
+      fabric_ca_server_use_bin:
+        type: bool
+        default: false
+        description:
+          - "Enables the binary server runtime."
+
+  server/teardown:
+    short_description: Dispatch Fabric CA server teardown
+    description:
+      - "Selects the configured Fabric CA server runtime resources to remove."
+    options:
+      fabric_ca_server_use_container:
+        type: bool
+        required: false
+        description:
+          - "Enables the container server runtime."
+      fabric_ca_server_use_bin:
+        type: bool
+        default: false
+        description:
+          - "Enables the binary server runtime."
+      fabric_ca_server_use_k8s:
+        type: bool
+        default: false
+        description:
+          - "Enables the Kubernetes server runtime."
+
+  server/wipe:
+    short_description: Wipe all Fabric CA server assets
+    description:
+      - "Removes the runtime, binaries, Kubernetes secrets, and generated configuration for the Fabric CA server."
+    options:
+      fabric_ca_server_use_bin:
+        type: bool
+        default: false
+        description:
+          - "Enables the binary server runtime so the binary is removed during the wipe."
+
+  server/ping:
+    short_description: Check Fabric CA server ports
+    description:
+      - "Checks that the Fabric CA API and operations ports are reachable."
+    options:
+      fabric_ca_port:
+        type: int
+        required: true
+        description:
+          - "Sets the Fabric CA API port to probe."
+      fabric_ca_operations_port:
+        type: int
+        required: true
+        description:
+          - "Sets the Fabric CA operations port to probe."
+
+  server/fetch_logs:
+    short_description: Dispatch Fabric CA log collection
+    description:
+      - "Selects the configured Fabric CA server runtime and collects its logs."
+    options:
+      fabric_ca_server_use_container:
+        type: bool
+        required: false
+        description:
+          - "Enables the container server runtime."
+      fabric_ca_server_use_bin:
+        type: bool
+        default: false
+        description:
+          - "Enables the binary server runtime."
+      fabric_ca_server_use_k8s:
+        type: bool
+        default: false
+        description:
+          - "Enables the Kubernetes server runtime."
+
+  server/bin/build:
+    short_description: Build the Fabric CA server binary
+    description:
+      - "Builds the Fabric CA server binary from source through the shared Go helper roles."
+    options:
+      fabric_ca_git_hub_url:
+        type: str
+        default: github.com
+        description:
+          - "Sets the GitHub host used when building the Fabric CA server source."
+      fabric_ca_git_repo:
+        type: str
+        default: hyperledger/fabric-ca
+        description:
+          - "Sets the Fabric CA source repository used for the build."
+      fabric_ca_git_commit:
+        type: str
+        default: v1.5.15
+        description:
+          - "Pins the Fabric CA source revision used for the build."
+      fabric_ca_server_bin_name:
+        type: str
+        default: fabric-ca-server
+        description:
+          - "Sets the output binary name for the Fabric CA server."
+      fabric_ca_server_source_code_package:
+        type: str
+        default: cmd/fabric-ca-server
+        description:
+          - "Sets the Go package path used to build the Fabric CA server."
+
+  server/bin/install:
+    short_description: Install the Fabric CA server binary
+    description:
+      - "Installs the Fabric CA server binary through the shared Go install helper."
+    options:
+      fabric_ca_server_bin_package:
+        type: str
+        default: "{{ fabric_ca_git_hub_url }}/{{ fabric_ca_git_repo }}/{{ fabric_ca_server_source_code_package }}"
+        description:
+          - "Sets the Go package to install for the Fabric CA server."
+      fabric_ca_git_commit:
+        type: str
+        default: v1.5.15
+        description:
+          - "Pins the Fabric CA source revision used for installation."
+
+  server/bin/start:
+    short_description: Start the Fabric CA server binary
+    description:
+      - "Starts the Fabric CA server as a managed local binary process."
+    options:
+      fabric_ca_server_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the remote configuration directory exported as C(FABRIC_CA_HOME). Example: C(/var/hyperledger/fabric-ca)."
+      fabric_ca_port:
+        type: int
+        required: true
+        description:
+          - "Sets the Fabric CA API port used to wait for the server to become ready."
+
+  server/bin/stop:
+    short_description: Stop the Fabric CA server binary
+    description:
+      - "Stops the managed Fabric CA server binary process."
+    options: {}
+
+  server/bin/fetch_logs:
+    short_description: Fetch Fabric CA server binary logs
+    description:
+      - "Collects logs for the managed Fabric CA server binary process."
+    options: {}
+
+  server/bin/rm:
+    short_description: Remove the Fabric CA server binary
+    description:
+      - "Removes the Fabric CA server binary from the managed host."
+    options:
+      fabric_ca_server_bin_name:
+        type: str
+        default: fabric-ca-server
+        description:
+          - "Sets the server binary name to remove."
+
+  server/bin/transfer:
+    short_description: Transfer the Fabric CA server binary
+    description:
+      - "Copies the built Fabric CA server binary to the managed host."
+    options:
+      fabric_ca_server_bin_name:
+        type: str
+        default: fabric-ca-server
+        description:
+          - "Sets the server binary name to transfer."
+
+  server/container/start:
+    short_description: Start the Fabric CA server container
+    description:
+      - "Starts the Fabric CA server as a managed container."
+    options:
+      fabric_ca_server_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the host configuration directory mounted into the server container."
+      fabric_ca_server_container_config_dir:
+        type: path
+        default: /config
+        description:
+          - "Sets the in-container configuration directory exported as C(FABRIC_CA_HOME)."
+      fabric_ca_container_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the container name used for the Fabric CA server runtime."
+      fabric_ca_image:
+        type: str
+        default: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
+        description:
+          - "Sets the Fabric CA container image used for the server runtime."
+      fabric_ca_port:
+        type: int
+        required: true
+        description:
+          - "Sets the Fabric CA API port exposed by the container."
+      fabric_ca_operations_port:
+        type: int
+        required: true
+        description:
+          - "Sets the Fabric CA operations port exposed by the container and used by the health check."
+
+  server/container/stop:
+    short_description: Stop the Fabric CA server container
+    description:
+      - "Stops the managed Fabric CA server container."
+    options:
+      fabric_ca_container_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the container name used for the Fabric CA server runtime."
+
+  server/container/fetch_logs:
+    short_description: Fetch Fabric CA server container logs
+    description:
+      - "Collects logs for the managed Fabric CA server container."
+    options:
+      fabric_ca_container_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the container name used for the Fabric CA server runtime."
+
+  server/container/rm:
+    short_description: Remove the Fabric CA server container
+    description:
+      - "Removes the managed Fabric CA server container."
+    options:
+      fabric_ca_container_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the container name used for the Fabric CA server runtime."
+
+  server/k8s/start:
+    short_description: Start the Fabric CA server on Kubernetes
+    description:
+      - "Creates the Fabric CA Service, NodePort Service, and Deployment resources on Kubernetes."
+    options:
+      fabric_ca_server_k8s_wait_timeout:
+        type: int
+        default: 120
+        description:
+          - "Sets the Kubernetes deployment wait timeout in seconds."
+      fabric_ca_server_k8s_resource_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the Kubernetes resource base name used for the Fabric CA server."
+      fabric_ca_image:
+        type: str
+        default: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
+        description:
+          - "Sets the Fabric CA container image used for the deployment."
+      fabric_ca_server_container_config_dir:
+        type: path
+        default: /config
+        description:
+          - "Sets the in-container configuration directory mounted into the deployment."
+      fabric_ca_port:
+        type: int
+        required: true
+        description:
+          - "Sets the Fabric CA API port exposed by the Kubernetes services."
+      fabric_ca_operations_port:
+        type: int
+        required: true
+        description:
+          - "Sets the Fabric CA operations port exposed by the Kubernetes services."
+      fabric_ca_server_k8s_fs_group:
+        type: int
+        default: 0
+        description:
+          - "Sets the pod C(fsGroup) used by the Fabric CA deployment."
+      fabric_ca_server_ca_private_key_file:
+        type: str
+        default: ca-key.pem
+        description:
+          - "Sets the mounted filename for the Fabric CA signing private key."
+      fabric_ca_server_ca_cert_file:
+        type: str
+        default: ca-cert.pem
+        description:
+          - "Sets the mounted filename for the Fabric CA signing certificate."
+      fabric_ca_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Mounts and enables the TLS server certificate and private key when true."
+      fabric_ca_server_tls_private_key_file:
+        type: str
+        default: tls-key.pem
+        description:
+          - "Sets the mounted filename for the Fabric CA TLS private key."
+      fabric_ca_server_tls_cert_file:
+        type: str
+        default: tls-cert.pem
+        description:
+          - "Sets the mounted filename for the Fabric CA TLS certificate."
+      postgres_db_host:
+        type: str
+        required: true
+        description:
+          - "Names the inventory host that provides the PostgreSQL backend configuration for the Fabric CA server."
+      k8s_namespace:
+        type: str
+        required: true
+        description:
+          - "Sets the Kubernetes namespace where the Fabric CA resources are created."
+      k8s_image_pull_secret:
+        type: str
+        required: false
+        description:
+          - "Sets an optional Kubernetes image pull secret used by the deployment."
+      fabric_ca_server_k8s_port_node_port:
+        type: int
+        required: false
+        description:
+          - "Overrides the NodePort value for the Fabric CA API service port."
+      fabric_ca_server_k8s_operations_node_port:
+        type: int
+        required: false
+        description:
+          - "Overrides the NodePort value for the Fabric CA operations service port."
+
+  server/k8s/fetch_logs:
+    short_description: Fetch Fabric CA server pod logs
+    description:
+      - "Collects pod logs for the Fabric CA Kubernetes deployment."
+    options:
+      fabric_ca_server_k8s_resource_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the Kubernetes resource base name used to select Fabric CA pods."
+
+  server/k8s/rm:
+    short_description: Remove Fabric CA Kubernetes runtime resources
+    description:
+      - "Deletes the Fabric CA Deployment and Service resources from Kubernetes."
+    options:
+      fabric_ca_server_k8s_resource_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the Kubernetes resource base name used for the Fabric CA server."
+      k8s_namespace:
+        type: str
+        required: true
+        description:
+          - "Sets the Kubernetes namespace where the Fabric CA runtime resources are deleted."
+
+  server/k8s/config/transfer:
+    short_description: Transfer Fabric CA config to a Kubernetes ConfigMap
+    description:
+      - "Creates or updates the Fabric CA Kubernetes ConfigMap from the rendered server configuration."
+    options:
+      fabric_ca_server_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the remote configuration directory containing the rendered Fabric CA server configuration."
+      fabric_ca_server_k8s_resource_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the Kubernetes resource base name used for the ConfigMap."
+      postgres_db_host:
+        type: str
+        required: true
+        description:
+          - "Names the inventory host that provides the PostgreSQL backend configuration for the Fabric CA server."
+      k8s_namespace:
+        type: str
+        required: true
+        description:
+          - "Sets the Kubernetes namespace where the ConfigMap is created."
+
+  server/k8s/config/rm:
+    short_description: Remove the Fabric CA Kubernetes ConfigMap
+    description:
+      - "Deletes the Fabric CA Kubernetes ConfigMap."
+    options:
+      fabric_ca_server_k8s_resource_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the Kubernetes resource base name used for the ConfigMap."
+      k8s_namespace:
+        type: str
+        required: true
+        description:
+          - "Sets the Kubernetes namespace where the ConfigMap is deleted."
+
+  server/k8s/crypto/transfer:
+    short_description: Transfer Fabric CA crypto to a Kubernetes Secret
+    description:
+      - "Creates or updates the Fabric CA Kubernetes Secret from the generated server crypto material."
+    options:
+      fabric_ca_server_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the remote configuration directory containing the generated Fabric CA server crypto files."
+      fabric_ca_server_k8s_resource_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the Kubernetes resource base name used for the Secret."
+      fabric_ca_server_ca_private_key_file:
+        type: str
+        default: ca-key.pem
+        description:
+          - "Sets the filename for the Fabric CA signing private key."
+      fabric_ca_server_ca_cert_file:
+        type: str
+        default: ca-cert.pem
+        description:
+          - "Sets the filename for the Fabric CA signing certificate."
+      fabric_ca_server_tls_private_key_file:
+        type: str
+        default: tls-key.pem
+        description:
+          - "Sets the filename for the Fabric CA TLS private key."
+      fabric_ca_server_tls_cert_file:
+        type: str
+        default: tls-cert.pem
+        description:
+          - "Sets the filename for the Fabric CA TLS certificate."
+      fabric_ca_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Includes the TLS server keypair in the Kubernetes Secret when true."
+      k8s_namespace:
+        type: str
+        required: true
+        description:
+          - "Sets the Kubernetes namespace where the Secret is created."
+
+  server/k8s/crypto/rm:
+    short_description: Remove the Fabric CA Kubernetes Secret
+    description:
+      - "Deletes the Fabric CA Kubernetes Secret."
+    options:
+      fabric_ca_server_k8s_resource_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the Kubernetes resource base name used for the Secret."
+      k8s_namespace:
+        type: str
+        required: true
+        description:
+          - "Sets the Kubernetes namespace where the Secret is deleted."
+
+  server/crypto/setup:
+    short_description: Generate all Fabric CA server crypto material
+    description:
+      - "Generates x509 and Idemix crypto material for the Fabric CA server and, when enabled, transfers it to Kubernetes."
+    options:
+      fabric_ca_server_use_k8s:
+        type: bool
+        default: false
+        description:
+          - "Transfers the generated server crypto material into a Kubernetes Secret when true."
+
+  server/crypto/x509/setup:
+    short_description: Generate Fabric CA server x509 crypto
+    description:
+      - "Generates the Fabric CA root CA and TLS keypairs used by the server."
+    options:
+      fabric_ca_server_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the remote configuration directory where the generated x509 files are written."
+      fabric_ca_server_ca_private_key_file:
+        type: str
+        default: ca-key.pem
+        description:
+          - "Sets the filename for the Fabric CA signing private key."
+      fabric_ca_server_ca_cert_file:
+        type: str
+        default: ca-cert.pem
+        description:
+          - "Sets the filename for the Fabric CA signing certificate."
+      fabric_ca_server_tls_private_key_file:
+        type: str
+        default: tls-key.pem
+        description:
+          - "Sets the filename for the Fabric CA TLS private key."
+      fabric_ca_server_tls_cert_file:
+        type: str
+        default: tls-cert.pem
+        description:
+          - "Sets the filename for the Fabric CA TLS certificate."
+      fabric_ca_server_openssl_curve:
+        type: str
+        default: P-256
+        description:
+          - "Sets the elliptic curve used to generate the Fabric CA signing and TLS private keys."
+      fabric_ca_csr_cn:
+        type: str
+        default: "{{ fabric_ca_name }}"
+        description:
+          - "Sets the common name used in the generated certificates."
+      fabric_ca_csr_hosts:
+        type: list
+        required: false
+        description:
+          - "Sets the SAN host entries included in the generated TLS certificate."
+      organization:
+        type: dict
+        required: true
+        description:
+          - "Supplies the organization metadata used for certificate subject fields. This dictionary must include C(domain)."
+
+  server/crypto/idemix/setup:
+    short_description: Generate Fabric CA server Idemix crypto
+    description:
+      - "Generates the Fabric CA Idemix issuer keys and places them in the expected server paths."
+    options:
+      fabric_ca_server_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the remote configuration directory where the generated Idemix files are written."
+      fabric_ca_server_idemixgen_output_dir:
+        type: path
+        default: "{{ fabric_ca_server_remote_config_dir }}/idemixgen-artifacts"
+        description:
+          - "Sets the transient output directory used by C(idemixgen)."
+
+  server/crypto/fetch:
+    short_description: Fetch Fabric CA server certificates
+    description:
+      - "Fetches the Fabric CA server certificate material into the collection artifacts directory and renders the NodeOUs configuration."
+    options:
+      organization:
+        type: dict
+        required: true
+        description:
+          - "Supplies the organization metadata used to resolve the artifacts path. This dictionary must include C(domain)."
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the local artifacts root where fetched Fabric CA certificates are stored."
+      fabric_ca_server_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the remote configuration directory where the server certificate files are read from."
+      fabric_ca_server_ca_cert_file:
+        type: str
+        default: ca-cert.pem
+        description:
+          - "Sets the filename for the Fabric CA signing certificate to fetch."
+
+  server/crypto/rm:
+    short_description: Remove the Fabric CA Kubernetes Secret
+    description:
+      - "Deletes the Kubernetes Secret that stores the Fabric CA server crypto material."
+    options:
+      fabric_ca_server_use_k8s:
+        type: bool
+        default: false
+        description:
+          - "Enables Kubernetes secret deletion when the server runs on Kubernetes."
+
+  server/config/transfer:
+    short_description: Render and transfer Fabric CA server configuration
+    description:
+      - "Renders the Fabric CA server configuration, copies the PostgreSQL TLS CA certificate when needed, and optionally syncs the result to Kubernetes."
+    options:
+      fabric_ca_server_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the remote configuration directory where the rendered server configuration is written."
+      fabric_ca_port:
+        type: int
+        required: true
+        description:
+          - "Sets the Fabric CA API port rendered into the server configuration."
+      fabric_ca_log_level:
+        type: str
+        default: INFO
+        description:
+          - "Sets the Fabric CA server log level rendered into the configuration file."
+      fabric_ca_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Enables the Fabric CA server TLS section in the rendered configuration."
+      fabric_ca_server_config_dir:
+        type: path
+        required: false
+        description:
+          - "Sets the configuration directory paths embedded in the rendered server configuration."
+      fabric_ca_server_tls_cert_file:
+        type: str
+        default: tls-cert.pem
+        description:
+          - "Sets the TLS certificate filename rendered into the server configuration when TLS is enabled."
+      fabric_ca_server_tls_private_key_file:
+        type: str
+        default: tls-key.pem
+        description:
+          - "Sets the TLS private key filename rendered into the server configuration when TLS is enabled."
+      fabric_ca_name:
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the CA name rendered into the server configuration."
+      fabric_ca_server_ca_private_key_file:
+        type: str
+        default: ca-key.pem
+        description:
+          - "Sets the signing private key filename rendered into the server configuration."
+      fabric_ca_server_ca_cert_file:
+        type: str
+        default: ca-cert.pem
+        description:
+          - "Sets the signing certificate filename rendered into the server configuration."
+      fabric_ca_admin:
+        type: dict
+        required: true
+        description:
+          - "Supplies the bootstrap Fabric CA administrator rendered into the registry section. This dictionary must include C(name) and C(secret)."
+          - "Store the admin secret in an Ansible Vault."
+      fabric_ca_csr_cn:
+        type: str
+        default: "{{ fabric_ca_name }}"
+        description:
+          - "Sets the CA certificate common name rendered into the CSR section."
+      fabric_ca_csr_hosts:
+        type: list
+        required: false
+        description:
+          - "Sets the SAN host entries rendered into the CSR section."
+      fabric_ca_csr_expiry:
+        type: str
+        default: 131400h
+        description:
+          - "Sets the root CA certificate expiration rendered into the CSR section."
+      organization:
+        type: dict
+        required: true
+        description:
+          - "Supplies the organization metadata rendered into the certificate subjects. This dictionary must include C(domain)."
+      postgres_db_host:
+        type: str
+        required: true
+        description:
+          - "Names the inventory host that provides the PostgreSQL backend configuration for the Fabric CA server."
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the local artifacts root used to source the PostgreSQL TLS CA certificate."
+      fabric_ca_operations_port:
+        type: int
+        required: true
+        description:
+          - "Sets the Fabric CA operations port rendered into the server configuration."
+      fabric_ca_server_use_k8s:
+        type: bool
+        default: false
+        description:
+          - "Transfers the rendered server configuration into a Kubernetes ConfigMap when true."
+
+  server/config/rm:
+    short_description: Remove Fabric CA server configuration resources
+    description:
+      - "Deletes Kubernetes configuration resources associated with the Fabric CA server."
+    options:
+      fabric_ca_server_use_k8s:
+        type: bool
+        default: false
+        description:
+          - "Deletes the Kubernetes ConfigMap when the server runs on Kubernetes."
