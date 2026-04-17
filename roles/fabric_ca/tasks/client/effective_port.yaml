@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Set fabric_ca client effective connection port (NodePort)
+  ansible.builtin.set_fact:
+    fabric_ca_client_effective_port: "{{ hostvars[fabric_ca_host].fabric_ca_server_k8s_port_node_port }}"
+  when: hostvars[fabric_ca_host].fabric_ca_server_k8s_use_node_port | default(false)
+
+- name: Set fabric_ca client effective connection port (default)
+  ansible.builtin.set_fact:
+    fabric_ca_client_effective_port: "{{ hostvars[fabric_ca_host].fabric_ca_port }}"
+  when: not (hostvars[fabric_ca_host].fabric_ca_server_k8s_use_node_port | default(false))

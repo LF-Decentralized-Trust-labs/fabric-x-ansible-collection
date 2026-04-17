@@ -11,7 +11,10 @@
 # for production deployments.
 # Use this inventory for demo-purpose only and to quickly check whether a given deployment
 # is feasible or not. After such assessment, move to a Fabric-CA based deployment (e.g. fabric-x.yaml).
-# All services are deployed as k8s workloads and are accessible externally via NodePort services.
+# NodePort services are opt-in per component via <role>_k8s_use_node_port.
+# Only externally-reachable components (orderer-routers, committer-sidecar,
+# committer-query-service, grafana) enable NodePort.
+# Internal components communicate via in-cluster ClusterIP services.
 #
 # Prerequisites:
 #   - A running Kubernetes cluster reachable from the control node
@@ -75,21 +78,23 @@ all:
                   hosts:
                     orderer-router-1:
                       orderer_component_type: router
-                      orderer_rpc_port: 30050
-                      orderer_metrics_port: 30060
+                      orderer_rpc_port: 7050
+                      orderer_metrics_port: 7060
+                      orderer_k8s_use_node_port: true
+                      orderer_k8s_rpc_node_port: 30050
                     orderer-consenter-1:
                       orderer_component_type: consensus
-                      orderer_rpc_port: 30051
-                      orderer_metrics_port: 30061
+                      orderer_rpc_port: 7051
+                      orderer_metrics_port: 7061
                     orderer-assembler-1:
                       orderer_component_type: assembler
-                      orderer_rpc_port: 30052
-                      orderer_metrics_port: 30062
+                      orderer_rpc_port: 7052
+                      orderer_metrics_port: 7062
                     orderer-batcher-1:
                       orderer_component_type: batcher
                       orderer_shard_id: 1
-                      orderer_rpc_port: 30053
-                      orderer_metrics_port: 30063
+                      orderer_rpc_port: 7053
+                      orderer_metrics_port: 7063
                 fabric_x_orderer_2:
                   vars:
                     organization:
@@ -101,21 +106,23 @@ all:
                   hosts:
                     orderer-router-2:
                       orderer_component_type: router
-                      orderer_rpc_port: 30150
-                      orderer_metrics_port: 30160
+                      orderer_rpc_port: 7150
+                      orderer_metrics_port: 7160
+                      orderer_k8s_use_node_port: true
+                      orderer_k8s_rpc_node_port: 30150
                     orderer-consenter-2:
                       orderer_component_type: consensus
-                      orderer_rpc_port: 30151
-                      orderer_metrics_port: 30161
+                      orderer_rpc_port: 7151
+                      orderer_metrics_port: 7161
                     orderer-assembler-2:
                       orderer_component_type: assembler
-                      orderer_rpc_port: 30152
-                      orderer_metrics_port: 30162
+                      orderer_rpc_port: 7152
+                      orderer_metrics_port: 7162
                     orderer-batcher-2:
                       orderer_component_type: batcher
                       orderer_shard_id: 1
-                      orderer_rpc_port: 30153
-                      orderer_metrics_port: 30163
+                      orderer_rpc_port: 7153
+                      orderer_metrics_port: 7163
                 fabric_x_orderer_3:
                   vars:
                     organization:
@@ -127,21 +134,23 @@ all:
                   hosts:
                     orderer-router-3:
                       orderer_component_type: router
-                      orderer_rpc_port: 30250
-                      orderer_metrics_port: 30260
+                      orderer_rpc_port: 7250
+                      orderer_metrics_port: 7260
+                      orderer_k8s_use_node_port: true
+                      orderer_k8s_rpc_node_port: 30250
                     orderer-consenter-3:
                       orderer_component_type: consensus
-                      orderer_rpc_port: 30251
-                      orderer_metrics_port: 30261
+                      orderer_rpc_port: 7251
+                      orderer_metrics_port: 7261
                     orderer-assembler-3:
                       orderer_component_type: assembler
-                      orderer_rpc_port: 30252
-                      orderer_metrics_port: 30262
+                      orderer_rpc_port: 7252
+                      orderer_metrics_port: 7262
                     orderer-batcher-3:
                       orderer_component_type: batcher
                       orderer_shard_id: 1
-                      orderer_rpc_port: 30253
-                      orderer_metrics_port: 30263
+                      orderer_rpc_port: 7253
+                      orderer_metrics_port: 7263
                 fabric_x_orderer_4:
                   vars:
                     organization:
@@ -153,21 +162,23 @@ all:
                   hosts:
                     orderer-router-4:
                       orderer_component_type: router
-                      orderer_rpc_port: 30350
-                      orderer_metrics_port: 30360
+                      orderer_rpc_port: 7350
+                      orderer_metrics_port: 7360
+                      orderer_k8s_use_node_port: true
+                      orderer_k8s_rpc_node_port: 30350
                     orderer-consenter-4:
                       orderer_component_type: consensus
-                      orderer_rpc_port: 30351
-                      orderer_metrics_port: 30361
+                      orderer_rpc_port: 7351
+                      orderer_metrics_port: 7361
                     orderer-assembler-4:
                       orderer_component_type: assembler
-                      orderer_rpc_port: 30352
-                      orderer_metrics_port: 30362
+                      orderer_rpc_port: 7352
+                      orderer_metrics_port: 7362
                     orderer-batcher-4:
                       orderer_component_type: batcher
                       orderer_shard_id: 1
-                      orderer_rpc_port: 30353
-                      orderer_metrics_port: 30363
+                      orderer_rpc_port: 7353
+                      orderer_metrics_port: 7363
 
             # =========================
             # HLFX Committer (k8s)
@@ -185,30 +196,34 @@ all:
                   postgres_user: sc_user
                   postgres_password: sc_secret_pwd
                   postgres_db: sc_db
-                  postgres_port: 30595
+                  postgres_port: 5150
                   postgres_use_k8s: true
                   postgres_use_tls: true
                 committer-validator:
                   committer_component_type: validator
-                  committer_rpc_port: 30500
-                  committer_metrics_port: 30510
+                  committer_rpc_port: 5100
+                  committer_metrics_port: 5200
                   postgres_db_host: committer-db
                 committer-verifier:
                   committer_component_type: verifier
-                  committer_rpc_port: 30520
-                  committer_metrics_port: 30530
+                  committer_rpc_port: 5110
+                  committer_metrics_port: 5210
                 committer-coordinator:
                   committer_component_type: coordinator
-                  committer_rpc_port: 30540
-                  committer_metrics_port: 30550
+                  committer_rpc_port: 5120
+                  committer_metrics_port: 5220
                 committer-sidecar:
                   committer_component_type: sidecar
-                  committer_rpc_port: 30560
-                  committer_metrics_port: 30570
+                  committer_rpc_port: 5130
+                  committer_metrics_port: 5230
+                  committer_k8s_use_node_port: true
+                  committer_k8s_rpc_node_port: 30560
                 committer-query-service:
                   committer_component_type: query-service
-                  committer_rpc_port: 30580
-                  committer_metrics_port: 30590
+                  committer_rpc_port: 5140
+                  committer_metrics_port: 5240
+                  committer_k8s_use_node_port: true
+                  committer_k8s_rpc_node_port: 30580
                   postgres_db_host: committer-db
 
     # =========================
@@ -228,9 +243,11 @@ all:
                 policy: threshold
           loadgen_use_tls: true
           loadgen_type: orderer-client
-          loadgen_metrics_port: 30600
-          loadgen_web_port: 30610
-          loadgen_rpc_port: 30620
+          loadgen_metrics_port: 12010
+          loadgen_web_port: 12000
+          loadgen_rpc_port: 12020
+          loadgen_k8s_use_node_port: true
+          loadgen_k8s_web_node_port: 30610
 
     # =========================
     # Monitoring Infra
@@ -238,22 +255,24 @@ all:
     monitoring:
       hosts:
         node-exporter:
-          node_exporter_port: 30911
+          node_exporter_port: 9111
           node_exporter_use_tls: true
           node_exporter_use_k8s: true
         committer-db-exporter:
           postgres_db_host: committer-db
-          postgres_exporter_port: 32110
+          postgres_exporter_port: 2110
           postgres_exporter_use_tls: true
           postgres_exporter_use_k8s: true
         prometheus:
-          prometheus_port: 32090
+          prometheus_port: 9090
           prometheus_use_tls: true
           prometheus_use_k8s: true
         grafana:
           grafana_username: admin
           grafana_password: adminPWD
-          grafana_web_port: 30300
+          grafana_web_port: 3000
           prometheus_host: prometheus
           grafana_use_tls: true
           grafana_use_k8s: true
+          grafana_k8s_use_node_port: true
+          grafana_k8s_web_node_port: 30300

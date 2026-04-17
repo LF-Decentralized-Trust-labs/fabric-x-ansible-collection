@@ -4,13 +4,18 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Resolve effective Fabric CA connection port
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/effective_port
+
 - name: Reenroll identity with Fabric CA client binary
   vars:
     bin_env:
       FABRIC_CA_CLIENT_HOME: "{{ fabric_ca_msp_dir }}"
     bin_command: >-
       {{ fabric_ca_client_bin_name }} reenroll
-      -u {{ fabric_ca_scheme }}://{{ fabric_ca_identity.name }}:{{ fabric_ca_identity.secret }}@{{ hostvars[fabric_ca_host].actual_host }}:{{ hostvars[fabric_ca_host].fabric_ca_port }}
+      -u {{ fabric_ca_scheme }}://{{ fabric_ca_identity.name }}:{{ fabric_ca_identity.secret }}@{{ hostvars[fabric_ca_host].actual_host }}:{{ fabric_ca_client_effective_port }}
       --caname {{ fabric_ca_name }}
       --mspdir {{ fabric_ca_msp_dir }}
       {% if fabric_ca_enrollment_profile is defined %}

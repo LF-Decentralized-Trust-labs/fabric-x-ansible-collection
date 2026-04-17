@@ -19,6 +19,36 @@
     state: directory
     mode: "0o755"
 
+- name: Set fxconfig effective orderer RPC port (NodePort)
+  ansible.builtin.set_fact:
+    fxconfig_orderer_rpc_port: "{{ hostvars[orderer_router_host].orderer_k8s_rpc_node_port }}"
+  when: hostvars[orderer_router_host].orderer_k8s_use_node_port | default(false)
+
+- name: Set fxconfig effective orderer RPC port (default)
+  ansible.builtin.set_fact:
+    fxconfig_orderer_rpc_port: "{{ hostvars[orderer_router_host].orderer_rpc_port }}"
+  when: not (hostvars[orderer_router_host].orderer_k8s_use_node_port | default(false))
+
+- name: Set fxconfig effective committer sidecar RPC port (NodePort)
+  ansible.builtin.set_fact:
+    fxconfig_committer_sidecar_rpc_port: "{{ hostvars[committer_sidecar_host].committer_k8s_rpc_node_port }}"
+  when: hostvars[committer_sidecar_host].committer_k8s_use_node_port | default(false)
+
+- name: Set fxconfig effective committer sidecar RPC port (default)
+  ansible.builtin.set_fact:
+    fxconfig_committer_sidecar_rpc_port: "{{ hostvars[committer_sidecar_host].committer_rpc_port }}"
+  when: not (hostvars[committer_sidecar_host].committer_k8s_use_node_port | default(false))
+
+- name: Set fxconfig effective committer query-service RPC port (NodePort)
+  ansible.builtin.set_fact:
+    fxconfig_committer_query_service_rpc_port: "{{ hostvars[committer_query_service_host].committer_k8s_rpc_node_port }}"
+  when: hostvars[committer_query_service_host].committer_k8s_use_node_port | default(false)
+
+- name: Set fxconfig effective committer query-service RPC port (default)
+  ansible.builtin.set_fact:
+    fxconfig_committer_query_service_rpc_port: "{{ hostvars[committer_query_service_host].committer_rpc_port }}"
+  when: not (hostvars[committer_query_service_host].committer_k8s_use_node_port | default(false))
+
 - name: Setup the fxconfig configuration file
   vars:
     fxconfig_config_dir: >-
