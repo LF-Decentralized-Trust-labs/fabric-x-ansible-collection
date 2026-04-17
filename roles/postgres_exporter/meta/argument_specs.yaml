@@ -1,0 +1,702 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+argument_specs:
+
+  start:
+    short_description: Start Postgres Exporter
+    description:
+      - "Starts Postgres Exporter using either the container or Kubernetes workflow."
+      - "Set the deployment mode flags so the role selects the intended runtime."
+    options:
+      postgres_exporter_use_container:
+        type: bool
+        description:
+          - "Runs the container-based workflow when true."
+          - "This defaults to the logical negation of C(postgres_exporter_use_k8s)."
+      postgres_exporter_use_k8s:
+        type: bool
+        default: false
+        description:
+          - "Runs the Kubernetes workflow when true."
+          - "Set this to C(true) for Kubernetes deployments."
+
+  stop:
+    short_description: Stop Postgres Exporter
+    description:
+      - "Stops a container-based Postgres Exporter deployment."
+      - "Kubernetes deployments are not stopped by this entry point."
+    options:
+      postgres_exporter_use_container:
+        type: bool
+        description:
+          - "Stops the Postgres Exporter container when true."
+          - "This defaults to the logical negation of C(postgres_exporter_use_k8s)."
+
+  teardown:
+    short_description: Remove Postgres Exporter runtime resources
+    description:
+      - "Removes the running Postgres Exporter deployment."
+      - "This dispatches to either the container or Kubernetes cleanup path."
+    options:
+      postgres_exporter_use_container:
+        type: bool
+        description:
+          - "Removes the Postgres Exporter container when true."
+          - "This defaults to the logical negation of C(postgres_exporter_use_k8s)."
+      postgres_exporter_use_k8s:
+        type: bool
+        default: false
+        description:
+          - "Removes Kubernetes resources when true."
+          - "Set this to C(true) for Kubernetes deployments."
+
+  wipe:
+    short_description: Remove all Postgres Exporter artifacts
+    description:
+      - "Removes runtime resources, TLS artifacts, and generated configuration for Postgres Exporter."
+      - "Use this to fully clean a host before redeploying the exporter."
+    options:
+      postgres_exporter_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the remote directory that stores Postgres Exporter configuration and TLS files."
+          - "The default delegates to C(remote_config_dir), so provide one of those values before running wipe."
+      postgres_exporter_use_container:
+        type: bool
+        description:
+          - "Removes the Postgres Exporter container when true."
+          - "This defaults to the logical negation of C(postgres_exporter_use_k8s)."
+      postgres_exporter_use_k8s:
+        type: bool
+        default: false
+        description:
+          - "Removes Kubernetes resources when true."
+          - "Set this to C(true) for Kubernetes deployments."
+      postgres_exporter_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Removes TLS assets when true."
+          - "Enable this when the exporter was configured with HTTPS."
+
+  fetch_logs:
+    short_description: Collect Postgres Exporter logs
+    description:
+      - "Collects Postgres Exporter logs from either the container or Kubernetes runtime."
+      - "Choose the deployment mode flags that match the running exporter."
+    options:
+      postgres_exporter_container_name:
+        type: str
+        description:
+          - "Names the Postgres Exporter container whose logs should be fetched."
+          - "This defaults to the current inventory host name."
+      postgres_exporter_use_container:
+        type: bool
+        description:
+          - "Fetches logs from the container runtime when true."
+          - "This defaults to the logical negation of C(postgres_exporter_use_k8s)."
+      postgres_exporter_use_k8s:
+        type: bool
+        default: false
+        description:
+          - "Fetches logs from Kubernetes when true."
+          - "Set this to C(true) for Kubernetes deployments."
+
+  ping:
+    short_description: Check Postgres Exporter reachability
+    description:
+      - "Checks whether the Postgres Exporter metrics port is reachable."
+      - "Use this after start to confirm the service is listening."
+    options:
+      postgres_exporter_port:
+        type: int
+        required: true
+        description:
+          - "Sets the TCP port to probe for Postgres Exporter."
+          - "Example: C(2110)."
+
+  container/start:
+    short_description: Start the Postgres Exporter container
+    description:
+      - "Builds the exporter connection string and starts the Postgres Exporter container."
+      - "The target PostgreSQL host must be defined and reachable from this host."
+    options:
+      postgres_db_host:
+        type: str
+        required: true
+        description:
+          - "Identifies the inventory host running the PostgreSQL instance that Postgres Exporter should monitor."
+          - "Example: C(committer-db)."
+      postgres_exporter_container_name:
+        type: str
+        description:
+          - "Names the Postgres Exporter container."
+          - "This defaults to the current inventory host name."
+      postgres_exporter_image:
+        type: str
+        description:
+          - "Defines the Postgres Exporter image reference passed to the container runtime."
+          - "By default this is built from C(postgres_exporter_registry_endpoint), C(postgres_exporter_image_name), and C(postgres_exporter_image_tag)."
+      postgres_exporter_port:
+        type: int
+        required: true
+        description:
+          - "Sets the port exposed by the Postgres Exporter container."
+          - "Example: C(2110)."
+      postgres_exporter_container_config_dir:
+        type: path
+        default: /var/config
+        description:
+          - "Sets the configuration directory path inside the container."
+          - "The mounted files and TLS assets are read from this location."
+      postgres_exporter_config_file:
+        type: str
+        default: postgres_exporter.yaml
+        description:
+          - "Names the main exporter configuration file mounted into the container."
+      postgres_exporter_web_config_file:
+        type: str
+        default: web-config.yaml
+        description:
+          - "Names the HTTPS web configuration file mounted into the container when TLS is enabled."
+      postgres_exporter_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the remote directory that stores the generated exporter configuration."
+          - "The default delegates to C(remote_config_dir), so provide one of those values before starting the container."
+      postgres_exporter_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Enables HTTPS listener arguments and TLS-aware health checks when true."
+          - "Enable this when the exporter should expose metrics over TLS."
+
+  container/stop:
+    short_description: Stop the Postgres Exporter container
+    description:
+      - "Stops the Postgres Exporter container."
+      - "Use this for container-based deployments only."
+    options:
+      postgres_exporter_container_name:
+        type: str
+        description:
+          - "Names the Postgres Exporter container to stop."
+          - "This defaults to the current inventory host name."
+
+  container/rm:
+    short_description: Remove the Postgres Exporter container
+    description:
+      - "Removes the Postgres Exporter container."
+      - "Use this after stop or as part of teardown."
+    options:
+      postgres_exporter_container_name:
+        type: str
+        description:
+          - "Names the Postgres Exporter container to remove."
+          - "This defaults to the current inventory host name."
+
+  container/fetch_logs:
+    short_description: Fetch Postgres Exporter container logs
+    description:
+      - "Collects logs from the Postgres Exporter container."
+      - "Use this for container-based deployments only."
+    options:
+      postgres_exporter_container_name:
+        type: str
+        description:
+          - "Names the Postgres Exporter container whose logs should be fetched."
+          - "This defaults to the current inventory host name."
+
+  config/transfer:
+    short_description: Generate and transfer Postgres Exporter configuration
+    description:
+      - "Generates exporter configuration files and copies any required database CA certificate to the remote host."
+      - "For Kubernetes deployments this also applies the corresponding ConfigMap."
+    options:
+      postgres_db_host:
+        type: str
+        required: true
+        description:
+          - "Identifies the PostgreSQL inventory host whose TLS CA certificate may be copied into the exporter configuration."
+          - "Example: C(committer-db)."
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - "Points to the control-node directory that stores fetched TLS artifacts."
+          - "Example: C(/tmp/fetched)."
+      postgres_exporter_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the remote directory that stores Postgres Exporter configuration files."
+          - "The default delegates to C(remote_config_dir), so provide one of those values before transferring configuration."
+      postgres_exporter_config_file:
+        type: str
+        default: postgres_exporter.yaml
+        description:
+          - "Names the generated exporter configuration file."
+      postgres_exporter_web_config_file:
+        type: str
+        default: web-config.yaml
+        description:
+          - "Names the generated HTTPS web configuration file."
+      postgres_exporter_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Generates the HTTPS web configuration file when true."
+          - "Enable this when the exporter serves metrics over TLS."
+      postgres_exporter_use_k8s:
+        type: bool
+        default: false
+        description:
+          - "Also applies the Kubernetes ConfigMap when true."
+          - "Set this to C(true) for Kubernetes deployments."
+
+  config/rm:
+    short_description: Remove Postgres Exporter configuration
+    description:
+      - "Removes generated Postgres Exporter configuration files from the remote host."
+      - "For Kubernetes deployments this also deletes the corresponding ConfigMap."
+    options:
+      postgres_exporter_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the remote directory that stores Postgres Exporter configuration files."
+          - "The default delegates to C(remote_config_dir), so provide one of those values before removing configuration."
+      postgres_exporter_use_k8s:
+        type: bool
+        default: false
+        description:
+          - "Also removes the Kubernetes ConfigMap when true."
+          - "Set this to C(true) for Kubernetes deployments."
+
+  config/transfer_grafana_dashboard:
+    short_description: Transfer the Grafana dashboard
+    description:
+      - "Sets the packaged Postgres Exporter dashboard path and delegates dashboard import to the Grafana role."
+      - "This entry point does not require role-scoped input variables."
+    options: {}
+
+  crypto/setup:
+    short_description: Generate Postgres Exporter TLS materials
+    description:
+      - "Generates TLS material for Postgres Exporter and, for Kubernetes deployments, applies the corresponding Secret."
+      - "Enable TLS before invoking this entry point."
+    options:
+      postgres_exporter_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Generates TLS key and certificate files when true."
+          - "Enable this when the exporter should serve metrics over HTTPS."
+      postgres_exporter_use_k8s:
+        type: bool
+        default: false
+        description:
+          - "Also applies the Kubernetes Secret when true."
+          - "Set this to C(true) for Kubernetes deployments."
+      postgres_exporter_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the remote directory that stores generated TLS files."
+          - "The default delegates to C(remote_config_dir), so provide one of those values before generating TLS material."
+      postgres_exporter_tls_private_key_file:
+        type: str
+        default: server.key
+        description:
+          - "Names the generated TLS private key file."
+          - "This value should be stored in an Ansible Vault when overridden with sensitive content paths."
+      postgres_exporter_tls_cert_file:
+        type: str
+        default: server.crt
+        description:
+          - "Names the generated TLS certificate file."
+
+  crypto/fetch:
+    short_description: Fetch Postgres Exporter TLS materials
+    description:
+      - "Fetches the generated Postgres Exporter TLS CA certificate and server certificate to the control node."
+      - "Only runs when TLS is enabled for the exporter."
+    options:
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - "Points to the control-node directory where fetched TLS artifacts are stored."
+          - "Example: C(/tmp/fetched)."
+      postgres_exporter_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the remote directory that stores generated TLS files."
+          - "The default delegates to C(remote_config_dir), so provide one of those values before fetching TLS material."
+      postgres_exporter_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Fetches TLS files when true."
+          - "Enable this when the exporter was configured with HTTPS."
+
+  crypto/rm:
+    short_description: Remove Postgres Exporter TLS materials
+    description:
+      - "Removes generated Postgres Exporter TLS files from the remote host."
+      - "For Kubernetes deployments this also deletes the corresponding Secret."
+    options:
+      postgres_exporter_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the remote directory that stores generated TLS files."
+          - "The default delegates to C(remote_config_dir), so provide one of those values before removing TLS material."
+      postgres_exporter_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Removes TLS files when true."
+          - "Enable this when the exporter was configured with HTTPS."
+      postgres_exporter_use_k8s:
+        type: bool
+        default: false
+        description:
+          - "Also removes the Kubernetes Secret when true."
+          - "Set this to C(true) for Kubernetes deployments."
+
+  crypto/openssl/generate_cert:
+    short_description: Generate Postgres Exporter TLS files with OpenSSL
+    description:
+      - "Delegates self-signed certificate generation to the OpenSSL role using Postgres Exporter-specific paths."
+      - "The TLS files are written under the exporter remote configuration directory."
+    options:
+      organization:
+        type: dict
+        description:
+          - "Provides organization metadata used to derive the certificate subject."
+          - "When C(organization.domain) is unset, the inventory host name is used as the common organization value."
+      postgres_exporter_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the remote directory that stores generated TLS files."
+          - "The default delegates to C(remote_config_dir), so provide one of those values before generating TLS material."
+      postgres_exporter_tls_private_key_file:
+        type: str
+        default: server.key
+        description:
+          - "Names the generated TLS private key file."
+          - "This value should be stored in an Ansible Vault when overridden with sensitive content paths."
+      postgres_exporter_tls_cert_file:
+        type: str
+        default: server.crt
+        description:
+          - "Names the generated TLS certificate file."
+
+  k8s/start:
+    short_description: Start Postgres Exporter on Kubernetes
+    description:
+      - "Applies the Kubernetes Service, NodePort Service, and Deployment for Postgres Exporter."
+      - "The namespace must exist or be creatable by the shared Kubernetes role."
+    options:
+      k8s_namespace:
+        type: str
+        required: true
+        description:
+          - "Sets the Kubernetes namespace that will contain the Postgres Exporter resources."
+          - "Example: C(fabric-x)."
+      k8s_image_pull_secret:
+        type: str
+        description:
+          - "Sets an optional Kubernetes image pull secret name for private registries."
+          - "Leave this unset when the exporter image is publicly accessible."
+      k8s_readiness_probe_initial_delay_seconds:
+        type: int
+        default: 10
+        description:
+          - "Sets the initial delay for the readiness probe in seconds."
+      k8s_readiness_probe_period_seconds:
+        type: int
+        default: 10
+        description:
+          - "Sets how often the readiness probe runs in seconds."
+      k8s_readiness_probe_timeout_seconds:
+        type: int
+        default: 5
+        description:
+          - "Sets the readiness probe timeout in seconds."
+      k8s_readiness_probe_failure_threshold:
+        type: int
+        default: 3
+        description:
+          - "Sets the number of failed readiness probes allowed before reporting the pod as not ready."
+      k8s_liveness_probe_initial_delay_seconds:
+        type: int
+        default: 30
+        description:
+          - "Sets the initial delay for the liveness probe in seconds."
+      k8s_liveness_probe_period_seconds:
+        type: int
+        default: 15
+        description:
+          - "Sets how often the liveness probe runs in seconds."
+      k8s_liveness_probe_timeout_seconds:
+        type: int
+        default: 5
+        description:
+          - "Sets the liveness probe timeout in seconds."
+      k8s_liveness_probe_failure_threshold:
+        type: int
+        default: 5
+        description:
+          - "Sets the number of failed liveness probes allowed before restarting the pod."
+      postgres_db_host:
+        type: str
+        required: true
+        description:
+          - "Identifies the PostgreSQL inventory host used to decide whether a database CA certificate should be mounted."
+          - "Example: C(committer-db)."
+      postgres_exporter_k8s_resource_name:
+        type: str
+        description:
+          - "Sets the Kubernetes resource base name for the Service and Deployment."
+          - "This defaults to the current inventory host name."
+      postgres_exporter_k8s_port_node_port:
+        type: int
+        description:
+          - "Sets the NodePort exposed by the Kubernetes Service."
+          - "By default this follows C(postgres_exporter_port)."
+      postgres_exporter_k8s_wait_timeout:
+        type: int
+        default: 120
+        description:
+          - "Sets the Kubernetes deployment wait timeout in seconds."
+      postgres_exporter_k8s_fs_group:
+        type: int
+        default: 65534
+        description:
+          - "Sets the pod filesystem group used by the container."
+      postgres_exporter_image:
+        type: str
+        description:
+          - "Defines the Postgres Exporter image reference used by the Deployment."
+          - "By default this is built from C(postgres_exporter_registry_endpoint), C(postgres_exporter_image_name), and C(postgres_exporter_image_tag)."
+      postgres_exporter_port:
+        type: int
+        required: true
+        description:
+          - "Sets the metrics port exposed by the Kubernetes Service and container."
+          - "Example: C(32110)."
+      postgres_exporter_container_config_dir:
+        type: path
+        default: /var/config
+        description:
+          - "Sets the configuration directory path mounted inside the Kubernetes container."
+      postgres_exporter_config_file:
+        type: str
+        default: postgres_exporter.yaml
+        description:
+          - "Names the main exporter configuration file mounted from the ConfigMap."
+      postgres_exporter_web_config_file:
+        type: str
+        default: web-config.yaml
+        description:
+          - "Names the HTTPS web configuration file mounted from the ConfigMap when TLS is enabled."
+      postgres_exporter_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Enables HTTPS listener arguments and TLS volume mounts when true."
+          - "Enable this when the exporter should serve metrics over TLS."
+
+  k8s/rm:
+    short_description: Remove Postgres Exporter Kubernetes resources
+    description:
+      - "Deletes the Kubernetes Deployment and Services created for Postgres Exporter."
+      - "Use this for Kubernetes deployments during teardown."
+    options:
+      k8s_namespace:
+        type: str
+        required: true
+        description:
+          - "Sets the Kubernetes namespace that contains the Postgres Exporter resources."
+          - "Example: C(fabric-x)."
+      postgres_exporter_k8s_resource_name:
+        type: str
+        description:
+          - "Sets the Kubernetes resource base name for the Deployment and Services."
+          - "This defaults to the current inventory host name."
+
+  k8s/fetch_logs:
+    short_description: Fetch Postgres Exporter pod logs
+    description:
+      - "Collects logs from the Postgres Exporter pod using the shared Kubernetes helper role."
+      - "Use this for Kubernetes deployments only."
+    options:
+      postgres_exporter_k8s_resource_name:
+        type: str
+        description:
+          - "Sets the Kubernetes app label used to select the Postgres Exporter pod."
+          - "This defaults to the current inventory host name."
+
+  k8s/config/transfer:
+    short_description: Apply the Postgres Exporter ConfigMap
+    description:
+      - "Applies the Kubernetes ConfigMap containing the generated exporter configuration."
+      - "The local configuration files must already exist on the managed node."
+    options:
+      k8s_namespace:
+        type: str
+        required: true
+        description:
+          - "Sets the Kubernetes namespace that will contain the Postgres Exporter ConfigMap."
+          - "Example: C(fabric-x)."
+      postgres_db_host:
+        type: str
+        required: true
+        description:
+          - "Identifies the PostgreSQL inventory host whose CA certificate may be embedded into the ConfigMap."
+          - "Example: C(committer-db)."
+      postgres_exporter_k8s_resource_name:
+        type: str
+        description:
+          - "Sets the Kubernetes resource base name for the ConfigMap."
+          - "This defaults to the current inventory host name."
+      postgres_exporter_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the remote directory that stores the generated exporter configuration files."
+          - "The default delegates to C(remote_config_dir), so provide one of those values before applying the ConfigMap."
+      postgres_exporter_config_file:
+        type: str
+        default: postgres_exporter.yaml
+        description:
+          - "Names the exporter configuration file loaded into the ConfigMap."
+      postgres_exporter_web_config_file:
+        type: str
+        default: web-config.yaml
+        description:
+          - "Names the HTTPS web configuration file loaded into the ConfigMap when TLS is enabled."
+      postgres_exporter_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Adds the HTTPS web configuration file to the ConfigMap when true."
+          - "Enable this when the exporter should serve metrics over TLS."
+
+  k8s/config/rm:
+    short_description: Remove the Postgres Exporter ConfigMap
+    description:
+      - "Deletes the Kubernetes ConfigMap created for Postgres Exporter."
+      - "Use this for Kubernetes deployments during configuration cleanup."
+    options:
+      k8s_namespace:
+        type: str
+        required: true
+        description:
+          - "Sets the Kubernetes namespace that contains the Postgres Exporter ConfigMap."
+          - "Example: C(fabric-x)."
+      postgres_exporter_k8s_resource_name:
+        type: str
+        description:
+          - "Sets the Kubernetes resource base name for the ConfigMap."
+          - "This defaults to the current inventory host name."
+
+  k8s/crypto/transfer:
+    short_description: Apply the Postgres Exporter Secret
+    description:
+      - "Builds the exporter data source connection string and applies the Kubernetes Secret for Postgres Exporter."
+      - "The TLS files must already exist on the managed node before this runs."
+    options:
+      k8s_namespace:
+        type: str
+        required: true
+        description:
+          - "Sets the Kubernetes namespace that will contain the Postgres Exporter Secret."
+          - "Example: C(fabric-x)."
+      postgres_db_host:
+        type: str
+        required: true
+        description:
+          - "Identifies the PostgreSQL inventory host that Postgres Exporter should monitor."
+          - "Example: C(committer-db)."
+      postgres_exporter_k8s_resource_name:
+        type: str
+        description:
+          - "Sets the Kubernetes resource base name for the Secret."
+          - "This defaults to the current inventory host name."
+      postgres_exporter_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - "Defines the remote directory that stores the generated TLS files."
+          - "The default delegates to C(remote_config_dir), so provide one of those values before applying the Secret."
+      postgres_exporter_container_config_dir:
+        type: path
+        default: /var/config
+        description:
+          - "Sets the configuration directory path referenced inside the data source TLS parameters."
+      postgres_exporter_tls_private_key_file:
+        type: str
+        default: server.key
+        description:
+          - "Names the TLS private key file read into the Kubernetes Secret."
+          - "This value should be stored in an Ansible Vault when overridden with sensitive content paths."
+      postgres_exporter_tls_cert_file:
+        type: str
+        default: server.crt
+        description:
+          - "Names the TLS certificate file read into the Kubernetes Secret."
+      postgres_exporter_use_tls:
+        type: bool
+        default: false
+        description:
+          - "Adds server TLS assets to the Kubernetes Secret when true."
+          - "Enable this when the exporter should serve metrics over TLS."
+
+  k8s/crypto/rm:
+    short_description: Remove the Postgres Exporter Secret
+    description:
+      - "Deletes the Kubernetes Secret created for Postgres Exporter."
+      - "Use this for Kubernetes deployments during TLS cleanup."
+    options:
+      k8s_namespace:
+        type: str
+        required: true
+        description:
+          - "Sets the Kubernetes namespace that contains the Postgres Exporter Secret."
+          - "Example: C(fabric-x)."
+      postgres_exporter_k8s_resource_name:
+        type: str
+        description:
+          - "Sets the Kubernetes resource base name for the Secret."
+          - "This defaults to the current inventory host name."
+
+  prometheus/get_scrapers:
+    short_description: Build Prometheus scrape targets for Postgres Exporter
+    description:
+      - "Builds Prometheus scrape service definitions for a list of Postgres Exporter hosts."
+      - "Use this from monitoring configuration playbooks before rendering the Prometheus config."
+    options:
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - "Points to the control-node directory that stores fetched exporter TLS artifacts."
+          - "Example: C(/tmp/fetched)."
+      postgres_exporter_hosts:
+        type: list
+        elements: str
+        required: true
+        description:
+          - "Lists the inventory hosts running Postgres Exporter that should be scraped by Prometheus."
+          - "Example: C(['monitoring-exporter-1'])."
