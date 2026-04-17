@@ -1,0 +1,27 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check if node_exporter_hosts required variable is set
+  ansible.builtin.fail:
+    msg: "The variable 'node_exporter_hosts' must be defined to use this role. It must contain the list of hosts devoted for the Node Exporters."
+  when:
+    - node_exporter_hosts is not defined
+
+- name: Set Prometheus scrape services for Node Exporters
+  vars:
+    node_exporter_scrape_service:
+      job_name: "node_exporter.{{ current_node_exporter }}"
+      use_tls: "{{ hostvars[current_node_exporter].node_exporter_use_tls | default(false) }}"
+      tls_ca_file: "{{ fetched_artifacts_dir }}/{{ current_node_exporter }}/tls/ca.crt"
+      targets:
+        - hosts: "{{ [current_node_exporter] }}"
+          port_to_scrape: node_exporter_port
+  ansible.builtin.set_fact:
+    node_exporter_prometheus_scrape_services: "{{ (node_exporter_prometheus_scrape_services | default([])) + [node_exporter_scrape_service] }}"
+  loop: "{{ node_exporter_hosts }}"
+  loop_control:
+    loop_var: current_node_exporter
+    label: "{{ current_node_exporter }}"
