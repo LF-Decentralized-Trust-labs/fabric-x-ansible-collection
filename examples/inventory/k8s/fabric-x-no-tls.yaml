@@ -341,6 +341,7 @@ all:
           loadgen_rpc_port: 12020
           loadgen_k8s_use_node_port: true
           loadgen_k8s_web_node_port: 30610
+          loadgen_k8s_metrics_node_port: 30620
 
     # =========================
     # Monitoring Infra
