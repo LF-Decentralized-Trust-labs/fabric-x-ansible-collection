@@ -1,0 +1,761 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+argument_specs:
+
+  ping:
+    short_description: Check PostgreSQL reachability
+    description:
+      - Validates that the PostgreSQL port is reachable on the target host.
+      - Also invokes the postgres_exporter health check when C(postgres_exporter_port) is set for the host.
+    options:
+      postgres_port:
+        type: int
+        required: true
+        description:
+          - PostgreSQL listener port to probe on the target host.
+          - "Example: C(5432)."
+
+  start:
+    short_description: Start PostgreSQL
+    description:
+      - Starts PostgreSQL using the role-selected deployment mode.
+      - Set either container or Kubernetes mode through the role defaults or inventory.
+    options:
+      postgres_use_k8s:
+        type: bool
+        required: false
+        default: false
+        description: Run PostgreSQL on Kubernetes when set to C(true).
+      postgres_use_container:
+        type: bool
+        required: false
+        default: "{{ not postgres_use_k8s }}"
+        description: Run PostgreSQL as a container when set to C(true).
+
+  container/start:
+    short_description: Start PostgreSQL in a container
+    description:
+      - Creates the required data volume and starts the PostgreSQL container.
+      - Configures TLS and mTLS flags when those features are enabled.
+    options:
+      postgres_container_name:
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description: Container name for the PostgreSQL instance.
+      postgres_image:
+        type: str
+        required: false
+        default: "{{ postgres_registry_endpoint }}/{{ postgres_image_name }}:{{ postgres_image_tag }}"
+        description: Full container image reference for PostgreSQL.
+      postgres_registry_endpoint:
+        type: str
+        required: false
+        default: "{{ lookup('env', 'POSTGRES_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
+        description: Container registry endpoint used to build C(postgres_image).
+      postgres_image_name:
+        type: str
+        required: false
+        default: postgres
+        description: PostgreSQL image repository name.
+      postgres_image_tag:
+        type: str
+        required: false
+        default: "16.4"
+        description: PostgreSQL image tag.
+      postgres_remote_data_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory used for PostgreSQL persistent data.
+          - This role default delegates to outer C(remote_data_dir).
+      postgres_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory used for PostgreSQL configuration and TLS files.
+          - This role default delegates to outer C(remote_config_dir).
+      postgres_container_data_dir:
+        type: path
+        required: false
+        default: /var/lib/postgresql/data
+        description: Data directory path inside the PostgreSQL container.
+      postgres_container_config_dir:
+        type: path
+        required: false
+        default: /var/lib/postgresql/config
+        description: Configuration directory path inside the PostgreSQL container.
+      postgres_db:
+        type: str
+        required: true
+        description:
+          - Database name created during container initialization.
+          - "Example: C(fabricx)."
+      postgres_user:
+        type: str
+        required: true
+        description:
+          - Database user created during container initialization.
+          - "Example: C(postgres)."
+      postgres_password:
+        type: str
+        required: true
+        description:
+          - Password for C(postgres_user) used during container initialization.
+          - This value should be stored in an Ansible Vault.
+      postgres_port:
+        type: int
+        required: true
+        description:
+          - PostgreSQL listener port exposed by the container.
+          - "Example: C(5432)."
+      postgres_use_tls:
+        type: bool
+        required: false
+        default: false
+        description: Enable server-side TLS for PostgreSQL.
+      postgres_use_mtls:
+        type: bool
+        required: false
+        default: false
+        description: Enable mutual TLS and C(pg_hba.conf) enforcement for PostgreSQL clients.
+      postgres_tls_private_key_file:
+        type: path
+        required: false
+        default: server.key
+        description: Filename of the PostgreSQL TLS private key under the TLS config directory.
+      postgres_tls_cert_file:
+        type: path
+        required: false
+        default: server.crt
+        description: Filename of the PostgreSQL TLS certificate under the TLS config directory.
+      postgres_mtls_clients:
+        type: list
+        elements: str
+        required: false
+        description: List of client artifact names whose certificates are assembled into the PostgreSQL mTLS CA bundle.
+      postgres_extra_cmd_opts:
+        type: str
+        required: false
+        description: Additional PostgreSQL command-line options appended to the container start command.
+
+  k8s/start:
+    short_description: Start PostgreSQL on Kubernetes
+    description:
+      - Ensures the Kubernetes namespace exists and applies the PostgreSQL Service and StatefulSet resources.
+      - Uses the role templates to configure storage, credentials, TLS, and optional mTLS mounts.
+    options:
+      postgres_k8s_resource_name:
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description: Base Kubernetes resource name used for the PostgreSQL Service, Secret, ConfigMap, and StatefulSet.
+      postgres_k8s_wait_timeout:
+        type: int
+        required: false
+        default: 120
+        description: Timeout in seconds while waiting for the StatefulSet rollout to complete.
+      postgres_k8s_fs_group:
+        type: int
+        required: false
+        default: 999
+        description: Kubernetes pod fsGroup applied so mounted files are readable by the postgres process.
+      postgres_k8s_port_node_port:
+        type: int
+        required: false
+        default: "{{ postgres_port }}"
+        description: Kubernetes NodePort value used by the external PostgreSQL Service.
+      postgres_image:
+        type: str
+        required: false
+        default: "{{ postgres_registry_endpoint }}/{{ postgres_image_name }}:{{ postgres_image_tag }}"
+        description: Full container image reference for PostgreSQL.
+      postgres_registry_endpoint:
+        type: str
+        required: false
+        default: "{{ lookup('env', 'POSTGRES_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
+        description: Container registry endpoint used to build C(postgres_image).
+      postgres_image_name:
+        type: str
+        required: false
+        default: postgres
+        description: PostgreSQL image repository name.
+      postgres_image_tag:
+        type: str
+        required: false
+        default: "16.4"
+        description: PostgreSQL image tag.
+      postgres_container_config_dir:
+        type: path
+        required: false
+        default: /var/lib/postgresql/config
+        description: Configuration directory path inside the PostgreSQL container.
+      postgres_container_data_dir:
+        type: path
+        required: false
+        default: /var/lib/postgresql/data
+        description: Data directory path inside the PostgreSQL container.
+      postgres_tls_private_key_file:
+        type: path
+        required: false
+        default: server.key
+        description: Filename of the PostgreSQL TLS private key mounted into the pod.
+      postgres_tls_cert_file:
+        type: path
+        required: false
+        default: server.crt
+        description: Filename of the PostgreSQL TLS certificate mounted into the pod.
+      postgres_db:
+        type: str
+        required: true
+        description:
+          - Database name exposed to the PostgreSQL container.
+          - "Example: C(fabricx)."
+      postgres_user:
+        type: str
+        required: true
+        description:
+          - Database user exposed to the PostgreSQL container.
+          - "Example: C(postgres)."
+      postgres_password:
+        type: str
+        required: true
+        description:
+          - Password for C(postgres_user) stored in the PostgreSQL Secret.
+          - This value should be stored in an Ansible Vault.
+      postgres_port:
+        type: int
+        required: true
+        description:
+          - PostgreSQL listener port exposed through the Service and container.
+          - "Example: C(5432)."
+      postgres_use_tls:
+        type: bool
+        required: false
+        default: false
+        description: Enable server-side TLS mounts and PostgreSQL TLS flags in the pod.
+      postgres_use_mtls:
+        type: bool
+        required: false
+        default: false
+        description: Enable mutual TLS mounts and PostgreSQL mTLS configuration in the pod.
+      postgres_mtls_clients:
+        type: list
+        elements: str
+        required: false
+        description: List of client artifact names whose certificates are assembled into the PostgreSQL mTLS ConfigMap.
+      postgres_extra_cmd_opts:
+        type: str
+        required: false
+        description: Additional PostgreSQL command-line options appended to the pod start command.
+      k8s_storage_size:
+        type: str
+        required: true
+        description:
+          - Requested persistent storage size for the PostgreSQL PVC.
+          - "Example: C(500Mi)."
+      k8s_storage_class:
+        type: str
+        required: false
+        description: Kubernetes storage class name for the PostgreSQL PVC when a non-default class is required.
+      k8s_image_pull_secret:
+        type: str
+        required: false
+        description: Existing Kubernetes imagePullSecret name used when the PostgreSQL image is stored in a private registry.
+      k8s_readiness_probe_initial_delay_seconds:
+        type: int
+        required: false
+        description: Override for the readiness probe initial delay in seconds. Defaults to C(10) in the template.
+      k8s_readiness_probe_period_seconds:
+        type: int
+        required: false
+        description: Override for the readiness probe period in seconds. Defaults to C(10) in the template.
+      k8s_readiness_probe_timeout_seconds:
+        type: int
+        required: false
+        description: Override for the readiness probe timeout in seconds. Defaults to C(5) in the template.
+      k8s_readiness_probe_failure_threshold:
+        type: int
+        required: false
+        description: Override for the readiness probe failure threshold. Defaults to C(3) in the template.
+      k8s_liveness_probe_initial_delay_seconds:
+        type: int
+        required: false
+        description: Override for the liveness probe initial delay in seconds. Defaults to C(30) in the template.
+      k8s_liveness_probe_period_seconds:
+        type: int
+        required: false
+        description: Override for the liveness probe period in seconds. Defaults to C(15) in the template.
+      k8s_liveness_probe_timeout_seconds:
+        type: int
+        required: false
+        description: Override for the liveness probe timeout in seconds. Defaults to C(5) in the template.
+      k8s_liveness_probe_failure_threshold:
+        type: int
+        required: false
+        description: Override for the liveness probe failure threshold. Defaults to C(5) in the template.
+
+  stop:
+    short_description: Stop PostgreSQL
+    description:
+      - Stops PostgreSQL when it is running in container mode.
+      - Kubernetes deployments are removed through the teardown entry points instead of this task.
+    options:
+      postgres_use_container:
+        type: bool
+        required: false
+        default: "{{ not postgres_use_k8s }}"
+        description: Stop the PostgreSQL container when set to C(true).
+
+  container/stop:
+    short_description: Stop the PostgreSQL container
+    description:
+      - Stops the PostgreSQL container instance.
+      - Uses the container helper role internally.
+    options:
+      postgres_container_name:
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description: Container name for the PostgreSQL instance.
+
+  teardown:
+    short_description: Remove PostgreSQL runtime resources
+    description:
+      - Removes PostgreSQL runtime resources for the selected deployment mode.
+      - Also removes persistent data resources through the C(data/rm) entry point.
+    options:
+      postgres_use_k8s:
+        type: bool
+        required: false
+        default: false
+        description: Remove the PostgreSQL Kubernetes resources when set to C(true).
+      postgres_use_container:
+        type: bool
+        required: false
+        default: "{{ not postgres_use_k8s }}"
+        description: Remove the PostgreSQL container when set to C(true).
+
+  container/rm:
+    short_description: Remove the PostgreSQL container
+    description:
+      - Removes the PostgreSQL container instance.
+      - Container volumes are handled separately by the C(data/rm) entry point.
+    options:
+      postgres_container_name:
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description: Container name for the PostgreSQL instance.
+
+  k8s/rm:
+    short_description: Remove PostgreSQL Kubernetes resources
+    description:
+      - Deletes the PostgreSQL StatefulSet and Service resources from Kubernetes.
+      - The persistent volume claim is removed separately by the C(data/rm) entry point.
+    options:
+      postgres_k8s_resource_name:
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description: Base Kubernetes resource name used for the PostgreSQL Service and StatefulSet.
+
+  data/rm:
+    short_description: Remove PostgreSQL data storage
+    description:
+      - Removes the PostgreSQL persistent data directory in container deployments.
+      - Deletes the PostgreSQL PVC in Kubernetes deployments.
+    options:
+      postgres_use_container:
+        type: bool
+        required: false
+        default: "{{ not postgres_use_k8s }}"
+        description: Remove the PostgreSQL container data directory when set to C(true).
+      postgres_use_k8s:
+        type: bool
+        required: false
+        default: false
+        description: Remove the PostgreSQL PVC when set to C(true).
+      postgres_remote_data_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory used for PostgreSQL persistent data.
+          - This role default delegates to outer C(remote_data_dir).
+
+  wipe:
+    short_description: Wipe PostgreSQL data and configuration
+    description:
+      - Removes PostgreSQL runtime resources, TLS materials, and configuration files.
+      - Uses the teardown, crypto cleanup, and config cleanup entry points in sequence.
+    options: {}
+
+  crypto/rm:
+    short_description: Remove PostgreSQL TLS materials
+    description:
+      - Deletes PostgreSQL TLS files from the remote host when TLS is enabled.
+      - Also removes the Kubernetes Secret used for TLS materials when Kubernetes mode is enabled.
+    options:
+      postgres_use_tls:
+        type: bool
+        required: false
+        default: false
+        description: Remove PostgreSQL TLS files when set to C(true).
+      postgres_use_k8s:
+        type: bool
+        required: false
+        default: false
+        description: Remove the PostgreSQL Kubernetes Secret when set to C(true).
+      postgres_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory used for PostgreSQL configuration and TLS files.
+          - This role default delegates to outer C(remote_config_dir).
+      postgres_tls_private_key_file:
+        type: path
+        required: false
+        default: server.key
+        description: Filename of the PostgreSQL TLS private key under the TLS config directory.
+
+  k8s/crypto/rm:
+    short_description: Remove the PostgreSQL Kubernetes Secret
+    description:
+      - Deletes the Kubernetes Secret that stores PostgreSQL credentials and TLS materials.
+      - This entry point is typically invoked from the PostgreSQL crypto cleanup workflow.
+    options:
+      postgres_k8s_resource_name:
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description: Base Kubernetes resource name used for the PostgreSQL Secret.
+
+  config/rm:
+    short_description: Remove PostgreSQL configuration
+    description:
+      - Deletes PostgreSQL configuration files from the remote host.
+      - Also removes the PostgreSQL ConfigMap when Kubernetes mode is enabled.
+    options:
+      postgres_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory used for PostgreSQL configuration and TLS files.
+          - This role default delegates to outer C(remote_config_dir).
+      postgres_use_k8s:
+        type: bool
+        required: false
+        default: false
+        description: Remove the PostgreSQL Kubernetes ConfigMap when set to C(true).
+
+  k8s/config/rm:
+    short_description: Remove the PostgreSQL Kubernetes ConfigMap
+    description:
+      - Deletes the Kubernetes ConfigMap that stores PostgreSQL mTLS configuration.
+      - This entry point is typically invoked from the PostgreSQL config cleanup workflow.
+    options:
+      postgres_k8s_resource_name:
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description: Base Kubernetes resource name used for the PostgreSQL ConfigMap.
+
+  fetch_logs:
+    short_description: Fetch PostgreSQL logs
+    description:
+      - Collects PostgreSQL logs from the selected deployment mode.
+      - Delegates to either the container or Kubernetes log collection entry point.
+    options:
+      postgres_use_k8s:
+        type: bool
+        required: false
+        default: false
+        description: Collect PostgreSQL pod logs when set to C(true).
+      postgres_use_container:
+        type: bool
+        required: false
+        default: "{{ not postgres_use_k8s }}"
+        description: Collect PostgreSQL container logs when set to C(true).
+
+  container/fetch_logs:
+    short_description: Fetch PostgreSQL container logs
+    description:
+      - Collects logs from the PostgreSQL container instance.
+      - Uses the container helper role internally.
+    options:
+      postgres_container_name:
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description: Container name for the PostgreSQL instance.
+
+  k8s/fetch_logs:
+    short_description: Fetch PostgreSQL pod logs
+    description:
+      - Collects logs from the PostgreSQL pod in Kubernetes.
+      - Selects pods using the PostgreSQL application label.
+    options:
+      postgres_k8s_resource_name:
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description: Base Kubernetes resource name used in the PostgreSQL pod label selector.
+
+  crypto/setup:
+    short_description: Prepare PostgreSQL TLS materials
+    description:
+      - Selects the PostgreSQL TLS generation path for OpenSSL, cryptogen, or Fabric CA.
+      - Also applies the Kubernetes Secret when Kubernetes mode is enabled.
+    options:
+      postgres_use_tls:
+        type: bool
+        required: false
+        default: false
+        description: Enable PostgreSQL TLS setup.
+      postgres_use_k8s:
+        type: bool
+        required: false
+        default: false
+        description: Apply the PostgreSQL Kubernetes Secret when set to C(true).
+      organization:
+        type: dict
+        required: false
+        description:
+          - Fabric organization configuration used to resolve peer identities and Fabric CA enrollment inputs for PostgreSQL TLS setup.
+          - Required when PostgreSQL TLS is sourced from cryptogen or Fabric CA.
+
+  crypto/openssl/generate_cert:
+    short_description: Generate PostgreSQL TLS materials with OpenSSL
+    description:
+      - Generates a self-signed TLS keypair for PostgreSQL on the target host.
+      - Used when PostgreSQL TLS is enabled without a peer organization definition.
+    options:
+      postgres_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory used for PostgreSQL configuration and TLS files.
+          - This role default delegates to outer C(remote_config_dir).
+      postgres_tls_private_key_file:
+        type: path
+        required: false
+        default: server.key
+        description: Filename of the PostgreSQL TLS private key under the TLS config directory.
+      postgres_tls_cert_file:
+        type: path
+        required: false
+        default: server.crt
+        description: Filename of the PostgreSQL TLS certificate under the TLS config directory.
+      organization:
+        type: dict
+        required: false
+        description:
+          - Fabric organization configuration used to derive the certificate organization name.
+          - Optional for self-signed PostgreSQL TLS generation.
+
+  crypto/cryptogen/transfer:
+    short_description: Transfer PostgreSQL TLS materials from cryptogen
+    description:
+      - Copies PostgreSQL TLS files generated by cryptogen from the control node to the target host.
+      - Used when PostgreSQL belongs to a peer organization without a Fabric CA host.
+    options:
+      postgres_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory used for PostgreSQL configuration and TLS files.
+          - This role default delegates to outer C(remote_config_dir).
+      postgres_tls_private_key_file:
+        type: path
+        required: false
+        default: server.key
+        description: Filename of the PostgreSQL TLS private key under the TLS config directory.
+      postgres_tls_cert_file:
+        type: path
+        required: false
+        default: server.crt
+        description: Filename of the PostgreSQL TLS certificate under the TLS config directory.
+      cryptogen_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - Control-node directory containing cryptogen output for the PostgreSQL organization.
+          - "Example: C(/tmp/fabricx/cryptogen-artifacts)."
+      organization:
+        type: dict
+        required: true
+        description:
+          - Fabric organization configuration used to resolve the source peer TLS paths.
+          - Must include the peer domain and peer identity details needed by cryptogen-generated artifacts.
+
+  crypto/fabric_ca/enroll:
+    short_description: Enroll PostgreSQL with Fabric CA for TLS
+    description:
+      - Enrolls PostgreSQL through Fabric CA to generate TLS materials on the target host.
+      - Requires the organization definition to reference a Fabric CA host and peer identity.
+    options:
+      postgres_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory used for PostgreSQL configuration and TLS files.
+          - This role default delegates to outer C(remote_config_dir).
+      postgres_tls_private_key_file:
+        type: path
+        required: false
+        default: server.key
+        description: Filename of the PostgreSQL TLS private key generated for PostgreSQL.
+      postgres_tls_cert_file:
+        type: path
+        required: false
+        default: server.crt
+        description: Filename of the PostgreSQL TLS certificate generated for PostgreSQL.
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - Control-node directory containing fetched TLS CA certificates for the Fabric organization.
+          - "Example: C(/tmp/fabricx/fetched-artifacts)."
+      organization:
+        type: dict
+        required: true
+        description:
+          - Fabric organization configuration used to resolve the Fabric CA host and peer enrollment identity.
+          - The referenced enrollment secret should be stored in an Ansible Vault.
+
+  k8s/crypto/transfer:
+    short_description: Apply the PostgreSQL Kubernetes Secret
+    description:
+      - Applies the Kubernetes Secret that stores PostgreSQL credentials and optional TLS materials.
+      - Ensures the Kubernetes namespace exists before applying the Secret.
+    options:
+      postgres_k8s_resource_name:
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description: Base Kubernetes resource name used for the PostgreSQL Secret.
+      postgres_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory used for PostgreSQL configuration and TLS files.
+          - This role default delegates to outer C(remote_config_dir).
+      postgres_tls_private_key_file:
+        type: path
+        required: false
+        default: server.key
+        description: Filename of the PostgreSQL TLS private key read into the Kubernetes Secret.
+      postgres_tls_cert_file:
+        type: path
+        required: false
+        default: server.crt
+        description: Filename of the PostgreSQL TLS certificate read into the Kubernetes Secret.
+      postgres_user:
+        type: str
+        required: true
+        description:
+          - Database user stored in the PostgreSQL Secret.
+          - "Example: C(postgres)."
+      postgres_password:
+        type: str
+        required: true
+        description:
+          - Password for C(postgres_user) stored in the PostgreSQL Secret.
+          - This value should be stored in an Ansible Vault.
+      postgres_db:
+        type: str
+        required: true
+        description:
+          - Database name stored in the PostgreSQL Secret.
+          - "Example: C(fabricx)."
+      postgres_use_tls:
+        type: bool
+        required: false
+        default: false
+        description: Include PostgreSQL TLS files in the Kubernetes Secret when set to C(true).
+
+  config/transfer:
+    short_description: Transfer PostgreSQL configuration
+    description:
+      - Ensures the PostgreSQL configuration directory exists and prepares optional mTLS configuration.
+      - Also applies the PostgreSQL ConfigMap when Kubernetes mode is enabled.
+    options:
+      postgres_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory used for PostgreSQL configuration and TLS files.
+          - This role default delegates to outer C(remote_config_dir).
+      postgres_use_mtls:
+        type: bool
+        required: false
+        default: false
+        description: Generate PostgreSQL mTLS configuration when set to C(true).
+      postgres_mtls_clients:
+        type: list
+        elements: str
+        required: false
+        description: List of client artifact names whose certificates are assembled into the PostgreSQL mTLS CA bundle.
+      postgres_use_k8s:
+        type: bool
+        required: false
+        default: false
+        description: Apply the PostgreSQL Kubernetes ConfigMap when set to C(true).
+
+  config/mtls/transfer:
+    short_description: Transfer PostgreSQL mTLS configuration
+    description:
+      - Renders C(pg_hba.conf) and assembles the PostgreSQL client CA bundle used for mTLS.
+      - Copies client certificates from previously fetched artifacts on the control node.
+    options:
+      postgres_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory used for PostgreSQL configuration and TLS files.
+          - This role default delegates to outer C(remote_config_dir).
+      postgres_mtls_clients:
+        type: list
+        elements: str
+        required: true
+        description:
+          - List of client artifact names whose TLS certificates are copied into the PostgreSQL mTLS client bundle.
+          - "Example: C(['peer0-org1', 'peer1-org1'])."
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - Control-node directory containing fetched TLS certificates for mTLS clients.
+          - "Example: C(/tmp/fabricx/fetched-artifacts)."
+
+  k8s/config/transfer:
+    short_description: Apply the PostgreSQL Kubernetes ConfigMap
+    description:
+      - Applies the Kubernetes ConfigMap that stores PostgreSQL mTLS configuration files.
+      - Ensures the Kubernetes namespace exists before applying the ConfigMap.
+    options:
+      postgres_k8s_resource_name:
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description: Base Kubernetes resource name used for the PostgreSQL ConfigMap.
+      postgres_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory used for PostgreSQL configuration and TLS files.
+          - This role default delegates to outer C(remote_config_dir).
+      postgres_use_mtls:
+        type: bool
+        required: false
+        default: false
+        description: Include PostgreSQL mTLS configuration data in the ConfigMap when set to C(true).
+      postgres_mtls_clients:
+        type: list
+        elements: str
+        required: false
+        description: List of client artifact names whose certificates are assembled into the PostgreSQL mTLS ConfigMap bundle.
