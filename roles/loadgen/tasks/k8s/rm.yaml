@@ -11,12 +11,16 @@
     name: "{{ loadgen_k8s_resource_name }}"
     namespace: "{{ k8s_namespace }}"
 
-- name: Remove Fabric-X Loadgen Services
+- name: Remove Fabric-X Loadgen Service
   kubernetes.core.k8s:
     state: absent
     kind: Service
-    name: "{{ item }}"
+    name: "{{ loadgen_k8s_resource_name }}"
     namespace: "{{ k8s_namespace }}"
-  loop:
-    - "{{ loadgen_k8s_resource_name }}"
-    - "{{ loadgen_k8s_resource_name }}-nodeport"
+
+- name: Remove Fabric-X Loadgen NodePort Service
+  kubernetes.core.k8s:
+    state: absent
+    kind: Service
+    name: "{{ loadgen_k8s_resource_name }}-nodeport"
+    namespace: "{{ k8s_namespace }}"
