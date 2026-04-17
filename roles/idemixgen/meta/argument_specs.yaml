@@ -1,0 +1,258 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+argument_specs:
+
+  _shared_options:
+    options:
+      cli_bin_dir: &cli_bin_dir
+        type: path
+        required: true
+        description:
+          - "Sets the shared directory used by the binary execution path."
+      config_build_dir: &config_build_dir
+        type: path
+        required: true
+        description:
+          - "Sets the shared build root used by C(idemixgen_output_dir)."
+      idemixgen_bin_name: &idemixgen_bin_name
+        type: str
+        required: false
+        default: "idemixgen"
+        description:
+          - "Defines the idemixgen binary name."
+      idemixgen_bin_package: &idemixgen_bin_package
+        type: str
+        required: false
+        default: "{{ idemixgen_git_hub_url }}/{{ idemixgen_git_repo }}/{{ idemixgen_source_code_package }}"
+        description:
+          - "Defines the Go package path used to install idemixgen."
+          - "The default derives from C(idemixgen_git_hub_url), C(idemixgen_git_repo), and C(idemixgen_source_code_package)."
+      idemixgen_ca_input_dir: &idemixgen_ca_input_dir
+        type: path
+        required: true
+        description:
+          - "Sets the directory containing the CA material consumed by C(signerconfig)."
+      idemixgen_container_name: &idemixgen_container_name
+        type: str
+        required: false
+        default: "idemixgen-{{ inventory_hostname }}"
+        description:
+          - "Defines the container name used for the idemixgen run."
+          - "The default derives from C(inventory_hostname)."
+      idemixgen_container_output_dir: &idemixgen_container_output_dir
+        type: path
+        required: false
+        default: /tmp/out
+        description:
+          - "Sets the output directory path used inside the container."
+      idemixgen_curve_id: &idemixgen_curve_id
+        type: str
+        required: false
+        default: "BLS12_381_BBS"
+        description:
+          - "Selects the cryptographic curve passed to idemixgen."
+      idemixgen_enrollment_id: &idemixgen_enrollment_id
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Defines the enrollment identifier embedded in the signer configuration."
+          - "The default derives from C(inventory_hostname)."
+      idemixgen_git_commit: &idemixgen_git_commit
+        type: str
+        required: false
+        default: "v0.0.2"
+        description:
+          - "Pins the git ref used for the idemixgen binary install or build."
+      idemixgen_git_hub_url: &idemixgen_git_hub_url
+        type: str
+        required: false
+        default: "github.com"
+        description:
+          - "Defines the git hosting domain for the idemixgen source repository."
+      idemixgen_git_repo: &idemixgen_git_repo
+        type: str
+        required: false
+        default: "IBM/idemix"
+        description:
+          - "Defines the owner and repository path for the idemixgen source."
+      idemixgen_image: &idemixgen_image
+        type: str
+        required: false
+        default: "{{ idemixgen_registry_endpoint }}/{{ idemixgen_image_name }}:{{ idemixgen_image_tag }}"
+        description:
+          - "Defines the container image used to run idemixgen."
+          - "The default derives from C(idemixgen_registry_endpoint), C(idemixgen_image_name), and C(idemixgen_image_tag)."
+      idemixgen_image_name: &idemixgen_image_name
+        type: str
+        required: false
+        default: "fabric-x-tools"
+        description:
+          - "Defines the image name used for the idemixgen container."
+      idemixgen_image_tag: &idemixgen_image_tag
+        type: str
+        required: false
+        default: "0.0.14"
+        description:
+          - "Defines the image tag used for the idemixgen container."
+      idemixgen_output_dir: &idemixgen_output_dir
+        type: path
+        required: false
+        default: "{{ config_build_dir }}/idemixgen-artifacts"
+        description:
+          - "Sets the host directory where the generated artifacts are written."
+          - "The default derives from C(config_build_dir)."
+      idemixgen_org_domain: &idemixgen_org_domain
+        type: str
+        required: true
+        description:
+          - "Sets the organization unit passed to C(signerconfig)."
+      idemixgen_registry_endpoint: &idemixgen_registry_endpoint
+        type: str
+        required: false
+        default: "{{ lookup('env', 'IDEMIXGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+        description:
+          - "Defines the container registry used for the idemixgen image."
+          - "The default derives from C(IDEMIXGEN_REGISTRY_ENDPOINT) or C(docker.io/hyperledger)."
+      idemixgen_rev_handle: &idemixgen_rev_handle
+        type: int
+        required: false
+        default: "{{ range(100, 999) | random }}"
+        description:
+          - "Defines the revocation handle embedded in the signer configuration."
+          - "The default is a random integer from 100 to 998."
+      idemixgen_source_code_package: &idemixgen_source_code_package
+        type: str
+        required: false
+        default: "tools/idemixgen"
+        description:
+          - "Defines the source package path built into the idemixgen binary."
+      idemixgen_use_aries: &idemixgen_use_aries
+        type: bool
+        required: false
+        default: false
+        description:
+          - "Enables Aries-based Idemix material generation."
+      idemixgen_use_bin: &idemixgen_use_bin
+        type: bool
+        required: false
+        default: false
+        description:
+          - "Runs idemixgen through the locally installed binary instead of a container."
+
+  ca-keygen:
+    short_description: Dispatch Idemix CA key generation
+    description:
+      - "Runs Idemix CA key generation through the container or binary path."
+      - "Set C(idemixgen_use_bin) to choose the execution mode."
+    options:
+      idemixgen_use_bin: *idemixgen_use_bin
+
+  signerconfig:
+    short_description: Dispatch Idemix signer configuration generation
+    description:
+      - "Runs Idemix signer configuration generation through the container or binary path."
+      - "Set C(idemixgen_use_bin) to choose the execution mode."
+    options:
+      idemixgen_use_bin: *idemixgen_use_bin
+
+  bin/build:
+    short_description: Build the idemixgen binary
+    description:
+      - "Builds the idemixgen CLI from source on the control node."
+      - "This entry point passes the configured git source and package path to the shared binary builder."
+    options:
+      cli_bin_dir: *cli_bin_dir
+      idemixgen_bin_name: *idemixgen_bin_name
+      idemixgen_git_commit: *idemixgen_git_commit
+      idemixgen_git_hub_url: *idemixgen_git_hub_url
+      idemixgen_git_repo: *idemixgen_git_repo
+      idemixgen_source_code_package: *idemixgen_source_code_package
+
+  bin/install:
+    short_description: Install the idemixgen binary
+    description:
+      - "Installs the idemixgen CLI from the configured repository and commit."
+      - "This entry point is used before binary-mode execution."
+    options:
+      cli_bin_dir: *cli_bin_dir
+      idemixgen_bin_name: *idemixgen_bin_name
+      idemixgen_bin_package: *idemixgen_bin_package
+      idemixgen_git_commit: *idemixgen_git_commit
+      idemixgen_git_hub_url: *idemixgen_git_hub_url
+      idemixgen_git_repo: *idemixgen_git_repo
+      idemixgen_source_code_package: *idemixgen_source_code_package
+
+  bin/ca-keygen:
+    short_description: Generate Idemix CA key material with the binary
+    description:
+      - "Runs C(idemixgen ca-keygen) through the locally installed binary."
+      - "The task removes any existing CA and MSP output directories before generating fresh artifacts."
+    options:
+      cli_bin_dir: *cli_bin_dir
+      config_build_dir: *config_build_dir
+      idemixgen_bin_name: *idemixgen_bin_name
+      idemixgen_curve_id: *idemixgen_curve_id
+      idemixgen_output_dir: *idemixgen_output_dir
+      idemixgen_use_aries: *idemixgen_use_aries
+
+  bin/signerconfig:
+    short_description: Generate Idemix signer configuration with the binary
+    description:
+      - "Runs C(idemixgen signerconfig) through the locally installed binary."
+      - "The task removes any existing MSP and user output directories before generating fresh artifacts."
+    options:
+      cli_bin_dir: *cli_bin_dir
+      config_build_dir: *config_build_dir
+      idemixgen_bin_name: *idemixgen_bin_name
+      idemixgen_ca_input_dir: *idemixgen_ca_input_dir
+      idemixgen_curve_id: *idemixgen_curve_id
+      idemixgen_enrollment_id: *idemixgen_enrollment_id
+      idemixgen_org_domain: *idemixgen_org_domain
+      idemixgen_output_dir: *idemixgen_output_dir
+      idemixgen_rev_handle: *idemixgen_rev_handle
+      idemixgen_use_aries: *idemixgen_use_aries
+
+  container/ca-keygen:
+    short_description: Generate Idemix CA key material in a container
+    description:
+      - "Runs C(idemixgen ca-keygen) in the configured container image."
+      - "The task removes any existing CA and MSP output directories before generating fresh artifacts."
+    options:
+      config_build_dir: *config_build_dir
+      idemixgen_bin_name: *idemixgen_bin_name
+      idemixgen_container_name: *idemixgen_container_name
+      idemixgen_container_output_dir: *idemixgen_container_output_dir
+      idemixgen_curve_id: *idemixgen_curve_id
+      idemixgen_image: *idemixgen_image
+      idemixgen_image_name: *idemixgen_image_name
+      idemixgen_image_tag: *idemixgen_image_tag
+      idemixgen_output_dir: *idemixgen_output_dir
+      idemixgen_registry_endpoint: *idemixgen_registry_endpoint
+      idemixgen_use_aries: *idemixgen_use_aries
+
+  container/signerconfig:
+    short_description: Generate Idemix signer configuration in a container
+    description:
+      - "Runs C(idemixgen signerconfig) in the configured container image."
+      - "The task removes any existing MSP and user output directories before generating fresh artifacts."
+    options:
+      config_build_dir: *config_build_dir
+      idemixgen_bin_name: *idemixgen_bin_name
+      idemixgen_ca_input_dir: *idemixgen_ca_input_dir
+      idemixgen_container_name: *idemixgen_container_name
+      idemixgen_container_output_dir: *idemixgen_container_output_dir
+      idemixgen_curve_id: *idemixgen_curve_id
+      idemixgen_enrollment_id: *idemixgen_enrollment_id
+      idemixgen_image: *idemixgen_image
+      idemixgen_image_name: *idemixgen_image_name
+      idemixgen_image_tag: *idemixgen_image_tag
+      idemixgen_org_domain: *idemixgen_org_domain
+      idemixgen_output_dir: *idemixgen_output_dir
+      idemixgen_registry_endpoint: *idemixgen_registry_endpoint
+      idemixgen_rev_handle: *idemixgen_rev_handle
+      idemixgen_use_aries: *idemixgen_use_aries
