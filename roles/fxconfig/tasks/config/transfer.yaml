@@ -36,9 +36,6 @@
 # MSP material
 # =========================
 - name: Transfer the MSP material
-  vars:
-    current_organization: "{{ current_namespace.user.organization }}"
-    current_user: "{{ current_namespace.user }}"
   ansible.builtin.copy:
     src: "{{ fxconfig_msp_config_path }}"
     dest: "{{ fxconfig_remote_config_dir }}"
