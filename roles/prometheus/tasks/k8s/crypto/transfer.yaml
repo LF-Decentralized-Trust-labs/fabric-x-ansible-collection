@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists for Prometheus
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+# =========================
+# Secret (TLS only)
+# =========================
+- name: Apply Prometheus Secret
+  vars:
+    prometheus_k8s_tls_server_key_path: "{{ prometheus_remote_config_dir }}/tls/{{ prometheus_tls_private_key_file }}"
+    prometheus_k8s_tls_server_cert_path: "{{ prometheus_remote_config_dir }}/tls/{{ prometheus_tls_cert_file }}"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/secret.yaml.j2
+  when: prometheus_use_tls

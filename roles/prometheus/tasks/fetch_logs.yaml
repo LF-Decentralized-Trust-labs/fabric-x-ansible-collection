@@ -8,3 +8,10 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: container/fetch_logs
+  when: prometheus_use_container
+
+- name: Fetch Prometheus pod logs
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: k8s/fetch_logs
+  when: prometheus_use_k8s

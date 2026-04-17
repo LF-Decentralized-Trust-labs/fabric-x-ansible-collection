@@ -13,3 +13,9 @@
     tasks_from: crypto/openssl/generate_cert
   when:
     - prometheus_use_tls
+
+- name: Apply Prometheus K8s crypto Secret
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: k8s/crypto/transfer
+  when: prometheus_use_k8s

@@ -1,6 +1,6 @@
 # hyperledger.fabricx.prometheus
 
-> Runs a Prometheus metrics collector.
+> Runs a Prometheus metrics collector in container or Kubernetes mode.
 
 <!-- @depends_on: hyperledger.fabricx.openssl -->
 
@@ -20,7 +20,7 @@
     - [stop](#stop)
     - [teardown](#teardown)
     - [wipe](#wipe)
-    - [fetch_logs](#fetch_logs)
+    - [fetch\_logs](#fetch_logs)
     - [ping](#ping)
 - [Variables](#variables)
 
@@ -42,7 +42,7 @@
 
 #### crypto/setup
 
-Generates the crypto material needed to run Prometheus with TLS using [openssl](../openssl/README.md):
+Generates the crypto material needed to run Prometheus with TLS using [openssl](../openssl/README.md). When `prometheus_use_k8s` is enabled, it also applies the Kubernetes Secret that holds the server certificate and key:
 
 ```yaml
 - name: Setup the crypto material for Prometheus
@@ -82,7 +82,7 @@ Removes the crypto material generated for Prometheus:
 
 #### config/transfer
 
-Transfers the Prometheus configuration files on the remote node:
+Transfers the Prometheus configuration files on the remote node. When `prometheus_use_k8s` is enabled, it also applies the Kubernetes ConfigMap used by the StatefulSet:
 
 ```yaml
 - name: Transfer the Prometheus configuration files
@@ -104,18 +104,18 @@ Removes the Prometheus configuration files on the remote node:
 
 ### Lifecycle
 
-| Task                                  | Description                 |
-| ------------------------------------- | --------------------------- |
-| [start](./tasks/start.yaml)           | Starts Prometheus container |
-| [stop](./tasks/stop.yaml)             | Stops Prometheus container  |
-| [teardown](./tasks/teardown.yaml)     | Removes container           |
-| [wipe](./tasks/wipe.yaml)             | Removes all data            |
-| [fetch_logs](./tasks/fetch_logs.yaml) | Collects logs               |
-| [ping](./tasks/ping.yaml)             | Health check                |
+| Task                                  | Description                                          |
+| ------------------------------------- | ---------------------------------------------------- |
+| [start](./tasks/start.yaml)           | Starts Prometheus in the selected deployment mode    |
+| [stop](./tasks/stop.yaml)             | Stops Prometheus container mode                      |
+| [teardown](./tasks/teardown.yaml)     | Removes the workload in the selected deployment mode |
+| [wipe](./tasks/wipe.yaml)             | Removes all data                                     |
+| [fetch_logs](./tasks/fetch_logs.yaml) | Collects logs                                        |
+| [ping](./tasks/ping.yaml)             | Health check                                         |
 
 #### start
 
-Starts the Prometheus container:
+Starts Prometheus in the selected deployment mode. Set `prometheus_use_k8s: true` to deploy a StatefulSet, headless Service, and NodePort Service on Kubernetes; otherwise the role starts the container-based deployment:
 
 ```yaml
 - name: Start Prometheus
@@ -126,7 +126,7 @@ Starts the Prometheus container:
 
 #### stop
 
-Stops the Prometheus container:
+Stops the Prometheus container when container mode is enabled:
 
 ```yaml
 - name: Stop Prometheus
@@ -137,7 +137,7 @@ Stops the Prometheus container:
 
 #### teardown
 
-Removes the Prometheus container:
+Removes the Prometheus container or Kubernetes workload, then removes the data:
 
 ```yaml
 - name: Teardown Prometheus
@@ -159,7 +159,7 @@ Removes all Prometheus data:
 
 #### fetch_logs
 
-Collects Prometheus logs:
+Collects Prometheus logs from the container or Kubernetes pod, depending on the selected deployment mode:
 
 ```yaml
 - name: Fetch Prometheus logs

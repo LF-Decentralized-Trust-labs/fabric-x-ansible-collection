@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists for Grafana
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+# =========================
+# Apply ConfigMap
+# =========================
+- name: Apply Grafana ConfigMap
+  vars:
+    grafana_k8s_datasources_path: "{{ grafana_remote_config_dir }}/datasources/{{ grafana_datasource_file }}"
+    grafana_k8s_dashboards_path: "{{ grafana_remote_config_dir }}/dashboards/{{ grafana_dashboards_file }}"
+    grafana_k8s_prometheus_ca_path: "{{ grafana_remote_config_dir }}/tls/{{ prometheus_host }}/ca.crt"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/configmap.yaml.j2

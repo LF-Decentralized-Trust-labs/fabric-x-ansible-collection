@@ -1,6 +1,6 @@
 # hyperledger.fabricx.grafana
 
-> Runs a Grafana instance to visualize Fabric-X component metrics.
+> Runs a Grafana instance to visualize Fabric-X component metrics in container or Kubernetes mode.
 
 <!-- @depends_on: hyperledger.fabricx.openssl, hyperledger.fabricx.prometheus -->
 
@@ -20,7 +20,7 @@
     - [stop](#stop)
     - [teardown](#teardown)
     - [wipe](#wipe)
-    - [fetch_logs](#fetch_logs)
+    - [fetch\_logs](#fetch_logs)
     - [ping](#ping)
 - [Variables](#variables)
 
@@ -43,7 +43,7 @@
 
 #### crypto/setup
 
-Generates the crypto material needed to run Grafana with TLS using [openssl](../openssl/README.md):
+Generates the crypto material needed to run Grafana with TLS using [openssl](../openssl/README.md). When `grafana_use_k8s` is enabled, it also applies the Kubernetes Secret that holds the admin credentials and optional TLS material:
 
 ```yaml
 - name: Setup the crypto material for Grafana
@@ -83,7 +83,7 @@ Removes the crypto material generated for Grafana:
 
 #### config/transfer
 
-Transfers the Grafana configuration files on the remote node:
+Transfers the Grafana configuration files on the remote node. When `grafana_use_k8s` is enabled, it also applies the Kubernetes ConfigMap used by the Deployment:
 
 ```yaml
 - name: Transfer the Grafana configuration files
@@ -105,23 +105,21 @@ Removes the Grafana configuration files on the remote node:
 
 ### Lifecycle
 
-| Task                                  | Description              |
-| ------------------------------------- | ------------------------ |
-| [start](./tasks/start.yaml)           | Starts Grafana container |
-| [stop](./tasks/stop.yaml)             | Stops Grafana container  |
-| [teardown](./tasks/teardown.yaml)     | Removes container        |
-| [wipe](./tasks/wipe.yaml)             | Removes all data         |
-| [fetch_logs](./tasks/fetch_logs.yaml) | Collects logs            |
-| [ping](./tasks/ping.yaml)             | Health check             |
+| Task                                  | Description                                          |
+| ------------------------------------- | ---------------------------------------------------- |
+| [start](./tasks/start.yaml)           | Starts Grafana in the selected deployment mode       |
+| [stop](./tasks/stop.yaml)             | Stops Grafana container mode                         |
+| [teardown](./tasks/teardown.yaml)     | Removes the workload in the selected deployment mode |
+| [wipe](./tasks/wipe.yaml)             | Removes all data                                     |
+| [fetch_logs](./tasks/fetch_logs.yaml) | Collects logs                                        |
+| [ping](./tasks/ping.yaml)             | Health check                                         |
 
 #### start
 
-Starts the Grafana container:
+Starts Grafana in the selected deployment mode. Set `grafana_use_k8s: true` to deploy a Service, NodePort Service, and Deployment on Kubernetes; otherwise the role starts the container-based deployment:
 
 ```yaml
 - name: Start Grafana
-  vars:
-    grafana_web_port: 3000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
     tasks_from: start
@@ -129,7 +127,7 @@ Starts the Grafana container:
 
 #### stop
 
-Stops the Grafana container:
+Stops the Grafana container when container mode is enabled:
 
 ```yaml
 - name: Stop Grafana
@@ -140,7 +138,7 @@ Stops the Grafana container:
 
 #### teardown
 
-Removes the Grafana container:
+Removes the Grafana container or Kubernetes workload:
 
 ```yaml
 - name: Teardown Grafana
@@ -162,7 +160,7 @@ Removes all Grafana data:
 
 #### fetch_logs
 
-Collects Grafana logs:
+Collects Grafana logs from the container or Kubernetes pod, depending on the selected deployment mode:
 
 ```yaml
 - name: Fetch Grafana logs

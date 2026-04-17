@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # Headless Service required by the StatefulSet for stable DNS-based pod addressing.
+  name: {{ prometheus_k8s_resource_name }}
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ prometheus_k8s_resource_name }}
+    app.kubernetes.io/part-of: prometheus
+spec:
+  # clusterIP: None makes this a headless Service so DNS resolves directly to the pod IP.
+  clusterIP: None
+  # Publish addresses before readiness to avoid bootstrap deadlocks around service DNS.
+  publishNotReadyAddresses: true
+  selector:
+    app.kubernetes.io/name: {{ prometheus_k8s_resource_name }}
+  ports:
+    - name: http
+      port: {{ prometheus_port }}
+      targetPort: {{ prometheus_port }}

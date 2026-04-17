@@ -33,3 +33,18 @@ grafana_tls_cert_file: server.crt
 # Miscellaneous
 # =========================
 grafana_web_port: 3000
+
+# =========================
+# Deployment Mode
+# =========================
+grafana_use_k8s: false
+grafana_use_container: "{{ not grafana_use_k8s }}"
+
+# =========================
+# Kubernetes
+# =========================
+grafana_k8s_resource_name: "{{ inventory_hostname }}"
+grafana_k8s_wait_timeout: 120
+grafana_k8s_fs_group: 472
+
+grafana_k8s_web_node_port: "{{ grafana_web_port }}"

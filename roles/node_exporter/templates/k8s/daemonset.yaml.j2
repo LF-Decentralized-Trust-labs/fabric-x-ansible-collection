@@ -24,17 +24,23 @@ spec:
         app.kubernetes.io/component: node-exporter
         app.kubernetes.io/part-of: monitoring
     spec:
+      # Tolerate all taints so node-exporter runs on every node in the cluster,
+      # including control-plane and tainted worker nodes.
       tolerations:
         - operator: Exists
-      securityContext:
-        # Ensures files mounted from Secrets and ConfigMaps are readable by
-        # the node-exporter process running as a non-root user inside the container.
-        fsGroup: {{ node_exporter_k8s_fs_group }}
       containers:
         - name: node-exporter
           image: {{ node_exporter_image }}
+          # Must run as root so node-exporter can read all host paths
+          # (e.g. /var/lib/kubelet/pods/*/volumes). Running as non-root
+          # results in permission denied errors and missing metrics.
+          securityContext:
+            runAsUser: 0
+            runAsNonRoot: false
           args:
             - --web.listen-address=:{{ node_exporter_port }}
+            # Point node-exporter at the host filesystem mounts so it reports
+            # host-level metrics rather than container-level metrics.
             - --path.rootfs=/host/root
             - --path.procfs=/host/proc
             - --path.sysfs=/host/sys
@@ -46,24 +52,30 @@ spec:
               containerPort: {{ node_exporter_port }}
               protocol: TCP
           volumeMounts:
+            # Host root filesystem — needed by collectors such as filesystem and diskstats.
             - name: host-root
               mountPath: /host/root
               readOnly: true
+            # Host /proc — needed for process, CPU, memory, and network collectors.
             - name: host-proc
               mountPath: /host/proc
               readOnly: true
+            # Host /sys — needed for hardware (CPU frequency, block device) collectors.
             - name: host-sys
               mountPath: /host/sys
               readOnly: true
 {% if node_exporter_use_tls %}
+            # TLS server certificate.
             - name: secret
               mountPath: {{ node_exporter_container_config_dir }}/tls/{{ node_exporter_tls_cert_file }}
               subPath: {{ node_exporter_tls_cert_file }}
               readOnly: true
+            # TLS private key.
             - name: secret
               mountPath: {{ node_exporter_container_config_dir }}/tls/{{ node_exporter_tls_private_key_file }}
               subPath: {{ node_exporter_tls_private_key_file }}
               readOnly: true
+            # Web config (TLS settings, optional basic auth).
             - name: config
               mountPath: {{ node_exporter_container_config_dir }}/{{ node_exporter_web_config_file }}
               subPath: {{ node_exporter_web_config_file }}
@@ -86,22 +98,27 @@ spec:
             failureThreshold: {{ k8s_liveness_probe_failure_threshold | default(5) }}
             successThreshold: 1
       volumes:
+        # Mount the host root filesystem under /host/root (read-only).
         - name: host-root
           hostPath:
             path: /
             type: Directory
+        # Mount the host /proc under /host/proc (read-only).
         - name: host-proc
           hostPath:
             path: /proc
             type: Directory
+        # Mount the host /sys under /host/sys (read-only).
         - name: host-sys
           hostPath:
             path: /sys
             type: Directory
+        # ConfigMap holds the web config file (TLS/auth settings).
         - name: config
           configMap:
             name: {{ node_exporter_k8s_resource_name }}
             defaultMode: 0640
+        # Secret holds the TLS certificate and private key.
         - name: secret
           secret:
             secretName: {{ node_exporter_k8s_resource_name }}

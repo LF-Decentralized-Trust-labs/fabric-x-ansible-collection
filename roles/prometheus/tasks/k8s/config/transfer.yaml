@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists for Prometheus
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+# =========================
+# ConfigMap
+# =========================
+- name: Apply Prometheus ConfigMap
+  vars:
+    prometheus_k8s_config_path: "{{ prometheus_remote_config_dir }}/{{ prometheus_config_file }}"
+    prometheus_k8s_web_config_path: "{{ prometheus_remote_config_dir }}/{{ prometheus_web_config_file }}"
+    prometheus_k8s_http_config_path: "{{ prometheus_remote_config_dir }}/{{ prometheus_http_config_file }}"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/configmap.yaml.j2
