@@ -1,0 +1,275 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+argument_specs:
+
+  _shared_options:
+    short_description: Shared configtxgen options
+    description:
+      - Internal option catalog reused by all public entry points in this role.
+    options:
+      configtxgen_registry_endpoint: &configtxgen_registry_endpoint
+        type: str
+        required: false
+        default: "{{ lookup('env', 'CONFIGTXGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+        description:
+          - Image registry endpoint used to derive C(configtxgen_image).
+          - The default reads C(CONFIGTXGEN_REGISTRY_ENDPOINT) and falls back to `docker.io/hyperledger`.
+      configtxgen_image_name: &configtxgen_image_name
+        type: str
+        required: false
+        default: fabric-x-tools
+        description:
+          - Image repository name used to derive C(configtxgen_image).
+      configtxgen_image_tag: &configtxgen_image_tag
+        type: str
+        required: false
+        default: "0.0.8"
+        description:
+          - Image tag used to derive C(configtxgen_image).
+      configtxgen_image: &configtxgen_image
+        type: str
+        required: false
+        default: "{{ configtxgen_registry_endpoint }}/{{ configtxgen_image_name }}:{{ configtxgen_image_tag }}"
+        description:
+          - Full container image reference for `configtxgen`.
+          - The default derives from C(configtxgen_registry_endpoint), C(configtxgen_image_name), and C(configtxgen_image_tag).
+      configtxgen_container_name: &configtxgen_container_name
+        type: str
+        required: false
+        default: configtxgen
+        description:
+          - Container name used by the container entry point.
+      configtxgen_git_hub_url: &configtxgen_git_hub_url
+        type: str
+        required: false
+        default: github.com
+        description:
+          - Git host used to derive C(configtxgen_bin_package).
+      configtxgen_git_repo: &configtxgen_git_repo
+        type: str
+        required: false
+        default: hyperledger/fabric-x
+        description:
+          - Repository path used to derive C(configtxgen_bin_package).
+      configtxgen_git_commit: &configtxgen_git_commit
+        type: str
+        required: false
+        default: v0.0.8
+        description:
+          - Git reference used by the binary build and install entry points.
+      configtxgen_source_code_package: &configtxgen_source_code_package
+        type: str
+        required: false
+        default: tools/configtxgen
+        description:
+          - Go package path for the `configtxgen` source tree.
+      configtxgen_bin_package: &configtxgen_bin_package
+        type: str
+        required: false
+        default: "{{ configtxgen_git_hub_url }}/{{ configtxgen_git_repo }}/{{ configtxgen_source_code_package }}"
+        description:
+          - Go package reference used by `bin/install`.
+          - The default derives from C(configtxgen_git_hub_url), C(configtxgen_git_repo), and C(configtxgen_source_code_package).
+      configtxgen_bin_name: &configtxgen_bin_name
+        type: str
+        required: false
+        default: configtxgen
+        description:
+          - Executable name used by the binary and container entry points.
+      configtxgen_use_bin: &configtxgen_use_bin
+        type: bool
+        required: false
+        default: false
+        description:
+          - Dispatch selector for the public start entry point and the config template branch selection.
+          - When false, the container path is used.
+      config_build_dir: &config_build_dir
+        type: path
+        required: true
+        description:
+          - Base build directory used to derive C(configtxgen_artifacts_dir).
+      configtxgen_artifacts_dir: &configtxgen_artifacts_dir
+        type: path
+        required: false
+        default: "{{ config_build_dir }}/configtxgen-artifacts"
+        description:
+          - Directory used for the generated config file and genesis block artifacts.
+          - The default derives from C(config_build_dir).
+      configtxgen_container_artifacts_dir: &configtxgen_container_artifacts_dir
+        type: path
+        required: false
+        default: /tmp/configtxgen-artifacts
+        description:
+          - Container output directory used by `container/start`.
+      configtxgen_container_config_dir: &configtxgen_container_config_dir
+        type: path
+        required: false
+        default: /tmp/config
+        description:
+          - Container mount path for `configtx.yaml`.
+      configtxgen_container_crypto_artifacts_dir: &configtxgen_container_crypto_artifacts_dir
+        type: path
+        required: false
+        default: /tmp/crypto-artifacts
+        description:
+          - Container mount path for fetched crypto artifacts.
+      configtxgen_armageddon_container_artifacts_dir: &configtxgen_armageddon_container_artifacts_dir
+        type: path
+        required: false
+        default: /tmp/armageddon-artifacts
+        description:
+          - Container mount path for armageddon artifacts.
+      configtxgen_armageddon_binpb_file: &configtxgen_armageddon_binpb_file
+        type: str
+        required: false
+        default: shared_config.binpb
+        description:
+          - Shared config binary file name consumed by the config template.
+      configtxgen_config_file: &configtxgen_config_file
+        type: str
+        required: false
+        default: configtx.yaml
+        description:
+          - Generated configuration file name written by `config/build` and mounted by `container/start`.
+      channel_id: &channel_id
+        type: str
+        required: true
+        description:
+          - Channel identifier used to derive C(configtxgen_channel_id).
+      configtxgen_channel_id: &configtxgen_channel_id
+        type: str
+        required: false
+        default: "{{ channel_id }}"
+        description:
+          - Channel identifier passed to `configtxgen` and used in the output block filename.
+          - The default derives from C(channel_id).
+      configtxgen_profile_id: &configtxgen_profile_id
+        type: str
+        required: false
+        default: OrgsChannel
+        description:
+          - Config profile passed to `configtxgen`.
+      configtxgen_orderers_by_org: &configtxgen_orderers_by_org
+        type: dict
+        required: false
+        default: {}
+        description:
+          - Orderer organization map rendered into `configtx.yaml`.
+      configtxgen_peers_by_org: &configtxgen_peers_by_org
+        type: dict
+        required: false
+        default: {}
+        description:
+          - Peer organization map rendered into `configtx.yaml`.
+      fetched_artifacts_dir: &fetched_artifacts_dir
+        type: path
+        required: true
+        description:
+          - Directory containing fetched crypto artifacts used by the binary path and container mounts.
+      armageddon_artifacts_dir: &armageddon_artifacts_dir
+        type: path
+        required: true
+        description:
+          - Directory containing armageddon artifacts used by the binary path and container mounts.
+      cli_bin_dir: &cli_bin_dir
+        type: path
+        required: true
+        description:
+          - Directory used as the `configtxgen` binary destination or lookup path.
+
+  config/build:
+    short_description: Build the configtxgen configuration file
+    description:
+      - Generate `configtx.yaml` for Fabric-X genesis block creation.
+      - Validate the config template inputs, including the path selection controlled by C(configtxgen_use_bin).
+    options:
+      config_build_dir: *config_build_dir
+      configtxgen_artifacts_dir: *configtxgen_artifacts_dir
+      configtxgen_use_bin: *configtxgen_use_bin
+      configtxgen_container_crypto_artifacts_dir: *configtxgen_container_crypto_artifacts_dir
+      configtxgen_armageddon_container_artifacts_dir: *configtxgen_armageddon_container_artifacts_dir
+      configtxgen_config_file: *configtxgen_config_file
+      configtxgen_armageddon_binpb_file: *configtxgen_armageddon_binpb_file
+      configtxgen_orderers_by_org: *configtxgen_orderers_by_org
+      configtxgen_peers_by_org: *configtxgen_peers_by_org
+      fetched_artifacts_dir: *fetched_artifacts_dir
+      armageddon_artifacts_dir: *armageddon_artifacts_dir
+
+  bin/build:
+    short_description: Build the configtxgen binary
+    description:
+      - Build the `configtxgen` binary from the Fabric-X source tree on the control node.
+      - This entry point passes the binary destination to the shared `bin` role.
+    options:
+      configtxgen_git_hub_url: *configtxgen_git_hub_url
+      configtxgen_git_repo: *configtxgen_git_repo
+      configtxgen_git_commit: *configtxgen_git_commit
+      configtxgen_source_code_package: *configtxgen_source_code_package
+      configtxgen_bin_name: *configtxgen_bin_name
+      cli_bin_dir: *cli_bin_dir
+
+  bin/install:
+    short_description: Install the configtxgen binary
+    description:
+      - Install the `configtxgen` Go package through the shared `bin` role.
+      - The package default derives from C(configtxgen_git_hub_url), C(configtxgen_git_repo), and C(configtxgen_source_code_package).
+    options:
+      configtxgen_git_hub_url: *configtxgen_git_hub_url
+      configtxgen_git_repo: *configtxgen_git_repo
+      configtxgen_source_code_package: *configtxgen_source_code_package
+      configtxgen_bin_package: *configtxgen_bin_package
+      configtxgen_git_commit: *configtxgen_git_commit
+      configtxgen_bin_name: *configtxgen_bin_name
+      cli_bin_dir: *cli_bin_dir
+
+  bin/start:
+    short_description: Generate a genesis block with the configtxgen binary
+    description:
+      - Run the local `configtxgen` binary to generate the channel genesis block.
+      - The artifacts directory default derives from C(config_build_dir), and the channel ID default derives from C(channel_id).
+    options:
+      channel_id: *channel_id
+      config_build_dir: *config_build_dir
+      cli_bin_dir: *cli_bin_dir
+      configtxgen_bin_name: *configtxgen_bin_name
+      configtxgen_channel_id: *configtxgen_channel_id
+      configtxgen_profile_id: *configtxgen_profile_id
+      configtxgen_artifacts_dir: *configtxgen_artifacts_dir
+
+  container/start:
+    short_description: Generate a genesis block with the configtxgen container
+    description:
+      - Run `configtxgen` in a container to generate the channel genesis block.
+      - The image, artifacts directory, and channel ID defaults derive from the base registry, build, and channel inputs.
+    options:
+      channel_id: *channel_id
+      config_build_dir: *config_build_dir
+      configtxgen_artifacts_dir: *configtxgen_artifacts_dir
+      configtxgen_container_name: *configtxgen_container_name
+      configtxgen_registry_endpoint: *configtxgen_registry_endpoint
+      configtxgen_image_name: *configtxgen_image_name
+      configtxgen_image_tag: *configtxgen_image_tag
+      configtxgen_image: *configtxgen_image
+      configtxgen_bin_name: *configtxgen_bin_name
+      configtxgen_channel_id: *configtxgen_channel_id
+      configtxgen_profile_id: *configtxgen_profile_id
+      configtxgen_container_config_dir: *configtxgen_container_config_dir
+      configtxgen_container_artifacts_dir: *configtxgen_container_artifacts_dir
+      configtxgen_config_file: *configtxgen_config_file
+      configtxgen_armageddon_container_artifacts_dir: *configtxgen_armageddon_container_artifacts_dir
+      configtxgen_container_crypto_artifacts_dir: *configtxgen_container_crypto_artifacts_dir
+      configtxgen_armageddon_binpb_file: *configtxgen_armageddon_binpb_file
+      armageddon_artifacts_dir: *armageddon_artifacts_dir
+      fetched_artifacts_dir: *fetched_artifacts_dir
+
+  start:
+    short_description: Dispatch genesis block generation
+    description:
+      - Select the binary or container execution path for `configtxgen`.
+      - The concrete entry point validates the remaining inputs.
+    options:
+      configtxgen_use_bin: *configtxgen_use_bin
