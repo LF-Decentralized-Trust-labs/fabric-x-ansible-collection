@@ -94,6 +94,13 @@
   when:
     - committer_use_mtls
 
+- name: Transfer Monitoring mTLS certificates
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: config/mtls/monitoring/transfer
+  when:
+    - committer_monitoring_use_mtls
+
 # =========================
 # Kubernetes
 # =========================

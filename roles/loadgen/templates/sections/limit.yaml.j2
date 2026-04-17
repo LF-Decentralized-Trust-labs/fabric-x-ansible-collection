@@ -1,0 +1,11 @@
+# The stopping condition for generating load according to the collected metrics.
+# Zero value indicate no limit.
+# The limit on the number of TXs is applied at block granularity. I.e., more TXs might be created than expected
+# if a block overshot.
+# The load generator stops when both requirements are met, i.e., one of them might overshoot.
+# For the orderer adapter, the blocks limit is ignored for broadcasting as we don't track submitted blocks.
+# For adapters that use concurrent submitters, we cannot enforce exact limits.
+# The sidecar and coordinator adapters are sequential, so they don't have these issues.
+limit:
+  blocks: {{ loadgen_limit_blocks | default(0) }}
+  transactions: {{ loadgen_limit_transactions | default(0) }}

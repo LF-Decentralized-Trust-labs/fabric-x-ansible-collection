@@ -2,7 +2,49 @@
 # Monitoring settings
 # ---------------------------------------------------------------------------
 monitoring:
-  # Metrics server settings
-  server:
-    # Metrics endpoint
-    endpoint: 0.0.0.0:{{ committer_metrics_port }}
+  # The endpoint where Prometheus metrics and pprof profiling are exposed.
+  # Format: host:port or :port (binds to all interfaces).
+  endpoint: 0.0.0.0:{{ committer_metrics_port }}
+  # Rate limiting configuration for unary gRPC endpoints.
+  # Uses a token bucket algorithm to limit the number of requests per second.
+  rate-limit:
+    # Maximum number of requests per second allowed.
+    # Set to 0 to disable rate limiting.
+    requests-per-second: {{ committer_monitoring_rate_limit_requests_per_second | default(0) }}
+    # Maximum number of requests allowed in a single burst.
+    # When rate limiting is enabled (requests-per-second > 0):
+    #   - Must be greater than 0
+    #   - Must be less than or equal to requests-per-second
+    burst: {{ committer_monitoring_rate_limit_burst | default(0) }}
+{% if committer_monitoring_use_tls %}
+  tls:
+    # Path to the server's TLS private key file.
+    key-path: {{ committer_config_dir }}/tls/server.key
+    # Path to the server's TLS certificate file (public key).
+    cert-path: {{ committer_config_dir }}/tls/server.crt
+{% if committer_monitoring_use_mtls %}
+    # TLS mode for monitoring endpoint: 'none' (no TLS), 'tls' (server auth only),
+    # or 'mtls' (mutual TLS with client cert verification).
+    mode: mtls
+    # List of paths to CA certificate files for verifying client certificates (required for mtls).
+    ca-cert-paths:
+      # Accept mTLS connections from others within the same org
+      - {{ committer_config_dir }}/tls/ca.crt
+{% if committer_monitoring_mtls_clients is defined %}
+      # Other mTLS clients
+{% for committer_monitoring_mtls_client in committer_monitoring_mtls_clients %}
+      - {{ committer_config_dir }}/mtls/{{ committer_monitoring_mtls_client }}/ca.crt
+{% endfor %}
+{% endif %}
+{% if committer_monitoring_mtls_orgs is defined %}
+      # Other mTLS Orgs
+{% for committer_monitoring_mtls_org in committer_monitoring_mtls_orgs %}
+      - {{ committer_config_dir }}/mtls/{{ committer_monitoring_mtls_org.domain }}/ca.crt
+{% endfor %}
+{% endif %}
+{% else %}
+    # TLS mode for monitoring endpoint: 'none' (no TLS), 'tls' (server auth only),
+    # or 'mtls' (mutual TLS with client cert verification).
+    mode: tls
+{% endif %}
+{% endif %}

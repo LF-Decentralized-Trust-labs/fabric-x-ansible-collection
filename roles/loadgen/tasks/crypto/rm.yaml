@@ -4,10 +4,22 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Remove Loadgen MSP directory
+- name: Remove Fabric-X Loadgen MSP directory
+  ansible.builtin.file:
+    path: "{{ loadgen_remote_config_dir }}/msp"
+    state: absent
+
+- name: Remove Fabric-X Loadgen Users directory
   ansible.builtin.file:
     path: "{{ loadgen_remote_config_dir }}/users"
     state: absent
+
+- name: Remove Fabric-X Loadgen TLS directory
+  ansible.builtin.file:
+    path: "{{ loadgen_remote_config_dir }}/tls"
+    state: absent
+  when:
+    - loadgen_use_tls or loadgen_monitoring_use_tls
 
 - name: Remove Fabric-X Loadgen Kubernetes Secret
   ansible.builtin.include_role:

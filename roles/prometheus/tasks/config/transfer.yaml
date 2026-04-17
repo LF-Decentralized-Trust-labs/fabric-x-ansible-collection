@@ -32,7 +32,7 @@
   when:
     - prometheus_use_tls
 
-- name: Transfer TLS certificates
+- name: Transfer TLS CA certificates
   ansible.builtin.copy:
     src: "{{ current_service_to_scrape.tls_ca_file }}"
     dest: "{{ prometheus_remote_config_dir }}/tls-{{ current_service_to_scrape.job_name }}-ca.crt"

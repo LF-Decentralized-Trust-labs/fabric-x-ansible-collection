@@ -1,0 +1,44 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Define fxconfig output directory
+  ansible.builtin.set_fact:
+    fxconfig_output_dir: "{{ fxconfig_output | dirname }}"
+
+- name: Ensure fxconfig output directory exists
+  ansible.builtin.file:
+    path: "{{ fxconfig_output_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Transfer transaction to endorse
+  ansible.builtin.copy:
+    src: "{{ fxconfig_tx_to_endorse }}"
+    dest: "{{ fxconfig_output_dir }}/tx_to_endorse.json"
+    mode: preserve
+
+- name: Endorse namespace transaction
+  vars:
+    # The < /dev/null is due to the fact that the command auto-detects
+    # an stdin input. To prevent it, we nullify the stdin input.
+    bin_command: >-
+      {{ fxconfig_bin_name }} tx
+      endorse
+      {{ fxconfig_output_dir }}/tx_to_endorse.json
+      --config={{ fxconfig_remote_config_dir }}/{{ fxconfig_config_file }}
+      --output={{ fxconfig_output }} < /dev/null
+    bin_run_with_tmux: false
+    bin_collect_logs: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start
+
+- name: Fetch endorsed transaction
+  ansible.builtin.fetch:
+    src: "{{ fxconfig_output }}"
+    dest: "{{ fxconfig_tx_to_endorse | dirname }}/endorsed/{{ fxconfig_output | basename }}"
+    flat: true
+    mode: preserve

@@ -7,56 +7,49 @@
 - name: Transfer the fxconfig configuration files
   hosts: "{{ target_hosts | default('all') }}"
   tasks:
-    - name: Set the namespaces that must be created
-      vars:
-        fxconfig_namespace_nodes: "{{ groups['all'] }}"
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.fxconfig
-        tasks_from: config/find_namespaces
+    - name: Define configuration files for fxconfig
       when:
         - organization is defined
+        - organization.namespaces is defined
         - organization.users is defined
-        - organization.users
-          | selectattr('meta_namespace_admin', 'defined')
-          | selectattr('meta_namespace_admin', '==', true)
-          | length > 0
-    - name: Transfer the configuration files for fxconfig
-      vars:
-        orderer_router_host: >-
-          {{
-            groups['all']
-            | map('extract', hostvars)
-            | selectattr('orderer_component_type', 'defined')
-            | selectattr('orderer_component_type', '==', 'router')
-            | map(attribute='inventory_hostname')
-            | sort
-            | first
-          }}
-        committer_query_service_host: >-
-          {{
-            groups['all']
-            | map('extract', hostvars)
-            | selectattr('committer_component_type', 'defined')
-            | selectattr('committer_component_type', '==', 'query-service')
-            | map(attribute='inventory_hostname')
-            | sort
-            | first
-          }}
-        meta_namespace_admin: >-
-          {{
-            organization.users
-            | selectattr('meta_namespace_admin', 'defined')
-            | selectattr('meta_namespace_admin', '==', true)
-            | first
-          }}
-        fxconfig_msp_config_path: "{{ remote_config_dir }}/users/{{ meta_namespace_admin.name }}@{{ organization.domain }}/msp"
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.fxconfig
-        tasks_from: config/transfer
-      when:
-        - organization is defined
-        - organization.users is defined
-        - organization.users
-          | selectattr('meta_namespace_admin', 'defined')
-          | selectattr('meta_namespace_admin', '==', true)
-          | length > 0
+      block:
+        - name: Get the endorser user
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.fxconfig
+            tasks_from: get_endorser
+        - name: Transfer the configuration files for fxconfig on nodes declaring namespaces
+          vars:
+            fxconfig_msp_config_path: "{{ remote_config_dir }}/users/{{ fxconfig_endorser_user.name }}@{{ organization.domain }}/msp"
+            orderer_router_host: >-
+              {{
+                groups['all']
+                | map('extract', hostvars)
+                | selectattr('orderer_component_type', 'defined')
+                | selectattr('orderer_component_type', '==', 'router')
+                | map(attribute='inventory_hostname')
+                | sort
+                | first
+              }}
+            committer_query_service_host: >-
+              {{
+                groups['all']
+                | map('extract', hostvars)
+                | selectattr('committer_component_type', 'defined')
+                | selectattr('committer_component_type', '==', 'query-service')
+                | map(attribute='inventory_hostname')
+                | sort
+                | first
+              }}
+            committer_sidecar_host: >-
+              {{
+                groups['all']
+                | map('extract', hostvars)
+                | selectattr('committer_component_type', 'defined')
+                | selectattr('committer_component_type', '==', 'sidecar')
+                | map(attribute='inventory_hostname')
+                | sort
+                | first
+              }}
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.fxconfig
+            tasks_from: config/transfer

@@ -25,3 +25,7 @@ spec:
     - name: metrics
       port: {{ loadgen_metrics_port }}
       targetPort: {{ loadgen_metrics_port }}
+    # gRPC API port for programmatic control of load generation.
+    - name: rpc
+      port: {{ loadgen_rpc_port }}
+      targetPort: {{ loadgen_rpc_port }}

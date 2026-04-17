@@ -194,6 +194,8 @@ all:
               vars:
                 committer_use_tls: true
                 committer_use_mtls: true
+                committer_monitoring_mtls_clients:
+                  - prometheus
                 organization:
                   <<: *Org1
                   role: peer
@@ -317,26 +319,24 @@ all:
         loadgen_type: orderer-client
         loadgen_metrics_port: 12010
         loadgen_web_port: 12000
+        loadgen_rpc_port: 12020
         loadgen_use_tls: true
+        organization:
+          <<: *Org1
+          role: peer
+          peer:
+            name: orderer-loadgen
+          users:
+            - name: orderer-loadgen
+          namespaces:
+            - id: 0
+              policy: threshold
       hosts:
         orderer-loadgen-1:
           ansible_host: "{{ host_machine_14 }}"
-          organization:
-            <<: *Org1
-            role: peer
-            users:
-              - name: orderer-loadgen
-                namespace: 0
-                meta_namespace_admin: true
           loadgen_tx_seed: 12345
         orderer-loadgen-2:
           ansible_host: "{{ host_machine_15 }}"
-          organization:
-            <<: *Org1
-            role: peer
-            users:
-              - name: orderer-loadgen
-                namespace: 0
           loadgen_tx_seed: 67890
 
     # =========================

@@ -122,3 +122,13 @@
     tasks_from: config/sidecar-client/transfer
   when:
     - loadgen_type == 'sidecar-client'
+
+# =========================
+# mTLS
+# =========================
+- name: Transfer Monitoring mTLS certificates
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: config/mtls/monitoring/transfer
+  when:
+    - loadgen_monitoring_use_mtls

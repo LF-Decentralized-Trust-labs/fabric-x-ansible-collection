@@ -5,24 +5,27 @@
 # high-throughput scenarios.
 # ---------------------------------------------------------------------------
 database:
+  # List of database endpoints to connect to. For YugabyteDB clusters, list all nodes.
+  # Format: host:port for each endpoint.
   endpoints:
 {% if postgres_db_host is defined %}
     # PostgresDB
     - {{ hostvars[postgres_db_host].ansible_host }}:{{ hostvars[postgres_db_host].postgres_port }}
-  # The username for the database
+  # Database username for authentication.
   username: {{ hostvars[postgres_db_host].postgres_user }}
-  # The password for the database
+  # Database password for authentication.
   password: {{ hostvars[postgres_db_host].postgres_password }}
-  # The database name
+  # Database name to connect to.
   database: {{ hostvars[postgres_db_host].postgres_db }}
-  # Should be enabled for DB cluster
+  # Enable load balancing across multiple database endpoints. Should be enabled for
+  # YugabyteDB clusters to distribute operations across nodes. Set to false for single-node deployments.
   load-balance: false
 {% if hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
-  # Define TLS certificate for a secure communication with PostgresDB.
   tls:
-    # TLS configuration modes ("none", "tls" or "mtls")
+    # TLS mode for database connections: 'none' (no TLS) or 'tls' (server auth with CA verification).
+    # Note: Database connections do not support mutual TLS (mtls).
     mode: tls
-    # DB CA certificate to trust if tls is enabled.
+    # Path to the CA certificate file for verifying the database server's certificate.
     ca-cert-path: {{ committer_config_dir }}/tls/db/ca.crt
 {% endif %}
 {% elif yugabyte_cluster_ref_id is defined %}
@@ -33,54 +36,66 @@ database:
     - {{ hostvars[db].ansible_host }}:{{ hostvars[db].yugabyte_tablet_pgsql_bind_port }}
 {% endif %}
 {% endfor %}
-  # The username for the database
+  # Database username for authentication.
   username: {{ hostvars[yugabyte_cluster | first].yugabyte_user }}
-  # The password for the database
+  # Database password for authentication.
   password: {{ hostvars[yugabyte_cluster | first].yugabyte_password }}
-  # The database name
+  # Database name to connect to.
   database: {{ hostvars[yugabyte_cluster | first].yugabyte_db }}
-  # Should be enabled for DB cluster
+  # Enable load balancing across multiple database endpoints. Should be enabled for
+  # YugabyteDB clusters to distribute operations across nodes. Set to false for single-node deployments.
   load-balance: true
+  # Number of tablets to pre-split each table into at creation time (YugabyteDB only).
+  # Pre-splitting distributes a table's data across multiple tablet servers from the start,
+  # preventing the "hot tablet" bottleneck where a single tablet handles all initial writes
+  # before YugabyteDB's automatic splitting kicks in, which causes unpredictable latency spikes.
+  # Recommended value: set to the number of tablet servers in the cluster, or a small multiple
+  # of it (e.g., 1x-2x the number of tservers), so each tserver gets an equal share of tablets.
+  # For example, with 3 tservers, set table-pre-split-tablets to 3 or 6.
+  # When the underlying database is PostgreSQL, this setting is automatically ignored even if set.
+  table-pre-split-tablets: {{ hostvars[yugabyte_cluster] | map('extract', hostvars) | selectattr('yugabyte_component_type', '==', 'tablet') | length | default(0) }}
 {% if hostvars[yugabyte_cluster | first].yugabyte_use_tls is defined and hostvars[yugabyte_cluster | first].yugabyte_use_tls %}
-  # Define TLS certificate for a secure communication with YugabyteDB.
   tls:
-    # TLS configuration modes ("none", "tls" or "mtls")
+    # TLS mode for database connections: 'none' (no TLS) or 'tls' (server auth with CA verification).
+    # Note: Database connections do not support mutual TLS (mtls).
     mode: tls
-    # DB CA certificate to trust if tls is enabled.
+    # Path to the CA certificate file for verifying the database server's certificate.
     ca-cert-path: {{ committer_config_dir }}/tls/db/ca.crt
 {% endif %}
 {% endif %}
-  # The maximum size of the connection pool
+  # Maximum size of the database connection pool. Limits concurrent database operations.
+  # Should be tuned based on database capacity and expected transaction load.
   max-connections: {{ committer_database_max_connections | default(10) }}
-  # The minimum size of the connection pool
+  # Minimum size of the database connection pool. Keeps connections warm for faster operations.
+  # Should be less than or equal to max-connections.
   min-connections: {{ committer_database_min_connections | default(5) }}
   # The exponential backoff retry strategy for database operation.
+  # This strategy increases the delay between retry attempts exponentially.
+  # When using YugabyteDB as the backend, it is needed to handle retryable errors.
+  # https://support.yugabyte.com/hc/en-us/articles/4409627048461-How-to-Troubleshoot-Database-Transaction-Retryable-Errors
   retry:
-    # This strategy increases the delay between retry attempts exponentially.
-    # When using YugabyteDB as the backend, it is needed to handle retryable errors.
-    # https://support.yugabyte.com/hc/en-us/articles/4409627048461-How-to-Troubleshoot-Database-Transaction-Retryable-Errors
     # initial-interval: Specifies the duration of the first backoff interval.
     # This is the time to wait before the first retry attempt.
     # Format: string representing a duration (e.g., "500ms", "1s", "2.5s").
     initial-interval: {{ committer_database_retry_initial_interval | default('500ms') }}
-    # Controls the amount of randomness (jitter) applied to each backoff interval.
+    # randomization-factor: Controls the amount of randomness (jitter) applied to each backoff interval.
     # The actual backoff duration for an attempt will be randomly selected from the range:
     # [current_interval * (1 - randomization_factor), current_interval * (1 + randomization_factor)]
     # A factor of 0 means no randomization. A factor of 0.5 means the actual interval
     # can vary by +/- 50% of the calculated interval.
     # Must be between 0 and 1.
     randomization-factor: {{ committer_database_retry_randomization_factor | default(0.5) }}
-    # The factor by which the backoff interval increases after each failed attempt.
+    # multiplier: The factor by which the backoff interval increases after each failed attempt.
     # The next interval (before randomization) is calculated as: current_interval * multiplier.
     # A value of 1.5 means each subsequent interval will be 50% longer than the previous one.
     # Must be >= 1.
     multiplier: {{ committer_database_retry_multiplier | default(1.5) }}
-    # Sets the absolute maximum duration for any single backoff interval.
+    # max-interval: Sets the absolute maximum duration for any single backoff interval.
     # Even if the calculated interval (initial_interval * multiplier^n) exceeds this value,
     # the interval used (before randomization) will be capped at max-interval.
     # Format: string representing a duration (e.g., "60s", "1m", "5m").
     max-interval: {{ committer_database_retry_max_interval | default('60s') }}
-    # The maximum total time allowed for retries since the operation first began.
+    # max-elapsed-time: The maximum total time allowed for retries since the operation first began.
     # If the total time spent (including execution time of attempts and backoff waits)
     # exceeds this duration, the retry mechanism will stop, even if other limits haven't been reached.
     # Setting this to "0" means there is no time limit, and retries will continue

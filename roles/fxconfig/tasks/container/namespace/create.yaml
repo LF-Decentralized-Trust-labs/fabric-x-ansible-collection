@@ -1,0 +1,58 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure output directory exists
+  ansible.builtin.file:
+    path: "{{ fxconfig_output | dirname }}"
+    state: directory
+    mode: "0o755"
+
+- name: Set fxconfig volumes
+  ansible.builtin.set_fact:
+    fxconfig_volumes:
+      - "{{ fxconfig_output | dirname }}:/tmp:z"
+
+# Threshold policies require the path to a certificate
+# Since with containers the path must be mounted,
+# we must extract and mount the path.
+- name: Set fxconfig volume for threshold policy
+  vars:
+    threshold_pubkey_path: "{{ fxconfig_namespace_policy | split(':') | last }}"
+    threshold_pubkey_container_path: /tmp/pubkey.pem
+    threshold_policy_pem_volume: "{{ threshold_pubkey_path }}:{{ threshold_pubkey_container_path }}:z,ro"
+  ansible.builtin.set_fact:
+    fxconfig_threshold_namespace_policy: "threshold:{{ threshold_pubkey_container_path }}"
+    fxconfig_volumes: "{{ fxconfig_volumes + [threshold_policy_pem_volume] }}"
+  when:
+    - fxconfig_namespace_policy is defined
+    - (fxconfig_namespace_policy | split(':') | first) == 'threshold'
+
+- name: Create namespace {{ fxconfig_namespace_id }}
+  vars:
+    container_name: "{{ fxconfig_container_name }}-{{ fxconfig_namespace_id }}-create"
+    container_image: "{{ fxconfig_image }}"
+    container_env:
+      FXCONFIG_POLICY: "{{ fxconfig_threshold_namespace_policy | default(fxconfig_namespace_policy) }}"
+      FXCONFIG_LOGGING_LEVEL: "{{ fxconfig_log_level }}"
+      FXCONFIG_LOGGING_FORMAT: "{{ fxconfig_log_format | quote }}"
+    # We use the shell command to overcome the issue of quote escaping within
+    # the docker_container plugin. In this way we can use expand the env
+    # variable (which is not escaped by the module).
+    container_command:
+      - sh
+      - -c
+      - >-
+        {{ fxconfig_bin_name }} namespace
+        create {{ fxconfig_namespace_id }}
+        --policy=$FXCONFIG_POLICY
+        --output=/tmp/{{ fxconfig_output | basename }}
+    container_volumes: "{{ fxconfig_volumes }}"
+    container_run_detach_mode: false
+    container_run_as_host_user: true
+    container_autoremove: true
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start

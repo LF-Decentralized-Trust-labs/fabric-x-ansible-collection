@@ -4,13 +4,11 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure Hyperledger Fabric-X Committer TLS directory exists
+- name: Ensure Hyperledger Fabric-X Committer config directory exists
   ansible.builtin.file:
-    path: "{{ committer_remote_config_dir }}/tls"
+    path: "{{ committer_remote_config_dir }}"
     state: directory
     mode: "0o755"
-  when:
-    - committer_use_tls
 
 - name: Transfer the TLS crypto material generated with cryptogen
   ansible.posix.synchronize:
@@ -18,3 +16,10 @@
     dest: "{{ committer_remote_config_dir }}"
   when:
     - committer_use_tls
+
+- name: Transfer the MSP crypto material generated with cryptogen
+  ansible.posix.synchronize:
+    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ organization.peer.name | default(inventory_hostname) }}.{{ organization.domain }}/msp"
+    dest: "{{ committer_remote_config_dir }}"
+  when:
+    - committer_component_type == 'sidecar'

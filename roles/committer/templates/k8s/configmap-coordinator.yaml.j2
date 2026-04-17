@@ -27,6 +27,24 @@ data:
   tls-verifiers-ca.crt: |
     {{ lookup('file', committer_k8s_verifiers_ca_path) | indent(4) }}
 {% endif %}
+{% if committer_monitoring_use_mtls and committer_monitoring_mtls_clients is defined %}
+{% for committer_monitoring_mtls_client in committer_monitoring_mtls_clients %}
+{% if committer_monitoring_mtls_client not in (committer_mtls_clients | default([])) %}
+  # mTLS monitoring CA cert for client {{ committer_monitoring_mtls_client }}.
+  mtls-client-{{ committer_monitoring_mtls_client }}-ca.crt: |
+    {{ lookup('file', committer_remote_config_dir + '/mtls/' + committer_monitoring_mtls_client + '/ca.crt') | indent(4) }}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% if committer_monitoring_use_mtls and committer_monitoring_mtls_orgs is defined %}
+{% for committer_monitoring_mtls_org in committer_monitoring_mtls_orgs %}
+{% if committer_monitoring_mtls_org not in (committer_mtls_orgs | default([])) %}
+  # mTLS monitoring CA cert for org {{ committer_monitoring_mtls_org.domain }}.
+  mtls-org-{{ committer_monitoring_mtls_org.domain }}-ca.crt: |
+    {{ lookup('file', committer_remote_config_dir + '/mtls/' + committer_monitoring_mtls_org.domain + '/ca.crt') | indent(4) }}
+{% endif %}
+{% endfor %}
+{% endif %}
 {% if committer_use_mtls and committer_mtls_clients is defined %}
 {% for current_mtls_client in committer_mtls_clients %}
   # mTLS CA cert for client {{ current_mtls_client }}.

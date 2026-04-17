@@ -9,7 +9,7 @@
 # =========================
 loadgen_registry_endpoint: "{{ lookup('env', 'LOADGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 loadgen_image_name: "fabric-x-loadgen"
-loadgen_image_tag: "0.1.7"
+loadgen_image_tag: "0.1.9"
 loadgen_image: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
 loadgen_container_name: "{{ inventory_hostname }}"
 
@@ -18,7 +18,7 @@ loadgen_container_name: "{{ inventory_hostname }}"
 # =========================
 loadgen_git_hub_url: "github.com"
 loadgen_git_repo: "hyperledger/fabric-x-committer"
-loadgen_git_commit: "v0.1.7"
+loadgen_git_commit: "v0.1.9"
 loadgen_source_code_package: "cmd/loadgen"
 loadgen_bin_package: "{{ loadgen_git_hub_url }}/{{ loadgen_git_repo }}/{{ loadgen_source_code_package }}"
 loadgen_bin_name: "loadgen"
@@ -37,18 +37,32 @@ loadgen_admin_priv_key_file: "admin_priv_key.pem"
 # Miscellaneous
 # =========================
 loadgen_assert_metrics: false
+loadgen_generate_config_block: false
+loadgen_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}"
 
 # =========================
 # TLS Settings
 # =========================
+# TLS settings
 loadgen_use_tls: false
+loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
+loadgen_http_protocol: "{{ 'https' if loadgen_use_tls else 'http' }}"
+loadgen_monitoring_http_protocol: "{{ 'https' if loadgen_monitoring_use_tls else 'http' }}"
+# mTLS settings
+loadgen_use_mtls: false
+loadgen_monitoring_use_mtls: "{{ loadgen_use_mtls }}"
+
+# =========================
+# Log Settings
+# =========================
+loadgen_log_level: "info"
+loadgen_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
 
 # =========================
 # Kubernetes
 # =========================
 loadgen_use_k8s: false
 loadgen_use_container: "{{ (not loadgen_use_bin) and (not loadgen_use_k8s) }}"
-
 loadgen_k8s_resource_name: "{{ inventory_hostname }}"
 loadgen_k8s_wait: true
 loadgen_k8s_wait_timeout: 120
@@ -57,3 +71,4 @@ loadgen_k8s_fs_group: 10001
 # NodePort for external access
 loadgen_k8s_web_node_port: "{{ loadgen_web_port }}"
 loadgen_k8s_metrics_node_port: "{{ loadgen_metrics_port }}"
+loadgen_k8s_rpc_node_port: "{{ loadgen_rpc_port }}"

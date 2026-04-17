@@ -80,50 +80,6 @@
         }}
       loop_control:
         loop_var: peer
-    - name: Check that at most one namespace admin user is defined
-      vars:
-        namespace_admin_users: >-
-          {{
-            groups['all']
-            | map('extract', hostvars)
-            | selectattr('organization', 'defined')
-            | selectattr('organization.users', 'defined')
-            | map(attribute='organization.users')
-            | flatten
-            | selectattr('meta_namespace_admin', 'defined')
-            | selectattr('meta_namespace_admin', '==', true)
-            | list
-          }}
-      ansible.builtin.fail:
-        msg: "More than one Admin user for the MetaNamespace defined: {{ namespace_admin_users }}. Only 1 admin is allowed for the MetaNamespace."
-      when:
-        - namespace_admin_users | length > 1
-    - name: Set the Hyperledger Fabric-X meta namespace admin user
-      vars:
-        current_organization: "{{ org_user[0] }}"
-        user: "{{ org_user[1] }}"
-      ansible.builtin.set_fact:
-        configtxgen_meta_namespace_admin:
-          name: "{{ user.name }}"
-          organization:
-            name: "{{ current_organization.name }}"
-            domain: "{{ current_organization.domain }}"
-      with_subelements:
-        - >-
-          {{
-            groups['all']
-            | map('extract', hostvars)
-            | selectattr('organization', 'defined')
-            | map(attribute='organization')
-            | selectattr('users', 'defined')
-          }}
-        - "users"
-      loop_control:
-        label: "{{ current_organization.domain }}:{{ user.name }}"
-        loop_var: org_user
-      when:
-        - user.meta_namespace_admin is defined
-        - user.meta_namespace_admin
     - name: Build Fabricx-compatible configuration file for configtxgen
       ansible.builtin.include_role:
         name: hyperledger.fabricx.configtxgen

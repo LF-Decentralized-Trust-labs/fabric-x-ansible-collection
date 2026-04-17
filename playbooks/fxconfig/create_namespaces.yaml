@@ -4,53 +4,103 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Create the Load generators namespaces
+- name: Create Fabric-X namespaces transactions on the control node
+  hosts: localhost
+  tasks:
+    - name: Group hosts per namespace
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxconfig
+        tasks_from: namespace/group
+    - name: Create FabricX namespaces with fxconfig on the control node
+      vars:
+        bin_remote_dir: "{{ cli_bin_dir }}"
+        fxconfig_namespace_id: "{{ current_namespace_with_hosts.namespace.id }}"
+        fxconfig_namespace_policy: "{{ current_namespace_with_hosts.namespace.policy }}"
+        fxconfig_output: "{{ config_build_dir }}/fxconfig-artifacts/{{ fxconfig_namespace_id }}/ns.json"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxconfig
+        tasks_from: namespace/create
+      loop: "{{ fxconfig_hosts_per_namespaces.values() }}"
+      loop_control:
+        loop_var: current_namespace_with_hosts
+        label: "{{ fxconfig_namespace_id }}"
+      when:
+        - fxconfig_hosts_per_namespaces is defined
+
+- name: Endorse Fabric-X namespace transactions
   hosts: "{{ target_hosts | default('all') }}"
   tasks:
-    - name: Set the namespaces that must be created
-      vars:
-        fxconfig_namespace_nodes: "{{ groups['all'] }}"
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.fxconfig
-        tasks_from: config/find_namespaces
+    - name: Perform the namespace transaction endorsements
       when:
         - organization is defined
-        - organization.users is defined
-        - organization.users
-          | selectattr('meta_namespace_admin', 'defined')
-          | selectattr('meta_namespace_admin', '==', true)
-          | length > 0
-    - name: Create FabricX namespaces with fxconfig
+        - organization.namespaces is defined
+      block:
+        - name: Get the endorser user
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.fxconfig
+            tasks_from: get_endorser
+        - name: Endorse FabricX namespaces with fxconfig
+          vars:
+            fxconfig_tx_to_endorse: "{{ config_build_dir }}/fxconfig-artifacts/{{ fxconfig_namespace.id }}/ns.json"
+            fxconfig_output: "{{ fxconfig_remote_config_dir }}/{{ fxconfig_namespace.id }}/endorsed/{{ fxconfig_endorser_user.name }}.json"
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.fxconfig
+            tasks_from: endorse
+          loop: "{{ organization.namespaces }}"
+          loop_control:
+            loop_var: fxconfig_namespace
+            label: "{{ fxconfig_namespace.id }}"
+
+- name: Merge endorsed Fabric-X namespaces transactions on the control node
+  hosts: localhost
+  tasks:
+    - name: Merge endorsed FabricX namespaces transactions in one single multi-endorsed transaction
       vars:
-        orderer_router_host: >-
-          {{
-            groups['all']
-            | map('extract', hostvars)
-            | selectattr('orderer_component_type', 'defined')
-            | selectattr('orderer_component_type', '==', 'router')
-            | map(attribute='inventory_hostname')
-            | sort
-            | first
-          }}
-        committer_query_service_host: >-
-          {{
-            groups['all']
-            | map('extract', hostvars)
-            | selectattr('committer_component_type', 'defined')
-            | selectattr('committer_component_type', '==', 'query-service')
-            | map(attribute='inventory_hostname')
-            | sort
-            | first
-          }}
+        bin_remote_dir: "{{ cli_bin_dir }}"
+        fxconfig_endorsed_txs_dir: "{{ config_build_dir }}/fxconfig-artifacts/{{ fxconfig_namespace.id }}/endorsed"
+        fxconfig_output: "{{ config_build_dir }}/fxconfig-artifacts/{{ fxconfig_namespace.id }}/merged.json"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxconfig
-        tasks_from: namespaces_create
-      loop: "{{ organization.users }}"
+        tasks_from: merge
+      loop: >-
+        {{
+          groups['all']
+          | map('extract', hostvars)
+          | map('to_json')
+          | map('from_json')
+          | selectattr('organization', 'defined')
+          | map(attribute='organization')
+          | selectattr('namespaces', 'defined')
+          | map(attribute='namespaces')
+          | flatten
+        }}
       loop_control:
-        loop_var: current_user
-        label: "{{ organization.domain }}:{{ current_user.name }}"
+        loop_var: fxconfig_namespace
+        label: "{{ fxconfig_namespace.id }}"
+
+- name: Submit Fabric-X namespace transactions
+  hosts: "{{ target_hosts | default('all') }}"
+  tasks:
+    - name: Perform submission of FabricX namespace transactions
       when:
         - organization is defined
-        - organization.users is defined
-        - current_user.meta_namespace_admin is defined
-        - current_user.meta_namespace_admin
+        - organization.namespaces is defined
+      block:
+        - name: Group hosts per namespace
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.fxconfig
+            tasks_from: namespace/group
+          when:
+            - fxconfig_hosts_per_namespaces is undefined
+        - name: Submit FabricX namespaces with fxconfig
+          vars:
+            fxconfig_tx_to_submit_path: "{{ config_build_dir }}/fxconfig-artifacts/{{ fxconfig_namespace.id }}/merged.json"
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.fxconfig
+            tasks_from: submit
+          loop: "{{ organization.namespaces }}"
+          loop_control:
+            loop_var: fxconfig_namespace
+            label: "{{ fxconfig_namespace.id }}"
+          when:
+            - fxconfig_hosts_per_namespaces[fxconfig_namespace.id].hosts[0] == inventory_hostname # makes sure is run on a single node only

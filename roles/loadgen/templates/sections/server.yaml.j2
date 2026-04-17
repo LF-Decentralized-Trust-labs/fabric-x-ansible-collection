@@ -1,0 +1,41 @@
+# The gRPC endpoint where the load generator exposes its full API for
+# programmatic control of load generation. Optional: if not set, no gRPC endpoint is exposed.
+server:
+  endpoint: 0.0.0.0:{{ loadgen_rpc_port }}
+{% if loadgen_use_tls %}
+  # Define TLS options and certificate paths used for secure communication
+  # between servers and clients. Credentials are built based on the configuration mode.
+  # For example, If only server-side TLS is required, the certificate pool (certPool)
+  # is not built (for a server), since the relevant certificates paths are defined
+  # in the YAML according to the selected mode.
+  tls:
+    # Path to the server's TLS private key file.
+    key-path: {{ loadgen_config_dir }}/tls/server.key
+    # Path to the server's TLS certificate file (public key).
+    cert-path: {{ loadgen_config_dir }}/tls/server.crt
+{% if loadgen_use_mtls %}
+    # TLS mode for monitoring endpoint: 'none' (no TLS), 'tls' (server auth only),
+    # or 'mtls' (mutual TLS with client cert verification).
+    mode: mtls
+    # List of paths to CA certificate files for verifying client certificates (required for mtls).
+    ca-cert-paths:
+      # Accept mTLS connections from others within the same org
+      - {{ loadgen_config_dir }}/tls/ca.crt
+{% if loadgen_mtls_clients is defined %}
+      # Other mTLS clients
+{% for loadgen_mtls_client in loadgen_mtls_clients %}
+      - {{ loadgen_config_dir }}/mtls/{{ loadgen_mtls_client }}/ca.crt
+{% endfor %}
+{% endif %}
+{% if loadgen_mtls_orgs is defined %}
+      # Other mTLS Orgs
+{% for loadgen_mtls_org in loadgen_mtls_orgs %}
+      - {{ loadgen_config_dir }}/mtls/{{ loadgen_mtls_org.domain }}/ca.crt
+{% endfor %}
+{% endif %}
+{% else %}
+    # TLS mode for monitoring endpoint: 'none' (no TLS), 'tls' (server auth only),
+    # or 'mtls' (mutual TLS with client cert verification).
+    mode: tls
+{% endif %}
+{% endif %}

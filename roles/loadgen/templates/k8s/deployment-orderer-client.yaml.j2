@@ -31,7 +31,6 @@ spec:
         - name: loadgen
           image: {{ loadgen_image }}
           args:
-            - "loadgen"
             - "start"
             - "--config={{ loadgen_container_config_dir }}/{{ loadgen_config_file }}"
           ports:
@@ -41,14 +40,36 @@ spec:
             - name: metrics
               containerPort: {{ loadgen_metrics_port }}
               protocol: TCP
+            - name: rpc
+              containerPort: {{ loadgen_rpc_port }}
+              protocol: TCP
           volumeMounts:
             # Main loadgen configuration file.
             - name: config
               mountPath: {{ loadgen_container_config_dir }}/{{ loadgen_config_file }}
               subPath: config-loadgen.yaml
+            # Peer MSP private signing key.
+            - name: secret
+              mountPath: {{ loadgen_container_config_dir }}/msp/keystore/priv_sk
+              subPath: msp-keystore-priv-sk
+              readOnly: true
+            # Peer MSP signing certificate (Fabric CA).
+            - name: secret
+              mountPath: {{ loadgen_container_config_dir }}/msp/signcerts/cert.pem
+              subPath: msp-signcert.pem
+              readOnly: true
+            # Peer MSP CA certificate.
+            - name: secret
+              mountPath: {{ loadgen_container_config_dir }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem
+              subPath: msp-cacert.pem
+              readOnly: true
+            # Peer MSP NodeOUs config for identity classification.
+            - name: secret
+              mountPath: {{ loadgen_container_config_dir }}/msp/config.yaml
+              subPath: msp-config.yaml
+              readOnly: true
 {% if organization.users is defined %}
 {% for user in organization.users %}
-{% if user.namespace is defined %}
             # MSP private signing key for user {{ user.name }}.
             - name: secret
               mountPath: {{ loadgen_container_config_dir }}/users/{{ user.name }}@{{ organization.domain }}/msp/keystore/priv_sk
@@ -72,10 +93,9 @@ spec:
               mountPath: {{ loadgen_container_config_dir }}/users/{{ user.name }}@{{ organization.domain }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem
               subPath: user-{{ user.name }}-msp-cacert.pem
               readOnly: true
-{% endif %}
 {% endfor %}
 {% endif %}
-{% if loadgen_use_tls %}
+{% if loadgen_use_tls or loadgen_monitoring_use_tls %}
             # TLS private key.
             - name: secret
               mountPath: {{ loadgen_container_config_dir }}/tls/server.key
@@ -92,12 +112,57 @@ spec:
               subPath: tls-ca.crt
               readOnly: true
 {% endif %}
+{% if loadgen_use_mtls and loadgen_mtls_clients is defined %}
+{% for current_loadgen_mtls_client in loadgen_mtls_clients %}
+            # mTLS CA certificate for client {{ current_loadgen_mtls_client }} (gRPC server).
+            - name: config
+              mountPath: {{ loadgen_container_config_dir }}/mtls/{{ current_loadgen_mtls_client }}/ca.crt
+              subPath: mtls-client-{{ current_loadgen_mtls_client }}-ca.crt
+              readOnly: true
+{% endfor %}
+{% endif %}
+{% if loadgen_use_mtls and loadgen_mtls_orgs is defined %}
+{% for current_loadgen_mtls_org in loadgen_mtls_orgs %}
+            # mTLS CA certificate for org {{ current_loadgen_mtls_org.domain }} (gRPC server).
+            - name: config
+              mountPath: {{ loadgen_container_config_dir }}/mtls/{{ current_loadgen_mtls_org.domain }}/ca.crt
+              subPath: mtls-org-{{ current_loadgen_mtls_org.domain }}-ca.crt
+              readOnly: true
+{% endfor %}
+{% endif %}
+{% if loadgen_monitoring_use_mtls and loadgen_monitoring_mtls_clients is defined %}
+{% for current_loadgen_monitoring_mtls_client in loadgen_monitoring_mtls_clients %}
+{% if current_loadgen_monitoring_mtls_client not in (loadgen_mtls_clients | default([])) %}
+            # mTLS CA certificate for client {{ current_loadgen_monitoring_mtls_client }} (monitoring).
+            - name: config
+              mountPath: {{ loadgen_container_config_dir }}/mtls/{{ current_loadgen_monitoring_mtls_client }}/ca.crt
+              subPath: mtls-client-{{ current_loadgen_monitoring_mtls_client }}-ca.crt
+              readOnly: true
+{% endif %}
+{% endfor %}
+{% endif %}
+{% if loadgen_monitoring_use_mtls and loadgen_monitoring_mtls_orgs is defined %}
+{% for current_loadgen_monitoring_mtls_org in loadgen_monitoring_mtls_orgs %}
+{% if current_loadgen_monitoring_mtls_org not in (loadgen_mtls_orgs | default([])) %}
+            # mTLS CA certificate for org {{ current_loadgen_monitoring_mtls_org.domain }} (monitoring).
+            - name: config
+              mountPath: {{ loadgen_container_config_dir }}/mtls/{{ current_loadgen_monitoring_mtls_org.domain }}/ca.crt
+              subPath: mtls-org-{{ current_loadgen_monitoring_mtls_org.domain }}-ca.crt
+              readOnly: true
+{% endif %}
+{% endfor %}
+{% endif %}
 {% for current_orderer_router in orderer_router_hosts %}
 {% if hostvars[current_orderer_router].orderer_use_tls is defined and hostvars[current_orderer_router].orderer_use_tls %}
             # TLS CA certificate for orderer router {{ current_orderer_router }}.
             - name: config
               mountPath: {{ loadgen_container_config_dir }}/tls/orderers/{{ current_orderer_router }}/ca.crt
               subPath: tls-orderers-{{ current_orderer_router }}-ca.crt
+              readOnly: true
+            # TLS server certificate for orderer router {{ current_orderer_router }}.
+            - name: config
+              mountPath: {{ loadgen_container_config_dir }}/tls/orderers/{{ current_orderer_router }}/server.crt
+              subPath: tls-orderers-{{ current_orderer_router }}-server.crt
               readOnly: true
 {% endif %}
 {% endfor %}
@@ -108,6 +173,11 @@ spec:
             - name: config
               mountPath: {{ loadgen_container_config_dir }}/tls/orderers/{{ current_orderer_assembler }}/ca.crt
               subPath: tls-orderers-{{ current_orderer_assembler }}-ca.crt
+              readOnly: true
+            # TLS server certificate for orderer assembler {{ current_orderer_assembler }}.
+            - name: config
+              mountPath: {{ loadgen_container_config_dir }}/tls/orderers/{{ current_orderer_assembler }}/server.crt
+              subPath: tls-orderers-{{ current_orderer_assembler }}-server.crt
               readOnly: true
 {% endif %}
 {% endfor %}

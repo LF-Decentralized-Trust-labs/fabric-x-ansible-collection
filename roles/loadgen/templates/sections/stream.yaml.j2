@@ -5,14 +5,14 @@
 # However, these parameters might affect the order of the items.
 # ---------------------------------------------------------------------------
 stream:
-  # Limiter settings
-  rate-limit:
-    # Endpoint for a simple http server to set the limiter.
-    endpoint: :{{ loadgen_web_port }}
-    # Initial limit rate
-    initial-limit: {{ loadgen_limit_rate | default(10) }}
-  # Impact the rate by batching generated items before inserting then the channel.
-  # This helps overcome the inherit rate limitation of Go channels.
+  # Maximum number of transactions per second that the load generator will produce.
+  # Set to 0 for unlimited rate. This directly controls the transaction generation throughput.
+  rate-limit: {{ loadgen_limit_rate | default(10) }}
+  # Number of transactions generated in each batch by worker goroutines before
+  # inserting into channels. Batching helps overcome Go channel rate limitations.
+  # Larger batches improve efficiency but may increase latency variance.
   gen-batch: {{ loadgen_stream_batches | default(1) }}
-  # Impact the rate by masking fluctuation in performance.
+  # Size of internal channel buffers used in the transaction generation pipeline.
+  # Larger buffers mask performance fluctuations and improve throughput but increase
+  # memory usage and latency. We set low values to reduce the CPU load during tests.
   buffers-size: {{ loadgen_stream_buffers_size | default(1) }}

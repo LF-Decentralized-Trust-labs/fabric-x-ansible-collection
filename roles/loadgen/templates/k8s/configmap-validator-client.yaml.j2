@@ -22,3 +22,35 @@ data:
   tls-validators-ca.crt: |
     {{ lookup('file', loadgen_remote_config_dir + '/tls/validators/ca.crt') | indent(4) }}
 {% endif %}
+{% if loadgen_use_mtls and loadgen_mtls_clients is defined %}
+{% for current_loadgen_mtls_client in loadgen_mtls_clients %}
+  # mTLS CA certificate for client {{ current_loadgen_mtls_client }} (accepted on gRPC server).
+  mtls-client-{{ current_loadgen_mtls_client }}-ca.crt: |
+    {{ lookup('file', loadgen_remote_config_dir + '/mtls/' + current_loadgen_mtls_client + '/ca.crt') | indent(4) }}
+{% endfor %}
+{% endif %}
+{% if loadgen_use_mtls and loadgen_mtls_orgs is defined %}
+{% for current_loadgen_mtls_org in loadgen_mtls_orgs %}
+  # mTLS CA certificate for org {{ current_loadgen_mtls_org.domain }} (accepted on gRPC server).
+  mtls-org-{{ current_loadgen_mtls_org.domain }}-ca.crt: |
+    {{ lookup('file', loadgen_remote_config_dir + '/mtls/' + current_loadgen_mtls_org.domain + '/ca.crt') | indent(4) }}
+{% endfor %}
+{% endif %}
+{% if loadgen_monitoring_use_mtls and loadgen_monitoring_mtls_clients is defined %}
+{% for current_loadgen_monitoring_mtls_client in loadgen_monitoring_mtls_clients %}
+{% if current_loadgen_monitoring_mtls_client not in (loadgen_mtls_clients | default([])) %}
+  # mTLS CA certificate for client {{ current_loadgen_monitoring_mtls_client }} (accepted on monitoring endpoint).
+  mtls-client-{{ current_loadgen_monitoring_mtls_client }}-ca.crt: |
+    {{ lookup('file', loadgen_remote_config_dir + '/mtls/' + current_loadgen_monitoring_mtls_client + '/ca.crt') | indent(4) }}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% if loadgen_monitoring_use_mtls and loadgen_monitoring_mtls_orgs is defined %}
+{% for current_loadgen_monitoring_mtls_org in loadgen_monitoring_mtls_orgs %}
+{% if current_loadgen_monitoring_mtls_org not in (loadgen_mtls_orgs | default([])) %}
+  # mTLS CA certificate for org {{ current_loadgen_monitoring_mtls_org.domain }} (accepted on monitoring endpoint).
+  mtls-org-{{ current_loadgen_monitoring_mtls_org.domain }}-ca.crt: |
+    {{ lookup('file', loadgen_remote_config_dir + '/mtls/' + current_loadgen_monitoring_mtls_org.domain + '/ca.crt') | indent(4) }}
+{% endif %}
+{% endfor %}
+{% endif %}

@@ -1,0 +1,85 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Define fxconfig output directory
+  ansible.builtin.set_fact:
+    fxconfig_output_dir: "{{ fxconfig_output | dirname }}"
+
+- name: Ensure fxconfig output directory exists
+  ansible.builtin.file:
+    path: "{{ fxconfig_output_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Find all endorsed transactions in JSON format to merge
+  ansible.builtin.find:
+    paths: "{{ fxconfig_endorsed_txs_dir }}"
+    patterns: "*.json"
+    recurse: true
+    file_type: file
+  register: fxconfig_endorsed_txs_find_result
+
+- name: Set found endorsed transaction
+  ansible.builtin.set_fact:
+    fxconfig_endorsed_txs: >-
+      {{
+        fxconfig_endorsed_txs_find_result.files
+        | map(attribute='path')
+        | list
+      }}
+
+- name: Set single endorsed transaction as merged one
+  ansible.builtin.copy:
+    src: "{{ fxconfig_endorsed_txs[0] }}"
+    dest: "{{ fxconfig_output }}"
+    mode: preserve
+  when:
+    - fxconfig_endorsed_txs | length == 1
+
+- name: Merge multiple endorsed transactions in a single one
+  when:
+    - fxconfig_endorsed_txs | length > 1
+  block:
+    - name: Set mandatory fxconfig volumes for merge
+      ansible.builtin.set_fact:
+        fxconfig_volumes:
+          - "{{ fxconfig_output_dir }}:/tmp:z"
+        fxconfig_endorsed_tx_volumes: []
+    - name: Map endorsed transaction paths to volumes
+      vars:
+        current_endorsed_tx_filename: "{{ current_endorsed_tx_path | basename }}"
+        fxconfig_endorsed_tx_volume: "{{ fxconfig_container_config_dir }}/{{ current_endorsed_tx_filename }}"
+        fxconfig_endorsed_tx_volume_map: "{{ current_endorsed_tx_path }}:{{ fxconfig_endorsed_tx_volume }}:z,ro"
+      ansible.builtin.set_fact:
+        fxconfig_endorsed_tx_volumes: "{{ fxconfig_endorsed_tx_volumes + [fxconfig_endorsed_tx_volume] }}"
+        fxconfig_volumes: "{{ fxconfig_volumes + [fxconfig_endorsed_tx_volume_map] }}"
+      loop: "{{ fxconfig_endorsed_txs }}"
+      loop_control:
+        loop_var: current_endorsed_tx_path
+        label: "{{ current_endorsed_tx_filename }}"
+    - name: Merge multiple endorsed transactions in a single one with fxconfig container
+      vars:
+        container_name: "{{ fxconfig_container_name }}-merge"
+        container_image: "{{ fxconfig_image }}"
+        container_env:
+          FXCONFIG_LOGGING_LEVEL: "{{ fxconfig_log_level }}"
+          FXCONFIG_LOGGING_FORMAT: "{{ fxconfig_log_format | quote }}"
+        container_command: >-
+          {{ fxconfig_bin_name }} tx
+          merge
+          {% if fxconfig_endorsed_tx_volumes is defined %}
+          {% for fxconfig_endorsed_tx_volume in fxconfig_endorsed_tx_volumes %}
+          {{ fxconfig_endorsed_tx_volume }}
+          {% endfor %}
+          {% endif %}
+          --output=/tmp/{{ fxconfig_output | basename }}
+        container_volumes: "{{ fxconfig_volumes }}"
+        container_run_detach_mode: false
+        container_run_as_host_user: true
+        container_autoremove: true
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.container
+        tasks_from: start

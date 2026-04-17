@@ -13,15 +13,47 @@
     tasks_from: namespace/create
 
 # =========================
+# Resolve dynamic cert paths via glob
+# =========================
+- name: Resolve Fabric-X Committer MSP CA cert path
+  when:
+    - committer_component_type == 'sidecar'
+  block:
+    - name: Resolve Fabric-X Committer MSP CA cert path for Fabric CA
+      ansible.builtin.set_fact:
+        committer_k8s_msp_cacerts_path: >-
+          {{
+            query('fileglob', committer_remote_config_dir + '/msp/cacerts/*.pem')
+            | first
+          }}
+      when:
+        - organization.fabric_ca_host is defined
+    - name: Resolve Fabric-X Committer MSP CA cert path for cryptogen
+      ansible.builtin.set_fact:
+        committer_k8s_msp_cacerts_path: "{{ committer_remote_config_dir }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem"
+      when:
+        - organization.fabric_ca_host is undefined
+
+# =========================
 # Apply Secret
 # =========================
 - name: Apply Fabric-X Committer Secret
   vars:
+    cryptogen_signcert_file: "{{ committer_crypto_name }}.{{ organization.domain }}-cert.pem"
+    fabric_ca_signcert_file: "cert.pem"
+    signcert_file: >-
+      {{
+        cryptogen_signcert_file
+        if organization.fabric_ca_host is undefined
+        else fabric_ca_signcert_file
+      }}
     committer_k8s_tls_server_key_path: "{{ committer_remote_config_dir }}/tls/server.key"
     committer_k8s_tls_server_crt_path: "{{ committer_remote_config_dir }}/tls/server.crt"
     committer_k8s_tls_ca_crt_path: "{{ committer_remote_config_dir }}/tls/ca.crt"
+    committer_k8s_msp_signcerts_path: "{{ committer_remote_config_dir }}/msp/signcerts/{{ signcert_file }}"
+    committer_k8s_msp_keystore_path: "{{ committer_remote_config_dir }}/msp/keystore/priv_sk"
+    committer_k8s_msp_config_path: "{{ committer_remote_config_dir }}/msp/config.yaml"
   kubernetes.core.k8s:
     state: present
     template:
       path: k8s/secret.yaml.j2
-  when: committer_use_tls

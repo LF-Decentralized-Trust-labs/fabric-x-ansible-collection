@@ -48,6 +48,19 @@
     - hostvars[current_orderer_router].orderer_use_tls is defined
     - hostvars[current_orderer_router].orderer_use_tls
 
+- name: Transfer Hyperledger Fabric-X Orderer Routers TLS server certificates
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/{{ current_orderer_router }}/tls/server.crt"
+    dest: "{{ loadgen_remote_config_dir }}/tls/orderers/{{ current_orderer_router }}/server.crt"
+    mode: "0o644"
+  loop: "{{ orderer_router_hosts }}"
+  loop_control:
+    loop_var: current_orderer_router
+    label: "{{ current_orderer_router }}"
+  when:
+    - hostvars[current_orderer_router].orderer_use_tls is defined
+    - hostvars[current_orderer_router].orderer_use_tls
+
 # =========================
 # HLFX Orderer Assemblers TLS
 # =========================
@@ -69,6 +82,20 @@
   ansible.builtin.copy:
     src: "{{ fetched_artifacts_dir }}/{{ current_orderer_assembler }}/tls/ca.crt"
     dest: "{{ loadgen_remote_config_dir }}/tls/orderers/{{ current_orderer_assembler }}/ca.crt"
+    mode: "0o644"
+  loop: "{{ orderer_assembler_hosts }}"
+  loop_control:
+    loop_var: current_orderer_assembler
+    label: "{{ current_orderer_assembler }}"
+  when:
+    - orderer_assembler_hosts is defined
+    - hostvars[current_orderer_assembler].orderer_use_tls is defined
+    - hostvars[current_orderer_assembler].orderer_use_tls
+
+- name: Transfer Hyperledger Fabric-X Orderer Assemblers TLS server certificates
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/{{ current_orderer_assembler }}/tls/server.crt"
+    dest: "{{ loadgen_remote_config_dir }}/tls/orderers/{{ current_orderer_assembler }}/server.crt"
     mode: "0o644"
   loop: "{{ orderer_assembler_hosts }}"
   loop_control:
