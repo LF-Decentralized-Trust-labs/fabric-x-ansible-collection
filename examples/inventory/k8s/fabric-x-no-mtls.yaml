@@ -91,27 +91,27 @@ all:
                     hf.GenCRL: "true"
                     hf.Revoker: "true"
               hosts:
-                fabric-ca-orderer-org1:
+                fca-orderer-org1:
                   fabric_ca_port: 30919
                   fabric_ca_operations_port: 30920
                   organization: *OrdererOrg1
                   postgres_db_host: fca-orderer-org1-db
-                fabric-ca-orderer-org2:
+                fca-orderer-org2:
                   fabric_ca_port: 30929
                   fabric_ca_operations_port: 30930
                   organization: *OrdererOrg2
                   postgres_db_host: fca-orderer-org2-db
-                fabric-ca-orderer-org3:
+                fca-orderer-org3:
                   fabric_ca_port: 30939
                   fabric_ca_operations_port: 30940
                   organization: *OrdererOrg3
                   postgres_db_host: fca-orderer-org3-db
-                fabric-ca-orderer-org4:
+                fca-orderer-org4:
                   fabric_ca_port: 30949
                   fabric_ca_operations_port: 30950
                   organization: *OrdererOrg4
                   postgres_db_host: fca-orderer-org4-db
-                fabric-ca-org1:
+                fca-org1:
                   fabric_ca_port: 30969
                   fabric_ca_operations_port: 30970
                   organization: *Org1
@@ -137,7 +137,7 @@ all:
                   vars:
                     organization:
                       <<: *OrdererOrg1
-                      fabric_ca_host: fabric-ca-orderer-org1
+                      fabric_ca_host: fca-orderer-org1
                       role: orderer
                       orderer:
                         name: "{{ inventory_hostname }}"
@@ -165,7 +165,7 @@ all:
                   vars:
                     organization:
                       <<: *OrdererOrg2
-                      fabric_ca_host: fabric-ca-orderer-org2
+                      fabric_ca_host: fca-orderer-org2
                       role: orderer
                       orderer:
                         name: "{{ inventory_hostname }}"
@@ -193,7 +193,7 @@ all:
                   vars:
                     organization:
                       <<: *OrdererOrg3
-                      fabric_ca_host: fabric-ca-orderer-org3
+                      fabric_ca_host: fca-orderer-org3
                       role: orderer
                       orderer:
                         name: "{{ inventory_hostname }}"
@@ -221,7 +221,7 @@ all:
                   vars:
                     organization:
                       <<: *OrdererOrg4
-                      fabric_ca_host: fabric-ca-orderer-org4
+                      fabric_ca_host: fca-orderer-org4
                       role: orderer
                       orderer:
                         name: "{{ inventory_hostname }}"
@@ -255,7 +255,7 @@ all:
                 committer_use_tls: true
                 organization:
                   <<: *Org1
-                  fabric_ca_host: fabric-ca-org1
+                  fabric_ca_host: fca-org1
                   role: peer
                   peer:
                     name: "{{ inventory_hostname }}"
@@ -300,7 +300,7 @@ all:
           loadgen_use_k8s: true
           organization:
             <<: *Org1
-            fabric_ca_host: fabric-ca-org1
+            fabric_ca_host: fca-org1
             role: peer
             peer:
               name: "{{ inventory_hostname }}"
