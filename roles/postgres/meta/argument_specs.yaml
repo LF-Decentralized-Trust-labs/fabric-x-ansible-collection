@@ -528,6 +528,28 @@ argument_specs:
           - Fabric organization configuration used to resolve peer identities and Fabric CA enrollment inputs for PostgreSQL TLS setup.
           - Required when PostgreSQL TLS is sourced from cryptogen or Fabric CA.
 
+  crypto/fetch:
+    short_description: Fetch PostgreSQL TLS certificates
+    description:
+      - Fetch the PostgreSQL TLS CA certificate and server certificate to the control node.
+      - This task runs only when `postgres_use_tls` is true.
+    options:
+      postgres_remote_config_dir:
+        type: path
+        required: true
+        description:
+          - Remote directory where PostgreSQL TLS files are stored on the target host.
+      fetched_artifacts_dir:
+        type: path
+        required: true
+        description:
+          - Control-node directory where fetched PostgreSQL TLS files are written.
+      postgres_use_tls:
+        type: bool
+        required: false
+        default: false
+        description: Fetch PostgreSQL TLS files only when TLS is enabled.
+
   crypto/openssl/generate_cert:
     short_description: Generate PostgreSQL TLS materials with OpenSSL
     description:
