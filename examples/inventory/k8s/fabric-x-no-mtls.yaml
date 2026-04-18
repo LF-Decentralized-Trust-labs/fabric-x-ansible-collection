@@ -83,6 +83,7 @@ all:
             fabric_ca_servers:
               vars:
                 fabric_ca_server_use_k8s: true
+                fabric_ca_server_k8s_use_node_port: true
                 fabric_ca_use_tls: true
                 fabric_ca_name: "{{ inventory_hostname }}"
                 fabric_ca_admin:
@@ -97,41 +98,31 @@ all:
                 fca-orderer-org1:
                   fabric_ca_port: 9019
                   fabric_ca_operations_port: 9020
-                  fabric_ca_server_k8s_use_node_port: true
                   fabric_ca_server_k8s_port_node_port: 30919
-                  fabric_ca_server_k8s_operations_node_port: 30920
                   organization: *OrdererOrg1
                   postgres_db_host: fca-orderer-org1-db
                 fca-orderer-org2:
                   fabric_ca_port: 9029
                   fabric_ca_operations_port: 9030
-                  fabric_ca_server_k8s_use_node_port: true
                   fabric_ca_server_k8s_port_node_port: 30929
-                  fabric_ca_server_k8s_operations_node_port: 30930
                   organization: *OrdererOrg2
                   postgres_db_host: fca-orderer-org2-db
                 fca-orderer-org3:
                   fabric_ca_port: 9039
                   fabric_ca_operations_port: 9040
-                  fabric_ca_server_k8s_use_node_port: true
                   fabric_ca_server_k8s_port_node_port: 30939
-                  fabric_ca_server_k8s_operations_node_port: 30940
                   organization: *OrdererOrg3
                   postgres_db_host: fca-orderer-org3-db
                 fca-orderer-org4:
                   fabric_ca_port: 9049
                   fabric_ca_operations_port: 9050
-                  fabric_ca_server_k8s_use_node_port: true
                   fabric_ca_server_k8s_port_node_port: 30949
-                  fabric_ca_server_k8s_operations_node_port: 30950
                   organization: *OrdererOrg4
                   postgres_db_host: fca-orderer-org4-db
                 fca-org1:
                   fabric_ca_port: 9069
                   fabric_ca_operations_port: 9070
-                  fabric_ca_server_k8s_use_node_port: true
                   fabric_ca_server_k8s_port_node_port: 30969
-                  fabric_ca_server_k8s_operations_node_port: 30970
                   organization: *Org1
                   postgres_db_host: fca-org1-db
 
@@ -349,7 +340,6 @@ all:
           loadgen_rpc_port: 12020
           loadgen_k8s_use_node_port: true
           loadgen_k8s_web_node_port: 30610
-          loadgen_k8s_metrics_node_port: 30620
 
     # =========================
     # Monitoring Infra
