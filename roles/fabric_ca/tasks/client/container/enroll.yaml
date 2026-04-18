@@ -37,7 +37,7 @@
 - name: Resolve effective Fabric CA connection port
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
-    tasks_from: client/effective_port
+    tasks_from: client/effective_address
 
 - name: Prepare and enroll identity with Fabric CA client container
   when:
@@ -74,7 +74,7 @@
         container_command: >-
           {{ fabric_ca_client_bin_name }}
           enroll
-          -u {{ fabric_ca_scheme }}://{{ fabric_ca_identity.name }}:{{ fabric_ca_identity.secret }}@{{ hostvars[fabric_ca_host].actual_host }}:{{ fabric_ca_client_effective_port }}
+          -u {{ fabric_ca_scheme }}://{{ fabric_ca_identity.name }}:{{ fabric_ca_identity.secret }}@{{ fabric_ca_client_effective_address }}
           --caname {{ fabric_ca_name }}
           --mspdir {{ fabric_ca_client_container_config_dir }}
           {% if fabric_ca_enrollment_type == 'idemix' %}

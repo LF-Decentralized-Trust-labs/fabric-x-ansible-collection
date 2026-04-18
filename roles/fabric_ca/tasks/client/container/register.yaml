@@ -37,7 +37,7 @@
 - name: Resolve effective Fabric CA connection port
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
-    tasks_from: client/effective_port
+    tasks_from: client/effective_address
 
 # If you want the attributes to appear in the certificate, make sure to set them with the ":ecert" suffix.
 # e.g: hf.GenCRL: "true:ecert"
@@ -49,7 +49,7 @@
       FABRIC_CA_CLIENT_HOME: "{{ fabric_ca_client_container_config_dir }}"
     container_command: >-
       {{ fabric_ca_client_bin_name }} register
-      -u {{ fabric_ca_scheme }}://{{ hostvars[fabric_ca_host].actual_host }}:{{ fabric_ca_client_effective_port }}
+      -u {{ fabric_ca_scheme }}://{{ fabric_ca_client_effective_address }}
       --caname {{ fabric_ca_name }}
       --id.name {{ fabric_ca_identity.name }}
       --id.secret {{ fabric_ca_identity.secret }}
