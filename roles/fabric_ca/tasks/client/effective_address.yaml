@@ -10,6 +10,7 @@
   when:
     - hostvars[fabric_ca_host].fabric_ca_server_k8s_use_node_port is defined
     - hostvars[fabric_ca_host].fabric_ca_server_k8s_use_node_port
+    - hostvars[fabric_ca_host].fabric_ca_server_k8s_port_node_port is defined
 
 - name: Set fabric_ca client effective connection address (default)
   ansible.builtin.set_fact:

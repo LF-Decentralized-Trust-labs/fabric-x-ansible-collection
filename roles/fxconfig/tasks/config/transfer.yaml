@@ -25,6 +25,7 @@
   when:
     - hostvars[orderer_router_host].orderer_k8s_use_node_port is defined
     - hostvars[orderer_router_host].orderer_k8s_use_node_port
+    - hostvars[orderer_router_host].orderer_k8s_rpc_node_port is defined
 
 - name: Set fxconfig effective committer sidecar address (NodePort)
   ansible.builtin.set_fact:
@@ -32,6 +33,7 @@
   when:
     - hostvars[committer_sidecar_host].committer_k8s_use_node_port is defined
     - hostvars[committer_sidecar_host].committer_k8s_use_node_port
+    - hostvars[committer_sidecar_host].committer_k8s_rpc_node_port is defined
 
 - name: Set fxconfig effective committer query-service address (NodePort)
   ansible.builtin.set_fact:
@@ -39,6 +41,7 @@
   when:
     - hostvars[committer_query_service_host].committer_k8s_use_node_port is defined
     - hostvars[committer_query_service_host].committer_k8s_use_node_port
+    - hostvars[committer_query_service_host].committer_k8s_rpc_node_port is defined
 
 - name: Setup the fxconfig configuration file
   vars:
