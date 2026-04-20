@@ -288,47 +288,10 @@ argument_specs:
           - The template default is C(5).
       organization: &organization
         type: dict
+        required: false
         description:
           - Fabric organization inputs used by PostgreSQL TLS generation paths.
           - The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA.
-        options:
-          domain: &organization_domain
-            type: str
-            required: false
-            description:
-              - Fabric organization domain used to resolve peer artifact paths.
-              - Required by the cryptogen and Fabric CA TLS flows.
-          role: &organization_role
-            type: str
-            required: false
-            description:
-              - Fabric organization role used to select peer-specific TLS flows.
-              - PostgreSQL only branches to the peer role for cryptogen and Fabric CA generation.
-          fabric_ca_host: &organization_fabric_ca_host
-            type: str
-            required: false
-            description:
-              - Hostname of the Fabric CA instance used for PostgreSQL TLS enrollment.
-              - Required by the Fabric CA TLS flow.
-          peer: &organization_peer
-            type: dict
-            required: false
-            description:
-              - Peer identity details used by the cryptogen and Fabric CA TLS flows.
-            options:
-              name: &organization_peer_name
-                type: str
-                required: false
-                default: "{{ inventory_hostname }}"
-                description:
-                  - Peer identity name used to locate cryptogen artifacts and enroll through Fabric CA.
-                  - The default derives from C(inventory_hostname).
-              secret: &organization_peer_secret
-                type: str
-                required: false
-                description:
-                  - Peer enrollment secret used by Fabric CA.
-                  - Store this value in an Ansible Vault.
 
   ping:
     short_description: Check PostgreSQL reachability
