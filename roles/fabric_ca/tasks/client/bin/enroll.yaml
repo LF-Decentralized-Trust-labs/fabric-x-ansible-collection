@@ -28,6 +28,11 @@
   when:
     - fabric_ca_enrollment_type == 'idemix'
 
+- name: Resolve effective Fabric CA connection port
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/effective_address
+
 # TODO: When owner-wallet Idemix credentials move to the Onboarding Repository, scope this to Fabric identities only.
 - name: Enroll identity with Fabric CA client binary
   vars:
@@ -36,7 +41,7 @@
     bin_command: >-
       {{ fabric_ca_client_bin_name }}
       enroll
-      -u {{ fabric_ca_scheme }}://{{ fabric_ca_identity.name }}:{{ fabric_ca_identity.secret }}@{{ hostvars[fabric_ca_host].actual_host }}:{{ hostvars[fabric_ca_host].fabric_ca_port }}
+      -u {{ fabric_ca_scheme }}://{{ fabric_ca_identity.name }}:{{ fabric_ca_identity.secret }}@{{ fabric_ca_client_effective_address }}
       --caname {{ fabric_ca_name }}
       --mspdir {{ fabric_ca_msp_dir }}
       {% if fabric_ca_enrollment_type == 'idemix' %}
