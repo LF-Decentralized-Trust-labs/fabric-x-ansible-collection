@@ -204,6 +204,8 @@ Collects CA server logs:
 | `client/revoke`        | [tasks/client/revoke.yaml](./tasks/client/revoke.yaml)               | Revokes an identity    |
 | `client/gencrl`        | [tasks/client/gencrl.yaml](./tasks/client/gencrl.yaml)               | Generates CRL          |
 
+Client operations automatically resolve the effective Fabric CA connection port and use the NodePort value whenever `fabric_ca_server_k8s_use_node_port: true` is enabled on the referenced CA host.
+
 #### client/register
 
 Registers an identity:
