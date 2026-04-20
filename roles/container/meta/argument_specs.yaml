@@ -12,26 +12,6 @@ argument_specs:
       - "Reusable inputs for container lifecycle tasks and backend dispatchers."
       - "Entry points below reference these definitions directly or spell out the few optional overrides explicitly."
     options:
-      ansible_env: &ansible_env
-        type: dict
-        required: false
-        description:
-          - "Provides environment variables used by container defaults and Docker rootless detection."
-      ansible_facts: &ansible_facts
-        type: dict
-        required: false
-        description:
-          - "Provides host facts used by container defaults and Linux install checks."
-      ansible_user_id: &ansible_user_id
-        type: str
-        required: false
-        description:
-          - "Provides the current Ansible user name for Docker group membership."
-      inventory_hostname: &inventory_hostname
-        type: str
-        required: false
-        description:
-          - "Provides the fallback host name used by C(container_hostname)."
       actual_host: &actual_host
         type: str
         required: false
@@ -359,8 +339,6 @@ argument_specs:
     description:
       - "Detects an available container client and installs Docker or Podman on Linux when needed."
     options:
-      ansible_facts: *ansible_facts
-      ansible_user_id: *ansible_user_id
       container_client: *container_client
 
   get_container_client:
@@ -368,7 +346,6 @@ argument_specs:
     description:
       - "Chooses the requested container client or auto-detects one from the current host."
     options:
-      ansible_facts: *ansible_facts
       container_client: *container_client
 
   start:
@@ -376,8 +353,6 @@ argument_specs:
     description:
       - "Logs the command in debug mode, resolves the container client, and delegates startup to the matching backend task file."
     options:
-      ansible_env: *ansible_env
-      ansible_facts: *ansible_facts
       container_client: *container_client
       container_name: *container_name
       container_image: *container_image
@@ -417,7 +392,6 @@ argument_specs:
       container_wait_port: *container_wait_port
       container_wait_delay: *container_wait_delay
       container_wait_timeout: *container_wait_timeout
-      inventory_hostname: *inventory_hostname
 
   stop:
     short_description: Stop a container with the selected client
@@ -495,7 +469,6 @@ argument_specs:
     description:
       - "Resolves the active container client and delegates volume creation to the matching backend task file."
     options:
-      ansible_facts: *ansible_facts
       container_client: *container_client
       container_name:
         <<: *container_name
@@ -517,8 +490,6 @@ argument_specs:
     description:
       - "Resolves the active container client and delegates volume removal to the matching backend task file."
     options:
-      ansible_env: *ansible_env
-      ansible_facts: *ansible_facts
       container_client: *container_client
       container_host_uid: *container_host_uid
       container_host_gid: *container_host_gid
@@ -531,17 +502,13 @@ argument_specs:
     short_description: Install Docker on the target host
     description:
       - "Installs Docker on Linux, enables the service, and runs a hello-world container to verify the client."
-    options:
-      ansible_facts: *ansible_facts
-      ansible_user_id: *ansible_user_id
+    options: {}
 
   docker/start:
     short_description: Start a container with Docker
     description:
       - "Starts a Docker container with the requested runtime options and optionally waits for health or port readiness."
     options:
-      ansible_env: *ansible_env
-      ansible_facts: *ansible_facts
       container_name: *container_name
       container_image: *container_image
       container_entrypoint: *container_entrypoint
@@ -579,7 +546,6 @@ argument_specs:
       container_wait_port: *container_wait_port
       container_wait_delay: *container_wait_delay
       container_wait_timeout: *container_wait_timeout
-      inventory_hostname: *inventory_hostname
 
   docker/stop:
     short_description: Stop a container with Docker
@@ -637,7 +603,6 @@ argument_specs:
     description:
       - "Creates a Docker volume and adjusts ownership when needed."
     options:
-      ansible_facts: *ansible_facts
       container_name:
         <<: *container_name
         required: false
@@ -658,8 +623,6 @@ argument_specs:
     description:
       - "Removes a Docker volume path."
     options:
-      ansible_env: *ansible_env
-      ansible_facts: *ansible_facts
       container_host_uid: *container_host_uid
       container_host_gid: *container_host_gid
       container_host_user: *container_host_user
@@ -678,8 +641,6 @@ argument_specs:
     description:
       - "Starts a Podman container with the requested runtime options and optionally waits for health or port readiness."
     options:
-      ansible_env: *ansible_env
-      ansible_facts: *ansible_facts
       container_name: *container_name
       container_image: *container_image
       container_entrypoint: *container_entrypoint
@@ -718,7 +679,6 @@ argument_specs:
       container_wait_port: *container_wait_port
       container_wait_delay: *container_wait_delay
       container_wait_timeout: *container_wait_timeout
-      inventory_hostname: *inventory_hostname
 
   podman/stop:
     short_description: Stop a container with Podman
@@ -775,7 +735,6 @@ argument_specs:
     description:
       - "Creates a Podman volume and adjusts ownership when needed."
     options:
-      ansible_facts: *ansible_facts
       container_name:
         <<: *container_name
         required: false
@@ -796,7 +755,6 @@ argument_specs:
     description:
       - "Removes a Podman volume path."
     options:
-      ansible_facts: *ansible_facts
       container_host_uid: *container_host_uid
       container_host_gid: *container_host_gid
       container_host_user: *container_host_user
