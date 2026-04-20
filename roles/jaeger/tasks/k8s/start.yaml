@@ -26,6 +26,7 @@
     state: present
     template:
       path: k8s/service-nodeport.yaml.j2
+  when: jaeger_k8s_use_node_port
 
 - name: Apply Jaeger Deployment
   kubernetes.core.k8s:

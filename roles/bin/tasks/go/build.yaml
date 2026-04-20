@@ -4,11 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that the binary name has been defined
-  ansible.builtin.fail:
-    msg: "No bin name is indicated. Set it via 'bin_name'."
-  when: bin_name is not defined
-
 - name: Clone go binary code as git repository
   vars:
     git_dir: "{{ bin_source_code_dir if bin_build_on_control_node else bin_remote_source_code_dir }}"

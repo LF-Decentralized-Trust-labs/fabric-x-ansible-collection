@@ -1,0 +1,57 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+argument_specs:
+
+  _shared_options:
+    options:
+      utils_ports_to_ping: &utils_ports_to_ping
+        type: list
+        elements: int
+        required: true
+        description:
+          - "Lists the TCP ports that the ping entry point probes on the current host. Example: C([9000, 9001])."
+      actual_host: &actual_host
+        type: str
+        required: true
+        description:
+          - "Sets the network address that the ping entry point probes for each port in C(utils_ports_to_ping). Example: C(orderer-router-1.example.com)."
+      project_dir: &project_dir
+        type: str
+        required: true
+        description:
+          - "Defines the project root directory used by utility entry points that write generated files. Example: C(/path/to/hyperledger/fabricx)."
+
+  generate_makefile_targets:
+    short_description: Generate Makefile targets for inventory hosts
+    description:
+      - "Generates a C(target_hosts.mk) file with one Makefile target per inventory host in C(groups['all'])."
+      - "The output path is C(project_dir + '/target_hosts.mk'), using the caller-provided C(project_dir) variable."
+    options:
+      project_dir: *project_dir
+
+  ping:
+    short_description: Check whether TCP ports are reachable
+    description:
+      - "Checks whether each port in C(utils_ports_to_ping) is reachable on C(actual_host) for the current host."
+      - "Failures are handled through a silent rescue block, so unreachable ports do not fail the play."
+    options:
+      utils_ports_to_ping: *utils_ports_to_ping
+      actual_host: *actual_host
+
+  select_one_host_per_k8s_namespace:
+    short_description: Create a group with one host per Kubernetes namespace
+    description:
+      - "Creates the C(k8s_namespaces) group with one selected inventory host per distinct Kubernetes namespace."
+      - "Only hosts with C(k8s_image_pull_secret) defined participate, and the selection reads C(k8s_namespace) from C(hostvars) across C(ansible_play_hosts)."
+    options: {}
+
+  select_one_host_per_machine:
+    short_description: Create a group with one host per machine
+    description:
+      - "Creates the C(machines) group with one selected inventory host per distinct machine address."
+      - "The selection reads C(actual_host) from C(hostvars) across C(ansible_play_hosts) to identify hosts that share the same machine."
+    options: {}
