@@ -36,4 +36,4 @@ node_exporter_use_container: "{{ not node_exporter_use_k8s }}"
 
 node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
 node_exporter_k8s_wait_timeout: 120
-node_exporter_k8s_port_node_port: "{{ node_exporter_port }}"
+node_exporter_k8s_use_node_port: false

@@ -47,4 +47,4 @@ grafana_k8s_resource_name: "{{ inventory_hostname }}"
 grafana_k8s_wait_timeout: 120
 grafana_k8s_fs_group: 472
 
-grafana_k8s_web_node_port: "{{ grafana_web_port }}"
+grafana_k8s_use_node_port: false

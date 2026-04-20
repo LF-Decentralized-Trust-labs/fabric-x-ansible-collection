@@ -1,0 +1,804 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+argument_specs:
+
+  _shared_options:
+    short_description: Shared container role options
+    description:
+      - "Reusable inputs for container lifecycle tasks and backend dispatchers."
+      - "Entry points below reference these definitions directly or spell out the few optional overrides explicitly."
+    options:
+      actual_host: &actual_host
+        type: str
+        required: false
+        description:
+          - "Provides the host used by readiness checks when C(container_wait_until_running) is true."
+      fetched_artifacts_dir: &fetched_artifacts_dir
+        type: path
+        required: false
+        description:
+          - "Provides the base local artifact directory for fetched logs."
+      remote_node_dir: &remote_node_dir
+        type: path
+        required: false
+        description:
+          - "Provides the base remote artifact directory for collected logs."
+      container_client: &container_client
+        type: str
+        required: false
+        default: "{{ lookup('env', 'CONTAINER_CLIENT') or '' }}"
+        description:
+          - "Selects the container client to verify or use."
+          - "Leave it empty to auto-detect C(podman) first and then C(docker)."
+      container_name: &container_name
+        type: str
+        description:
+          - "Names the container managed by the role."
+      container_image: &container_image
+        type: str
+        required: true
+        description:
+          - "Selects the container image to start."
+      container_entrypoint: &container_entrypoint
+        type: raw
+        required: false
+        description:
+          - "Overrides the image entrypoint."
+      container_command: &container_command
+        type: raw
+        description:
+          - "Supplies the command passed to the container runtime."
+      container_hostname: &container_hostname
+        type: str
+        required: false
+        default: "{{ container_name | default(inventory_hostname) }}"
+        description:
+          - "Sets the hostname inside the container."
+          - "The default derives from C(container_name) and C(inventory_hostname)."
+      container_host_uid: &container_host_uid
+        type: int
+        required: false
+        default: "{{ ansible_facts.user_uid }}"
+        description:
+          - "Provides the host uid used to build C(container_host_user)."
+          - "The default derives from C(ansible_facts.user_uid)."
+      container_host_gid: &container_host_gid
+        type: int
+        required: false
+        default: "{{ ansible_facts.user_gid }}"
+        description:
+          - "Provides the host gid used to build C(container_host_user)."
+          - "The default derives from C(ansible_facts.user_gid)."
+      container_host_user: &container_host_user
+        type: str
+        required: false
+        default: "{{ container_host_uid }}:{{ container_host_gid }}"
+        description:
+          - "Builds the host uid:gid pair used for rootless container execution."
+          - "The default derives from C(container_host_uid) and C(container_host_gid)."
+      container_host_user_is_root: &container_host_user_is_root
+        type: bool
+        required: false
+        default: "{{ container_host_user == '0:0' }}"
+        description:
+          - "Reports whether C(container_host_user) resolves to C(0:0)."
+          - "The default derives from C(container_host_user)."
+      container_run_as_host_user: &container_run_as_host_user
+        type: bool
+        required: false
+        default: false
+        description:
+          - "Runs the container as the detected host user when set to C(true)."
+      container_on_mac: &container_on_mac
+        type: bool
+        required: false
+        default: "{{ ansible_facts.os_family == 'Darwin' }}"
+        description:
+          - "Marks whether the target host is macOS."
+          - "The default derives from C(ansible_facts.os_family)."
+      container_network_mode: &container_network_mode
+        type: str
+        required: false
+        default: "{{ 'bridge' if (container_on_mac or (container_network is defined)) else 'host' }}"
+        description:
+          - "Controls the container network mode."
+          - "The default derives from C(container_on_mac) and C(container_network)."
+      container_network: &container_network
+        type: str
+        description:
+          - "Names the bridge network attached to the container when bridge mode is selected."
+      container_ports: &container_ports
+        type: list
+        elements: raw
+        required: false
+        description:
+          - "Publishes container ports when bridge networking is used."
+      container_memory: &container_memory
+        type: str
+        required: false
+        description:
+          - "Limits container memory using runtime syntax such as C(2g)."
+      container_cpus: &container_cpus
+        type: str
+        required: false
+        description:
+          - "Limits CPU allocation for the container."
+      container_volumes: &container_volumes
+        type: list
+        elements: raw
+        required: false
+        description:
+          - "Mounts host paths or named volumes into the container."
+      container_ulimits: &container_ulimits
+        type: list
+        elements: raw
+        required: false
+        description:
+          - "Applies runtime ulimit settings to the container."
+      container_env: &container_env
+        type: dict
+        required: false
+        description:
+          - "Defines environment variables passed to the container process."
+      container_log_driver: &container_log_driver
+        type: str
+        required: false
+        default: "json-file"
+        description:
+          - "Selects the runtime log driver."
+      container_log_max_size: &container_log_max_size
+        type: str
+        required: false
+        default: "1g"
+        description:
+          - "Sets the maximum log file size."
+      container_log_lines: &container_log_lines
+        type: int
+        required: false
+        default: 0
+        description:
+          - "Limits the number of log lines shown in debug output."
+      container_debug: &container_debug
+        type: bool
+        required: false
+        default: "{{ lookup('env', 'DEBUG') | bool | default(false) }}"
+        description:
+          - "Enables debug output."
+          - "The default derives from C(DEBUG) in the environment."
+      container_healthcheck_test: &container_healthcheck_test
+        type: raw
+        required: false
+        description:
+          - "Defines the container healthcheck command."
+      container_healthcheck_interval: &container_healthcheck_interval
+        type: str
+        required: false
+        default: "30s"
+        description:
+          - "Sets the interval between healthcheck runs."
+      container_autoremove: &container_autoremove
+        type: bool
+        required: false
+        default: false
+        description:
+          - "Removes the container automatically when it exits."
+      container_ignore_errors: &container_ignore_errors
+        type: bool
+        required: false
+        default: false
+        description:
+          - "Ignores runtime errors from container start operations."
+      container_run_detach_mode: &container_run_detach_mode
+        type: bool
+        required: false
+        default: true
+        description:
+          - "Runs the container in detached mode when set to C(true)."
+      container_run_until: &container_run_until
+        type: raw
+        required: false
+        default: null
+        description:
+          - "Provides an optional until condition for container start retries."
+      container_run_delay: &container_run_delay
+        type: int
+        required: false
+        default: 0
+        description:
+          - "Sets the delay between container start retries."
+      container_run_retries: &container_run_retries
+        type: int
+        required: false
+        default: 0
+        description:
+          - "Sets the number of container start retries."
+      container_wait_until_running: &container_wait_until_running
+        type: bool
+        required: false
+        default: false
+        description:
+          - "Waits for readiness checks after container start when set to C(true)."
+      container_wait_delay: &container_wait_delay
+        type: int
+        required: false
+        default: 1
+        description:
+          - "Delays readiness checks after container start."
+      container_wait_timeout: &container_wait_timeout
+        type: int
+        required: false
+        default: 60
+        description:
+          - "Sets the readiness check timeout."
+      container_wait_port: &container_wait_port
+        type: int
+        required: false
+        description:
+          - "Provides the port probed by readiness checks."
+      container_registry: &container_registry
+        type: str
+        required: true
+        description:
+          - "Names the container registry for login operations."
+      container_registry_username: &container_registry_username
+        type: str
+        required: true
+        description:
+          - "Provides the registry username."
+      container_registry_password: &container_registry_password
+        type: str
+        required: true
+        description:
+          - "Provides the registry password."
+      container_network_driver: &container_network_driver
+        type: str
+        required: false
+        default: bridge
+        description:
+          - "Selects the network driver used when creating a container network."
+      container_network_attachable: &container_network_attachable
+        type: bool
+        required: false
+        default: true
+        description:
+          - "Marks Docker networks as attachable."
+          - "Podman networks are always attachable."
+      container_network_internal: &container_network_internal
+        type: bool
+        required: false
+        default: false
+        description:
+          - "Marks the container network as internal when set to C(true)."
+      container_volume_path: &container_volume_path
+        type: path
+        required: true
+        description:
+          - "Names the file system path used for a container volume."
+      container_volume_mode: &container_volume_mode
+        type: str
+        required: true
+        description:
+          - "Sets the file mode applied to a container volume path."
+      container_volume_type: &container_volume_type
+        type: str
+        required: true
+        description:
+          - "Selects the file system state for a container volume path."
+      container_volume_uid: &container_volume_uid
+        type: raw
+        required: false
+        description:
+          - "Provides the uid applied to a container volume path."
+      container_volume_gid: &container_volume_gid
+        type: raw
+        required: false
+        description:
+          - "Provides the gid applied to a container volume path."
+      recurse: &recurse
+        type: bool
+        required: false
+        default: false
+        description:
+          - "Applies recursive permission changes when set to C(true)."
+      container_fetched_logs_dir: &container_fetched_logs_dir
+        type: path
+        required: false
+        default: "{{ fetched_artifacts_dir }}/{{ container_name }}"
+        description:
+          - "Sets the local destination for fetched container logs."
+          - "The default derives from C(fetched_artifacts_dir) and C(container_name)."
+      container_fetched_logs_file: &container_fetched_logs_file
+        type: str
+        required: false
+        default: "logs.txt"
+        description:
+          - "Sets the filename used for fetched container logs."
+      container_remote_logs_dir: &container_remote_logs_dir
+        type: path
+        required: false
+        default: "{{ remote_node_dir }}/logs"
+        description:
+          - "Sets the remote directory used to stage collected container logs."
+          - "The default derives from C(remote_node_dir)."
+      container_remote_logs_file: &container_remote_logs_file
+        type: str
+        required: false
+        default: "logs.txt"
+        description:
+          - "Sets the filename used for collected container logs."
+
+  install:
+    short_description: Install a supported container client
+    description:
+      - "Detects an available container client and installs Docker or Podman on Linux when needed."
+    options:
+      container_client: *container_client
+
+  get_container_client:
+    short_description: Detect the available container client
+    description:
+      - "Chooses the requested container client or auto-detects one from the current host."
+    options:
+      container_client: *container_client
+
+  start:
+    short_description: Start a container with the selected client
+    description:
+      - "Logs the command in debug mode, resolves the container client, and delegates startup to the matching backend task file."
+    options:
+      container_client: *container_client
+      container_name:
+        <<: *container_name
+        required: true
+      container_image: *container_image
+      container_entrypoint: *container_entrypoint
+      container_command:
+        <<: *container_command
+        required: false
+      container_hostname: *container_hostname
+      container_host_uid: *container_host_uid
+      container_host_gid: *container_host_gid
+      container_host_user: *container_host_user
+      container_host_user_is_root: *container_host_user_is_root
+      container_run_as_host_user: *container_run_as_host_user
+      container_on_mac: *container_on_mac
+      container_network_mode: *container_network_mode
+      container_network:
+        <<: *container_network
+        required: false
+      container_ports: *container_ports
+      container_memory: *container_memory
+      container_cpus: *container_cpus
+      container_volumes: *container_volumes
+      container_ulimits: *container_ulimits
+      container_env: *container_env
+      container_log_driver: *container_log_driver
+      container_log_max_size: *container_log_max_size
+      container_log_lines: *container_log_lines
+      container_debug: *container_debug
+      container_healthcheck_test: *container_healthcheck_test
+      container_healthcheck_interval: *container_healthcheck_interval
+      container_autoremove: *container_autoremove
+      container_ignore_errors: *container_ignore_errors
+      container_run_detach_mode: *container_run_detach_mode
+      container_run_until: *container_run_until
+      container_run_delay: *container_run_delay
+      container_run_retries: *container_run_retries
+      container_wait_until_running: *container_wait_until_running
+      actual_host: *actual_host
+      container_wait_port: *container_wait_port
+      container_wait_delay: *container_wait_delay
+      container_wait_timeout: *container_wait_timeout
+
+  stop:
+    short_description: Stop a container with the selected client
+    description:
+      - "Resolves the active container client and delegates container shutdown to the matching backend task file."
+    options:
+      container_client: *container_client
+      container_name:
+        <<: *container_name
+        required: true
+
+  rm:
+    short_description: Remove a container with the selected client
+    description:
+      - "Resolves the active container client and delegates container removal to the matching backend task file."
+    options:
+      container_client: *container_client
+      container_name:
+        <<: *container_name
+        required: true
+
+  exec:
+    short_description: Execute a command in a container
+    description:
+      - "Resolves the active container client and delegates command execution to the matching backend task file."
+    options:
+      container_client: *container_client
+      container_name:
+        <<: *container_name
+        required: true
+      container_command:
+        <<: *container_command
+        required: true
+      container_env: *container_env
+
+  fetch_logs:
+    short_description: Fetch container logs from the remote host
+    description:
+      - "Resolves the active container client, writes logs on the remote node, and fetches them to the control host."
+    options:
+      container_client: *container_client
+      container_name:
+        <<: *container_name
+        required: true
+      container_remote_logs_dir: *container_remote_logs_dir
+      container_remote_logs_file: *container_remote_logs_file
+      container_fetched_logs_dir: *container_fetched_logs_dir
+      container_fetched_logs_file: *container_fetched_logs_file
+      remote_node_dir: *remote_node_dir
+      fetched_artifacts_dir: *fetched_artifacts_dir
+
+  registry/login:
+    short_description: Log in to a container registry
+    description:
+      - "Resolves the active container client and delegates registry login to the matching backend task file."
+    options:
+      container_client: *container_client
+      container_registry: *container_registry
+      container_registry_username: *container_registry_username
+      container_registry_password: *container_registry_password
+
+  network/create:
+    short_description: Create a container network
+    description:
+      - "Resolves the active container client and delegates network creation to the matching backend task file."
+    options:
+      container_client: *container_client
+      container_network:
+        <<: *container_network
+        required: true
+      container_network_driver: *container_network_driver
+      container_network_attachable: *container_network_attachable
+      container_network_internal: *container_network_internal
+
+  network/rm:
+    short_description: Remove a container network
+    description:
+      - "Resolves the active container client and delegates network removal to the matching backend task file."
+    options:
+      container_client: *container_client
+      container_network:
+        <<: *container_network
+        required: true
+
+  volume/create:
+    short_description: Create a container volume
+    description:
+      - "Resolves the active container client and delegates volume creation to the matching backend task file."
+    options:
+      container_client: *container_client
+      container_name:
+        <<: *container_name
+        required: false
+      container_host_uid: *container_host_uid
+      container_host_gid: *container_host_gid
+      container_host_user: *container_host_user
+      container_host_user_is_root: *container_host_user_is_root
+      container_on_mac: *container_on_mac
+      container_volume_path: *container_volume_path
+      container_volume_mode: *container_volume_mode
+      container_volume_type: *container_volume_type
+      container_volume_uid: *container_volume_uid
+      container_volume_gid: *container_volume_gid
+      recurse: *recurse
+
+  volume/rm:
+    short_description: Remove a container volume
+    description:
+      - "Resolves the active container client and delegates volume removal to the matching backend task file."
+    options:
+      container_client: *container_client
+      container_host_uid: *container_host_uid
+      container_host_gid: *container_host_gid
+      container_host_user: *container_host_user
+      container_host_user_is_root: *container_host_user_is_root
+      container_on_mac: *container_on_mac
+      container_volume_path: *container_volume_path
+
+  docker/install:
+    short_description: Install Docker on the target host
+    description:
+      - "Installs Docker on Linux, enables the service, and runs a hello-world container to verify the client."
+    options: {}
+
+  docker/start:
+    short_description: Start a container with Docker
+    description:
+      - "Starts a Docker container with the requested runtime options and optionally waits for health or port readiness."
+    options:
+      container_name:
+        <<: *container_name
+        required: true
+      container_image: *container_image
+      container_entrypoint: *container_entrypoint
+      container_command:
+        <<: *container_command
+        required: false
+      container_hostname: *container_hostname
+      container_host_uid: *container_host_uid
+      container_host_gid: *container_host_gid
+      container_host_user: *container_host_user
+      container_run_as_host_user: *container_run_as_host_user
+      container_on_mac: *container_on_mac
+      container_network_mode: *container_network_mode
+      container_network:
+        <<: *container_network
+        required: false
+      container_ports: *container_ports
+      container_memory: *container_memory
+      container_cpus: *container_cpus
+      container_volumes: *container_volumes
+      container_ulimits: *container_ulimits
+      container_env: *container_env
+      container_log_driver: *container_log_driver
+      container_log_max_size: *container_log_max_size
+      container_log_lines: *container_log_lines
+      container_debug: *container_debug
+      container_healthcheck_test: *container_healthcheck_test
+      container_healthcheck_interval: *container_healthcheck_interval
+      container_autoremove: *container_autoremove
+      container_ignore_errors: *container_ignore_errors
+      container_run_detach_mode: *container_run_detach_mode
+      container_run_until: *container_run_until
+      container_run_delay: *container_run_delay
+      container_run_retries: *container_run_retries
+      container_wait_until_running: *container_wait_until_running
+      actual_host: *actual_host
+      container_wait_port: *container_wait_port
+      container_wait_delay: *container_wait_delay
+      container_wait_timeout: *container_wait_timeout
+
+  docker/stop:
+    short_description: Stop a container with Docker
+    description:
+      - "Stops a Docker container when it exists."
+    options:
+      container_name:
+        <<: *container_name
+        required: true
+
+  docker/rm:
+    short_description: Remove a container with Docker
+    description:
+      - "Removes a Docker container and its volumes."
+    options:
+      container_name:
+        <<: *container_name
+        required: true
+
+  docker/exec:
+    short_description: Execute a command in a Docker container
+    description:
+      - "Runs a command inside a Docker container."
+    options:
+      container_name:
+        <<: *container_name
+        required: true
+      container_command:
+        <<: *container_command
+        required: true
+      container_env: *container_env
+
+  docker/registry/login:
+    short_description: Log in to a registry with Docker
+    description:
+      - "Logs Docker in to the requested container registry."
+    options:
+      container_registry: *container_registry
+      container_registry_username: *container_registry_username
+      container_registry_password: *container_registry_password
+
+  docker/network/create:
+    short_description: Create a Docker network
+    description:
+      - "Creates a Docker network with the requested driver and flags."
+    options:
+      container_network:
+        <<: *container_network
+        required: true
+      container_network_driver: *container_network_driver
+      container_network_attachable: *container_network_attachable
+      container_network_internal: *container_network_internal
+
+  docker/network/rm:
+    short_description: Remove a Docker network
+    description:
+      - "Removes a Docker network."
+    options:
+      container_network:
+        <<: *container_network
+        required: true
+
+  docker/volume/create:
+    short_description: Create a Docker volume
+    description:
+      - "Creates a Docker volume and adjusts ownership when needed."
+    options:
+      container_name:
+        <<: *container_name
+        required: false
+      container_host_uid: *container_host_uid
+      container_host_gid: *container_host_gid
+      container_host_user: *container_host_user
+      container_host_user_is_root: *container_host_user_is_root
+      container_volume_path: *container_volume_path
+      container_volume_mode: *container_volume_mode
+      container_volume_type: *container_volume_type
+      container_volume_uid: *container_volume_uid
+      container_volume_gid: *container_volume_gid
+      recurse: *recurse
+      container_on_mac: *container_on_mac
+
+  docker/volume/rm:
+    short_description: Remove a Docker volume
+    description:
+      - "Removes a Docker volume path."
+    options:
+      container_host_uid: *container_host_uid
+      container_host_gid: *container_host_gid
+      container_host_user: *container_host_user
+      container_host_user_is_root: *container_host_user_is_root
+      container_on_mac: *container_on_mac
+      container_volume_path: *container_volume_path
+
+  podman/install:
+    short_description: Install Podman on the target host
+    description:
+      - "Installs Podman and verifies that the binary is available."
+    options: {}
+
+  podman/start:
+    short_description: Start a container with Podman
+    description:
+      - "Starts a Podman container with the requested runtime options and optionally waits for health or port readiness."
+    options:
+      container_name:
+        <<: *container_name
+        required: true
+      container_image: *container_image
+      container_entrypoint: *container_entrypoint
+      container_command:
+        <<: *container_command
+        required: false
+      container_hostname: *container_hostname
+      container_host_uid: *container_host_uid
+      container_host_gid: *container_host_gid
+      container_host_user: *container_host_user
+      container_host_user_is_root: *container_host_user_is_root
+      container_run_as_host_user: *container_run_as_host_user
+      container_on_mac: *container_on_mac
+      container_network_mode: *container_network_mode
+      container_network:
+        <<: *container_network
+        required: false
+      container_ports: *container_ports
+      container_memory: *container_memory
+      container_cpus: *container_cpus
+      container_volumes: *container_volumes
+      container_ulimits: *container_ulimits
+      container_env: *container_env
+      container_log_driver: *container_log_driver
+      container_log_max_size: *container_log_max_size
+      container_log_lines: *container_log_lines
+      container_debug: *container_debug
+      container_healthcheck_test: *container_healthcheck_test
+      container_healthcheck_interval: *container_healthcheck_interval
+      container_autoremove: *container_autoremove
+      container_ignore_errors: *container_ignore_errors
+      container_run_detach_mode: *container_run_detach_mode
+      container_run_until: *container_run_until
+      container_run_delay: *container_run_delay
+      container_run_retries: *container_run_retries
+      container_wait_until_running: *container_wait_until_running
+      actual_host: *actual_host
+      container_wait_port: *container_wait_port
+      container_wait_delay: *container_wait_delay
+      container_wait_timeout: *container_wait_timeout
+
+  podman/stop:
+    short_description: Stop a container with Podman
+    description:
+      - "Stops a Podman container when it exists."
+    options:
+      container_name:
+        <<: *container_name
+        required: true
+
+  podman/rm:
+    short_description: Remove a container with Podman
+    description:
+      - "Removes a Podman container and its volumes."
+    options:
+      container_name:
+        <<: *container_name
+        required: true
+
+  podman/exec:
+    short_description: Execute a command in a Podman container
+    description:
+      - "Runs a command inside a Podman container."
+    options:
+      container_name:
+        <<: *container_name
+        required: true
+      container_command:
+        <<: *container_command
+        required: true
+      container_env: *container_env
+
+  podman/registry/login:
+    short_description: Log in to a registry with Podman
+    description:
+      - "Logs Podman in to the requested container registry."
+    options:
+      container_registry: *container_registry
+      container_registry_username: *container_registry_username
+      container_registry_password: *container_registry_password
+
+  podman/network/create:
+    short_description: Create a Podman network
+    description:
+      - "Creates a Podman network with the requested driver."
+    options:
+      container_network:
+        <<: *container_network
+        required: true
+      container_network_driver: *container_network_driver
+      container_network_internal: *container_network_internal
+
+  podman/network/rm:
+    short_description: Remove a Podman network
+    description:
+      - "Removes a Podman network."
+    options:
+      container_network:
+        <<: *container_network
+        required: true
+
+  podman/volume/create:
+    short_description: Create a Podman volume
+    description:
+      - "Creates a Podman volume and adjusts ownership when needed."
+    options:
+      container_name:
+        <<: *container_name
+        required: false
+      container_host_uid: *container_host_uid
+      container_host_gid: *container_host_gid
+      container_host_user: *container_host_user
+      container_host_user_is_root: *container_host_user_is_root
+      container_volume_path: *container_volume_path
+      container_volume_mode: *container_volume_mode
+      container_volume_type: *container_volume_type
+      container_volume_uid: *container_volume_uid
+      container_volume_gid: *container_volume_gid
+      recurse: *recurse
+      container_on_mac: *container_on_mac
+
+  podman/volume/rm:
+    short_description: Remove a Podman volume
+    description:
+      - "Removes a Podman volume path."
+    options:
+      container_host_uid: *container_host_uid
+      container_host_gid: *container_host_gid
+      container_host_user: *container_host_user
+      container_host_user_is_root: *container_host_user_is_root
+      container_on_mac: *container_on_mac
+      container_volume_path: *container_volume_path
