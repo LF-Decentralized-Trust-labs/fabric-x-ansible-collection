@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# =======================
+# bin / container — Master
+# =======================
 - name: Check that the Yugabyte master node ports are open
   vars:
     utils_ports_to_ping:
@@ -12,8 +15,13 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: ping
-  when: yugabyte_component_type == 'master'
+  when:
+    - not yugabyte_use_k8s
+    - yugabyte_component_type == 'master'
 
+# =======================
+# bin / container — Tablet
+# =======================
 - name: Check that the Yugabyte tablet node ports are open
   vars:
     utils_ports_to_ping:
@@ -26,4 +34,15 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: ping
-  when: yugabyte_component_type == 'tablet'
+  when:
+    - not yugabyte_use_k8s
+    - yugabyte_component_type == 'tablet'
+
+# =======================
+# k8s
+# =======================
+- name: Check that the Yugabyte node ports are open (k8s)
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: k8s/ping
+  when: yugabyte_use_k8s

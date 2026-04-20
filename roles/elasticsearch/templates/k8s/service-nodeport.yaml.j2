@@ -18,12 +18,16 @@ spec:
   selector:
     app.kubernetes.io/name: {{ elasticsearch_k8s_resource_name }}
   ports:
+{% if elasticsearch_k8s_http_node_port is defined %}
     - name: http
       # nodePort matches port so external addresses are predictable.
       port: {{ elasticsearch_http_port }}
       targetPort: {{ elasticsearch_http_port }}
       nodePort: {{ elasticsearch_k8s_http_node_port }}
+{% endif %}
+{% if elasticsearch_k8s_transport_node_port is defined %}
     - name: transport
       port: {{ elasticsearch_transport_port }}
       targetPort: {{ elasticsearch_transport_port }}
       nodePort: {{ elasticsearch_k8s_transport_node_port }}
+{% endif %}
