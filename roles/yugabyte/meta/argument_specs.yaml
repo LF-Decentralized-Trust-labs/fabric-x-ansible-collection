@@ -225,67 +225,52 @@ argument_specs:
         default: 300
         description:
           - "Sets the Kubernetes readiness wait timeout in seconds."
+      yugabyte_k8s_use_node_port: &yugabyte_k8s_use_node_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - "Enables creation of NodePort Services for YugabyteDB Kubernetes deployments."
       yugabyte_k8s_master_rpc_node_port: &yugabyte_k8s_master_rpc_node_port
         type: int
         required: false
-        default: "{{ yugabyte_master_rpc_bind_port }}"
         description:
-          - "Sets the NodePort used to expose the master RPC service."
-          - "The default derives from C(yugabyte_master_rpc_bind_port)."
-      yugabyte_k8s_master_webserver_node_port:
-        &yugabyte_k8s_master_webserver_node_port
+          - "Optionally sets the NodePort used to expose the master RPC service when C(yugabyte_k8s_use_node_port) is enabled."
+      yugabyte_k8s_master_webserver_node_port: &yugabyte_k8s_master_webserver_node_port
         type: int
         required: false
-        default: "{{ yugabyte_master_webserver_port }}"
         description:
-          - "Sets the NodePort used to expose the master webserver service."
-          - "The default derives from C(yugabyte_master_webserver_port)."
+          - "Optionally sets the NodePort used to expose the master webserver service when C(yugabyte_k8s_use_node_port) is enabled."
       yugabyte_k8s_tablet_pgsql_node_port: &yugabyte_k8s_tablet_pgsql_node_port
         type: int
         required: false
-        default: "{{ yugabyte_tablet_pgsql_bind_port }}"
         description:
-          - "Sets the NodePort used to expose the tablet YSQL service."
-          - "The default derives from C(yugabyte_tablet_pgsql_bind_port)."
+          - "Optionally sets the NodePort used to expose the tablet YSQL service when C(yugabyte_k8s_use_node_port) is enabled."
       yugabyte_k8s_tablet_rpc_node_port: &yugabyte_k8s_tablet_rpc_node_port
         type: int
         required: false
-        default: "{{ yugabyte_tablet_rpc_bind_port }}"
         description:
-          - "Sets the NodePort used to expose the tablet RPC service."
-          - "The default derives from C(yugabyte_tablet_rpc_bind_port)."
-      yugabyte_k8s_tablet_webserver_node_port:
-        &yugabyte_k8s_tablet_webserver_node_port
+          - "Optionally sets the NodePort used to expose the tablet RPC service when C(yugabyte_k8s_use_node_port) is enabled."
+      yugabyte_k8s_tablet_webserver_node_port: &yugabyte_k8s_tablet_webserver_node_port
         type: int
         required: false
-        default: "{{ yugabyte_tablet_webserver_port }}"
         description:
-          - "Sets the NodePort used to expose the tablet webserver service."
-          - "The default derives from C(yugabyte_tablet_webserver_port)."
-      yugabyte_k8s_tablet_pgsql_web_node_port:
-        &yugabyte_k8s_tablet_pgsql_web_node_port
+          - "Optionally sets the NodePort used to expose the tablet webserver service when C(yugabyte_k8s_use_node_port) is enabled."
+      yugabyte_k8s_tablet_pgsql_web_node_port: &yugabyte_k8s_tablet_pgsql_web_node_port
         type: int
         required: false
-        default: "{{ yugabyte_tablet_pgsql_web_port }}"
         description:
-          - "Sets the NodePort used to expose the tablet YSQL web UI service."
-          - "The default derives from C(yugabyte_tablet_pgsql_web_port)."
-      yugabyte_k8s_tablet_cql_bind_node_port:
-        &yugabyte_k8s_tablet_cql_bind_node_port
+          - "Optionally sets the NodePort used to expose the tablet YSQL web UI service when C(yugabyte_k8s_use_node_port) is enabled."
+      yugabyte_k8s_tablet_cql_bind_node_port: &yugabyte_k8s_tablet_cql_bind_node_port
         type: int
         required: false
-        default: "{{ yugabyte_tablet_cql_bind_port }}"
         description:
-          - "Sets the NodePort used to expose the tablet YCQL bind service."
-          - "The default derives from C(yugabyte_tablet_cql_bind_port)."
-      yugabyte_k8s_tablet_cql_web_node_port:
-        &yugabyte_k8s_tablet_cql_web_node_port
+          - "Optionally sets the NodePort used to expose the tablet YCQL bind service when C(yugabyte_k8s_use_node_port) is enabled."
+      yugabyte_k8s_tablet_cql_web_node_port: &yugabyte_k8s_tablet_cql_web_node_port
         type: int
         required: false
-        default: "{{ yugabyte_tablet_cql_web_port }}"
         description:
-          - "Sets the NodePort used to expose the tablet YCQL web UI service."
-          - "The default derives from C(yugabyte_tablet_cql_web_port)."
+          - "Optionally sets the NodePort used to expose the tablet YCQL web UI service when C(yugabyte_k8s_use_node_port) is enabled."
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         required: true
@@ -350,8 +335,7 @@ argument_specs:
         required: false
         description:
           - "Sets the image pull secret used by Kubernetes deployments when defined."
-      k8s_readiness_probe_initial_delay_seconds:
-        &k8s_readiness_probe_initial_delay_seconds
+      k8s_readiness_probe_initial_delay_seconds: &k8s_readiness_probe_initial_delay_seconds
         type: int
         required: false
         description:
@@ -366,14 +350,12 @@ argument_specs:
         required: false
         description:
           - "Overrides the readiness probe timeout used by Kubernetes templates when defined."
-      k8s_readiness_probe_failure_threshold:
-        &k8s_readiness_probe_failure_threshold
+      k8s_readiness_probe_failure_threshold: &k8s_readiness_probe_failure_threshold
         type: int
         required: false
         description:
           - "Overrides the readiness probe failure threshold used by Kubernetes templates when defined."
-      k8s_liveness_probe_initial_delay_seconds:
-        &k8s_liveness_probe_initial_delay_seconds
+      k8s_liveness_probe_initial_delay_seconds: &k8s_liveness_probe_initial_delay_seconds
         type: int
         required: false
         description:
@@ -388,8 +370,7 @@ argument_specs:
         required: false
         description:
           - "Overrides the liveness probe timeout used by Kubernetes templates when defined."
-      k8s_liveness_probe_failure_threshold:
-        &k8s_liveness_probe_failure_threshold
+      k8s_liveness_probe_failure_threshold: &k8s_liveness_probe_failure_threshold
         type: int
         required: false
         description:
@@ -448,6 +429,22 @@ argument_specs:
       yugabyte_tablet_pgsql_web_port: *yugabyte_tablet_pgsql_web_port
       yugabyte_tablet_cql_bind_port: *yugabyte_tablet_cql_bind_port
       yugabyte_tablet_cql_web_port: *yugabyte_tablet_cql_web_port
+
+  k8s/ping:
+    short_description: Check YugabyteDB Kubernetes NodePorts
+    description:
+      - "Checks the configured YugabyteDB Kubernetes NodePort Services for the current master or tablet host when NodePort exposure is enabled."
+    options:
+      yugabyte_component_type: *yugabyte_component_type
+      yugabyte_k8s_use_node_port: *yugabyte_k8s_use_node_port
+      yugabyte_k8s_master_rpc_node_port: *yugabyte_k8s_master_rpc_node_port
+      yugabyte_k8s_master_webserver_node_port: *yugabyte_k8s_master_webserver_node_port
+      yugabyte_k8s_tablet_pgsql_node_port: *yugabyte_k8s_tablet_pgsql_node_port
+      yugabyte_k8s_tablet_rpc_node_port: *yugabyte_k8s_tablet_rpc_node_port
+      yugabyte_k8s_tablet_webserver_node_port: *yugabyte_k8s_tablet_webserver_node_port
+      yugabyte_k8s_tablet_pgsql_web_node_port: *yugabyte_k8s_tablet_pgsql_web_node_port
+      yugabyte_k8s_tablet_cql_bind_node_port: *yugabyte_k8s_tablet_cql_bind_node_port
+      yugabyte_k8s_tablet_cql_web_node_port: *yugabyte_k8s_tablet_cql_web_node_port
 
   crypto/setup:
     short_description: Prepare YugabyteDB TLS assets
@@ -684,6 +681,7 @@ argument_specs:
       - "Applies the master Services and StatefulSet for the current YugabyteDB master node."
     options:
       k8s_namespace: *k8s_namespace
+      yugabyte_k8s_use_node_port: *yugabyte_k8s_use_node_port
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
       yugabyte_image: *yugabyte_image
       yugabyte_registry_endpoint: *yugabyte_registry_endpoint
@@ -729,6 +727,7 @@ argument_specs:
       - "Applies the tablet Services and StatefulSet for the current YugabyteDB tablet node, then initializes the database on the first tablet."
     options:
       k8s_namespace: *k8s_namespace
+      yugabyte_k8s_use_node_port: *yugabyte_k8s_use_node_port
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
       yugabyte_image: *yugabyte_image
       yugabyte_registry_endpoint: *yugabyte_registry_endpoint
