@@ -27,4 +27,3 @@
     kind: Service
     name: "{{ postgres_k8s_resource_name }}-nodeport"
     namespace: "{{ k8s_namespace }}"
-  when: postgres_k8s_use_node_port

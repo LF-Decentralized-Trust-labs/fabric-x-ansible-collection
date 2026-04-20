@@ -12,5 +12,4 @@
     name: hyperledger.fabricx.utils
     tasks_from: ping
   when:
-    - postgres_k8s_use_node_port
     - postgres_k8s_port_node_port is defined

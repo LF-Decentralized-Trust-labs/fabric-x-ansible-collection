@@ -27,7 +27,6 @@
     state: present
     template:
       path: k8s/service-nodeport.yaml.j2
-  when: postgres_k8s_use_node_port
 
 - name: Apply Postgres DB StatefulSet
   kubernetes.core.k8s:
