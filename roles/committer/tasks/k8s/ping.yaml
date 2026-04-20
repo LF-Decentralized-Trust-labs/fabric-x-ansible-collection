@@ -4,24 +4,23 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that the gRPC node port is open
-  vars:
-    utils_ports_to_ping:
-      - "{{ committer_k8s_rpc_node_port }}"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.utils
-    tasks_from: ping
-  when:
-    - committer_k8s_use_node_port
-    - committer_k8s_rpc_node_port is defined
+- name: Check that the committer node ports are open
+  when: committer_k8s_use_node_port
+  block:
+    - name: Check that the gRPC node port is open
+      vars:
+        utils_ports_to_ping:
+          - "{{ committer_k8s_rpc_node_port }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.utils
+        tasks_from: ping
+      when: committer_k8s_rpc_node_port is defined
 
-- name: Check that the metrics node port is open
-  vars:
-    utils_ports_to_ping:
-      - "{{ committer_k8s_metrics_node_port }}"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.utils
-    tasks_from: ping
-  when:
-    - committer_k8s_use_node_port
-    - committer_k8s_metrics_node_port is defined
+    - name: Check that the metrics node port is open
+      vars:
+        utils_ports_to_ping:
+          - "{{ committer_k8s_metrics_node_port }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.utils
+        tasks_from: ping
+      when: committer_k8s_metrics_node_port is defined

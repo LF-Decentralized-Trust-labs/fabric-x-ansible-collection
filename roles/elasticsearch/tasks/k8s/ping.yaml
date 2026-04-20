@@ -4,24 +4,23 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that the ElasticSearch HTTP node port is open
-  vars:
-    utils_ports_to_ping:
-      - "{{ elasticsearch_k8s_http_node_port }}"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.utils
-    tasks_from: ping
-  when:
-    - elasticsearch_k8s_use_node_port
-    - elasticsearch_k8s_http_node_port is defined
+- name: Check that the ElasticSearch node ports are open
+  when: elasticsearch_k8s_use_node_port
+  block:
+    - name: Check that the ElasticSearch HTTP node port is open
+      vars:
+        utils_ports_to_ping:
+          - "{{ elasticsearch_k8s_http_node_port }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.utils
+        tasks_from: ping
+      when: elasticsearch_k8s_http_node_port is defined
 
-- name: Check that the ElasticSearch transport node port is open
-  vars:
-    utils_ports_to_ping:
-      - "{{ elasticsearch_k8s_transport_node_port }}"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.utils
-    tasks_from: ping
-  when:
-    - elasticsearch_k8s_use_node_port
-    - elasticsearch_k8s_transport_node_port is defined
+    - name: Check that the ElasticSearch transport node port is open
+      vars:
+        utils_ports_to_ping:
+          - "{{ elasticsearch_k8s_transport_node_port }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.utils
+        tasks_from: ping
+      when: elasticsearch_k8s_transport_node_port is defined
