@@ -18,7 +18,9 @@ spec:
   selector:
     app.kubernetes.io/name: {{ grafana_k8s_resource_name }}
   ports:
+{% if grafana_k8s_web_node_port is defined %}
     - name: web
       port: {{ grafana_web_port }}
       targetPort: {{ grafana_web_port }}
       nodePort: {{ grafana_k8s_web_node_port }}
+{% endif %}

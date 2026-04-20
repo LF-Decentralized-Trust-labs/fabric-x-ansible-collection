@@ -26,6 +26,7 @@
     state: present
     template:
       path: k8s/service-nodeport.yaml.j2
+  when: fabric_ca_server_k8s_use_node_port
 
 - name: Apply Fabric CA Deployment
   kubernetes.core.k8s:
