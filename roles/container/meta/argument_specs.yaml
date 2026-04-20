@@ -36,7 +36,6 @@ argument_specs:
           - "Leave it empty to auto-detect C(podman) first and then C(docker)."
       container_name: &container_name
         type: str
-        required: true
         description:
           - "Names the container managed by the role."
       container_image: &container_image
@@ -51,7 +50,6 @@ argument_specs:
           - "Overrides the image entrypoint."
       container_command: &container_command
         type: raw
-        required: false
         description:
           - "Supplies the command passed to the container runtime."
       container_hostname: &container_hostname
@@ -111,7 +109,6 @@ argument_specs:
           - "The default derives from C(container_on_mac) and C(container_network)."
       container_network: &container_network
         type: str
-        required: true
         description:
           - "Names the bridge network attached to the container when bridge mode is selected."
       container_ports: &container_ports
@@ -354,10 +351,14 @@ argument_specs:
       - "Logs the command in debug mode, resolves the container client, and delegates startup to the matching backend task file."
     options:
       container_client: *container_client
-      container_name: *container_name
+      container_name:
+        <<: *container_name
+        required: true
       container_image: *container_image
       container_entrypoint: *container_entrypoint
-      container_command: *container_command
+      container_command:
+        <<: *container_command
+        required: false
       container_hostname: *container_hostname
       container_host_uid: *container_host_uid
       container_host_gid: *container_host_gid
@@ -399,7 +400,9 @@ argument_specs:
       - "Resolves the active container client and delegates container shutdown to the matching backend task file."
     options:
       container_client: *container_client
-      container_name: *container_name
+      container_name:
+        <<: *container_name
+        required: true
 
   rm:
     short_description: Remove a container with the selected client
@@ -407,7 +410,9 @@ argument_specs:
       - "Resolves the active container client and delegates container removal to the matching backend task file."
     options:
       container_client: *container_client
-      container_name: *container_name
+      container_name:
+        <<: *container_name
+        required: true
 
   exec:
     short_description: Execute a command in a container
@@ -415,7 +420,9 @@ argument_specs:
       - "Resolves the active container client and delegates command execution to the matching backend task file."
     options:
       container_client: *container_client
-      container_name: *container_name
+      container_name:
+        <<: *container_name
+        required: true
       container_command:
         <<: *container_command
         required: true
@@ -427,7 +434,9 @@ argument_specs:
       - "Resolves the active container client, writes logs on the remote node, and fetches them to the control host."
     options:
       container_client: *container_client
-      container_name: *container_name
+      container_name:
+        <<: *container_name
+        required: true
       container_remote_logs_dir: *container_remote_logs_dir
       container_remote_logs_file: *container_remote_logs_file
       container_fetched_logs_dir: *container_fetched_logs_dir
@@ -451,7 +460,9 @@ argument_specs:
       - "Resolves the active container client and delegates network creation to the matching backend task file."
     options:
       container_client: *container_client
-      container_network: *container_network
+      container_network:
+        <<: *container_network
+        required: true
       container_network_driver: *container_network_driver
       container_network_attachable: *container_network_attachable
       container_network_internal: *container_network_internal
@@ -462,7 +473,9 @@ argument_specs:
       - "Resolves the active container client and delegates network removal to the matching backend task file."
     options:
       container_client: *container_client
-      container_network: *container_network
+      container_network:
+        <<: *container_network
+        required: true
 
   volume/create:
     short_description: Create a container volume
@@ -509,10 +522,14 @@ argument_specs:
     description:
       - "Starts a Docker container with the requested runtime options and optionally waits for health or port readiness."
     options:
-      container_name: *container_name
+      container_name:
+        <<: *container_name
+        required: true
       container_image: *container_image
       container_entrypoint: *container_entrypoint
-      container_command: *container_command
+      container_command:
+        <<: *container_command
+        required: false
       container_hostname: *container_hostname
       container_host_uid: *container_host_uid
       container_host_gid: *container_host_gid
@@ -552,21 +569,27 @@ argument_specs:
     description:
       - "Stops a Docker container when it exists."
     options:
-      container_name: *container_name
+      container_name:
+        <<: *container_name
+        required: true
 
   docker/rm:
     short_description: Remove a container with Docker
     description:
       - "Removes a Docker container and its volumes."
     options:
-      container_name: *container_name
+      container_name:
+        <<: *container_name
+        required: true
 
   docker/exec:
     short_description: Execute a command in a Docker container
     description:
       - "Runs a command inside a Docker container."
     options:
-      container_name: *container_name
+      container_name:
+        <<: *container_name
+        required: true
       container_command:
         <<: *container_command
         required: true
@@ -586,7 +609,9 @@ argument_specs:
     description:
       - "Creates a Docker network with the requested driver and flags."
     options:
-      container_network: *container_network
+      container_network:
+        <<: *container_network
+        required: true
       container_network_driver: *container_network_driver
       container_network_attachable: *container_network_attachable
       container_network_internal: *container_network_internal
@@ -596,7 +621,9 @@ argument_specs:
     description:
       - "Removes a Docker network."
     options:
-      container_network: *container_network
+      container_network:
+        <<: *container_network
+        required: true
 
   docker/volume/create:
     short_description: Create a Docker volume
@@ -641,10 +668,14 @@ argument_specs:
     description:
       - "Starts a Podman container with the requested runtime options and optionally waits for health or port readiness."
     options:
-      container_name: *container_name
+      container_name:
+        <<: *container_name
+        required: true
       container_image: *container_image
       container_entrypoint: *container_entrypoint
-      container_command: *container_command
+      container_command:
+        <<: *container_command
+        required: false
       container_hostname: *container_hostname
       container_host_uid: *container_host_uid
       container_host_gid: *container_host_gid
@@ -685,21 +716,27 @@ argument_specs:
     description:
       - "Stops a Podman container when it exists."
     options:
-      container_name: *container_name
+      container_name:
+        <<: *container_name
+        required: true
 
   podman/rm:
     short_description: Remove a container with Podman
     description:
       - "Removes a Podman container and its volumes."
     options:
-      container_name: *container_name
+      container_name:
+        <<: *container_name
+        required: true
 
   podman/exec:
     short_description: Execute a command in a Podman container
     description:
       - "Runs a command inside a Podman container."
     options:
-      container_name: *container_name
+      container_name:
+        <<: *container_name
+        required: true
       container_command:
         <<: *container_command
         required: true
@@ -719,7 +756,9 @@ argument_specs:
     description:
       - "Creates a Podman network with the requested driver."
     options:
-      container_network: *container_network
+      container_network:
+        <<: *container_network
+        required: true
       container_network_driver: *container_network_driver
       container_network_internal: *container_network_internal
 
@@ -728,7 +767,9 @@ argument_specs:
     description:
       - "Removes a Podman network."
     options:
-      container_network: *container_network
+      container_network:
+        <<: *container_network
+        required: true
 
   podman/volume/create:
     short_description: Create a Podman volume
