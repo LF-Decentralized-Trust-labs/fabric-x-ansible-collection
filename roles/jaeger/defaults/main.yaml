@@ -42,9 +42,4 @@ jaeger_k8s_resource_name: "{{ inventory_hostname }}"
 jaeger_k8s_wait_timeout: 120
 jaeger_k8s_fs_group: 0
 
-jaeger_k8s_ui_node_port: "{{ jaeger_ui_port }}"
-jaeger_k8s_admin_node_port: "{{ jaeger_admin_port }}"
-jaeger_k8s_http_server_node_port: "{{ jaeger_http_server_port }}"
-jaeger_k8s_http_collector_node_port: "{{ jaeger_http_collector_port }}"
-jaeger_k8s_grpc_server_node_port: "{{ jaeger_grpc_server_port }}"
-jaeger_k8s_collector_node_port: "{{ jaeger_collector_port }}"
+jaeger_k8s_use_node_port: false
