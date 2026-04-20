@@ -5,15 +5,6 @@
 #
 
 # =========================
-# Namespace
-# =========================
-- name: Ensure Kubernetes namespace exists for Postgres DB
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.k8s
-    tasks_from: namespace/create
-  when: k8s_manage_namespace
-
-# =========================
 # Apply Resources
 # =========================
 - name: Apply Postgres DB Service
@@ -21,13 +12,6 @@
     state: present
     template:
       path: k8s/service.yaml.j2
-
-- name: Apply Postgres DB NodePort Service
-  kubernetes.core.k8s:
-    state: present
-    template:
-      path: k8s/service-nodeport.yaml.j2
-  when: postgres_k8s_use_node_port
 
 - name: Apply Postgres DB StatefulSet
   kubernetes.core.k8s:

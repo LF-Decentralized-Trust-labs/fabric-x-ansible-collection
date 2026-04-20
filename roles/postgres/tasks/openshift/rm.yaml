@@ -19,12 +19,3 @@
     kind: Service
     name: "{{ postgres_k8s_resource_name }}"
     namespace: "{{ k8s_namespace }}"
-
-- name: Delete Postgres DB NodePort Service
-  kubernetes.core.k8s:
-    state: absent
-    api_version: v1
-    kind: Service
-    name: "{{ postgres_k8s_resource_name }}-nodeport"
-    namespace: "{{ k8s_namespace }}"
-  when: postgres_k8s_use_node_port
