@@ -19,13 +19,19 @@ argument_specs:
         required: true
         description:
           - "Sets the network address that the ping entry point probes for each port in C(utils_ports_to_ping). Example: C(orderer-router-1.example.com)."
+      project_dir: &project_dir
+        type: str
+        required: true
+        description:
+          - "Defines the project root directory used by utility entry points that write generated files. Example: C(/path/to/hyperledger/fabricx)."
 
   generate_makefile_targets:
     short_description: Generate Makefile targets for inventory hosts
     description:
       - "Generates a C(target_hosts.mk) file with one Makefile target per inventory host in C(groups['all'])."
-      - "The output path is C($PROJECT_DIR/target_hosts.mk), derived directly from the C(PROJECT_DIR) environment variable read inside the task."
-    options: {}
+      - "The output path is C(project_dir + '/target_hosts.mk'), using the caller-provided C(project_dir) variable."
+    options:
+      project_dir: *project_dir
 
   ping:
     short_description: Check whether TCP ports are reachable
