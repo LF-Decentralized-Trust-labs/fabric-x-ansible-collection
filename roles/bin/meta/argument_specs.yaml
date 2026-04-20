@@ -8,6 +8,24 @@ argument_specs:
 
   _shared_options:
     options:
+      control_node_dir: &control_node_dir
+        type: path
+        required: false
+        description:
+          - "Sets the base directory on the control node used to derive C(bin_control_source_code_dir) and C(bin_control_dir)."
+          - "Required when relying on the defaults of those options and C(bin_build_on_control_node) is true."
+      remote_node_dir: &remote_node_dir
+        type: path
+        required: false
+        description:
+          - "Sets the base directory on the managed host used to derive C(bin_remote_source_code_dir), C(bin_remote_dir), and C(bin_remote_logs_dir)."
+          - "Required when relying on the defaults of those options."
+      fetched_artifacts_dir: &fetched_artifacts_dir
+        type: path
+        required: false
+        description:
+          - "Sets the local directory used to derive C(bin_fetched_logs_dir)."
+          - "Required when relying on the default of that option."
       bin_build_on_control_node: &bin_build_on_control_node
         type: bool
         required: false
@@ -202,6 +220,8 @@ argument_specs:
       - "Clones the source repository, groups target hosts by platform, and builds one binary per unique operating system and architecture combination."
       - "This entry point validates only variables owned by the bin role and does not redeclare git or go role inputs passed through internal includes."
     options:
+      control_node_dir: *control_node_dir
+      remote_node_dir: *remote_node_dir
       bin_build_on_control_node: *bin_build_on_control_node
       bin_target_os: *bin_target_os
       bin_target_arch: *bin_target_arch
@@ -219,6 +239,8 @@ argument_specs:
       - "Groups target hosts by platform and invokes the go install entry point once per unique operating system and architecture combination."
       - "This entry point validates only bin role inputs and does not redeclare go role variables forwarded internally."
     options:
+      control_node_dir: *control_node_dir
+      remote_node_dir: *remote_node_dir
       bin_build_on_control_node: *bin_build_on_control_node
       bin_target_os: *bin_target_os
       bin_target_arch: *bin_target_arch
@@ -240,6 +262,8 @@ argument_specs:
       - "Ensures the target binary directory exists on the managed host and copies the selected binary into it."
       - "The source binary must already exist at the resolved local or control-node path before this entry point runs."
     options:
+      control_node_dir: *control_node_dir
+      remote_node_dir: *remote_node_dir
       bin_build_on_control_node: *bin_build_on_control_node
       bin_target_os: *bin_target_os
       bin_target_arch: *bin_target_arch
@@ -254,6 +278,7 @@ argument_specs:
       - "Builds the runtime command, optionally redirects logs, and starts the binary either in tmux or directly in the shell."
       - "Set C(bin_command) to the executable command to run. Set C(bin_wait_port) only when C(bin_wait_until_running) is true."
     options:
+      remote_node_dir: *remote_node_dir
       bin_command: *bin_command
       bin_env: *bin_env
       bin_remote_dir: *bin_remote_dir
@@ -295,6 +320,8 @@ argument_specs:
     description:
       - "Copies the binary log file from the managed host to the control node without failing when the file is absent."
     options:
+      fetched_artifacts_dir: *fetched_artifacts_dir
+      remote_node_dir: *remote_node_dir
       bin_name: *bin_name
       bin_remote_logs_dir: *bin_remote_logs_dir
       bin_remote_logs_file: *bin_remote_logs_file
