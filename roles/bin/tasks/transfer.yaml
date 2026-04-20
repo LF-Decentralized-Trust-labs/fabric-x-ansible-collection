@@ -4,12 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that the binary name has been defined
-  ansible.builtin.fail:
-    msg: "No binary name has been defined. Set it via 'bin_name'."
-  when:
-    - bin_name is not defined
-
 - name: Ensure bin directory exists
   ansible.builtin.file:
     path: "{{ bin_remote_dir }}"

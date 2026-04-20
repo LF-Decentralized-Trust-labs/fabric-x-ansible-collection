@@ -41,6 +41,7 @@ Starts a detached session of `tmux`. The task is idempotent, i.e. if a session w
   vars:
     tmux_session_name: "sample-session"
     tmux_cmd_to_run: "echo 'Hello World'"
+    tmux_chdir: "/var/hyperledger/fabricx"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.tmux
     tasks_from: start
