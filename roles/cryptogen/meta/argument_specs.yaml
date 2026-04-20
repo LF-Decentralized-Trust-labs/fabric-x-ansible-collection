@@ -8,6 +8,11 @@ argument_specs:
 
   _shared_options:
     options:
+      config_build_dir: &config_build_dir
+        type: path
+        required: false
+        description:
+          - "Sets the base directory for generated configuration artifacts."
       cryptogen_use_bin: &cryptogen_use_bin
         type: bool
         required: false
@@ -27,7 +32,7 @@ argument_specs:
         default: "{{ cryptogen_artifacts_dir }}/crypto"
         description:
           - "Sets the directory where cryptogen writes generated crypto material."
-          - "The default derives from C(cryptogen_artifacts_dir)."
+          - "The default derives from C(cryptogen_artifacts_dir), which in turn derives from C(config_build_dir)."
       cryptogen_registry_endpoint: &cryptogen_registry_endpoint
         type: str
         required: false
@@ -153,6 +158,7 @@ argument_specs:
       - "Copy generated MSP directories for orderer and peer organizations into the fetched artifacts directory."
       - "Run this after crypto material has already been generated."
     options:
+      config_build_dir: *config_build_dir
       fetched_artifacts_dir: *fetched_artifacts_dir
       cryptogen_output_dir: *cryptogen_output_dir
       cryptogen_orderers_by_org: *cryptogen_orderers_by_org
@@ -164,6 +170,7 @@ argument_specs:
       - "Render C(crypto-config.yaml) for the cryptogen CLI."
       - "This entry point gathers host IPv4 facts for referenced orderer and peer hosts before templating."
     options:
+      config_build_dir: *config_build_dir
       cryptogen_artifacts_dir: *cryptogen_artifacts_dir
       cryptogen_config_file: *cryptogen_config_file
       cryptogen_orderers_by_org: *cryptogen_orderers_by_org
@@ -175,6 +182,7 @@ argument_specs:
       - "Clean the output directory and run the cryptogen CLI in a container."
       - "This entry point delegates container startup to C(hyperledger.fabricx.container)."
     options:
+      config_build_dir: *config_build_dir
       cryptogen_artifacts_dir: *cryptogen_artifacts_dir
       cryptogen_output_dir: *cryptogen_output_dir
       cryptogen_registry_endpoint: *cryptogen_registry_endpoint
@@ -221,6 +229,7 @@ argument_specs:
       - "This entry point delegates command execution to C(hyperledger.fabricx.bin)."
     options:
       cli_bin_dir: *cli_bin_dir
+      config_build_dir: *config_build_dir
       cryptogen_artifacts_dir: *cryptogen_artifacts_dir
       cryptogen_output_dir: *cryptogen_output_dir
       cryptogen_bin_name: *cryptogen_bin_name
