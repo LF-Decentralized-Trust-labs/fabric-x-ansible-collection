@@ -4,18 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that the path for the OpenSSL private key has been defined
-  ansible.builtin.fail:
-    msg: "No private key path has been defined. Set it via 'openssl_private_key_path'."
-  when:
-    - openssl_private_key_path is not defined
-
-- name: Check that the path for the OpenSSL public key has been defined
-  ansible.builtin.fail:
-    msg: "No public key path has been defined. Set it via 'openssl_public_key_path'."
-  when:
-    - openssl_public_key_path is not defined
-
 - name: Ensure that the private key directory exists
   ansible.builtin.file:
     path: "{{ openssl_private_key_path | dirname }}"

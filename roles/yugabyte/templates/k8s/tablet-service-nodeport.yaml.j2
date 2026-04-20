@@ -18,33 +18,45 @@ spec:
   selector:
     app.kubernetes.io/name: {{ yugabyte_k8s_resource_name }}
   ports:
+{% if yugabyte_k8s_tablet_pgsql_node_port is defined %}
     # YSQL (PostgreSQL-compatible) client port.
     - name: pgsql
       port: {{ yugabyte_tablet_pgsql_bind_port }}
       targetPort: {{ yugabyte_tablet_pgsql_bind_port }}
       nodePort: {{ yugabyte_k8s_tablet_pgsql_node_port }}
+{% endif %}
+{% if yugabyte_k8s_tablet_rpc_node_port is defined %}
     # RPC port used for tserver-to-master and tserver-to-tserver communication.
     - name: rpc
       port: {{ yugabyte_tablet_rpc_bind_port }}
       targetPort: {{ yugabyte_tablet_rpc_bind_port }}
       nodePort: {{ yugabyte_k8s_tablet_rpc_node_port }}
+{% endif %}
+{% if yugabyte_k8s_tablet_webserver_node_port is defined %}
     # HTTP webserver port for the YB-TServer admin UI.
     - name: webserver
       port: {{ yugabyte_tablet_webserver_port }}
       targetPort: {{ yugabyte_tablet_webserver_port }}
       nodePort: {{ yugabyte_k8s_tablet_webserver_node_port }}
+{% endif %}
+{% if yugabyte_k8s_tablet_pgsql_web_node_port is defined %}
     # HTTP webserver port for YSQL metrics and status.
     - name: pgsql-web
       port: {{ yugabyte_tablet_pgsql_web_port }}
       targetPort: {{ yugabyte_tablet_pgsql_web_port }}
       nodePort: {{ yugabyte_k8s_tablet_pgsql_web_node_port }}
+{% endif %}
+{% if yugabyte_k8s_tablet_cql_bind_node_port is defined %}
     # YCQL (Cassandra-compatible) client port.
     - name: cql
       port: {{ yugabyte_tablet_cql_bind_port }}
       targetPort: {{ yugabyte_tablet_cql_bind_port }}
       nodePort: {{ yugabyte_k8s_tablet_cql_bind_node_port }}
+{% endif %}
+{% if yugabyte_k8s_tablet_cql_web_node_port is defined %}
     # HTTP webserver port for YCQL metrics and status.
     - name: cql-web
       port: {{ yugabyte_tablet_cql_web_port }}
       targetPort: {{ yugabyte_tablet_cql_web_port }}
       nodePort: {{ yugabyte_k8s_tablet_cql_web_node_port }}
+{% endif %}
