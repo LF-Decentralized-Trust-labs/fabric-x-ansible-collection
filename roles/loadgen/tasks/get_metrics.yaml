@@ -14,7 +14,8 @@
 
 - name: Get Fabric-X Loadgen metrics
   vars:
-    loadgen_effective_metrics_endpoint: "{{ loadgen_metrics_endpoint | default(loadgen_monitoring_http_protocol + '://' + actual_host + ':' + (loadgen_metrics_port | string) + '/metrics') }}"
+    loadgen_default_metrics_endpoint: "{{ loadgen_monitoring_http_protocol }}://{{ actual_host }}:{{ loadgen_metrics_port }}/metrics"
+    loadgen_effective_metrics_endpoint: "{{ loadgen_metrics_endpoint | default(loadgen_default_metrics_endpoint) }}"
   ansible.builtin.uri:
     url: "{{ loadgen_effective_metrics_endpoint }}"
     validate_certs: false

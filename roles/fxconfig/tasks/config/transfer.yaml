@@ -51,21 +51,12 @@
         if fxconfig_use_bin
         else fxconfig_container_config_dir
       }}
-    fxconfig_effective_orderer_address: >-
-      {{
-        fxconfig_orderer_address
-        | default(hostvars[orderer_router_host].actual_host ~ ':' ~ hostvars[orderer_router_host].orderer_rpc_port)
-      }}
-    fxconfig_effective_committer_query_service_address: >-
-      {{
-        fxconfig_committer_query_service_address
-        | default(hostvars[committer_query_service_host].actual_host ~ ':' ~ hostvars[committer_query_service_host].committer_rpc_port)
-      }}
-    fxconfig_effective_committer_sidecar_address: >-
-      {{
-        fxconfig_committer_sidecar_address
-        | default(hostvars[committer_sidecar_host].actual_host ~ ':' ~ hostvars[committer_sidecar_host].committer_rpc_port)
-      }}
+    fxconfig_default_orderer_address: "{{ hostvars[orderer_router_host].actual_host }}:{{ hostvars[orderer_router_host].orderer_rpc_port }}"
+    fxconfig_effective_orderer_address: "{{ fxconfig_orderer_address | default(fxconfig_default_orderer_address) }}"
+    fxconfig_default_committer_query_service_address: "{{ hostvars[committer_query_service_host].actual_host }}:{{ hostvars[committer_query_service_host].committer_rpc_port }}"
+    fxconfig_effective_committer_query_service_address: "{{ fxconfig_committer_query_service_address | default(fxconfig_default_committer_query_service_address) }}"
+    fxconfig_default_committer_sidecar_address: "{{ hostvars[committer_sidecar_host].actual_host }}:{{ hostvars[committer_sidecar_host].committer_rpc_port }}"
+    fxconfig_effective_committer_sidecar_address: "{{ fxconfig_committer_sidecar_address | default(fxconfig_default_committer_sidecar_address) }}"
   ansible.builtin.template:
     src: "config.yaml.j2"
     dest: "{{ fxconfig_remote_config_dir }}/{{ fxconfig_config_file }}"
