@@ -215,6 +215,12 @@ argument_specs:
         default: false
         description:
           - "Ignores runtime errors from container start operations."
+      container_run_detach_mode: &container_run_detach_mode
+        type: bool
+        required: false
+        default: true
+        description:
+          - "Runs the container in detached mode when set to C(true)."
       container_run_until: &container_run_until
         type: raw
         required: false
@@ -402,6 +408,7 @@ argument_specs:
       container_healthcheck_interval: *container_healthcheck_interval
       container_autoremove: *container_autoremove
       container_ignore_errors: *container_ignore_errors
+      container_run_detach_mode: *container_run_detach_mode
       container_run_until: *container_run_until
       container_run_delay: *container_run_delay
       container_run_retries: *container_run_retries
@@ -563,6 +570,7 @@ argument_specs:
       container_healthcheck_interval: *container_healthcheck_interval
       container_autoremove: *container_autoremove
       container_ignore_errors: *container_ignore_errors
+      container_run_detach_mode: *container_run_detach_mode
       container_run_until: *container_run_until
       container_run_delay: *container_run_delay
       container_run_retries: *container_run_retries
@@ -701,6 +709,7 @@ argument_specs:
       container_healthcheck_interval: *container_healthcheck_interval
       container_autoremove: *container_autoremove
       container_ignore_errors: *container_ignore_errors
+      container_run_detach_mode: *container_run_detach_mode
       container_run_until: *container_run_until
       container_run_delay: *container_run_delay
       container_run_retries: *container_run_retries
