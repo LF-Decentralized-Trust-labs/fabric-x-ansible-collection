@@ -51,4 +51,4 @@ prometheus_k8s_wait_timeout: 120
 # prom/prometheus container image runs as nobody (UID 65534).
 prometheus_k8s_fs_group: 65534
 
-prometheus_k8s_node_port: "{{ prometheus_port }}"
+prometheus_k8s_use_node_port: false

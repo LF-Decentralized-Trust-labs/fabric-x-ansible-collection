@@ -21,15 +21,11 @@ go_install_dir: "/usr/local"
 go_cgo_enabled: false
 # Host to map platform from (used by map_platform task)
 go_host_to_map: "{{ inventory_hostname }}"
-# Mapped GOOS value (set by map_platform task)
-go_os: ""
-# Mapped GOARCH value (set by map_platform task)
-go_arch: ""
 
 # =========================
 # Locations/Paths
 # =========================
 # Output directory for built/installed binaries
-go_output_dir: "{{ lookup('env', 'GOBIN') | default(lookup('env', 'GOPATH') + '/bin') }}"
+go_output_dir: "{{ lookup('env', 'GOBIN') | default(lookup('env', 'GOPATH') + '/bin', true) }}"
 # Go Package to build
 go_source_code_package: ""

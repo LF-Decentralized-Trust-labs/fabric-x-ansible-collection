@@ -1,0 +1,16 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the Grafana web node port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ grafana_k8s_web_node_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - grafana_k8s_use_node_port
+    - grafana_k8s_web_node_port is defined

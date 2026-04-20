@@ -4,9 +4,20 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Set effective loadgen limit-rate endpoint (NodePort)
+  ansible.builtin.set_fact:
+    loadgen_limit_rate_endpoint: "http://{{ actual_host }}:{{ loadgen_k8s_web_node_port }}/setRateLimit"
+  when:
+    - loadgen_use_k8s
+    - loadgen_k8s_use_node_port
+    - loadgen_k8s_web_node_port is defined
+
 - name: Send HTTP POST request to set the new limit
+  vars:
+    loadgen_default_limit_rate_endpoint: "http://{{ actual_host }}:{{ loadgen_web_port }}/setRateLimit"
+    loadgen_effective_limit_rate_endpoint: "{{ loadgen_limit_rate_endpoint | default(loadgen_default_limit_rate_endpoint) }}"
   ansible.builtin.uri:
-    url: "http://{{ actual_host }}:{{ loadgen_web_port }}/setRateLimit"
+    url: "{{ loadgen_effective_limit_rate_endpoint }}"
     validate_certs: false
     method: POST
     body_format: json

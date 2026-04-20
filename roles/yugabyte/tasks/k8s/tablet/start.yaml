@@ -26,6 +26,7 @@
     state: present
     template:
       path: k8s/tablet-service-nodeport.yaml.j2
+  when: yugabyte_k8s_use_node_port
 
 - name: Apply Yugabyte tablet StatefulSet
   kubernetes.core.k8s:

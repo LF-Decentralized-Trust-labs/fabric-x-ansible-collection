@@ -37,4 +37,4 @@ postgres_exporter_use_container: "{{ not postgres_exporter_use_k8s }}"
 postgres_exporter_k8s_resource_name: "{{ inventory_hostname }}"
 postgres_exporter_k8s_wait_timeout: 120
 postgres_exporter_k8s_fs_group: 65534
-postgres_exporter_k8s_port_node_port: "{{ postgres_exporter_port }}"
+postgres_exporter_k8s_use_node_port: false
