@@ -1,0 +1,90 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+argument_specs:
+  _shared_options:
+    options:
+      git_repo: &git_repo
+        type: str
+        required: true
+        description:
+          - Repository path component used to derive the checkout directory name and default repository URIs.
+          - The checkout name is computed from the basename of this value.
+      git_dir: &git_dir
+        type: path
+        required: true
+        description:
+          - Parent directory that will contain the checkout created by C(clone).
+          - The final destination is derived as C(<git_dir>/<repo-basename>@<git_commit>).
+      git_commit: &git_commit
+        type: str
+        required: false
+        default: "main"
+        description:
+          - Git branch, tag, or commit to check out.
+          - The value is appended to the derived checkout directory name and passed to C(ansible.builtin.git) as the revision.
+      git_hub_url: &git_hub_url
+        type: str
+        required: false
+        default: "github.com"
+        description:
+          - Hostname inserted into the default HTTPS and SSH repository URI templates.
+      git_use_ssh: &git_use_ssh
+        type: bool
+        required: false
+        default: false
+        description:
+          - Selects the SSH-derived default repository URI when true; otherwise HTTPS is used.
+      git_https_uri: &git_https_uri
+        type: str
+        required: false
+        default: "https://{{ git_hub_url }}/{{ git_repo }}.git"
+        description:
+          - Default HTTPS repository URI built from C(git_hub_url) and C(git_repo).
+      git_ssh_uri: &git_ssh_uri
+        type: str
+        required: false
+        default: "git@{{ git_hub_url }}:{{ git_repo }}.git"
+        description:
+          - Default SSH repository URI built from C(git_hub_url) and C(git_repo).
+      git_uri: &git_uri
+        type: str
+        required: false
+        default: "{{ git_ssh_uri if git_use_ssh else git_https_uri }}"
+        description:
+          - Effective repository URI passed to C(ansible.builtin.git).
+          - Defaults to C(git_ssh_uri) when C(git_use_ssh) is true, otherwise C(git_https_uri).
+
+  install:
+    short_description: Install git on the target host
+    description:
+      - Installs the Git package on the managed node.
+      - This entry point delegates package installation to the shared package role.
+    options: {}
+
+  clone:
+    short_description: Clone or update a Git repository into a target directory
+    description:
+      - Clones a Git repository at the requested revision into a derived destination directory.
+      - Repeated runs update the existing checkout in place through C(ansible.builtin.git).
+    options:
+      git_repo: *git_repo
+      git_dir: *git_dir
+      git_commit: *git_commit
+      git_hub_url: *git_hub_url
+      git_use_ssh: *git_use_ssh
+      git_https_uri: *git_https_uri
+      git_ssh_uri: *git_ssh_uri
+      git_uri: *git_uri
+
+  get_repo_name:
+    short_description: Compute the repository checkout directory name
+    description:
+      - Derives C(git_repo_name) as C(<basename(git_repo)>@<git_commit>).
+      - The resulting fact is used by C(clone) before creating the checkout directory.
+    options:
+      git_repo: *git_repo
+      git_commit: *git_commit

@@ -18,13 +18,17 @@ spec:
   selector:
     app.kubernetes.io/name: {{ yugabyte_k8s_resource_name }}
   ports:
+{% if yugabyte_k8s_master_rpc_node_port is defined %}
     # RPC port used for master-to-master and tserver-to-master communication.
     - name: rpc
       port: {{ yugabyte_master_rpc_bind_port }}
       targetPort: {{ yugabyte_master_rpc_bind_port }}
       nodePort: {{ yugabyte_k8s_master_rpc_node_port }}
+{% endif %}
+{% if yugabyte_k8s_master_webserver_node_port is defined %}
     # HTTP webserver port for the YB-Master admin UI.
     - name: webserver
       port: {{ yugabyte_master_webserver_port }}
       targetPort: {{ yugabyte_master_webserver_port }}
       nodePort: {{ yugabyte_k8s_master_webserver_node_port }}
+{% endif %}

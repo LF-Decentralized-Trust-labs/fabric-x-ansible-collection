@@ -49,8 +49,7 @@ fabric_ca_server_k8s_wait_timeout: 120
 fabric_ca_server_k8s_fs_group: 0
 
 # NodePort for external access
-fabric_ca_server_k8s_port_node_port: "{{ fabric_ca_port }}"
-fabric_ca_server_k8s_operations_node_port: "{{ fabric_ca_operations_port }}"
+fabric_ca_server_k8s_use_node_port: false
 
 # =========================
 # General settings
