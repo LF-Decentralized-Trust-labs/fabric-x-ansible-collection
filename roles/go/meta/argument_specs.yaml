@@ -1,0 +1,118 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+argument_specs:
+
+  _shared_options:
+    short_description: Shared option catalog for go role entry points
+    description:
+      - Reusable options for install_go, map_platform, build, and install.
+    options:
+      go_version: &go_version
+        type: str
+        required: false
+        default: "1.25.8"
+        description:
+          - Specifies the Go release version to install.
+      go_install_dir: &go_install_dir
+        type: path
+        required: false
+        default: "/usr/local"
+        description:
+          - Sets the base directory where the Go distribution is extracted.
+      go_host_to_map: &go_host_to_map
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description:
+          - Selects the host whose facts are mapped into C(go_os) and C(go_arch).
+          - The default derives from C(inventory_hostname).
+      go_cgo_enabled: &go_cgo_enabled
+        type: bool
+        required: false
+        default: false
+        description:
+          - Enables CGO for build and install commands.
+          - A compatible C compiler is required when this is C(true).
+      go_output_dir: &go_output_dir
+        type: path
+        required: false
+        default: "{{ lookup('env', 'GOBIN') | default(lookup('env', 'GOPATH') + '/bin', true) }}"
+        description:
+          - Sets the directory exported as C(GOBIN) for installed binaries.
+          - The default derives from C(GOBIN) when set, otherwise from C(GOPATH).
+      go_source_code_path: &go_source_code_path
+        type: path
+        required: true
+        description:
+          - Defines the base directory containing the Go source tree to build.
+      go_source_code_package: &go_source_code_package
+        type: str
+        required: false
+        default: ""
+        description:
+          - Appends a package subdirectory under C(go_source_code_path) before invoking C(go build).
+          - The default is blank, which builds from the source root.
+      go_output_name: &go_output_name
+        type: path
+        required: true
+        description:
+          - Sets the output path passed to C(go build -o).
+      go_package: &go_package
+        type: str
+        required: true
+        description:
+          - Specifies the Go package or module path passed to C(go install).
+      go_tags: &go_tags
+        type: list
+        elements: str
+        required: false
+        description:
+          - Provides optional Go build tags passed to the Go command.
+          - The list is joined with commas before execution.
+
+  install_go:
+    short_description: Install the Go toolchain on the target host
+    description:
+      - Installs the Go runtime when it is not already present on the target host.
+      - This entry point maps the target platform before downloading the matching Go archive.
+    options:
+      go_version: *go_version
+      go_install_dir: *go_install_dir
+      go_host_to_map: *go_host_to_map
+
+  map_platform:
+    short_description: Map Ansible host facts to GOOS and GOARCH values
+    description:
+      - Reads host facts and derives the Go platform identifiers used for cross-compilation and downloads.
+      - This entry point sets C(go_os) and C(go_arch) facts for later tasks in the role.
+    options:
+      go_host_to_map: *go_host_to_map
+
+  build:
+    short_description: Build a Go binary from source
+    description:
+      - Runs C(go build) for the selected source package and output name.
+      - This entry point can cross-compile by mapping host facts and optionally enabling CGO.
+    options:
+      go_output_name: *go_output_name
+      go_source_code_path: *go_source_code_path
+      go_source_code_package: *go_source_code_package
+      go_host_to_map: *go_host_to_map
+      go_cgo_enabled: *go_cgo_enabled
+      go_tags: *go_tags
+
+  install:
+    short_description: Install a Go package with go install
+    description:
+      - Runs C(go install) for the requested package using the mapped target platform values.
+      - This entry point can place the installed binary in a custom output directory and optionally enable CGO.
+    options:
+      go_package: *go_package
+      go_output_dir: *go_output_dir
+      go_host_to_map: *go_host_to_map
+      go_cgo_enabled: *go_cgo_enabled
+      go_tags: *go_tags
