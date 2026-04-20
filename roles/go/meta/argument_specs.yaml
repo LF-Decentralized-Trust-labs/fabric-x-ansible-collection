@@ -37,20 +37,6 @@ argument_specs:
         description:
           - Selects the host whose facts are mapped into C(go_os) and C(go_arch).
           - The default derives from C(inventory_hostname).
-      go_os: &go_os
-        type: str
-        required: false
-        default: ""
-        description:
-          - GOOS used for downloads and Go commands.
-          - C(map_platform) populates the default from C(ansible_facts.system).
-      go_arch: &go_arch
-        type: str
-        required: false
-        default: ""
-        description:
-          - GOARCH used for downloads and Go commands.
-          - C(map_platform) populates the default from C(ansible_facts.architecture).
       go_cgo_enabled: &go_cgo_enabled
         type: bool
         required: false
@@ -61,7 +47,7 @@ argument_specs:
       go_output_dir: &go_output_dir
         type: path
         required: false
-        default: "{{ lookup('env', 'GOBIN') | default(lookup('env', 'GOPATH') + '/bin') }}"
+        default: "{{ lookup('env', 'GOBIN') | default(lookup('env', 'GOPATH') + '/bin', true) }}"
         description:
           - Sets the directory exported as C(GOBIN) for installed binaries.
           - The default derives from C(GOBIN) when set, otherwise from C(GOPATH).
@@ -105,8 +91,6 @@ argument_specs:
       go_download_url: *go_download_url
       go_install_dir: *go_install_dir
       go_host_to_map: *go_host_to_map
-      go_os: *go_os
-      go_arch: *go_arch
 
   map_platform:
     short_description: Map Ansible host facts to GOOS and GOARCH values
@@ -127,8 +111,6 @@ argument_specs:
       go_source_code_package: *go_source_code_package
       go_host_to_map: *go_host_to_map
       go_cgo_enabled: *go_cgo_enabled
-      go_os: *go_os
-      go_arch: *go_arch
       go_tags: *go_tags
 
   install:
@@ -141,6 +123,4 @@ argument_specs:
       go_output_dir: *go_output_dir
       go_host_to_map: *go_host_to_map
       go_cgo_enabled: *go_cgo_enabled
-      go_os: *go_os
-      go_arch: *go_arch
       go_tags: *go_tags
