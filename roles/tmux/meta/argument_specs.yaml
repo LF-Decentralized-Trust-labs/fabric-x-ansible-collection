@@ -1,0 +1,48 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+argument_specs:
+
+  _shared_options:
+    options:
+      tmux_session_name: &tmux_session_name
+        type: str
+        required: true
+        description:
+          - "Sets the tmux session name used to look up, create, or stop the detached session. Example: C(sample-session)."
+      tmux_cmd_to_run: &tmux_cmd_to_run
+        type: str
+        required: true
+        description:
+          - "Sets the shell command started inside the new detached tmux session. Example: C(echo 'Hello World')."
+      tmux_chdir: &tmux_chdir
+        type: path
+        required: true
+        description:
+          - "Sets the working directory used before running C(tmux_cmd_to_run) in the detached session. Example: C(/var/hyperledger/fabricx)."
+
+  install:
+    short_description: Install tmux
+    description:
+      - "Install the C(tmux) package on the target host by delegating to the package role."
+    options: {}
+
+  start:
+    short_description: Start a tmux session
+    description:
+      - "Start a detached tmux session when C(tmux_session_name) does not already exist."
+      - "The session runs C(tmux_cmd_to_run) from C(tmux_chdir) on the target host."
+    options:
+      tmux_session_name: *tmux_session_name
+      tmux_cmd_to_run: *tmux_cmd_to_run
+      tmux_chdir: *tmux_chdir
+
+  stop:
+    short_description: Stop a tmux session
+    description:
+      - "Stop an existing tmux session on the target host when C(tmux_session_name) is present."
+    options:
+      tmux_session_name: *tmux_session_name

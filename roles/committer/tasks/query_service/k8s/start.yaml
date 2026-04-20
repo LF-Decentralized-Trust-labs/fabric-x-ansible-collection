@@ -26,6 +26,7 @@
     state: present
     template:
       path: k8s/service-nodeport.yaml.j2
+  when: committer_k8s_use_node_port
 
 - name: Apply Fabric-X Committer query-service Deployment
   kubernetes.core.k8s:
