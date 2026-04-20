@@ -116,7 +116,7 @@ Removes the Grafana configuration files on the remote node:
 
 #### start
 
-Starts Grafana in the selected deployment mode. Set `grafana_use_k8s: true` to deploy a Service, NodePort Service, and Deployment on Kubernetes; otherwise the role starts the container-based deployment:
+Starts Grafana in the selected deployment mode. Set `grafana_use_k8s: true` to deploy a Service and Deployment on Kubernetes; set `grafana_k8s_use_node_port: true` as well when you also want the NodePort Service. Otherwise the role starts the container-based deployment:
 
 ```yaml
 - name: Start Grafana

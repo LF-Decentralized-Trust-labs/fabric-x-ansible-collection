@@ -115,7 +115,7 @@ Removes the Prometheus configuration files on the remote node:
 
 #### start
 
-Starts Prometheus in the selected deployment mode. Set `prometheus_use_k8s: true` to deploy a StatefulSet, headless Service, and NodePort Service on Kubernetes; otherwise the role starts the container-based deployment:
+Starts Prometheus in the selected deployment mode. Set `prometheus_use_k8s: true` to deploy a StatefulSet and headless Service on Kubernetes; set `prometheus_k8s_use_node_port: true` as well when you also want the NodePort Service. Otherwise the role starts the container-based deployment:
 
 ```yaml
 - name: Start Prometheus

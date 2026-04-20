@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# =======================
+# bin / container
+# =======================
 - name: Check that the DB port is open
   vars:
     utils_ports_to_ping:
@@ -11,7 +14,20 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: ping
+  when: not postgres_use_k8s
 
+# =======================
+# k8s
+# =======================
+- name: Check that the node ports are open (k8s)
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: k8s/ping
+  when: postgres_use_k8s
+
+# =======================
+# Postgres Exporter
+# =======================
 - name: Check that the Exporter port is open
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
