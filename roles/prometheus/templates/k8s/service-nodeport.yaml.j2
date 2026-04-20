@@ -17,7 +17,9 @@ spec:
   selector:
     app.kubernetes.io/name: {{ prometheus_k8s_resource_name }}
   ports:
+{% if prometheus_k8s_node_port is defined %}
     - name: http
       port: {{ prometheus_port }}
       targetPort: {{ prometheus_port }}
       nodePort: {{ prometheus_k8s_node_port }}
+{% endif %}

@@ -18,7 +18,9 @@ spec:
   selector:
     app.kubernetes.io/name: {{ postgres_exporter_k8s_resource_name }}
   ports:
+{% if postgres_exporter_k8s_port_node_port is defined %}
     - name: metrics
       port: {{ postgres_exporter_port }}
       targetPort: {{ postgres_exporter_port }}
       nodePort: {{ postgres_exporter_k8s_port_node_port }}
+{% endif %}
