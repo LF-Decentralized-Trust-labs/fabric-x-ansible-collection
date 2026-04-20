@@ -1,0 +1,27 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the Fabric CA web node port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ fabric_ca_server_k8s_port_node_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - fabric_ca_server_k8s_use_node_port
+    - fabric_ca_server_k8s_port_node_port is defined
+
+- name: Check that the Fabric CA operations node port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ fabric_ca_server_k8s_operations_node_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - fabric_ca_server_k8s_use_node_port
+    - fabric_ca_server_k8s_operations_node_port is defined
