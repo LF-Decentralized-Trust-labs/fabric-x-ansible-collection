@@ -5,7 +5,6 @@
 #
 ---
 argument_specs:
-
   _shared_options:
     short_description: Shared configtxgen options
     description:
@@ -111,13 +110,15 @@ argument_specs:
         default: /tmp/config
         description:
           - Container mount path for `configtx.yaml`.
-      configtxgen_container_crypto_artifacts_dir: &configtxgen_container_crypto_artifacts_dir
+      configtxgen_container_crypto_artifacts_dir:
+        &configtxgen_container_crypto_artifacts_dir
         type: path
         required: false
         default: /tmp/crypto-artifacts
         description:
           - Container mount path for fetched crypto artifacts.
-      configtxgen_armageddon_container_artifacts_dir: &configtxgen_armageddon_container_artifacts_dir
+      configtxgen_armageddon_container_artifacts_dir:
+        &configtxgen_armageddon_container_artifacts_dir
         type: path
         required: false
         default: /tmp/armageddon-artifacts
@@ -185,7 +186,7 @@ argument_specs:
     short_description: Build the configtxgen configuration file
     description:
       - Generate `configtx.yaml` for Fabric-X genesis block creation.
-      - Validate the config template inputs, including the path selection controlled by C(configtxgen_use_bin).
+      - Render the config template using the provided inputs, including the path selection controlled by C(configtxgen_use_bin).
     options:
       config_build_dir: *config_build_dir
       configtxgen_artifacts_dir: *configtxgen_artifacts_dir
