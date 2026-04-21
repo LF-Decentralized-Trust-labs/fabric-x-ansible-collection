@@ -6,124 +6,286 @@
 ---
 argument_specs:
 
-  start:
-    short_description: Select the Jaeger deployment mode to start
-    description:
-      - "Dispatches Jaeger startup to the container or Kubernetes implementation."
-      - "Exactly one deployment mode should be enabled for a given host."
+  _shared_options:
     options:
-      jaeger_use_container:
+      jaeger_use_container: &jaeger_use_container
         type: bool
         required: false
         default: "{{ not jaeger_use_k8s }}"
         description:
-          - "Runs the container-based Jaeger start path when set to C(true)."
-      jaeger_use_k8s:
+          - "Runs the container-based Jaeger path when set to C(true)."
+          - "The default derives from C(jaeger_use_k8s)."
+      jaeger_use_k8s: &jaeger_use_k8s
         type: bool
         required: false
         default: false
         description:
-          - "Runs the Kubernetes Jaeger start path when set to C(true)."
+          - "Runs the Kubernetes Jaeger path when set to C(true)."
+      jaeger_registry_endpoint: &jaeger_registry_endpoint
+        type: str
+        required: false
+        default: "{{ lookup('env', 'JAEGER_REGISTRY_ENDPOINT') or 'docker.io/jaegertracing' }}"
+        description:
+          - "Sets the registry endpoint for the Jaeger image."
+      jaeger_image_name: &jaeger_image_name
+        type: str
+        required: false
+        default: "all-in-one"
+        description:
+          - "Sets the Jaeger image name."
+      jaeger_image_tag: &jaeger_image_tag
+        type: str
+        required: false
+        default: "latest"
+        description:
+          - "Sets the Jaeger image tag."
+      jaeger_image: &jaeger_image
+        type: str
+        required: false
+        default: "{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_image_tag }}"
+        description:
+          - "Sets the Jaeger container image."
+          - "The default derives from C(jaeger_registry_endpoint), C(jaeger_image_name), and C(jaeger_image_tag)."
+      jaeger_container_name: &jaeger_container_name
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the Jaeger container name."
+          - "The default derives from C(inventory_hostname)."
+      remote_config_dir: &remote_config_dir
+        type: path
+        required: false
+        description:
+          - "Sets the shared remote configuration base directory."
+          - "This backs the default of C(jaeger_remote_config_dir)."
+      jaeger_remote_config_dir: &jaeger_remote_config_dir
+        type: path
+        required: false
+        default: "{{ remote_config_dir }}"
+        description:
+          - "Sets the remote directory mounted into the Jaeger container for configuration and certificates."
+          - "The default derives from C(remote_config_dir)."
+      jaeger_container_config_dir: &jaeger_container_config_dir
+        type: path
+        required: false
+        default: "/var/config"
+        description:
+          - "Sets the in-container directory where Jaeger reads configuration and certificates."
+      fetched_artifacts_dir: &fetched_artifacts_dir
+        type: path
+        required: true
+        description:
+          - "Sets the local directory containing fetched artifacts used by Jaeger."
+      elasticsearch_host: &elasticsearch_host
+        type: str
+        required: true
+        description:
+          - "Names the inventory host running ElasticSearch for Jaeger span storage."
+      jaeger_ui_port: &jaeger_ui_port
+        type: int
+        required: false
+        default: 16686
+        description:
+          - "Sets the Jaeger query UI port."
+      jaeger_admin_port: &jaeger_admin_port
+        type: int
+        required: false
+        default: 14269
+        description:
+          - "Sets the Jaeger admin HTTP port."
+      jaeger_http_server_port: &jaeger_http_server_port
+        type: int
+        required: false
+        default: 14268
+        description:
+          - "Sets the Jaeger collector HTTP server port."
+      jaeger_http_collector_port: &jaeger_http_collector_port
+        type: int
+        required: false
+        default: 4318
+        description:
+          - "Sets the Jaeger OTLP HTTP collector port."
+      jaeger_grpc_server_port: &jaeger_grpc_server_port
+        type: int
+        required: false
+        default: 14250
+        description:
+          - "Sets the Jaeger gRPC server port."
+      jaeger_collector_port: &jaeger_collector_port
+        type: int
+        required: false
+        default: 4317
+        description:
+          - "Sets the Jaeger OTLP gRPC collector port."
+      jaeger_k8s_resource_name: &jaeger_k8s_resource_name
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the Kubernetes resource name used for Jaeger objects."
+          - "The default derives from C(inventory_hostname)."
+      jaeger_k8s_wait_timeout: &jaeger_k8s_wait_timeout
+        type: int
+        required: false
+        default: 120
+        description:
+          - "Sets the rollout wait timeout for the Jaeger Kubernetes deployment."
+      jaeger_k8s_fs_group: &jaeger_k8s_fs_group
+        type: int
+        required: false
+        default: 0
+        description:
+          - "Sets the pod filesystem group for the Jaeger Kubernetes workload."
+      jaeger_k8s_use_node_port: &jaeger_k8s_use_node_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - "Exposes the Jaeger Kubernetes service through a NodePort service when set to C(true)."
+          - "The NodePort service uses the per-port node port values below."
+      jaeger_k8s_ui_node_port: &jaeger_k8s_ui_node_port
+        type: int
+        required: false
+        default: "{{ jaeger_ui_port }}"
+        description:
+          - "Sets the Kubernetes NodePort for the Jaeger UI service."
+          - "The default derives from C(jaeger_ui_port)."
+      jaeger_k8s_admin_node_port: &jaeger_k8s_admin_node_port
+        type: int
+        required: false
+        default: "{{ jaeger_admin_port }}"
+        description:
+          - "Sets the Kubernetes NodePort for the Jaeger admin service."
+          - "The default derives from C(jaeger_admin_port)."
+      jaeger_k8s_http_server_node_port: &jaeger_k8s_http_server_node_port
+        type: int
+        required: false
+        default: "{{ jaeger_http_server_port }}"
+        description:
+          - "Sets the Kubernetes NodePort for the Jaeger collector HTTP server."
+          - "The default derives from C(jaeger_http_server_port)."
+      jaeger_k8s_http_collector_node_port: &jaeger_k8s_http_collector_node_port
+        type: int
+        required: false
+        default: "{{ jaeger_http_collector_port }}"
+        description:
+          - "Sets the Kubernetes NodePort for the Jaeger OTLP HTTP collector."
+          - "The default derives from C(jaeger_http_collector_port)."
+      jaeger_k8s_grpc_server_node_port: &jaeger_k8s_grpc_server_node_port
+        type: int
+        required: false
+        default: "{{ jaeger_grpc_server_port }}"
+        description:
+          - "Sets the Kubernetes NodePort for the Jaeger gRPC server."
+          - "The default derives from C(jaeger_grpc_server_port)."
+      jaeger_k8s_collector_node_port: &jaeger_k8s_collector_node_port
+        type: int
+        required: false
+        default: "{{ jaeger_collector_port }}"
+        description:
+          - "Sets the Kubernetes NodePort for the Jaeger OTLP gRPC collector."
+          - "The default derives from C(jaeger_collector_port)."
+      k8s_namespace: &k8s_namespace
+        type: str
+        required: true
+        description:
+          - "Sets the Kubernetes namespace used for Jaeger resources."
+      k8s_image_pull_secret: &k8s_image_pull_secret
+        type: str
+        required: false
+        description:
+          - "Sets the Kubernetes imagePullSecret name when the deployment needs one."
+      k8s_readiness_probe_initial_delay_seconds: &k8s_readiness_probe_initial_delay_seconds
+        type: int
+        required: false
+        description:
+          - "Sets the readiness probe initial delay used by the Jaeger deployment template."
+      k8s_readiness_probe_period_seconds: &k8s_readiness_probe_period_seconds
+        type: int
+        required: false
+        description:
+          - "Sets the readiness probe period used by the Jaeger deployment template."
+      k8s_readiness_probe_timeout_seconds: &k8s_readiness_probe_timeout_seconds
+        type: int
+        required: false
+        description:
+          - "Sets the readiness probe timeout used by the Jaeger deployment template."
+      k8s_readiness_probe_failure_threshold: &k8s_readiness_probe_failure_threshold
+        type: int
+        required: false
+        description:
+          - "Sets the readiness probe failure threshold used by the Jaeger deployment template."
+      k8s_liveness_probe_initial_delay_seconds: &k8s_liveness_probe_initial_delay_seconds
+        type: int
+        required: false
+        description:
+          - "Sets the liveness probe initial delay used by the Jaeger deployment template."
+      k8s_liveness_probe_period_seconds: &k8s_liveness_probe_period_seconds
+        type: int
+        required: false
+        description:
+          - "Sets the liveness probe period used by the Jaeger deployment template."
+      k8s_liveness_probe_timeout_seconds: &k8s_liveness_probe_timeout_seconds
+        type: int
+        required: false
+        description:
+          - "Sets the liveness probe timeout used by the Jaeger deployment template."
+      k8s_liveness_probe_failure_threshold: &k8s_liveness_probe_failure_threshold
+        type: int
+        required: false
+        description:
+          - "Sets the liveness probe failure threshold used by the Jaeger deployment template."
+
+  start:
+    short_description: Select the Jaeger deployment mode to start
+    description:
+      - "Dispatches Jaeger startup to the container or Kubernetes implementation."
+    options:
+      jaeger_use_container: *jaeger_use_container
+      jaeger_use_k8s: *jaeger_use_k8s
 
   stop:
     short_description: Select the Jaeger deployment mode to stop
     description:
       - "Dispatches Jaeger shutdown to the container implementation."
-      - "This role currently stops only the container deployment path directly."
     options:
-      jaeger_use_container:
-        type: bool
-        required: false
-        default: "{{ not jaeger_use_k8s }}"
-        description:
-          - "Runs the container-based Jaeger stop path when set to C(true)."
+      jaeger_use_container: *jaeger_use_container
 
   teardown:
     short_description: Select the Jaeger deployment mode to remove
     description:
       - "Dispatches Jaeger removal to the container or Kubernetes implementation."
-      - "Use this entry point before wiping configuration files."
     options:
-      jaeger_use_container:
-        type: bool
-        required: false
-        default: "{{ not jaeger_use_k8s }}"
-        description:
-          - "Removes the container-based Jaeger deployment when set to C(true)."
-      jaeger_use_k8s:
-        type: bool
-        required: false
-        default: false
-        description:
-          - "Removes the Kubernetes Jaeger deployment when set to C(true)."
+      jaeger_use_container: *jaeger_use_container
+      jaeger_use_k8s: *jaeger_use_k8s
 
   wipe:
     short_description: Remove the Jaeger deployment and configuration
     description:
       - "Runs the teardown and configuration cleanup entry points for Jaeger."
-      - "Nested Jaeger entry points validate their own required arguments."
     options: {}
 
   fetch_logs:
     short_description: Select the Jaeger deployment mode to collect logs from
     description:
       - "Dispatches Jaeger log collection to the container or Kubernetes implementation."
-      - "Exactly one deployment mode should be enabled for a given host."
     options:
-      jaeger_use_container:
-        type: bool
-        required: false
-        default: "{{ not jaeger_use_k8s }}"
-        description:
-          - "Collects logs from the container-based Jaeger deployment when set to C(true)."
-      jaeger_use_k8s:
-        type: bool
-        required: false
-        default: false
-        description:
-          - "Collects logs from the Kubernetes Jaeger deployment when set to C(true)."
+      jaeger_use_container: *jaeger_use_container
+      jaeger_use_k8s: *jaeger_use_k8s
 
   ping:
     short_description: Check that Jaeger service ports are reachable
     description:
       - "Builds the Jaeger port list and delegates the connectivity check to the utils role."
     options:
-      jaeger_ui_port:
-        type: int
-        required: false
-        default: 16686
-        description:
-          - "Sets the Jaeger query UI port to probe. Example: C(16686)."
-      jaeger_admin_port:
-        type: int
-        required: false
-        default: 14269
-        description:
-          - "Sets the Jaeger admin HTTP port to probe. Example: C(14269)."
-      jaeger_http_server_port:
-        type: int
-        required: false
-        default: 14268
-        description:
-          - "Sets the Jaeger collector HTTP server port to probe. Example: C(14268)."
-      jaeger_http_collector_port:
-        type: int
-        required: false
-        default: 4318
-        description:
-          - "Sets the Jaeger OTLP HTTP collector port to probe. Example: C(4318)."
-      jaeger_grpc_server_port:
-        type: int
-        required: false
-        default: 14250
-        description:
-          - "Sets the Jaeger gRPC server port to probe. Example: C(14250)."
-      jaeger_collector_port:
-        type: int
-        required: false
-        default: 4317
-        description:
-          - "Sets the Jaeger OTLP gRPC collector port to probe. Example: C(4317)."
+      jaeger_use_k8s: *jaeger_use_k8s
+      jaeger_ui_port: *jaeger_ui_port
+      jaeger_admin_port: *jaeger_admin_port
+      jaeger_http_server_port: *jaeger_http_server_port
+      jaeger_http_collector_port: *jaeger_http_collector_port
+      jaeger_grpc_server_port: *jaeger_grpc_server_port
+      jaeger_collector_port: *jaeger_collector_port
 
   container/start:
     short_description: Start Jaeger in a container runtime
@@ -131,256 +293,125 @@ argument_specs:
       - "Builds Jaeger runtime settings and delegates container startup to the container role."
       - "This entry point requires the ElasticSearch host inventory to be available."
     options:
-      elasticsearch_host:
-        type: str
-        required: true
-        description:
-          - "Names the inventory host running ElasticSearch that stores Jaeger spans. Example: C(es01)."
-      jaeger_container_name:
-        type: str
-        required: false
-        default: "{{ inventory_hostname }}"
-        description:
-          - "Sets the Jaeger container name. Example: C(jaeger-01)."
-      jaeger_image:
-        type: str
-        required: false
-        default: "{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_image_tag }}"
-        description:
-          - "Sets the container image used for Jaeger. Example: C(docker.io/jaegertracing/all-in-one:latest)."
-      jaeger_ui_port:
-        type: int
-        required: false
-        default: 16686
-        description:
-          - "Publishes the Jaeger query UI port from the container. Example: C(16686)."
-      jaeger_admin_port:
-        type: int
-        required: false
-        default: 14269
-        description:
-          - "Publishes the Jaeger admin HTTP port from the container. Example: C(14269)."
-      jaeger_http_server_port:
-        type: int
-        required: false
-        default: 14268
-        description:
-          - "Publishes the Jaeger collector HTTP server port from the container. Example: C(14268)."
-      jaeger_http_collector_port:
-        type: int
-        required: false
-        default: 4318
-        description:
-          - "Publishes the Jaeger OTLP HTTP collector port from the container. Example: C(4318)."
-      jaeger_grpc_server_port:
-        type: int
-        required: false
-        default: 14250
-        description:
-          - "Publishes the Jaeger gRPC server port from the container. Example: C(14250)."
-      jaeger_collector_port:
-        type: int
-        required: false
-        default: 4317
-        description:
-          - "Publishes the Jaeger OTLP gRPC collector port from the container. Example: C(4317)."
-      jaeger_remote_config_dir:
-        type: path
-        required: true
-        description:
-          - "Sets the remote directory mounted into the Jaeger container for configuration and certificates. Example: C(/var/hyperledger/fabricx/config/jaeger)."
-      jaeger_container_config_dir:
-        type: path
-        required: false
-        default: "/var/config"
-        description:
-          - "Sets the in-container directory where Jaeger reads configuration and certificates."
+      elasticsearch_host: *elasticsearch_host
+      jaeger_container_name: *jaeger_container_name
+      jaeger_registry_endpoint: *jaeger_registry_endpoint
+      jaeger_image_name: *jaeger_image_name
+      jaeger_image_tag: *jaeger_image_tag
+      jaeger_image: *jaeger_image
+      remote_config_dir: *remote_config_dir
+      jaeger_remote_config_dir: *jaeger_remote_config_dir
+      jaeger_container_config_dir: *jaeger_container_config_dir
+      jaeger_ui_port: *jaeger_ui_port
+      jaeger_admin_port: *jaeger_admin_port
+      jaeger_http_server_port: *jaeger_http_server_port
+      jaeger_http_collector_port: *jaeger_http_collector_port
+      jaeger_grpc_server_port: *jaeger_grpc_server_port
+      jaeger_collector_port: *jaeger_collector_port
 
   container/stop:
     short_description: Stop the Jaeger container
     description:
       - "Delegates Jaeger container shutdown to the container role."
     options:
-      jaeger_container_name:
-        type: str
-        required: false
-        default: "{{ inventory_hostname }}"
-        description:
-          - "Sets the Jaeger container name to stop. Example: C(jaeger-01)."
-      jaeger_image:
-        type: str
-        required: false
-        default: "{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_image_tag }}"
-        description:
-          - "Sets the Jaeger container image associated with the container to stop."
+      jaeger_container_name: *jaeger_container_name
+      jaeger_registry_endpoint: *jaeger_registry_endpoint
+      jaeger_image_name: *jaeger_image_name
+      jaeger_image_tag: *jaeger_image_tag
+      jaeger_image: *jaeger_image
 
   container/rm:
     short_description: Remove the Jaeger container
     description:
       - "Delegates Jaeger container removal to the container role."
     options:
-      jaeger_container_name:
-        type: str
-        required: false
-        default: "{{ inventory_hostname }}"
-        description:
-          - "Sets the Jaeger container name to remove. Example: C(jaeger-01)."
-      jaeger_image:
-        type: str
-        required: false
-        default: "{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_image_tag }}"
-        description:
-          - "Sets the Jaeger container image associated with the container to remove."
+      jaeger_container_name: *jaeger_container_name
+      jaeger_registry_endpoint: *jaeger_registry_endpoint
+      jaeger_image_name: *jaeger_image_name
+      jaeger_image_tag: *jaeger_image_tag
+      jaeger_image: *jaeger_image
 
   container/fetch_logs:
     short_description: Fetch logs from the Jaeger container
     description:
       - "Delegates Jaeger container log collection to the container role."
     options:
-      jaeger_container_name:
-        type: str
-        required: false
-        default: "{{ inventory_hostname }}"
-        description:
-          - "Sets the Jaeger container name to collect logs from. Example: C(jaeger-01)."
+      jaeger_container_name: *jaeger_container_name
 
   k8s/start:
     short_description: Start Jaeger on Kubernetes
     description:
       - "Applies the Jaeger Kubernetes service, node port service, and deployment resources."
+      - "The NodePort service is created only when C(jaeger_k8s_use_node_port) is set to C(true)."
       - "This entry point requires the ElasticSearch host inventory to be available."
     options:
-      elasticsearch_host:
-        type: str
-        required: true
-        description:
-          - "Names the inventory host running ElasticSearch that stores Jaeger spans. Example: C(es01)."
-      jaeger_k8s_resource_name:
-        type: str
-        required: false
-        default: "{{ inventory_hostname }}"
-        description:
-          - "Sets the base Kubernetes resource name used for the Jaeger deployment and services."
-      jaeger_k8s_wait_timeout:
-        type: int
-        required: false
-        default: 120
-        description:
-          - "Sets the number of seconds to wait for the Jaeger deployment rollout."
-      jaeger_k8s_fs_group:
-        type: int
-        required: false
-        default: 0
-        description:
-          - "Sets the pod filesystem group applied to the Jaeger workload."
-      jaeger_image:
-        type: str
-        required: false
-        default: "{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_image_tag }}"
-        description:
-          - "Sets the container image used for the Jaeger deployment."
-      jaeger_ui_port:
-        type: int
-        required: false
-        default: 16686
-        description:
-          - "Sets the Jaeger query UI service and container port. Example: C(16686)."
-      jaeger_admin_port:
-        type: int
-        required: false
-        default: 14269
-        description:
-          - "Sets the Jaeger admin HTTP service and container port. Example: C(14269)."
-      jaeger_http_server_port:
-        type: int
-        required: false
-        default: 14268
-        description:
-          - "Sets the Jaeger collector HTTP server service and container port. Example: C(14268)."
-      jaeger_http_collector_port:
-        type: int
-        required: false
-        default: 4318
-        description:
-          - "Sets the Jaeger OTLP HTTP collector service and container port. Example: C(4318)."
-      jaeger_grpc_server_port:
-        type: int
-        required: false
-        default: 14250
-        description:
-          - "Sets the Jaeger gRPC server service and container port. Example: C(14250)."
-      jaeger_collector_port:
-        type: int
-        required: false
-        default: 4317
-        description:
-          - "Sets the Jaeger OTLP gRPC collector service and container port. Example: C(4317)."
-      jaeger_container_config_dir:
-        type: path
-        required: false
-        default: "/var/config"
-        description:
-          - "Sets the container path used to mount ElasticSearch CA data when TLS is enabled."
-      jaeger_k8s_ui_node_port:
-        type: int
-        required: false
-        default: "{{ jaeger_ui_port }}"
-        description:
-          - "Sets the Kubernetes NodePort that exposes the Jaeger UI service externally. Example: C(30086)."
-      jaeger_k8s_admin_node_port:
-        type: int
-        required: false
-        default: "{{ jaeger_admin_port }}"
-        description:
-          - "Sets the Kubernetes NodePort that exposes the Jaeger admin service externally. Example: C(30269)."
-      jaeger_k8s_http_server_node_port:
-        type: int
-        required: false
-        default: "{{ jaeger_http_server_port }}"
-        description:
-          - "Sets the Kubernetes NodePort that exposes the Jaeger collector HTTP server externally. Example: C(30268)."
-      jaeger_k8s_http_collector_node_port:
-        type: int
-        required: false
-        default: "{{ jaeger_http_collector_port }}"
-        description:
-          - "Sets the Kubernetes NodePort that exposes the Jaeger OTLP HTTP collector externally. Example: C(30318)."
-      jaeger_k8s_grpc_server_node_port:
-        type: int
-        required: false
-        default: "{{ jaeger_grpc_server_port }}"
-        description:
-          - "Sets the Kubernetes NodePort that exposes the Jaeger gRPC server externally. Example: C(30250)."
-      jaeger_k8s_collector_node_port:
-        type: int
-        required: false
-        default: "{{ jaeger_collector_port }}"
-        description:
-          - "Sets the Kubernetes NodePort that exposes the Jaeger OTLP gRPC collector externally. Example: C(30317)."
+      elasticsearch_host: *elasticsearch_host
+      jaeger_k8s_resource_name: *jaeger_k8s_resource_name
+      jaeger_k8s_wait_timeout: *jaeger_k8s_wait_timeout
+      jaeger_k8s_fs_group: *jaeger_k8s_fs_group
+      jaeger_k8s_use_node_port: *jaeger_k8s_use_node_port
+      jaeger_registry_endpoint: *jaeger_registry_endpoint
+      jaeger_image_name: *jaeger_image_name
+      jaeger_image_tag: *jaeger_image_tag
+      jaeger_image: *jaeger_image
+      jaeger_container_config_dir: *jaeger_container_config_dir
+      jaeger_ui_port: *jaeger_ui_port
+      jaeger_admin_port: *jaeger_admin_port
+      jaeger_http_server_port: *jaeger_http_server_port
+      jaeger_http_collector_port: *jaeger_http_collector_port
+      jaeger_grpc_server_port: *jaeger_grpc_server_port
+      jaeger_collector_port: *jaeger_collector_port
+      jaeger_k8s_ui_node_port: *jaeger_k8s_ui_node_port
+      jaeger_k8s_admin_node_port: *jaeger_k8s_admin_node_port
+      jaeger_k8s_http_server_node_port: *jaeger_k8s_http_server_node_port
+      jaeger_k8s_http_collector_node_port: *jaeger_k8s_http_collector_node_port
+      jaeger_k8s_grpc_server_node_port: *jaeger_k8s_grpc_server_node_port
+      jaeger_k8s_collector_node_port: *jaeger_k8s_collector_node_port
+      k8s_namespace: *k8s_namespace
+      k8s_image_pull_secret: *k8s_image_pull_secret
+      k8s_readiness_probe_initial_delay_seconds: *k8s_readiness_probe_initial_delay_seconds
+      k8s_readiness_probe_period_seconds: *k8s_readiness_probe_period_seconds
+      k8s_readiness_probe_timeout_seconds: *k8s_readiness_probe_timeout_seconds
+      k8s_readiness_probe_failure_threshold: *k8s_readiness_probe_failure_threshold
+      k8s_liveness_probe_initial_delay_seconds: *k8s_liveness_probe_initial_delay_seconds
+      k8s_liveness_probe_period_seconds: *k8s_liveness_probe_period_seconds
+      k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
+      k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
 
   k8s/rm:
     short_description: Remove Jaeger Kubernetes resources
     description:
       - "Deletes the Jaeger deployment and service resources from Kubernetes."
     options:
-      jaeger_k8s_resource_name:
-        type: str
-        required: false
-        default: "{{ inventory_hostname }}"
-        description:
-          - "Sets the base Kubernetes resource name used for the Jaeger deployment and services."
+      jaeger_k8s_resource_name: *jaeger_k8s_resource_name
+      k8s_namespace: *k8s_namespace
 
   k8s/fetch_logs:
     short_description: Fetch logs from Jaeger pods
     description:
       - "Delegates Jaeger pod log collection to the k8s role using the Jaeger pod label selector."
     options:
-      jaeger_k8s_resource_name:
-        type: str
-        required: false
-        default: "{{ inventory_hostname }}"
-        description:
-          - "Sets the Jaeger Kubernetes resource name used to build the pod label selector."
+      jaeger_k8s_resource_name: *jaeger_k8s_resource_name
+
+  k8s/ping:
+    short_description: Check that Jaeger Kubernetes node ports are reachable
+    description:
+      - "Builds the Jaeger Kubernetes node port list and delegates the connectivity check to the utils role."
+      - "The node port values default to the corresponding Jaeger service ports."
+    options:
+      jaeger_k8s_use_node_port: *jaeger_k8s_use_node_port
+      jaeger_ui_port: *jaeger_ui_port
+      jaeger_admin_port: *jaeger_admin_port
+      jaeger_http_server_port: *jaeger_http_server_port
+      jaeger_http_collector_port: *jaeger_http_collector_port
+      jaeger_grpc_server_port: *jaeger_grpc_server_port
+      jaeger_collector_port: *jaeger_collector_port
+      jaeger_k8s_ui_node_port: *jaeger_k8s_ui_node_port
+      jaeger_k8s_admin_node_port: *jaeger_k8s_admin_node_port
+      jaeger_k8s_http_server_node_port: *jaeger_k8s_http_server_node_port
+      jaeger_k8s_http_collector_node_port: *jaeger_k8s_http_collector_node_port
+      jaeger_k8s_grpc_server_node_port: *jaeger_k8s_grpc_server_node_port
+      jaeger_k8s_collector_node_port: *jaeger_k8s_collector_node_port
 
   config/transfer:
     short_description: Transfer Jaeger configuration assets
@@ -388,27 +419,11 @@ argument_specs:
       - "Creates the Jaeger configuration directory and copies the ElasticSearch CA certificate when TLS is enabled."
       - "Delegates Kubernetes ConfigMap creation to the Jaeger Kubernetes config entry point when requested."
     options:
-      elasticsearch_host:
-        type: str
-        required: true
-        description:
-          - "Names the inventory host running ElasticSearch so the role can inspect TLS settings and copy its CA certificate. Example: C(es01)."
-      fetched_artifacts_dir:
-        type: path
-        required: true
-        description:
-          - "Sets the local artifact directory containing the fetched ElasticSearch TLS materials. Example: C(/tmp/fabricx-artifacts)."
-      jaeger_remote_config_dir:
-        type: path
-        required: true
-        description:
-          - "Sets the remote directory where Jaeger configuration assets are stored. Example: C(/var/hyperledger/fabricx/config/jaeger)."
-      jaeger_use_k8s:
-        type: bool
-        required: false
-        default: false
-        description:
-          - "Creates the Kubernetes ConfigMap for Jaeger when set to C(true)."
+      elasticsearch_host: *elasticsearch_host
+      fetched_artifacts_dir: *fetched_artifacts_dir
+      remote_config_dir: *remote_config_dir
+      jaeger_remote_config_dir: *jaeger_remote_config_dir
+      jaeger_use_k8s: *jaeger_use_k8s
 
   config/rm:
     short_description: Remove Jaeger configuration assets
@@ -416,48 +431,27 @@ argument_specs:
       - "Deletes the remote Jaeger configuration directory."
       - "Nested Jaeger Kubernetes config cleanup validates its own required arguments."
     options:
-      jaeger_remote_config_dir:
-        type: path
-        required: true
-        description:
-          - "Sets the remote directory to remove during Jaeger configuration cleanup. Example: C(/var/hyperledger/fabricx/config/jaeger)."
+      remote_config_dir: *remote_config_dir
+      jaeger_remote_config_dir: *jaeger_remote_config_dir
 
   k8s/config/transfer:
     short_description: Create the Jaeger Kubernetes ConfigMap
     description:
       - "Applies the Jaeger ConfigMap that carries the ElasticSearch CA certificate when TLS is enabled."
     options:
-      elasticsearch_host:
-        type: str
-        required: true
-        description:
-          - "Names the inventory host running ElasticSearch so the role can detect whether TLS is enabled. Example: C(es01)."
-      jaeger_k8s_resource_name:
-        type: str
-        required: false
-        default: "{{ inventory_hostname }}"
-        description:
-          - "Sets the Kubernetes resource name used for the Jaeger ConfigMap."
-      jaeger_remote_config_dir:
-        type: path
-        required: true
-        description:
-          - "Sets the remote directory holding the ElasticSearch CA certificate copied for Jaeger. Example: C(/var/hyperledger/fabricx/config/jaeger)."
+      elasticsearch_host: *elasticsearch_host
+      jaeger_k8s_resource_name: *jaeger_k8s_resource_name
+      remote_config_dir: *remote_config_dir
+      jaeger_remote_config_dir: *jaeger_remote_config_dir
+      k8s_namespace: *k8s_namespace
 
   k8s/config/rm:
     short_description: Remove the Jaeger Kubernetes ConfigMap
     description:
       - "Deletes the Jaeger ConfigMap from Kubernetes when the Kubernetes deployment mode is enabled."
     options:
-      jaeger_k8s_resource_name:
-        type: str
+      jaeger_k8s_resource_name: *jaeger_k8s_resource_name
+      k8s_namespace:
+        <<: *k8s_namespace
         required: false
-        default: "{{ inventory_hostname }}"
-        description:
-          - "Sets the Kubernetes resource name used for the Jaeger ConfigMap."
-      jaeger_use_k8s:
-        type: bool
-        required: false
-        default: false
-        description:
-          - "Enables removal of the Jaeger Kubernetes ConfigMap when set to C(true)."
+      jaeger_use_k8s: *jaeger_use_k8s
