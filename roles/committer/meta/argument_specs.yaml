@@ -5,7 +5,6 @@
 #
 ---
 argument_specs:
-
   _shared_options:
     short_description: Shared committer options
     description:
@@ -155,7 +154,7 @@ argument_specs:
           - The default derives from C(remote_config_dir).
       committer_remote_data_dir: &committer_remote_data_dir
         type: path
-        required: true
+        required: false
         default: "{{ remote_data_dir }}"
         description:
           - Remote data directory managed by the role.
@@ -390,17 +389,20 @@ argument_specs:
         required: false
         description:
           - Liveness probe failure threshold for Kubernetes workloads.
-      committer_monitoring_rate_limit_requests_per_second: &committer_monitoring_rate_limit_requests_per_second
+      committer_monitoring_rate_limit_requests_per_second:
+        &committer_monitoring_rate_limit_requests_per_second
         type: int
         required: false
         description:
           - Monitoring rate-limit requests per second.
-      committer_monitoring_rate_limit_burst: &committer_monitoring_rate_limit_burst
+      committer_monitoring_rate_limit_burst:
+        &committer_monitoring_rate_limit_burst
         type: int
         required: false
         description:
           - Monitoring rate-limit burst.
-      committer_server_rate_limit_requests_per_second: &committer_server_rate_limit_requests_per_second
+      committer_server_rate_limit_requests_per_second:
+        &committer_server_rate_limit_requests_per_second
         type: int
         required: false
         description:
@@ -420,17 +422,20 @@ argument_specs:
         required: false
         description:
           - Server keepalive acknowledgment timeout.
-      committer_server_keep_alive_min_time: &committer_server_keep_alive_min_time
+      committer_server_keep_alive_min_time:
+        &committer_server_keep_alive_min_time
         type: str
         required: false
         description:
           - Minimum client keepalive interval enforced by the server.
-      committer_server_keep_alive_permit_without_stream: &committer_server_keep_alive_permit_without_stream
+      committer_server_keep_alive_permit_without_stream:
+        &committer_server_keep_alive_permit_without_stream
         type: bool
         required: false
         description:
           - Allow keepalive pings without active streams.
-      committer_server_max_concurrent_streams: &committer_server_max_concurrent_streams
+      committer_server_max_concurrent_streams:
+        &committer_server_max_concurrent_streams
         type: int
         required: false
         description:
@@ -445,12 +450,14 @@ argument_specs:
         required: false
         description:
           - Minimum size of the committer database connection pool.
-      committer_database_retry_initial_interval: &committer_database_retry_initial_interval
+      committer_database_retry_initial_interval:
+        &committer_database_retry_initial_interval
         type: str
         required: false
         description:
           - Initial backoff interval for database retries.
-      committer_database_retry_randomization_factor: &committer_database_retry_randomization_factor
+      committer_database_retry_randomization_factor:
+        &committer_database_retry_randomization_factor
         type: float
         required: false
         description:
@@ -460,37 +467,44 @@ argument_specs:
         required: false
         description:
           - Exponential multiplier applied to database retry intervals.
-      committer_database_retry_max_interval: &committer_database_retry_max_interval
+      committer_database_retry_max_interval:
+        &committer_database_retry_max_interval
         type: str
         required: false
         description:
           - Maximum interval allowed between database retry attempts.
-      committer_database_retry_max_elapsed_time: &committer_database_retry_max_elapsed_time
+      committer_database_retry_max_elapsed_time:
+        &committer_database_retry_max_elapsed_time
         type: str
         required: false
         description:
           - Maximum total elapsed time allowed for database retries.
-      committer_resource_limits_max_workers_for_preparer: &committer_resource_limits_max_workers_for_preparer
+      committer_resource_limits_max_workers_for_preparer:
+        &committer_resource_limits_max_workers_for_preparer
         type: int
         required: false
         description:
           - Worker count for validator transaction preparation.
-      committer_resource_limits_max_workers_for_validator: &committer_resource_limits_max_workers_for_validator
+      committer_resource_limits_max_workers_for_validator:
+        &committer_resource_limits_max_workers_for_validator
         type: int
         required: false
         description:
           - Worker count for validator MVCC checks.
-      committer_resource_limits_max_workers_for_committer: &committer_resource_limits_max_workers_for_committer
+      committer_resource_limits_max_workers_for_committer:
+        &committer_resource_limits_max_workers_for_committer
         type: int
         required: false
         description:
           - Worker count for validator commit processing.
-      committer_resource_limits_min_transaction_batch_size: &committer_resource_limits_min_transaction_batch_size
+      committer_resource_limits_min_transaction_batch_size:
+        &committer_resource_limits_min_transaction_batch_size
         type: int
         required: false
         description:
           - Minimum validator transaction batch size.
-      committer_resource_limits_timeout_for_min_transaction_batch_size: &committer_resource_limits_timeout_for_min_transaction_batch_size
+      committer_resource_limits_timeout_for_min_transaction_batch_size:
+        &committer_resource_limits_timeout_for_min_transaction_batch_size
         type: str
         required: false
         description:
@@ -500,37 +514,44 @@ argument_specs:
         required: false
         description:
           - Parallel signature verification workers.
-      committer_verifier_batch_size_cutoff: &committer_verifier_batch_size_cutoff
+      committer_verifier_batch_size_cutoff:
+        &committer_verifier_batch_size_cutoff
         type: int
         required: false
         description:
           - Signature verification batch size cutoff.
-      committer_verifier_batch_time_cutoff: &committer_verifier_batch_time_cutoff
+      committer_verifier_batch_time_cutoff:
+        &committer_verifier_batch_time_cutoff
         type: str
         required: false
         description:
           - Signature verification batch timeout.
-      committer_verifier_channel_buffer_size: &committer_verifier_channel_buffer_size
+      committer_verifier_channel_buffer_size:
+        &committer_verifier_channel_buffer_size
         type: int
         required: false
         description:
           - Channel buffer size for the verifier pipeline.
-      committer_coordinator_dep_graph_constructors: &committer_coordinator_dep_graph_constructors
+      committer_coordinator_dep_graph_constructors:
+        &committer_coordinator_dep_graph_constructors
         type: int
         required: false
         description:
           - Dependency-graph constructor count for the coordinator.
-      committer_coordinator_dep_graph_wait_tx_limit: &committer_coordinator_dep_graph_wait_tx_limit
+      committer_coordinator_dep_graph_wait_tx_limit:
+        &committer_coordinator_dep_graph_wait_tx_limit
         type: int
         required: false
         description:
           - Dependency-graph waiting transaction limit for the coordinator.
-      committer_coordinator_per_channel_buffer_size_per_goroutine: &committer_coordinator_per_channel_buffer_size_per_goroutine
+      committer_coordinator_per_channel_buffer_size_per_goroutine:
+        &committer_coordinator_per_channel_buffer_size_per_goroutine
         type: int
         required: false
         description:
           - Per-goroutine channel buffer size for the coordinator.
-      committer_sidecar_last_committed_block_set_interval: &committer_sidecar_last_committed_block_set_interval
+      committer_sidecar_last_committed_block_set_interval:
+        &committer_sidecar_last_committed_block_set_interval
         type: str
         required: false
         description:
@@ -540,52 +561,62 @@ argument_specs:
         required: false
         description:
           - Sidecar waiting transaction limit.
-      committer_sidecar_channel_buffer_size: &committer_sidecar_channel_buffer_size
+      committer_sidecar_channel_buffer_size:
+        &committer_sidecar_channel_buffer_size
         type: int
         required: false
         description:
           - Sidecar internal channel buffer size.
-      committer_sidecar_ledger_sync_interval: &committer_sidecar_ledger_sync_interval
+      committer_sidecar_ledger_sync_interval:
+        &committer_sidecar_ledger_sync_interval
         type: int
         required: false
         description:
           - Sidecar ledger sync interval.
-      committer_sidecar_notification_max_timeout: &committer_sidecar_notification_max_timeout
+      committer_sidecar_notification_max_timeout:
+        &committer_sidecar_notification_max_timeout
         type: str
         required: false
         description:
           - Sidecar notification timeout.
-      committer_query_service_min_batch_keys: &committer_query_service_min_batch_keys
+      committer_query_service_min_batch_keys:
+        &committer_query_service_min_batch_keys
         type: int
         required: false
         description:
           - Query-service minimum batch key count.
-      committer_query_service_max_batch_wait: &committer_query_service_max_batch_wait
+      committer_query_service_max_batch_wait:
+        &committer_query_service_max_batch_wait
         type: str
         required: false
         description:
           - Query-service maximum batch wait time.
-      committer_query_service_view_aggregation_window: &committer_query_service_view_aggregation_window
+      committer_query_service_view_aggregation_window:
+        &committer_query_service_view_aggregation_window
         type: str
         required: false
         description:
           - Query-service view aggregation window.
-      committer_query_service_max_aggregated_views: &committer_query_service_max_aggregated_views
+      committer_query_service_max_aggregated_views:
+        &committer_query_service_max_aggregated_views
         type: int
         required: false
         description:
           - Query-service maximum aggregated views.
-      committer_query_service_max_active_views: &committer_query_service_max_active_views
+      committer_query_service_max_active_views:
+        &committer_query_service_max_active_views
         type: int
         required: false
         description:
           - Query-service maximum active views.
-      committer_query_service_max_view_timeout: &committer_query_service_max_view_timeout
+      committer_query_service_max_view_timeout:
+        &committer_query_service_max_view_timeout
         type: str
         required: false
         description:
           - Query-service view timeout.
-      committer_query_service_max_request_keys: &committer_query_service_max_request_keys
+      committer_query_service_max_request_keys:
+        &committer_query_service_max_request_keys
         type: int
         required: false
         description:
