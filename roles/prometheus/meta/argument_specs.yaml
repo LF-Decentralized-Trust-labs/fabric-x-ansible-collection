@@ -11,16 +11,6 @@ argument_specs:
     description:
       - Reusable option definitions for Prometheus entry points.
     options:
-      inventory_hostname: &inventory_hostname
-        type: str
-        required: false
-        description:
-          - Inventory host name used by Prometheus defaults for resource naming.
-      ansible_host: &ansible_host
-        type: str
-        required: false
-        description:
-          - Host address used by the Prometheus container TLS health check.
       organization: &organization
         type: dict
         required: false
@@ -136,113 +126,6 @@ argument_specs:
         elements: dict
         description:
           - Optional scrape job definitions rendered into C(prometheus.yaml) and the Kubernetes ConfigMap.
-        options:
-          job_name:
-            type: str
-            required: true
-            description:
-              - Prometheus scrape job name.
-          prometheus_metrics_path:
-            type: str
-            required: false
-            description:
-              - Optional HTTP path used to collect metrics.
-          use_tls:
-            type: bool
-            required: false
-            default: false
-            description:
-              - Enables HTTPS scraping for the job when set to C(true).
-          use_mtls:
-            type: bool
-            required: false
-            default: false
-            description:
-              - Enables mutual TLS scraping for the job when set to C(true).
-          tls_ca_file:
-            type: path
-            required: false
-            description:
-              - Optional CA certificate file for the scrape target.
-          relabel_configs:
-            type: list
-            required: false
-            elements: dict
-            description:
-              - Optional relabel configuration entries for the job.
-            options:
-              target_label:
-                type: str
-                required: true
-                description:
-                  - Target label name.
-              replacement:
-                type: str
-                required: true
-                description:
-                  - Replacement value for the relabel rule.
-          metric_relabel_configs:
-            type: list
-            required: false
-            elements: dict
-            description:
-              - Optional metric relabel configuration entries for the job.
-            options:
-              source_labels:
-                type: list
-                required: true
-                elements: str
-                description:
-                  - Source labels used by the metric relabel rule.
-              regex:
-                type: str
-                required: true
-                description:
-                  - Regular expression used by the metric relabel rule.
-              target_label:
-                type: str
-                required: true
-                description:
-                  - Target label name for the metric relabel rule.
-              replacement:
-                type: str
-                required: true
-                description:
-                  - Replacement value for the metric relabel rule.
-          targets:
-            type: list
-            required: true
-            elements: dict
-            description:
-              - Static scrape targets for the job.
-            options:
-              hosts:
-                type: list
-                required: true
-                elements: str
-                description:
-                  - Hosts to scrape for the target group.
-              port_to_scrape:
-                type: str
-                required: true
-                description:
-                  - Host variable name that provides the port to scrape.
-              label:
-                type: dict
-                required: false
-                description:
-                  - Optional label block attached to the target group.
-                options:
-                  group:
-                    type: str
-                    required: false
-                    description:
-                      - Optional group label value.
-                  export_type:
-                    type: str
-                    required: false
-                    description:
-                      - Optional export type label value.
       prometheus_use_tls: &prometheus_use_tls
         type: bool
         required: false
@@ -309,10 +192,9 @@ argument_specs:
       prometheus_k8s_node_port: &prometheus_k8s_node_port
         type: int
         required: false
-        default: "{{ prometheus_port }}"
         description:
           - NodePort value used to expose Prometheus outside the cluster when C(prometheus_k8s_use_node_port) is enabled.
-          - The default is C(prometheus_port).
+          - Must be set to a valid Kubernetes NodePort value when C(prometheus_k8s_use_node_port) is C(true).
       k8s_storage_size: &k8s_storage_size
         type: str
         required: true
@@ -400,8 +282,6 @@ argument_specs:
     description:
       - Creates the remote data directory and starts Prometheus through the shared container role.
     options:
-      inventory_hostname: *inventory_hostname
-      ansible_host: *ansible_host
       remote_config_dir: *remote_config_dir
       remote_data_dir: *remote_data_dir
       prometheus_registry_endpoint: *prometheus_registry_endpoint
@@ -424,7 +304,6 @@ argument_specs:
     description:
       - Creates the Kubernetes headless Service, optional NodePort Service, and StatefulSet resources for Prometheus after ensuring the namespace exists.
     options:
-      inventory_hostname: *inventory_hostname
       prometheus_registry_endpoint: *prometheus_registry_endpoint
       prometheus_image_name: *prometheus_image_name
       prometheus_image_tag: *prometheus_image_tag
@@ -474,7 +353,6 @@ argument_specs:
     description:
       - Stops the running Prometheus container through the shared container role.
     options:
-      inventory_hostname: *inventory_hostname
       prometheus_container_name: *prometheus_container_name
 
   teardown:
@@ -490,7 +368,6 @@ argument_specs:
     description:
       - Removes the Prometheus container through the shared container role.
     options:
-      inventory_hostname: *inventory_hostname
       prometheus_container_name: *prometheus_container_name
 
   k8s/rm:
@@ -498,7 +375,6 @@ argument_specs:
     description:
       - Deletes the Prometheus StatefulSet and both Services from Kubernetes.
     options:
-      inventory_hostname: *inventory_hostname
       k8s_namespace: *k8s_namespace
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
 
@@ -517,7 +393,6 @@ argument_specs:
     description:
       - Deletes the PersistentVolumeClaim created for the Prometheus StatefulSet.
     options:
-      inventory_hostname: *inventory_hostname
       k8s_namespace: *k8s_namespace
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
 
@@ -540,7 +415,6 @@ argument_specs:
     description:
       - Delegates certificate creation to the shared OpenSSL role using Prometheus-specific output paths.
     options:
-      inventory_hostname: *inventory_hostname
       organization: *organization
       remote_config_dir: *remote_config_dir
       prometheus_remote_config_dir: *prometheus_remote_config_dir
@@ -552,7 +426,6 @@ argument_specs:
     description:
       - Creates or updates the Kubernetes Secret that stores the Prometheus TLS server keypair.
     options:
-      inventory_hostname: *inventory_hostname
       k8s_namespace: *k8s_namespace
       remote_config_dir: *remote_config_dir
       prometheus_remote_config_dir: *prometheus_remote_config_dir
@@ -566,7 +439,6 @@ argument_specs:
     description:
       - Fetches the generated Prometheus TLS CA certificate and server certificate to the control node.
     options:
-      inventory_hostname: *inventory_hostname
       fetched_artifacts_dir: *fetched_artifacts_dir
       remote_config_dir: *remote_config_dir
       prometheus_remote_config_dir: *prometheus_remote_config_dir
@@ -587,7 +459,6 @@ argument_specs:
     description:
       - Deletes the Kubernetes Secret that stores the Prometheus TLS server keypair.
     options:
-      inventory_hostname: *inventory_hostname
       k8s_namespace: *k8s_namespace
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
 
@@ -614,7 +485,6 @@ argument_specs:
     description:
       - Creates or updates the ConfigMap that carries the Prometheus configuration and optional TLS CA files.
     options:
-      inventory_hostname: *inventory_hostname
       k8s_namespace: *k8s_namespace
       remote_config_dir: *remote_config_dir
       prometheus_remote_config_dir: *prometheus_remote_config_dir
@@ -639,7 +509,6 @@ argument_specs:
     description:
       - Deletes the Kubernetes ConfigMap that stores Prometheus configuration.
     options:
-      inventory_hostname: *inventory_hostname
       k8s_namespace: *k8s_namespace
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
 
@@ -656,7 +525,6 @@ argument_specs:
     description:
       - Collects logs for the Prometheus container through the shared container role.
     options:
-      inventory_hostname: *inventory_hostname
       prometheus_container_name: *prometheus_container_name
 
   k8s/fetch_logs:
@@ -664,6 +532,5 @@ argument_specs:
     description:
       - Collects logs for the Prometheus pod through the shared Kubernetes role.
     options:
-      inventory_hostname: *inventory_hostname
       k8s_namespace: *k8s_namespace
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
