@@ -4,16 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that the MSP directory has been defined
-  ansible.builtin.fail:
-    msg: "No MSP directory is indicated. Set it via 'fabric_ca_msp_dir'."
-  when: fabric_ca_msp_dir is not defined
-
-- name: Check that the Fabric CA identity to enroll has been defined
-  ansible.builtin.fail:
-    msg: "No Fabric CA identity is indicated. Set it via 'fabric_ca_identity'."
-  when: fabric_ca_identity is not defined
-
 - name: Ensure MSP directory exists
   ansible.builtin.file:
     path: "{{ fabric_ca_msp_dir }}"
