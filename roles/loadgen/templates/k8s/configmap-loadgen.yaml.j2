@@ -11,16 +11,16 @@ metadata:
   namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ loadgen_k8s_resource_name }}
-    app.kubernetes.io/component: {{ loadgen_type }}
+    app.kubernetes.io/component: loadgen
     app.kubernetes.io/part-of: fabric-x-loadgen
 data:
   # Main loadgen configuration passed via --config at startup.
   config-loadgen.yaml: |
     {{ lookup('file', loadgen_remote_config_dir + '/' + loadgen_config_file) | indent(4) }}
-{% if (hostvars[committer_verifier_ref_host].committer_use_tls is defined) and hostvars[committer_verifier_ref_host].committer_use_tls %}
-  # TLS CA certificate of the verifiers (used for upstream TLS verification).
-  tls-verifiers-ca.crt: |
-    {{ lookup('file', loadgen_remote_config_dir + '/tls/verifiers/ca.crt') | indent(4) }}
+{% if committer_sidecar_host is defined and hostvars[committer_sidecar_host].committer_use_tls is defined and hostvars[committer_sidecar_host].committer_use_tls %}
+  # TLS CA certificate of the committer sidecar.
+  tls-sidecar-ca.crt: |
+    {{ lookup('file', loadgen_remote_config_dir + '/tls/sidecar/ca.crt') | indent(4) }}
 {% endif %}
 {% if loadgen_use_mtls and loadgen_mtls_clients is defined %}
 {% for current_loadgen_mtls_client in loadgen_mtls_clients %}
@@ -54,3 +54,6 @@ data:
 {% endif %}
 {% endfor %}
 {% endif %}
+binaryData:
+  # Config block used to bootstrap orderer endpoint and TLS credential discovery.
+  config-block.pb.bin: {{ loadgen_k8s_config_block_b64 }}

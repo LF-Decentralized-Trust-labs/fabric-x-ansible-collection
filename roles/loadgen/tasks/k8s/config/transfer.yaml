@@ -19,7 +19,6 @@
   ansible.builtin.slurp:
     src: "{{ loadgen_remote_config_dir }}/{{ loadgen_config_block_file }}"
   register: loadgen_slurp_config_block
-  when: loadgen_type == 'orderer-client'
 
 # =========================
 # Apply ConfigMap
@@ -30,4 +29,4 @@
   kubernetes.core.k8s:
     state: present
     template:
-      path: "k8s/configmap-{{ loadgen_type }}.yaml.j2"
+      path: "k8s/configmap-loadgen.yaml.j2"

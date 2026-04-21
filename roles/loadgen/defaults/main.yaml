@@ -29,11 +29,9 @@ loadgen_use_bin: false
 # =========================
 loadgen_remote_config_dir: "{{ remote_config_dir }}"
 loadgen_container_config_dir: "/config"
+loadgen_config_dir: "{{ loadgen_remote_config_dir if loadgen_use_bin else loadgen_container_config_dir }}"
 loadgen_config_file: "config-loadgen.yaml"
-# Filename of the config block placed in the loadgen's config dir.
 loadgen_config_block_file: "config-block.pb.bin"
-loadgen_admin_pub_key_file: "admin_pub_key.pem"
-loadgen_admin_priv_key_file: "admin_priv_key.pem"
 
 # =========================
 # Miscellaneous
@@ -48,7 +46,6 @@ loadgen_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}
 # TLS settings
 loadgen_use_tls: false
 loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
-loadgen_http_protocol: "{{ 'https' if loadgen_use_tls else 'http' }}"
 loadgen_monitoring_http_protocol: "{{ 'https' if loadgen_monitoring_use_tls else 'http' }}"
 # mTLS settings
 loadgen_use_mtls: false
@@ -66,7 +63,6 @@ loadgen_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{s
 loadgen_use_k8s: false
 loadgen_use_container: "{{ (not loadgen_use_bin) and (not loadgen_use_k8s) }}"
 loadgen_k8s_resource_name: "{{ inventory_hostname }}"
-loadgen_k8s_wait: true
 loadgen_k8s_wait_timeout: 120
 loadgen_k8s_fs_group: 10001
 
