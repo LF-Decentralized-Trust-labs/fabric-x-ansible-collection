@@ -14,7 +14,7 @@
     bin_env:
       FABRIC_CA_CLIENT_HOME: "{{ fabric_ca_msp_dir }}"
     bin_command: >-
-      fabric-ca-client gencrl
+      {{ fabric_ca_client_bin_name }} gencrl
       -u {{ fabric_ca_scheme }}://{{ fabric_ca_client_effective_address }}
       --caname {{ fabric_ca_name }}
       --mspdir {{ fabric_ca_msp_dir }}
