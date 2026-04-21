@@ -384,6 +384,7 @@ argument_specs:
           - Channel buffer size used by the stream pipeline.
       loadgen_mock_orderer_ports: &loadgen_mock_orderer_ports
         type: list
+        elements: int
         required: true
         description:
           - Mock orderer ports used by the sidecar client.
@@ -632,7 +633,6 @@ argument_specs:
     options:
       loadgen_hosts: *loadgen_hosts
       fetched_artifacts_dir: *fetched_artifacts_dir
-      loadgen_metrics_port: *loadgen_metrics_port
 
   config/transfer:
     short_description: Dispatch configuration rendering
