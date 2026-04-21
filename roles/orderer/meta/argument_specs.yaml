@@ -337,12 +337,6 @@ argument_specs:
         required: false
         description:
           - "Organization dictionaries whose mTLS CA certificates are mounted or transferred."
-        options:
-          domain:
-            type: str
-            required: true
-            description:
-              - "Organization domain used to locate the CA certificate."
       organization: &organization
         type: dict
         required: true
@@ -592,7 +586,7 @@ argument_specs:
       remote_data_dir: *remote_data_dir
       orderer_use_k8s: *orderer_use_k8s
       k8s_namespace:
-        type: str
+        <<: *k8s_namespace
         required: false
 
   config/transfer:
