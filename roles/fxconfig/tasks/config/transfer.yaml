@@ -4,12 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that the MSP path is defined
-  ansible.builtin.fail:
-    msg: "No path to the meta namespace admin MSP is indicated. Set it via 'fxconfig_msp_config_path'."
-  when:
-    - fxconfig_msp_config_path is not defined
-
 # =========================
 # Configuration
 # =========================
