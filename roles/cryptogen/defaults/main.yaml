@@ -38,4 +38,3 @@ cryptogen_config_file: "crypto-config.yaml"
 # =========================
 cryptogen_orderers_by_org: {}
 cryptogen_peers_by_org: {}
-cryptogen_users_by_org: {}
