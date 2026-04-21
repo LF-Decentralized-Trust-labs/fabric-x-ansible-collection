@@ -4,12 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that an organization has been provided to the loadgen
-  ansible.builtin.fail:
-    msg: "No organization has been assigned to the loadgen. Please define it through the 'organization' field."
-  when:
-    - organization is undefined
-
 - name: Check that a peer role is provided
   ansible.builtin.fail:
     msg: "Cannot setup crypto material for HLFX Loadgen if is not a peer. Please set the field 'organization.role' as 'peer'."

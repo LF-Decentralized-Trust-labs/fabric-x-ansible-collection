@@ -297,7 +297,6 @@ all:
                 policy: threshold
           # TODO: remove this flag once the fix for mTLS is ready: https://github.com/hyperledger/fabric-x-committer/pull/464
           loadgen_use_tls: true
-          loadgen_type: orderer-client
           loadgen_metrics_port: 12010
           loadgen_web_port: 12000
           loadgen_rpc_port: 12020
