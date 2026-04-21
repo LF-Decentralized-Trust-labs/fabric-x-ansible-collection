@@ -143,7 +143,7 @@ argument_specs:
         required: false
         default: "{{ inventory_hostname }}"
         description:
-          - Base Kubernetes resource name used for PostgreSQL objects.
+          - Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
           - The default derives from C(inventory_hostname).
       postgres_k8s_wait_timeout: &postgres_k8s_wait_timeout
         type: int
@@ -162,7 +162,7 @@ argument_specs:
         required: false
         default: false
         description:
-          - Enable the Kubernetes NodePort Service for PostgreSQL when set to C(true).
+          - Enable the optional Kubernetes NodePort Service for PostgreSQL when set to C(true).
           - When C(false) (default), no NodePort Service is created and the C(k8s/ping) check is skipped.
       postgres_k8s_port_node_port: &postgres_k8s_port_node_port
         type: int
@@ -187,7 +187,7 @@ argument_specs:
         type: int
         required: true
         description:
-          - PostgreSQL listener port used by the container and Kubernetes Service.
+          - PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port.
           - "Example: C(5432)."
       postgres_db: &postgres_db
         type: str
@@ -302,10 +302,7 @@ argument_specs:
       - Also probes the postgres_exporter port when it is defined.
     options:
       postgres_use_k8s: *postgres_use_k8s
-      postgres_use_container: *postgres_use_container
       postgres_port: *postgres_port
-      postgres_k8s_use_node_port: *postgres_k8s_use_node_port
-      postgres_k8s_port_node_port: *postgres_k8s_port_node_port
       postgres_exporter_port: *postgres_exporter_port
 
   start:
@@ -313,6 +310,7 @@ argument_specs:
     description:
       - Starts PostgreSQL using the selected deployment mode.
       - The container mode is the default unless C(postgres_use_k8s) is enabled.
+      - When Kubernetes mode is selected, validates the Service, StatefulSet, and optional NodePort inputs required by the k8s startup path.
     options:
       postgres_use_k8s: *postgres_use_k8s
       postgres_use_container: *postgres_use_container
@@ -340,10 +338,7 @@ argument_specs:
     description:
       - Removes PostgreSQL runtime resources, TLS materials, and configuration files.
       - This entry point sequences the teardown, crypto cleanup, and config cleanup flows.
-    options:
-      postgres_use_k8s: *postgres_use_k8s
-      postgres_use_container: *postgres_use_container
-      postgres_use_tls: *postgres_use_tls
+    options: {}
 
   fetch_logs:
     short_description: Fetch PostgreSQL logs
@@ -364,7 +359,9 @@ argument_specs:
       postgres_use_container: *postgres_use_container
       postgres_remote_data_dir: *postgres_remote_data_dir
       remote_data_dir: *remote_data_dir
-      k8s_namespace: *k8s_namespace
+      k8s_namespace:
+        <<: *k8s_namespace
+        required: false
 
   container/start:
     short_description: Start PostgreSQL in a container
