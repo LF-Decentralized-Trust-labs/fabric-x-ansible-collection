@@ -11,8 +11,6 @@
     mode: "0o755"
 
 - name: Generate the config for the Hyperledger Fabric-X Coordinator Loadgen
-  vars:
-    loadgen_config_dir: "{{ loadgen_remote_config_dir if loadgen_use_bin else loadgen_container_config_dir }}"
   ansible.builtin.template:
     src: "coordinator-client.yaml.j2"
     dest: "{{ loadgen_remote_config_dir }}/{{ loadgen_config_file }}"

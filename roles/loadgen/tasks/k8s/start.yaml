@@ -88,5 +88,5 @@
     state: present
     template:
       path: "k8s/deployment-{{ loadgen_type }}.yaml.j2"
-    wait: "{{ loadgen_k8s_wait }}"
+    wait: true
     wait_timeout: "{{ loadgen_k8s_wait_timeout }}"

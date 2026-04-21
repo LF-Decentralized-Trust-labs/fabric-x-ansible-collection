@@ -12,7 +12,6 @@
 
 - name: Generate the config for the Hyperledger Fabric-X Sidecar Loadgen
   vars:
-    loadgen_config_dir: "{{ loadgen_remote_config_dir if loadgen_use_bin else loadgen_container_config_dir }}"
     loadgen_generate_config_block: true
     loadgen_generate_namespace: true
   ansible.builtin.template:
