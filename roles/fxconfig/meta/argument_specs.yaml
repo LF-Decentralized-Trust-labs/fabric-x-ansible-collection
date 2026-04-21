@@ -12,7 +12,8 @@ argument_specs:
         required: true
         description:
           - "Defines the Fabric-X channel used by the task. Example: C(arma)."
-      committer_query_service_connection_timeout: &committer_query_service_connection_timeout
+      fxconfig_committer_query_service_connection_timeout:
+        &fxconfig_committer_query_service_connection_timeout
         type: str
         required: false
         default: "30s"
@@ -23,7 +24,8 @@ argument_specs:
         required: true
         description:
           - "Identifies the inventory host for the Committer Query-Service component. Example: C(committer-query-service-1)."
-      committer_sidecar_connection_timeout: &committer_sidecar_connection_timeout
+      fxconfig_committer_sidecar_connection_timeout:
+        &fxconfig_committer_sidecar_connection_timeout
         type: str
         required: false
         default: "30s"
@@ -34,7 +36,8 @@ argument_specs:
         required: true
         description:
           - "Identifies the inventory host for the Committer Sidecar component. Example: C(committer-sidecar-1)."
-      committer_sidecar_waiting_timeout: &committer_sidecar_waiting_timeout
+      fxconfig_committer_sidecar_waiting_timeout:
+        &fxconfig_committer_sidecar_waiting_timeout
         type: str
         required: false
         default: "30s"
@@ -100,6 +103,7 @@ argument_specs:
           - "Defines the Fabric-X source repository path. Example: C(hyperledger/fabric-x)."
       fxconfig_hosts: &fxconfig_hosts
         type: list
+        elements: str
         required: false
         description:
           - "Limits namespace grouping to a subset of inventory hosts. If omitted, the task considers all hosts."
@@ -158,10 +162,10 @@ argument_specs:
         description:
           - "Defines the source private key path used for fxconfig mTLS. The default derives from C(remote_config_dir)."
       fxconfig_namespace_id: &fxconfig_namespace_id
-        type: str
+        type: raw
         required: true
         description:
-          - "Defines the namespace identifier. Example: C(workload)."
+          - "Defines the namespace identifier. Accepts either a string or an integer value. Examples: C(workload), C(0)."
       fxconfig_namespace_policy: &fxconfig_namespace_policy
         type: str
         required: true
@@ -213,21 +217,11 @@ argument_specs:
         default: false
         description:
           - "Selects the host-binary workflow instead of the container workflow."
-      organization: &organization_base
+      organization: &organization
         type: dict
         required: true
         description:
           - "Provides organization metadata required by tasks that read `organization.*`."
-      organization_name: &organization_name
-        type: str
-        required: true
-        description:
-          - "Defines the organization name used to derive the default MSP ID. Example: C(Org1)."
-      organization_users: &organization_users
-        type: list
-        required: true
-        description:
-          - "Lists organization users used to choose an endorser. Items may carry `endorser: true`."
       orderer_router_host: &orderer_router_host
         type: str
         required: true
@@ -366,11 +360,11 @@ argument_specs:
       - "Inventory hosts named by the routing variables must expose connection metadata, RPC ports, and TLS or mTLS flags."
     options:
       channel_id: *channel_id
-      committer_query_service_connection_timeout: *committer_query_service_connection_timeout
+      fxconfig_committer_query_service_connection_timeout: *fxconfig_committer_query_service_connection_timeout
       committer_query_service_host: *committer_query_service_host
-      committer_sidecar_connection_timeout: *committer_sidecar_connection_timeout
+      fxconfig_committer_sidecar_connection_timeout: *fxconfig_committer_sidecar_connection_timeout
       committer_sidecar_host: *committer_sidecar_host
-      committer_sidecar_waiting_timeout: *committer_sidecar_waiting_timeout
+      fxconfig_committer_sidecar_waiting_timeout: *fxconfig_committer_sidecar_waiting_timeout
       fetched_artifacts_dir: *fetched_artifacts_dir
       fxconfig_config_file: *fxconfig_config_file
       fxconfig_container_config_dir: *fxconfig_container_config_dir
@@ -384,10 +378,7 @@ argument_specs:
       fxconfig_remote_config_dir: *fxconfig_remote_config_dir
       fxconfig_use_bin: *fxconfig_use_bin
       orderer_router_host: *orderer_router_host
-      organization:
-        <<: *organization_base
-        options:
-          name: *organization_name
+      organization: *organization
       remote_config_dir: *remote_config_dir
 
   container/endorse:
@@ -505,10 +496,7 @@ argument_specs:
     description:
       - "Selects the preferred endorser from C(organization.users) and stores it in C(fxconfig_endorser_user)."
     options:
-      organization:
-        <<: *organization_base
-        options:
-          users: *organization_users
+      organization: *organization
 
   merge:
     short_description: Merge endorsed namespace transactions
