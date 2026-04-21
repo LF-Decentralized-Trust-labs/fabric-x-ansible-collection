@@ -38,7 +38,6 @@ argument_specs:
           - "Example: C(/tmp/fabricx/cryptogen-artifacts)."
       k8s_namespace: &k8s_namespace
         type: str
-        required: true
         description:
           - Kubernetes namespace used for PostgreSQL resources.
           - This dependency is validated by every Kubernetes leaf entry point.
@@ -288,7 +287,6 @@ argument_specs:
           - The template default is C(5).
       organization: &organization
         type: dict
-        required: false
         description:
           - Fabric organization inputs used by PostgreSQL TLS generation paths.
           - The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA.
@@ -422,7 +420,9 @@ argument_specs:
       - Uses the role templates to configure storage, credentials, TLS, and optional mTLS mounts.
     options:
       postgres_k8s_resource_name: *postgres_k8s_resource_name
-      k8s_namespace: *k8s_namespace
+      k8s_namespace:
+        <<: *k8s_namespace
+        required: true
       postgres_k8s_wait_timeout: *postgres_k8s_wait_timeout
       postgres_k8s_fs_group: *postgres_k8s_fs_group
       postgres_k8s_use_node_port: *postgres_k8s_use_node_port
@@ -471,7 +471,9 @@ argument_specs:
       - The persistent volume claim is removed separately by the C(data/rm) entry point.
     options:
       postgres_k8s_resource_name: *postgres_k8s_resource_name
-      k8s_namespace: *k8s_namespace
+      k8s_namespace:
+        <<: *k8s_namespace
+        required: true
 
   k8s/fetch_logs:
     short_description: Fetch PostgreSQL pod logs
@@ -480,7 +482,9 @@ argument_specs:
       - Selects pods using the PostgreSQL application label.
     options:
       postgres_k8s_resource_name: *postgres_k8s_resource_name
-      k8s_namespace: *k8s_namespace
+      k8s_namespace:
+        <<: *k8s_namespace
+        required: true
 
   k8s/crypto/transfer:
     short_description: Apply the PostgreSQL Kubernetes Secret
@@ -489,7 +493,9 @@ argument_specs:
       - Ensures the Kubernetes namespace exists before applying the Secret.
     options:
       postgres_k8s_resource_name: *postgres_k8s_resource_name
-      k8s_namespace: *k8s_namespace
+      k8s_namespace:
+        <<: *k8s_namespace
+        required: true
       postgres_remote_config_dir: *postgres_remote_config_dir
       remote_config_dir: *remote_config_dir
       postgres_tls_private_key_file: *postgres_tls_private_key_file
@@ -506,7 +512,9 @@ argument_specs:
       - This entry point is typically invoked from the PostgreSQL crypto cleanup workflow.
     options:
       postgres_k8s_resource_name: *postgres_k8s_resource_name
-      k8s_namespace: *k8s_namespace
+      k8s_namespace:
+        <<: *k8s_namespace
+        required: true
 
   k8s/config/transfer:
     short_description: Apply the PostgreSQL Kubernetes ConfigMap
@@ -515,7 +523,9 @@ argument_specs:
       - Ensures the Kubernetes namespace exists before applying the ConfigMap.
     options:
       postgres_k8s_resource_name: *postgres_k8s_resource_name
-      k8s_namespace: *k8s_namespace
+      k8s_namespace:
+        <<: *k8s_namespace
+        required: true
       postgres_remote_config_dir: *postgres_remote_config_dir
       remote_config_dir: *remote_config_dir
       postgres_use_mtls: *postgres_use_mtls
@@ -528,7 +538,9 @@ argument_specs:
       - This entry point is typically invoked from the PostgreSQL config cleanup workflow.
     options:
       postgres_k8s_resource_name: *postgres_k8s_resource_name
-      k8s_namespace: *k8s_namespace
+      k8s_namespace:
+        <<: *k8s_namespace
+        required: true
 
   crypto/setup:
     short_description: Prepare PostgreSQL TLS materials
@@ -538,7 +550,9 @@ argument_specs:
     options:
       postgres_use_tls: *postgres_use_tls
       postgres_use_k8s: *postgres_use_k8s
-      organization: *organization
+      organization:
+        <<: *organization
+        required: false
 
   crypto/fetch:
     short_description: Fetch PostgreSQL TLS certificates
@@ -573,7 +587,9 @@ argument_specs:
       remote_config_dir: *remote_config_dir
       postgres_tls_private_key_file: *postgres_tls_private_key_file
       postgres_tls_cert_file: *postgres_tls_cert_file
-      organization: *organization
+      organization:
+        <<: *organization
+        required: false
 
   crypto/cryptogen/transfer:
     short_description: Transfer PostgreSQL TLS materials from cryptogen
