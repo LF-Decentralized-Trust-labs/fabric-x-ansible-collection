@@ -211,7 +211,7 @@ argument_specs:
         required: false
         default: "{{ inventory_hostname }}"
         description:
-          - "Names the Kubernetes resources associated with the current host."
+          - "Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled."
           - "The default derives from C(inventory_hostname)."
       yugabyte_k8s_wait: &yugabyte_k8s_wait
         type: bool
@@ -230,7 +230,8 @@ argument_specs:
         required: false
         default: false
         description:
-          - "Enables creation of NodePort Services for YugabyteDB Kubernetes deployments."
+          - "Enables creation of the master and tablet NodePort Services for YugabyteDB Kubernetes deployments."
+          - "The flag also enables the matching NodePort reachability checks in C(k8s/ping)."
       yugabyte_k8s_master_rpc_node_port: &yugabyte_k8s_master_rpc_node_port
         type: int
         required: false
@@ -421,6 +422,7 @@ argument_specs:
       - "Selects the expected ports for a master or tablet host and delegates the reachability check."
     options:
       yugabyte_component_type: *yugabyte_component_type
+      yugabyte_use_k8s: *yugabyte_use_k8s
       yugabyte_master_webserver_port: *yugabyte_master_webserver_port
       yugabyte_master_rpc_bind_port: *yugabyte_master_rpc_bind_port
       yugabyte_tablet_pgsql_bind_port: *yugabyte_tablet_pgsql_bind_port
@@ -475,7 +477,9 @@ argument_specs:
       yugabyte_use_k8s: *yugabyte_use_k8s
       yugabyte_remote_config_dir: *yugabyte_remote_config_dir
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
-      k8s_namespace: *k8s_namespace
+      k8s_namespace:
+        <<: *k8s_namespace
+        required: false
 
   crypto/openssl/generate_csr:
     short_description: Generate a YugabyteDB TLS CSR
@@ -551,7 +555,9 @@ argument_specs:
       yugabyte_remote_config_dir: *yugabyte_remote_config_dir
       yugabyte_use_k8s: *yugabyte_use_k8s
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
-      k8s_namespace: *k8s_namespace
+      k8s_namespace:
+        <<: *k8s_namespace
+        required: false
 
   config/transfer_grafana_dashboard:
     short_description: Transfer the YugabyteDB Grafana dashboard
@@ -797,7 +803,9 @@ argument_specs:
       yugabyte_use_k8s: *yugabyte_use_k8s
       yugabyte_remote_data_dir: *yugabyte_remote_data_dir
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
-      k8s_namespace: *k8s_namespace
+      k8s_namespace:
+        <<: *k8s_namespace
+        required: false
 
   prometheus/get_scrapers:
     short_description: Build Prometheus scrapers for YugabyteDB
