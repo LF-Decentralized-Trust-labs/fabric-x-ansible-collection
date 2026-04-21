@@ -12,11 +12,13 @@ argument_specs:
     options:
       yugabyte_cluster: &yugabyte_cluster
         type: list
+        elements: str
         required: true
         description:
           - "Lists the inventory hosts that belong to the YugabyteDB cluster."
       yugabyte_hosts: &yugabyte_hosts
         type: list
+        elements: str
         required: true
         description:
           - "Lists the inventory hosts that belong to the YugabyteDB clusters monitored by Prometheus."
@@ -150,11 +152,13 @@ argument_specs:
           - "Lists the master RPC endpoints used to bootstrap YugabyteDB tablets and health checks."
       yugabyte_master_hosts: &yugabyte_master_hosts
         type: list
+        elements: str
         required: true
         description:
           - "Provides the ordered list of master hosts used to compute replication factors."
       yugabyte_tablet_hosts: &yugabyte_tablet_hosts
         type: list
+        elements: str
         required: true
         description:
           - "Provides the ordered list of tablet hosts used to initialize the first tablet."
@@ -274,9 +278,10 @@ argument_specs:
           - "Optionally sets the NodePort used to expose the tablet YCQL web UI service when C(yugabyte_k8s_use_node_port) is enabled."
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
-        required: true
+        required: false
         description:
           - "Defines the control-node directory that stores fetched YugabyteDB artifacts."
+          - "Required when TLS-enabled tasks need access to fetched CA or certificate artifacts, such as when C(yugabyte_use_tls) or webserver TLS is enabled."
       cryptogen_artifacts_dir: &cryptogen_artifacts_dir
         type: path
         required: true
