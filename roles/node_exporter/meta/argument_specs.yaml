@@ -529,4 +529,3 @@ argument_specs:
     options:
       node_exporter_hosts: *node_exporter_hosts
       fetched_artifacts_dir: *fetched_artifacts_dir
-      node_exporter_use_tls: *node_exporter_use_tls
