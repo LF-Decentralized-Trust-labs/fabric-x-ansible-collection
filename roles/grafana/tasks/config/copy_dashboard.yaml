@@ -4,12 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that the Grafana dashboard path is defined
-  ansible.builtin.fail:
-    msg: "No Grafana dashboard path has been defined. Set it via 'grafana_dashboard_path'."
-  when:
-    - grafana_dashboard_path is not defined
-
 - name: Ensure Grafana config directory exists
   ansible.builtin.file:
     path: "{{ grafana_remote_config_dir }}/dashboards"
