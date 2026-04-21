@@ -40,34 +40,6 @@
         | list
         | first
       }}
-    committer_coordinator_host: >-
-      {{
-        committer_hosts
-        | map('extract', hostvars)
-        | selectattr('committer_component_type', 'defined')
-        | selectattr('committer_component_type', '==', 'coordinator')
-        | map(attribute='inventory_hostname')
-        | list
-        | first
-      }}
-    committer_verifier_hosts: >-
-      {{
-        committer_hosts
-        | map('extract', hostvars)
-        | selectattr('committer_component_type', 'defined')
-        | selectattr('committer_component_type', '==', 'verifier')
-        | map(attribute='inventory_hostname')
-        | list
-      }}
-    committer_validator_hosts: >-
-      {{
-        committer_hosts
-        | map('extract', hostvars)
-        | selectattr('committer_component_type', 'defined')
-        | selectattr('committer_component_type', '==', 'validator')
-        | map(attribute='inventory_hostname')
-        | list
-      }}
     orderer_router_hosts: >-
       {{
         orderer_hosts
@@ -87,6 +59,6 @@
   kubernetes.core.k8s:
     state: present
     template:
-      path: "k8s/deployment-{{ loadgen_type }}.yaml.j2"
+      path: "k8s/deployment-loadgen.yaml.j2"
     wait: true
     wait_timeout: "{{ loadgen_k8s_wait_timeout }}"

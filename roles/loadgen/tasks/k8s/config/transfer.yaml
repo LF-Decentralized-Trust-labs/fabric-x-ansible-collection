@@ -19,4 +19,4 @@
   kubernetes.core.k8s:
     state: present
     template:
-      path: "k8s/configmap-{{ loadgen_type }}.yaml.j2"
+      path: "k8s/configmap-loadgen.yaml.j2"

@@ -131,17 +131,6 @@ argument_specs:
         default: "loadgen"
         description:
           - Binary name used by the shared bin role.
-      loadgen_type: &loadgen_type
-        type: str
-        required: true
-        choices:
-          - orderer-client
-          - coordinator-client
-          - verifier-client
-          - validator-client
-          - sidecar-client
-        description:
-          - Loadgen adapter type.
       loadgen_web_port: &loadgen_web_port
         type: int
         required: true
@@ -382,12 +371,6 @@ argument_specs:
         required: false
         description:
           - Channel buffer size used by the stream pipeline.
-      loadgen_mock_orderer_ports: &loadgen_mock_orderer_ports
-        type: list
-        elements: int
-        required: true
-        description:
-          - Mock orderer ports used by the sidecar client.
       loadgen_hosts: &loadgen_hosts
         type: list
         elements: str
@@ -431,23 +414,6 @@ argument_specs:
         required: true
         description:
           - Orderer inventory hosts used by the dispatcher to derive client targets.
-      committer_coordinator_host: &committer_coordinator_host
-        type: str
-        required: true
-        description:
-          - Coordinator host targeted by the coordinator client.
-      committer_validator_hosts: &committer_validator_hosts
-        type: list
-        elements: str
-        required: true
-        description:
-          - Validator hosts targeted by the validator client.
-      committer_verifier_hosts: &committer_verifier_hosts
-        type: list
-        elements: str
-        required: true
-        description:
-          - Verifier hosts targeted by the verifier client.
       committer_sidecar_host: &committer_sidecar_host
         type: str
         required: false
@@ -538,17 +504,6 @@ argument_specs:
         required: false
         description:
           - Additional mTLS organizations trusted by the monitoring endpoint.
-      committer_validator_ref_host: &committer_validator_ref_host
-        type: str
-        required: false
-        description:
-          - Reference validator host used by the validator-client ConfigMap.
-      committer_verifier_ref_host: &committer_verifier_ref_host
-        type: str
-        required: false
-        description:
-          - Reference verifier host used by the verifier-client ConfigMap.
-
   start:
     short_description: Start the load generator
     description:
@@ -637,17 +592,7 @@ argument_specs:
   config/transfer:
     short_description: Dispatch configuration rendering
     description:
-      - Render and transfer Loadgen configuration for the selected adapter type.
-    options:
-      loadgen_type: *loadgen_type
-      committer_hosts: *committer_hosts
-      orderer_hosts: *orderer_hosts
-      loadgen_monitoring_use_mtls: *loadgen_monitoring_use_mtls
-
-  config/orderer-client/transfer:
-    short_description: Render orderer client configuration
-    description:
-      - Render the orderer-client Loadgen configuration and related TLS assets.
+      - Render and transfer Loadgen configuration.
     options:
       remote_config_dir: *remote_config_dir
       loadgen_remote_config_dir: *loadgen_remote_config_dir
@@ -659,7 +604,8 @@ argument_specs:
       loadgen_use_tls: *loadgen_use_tls
       loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
       loadgen_use_mtls: *loadgen_use_mtls
-      loadgen_monitoring_use_mtls: *loadgen_monitoring_use_mtls
+      committer_hosts: *committer_hosts
+      orderer_hosts: *orderer_hosts
       loadgen_mtls_clients: *loadgen_mtls_clients
       loadgen_mtls_orgs: *loadgen_mtls_orgs
       loadgen_monitoring_mtls_clients: *loadgen_monitoring_mtls_clients
@@ -706,232 +652,7 @@ argument_specs:
       loadgen_broadcast_parallelism: *loadgen_broadcast_parallelism
       loadgen_limit_blocks: *loadgen_limit_blocks
       loadgen_limit_transactions: *loadgen_limit_transactions
-
-  config/coordinator-client/transfer:
-    short_description: Render coordinator client configuration
-    description:
-      - Render the coordinator-client Loadgen configuration and related TLS assets.
-    options:
-      remote_config_dir: *remote_config_dir
-      loadgen_remote_config_dir: *loadgen_remote_config_dir
-      loadgen_container_config_dir: *loadgen_container_config_dir
-      loadgen_config_dir: *loadgen_config_dir
-      loadgen_config_file: *loadgen_config_file
-      loadgen_use_bin: *loadgen_use_bin
-      loadgen_use_k8s: *loadgen_use_k8s
-      loadgen_use_tls: *loadgen_use_tls
-      loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
-      loadgen_use_mtls: *loadgen_use_mtls
       loadgen_monitoring_use_mtls: *loadgen_monitoring_use_mtls
-      loadgen_mtls_clients: *loadgen_mtls_clients
-      loadgen_mtls_orgs: *loadgen_mtls_orgs
-      loadgen_monitoring_mtls_clients: *loadgen_monitoring_mtls_clients
-      loadgen_monitoring_mtls_orgs: *loadgen_monitoring_mtls_orgs
-      loadgen_web_port: *loadgen_web_port
-      loadgen_metrics_port: *loadgen_metrics_port
-      loadgen_rpc_port: *loadgen_rpc_port
-      loadgen_generate_config_block: *loadgen_generate_config_block
-      loadgen_generate_namespace: *loadgen_generate_namespace
-      loadgen_generate_load: *loadgen_generate_load
-      loadgen_key_size: *loadgen_key_size
-      loadgen_tx_seed: *loadgen_tx_seed
-      loadgen_workers: *loadgen_workers
-      loadgen_block_max_size: *loadgen_block_max_size
-      loadgen_block_min_size: *loadgen_block_min_size
-      loadgen_block_preferred_rate: *loadgen_block_preferred_rate
-      loadgen_generate_read_only_tx: *loadgen_generate_read_only_tx
-      loadgen_read_only_tx_keys: *loadgen_read_only_tx_keys
-      loadgen_generate_write_only_tx: *loadgen_generate_write_only_tx
-      loadgen_write_only_tx_keys: *loadgen_write_only_tx_keys
-      loadgen_write_only_tx_val_size: *loadgen_write_only_tx_val_size
-      loadgen_generate_read_write_tx: *loadgen_generate_read_write_tx
-      loadgen_read_write_tx_keys: *loadgen_read_write_tx_keys
-      loadgen_read_write_tx_val_size: *loadgen_read_write_tx_val_size
-      loadgen_key_scheme: *loadgen_key_scheme
-      loadgen_monitoring_rate_limit_requests_per_second: *loadgen_monitoring_rate_limit_requests_per_second
-      loadgen_monitoring_rate_limit_burst: *loadgen_monitoring_rate_limit_burst
-      loadgen_latency_sampler_prefix: *loadgen_latency_sampler_prefix
-      loadgen_latency_sampler_portion: *loadgen_latency_sampler_portion
-      loadgen_latency_distribution: *loadgen_latency_distribution
-      loadgen_max_latency: *loadgen_max_latency
-      loadgen_latency_buckets: *loadgen_latency_buckets
-      loadgen_limit_rate: *loadgen_limit_rate
-      loadgen_stream_batches: *loadgen_stream_batches
-      loadgen_stream_buffers_size: *loadgen_stream_buffers_size
-      loadgen_log_level: *loadgen_log_level
-      loadgen_log_format: *loadgen_log_format
-      fetched_artifacts_dir: *fetched_artifacts_dir
-      committer_coordinator_host: *committer_coordinator_host
-
-  config/verifier-client/transfer:
-    short_description: Render verifier client configuration
-    description:
-      - Render the verifier-client Loadgen configuration and related TLS assets.
-    options:
-      remote_config_dir: *remote_config_dir
-      loadgen_remote_config_dir: *loadgen_remote_config_dir
-      loadgen_container_config_dir: *loadgen_container_config_dir
-      loadgen_config_dir: *loadgen_config_dir
-      loadgen_config_file: *loadgen_config_file
-      loadgen_use_bin: *loadgen_use_bin
-      loadgen_use_k8s: *loadgen_use_k8s
-      loadgen_use_tls: *loadgen_use_tls
-      loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
-      loadgen_use_mtls: *loadgen_use_mtls
-      loadgen_monitoring_use_mtls: *loadgen_monitoring_use_mtls
-      loadgen_mtls_clients: *loadgen_mtls_clients
-      loadgen_mtls_orgs: *loadgen_mtls_orgs
-      loadgen_monitoring_mtls_clients: *loadgen_monitoring_mtls_clients
-      loadgen_monitoring_mtls_orgs: *loadgen_monitoring_mtls_orgs
-      loadgen_web_port: *loadgen_web_port
-      loadgen_metrics_port: *loadgen_metrics_port
-      loadgen_rpc_port: *loadgen_rpc_port
-      loadgen_generate_config_block: *loadgen_generate_config_block
-      loadgen_generate_namespace: *loadgen_generate_namespace
-      loadgen_generate_load: *loadgen_generate_load
-      loadgen_key_size: *loadgen_key_size
-      loadgen_tx_seed: *loadgen_tx_seed
-      loadgen_workers: *loadgen_workers
-      loadgen_block_max_size: *loadgen_block_max_size
-      loadgen_block_min_size: *loadgen_block_min_size
-      loadgen_block_preferred_rate: *loadgen_block_preferred_rate
-      loadgen_generate_read_only_tx: *loadgen_generate_read_only_tx
-      loadgen_read_only_tx_keys: *loadgen_read_only_tx_keys
-      loadgen_generate_write_only_tx: *loadgen_generate_write_only_tx
-      loadgen_write_only_tx_keys: *loadgen_write_only_tx_keys
-      loadgen_write_only_tx_val_size: *loadgen_write_only_tx_val_size
-      loadgen_generate_read_write_tx: *loadgen_generate_read_write_tx
-      loadgen_read_write_tx_keys: *loadgen_read_write_tx_keys
-      loadgen_read_write_tx_val_size: *loadgen_read_write_tx_val_size
-      loadgen_key_scheme: *loadgen_key_scheme
-      loadgen_monitoring_rate_limit_requests_per_second: *loadgen_monitoring_rate_limit_requests_per_second
-      loadgen_monitoring_rate_limit_burst: *loadgen_monitoring_rate_limit_burst
-      loadgen_latency_sampler_prefix: *loadgen_latency_sampler_prefix
-      loadgen_latency_sampler_portion: *loadgen_latency_sampler_portion
-      loadgen_latency_distribution: *loadgen_latency_distribution
-      loadgen_max_latency: *loadgen_max_latency
-      loadgen_latency_buckets: *loadgen_latency_buckets
-      loadgen_limit_rate: *loadgen_limit_rate
-      loadgen_stream_batches: *loadgen_stream_batches
-      loadgen_stream_buffers_size: *loadgen_stream_buffers_size
-      loadgen_log_level: *loadgen_log_level
-      loadgen_log_format: *loadgen_log_format
-      fetched_artifacts_dir: *fetched_artifacts_dir
-      committer_verifier_hosts: *committer_verifier_hosts
-
-  config/validator-client/transfer:
-    short_description: Render validator client configuration
-    description:
-      - Render the validator-client Loadgen configuration and related TLS assets.
-    options:
-      remote_config_dir: *remote_config_dir
-      loadgen_remote_config_dir: *loadgen_remote_config_dir
-      loadgen_container_config_dir: *loadgen_container_config_dir
-      loadgen_config_dir: *loadgen_config_dir
-      loadgen_config_file: *loadgen_config_file
-      loadgen_use_bin: *loadgen_use_bin
-      loadgen_use_k8s: *loadgen_use_k8s
-      loadgen_use_tls: *loadgen_use_tls
-      loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
-      loadgen_use_mtls: *loadgen_use_mtls
-      loadgen_monitoring_use_mtls: *loadgen_monitoring_use_mtls
-      loadgen_mtls_clients: *loadgen_mtls_clients
-      loadgen_mtls_orgs: *loadgen_mtls_orgs
-      loadgen_monitoring_mtls_clients: *loadgen_monitoring_mtls_clients
-      loadgen_monitoring_mtls_orgs: *loadgen_monitoring_mtls_orgs
-      loadgen_web_port: *loadgen_web_port
-      loadgen_metrics_port: *loadgen_metrics_port
-      loadgen_rpc_port: *loadgen_rpc_port
-      loadgen_generate_config_block: *loadgen_generate_config_block
-      loadgen_generate_namespace: *loadgen_generate_namespace
-      loadgen_generate_load: *loadgen_generate_load
-      loadgen_key_size: *loadgen_key_size
-      loadgen_tx_seed: *loadgen_tx_seed
-      loadgen_workers: *loadgen_workers
-      loadgen_block_max_size: *loadgen_block_max_size
-      loadgen_block_min_size: *loadgen_block_min_size
-      loadgen_block_preferred_rate: *loadgen_block_preferred_rate
-      loadgen_generate_read_only_tx: *loadgen_generate_read_only_tx
-      loadgen_read_only_tx_keys: *loadgen_read_only_tx_keys
-      loadgen_generate_write_only_tx: *loadgen_generate_write_only_tx
-      loadgen_write_only_tx_keys: *loadgen_write_only_tx_keys
-      loadgen_write_only_tx_val_size: *loadgen_write_only_tx_val_size
-      loadgen_generate_read_write_tx: *loadgen_generate_read_write_tx
-      loadgen_read_write_tx_keys: *loadgen_read_write_tx_keys
-      loadgen_read_write_tx_val_size: *loadgen_read_write_tx_val_size
-      loadgen_key_scheme: *loadgen_key_scheme
-      loadgen_monitoring_rate_limit_requests_per_second: *loadgen_monitoring_rate_limit_requests_per_second
-      loadgen_monitoring_rate_limit_burst: *loadgen_monitoring_rate_limit_burst
-      loadgen_latency_sampler_prefix: *loadgen_latency_sampler_prefix
-      loadgen_latency_sampler_portion: *loadgen_latency_sampler_portion
-      loadgen_latency_distribution: *loadgen_latency_distribution
-      loadgen_max_latency: *loadgen_max_latency
-      loadgen_latency_buckets: *loadgen_latency_buckets
-      loadgen_limit_rate: *loadgen_limit_rate
-      loadgen_stream_batches: *loadgen_stream_batches
-      loadgen_stream_buffers_size: *loadgen_stream_buffers_size
-      loadgen_log_level: *loadgen_log_level
-      loadgen_log_format: *loadgen_log_format
-      fetched_artifacts_dir: *fetched_artifacts_dir
-      committer_validator_hosts: *committer_validator_hosts
-
-  config/sidecar-client/transfer:
-    short_description: Render sidecar client configuration
-    description:
-      - Render the sidecar-client Loadgen configuration and related TLS assets.
-    options:
-      remote_config_dir: *remote_config_dir
-      loadgen_remote_config_dir: *loadgen_remote_config_dir
-      loadgen_container_config_dir: *loadgen_container_config_dir
-      loadgen_config_dir: *loadgen_config_dir
-      loadgen_config_file: *loadgen_config_file
-      loadgen_use_bin: *loadgen_use_bin
-      loadgen_use_k8s: *loadgen_use_k8s
-      loadgen_use_tls: *loadgen_use_tls
-      loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
-      loadgen_use_mtls: *loadgen_use_mtls
-      loadgen_monitoring_use_mtls: *loadgen_monitoring_use_mtls
-      loadgen_mtls_clients: *loadgen_mtls_clients
-      loadgen_mtls_orgs: *loadgen_mtls_orgs
-      loadgen_monitoring_mtls_clients: *loadgen_monitoring_mtls_clients
-      loadgen_monitoring_mtls_orgs: *loadgen_monitoring_mtls_orgs
-      loadgen_web_port: *loadgen_web_port
-      loadgen_metrics_port: *loadgen_metrics_port
-      loadgen_rpc_port: *loadgen_rpc_port
-      loadgen_generate_config_block: *loadgen_generate_config_block
-      loadgen_generate_namespace: *loadgen_generate_namespace
-      loadgen_generate_load: *loadgen_generate_load
-      loadgen_key_size: *loadgen_key_size
-      loadgen_tx_seed: *loadgen_tx_seed
-      loadgen_workers: *loadgen_workers
-      loadgen_block_max_size: *loadgen_block_max_size
-      loadgen_block_min_size: *loadgen_block_min_size
-      loadgen_block_preferred_rate: *loadgen_block_preferred_rate
-      loadgen_generate_read_only_tx: *loadgen_generate_read_only_tx
-      loadgen_read_only_tx_keys: *loadgen_read_only_tx_keys
-      loadgen_generate_write_only_tx: *loadgen_generate_write_only_tx
-      loadgen_write_only_tx_keys: *loadgen_write_only_tx_keys
-      loadgen_write_only_tx_val_size: *loadgen_write_only_tx_val_size
-      loadgen_generate_read_write_tx: *loadgen_generate_read_write_tx
-      loadgen_read_write_tx_keys: *loadgen_read_write_tx_keys
-      loadgen_read_write_tx_val_size: *loadgen_read_write_tx_val_size
-      loadgen_key_scheme: *loadgen_key_scheme
-      loadgen_monitoring_rate_limit_requests_per_second: *loadgen_monitoring_rate_limit_requests_per_second
-      loadgen_monitoring_rate_limit_burst: *loadgen_monitoring_rate_limit_burst
-      loadgen_latency_sampler_prefix: *loadgen_latency_sampler_prefix
-      loadgen_latency_sampler_portion: *loadgen_latency_sampler_portion
-      loadgen_latency_distribution: *loadgen_latency_distribution
-      loadgen_max_latency: *loadgen_max_latency
-      loadgen_latency_buckets: *loadgen_latency_buckets
-      loadgen_limit_rate: *loadgen_limit_rate
-      loadgen_stream_batches: *loadgen_stream_batches
-      loadgen_stream_buffers_size: *loadgen_stream_buffers_size
-      loadgen_log_level: *loadgen_log_level
-      loadgen_log_format: *loadgen_log_format
-      fetched_artifacts_dir: *fetched_artifacts_dir
-      channel_id: *channel_id
-      committer_verifier_hosts: *committer_verifier_hosts
-      loadgen_mock_orderer_ports: *loadgen_mock_orderer_ports
 
   config/mtls/monitoring/transfer:
     short_description: Transfer monitoring mTLS CA bundles
@@ -1113,7 +834,6 @@ argument_specs:
     description:
       - Create the Kubernetes Service, NodePort Service, and Deployment for the Loadgen.
     options:
-      loadgen_type: *loadgen_type
       committer_hosts: *committer_hosts
       orderer_hosts: *orderer_hosts
       organization: *organization
@@ -1178,7 +898,6 @@ argument_specs:
     description:
       - Publish the rendered Loadgen configuration and CA bundles as a ConfigMap.
     options:
-      loadgen_type: *loadgen_type
       k8s_namespace: *k8s_namespace
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
       loadgen_remote_config_dir: *loadgen_remote_config_dir
@@ -1186,11 +905,6 @@ argument_specs:
       orderer_router_hosts: *orderer_router_hosts
       orderer_assembler_hosts: *orderer_assembler_hosts
       committer_sidecar_host: *committer_sidecar_host
-      committer_coordinator_host: *committer_coordinator_host
-      committer_validator_hosts: *committer_validator_hosts
-      committer_verifier_hosts: *committer_verifier_hosts
-      committer_validator_ref_host: *committer_validator_ref_host
-      committer_verifier_ref_host: *committer_verifier_ref_host
       loadgen_use_mtls: *loadgen_use_mtls
       loadgen_monitoring_use_mtls: *loadgen_monitoring_use_mtls
       loadgen_mtls_clients: *loadgen_mtls_clients
