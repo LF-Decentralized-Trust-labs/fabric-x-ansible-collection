@@ -235,6 +235,7 @@ argument_specs:
 
       node_exporter_hosts: &node_exporter_hosts
         type: list
+        elements: str
         required: true
         description:
           - Lists the inventory hosts exposed as Prometheus scrape targets.
@@ -324,6 +325,7 @@ argument_specs:
     short_description: Transfer the Grafana dashboard for Node Exporter
     description:
       - Copies the bundled Node Exporter dashboard into Grafana by delegating to the Grafana role.
+    options: {}
 
   crypto/setup:
     short_description: Generate Node Exporter TLS material
