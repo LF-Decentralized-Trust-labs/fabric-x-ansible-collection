@@ -11,4 +11,3 @@
     kind: ConfigMap
     name: "{{ jaeger_k8s_resource_name }}"
     namespace: "{{ k8s_namespace }}"
-  when: jaeger_use_k8s

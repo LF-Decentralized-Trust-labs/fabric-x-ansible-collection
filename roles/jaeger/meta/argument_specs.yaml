@@ -5,7 +5,6 @@
 #
 ---
 argument_specs:
-
   _shared_options:
     options:
       jaeger_use_container: &jaeger_use_container
@@ -196,7 +195,8 @@ argument_specs:
         required: false
         description:
           - "Sets the Kubernetes imagePullSecret name when the deployment needs one."
-      k8s_readiness_probe_initial_delay_seconds: &k8s_readiness_probe_initial_delay_seconds
+      k8s_readiness_probe_initial_delay_seconds:
+        &k8s_readiness_probe_initial_delay_seconds
         type: int
         required: false
         description:
@@ -211,12 +211,14 @@ argument_specs:
         required: false
         description:
           - "Sets the readiness probe timeout used by the Jaeger deployment template."
-      k8s_readiness_probe_failure_threshold: &k8s_readiness_probe_failure_threshold
+      k8s_readiness_probe_failure_threshold:
+        &k8s_readiness_probe_failure_threshold
         type: int
         required: false
         description:
           - "Sets the readiness probe failure threshold used by the Jaeger deployment template."
-      k8s_liveness_probe_initial_delay_seconds: &k8s_liveness_probe_initial_delay_seconds
+      k8s_liveness_probe_initial_delay_seconds:
+        &k8s_liveness_probe_initial_delay_seconds
         type: int
         required: false
         description:
@@ -231,7 +233,8 @@ argument_specs:
         required: false
         description:
           - "Sets the liveness probe timeout used by the Jaeger deployment template."
-      k8s_liveness_probe_failure_threshold: &k8s_liveness_probe_failure_threshold
+      k8s_liveness_probe_failure_threshold:
+        &k8s_liveness_probe_failure_threshold
         type: int
         required: false
         description:
@@ -451,7 +454,5 @@ argument_specs:
       - "Deletes the Jaeger ConfigMap from Kubernetes when the Kubernetes deployment mode is enabled."
     options:
       jaeger_k8s_resource_name: *jaeger_k8s_resource_name
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: false
+      k8s_namespace: *k8s_namespace
       jaeger_use_k8s: *jaeger_use_k8s
