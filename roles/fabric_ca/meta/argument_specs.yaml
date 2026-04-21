@@ -1,0 +1,968 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+argument_specs:
+  _shared_options:
+    options:
+      fabric_ca_client_use_bin: &fabric_ca_client_use_bin
+        type: bool
+        default: false
+        description:
+          - "Uses the binary client flow instead of the container flow."
+      fabric_ca_server_use_bin: &fabric_ca_server_use_bin
+        type: bool
+        default: false
+        description:
+          - "Uses the binary server flow instead of container or Kubernetes."
+      fabric_ca_server_use_k8s: &fabric_ca_server_use_k8s
+        type: bool
+        default: false
+        description:
+          - "Uses the Kubernetes server flow instead of the local runtimes."
+      fabric_ca_server_use_container: &fabric_ca_server_use_container
+        type: bool
+        default: "{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) }}"
+        description:
+          - "Uses the container server flow; the default derives from C(fabric_ca_server_use_bin) and C(fabric_ca_server_use_k8s)."
+      fabric_ca_registry_endpoint: &fabric_ca_registry_endpoint
+        type: str
+        default: "{{ lookup('env', 'FABRIC_CA_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+        description:
+          - "Sets the registry endpoint used to resolve the Fabric CA image."
+      fabric_ca_image_name: &fabric_ca_image_name
+        type: str
+        default: fabric-ca
+        description:
+          - "Sets the Fabric CA image name."
+      fabric_ca_image_tag: &fabric_ca_image_tag
+        type: str
+        default: 1.5.15
+        description:
+          - "Sets the Fabric CA image tag."
+      fabric_ca_image: &fabric_ca_image
+        type: str
+        default: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
+        description:
+          - "Sets the Fabric CA image; the default derives from C(fabric_ca_registry_endpoint), C(fabric_ca_image_name), and C(fabric_ca_image_tag)."
+      fabric_ca_container_name: &fabric_ca_container_name
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the container name used for the Fabric CA server runtime."
+      fabric_ca_git_hub_url: &fabric_ca_git_hub_url
+        type: str
+        default: github.com
+        description:
+          - "Sets the Git host used for Fabric CA source lookups."
+      fabric_ca_git_repo: &fabric_ca_git_repo
+        type: str
+        default: hyperledger/fabric-ca
+        description:
+          - "Sets the Fabric CA source repository."
+      fabric_ca_git_commit: &fabric_ca_git_commit
+        type: str
+        default: v1.5.15
+        description:
+          - "Pins the Fabric CA source revision."
+      fabric_ca_server_source_code_package: &fabric_ca_server_source_code_package
+        type: str
+        default: cmd/fabric-ca-server
+        description:
+          - "Sets the Go package path used to build the server binary."
+      fabric_ca_server_bin_package: &fabric_ca_server_bin_package
+        type: str
+        default: "{{ fabric_ca_git_hub_url }}/{{ fabric_ca_git_repo }}/{{ fabric_ca_server_source_code_package }}"
+        description:
+          - "Sets the server Go package path; the default derives from C(fabric_ca_git_hub_url), C(fabric_ca_git_repo), and C(fabric_ca_server_source_code_package)."
+      fabric_ca_server_bin_name: &fabric_ca_server_bin_name
+        type: str
+        default: fabric-ca-server
+        description:
+          - "Sets the server binary name."
+      fabric_ca_client_source_code_package: &fabric_ca_client_source_code_package
+        type: str
+        default: cmd/fabric-ca-client
+        description:
+          - "Sets the Go package path used to build the client binary."
+      fabric_ca_client_bin_package: &fabric_ca_client_bin_package
+        type: str
+        default: "{{ fabric_ca_git_hub_url }}/{{ fabric_ca_git_repo }}/{{ fabric_ca_client_source_code_package }}"
+        description:
+          - "Sets the client Go package path; the default derives from C(fabric_ca_git_hub_url), C(fabric_ca_git_repo), and C(fabric_ca_client_source_code_package)."
+      fabric_ca_client_bin_name: &fabric_ca_client_bin_name
+        type: str
+        default: fabric-ca-client
+        description:
+          - "Sets the client binary name."
+      remote_config_dir: &remote_config_dir
+        type: path
+        required: true
+        description:
+          - "Provides the shared remote configuration root used by this role."
+      fetched_artifacts_dir: &fetched_artifacts_dir
+        type: path
+        required: true
+        description:
+          - "Provides the shared local artifacts root used by this role."
+      k8s_namespace: &k8s_namespace
+        type: str
+        required: true
+        description:
+          - "Provides the Kubernetes namespace from the shared inventory."
+      k8s_image_pull_secret: &k8s_image_pull_secret
+        type: str
+        required: false
+        description:
+          - "Provides an optional Kubernetes image pull secret from shared inventory."
+      postgres_db_host: &postgres_db_host
+        type: str
+        required: true
+        description:
+          - "Names the PostgreSQL host defined elsewhere in inventory."
+      organization: &organization
+        type: dict
+        required: true
+        description:
+          - "Provides the organization metadata defined elsewhere in inventory; C(domain) is required."
+      fabric_ca_server_remote_config_dir: &fabric_ca_server_remote_config_dir
+        type: path
+        required: true
+        description:
+          - "Sets the remote Fabric CA config root; the default derives from C(remote_config_dir)."
+      fabric_ca_server_container_config_dir: &fabric_ca_server_container_config_dir
+        type: path
+        default: /config
+        description:
+          - "Sets the in-container Fabric CA config root."
+      fabric_ca_client_container_config_dir: &fabric_ca_client_container_config_dir
+        type: path
+        default: /config
+        description:
+          - "Sets the in-container client config root."
+      fabric_ca_host: &fabric_ca_host
+        type: str
+        required: true
+        description:
+          - "Names the inventory host that provides the target Fabric CA server."
+      fabric_ca_server_config_dir: &fabric_ca_server_config_dir
+        type: path
+        default: "{{ fabric_ca_server_remote_config_dir if fabric_ca_server_use_bin else fabric_ca_server_container_config_dir }}"
+        description:
+          - "Sets the server config directory; the default derives from C(fabric_ca_server_remote_config_dir), C(fabric_ca_server_use_bin), and C(fabric_ca_server_container_config_dir)."
+      fabric_ca_server_k8s_resource_name: &fabric_ca_server_k8s_resource_name
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the Kubernetes resource name for the Fabric CA server and its Service resources."
+      fabric_ca_server_k8s_wait_timeout: &fabric_ca_server_k8s_wait_timeout
+        type: int
+        default: 120
+        description:
+          - "Sets the Kubernetes deployment wait timeout."
+      fabric_ca_server_k8s_fs_group: &fabric_ca_server_k8s_fs_group
+        type: int
+        default: 0
+        description:
+          - "Sets the pod fsGroup for the Fabric CA deployment."
+      fabric_ca_server_k8s_use_node_port: &fabric_ca_server_k8s_use_node_port
+        type: bool
+        default: false
+        description:
+          - "Enables the optional Kubernetes NodePort Service for the Fabric CA server; client address resolution uses the node-port mapping on the referenced server host."
+      fabric_ca_port: &fabric_ca_port
+        type: int
+        required: true
+        description:
+          - "Sets the Fabric CA API port."
+      fabric_ca_operations_port: &fabric_ca_operations_port
+        type: int
+        required: true
+        description:
+          - "Sets the Fabric CA operations port."
+      fabric_ca_server_k8s_port_node_port: &fabric_ca_server_k8s_port_node_port
+        type: int
+        default: "{{ fabric_ca_port }}"
+        description:
+          - "Sets the Kubernetes NodePort for the API port; the default derives from C(fabric_ca_port) and is used when NodePort exposure is enabled."
+      fabric_ca_server_k8s_operations_node_port: &fabric_ca_server_k8s_operations_node_port
+        type: int
+        default: "{{ fabric_ca_operations_port }}"
+        description:
+          - "Sets the Kubernetes NodePort for the operations port; the default derives from C(fabric_ca_operations_port) and is used when NodePort exposure is enabled."
+      fabric_ca_log_level: &fabric_ca_log_level
+        type: str
+        default: INFO
+        description:
+          - "Sets the server log level."
+      fabric_ca_use_tls: &fabric_ca_use_tls
+        type: bool
+        default: false
+        description:
+          - "Enables TLS for server and client connections."
+      fabric_ca_scheme: &fabric_ca_scheme
+        type: str
+        default: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
+        description:
+          - "Sets the client URL scheme; the default derives from C(fabric_ca_use_tls)."
+      fabric_ca_name: &fabric_ca_name
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Sets the CA name."
+      fabric_ca_enrollment_type: &fabric_ca_enrollment_type
+        type: str
+        default: bccsp
+        choices:
+          - bccsp
+          - idemix
+        description:
+          - "Selects the enrollment type."
+      fabric_ca_idemix_enrollment_profile: &fabric_ca_idemix_enrollment_profile
+        type: str
+        default: idemix
+        description:
+          - "Sets the Idemix enrollment profile."
+      fabric_ca_enrollment_profile: &fabric_ca_enrollment_profile
+        type: str
+        required: false
+        description:
+          - "Sets an optional enrollment profile such as C(tls)."
+      actual_host: &actual_host
+        type: str
+        required: true
+        description:
+          - "Provides the resolved host address used in computed defaults such as C(fabric_ca_csr_hosts) and in client effective-address resolution."
+      fabric_ca_csr_hosts: &fabric_ca_csr_hosts
+        type: list
+        elements: str
+        required: false
+        description:
+          - "Sets the CSR SAN host list; the default derives from C(actual_host), C(ansible_host), and C(inventory_hostname)."
+      fabric_ca_server_openssl_curve: &fabric_ca_server_openssl_curve
+        type: str
+        default: P-256
+        description:
+          - "Sets the curve used for Fabric CA server key generation."
+      fabric_ca_server_ca_private_key_file: &fabric_ca_server_ca_private_key_file
+        type: str
+        default: ca-key.pem
+        description:
+          - "Sets the server CA private key filename."
+      fabric_ca_server_ca_cert_file: &fabric_ca_server_ca_cert_file
+        type: str
+        default: ca-cert.pem
+        description:
+          - "Sets the server CA certificate filename."
+      fabric_ca_server_tls_private_key_file: &fabric_ca_server_tls_private_key_file
+        type: str
+        default: tls-key.pem
+        description:
+          - "Sets the server TLS private key filename."
+      fabric_ca_server_tls_cert_file: &fabric_ca_server_tls_cert_file
+        type: str
+        default: tls-cert.pem
+        description:
+          - "Sets the server TLS certificate filename."
+      fabric_ca_server_idemixgen_output_dir: &fabric_ca_server_idemixgen_output_dir
+        type: path
+        default: "{{ fabric_ca_server_remote_config_dir }}/idemixgen-artifacts"
+        description:
+          - "Sets the transient Idemix output directory; the default derives from C(fabric_ca_server_remote_config_dir)."
+      fabric_ca_csr_cn: &fabric_ca_csr_cn
+        type: str
+        default: "{{ fabric_ca_name }}"
+        description:
+          - "Sets the CSR common name; the default derives from C(fabric_ca_name)."
+      fabric_ca_csr_expiry: &fabric_ca_csr_expiry
+        type: str
+        default: 131400h
+        description:
+          - "Sets the CSR expiry."
+      fabric_ca_msp_dir: &fabric_ca_msp_dir
+        type: path
+        required: true
+        description:
+          - "Sets the MSP directory used by Fabric CA client flows and MSP normalization."
+      fabric_ca_cryptogenize_tls_ca_cert_file: &fabric_ca_cryptogenize_tls_ca_cert_file
+        type: str
+        default: ca.crt
+        description:
+          - "Sets the normalized TLS CA certificate filename."
+      fabric_ca_cryptogenize_tls_cert_file: &fabric_ca_cryptogenize_tls_cert_file
+        type: str
+        default: server.crt
+        description:
+          - "Sets the normalized TLS certificate filename."
+      fabric_ca_cryptogenize_tls_key_file: &fabric_ca_cryptogenize_tls_key_file
+        type: str
+        default: server.key
+        description:
+          - "Sets the normalized TLS private key filename."
+      fabric_ca_identity: &fabric_ca_identity
+        type: dict
+        required: true
+        description:
+          - "Supplies the identity used by Fabric CA client operations."
+          - "Store secrets in Ansible Vault."
+      fabric_ca_admin: &fabric_ca_admin
+        type: dict
+        required: true
+        description:
+          - "Supplies the bootstrap administrator rendered into the server registry section; C(name) and C(secret) are required."
+          - "Store the secret in Ansible Vault."
+        options:
+          name:
+            type: str
+            required: true
+            description:
+              - "Sets the admin name."
+          secret:
+            type: str
+            required: true
+            description:
+              - "Sets the admin secret."
+          attrs:
+            type: dict
+            required: false
+            description:
+              - "Sets optional admin attributes."
+      fabric_ca_tls_certfile: &fabric_ca_tls_certfile
+        type: path
+        required: false
+        description:
+          - "Sets the TLS root certificate file used by Fabric CA client flows when TLS is enabled."
+
+  client/enroll:
+    short_description: Dispatch client enrollment
+    description:
+      - "Selects the client enrollment implementation."
+    options:
+      fabric_ca_client_use_bin: *fabric_ca_client_use_bin
+
+  client/register:
+    short_description: Dispatch client registration
+    description:
+      - "Selects the client registration implementation."
+    options:
+      fabric_ca_client_use_bin: *fabric_ca_client_use_bin
+
+  client/reenroll:
+    short_description: Dispatch client reenrollment
+    description:
+      - "Selects the client reenrollment implementation."
+    options:
+      fabric_ca_client_use_bin: *fabric_ca_client_use_bin
+
+  client/identity_list:
+    short_description: Dispatch client identity listing
+    description:
+      - "Selects the client identity listing implementation."
+    options:
+      fabric_ca_client_use_bin: *fabric_ca_client_use_bin
+
+  client/revoke:
+    short_description: Dispatch client revocation
+    description:
+      - "Selects the client revocation implementation."
+    options:
+      fabric_ca_client_use_bin: *fabric_ca_client_use_bin
+
+  client/gencrl:
+    short_description: Dispatch client CRL generation
+    description:
+      - "Selects the client CRL generation implementation."
+    options:
+      fabric_ca_client_use_bin: *fabric_ca_client_use_bin
+
+  client/effective_address:
+    short_description: Resolve the Fabric CA connection address
+    description:
+      - "Resolves the effective Fabric CA host and port for client operations."
+      - "The referenced host must define C(actual_host) and the Fabric CA server port settings; when it enables NodePort, the client uses C(fabric_ca_server_k8s_port_node_port) instead of C(fabric_ca_port)."
+    options:
+      fabric_ca_host: *fabric_ca_host
+
+  client/cryptogenize:
+    short_description: Normalize enrolled MSP output
+    description:
+      - "Copies enrolled client material into cryptogen-compatible filenames."
+    options:
+      fabric_ca_msp_dir: *fabric_ca_msp_dir
+      fabric_ca_enrollment_profile: *fabric_ca_enrollment_profile
+      fabric_ca_cryptogenize_tls_ca_cert_file: *fabric_ca_cryptogenize_tls_ca_cert_file
+      fabric_ca_cryptogenize_tls_cert_file: *fabric_ca_cryptogenize_tls_cert_file
+      fabric_ca_cryptogenize_tls_key_file: *fabric_ca_cryptogenize_tls_key_file
+
+  client/bin/build:
+    short_description: Build the Fabric CA client binary
+    description:
+      - "Builds the Fabric CA client binary from source."
+    options:
+      fabric_ca_git_hub_url: *fabric_ca_git_hub_url
+      fabric_ca_git_repo: *fabric_ca_git_repo
+      fabric_ca_git_commit: *fabric_ca_git_commit
+      fabric_ca_client_bin_name: *fabric_ca_client_bin_name
+      fabric_ca_client_source_code_package: *fabric_ca_client_source_code_package
+
+  client/bin/install:
+    short_description: Install the Fabric CA client binary
+    description:
+      - "Installs the Fabric CA client binary."
+    options:
+      fabric_ca_client_bin_package: *fabric_ca_client_bin_package
+      fabric_ca_git_hub_url: *fabric_ca_git_hub_url
+      fabric_ca_git_repo: *fabric_ca_git_repo
+      fabric_ca_client_source_code_package: *fabric_ca_client_source_code_package
+      fabric_ca_git_commit: *fabric_ca_git_commit
+
+  client/bin/transfer:
+    short_description: Transfer the Fabric CA client binary
+    description:
+      - "Copies the built Fabric CA client binary to the managed host."
+    options:
+      fabric_ca_client_bin_name: *fabric_ca_client_bin_name
+
+  client/bin/rm:
+    short_description: Remove the Fabric CA client binary
+    description:
+      - "Removes the Fabric CA client binary from the managed host."
+    options:
+      fabric_ca_client_bin_name: *fabric_ca_client_bin_name
+
+  client/bin/enroll:
+    short_description: Enroll an identity with the client binary
+    description:
+      - "Enrolls an identity with the locally installed client binary."
+    options:
+      fabric_ca_msp_dir: *fabric_ca_msp_dir
+      fabric_ca_identity: *fabric_ca_identity
+      fabric_ca_enrollment_type: *fabric_ca_enrollment_type
+      fabric_ca_host: *fabric_ca_host
+      fabric_ca_client_bin_name: *fabric_ca_client_bin_name
+      fabric_ca_scheme: *fabric_ca_scheme
+      fabric_ca_name: *fabric_ca_name
+      fabric_ca_idemix_enrollment_profile: *fabric_ca_idemix_enrollment_profile
+      fabric_ca_enrollment_profile: *fabric_ca_enrollment_profile
+      actual_host: *actual_host
+      fabric_ca_csr_hosts: *fabric_ca_csr_hosts
+      fabric_ca_use_tls: *fabric_ca_use_tls
+      fabric_ca_tls_certfile: *fabric_ca_tls_certfile
+
+  client/bin/register:
+    short_description: Register an identity with the client binary
+    description:
+      - "Registers a new identity with the locally installed client binary."
+    options:
+      fabric_ca_msp_dir: *fabric_ca_msp_dir
+      fabric_ca_identity: *fabric_ca_identity
+      fabric_ca_host: *fabric_ca_host
+      fabric_ca_client_bin_name: *fabric_ca_client_bin_name
+      fabric_ca_scheme: *fabric_ca_scheme
+      fabric_ca_name: *fabric_ca_name
+      fabric_ca_use_tls: *fabric_ca_use_tls
+      fabric_ca_tls_certfile: *fabric_ca_tls_certfile
+
+  client/bin/reenroll:
+    short_description: Reenroll an identity with the client binary
+    description:
+      - "Reenrolls an existing identity with the locally installed client binary."
+    options:
+      fabric_ca_msp_dir: *fabric_ca_msp_dir
+      fabric_ca_identity: *fabric_ca_identity
+      fabric_ca_host: *fabric_ca_host
+      fabric_ca_client_bin_name: *fabric_ca_client_bin_name
+      fabric_ca_scheme: *fabric_ca_scheme
+      fabric_ca_name: *fabric_ca_name
+      fabric_ca_enrollment_profile: *fabric_ca_enrollment_profile
+      actual_host: *actual_host
+      fabric_ca_csr_hosts: *fabric_ca_csr_hosts
+      fabric_ca_use_tls: *fabric_ca_use_tls
+      fabric_ca_tls_certfile: *fabric_ca_tls_certfile
+
+  client/bin/identity_list:
+    short_description: List Fabric CA identities with the client binary
+    description:
+      - "Lists identities registered in the target Fabric CA server with the locally installed client binary."
+    options:
+      fabric_ca_msp_dir: *fabric_ca_msp_dir
+      fabric_ca_host: *fabric_ca_host
+      fabric_ca_client_bin_name: *fabric_ca_client_bin_name
+      fabric_ca_scheme: *fabric_ca_scheme
+      fabric_ca_name: *fabric_ca_name
+      fabric_ca_use_tls: *fabric_ca_use_tls
+      fabric_ca_tls_certfile: *fabric_ca_tls_certfile
+
+  client/bin/revoke:
+    short_description: Revoke an identity with the client binary
+    description:
+      - "Revokes an enrolled identity with the locally installed client binary."
+    options:
+      fabric_ca_msp_dir: *fabric_ca_msp_dir
+      fabric_ca_identity: *fabric_ca_identity
+      fabric_ca_host: *fabric_ca_host
+      fabric_ca_client_bin_name: *fabric_ca_client_bin_name
+      fabric_ca_scheme: *fabric_ca_scheme
+      fabric_ca_name: *fabric_ca_name
+      fabric_ca_use_tls: *fabric_ca_use_tls
+      fabric_ca_tls_certfile: *fabric_ca_tls_certfile
+
+  client/bin/gencrl:
+    short_description: Generate a CRL with the client binary
+    description:
+      - "Generates a certificate revocation list from the target Fabric CA server with the locally installed client binary."
+    options:
+      fabric_ca_msp_dir: *fabric_ca_msp_dir
+      fabric_ca_host: *fabric_ca_host
+      fabric_ca_client_bin_name: *fabric_ca_client_bin_name
+      fabric_ca_scheme: *fabric_ca_scheme
+      fabric_ca_name: *fabric_ca_name
+      fabric_ca_use_tls: *fabric_ca_use_tls
+      fabric_ca_tls_certfile: *fabric_ca_tls_certfile
+
+  client/container/enroll:
+    short_description: Enroll an identity with the client container
+    description:
+      - "Enrolls an identity with a transient container."
+    options:
+      fabric_ca_msp_dir: *fabric_ca_msp_dir
+      fabric_ca_identity: *fabric_ca_identity
+      fabric_ca_enrollment_type: *fabric_ca_enrollment_type
+      fabric_ca_host: *fabric_ca_host
+      fabric_ca_image: *fabric_ca_image
+      fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
+      fabric_ca_image_name: *fabric_ca_image_name
+      fabric_ca_image_tag: *fabric_ca_image_tag
+      fabric_ca_client_bin_name: *fabric_ca_client_bin_name
+      fabric_ca_client_container_config_dir: *fabric_ca_client_container_config_dir
+      fabric_ca_scheme: *fabric_ca_scheme
+      fabric_ca_name: *fabric_ca_name
+      fabric_ca_idemix_enrollment_profile: *fabric_ca_idemix_enrollment_profile
+      fabric_ca_enrollment_profile: *fabric_ca_enrollment_profile
+      actual_host: *actual_host
+      fabric_ca_csr_hosts: *fabric_ca_csr_hosts
+      fabric_ca_use_tls: *fabric_ca_use_tls
+      fabric_ca_tls_certfile: *fabric_ca_tls_certfile
+
+  client/container/register:
+    short_description: Register an identity with the client container
+    description:
+      - "Registers a new identity with a transient container."
+    options:
+      fabric_ca_msp_dir: *fabric_ca_msp_dir
+      fabric_ca_identity: *fabric_ca_identity
+      fabric_ca_host: *fabric_ca_host
+      fabric_ca_image: *fabric_ca_image
+      fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
+      fabric_ca_image_name: *fabric_ca_image_name
+      fabric_ca_image_tag: *fabric_ca_image_tag
+      fabric_ca_client_bin_name: *fabric_ca_client_bin_name
+      fabric_ca_client_container_config_dir: *fabric_ca_client_container_config_dir
+      fabric_ca_scheme: *fabric_ca_scheme
+      fabric_ca_name: *fabric_ca_name
+      fabric_ca_use_tls: *fabric_ca_use_tls
+      fabric_ca_tls_certfile: *fabric_ca_tls_certfile
+
+  client/container/reenroll:
+    short_description: Reenroll an identity with the client container
+    description:
+      - "Reenrolls an existing identity with a transient container."
+    options:
+      fabric_ca_msp_dir: *fabric_ca_msp_dir
+      fabric_ca_identity: *fabric_ca_identity
+      fabric_ca_host: *fabric_ca_host
+      fabric_ca_image: *fabric_ca_image
+      fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
+      fabric_ca_image_name: *fabric_ca_image_name
+      fabric_ca_image_tag: *fabric_ca_image_tag
+      fabric_ca_client_bin_name: *fabric_ca_client_bin_name
+      fabric_ca_client_container_config_dir: *fabric_ca_client_container_config_dir
+      fabric_ca_scheme: *fabric_ca_scheme
+      fabric_ca_name: *fabric_ca_name
+      fabric_ca_enrollment_profile: *fabric_ca_enrollment_profile
+      actual_host: *actual_host
+      fabric_ca_csr_hosts: *fabric_ca_csr_hosts
+      fabric_ca_use_tls: *fabric_ca_use_tls
+      fabric_ca_tls_certfile: *fabric_ca_tls_certfile
+
+  client/container/identity_list:
+    short_description: List Fabric CA identities with the client container
+    description:
+      - "Lists identities registered in the target Fabric CA server with a transient container."
+    options:
+      fabric_ca_msp_dir: *fabric_ca_msp_dir
+      fabric_ca_host: *fabric_ca_host
+      fabric_ca_image: *fabric_ca_image
+      fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
+      fabric_ca_image_name: *fabric_ca_image_name
+      fabric_ca_image_tag: *fabric_ca_image_tag
+      fabric_ca_client_bin_name: *fabric_ca_client_bin_name
+      fabric_ca_client_container_config_dir: *fabric_ca_client_container_config_dir
+      fabric_ca_scheme: *fabric_ca_scheme
+      fabric_ca_name: *fabric_ca_name
+      fabric_ca_use_tls: *fabric_ca_use_tls
+      fabric_ca_tls_certfile: *fabric_ca_tls_certfile
+
+  client/container/revoke:
+    short_description: Revoke an identity with the client container
+    description:
+      - "Revokes an enrolled identity with a transient container."
+    options:
+      fabric_ca_msp_dir: *fabric_ca_msp_dir
+      fabric_ca_identity: *fabric_ca_identity
+      fabric_ca_host: *fabric_ca_host
+      fabric_ca_image: *fabric_ca_image
+      fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
+      fabric_ca_image_name: *fabric_ca_image_name
+      fabric_ca_image_tag: *fabric_ca_image_tag
+      fabric_ca_client_container_config_dir: *fabric_ca_client_container_config_dir
+      fabric_ca_scheme: *fabric_ca_scheme
+      fabric_ca_name: *fabric_ca_name
+      fabric_ca_use_tls: *fabric_ca_use_tls
+      fabric_ca_tls_certfile: *fabric_ca_tls_certfile
+
+  client/container/gencrl:
+    short_description: Generate a CRL with the client container
+    description:
+      - "Generates a certificate revocation list from the target Fabric CA server with a transient container."
+    options:
+      fabric_ca_msp_dir: *fabric_ca_msp_dir
+      fabric_ca_host: *fabric_ca_host
+      fabric_ca_image: *fabric_ca_image
+      fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
+      fabric_ca_image_name: *fabric_ca_image_name
+      fabric_ca_image_tag: *fabric_ca_image_tag
+      fabric_ca_client_container_config_dir: *fabric_ca_client_container_config_dir
+      fabric_ca_scheme: *fabric_ca_scheme
+      fabric_ca_name: *fabric_ca_name
+      fabric_ca_use_tls: *fabric_ca_use_tls
+      fabric_ca_tls_certfile: *fabric_ca_tls_certfile
+
+  server/start:
+    short_description: Dispatch server startup
+    description:
+      - "Selects the server runtime to start."
+    options:
+      fabric_ca_server_use_container: *fabric_ca_server_use_container
+      fabric_ca_server_use_bin: *fabric_ca_server_use_bin
+      fabric_ca_server_use_k8s: *fabric_ca_server_use_k8s
+
+  server/stop:
+    short_description: Dispatch server stop
+    description:
+      - "Selects the server runtime to stop."
+    options:
+      fabric_ca_server_use_container: *fabric_ca_server_use_container
+      fabric_ca_server_use_bin: *fabric_ca_server_use_bin
+
+  server/teardown:
+    short_description: Dispatch server teardown
+    description:
+      - "Selects the server runtime resources to remove."
+    options:
+      fabric_ca_server_use_container: *fabric_ca_server_use_container
+      fabric_ca_server_use_bin: *fabric_ca_server_use_bin
+      fabric_ca_server_use_k8s: *fabric_ca_server_use_k8s
+
+  server/wipe:
+    short_description: Wipe all server assets
+    description:
+      - "Removes the server runtime, binaries, configuration, and Kubernetes crypto."
+    options:
+      fabric_ca_server_use_bin: *fabric_ca_server_use_bin
+
+  server/ping:
+    short_description: Check server ports
+    description:
+      - "Checks that the Fabric CA API and operations ports are reachable."
+    options:
+      fabric_ca_server_use_k8s: *fabric_ca_server_use_k8s
+      fabric_ca_port: *fabric_ca_port
+      fabric_ca_operations_port: *fabric_ca_operations_port
+
+  server/fetch_logs:
+    short_description: Dispatch server log collection
+    description:
+      - "Selects the server runtime logs to collect."
+    options:
+      fabric_ca_server_use_container: *fabric_ca_server_use_container
+      fabric_ca_server_use_bin: *fabric_ca_server_use_bin
+      fabric_ca_server_use_k8s: *fabric_ca_server_use_k8s
+
+  server/bin/build:
+    short_description: Build the Fabric CA server binary
+    description:
+      - "Builds the Fabric CA server binary from source."
+    options:
+      fabric_ca_git_hub_url: *fabric_ca_git_hub_url
+      fabric_ca_git_repo: *fabric_ca_git_repo
+      fabric_ca_git_commit: *fabric_ca_git_commit
+      fabric_ca_server_bin_name: *fabric_ca_server_bin_name
+      fabric_ca_server_source_code_package: *fabric_ca_server_source_code_package
+
+  server/bin/install:
+    short_description: Install the Fabric CA server binary
+    description:
+      - "Installs the Fabric CA server binary."
+    options:
+      fabric_ca_server_bin_package: *fabric_ca_server_bin_package
+      fabric_ca_git_hub_url: *fabric_ca_git_hub_url
+      fabric_ca_git_repo: *fabric_ca_git_repo
+      fabric_ca_server_source_code_package: *fabric_ca_server_source_code_package
+      fabric_ca_git_commit: *fabric_ca_git_commit
+
+  server/bin/start:
+    short_description: Start the Fabric CA server binary
+    description:
+      - "Starts the Fabric CA server as a managed local binary process."
+    options:
+      fabric_ca_server_remote_config_dir: *fabric_ca_server_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      fabric_ca_port: *fabric_ca_port
+
+  server/bin/stop:
+    short_description: Stop the Fabric CA server binary
+    description:
+      - "Stops the managed Fabric CA server binary process."
+    options: {}
+
+  server/bin/fetch_logs:
+    short_description: Fetch server binary logs
+    description:
+      - "Collects logs for the managed Fabric CA server binary process."
+    options: {}
+
+  server/bin/rm:
+    short_description: Remove the Fabric CA server binary
+    description:
+      - "Removes the Fabric CA server binary from the managed host."
+    options:
+      fabric_ca_server_bin_name: *fabric_ca_server_bin_name
+
+  server/bin/transfer:
+    short_description: Transfer the Fabric CA server binary
+    description:
+      - "Copies the built Fabric CA server binary to the managed host."
+    options:
+      fabric_ca_server_bin_name: *fabric_ca_server_bin_name
+
+  server/container/start:
+    short_description: Start the Fabric CA server container
+    description:
+      - "Starts the Fabric CA server as a managed container."
+    options:
+      fabric_ca_server_remote_config_dir: *fabric_ca_server_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      fabric_ca_server_container_config_dir: *fabric_ca_server_container_config_dir
+      fabric_ca_container_name: *fabric_ca_container_name
+      fabric_ca_image: *fabric_ca_image
+      fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
+      fabric_ca_image_name: *fabric_ca_image_name
+      fabric_ca_image_tag: *fabric_ca_image_tag
+      fabric_ca_port: *fabric_ca_port
+      fabric_ca_operations_port: *fabric_ca_operations_port
+
+  server/container/stop:
+    short_description: Stop the Fabric CA server container
+    description:
+      - "Stops the managed Fabric CA server container."
+    options:
+      fabric_ca_container_name: *fabric_ca_container_name
+
+  server/container/fetch_logs:
+    short_description: Fetch server container logs
+    description:
+      - "Collects logs for the managed Fabric CA server container."
+    options:
+      fabric_ca_container_name: *fabric_ca_container_name
+
+  server/container/rm:
+    short_description: Remove the Fabric CA server container
+    description:
+      - "Removes the managed Fabric CA server container."
+    options:
+      fabric_ca_container_name: *fabric_ca_container_name
+
+  server/k8s/start:
+    short_description: Start the Fabric CA server on Kubernetes
+    description:
+      - "Creates the Fabric CA resources on Kubernetes."
+    options:
+      fabric_ca_server_k8s_wait_timeout: *fabric_ca_server_k8s_wait_timeout
+      fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+      fabric_ca_server_k8s_use_node_port: *fabric_ca_server_k8s_use_node_port
+      fabric_ca_image: *fabric_ca_image
+      fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
+      fabric_ca_image_name: *fabric_ca_image_name
+      fabric_ca_image_tag: *fabric_ca_image_tag
+      fabric_ca_server_container_config_dir: *fabric_ca_server_container_config_dir
+      fabric_ca_port: *fabric_ca_port
+      fabric_ca_operations_port: *fabric_ca_operations_port
+      fabric_ca_server_k8s_fs_group: *fabric_ca_server_k8s_fs_group
+      fabric_ca_server_ca_private_key_file: *fabric_ca_server_ca_private_key_file
+      fabric_ca_server_ca_cert_file: *fabric_ca_server_ca_cert_file
+      fabric_ca_use_tls: *fabric_ca_use_tls
+      fabric_ca_server_tls_private_key_file: *fabric_ca_server_tls_private_key_file
+      fabric_ca_server_tls_cert_file: *fabric_ca_server_tls_cert_file
+      postgres_db_host: *postgres_db_host
+      k8s_namespace: *k8s_namespace
+      k8s_image_pull_secret: *k8s_image_pull_secret
+      fabric_ca_server_k8s_port_node_port: *fabric_ca_server_k8s_port_node_port
+      fabric_ca_server_k8s_operations_node_port: *fabric_ca_server_k8s_operations_node_port
+
+  k8s/server/ping:
+    short_description: Check Fabric CA node ports
+    description:
+      - "Checks that the Fabric CA API and operations NodePorts are reachable when Kubernetes NodePort exposure is enabled."
+    options:
+      fabric_ca_server_k8s_use_node_port: *fabric_ca_server_k8s_use_node_port
+      fabric_ca_server_k8s_port_node_port: *fabric_ca_server_k8s_port_node_port
+      fabric_ca_server_k8s_operations_node_port: *fabric_ca_server_k8s_operations_node_port
+
+  server/k8s/fetch_logs:
+    short_description: Fetch server pod logs
+    description:
+      - "Collects pod logs for the Fabric CA Kubernetes deployment."
+    options:
+      fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+
+  server/k8s/rm:
+    short_description: Remove server Kubernetes runtime resources
+    description:
+      - "Deletes the Fabric CA Kubernetes runtime resources."
+    options:
+      fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+      k8s_namespace: *k8s_namespace
+
+  server/k8s/config/transfer:
+    short_description: Transfer server config to a ConfigMap
+    description:
+      - "Creates or updates the Fabric CA Kubernetes ConfigMap."
+    options:
+      fabric_ca_server_remote_config_dir: *fabric_ca_server_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+      postgres_db_host: *postgres_db_host
+      k8s_namespace: *k8s_namespace
+
+  server/k8s/config/rm:
+    short_description: Remove the server ConfigMap
+    description:
+      - "Deletes the Fabric CA Kubernetes ConfigMap."
+    options:
+      fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+      k8s_namespace: *k8s_namespace
+
+  server/k8s/crypto/transfer:
+    short_description: Transfer server crypto to a Secret
+    description:
+      - "Creates or updates the Fabric CA Kubernetes Secret."
+    options:
+      fabric_ca_server_remote_config_dir: *fabric_ca_server_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+      fabric_ca_server_ca_private_key_file: *fabric_ca_server_ca_private_key_file
+      fabric_ca_server_ca_cert_file: *fabric_ca_server_ca_cert_file
+      fabric_ca_server_tls_private_key_file: *fabric_ca_server_tls_private_key_file
+      fabric_ca_server_tls_cert_file: *fabric_ca_server_tls_cert_file
+      fabric_ca_use_tls: *fabric_ca_use_tls
+      k8s_namespace: *k8s_namespace
+
+  server/k8s/crypto/rm:
+    short_description: Remove the server Secret
+    description:
+      - "Deletes the Fabric CA Kubernetes Secret."
+    options:
+      fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+      k8s_namespace: *k8s_namespace
+
+  server/crypto/setup:
+    short_description: Generate server crypto material
+    description:
+      - "Generates x509 and Idemix crypto material for the Fabric CA server."
+    options:
+      fabric_ca_server_use_k8s: *fabric_ca_server_use_k8s
+
+  server/crypto/x509/setup:
+    short_description: Generate server x509 crypto
+    description:
+      - "Generates the Fabric CA root CA and TLS keypairs."
+    options:
+      fabric_ca_server_remote_config_dir: *fabric_ca_server_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      actual_host: *actual_host
+      fabric_ca_server_ca_private_key_file: *fabric_ca_server_ca_private_key_file
+      fabric_ca_server_ca_cert_file: *fabric_ca_server_ca_cert_file
+      fabric_ca_server_tls_private_key_file: *fabric_ca_server_tls_private_key_file
+      fabric_ca_server_tls_cert_file: *fabric_ca_server_tls_cert_file
+      fabric_ca_server_openssl_curve: *fabric_ca_server_openssl_curve
+      fabric_ca_csr_cn: *fabric_ca_csr_cn
+      fabric_ca_csr_hosts: *fabric_ca_csr_hosts
+      organization: *organization
+
+  server/crypto/idemix/setup:
+    short_description: Generate server Idemix crypto
+    description:
+      - "Generates the Fabric CA Idemix issuer keys."
+    options:
+      fabric_ca_server_remote_config_dir: *fabric_ca_server_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      fabric_ca_server_idemixgen_output_dir: *fabric_ca_server_idemixgen_output_dir
+
+  server/crypto/fetch:
+    short_description: Fetch server certificates
+    description:
+      - "Fetches the Fabric CA server certificate material."
+    options:
+      organization: *organization
+      fetched_artifacts_dir: *fetched_artifacts_dir
+      fabric_ca_server_remote_config_dir: *fabric_ca_server_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      fabric_ca_server_ca_cert_file: *fabric_ca_server_ca_cert_file
+
+  server/crypto/rm:
+    short_description: Remove server Secret
+    description:
+      - "Deletes the Kubernetes Secret that stores the Fabric CA server crypto material."
+    options:
+      fabric_ca_server_use_k8s: *fabric_ca_server_use_k8s
+
+  server/config/transfer:
+    short_description: Render and transfer server config
+    description:
+      - "Renders the Fabric CA server configuration and copies the PostgreSQL TLS CA certificate when needed."
+    options:
+      fabric_ca_server_remote_config_dir: *fabric_ca_server_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      fabric_ca_port: *fabric_ca_port
+      fabric_ca_log_level: *fabric_ca_log_level
+      fabric_ca_use_tls: *fabric_ca_use_tls
+      fabric_ca_server_config_dir: *fabric_ca_server_config_dir
+      fabric_ca_server_container_config_dir: *fabric_ca_server_container_config_dir
+      fabric_ca_server_use_bin: *fabric_ca_server_use_bin
+      fabric_ca_server_tls_cert_file: *fabric_ca_server_tls_cert_file
+      fabric_ca_server_tls_private_key_file: *fabric_ca_server_tls_private_key_file
+      fabric_ca_name: *fabric_ca_name
+      fabric_ca_server_ca_private_key_file: *fabric_ca_server_ca_private_key_file
+      fabric_ca_server_ca_cert_file: *fabric_ca_server_ca_cert_file
+      fabric_ca_admin: *fabric_ca_admin
+      fabric_ca_csr_cn: *fabric_ca_csr_cn
+      fabric_ca_csr_hosts: *fabric_ca_csr_hosts
+      actual_host: *actual_host
+      fabric_ca_csr_expiry: *fabric_ca_csr_expiry
+      organization: *organization
+      postgres_db_host: *postgres_db_host
+      fetched_artifacts_dir: *fetched_artifacts_dir
+      fabric_ca_operations_port: *fabric_ca_operations_port
+      fabric_ca_server_use_k8s: *fabric_ca_server_use_k8s
+
+  server/config/rm:
+    short_description: Remove server config resources
+    description:
+      - "Deletes the Fabric CA server configuration resources."
+    options:
+      fabric_ca_server_remote_config_dir: *fabric_ca_server_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      fabric_ca_server_use_k8s: *fabric_ca_server_use_k8s
