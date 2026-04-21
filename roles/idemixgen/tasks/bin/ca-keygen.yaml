@@ -4,11 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that the idemixgen output dir has been defined
-  ansible.builtin.fail:
-    msg: "No idemixgen output dir is indicated. Set it via 'idemixgen_output_dir'."
-  when: idemixgen_output_dir is not defined
-
 - name: Clean the /ca folder in the output dir
   ansible.builtin.file:
     path: "{{ idemixgen_output_dir }}/ca"
