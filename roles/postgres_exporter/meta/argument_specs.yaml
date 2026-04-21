@@ -10,104 +10,85 @@ argument_specs:
     options:
       remote_config_dir: &remote_config_dir
         type: path
-        required: true
+        required: false
         description:
-          - "Provides the shared remote configuration directory consumed by C(postgres_exporter_remote_config_dir)."
-
-      actual_host: &actual_host
-        type: str
-        required: true
-        description:
-          - "Provides the reachable host or IP address probed by the health-check entry point."
-
+          - "Provides the shared remote configuration directory consumed by the default value of C(postgres_exporter_remote_config_dir)."
+          - "This option is only required when callers rely on that default instead of setting C(postgres_exporter_remote_config_dir) explicitly."
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         required: true
         description:
           - "Provides the control-node directory used to fetch or stage Postgres Exporter TLS artifacts."
-
       organization: &organization
         type: dict
         required: false
         description:
           - "Provides organization metadata forwarded to the OpenSSL role."
           - "The role falls back to C(inventory_hostname) when the organization domain is not provided."
-
       k8s_namespace: &k8s_namespace
         type: str
         required: true
         description:
           - "Sets the Kubernetes namespace used for Postgres Exporter resources."
-
       k8s_image_pull_secret: &k8s_image_pull_secret
         type: str
         required: false
         description:
           - "Sets the optional Kubernetes image pull secret used by the Postgres Exporter Deployment."
-
       k8s_readiness_probe_initial_delay_seconds: &k8s_readiness_probe_initial_delay_seconds
         type: int
         required: false
         description:
           - "Overrides the Deployment readiness probe initial delay."
           - "The template default is 10 seconds when this variable is unset."
-
       k8s_readiness_probe_period_seconds: &k8s_readiness_probe_period_seconds
         type: int
         required: false
         description:
           - "Overrides the Deployment readiness probe period."
           - "The template default is 10 seconds when this variable is unset."
-
       k8s_readiness_probe_timeout_seconds: &k8s_readiness_probe_timeout_seconds
         type: int
         required: false
         description:
           - "Overrides the Deployment readiness probe timeout."
           - "The template default is 5 seconds when this variable is unset."
-
       k8s_readiness_probe_failure_threshold: &k8s_readiness_probe_failure_threshold
         type: int
         required: false
         description:
           - "Overrides the Deployment readiness probe failure threshold."
           - "The template default is 3 failures when this variable is unset."
-
       k8s_liveness_probe_initial_delay_seconds: &k8s_liveness_probe_initial_delay_seconds
         type: int
         required: false
         description:
           - "Overrides the Deployment liveness probe initial delay."
           - "The template default is 30 seconds when this variable is unset."
-
       k8s_liveness_probe_period_seconds: &k8s_liveness_probe_period_seconds
         type: int
         required: false
         description:
           - "Overrides the Deployment liveness probe period."
           - "The template default is 15 seconds when this variable is unset."
-
       k8s_liveness_probe_timeout_seconds: &k8s_liveness_probe_timeout_seconds
         type: int
         required: false
         description:
           - "Overrides the Deployment liveness probe timeout."
           - "The template default is 5 seconds when this variable is unset."
-
       k8s_liveness_probe_failure_threshold: &k8s_liveness_probe_failure_threshold
         type: int
         required: false
         description:
           - "Overrides the Deployment liveness probe failure threshold."
           - "The template default is 5 failures when this variable is unset."
-
       postgres_db_host: &postgres_db_host
         type: str
         required: true
         description:
           - "Sets the inventory host name of the PostgreSQL instance that Postgres Exporter monitors."
           - "The referenced host must expose the Postgres role facts consumed through C(hostvars[postgres_db_host])."
-
       postgres_exporter_registry_endpoint: &postgres_exporter_registry_endpoint
         type: str
         required: false
@@ -115,21 +96,18 @@ argument_specs:
         description:
           - "Sets the registry endpoint used to build the default Postgres Exporter image reference."
           - "The default derives from the C(POSTGRES_EXPORTER_REGISTRY_ENDPOINT) environment variable and falls back to C(docker.io/prometheuscommunity)."
-
       postgres_exporter_image_name: &postgres_exporter_image_name
         type: str
         required: false
         default: postgres-exporter
         description:
           - "Sets the image name used to build the default C(postgres_exporter_image) value."
-
       postgres_exporter_image_tag: &postgres_exporter_image_tag
         type: str
         required: false
         default: latest
         description:
           - "Sets the image tag used to build the default C(postgres_exporter_image) value."
-
       postgres_exporter_image: &postgres_exporter_image
         type: str
         required: false
@@ -137,7 +115,6 @@ argument_specs:
         description:
           - "Sets the full Postgres Exporter image reference."
           - "The default derives from C(postgres_exporter_registry_endpoint), C(postgres_exporter_image_name), and C(postgres_exporter_image_tag)."
-
       postgres_exporter_container_name: &postgres_exporter_container_name
         type: str
         required: false
@@ -145,7 +122,6 @@ argument_specs:
         description:
           - "Sets the Postgres Exporter container name."
           - "The default derives from C(inventory_hostname)."
-
       postgres_exporter_remote_config_dir: &postgres_exporter_remote_config_dir
         type: path
         required: false
@@ -153,56 +129,48 @@ argument_specs:
         description:
           - "Sets the remote directory that stores Postgres Exporter configuration and TLS files."
           - "The default derives from C(remote_config_dir)."
-
       postgres_exporter_container_config_dir: &postgres_exporter_container_config_dir
         type: path
         required: false
         default: /var/config
         description:
           - "Sets the configuration directory mounted inside the container or pod."
-
       postgres_exporter_config_file: &postgres_exporter_config_file
         type: str
         required: false
         default: postgres_exporter.yaml
         description:
           - "Sets the main Postgres Exporter configuration file name."
-
       postgres_exporter_web_config_file: &postgres_exporter_web_config_file
         type: str
         required: false
         default: web-config.yaml
         description:
           - "Sets the HTTPS web configuration file name used when C(postgres_exporter_use_tls) is true."
-
       postgres_exporter_use_tls: &postgres_exporter_use_tls
         type: bool
         required: false
         default: false
         description:
           - "Enables Postgres Exporter TLS assets and HTTPS listener configuration when set to C(true)."
-
       postgres_exporter_tls_private_key_file: &postgres_exporter_tls_private_key_file
         type: str
         required: false
         default: server.key
         description:
           - "Sets the TLS private key file name used under C(postgres_exporter_remote_config_dir)/tls."
-
       postgres_exporter_tls_cert_file: &postgres_exporter_tls_cert_file
         type: str
         required: false
         default: server.crt
         description:
           - "Sets the TLS certificate file name used under C(postgres_exporter_remote_config_dir)/tls."
-
       postgres_exporter_use_k8s: &postgres_exporter_use_k8s
         type: bool
         required: false
         default: false
         description:
           - "Enables the Kubernetes backend and Kubernetes cleanup path when set to C(true)."
-
       postgres_exporter_use_container: &postgres_exporter_use_container
         type: bool
         required: false
@@ -210,7 +178,6 @@ argument_specs:
         description:
           - "Enables the container backend when set to C(true)."
           - "The default derives from C(postgres_exporter_use_k8s)."
-
       postgres_exporter_k8s_resource_name: &postgres_exporter_k8s_resource_name
         type: str
         required: false
@@ -218,21 +185,18 @@ argument_specs:
         description:
           - "Sets the Kubernetes resource base name used for ConfigMaps, Secrets, Services, and Deployments."
           - "The default derives from C(inventory_hostname)."
-
       postgres_exporter_k8s_wait_timeout: &postgres_exporter_k8s_wait_timeout
         type: int
         required: false
         default: 120
         description:
           - "Sets the Deployment wait timeout in seconds."
-
       postgres_exporter_k8s_fs_group: &postgres_exporter_k8s_fs_group
         type: int
         required: false
         default: 65534
         description:
           - "Sets the pod filesystem group used by the Postgres Exporter Deployment."
-
       postgres_exporter_k8s_use_node_port: &postgres_exporter_k8s_use_node_port
         type: bool
         required: false
@@ -240,7 +204,6 @@ argument_specs:
         description:
           - "Enables the optional NodePort Service used to expose Postgres Exporter externally from Kubernetes."
           - "When set to C(true), C(postgres_exporter_k8s_port_node_port) is used to populate the Service's node port."
-
       postgres_exporter_k8s_port_node_port: &postgres_exporter_k8s_port_node_port
         type: int
         required: false
@@ -248,14 +211,12 @@ argument_specs:
         description:
           - "Sets the NodePort value exposed by the optional Postgres Exporter Kubernetes Service."
           - "The default derives from C(postgres_exporter_port) so the NodePort stays aligned with the exporter metrics port."
-
       postgres_exporter_port: &postgres_exporter_port
         type: int
         required: true
         description:
           - "Sets the Postgres Exporter metrics port."
           - "Example: C(9187)."
-
       postgres_exporter_hosts: &postgres_exporter_hosts
         type: list
         elements: str
