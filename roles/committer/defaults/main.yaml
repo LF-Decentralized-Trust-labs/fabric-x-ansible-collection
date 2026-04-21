@@ -33,8 +33,7 @@ committer_deployment_mode: "{%- if committer_use_bin -%}bin{%- elif committer_us
 committer_k8s_resource_name: "{{ inventory_hostname }}"
 committer_k8s_wait_timeout: 120
 committer_k8s_fs_group: 10001
-committer_k8s_rpc_node_port: "{{ committer_rpc_port }}"
-committer_k8s_metrics_node_port: "{{ committer_metrics_port }}"
+committer_k8s_use_node_port: false
 
 # =========================
 # Paths/Locations

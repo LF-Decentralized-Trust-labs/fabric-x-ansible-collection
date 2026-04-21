@@ -27,7 +27,6 @@
     fxconfig_threshold_namespace_policy: "threshold:{{ threshold_pubkey_container_path }}"
     fxconfig_volumes: "{{ fxconfig_volumes + [threshold_policy_pem_volume] }}"
   when:
-    - fxconfig_namespace_policy is defined
     - (fxconfig_namespace_policy | split(':') | first) == 'threshold'
 
 - name: Create namespace {{ fxconfig_namespace_id }}
