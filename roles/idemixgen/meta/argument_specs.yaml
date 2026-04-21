@@ -15,9 +15,10 @@ argument_specs:
           - "Sets the shared directory used by the binary execution path."
       config_build_dir: &config_build_dir
         type: path
-        required: true
+        required: false
         description:
           - "Sets the shared build root used by C(idemixgen_output_dir)."
+          - "Required when relying on the default of C(idemixgen_output_dir)."
       idemixgen_bin_name: &idemixgen_bin_name
         type: str
         required: false
