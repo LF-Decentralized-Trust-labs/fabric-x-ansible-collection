@@ -237,6 +237,7 @@ argument_specs:
           - "Provides the resolved host address used in computed defaults such as C(fabric_ca_csr_hosts) and in client effective-address resolution."
       fabric_ca_csr_hosts: &fabric_ca_csr_hosts
         type: list
+        elements: str
         required: false
         description:
           - "Sets the CSR SAN host list; the default derives from C(actual_host), C(ansible_host), and C(inventory_hostname)."
@@ -300,71 +301,12 @@ argument_specs:
         default: server.key
         description:
           - "Sets the normalized TLS private key filename."
-      _fabric_ca_identity_enroll: &fabric_ca_identity_enroll
+      fabric_ca_identity: &fabric_ca_identity
         type: dict
         required: true
         description:
-          - "Supplies the identity used for enrollment; C(name) and C(secret) are required."
-          - "Store the secret in Ansible Vault."
-        options:
-          name:
-            type: str
-            required: true
-            description:
-              - "Sets the identity name."
-          secret:
-            type: str
-            required: true
-            description:
-              - "Sets the identity secret."
-      _fabric_ca_identity_register: &fabric_ca_identity_register
-        type: dict
-        required: true
-        description:
-          - "Supplies the identity used for registration; C(name), C(secret), and C(type) are required."
-          - "Store the secret in Ansible Vault."
-        options:
-          name:
-            type: str
-            required: true
-            description:
-              - "Sets the identity name."
-          secret:
-            type: str
-            required: true
-            description:
-              - "Sets the identity secret."
-          type:
-            type: str
-            required: true
-            description:
-              - "Sets the identity type."
-          affiliation:
-            type: str
-            required: false
-            description:
-              - "Sets an optional identity affiliation."
-          attrs:
-            type: dict
-            required: false
-            description:
-              - "Sets optional identity attributes."
-      _fabric_ca_identity_revoke: &fabric_ca_identity_revoke
-        type: dict
-        required: true
-        description:
-          - "Supplies the identity used for revocation; C(name) is required and C(reason) is optional."
-        options:
-          name:
-            type: str
-            required: true
-            description:
-              - "Sets the identity name."
-          reason:
-            type: str
-            required: false
-            description:
-              - "Sets an optional revocation reason."
+          - "Supplies the identity used by Fabric CA client operations."
+          - "Store secrets in Ansible Vault."
       fabric_ca_admin: &fabric_ca_admin
         type: dict
         required: true
@@ -496,12 +438,11 @@ argument_specs:
       - "Enrolls an identity with the locally installed client binary."
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
-      fabric_ca_identity: *fabric_ca_identity_enroll
+      fabric_ca_identity: *fabric_ca_identity
       fabric_ca_enrollment_type: *fabric_ca_enrollment_type
       fabric_ca_host: *fabric_ca_host
       fabric_ca_client_bin_name: *fabric_ca_client_bin_name
       fabric_ca_scheme: *fabric_ca_scheme
-      fabric_ca_port: *fabric_ca_port
       fabric_ca_name: *fabric_ca_name
       fabric_ca_idemix_enrollment_profile: *fabric_ca_idemix_enrollment_profile
       fabric_ca_enrollment_profile: *fabric_ca_enrollment_profile
@@ -516,11 +457,10 @@ argument_specs:
       - "Registers a new identity with the locally installed client binary."
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
-      fabric_ca_identity: *fabric_ca_identity_register
+      fabric_ca_identity: *fabric_ca_identity
       fabric_ca_host: *fabric_ca_host
       fabric_ca_client_bin_name: *fabric_ca_client_bin_name
       fabric_ca_scheme: *fabric_ca_scheme
-      fabric_ca_port: *fabric_ca_port
       fabric_ca_name: *fabric_ca_name
       fabric_ca_use_tls: *fabric_ca_use_tls
       fabric_ca_tls_certfile: *fabric_ca_tls_certfile
@@ -531,11 +471,10 @@ argument_specs:
       - "Reenrolls an existing identity with the locally installed client binary."
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
-      fabric_ca_identity: *fabric_ca_identity_enroll
+      fabric_ca_identity: *fabric_ca_identity
       fabric_ca_host: *fabric_ca_host
       fabric_ca_client_bin_name: *fabric_ca_client_bin_name
       fabric_ca_scheme: *fabric_ca_scheme
-      fabric_ca_port: *fabric_ca_port
       fabric_ca_name: *fabric_ca_name
       fabric_ca_enrollment_profile: *fabric_ca_enrollment_profile
       actual_host: *actual_host
@@ -552,7 +491,6 @@ argument_specs:
       fabric_ca_host: *fabric_ca_host
       fabric_ca_client_bin_name: *fabric_ca_client_bin_name
       fabric_ca_scheme: *fabric_ca_scheme
-      fabric_ca_port: *fabric_ca_port
       fabric_ca_name: *fabric_ca_name
       fabric_ca_use_tls: *fabric_ca_use_tls
       fabric_ca_tls_certfile: *fabric_ca_tls_certfile
@@ -563,11 +501,10 @@ argument_specs:
       - "Revokes an enrolled identity with the locally installed client binary."
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
-      fabric_ca_identity: *fabric_ca_identity_revoke
+      fabric_ca_identity: *fabric_ca_identity
       fabric_ca_host: *fabric_ca_host
       fabric_ca_client_bin_name: *fabric_ca_client_bin_name
       fabric_ca_scheme: *fabric_ca_scheme
-      fabric_ca_port: *fabric_ca_port
       fabric_ca_name: *fabric_ca_name
       fabric_ca_use_tls: *fabric_ca_use_tls
       fabric_ca_tls_certfile: *fabric_ca_tls_certfile
@@ -581,7 +518,6 @@ argument_specs:
       fabric_ca_host: *fabric_ca_host
       fabric_ca_client_bin_name: *fabric_ca_client_bin_name
       fabric_ca_scheme: *fabric_ca_scheme
-      fabric_ca_port: *fabric_ca_port
       fabric_ca_name: *fabric_ca_name
       fabric_ca_use_tls: *fabric_ca_use_tls
       fabric_ca_tls_certfile: *fabric_ca_tls_certfile
@@ -592,7 +528,7 @@ argument_specs:
       - "Enrolls an identity with a transient container."
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
-      fabric_ca_identity: *fabric_ca_identity_enroll
+      fabric_ca_identity: *fabric_ca_identity
       fabric_ca_enrollment_type: *fabric_ca_enrollment_type
       fabric_ca_host: *fabric_ca_host
       fabric_ca_image: *fabric_ca_image
@@ -602,7 +538,6 @@ argument_specs:
       fabric_ca_client_bin_name: *fabric_ca_client_bin_name
       fabric_ca_client_container_config_dir: *fabric_ca_client_container_config_dir
       fabric_ca_scheme: *fabric_ca_scheme
-      fabric_ca_port: *fabric_ca_port
       fabric_ca_name: *fabric_ca_name
       fabric_ca_idemix_enrollment_profile: *fabric_ca_idemix_enrollment_profile
       fabric_ca_enrollment_profile: *fabric_ca_enrollment_profile
@@ -617,7 +552,7 @@ argument_specs:
       - "Registers a new identity with a transient container."
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
-      fabric_ca_identity: *fabric_ca_identity_register
+      fabric_ca_identity: *fabric_ca_identity
       fabric_ca_host: *fabric_ca_host
       fabric_ca_image: *fabric_ca_image
       fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
@@ -626,7 +561,6 @@ argument_specs:
       fabric_ca_client_bin_name: *fabric_ca_client_bin_name
       fabric_ca_client_container_config_dir: *fabric_ca_client_container_config_dir
       fabric_ca_scheme: *fabric_ca_scheme
-      fabric_ca_port: *fabric_ca_port
       fabric_ca_name: *fabric_ca_name
       fabric_ca_use_tls: *fabric_ca_use_tls
       fabric_ca_tls_certfile: *fabric_ca_tls_certfile
@@ -637,7 +571,7 @@ argument_specs:
       - "Reenrolls an existing identity with a transient container."
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
-      fabric_ca_identity: *fabric_ca_identity_enroll
+      fabric_ca_identity: *fabric_ca_identity
       fabric_ca_host: *fabric_ca_host
       fabric_ca_image: *fabric_ca_image
       fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
@@ -646,7 +580,6 @@ argument_specs:
       fabric_ca_client_bin_name: *fabric_ca_client_bin_name
       fabric_ca_client_container_config_dir: *fabric_ca_client_container_config_dir
       fabric_ca_scheme: *fabric_ca_scheme
-      fabric_ca_port: *fabric_ca_port
       fabric_ca_name: *fabric_ca_name
       fabric_ca_enrollment_profile: *fabric_ca_enrollment_profile
       actual_host: *actual_host
@@ -668,7 +601,6 @@ argument_specs:
       fabric_ca_client_bin_name: *fabric_ca_client_bin_name
       fabric_ca_client_container_config_dir: *fabric_ca_client_container_config_dir
       fabric_ca_scheme: *fabric_ca_scheme
-      fabric_ca_port: *fabric_ca_port
       fabric_ca_name: *fabric_ca_name
       fabric_ca_use_tls: *fabric_ca_use_tls
       fabric_ca_tls_certfile: *fabric_ca_tls_certfile
@@ -679,7 +611,7 @@ argument_specs:
       - "Revokes an enrolled identity with a transient container."
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
-      fabric_ca_identity: *fabric_ca_identity_revoke
+      fabric_ca_identity: *fabric_ca_identity
       fabric_ca_host: *fabric_ca_host
       fabric_ca_image: *fabric_ca_image
       fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
@@ -687,7 +619,6 @@ argument_specs:
       fabric_ca_image_tag: *fabric_ca_image_tag
       fabric_ca_client_container_config_dir: *fabric_ca_client_container_config_dir
       fabric_ca_scheme: *fabric_ca_scheme
-      fabric_ca_port: *fabric_ca_port
       fabric_ca_name: *fabric_ca_name
       fabric_ca_use_tls: *fabric_ca_use_tls
       fabric_ca_tls_certfile: *fabric_ca_tls_certfile
@@ -705,7 +636,6 @@ argument_specs:
       fabric_ca_image_tag: *fabric_ca_image_tag
       fabric_ca_client_container_config_dir: *fabric_ca_client_container_config_dir
       fabric_ca_scheme: *fabric_ca_scheme
-      fabric_ca_port: *fabric_ca_port
       fabric_ca_name: *fabric_ca_name
       fabric_ca_use_tls: *fabric_ca_use_tls
       fabric_ca_tls_certfile: *fabric_ca_tls_certfile
