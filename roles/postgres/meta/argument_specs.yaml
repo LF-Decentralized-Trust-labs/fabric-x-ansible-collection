@@ -130,13 +130,24 @@ argument_specs:
         default: false
         description:
           - Run PostgreSQL on Kubernetes when set to C(true).
+      postgres_use_openshift: &postgres_use_openshift
+        type: bool
+        required: false
+        default: false
+        description:
+          - Run PostgreSQL on OpenShift when set to C(true).
       postgres_use_container: &postgres_use_container
         type: bool
         required: false
-        default: "{{ not postgres_use_k8s }}"
+        default: "{{ (not postgres_use_k8s) and (not postgres_use_openshift) }}"
         description:
           - Run PostgreSQL as a container when set to C(true).
-          - The default derives from C(postgres_use_k8s).
+          - The default derives from C(postgres_use_k8s) and C(postgres_use_openshift).
+      k8s_manage_namespace: &k8s_manage_namespace
+        type: bool
+        required: false
+        description:
+          - Ensure the Kubernetes namespace exists before applying PostgreSQL resources when set to C(true).
       postgres_k8s_resource_name: &postgres_k8s_resource_name
         type: str
         required: false
@@ -156,19 +167,11 @@ argument_specs:
         default: 999
         description:
           - Kubernetes pod C(fsGroup) applied so mounted files are readable by the postgres process.
-      postgres_k8s_use_node_port: &postgres_k8s_use_node_port
-        type: bool
-        required: false
-        default: false
-        description:
-          - Enable the optional Kubernetes NodePort Service for PostgreSQL when set to C(true).
-          - When C(false) (default), no NodePort Service is created and the C(k8s/ping) check is skipped.
       postgres_k8s_port_node_port: &postgres_k8s_port_node_port
         type: int
         required: false
         description:
           - Kubernetes NodePort value used by the external PostgreSQL Service.
-          - Only relevant when C(postgres_k8s_use_node_port) is C(true).
           - When undefined, the NodePort is allocated automatically by Kubernetes.
       postgres_tls_private_key_file: &postgres_tls_private_key_file
         type: path
@@ -296,7 +299,7 @@ argument_specs:
     description:
       - Validates that the PostgreSQL port is reachable on the target host.
       - In container mode, probes C(postgres_port) directly.
-      - In Kubernetes mode, delegates to the C(k8s/ping) entry point which probes the NodePort when C(postgres_k8s_use_node_port) is enabled.
+      - In Kubernetes mode, delegates to the C(k8s/ping) entry point which probes the NodePort when C(postgres_k8s_port_node_port) is defined.
       - Also probes the postgres_exporter port when it is defined.
     options:
       postgres_use_k8s: *postgres_use_k8s
@@ -307,19 +310,22 @@ argument_specs:
     short_description: Start PostgreSQL
     description:
       - Starts PostgreSQL using the selected deployment mode.
-      - The container mode is the default unless C(postgres_use_k8s) is enabled.
-      - When Kubernetes mode is selected, validates the Service, StatefulSet, and optional NodePort inputs required by the k8s startup path.
+      - The container mode is the default unless C(postgres_use_k8s) or C(postgres_use_openshift) is enabled.
+      - When Kubernetes mode is selected, validates the Service, StatefulSet, and NodePort inputs required by the k8s startup path.
+      - When OpenShift mode is selected, validates the Service and StatefulSet inputs required by the openshift startup path.
     options:
       postgres_use_k8s: *postgres_use_k8s
+      postgres_use_openshift: *postgres_use_openshift
       postgres_use_container: *postgres_use_container
 
   stop:
     short_description: Stop PostgreSQL
     description:
       - Stops PostgreSQL when it runs in container mode.
-      - C(postgres_use_container) defaults from C(postgres_use_k8s).
+      - C(postgres_use_container) defaults from C(postgres_use_k8s) and C(postgres_use_openshift).
     options:
       postgres_use_k8s: *postgres_use_k8s
+      postgres_use_openshift: *postgres_use_openshift
       postgres_use_container: *postgres_use_container
 
   teardown:
@@ -329,6 +335,7 @@ argument_specs:
       - Persistent data is removed through the C(data/rm) entry point.
     options:
       postgres_use_k8s: *postgres_use_k8s
+      postgres_use_openshift: *postgres_use_openshift
       postgres_use_container: *postgres_use_container
 
   wipe:
@@ -345,6 +352,7 @@ argument_specs:
       - Delegates to the container or Kubernetes log collection entry point.
     options:
       postgres_use_k8s: *postgres_use_k8s
+      postgres_use_openshift: *postgres_use_openshift
       postgres_use_container: *postgres_use_container
 
   data/rm:
@@ -416,16 +424,16 @@ argument_specs:
   k8s/start:
     short_description: Start PostgreSQL on Kubernetes
     description:
-      - Ensures the Kubernetes namespace exists and applies the PostgreSQL Service and StatefulSet resources.
+      - Ensures the Kubernetes namespace exists when C(k8s_manage_namespace) is enabled and applies the PostgreSQL Service, NodePort Service, and StatefulSet resources.
       - Uses the role templates to configure storage, credentials, TLS, and optional mTLS mounts.
     options:
       postgres_k8s_resource_name: *postgres_k8s_resource_name
       k8s_namespace:
         <<: *k8s_namespace
         required: true
+      k8s_manage_namespace: *k8s_manage_namespace
       postgres_k8s_wait_timeout: *postgres_k8s_wait_timeout
       postgres_k8s_fs_group: *postgres_k8s_fs_group
-      postgres_k8s_use_node_port: *postgres_k8s_use_node_port
       postgres_k8s_port_node_port: *postgres_k8s_port_node_port
       postgres_port: *postgres_port
       postgres_registry_endpoint: *postgres_registry_endpoint
@@ -458,16 +466,15 @@ argument_specs:
   k8s/ping:
     short_description: Check PostgreSQL NodePort reachability on Kubernetes
     description:
-      - Probes the PostgreSQL NodePort when C(postgres_k8s_use_node_port) is C(true) and C(postgres_k8s_port_node_port) is defined.
+      - Probes the PostgreSQL NodePort when C(postgres_k8s_port_node_port) is defined.
       - This entry point is invoked internally by C(ping) when PostgreSQL runs on Kubernetes.
     options:
-      postgres_k8s_use_node_port: *postgres_k8s_use_node_port
       postgres_k8s_port_node_port: *postgres_k8s_port_node_port
 
   k8s/rm:
     short_description: Remove PostgreSQL Kubernetes resources
     description:
-      - Deletes the PostgreSQL StatefulSet and Service resources from Kubernetes.
+      - Deletes the PostgreSQL StatefulSet, Service, and NodePort Service resources from Kubernetes.
       - The persistent volume claim is removed separately by the C(data/rm) entry point.
     options:
       postgres_k8s_resource_name: *postgres_k8s_resource_name
@@ -496,6 +503,7 @@ argument_specs:
       k8s_namespace:
         <<: *k8s_namespace
         required: true
+      k8s_manage_namespace: *k8s_manage_namespace
       postgres_remote_config_dir: *postgres_remote_config_dir
       remote_config_dir: *remote_config_dir
       postgres_tls_private_key_file: *postgres_tls_private_key_file
@@ -526,6 +534,7 @@ argument_specs:
       k8s_namespace:
         <<: *k8s_namespace
         required: true
+      k8s_manage_namespace: *k8s_manage_namespace
       postgres_remote_config_dir: *postgres_remote_config_dir
       remote_config_dir: *remote_config_dir
       postgres_use_mtls: *postgres_use_mtls
@@ -542,14 +551,66 @@ argument_specs:
         <<: *k8s_namespace
         required: true
 
+  openshift/start:
+    short_description: Start PostgreSQL on OpenShift
+    description:
+      - Applies the PostgreSQL Service and StatefulSet resources on OpenShift.
+      - Uses the same role templates to configure storage, credentials, TLS, and optional mTLS mounts.
+    options:
+      postgres_k8s_resource_name: *postgres_k8s_resource_name
+      k8s_namespace:
+        <<: *k8s_namespace
+        required: true
+      postgres_k8s_wait_timeout: *postgres_k8s_wait_timeout
+      postgres_k8s_fs_group: *postgres_k8s_fs_group
+      postgres_port: *postgres_port
+      postgres_registry_endpoint: *postgres_registry_endpoint
+      postgres_image_name: *postgres_image_name
+      postgres_image_tag: *postgres_image_tag
+      postgres_image: *postgres_image
+      postgres_container_config_dir: *postgres_container_config_dir
+      postgres_container_data_dir: *postgres_container_data_dir
+      postgres_db: *postgres_db
+      postgres_user: *postgres_user
+      postgres_password: *postgres_password
+      postgres_use_tls: *postgres_use_tls
+      postgres_use_mtls: *postgres_use_mtls
+      postgres_tls_private_key_file: *postgres_tls_private_key_file
+      postgres_tls_cert_file: *postgres_tls_cert_file
+      postgres_mtls_clients: *postgres_mtls_clients
+      postgres_extra_cmd_opts: *postgres_extra_cmd_opts
+      k8s_storage_size: *k8s_storage_size
+      k8s_storage_class: *k8s_storage_class
+      k8s_image_pull_secret: *k8s_image_pull_secret
+      k8s_readiness_probe_initial_delay_seconds: *k8s_readiness_probe_initial_delay_seconds
+      k8s_readiness_probe_period_seconds: *k8s_readiness_probe_period_seconds
+      k8s_readiness_probe_timeout_seconds: *k8s_readiness_probe_timeout_seconds
+      k8s_readiness_probe_failure_threshold: *k8s_readiness_probe_failure_threshold
+      k8s_liveness_probe_initial_delay_seconds: *k8s_liveness_probe_initial_delay_seconds
+      k8s_liveness_probe_period_seconds: *k8s_liveness_probe_period_seconds
+      k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
+      k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
+
+  openshift/rm:
+    short_description: Remove PostgreSQL OpenShift resources
+    description:
+      - Deletes the PostgreSQL StatefulSet and Service resources from OpenShift.
+      - The persistent volume claim is removed separately by the C(data/rm) entry point.
+    options:
+      postgres_k8s_resource_name: *postgres_k8s_resource_name
+      k8s_namespace:
+        <<: *k8s_namespace
+        required: true
+
   crypto/setup:
     short_description: Prepare PostgreSQL TLS materials
     description:
       - Selects the PostgreSQL TLS generation path for OpenSSL, cryptogen, or Fabric CA.
-      - Also applies the Kubernetes Secret when Kubernetes mode is enabled.
+      - Also applies the Kubernetes Secret when Kubernetes or OpenShift mode is enabled.
     options:
       postgres_use_tls: *postgres_use_tls
       postgres_use_k8s: *postgres_use_k8s
+      postgres_use_openshift: *postgres_use_openshift
       organization:
         <<: *organization
         required: false
@@ -569,10 +630,11 @@ argument_specs:
     short_description: Remove PostgreSQL TLS materials
     description:
       - Deletes PostgreSQL TLS files from the remote host when TLS is enabled.
-      - Also removes the Kubernetes Secret used for TLS materials when Kubernetes mode is enabled.
+      - Also removes the Kubernetes Secret used for TLS materials when Kubernetes or OpenShift mode is enabled.
     options:
       postgres_use_tls: *postgres_use_tls
       postgres_use_k8s: *postgres_use_k8s
+      postgres_use_openshift: *postgres_use_openshift
       postgres_remote_config_dir: *postgres_remote_config_dir
       remote_config_dir: *remote_config_dir
       postgres_tls_private_key_file: *postgres_tls_private_key_file
@@ -626,23 +688,25 @@ argument_specs:
     short_description: Transfer PostgreSQL configuration
     description:
       - Ensures the PostgreSQL configuration directory exists and prepares optional mTLS configuration.
-      - Also applies the PostgreSQL ConfigMap when Kubernetes mode is enabled.
+      - Also applies the PostgreSQL ConfigMap when Kubernetes or OpenShift mode is enabled.
     options:
       postgres_remote_config_dir: *postgres_remote_config_dir
       remote_config_dir: *remote_config_dir
       postgres_use_mtls: *postgres_use_mtls
       postgres_mtls_clients: *postgres_mtls_clients
       postgres_use_k8s: *postgres_use_k8s
+      postgres_use_openshift: *postgres_use_openshift
 
   config/rm:
     short_description: Remove PostgreSQL configuration
     description:
       - Deletes PostgreSQL configuration files from the remote host.
-      - Also removes the PostgreSQL ConfigMap when Kubernetes mode is enabled.
+      - Also removes the PostgreSQL ConfigMap when Kubernetes or OpenShift mode is enabled.
     options:
       postgres_remote_config_dir: *postgres_remote_config_dir
       remote_config_dir: *remote_config_dir
       postgres_use_k8s: *postgres_use_k8s
+      postgres_use_openshift: *postgres_use_openshift
 
   config/mtls/transfer:
     short_description: Transfer PostgreSQL mTLS configuration
