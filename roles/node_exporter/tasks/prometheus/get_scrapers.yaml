@@ -4,12 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check if node_exporter_hosts required variable is set
-  ansible.builtin.fail:
-    msg: "The variable 'node_exporter_hosts' must be defined to use this role. It must contain the list of hosts devoted for the Node Exporters."
-  when:
-    - node_exporter_hosts is not defined
-
 - name: Set Prometheus scrape services for Node Exporters
   vars:
     node_exporter_scrape_service:
