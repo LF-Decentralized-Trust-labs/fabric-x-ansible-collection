@@ -134,17 +134,15 @@ argument_specs:
       committer_k8s_rpc_node_port: &committer_k8s_rpc_node_port
         type: int
         required: false
-        default: "{{ committer_rpc_port }}"
         description:
           - NodePort used for the RPC service when C(committer_k8s_use_node_port) is enabled.
-          - The default derives from C(committer_rpc_port).
+          - Must be explicitly set to a valid Kubernetes NodePort value when needed.
       committer_k8s_metrics_node_port: &committer_k8s_metrics_node_port
         type: int
         required: false
-        default: "{{ committer_metrics_port }}"
         description:
           - NodePort used for the metrics service when C(committer_k8s_use_node_port) is enabled.
-          - The default derives from C(committer_metrics_port).
+          - Must be explicitly set to a valid Kubernetes NodePort value when needed.
       committer_remote_config_dir: &committer_remote_config_dir
         type: path
         required: false
@@ -623,21 +621,25 @@ argument_specs:
           - Query-service maximum request key count.
       committer_mtls_clients: &committer_mtls_clients
         type: list
+        elements: str
         required: false
         description:
           - mTLS client identifiers trusted by the component.
       committer_mtls_orgs: &committer_mtls_orgs
         type: list
+        elements: dict
         required: false
         description:
           - mTLS organizations trusted by the component.
       committer_monitoring_mtls_clients: &committer_monitoring_mtls_clients
         type: list
+        elements: str
         required: false
         description:
           - Monitoring mTLS client identifiers trusted by the component.
       committer_monitoring_mtls_orgs: &committer_monitoring_mtls_orgs
         type: list
+        elements: dict
         required: false
         description:
           - Monitoring mTLS organizations trusted by the component.
@@ -654,13 +656,10 @@ argument_specs:
     short_description: Check the committer Kubernetes NodePorts
     description:
       - Validate that the optional Kubernetes NodePort Service exposes the RPC and metrics ports.
-      - The NodePort defaults derive from C(committer_rpc_port) and C(committer_metrics_port).
     options:
       committer_k8s_use_node_port: *committer_k8s_use_node_port
       committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
       committer_k8s_metrics_node_port: *committer_k8s_metrics_node_port
-      committer_rpc_port: *committer_rpc_port
-      committer_metrics_port: *committer_metrics_port
 
   validator/start:
     short_description: Start a validator component
