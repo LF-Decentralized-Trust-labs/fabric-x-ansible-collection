@@ -6,676 +6,664 @@
 ---
 argument_specs:
 
-  ping:
-    short_description: Check that the Prometheus port is reachable
+  _shared_options:
+    short_description: Shared Prometheus role options
     description:
-      - Validates network reachability to the Prometheus listener on the target host.
+      - Reusable option definitions for Prometheus entry points.
     options:
-      prometheus_port:
+      inventory_hostname: &inventory_hostname
+        type: str
+        required: false
+        description:
+          - Inventory host name used by Prometheus defaults for resource naming.
+      ansible_host: &ansible_host
+        type: str
+        required: false
+        description:
+          - Host address used by the Prometheus container TLS health check.
+      organization: &organization
+        type: dict
+        required: false
+        description:
+          - Optional certificate organization data forwarded to OpenSSL.
+      remote_config_dir: &remote_config_dir
+        type: path
+        required: true
+        description:
+          - Remote configuration directory consumed by C(prometheus_remote_config_dir).
+      remote_data_dir: &remote_data_dir
+        type: path
+        required: true
+        description:
+          - Remote data directory consumed by C(prometheus_remote_data_dir).
+      fetched_artifacts_dir: &fetched_artifacts_dir
+        type: path
+        required: true
+        description:
+          - Control-node directory where fetched Prometheus artifacts are written.
+      k8s_namespace: &k8s_namespace
+        type: str
+        required: true
+        description:
+          - Kubernetes namespace used for Prometheus resources.
+      prometheus_registry_endpoint: &prometheus_registry_endpoint
+        type: str
+        required: false
+        default: "{{ lookup('env', 'PROMETHEUS_REGISTRY_ENDPOINT') or 'docker.io/prom' }}"
+        description:
+          - Container registry endpoint for Prometheus images.
+          - Defaults to the C(PROMETHEUS_REGISTRY_ENDPOINT) environment variable or C(docker.io/prom).
+      prometheus_image_name: &prometheus_image_name
+        type: str
+        required: false
+        default: prometheus
+        description:
+          - Image name used when composing C(prometheus_image).
+      prometheus_image_tag: &prometheus_image_tag
+        type: str
+        required: false
+        default: latest
+        description:
+          - Image tag used when composing C(prometheus_image).
+      prometheus_image: &prometheus_image
+        type: str
+        required: false
+        default: "{{ prometheus_registry_endpoint }}/{{ prometheus_image_name }}:{{ prometheus_image_tag }}"
+        description:
+          - Fully qualified Prometheus container image.
+          - The default is composed from C(prometheus_registry_endpoint), C(prometheus_image_name), and C(prometheus_image_tag).
+      prometheus_container_name: &prometheus_container_name
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description:
+          - Container name used for the Prometheus workload.
+          - Defaults to C(inventory_hostname).
+      prometheus_remote_config_dir: &prometheus_remote_config_dir
+        type: path
+        required: false
+        default: "{{ remote_config_dir }}"
+        description:
+          - Remote directory where Prometheus configuration files are written.
+          - Defaults to C(remote_config_dir).
+      prometheus_remote_data_dir: &prometheus_remote_data_dir
+        type: path
+        required: false
+        default: "{{ remote_data_dir }}"
+        description:
+          - Remote directory where Prometheus TSDB data is stored.
+          - Defaults to C(remote_data_dir).
+      prometheus_container_config_dir: &prometheus_container_config_dir
+        type: path
+        required: false
+        default: /etc/prometheus/config
+        description:
+          - In-container or in-pod mount point for Prometheus configuration files.
+      prometheus_container_data_dir: &prometheus_container_data_dir
+        type: path
+        required: false
+        default: /data
+        description:
+          - In-container or in-pod path for Prometheus TSDB data.
+      prometheus_config_file: &prometheus_config_file
+        type: str
+        required: false
+        default: prometheus.yaml
+        description:
+          - Filename of the main Prometheus scrape configuration.
+      prometheus_web_config_file: &prometheus_web_config_file
+        type: str
+        required: false
+        default: web-config.yaml
+        description:
+          - Filename of the Prometheus web TLS configuration file.
+      prometheus_http_config_file: &prometheus_http_config_file
+        type: str
+        required: false
+        default: http-config.yaml
+        description:
+          - Filename of the promtool HTTP client configuration used for TLS health checks.
+      prometheus_scrape_interval: &prometheus_scrape_interval
+        type: str
+        required: false
+        default: 2s
+        description:
+          - Global Prometheus scrape interval.
+          - "Example: C(2s)."
+      prometheus_scrape_services: &prometheus_scrape_services
+        type: list
+        required: false
+        elements: dict
+        description:
+          - Optional scrape job definitions rendered into C(prometheus.yaml) and the Kubernetes ConfigMap.
+        options:
+          job_name:
+            type: str
+            required: true
+            description:
+              - Prometheus scrape job name.
+          prometheus_metrics_path:
+            type: str
+            required: false
+            description:
+              - Optional HTTP path used to collect metrics.
+          use_tls:
+            type: bool
+            required: false
+            default: false
+            description:
+              - Enables HTTPS scraping for the job when set to C(true).
+          use_mtls:
+            type: bool
+            required: false
+            default: false
+            description:
+              - Enables mutual TLS scraping for the job when set to C(true).
+          tls_ca_file:
+            type: path
+            required: false
+            description:
+              - Optional CA certificate file for the scrape target.
+          relabel_configs:
+            type: list
+            required: false
+            elements: dict
+            description:
+              - Optional relabel configuration entries for the job.
+            options:
+              target_label:
+                type: str
+                required: true
+                description:
+                  - Target label name.
+              replacement:
+                type: str
+                required: true
+                description:
+                  - Replacement value for the relabel rule.
+          metric_relabel_configs:
+            type: list
+            required: false
+            elements: dict
+            description:
+              - Optional metric relabel configuration entries for the job.
+            options:
+              source_labels:
+                type: list
+                required: true
+                elements: str
+                description:
+                  - Source labels used by the metric relabel rule.
+              regex:
+                type: str
+                required: true
+                description:
+                  - Regular expression used by the metric relabel rule.
+              target_label:
+                type: str
+                required: true
+                description:
+                  - Target label name for the metric relabel rule.
+              replacement:
+                type: str
+                required: true
+                description:
+                  - Replacement value for the metric relabel rule.
+          targets:
+            type: list
+            required: true
+            elements: dict
+            description:
+              - Static scrape targets for the job.
+            options:
+              hosts:
+                type: list
+                required: true
+                elements: str
+                description:
+                  - Hosts to scrape for the target group.
+              port_to_scrape:
+                type: str
+                required: true
+                description:
+                  - Host variable name that provides the port to scrape.
+              label:
+                type: dict
+                required: false
+                description:
+                  - Optional label block attached to the target group.
+                options:
+                  group:
+                    type: str
+                    required: false
+                    description:
+                      - Optional group label value.
+                  export_type:
+                    type: str
+                    required: false
+                    description:
+                      - Optional export type label value.
+      prometheus_use_tls: &prometheus_use_tls
+        type: bool
+        required: false
+        default: false
+        description:
+          - Enables HTTPS and TLS-aware health checks when set to C(true).
+      prometheus_tls_private_key_file: &prometheus_tls_private_key_file
+        type: str
+        required: false
+        default: server.key
+        description:
+          - Filename used for the Prometheus TLS private key.
+      prometheus_tls_cert_file: &prometheus_tls_cert_file
+        type: str
+        required: false
+        default: server.crt
+        description:
+          - Filename used for the Prometheus TLS certificate.
+      prometheus_port: &prometheus_port
         type: int
         required: false
         default: 9090
         description:
-          - "TCP port exposed by Prometheus. Example: C(9090)."
+          - TCP port exposed by Prometheus and used by the container listener and Kubernetes Services.
+          - "Example: C(9090)."
+      prometheus_use_k8s: &prometheus_use_k8s
+        type: bool
+        required: false
+        default: false
+        description:
+          - Enables the Kubernetes deployment path when set to C(true).
+      prometheus_use_container: &prometheus_use_container
+        type: bool
+        required: false
+        default: "{{ not prometheus_use_k8s }}"
+        description:
+          - Enables the container deployment path when set to C(true).
+          - The default is the inverse of C(prometheus_use_k8s).
+      prometheus_k8s_resource_name: &prometheus_k8s_resource_name
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description:
+          - Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
+          - Defaults to C(inventory_hostname).
+      prometheus_k8s_wait_timeout: &prometheus_k8s_wait_timeout
+        type: int
+        required: false
+        default: 120
+        description:
+          - Maximum number of seconds to wait for the StatefulSet rollout.
+      prometheus_k8s_fs_group: &prometheus_k8s_fs_group
+        type: int
+        required: false
+        default: 65534
+        description:
+          - File system group assigned to the pod.
+      prometheus_k8s_use_node_port: &prometheus_k8s_use_node_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Enables the optional Kubernetes NodePort Service when set to C(true).
+      prometheus_k8s_node_port: &prometheus_k8s_node_port
+        type: int
+        required: false
+        default: "{{ prometheus_port }}"
+        description:
+          - NodePort value used to expose Prometheus outside the cluster when C(prometheus_k8s_use_node_port) is enabled.
+          - The default is C(prometheus_port).
+      k8s_storage_size: &k8s_storage_size
+        type: str
+        required: true
+        description:
+          - Persistent volume size requested for Prometheus data.
+          - "Example: C(20Gi)."
+      k8s_image_pull_secret: &k8s_image_pull_secret
+        type: str
+        required: false
+        description:
+          - Optional image pull secret name for private registries.
+      k8s_storage_class: &k8s_storage_class
+        type: str
+        required: false
+        description:
+          - Optional Kubernetes storage class name for the Prometheus PVC.
+      k8s_readiness_probe_initial_delay_seconds: &k8s_readiness_probe_initial_delay_seconds
+        type: int
+        required: false
+        default: 10
+        description:
+          - Initial delay before the readiness probe starts.
+      k8s_readiness_probe_period_seconds: &k8s_readiness_probe_period_seconds
+        type: int
+        required: false
+        default: 10
+        description:
+          - Interval between readiness probe attempts.
+      k8s_readiness_probe_timeout_seconds: &k8s_readiness_probe_timeout_seconds
+        type: int
+        required: false
+        default: 5
+        description:
+          - Timeout for each readiness probe request.
+      k8s_readiness_probe_failure_threshold: &k8s_readiness_probe_failure_threshold
+        type: int
+        required: false
+        default: 6
+        description:
+          - Number of failed readiness probes before the pod is marked unready.
+      k8s_liveness_probe_initial_delay_seconds: &k8s_liveness_probe_initial_delay_seconds
+        type: int
+        required: false
+        default: 30
+        description:
+          - Initial delay before the liveness probe starts.
+      k8s_liveness_probe_period_seconds: &k8s_liveness_probe_period_seconds
+        type: int
+        required: false
+        default: 15
+        description:
+          - Interval between liveness probe attempts.
+      k8s_liveness_probe_timeout_seconds: &k8s_liveness_probe_timeout_seconds
+        type: int
+        required: false
+        default: 10
+        description:
+          - Timeout for each liveness probe request.
+      k8s_liveness_probe_failure_threshold: &k8s_liveness_probe_failure_threshold
+        type: int
+        required: false
+        default: 10
+        description:
+          - Number of failed liveness probes before Kubernetes restarts the pod.
+
+  ping:
+    short_description: Check that the Prometheus port is reachable
+    description:
+      - Validates network reachability to the Prometheus listener on the target host or to the Kubernetes NodePort when enabled.
+    options:
+      prometheus_port: *prometheus_port
+      prometheus_use_k8s: *prometheus_use_k8s
 
   start:
     short_description: Start Prometheus in the selected deployment mode
     description:
       - Starts Prometheus either as a container or as Kubernetes resources based on the deployment mode flags.
+      - When Kubernetes mode is enabled, it can also apply the optional NodePort Service.
     options:
-      prometheus_use_container:
-        type: bool
-        required: false
-        default: "{{ not prometheus_use_k8s }}"
-        description:
-          - Runs the container deployment path when set to C(true).
-      prometheus_use_k8s:
-        type: bool
-        required: false
-        default: false
-        description:
-          - Runs the Kubernetes deployment path when set to C(true).
+      prometheus_use_container: *prometheus_use_container
+      prometheus_use_k8s: *prometheus_use_k8s
 
   container/start:
     short_description: Start the Prometheus container
     description:
       - Creates the remote data directory and starts Prometheus through the shared container role.
     options:
-      prometheus_remote_data_dir:
-        type: path
-        required: true
-        description:
-          - "Absolute path on the remote host where Prometheus stores TSDB data. Example: C(/opt/fabric/data/prometheus)."
-      prometheus_container_name:
-        type: str
-        required: false
-        default: "{{ inventory_hostname }}"
-        description:
-          - Container name used for the Prometheus workload.
-      prometheus_image:
-        type: str
-        required: false
-        default: "{{ prometheus_registry_endpoint }}/{{ prometheus_image_name }}:{{ prometheus_image_tag }}"
-        description:
-          - Fully qualified container image reference for Prometheus.
-      prometheus_port:
-        type: int
-        required: false
-        default: 9090
-        description:
-          - "TCP port exposed by Prometheus. Example: C(9090)."
-      prometheus_container_config_dir:
-        type: path
-        required: false
-        default: /etc/prometheus/config
-        description:
-          - In-container path where Prometheus configuration files are mounted.
-      prometheus_config_file:
-        type: str
-        required: false
-        default: prometheus.yaml
-        description:
-          - Filename of the main Prometheus scrape configuration.
-      prometheus_container_data_dir:
-        type: path
-        required: false
-        default: /data
-        description:
-          - In-container path where Prometheus writes its persistent data.
-      prometheus_use_tls:
-        type: bool
-        required: false
-        default: false
-        description:
-          - Enables HTTPS and TLS-aware health checks for Prometheus when set to C(true).
-      prometheus_web_config_file:
-        type: str
-        required: false
-        default: web-config.yaml
-        description:
-          - Filename of the Prometheus web TLS configuration file.
-      prometheus_remote_config_dir:
-        type: path
-        required: true
-        description:
-          - "Absolute path on the remote host where Prometheus configuration files are written. Example: C(/opt/fabric/config/prometheus)."
-      prometheus_http_config_file:
-        type: str
-        required: false
-        default: http-config.yaml
-        description:
-          - Filename of the promtool HTTP client configuration used for TLS health checks.
+      inventory_hostname: *inventory_hostname
+      ansible_host: *ansible_host
+      remote_config_dir: *remote_config_dir
+      remote_data_dir: *remote_data_dir
+      prometheus_registry_endpoint: *prometheus_registry_endpoint
+      prometheus_image_name: *prometheus_image_name
+      prometheus_image_tag: *prometheus_image_tag
+      prometheus_image: *prometheus_image
+      prometheus_container_name: *prometheus_container_name
+      prometheus_remote_config_dir: *prometheus_remote_config_dir
+      prometheus_remote_data_dir: *prometheus_remote_data_dir
+      prometheus_container_config_dir: *prometheus_container_config_dir
+      prometheus_container_data_dir: *prometheus_container_data_dir
+      prometheus_config_file: *prometheus_config_file
+      prometheus_web_config_file: *prometheus_web_config_file
+      prometheus_http_config_file: *prometheus_http_config_file
+      prometheus_port: *prometheus_port
+      prometheus_use_tls: *prometheus_use_tls
 
   k8s/start:
     short_description: Start Prometheus on Kubernetes
     description:
-      - Creates the Kubernetes Service and StatefulSet resources for Prometheus after ensuring the namespace exists.
+      - Creates the Kubernetes headless Service, optional NodePort Service, and StatefulSet resources for Prometheus after ensuring the namespace exists.
     options:
-      prometheus_k8s_resource_name:
-        type: str
-        required: false
-        default: "{{ inventory_hostname }}"
-        description:
-          - Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
-      prometheus_port:
-        type: int
-        required: false
-        default: 9090
-        description:
-          - "TCP port exposed by Prometheus. Example: C(9090)."
-      prometheus_k8s_node_port:
-        type: int
-        required: false
-        default: "{{ prometheus_port }}"
-        description:
-          - NodePort value used to expose Prometheus outside the cluster.
-      prometheus_image:
-        type: str
-        required: false
-        default: "{{ prometheus_registry_endpoint }}/{{ prometheus_image_name }}:{{ prometheus_image_tag }}"
-        description:
-          - Fully qualified container image reference for the Prometheus pod.
-      prometheus_k8s_fs_group:
-        type: int
-        required: false
-        default: 65534
-        description:
-          - File system group assigned to the pod so mounted data remains readable to the Prometheus process.
-      prometheus_container_config_dir:
-        type: path
-        required: false
-        default: /etc/prometheus/config
-        description:
-          - Mount path inside the pod for configuration files.
-      prometheus_config_file:
-        type: str
-        required: false
-        default: prometheus.yaml
-        description:
-          - Filename of the main Prometheus scrape configuration.
-      prometheus_container_data_dir:
-        type: path
-        required: false
-        default: /data
-        description:
-          - Mount path inside the pod for persistent TSDB data.
-      prometheus_use_tls:
-        type: bool
-        required: false
-        default: false
-        description:
-          - Mounts TLS server credentials and serves Prometheus over HTTPS when set to C(true).
-      prometheus_web_config_file:
-        type: str
-        required: false
-        default: web-config.yaml
-        description:
-          - Filename of the Prometheus web TLS configuration file.
-      prometheus_k8s_wait_timeout:
-        type: int
-        required: false
-        default: 120
-        description:
-          - Maximum number of seconds to wait for the StatefulSet rollout.
-      k8s_storage_size:
-        type: str
-        required: true
-        description:
-          - "Persistent volume size requested for Prometheus data. Example: C(20Gi)."
-      k8s_image_pull_secret:
-        type: str
-        required: false
-        description:
-          - Optional image pull secret name for private registries.
-      k8s_storage_class:
-        type: str
-        required: false
-        description:
-          - Optional Kubernetes storage class name for the Prometheus PVC.
-      k8s_readiness_probe_initial_delay_seconds:
-        type: int
-        required: false
-        default: 10
-        description:
-          - Optional initial delay before the readiness probe starts.
-      k8s_readiness_probe_period_seconds:
-        type: int
-        required: false
-        default: 10
-        description:
-          - Optional interval between readiness probe attempts.
-      k8s_readiness_probe_timeout_seconds:
-        type: int
-        required: false
-        default: 5
-        description:
-          - Optional timeout for each readiness probe request.
-      k8s_readiness_probe_failure_threshold:
-        type: int
-        required: false
-        default: 6
-        description:
-          - Optional number of failed readiness probes before the pod is marked unready.
-      k8s_liveness_probe_initial_delay_seconds:
-        type: int
-        required: false
-        default: 30
-        description:
-          - Optional initial delay before the liveness probe starts.
-      k8s_liveness_probe_period_seconds:
-        type: int
-        required: false
-        default: 15
-        description:
-          - Optional interval between liveness probe attempts.
-      k8s_liveness_probe_timeout_seconds:
-        type: int
-        required: false
-        default: 10
-        description:
-          - Optional timeout for each liveness probe request.
-      k8s_liveness_probe_failure_threshold:
-        type: int
-        required: false
-        default: 10
-        description:
-          - Optional number of failed liveness probes before Kubernetes restarts the pod.
+      inventory_hostname: *inventory_hostname
+      prometheus_registry_endpoint: *prometheus_registry_endpoint
+      prometheus_image_name: *prometheus_image_name
+      prometheus_image_tag: *prometheus_image_tag
+      prometheus_image: *prometheus_image
+      prometheus_port: *prometheus_port
+      prometheus_k8s_resource_name: *prometheus_k8s_resource_name
+      prometheus_k8s_use_node_port: *prometheus_k8s_use_node_port
+      prometheus_k8s_node_port: *prometheus_k8s_node_port
+      prometheus_k8s_fs_group: *prometheus_k8s_fs_group
+      prometheus_container_config_dir: *prometheus_container_config_dir
+      prometheus_container_data_dir: *prometheus_container_data_dir
+      prometheus_config_file: *prometheus_config_file
+      prometheus_web_config_file: *prometheus_web_config_file
+      prometheus_use_tls: *prometheus_use_tls
+      prometheus_k8s_wait_timeout: *prometheus_k8s_wait_timeout
+      k8s_namespace: *k8s_namespace
+      k8s_storage_size: *k8s_storage_size
+      k8s_image_pull_secret: *k8s_image_pull_secret
+      k8s_storage_class: *k8s_storage_class
+      k8s_readiness_probe_initial_delay_seconds: *k8s_readiness_probe_initial_delay_seconds
+      k8s_readiness_probe_period_seconds: *k8s_readiness_probe_period_seconds
+      k8s_readiness_probe_timeout_seconds: *k8s_readiness_probe_timeout_seconds
+      k8s_readiness_probe_failure_threshold: *k8s_readiness_probe_failure_threshold
+      k8s_liveness_probe_initial_delay_seconds: *k8s_liveness_probe_initial_delay_seconds
+      k8s_liveness_probe_period_seconds: *k8s_liveness_probe_period_seconds
+      k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
+      k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
+
+  k8s/ping:
+    short_description: Check that the Prometheus NodePort is reachable
+    description:
+      - Validates network reachability to the Kubernetes NodePort when the optional NodePort Service is enabled.
+    options:
+      prometheus_port: *prometheus_port
+      prometheus_k8s_use_node_port: *prometheus_k8s_use_node_port
+      prometheus_k8s_node_port: *prometheus_k8s_node_port
 
   stop:
     short_description: Stop the Prometheus container deployment
     description:
       - Stops Prometheus when the container deployment path is enabled.
     options:
-      prometheus_use_container:
-        type: bool
-        required: false
-        default: "{{ not prometheus_use_k8s }}"
-        description:
-          - Enables the container stop path when set to C(true).
+      prometheus_use_container: *prometheus_use_container
 
   container/stop:
     short_description: Stop the Prometheus container
     description:
       - Stops the running Prometheus container through the shared container role.
     options:
-      prometheus_container_name:
-        type: str
-        required: false
-        default: "{{ inventory_hostname }}"
-        description:
-          - Container name used for the Prometheus workload.
+      inventory_hostname: *inventory_hostname
+      prometheus_container_name: *prometheus_container_name
 
   teardown:
     short_description: Remove the Prometheus deployment
     description:
       - Removes the Prometheus container or Kubernetes workload and then deletes its data.
     options:
-      prometheus_use_container:
-        type: bool
-        required: false
-        default: "{{ not prometheus_use_k8s }}"
-        description:
-          - Enables container cleanup when set to C(true).
-      prometheus_use_k8s:
-        type: bool
-        required: false
-        default: false
-        description:
-          - Enables Kubernetes workload cleanup when set to C(true).
+      prometheus_use_container: *prometheus_use_container
+      prometheus_use_k8s: *prometheus_use_k8s
 
   container/rm:
     short_description: Remove the Prometheus container
     description:
       - Removes the Prometheus container through the shared container role.
     options:
-      prometheus_container_name:
-        type: str
-        required: false
-        default: "{{ inventory_hostname }}"
-        description:
-          - Container name used for the Prometheus workload.
+      inventory_hostname: *inventory_hostname
+      prometheus_container_name: *prometheus_container_name
 
   k8s/rm:
     short_description: Remove Prometheus Kubernetes resources
     description:
       - Deletes the Prometheus StatefulSet and both Services from Kubernetes.
     options:
-      prometheus_k8s_resource_name:
-        type: str
-        required: false
-        default: "{{ inventory_hostname }}"
-        description:
-          - Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
+      inventory_hostname: *inventory_hostname
+      k8s_namespace: *k8s_namespace
+      prometheus_k8s_resource_name: *prometheus_k8s_resource_name
 
   data/rm:
     short_description: Remove Prometheus data
     description:
       - Deletes Prometheus data from the active deployment mode.
     options:
-      prometheus_use_container:
-        type: bool
-        required: false
-        default: "{{ not prometheus_use_k8s }}"
-        description:
-          - Removes the remote data directory when the container deployment path is active.
-      prometheus_use_k8s:
-        type: bool
-        required: false
-        default: false
-        description:
-          - Removes the Kubernetes PVC when the Kubernetes deployment path is active.
-      prometheus_remote_data_dir:
-        type: path
-        required: true
-        description:
-          - "Absolute path on the remote host where Prometheus stores TSDB data. Example: C(/opt/fabric/data/prometheus)."
+      remote_data_dir: *remote_data_dir
+      prometheus_remote_data_dir: *prometheus_remote_data_dir
+      prometheus_use_container: *prometheus_use_container
+      prometheus_use_k8s: *prometheus_use_k8s
 
   k8s/data/rm:
     short_description: Remove the Prometheus data PVC
     description:
       - Deletes the PersistentVolumeClaim created for the Prometheus StatefulSet.
     options:
-      prometheus_k8s_resource_name:
-        type: str
-        required: false
-        default: "{{ inventory_hostname }}"
-        description:
-          - Base Kubernetes resource name used to derive the data PVC name.
+      inventory_hostname: *inventory_hostname
+      k8s_namespace: *k8s_namespace
+      prometheus_k8s_resource_name: *prometheus_k8s_resource_name
 
   wipe:
     short_description: Remove all Prometheus data and configuration
     description:
       - Tears down Prometheus and removes its data, TLS material, and generated configuration files.
-    options:
-      prometheus_use_container:
-        type: bool
-        required: false
-        default: "{{ not prometheus_use_k8s }}"
-        description:
-          - Enables container cleanup when set to C(true).
-      prometheus_use_k8s:
-        type: bool
-        required: false
-        default: false
-        description:
-          - Enables Kubernetes cleanup when set to C(true).
+    options: {}
 
   crypto/setup:
     short_description: Generate Prometheus TLS materials
     description:
       - Generates TLS assets for Prometheus and applies the Kubernetes Secret when Kubernetes mode is enabled.
     options:
-      prometheus_use_tls:
-        type: bool
-        required: false
-        default: false
-        description:
-          - Enables TLS certificate generation and Secret management when set to C(true).
-      prometheus_use_k8s:
-        type: bool
-        required: false
-        default: false
-        description:
-          - Applies the Kubernetes Secret after TLS material is generated when set to C(true).
+      prometheus_use_tls: *prometheus_use_tls
+      prometheus_use_k8s: *prometheus_use_k8s
 
   crypto/openssl/generate_cert:
     short_description: Generate a self-signed TLS certificate for Prometheus
     description:
       - Delegates certificate creation to the shared OpenSSL role using Prometheus-specific output paths.
     options:
-      prometheus_remote_config_dir:
-        type: path
-        required: true
-        description:
-          - "Absolute path on the remote host where Prometheus configuration files are written. Example: C(/opt/fabric/config/prometheus)."
-      prometheus_tls_private_key_file:
-        type: str
-        required: false
-        default: server.key
-        description:
-          - Filename used for the generated Prometheus TLS private key.
-      prometheus_tls_cert_file:
-        type: str
-        required: false
-        default: server.crt
-        description:
-          - Filename used for the generated Prometheus TLS certificate.
+      inventory_hostname: *inventory_hostname
+      organization: *organization
+      remote_config_dir: *remote_config_dir
+      prometheus_remote_config_dir: *prometheus_remote_config_dir
+      prometheus_tls_private_key_file: *prometheus_tls_private_key_file
+      prometheus_tls_cert_file: *prometheus_tls_cert_file
 
   k8s/crypto/transfer:
     short_description: Apply the Prometheus TLS Secret on Kubernetes
     description:
       - Creates or updates the Kubernetes Secret that stores the Prometheus TLS server keypair.
     options:
-      prometheus_use_tls:
-        type: bool
-        required: false
-        default: false
-        description:
-          - Applies Secret data only when TLS is enabled.
-      prometheus_remote_config_dir:
-        type: path
-        required: true
-        description:
-          - "Absolute path on the remote host where Prometheus configuration files are written. Example: C(/opt/fabric/config/prometheus)."
-      prometheus_tls_private_key_file:
-        type: str
-        required: false
-        default: server.key
-        description:
-          - Filename of the Prometheus TLS private key stored in the Secret.
-      prometheus_tls_cert_file:
-        type: str
-        required: false
-        default: server.crt
-        description:
-          - Filename of the Prometheus TLS certificate stored in the Secret.
-      prometheus_k8s_resource_name:
-        type: str
-        required: false
-        default: "{{ inventory_hostname }}"
-        description:
-          - Base Kubernetes resource name used for the Prometheus Secret.
+      inventory_hostname: *inventory_hostname
+      k8s_namespace: *k8s_namespace
+      remote_config_dir: *remote_config_dir
+      prometheus_remote_config_dir: *prometheus_remote_config_dir
+      prometheus_tls_private_key_file: *prometheus_tls_private_key_file
+      prometheus_tls_cert_file: *prometheus_tls_cert_file
+      prometheus_k8s_resource_name: *prometheus_k8s_resource_name
+      prometheus_use_tls: *prometheus_use_tls
 
   crypto/fetch:
     short_description: Fetch Prometheus TLS certificates
     description:
       - Fetches the generated Prometheus TLS CA certificate and server certificate to the control node.
     options:
-      prometheus_use_tls:
-        type: bool
-        required: false
-        default: false
-        description:
-          - Fetches certificate artifacts only when TLS is enabled.
-      prometheus_remote_config_dir:
-        type: path
-        required: true
-        description:
-          - "Absolute path on the remote host where Prometheus configuration files are written. Example: C(/opt/fabric/config/prometheus)."
-      fetched_artifacts_dir:
-        type: path
-        required: true
-        description:
-          - "Local directory where fetched TLS artifacts are stored. Example: C(/tmp/fabricx-artifacts)."
+      inventory_hostname: *inventory_hostname
+      fetched_artifacts_dir: *fetched_artifacts_dir
+      remote_config_dir: *remote_config_dir
+      prometheus_remote_config_dir: *prometheus_remote_config_dir
+      prometheus_use_tls: *prometheus_use_tls
 
   crypto/rm:
     short_description: Remove Prometheus TLS materials
     description:
       - Deletes the Prometheus TLS directory and removes the Kubernetes Secret when Kubernetes mode is enabled.
     options:
-      prometheus_use_tls:
-        type: bool
-        required: false
-        default: false
-        description:
-          - Removes the TLS directory when set to C(true).
-      prometheus_use_k8s:
-        type: bool
-        required: false
-        default: false
-        description:
-          - Removes the Kubernetes Secret when set to C(true).
-      prometheus_remote_config_dir:
-        type: path
-        required: true
-        description:
-          - "Absolute path on the remote host where Prometheus configuration files are written. Example: C(/opt/fabric/config/prometheus)."
+      remote_config_dir: *remote_config_dir
+      prometheus_remote_config_dir: *prometheus_remote_config_dir
+      prometheus_use_tls: *prometheus_use_tls
+      prometheus_use_k8s: *prometheus_use_k8s
 
   k8s/crypto/rm:
     short_description: Remove the Prometheus TLS Secret
     description:
       - Deletes the Kubernetes Secret that stores the Prometheus TLS server keypair.
     options:
-      prometheus_k8s_resource_name:
-        type: str
-        required: false
-        default: "{{ inventory_hostname }}"
-        description:
-          - Base Kubernetes resource name used for the Prometheus Secret.
+      inventory_hostname: *inventory_hostname
+      k8s_namespace: *k8s_namespace
+      prometheus_k8s_resource_name: *prometheus_k8s_resource_name
 
   config/transfer:
     short_description: Transfer Prometheus configuration files
     description:
       - Generates Prometheus configuration files on the remote host and optionally applies the Kubernetes ConfigMap.
     options:
-      prometheus_remote_config_dir:
-        type: path
-        required: true
-        description:
-          - "Absolute path on the remote host where Prometheus configuration files are written. Example: C(/opt/fabric/config/prometheus)."
-      prometheus_config_file:
-        type: str
-        required: false
-        default: prometheus.yaml
-        description:
-          - Filename of the main Prometheus scrape configuration.
-      prometheus_web_config_file:
-        type: str
-        required: false
-        default: web-config.yaml
-        description:
-          - Filename of the Prometheus web TLS configuration file.
-      prometheus_http_config_file:
-        type: str
-        required: false
-        default: http-config.yaml
-        description:
-          - Filename of the promtool HTTP client configuration used for TLS health checks.
-      prometheus_use_tls:
-        type: bool
-        required: false
-        default: false
-        description:
-          - Generates TLS-specific configuration files when set to C(true).
-      prometheus_scrape_interval:
-        type: str
-        required: false
-        default: 2s
-        description:
-          - "Global Prometheus scrape interval. Example: C(2s)."
-      prometheus_container_config_dir:
-        type: path
-        required: false
-        default: /etc/prometheus/config
-        description:
-          - In-container or in-pod path referenced inside generated configuration files.
-      prometheus_tls_cert_file:
-        type: str
-        required: false
-        default: server.crt
-        description:
-          - Filename of the Prometheus TLS certificate used by HTTPS and mTLS scrape jobs.
-      prometheus_tls_private_key_file:
-        type: str
-        required: false
-        default: server.key
-        description:
-          - Filename of the Prometheus TLS private key used by HTTPS and mTLS scrape jobs.
-      prometheus_scrape_services:
-        type: list
-        required: false
-        description:
-          - Optional list of scrape job definitions rendered into C(prometheus.yaml).
-      prometheus_use_k8s:
-        type: bool
-        required: false
-        default: false
-        description:
-          - Applies the Kubernetes ConfigMap after generating the local configuration files when set to C(true).
+      remote_config_dir: *remote_config_dir
+      prometheus_remote_config_dir: *prometheus_remote_config_dir
+      prometheus_config_file: *prometheus_config_file
+      prometheus_web_config_file: *prometheus_web_config_file
+      prometheus_http_config_file: *prometheus_http_config_file
+      prometheus_scrape_interval: *prometheus_scrape_interval
+      prometheus_container_config_dir: *prometheus_container_config_dir
+      prometheus_tls_private_key_file: *prometheus_tls_private_key_file
+      prometheus_tls_cert_file: *prometheus_tls_cert_file
+      prometheus_scrape_services: *prometheus_scrape_services
+      prometheus_use_tls: *prometheus_use_tls
+      prometheus_use_k8s: *prometheus_use_k8s
 
   k8s/config/transfer:
     short_description: Apply the Prometheus ConfigMap on Kubernetes
     description:
       - Creates or updates the ConfigMap that carries the Prometheus configuration and optional TLS CA files.
     options:
-      prometheus_remote_config_dir:
-        type: path
-        required: true
-        description:
-          - "Absolute path on the remote host where Prometheus configuration files are written. Example: C(/opt/fabric/config/prometheus)."
-      prometheus_config_file:
-        type: str
-        required: false
-        default: prometheus.yaml
-        description:
-          - Filename of the main Prometheus scrape configuration.
-      prometheus_web_config_file:
-        type: str
-        required: false
-        default: web-config.yaml
-        description:
-          - Filename of the Prometheus web TLS configuration file.
-      prometheus_http_config_file:
-        type: str
-        required: false
-        default: http-config.yaml
-        description:
-          - Filename of the promtool HTTP client configuration used for TLS health checks.
-      prometheus_k8s_resource_name:
-        type: str
-        required: false
-        default: "{{ inventory_hostname }}"
-        description:
-          - Base Kubernetes resource name used for the Prometheus ConfigMap.
-      prometheus_use_tls:
-        type: bool
-        required: false
-        default: false
-        description:
-          - Includes TLS-specific ConfigMap entries when set to C(true).
-      prometheus_scrape_services:
-        type: list
-        required: false
-        description:
-          - Optional list of scrape job definitions whose CA files are embedded in the ConfigMap.
+      inventory_hostname: *inventory_hostname
+      k8s_namespace: *k8s_namespace
+      remote_config_dir: *remote_config_dir
+      prometheus_remote_config_dir: *prometheus_remote_config_dir
+      prometheus_config_file: *prometheus_config_file
+      prometheus_web_config_file: *prometheus_web_config_file
+      prometheus_http_config_file: *prometheus_http_config_file
+      prometheus_k8s_resource_name: *prometheus_k8s_resource_name
+      prometheus_scrape_services: *prometheus_scrape_services
+      prometheus_use_tls: *prometheus_use_tls
 
   config/rm:
     short_description: Remove Prometheus configuration files
     description:
       - Deletes the remote Prometheus configuration directory and optionally removes the Kubernetes ConfigMap.
     options:
-      prometheus_remote_config_dir:
-        type: path
-        required: true
-        description:
-          - "Absolute path on the remote host where Prometheus configuration files are written. Example: C(/opt/fabric/config/prometheus)."
-      prometheus_use_k8s:
-        type: bool
-        required: false
-        default: false
-        description:
-          - Removes the Kubernetes ConfigMap when set to C(true).
+      remote_config_dir: *remote_config_dir
+      prometheus_remote_config_dir: *prometheus_remote_config_dir
+      prometheus_use_k8s: *prometheus_use_k8s
 
   k8s/config/rm:
     short_description: Remove the Prometheus ConfigMap
     description:
       - Deletes the Kubernetes ConfigMap that stores Prometheus configuration.
     options:
-      prometheus_k8s_resource_name:
-        type: str
-        required: false
-        default: "{{ inventory_hostname }}"
-        description:
-          - Base Kubernetes resource name used for the Prometheus ConfigMap.
+      inventory_hostname: *inventory_hostname
+      k8s_namespace: *k8s_namespace
+      prometheus_k8s_resource_name: *prometheus_k8s_resource_name
 
   fetch_logs:
     short_description: Fetch Prometheus logs from the active deployment mode
     description:
       - Collects Prometheus logs from either the container deployment or the Kubernetes pod.
     options:
-      prometheus_use_container:
-        type: bool
-        required: false
-        default: "{{ not prometheus_use_k8s }}"
-        description:
-          - Enables container log collection when set to C(true).
-      prometheus_use_k8s:
-        type: bool
-        required: false
-        default: false
-        description:
-          - Enables Kubernetes pod log collection when set to C(true).
+      prometheus_use_container: *prometheus_use_container
+      prometheus_use_k8s: *prometheus_use_k8s
 
   container/fetch_logs:
     short_description: Fetch Prometheus container logs
     description:
       - Collects logs for the Prometheus container through the shared container role.
     options:
-      prometheus_container_name:
-        type: str
-        required: false
-        default: "{{ inventory_hostname }}"
-        description:
-          - Container name used for the Prometheus workload.
+      inventory_hostname: *inventory_hostname
+      prometheus_container_name: *prometheus_container_name
 
   k8s/fetch_logs:
     short_description: Fetch Prometheus pod logs
     description:
       - Collects logs for the Prometheus pod through the shared Kubernetes role.
     options:
-      prometheus_k8s_resource_name:
-        type: str
-        required: false
-        default: "{{ inventory_hostname }}"
-        description:
-          - Base Kubernetes resource name used as the pod label selector.
+      inventory_hostname: *inventory_hostname
+      k8s_namespace: *k8s_namespace
+      prometheus_k8s_resource_name: *prometheus_k8s_resource_name
