@@ -1,0 +1,102 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+argument_specs:
+  _shared_options:
+    short_description: Shared postgres role options
+    description:
+      - Shared option definitions reused by postgres role entry points.
+    options:
+      postgres_use_k8s: &postgres_use_k8s
+        type: bool
+        required: false
+        default: false
+        description:
+          - Runs postgres tasks in Kubernetes mode when set to C(true).
+      postgres_use_openshift: &postgres_use_openshift
+        type: bool
+        required: false
+        default: false
+        description:
+          - Runs postgres tasks in OpenShift mode when set to C(true).
+      postgres_use_container: &postgres_use_container
+        type: bool
+        required: false
+        default: "{{ (not postgres_use_k8s) and (not postgres_use_openshift) }}"
+        description:
+          - Runs postgres tasks in container mode when set to C(true).
+          - The default derives from C(postgres_use_k8s) and C(postgres_use_openshift).
+      postgres_k8s_resource_name: &postgres_k8s_resource_name
+        type: str
+        required: false
+        default: "{{ inventory_hostname }}"
+        description:
+          - Names Kubernetes resources created by the postgres role.
+      postgres_k8s_wait_timeout: &postgres_k8s_wait_timeout
+        type: int
+        required: false
+        default: 120
+        description:
+          - Sets the timeout in seconds while waiting for postgres StatefulSet readiness.
+      postgres_k8s_fs_group: &postgres_k8s_fs_group
+        type: int
+        required: false
+        default: 999
+        description:
+          - Sets pod C(fsGroup) so mounted files are readable by the postgres process.
+      k8s_namespace: &k8s_namespace
+        type: str
+        required: false
+        description:
+          - Names the Kubernetes namespace used for postgres resources.
+      k8s_manage_namespace: &k8s_manage_namespace
+        type: bool
+        required: false
+        description:
+          - Creates the Kubernetes namespace before applying postgres resources when set to C(true).
+
+  start:
+    short_description: Start postgres with the configured backend
+    description:
+      - Dispatches postgres startup to Kubernetes, OpenShift, or container tasks.
+    options:
+      postgres_use_k8s: *postgres_use_k8s
+      postgres_use_openshift: *postgres_use_openshift
+      postgres_use_container: *postgres_use_container
+
+  k8s/start:
+    short_description: Start postgres on Kubernetes
+    description:
+      - Applies postgres Kubernetes services and StatefulSet resources.
+      - Waits for StatefulSet readiness using the configured timeout.
+    options:
+      k8s_namespace: *k8s_namespace
+      k8s_manage_namespace: *k8s_manage_namespace
+      postgres_k8s_resource_name: *postgres_k8s_resource_name
+      postgres_k8s_wait_timeout: *postgres_k8s_wait_timeout
+      postgres_k8s_fs_group: *postgres_k8s_fs_group
+
+  openshift/start:
+    short_description: Start postgres on OpenShift
+    description:
+      - Applies postgres resources through OpenShift-compatible manifests.
+      - Waits for workload readiness using the configured timeout.
+    options:
+      k8s_namespace: *k8s_namespace
+      postgres_k8s_resource_name: *postgres_k8s_resource_name
+      postgres_k8s_wait_timeout: *postgres_k8s_wait_timeout
+      postgres_k8s_fs_group: *postgres_k8s_fs_group
+
+  teardown:
+    short_description: Tear down postgres resources
+    description:
+      - Dispatches postgres teardown to Kubernetes, OpenShift, or container tasks and removes data.
+    options:
+      postgres_use_k8s: *postgres_use_k8s
+      postgres_use_openshift: *postgres_use_openshift
+      postgres_use_container: *postgres_use_container
+      k8s_namespace: *k8s_namespace
+      postgres_k8s_resource_name: *postgres_k8s_resource_name
