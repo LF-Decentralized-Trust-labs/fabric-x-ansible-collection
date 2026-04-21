@@ -9,14 +9,16 @@ argument_specs:
     options:
       remote_config_dir: &remote_config_dir
         type: path
-        required: true
+        required: false
         description:
           - Sets the shared remote config root used by Grafana.
+          - Required when relying on it to derive the default for C(grafana_remote_config_dir).
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
-        required: true
+        required: false
         description:
           - Sets the shared fetched-artifacts root used by Grafana.
+          - Required when relying on it to derive paths for fetched TLS artifacts.
       prometheus_host: &prometheus_host
         type: str
         required: true
@@ -223,10 +225,9 @@ argument_specs:
       grafana_k8s_web_node_port: &grafana_k8s_web_node_port
         type: int
         required: false
-        default: "{{ grafana_web_port }}"
         description:
-          - Sets the Grafana NodePort value used by the optional NodePort Service and ping checks.
-          - The default derives from C(grafana_web_port).
+          - Sets the optional explicit Grafana NodePort value used by the NodePort Service and ping checks.
+          - When omitted, Kubernetes can auto-assign the NodePort.
       grafana_username: &grafana_username
         type: str
         required: true
