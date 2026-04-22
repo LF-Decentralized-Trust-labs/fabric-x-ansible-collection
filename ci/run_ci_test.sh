@@ -75,9 +75,9 @@ source "${PROFILE_FILE}"
 # run network and tests
 run_cmd make setup
 run_cmd make network start
-run_cmd make monitoring start
 run_cmd make init
 run_cmd make load_generators start
+run_cmd make monitoring start
 run_cmd sleep 20
 run_cmd make load_generators get-metrics ASSERT_METRICS=true
 
