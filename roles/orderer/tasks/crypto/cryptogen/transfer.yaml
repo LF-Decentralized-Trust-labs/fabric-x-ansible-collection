@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# =========================
+# MSP and TLS certs
+# =========================
 - name: Ensure orderer config directory exists
   ansible.builtin.file:
     path: "{{ orderer_remote_config_dir }}"
@@ -12,5 +15,5 @@
 
 - name: Transfer the Fabric-X Orderer crypto material generated with cryptogen
   ansible.posix.synchronize:
-    src: "{{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/"
+    src: "{{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.name }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/"
     dest: "{{ orderer_remote_config_dir }}"

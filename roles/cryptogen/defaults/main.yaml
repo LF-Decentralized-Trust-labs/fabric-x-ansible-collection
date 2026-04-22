@@ -9,7 +9,7 @@
 # =========================
 cryptogen_registry_endpoint: "{{ lookup('env', 'CRYPTOGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 cryptogen_image_name: "fabric-x-tools"
-cryptogen_image_tag: "0.0.8"
+cryptogen_image_tag: "0.0.15"
 cryptogen_image: "{{ cryptogen_registry_endpoint }}/{{ cryptogen_image_name }}:{{ cryptogen_image_tag }}"
 cryptogen_container_name: "cryptogen"
 
@@ -18,7 +18,7 @@ cryptogen_container_name: "cryptogen"
 # =========================
 cryptogen_git_hub_url: "github.com"
 cryptogen_git_repo: "hyperledger/fabric-x"
-cryptogen_git_commit: "v0.0.8"
+cryptogen_git_commit: "v0.0.15"
 cryptogen_source_code_package: "tools/cryptogen"
 cryptogen_bin_package: "{{ cryptogen_git_hub_url }}/{{ cryptogen_git_repo }}/{{ cryptogen_source_code_package }}"
 cryptogen_bin_name: "cryptogen"

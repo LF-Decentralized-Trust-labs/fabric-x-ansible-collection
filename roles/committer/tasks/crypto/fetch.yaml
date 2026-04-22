@@ -4,6 +4,41 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# =========================
+# MSP certs
+# =========================
+- name: Copy Hyperledger Fabric-X Committer sign certificate into organization knowncerts
+  vars:
+    cryptogen_signcert_file: "{{ organization.peer.name | default(inventory_hostname) }}.{{ organization.domain }}-cert.pem"
+  ansible.builtin.copy:
+    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.name }}/peers/{{ organization.peer.name | default(inventory_hostname) }}.{{ organization.domain }}/msp/signcerts/{{ cryptogen_signcert_file }}"
+    dest: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/msp/knowncerts/{{ cryptogen_signcert_file }}"
+    mode: preserve
+  delegate_to: localhost
+  when:
+    - organization.fabric_ca_host is undefined
+
+- name: Fetch Hyperledger Fabric-X Committer sidecar sign certificate into organization knowncerts
+  vars:
+    cryptogen_signcert_file: "{{ organization.peer.name | default(inventory_hostname) }}.{{ organization.domain }}-cert.pem"
+    fabric_ca_signcert_file: "cert.pem"
+    signcert_file: >-
+      {{
+        cryptogen_signcert_file
+        if organization.fabric_ca_host is undefined
+        else fabric_ca_signcert_file
+      }}
+  ansible.builtin.fetch:
+    src: "{{ committer_remote_config_dir }}/msp/signcerts/{{ signcert_file }}"
+    dest: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/msp/knowncerts/{{ cryptogen_signcert_file }}"
+    flat: true
+  when:
+    - organization.fabric_ca_host is defined
+    - committer_component_type == 'sidecar'
+
+# =========================
+# TLS certs
+# =========================
 - name: Fetch Hyperledger Fabric-X Committer TLS CA certificate
   ansible.builtin.fetch:
     src: "{{ committer_remote_config_dir }}/tls/ca.crt"
