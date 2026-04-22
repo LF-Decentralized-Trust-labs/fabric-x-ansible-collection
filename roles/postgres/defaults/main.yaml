@@ -40,6 +40,7 @@ postgres_use_container: "{{ (not postgres_use_k8s) and (not postgres_use_openshi
 postgres_k8s_resource_name: "{{ inventory_hostname }}"
 postgres_k8s_wait_timeout: 120
 postgres_k8s_fs_group: 999
+postgres_k8s_use_node_port: false
 
 # =========================
 # Miscellaneous

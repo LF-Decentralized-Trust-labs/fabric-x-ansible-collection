@@ -11,7 +11,6 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.k8s
     tasks_from: namespace/create
-  when: k8s_manage_namespace
 
 # =========================
 # Apply Resources
@@ -27,6 +26,7 @@
     state: present
     template:
       path: k8s/service-nodeport.yaml.j2
+  when: postgres_k8s_use_node_port
 
 - name: Apply Postgres DB StatefulSet
   kubernetes.core.k8s:

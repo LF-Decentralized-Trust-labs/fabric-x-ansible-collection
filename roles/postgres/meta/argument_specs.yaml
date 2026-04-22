@@ -143,9 +143,10 @@ argument_specs:
         description:
           - Run PostgreSQL as a container when set to C(true).
           - The default derives from C(postgres_use_k8s) and C(postgres_use_openshift).
-      k8s_manage_namespace: &k8s_manage_namespace
+      k8s_create_namespace: &k8s_create_namespace
         type: bool
         required: false
+        default: true
         description:
           - Ensure the Kubernetes namespace exists before applying PostgreSQL resources when set to C(true).
       postgres_k8s_resource_name: &postgres_k8s_resource_name
@@ -167,6 +168,12 @@ argument_specs:
         default: 999
         description:
           - Kubernetes pod C(fsGroup) applied so mounted files are readable by the postgres process.
+      postgres_k8s_use_node_port: &postgres_k8s_use_node_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Enable the Kubernetes NodePort Service for PostgreSQL when set to C(true).
       postgres_k8s_port_node_port: &postgres_k8s_port_node_port
         type: int
         required: false
@@ -299,7 +306,7 @@ argument_specs:
     description:
       - Validates that the PostgreSQL port is reachable on the target host.
       - In container mode, probes C(postgres_port) directly.
-      - In Kubernetes mode, delegates to the C(k8s/ping) entry point which probes the NodePort when C(postgres_k8s_port_node_port) is defined.
+      - In Kubernetes mode, delegates to the C(k8s/ping) entry point which probes the NodePort when C(postgres_k8s_use_node_port) is enabled and C(postgres_k8s_port_node_port) is defined.
       - Also probes the postgres_exporter port when it is defined.
     options:
       postgres_use_k8s: *postgres_use_k8s
@@ -311,7 +318,7 @@ argument_specs:
     description:
       - Starts PostgreSQL using the selected deployment mode.
       - The container mode is the default unless C(postgres_use_k8s) or C(postgres_use_openshift) is enabled.
-      - When Kubernetes mode is selected, validates the Service, StatefulSet, and NodePort inputs required by the k8s startup path.
+      - When Kubernetes mode is selected, validates the Service and StatefulSet inputs, plus optional NodePort inputs used by the k8s startup path.
       - When OpenShift mode is selected, validates the Service and StatefulSet inputs required by the openshift startup path.
     options:
       postgres_use_k8s: *postgres_use_k8s
@@ -424,16 +431,18 @@ argument_specs:
   k8s/start:
     short_description: Start PostgreSQL on Kubernetes
     description:
-      - Ensures the Kubernetes namespace exists when C(k8s_manage_namespace) is enabled and applies the PostgreSQL Service, NodePort Service, and StatefulSet resources.
+      - Ensures the Kubernetes namespace exists when C(k8s_create_namespace) is enabled and applies the PostgreSQL Service and StatefulSet resources.
+      - Applies the optional NodePort Service when C(postgres_k8s_use_node_port) is enabled.
       - Uses the role templates to configure storage, credentials, TLS, and optional mTLS mounts.
     options:
       postgres_k8s_resource_name: *postgres_k8s_resource_name
       k8s_namespace:
         <<: *k8s_namespace
         required: true
-      k8s_manage_namespace: *k8s_manage_namespace
+      k8s_create_namespace: *k8s_create_namespace
       postgres_k8s_wait_timeout: *postgres_k8s_wait_timeout
       postgres_k8s_fs_group: *postgres_k8s_fs_group
+      postgres_k8s_use_node_port: *postgres_k8s_use_node_port
       postgres_k8s_port_node_port: *postgres_k8s_port_node_port
       postgres_port: *postgres_port
       postgres_registry_endpoint: *postgres_registry_endpoint
@@ -466,9 +475,10 @@ argument_specs:
   k8s/ping:
     short_description: Check PostgreSQL NodePort reachability on Kubernetes
     description:
-      - Probes the PostgreSQL NodePort when C(postgres_k8s_port_node_port) is defined.
+      - Probes the PostgreSQL NodePort when C(postgres_k8s_use_node_port) is enabled and C(postgres_k8s_port_node_port) is defined.
       - This entry point is invoked internally by C(ping) when PostgreSQL runs on Kubernetes.
     options:
+      postgres_k8s_use_node_port: *postgres_k8s_use_node_port
       postgres_k8s_port_node_port: *postgres_k8s_port_node_port
 
   k8s/rm:
@@ -503,7 +513,7 @@ argument_specs:
       k8s_namespace:
         <<: *k8s_namespace
         required: true
-      k8s_manage_namespace: *k8s_manage_namespace
+      k8s_create_namespace: *k8s_create_namespace
       postgres_remote_config_dir: *postgres_remote_config_dir
       remote_config_dir: *remote_config_dir
       postgres_tls_private_key_file: *postgres_tls_private_key_file
@@ -534,7 +544,7 @@ argument_specs:
       k8s_namespace:
         <<: *k8s_namespace
         required: true
-      k8s_manage_namespace: *k8s_manage_namespace
+      k8s_create_namespace: *k8s_create_namespace
       postgres_remote_config_dir: *postgres_remote_config_dir
       remote_config_dir: *remote_config_dir
       postgres_use_mtls: *postgres_use_mtls

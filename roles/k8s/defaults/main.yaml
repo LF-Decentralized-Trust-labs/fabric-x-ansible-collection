@@ -8,3 +8,5 @@ k8s_remote_logs_dir: "{{ remote_node_dir }}/logs"
 k8s_remote_logs_file: "logs.txt"
 k8s_fetched_logs_dir: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}"
 k8s_fetched_logs_file: "logs.txt"
+
+k8s_create_namespace: true
