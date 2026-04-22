@@ -18,10 +18,10 @@ spec:
   selector:
     app.kubernetes.io/name: {{ postgres_k8s_resource_name }}
   ports:
-{% if postgres_k8s_port_node_port is defined %}
     - name: postgres
-      # nodePort matches port so external addresses are predictable.
+      # Exposes PostgreSQL externally.
       port: {{ postgres_port }}
       targetPort: {{ postgres_port }}
+{% if postgres_k8s_port_node_port is defined %}
       nodePort: {{ postgres_k8s_port_node_port }}
 {% endif %}

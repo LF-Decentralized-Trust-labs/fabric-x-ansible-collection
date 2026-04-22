@@ -31,7 +31,8 @@ postgres_use_mtls: false
 # Deployment mode
 # =========================
 postgres_use_k8s: false
-postgres_use_container: "{{ not postgres_use_k8s }}"
+postgres_use_openshift: false
+postgres_use_container: "{{ (not postgres_use_k8s) and (not postgres_use_openshift) }}"
 
 # =========================
 # Kubernetes

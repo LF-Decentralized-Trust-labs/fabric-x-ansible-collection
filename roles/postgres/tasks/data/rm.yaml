@@ -19,4 +19,4 @@
     kind: PersistentVolumeClaim
     name: "data-{{ inventory_hostname }}-0"
     namespace: "{{ k8s_namespace }}"
-  when: postgres_use_k8s
+  when: postgres_use_k8s or postgres_use_openshift
