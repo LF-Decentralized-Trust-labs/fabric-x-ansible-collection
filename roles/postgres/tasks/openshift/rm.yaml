@@ -4,18 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Delete Postgres DB StatefulSet
-  kubernetes.core.k8s:
-    state: absent
-    api_version: apps/v1
-    kind: StatefulSet
-    name: "{{ postgres_k8s_resource_name }}"
-    namespace: "{{ k8s_namespace }}"
-
-- name: Delete Postgres DB Service
-  kubernetes.core.k8s:
-    state: absent
-    api_version: v1
-    kind: Service
-    name: "{{ postgres_k8s_resource_name }}"
-    namespace: "{{ k8s_namespace }}"
+- name: Remove Postgres DB workload using generic k8s flow
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: k8s/rm

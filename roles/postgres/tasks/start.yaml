@@ -8,9 +8,7 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: k8s/start
-  when:
-    - postgres_use_k8s
-    - not postgres_use_openshift
+  when: postgres_use_k8s
 
 - name: Start Postgres DB on OpenShift
   ansible.builtin.include_role:

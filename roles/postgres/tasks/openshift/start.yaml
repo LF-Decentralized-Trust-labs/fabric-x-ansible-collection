@@ -4,19 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# =========================
-# Apply Resources
-# =========================
-- name: Apply Postgres DB Service
-  kubernetes.core.k8s:
-    state: present
-    template:
-      path: k8s/service.yaml.j2
-
-- name: Apply Postgres DB StatefulSet
-  kubernetes.core.k8s:
-    state: present
-    template:
-      path: k8s/statefulset.yaml.j2
-    wait: true
-    wait_timeout: "{{ postgres_k8s_wait_timeout }}"
+- name: Start Postgres DB workload using generic k8s flow
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: k8s/start
