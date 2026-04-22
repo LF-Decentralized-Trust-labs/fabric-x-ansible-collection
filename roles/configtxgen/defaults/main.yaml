@@ -9,7 +9,7 @@
 # =========================
 configtxgen_registry_endpoint: "{{ lookup('env', 'CONFIGTXGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 configtxgen_image_name: "fabric-x-tools"
-configtxgen_image_tag: "0.0.8"
+configtxgen_image_tag: "0.0.15"
 configtxgen_image: "{{ configtxgen_registry_endpoint }}/{{ configtxgen_image_name }}:{{ configtxgen_image_tag }}"
 configtxgen_container_name: "configtxgen"
 
@@ -18,7 +18,7 @@ configtxgen_container_name: "configtxgen"
 # =========================
 configtxgen_git_hub_url: "github.com"
 configtxgen_git_repo: "hyperledger/fabric-x"
-configtxgen_git_commit: "v0.0.8"
+configtxgen_git_commit: "v0.0.15"
 configtxgen_source_code_package: "tools/configtxgen"
 configtxgen_bin_package: "{{ configtxgen_git_hub_url }}/{{ configtxgen_git_repo }}/{{ configtxgen_source_code_package }}"
 configtxgen_bin_name: "configtxgen"
