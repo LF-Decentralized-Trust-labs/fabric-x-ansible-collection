@@ -78,7 +78,7 @@ run_cmd make network start
 run_cmd make monitoring start
 run_cmd make init
 run_cmd make load_generators start
-run_cmd sleep 10
+run_cmd sleep 20
 run_cmd make load_generators get-metrics ASSERT_METRICS=true
 
 # stop deployment
