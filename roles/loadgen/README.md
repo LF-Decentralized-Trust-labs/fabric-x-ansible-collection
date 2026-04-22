@@ -88,7 +88,7 @@ Removes the crypto material generated for a Fabric-X Loadgen:
 
 #### config/transfer
 
-Transfers the Loadgen configuration files on the remote node:
+Transfers the Loadgen configuration files and related TLS assets on the remote node:
 
 ```yaml
 - name: Transfer the Loadgen configuration files
@@ -123,12 +123,11 @@ Removes the Loadgen configuration files on the remote node:
 
 #### start
 
-Starts the Loadgen component:
+Starts the Loadgen runtime:
 
 ```yaml
 - name: Start Loadgen
   vars:
-    loadgen_type: orderer-client
     loadgen_web_port: 8080
     loadgen_metrics_port: 9090
   ansible.builtin.include_role:
