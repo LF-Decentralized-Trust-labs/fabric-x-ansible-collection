@@ -6,6 +6,7 @@
 ---
 argument_specs:
   _shared_options:
+    short_description: Shared option catalog for grafana role entry points
     options:
       remote_config_dir: &remote_config_dir
         type: path
@@ -28,7 +29,6 @@ argument_specs:
       organization: &organization
         type: dict
         required: false
-        default: null
         description:
           - Sets the optional organization mapping used for TLS certificate generation.
           - When set, C(organization.domain) is used as the OpenSSL organization name and otherwise defaults to C(inventory_hostname).
@@ -40,55 +40,46 @@ argument_specs:
       k8s_image_pull_secret: &k8s_image_pull_secret
         type: str
         required: false
-        default: null
         description:
           - Sets the optional image pull secret used by the Grafana Deployment.
       k8s_readiness_probe_initial_delay_seconds: &k8s_readiness_probe_initial_delay_seconds
         type: int
         required: false
-        default: 10
         description:
           - Sets the Grafana readiness probe initial delay.
       k8s_readiness_probe_period_seconds: &k8s_readiness_probe_period_seconds
         type: int
         required: false
-        default: 10
         description:
           - Sets the Grafana readiness probe period.
       k8s_readiness_probe_timeout_seconds: &k8s_readiness_probe_timeout_seconds
         type: int
         required: false
-        default: 5
         description:
           - Sets the Grafana readiness probe timeout.
       k8s_readiness_probe_failure_threshold: &k8s_readiness_probe_failure_threshold
         type: int
         required: false
-        default: 3
         description:
           - Sets the Grafana readiness probe failure threshold.
       k8s_liveness_probe_initial_delay_seconds: &k8s_liveness_probe_initial_delay_seconds
         type: int
         required: false
-        default: 30
         description:
           - Sets the Grafana liveness probe initial delay.
       k8s_liveness_probe_period_seconds: &k8s_liveness_probe_period_seconds
         type: int
         required: false
-        default: 15
         description:
           - Sets the Grafana liveness probe period.
       k8s_liveness_probe_timeout_seconds: &k8s_liveness_probe_timeout_seconds
         type: int
         required: false
-        default: 5
         description:
           - Sets the Grafana liveness probe timeout.
       k8s_liveness_probe_failure_threshold: &k8s_liveness_probe_failure_threshold
         type: int
         required: false
-        default: 5
         description:
           - Sets the Grafana liveness probe failure threshold.
       grafana_registry_endpoint: &grafana_registry_endpoint

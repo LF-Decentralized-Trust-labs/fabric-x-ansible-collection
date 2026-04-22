@@ -35,12 +35,14 @@ ANSIBLE_PLAYBOOK ?= $(VENV_BIN_DIR)/ansible-playbook
 ANSIBLE_GALAXY ?= $(VENV_BIN_DIR)/ansible-galaxy
 ANSIBLE_LINT ?= $(VENV_BIN_DIR)/ansible-lint
 ANSIBLE_PYTHON_INTERPRETER ?= $(VENV_BIN_DIR)/python
+AAR_DOC ?= $(VENV_BIN_DIR)/aar-doc
 export ANSIBLE_PYTHON_INTERPRETER
 else
 ANSIBLE_PLAYBOOK ?= ansible-playbook
 ANSIBLE_GALAXY ?= ansible-galaxy
 ANSIBLE_LINT ?= ansible-lint
 ANSIBLE_PYTHON_INTERPRETER ?= python3
+AAR_DOC ?= aar-doc
 endif
 
 # Color codes for echo messages
@@ -137,6 +139,27 @@ install-remote-node-deps:
 lint:
 	@printf "$(COLOR_CYAN)🚩 Running ansible-lint checks...$(COLOR_RESET)\n"
 	$(ANSIBLE_LINT) --offline roles playbooks examples
+
+# Generate role READMEs and defaults from argument_specs.yaml
+.PHONY: generate-docs
+generate-docs:
+	@printf "$(COLOR_CYAN)🚩 Generating role docs from argument_specs.yaml...$(COLOR_RESET)\n"
+	@for role in roles/*/; do \
+	    printf "  → $$role\n"; \
+	    $(AAR_DOC) --output-mode replace --output-template $(PROJECT_DIR)/ci/templates/readme_full.j2 $$role markdown; \
+	    $(ANSIBLE_PYTHON_INTERPRETER) $(PROJECT_DIR)/ci/aar_doc_wrapper.py --output-file main.yaml $$role defaults; \
+	    if [ -f $$role/defaults/main.yaml ]; then \
+	        printf '#\n# Copyright IBM Corp. All Rights Reserved.\n#\n# SPDX-License-Identifier: Apache-2.0\n#\n' > /tmp/_aar_doc_header.yaml; \
+	        cat $$role/defaults/main.yaml >> /tmp/_aar_doc_header.yaml; \
+	        mv /tmp/_aar_doc_header.yaml $$role/defaults/main.yaml; \
+	    fi; \
+	done
+
+# Check that generated docs are in sync with argument_specs.yaml
+.PHONY: check-docs
+check-docs: generate-docs
+	@git diff --exit-code roles/*/defaults/main.yaml roles/*/README.md \
+	    || (printf "$(COLOR_RESET)ERROR: Generated docs are out of date. Run 'make generate-docs' and commit the changes.\n" && exit 1)
 
 # Check the license header
 .PHONY: check-license-header

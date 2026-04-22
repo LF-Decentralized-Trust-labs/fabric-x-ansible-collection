@@ -1,68 +1,91 @@
+
 # hyperledger.fabricx.package
 
 > Installs OS packages on target machines (apt / brew).
 
+
 ## Table of Contents <!-- omit in toc -->
 
+- [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [Lifecycle](#lifecycle)
-    - [install](#install)
-    - [install_on_linux](#install_on_linux)
-    - [install_on_macos](#install_on_macos)
-- [Variables](#variables)
+  - [install](#task-install)
+  - [install_on_linux](#task-install_on_linux)
+  - [install_on_macos](#task-install_on_macos)
+
+## Role Defaults
+
+See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults and inline variable descriptions.
 
 ## Tasks
 
-### Lifecycle
+<a id="task-install"></a>
 
-| Task                                              | Description               |
-| ------------------------------------------------- | ------------------------- |
-| [install](./tasks/install.yaml)                   | Installs package          |
-| [install_on_linux](./tasks/install_on_linux.yaml) | Installs package on Linux |
-| [install_on_macos](./tasks/install_on_macos.yaml) | Installs package on macOS |
+### install
 
-#### install
+Install a package for the current operating system
 
-Installs a package on the target machine:
+
+Installs a package by dispatching to the Linux or macOS entry point based on `ansible_facts.system`.
+
+This entry point validates `package_name` and `package_service_name`.
+
 
 ```yaml
-- name: Install tmux
+- name: Install a package for the current operating system
   vars:
-    package_name: tmux
+    # Names the executable or package to install on the target host. Set this to the package identifier used by the host package manager.
+    package_name: "string"
+    # Names the Linux service to enable and start after installation.
+    package_service_name: "string"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.package
     tasks_from: install
 ```
 
-#### install_on_linux
+<a id="task-install_on_linux"></a>
 
-Installs a package on a Linux machine and, optionally, starts it as a daemon if needed (through the `package_service_name` flag):
+### install_on_linux
+
+Install a package on Linux
+
+
+Installs a package on Linux hosts after confirming the command is not already present and the package is available through the system package manager.
+
+If a service name is provided, this entry point also enables and starts that service after installation.
+
 
 ```yaml
-- name: Install chrony on Linux
+- name: Install a package on Linux
   vars:
-    package_name: chrony
-    package_service_name: chronyd # optional
+    # Names the executable or package to install on the target host. Set this to the package identifier used by the host package manager.
+    package_name: "string"
+    # Names the Linux service to enable and start after installation.
+    package_service_name: "string"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.package
     tasks_from: install_on_linux
 ```
 
-#### install_on_macos
+<a id="task-install_on_macos"></a>
 
-Installs a package on macOS (requires `brew`):
+### install_on_macos
+
+Install a package on macOS
+
+
+Installs a package on macOS hosts with Homebrew after confirming the command is not already present.
+
+This entry point assumes Homebrew is already installed on the target host.
+
 
 ```yaml
-- name: Install chronyc on macOS
+- name: Install a package on macOS
   vars:
-    package_name: chronyc
+    # Names the executable or package to install on the target host. Set this to the package identifier used by the host package manager.
+    package_name: "string"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.package
     tasks_from: install_on_macos
 ```
 
----
 
-## Variables
-
-See [`defaults/main.yaml`](defaults/main.yaml) for full variable documentation.

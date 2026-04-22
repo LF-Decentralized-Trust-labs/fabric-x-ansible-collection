@@ -1,0 +1,123 @@
+{#-
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+#-#}
+{%- macro render_description(description) -%}
+{%- if description is string -%}
+{{ description | ansible_doc_markup }}
+{%- else -%}
+{%- for line in description %}
+{{ line | ansible_doc_markup }}
+{% endfor -%}
+{%- endif -%}
+{%- endmacro %}
+{%- macro render_default(value, indent='      ') -%}
+{%- if value is sameas true -%}
+true
+{%- elif value is sameas false -%}
+false
+{%- elif value is string -%}
+{%- set text = value | string -%}
+{%- if '\n' in text -%}
+>-
+{%- for line in text.split('\n') %}
+{{ indent }}{{ line }}
+{%- endfor -%}
+{%- elif text | length == 0 -%}
+""
+{%- elif '{' in text or ':' in text or '#' in text or '[' in text or ']' in text -%}
+"{{ text | replace('\\', '\\\\') | replace('"', '\\"') }}"
+{%- else -%}
+{{ text }}
+{%- endif -%}
+{%- else -%}
+{{ value }}
+{%- endif -%}
+{%- endmacro %}
+{%- macro render_placeholder(var) -%}
+{%- set var_type = var.get('type', 'str') -%}
+{%- if var_type in ['int', 'float'] -%}
+1000
+{%- elif var_type == 'bool' -%}
+false
+{%- elif var_type == 'list' -%}
+{%- set elements = var.get('elements', 'str') -%}
+{%- if elements in ['int', 'float'] -%}
+[1000, 2000]
+{%- elif elements == 'bool' -%}
+[true, false]
+{%- elif elements == 'dict' -%}
+[{}]
+{%- else -%}
+["entry1", "entry2"]
+{%- endif -%}
+{%- elif var_type == 'dict' -%}
+{}
+{%- else -%}
+"string"
+{%- endif -%}
+{%- endmacro %}
+# {{ role }}
+{%- set role_description = metadata.get("galaxy_info", {}).get("description", "") %}
+{%- if role_description %}
+
+> {{ role_description | ansible_doc_markup }}
+{%- endif %}
+
+{% include "README.header.md.j2" ignore missing %}
+## Table of Contents <!-- omit in toc -->
+
+- [Role Defaults](#role-defaults)
+- [Tasks](#tasks)
+{%- for ep_name, ep in argument_specs.items() if ep_name != '_shared_options' %}
+  - [{{ ep_name }}](#task-{{ ep_name | replace('/', '-') }})
+{%- endfor %}
+
+## Role Defaults
+
+See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults and inline variable descriptions.
+
+## Tasks
+{%- for ep_name, ep in argument_specs.items() if ep_name != '_shared_options' %}
+{%- set options = ep.get('options', {}) %}
+
+<a id="task-{{ ep_name | replace('/', '-') }}"></a>
+
+### {{ ep_name }}
+
+{{ ep.short_description | ansible_doc_markup }}
+{%- if "description" in ep %}
+
+{{ render_description(ep.description) }}
+{%- endif %}
+{%- if options %}
+
+```yaml
+- name: {{ ep.short_description }}
+  vars:
+{%- for var_name, var in options.items() %}
+    # {{ var.display_description | ansible_doc_markup }}
+{%- if 'default' not in var or var.default is none %}
+    {{ var_name }}: {{ render_placeholder(var) }}
+{%- else %}
+    {{ var_name }}: {{ render_default(var.default) }}
+{%- endif %}
+{%- endfor %}
+  ansible.builtin.include_role:
+    name: {{ role }}
+    tasks_from: {{ ep_name }}
+```
+{%- else %}
+
+```yaml
+- name: {{ ep.short_description }}
+  ansible.builtin.include_role:
+    name: {{ role }}
+    tasks_from: {{ ep_name }}
+```
+{%- endif %}
+{%- endfor %}
+
+{% include "README.footer.md.j2" ignore missing %}

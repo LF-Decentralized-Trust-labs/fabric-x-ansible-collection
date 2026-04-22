@@ -7,6 +7,7 @@
 argument_specs:
 
   _shared_options:
+    short_description: Shared option catalog for node_exporter role entry points
     options:
       remote_deploy_dir: &remote_deploy_dir
         type: path

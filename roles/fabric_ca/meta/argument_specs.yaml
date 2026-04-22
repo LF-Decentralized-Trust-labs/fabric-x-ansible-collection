@@ -6,6 +6,7 @@
 ---
 argument_specs:
   _shared_options:
+    short_description: Shared option catalog for fabric_ca role entry points
     options:
       fabric_ca_client_use_bin: &fabric_ca_client_use_bin
         type: bool

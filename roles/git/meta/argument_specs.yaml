@@ -6,6 +6,7 @@
 ---
 argument_specs:
   _shared_options:
+    short_description: Shared option catalog for git role entry points
     options:
       git_repo: &git_repo
         type: str

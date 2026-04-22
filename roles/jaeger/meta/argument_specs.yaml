@@ -6,6 +6,7 @@
 ---
 argument_specs:
   _shared_options:
+    short_description: Shared option catalog for jaeger role entry points
     options:
       jaeger_use_container: &jaeger_use_container
         type: bool

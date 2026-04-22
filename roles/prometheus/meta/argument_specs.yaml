@@ -214,49 +214,41 @@ argument_specs:
       k8s_readiness_probe_initial_delay_seconds: &k8s_readiness_probe_initial_delay_seconds
         type: int
         required: false
-        default: 10
         description:
           - Initial delay before the readiness probe starts.
       k8s_readiness_probe_period_seconds: &k8s_readiness_probe_period_seconds
         type: int
         required: false
-        default: 10
         description:
           - Interval between readiness probe attempts.
       k8s_readiness_probe_timeout_seconds: &k8s_readiness_probe_timeout_seconds
         type: int
         required: false
-        default: 5
         description:
           - Timeout for each readiness probe request.
       k8s_readiness_probe_failure_threshold: &k8s_readiness_probe_failure_threshold
         type: int
         required: false
-        default: 6
         description:
           - Number of failed readiness probes before the pod is marked unready.
       k8s_liveness_probe_initial_delay_seconds: &k8s_liveness_probe_initial_delay_seconds
         type: int
         required: false
-        default: 30
         description:
           - Initial delay before the liveness probe starts.
       k8s_liveness_probe_period_seconds: &k8s_liveness_probe_period_seconds
         type: int
         required: false
-        default: 15
         description:
           - Interval between liveness probe attempts.
       k8s_liveness_probe_timeout_seconds: &k8s_liveness_probe_timeout_seconds
         type: int
         required: false
-        default: 10
         description:
           - Timeout for each liveness probe request.
       k8s_liveness_probe_failure_threshold: &k8s_liveness_probe_failure_threshold
         type: int
         required: false
-        default: 10
         description:
           - Number of failed liveness probes before Kubernetes restarts the pod.
 

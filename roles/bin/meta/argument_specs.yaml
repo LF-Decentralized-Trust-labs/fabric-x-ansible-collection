@@ -7,6 +7,7 @@
 argument_specs:
 
   _shared_options:
+    short_description: Shared option catalog for bin role entry points
     options:
       control_node_dir: &control_node_dir
         type: path

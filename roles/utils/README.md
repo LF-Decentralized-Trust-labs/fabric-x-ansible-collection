@@ -1,91 +1,106 @@
+
 # hyperledger.fabricx.utils
 
 > Provides utility functions for inventory management and port checking.
 
+
 ## Table of Contents <!-- omit in toc -->
 
+- [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [Lifecycle](#lifecycle)
-    - [generate_makefile_targets](#generate_makefile_targets)
-    - [ping](#ping)
-    - [select_one_host_per_machine](#select_one_host_per_machine)
-    - [select_one_host_per_k8s_namespace](#select_one_host_per_k8s_namespace)
-- [Variables](#variables)
+  - [generate_makefile_targets](#task-generate_makefile_targets)
+  - [ping](#task-ping)
+  - [select_one_host_per_k8s_namespace](#task-select_one_host_per_k8s_namespace)
+  - [select_one_host_per_machine](#task-select_one_host_per_machine)
+
+## Role Defaults
+
+See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults and inline variable descriptions.
 
 ## Tasks
 
-### Lifecycle
+<a id="task-generate_makefile_targets"></a>
 
-| Task                                                                                | Description                  |
-| ----------------------------------------------------------------------------------- | ---------------------------- |
-| [generate_makefile_targets](./tasks/generate_makefile_targets.yaml)                 | Generates Makefile targets   |
-| [ping](./tasks/ping.yaml)                                                           | Checks port availability     |
-| [select_one_host_per_k8s_namespace](./tasks/select_one_host_per_k8s_namespace.yaml) | Creates k8s_namespaces group |
-| [select_one_host_per_machine](./tasks/select_one_host_per_machine.yaml)             | Creates machines group       |
+### generate_makefile_targets
 
-#### generate_makefile_targets
+Generate Makefile targets for inventory hosts
 
-Generates Makefile targets for all individual hosts in the inventory. The generated targets are written to `target_hosts.mk` in the project root directory.
+
+Generates a `target_hosts.mk` file with one Makefile target per inventory host in `groups['all']`.
+
+The output path is `project_dir + '/target_hosts.mk'`, using the caller-provided `project_dir` variable.
+
 
 ```yaml
-- name: Generate Makefile targets for all inventory hosts
+- name: Generate Makefile targets for inventory hosts
+  vars:
+    # Defines the project root directory used by utility entry points that write generated files. Example: `/path/to/hyperledger/fabricx`.
+    project_dir: "string"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: generate_makefile_targets
 ```
 
-This is typically invoked via the Makefile:
+<a id="task-ping"></a>
 
-```bash
-make targets
-```
+### ping
 
-After generation, you can target individual hosts:
+Check whether TCP ports are reachable
 
-```bash
-make orderer-router-1 start
-make committer-validator stop
-```
 
-#### ping
+Checks whether each port in `utils_ports_to_ping` is reachable on `actual_host` for the current host.
 
-Checks whether a set of ports on a given machine is open:
+Failures are handled through a silent rescue block, so unreachable ports do not fail the play.
+
 
 ```yaml
-- name: Check that the port 9000 and 9001 are open
+- name: Check whether TCP ports are reachable
   vars:
-    utils_ports_to_ping:
-      - 9000
-      - 9001
+    # Lists the TCP ports that the ping entry point probes on the current host. Example: `[9000, 9001]`.
+    utils_ports_to_ping: [1000, 2000]
+    # Sets the network address that the ping entry point probes for each port in `utils_ports_to_ping`. Example: `orderer-router-1.example.com`.
+    actual_host: "string"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: ping
 ```
 
-#### select_one_host_per_machine
+<a id="task-select_one_host_per_k8s_namespace"></a>
 
-Creates a group named `machines` that will contain exactly a single host per machine. It can be useful when you need to perform some operations that would collide and generate errors if run concurrently on the same machine (e.g. when 2 hosts are located on the same machine).
+### select_one_host_per_k8s_namespace
 
-```yaml
-- name: Set the group "machines"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.utils
-    tasks_from: select_one_host_per_machine
-```
+Create a group with one host per Kubernetes namespace
 
-#### select_one_host_per_k8s_namespace
 
-Creates a group named `k8s_namespaces` that will contain exactly a single host per Kubernetes namespace among hosts with `k8s_image_pull_secret` defined. It is useful when you need to perform an operation once per namespace instead of once per host.
+Creates the `k8s_namespaces` group with one selected inventory host per distinct Kubernetes namespace.
+
+Only hosts with `k8s_image_pull_secret` defined participate, and the selection reads `k8s_namespace` from `hostvars` across `ansible_play_hosts`.
+
 
 ```yaml
-- name: Set the group "k8s_namespaces"
+- name: Create a group with one host per Kubernetes namespace
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: select_one_host_per_k8s_namespace
 ```
 
----
+<a id="task-select_one_host_per_machine"></a>
 
-## Variables
+### select_one_host_per_machine
 
-See [`defaults/main.yaml`](defaults/main.yaml) for full variable documentation.
+Create a group with one host per machine
+
+
+Creates the `machines` group with one selected inventory host per distinct machine address.
+
+The selection reads `actual_host` from `hostvars` across `ansible_play_hosts` to identify hosts that share the same machine.
+
+
+```yaml
+- name: Create a group with one host per machine
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: select_one_host_per_machine
+```
+
+

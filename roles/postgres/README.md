@@ -1,194 +1,893 @@
+
 # hyperledger.fabricx.postgres
 
 > Runs a PostgreSQL database instance as a container.
 
-<!-- @depends_on: hyperledger.fabricx.openssl, hyperledger.fabricx.cryptogen, hyperledger.fabricx.fabric_ca -->
 
 ## Table of Contents <!-- omit in toc -->
 
-- [Depends On](#depends-on)
+- [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [Crypto](#crypto)
-    - [crypto/setup](#cryptosetup)
-    - [crypto/fetch](#cryptofetch)
-    - [crypto/rm](#cryptorm)
-  - [Config](#config)
-    - [config/transfer](#configtransfer)
-    - [config/rm](#configrm)
-  - [Lifecycle](#lifecycle)
-    - [start](#start)
-    - [stop](#stop)
-    - [teardown](#teardown)
-    - [wipe](#wipe)
-    - [fetch_logs](#fetch_logs)
-    - [ping](#ping)
-- [Variables](#variables)
+  - [ping](#task-ping)
+  - [start](#task-start)
+  - [stop](#task-stop)
+  - [teardown](#task-teardown)
+  - [wipe](#task-wipe)
+  - [fetch_logs](#task-fetch_logs)
+  - [data/rm](#task-data-rm)
+  - [container/start](#task-container-start)
+  - [container/stop](#task-container-stop)
+  - [container/rm](#task-container-rm)
+  - [container/fetch_logs](#task-container-fetch_logs)
+  - [k8s/start](#task-k8s-start)
+  - [k8s/ping](#task-k8s-ping)
+  - [k8s/rm](#task-k8s-rm)
+  - [k8s/fetch_logs](#task-k8s-fetch_logs)
+  - [k8s/crypto/transfer](#task-k8s-crypto-transfer)
+  - [k8s/crypto/rm](#task-k8s-crypto-rm)
+  - [k8s/config/transfer](#task-k8s-config-transfer)
+  - [k8s/config/rm](#task-k8s-config-rm)
+  - [crypto/setup](#task-crypto-setup)
+  - [crypto/fetch](#task-crypto-fetch)
+  - [crypto/rm](#task-crypto-rm)
+  - [crypto/openssl/generate_cert](#task-crypto-openssl-generate_cert)
+  - [crypto/cryptogen/transfer](#task-crypto-cryptogen-transfer)
+  - [crypto/fabric_ca/enroll](#task-crypto-fabric_ca-enroll)
+  - [config/transfer](#task-config-transfer)
+  - [config/rm](#task-config-rm)
+  - [config/mtls/transfer](#task-config-mtls-transfer)
 
-## Depends On
+## Role Defaults
 
-| Role                                                      | Reason                                           |
-| --------------------------------------------------------- | ------------------------------------------------ |
-| [`hyperledger.fabricx.openssl`](../openssl/README.md)     | TLS key/cert generation (without org definition) |
-| [`hyperledger.fabricx.cryptogen`](../cryptogen/README.md) | TLS crypto material (cryptogen mode)             |
-| [`hyperledger.fabricx.fabric_ca`](../fabric_ca/README.md) | TLS crypto material (Fabric-CA mode)             |
+See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults and inline variable descriptions.
 
 ## Tasks
 
-### Crypto
+<a id="task-ping"></a>
 
-| Task                                      | Description                             |
-| ----------------------------------------- | --------------------------------------- |
-| [crypto/setup](./tasks/crypto/setup.yaml) | Generates/transfers TLS crypto material |
-| [crypto/fetch](./tasks/crypto/fetch.yaml) | Fetches TLS certificate to control node |
-| [crypto/rm](./tasks/crypto/rm.yaml)       | Removes TLS crypto material             |
+### ping
 
-#### crypto/setup
+Check PostgreSQL reachability
 
-Generates/transfers the crypto material needed to run a Postgres DB with TLS. Supports 3 operating modes:
 
-- with `openssl` (see [hyperledger.fabricx.openssl](../openssl/README.md)) if the DB runs without an Hyperledger Fabric-X peer organization definition;
-- with `cryptogen` (see [hyperledger.fabricx.cryptogen](../cryptogen/README.md)): the crypto material generated on the control node with `cryptogen` is transferred to the remote node;
-- with `fabric-ca` (see [hyperledger.fabricx.fabric_ca](../fabric_ca/README.md)): the crypto material is generated directly on the remote node querying the reference `fabric_ca` host.
+Validates that the PostgreSQL port is reachable on the target host.
 
-```yaml
-- name: Generate the TLS keypair for Postgres DB
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.postgres
-    tasks_from: crypto/setup
-```
+In container mode, probes `postgres_port` directly.
 
-#### crypto/fetch
+In Kubernetes mode, delegates to the `k8s/ping` entry point which probes the NodePort when `postgres_k8s_use_node_port` is enabled.
 
-Fetches the TLS certificate of a Postgres DB on the control node, so that it could be shared with the clients later:
+Also probes the postgres_exporter port when it is defined.
+
 
 ```yaml
-- name: Fetch the Postgres DB TLS certificate
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.postgres
-    tasks_from: crypto/fetch
-```
-
-#### crypto/rm
-
-Removes the crypto material generated for Postgres on the remote node:
-
-```yaml
-- name: Remove the Postgres crypto files
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.postgres
-    tasks_from: crypto/rm
-```
-
-### Config
-
-| Task                                            | Description                        |
-| ----------------------------------------------- | ---------------------------------- |
-| [config/transfer](./tasks/config/transfer.yaml) | Transfers PostgreSQL configuration |
-| [config/rm](./tasks/config/rm.yaml)             | Removes configuration              |
-
-#### config/transfer
-
-Transfers the Postgres configuration files on the remote node:
-
-```yaml
-- name: Transfer the Postgres configuration files
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.postgres
-    tasks_from: config/transfer
-```
-
-#### config/rm
-
-Removes the Postgres configuration files on the remote node:
-
-```yaml
-- name: Remove the Postgres configuration files
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.postgres
-    tasks_from: config/rm
-```
-
-### Lifecycle
-
-| Task                                  | Description                 |
-| ------------------------------------- | --------------------------- |
-| [start](./tasks/start.yaml)           | Starts PostgreSQL container |
-| [stop](./tasks/stop.yaml)             | Stops PostgreSQL container  |
-| [teardown](./tasks/teardown.yaml)     | Removes container           |
-| [wipe](./tasks/wipe.yaml)             | Removes all data            |
-| [fetch_logs](./tasks/fetch_logs.yaml) | Collects logs               |
-| [ping](./tasks/ping.yaml)             | Health check                |
-
-#### start
-
-Starts the Postgres container:
-
-```yaml
-- name: Start Postgres
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.postgres
-    tasks_from: start
-```
-
-#### stop
-
-Stops the Postgres container:
-
-```yaml
-- name: Stop Postgres
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.postgres
-    tasks_from: stop
-```
-
-#### teardown
-
-Removes the Postgres container:
-
-```yaml
-- name: Teardown Postgres
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.postgres
-    tasks_from: teardown
-```
-
-#### wipe
-
-Removes all Postgres data:
-
-```yaml
-- name: Wipe Postgres
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.postgres
-    tasks_from: wipe
-```
-
-#### fetch_logs
-
-Collects Postgres logs:
-
-```yaml
-- name: Fetch Postgres logs
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.postgres
-    tasks_from: fetch_logs
-```
-
-#### ping
-
-Health check for Postgres:
-
-```yaml
-- name: Ping Postgres
+- name: Check PostgreSQL reachability
   vars:
-    postgres_port: 5432
+    # Run PostgreSQL on Kubernetes when set to `true`.
+    postgres_use_k8s: false
+    # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
+    postgres_port: 1000
+    # Optional postgres_exporter port to probe after PostgreSQL itself. This entry point only runs when the variable is defined.
+    postgres_exporter_port: 1000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: ping
 ```
 
----
+<a id="task-start"></a>
 
-## Variables
+### start
 
-See [`defaults/main.yaml`](defaults/main.yaml) for full variable documentation.
+Start PostgreSQL
+
+
+Starts PostgreSQL using the selected deployment mode.
+
+The container mode is the default unless `postgres_use_k8s` is enabled.
+
+When Kubernetes mode is selected, validates the Service, StatefulSet, and optional NodePort inputs required by the k8s startup path.
+
+
+```yaml
+- name: Start PostgreSQL
+  vars:
+    # Run PostgreSQL on Kubernetes when set to `true`.
+    postgres_use_k8s: false
+    # Run PostgreSQL as a container when set to `true`. The default derives from `postgres_use_k8s`.
+    postgres_use_container: "{{ not postgres_use_k8s }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: start
+```
+
+<a id="task-stop"></a>
+
+### stop
+
+Stop PostgreSQL
+
+
+Stops PostgreSQL when it runs in container mode.
+
+`postgres_use_container` defaults from `postgres_use_k8s`.
+
+
+```yaml
+- name: Stop PostgreSQL
+  vars:
+    # Run PostgreSQL on Kubernetes when set to `true`.
+    postgres_use_k8s: false
+    # Run PostgreSQL as a container when set to `true`. The default derives from `postgres_use_k8s`.
+    postgres_use_container: "{{ not postgres_use_k8s }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: stop
+```
+
+<a id="task-teardown"></a>
+
+### teardown
+
+Remove PostgreSQL runtime resources
+
+
+Removes PostgreSQL runtime resources for the selected deployment mode.
+
+Persistent data is removed through the `data/rm` entry point.
+
+
+```yaml
+- name: Remove PostgreSQL runtime resources
+  vars:
+    # Run PostgreSQL on Kubernetes when set to `true`.
+    postgres_use_k8s: false
+    # Run PostgreSQL as a container when set to `true`. The default derives from `postgres_use_k8s`.
+    postgres_use_container: "{{ not postgres_use_k8s }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: teardown
+```
+
+<a id="task-wipe"></a>
+
+### wipe
+
+Wipe PostgreSQL data and configuration
+
+
+Removes PostgreSQL runtime resources, TLS materials, and configuration files.
+
+This entry point sequences the teardown, crypto cleanup, and config cleanup flows.
+
+
+```yaml
+- name: Wipe PostgreSQL data and configuration
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: wipe
+```
+
+<a id="task-fetch_logs"></a>
+
+### fetch_logs
+
+Fetch PostgreSQL logs
+
+
+Collects PostgreSQL logs from the selected deployment mode.
+
+Delegates to the container or Kubernetes log collection entry point.
+
+
+```yaml
+- name: Fetch PostgreSQL logs
+  vars:
+    # Run PostgreSQL on Kubernetes when set to `true`.
+    postgres_use_k8s: false
+    # Run PostgreSQL as a container when set to `true`. The default derives from `postgres_use_k8s`.
+    postgres_use_container: "{{ not postgres_use_k8s }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: fetch_logs
+```
+
+<a id="task-data-rm"></a>
+
+### data/rm
+
+Remove PostgreSQL data storage
+
+
+Removes the PostgreSQL persistent data directory in container deployments.
+
+Deletes the PostgreSQL PVC in Kubernetes deployments.
+
+
+```yaml
+- name: Remove PostgreSQL data storage
+  vars:
+    # Run PostgreSQL on Kubernetes when set to `true`.
+    postgres_use_k8s: false
+    # Run PostgreSQL as a container when set to `true`. The default derives from `postgres_use_k8s`.
+    postgres_use_container: "{{ not postgres_use_k8s }}"
+    # Remote directory used for PostgreSQL persistent data. The default derives from `remote_data_dir`.
+    postgres_remote_data_dir: "{{ remote_data_dir }}"
+    # Outer remote data directory consumed by `postgres_remote_data_dir`. This dependency is validated wherever PostgreSQL persistent data is used.
+    remote_data_dir: "string"
+    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
+    k8s_namespace: "string"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: data/rm
+```
+
+<a id="task-container-start"></a>
+
+### container/start
+
+Start PostgreSQL in a container
+
+
+Creates the required data volume and starts the PostgreSQL container.
+
+Configures TLS and mTLS command-line options when those features are enabled.
+
+
+```yaml
+- name: Start PostgreSQL in a container
+  vars:
+    # Container name for the PostgreSQL instance. The default derives from `inventory_hostname`.
+    postgres_container_name: "{{ inventory_hostname }}"
+    # Container registry endpoint used to build `postgres_image`. The default derives from `POSTGRES_REGISTRY_ENDPOINT` and falls back to `docker.io/library`.
+    postgres_registry_endpoint: "{{ lookup('env', 'POSTGRES_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
+    # PostgreSQL image repository name.
+    postgres_image_name: postgres
+    # PostgreSQL image tag.
+    postgres_image_tag: 16.4
+    # Full container image reference for PostgreSQL. The default derives from `postgres_registry_endpoint`, `postgres_image_name`, and `postgres_image_tag`.
+    postgres_image: "{{ postgres_registry_endpoint }}/{{ postgres_image_name }}:{{ postgres_image_tag }}"
+    # Remote directory used for PostgreSQL configuration and TLS files. The default derives from `remote_config_dir`.
+    postgres_remote_config_dir: "{{ remote_config_dir }}"
+    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
+    remote_config_dir: "string"
+    # Remote directory used for PostgreSQL persistent data. The default derives from `remote_data_dir`.
+    postgres_remote_data_dir: "{{ remote_data_dir }}"
+    # Outer remote data directory consumed by `postgres_remote_data_dir`. This dependency is validated wherever PostgreSQL persistent data is used.
+    remote_data_dir: "string"
+    # Configuration directory path inside the PostgreSQL container.
+    postgres_container_config_dir: /var/lib/postgresql/config
+    # Data directory path inside the PostgreSQL container.
+    postgres_container_data_dir: /var/lib/postgresql/data
+    # PostgreSQL database name used during initialization and in the readiness checks. Example: `fabricx`.
+    postgres_db: "string"
+    # PostgreSQL user name used during initialization and in the readiness checks. Example: `postgres`.
+    postgres_user: "string"
+    # Password for `postgres_user` used during initialization. Store this value in an Ansible Vault.
+    postgres_password: "string"
+    # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
+    postgres_port: 1000
+    # Enable server-side TLS for PostgreSQL.
+    postgres_use_tls: false
+    # Enable mutual TLS for PostgreSQL clients.
+    postgres_use_mtls: false
+    # Filename of the PostgreSQL TLS private key under the TLS config directory.
+    postgres_tls_private_key_file: server.key
+    # Filename of the PostgreSQL TLS certificate under the TLS config directory.
+    postgres_tls_cert_file: server.crt
+    # List of client artifact names whose certificates are assembled into the PostgreSQL mTLS bundle. This value is only required when PostgreSQL mTLS is enabled.
+    postgres_mtls_clients: ["entry1", "entry2"]
+    # Additional PostgreSQL command-line options appended to the start command.
+    postgres_extra_cmd_opts: "string"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: container/start
+```
+
+<a id="task-container-stop"></a>
+
+### container/stop
+
+Stop the PostgreSQL container
+
+
+Stops the PostgreSQL container instance.
+
+Uses the container helper role internally.
+
+
+```yaml
+- name: Stop the PostgreSQL container
+  vars:
+    # Container name for the PostgreSQL instance. The default derives from `inventory_hostname`.
+    postgres_container_name: "{{ inventory_hostname }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: container/stop
+```
+
+<a id="task-container-rm"></a>
+
+### container/rm
+
+Remove the PostgreSQL container
+
+
+Removes the PostgreSQL container instance.
+
+Container volumes are handled separately by the `data/rm` entry point.
+
+
+```yaml
+- name: Remove the PostgreSQL container
+  vars:
+    # Container name for the PostgreSQL instance. The default derives from `inventory_hostname`.
+    postgres_container_name: "{{ inventory_hostname }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: container/rm
+```
+
+<a id="task-container-fetch_logs"></a>
+
+### container/fetch_logs
+
+Fetch PostgreSQL container logs
+
+
+Collects logs from the PostgreSQL container instance.
+
+Uses the container helper role internally.
+
+
+```yaml
+- name: Fetch PostgreSQL container logs
+  vars:
+    # Container name for the PostgreSQL instance. The default derives from `inventory_hostname`.
+    postgres_container_name: "{{ inventory_hostname }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: container/fetch_logs
+```
+
+<a id="task-k8s-start"></a>
+
+### k8s/start
+
+Start PostgreSQL on Kubernetes
+
+
+Ensures the Kubernetes namespace exists and applies the PostgreSQL Service and StatefulSet resources.
+
+Uses the role templates to configure storage, credentials, TLS, and optional mTLS mounts.
+
+
+```yaml
+- name: Start PostgreSQL on Kubernetes
+  vars:
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. The default derives from `inventory_hostname`.
+    postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
+    k8s_namespace: "string"
+    # Timeout in seconds while waiting for the StatefulSet rollout to complete.
+    postgres_k8s_wait_timeout: 120
+    # Kubernetes pod `fsGroup` applied so mounted files are readable by the postgres process.
+    postgres_k8s_fs_group: 999
+    # Enable the optional Kubernetes NodePort Service for PostgreSQL when set to `true`. When `false` (default), no NodePort Service is created and the `k8s/ping` check is skipped.
+    postgres_k8s_use_node_port: false
+    # Kubernetes NodePort value used by the external PostgreSQL Service. Only relevant when `postgres_k8s_use_node_port` is `true`. When undefined, the NodePort is allocated automatically by Kubernetes.
+    postgres_k8s_port_node_port: 1000
+    # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
+    postgres_port: 1000
+    # Container registry endpoint used to build `postgres_image`. The default derives from `POSTGRES_REGISTRY_ENDPOINT` and falls back to `docker.io/library`.
+    postgres_registry_endpoint: "{{ lookup('env', 'POSTGRES_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
+    # PostgreSQL image repository name.
+    postgres_image_name: postgres
+    # PostgreSQL image tag.
+    postgres_image_tag: 16.4
+    # Full container image reference for PostgreSQL. The default derives from `postgres_registry_endpoint`, `postgres_image_name`, and `postgres_image_tag`.
+    postgres_image: "{{ postgres_registry_endpoint }}/{{ postgres_image_name }}:{{ postgres_image_tag }}"
+    # Configuration directory path inside the PostgreSQL container.
+    postgres_container_config_dir: /var/lib/postgresql/config
+    # Data directory path inside the PostgreSQL container.
+    postgres_container_data_dir: /var/lib/postgresql/data
+    # PostgreSQL database name used during initialization and in the readiness checks. Example: `fabricx`.
+    postgres_db: "string"
+    # PostgreSQL user name used during initialization and in the readiness checks. Example: `postgres`.
+    postgres_user: "string"
+    # Password for `postgres_user` used during initialization. Store this value in an Ansible Vault.
+    postgres_password: "string"
+    # Enable server-side TLS for PostgreSQL.
+    postgres_use_tls: false
+    # Enable mutual TLS for PostgreSQL clients.
+    postgres_use_mtls: false
+    # Filename of the PostgreSQL TLS private key under the TLS config directory.
+    postgres_tls_private_key_file: server.key
+    # Filename of the PostgreSQL TLS certificate under the TLS config directory.
+    postgres_tls_cert_file: server.crt
+    # List of client artifact names whose certificates are assembled into the PostgreSQL mTLS bundle. This value is only required when PostgreSQL mTLS is enabled.
+    postgres_mtls_clients: ["entry1", "entry2"]
+    # Additional PostgreSQL command-line options appended to the start command.
+    postgres_extra_cmd_opts: "string"
+    # Requested persistent storage size for the PostgreSQL PVC. Example: `500Mi`.
+    k8s_storage_size: "string"
+    # Kubernetes storage class name for the PostgreSQL PVC when a non-default class is required.
+    k8s_storage_class: "string"
+    # Existing Kubernetes `imagePullSecret` name used when the PostgreSQL image is stored in a private registry.
+    k8s_image_pull_secret: "string"
+    # Override for the readiness probe initial delay in seconds. The template default is `10`.
+    k8s_readiness_probe_initial_delay_seconds: 1000
+    # Override for the readiness probe period in seconds. The template default is `10`.
+    k8s_readiness_probe_period_seconds: 1000
+    # Override for the readiness probe timeout in seconds. The template default is `5`.
+    k8s_readiness_probe_timeout_seconds: 1000
+    # Override for the readiness probe failure threshold. The template default is `3`.
+    k8s_readiness_probe_failure_threshold: 1000
+    # Override for the liveness probe initial delay in seconds. The template default is `30`.
+    k8s_liveness_probe_initial_delay_seconds: 1000
+    # Override for the liveness probe period in seconds. The template default is `15`.
+    k8s_liveness_probe_period_seconds: 1000
+    # Override for the liveness probe timeout in seconds. The template default is `5`.
+    k8s_liveness_probe_timeout_seconds: 1000
+    # Override for the liveness probe failure threshold. The template default is `5`.
+    k8s_liveness_probe_failure_threshold: 1000
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: k8s/start
+```
+
+<a id="task-k8s-ping"></a>
+
+### k8s/ping
+
+Check PostgreSQL NodePort reachability on Kubernetes
+
+
+Probes the PostgreSQL NodePort when `postgres_k8s_use_node_port` is `true` and `postgres_k8s_port_node_port` is defined.
+
+This entry point is invoked internally by `ping` when PostgreSQL runs on Kubernetes.
+
+
+```yaml
+- name: Check PostgreSQL NodePort reachability on Kubernetes
+  vars:
+    # Enable the optional Kubernetes NodePort Service for PostgreSQL when set to `true`. When `false` (default), no NodePort Service is created and the `k8s/ping` check is skipped.
+    postgres_k8s_use_node_port: false
+    # Kubernetes NodePort value used by the external PostgreSQL Service. Only relevant when `postgres_k8s_use_node_port` is `true`. When undefined, the NodePort is allocated automatically by Kubernetes.
+    postgres_k8s_port_node_port: 1000
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: k8s/ping
+```
+
+<a id="task-k8s-rm"></a>
+
+### k8s/rm
+
+Remove PostgreSQL Kubernetes resources
+
+
+Deletes the PostgreSQL StatefulSet and Service resources from Kubernetes.
+
+The persistent volume claim is removed separately by the `data/rm` entry point.
+
+
+```yaml
+- name: Remove PostgreSQL Kubernetes resources
+  vars:
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. The default derives from `inventory_hostname`.
+    postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
+    k8s_namespace: "string"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: k8s/rm
+```
+
+<a id="task-k8s-fetch_logs"></a>
+
+### k8s/fetch_logs
+
+Fetch PostgreSQL pod logs
+
+
+Collects logs from the PostgreSQL pod in Kubernetes.
+
+Selects pods using the PostgreSQL application label.
+
+
+```yaml
+- name: Fetch PostgreSQL pod logs
+  vars:
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. The default derives from `inventory_hostname`.
+    postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
+    k8s_namespace: "string"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: k8s/fetch_logs
+```
+
+<a id="task-k8s-crypto-transfer"></a>
+
+### k8s/crypto/transfer
+
+Apply the PostgreSQL Kubernetes Secret
+
+
+Applies the Kubernetes Secret that stores PostgreSQL credentials and optional TLS materials.
+
+Ensures the Kubernetes namespace exists before applying the Secret.
+
+
+```yaml
+- name: Apply the PostgreSQL Kubernetes Secret
+  vars:
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. The default derives from `inventory_hostname`.
+    postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
+    k8s_namespace: "string"
+    # Remote directory used for PostgreSQL configuration and TLS files. The default derives from `remote_config_dir`.
+    postgres_remote_config_dir: "{{ remote_config_dir }}"
+    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
+    remote_config_dir: "string"
+    # Filename of the PostgreSQL TLS private key under the TLS config directory.
+    postgres_tls_private_key_file: server.key
+    # Filename of the PostgreSQL TLS certificate under the TLS config directory.
+    postgres_tls_cert_file: server.crt
+    # PostgreSQL user name used during initialization and in the readiness checks. Example: `postgres`.
+    postgres_user: "string"
+    # Password for `postgres_user` used during initialization. Store this value in an Ansible Vault.
+    postgres_password: "string"
+    # PostgreSQL database name used during initialization and in the readiness checks. Example: `fabricx`.
+    postgres_db: "string"
+    # Enable server-side TLS for PostgreSQL.
+    postgres_use_tls: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: k8s/crypto/transfer
+```
+
+<a id="task-k8s-crypto-rm"></a>
+
+### k8s/crypto/rm
+
+Remove the PostgreSQL Kubernetes Secret
+
+
+Deletes the Kubernetes Secret that stores PostgreSQL credentials and TLS materials.
+
+This entry point is typically invoked from the PostgreSQL crypto cleanup workflow.
+
+
+```yaml
+- name: Remove the PostgreSQL Kubernetes Secret
+  vars:
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. The default derives from `inventory_hostname`.
+    postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
+    k8s_namespace: "string"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: k8s/crypto/rm
+```
+
+<a id="task-k8s-config-transfer"></a>
+
+### k8s/config/transfer
+
+Apply the PostgreSQL Kubernetes ConfigMap
+
+
+Applies the Kubernetes ConfigMap that stores PostgreSQL mTLS configuration files.
+
+Ensures the Kubernetes namespace exists before applying the ConfigMap.
+
+
+```yaml
+- name: Apply the PostgreSQL Kubernetes ConfigMap
+  vars:
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. The default derives from `inventory_hostname`.
+    postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
+    k8s_namespace: "string"
+    # Remote directory used for PostgreSQL configuration and TLS files. The default derives from `remote_config_dir`.
+    postgres_remote_config_dir: "{{ remote_config_dir }}"
+    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
+    remote_config_dir: "string"
+    # Enable mutual TLS for PostgreSQL clients.
+    postgres_use_mtls: false
+    # List of client artifact names whose certificates are assembled into the PostgreSQL mTLS bundle. This value is only required when PostgreSQL mTLS is enabled.
+    postgres_mtls_clients: ["entry1", "entry2"]
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: k8s/config/transfer
+```
+
+<a id="task-k8s-config-rm"></a>
+
+### k8s/config/rm
+
+Remove the PostgreSQL Kubernetes ConfigMap
+
+
+Deletes the Kubernetes ConfigMap that stores PostgreSQL mTLS configuration.
+
+This entry point is typically invoked from the PostgreSQL config cleanup workflow.
+
+
+```yaml
+- name: Remove the PostgreSQL Kubernetes ConfigMap
+  vars:
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. The default derives from `inventory_hostname`.
+    postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
+    k8s_namespace: "string"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: k8s/config/rm
+```
+
+<a id="task-crypto-setup"></a>
+
+### crypto/setup
+
+Prepare PostgreSQL TLS materials
+
+
+Selects the PostgreSQL TLS generation path for OpenSSL, cryptogen, or Fabric CA.
+
+Also applies the Kubernetes Secret when Kubernetes mode is enabled.
+
+
+```yaml
+- name: Prepare PostgreSQL TLS materials
+  vars:
+    # Enable server-side TLS for PostgreSQL.
+    postgres_use_tls: false
+    # Run PostgreSQL on Kubernetes when set to `true`.
+    postgres_use_k8s: false
+    # Fabric organization inputs used by PostgreSQL TLS generation paths. The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA.
+    organization: {}
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: crypto/setup
+```
+
+<a id="task-crypto-fetch"></a>
+
+### crypto/fetch
+
+Fetch PostgreSQL TLS certificates
+
+
+Fetches the PostgreSQL TLS CA certificate and server certificate to the control node.
+
+This task runs only when `postgres_use_tls` is true.
+
+
+```yaml
+- name: Fetch PostgreSQL TLS certificates
+  vars:
+    # Enable server-side TLS for PostgreSQL.
+    postgres_use_tls: false
+    # Remote directory used for PostgreSQL configuration and TLS files. The default derives from `remote_config_dir`.
+    postgres_remote_config_dir: "{{ remote_config_dir }}"
+    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
+    remote_config_dir: "string"
+    # Control-node directory where fetched PostgreSQL artifacts are written. Example: `/tmp/fabricx/fetched-artifacts`.
+    fetched_artifacts_dir: "string"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: crypto/fetch
+```
+
+<a id="task-crypto-rm"></a>
+
+### crypto/rm
+
+Remove PostgreSQL TLS materials
+
+
+Deletes PostgreSQL TLS files from the remote host when TLS is enabled.
+
+Also removes the Kubernetes Secret used for TLS materials when Kubernetes mode is enabled.
+
+
+```yaml
+- name: Remove PostgreSQL TLS materials
+  vars:
+    # Enable server-side TLS for PostgreSQL.
+    postgres_use_tls: false
+    # Run PostgreSQL on Kubernetes when set to `true`.
+    postgres_use_k8s: false
+    # Remote directory used for PostgreSQL configuration and TLS files. The default derives from `remote_config_dir`.
+    postgres_remote_config_dir: "{{ remote_config_dir }}"
+    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
+    remote_config_dir: "string"
+    # Filename of the PostgreSQL TLS private key under the TLS config directory.
+    postgres_tls_private_key_file: server.key
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: crypto/rm
+```
+
+<a id="task-crypto-openssl-generate_cert"></a>
+
+### crypto/openssl/generate_cert
+
+Generate PostgreSQL TLS materials with OpenSSL
+
+
+Generates a self-signed TLS keypair for PostgreSQL on the target host.
+
+Used when PostgreSQL TLS is enabled without a peer organization definition.
+
+
+```yaml
+- name: Generate PostgreSQL TLS materials with OpenSSL
+  vars:
+    # Remote directory used for PostgreSQL configuration and TLS files. The default derives from `remote_config_dir`.
+    postgres_remote_config_dir: "{{ remote_config_dir }}"
+    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
+    remote_config_dir: "string"
+    # Filename of the PostgreSQL TLS private key under the TLS config directory.
+    postgres_tls_private_key_file: server.key
+    # Filename of the PostgreSQL TLS certificate under the TLS config directory.
+    postgres_tls_cert_file: server.crt
+    # Fabric organization inputs used by PostgreSQL TLS generation paths. The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA.
+    organization: {}
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: crypto/openssl/generate_cert
+```
+
+<a id="task-crypto-cryptogen-transfer"></a>
+
+### crypto/cryptogen/transfer
+
+Transfer PostgreSQL TLS materials from cryptogen
+
+
+Copies PostgreSQL TLS files generated by cryptogen from the control node to the target host.
+
+Used when PostgreSQL belongs to a peer organization without a Fabric CA host.
+
+
+```yaml
+- name: Transfer PostgreSQL TLS materials from cryptogen
+  vars:
+    # Remote directory used for PostgreSQL configuration and TLS files. The default derives from `remote_config_dir`.
+    postgres_remote_config_dir: "{{ remote_config_dir }}"
+    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
+    remote_config_dir: "string"
+    # Filename of the PostgreSQL TLS private key under the TLS config directory.
+    postgres_tls_private_key_file: server.key
+    # Filename of the PostgreSQL TLS certificate under the TLS config directory.
+    postgres_tls_cert_file: server.crt
+    # Control-node directory containing cryptogen output for PostgreSQL. Example: `/tmp/fabricx/cryptogen-artifacts`.
+    cryptogen_artifacts_dir: "string"
+    # Fabric organization inputs used by PostgreSQL TLS generation paths. The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA.
+    organization: {}
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: crypto/cryptogen/transfer
+```
+
+<a id="task-crypto-fabric_ca-enroll"></a>
+
+### crypto/fabric_ca/enroll
+
+Enroll PostgreSQL with Fabric CA for TLS
+
+
+Enrolls PostgreSQL through Fabric CA to generate TLS materials on the target host.
+
+Requires the organization definition to reference a Fabric CA host and peer identity.
+
+
+```yaml
+- name: Enroll PostgreSQL with Fabric CA for TLS
+  vars:
+    # Remote directory used for PostgreSQL configuration and TLS files. The default derives from `remote_config_dir`.
+    postgres_remote_config_dir: "{{ remote_config_dir }}"
+    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
+    remote_config_dir: "string"
+    # Filename of the PostgreSQL TLS private key under the TLS config directory.
+    postgres_tls_private_key_file: server.key
+    # Filename of the PostgreSQL TLS certificate under the TLS config directory.
+    postgres_tls_cert_file: server.crt
+    # Control-node directory where fetched PostgreSQL artifacts are written. Example: `/tmp/fabricx/fetched-artifacts`.
+    fetched_artifacts_dir: "string"
+    # Fabric organization inputs used by PostgreSQL TLS generation paths. The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA.
+    organization: {}
+    # Resolved host name used in the Fabric CA CSR SAN list. Required by the Fabric CA TLS enrollment path.
+    actual_host: "string"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: crypto/fabric_ca/enroll
+```
+
+<a id="task-config-transfer"></a>
+
+### config/transfer
+
+Transfer PostgreSQL configuration
+
+
+Ensures the PostgreSQL configuration directory exists and prepares optional mTLS configuration.
+
+Also applies the PostgreSQL ConfigMap when Kubernetes mode is enabled.
+
+
+```yaml
+- name: Transfer PostgreSQL configuration
+  vars:
+    # Remote directory used for PostgreSQL configuration and TLS files. The default derives from `remote_config_dir`.
+    postgres_remote_config_dir: "{{ remote_config_dir }}"
+    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
+    remote_config_dir: "string"
+    # Enable mutual TLS for PostgreSQL clients.
+    postgres_use_mtls: false
+    # List of client artifact names whose certificates are assembled into the PostgreSQL mTLS bundle. This value is only required when PostgreSQL mTLS is enabled.
+    postgres_mtls_clients: ["entry1", "entry2"]
+    # Run PostgreSQL on Kubernetes when set to `true`.
+    postgres_use_k8s: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: config/transfer
+```
+
+<a id="task-config-rm"></a>
+
+### config/rm
+
+Remove PostgreSQL configuration
+
+
+Deletes PostgreSQL configuration files from the remote host.
+
+Also removes the PostgreSQL ConfigMap when Kubernetes mode is enabled.
+
+
+```yaml
+- name: Remove PostgreSQL configuration
+  vars:
+    # Remote directory used for PostgreSQL configuration and TLS files. The default derives from `remote_config_dir`.
+    postgres_remote_config_dir: "{{ remote_config_dir }}"
+    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
+    remote_config_dir: "string"
+    # Run PostgreSQL on Kubernetes when set to `true`.
+    postgres_use_k8s: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: config/rm
+```
+
+<a id="task-config-mtls-transfer"></a>
+
+### config/mtls/transfer
+
+Transfer PostgreSQL mTLS configuration
+
+
+Renders `pg_hba.conf` and assembles the PostgreSQL client CA bundle used for mTLS.
+
+Copies client certificates from previously fetched artifacts on the control node.
+
+
+```yaml
+- name: Transfer PostgreSQL mTLS configuration
+  vars:
+    # Remote directory used for PostgreSQL configuration and TLS files. The default derives from `remote_config_dir`.
+    postgres_remote_config_dir: "{{ remote_config_dir }}"
+    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
+    remote_config_dir: "string"
+    # List of client artifact names whose certificates are assembled into the PostgreSQL mTLS bundle. This value is only required when PostgreSQL mTLS is enabled.
+    postgres_mtls_clients: ["entry1", "entry2"]
+    # Control-node directory where fetched PostgreSQL artifacts are written. Example: `/tmp/fabricx/fetched-artifacts`.
+    fetched_artifacts_dir: "string"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: config/mtls/transfer
+```
+
+

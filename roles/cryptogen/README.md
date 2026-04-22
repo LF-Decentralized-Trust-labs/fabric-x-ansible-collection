@@ -1,72 +1,249 @@
+
 # hyperledger.fabricx.cryptogen
 
 > Generates crypto material for Hyperledger Fabric-X networks using the `cryptogen` CLI tool.
 
+
 ## Table of Contents <!-- omit in toc -->
 
-- [Prerequisites](#prerequisites)
+- [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [Config](#config)
-    - [config/build](#configbuild)
-  - [Lifecycle](#lifecycle)
-    - [start](#start)
-    - [fetch](#fetch)
-- [Variables](#variables)
+  - [start](#task-start)
+  - [fetch](#task-fetch)
+  - [config/build](#task-config-build)
+  - [container/start](#task-container-start)
+  - [bin/install](#task-bin-install)
+  - [bin/build](#task-bin-build)
+  - [bin/start](#task-bin-start)
 
-## Prerequisites
+## Role Defaults
 
-- `go` to be installed (when using binary mode)
+See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults and inline variable descriptions.
 
 ## Tasks
 
-### Config
+<a id="task-start"></a>
 
-| Task                                      | Description                  |
-| ----------------------------------------- | ---------------------------- |
-| [config/build](./tasks/config/build.yaml) | Generates crypto-config.yaml |
+### start
 
-#### config/build
+Select the cryptogen execution mode
 
-Generates the `crypto-config.yaml` configuration file used to produce crypto material.
 
-```yaml
-- name: Generate crypto-config.yaml
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.cryptogen
-    tasks_from: config/build
-```
+Choose whether cryptogen runs as a binary or in a container.
 
-### Lifecycle
+This dispatcher includes either the `bin/start` or `container/start` entry point.
 
-| Task                        | Description               |
-| --------------------------- | ------------------------- |
-| [start](./tasks/start.yaml) | Generates crypto material |
-| [fetch](./tasks/fetch.yaml) | Fetches MSP folders       |
-
-#### start
-
-Runs `cryptogen` to generate crypto material for the Fabric-X network.
 
 ```yaml
-- name: Generate the crypto material for Fabric-X with cryptogen
+- name: Select the cryptogen execution mode
+  vars:
+    # Selects binary mode when true; otherwise container mode is used.
+    cryptogen_use_bin: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.cryptogen
     tasks_from: start
 ```
 
-#### fetch
+<a id="task-fetch"></a>
 
-Fetches the MSP folder for each organization. Emulates the fetch operation performed by [`hyperledger.fabricx.fabric_ca`](../fabric_ca/README.md) when using Fabric-CA.
+### fetch
+
+Fetch generated MSP directories
+
+
+Copy generated MSP directories for orderer and peer organizations into the fetched artifacts directory.
+
+Run this after crypto material has already been generated.
+
 
 ```yaml
-- name: Copy the MSP folder of each Fabric-X organization
+- name: Fetch generated MSP directories
+  vars:
+    # Sets the base directory for generated configuration artifacts.
+    config_build_dir: "string"
+    # Sets the destination directory for fetched MSP folders.
+    fetched_artifacts_dir: "string"
+    # Sets the directory where cryptogen writes generated crypto material. The default derives from `cryptogen_artifacts_dir`, which in turn derives from `config_build_dir`.
+    cryptogen_output_dir: "{{ cryptogen_artifacts_dir }}/crypto"
+    # Maps orderer organization domains to their organization definitions.
+    cryptogen_orderers_by_org: {}
+    # Maps peer organization domains to their organization definitions.
+    cryptogen_peers_by_org: {}
   ansible.builtin.include_role:
     name: hyperledger.fabricx.cryptogen
     tasks_from: fetch
 ```
 
----
+<a id="task-config-build"></a>
 
-## Variables
+### config/build
 
-See [`defaults/main.yaml`](defaults/main.yaml) for full variable documentation.
+Build the cryptogen configuration file
+
+
+Render `crypto-config.yaml` for the cryptogen CLI.
+
+This entry point gathers host IPv4 facts for referenced orderer and peer hosts before templating.
+
+
+```yaml
+- name: Build the cryptogen configuration file
+  vars:
+    # Sets the base directory for generated configuration artifacts.
+    config_build_dir: "string"
+    # Sets the directory that stores cryptogen inputs and generated files. The default derives from `config_build_dir`.
+    cryptogen_artifacts_dir: "{{ config_build_dir }}/cryptogen-artifacts"
+    # Sets the cryptogen configuration filename.
+    cryptogen_config_file: crypto-config.yaml
+    # Maps orderer organization domains to their organization definitions.
+    cryptogen_orderers_by_org: {}
+    # Maps peer organization domains to their organization definitions.
+    cryptogen_peers_by_org: {}
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.cryptogen
+    tasks_from: config/build
+```
+
+<a id="task-container-start"></a>
+
+### container/start
+
+Generate crypto material with a container
+
+
+Clean the output directory and run the cryptogen CLI in a container.
+
+This entry point delegates container startup to `hyperledger.fabricx.container`.
+
+
+```yaml
+- name: Generate crypto material with a container
+  vars:
+    # Sets the base directory for generated configuration artifacts.
+    config_build_dir: "string"
+    # Sets the directory that stores cryptogen inputs and generated files. The default derives from `config_build_dir`.
+    cryptogen_artifacts_dir: "{{ config_build_dir }}/cryptogen-artifacts"
+    # Sets the directory where cryptogen writes generated crypto material. The default derives from `cryptogen_artifacts_dir`, which in turn derives from `config_build_dir`.
+    cryptogen_output_dir: "{{ cryptogen_artifacts_dir }}/crypto"
+    # Sets the registry used for the cryptogen container image. The default derives from the `CRYPTOGEN_REGISTRY_ENDPOINT` environment variable.
+    cryptogen_registry_endpoint: "{{ lookup('env', 'CRYPTOGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+    # Sets the cryptogen image name.
+    cryptogen_image_name: fabric-x-tools
+    # Sets the cryptogen image tag.
+    cryptogen_image_tag: 0.0.8
+    # Sets the full cryptogen image reference. The default derives from `cryptogen_registry_endpoint`, `cryptogen_image_name`, and `cryptogen_image_tag`.
+    cryptogen_image: "{{ cryptogen_registry_endpoint }}/{{ cryptogen_image_name }}:{{ cryptogen_image_tag }}"
+    # Sets the container name used for the cryptogen run.
+    cryptogen_container_name: cryptogen
+    # Sets the cryptogen executable name.
+    cryptogen_bin_name: cryptogen
+    # Sets the container directory that receives the mounted cryptogen inputs.
+    cryptogen_container_artifacts_dir: /tmp/cryptogen-artifacts
+    # Sets the container directory where cryptogen writes generated crypto material. The default derives from `cryptogen_container_artifacts_dir`.
+    cryptogen_container_output_dir: "{{ cryptogen_container_artifacts_dir }}/crypto"
+    # Sets the cryptogen configuration filename.
+    cryptogen_config_file: crypto-config.yaml
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.cryptogen
+    tasks_from: container/start
+```
+
+<a id="task-bin-install"></a>
+
+### bin/install
+
+Install the cryptogen binary
+
+
+Install the cryptogen binary through `hyperledger.fabricx.bin`.
+
+This entry point is intended for binary-mode deployments.
+
+
+```yaml
+- name: Install the cryptogen binary
+  vars:
+    # Sets the directory that receives the cryptogen binary.
+    cli_bin_dir: "string"
+    # Sets the cryptogen executable name.
+    cryptogen_bin_name: cryptogen
+    # Sets the Git host used for the cryptogen source repository.
+    cryptogen_git_hub_url: github.com
+    # Sets the cryptogen source repository path.
+    cryptogen_git_repo: hyperledger/fabric-x
+    # Pins the cryptogen source revision.
+    cryptogen_git_commit: v0.0.8
+    # Sets the Go package path that contains the cryptogen source.
+    cryptogen_source_code_package: tools/cryptogen
+    # Sets the Go package path used to install cryptogen. The default derives from `cryptogen_git_hub_url`, `cryptogen_git_repo`, and `cryptogen_source_code_package`.
+    cryptogen_bin_package: "{{ cryptogen_git_hub_url }}/{{ cryptogen_git_repo }}/{{ cryptogen_source_code_package }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.cryptogen
+    tasks_from: bin/install
+```
+
+<a id="task-bin-build"></a>
+
+### bin/build
+
+Build the cryptogen binary from source
+
+
+Build the cryptogen binary from the configured source repository through `hyperledger.fabricx.bin`.
+
+This entry point builds on the control node and writes the binary into `cli_bin_dir`.
+
+
+```yaml
+- name: Build the cryptogen binary from source
+  vars:
+    # Sets the directory that receives the cryptogen binary.
+    cli_bin_dir: "string"
+    # Sets the cryptogen executable name.
+    cryptogen_bin_name: cryptogen
+    # Sets the Git host used for the cryptogen source repository.
+    cryptogen_git_hub_url: github.com
+    # Sets the cryptogen source repository path.
+    cryptogen_git_repo: hyperledger/fabric-x
+    # Pins the cryptogen source revision.
+    cryptogen_git_commit: v0.0.8
+    # Sets the Go package path that contains the cryptogen source.
+    cryptogen_source_code_package: tools/cryptogen
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.cryptogen
+    tasks_from: bin/build
+```
+
+<a id="task-bin-start"></a>
+
+### bin/start
+
+Generate crypto material with the binary
+
+
+Clean the output directory and run the cryptogen binary on the target host.
+
+This entry point delegates command execution to `hyperledger.fabricx.bin`.
+
+
+```yaml
+- name: Generate crypto material with the binary
+  vars:
+    # Sets the directory that receives the cryptogen binary.
+    cli_bin_dir: "string"
+    # Sets the base directory for generated configuration artifacts.
+    config_build_dir: "string"
+    # Sets the directory that stores cryptogen inputs and generated files. The default derives from `config_build_dir`.
+    cryptogen_artifacts_dir: "{{ config_build_dir }}/cryptogen-artifacts"
+    # Sets the directory where cryptogen writes generated crypto material. The default derives from `cryptogen_artifacts_dir`, which in turn derives from `config_build_dir`.
+    cryptogen_output_dir: "{{ cryptogen_artifacts_dir }}/crypto"
+    # Sets the cryptogen executable name.
+    cryptogen_bin_name: cryptogen
+    # Sets the cryptogen configuration filename.
+    cryptogen_config_file: crypto-config.yaml
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.cryptogen
+    tasks_from: bin/start
+```
+
+

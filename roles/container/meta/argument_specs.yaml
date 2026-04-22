@@ -301,7 +301,6 @@ argument_specs:
       recurse: &recurse
         type: bool
         required: false
-        default: false
         description:
           - "Applies recursive permission changes when set to C(true)."
       container_fetched_logs_dir: &container_fetched_logs_dir
