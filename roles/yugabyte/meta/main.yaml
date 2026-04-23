@@ -6,7 +6,7 @@
 ---
 galaxy_info:
   author: IBM
-  description: Runs a Yugabyte distributed DB cluster (container and Kubernetes modes).
+  description: Deploys and manages YugabyteDB masters and tablet servers for Fabric-X in container or Kubernetes mode, including TLS, initialization config, logs, data cleanup, and Prometheus scraper metadata.
   license: Apache-2.0
   min_ansible_version: "2.17.0"
   platforms:

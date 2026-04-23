@@ -1,6 +1,6 @@
 # hyperledger.fabricx.tmux
 
-> Runs `tmux` sessions for managing long-running processes.
+> Manages detached `tmux` sessions for long-running Fabric-X processes and their log-producing commands.
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -27,12 +27,12 @@ ansible-doc -t role hyperledger.fabricx.tmux
 
 ### install
 
-Install tmux
+> Install tmux on the target host
 
 Install the `tmux` package on the target host by delegating to the package role.
 
 ```yaml
-- name: Install tmux
+- name: Install tmux on the target host
   ansible.builtin.include_role:
     name: hyperledger.fabricx.tmux
     tasks_from: install
@@ -40,21 +40,21 @@ Install the `tmux` package on the target host by delegating to the package role.
 
 ### start
 
-Start a tmux session
+> Start a detached tmux session
 
 Start a detached tmux session when `tmux_session_name` does not already exist.
 
-The session runs `tmux_cmd_to_run` from `tmux_chdir` on the target host.
+The session runs `tmux_cmd_to_run` from `tmux_chdir`, so long-lived commands can keep running in the background while logs are written to the command's own output path.
 
 ```yaml
-- name: Start a tmux session
+- name: Start a detached tmux session
   vars:
-    # Sets the tmux session name used to look up, create, or stop the detached session. Example: `sample-session`.
-    tmux_session_name: "string"
-    # Sets the shell command started inside the new detached tmux session. Example: `echo 'Hello World'`.
-    tmux_cmd_to_run: "string"
-    # Sets the working directory used before running `tmux_cmd_to_run` in the detached session. Example: `/var/hyperledger/fabricx`.
-    tmux_chdir: "string"
+    # Sets the detached tmux session name used to look up, create, or stop the session. Example: `fx-orderer-1`.
+    tmux_session_name: "fx-orderer-1"
+    # Sets the shell command started inside the detached tmux session. Example: `./bin/orderer --label orderer-1 >> /var/log/fabricx/orderer-1.log 2>&1`.
+    tmux_cmd_to_run: "./bin/orderer --label orderer-1 >> /var/log/fabricx/orderer-1.log 2>&1"
+    # Sets the working directory used before running `tmux_cmd_to_run` in the detached session. Example: `/opt/fabricx/orderer`.
+    tmux_chdir: "/opt/fabricx/orderer"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.tmux
     tasks_from: start
@@ -62,15 +62,17 @@ The session runs `tmux_cmd_to_run` from `tmux_chdir` on the target host.
 
 ### stop
 
-Stop a tmux session
+> Stop a detached tmux session
 
-Stop an existing tmux session on the target host when `tmux_session_name` is present.
+Stop an existing detached tmux session on the target host when `tmux_session_name` is present.
+
+The stop entry point only removes the named session; it does not clean up any logs or other command artifacts.
 
 ```yaml
-- name: Stop a tmux session
+- name: Stop a detached tmux session
   vars:
-    # Sets the tmux session name used to look up, create, or stop the detached session. Example: `sample-session`.
-    tmux_session_name: "string"
+    # Sets the detached tmux session name used to look up, create, or stop the session. Example: `fx-orderer-1`.
+    tmux_session_name: "fx-orderer-1"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.tmux
     tasks_from: stop

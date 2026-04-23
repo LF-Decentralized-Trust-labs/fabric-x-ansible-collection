@@ -6,7 +6,7 @@
 ---
 galaxy_info:
   author: IBM
-  description: Runs the `configtxgen` CLI tool to generate Fabric-X genesis blocks.
+  description: Generates Fabric-X `configtx.yaml` and genesis block artifacts with `configtxgen` through binary or container entry points.
   license: Apache-2.0
   min_ansible_version: "2.17.0"
   platforms:

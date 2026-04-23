@@ -88,6 +88,7 @@ argument_specs:
         required: false
         description:
           - Base directory for C(armageddon_artifacts_dir).
+          - "Example: C(/opt/fabricx/build/armageddon)."
       armageddon_artifacts_dir: &armageddon_artifacts_dir
         type: path
         required: false
@@ -130,13 +131,15 @@ argument_specs:
         required: true
         description:
           - Host directory with fetched crypto artifacts.
-          - The config build flow reads it in binary mode and the container flow mounts it read-only.
+          - The binary flow reads this directory directly and the container flow mounts it read-only.
+          - "Example: C(/opt/fabricx/fetched-artifacts)."
       cli_bin_dir: &cli_bin_dir
         type: path
         required: true
         description:
           - Directory where the Armageddon binary is installed or executed.
           - The binary helper roles use this as the local or remote binary directory.
+          - "Example: C(/usr/local/bin)."
       armageddon_orderer_hosts: &armageddon_orderer_hosts
         type: list
         elements: str
@@ -144,11 +147,13 @@ argument_specs:
         description:
           - Inventory hosts that form the Fabric-X orderer topology.
           - Each host must expose `orderer_group`, `orderer_component_type`, `organization`, `ansible_host`, and `orderer_rpc_port`.
+          - "Example: C(['orderer1', 'orderer2', 'orderer3'])"
 
   config/build:
     short_description: Render the shared Armageddon config
     description:
-      - Render `shared_config.yaml` for the Fabric-X orderer topology.
+      - Render C(shared_config.yaml) for the Fabric-X orderer topology.
+      - This entry point prepares the config consumed by both the binary and container shared-config flows.
       - When C(armageddon_use_bin) is true, the template reads C(fetched_artifacts_dir); otherwise it uses C(armageddon_container_crypto_artifacts_dir).
     options:
       armageddon_orderer_hosts: *armageddon_orderer_hosts
@@ -164,6 +169,7 @@ argument_specs:
     short_description: Dispatch shared-config generation
     description:
       - Dispatch shared-config generation to the binary or container flow.
+      - This is the top-level Armageddon entry point for producing C(shared_config.binpb) from the rendered shared config.
       - C(armageddon_use_bin) selects which sub-entry point runs.
     options:
       armageddon_use_bin: *armageddon_use_bin
@@ -171,7 +177,8 @@ argument_specs:
   bin/install:
     short_description: Install the Armageddon binary
     description:
-      - Install Armageddon through the shared binary helper.
+      - Install the Armageddon CLI through the shared binary helper for binary-mode deployments.
+      - The helper installs C(armageddon_bin_name) into C(cli_bin_dir) from C(armageddon_bin_package) at C(armageddon_git_commit).
     options:
       armageddon_bin_name: *armageddon_bin_name
       armageddon_bin_package: *armageddon_bin_package
@@ -184,8 +191,8 @@ argument_specs:
   bin/build:
     short_description: Build the Armageddon binary from source
     description:
-      - Build Armageddon from source through the shared Go helper.
-      - The Go source package comes from C(armageddon_source_code_package).
+      - Build the Armageddon CLI from source through the shared Go helper for binary-mode deployments.
+      - The helper checks out C(armageddon_git_repo) at C(armageddon_git_commit), builds C(armageddon_source_code_package), and places the executable in C(cli_bin_dir).
     options:
       armageddon_bin_name: *armageddon_bin_name
       armageddon_git_hub_url: *armageddon_git_hub_url
@@ -197,8 +204,8 @@ argument_specs:
   bin/create_shared_config:
     short_description: Generate shared-config protobuf with the binary
     description:
-      - Run the installed Armageddon binary to generate `shared_config.binpb`.
-      - The input config is read from C(armageddon_artifacts_dir)/C(armageddon_shared_config_file) and the output is written back to C(armageddon_artifacts_dir).
+      - Run the installed Armageddon binary to generate C(shared_config.binpb).
+      - This binary-mode entry point reads C(armageddon_artifacts_dir)/C(armageddon_shared_config_file) and writes the protobuf output back to C(armageddon_artifacts_dir).
     options:
       armageddon_bin_name: *armageddon_bin_name
       config_build_dir: *config_build_dir
@@ -210,7 +217,8 @@ argument_specs:
   container/create_shared_config:
     short_description: Generate shared-config protobuf with a container
     description:
-      - Run the Armageddon container to generate `shared_config.binpb`.
+      - Run the Armageddon container to generate C(shared_config.binpb) for container-mode deployments.
+      - The container mounts the rendered shared config, crypto artifacts, and output directory before invoking the Armageddon CLI.
     options:
       armageddon_container_name: *armageddon_container_name
       armageddon_registry_endpoint: *armageddon_registry_endpoint

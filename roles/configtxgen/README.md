@@ -1,6 +1,6 @@
 # hyperledger.fabricx.configtxgen
 
-> Runs the `configtxgen` CLI tool to generate Fabric-X genesis blocks.
+> Generates Fabric-X `configtx.yaml` and genesis block artifacts with `configtxgen` through binary or container entry points.
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -30,17 +30,19 @@ ansible-doc -t role hyperledger.fabricx.configtxgen
 
 ### config/build
 
-Build the configtxgen configuration file
+> Render the configtxgen configuration file
 
 Generate `configtx.yaml` for Fabric-X genesis block creation.
 
-Render the config template using the provided inputs, including the path selection controlled by `configtxgen_use_bin`.
+Render the config template from the selected crypto and armageddon artifact roots, then place it under `configtxgen_artifacts_dir`.
+
+The template switches between the binary and container artifact paths based on `configtxgen_use_bin`.
 
 ```yaml
-- name: Build the configtxgen configuration file
+- name: Render the configtxgen configuration file
   vars:
-    # Base build directory for `configtxgen_artifacts_dir`.
-    config_build_dir: "string"
+    # Base build directory for `configtxgen_artifacts_dir`. Example: `/opt/fabricx/build/configtxgen`.
+    config_build_dir: "/opt/fabricx/build/configtxgen"
     # Directory used for the generated config file and genesis block artifacts.
     configtxgen_artifacts_dir: "{{ config_build_dir }}/configtxgen-artifacts"
     # Dispatch selector for the public start entry point and the config template branch selection. When false, the container path is used.
@@ -57,10 +59,10 @@ Render the config template using the provided inputs, including the path selecti
     configtxgen_orderers_by_org: {}
     # Peer organization map rendered into `configtx.yaml`.
     configtxgen_peers_by_org: {}
-    # Directory containing fetched crypto artifacts used by the binary path and container mounts.
-    fetched_artifacts_dir: "string"
-    # Directory containing armageddon artifacts used by the binary path and container mounts.
-    armageddon_artifacts_dir: "string"
+    # Directory containing fetched crypto artifacts used by the binary path and container mounts. Example: `/opt/fabricx/artifacts/crypto`.
+    fetched_artifacts_dir: "/opt/fabricx/artifacts/crypto"
+    # Directory containing armageddon artifacts used by the binary path and container mounts. Example: `/opt/fabricx/artifacts/armageddon`.
+    armageddon_artifacts_dir: "/opt/fabricx/artifacts/armageddon"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.configtxgen
     tasks_from: config/build
@@ -68,14 +70,14 @@ Render the config template using the provided inputs, including the path selecti
 
 ### bin/build
 
-Build the configtxgen binary
+> Build the configtxgen binary on the control node
 
 Build the `configtxgen` binary from the Fabric-X source tree on the control node.
 
-This entry point passes the binary destination to the shared `bin` role.
+The compiled executable is written to `cli_bin_dir` and reused by the binary start entry point.
 
 ```yaml
-- name: Build the configtxgen binary
+- name: Build the configtxgen binary on the control node
   vars:
     # Git host for `configtxgen_bin_package`.
     configtxgen_git_hub_url: github.com
@@ -87,8 +89,8 @@ This entry point passes the binary destination to the shared `bin` role.
     configtxgen_source_code_package: tools/configtxgen
     # Executable name used by the binary and container entry points.
     configtxgen_bin_name: configtxgen
-    # Directory used as the `configtxgen` binary destination or lookup path.
-    cli_bin_dir: "string"
+    # Directory used as the `configtxgen` binary destination or lookup path. Example: `/opt/fabricx/bin`.
+    cli_bin_dir: "/opt/fabricx/bin"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.configtxgen
     tasks_from: bin/build
@@ -96,12 +98,14 @@ This entry point passes the binary destination to the shared `bin` role.
 
 ### bin/install
 
-Install the configtxgen binary
+> Install the configtxgen binary into the local bin directory
 
 Install the `configtxgen` Go package through the shared `bin` role.
 
+The installed executable lands in `cli_bin_dir` and is then used by the binary start entry point.
+
 ```yaml
-- name: Install the configtxgen binary
+- name: Install the configtxgen binary into the local bin directory
   vars:
     # Git host for `configtxgen_bin_package`.
     configtxgen_git_hub_url: github.com
@@ -115,8 +119,8 @@ Install the `configtxgen` Go package through the shared `bin` role.
     configtxgen_git_commit: v0.0.8
     # Executable name used by the binary and container entry points.
     configtxgen_bin_name: configtxgen
-    # Directory used as the `configtxgen` binary destination or lookup path.
-    cli_bin_dir: "string"
+    # Directory used as the `configtxgen` binary destination or lookup path. Example: `/opt/fabricx/bin`.
+    cli_bin_dir: "/opt/fabricx/bin"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.configtxgen
     tasks_from: bin/install
@@ -124,19 +128,21 @@ Install the `configtxgen` Go package through the shared `bin` role.
 
 ### bin/start
 
-Generate a genesis block with the configtxgen binary
+> Generate a genesis block with the configtxgen binary
 
 Run the local `configtxgen` binary to generate the channel genesis block.
+
+The output block is written beneath `configtxgen_artifacts_dir` as `<channel_id>_block.pb`; with the bundled example channel, that becomes `fabricx-main-channel_block.pb`.
 
 ```yaml
 - name: Generate a genesis block with the configtxgen binary
   vars:
-    # Channel identifier for `configtxgen_channel_id`.
-    channel_id: "string"
-    # Base build directory for `configtxgen_artifacts_dir`.
-    config_build_dir: "string"
-    # Directory used as the `configtxgen` binary destination or lookup path.
-    cli_bin_dir: "string"
+    # Channel identifier for `configtxgen_channel_id`. Example: `fabricx-main-channel`.
+    channel_id: "fabricx-main-channel"
+    # Base build directory for `configtxgen_artifacts_dir`. Example: `/opt/fabricx/build/configtxgen`.
+    config_build_dir: "/opt/fabricx/build/configtxgen"
+    # Directory used as the `configtxgen` binary destination or lookup path. Example: `/opt/fabricx/bin`.
+    cli_bin_dir: "/opt/fabricx/bin"
     # Executable name used by the binary and container entry points.
     configtxgen_bin_name: configtxgen
     # Channel identifier passed to `configtxgen` and used in the output block filename.
@@ -152,17 +158,19 @@ Run the local `configtxgen` binary to generate the channel genesis block.
 
 ### container/start
 
-Generate a genesis block with the configtxgen container
+> Generate a genesis block with the configtxgen container
 
 Run `configtxgen` in a container to generate the channel genesis block.
+
+The container consumes the rendered `configtx.yaml` plus mounted crypto and armageddon artifacts, then writes `<channel_id>_block.pb` beneath `configtxgen_container_artifacts_dir`.
 
 ```yaml
 - name: Generate a genesis block with the configtxgen container
   vars:
-    # Channel identifier for `configtxgen_channel_id`.
-    channel_id: "string"
-    # Base build directory for `configtxgen_artifacts_dir`.
-    config_build_dir: "string"
+    # Channel identifier for `configtxgen_channel_id`. Example: `fabricx-main-channel`.
+    channel_id: "fabricx-main-channel"
+    # Base build directory for `configtxgen_artifacts_dir`. Example: `/opt/fabricx/build/configtxgen`.
+    config_build_dir: "/opt/fabricx/build/configtxgen"
     # Directory used for the generated config file and genesis block artifacts.
     configtxgen_artifacts_dir: "{{ config_build_dir }}/configtxgen-artifacts"
     # Container name used by the container entry point.
@@ -193,10 +201,10 @@ Run `configtxgen` in a container to generate the channel genesis block.
     configtxgen_container_crypto_artifacts_dir: /tmp/crypto-artifacts
     # Shared config binary file name consumed by the config template.
     configtxgen_armageddon_binpb_file: shared_config.binpb
-    # Directory containing armageddon artifacts used by the binary path and container mounts.
-    armageddon_artifacts_dir: "string"
-    # Directory containing fetched crypto artifacts used by the binary path and container mounts.
-    fetched_artifacts_dir: "string"
+    # Directory containing armageddon artifacts used by the binary path and container mounts. Example: `/opt/fabricx/artifacts/armageddon`.
+    armageddon_artifacts_dir: "/opt/fabricx/artifacts/armageddon"
+    # Directory containing fetched crypto artifacts used by the binary path and container mounts. Example: `/opt/fabricx/artifacts/crypto`.
+    fetched_artifacts_dir: "/opt/fabricx/artifacts/crypto"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.configtxgen
     tasks_from: container/start
@@ -204,14 +212,14 @@ Run `configtxgen` in a container to generate the channel genesis block.
 
 ### start
 
-Dispatch genesis block generation
+> Dispatch genesis block generation to binary or container
 
-Select the binary or container execution path for `configtxgen`.
+Select the binary or container execution path for `configtxgen` based on `configtxgen_use_bin`.
 
-The concrete entry point validates the remaining inputs.
+Both execution paths consume the rendered configuration and emit the same `<channel_id>_block.pb` artifact name.
 
 ```yaml
-- name: Dispatch genesis block generation
+- name: Dispatch genesis block generation to binary or container
   vars:
     # Dispatch selector for the public start entry point and the config template branch selection. When false, the container path is used.
     configtxgen_use_bin: false

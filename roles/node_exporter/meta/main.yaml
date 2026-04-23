@@ -6,7 +6,7 @@
 ---
 galaxy_info:
   author: IBM
-  description: Runs a Prometheus Node Exporter to collect machine state metrics (RAM, disk, CPU, network).
+  description: Runs Prometheus Node Exporter in container or Kubernetes mode to collect machine state metrics such as RAM, disk, CPU, and network usage.
   license: Apache-2.0
   min_ansible_version: "2.17.0"
   platforms:

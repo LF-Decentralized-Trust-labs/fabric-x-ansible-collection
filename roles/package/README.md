@@ -1,6 +1,6 @@
 # hyperledger.fabricx.package
 
-> Installs OS packages on target machines (apt / brew).
+> Shared package installer that dispatches to Linux package managers or Homebrew on macOS.
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -27,19 +27,21 @@ ansible-doc -t role hyperledger.fabricx.package
 
 ### install
 
-Install a package for the current operating system
+> Dispatch package installation for the current operating system
 
-Installs a package by dispatching to the Linux or macOS entry point based on `ansible_facts.system`.
+Shared entry point that dispatches to the Linux or macOS installer based on `ansible_facts.system`.
+
+Use this entry point when the target host may be either Linux or macOS and you want the role to choose the correct package manager path.
 
 This entry point validates `package_name` and `package_service_name`.
 
 ```yaml
-- name: Install a package for the current operating system
+- name: Dispatch package installation for the current operating system
   vars:
-    # Names the executable or package to install on the target host. Set this to the package identifier used by the host package manager.
+    # Names the executable or package to install on the target host. Set this to the package identifier used by the host package manager. Example: `postgresql-client` on a Debian/Ubuntu host or `postgresql@16` with Homebrew on macOS.
     package_name: "string"
-    # Names the Linux service to enable and start after installation.
-    package_service_name: "string"
+    # Names the Linux service to enable and start after installation. Example: `postgresql`.
+    package_service_name: "postgresql"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.package
     tasks_from: install
@@ -47,19 +49,19 @@ This entry point validates `package_name` and `package_service_name`.
 
 ### install_on_linux
 
-Install a package on Linux
+> Install a package on Linux
 
 Installs a package on Linux hosts after confirming the command is not already present and the package is available through the system package manager.
 
-If a service name is provided, this entry point also enables and starts that service after installation.
+Uses the host package manager to install the requested package identifier and then enables and starts the matching service when `package_service_name` is provided.
 
 ```yaml
 - name: Install a package on Linux
   vars:
-    # Names the executable or package to install on the target host. Set this to the package identifier used by the host package manager.
+    # Names the executable or package to install on the target host. Set this to the package identifier used by the host package manager. Example: `postgresql-client` on a Debian/Ubuntu host or `postgresql@16` with Homebrew on macOS.
     package_name: "string"
-    # Names the Linux service to enable and start after installation.
-    package_service_name: "string"
+    # Names the Linux service to enable and start after installation. Example: `postgresql`.
+    package_service_name: "postgresql"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.package
     tasks_from: install_on_linux
@@ -67,16 +69,16 @@ If a service name is provided, this entry point also enables and starts that ser
 
 ### install_on_macos
 
-Install a package on macOS
+> Install a package on macOS
 
 Installs a package on macOS hosts with Homebrew after confirming the command is not already present.
 
-This entry point assumes Homebrew is already installed on the target host.
+Uses Homebrew to install the requested formula or cask and assumes Homebrew is already installed on the target host.
 
 ```yaml
 - name: Install a package on macOS
   vars:
-    # Names the executable or package to install on the target host. Set this to the package identifier used by the host package manager.
+    # Names the executable or package to install on the target host. Set this to the package identifier used by the host package manager. Example: `postgresql-client` on a Debian/Ubuntu host or `postgresql@16` with Homebrew on macOS.
     package_name: "string"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.package

@@ -1,6 +1,6 @@
 # hyperledger.fabricx.elasticsearch
 
-> Runs an ElasticSearch container for log storage.
+> Deploys and manages ElasticSearch in container or Kubernetes mode for Fabric-X log storage.
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -46,11 +46,11 @@ ansible-doc -t role hyperledger.fabricx.elasticsearch
 
 ### start
 
-Start ElasticSearch
+> Start ElasticSearch
 
 Starts ElasticSearch using the selected deployment mode.
 
-Container mode is the default unless `elasticsearch_use_k8s` is enabled.
+Container mode is the default unless `elasticsearch_use_k8s` is enabled, in which case the Kubernetes StatefulSet, Services, and optional TLS Secret are managed instead.
 
 ```yaml
 - name: Start ElasticSearch
@@ -66,11 +66,11 @@ Container mode is the default unless `elasticsearch_use_k8s` is enabled.
 
 ### stop
 
-Stop the ElasticSearch container
+> Stop the ElasticSearch container
 
-Stops the ElasticSearch container instance.
+Stops the ElasticSearch container instance without removing its data volume or configuration files.
 
-Uses the container helper role internally.
+Uses the container helper role internally and only applies in container mode.
 
 ```yaml
 - name: Stop the ElasticSearch container
@@ -84,11 +84,11 @@ Uses the container helper role internally.
 
 ### teardown
 
-Remove ElasticSearch runtime resources and data
+> Remove ElasticSearch runtime resources and data
 
 Removes ElasticSearch runtime resources for the selected deployment mode.
 
-Also removes the container data directory or Kubernetes PVC through the `data/rm` entry point.
+Also removes the container data directory or Kubernetes PVC through the `data/rm` entry point, leaving TLS and config cleanup to `wipe`.
 
 ```yaml
 - name: Remove ElasticSearch runtime resources and data
@@ -104,11 +104,11 @@ Also removes the container data directory or Kubernetes PVC through the `data/rm
 
 ### wipe
 
-Wipe ElasticSearch data and configuration
+> Wipe ElasticSearch data and configuration
 
 Removes ElasticSearch runtime resources, TLS materials, and configuration files.
 
-This entry point sequences the teardown, crypto cleanup, and config cleanup flows.
+This entry point sequences the teardown, crypto cleanup, and config cleanup flows to clear the instance state.
 
 ```yaml
 - name: Wipe ElasticSearch data and configuration
@@ -119,11 +119,11 @@ This entry point sequences the teardown, crypto cleanup, and config cleanup flow
 
 ### fetch_logs
 
-Fetch ElasticSearch logs
+> Fetch ElasticSearch logs
 
 Collects ElasticSearch logs from the selected deployment mode.
 
-Delegates to the container or Kubernetes log collection entry point.
+Delegates to the container or Kubernetes log collection entry point and writes the results to the control node fetch directory.
 
 ```yaml
 - name: Fetch ElasticSearch logs
@@ -139,11 +139,11 @@ Delegates to the container or Kubernetes log collection entry point.
 
 ### ping
 
-Check ElasticSearch reachability
+> Check ElasticSearch reachability
 
-Probes the ElasticSearch ports in container mode.
+Probes the ElasticSearch HTTP and transport ports in container mode.
 
-Delegates to `k8s/ping` when ElasticSearch runs on Kubernetes.
+Delegates to `k8s/ping` when ElasticSearch runs on Kubernetes and checks the optional NodePort Service instead.
 
 ```yaml
 - name: Check ElasticSearch reachability
@@ -151,9 +151,9 @@ Delegates to `k8s/ping` when ElasticSearch runs on Kubernetes.
     # Runs ElasticSearch on Kubernetes when set to `true`.
     elasticsearch_use_k8s: false
     # ElasticSearch HTTP port used by the container, Kubernetes Service, and readiness checks. Example: `9200`.
-    elasticsearch_http_port: 1000
+    elasticsearch_http_port: 9200
     # ElasticSearch transport port used by the container and Kubernetes Service. Example: `9300`.
-    elasticsearch_transport_port: 1000
+    elasticsearch_transport_port: 9300
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: ping
@@ -161,11 +161,11 @@ Delegates to `k8s/ping` when ElasticSearch runs on Kubernetes.
 
 ### container/start
 
-Start ElasticSearch in a container
+> Start ElasticSearch in a container
 
-Creates the required data volume and starts the ElasticSearch container.
+Creates the required data volume, prepares the configuration path, and starts the ElasticSearch container.
 
-Configures TLS volume mounts and environment variables when TLS is enabled.
+Configures TLS volume mounts, environment variables, and the selected HTTP and transport ports when TLS is enabled.
 
 ```yaml
 - name: Start ElasticSearch in a container
@@ -182,20 +182,20 @@ Configures TLS volume mounts and environment variables when TLS is enabled.
     elasticsearch_image: "{{ elasticsearch_registry_endpoint }}/{{ elasticsearch_image_name }}:{{ elasticsearch_image_tag }}"
     # Remote directory used for ElasticSearch configuration and TLS files.
     elasticsearch_remote_config_dir: "{{ remote_config_dir }}"
-    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Required when relying on the default of that option.
-    remote_config_dir: "string"
+    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Example: `/opt/fabricx/elasticsearch/config`. Required when relying on the default of that option.
+    remote_config_dir: "/opt/fabricx/elasticsearch/config"
     # Remote directory used for ElasticSearch persistent data.
     elasticsearch_remote_data_dir: "{{ remote_data_dir }}"
-    # Shared remote data directory consumed by `elasticsearch_remote_data_dir`. Required when relying on the default of that option.
-    remote_data_dir: "string"
+    # Shared remote data directory consumed by `elasticsearch_remote_data_dir`. Example: `/opt/fabricx/elasticsearch/data`. Required when relying on the default of that option.
+    remote_data_dir: "/opt/fabricx/elasticsearch/data"
     # Base configuration directory path inside the ElasticSearch container.
     elasticsearch_container_config_dir: /usr/share/elasticsearch
     # Data directory path inside the ElasticSearch container.
     elasticsearch_container_data_dir: /usr/share/elasticsearch/data
     # ElasticSearch HTTP port used by the container, Kubernetes Service, and readiness checks. Example: `9200`.
-    elasticsearch_http_port: 1000
+    elasticsearch_http_port: 9200
     # ElasticSearch transport port used by the container and Kubernetes Service. Example: `9300`.
-    elasticsearch_transport_port: 1000
+    elasticsearch_transport_port: 9300
     # Enables TLS material handling and HTTPS configuration for ElasticSearch.
     elasticsearch_use_tls: false
     # Filename of the ElasticSearch TLS private key under the TLS directory.
@@ -209,9 +209,9 @@ Configures TLS volume mounts and environment variables when TLS is enabled.
 
 ### container/stop
 
-Stop the ElasticSearch container
+> Stop the ElasticSearch container
 
-Stops the ElasticSearch container instance.
+Stops the ElasticSearch container instance while preserving the container data directory.
 
 Uses the container helper role internally.
 
@@ -227,11 +227,11 @@ Uses the container helper role internally.
 
 ### container/rm
 
-Remove the ElasticSearch container
+> Remove the ElasticSearch container
 
 Removes the ElasticSearch container instance.
 
-Container volumes are handled separately by the `data/rm` entry point.
+Container volumes are handled separately by the `data/rm` entry point, so the persisted data path stays under role control.
 
 ```yaml
 - name: Remove the ElasticSearch container
@@ -245,9 +245,9 @@ Container volumes are handled separately by the `data/rm` entry point.
 
 ### container/fetch_logs
 
-Fetch ElasticSearch container logs
+> Fetch ElasticSearch container logs
 
-Collects logs from the ElasticSearch container instance.
+Collects logs from the ElasticSearch container instance and stores them on the control node.
 
 Uses the container helper role internally.
 
@@ -263,19 +263,19 @@ Uses the container helper role internally.
 
 ### config/rm
 
-Remove the ElasticSearch configuration directory
+> Remove the ElasticSearch configuration directory
 
 Deletes the remote ElasticSearch configuration directory from the target host.
 
-This also removes TLS materials stored under that directory.
+This also removes TLS materials stored under that directory and clears the container or Kubernetes config path at the source.
 
 ```yaml
 - name: Remove the ElasticSearch configuration directory
   vars:
     # Remote directory used for ElasticSearch configuration and TLS files.
     elasticsearch_remote_config_dir: "{{ remote_config_dir }}"
-    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Required when relying on the default of that option.
-    remote_config_dir: "string"
+    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Example: `/opt/fabricx/elasticsearch/config`. Required when relying on the default of that option.
+    remote_config_dir: "/opt/fabricx/elasticsearch/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: config/rm
@@ -283,11 +283,11 @@ This also removes TLS materials stored under that directory.
 
 ### data/rm
 
-Remove ElasticSearch data storage
+> Remove ElasticSearch data storage
 
 Removes the ElasticSearch persistent data directory in container deployments.
 
-Deletes the ElasticSearch PVC in Kubernetes deployments.
+Deletes the ElasticSearch PVC in Kubernetes deployments so the data artifact is gone regardless of deployment mode.
 
 ```yaml
 - name: Remove ElasticSearch data storage
@@ -298,12 +298,12 @@ Deletes the ElasticSearch PVC in Kubernetes deployments.
     elasticsearch_use_container: "{{ not elasticsearch_use_k8s }}"
     # Remote directory used for ElasticSearch persistent data.
     elasticsearch_remote_data_dir: "{{ remote_data_dir }}"
-    # Shared remote data directory consumed by `elasticsearch_remote_data_dir`. Required when relying on the default of that option.
-    remote_data_dir: "string"
+    # Shared remote data directory consumed by `elasticsearch_remote_data_dir`. Example: `/opt/fabricx/elasticsearch/data`. Required when relying on the default of that option.
+    remote_data_dir: "/opt/fabricx/elasticsearch/data"
     # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes namespace used for ElasticSearch resources. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
-    k8s_namespace: "string"
+    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
+    k8s_namespace: "fabricx-elasticsearch"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: data/rm
@@ -311,11 +311,11 @@ Deletes the ElasticSearch PVC in Kubernetes deployments.
 
 ### crypto/setup
 
-Prepare ElasticSearch TLS materials
+> Prepare ElasticSearch TLS materials
 
 Generates TLS materials when TLS is enabled.
 
-Uploads the generated materials to Kubernetes when Kubernetes mode is enabled.
+Uploads the generated materials to Kubernetes when Kubernetes mode is enabled so the Secret and mounted certs stay in sync.
 
 ```yaml
 - name: Prepare ElasticSearch TLS materials
@@ -331,9 +331,9 @@ Uploads the generated materials to Kubernetes when Kubernetes mode is enabled.
 
 ### crypto/fetch
 
-Fetch ElasticSearch TLS certificates
+> Fetch ElasticSearch TLS certificates
 
-Fetches the ElasticSearch CA certificate and server certificate from the remote host.
+Fetches the ElasticSearch CA certificate and server certificate from the remote host into the control-node artifact directory.
 
 This entry point only performs work when TLS is enabled.
 
@@ -344,10 +344,10 @@ This entry point only performs work when TLS is enabled.
     elasticsearch_use_tls: false
     # Remote directory used for ElasticSearch configuration and TLS files.
     elasticsearch_remote_config_dir: "{{ remote_config_dir }}"
-    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Required when relying on the default of that option.
-    remote_config_dir: "string"
-    # Control-node directory where fetched ElasticSearch artifacts are written. Example: `/tmp/fabricx/fetched-artifacts`.
-    fetched_artifacts_dir: "string"
+    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Example: `/opt/fabricx/elasticsearch/config`. Required when relying on the default of that option.
+    remote_config_dir: "/opt/fabricx/elasticsearch/config"
+    # Control-node directory where fetched ElasticSearch artifacts such as TLS certificates and log bundles are written. Example: `/tmp/fabricx/elasticsearch-artifacts`.
+    fetched_artifacts_dir: "/tmp/fabricx/elasticsearch-artifacts"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: crypto/fetch
@@ -355,19 +355,19 @@ This entry point only performs work when TLS is enabled.
 
 ### crypto/rm
 
-Remove ElasticSearch TLS materials
+> Remove ElasticSearch TLS materials
 
 Deletes local ElasticSearch TLS files from the remote host.
 
-Removes the Kubernetes Secret when Kubernetes mode is enabled.
+Removes the Kubernetes Secret when Kubernetes mode is enabled and TLS artifacts are no longer needed.
 
 ```yaml
 - name: Remove ElasticSearch TLS materials
   vars:
     # Remote directory used for ElasticSearch configuration and TLS files.
     elasticsearch_remote_config_dir: "{{ remote_config_dir }}"
-    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Required when relying on the default of that option.
-    remote_config_dir: "string"
+    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Example: `/opt/fabricx/elasticsearch/config`. Required when relying on the default of that option.
+    remote_config_dir: "/opt/fabricx/elasticsearch/config"
     # Filename of the ElasticSearch TLS private key under the TLS directory.
     elasticsearch_tls_private_key_file: server.key
     # Runs ElasticSearch on Kubernetes when set to `true`.
@@ -379,25 +379,25 @@ Removes the Kubernetes Secret when Kubernetes mode is enabled.
 
 ### crypto/openssl/generate_cert
 
-Generate ElasticSearch TLS materials with OpenSSL
+> Generate ElasticSearch TLS materials with OpenSSL
 
 Generates a self-signed TLS certificate and private key for ElasticSearch on the target host.
 
-Writes the generated files under the ElasticSearch remote configuration directory.
+Writes the generated files under the ElasticSearch remote configuration directory for later container or Kubernetes use.
 
 ```yaml
 - name: Generate ElasticSearch TLS materials with OpenSSL
   vars:
     # Remote directory used for ElasticSearch configuration and TLS files.
     elasticsearch_remote_config_dir: "{{ remote_config_dir }}"
-    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Required when relying on the default of that option.
-    remote_config_dir: "string"
+    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Example: `/opt/fabricx/elasticsearch/config`. Required when relying on the default of that option.
+    remote_config_dir: "/opt/fabricx/elasticsearch/config"
     # Filename of the ElasticSearch TLS private key under the TLS directory.
     elasticsearch_tls_private_key_file: server.key
     # Filename of the ElasticSearch TLS certificate under the TLS directory.
     elasticsearch_tls_cert_file: server.crt
-    # Optionally provides organization metadata used to derive the TLS certificate organization name.
-    organization: {}
+    # Optionally provides organization metadata used to derive the TLS certificate organization name. Example: `{common_name: elasticsearch.fabricx.example}`.
+    organization: {common_name: elasticsearch.fabricx.example}
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: crypto/openssl/generate_cert
@@ -405,33 +405,33 @@ Writes the generated files under the ElasticSearch remote configuration director
 
 ### k8s/start
 
-Start ElasticSearch on Kubernetes
+> Start ElasticSearch on Kubernetes
 
-Ensures the Kubernetes namespace exists and applies the ElasticSearch Services and StatefulSet.
+Ensures the Kubernetes namespace exists and applies the ElasticSearch headless Service, optional NodePort Service, StatefulSet, and PVC.
 
-Uses the role templates to configure storage, TLS mounts, and the optional NodePort Service.
+Uses the role templates to configure storage, TLS mounts, the configured image, and rollout waiting behavior.
 
 ```yaml
 - name: Start ElasticSearch on Kubernetes
   vars:
     # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes namespace used for ElasticSearch resources. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
-    k8s_namespace: "string"
+    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
+    k8s_namespace: "fabricx-elasticsearch"
     # Timeout in seconds while waiting for the ElasticSearch StatefulSet rollout to complete.
     elasticsearch_k8s_wait_timeout: 120
     # Kubernetes pod `fsGroup` applied so mounted TLS files are readable by the ElasticSearch process.
     elasticsearch_k8s_fs_group: 1000
     # Enables the optional Kubernetes NodePort Service for ElasticSearch when set to `true`. When `false`, no NodePort Service is created and the `k8s/ping` check is skipped.
     elasticsearch_k8s_use_node_port: false
-    # Optional NodePort value used by the external ElasticSearch HTTP Service. Only relevant when `elasticsearch_k8s_use_node_port` is `true`. When undefined, Kubernetes allocates the NodePort automatically.
-    elasticsearch_k8s_http_node_port: 1000
-    # Optional NodePort value used by the external ElasticSearch transport Service. Only relevant when `elasticsearch_k8s_use_node_port` is `true`. When undefined, Kubernetes allocates the NodePort automatically.
-    elasticsearch_k8s_transport_node_port: 1000
+    # Optional NodePort value used by the external ElasticSearch HTTP Service. Only relevant when `elasticsearch_k8s_use_node_port` is `true`. When undefined, Kubernetes allocates the NodePort automatically. Example: `30920`.
+    elasticsearch_k8s_http_node_port: 30920
+    # Optional NodePort value used by the external ElasticSearch transport Service. Only relevant when `elasticsearch_k8s_use_node_port` is `true`. When undefined, Kubernetes allocates the NodePort automatically. Example: `30930`.
+    elasticsearch_k8s_transport_node_port: 30930
     # ElasticSearch HTTP port used by the container, Kubernetes Service, and readiness checks. Example: `9200`.
-    elasticsearch_http_port: 1000
+    elasticsearch_http_port: 9200
     # ElasticSearch transport port used by the container and Kubernetes Service. Example: `9300`.
-    elasticsearch_transport_port: 1000
+    elasticsearch_transport_port: 9300
     # Container registry endpoint used to build `elasticsearch_image`.
     elasticsearch_registry_endpoint: "{{ lookup('env', 'ELASTICSEARCH_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
     # ElasticSearch image repository name.
@@ -451,27 +451,27 @@ Uses the role templates to configure storage, TLS mounts, and the optional NodeP
     # Filename of the ElasticSearch TLS certificate under the TLS directory.
     elasticsearch_tls_cert_file: server.crt
     # Requested persistent storage size for the ElasticSearch PVC. Example: `20Gi`.
-    k8s_storage_size: "string"
-    # Kubernetes storage class name for the ElasticSearch PVC when a non-default class is required.
-    k8s_storage_class: "string"
-    # Existing Kubernetes `imagePullSecret` name used for private registries.
-    k8s_image_pull_secret: "string"
-    # Optionally overrides the readiness probe initial delay in seconds.
-    k8s_readiness_probe_initial_delay_seconds: 1000
-    # Optionally overrides the readiness probe interval in seconds.
-    k8s_readiness_probe_period_seconds: 1000
-    # Optionally overrides the readiness probe timeout in seconds.
-    k8s_readiness_probe_timeout_seconds: 1000
-    # Optionally overrides the readiness probe failure threshold.
-    k8s_readiness_probe_failure_threshold: 1000
-    # Optionally overrides the liveness probe initial delay in seconds.
-    k8s_liveness_probe_initial_delay_seconds: 1000
-    # Optionally overrides the liveness probe interval in seconds.
-    k8s_liveness_probe_period_seconds: 1000
-    # Optionally overrides the liveness probe timeout in seconds.
-    k8s_liveness_probe_timeout_seconds: 1000
-    # Optionally overrides the liveness probe failure threshold.
-    k8s_liveness_probe_failure_threshold: 1000
+    k8s_storage_size: "20Gi"
+    # Kubernetes storage class name for the ElasticSearch PVC when a non-default class is required. Example: `fast-ssd`.
+    k8s_storage_class: "fast-ssd"
+    # Existing Kubernetes `imagePullSecret` name used for private registries. Example: `elasticsearch-regcred`.
+    k8s_image_pull_secret: "elasticsearch-regcred"
+    # Optionally overrides the readiness probe initial delay in seconds. Example: `10`.
+    k8s_readiness_probe_initial_delay_seconds: 10
+    # Optionally overrides the readiness probe interval in seconds. Example: `5`.
+    k8s_readiness_probe_period_seconds: 5
+    # Optionally overrides the readiness probe timeout in seconds. Example: `2`.
+    k8s_readiness_probe_timeout_seconds: 2
+    # Optionally overrides the readiness probe failure threshold. Example: `3`.
+    k8s_readiness_probe_failure_threshold: 3
+    # Optionally overrides the liveness probe initial delay in seconds. Example: `30`.
+    k8s_liveness_probe_initial_delay_seconds: 30
+    # Optionally overrides the liveness probe interval in seconds. Example: `10`.
+    k8s_liveness_probe_period_seconds: 10
+    # Optionally overrides the liveness probe timeout in seconds. Example: `2`.
+    k8s_liveness_probe_timeout_seconds: 2
+    # Optionally overrides the liveness probe failure threshold. Example: `3`.
+    k8s_liveness_probe_failure_threshold: 3
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: k8s/start
@@ -479,21 +479,21 @@ Uses the role templates to configure storage, TLS mounts, and the optional NodeP
 
 ### k8s/ping
 
-Check ElasticSearch NodePort reachability on Kubernetes
+> Check ElasticSearch NodePort reachability on Kubernetes
 
 Probes the ElasticSearch HTTP and transport NodePorts when `elasticsearch_k8s_use_node_port` is `true`.
 
-Each port is only checked when its matching NodePort value is defined.
+Each port is only checked when its matching NodePort value is defined, which lets the role verify only the exported service ports.
 
 ```yaml
 - name: Check ElasticSearch NodePort reachability on Kubernetes
   vars:
     # Enables the optional Kubernetes NodePort Service for ElasticSearch when set to `true`. When `false`, no NodePort Service is created and the `k8s/ping` check is skipped.
     elasticsearch_k8s_use_node_port: false
-    # Optional NodePort value used by the external ElasticSearch HTTP Service. Only relevant when `elasticsearch_k8s_use_node_port` is `true`. When undefined, Kubernetes allocates the NodePort automatically.
-    elasticsearch_k8s_http_node_port: 1000
-    # Optional NodePort value used by the external ElasticSearch transport Service. Only relevant when `elasticsearch_k8s_use_node_port` is `true`. When undefined, Kubernetes allocates the NodePort automatically.
-    elasticsearch_k8s_transport_node_port: 1000
+    # Optional NodePort value used by the external ElasticSearch HTTP Service. Only relevant when `elasticsearch_k8s_use_node_port` is `true`. When undefined, Kubernetes allocates the NodePort automatically. Example: `30920`.
+    elasticsearch_k8s_http_node_port: 30920
+    # Optional NodePort value used by the external ElasticSearch transport Service. Only relevant when `elasticsearch_k8s_use_node_port` is `true`. When undefined, Kubernetes allocates the NodePort automatically. Example: `30930`.
+    elasticsearch_k8s_transport_node_port: 30930
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: k8s/ping
@@ -501,19 +501,19 @@ Each port is only checked when its matching NodePort value is defined.
 
 ### k8s/rm
 
-Remove ElasticSearch Kubernetes resources
+> Remove ElasticSearch Kubernetes resources
 
 Deletes the ElasticSearch StatefulSet and Services from Kubernetes.
 
-The persistent volume claim is removed separately by the `data/rm` entry point.
+The persistent volume claim is removed separately by the `data/rm` entry point so data cleanup stays explicit.
 
 ```yaml
 - name: Remove ElasticSearch Kubernetes resources
   vars:
     # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes namespace used for ElasticSearch resources. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
-    k8s_namespace: "string"
+    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
+    k8s_namespace: "fabricx-elasticsearch"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: k8s/rm
@@ -521,9 +521,9 @@ The persistent volume claim is removed separately by the `data/rm` entry point.
 
 ### k8s/fetch_logs
 
-Fetch ElasticSearch pod logs
+> Fetch ElasticSearch pod logs
 
-Collects logs from the ElasticSearch pod in Kubernetes.
+Collects logs from the ElasticSearch pod in Kubernetes and writes them to the control node artifact path.
 
 Selects pods using the ElasticSearch application label.
 
@@ -532,8 +532,8 @@ Selects pods using the ElasticSearch application label.
   vars:
     # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes namespace used for ElasticSearch resources. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
-    k8s_namespace: "string"
+    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
+    k8s_namespace: "fabricx-elasticsearch"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: k8s/fetch_logs
@@ -541,19 +541,19 @@ Selects pods using the ElasticSearch application label.
 
 ### k8s/crypto/rm
 
-Remove the ElasticSearch Kubernetes TLS Secret
+> Remove the ElasticSearch Kubernetes TLS Secret
 
 Deletes the Kubernetes Secret that stores ElasticSearch TLS materials.
 
-This entry point is typically invoked from the ElasticSearch crypto cleanup workflow.
+This entry point is typically invoked from the ElasticSearch crypto cleanup workflow after the remote certs are removed.
 
 ```yaml
 - name: Remove the ElasticSearch Kubernetes TLS Secret
   vars:
     # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes namespace used for ElasticSearch resources. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
-    k8s_namespace: "string"
+    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
+    k8s_namespace: "fabricx-elasticsearch"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: k8s/crypto/rm
@@ -561,25 +561,25 @@ This entry point is typically invoked from the ElasticSearch crypto cleanup work
 
 ### k8s/crypto/transfer
 
-Apply the ElasticSearch Kubernetes TLS Secret
+> Apply the ElasticSearch Kubernetes TLS Secret
 
 Applies the Kubernetes Secret that stores ElasticSearch TLS materials.
 
-Ensures the Kubernetes namespace exists before applying the Secret.
+Ensures the Kubernetes namespace exists before applying the Secret and keeps the pod-mounted certificate paths aligned with the remote files.
 
 ```yaml
 - name: Apply the ElasticSearch Kubernetes TLS Secret
   vars:
     # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes namespace used for ElasticSearch resources. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
-    k8s_namespace: "string"
+    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
+    k8s_namespace: "fabricx-elasticsearch"
     # Enables TLS material handling and HTTPS configuration for ElasticSearch.
     elasticsearch_use_tls: false
     # Remote directory used for ElasticSearch configuration and TLS files.
     elasticsearch_remote_config_dir: "{{ remote_config_dir }}"
-    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Required when relying on the default of that option.
-    remote_config_dir: "string"
+    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Example: `/opt/fabricx/elasticsearch/config`. Required when relying on the default of that option.
+    remote_config_dir: "/opt/fabricx/elasticsearch/config"
     # Filename of the ElasticSearch TLS private key under the TLS directory.
     elasticsearch_tls_private_key_file: server.key
     # Filename of the ElasticSearch TLS certificate under the TLS directory.

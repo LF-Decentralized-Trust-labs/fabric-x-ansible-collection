@@ -17,12 +17,14 @@ argument_specs:
         required: true
         description:
           - "Lists the inventory hosts that belong to the YugabyteDB cluster."
+          - "Example: C([yb-master-1, yb-master-2, yb-master-3, yb-tserver-1, yb-tserver-2, yb-tserver-3])."
       yugabyte_hosts: &yugabyte_hosts
         type: list
         elements: str
         required: true
         description:
           - "Lists the inventory hosts that belong to the YugabyteDB clusters monitored by Prometheus."
+          - "Example: C([yb-master-1, yb-master-2, yb-master-3, yb-tserver-1, yb-tserver-2, yb-tserver-3])."
       yugabyte_component_type: &yugabyte_component_type
         type: str
         required: true
@@ -31,6 +33,7 @@ argument_specs:
           - tablet
         description:
           - "Selects whether the current host is handled as a YugabyteDB master or tablet node."
+          - "Example: C(master) for C(yb-master-1) or C(tablet) for C(yb-tserver-1)."
       yugabyte_use_k8s: &yugabyte_use_k8s
         type: bool
         required: false
@@ -108,6 +111,7 @@ argument_specs:
         required: false
         description:
           - "Sets the shared remote configuration directory consumed by YugabyteDB."
+          - "Example: C(/opt/hyperledger/fabric-x/yugabyte/config)."
       yugabyte_remote_data_dir: &yugabyte_remote_data_dir
         type: path
         required: false
@@ -119,6 +123,7 @@ argument_specs:
         required: false
         description:
           - "Sets the shared remote data directory consumed by YugabyteDB."
+          - "Example: C(/var/hyperledger/fabric-x/yugabyte/data)."
       yugabyte_container_data_dir: &yugabyte_container_data_dir
         type: path
         required: false
@@ -142,18 +147,21 @@ argument_specs:
         required: true
         description:
           - "Lists the master RPC endpoints used to bootstrap YugabyteDB tablets and health checks."
+          - "Example: C(yb-master-1.example.com:7100,yb-master-2.example.com:7100,yb-master-3.example.com:7100)."
       yugabyte_master_hosts: &yugabyte_master_hosts
         type: list
         elements: str
         required: true
         description:
           - "Provides the ordered list of master hosts used to compute replication factors."
+          - "Example: C([yb-master-1, yb-master-2, yb-master-3])."
       yugabyte_tablet_hosts: &yugabyte_tablet_hosts
         type: list
         elements: str
         required: true
         description:
           - "Provides the ordered list of tablet hosts used to initialize the first tablet."
+          - "Example: C([yb-tserver-1, yb-tserver-2, yb-tserver-3])."
       yugabyte_master_rpc_bind_port: &yugabyte_master_rpc_bind_port
         type: int
         required: false
@@ -232,90 +240,107 @@ argument_specs:
         required: false
         description:
           - "Optionally sets the NodePort used to expose the master RPC service when C(yugabyte_k8s_use_node_port) is enabled."
+          - "Example: C(32100)."
       yugabyte_k8s_master_webserver_node_port: &yugabyte_k8s_master_webserver_node_port
         type: int
         required: false
         description:
           - "Optionally sets the NodePort used to expose the master webserver service when C(yugabyte_k8s_use_node_port) is enabled."
+          - "Example: C(32000)."
       yugabyte_k8s_tablet_pgsql_node_port: &yugabyte_k8s_tablet_pgsql_node_port
         type: int
         required: false
         description:
           - "Optionally sets the NodePort used to expose the tablet YSQL service when C(yugabyte_k8s_use_node_port) is enabled."
+          - "Example: C(31433)."
       yugabyte_k8s_tablet_rpc_node_port: &yugabyte_k8s_tablet_rpc_node_port
         type: int
         required: false
         description:
           - "Optionally sets the NodePort used to expose the tablet RPC service when C(yugabyte_k8s_use_node_port) is enabled."
+          - "Example: C(32101)."
       yugabyte_k8s_tablet_webserver_node_port: &yugabyte_k8s_tablet_webserver_node_port
         type: int
         required: false
         description:
           - "Optionally sets the NodePort used to expose the tablet webserver service when C(yugabyte_k8s_use_node_port) is enabled."
+          - "Example: C(32001)."
       yugabyte_k8s_tablet_pgsql_web_node_port: &yugabyte_k8s_tablet_pgsql_web_node_port
         type: int
         required: false
         description:
           - "Optionally sets the NodePort used to expose the tablet YSQL web UI service when C(yugabyte_k8s_use_node_port) is enabled."
+          - "Example: C(32300)."
       yugabyte_k8s_tablet_cql_bind_node_port: &yugabyte_k8s_tablet_cql_bind_node_port
         type: int
         required: false
         description:
           - "Optionally sets the NodePort used to expose the tablet YCQL bind service when C(yugabyte_k8s_use_node_port) is enabled."
+          - "Example: C(32042)."
       yugabyte_k8s_tablet_cql_web_node_port: &yugabyte_k8s_tablet_cql_web_node_port
         type: int
         required: false
         description:
           - "Optionally sets the NodePort used to expose the tablet YCQL web UI service when C(yugabyte_k8s_use_node_port) is enabled."
+          - "Example: C(32200)."
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         required: false
         description:
           - "Defines the control-node directory that stores fetched YugabyteDB artifacts."
           - "Required when TLS-enabled tasks need access to fetched CA or certificate artifacts, such as when C(yugabyte_use_tls) or webserver TLS is enabled."
+          - "Example: C(/tmp/fabric-x/artifacts/yugabyte)."
       cryptogen_artifacts_dir: &cryptogen_artifacts_dir
         type: path
         required: true
         description:
           - "Defines the control-node directory that stores cryptogen-generated artifacts."
+          - "Example: C(/tmp/fabric-x/crypto-config)."
       actual_host: &actual_host
         type: str
         required: true
         description:
           - "Provides the externally reachable host name or address added to TLS SAN entries."
+          - "Example: C(yb-tserver-1.example.com)."
       organization: &organization
         type: dict
         required: false
         description:
           - "Provides the organization metadata consumed by the crypto entry points."
           - "The mapping is expected to expose C(domain), C(role), C(peer.name), C(peer.secret), and C(fabric_ca_host) when relevant."
+          - "Example: C({domain: org1.example.com, role: peer, peer: {name: yb-tserver-1, secret: yb-tserver-1pw}, fabric_ca_host: ca-org1})."
       organization_required: &organization_required
         type: dict
         required: true
         description:
           - "Provides the organization metadata consumed by the crypto entry points that require it."
           - "The mapping is expected to expose C(domain), C(role), C(peer.name), C(peer.secret), and C(fabric_ca_host) when relevant."
+          - "Example: C({domain: org1.example.com, role: peer, peer: {name: yb-tserver-1, secret: yb-tserver-1pw}, fabric_ca_host: ca-org1})."
       yugabyte_db: &yugabyte_db
         type: str
         required: true
         description:
           - "Sets the YugabyteDB database name created by the initialization SQL script."
+          - "Example: C(fabricx)."
       yugabyte_user: &yugabyte_user
         type: str
         required: true
         description:
           - "Sets the YugabyteDB database user created by the initialization SQL script."
+          - "Example: C(fabricx_user)."
       yugabyte_password: &yugabyte_password
         type: str
         required: true
         description:
           - "Sets the password for the YugabyteDB database user."
           - "Store this value in Ansible Vault."
+          - "Example: C({{ vault_yugabyte_password }})."
       k8s_namespace: &k8s_namespace
         type: str
         required: true
         description:
           - "Sets the Kubernetes namespace used by YugabyteDB resources."
+          - "Example: C(fabricx-yugabyte)."
       k8s_storage_size: &k8s_storage_size
         type: str
         required: true
@@ -327,56 +352,67 @@ argument_specs:
         required: false
         description:
           - "Sets the storage class used by Kubernetes PersistentVolumeClaims when defined."
+          - "Example: C(fast-ssd)."
       k8s_image_pull_secret: &k8s_image_pull_secret
         type: str
         required: false
         description:
           - "Sets the image pull secret used by Kubernetes deployments when defined."
+          - "Example: C(registry-pull-secret)."
       k8s_readiness_probe_initial_delay_seconds: &k8s_readiness_probe_initial_delay_seconds
         type: int
         required: false
         description:
           - "Overrides the readiness probe initial delay used by Kubernetes templates when defined."
+          - "Example: C(30)."
       k8s_readiness_probe_period_seconds: &k8s_readiness_probe_period_seconds
         type: int
         required: false
         description:
           - "Overrides the readiness probe period used by Kubernetes templates when defined."
+          - "Example: C(10)."
       k8s_readiness_probe_timeout_seconds: &k8s_readiness_probe_timeout_seconds
         type: int
         required: false
         description:
           - "Overrides the readiness probe timeout used by Kubernetes templates when defined."
+          - "Example: C(5)."
       k8s_readiness_probe_failure_threshold: &k8s_readiness_probe_failure_threshold
         type: int
         required: false
         description:
           - "Overrides the readiness probe failure threshold used by Kubernetes templates when defined."
+          - "Example: C(12)."
       k8s_liveness_probe_initial_delay_seconds: &k8s_liveness_probe_initial_delay_seconds
         type: int
         required: false
         description:
           - "Overrides the liveness probe initial delay used by Kubernetes templates when defined."
+          - "Example: C(60)."
       k8s_liveness_probe_period_seconds: &k8s_liveness_probe_period_seconds
         type: int
         required: false
         description:
           - "Overrides the liveness probe period used by Kubernetes templates when defined."
+          - "Example: C(20)."
       k8s_liveness_probe_timeout_seconds: &k8s_liveness_probe_timeout_seconds
         type: int
         required: false
         description:
           - "Overrides the liveness probe timeout used by Kubernetes templates when defined."
+          - "Example: C(5)."
       k8s_liveness_probe_failure_threshold: &k8s_liveness_probe_failure_threshold
         type: int
         required: false
         description:
           - "Overrides the liveness probe failure threshold used by Kubernetes templates when defined."
+          - "Example: C(6)."
 
   start:
     short_description: Start a YugabyteDB cluster
     description:
-      - "Builds the master and tablet topology facts and dispatches to the container or Kubernetes startup path."
+      - "Builds master and tablet topology facts from C(yugabyte_cluster), derives the master RPC endpoint list, and dispatches each host to the container or Kubernetes startup path."
+      - "Master hosts run C(yb-master) with a replication factor based on the master host list; tablet hosts run C(yb-tserver) and the first tablet initializes the configured database."
     options:
       yugabyte_cluster: *yugabyte_cluster
       yugabyte_use_k8s: *yugabyte_use_k8s
@@ -385,7 +421,8 @@ argument_specs:
   stop:
     short_description: Stop YugabyteDB runtime
     description:
-      - "Dispatches to the container stop path when the role is running in container mode."
+      - "Stops the YugabyteDB runtime for container deployments."
+      - "Kubernetes mode is managed through the removal entry points because StatefulSets and Services are reconciled resources."
     options:
       yugabyte_use_k8s: *yugabyte_use_k8s
       yugabyte_use_container: *yugabyte_use_container
@@ -393,7 +430,8 @@ argument_specs:
   teardown:
     short_description: Remove YugabyteDB runtime artifacts
     description:
-      - "Removes running Kubernetes resources or containers, then deletes persisted data."
+      - "Removes the active YugabyteDB runtime in the selected deployment mode and then removes persisted role-managed data."
+      - "Container mode deletes the running container and host data directory; Kubernetes mode deletes StatefulSets, Services, optional NodePort Services, and PVCs."
     options:
       yugabyte_use_k8s: *yugabyte_use_k8s
       yugabyte_use_container: *yugabyte_use_container
@@ -401,13 +439,15 @@ argument_specs:
   wipe:
     short_description: Wipe YugabyteDB state
     description:
-      - "Runs teardown and removes the role-managed crypto and configuration files."
+      - "Runs teardown, removes persisted data, and deletes role-managed TLS and initialization configuration artifacts."
+      - "Use this entry point when the YugabyteDB node should be returned to a clean state before regeneration."
     options: {}
 
   fetch_logs:
     short_description: Collect YugabyteDB logs
     description:
-      - "Dispatches to the container or Kubernetes log collection path."
+      - "Collects YugabyteDB logs through the selected deployment mode."
+      - "Container mode fetches logs from the named container; Kubernetes mode fetches pod logs selected by the resource labels."
     options:
       yugabyte_use_k8s: *yugabyte_use_k8s
       yugabyte_use_container: *yugabyte_use_container
@@ -415,7 +455,8 @@ argument_specs:
   ping:
     short_description: Check YugabyteDB service ports
     description:
-      - "Selects the expected ports for a master or tablet host and delegates the reachability check."
+      - "Selects the expected master or tablet service ports for the current host and delegates reachability checks."
+      - "Masters expose RPC and webserver ports; tablets expose YSQL, RPC, webserver, YSQL web UI, YCQL, and YCQL web UI ports."
     options:
       yugabyte_component_type: *yugabyte_component_type
       yugabyte_use_k8s: *yugabyte_use_k8s
@@ -432,6 +473,7 @@ argument_specs:
     short_description: Check YugabyteDB Kubernetes NodePorts
     description:
       - "Checks the configured YugabyteDB Kubernetes NodePort Services for the current master or tablet host when NodePort exposure is enabled."
+      - "The checked ports match the optional master and tablet NodePort values rendered into the Kubernetes Services."
     options:
       yugabyte_component_type: *yugabyte_component_type
       yugabyte_k8s_use_node_port: *yugabyte_k8s_use_node_port
@@ -447,7 +489,8 @@ argument_specs:
   crypto/setup:
     short_description: Prepare YugabyteDB TLS assets
     description:
-      - "Transfers or enrolls TLS material for YugabyteDB and creates the Kubernetes Secret when needed."
+      - "Prepares TLS assets for YugabyteDB when TLS is enabled, using the configured crypto source."
+      - "The flow can generate CSRs, fetch certificates, transfer cryptogen material, enroll through Fabric CA, and create the Kubernetes Secret used by pods."
     options:
       yugabyte_use_tls: *yugabyte_use_tls
       yugabyte_use_k8s: *yugabyte_use_k8s
@@ -456,7 +499,8 @@ argument_specs:
   crypto/fetch:
     short_description: Fetch YugabyteDB TLS certificates
     description:
-      - "Copies the generated node and CA certificates from the remote host to the control node."
+      - "Copies generated YugabyteDB node and CA certificates from the remote host to the control-node artifact directory."
+      - "Fetched artifacts are reused by certificate transfer, Kubernetes Secret generation, and TLS-enabled Prometheus scraper configuration."
     options:
       remote_config_dir: *remote_config_dir
       yugabyte_use_tls: *yugabyte_use_tls
@@ -466,7 +510,8 @@ argument_specs:
   crypto/rm:
     short_description: Remove YugabyteDB TLS artifacts
     description:
-      - "Deletes the remote TLS directory and the Kubernetes Secret when Kubernetes mode is enabled."
+      - "Deletes the remote YugabyteDB TLS directory and, in Kubernetes mode, removes the generated TLS Secret."
+      - "This removes role-managed key, certificate, and CA material without changing database data."
     options:
       remote_config_dir: *remote_config_dir
       yugabyte_use_tls: *yugabyte_use_tls
@@ -480,7 +525,8 @@ argument_specs:
   crypto/openssl/generate_csr:
     short_description: Generate a YugabyteDB TLS CSR
     description:
-      - "Builds the SAN list and delegates CSR generation to the OpenSSL role."
+      - "Builds the YugabyteDB TLS SAN list from host addresses and organization metadata, then delegates CSR generation to the OpenSSL role."
+      - "The generated key, CSR, and extension file are written under the remote YugabyteDB TLS configuration path."
     options:
       remote_config_dir: *remote_config_dir
       yugabyte_use_tls: *yugabyte_use_tls
@@ -490,7 +536,8 @@ argument_specs:
   crypto/openssl/fetch_csr:
     short_description: Fetch a YugabyteDB TLS CSR
     description:
-      - "Copies the CSR and OpenSSL extension file from the remote host to the control node."
+      - "Copies the YugabyteDB CSR and OpenSSL extension file from the remote TLS directory to the control-node artifact directory."
+      - "Use this before signing the node certificate outside the target host."
     options:
       remote_config_dir: *remote_config_dir
       yugabyte_use_tls: *yugabyte_use_tls
@@ -500,7 +547,8 @@ argument_specs:
   crypto/openssl/transfer_cert:
     short_description: Transfer a signed YugabyteDB TLS certificate
     description:
-      - "Copies the signed node certificate and trusted CA certificate to the remote host."
+      - "Copies the signed YugabyteDB node certificate and trusted organization TLS CA certificate to the remote TLS directory."
+      - "The transferred files are consumed by container volume mounts or by Kubernetes Secret generation."
     options:
       remote_config_dir: *remote_config_dir
       yugabyte_use_tls: *yugabyte_use_tls
@@ -511,7 +559,8 @@ argument_specs:
   crypto/cryptogen/transfer:
     short_description: Copy cryptogen TLS material for YugabyteDB
     description:
-      - "Transfers the TLS key, certificate, and CA certificate generated by cryptogen to the target host."
+      - "Transfers the YugabyteDB TLS key, certificate, and CA certificate generated by cryptogen to the target host."
+      - "The source path is resolved from the organization domain and peer identity, with the inventory host used as the peer name when no peer name is provided."
     options:
       remote_config_dir: *remote_config_dir
       yugabyte_remote_config_dir: *yugabyte_remote_config_dir
@@ -521,7 +570,8 @@ argument_specs:
   crypto/fabric_ca/enroll:
     short_description: Enroll YugabyteDB TLS material with Fabric CA
     description:
-      - "Copies the Fabric CA TLS root when needed and delegates the TLS enrollment flow to the Fabric CA role."
+      - "Copies the Fabric CA TLS root when needed and delegates YugabyteDB TLS enrollment to the Fabric CA role."
+      - "Enrollment uses organization metadata, peer credentials, and the actual external host so generated certificates include the expected SANs."
     options:
       remote_config_dir: *remote_config_dir
       yugabyte_remote_config_dir: *yugabyte_remote_config_dir
@@ -532,7 +582,8 @@ argument_specs:
   config/transfer:
     short_description: Transfer YugabyteDB initialization config
     description:
-      - "Renders the initialization SQL script and creates the Kubernetes ConfigMap when Kubernetes mode is enabled."
+      - "Renders the YugabyteDB initialization SQL script that creates the configured database user and database."
+      - "Container mode places the script in the remote config directory; Kubernetes mode also creates the ConfigMap mounted by tablet pods."
     options:
       remote_config_dir: *remote_config_dir
       yugabyte_remote_config_dir: *yugabyte_remote_config_dir
@@ -545,7 +596,8 @@ argument_specs:
   config/rm:
     short_description: Remove YugabyteDB configuration
     description:
-      - "Deletes the remote configuration directory and the Kubernetes ConfigMap when Kubernetes mode is enabled."
+      - "Deletes the remote YugabyteDB configuration directory and, in Kubernetes mode, removes the generated initialization ConfigMap."
+      - "This cleans role-managed config without removing running resources unless paired with teardown or wipe."
     options:
       remote_config_dir: *remote_config_dir
       yugabyte_remote_config_dir: *yugabyte_remote_config_dir
@@ -558,13 +610,15 @@ argument_specs:
   config/transfer_grafana_dashboard:
     short_description: Transfer the YugabyteDB Grafana dashboard
     description:
-      - "Selects the built-in dashboard JSON file and delegates the copy step to the Grafana role."
+      - "Selects the built-in YugabyteDB dashboard JSON file and delegates the copy step to the Grafana role."
+      - "The dashboard complements the Prometheus scraper configuration generated by this role."
     options: {}
 
   container/start:
     short_description: Dispatch YugabyteDB container startup
     description:
       - "Selects the master or tablet container startup path for the current host."
+      - "The selected path starts either C(yb-master) or C(yb-tserver) with the role-managed data, config, TLS, and port settings."
     options:
       yugabyte_component_type: *yugabyte_component_type
 
@@ -572,6 +626,7 @@ argument_specs:
     short_description: Stop a YugabyteDB container
     description:
       - "Stops the container associated with the current YugabyteDB host."
+      - "This leaves host data and configuration directories in place for a later restart."
     options:
       yugabyte_container_name: *yugabyte_container_name
 
@@ -579,6 +634,7 @@ argument_specs:
     short_description: Remove a YugabyteDB container
     description:
       - "Deletes the container associated with the current YugabyteDB host."
+      - "This removes the runtime container only; data cleanup is handled by C(data/rm) or C(teardown)."
     options:
       yugabyte_container_name: *yugabyte_container_name
 
@@ -586,13 +642,15 @@ argument_specs:
     short_description: Fetch logs from a YugabyteDB container
     description:
       - "Delegates log collection for the current YugabyteDB container."
+      - "Collected logs come from the named master or tablet container for troubleshooting."
     options:
       yugabyte_container_name: *yugabyte_container_name
 
   container/master/start:
     short_description: Start a YugabyteDB master container
     description:
-      - "Creates the data directory, assembles the master command line, and starts the master container."
+      - "Creates the host data directory, assembles the C(yb-master) command line, and starts the master container."
+      - "The container publishes master RPC and webserver ports, mounts the data directory, and mounts TLS material when TLS is enabled."
     options:
       remote_data_dir: *remote_data_dir
       remote_config_dir: *remote_config_dir
@@ -617,7 +675,8 @@ argument_specs:
   container/tablet/start:
     short_description: Start a YugabyteDB tablet container
     description:
-      - "Creates the data directory, assembles the tablet command line, starts the container, and initializes the database on the first tablet."
+      - "Creates the host data directory, assembles the C(yb-tserver) command line, starts the tablet container, and initializes the database on the first tablet host."
+      - "The container publishes YSQL, RPC, webserver, and YCQL ports, mounts initialization config, and mounts TLS material when TLS is enabled."
     options:
       remote_data_dir: *remote_data_dir
       remote_config_dir: *remote_config_dir
@@ -648,6 +707,7 @@ argument_specs:
     short_description: Dispatch YugabyteDB Kubernetes startup
     description:
       - "Selects the master or tablet Kubernetes startup path for the current host."
+      - "The selected path applies the Service, optional NodePort Service, StatefulSet, PVC template, image pull secret reference, and probe settings for the node type."
     options:
       yugabyte_component_type: *yugabyte_component_type
 
@@ -655,6 +715,7 @@ argument_specs:
     short_description: Dispatch YugabyteDB Kubernetes removal
     description:
       - "Selects the master or tablet Kubernetes removal path for the current host."
+      - "The selected path removes the StatefulSet, ClusterIP Service, and optional NodePort Service for the node type."
     options:
       yugabyte_component_type: *yugabyte_component_type
 
@@ -662,6 +723,7 @@ argument_specs:
     short_description: Fetch logs from YugabyteDB pods
     description:
       - "Delegates pod log collection for the Kubernetes resource associated with the current host."
+      - "Pods are selected by the role-managed Kubernetes resource label for the master or tablet StatefulSet."
     options:
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
 
@@ -669,6 +731,7 @@ argument_specs:
     short_description: Create a YugabyteDB ConfigMap
     description:
       - "Creates the ConfigMap that exposes the initialization SQL script to tablet pods."
+      - "The ConfigMap is only populated for tablet components because tablets run the YSQL initialization command."
     options:
       yugabyte_component_type: *yugabyte_component_type
       k8s_namespace: *k8s_namespace
@@ -680,7 +743,8 @@ argument_specs:
   k8s/master/start:
     short_description: Start a YugabyteDB master StatefulSet
     description:
-      - "Applies the master Services and StatefulSet for the current YugabyteDB master node."
+      - "Applies the master ClusterIP Service, optional NodePort Service, and StatefulSet for the current YugabyteDB master node."
+      - "The StatefulSet runs C(yb-master), configures replication from the master host list, attaches persistent storage, mounts TLS Secrets when enabled, and waits for readiness when requested."
     options:
       k8s_namespace: *k8s_namespace
       yugabyte_k8s_use_node_port: *yugabyte_k8s_use_node_port
@@ -719,6 +783,7 @@ argument_specs:
     short_description: Remove a YugabyteDB master StatefulSet
     description:
       - "Deletes the master StatefulSet and its Services for the current YugabyteDB master node."
+      - "PersistentVolumeClaims are left for C(data/rm) so runtime removal and data removal stay separate."
     options:
       k8s_namespace: *k8s_namespace
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
@@ -726,7 +791,8 @@ argument_specs:
   k8s/tablet/start:
     short_description: Start a YugabyteDB tablet StatefulSet
     description:
-      - "Applies the tablet Services and StatefulSet for the current YugabyteDB tablet node, then initializes the database on the first tablet."
+      - "Applies the tablet ClusterIP Service, optional NodePort Service, and StatefulSet for the current YugabyteDB tablet node, then initializes the database on the first tablet."
+      - "The StatefulSet runs C(yb-tserver), connects to the configured masters, attaches persistent storage, mounts the initialization ConfigMap and TLS Secret when enabled, and waits for readiness when requested."
     options:
       k8s_namespace: *k8s_namespace
       yugabyte_k8s_use_node_port: *yugabyte_k8s_use_node_port
@@ -774,6 +840,7 @@ argument_specs:
     short_description: Remove a YugabyteDB tablet StatefulSet
     description:
       - "Deletes the tablet StatefulSet and its Services for the current YugabyteDB tablet node."
+      - "PersistentVolumeClaims are left for C(data/rm) so runtime removal and data removal stay separate."
     options:
       k8s_namespace: *k8s_namespace
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
@@ -781,7 +848,8 @@ argument_specs:
   k8s/crypto/transfer:
     short_description: Create a YugabyteDB TLS Secret
     description:
-      - "Creates the Kubernetes Secret that exposes the YugabyteDB TLS key pair and CA certificate."
+      - "Creates the Kubernetes Secret that exposes the YugabyteDB TLS key pair and CA certificate to pods."
+      - "The Secret is mounted by master and tablet StatefulSets when YugabyteDB TLS is enabled."
     options:
       k8s_namespace: *k8s_namespace
       remote_config_dir: *remote_config_dir
@@ -792,7 +860,8 @@ argument_specs:
   data/rm:
     short_description: Remove YugabyteDB persisted data
     description:
-      - "Deletes the local data directory in container mode or the Kubernetes PVC in Kubernetes mode."
+      - "Deletes persisted YugabyteDB data for the selected deployment mode."
+      - "Container mode removes the host data directory; Kubernetes mode removes the PVC associated with the StatefulSet volume claim."
     options:
       remote_data_dir: *remote_data_dir
       yugabyte_use_container: *yugabyte_use_container
@@ -806,7 +875,8 @@ argument_specs:
   prometheus/get_scrapers:
     short_description: Build Prometheus scrapers for YugabyteDB
     description:
-      - "Groups YugabyteDB hosts by cluster and assembles the Prometheus scrape configuration for their exposed metrics endpoints."
+      - "Groups YugabyteDB hosts by cluster and assembles Prometheus scrape configuration for exposed master and tablet metrics endpoints."
+      - "When webserver TLS is enabled, the generated scraper references the fetched organization TLS CA artifact for HTTPS scraping."
     options:
       yugabyte_hosts: *yugabyte_hosts
       fetched_artifacts_dir: *fetched_artifacts_dir

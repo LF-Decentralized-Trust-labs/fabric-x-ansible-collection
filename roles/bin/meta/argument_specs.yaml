@@ -13,17 +13,17 @@ argument_specs:
         type: path
         required: false
         description:
-          - "Sets the base directory on the control node for C(bin_control_source_code_dir) and C(bin_control_dir)."
+          - "Sets the base directory on the control node for C(bin_control_source_code_dir) and C(bin_control_dir). Example: C(/opt/fabricx/control)."
       remote_node_dir: &remote_node_dir
         type: path
         required: false
         description:
-          - "Sets the base directory on the managed host for C(bin_remote_source_code_dir), C(bin_remote_dir), and C(bin_remote_logs_dir)."
+          - "Sets the base directory on the managed host for C(bin_remote_source_code_dir), C(bin_remote_dir), and C(bin_remote_logs_dir). Example: C(/var/lib/fabricx)."
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         required: false
         description:
-          - "Sets the local directory for C(bin_fetched_logs_dir)."
+          - "Sets the local directory for C(bin_fetched_logs_dir). Example: C(/tmp/fabricx/artifacts)."
       bin_build_on_control_node: &bin_build_on_control_node
         type: bool
         required: false
@@ -96,7 +96,7 @@ argument_specs:
         type: str
         required: true
         description:
-          - "Defines the command to execute, relative to C(bin_remote_dir) when that directory is set. Example: C(myservice --config /etc/myservice/config.yaml)."
+          - "Defines the command to execute, relative to C(bin_remote_dir) when that directory is set. Example: C(orderer --config /etc/fabricx/orderer.yaml)."
       bin_env: &bin_env
         type: dict
         required: false
@@ -203,7 +203,8 @@ argument_specs:
     short_description: Build a Go binary for each target platform
     description:
       - "Clones the source repository, groups target hosts by platform, and builds one binary per unique operating system and architecture combination."
-      - "This entry point validates only variables owned by the bin role and does not redeclare git or go role inputs passed through internal includes."
+      - "When C(bin_build_on_control_node) is true, cloning and compilation happen on the control node; otherwise they run on the managed host."
+      - "The resulting binaries are written under C(bin_dir) using C(bin_name), and this entry point only validates bin role inputs before delegating to the git and go roles."
     options:
       control_node_dir: *control_node_dir
       remote_node_dir: *remote_node_dir
@@ -222,7 +223,8 @@ argument_specs:
     short_description: Install a Go binary for each target platform
     description:
       - "Groups target hosts by platform and invokes the go install entry point once per unique operating system and architecture combination."
-      - "This entry point validates only bin role inputs and does not redeclare go role variables forwarded internally."
+      - "The installed binaries are placed under C(bin_dir), and the role reuses gathered host facts to avoid repeating work for hosts that share the same platform."
+      - "This entry point validates only bin role inputs and forwards the platform-specific context to the go role."
     options:
       control_node_dir: *control_node_dir
       remote_node_dir: *remote_node_dir
@@ -237,7 +239,7 @@ argument_specs:
     short_description: Map hosts to unique platform keys
     description:
       - "Builds the C(bin_platforms) fact by grouping target hosts that share the same operating system and architecture values."
-      - "Host facts for each listed host must already be available before this entry point runs."
+      - "The resulting fact maps each platform key to its OS, architecture, and host list, and host facts for every target must already be available before this entry point runs."
     options:
       bin_hosts: *bin_hosts
 
@@ -245,7 +247,7 @@ argument_specs:
     short_description: Copy a binary to the managed host
     description:
       - "Ensures the target binary directory exists on the managed host and copies the selected binary into it."
-      - "The source binary must already exist at the resolved local or control-node path before this entry point runs."
+      - "The source binary is read from C(bin_dir)/C(bin_name) and written to C(bin_remote_dir)/C(bin_name), so the built artifact must already exist before this entry point runs."
     options:
       control_node_dir: *control_node_dir
       remote_node_dir: *remote_node_dir
@@ -261,7 +263,8 @@ argument_specs:
     short_description: Start a binary process
     description:
       - "Builds the runtime command, optionally redirects logs, and starts the binary either in tmux or directly in the shell."
-      - "Set C(bin_command) to the executable command to run. Set C(bin_wait_port) only when C(bin_wait_until_running) is true."
+      - "When logging is enabled the role writes to C(bin_remote_logs_dir)/C(bin_remote_logs_file), and readiness checks wait on C(bin_wait_port) only when C(bin_wait_until_running) is true."
+      - "Set C(bin_command) to the executable command to run, and use C(bin_chdir) when the process must start from a specific working directory."
     options:
       remote_node_dir: *remote_node_dir
       bin_command: *bin_command
@@ -287,7 +290,7 @@ argument_specs:
     short_description: Stop a tmux-managed binary process
     description:
       - "Stops the tmux session associated with the binary when tmux-based execution is enabled."
-      - "When tmux execution is disabled this entry point performs no action."
+      - "When tmux execution is disabled this entry point performs no action, so direct-shell starts are left untouched."
     options:
       bin_name: *bin_name
       bin_run_with_tmux: *bin_run_with_tmux
@@ -295,7 +298,7 @@ argument_specs:
   rm:
     short_description: Remove a binary from the managed host
     description:
-      - "Deletes the binary file from the managed host."
+      - "Deletes the binary file from the managed host at C(bin_remote_dir)/C(bin_name)."
     options:
       bin_remote_dir: *bin_remote_dir
       bin_name: *bin_name
@@ -304,6 +307,7 @@ argument_specs:
     short_description: Fetch binary log output
     description:
       - "Copies the binary log file from the managed host to the control node without failing when the file is absent."
+      - "The fetched file is stored under C(bin_fetched_logs_dir)/C(bin_fetched_logs_file), making it easy to collect logs from repeated runs."
     options:
       fetched_artifacts_dir: *fetched_artifacts_dir
       remote_node_dir: *remote_node_dir

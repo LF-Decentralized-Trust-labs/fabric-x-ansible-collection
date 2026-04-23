@@ -1,6 +1,24 @@
 {%- macro render(var) -%}
 {%- set var_type = var.get('type', 'str') -%}
-{%- if var_type in ['int', 'float'] -%}
+{%- set example = namespace(found=false, val='') -%}
+{%- set desc = var.get('description', []) -%}
+{%- set desc_list = [desc] if desc is string else desc -%}
+{%- for line in desc_list -%}
+{%- if line is string and 'Example: C(' in line -%}
+{%- set extracted = line | extract_c_example -%}
+{%- if extracted is not none -%}
+{%- set example.found = true -%}
+{%- set example.val = extracted -%}
+{%- endif -%}
+{%- endif -%}
+{%- endfor -%}
+{%- if example.found -%}
+{%- if var_type in ['str', 'path'] -%}
+"{{ example.val }}"
+{%- else -%}
+{{ example.val }}
+{%- endif -%}
+{%- elif var_type in ['int', 'float'] -%}
 1000
 {%- elif var_type == 'bool' -%}
 false

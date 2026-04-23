@@ -14,75 +14,89 @@ argument_specs:
         required: false
         description:
           - Sets the shared remote config root used by Grafana.
+          - "Example: C(/var/hyperledger/fabricx/grafana)."
           - Required when using it for C(grafana_remote_config_dir).
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         required: false
         description:
           - Sets the shared fetched-artifacts root used by Grafana.
+          - "Example: C(/tmp/fabricx-artifacts)."
           - Required when relying on it to derive paths for fetched TLS artifacts.
       prometheus_host: &prometheus_host
         type: str
         required: true
         description:
           - Sets the inventory host name of the Prometheus instance used by Grafana.
+          - "Example: C(prometheus-1.example.com)."
           - The referenced host must expose the Prometheus inventory vars used by the templates.
       organization: &organization
         type: dict
         required: false
         description:
           - Sets the optional organization mapping used for TLS certificate generation.
+          - "Example: C({'name': 'Grafana', 'domain': 'grafana.fabricx.example'})."
           - When set, C(organization.domain) is used as the OpenSSL organization name.
       k8s_namespace: &k8s_namespace
         type: str
         required: true
         description:
           - Sets the Kubernetes namespace used for Grafana resources.
+          - "Example: C(fabricx-observability)."
       k8s_image_pull_secret: &k8s_image_pull_secret
         type: str
         required: false
         description:
           - Sets the optional image pull secret used by the Grafana Deployment.
+          - "Example: C(grafana-registry-secret)."
       k8s_readiness_probe_initial_delay_seconds: &k8s_readiness_probe_initial_delay_seconds
         type: int
         required: false
         description:
           - Sets the Grafana readiness probe initial delay.
+          - "Example: C(10)."
       k8s_readiness_probe_period_seconds: &k8s_readiness_probe_period_seconds
         type: int
         required: false
         description:
           - Sets the Grafana readiness probe period.
+          - "Example: C(5)."
       k8s_readiness_probe_timeout_seconds: &k8s_readiness_probe_timeout_seconds
         type: int
         required: false
         description:
           - Sets the Grafana readiness probe timeout.
+          - "Example: C(3)."
       k8s_readiness_probe_failure_threshold: &k8s_readiness_probe_failure_threshold
         type: int
         required: false
         description:
           - Sets the Grafana readiness probe failure threshold.
+          - "Example: C(3)."
       k8s_liveness_probe_initial_delay_seconds: &k8s_liveness_probe_initial_delay_seconds
         type: int
         required: false
         description:
           - Sets the Grafana liveness probe initial delay.
+          - "Example: C(20)."
       k8s_liveness_probe_period_seconds: &k8s_liveness_probe_period_seconds
         type: int
         required: false
         description:
           - Sets the Grafana liveness probe period.
+          - "Example: C(10)."
       k8s_liveness_probe_timeout_seconds: &k8s_liveness_probe_timeout_seconds
         type: int
         required: false
         description:
           - Sets the Grafana liveness probe timeout.
+          - "Example: C(5)."
       k8s_liveness_probe_failure_threshold: &k8s_liveness_probe_failure_threshold
         type: int
         required: false
         description:
           - Sets the Grafana liveness probe failure threshold.
+          - "Example: C(3)."
       grafana_registry_endpoint: &grafana_registry_endpoint
         type: str
         required: false
@@ -148,6 +162,7 @@ argument_specs:
         required: true
         description:
           - Sets the local path to the Grafana dashboard JSON file.
+          - "Example: C(/opt/fabricx/grafana/dashboards/main.json)."
       grafana_use_tls: &grafana_use_tls
         type: bool
         required: false
@@ -213,23 +228,26 @@ argument_specs:
         required: false
         description:
           - Sets the optional explicit Grafana NodePort value used by the NodePort Service and ping checks.
+          - "Example: C(32000)."
           - When omitted, Kubernetes can auto-assign the NodePort.
       grafana_username: &grafana_username
         type: str
         required: true
         description:
           - Sets the Grafana admin username.
+          - "Example: C(admin)."
       grafana_password: &grafana_password
         type: str
         required: true
         description:
           - Sets the Grafana admin password.
+          - "Example: C({{ vault_grafana_admin_password }})."
           - Store this value in Ansible Vault.
 
   start:
     short_description: Start Grafana in the selected deployment mode
     description:
-      - Starts Grafana by dispatching to the container or Kubernetes entry point.
+      - Starts Grafana by dispatching to the container or Kubernetes entry point after provisioning data sources, dashboards, and optional TLS artifacts have been prepared.
       - Set exactly one deployment mode flag for the target host.
     options:
       grafana_use_container: *grafana_use_container
@@ -238,7 +256,7 @@ argument_specs:
   stop:
     short_description: Stop Grafana in container mode
     description:
-      - Stops the Grafana container when container mode is enabled.
+      - Stops the Grafana container without removing the generated provisioning or TLS artifacts.
     options:
       grafana_use_container: *grafana_use_container
       grafana_use_k8s: *grafana_use_k8s
@@ -247,6 +265,7 @@ argument_specs:
     short_description: Remove Grafana in the selected deployment mode
     description:
       - Removes the Grafana container or Kubernetes workload by dispatching to the matching entry point.
+      - Leaves generated provisioning files and TLS material in place for reuse or later cleanup.
     options:
       grafana_use_container: *grafana_use_container
       grafana_use_k8s: *grafana_use_k8s
@@ -254,13 +273,13 @@ argument_specs:
   wipe:
     short_description: Remove all Grafana data
     description:
-      - Removes the Grafana workload, TLS material, and generated configuration.
+      - Removes the Grafana workload, generated configuration, and TLS material.
     options: {}
 
   fetch_logs:
     short_description: Collect Grafana logs for the selected deployment mode
     description:
-      - Collects Grafana logs from the container deployment or from the Kubernetes pod.
+      - Collects Grafana logs from the container deployment or from the Kubernetes pod for troubleshooting.
     options:
       grafana_use_container: *grafana_use_container
       grafana_use_k8s: *grafana_use_k8s
@@ -277,7 +296,7 @@ argument_specs:
   container/start:
     short_description: Start the Grafana container
     description:
-      - Starts the containerized Grafana deployment.
+      - Starts the containerized Grafana deployment with the generated datasource and dashboard provisioning files mounted into the container.
       - TLS files are mounted when TLS is enabled.
     options:
       grafana_container_name: *grafana_container_name
@@ -298,28 +317,28 @@ argument_specs:
   container/stop:
     short_description: Stop the Grafana container
     description:
-      - Stops the running Grafana container by name.
+      - Stops the running Grafana container by name without deleting the associated artifacts.
     options:
       grafana_container_name: *grafana_container_name
 
   container/rm:
     short_description: Remove the Grafana container
     description:
-      - Removes the Grafana container by name.
+      - Removes the Grafana container by name while leaving the staged provisioning files and TLS material untouched.
     options:
       grafana_container_name: *grafana_container_name
 
   container/fetch_logs:
     short_description: Fetch logs from the Grafana container
     description:
-      - Collects logs from the named Grafana container.
+      - Collects logs from the named Grafana container for post-startup inspection.
     options:
       grafana_container_name: *grafana_container_name
 
   config/transfer:
     short_description: Transfer Grafana configuration files
     description:
-      - Writes Grafana provisioning files to the remote host.
+      - Writes the datasource and dashboard provisioning files to the remote Grafana config directory.
       - Applies the Kubernetes ConfigMap when Kubernetes mode is enabled.
     options:
       grafana_remote_config_dir: *grafana_remote_config_dir
@@ -356,7 +375,7 @@ argument_specs:
   crypto/setup:
     short_description: Prepare Grafana TLS material
     description:
-      - Generates Grafana TLS material when TLS is enabled.
+      - Generates Grafana TLS material when TLS is enabled and stages it with the other Grafana artifacts.
       - Applies the Kubernetes Secret when Kubernetes mode is enabled.
     options:
       grafana_use_tls: *grafana_use_tls
@@ -365,7 +384,7 @@ argument_specs:
   crypto/fetch:
     short_description: Fetch the Grafana TLS CA certificate
     description:
-      - Fetches the Grafana TLS CA certificate when TLS is enabled.
+      - Fetches the Grafana TLS CA certificate when TLS is enabled so other roles can trust the Grafana endpoint.
     options:
       grafana_use_tls: *grafana_use_tls
       grafana_remote_config_dir: *grafana_remote_config_dir
@@ -386,7 +405,7 @@ argument_specs:
   crypto/openssl/generate_cert:
     short_description: Generate a self-signed certificate for Grafana
     description:
-      - Generates the Grafana TLS key pair and certificate using OpenSSL.
+      - Generates the Grafana TLS key pair and certificate using OpenSSL for the staged Grafana artifacts directory.
     options:
       organization: *organization
       grafana_remote_config_dir: *grafana_remote_config_dir
@@ -397,8 +416,8 @@ argument_specs:
   k8s/start:
     short_description: Start Grafana on Kubernetes
     description:
-      - Applies the Grafana Service, optional NodePort Service, and Deployment on Kubernetes.
-      - Generated provisioning files and optional dashboard ConfigMaps must already exist.
+      - Applies the Grafana Service, optional NodePort Service, Secret, ConfigMaps, and Deployment on Kubernetes.
+      - Generated datasource, dashboard, and TLS artifacts must already exist.
     options:
       grafana_k8s_resource_name: *grafana_k8s_resource_name
       grafana_web_port: *grafana_web_port
@@ -457,7 +476,7 @@ argument_specs:
   k8s/config/transfer:
     short_description: Apply the Grafana Kubernetes ConfigMap
     description:
-      - Applies the Kubernetes ConfigMap that contains Grafana provisioning files.
+      - Applies the Kubernetes ConfigMap that contains Grafana provisioning files for the datasource and dashboard providers.
     options:
       grafana_k8s_resource_name: *grafana_k8s_resource_name
       grafana_remote_config_dir: *grafana_remote_config_dir
@@ -470,7 +489,7 @@ argument_specs:
   k8s/config/rm:
     short_description: Delete Grafana Kubernetes ConfigMaps
     description:
-      - Deletes the Grafana provisioning ConfigMap and dashboard ConfigMaps.
+      - Deletes the Grafana provisioning ConfigMap and dashboard ConfigMaps from the namespace.
     options:
       grafana_k8s_resource_name: *grafana_k8s_resource_name
       grafana_remote_config_dir: *grafana_remote_config_dir
@@ -490,7 +509,7 @@ argument_specs:
   k8s/crypto/transfer:
     short_description: Apply the Grafana Kubernetes Secret
     description:
-      - Applies the Grafana Kubernetes Secret that holds admin credentials and optional TLS material.
+      - Applies the Grafana Kubernetes Secret that holds admin credentials and optional TLS material for the Grafana Deployment.
     options:
       grafana_k8s_resource_name: *grafana_k8s_resource_name
       grafana_remote_config_dir: *grafana_remote_config_dir
@@ -505,7 +524,7 @@ argument_specs:
   k8s/crypto/rm:
     short_description: Delete the Grafana Kubernetes Secret
     description:
-      - Deletes the Grafana Kubernetes Secret.
+      - Deletes the Grafana Kubernetes Secret from the namespace.
     options:
       grafana_k8s_resource_name: *grafana_k8s_resource_name
       k8s_namespace: *k8s_namespace

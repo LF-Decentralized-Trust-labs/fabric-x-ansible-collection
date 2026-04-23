@@ -6,7 +6,7 @@
 ---
 galaxy_info:
   author: IBM
-  description: Runs a Load Generator to test Fabric-X network throughput.
+  description: Deploys and manages the Fabric-X Load Generator across binary, container, and Kubernetes modes for workload, metrics, TLS, and log collection workflows.
   license: Apache-2.0
   min_ansible_version: "2.17.0"
   platforms:

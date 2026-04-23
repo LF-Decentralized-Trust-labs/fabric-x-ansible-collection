@@ -7,43 +7,44 @@
 ---
 argument_specs:
   role-options:
-    short_description: Shared option catalog for tmux role entry points
+    short_description: Shared tmux session options for role entry points
     options:
       tmux_session_name: &tmux_session_name
         type: str
         required: true
         description:
-          - "Sets the tmux session name used to look up, create, or stop the detached session. Example: C(sample-session)."
+          - "Sets the detached tmux session name used to look up, create, or stop the session. Example: C(fx-orderer-1)."
       tmux_cmd_to_run: &tmux_cmd_to_run
         type: str
         required: true
         description:
-          - "Sets the shell command started inside the new detached tmux session. Example: C(echo 'Hello World')."
+          - "Sets the shell command started inside the detached tmux session. Example: C(./bin/orderer --label orderer-1 >> /var/log/fabricx/orderer-1.log 2>&1)."
       tmux_chdir: &tmux_chdir
         type: path
         required: true
         description:
-          - "Sets the working directory used before running C(tmux_cmd_to_run) in the detached session. Example: C(/var/hyperledger/fabricx)."
+          - "Sets the working directory used before running C(tmux_cmd_to_run) in the detached session. Example: C(/opt/fabricx/orderer)."
 
   install:
-    short_description: Install tmux
+    short_description: Install tmux on the target host
     description:
       - "Install the C(tmux) package on the target host by delegating to the package role."
     options: {}
 
   start:
-    short_description: Start a tmux session
+    short_description: Start a detached tmux session
     description:
       - "Start a detached tmux session when C(tmux_session_name) does not already exist."
-      - "The session runs C(tmux_cmd_to_run) from C(tmux_chdir) on the target host."
+      - "The session runs C(tmux_cmd_to_run) from C(tmux_chdir), so long-lived commands can keep running in the background while logs are written to the command's own output path."
     options:
       tmux_session_name: *tmux_session_name
       tmux_cmd_to_run: *tmux_cmd_to_run
       tmux_chdir: *tmux_chdir
 
   stop:
-    short_description: Stop a tmux session
+    short_description: Stop a detached tmux session
     description:
-      - "Stop an existing tmux session on the target host when C(tmux_session_name) is present."
+      - "Stop an existing detached tmux session on the target host when C(tmux_session_name) is present."
+      - "The stop entry point only removes the named session; it does not clean up any logs or other command artifacts."
     options:
       tmux_session_name: *tmux_session_name

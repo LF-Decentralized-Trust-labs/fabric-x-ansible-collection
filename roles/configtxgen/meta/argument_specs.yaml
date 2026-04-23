@@ -7,9 +7,9 @@
 ---
 argument_specs:
   role-options:
-    short_description: Shared configtxgen options
+    short_description: Shared configtxgen inputs
     description:
-      - Internal option catalog reused by all public entry points in this role.
+      - Common inputs reused by the binary, container, config, and dispatch entry points in this role.
     options:
       configtxgen_registry_endpoint: &configtxgen_registry_endpoint
         type: str
@@ -88,7 +88,8 @@ argument_specs:
         type: path
         required: true
         description:
-          - Base build directory for C(configtxgen_artifacts_dir).
+          - >-
+            Base build directory for C(configtxgen_artifacts_dir). Example: C(/opt/fabricx/build/configtxgen).
       configtxgen_artifacts_dir: &configtxgen_artifacts_dir
         type: path
         required: false
@@ -137,7 +138,8 @@ argument_specs:
         type: str
         required: true
         description:
-          - Channel identifier for C(configtxgen_channel_id).
+          - >-
+            Channel identifier for C(configtxgen_channel_id). Example: C(fabricx-main-channel).
       configtxgen_channel_id: &configtxgen_channel_id
         type: str
         required: false
@@ -166,23 +168,27 @@ argument_specs:
         type: path
         required: true
         description:
-          - Directory containing fetched crypto artifacts used by the binary path and container mounts.
+          - >-
+            Directory containing fetched crypto artifacts used by the binary path and container mounts. Example: C(/opt/fabricx/artifacts/crypto).
       armageddon_artifacts_dir: &armageddon_artifacts_dir
         type: path
         required: true
         description:
-          - Directory containing armageddon artifacts used by the binary path and container mounts.
+          - >-
+            Directory containing armageddon artifacts used by the binary path and container mounts. Example: C(/opt/fabricx/artifacts/armageddon).
       cli_bin_dir: &cli_bin_dir
         type: path
         required: true
         description:
-          - Directory used as the `configtxgen` binary destination or lookup path.
+          - >-
+            Directory used as the `configtxgen` binary destination or lookup path. Example: C(/opt/fabricx/bin).
 
   config/build:
-    short_description: Build the configtxgen configuration file
+    short_description: Render the configtxgen configuration file
     description:
       - Generate `configtx.yaml` for Fabric-X genesis block creation.
-      - Render the config template using the provided inputs, including the path selection controlled by C(configtxgen_use_bin).
+      - Render the config template from the selected crypto and armageddon artifact roots, then place it under C(configtxgen_artifacts_dir).
+      - The template switches between the binary and container artifact paths based on C(configtxgen_use_bin).
     options:
       config_build_dir: *config_build_dir
       configtxgen_artifacts_dir: *configtxgen_artifacts_dir
@@ -197,10 +203,10 @@ argument_specs:
       armageddon_artifacts_dir: *armageddon_artifacts_dir
 
   bin/build:
-    short_description: Build the configtxgen binary
+    short_description: Build the configtxgen binary on the control node
     description:
       - Build the `configtxgen` binary from the Fabric-X source tree on the control node.
-      - This entry point passes the binary destination to the shared `bin` role.
+      - The compiled executable is written to C(cli_bin_dir) and reused by the binary start entry point.
     options:
       configtxgen_git_hub_url: *configtxgen_git_hub_url
       configtxgen_git_repo: *configtxgen_git_repo
@@ -210,9 +216,10 @@ argument_specs:
       cli_bin_dir: *cli_bin_dir
 
   bin/install:
-    short_description: Install the configtxgen binary
+    short_description: Install the configtxgen binary into the local bin directory
     description:
       - Install the `configtxgen` Go package through the shared `bin` role.
+      - The installed executable lands in C(cli_bin_dir) and is then used by the binary start entry point.
     options:
       configtxgen_git_hub_url: *configtxgen_git_hub_url
       configtxgen_git_repo: *configtxgen_git_repo
@@ -226,6 +233,7 @@ argument_specs:
     short_description: Generate a genesis block with the configtxgen binary
     description:
       - Run the local `configtxgen` binary to generate the channel genesis block.
+      - The output block is written beneath C(configtxgen_artifacts_dir) as C(<channel_id>_block.pb); with the bundled example channel, that becomes C(fabricx-main-channel_block.pb).
     options:
       channel_id: *channel_id
       config_build_dir: *config_build_dir
@@ -239,6 +247,7 @@ argument_specs:
     short_description: Generate a genesis block with the configtxgen container
     description:
       - Run `configtxgen` in a container to generate the channel genesis block.
+      - The container consumes the rendered `configtx.yaml` plus mounted crypto and armageddon artifacts, then writes C(<channel_id>_block.pb) beneath C(configtxgen_container_artifacts_dir).
     options:
       channel_id: *channel_id
       config_build_dir: *config_build_dir
@@ -261,9 +270,9 @@ argument_specs:
       fetched_artifacts_dir: *fetched_artifacts_dir
 
   start:
-    short_description: Dispatch genesis block generation
+    short_description: Dispatch genesis block generation to binary or container
     description:
-      - Select the binary or container execution path for `configtxgen`.
-      - The concrete entry point validates the remaining inputs.
+      - Select the binary or container execution path for `configtxgen` based on C(configtxgen_use_bin).
+      - Both execution paths consume the rendered configuration and emit the same C(<channel_id>_block.pb) artifact name.
     options:
       configtxgen_use_bin: *configtxgen_use_bin

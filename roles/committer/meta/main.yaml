@@ -6,7 +6,10 @@
 ---
 galaxy_info:
   author: IBM
-  description: Runs Fabric-X Committer components (`validator`, `verifier`, `coordinator`, `sidecar`, `query-service`).
+  description: >-
+    Runs Fabric-X Committer components across host-binary, container, and Kubernetes deployments.
+    The role renders component configuration, manages TLS/mTLS artifacts, and starts or removes
+    validators, verifiers, coordinators, sidecars, and query-services.
   license: Apache-2.0
   min_ansible_version: "2.17.0"
   platforms:

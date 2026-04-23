@@ -6,7 +6,7 @@
 ---
 galaxy_info:
   author: IBM
-  description: Runs Fabric-X Orderer components (`consensus`, `batcher`, `assembler`, `router`).
+  description: Manages Fabric-X Orderer consenter, batcher, assembler, and router components across binary, container, and Kubernetes deployments.
   license: Apache-2.0
   min_ansible_version: "2.17.0"
   platforms:

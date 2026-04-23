@@ -14,12 +14,14 @@ argument_specs:
         required: true
         description:
           - "Sets the shared directory used by the binary execution path."
+          - "Example: C(/opt/hyperledger/fabricx/bin)."
       config_build_dir: &config_build_dir
         type: path
         required: false
         description:
           - "Sets the shared build root used by C(idemixgen_output_dir)."
           - "Required when using C(idemixgen_output_dir)."
+          - "Example: C(/opt/hyperledger/fabricx/build)."
       idemixgen_bin_name: &idemixgen_bin_name
         type: str
         required: false
@@ -37,6 +39,7 @@ argument_specs:
         required: true
         description:
           - "Sets the directory containing the CA material consumed by C(signerconfig)."
+          - "Example: C(/opt/hyperledger/fabricx/build/idemixgen-artifacts/ca)."
       idemixgen_container_name: &idemixgen_container_name
         type: str
         required: false
@@ -108,6 +111,7 @@ argument_specs:
         required: true
         description:
           - "Sets the organization unit passed to C(signerconfig)."
+          - "Example: C(org1.example.com)."
       idemixgen_registry_endpoint: &idemixgen_registry_endpoint
         type: str
         required: false
@@ -141,17 +145,19 @@ argument_specs:
           - "Runs idemixgen through the locally installed binary instead of a container."
 
   ca-keygen:
-    short_description: Dispatch Idemix CA key generation
+    short_description: Dispatch Idemix CA key generation in binary or container mode
     description:
-      - "Runs Idemix CA key generation through the container or binary path."
+      - "Select whether Idemix CA key generation runs in a container or through the locally installed binary."
+      - "The generated CA key material is written under C(idemixgen_output_dir)/ca and the CA MSP material under C(idemixgen_output_dir)/msp."
       - "Set C(idemixgen_use_bin) to choose the execution mode."
     options:
       idemixgen_use_bin: *idemixgen_use_bin
 
   signerconfig:
-    short_description: Dispatch Idemix signer configuration generation
+    short_description: Dispatch Idemix signer configuration generation in binary or container mode
     description:
-      - "Runs Idemix signer configuration generation through the container or binary path."
+      - "Select whether Idemix signer configuration generation runs in a container or through the locally installed binary."
+      - "The signer configuration consumes C(idemixgen_ca_input_dir) and writes MSP and user artifacts under C(idemixgen_output_dir)."
       - "Set C(idemixgen_use_bin) to choose the execution mode."
     options:
       idemixgen_use_bin: *idemixgen_use_bin
@@ -159,7 +165,7 @@ argument_specs:
   bin/build:
     short_description: Build the idemixgen binary
     description:
-      - "Builds the idemixgen CLI from source on the control node."
+      - "Builds the idemixgen CLI from source on the control node so binary-mode CA key generation and signer configuration can run locally."
       - "This entry point passes the configured git source and package path to the shared binary builder."
     options:
       cli_bin_dir: *cli_bin_dir
@@ -172,7 +178,7 @@ argument_specs:
   bin/install:
     short_description: Install the idemixgen binary
     description:
-      - "Installs the idemixgen CLI from the configured repository and commit."
+      - "Installs the idemixgen CLI from the configured repository and commit before binary-mode CA key generation or signer configuration."
       - "This entry point is used before binary-mode execution."
     options:
       cli_bin_dir: *cli_bin_dir
@@ -187,7 +193,7 @@ argument_specs:
     short_description: Generate Idemix CA key material with the binary
     description:
       - "Runs C(idemixgen ca-keygen) through the locally installed binary."
-      - "The task removes any existing CA and MSP output directories before generating fresh artifacts."
+      - "The task removes any existing CA and MSP output directories before generating fresh artifacts under C(idemixgen_output_dir)."
     options:
       cli_bin_dir: *cli_bin_dir
       config_build_dir: *config_build_dir
@@ -200,7 +206,7 @@ argument_specs:
     short_description: Generate Idemix signer configuration with the binary
     description:
       - "Runs C(idemixgen signerconfig) through the locally installed binary."
-      - "The task removes any existing MSP and user output directories before generating fresh artifacts."
+      - "The task removes any existing MSP and user output directories before generating fresh artifacts under C(idemixgen_output_dir)."
     options:
       cli_bin_dir: *cli_bin_dir
       config_build_dir: *config_build_dir
@@ -217,7 +223,7 @@ argument_specs:
     short_description: Generate Idemix CA key material in a container
     description:
       - "Runs C(idemixgen ca-keygen) in the configured container image."
-      - "The task removes any existing CA and MSP output directories before generating fresh artifacts."
+      - "The task removes any existing CA and MSP output directories before generating fresh artifacts under C(idemixgen_output_dir)."
     options:
       config_build_dir: *config_build_dir
       idemixgen_bin_name: *idemixgen_bin_name
@@ -235,7 +241,7 @@ argument_specs:
     short_description: Generate Idemix signer configuration in a container
     description:
       - "Runs C(idemixgen signerconfig) in the configured container image."
-      - "The task removes any existing MSP and user output directories before generating fresh artifacts."
+      - "The task removes any existing MSP and user output directories before generating fresh artifacts under C(idemixgen_output_dir)."
     options:
       config_build_dir: *config_build_dir
       idemixgen_bin_name: *idemixgen_bin_name

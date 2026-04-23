@@ -6,7 +6,7 @@
 ---
 galaxy_info:
   author: IBM
-  description: Runs a [Prometheus Postgres Exporter](https://github.com/prometheus-community/postgres_exporter) to collect PostgreSQL metrics.
+  description: Deploys and manages the Prometheus Postgres Exporter in container or Kubernetes mode to collect PostgreSQL metrics.
   license: Apache-2.0
   min_ansible_version: "2.17.0"
   platforms:

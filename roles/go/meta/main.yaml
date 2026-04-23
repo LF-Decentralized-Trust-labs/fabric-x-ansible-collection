@@ -6,7 +6,7 @@
 ---
 galaxy_info:
   author: IBM
-  description: Provides tasks for building and installing Go binaries, and mapping Ansible facts to Go platform values (GOOS/GOARCH).
+  description: Provides tasks for installing Go, mapping Ansible facts to GOOS and GOARCH, and building or installing Go binaries with cross-compilation support.
   license: Apache-2.0
   min_ansible_version: "2.17.0"
   platforms:

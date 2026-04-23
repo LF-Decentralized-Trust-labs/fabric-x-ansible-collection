@@ -6,7 +6,7 @@
 ---
 galaxy_info:
   author: IBM
-  description: Runs the `openssl` CLI utility for certificate and key generation.
+  description: Generates keys, CSRs, self-signed certificates, and CA-signed certificates with the `openssl` CLI.
   license: Apache-2.0
   min_ansible_version: "2.17.0"
   platforms:

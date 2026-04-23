@@ -35,7 +35,7 @@ ansible-doc -t role {{ role }}
 
 ### {{ current_role_task_name }}
 
-{{ current_role_task.short_description | ansible_doc_markup }}
+> {{ current_role_task.short_description | ansible_doc_markup }}
 {% if current_role_task.description is defined %}
 {{ description.render(current_role_task.description) }}
 {% endif %}

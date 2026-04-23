@@ -1,6 +1,6 @@
 # hyperledger.fabricx.prometheus
 
-> Runs a Prometheus metrics collector in container or Kubernetes mode.
+> Deploys and manages Prometheus metrics collectors in container or Kubernetes mode.
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -50,12 +50,12 @@ ansible-doc -t role hyperledger.fabricx.prometheus
 
 ### ping
 
-Check that the Prometheus port is reachable
+> Check that the Prometheus listener is reachable
 
-Validates network reachability to the Prometheus listener on the target host or to the Kubernetes NodePort when enabled.
+Validates network reachability to the active Prometheus listener on the target host, or to the Kubernetes NodePort when that exposure path is enabled.
 
 ```yaml
-- name: Check that the Prometheus port is reachable
+- name: Check that the Prometheus listener is reachable
   vars:
     # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services. Example: `9090`.
     prometheus_port: 9090
@@ -68,11 +68,13 @@ Validates network reachability to the Prometheus listener on the target host or 
 
 ### start
 
-Start Prometheus in the selected deployment mode
+> Start Prometheus in the selected deployment mode
 
-Starts Prometheus either as a container or as Kubernetes resources based on the deployment mode flags.
+Starts Prometheus as either a container or Kubernetes workload based on the deployment mode flags.
 
-When Kubernetes mode is enabled, it can also apply the optional NodePort Service.
+Renders configuration, prepares storage, and applies Kubernetes resources needed for the selected mode.
+
+When Kubernetes mode is enabled, it can also expose Prometheus through the optional NodePort Service.
 
 ```yaml
 - name: Start Prometheus in the selected deployment mode
@@ -88,17 +90,17 @@ When Kubernetes mode is enabled, it can also apply the optional NodePort Service
 
 ### container/start
 
-Start the Prometheus container
+> Start the Prometheus container
 
-Creates the remote data directory and starts Prometheus through the shared container role.
+Renders the remote configuration, creates the data directory, and starts Prometheus through the shared container role.
 
 ```yaml
 - name: Start the Prometheus container
   vars:
-    # Remote configuration directory consumed by `prometheus_remote_config_dir`.
-    remote_config_dir: "string"
-    # Remote data directory consumed by `prometheus_remote_data_dir`.
-    remote_data_dir: "string"
+    # Remote configuration directory consumed by `prometheus_remote_config_dir`. Example: `/var/lib/prometheus/config`.
+    remote_config_dir: "/var/lib/prometheus/config"
+    # Remote data directory consumed by `prometheus_remote_data_dir`. Example: `/var/lib/prometheus/data`.
+    remote_data_dir: "/var/lib/prometheus/data"
     # Container registry endpoint for Prometheus images.
     prometheus_registry_endpoint: "{{ lookup('env', 'PROMETHEUS_REGISTRY_ENDPOINT') or 'docker.io/prom' }}"
     # Image name used when composing `prometheus_image`.
@@ -134,9 +136,9 @@ Creates the remote data directory and starts Prometheus through the shared conta
 
 ### k8s/start
 
-Start Prometheus on Kubernetes
+> Start Prometheus on Kubernetes
 
-Creates the Kubernetes headless Service, optional NodePort Service, and StatefulSet resources for Prometheus after ensuring the namespace exists.
+Ensures the namespace exists, renders and transfers Prometheus configuration, and creates the headless Service, optional NodePort Service, and StatefulSet resources.
 
 ```yaml
 - name: Start Prometheus on Kubernetes
@@ -155,8 +157,8 @@ Creates the Kubernetes headless Service, optional NodePort Service, and Stateful
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
     # Enables the optional Kubernetes NodePort Service when set to `true`.
     prometheus_k8s_use_node_port: false
-    # NodePort value used to expose Prometheus outside the cluster when `prometheus_k8s_use_node_port` is enabled. Must be set to a valid Kubernetes NodePort value when `prometheus_k8s_use_node_port` is `true`.
-    prometheus_k8s_node_port: 1000
+    # NodePort value used to expose Prometheus outside the cluster when `prometheus_k8s_use_node_port` is enabled. Must be set to a valid Kubernetes NodePort value when `prometheus_k8s_use_node_port` is `true`. Example: `30990`.
+    prometheus_k8s_node_port: 30990
     # File system group assigned to the pod.
     prometheus_k8s_fs_group: 65534
     # In-container or in-pod mount point for Prometheus configuration files.
@@ -171,30 +173,30 @@ Creates the Kubernetes headless Service, optional NodePort Service, and Stateful
     prometheus_use_tls: false
     # Maximum number of seconds to wait for the StatefulSet rollout.
     prometheus_k8s_wait_timeout: 120
-    # Kubernetes namespace used for Prometheus resources.
-    k8s_namespace: "string"
+    # Kubernetes namespace used for Prometheus resources. Example: `observability`.
+    k8s_namespace: "observability"
     # Persistent volume size requested for Prometheus data. Example: `20Gi`.
-    k8s_storage_size: "string"
-    # Optional image pull secret name for private registries.
-    k8s_image_pull_secret: "string"
-    # Optional Kubernetes storage class name for the Prometheus PVC.
-    k8s_storage_class: "string"
-    # Initial delay before the readiness probe starts.
-    k8s_readiness_probe_initial_delay_seconds: 1000
-    # Interval between readiness probe attempts.
-    k8s_readiness_probe_period_seconds: 1000
-    # Timeout for each readiness probe request.
-    k8s_readiness_probe_timeout_seconds: 1000
-    # Number of failed readiness probes before the pod is marked unready.
-    k8s_readiness_probe_failure_threshold: 1000
-    # Initial delay before the liveness probe starts.
-    k8s_liveness_probe_initial_delay_seconds: 1000
-    # Interval between liveness probe attempts.
-    k8s_liveness_probe_period_seconds: 1000
-    # Timeout for each liveness probe request.
-    k8s_liveness_probe_timeout_seconds: 1000
-    # Number of failed liveness probes before Kubernetes restarts the pod.
-    k8s_liveness_probe_failure_threshold: 1000
+    k8s_storage_size: "20Gi"
+    # Optional image pull secret name for private registries. Example: `prometheus-registry-creds`.
+    k8s_image_pull_secret: "prometheus-registry-creds"
+    # Optional Kubernetes storage class name for the Prometheus PVC. Example: `fast-ssd`.
+    k8s_storage_class: "fast-ssd"
+    # Initial delay before the readiness probe starts. Example: `10`.
+    k8s_readiness_probe_initial_delay_seconds: 10
+    # Interval between readiness probe attempts. Example: `5`.
+    k8s_readiness_probe_period_seconds: 5
+    # Timeout for each readiness probe request. Example: `3`.
+    k8s_readiness_probe_timeout_seconds: 3
+    # Number of failed readiness probes before the pod is marked unready. Example: `3`.
+    k8s_readiness_probe_failure_threshold: 3
+    # Initial delay before the liveness probe starts. Example: `30`.
+    k8s_liveness_probe_initial_delay_seconds: 30
+    # Interval between liveness probe attempts. Example: `10`.
+    k8s_liveness_probe_period_seconds: 10
+    # Timeout for each liveness probe request. Example: `5`.
+    k8s_liveness_probe_timeout_seconds: 5
+    # Number of failed liveness probes before Kubernetes restarts the pod. Example: `5`.
+    k8s_liveness_probe_failure_threshold: 5
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/start
@@ -202,7 +204,7 @@ Creates the Kubernetes headless Service, optional NodePort Service, and Stateful
 
 ### k8s/ping
 
-Check that the Prometheus NodePort is reachable
+> Check that the Prometheus NodePort is reachable
 
 Validates network reachability to the Kubernetes NodePort when the optional NodePort Service is enabled.
 
@@ -213,8 +215,8 @@ Validates network reachability to the Kubernetes NodePort when the optional Node
     prometheus_port: 9090
     # Enables the optional Kubernetes NodePort Service when set to `true`.
     prometheus_k8s_use_node_port: false
-    # NodePort value used to expose Prometheus outside the cluster when `prometheus_k8s_use_node_port` is enabled. Must be set to a valid Kubernetes NodePort value when `prometheus_k8s_use_node_port` is `true`.
-    prometheus_k8s_node_port: 1000
+    # NodePort value used to expose Prometheus outside the cluster when `prometheus_k8s_use_node_port` is enabled. Must be set to a valid Kubernetes NodePort value when `prometheus_k8s_use_node_port` is `true`. Example: `30990`.
+    prometheus_k8s_node_port: 30990
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/ping
@@ -222,7 +224,7 @@ Validates network reachability to the Kubernetes NodePort when the optional Node
 
 ### stop
 
-Stop the Prometheus container deployment
+> Stop the Prometheus container deployment
 
 Stops Prometheus when the container deployment path is enabled.
 
@@ -238,7 +240,7 @@ Stops Prometheus when the container deployment path is enabled.
 
 ### container/stop
 
-Stop the Prometheus container
+> Stop the Prometheus container
 
 Stops the running Prometheus container through the shared container role.
 
@@ -254,9 +256,9 @@ Stops the running Prometheus container through the shared container role.
 
 ### teardown
 
-Remove the Prometheus deployment
+> Remove the Prometheus deployment
 
-Removes the Prometheus container or Kubernetes workload and then deletes its data.
+Removes the active Prometheus container or Kubernetes workload and then deletes its data.
 
 ```yaml
 - name: Remove the Prometheus deployment
@@ -272,7 +274,7 @@ Removes the Prometheus container or Kubernetes workload and then deletes its dat
 
 ### container/rm
 
-Remove the Prometheus container
+> Remove the Prometheus container
 
 Removes the Prometheus container through the shared container role.
 
@@ -288,15 +290,15 @@ Removes the Prometheus container through the shared container role.
 
 ### k8s/rm
 
-Remove Prometheus Kubernetes resources
+> Remove Prometheus Kubernetes resources
 
 Deletes the Prometheus StatefulSet and both Services from Kubernetes.
 
 ```yaml
 - name: Remove Prometheus Kubernetes resources
   vars:
-    # Kubernetes namespace used for Prometheus resources.
-    k8s_namespace: "string"
+    # Kubernetes namespace used for Prometheus resources. Example: `observability`.
+    k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
@@ -306,15 +308,15 @@ Deletes the Prometheus StatefulSet and both Services from Kubernetes.
 
 ### data/rm
 
-Remove Prometheus data
+> Remove Prometheus data
 
 Deletes Prometheus data from the active deployment mode.
 
 ```yaml
 - name: Remove Prometheus data
   vars:
-    # Remote data directory consumed by `prometheus_remote_data_dir`.
-    remote_data_dir: "string"
+    # Remote data directory consumed by `prometheus_remote_data_dir`. Example: `/var/lib/prometheus/data`.
+    remote_data_dir: "/var/lib/prometheus/data"
     # Remote directory where Prometheus TSDB data is stored.
     prometheus_remote_data_dir: "{{ remote_data_dir }}"
     # Enables the container deployment path when set to `true`.
@@ -328,15 +330,15 @@ Deletes Prometheus data from the active deployment mode.
 
 ### k8s/data/rm
 
-Remove the Prometheus data PVC
+> Remove the Prometheus data PVC
 
 Deletes the PersistentVolumeClaim created for the Prometheus StatefulSet.
 
 ```yaml
 - name: Remove the Prometheus data PVC
   vars:
-    # Kubernetes namespace used for Prometheus resources.
-    k8s_namespace: "string"
+    # Kubernetes namespace used for Prometheus resources. Example: `observability`.
+    k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
@@ -346,7 +348,7 @@ Deletes the PersistentVolumeClaim created for the Prometheus StatefulSet.
 
 ### wipe
 
-Remove all Prometheus data and configuration
+> Remove all Prometheus data and configuration
 
 Tears down Prometheus and removes its data, TLS material, and generated configuration files.
 
@@ -359,7 +361,7 @@ Tears down Prometheus and removes its data, TLS material, and generated configur
 
 ### crypto/setup
 
-Generate Prometheus TLS materials
+> Generate Prometheus TLS materials
 
 Generates TLS assets for Prometheus and applies the Kubernetes Secret when Kubernetes mode is enabled.
 
@@ -377,17 +379,17 @@ Generates TLS assets for Prometheus and applies the Kubernetes Secret when Kuber
 
 ### crypto/openssl/generate_cert
 
-Generate a self-signed TLS certificate for Prometheus
+> Generate a self-signed TLS certificate for Prometheus
 
 Delegates certificate creation to the shared OpenSSL role using Prometheus-specific output paths.
 
 ```yaml
 - name: Generate a self-signed TLS certificate for Prometheus
   vars:
-    # Optional certificate organization data forwarded to OpenSSL.
-    organization: {}
-    # Remote configuration directory consumed by `prometheus_remote_config_dir`.
-    remote_config_dir: "string"
+    # Optional certificate organization data forwarded to OpenSSL. Example: `{ common_name: prometheus.observability.svc.cluster.local, organization_name: Hyperledger Fabric-X }`.
+    organization: { common_name: prometheus.observability.svc.cluster.local, organization_name: Hyperledger Fabric-X }
+    # Remote configuration directory consumed by `prometheus_remote_config_dir`. Example: `/var/lib/prometheus/config`.
+    remote_config_dir: "/var/lib/prometheus/config"
     # Remote directory where Prometheus configuration files are written.
     prometheus_remote_config_dir: "{{ remote_config_dir }}"
     # Filename used for the Prometheus TLS private key.
@@ -401,17 +403,17 @@ Delegates certificate creation to the shared OpenSSL role using Prometheus-speci
 
 ### k8s/crypto/transfer
 
-Apply the Prometheus TLS Secret on Kubernetes
+> Apply the Prometheus TLS Secret on Kubernetes
 
 Creates or updates the Kubernetes Secret that stores the Prometheus TLS server keypair.
 
 ```yaml
 - name: Apply the Prometheus TLS Secret on Kubernetes
   vars:
-    # Kubernetes namespace used for Prometheus resources.
-    k8s_namespace: "string"
-    # Remote configuration directory consumed by `prometheus_remote_config_dir`.
-    remote_config_dir: "string"
+    # Kubernetes namespace used for Prometheus resources. Example: `observability`.
+    k8s_namespace: "observability"
+    # Remote configuration directory consumed by `prometheus_remote_config_dir`. Example: `/var/lib/prometheus/config`.
+    remote_config_dir: "/var/lib/prometheus/config"
     # Remote directory where Prometheus configuration files are written.
     prometheus_remote_config_dir: "{{ remote_config_dir }}"
     # Filename used for the Prometheus TLS private key.
@@ -429,17 +431,17 @@ Creates or updates the Kubernetes Secret that stores the Prometheus TLS server k
 
 ### crypto/fetch
 
-Fetch Prometheus TLS certificates
+> Fetch Prometheus TLS certificates
 
-Fetches the generated Prometheus TLS CA certificate and server certificate to the control node.
+Fetches the generated Prometheus TLS certificate material to the control node.
 
 ```yaml
 - name: Fetch Prometheus TLS certificates
   vars:
-    # Control-node directory where fetched Prometheus artifacts are written.
-    fetched_artifacts_dir: "string"
-    # Remote configuration directory consumed by `prometheus_remote_config_dir`.
-    remote_config_dir: "string"
+    # Control-node directory where fetched Prometheus artifacts are written. Example: `/tmp/prometheus-artifacts`.
+    fetched_artifacts_dir: "/tmp/prometheus-artifacts"
+    # Remote configuration directory consumed by `prometheus_remote_config_dir`. Example: `/var/lib/prometheus/config`.
+    remote_config_dir: "/var/lib/prometheus/config"
     # Remote directory where Prometheus configuration files are written.
     prometheus_remote_config_dir: "{{ remote_config_dir }}"
     # Enables HTTPS and TLS-aware health checks when set to `true`.
@@ -451,15 +453,15 @@ Fetches the generated Prometheus TLS CA certificate and server certificate to th
 
 ### crypto/rm
 
-Remove Prometheus TLS materials
+> Remove Prometheus TLS materials
 
 Deletes the Prometheus TLS directory and removes the Kubernetes Secret when Kubernetes mode is enabled.
 
 ```yaml
 - name: Remove Prometheus TLS materials
   vars:
-    # Remote configuration directory consumed by `prometheus_remote_config_dir`.
-    remote_config_dir: "string"
+    # Remote configuration directory consumed by `prometheus_remote_config_dir`. Example: `/var/lib/prometheus/config`.
+    remote_config_dir: "/var/lib/prometheus/config"
     # Remote directory where Prometheus configuration files are written.
     prometheus_remote_config_dir: "{{ remote_config_dir }}"
     # Enables HTTPS and TLS-aware health checks when set to `true`.
@@ -473,15 +475,15 @@ Deletes the Prometheus TLS directory and removes the Kubernetes Secret when Kube
 
 ### k8s/crypto/rm
 
-Remove the Prometheus TLS Secret
+> Remove the Prometheus TLS Secret
 
 Deletes the Kubernetes Secret that stores the Prometheus TLS server keypair.
 
 ```yaml
 - name: Remove the Prometheus TLS Secret
   vars:
-    # Kubernetes namespace used for Prometheus resources.
-    k8s_namespace: "string"
+    # Kubernetes namespace used for Prometheus resources. Example: `observability`.
+    k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
@@ -491,15 +493,17 @@ Deletes the Kubernetes Secret that stores the Prometheus TLS server keypair.
 
 ### config/transfer
 
-Transfer Prometheus configuration files
+> Transfer Prometheus configuration files
 
-Generates Prometheus configuration files on the remote host and optionally applies the Kubernetes ConfigMap.
+Renders the main scrape configuration and supporting files on the remote host, including scrape target lists and TLS client settings.
+
+Applies the Kubernetes ConfigMap when Kubernetes mode is enabled.
 
 ```yaml
 - name: Transfer Prometheus configuration files
   vars:
-    # Remote configuration directory consumed by `prometheus_remote_config_dir`.
-    remote_config_dir: "string"
+    # Remote configuration directory consumed by `prometheus_remote_config_dir`. Example: `/var/lib/prometheus/config`.
+    remote_config_dir: "/var/lib/prometheus/config"
     # Remote directory where Prometheus configuration files are written.
     prometheus_remote_config_dir: "{{ remote_config_dir }}"
     # Filename of the main Prometheus scrape configuration.
@@ -516,8 +520,8 @@ Generates Prometheus configuration files on the remote host and optionally appli
     prometheus_tls_private_key_file: server.key
     # Filename used for the Prometheus TLS certificate.
     prometheus_tls_cert_file: server.crt
-    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap.
-    prometheus_scrape_services: [{}]
+    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }]`.
+    prometheus_scrape_services: [{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }]
     # Enables HTTPS and TLS-aware health checks when set to `true`.
     prometheus_use_tls: false
     # Enables the Kubernetes deployment path when set to `true`.
@@ -529,17 +533,17 @@ Generates Prometheus configuration files on the remote host and optionally appli
 
 ### k8s/config/transfer
 
-Apply the Prometheus ConfigMap on Kubernetes
+> Apply the Prometheus ConfigMap on Kubernetes
 
-Creates or updates the ConfigMap that carries the Prometheus configuration and optional TLS CA files.
+Creates or updates the ConfigMap that carries the rendered Prometheus configuration and optional TLS CA files.
 
 ```yaml
 - name: Apply the Prometheus ConfigMap on Kubernetes
   vars:
-    # Kubernetes namespace used for Prometheus resources.
-    k8s_namespace: "string"
-    # Remote configuration directory consumed by `prometheus_remote_config_dir`.
-    remote_config_dir: "string"
+    # Kubernetes namespace used for Prometheus resources. Example: `observability`.
+    k8s_namespace: "observability"
+    # Remote configuration directory consumed by `prometheus_remote_config_dir`. Example: `/var/lib/prometheus/config`.
+    remote_config_dir: "/var/lib/prometheus/config"
     # Remote directory where Prometheus configuration files are written.
     prometheus_remote_config_dir: "{{ remote_config_dir }}"
     # Filename of the main Prometheus scrape configuration.
@@ -550,8 +554,8 @@ Creates or updates the ConfigMap that carries the Prometheus configuration and o
     prometheus_http_config_file: http-config.yaml
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
-    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap.
-    prometheus_scrape_services: [{}]
+    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }]`.
+    prometheus_scrape_services: [{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }]
     # Enables HTTPS and TLS-aware health checks when set to `true`.
     prometheus_use_tls: false
   ansible.builtin.include_role:
@@ -561,15 +565,15 @@ Creates or updates the ConfigMap that carries the Prometheus configuration and o
 
 ### config/rm
 
-Remove Prometheus configuration files
+> Remove Prometheus configuration files
 
 Deletes the remote Prometheus configuration directory and optionally removes the Kubernetes ConfigMap.
 
 ```yaml
 - name: Remove Prometheus configuration files
   vars:
-    # Remote configuration directory consumed by `prometheus_remote_config_dir`.
-    remote_config_dir: "string"
+    # Remote configuration directory consumed by `prometheus_remote_config_dir`. Example: `/var/lib/prometheus/config`.
+    remote_config_dir: "/var/lib/prometheus/config"
     # Remote directory where Prometheus configuration files are written.
     prometheus_remote_config_dir: "{{ remote_config_dir }}"
     # Enables the Kubernetes deployment path when set to `true`.
@@ -581,15 +585,15 @@ Deletes the remote Prometheus configuration directory and optionally removes the
 
 ### k8s/config/rm
 
-Remove the Prometheus ConfigMap
+> Remove the Prometheus ConfigMap
 
 Deletes the Kubernetes ConfigMap that stores Prometheus configuration.
 
 ```yaml
 - name: Remove the Prometheus ConfigMap
   vars:
-    # Kubernetes namespace used for Prometheus resources.
-    k8s_namespace: "string"
+    # Kubernetes namespace used for Prometheus resources. Example: `observability`.
+    k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
@@ -599,7 +603,7 @@ Deletes the Kubernetes ConfigMap that stores Prometheus configuration.
 
 ### fetch_logs
 
-Fetch Prometheus logs from the active deployment mode
+> Fetch Prometheus logs from the active deployment mode
 
 Collects Prometheus logs from either the container deployment or the Kubernetes pod.
 
@@ -617,7 +621,7 @@ Collects Prometheus logs from either the container deployment or the Kubernetes 
 
 ### container/fetch_logs
 
-Fetch Prometheus container logs
+> Fetch Prometheus container logs
 
 Collects logs for the Prometheus container through the shared container role.
 
@@ -633,15 +637,15 @@ Collects logs for the Prometheus container through the shared container role.
 
 ### k8s/fetch_logs
 
-Fetch Prometheus pod logs
+> Fetch Prometheus pod logs
 
 Collects logs for the Prometheus pod through the shared Kubernetes role.
 
 ```yaml
 - name: Fetch Prometheus pod logs
   vars:
-    # Kubernetes namespace used for Prometheus resources.
-    k8s_namespace: "string"
+    # Kubernetes namespace used for Prometheus resources. Example: `observability`.
+    k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:

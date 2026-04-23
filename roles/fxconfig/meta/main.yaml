@@ -6,7 +6,7 @@
 ---
 galaxy_info:
   author: IBM
-  description: Runs the `fxconfig` CLI utility for namespace lifecycle management on Fabric-X.
+  description: Generates and transfers fxconfig configuration material, manages namespace transaction artifacts, and submits Fabric-X namespace lifecycle changes.
   license: Apache-2.0
   min_ansible_version: "2.17.0"
   platforms:

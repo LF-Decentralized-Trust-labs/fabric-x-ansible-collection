@@ -6,7 +6,7 @@
 ---
 galaxy_info:
   author: IBM
-  description: Generates crypto material for Hyperledger Fabric-X networks using the `cryptogen` CLI tool.
+  description: Renders cryptogen configuration, generates Fabric-X crypto material, and fetches MSP artifacts for orderer and peer organizations.
   license: Apache-2.0
   min_ansible_version: "2.17.0"
   platforms:

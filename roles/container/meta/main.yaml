@@ -6,7 +6,7 @@
 ---
 galaxy_info:
   author: IBM
-  description: Handles container lifecycle management (supports `podman` and `docker`).
+  description: Shared Docker and Podman lifecycle helpers for installing runtimes, managing containers, networks, registry logins, host-path volumes, and collected logs.
   license: Apache-2.0
   min_ansible_version: "2.17.0"
   platforms:

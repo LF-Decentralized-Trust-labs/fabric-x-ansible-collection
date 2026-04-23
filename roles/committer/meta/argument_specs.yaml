@@ -132,12 +132,14 @@ argument_specs:
         description:
           - NodePort used for the RPC service when C(committer_k8s_use_node_port) is enabled.
           - Must be explicitly set to a valid Kubernetes NodePort value when needed.
+          - "Example: C(31051)."
       committer_k8s_metrics_node_port: &committer_k8s_metrics_node_port
         type: int
         required: false
         description:
           - NodePort used for the metrics service when C(committer_k8s_use_node_port) is enabled.
           - Must be explicitly set to a valid Kubernetes NodePort value when needed.
+          - "Example: C(31052)."
       committer_remote_config_dir: &committer_remote_config_dir
         type: path
         required: false
@@ -221,11 +223,13 @@ argument_specs:
         required: true
         description:
           - RPC port exposed by the selected committer component.
+          - "Example: C(7051)."
       committer_metrics_port: &committer_metrics_port
         type: int
         required: true
         description:
           - Metrics port exposed by the selected committer component.
+          - "Example: C(9443)."
       committer_log_level: &committer_log_level
         type: str
         required: false
@@ -243,397 +247,469 @@ argument_specs:
         required: true
         description:
           - Committer component handled by the entry point.
+          - "Example: C(coordinator)."
         choices: [validator, verifier, coordinator, sidecar, query-service]
       remote_config_dir: &remote_config_dir
         type: path
         required: false
         description:
           - Remote config directory used by delegated crypto tasks.
+          - "Example: C(/opt/fabricx/committer/config)."
       remote_data_dir:
         type: path
         required: false
         description:
           - Remote data directory used by delegated sidecar tasks.
+          - "Example: C(/var/lib/fabricx/committer/sidecar)."
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         description:
           - Control-node directory that stores fetched artifacts.
+          - "Example: C(/tmp/fabricx/artifacts)."
       cryptogen_artifacts_dir: &cryptogen_artifacts_dir
         type: path
         required: true
         description:
           - Control-node directory that stores cryptogen output.
+          - "Example: C(/tmp/fabricx/crypto-material)."
       actual_host: &actual_host
         type: str
         description:
           - Reachable host or IP address used by the metrics client and Fabric-CA CSR generation.
+          - "Example: C(committer-validator-1.example.com)."
       organization: &organization
         type: dict
         required: true
         description:
           - Organization definition consumed by crypto and sidecar configuration tasks.
+          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}})."
       channel_id: &channel_id
         type: str
         required: false
         description:
           - Fabric channel identifier consumed by sidecar configuration.
+          - "Example: C(mychannel)."
       committer_validators: &committer_validators
         type: list
         required: true
         elements: str
         description:
           - Inventory hosts for validator components.
+          - "Example: C(['committer-validator-1', 'committer-validator-2'])."
       committer_verifiers: &committer_verifiers
         type: list
         required: true
         elements: str
         description:
           - Inventory hosts for verifier components.
+          - "Example: C(['committer-verifier-1', 'committer-verifier-2'])."
       committer_coordinator: &committer_coordinator
         type: str
         required: false
         description:
           - Inventory host name of the coordinator component.
+          - "Example: C(committer-coordinator-1)."
       orderer_assemblers: &orderer_assemblers
         type: list
         required: true
         elements: str
         description:
           - Inventory hosts for orderer assembler components.
+          - "Example: C(['orderer-assembler-1', 'orderer-assembler-2'])."
       postgres_db_host: &postgres_db_host
         type: str
         description:
           - Inventory host name of the Postgres backend used by validator or query-service configuration.
+          - "Example: C(postgres-committer-1)."
       yugabyte_cluster_ref_id: &yugabyte_cluster_ref_id
         type: str
         description:
           - Yugabyte cluster identifier used by validator or query-service configuration.
+          - "Example: C(yb-committer-ledger)."
       committer_hosts: &committer_hosts
         type: list
         required: true
         elements: str
         description:
           - Inventory hosts for committer components used by Prometheus scrape generation.
+          - "Example: C(['committer-validator-1', 'committer-verifier-1', 'committer-coordinator-1', 'committer-sidecar-1'])."
       k8s_namespace: &k8s_namespace
         type: str
         description:
           - Kubernetes namespace that contains the committer resources.
+          - "Example: C(fabricx-committer)."
       k8s_storage_size:
         type: str
         required: false
         description:
           - Persistent volume size requested by the sidecar StatefulSet.
+          - "Example: C(20Gi)."
       k8s_storage_class:
         type: str
         required: false
         description:
           - Storage class requested by the sidecar StatefulSet.
+          - "Example: C(fast-ssd)."
       k8s_image_pull_secret:
         type: str
         required: false
         description:
           - Optional image pull secret referenced by Kubernetes workloads.
+          - "Example: C(fabricx-registry-secret)."
       k8s_readiness_probe_initial_delay_seconds:
         type: int
         required: false
         description:
           - Readiness probe initial delay for Kubernetes workloads.
+          - "Example: C(10)."
       k8s_readiness_probe_period_seconds:
         type: int
         required: false
         description:
           - Readiness probe period for Kubernetes workloads.
+          - "Example: C(10)."
       k8s_readiness_probe_timeout_seconds:
         type: int
         required: false
         description:
           - Readiness probe timeout for Kubernetes workloads.
+          - "Example: C(5)."
       k8s_readiness_probe_failure_threshold:
         type: int
         required: false
         description:
           - Readiness probe failure threshold for Kubernetes workloads.
+          - "Example: C(3)."
       k8s_liveness_probe_initial_delay_seconds:
         type: int
         required: false
         description:
           - Liveness probe initial delay for Kubernetes workloads.
+          - "Example: C(30)."
       k8s_liveness_probe_period_seconds:
         type: int
         required: false
         description:
           - Liveness probe period for Kubernetes workloads.
+          - "Example: C(15)."
       k8s_liveness_probe_timeout_seconds:
         type: int
         required: false
         description:
           - Liveness probe timeout for Kubernetes workloads.
+          - "Example: C(5)."
       k8s_liveness_probe_failure_threshold:
         type: int
         required: false
         description:
           - Liveness probe failure threshold for Kubernetes workloads.
+          - "Example: C(5)."
       committer_monitoring_rate_limit_requests_per_second:
         &committer_monitoring_rate_limit_requests_per_second
         type: int
         required: false
         description:
           - Monitoring rate-limit requests per second.
+          - "Example: C(1000)."
       committer_monitoring_rate_limit_burst:
         &committer_monitoring_rate_limit_burst
         type: int
         required: false
         description:
           - Monitoring rate-limit burst.
+          - "Example: C(100)."
       committer_server_rate_limit_requests_per_second:
         &committer_server_rate_limit_requests_per_second
         type: int
         required: false
         description:
           - Server rate-limit requests per second.
+          - "Example: C(2000)."
       committer_server_rate_limit_burst: &committer_server_rate_limit_burst
         type: int
         required: false
         description:
           - Server rate-limit burst.
+          - "Example: C(200)."
       committer_server_keep_alive_time: &committer_server_keep_alive_time
         type: str
         required: false
         description:
           - Server keepalive ping interval.
+          - "Example: C(300s)."
       committer_server_keep_alive_timeout: &committer_server_keep_alive_timeout
         type: str
         required: false
         description:
           - Server keepalive acknowledgment timeout.
+          - "Example: C(600s)."
       committer_server_keep_alive_min_time:
         &committer_server_keep_alive_min_time
         type: str
         required: false
         description:
           - Minimum client keepalive interval enforced by the server.
+          - "Example: C(60s)."
       committer_server_keep_alive_permit_without_stream:
         &committer_server_keep_alive_permit_without_stream
         type: bool
         required: false
         description:
           - Allow keepalive pings without active streams.
+          - "Example: C(false)."
       committer_server_max_concurrent_streams:
         &committer_server_max_concurrent_streams
         type: int
         required: false
         description:
           - Maximum concurrent streaming RPCs allowed per client connection.
+          - "Example: C(128)."
       committer_database_max_connections: &committer_database_max_connections
         type: int
         required: false
         description:
           - Maximum size of the committer database connection pool.
+          - "Example: C(32)."
       committer_database_min_connections: &committer_database_min_connections
         type: int
         required: false
         description:
           - Minimum size of the committer database connection pool.
+          - "Example: C(8)."
       committer_database_retry_initial_interval:
         &committer_database_retry_initial_interval
         type: str
         required: false
         description:
           - Initial backoff interval for database retries.
+          - "Example: C(500ms)."
       committer_database_retry_randomization_factor:
         &committer_database_retry_randomization_factor
         type: float
         required: false
         description:
           - Jitter factor applied to database retry intervals.
+          - "Example: C(0.5)."
       committer_database_retry_multiplier: &committer_database_retry_multiplier
         type: float
         required: false
         description:
           - Exponential multiplier applied to database retry intervals.
+          - "Example: C(1.5)."
       committer_database_retry_max_interval:
         &committer_database_retry_max_interval
         type: str
         required: false
         description:
           - Maximum interval allowed between database retry attempts.
+          - "Example: C(60s)."
       committer_database_retry_max_elapsed_time:
         &committer_database_retry_max_elapsed_time
         type: str
         required: false
         description:
           - Maximum total elapsed time allowed for database retries.
+          - "Example: C(15m)."
       committer_resource_limits_max_workers_for_preparer:
         &committer_resource_limits_max_workers_for_preparer
         type: int
         required: false
         description:
           - Worker count for validator transaction preparation.
+          - "Example: C(4)."
       committer_resource_limits_max_workers_for_validator:
         &committer_resource_limits_max_workers_for_validator
         type: int
         required: false
         description:
           - Worker count for validator MVCC checks.
+          - "Example: C(8)."
       committer_resource_limits_max_workers_for_committer:
         &committer_resource_limits_max_workers_for_committer
         type: int
         required: false
         description:
           - Worker count for validator commit processing.
+          - "Example: C(20)."
       committer_resource_limits_min_transaction_batch_size:
         &committer_resource_limits_min_transaction_batch_size
         type: int
         required: false
         description:
           - Minimum validator transaction batch size.
+          - "Example: C(100)."
       committer_resource_limits_timeout_for_min_transaction_batch_size:
         &committer_resource_limits_timeout_for_min_transaction_batch_size
         type: str
         required: false
         description:
           - Timeout for the minimum validator transaction batch size.
+          - "Example: C(2s)."
       committer_verifier_parallelism: &committer_verifier_parallelism
         type: int
         required: false
         description:
           - Parallel signature verification workers.
+          - "Example: C(16)."
       committer_verifier_batch_size_cutoff:
         &committer_verifier_batch_size_cutoff
         type: int
         required: false
         description:
           - Signature verification batch size cutoff.
+          - "Example: C(500)."
       committer_verifier_batch_time_cutoff:
         &committer_verifier_batch_time_cutoff
         type: str
         required: false
         description:
           - Signature verification batch timeout.
+          - "Example: C(2ms)."
       committer_verifier_channel_buffer_size:
         &committer_verifier_channel_buffer_size
         type: int
         required: false
         description:
           - Channel buffer size for the verifier pipeline.
+          - "Example: C(1000)."
       committer_coordinator_dep_graph_constructors:
         &committer_coordinator_dep_graph_constructors
         type: int
         required: false
         description:
           - Dependency-graph constructor count for the coordinator.
+          - "Example: C(4)."
       committer_coordinator_dep_graph_wait_tx_limit:
         &committer_coordinator_dep_graph_wait_tx_limit
         type: int
         required: false
         description:
           - Dependency-graph waiting transaction limit for the coordinator.
+          - "Example: C(20000000)."
       committer_coordinator_per_channel_buffer_size_per_goroutine:
         &committer_coordinator_per_channel_buffer_size_per_goroutine
         type: int
         required: false
         description:
           - Per-goroutine channel buffer size for the coordinator.
+          - "Example: C(10)."
       committer_sidecar_last_committed_block_set_interval:
         &committer_sidecar_last_committed_block_set_interval
         type: str
         required: false
         description:
           - Interval between sidecar committed-block updates.
+          - "Example: C(5s)."
       committer_sidecar_waiting_txs_limit: &committer_sidecar_waiting_txs_limit
         type: int
         required: false
         description:
           - Sidecar waiting transaction limit.
+          - "Example: C(20000000)."
       committer_sidecar_channel_buffer_size:
         &committer_sidecar_channel_buffer_size
         type: int
         required: false
         description:
           - Sidecar internal channel buffer size.
+          - "Example: C(100)."
       committer_sidecar_ledger_sync_interval:
         &committer_sidecar_ledger_sync_interval
         type: int
         required: false
         description:
           - Sidecar ledger sync interval.
+          - "Example: C(100)."
       committer_sidecar_notification_max_timeout:
         &committer_sidecar_notification_max_timeout
         type: str
         required: false
         description:
           - Sidecar notification timeout.
+          - "Example: C(10m)."
       committer_query_service_min_batch_keys:
         &committer_query_service_min_batch_keys
         type: int
         required: false
         description:
           - Query-service minimum batch key count.
+          - "Example: C(1024)."
       committer_query_service_max_batch_wait:
         &committer_query_service_max_batch_wait
         type: str
         required: false
         description:
           - Query-service maximum batch wait time.
+          - "Example: C(100ms)."
       committer_query_service_view_aggregation_window:
         &committer_query_service_view_aggregation_window
         type: str
         required: false
         description:
           - Query-service view aggregation window.
+          - "Example: C(100ms)."
       committer_query_service_max_aggregated_views:
         &committer_query_service_max_aggregated_views
         type: int
         required: false
         description:
           - Query-service maximum aggregated views.
+          - "Example: C(1024)."
       committer_query_service_max_active_views:
         &committer_query_service_max_active_views
         type: int
         required: false
         description:
           - Query-service maximum active views.
+          - "Example: C(4096)."
       committer_query_service_max_view_timeout:
         &committer_query_service_max_view_timeout
         type: str
         required: false
         description:
           - Query-service view timeout.
+          - "Example: C(10s)."
       committer_query_service_max_request_keys:
         &committer_query_service_max_request_keys
         type: int
         required: false
         description:
           - Query-service maximum request key count.
+          - "Example: C(10000)."
       committer_mtls_clients: &committer_mtls_clients
         type: list
         elements: str
         required: false
         description:
           - mTLS client identifiers trusted by the component.
+          - "Example: C(['committer-sidecar-1', 'loadgen-1'])."
       committer_mtls_orgs: &committer_mtls_orgs
         type: list
         elements: dict
         required: false
         description:
           - mTLS organizations trusted by the component.
+          - "Example: C([{'domain': 'org2.example.com'}])."
       committer_monitoring_mtls_clients: &committer_monitoring_mtls_clients
         type: list
         elements: str
         required: false
         description:
           - Monitoring mTLS client identifiers trusted by the component.
+          - "Example: C(['prometheus-1'])."
       committer_monitoring_mtls_orgs: &committer_monitoring_mtls_orgs
         type: list
         elements: dict
         required: false
         description:
           - Monitoring mTLS organizations trusted by the component.
+          - "Example: C([{'domain': 'monitoring.example.com'}])."
 
   ping:
     short_description: Check the committer gRPC endpoint
     description:
       - Validate that the Fabric-X Committer RPC port is reachable.
+      - Uses C(committer_rpc_port) on host deployments and skips the direct host check in Kubernetes mode.
     options:
       committer_rpc_port: *committer_rpc_port
       committer_use_k8s: *committer_use_k8s
@@ -642,6 +718,7 @@ argument_specs:
     short_description: Check the committer Kubernetes NodePorts
     description:
       - Validate that the optional Kubernetes NodePort Service exposes the RPC and metrics ports.
+      - Requires explicit RPC and metrics NodePort values when external Kubernetes access is enabled.
     options:
       committer_k8s_use_node_port: *committer_k8s_use_node_port
       committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
@@ -652,6 +729,7 @@ argument_specs:
     description:
       - Start a validator in bin, container, or Kubernetes mode.
       - The selected runtime path depends on C(committer_use_bin) and C(committer_use_k8s).
+      - Expects validator configuration and database settings to be generated before the process starts.
     options:
       committer_use_bin: *committer_use_bin
       committer_use_k8s: *committer_use_k8s
@@ -661,6 +739,8 @@ argument_specs:
     short_description: Start a verifier component
     description:
       - Start a verifier in bin, container, or Kubernetes mode.
+      - The selected runtime path depends on C(committer_use_bin) and C(committer_use_k8s).
+      - Expects verifier configuration and optional TLS/mTLS assets to be available.
     options:
       committer_use_bin: *committer_use_bin
       committer_use_k8s: *committer_use_k8s
@@ -671,6 +751,7 @@ argument_specs:
     description:
       - Start a coordinator in bin, container, or Kubernetes mode.
       - Coordinators connect to validator and verifier hosts that must already be configured.
+      - Uses C(committer_validators) and C(committer_verifiers) to locate upstream committers.
     options:
       committer_use_bin: *committer_use_bin
       committer_use_k8s: *committer_use_k8s
@@ -681,6 +762,7 @@ argument_specs:
     description:
       - Start a sidecar in bin, container, or Kubernetes mode.
       - Sidecars require persistent data storage and connect to coordinator and orderer hosts.
+      - Uses MSP material plus C(committer_coordinator), C(orderer_assemblers), and C(channel_id).
     options:
       committer_use_bin: *committer_use_bin
       committer_use_k8s: *committer_use_k8s
@@ -690,6 +772,8 @@ argument_specs:
     short_description: Start a query-service component
     description:
       - Start a query-service in bin, container, or Kubernetes mode.
+      - The selected runtime path depends on C(committer_use_bin) and C(committer_use_k8s).
+      - Expects generated database-backed query-service configuration.
     options:
       committer_use_bin: *committer_use_bin
       committer_use_k8s: *committer_use_k8s
@@ -700,6 +784,7 @@ argument_specs:
     description:
       - Stop the selected component in bin or container mode.
       - Kubernetes teardown is handled through the teardown entry points instead.
+      - Selects the stop path from C(committer_component_type) and C(committer_deployment_mode).
     options:
       committer_component_type: *committer_component_type
       committer_deployment_mode: *committer_deployment_mode
@@ -711,6 +796,7 @@ argument_specs:
     description:
       - Remove the selected component according to its deployment mode.
       - Sidecar teardown also removes sidecar data.
+      - Dispatches by C(committer_component_type) to the component-specific teardown entry point.
     options:
       committer_component_type: *committer_component_type
 
@@ -718,6 +804,7 @@ argument_specs:
     short_description: Teardown the query-service
     description:
       - Remove the query-service according to its deployment mode.
+      - Deletes the runtime process, container, or Kubernetes query-service resources.
     options:
       committer_use_bin: *committer_use_bin
       committer_use_k8s: *committer_use_k8s
@@ -727,6 +814,7 @@ argument_specs:
     short_description: Teardown the sidecar
     description:
       - Remove the sidecar according to its deployment mode and delete sidecar data.
+      - Deletes the runtime process, container, or Kubernetes StatefulSet and storage artifacts.
     options:
       committer_use_bin: *committer_use_bin
       committer_use_k8s: *committer_use_k8s
@@ -736,6 +824,7 @@ argument_specs:
     short_description: Teardown the coordinator
     description:
       - Remove the coordinator according to its deployment mode.
+      - Deletes the runtime process, container, or Kubernetes coordinator resources.
     options:
       committer_use_bin: *committer_use_bin
       committer_use_k8s: *committer_use_k8s
@@ -745,6 +834,7 @@ argument_specs:
     short_description: Remove all committer artifacts
     description:
       - Tear down the selected component and remove binary, config, and crypto assets.
+      - Intended for full cleanup of role-managed host artifacts after stopping the component.
     options:
       committer_component_type: *committer_component_type
       committer_use_bin: *committer_use_bin
@@ -753,6 +843,7 @@ argument_specs:
     short_description: Collect committer logs
     description:
       - Fetch logs from the selected deployment mode.
+      - Dispatches to binary, container, or Kubernetes log collection based on deployment flags.
     options:
       committer_use_bin: *committer_use_bin
       committer_use_k8s: *committer_use_k8s
@@ -762,6 +853,7 @@ argument_specs:
     short_description: Retrieve Prometheus metrics
     description:
       - Query the component metrics endpoint and print the response body.
+      - Uses C(actual_host), C(committer_http_protocol), and C(committer_metrics_port).
     options:
       actual_host:
         <<: *actual_host
@@ -773,6 +865,7 @@ argument_specs:
     short_description: Start a committer component by type
     description:
       - Dispatch startup to the selected committer component.
+      - C(committer_component_type) selects validator, verifier, coordinator, sidecar, or query-service.
     options:
       committer_component_type: *committer_component_type
 
@@ -781,6 +874,7 @@ argument_specs:
     description:
       - Transfer cryptogen artifacts or enroll with Fabric CA for the selected component.
       - When C(committer_use_k8s) is true, also create the Kubernetes secret for the component.
+      - Uses C(organization) to determine Fabric CA enrollment or cryptogen artifact paths.
     options:
       organization: *organization
       committer_use_k8s: *committer_use_k8s
@@ -790,6 +884,7 @@ argument_specs:
     description:
       - Fetch the committer TLS CA certificate and server certificate to the control node.
       - This task runs only when C(committer_use_tls) is true.
+      - Stores fetched files under C(fetched_artifacts_dir) for downstream trust bundle generation.
     options:
       remote_config_dir: *remote_config_dir
       committer_remote_config_dir: *committer_remote_config_dir
@@ -802,6 +897,7 @@ argument_specs:
     short_description: Install the committer binary
     description:
       - Install the committer binary through the shared C(bin) role Go installer entry point.
+      - Uses the configured Git repository, ref, package path, and binary name.
     options:
       committer_bin_name: *committer_bin_name
       committer_bin_package: *committer_bin_package
@@ -814,6 +910,7 @@ argument_specs:
     short_description: Build the committer binary
     description:
       - Build the committer binary through the shared C(bin) role Go build entry point.
+      - Produces the local committer binary artifact later transferred to target hosts.
     options:
       committer_bin_name: *committer_bin_name
       committer_git_hub_url: *committer_git_hub_url
@@ -825,12 +922,14 @@ argument_specs:
     short_description: Stop a committer binary
     description:
       - Stop the running committer binary process through the shared C(bin) role.
+      - Applies to validator, verifier, coordinator, sidecar, and query-service host-binary processes.
     options: {}
 
   bin/rm:
     short_description: Remove the committer binary
     description:
       - Remove the installed committer binary from the target host.
+      - Uses C(committer_bin_name) as the target executable name.
     options:
       committer_bin_name: *committer_bin_name
 
@@ -838,12 +937,14 @@ argument_specs:
     short_description: Fetch committer binary logs
     description:
       - Collect logs generated by the committer binary through the shared C(bin) role.
+      - Applies to host-binary deployments.
     options: {}
 
   bin/transfer:
     short_description: Transfer the committer binary
     description:
       - Copy the built committer binary to the target host.
+      - Uses C(committer_bin_name) for the executable transferred by the shared C(bin) role.
     options:
       committer_bin_name: *committer_bin_name
 
@@ -851,6 +952,7 @@ argument_specs:
     short_description: Start the validator container
     description:
       - Run the validator container with its generated configuration directory mounted read-only.
+      - Publishes validator RPC and metrics ports from the container to the host.
     options:
       committer_container_name: *committer_container_name
       committer_image: *committer_image
@@ -864,6 +966,7 @@ argument_specs:
     short_description: Start the verifier container
     description:
       - Run the verifier container with its generated configuration directory mounted read-only.
+      - Publishes verifier RPC and metrics ports from the container to the host.
     options:
       committer_container_name: *committer_container_name
       committer_image: *committer_image
@@ -877,6 +980,7 @@ argument_specs:
     short_description: Start the coordinator container
     description:
       - Run the coordinator container with its generated configuration directory mounted read-only.
+      - Publishes coordinator RPC and metrics ports from the container to the host.
     options:
       committer_container_name: *committer_container_name
       committer_image: *committer_image
@@ -890,6 +994,7 @@ argument_specs:
     short_description: Start the sidecar container
     description:
       - Ensure the sidecar data directory exists and run the sidecar container with config and data volumes mounted.
+      - Persists the sidecar ledger under C(committer_remote_data_dir).
     options:
       committer_container_name: *committer_container_name
       committer_image: *committer_image
@@ -905,6 +1010,7 @@ argument_specs:
     short_description: Start the query-service container
     description:
       - Run the query-service container with its generated configuration directory mounted read-only.
+      - Publishes query-service RPC and metrics ports from the container to the host.
     options:
       committer_container_name: *committer_container_name
       committer_image: *committer_image
@@ -918,6 +1024,7 @@ argument_specs:
     short_description: Stop a committer container
     description:
       - Stop the committer container through the shared C(container) role.
+      - Uses C(committer_container_name) for the selected component container.
     options:
       committer_container_name: *committer_container_name
 
@@ -925,6 +1032,7 @@ argument_specs:
     short_description: Remove a committer container
     description:
       - Remove the committer container through the shared C(container) role.
+      - Uses C(committer_container_name) for the selected component container.
     options:
       committer_container_name: *committer_container_name
 
@@ -932,6 +1040,7 @@ argument_specs:
     short_description: Fetch committer container logs
     description:
       - Collect logs from the committer container through the shared C(container) role.
+      - Uses C(committer_container_name) for the selected component container.
     options:
       committer_container_name: *committer_container_name
 
@@ -939,6 +1048,7 @@ argument_specs:
     short_description: Generate config by component type
     description:
       - Dispatch configuration generation to the selected committer component.
+      - Renders the component YAML config and any required companion artifacts.
     options:
       committer_component_type: *committer_component_type
 
@@ -946,6 +1056,7 @@ argument_specs:
     short_description: Remove committer configuration
     description:
       - Remove the component config directory and the Kubernetes ConfigMap when enabled.
+      - Cleans C(committer_remote_config_dir) and, for Kubernetes, the component ConfigMap.
     options:
       committer_remote_config_dir: *committer_remote_config_dir
       committer_use_k8s: *committer_use_k8s
@@ -954,12 +1065,14 @@ argument_specs:
     short_description: Transfer the committer Grafana dashboard
     description:
       - Publish the committer Grafana dashboard through the shared Grafana helper flow.
+      - Installs dashboard configuration used to visualize committer metrics.
     options: {}
 
   config/db/transfer:
     short_description: Transfer DB config by backend type
     description:
       - Dispatch database configuration generation to the selected backend.
+      - Selects PostgreSQL via C(postgres_db_host) or YugabyteDB via C(yugabyte_cluster_ref_id).
     options:
       postgres_db_host:
         <<: *postgres_db_host
@@ -972,6 +1085,7 @@ argument_specs:
     short_description: Transfer PostgreSQL DB config
     description:
       - Generate the PostgreSQL connection settings consumed by the committer component.
+      - Copies the Postgres TLS CA certificate from C(fetched_artifacts_dir) when needed.
     options:
       postgres_db_host:
         <<: *postgres_db_host
@@ -985,6 +1099,7 @@ argument_specs:
     short_description: Transfer Yugabyte DB config
     description:
       - Generate the Yugabyte connection settings consumed by the committer component.
+      - Copies the Yugabyte TLS CA certificate from C(fetched_artifacts_dir) when needed.
     options:
       yugabyte_cluster_ref_id:
         <<: *yugabyte_cluster_ref_id
@@ -998,6 +1113,7 @@ argument_specs:
     short_description: Transfer committer mTLS certificates
     description:
       - Copy mTLS certificates for the committer service-to-service connections.
+      - Builds trust bundles for C(committer_mtls_clients) and C(committer_mtls_orgs).
     options:
       committer_mtls_clients: *committer_mtls_clients
       committer_mtls_orgs: *committer_mtls_orgs
@@ -1010,6 +1126,7 @@ argument_specs:
     short_description: Transfer monitoring mTLS certificates
     description:
       - Copy monitoring mTLS certificates for Prometheus scraping.
+      - Builds monitoring trust bundles for Prometheus clients and monitoring organizations.
     options:
       committer_monitoring_mtls_clients: *committer_monitoring_mtls_clients
       committer_monitoring_mtls_orgs: *committer_monitoring_mtls_orgs
@@ -1022,6 +1139,7 @@ argument_specs:
     short_description: Remove committer crypto material
     description:
       - Remove local TLS assets and the Kubernetes Secret when enabled.
+      - Cleans TLS material under C(committer_remote_config_dir) for the selected component.
     options:
       committer_remote_config_dir: *committer_remote_config_dir
       committer_use_tls: *committer_use_tls
@@ -1031,6 +1149,7 @@ argument_specs:
     short_description: Transfer committer crypto from cryptogen
     description:
       - Copy cryptogen-generated TLS assets for the selected committer component.
+      - Sidecar components also receive MSP material from the organization peer directory.
     options:
       organization: *organization
       committer_component_type: *committer_component_type
@@ -1042,6 +1161,7 @@ argument_specs:
     short_description: Enroll committer crypto with Fabric CA
     description:
       - Enroll the selected committer component against its Fabric CA and write the resulting TLS assets.
+      - Uses C(actual_host) as a TLS CSR host and writes certificates under C(committer_remote_config_dir).
     options:
       organization: *organization
       committer_component_type: *committer_component_type
@@ -1058,6 +1178,7 @@ argument_specs:
     short_description: Remove sidecar data
     description:
       - Remove the sidecar data directory and sidecar PVC when Kubernetes mode is enabled.
+      - Applies only to sidecar ledger data stored under C(committer_remote_data_dir).
     options:
       committer_remote_data_dir: *committer_remote_data_dir
       committer_k8s_resource_name: *committer_k8s_resource_name
@@ -1070,6 +1191,7 @@ argument_specs:
     short_description: Remove the committer ConfigMap
     description:
       - Delete the committer Kubernetes ConfigMap.
+      - Uses C(committer_k8s_resource_name) and C(k8s_namespace) to identify the ConfigMap.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
       k8s_namespace:
@@ -1080,6 +1202,7 @@ argument_specs:
     short_description: Remove the committer Secret
     description:
       - Delete the committer Kubernetes Secret.
+      - Uses C(committer_k8s_resource_name) and C(k8s_namespace) to identify the Secret.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
       k8s_namespace:
@@ -1090,6 +1213,7 @@ argument_specs:
     short_description: Create the committer Secret
     description:
       - Create the committer Kubernetes Secret from the generated TLS materials.
+      - Includes TLS keys, TLS certificates, and sidecar MSP material when required by the component.
     options:
       committer_component_type: *committer_component_type
       committer_crypto_name: *committer_crypto_name
@@ -1104,6 +1228,7 @@ argument_specs:
     short_description: Fetch committer pod logs
     description:
       - Collect logs from committer pods through the shared Kubernetes helper role.
+      - Uses C(committer_k8s_resource_name) to select the component workload.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
 
@@ -1111,6 +1236,7 @@ argument_specs:
     short_description: Build Prometheus scrape targets for committer
     description:
       - Construct the Prometheus scrape service definitions for all deployed committer component types.
+      - Reads C(committer_hosts) and fetched TLS artifacts to build scrape targets.
     options:
       committer_hosts: *committer_hosts
       fetched_artifacts_dir:
@@ -1121,6 +1247,7 @@ argument_specs:
     short_description: Start the validator binary
     description:
       - Run the validator binary with its generated configuration file.
+      - Waits for the validator RPC port after starting C(start-vc).
     options:
       committer_bin_name: *committer_bin_name
       committer_remote_config_dir: *committer_remote_config_dir
@@ -1131,6 +1258,7 @@ argument_specs:
     short_description: Start the verifier binary
     description:
       - Run the verifier binary with its generated configuration file.
+      - Waits for the verifier RPC port after starting C(start-verifier).
     options:
       committer_bin_name: *committer_bin_name
       committer_remote_config_dir: *committer_remote_config_dir
@@ -1141,6 +1269,7 @@ argument_specs:
     short_description: Start the coordinator binary
     description:
       - Run the coordinator binary with its generated configuration file.
+      - Waits for the coordinator RPC port after starting C(start-coordinator).
     options:
       committer_bin_name: *committer_bin_name
       committer_remote_config_dir: *committer_remote_config_dir
@@ -1151,6 +1280,7 @@ argument_specs:
     short_description: Start the sidecar binary
     description:
       - Ensure the sidecar data directory exists and run the sidecar binary.
+      - Waits for the sidecar RPC port after starting C(start-sidecar).
     options:
       committer_bin_name: *committer_bin_name
       committer_remote_config_dir: *committer_remote_config_dir
@@ -1162,6 +1292,7 @@ argument_specs:
     short_description: Start the query-service binary
     description:
       - Run the query-service binary with its generated configuration file.
+      - Waits for the query-service RPC port after starting C(start-query).
     options:
       committer_bin_name: *committer_bin_name
       committer_remote_config_dir: *committer_remote_config_dir
@@ -1172,6 +1303,7 @@ argument_specs:
     short_description: Generate validator config
     description:
       - Render validator configuration, DB settings, mTLS assets, and optional Kubernetes ConfigMap.
+      - Requires either C(postgres_db_host) or C(yugabyte_cluster_ref_id) for the state database.
     options:
       committer_config_dir: *committer_config_dir
       committer_database_max_connections: *committer_database_max_connections
@@ -1217,6 +1349,7 @@ argument_specs:
     short_description: Generate verifier config
     description:
       - Render verifier configuration, mTLS assets, and optional Kubernetes ConfigMap.
+      - Includes verifier parallel executor settings and RPC/metrics server settings.
     options:
       committer_config_dir: *committer_config_dir
       committer_remote_config_dir: *committer_remote_config_dir
@@ -1248,6 +1381,7 @@ argument_specs:
     short_description: Generate coordinator config
     description:
       - Render coordinator configuration, validator and verifier CA bundles, and optional Kubernetes ConfigMap.
+      - Uses C(committer_validators) and C(committer_verifiers) to build upstream endpoint lists.
     options:
       committer_config_dir: *committer_config_dir
       committer_database_max_connections: *committer_database_max_connections
@@ -1290,6 +1424,7 @@ argument_specs:
     short_description: Generate sidecar config
     description:
       - Render sidecar configuration, upstream TLS bundles, and optional Kubernetes ConfigMap.
+      - Uses C(orderer_assemblers), C(committer_coordinator), C(channel_id), and MSP material.
     options:
       committer_config_dir: *committer_config_dir
       committer_data_dir: *committer_data_dir
@@ -1330,6 +1465,7 @@ argument_specs:
     short_description: Generate query-service config
     description:
       - Render query-service configuration, DB settings, mTLS assets, and optional Kubernetes ConfigMap.
+      - Requires either C(postgres_db_host) or C(yugabyte_cluster_ref_id) for the query database.
     options:
       committer_config_dir: *committer_config_dir
       committer_database_max_connections: *committer_database_max_connections
@@ -1377,6 +1513,7 @@ argument_specs:
     short_description: Start the validator on Kubernetes
     description:
       - Ensure the namespace exists and apply the validator Service, NodePort Service, and Deployment.
+      - Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
     options:
       committer_k8s_use_node_port: *committer_k8s_use_node_port
       committer_k8s_wait_timeout: *committer_k8s_wait_timeout
@@ -1385,6 +1522,7 @@ argument_specs:
     short_description: Start the verifier on Kubernetes
     description:
       - Ensure the namespace exists and apply the verifier Service, NodePort Service, and Deployment.
+      - Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
     options:
       committer_k8s_use_node_port: *committer_k8s_use_node_port
       committer_k8s_wait_timeout: *committer_k8s_wait_timeout
@@ -1393,6 +1531,7 @@ argument_specs:
     short_description: Start the coordinator on Kubernetes
     description:
       - Ensure the namespace exists and apply the coordinator Service, NodePort Service, and Deployment.
+      - Uses validator and verifier host lists to prepare TLS mounts and startup dependencies.
     options:
       committer_k8s_use_node_port: *committer_k8s_use_node_port
       committer_k8s_wait_timeout: *committer_k8s_wait_timeout
@@ -1403,6 +1542,7 @@ argument_specs:
     short_description: Start the sidecar on Kubernetes
     description:
       - Ensure the namespace exists and apply the sidecar Service, NodePort Service, and StatefulSet.
+      - Creates the persistent sidecar ledger volume from the configured storage settings.
     options:
       committer_k8s_use_node_port: *committer_k8s_use_node_port
       committer_k8s_wait_timeout: *committer_k8s_wait_timeout
@@ -1411,6 +1551,7 @@ argument_specs:
     short_description: Start the query-service on Kubernetes
     description:
       - Ensure the namespace exists and apply the query-service Service, NodePort Service, and Deployment.
+      - Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
     options:
       committer_k8s_use_node_port: *committer_k8s_use_node_port
       committer_k8s_wait_timeout: *committer_k8s_wait_timeout
@@ -1419,6 +1560,7 @@ argument_specs:
     short_description: Remove validator Kubernetes resources
     description:
       - Delete the validator Deployment and Services.
+      - Uses C(committer_k8s_resource_name) in C(k8s_namespace) to select resources.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
       k8s_namespace:
@@ -1429,6 +1571,7 @@ argument_specs:
     short_description: Remove verifier Kubernetes resources
     description:
       - Delete the verifier Deployment and Services.
+      - Uses C(committer_k8s_resource_name) in C(k8s_namespace) to select resources.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
       k8s_namespace:
@@ -1439,6 +1582,7 @@ argument_specs:
     short_description: Remove coordinator Kubernetes resources
     description:
       - Delete the coordinator Deployment and Services.
+      - Uses C(committer_k8s_resource_name) in C(k8s_namespace) to select resources.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
       k8s_namespace:
@@ -1449,6 +1593,7 @@ argument_specs:
     short_description: Remove sidecar Kubernetes resources
     description:
       - Delete the sidecar StatefulSet and Services.
+      - Uses C(committer_k8s_resource_name) in C(k8s_namespace) to select resources.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
       k8s_namespace:
@@ -1459,6 +1604,7 @@ argument_specs:
     short_description: Remove query-service Kubernetes resources
     description:
       - Delete the query-service Deployment and Services.
+      - Uses C(committer_k8s_resource_name) in C(k8s_namespace) to select resources.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
       k8s_namespace:
@@ -1469,6 +1615,7 @@ argument_specs:
     short_description: Create the validator ConfigMap
     description:
       - Ensure the namespace exists and create the validator Kubernetes ConfigMap.
+      - Publishes the rendered validator config and mounted CA files for Kubernetes pods.
     options:
       committer_remote_config_dir: *committer_remote_config_dir
 
@@ -1476,12 +1623,14 @@ argument_specs:
     short_description: Create the verifier ConfigMap
     description:
       - Ensure the namespace exists and create the verifier Kubernetes ConfigMap.
+      - Publishes the rendered verifier config and mounted CA files for Kubernetes pods.
     options: {}
 
   coordinator/k8s/config/transfer:
     short_description: Create the coordinator ConfigMap
     description:
       - Ensure the namespace exists and create the coordinator Kubernetes ConfigMap.
+      - Publishes rendered coordinator config plus validator and verifier CA bundle files.
     options:
       committer_remote_config_dir: *committer_remote_config_dir
       committer_validators: *committer_validators
@@ -1491,6 +1640,7 @@ argument_specs:
     short_description: Create the sidecar ConfigMap
     description:
       - Ensure the namespace exists and create the sidecar Kubernetes ConfigMap.
+      - Publishes rendered sidecar config plus orderer and coordinator CA bundle files.
     options:
       committer_remote_config_dir: *committer_remote_config_dir
 
@@ -1498,6 +1648,7 @@ argument_specs:
     short_description: Create the query-service ConfigMap
     description:
       - Ensure the namespace exists and create the query-service Kubernetes ConfigMap.
+      - Publishes the rendered query-service config and mounted DB CA file when used.
     options:
       committer_remote_config_dir: *committer_remote_config_dir
 
@@ -1505,6 +1656,7 @@ argument_specs:
     short_description: Teardown the validator
     description:
       - Remove validator runtime resources for the active deployment mode.
+      - Dispatches to Kubernetes, container, or host-binary cleanup based on deployment flags.
     options:
       committer_use_k8s: *committer_use_k8s
       committer_use_container: *committer_use_container
@@ -1514,6 +1666,7 @@ argument_specs:
     short_description: Teardown the verifier
     description:
       - Remove verifier runtime resources for the active deployment mode.
+      - Dispatches to Kubernetes, container, or host-binary cleanup based on deployment flags.
     options:
       committer_use_k8s: *committer_use_k8s
       committer_use_container: *committer_use_container

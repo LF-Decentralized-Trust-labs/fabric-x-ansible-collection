@@ -6,7 +6,7 @@
 ---
 galaxy_info:
   author: IBM
-  description: Runs a Hyperledger Fabric CA server and client for certificate management across binary, container, and Kubernetes deployments.
+  description: Manages Hyperledger Fabric CA server and client certificate workflows, including X.509 and Idemix crypto, enrollment, registration, logs, configuration, and binary, container, or Kubernetes runtimes.
   license: Apache-2.0
   min_ansible_version: "2.17.0"
   platforms:

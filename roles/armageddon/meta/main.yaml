@@ -6,7 +6,10 @@
 ---
 galaxy_info:
   author: IBM
-  description: Runs the `armageddon` CLI tool for genesis block and shared config generation.
+  description: >-
+    Automates the `armageddon` CLI for Fabric-X shared orderer configuration generation.
+    The role renders `shared_config.yaml` from the orderer inventory and then runs Armageddon in binary or container mode to produce `shared_config.binpb`.
+    It consumes the crypto artifacts prepared by the crypto roles and the artifact directory selected for the chosen run mode.
   license: Apache-2.0
   min_ansible_version: "2.17.0"
   platforms:

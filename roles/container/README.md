@@ -1,6 +1,6 @@
 # hyperledger.fabricx.container
 
-> Handles container lifecycle management (supports `podman` and `docker`).
+> Shared Docker and Podman lifecycle helpers for installing runtimes, managing containers, networks, registry logins, host-path volumes, and collected logs.
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -56,9 +56,11 @@ ansible-doc -t role hyperledger.fabricx.container
 
 ### install
 
-Install a supported container client
+> Install a supported container client
 
-Detects an available container client and installs Docker or Podman on Linux when needed.
+Verifies the requested container runtime or auto-detects a host runtime, preferring Podman and then Docker.
+
+Installs the selected runtime on supported Linux hosts when it is missing and verifies that the client can run containers.
 
 ```yaml
 - name: Install a supported container client
@@ -72,9 +74,11 @@ Detects an available container client and installs Docker or Podman on Linux whe
 
 ### get_container_client
 
-Detect the available container client
+> Detect the available container client
 
-Chooses the requested container client or auto-detects one from the current host.
+Selects the container runtime used by generic lifecycle tasks.
+
+Uses `container_client` when provided, otherwise probes the host for Podman first and Docker second.
 
 ```yaml
 - name: Detect the available container client
@@ -88,23 +92,27 @@ Chooses the requested container client or auto-detects one from the current host
 
 ### start
 
-Start a container with the selected client
+> Start a container with the selected client
 
-Logs the command in debug mode, resolves the container client, and delegates startup to the matching backend task file.
+Starts or updates a container through the selected Docker or Podman backend.
+
+Accepts image, command, environment, ports, volumes, network, resource limits, logging, retry, healthcheck, and readiness inputs.
+
+Stores runtime module output in `container_output` and can print captured process output when debug mode is enabled for foreground containers.
 
 ```yaml
 - name: Start a container with the selected client
   vars:
     # Selects the container client to verify or use. Leave it empty to auto-detect `podman` first and then `docker`.
     container_client: "{{ lookup('env', 'CONTAINER_CLIENT') or '' }}"
-    # Names the container managed by the role.
-    container_name: "string"
-    # Selects the container image to start.
-    container_image: "string"
-    # Overrides the image entrypoint.
-    container_entrypoint: "string"
-    # Supplies the command passed to the container runtime.
-    container_command: "string"
+    # Names the container managed by the role. Example: `fabricx-orderer-assembler-1`.
+    container_name: "fabricx-orderer-assembler-1"
+    # Selects the container image to start. Example: `ghcr.io/hyperledger/fabric-x/orderer:latest`.
+    container_image: "ghcr.io/hyperledger/fabric-x/orderer:latest"
+    # Overrides the image entrypoint. Example: `[/bin/sh, -c]`.
+    container_entrypoint: [/bin/sh, -c]
+    # Supplies the command passed to the container runtime. Example: `orderer --config /etc/fabricx/orderer.yaml`.
+    container_command: orderer --config /etc/fabricx/orderer.yaml
     # Sets the hostname inside the container.
     container_hostname: "{{ container_name | default(inventory_hostname) }}"
     # Provides the host uid used to build `container_host_user`.
@@ -121,20 +129,20 @@ Logs the command in debug mode, resolves the container client, and delegates sta
     container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
     # Controls the container network mode.
     container_network_mode: "{{ 'bridge' if (container_on_mac or (container_network is defined)) else 'host' }}"
-    # Names the bridge network attached to the container when bridge mode is selected.
-    container_network: "string"
-    # Publishes container ports when bridge networking is used.
-    container_ports: ["entry1", "entry2"]
-    # Limits container memory using runtime syntax such as `2g`.
-    container_memory: "string"
-    # Limits CPU allocation for the container.
-    container_cpus: "string"
-    # Mounts host paths or named volumes into the container.
-    container_volumes: ["entry1", "entry2"]
-    # Applies runtime ulimit settings to the container.
-    container_ulimits: ["entry1", "entry2"]
-    # Defines environment variables passed to the container process.
-    container_env: {}
+    # Names the bridge network attached to the container when bridge mode is selected. Example: `fabricx-net`.
+    container_network: "fabricx-net"
+    # Publishes container ports when bridge networking is used. Example: `[7050:7050, 9443:9443]`.
+    container_ports: [7050:7050, 9443:9443]
+    # Limits container memory using runtime syntax such as `2g`. Example: `2g`.
+    container_memory: "2g"
+    # Limits CPU allocation for the container. Example: `2.0`.
+    container_cpus: "2.0"
+    # Mounts host paths or named volumes into the container. Example: `[/opt/fabricx/orderer/config:/etc/fabricx:ro]`.
+    container_volumes: [/opt/fabricx/orderer/config:/etc/fabricx:ro]
+    # Applies runtime ulimit settings to the container. Example: `[nofile=65536:65536]`.
+    container_ulimits: [nofile=65536:65536]
+    # Defines environment variables passed to the container process. Example: `{FABRIC_LOGGING_SPEC: INFO, ORDERER_GENERAL_LISTENPORT: 7050}`.
+    container_env: {FABRIC_LOGGING_SPEC: INFO, ORDERER_GENERAL_LISTENPORT: 7050}
     # Selects the runtime log driver.
     container_log_driver: json-file
     # Sets the maximum log file size.
@@ -143,8 +151,8 @@ Logs the command in debug mode, resolves the container client, and delegates sta
     container_log_lines: 0
     # Enables debug output.
     container_debug: "{{ lookup('env', 'DEBUG') | bool | default(false) }}"
-    # Defines the container healthcheck command.
-    container_healthcheck_test: "string"
+    # Defines the container healthcheck command. Example: `[CMD, curl, -f, http://localhost:9443/healthz]`.
+    container_healthcheck_test: [CMD, curl, -f, http://localhost:9443/healthz]
     # Sets the interval between healthcheck runs.
     container_healthcheck_interval: 30s
     # Removes the container automatically when it exits.
@@ -161,10 +169,10 @@ Logs the command in debug mode, resolves the container client, and delegates sta
     container_run_retries: 0
     # Waits for readiness checks after container start when set to `true`.
     container_wait_until_running: false
-    # Provides the host used by readiness checks when `container_wait_until_running` is true.
-    actual_host: "string"
-    # Provides the port probed by readiness checks.
-    container_wait_port: 1000
+    # Provides the host used by readiness checks when `container_wait_until_running` is true. Example: `orderer-assembler-1.example.com`.
+    actual_host: "orderer-assembler-1.example.com"
+    # Provides the port probed by readiness checks. Example: `7050`.
+    container_wait_port: 7050
     # Delays readiness checks after container start.
     container_wait_delay: 1
     # Sets the readiness check timeout.
@@ -176,17 +184,19 @@ Logs the command in debug mode, resolves the container client, and delegates sta
 
 ### stop
 
-Stop a container with the selected client
+> Stop a container with the selected client
 
-Resolves the active container client and delegates container shutdown to the matching backend task file.
+Stops the named container through the selected Docker or Podman backend.
+
+Uses `container_name` as the lifecycle target and resolves `container_client` before dispatching.
 
 ```yaml
 - name: Stop a container with the selected client
   vars:
     # Selects the container client to verify or use. Leave it empty to auto-detect `podman` first and then `docker`.
     container_client: "{{ lookup('env', 'CONTAINER_CLIENT') or '' }}"
-    # Names the container managed by the role.
-    container_name: "string"
+    # Names the container managed by the role. Example: `fabricx-orderer-assembler-1`.
+    container_name: "fabricx-orderer-assembler-1"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: stop
@@ -194,17 +204,19 @@ Resolves the active container client and delegates container shutdown to the mat
 
 ### rm
 
-Remove a container with the selected client
+> Remove a container with the selected client
 
-Resolves the active container client and delegates container removal to the matching backend task file.
+Removes the named container through the selected Docker or Podman backend.
+
+Uses `container_name` as the lifecycle target and removes associated container volumes where the backend supports it.
 
 ```yaml
 - name: Remove a container with the selected client
   vars:
     # Selects the container client to verify or use. Leave it empty to auto-detect `podman` first and then `docker`.
     container_client: "{{ lookup('env', 'CONTAINER_CLIENT') or '' }}"
-    # Names the container managed by the role.
-    container_name: "string"
+    # Names the container managed by the role. Example: `fabricx-orderer-assembler-1`.
+    container_name: "fabricx-orderer-assembler-1"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: rm
@@ -212,21 +224,23 @@ Resolves the active container client and delegates container removal to the matc
 
 ### exec
 
-Execute a command in a container
+> Execute a command in a container
 
-Resolves the active container client and delegates command execution to the matching backend task file.
+Runs `container_command` inside an existing container through the selected Docker or Podman backend.
+
+Passes `container_env` to the command when provided and registers the backend execution result.
 
 ```yaml
 - name: Execute a command in a container
   vars:
     # Selects the container client to verify or use. Leave it empty to auto-detect `podman` first and then `docker`.
     container_client: "{{ lookup('env', 'CONTAINER_CLIENT') or '' }}"
-    # Names the container managed by the role.
-    container_name: "string"
-    # Supplies the command passed to the container runtime.
-    container_command: "string"
-    # Defines environment variables passed to the container process.
-    container_env: {}
+    # Names the container managed by the role. Example: `fabricx-orderer-assembler-1`.
+    container_name: "fabricx-orderer-assembler-1"
+    # Supplies the command passed to the container runtime. Example: `orderer --config /etc/fabricx/orderer.yaml`.
+    container_command: orderer --config /etc/fabricx/orderer.yaml
+    # Defines environment variables passed to the container process. Example: `{FABRIC_LOGGING_SPEC: INFO, ORDERER_GENERAL_LISTENPORT: 7050}`.
+    container_env: {FABRIC_LOGGING_SPEC: INFO, ORDERER_GENERAL_LISTENPORT: 7050}
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: exec
@@ -234,17 +248,19 @@ Resolves the active container client and delegates command execution to the matc
 
 ### fetch_logs
 
-Fetch container logs from the remote host
+> Fetch container logs from the remote host
 
-Resolves the active container client, writes logs on the remote node, and fetches them to the control host.
+Collects logs from the named container with the selected runtime client.
+
+Writes the log file under `container_remote_logs_dir` on the managed node, then fetches it to `container_fetched_logs_dir` on the control host.
 
 ```yaml
 - name: Fetch container logs from the remote host
   vars:
     # Selects the container client to verify or use. Leave it empty to auto-detect `podman` first and then `docker`.
     container_client: "{{ lookup('env', 'CONTAINER_CLIENT') or '' }}"
-    # Names the container managed by the role.
-    container_name: "string"
+    # Names the container managed by the role. Example: `fabricx-orderer-assembler-1`.
+    container_name: "fabricx-orderer-assembler-1"
     # Sets the remote directory used to stage collected container logs.
     container_remote_logs_dir: "{{ remote_node_dir }}/logs"
     # Sets the filename used for collected container logs.
@@ -253,10 +269,10 @@ Resolves the active container client, writes logs on the remote node, and fetche
     container_fetched_logs_dir: "{{ fetched_artifacts_dir }}/{{ container_name }}"
     # Sets the filename used for fetched container logs.
     container_fetched_logs_file: logs.txt
-    # Provides the base remote artifact directory for collected logs.
-    remote_node_dir: "string"
-    # Provides the base local artifact directory for fetched logs.
-    fetched_artifacts_dir: "string"
+    # Provides the base remote artifact directory for collected logs. Example: `/var/hyperledger/fabricx/orderer-assembler-1`.
+    remote_node_dir: "/var/hyperledger/fabricx/orderer-assembler-1"
+    # Provides the base local artifact directory for fetched logs. Example: `/tmp/fabricx/fetched-logs`.
+    fetched_artifacts_dir: "/tmp/fabricx/fetched-logs"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: fetch_logs
@@ -264,21 +280,23 @@ Resolves the active container client, writes logs on the remote node, and fetche
 
 ### registry/login
 
-Log in to a container registry
+> Log in to a container registry
 
-Resolves the active container client and delegates registry login to the matching backend task file.
+Authenticates the selected Docker or Podman backend to `container_registry`.
+
+Uses the supplied username and password placeholders without changing registry credentials elsewhere.
 
 ```yaml
 - name: Log in to a container registry
   vars:
     # Selects the container client to verify or use. Leave it empty to auto-detect `podman` first and then `docker`.
     container_client: "{{ lookup('env', 'CONTAINER_CLIENT') or '' }}"
-    # Names the container registry for login operations.
-    container_registry: "string"
-    # Provides the registry username.
-    container_registry_username: "string"
-    # Provides the registry password.
-    container_registry_password: "string"
+    # Names the container registry for login operations. Example: `ghcr.io`.
+    container_registry: "ghcr.io"
+    # Provides the registry username. Example: `iamapikey`.
+    container_registry_username: "iamapikey"
+    # Provides the registry password. Example: `{{ vault_container_registry_password }}`.
+    container_registry_password: "{{ vault_container_registry_password }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: registry/login
@@ -286,17 +304,19 @@ Resolves the active container client and delegates registry login to the matchin
 
 ### network/create
 
-Create a container network
+> Create a container network
 
-Resolves the active container client and delegates network creation to the matching backend task file.
+Creates the named network through the selected Docker or Podman backend.
+
+Uses driver, attachable, and internal-network inputs where the selected runtime supports them.
 
 ```yaml
 - name: Create a container network
   vars:
     # Selects the container client to verify or use. Leave it empty to auto-detect `podman` first and then `docker`.
     container_client: "{{ lookup('env', 'CONTAINER_CLIENT') or '' }}"
-    # Names the bridge network attached to the container when bridge mode is selected.
-    container_network: "string"
+    # Names the bridge network attached to the container when bridge mode is selected. Example: `fabricx-net`.
+    container_network: "fabricx-net"
     # Selects the network driver used when creating a container network.
     container_network_driver: bridge
     # Marks Docker networks as attachable. Podman networks are always attachable.
@@ -310,17 +330,19 @@ Resolves the active container client and delegates network creation to the match
 
 ### network/rm
 
-Remove a container network
+> Remove a container network
 
-Resolves the active container client and delegates network removal to the matching backend task file.
+Removes the named network through the selected Docker or Podman backend.
+
+Uses `container_network` as the lifecycle target after resolving `container_client`.
 
 ```yaml
 - name: Remove a container network
   vars:
     # Selects the container client to verify or use. Leave it empty to auto-detect `podman` first and then `docker`.
     container_client: "{{ lookup('env', 'CONTAINER_CLIENT') or '' }}"
-    # Names the bridge network attached to the container when bridge mode is selected.
-    container_network: "string"
+    # Names the bridge network attached to the container when bridge mode is selected. Example: `fabricx-net`.
+    container_network: "fabricx-net"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: network/rm
@@ -328,17 +350,19 @@ Resolves the active container client and delegates network removal to the matchi
 
 ### volume/create
 
-Create a container volume
+> Create a container volume
 
-Resolves the active container client and delegates volume creation to the matching backend task file.
+Creates or updates a host path used as a container volume through the selected Docker or Podman backend.
+
+Applies path state, mode, ownership, and optional recursive permission inputs, using runtime-specific helpers when rootless ownership changes are needed.
 
 ```yaml
 - name: Create a container volume
   vars:
     # Selects the container client to verify or use. Leave it empty to auto-detect `podman` first and then `docker`.
     container_client: "{{ lookup('env', 'CONTAINER_CLIENT') or '' }}"
-    # Names the container managed by the role.
-    container_name: "string"
+    # Names the container managed by the role. Example: `fabricx-orderer-assembler-1`.
+    container_name: "fabricx-orderer-assembler-1"
     # Provides the host uid used to build `container_host_user`.
     container_host_uid: "{{ ansible_facts.user_uid }}"
     # Provides the host gid used to build `container_host_user`.
@@ -349,18 +373,18 @@ Resolves the active container client and delegates volume creation to the matchi
     container_host_user_is_root: "{{ container_host_user == '0:0' }}"
     # Marks whether the target host is macOS.
     container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
-    # Names the file system path used for a container volume.
-    container_volume_path: "string"
-    # Sets the file mode applied to a container volume path.
-    container_volume_mode: "string"
-    # Selects the file system state for a container volume path.
-    container_volume_type: "string"
-    # Provides the uid applied to a container volume path.
-    container_volume_uid: "string"
-    # Provides the gid applied to a container volume path.
-    container_volume_gid: "string"
-    # Applies recursive permission changes when set to `true`.
-    recurse: false
+    # Names the file system path used for a container volume. Example: `/var/hyperledger/fabricx/orderer/data`.
+    container_volume_path: "/var/hyperledger/fabricx/orderer/data"
+    # Sets the file mode applied to a container volume path. Example: `0750`.
+    container_volume_mode: "0750"
+    # Selects the file system state for a container volume path. Example: `bind`.
+    container_volume_type: "bind"
+    # Provides the uid applied to a container volume path. Example: `1000`.
+    container_volume_uid: 1000
+    # Provides the gid applied to a container volume path. Example: `1000`.
+    container_volume_gid: 1000
+    # Applies recursive permission changes when set to `true`. Example: `true`.
+    recurse: true
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: volume/create
@@ -368,9 +392,11 @@ Resolves the active container client and delegates volume creation to the matchi
 
 ### volume/rm
 
-Remove a container volume
+> Remove a container volume
 
-Resolves the active container client and delegates volume removal to the matching backend task file.
+Removes the host path used as a container volume through the selected Docker or Podman backend.
+
+Uses `container_volume_path` as the lifecycle target after resolving `container_client`.
 
 ```yaml
 - name: Remove a container volume
@@ -387,8 +413,8 @@ Resolves the active container client and delegates volume removal to the matchin
     container_host_user_is_root: "{{ container_host_user == '0:0' }}"
     # Marks whether the target host is macOS.
     container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
-    # Names the file system path used for a container volume.
-    container_volume_path: "string"
+    # Names the file system path used for a container volume. Example: `/var/hyperledger/fabricx/orderer/data`.
+    container_volume_path: "/var/hyperledger/fabricx/orderer/data"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: volume/rm
@@ -396,9 +422,11 @@ Resolves the active container client and delegates volume removal to the matchin
 
 ### docker/install
 
-Install Docker on the target host
+> Install Docker on the target host
 
-Installs Docker on Linux, enables the service, and runs a hello-world container to verify the client.
+Installs the Docker runtime on supported Linux hosts.
+
+Enables the Docker service and runs a hello-world container to verify that the client and daemon can launch containers.
 
 ```yaml
 - name: Install Docker on the target host
@@ -409,21 +437,23 @@ Installs Docker on Linux, enables the service, and runs a hello-world container 
 
 ### docker/start
 
-Start a container with Docker
+> Start a container with Docker
 
-Starts a Docker container with the requested runtime options and optionally waits for health or port readiness.
+Starts or updates a Docker container with the requested image, command, environment, ports, volumes, network, resource limits, and log settings.
+
+Supports rootless Docker adjustments, optional healthcheck state, retry controls, port readiness checks, and foreground output capture in `container_output`.
 
 ```yaml
 - name: Start a container with Docker
   vars:
-    # Names the container managed by the role.
-    container_name: "string"
-    # Selects the container image to start.
-    container_image: "string"
-    # Overrides the image entrypoint.
-    container_entrypoint: "string"
-    # Supplies the command passed to the container runtime.
-    container_command: "string"
+    # Names the container managed by the role. Example: `fabricx-orderer-assembler-1`.
+    container_name: "fabricx-orderer-assembler-1"
+    # Selects the container image to start. Example: `ghcr.io/hyperledger/fabric-x/orderer:latest`.
+    container_image: "ghcr.io/hyperledger/fabric-x/orderer:latest"
+    # Overrides the image entrypoint. Example: `[/bin/sh, -c]`.
+    container_entrypoint: [/bin/sh, -c]
+    # Supplies the command passed to the container runtime. Example: `orderer --config /etc/fabricx/orderer.yaml`.
+    container_command: orderer --config /etc/fabricx/orderer.yaml
     # Sets the hostname inside the container.
     container_hostname: "{{ container_name | default(inventory_hostname) }}"
     # Provides the host uid used to build `container_host_user`.
@@ -438,20 +468,20 @@ Starts a Docker container with the requested runtime options and optionally wait
     container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
     # Controls the container network mode.
     container_network_mode: "{{ 'bridge' if (container_on_mac or (container_network is defined)) else 'host' }}"
-    # Names the bridge network attached to the container when bridge mode is selected.
-    container_network: "string"
-    # Publishes container ports when bridge networking is used.
-    container_ports: ["entry1", "entry2"]
-    # Limits container memory using runtime syntax such as `2g`.
-    container_memory: "string"
-    # Limits CPU allocation for the container.
-    container_cpus: "string"
-    # Mounts host paths or named volumes into the container.
-    container_volumes: ["entry1", "entry2"]
-    # Applies runtime ulimit settings to the container.
-    container_ulimits: ["entry1", "entry2"]
-    # Defines environment variables passed to the container process.
-    container_env: {}
+    # Names the bridge network attached to the container when bridge mode is selected. Example: `fabricx-net`.
+    container_network: "fabricx-net"
+    # Publishes container ports when bridge networking is used. Example: `[7050:7050, 9443:9443]`.
+    container_ports: [7050:7050, 9443:9443]
+    # Limits container memory using runtime syntax such as `2g`. Example: `2g`.
+    container_memory: "2g"
+    # Limits CPU allocation for the container. Example: `2.0`.
+    container_cpus: "2.0"
+    # Mounts host paths or named volumes into the container. Example: `[/opt/fabricx/orderer/config:/etc/fabricx:ro]`.
+    container_volumes: [/opt/fabricx/orderer/config:/etc/fabricx:ro]
+    # Applies runtime ulimit settings to the container. Example: `[nofile=65536:65536]`.
+    container_ulimits: [nofile=65536:65536]
+    # Defines environment variables passed to the container process. Example: `{FABRIC_LOGGING_SPEC: INFO, ORDERER_GENERAL_LISTENPORT: 7050}`.
+    container_env: {FABRIC_LOGGING_SPEC: INFO, ORDERER_GENERAL_LISTENPORT: 7050}
     # Selects the runtime log driver.
     container_log_driver: json-file
     # Sets the maximum log file size.
@@ -460,8 +490,8 @@ Starts a Docker container with the requested runtime options and optionally wait
     container_log_lines: 0
     # Enables debug output.
     container_debug: "{{ lookup('env', 'DEBUG') | bool | default(false) }}"
-    # Defines the container healthcheck command.
-    container_healthcheck_test: "string"
+    # Defines the container healthcheck command. Example: `[CMD, curl, -f, http://localhost:9443/healthz]`.
+    container_healthcheck_test: [CMD, curl, -f, http://localhost:9443/healthz]
     # Sets the interval between healthcheck runs.
     container_healthcheck_interval: 30s
     # Removes the container automatically when it exits.
@@ -478,10 +508,10 @@ Starts a Docker container with the requested runtime options and optionally wait
     container_run_retries: 0
     # Waits for readiness checks after container start when set to `true`.
     container_wait_until_running: false
-    # Provides the host used by readiness checks when `container_wait_until_running` is true.
-    actual_host: "string"
-    # Provides the port probed by readiness checks.
-    container_wait_port: 1000
+    # Provides the host used by readiness checks when `container_wait_until_running` is true. Example: `orderer-assembler-1.example.com`.
+    actual_host: "orderer-assembler-1.example.com"
+    # Provides the port probed by readiness checks. Example: `7050`.
+    container_wait_port: 7050
     # Delays readiness checks after container start.
     container_wait_delay: 1
     # Sets the readiness check timeout.
@@ -493,15 +523,17 @@ Starts a Docker container with the requested runtime options and optionally wait
 
 ### docker/stop
 
-Stop a container with Docker
+> Stop a container with Docker
 
-Stops a Docker container when it exists.
+Stops the named Docker container when it exists.
+
+Uses `container_name` as the lifecycle target.
 
 ```yaml
 - name: Stop a container with Docker
   vars:
-    # Names the container managed by the role.
-    container_name: "string"
+    # Names the container managed by the role. Example: `fabricx-orderer-assembler-1`.
+    container_name: "fabricx-orderer-assembler-1"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: docker/stop
@@ -509,15 +541,17 @@ Stops a Docker container when it exists.
 
 ### docker/rm
 
-Remove a container with Docker
+> Remove a container with Docker
 
-Removes a Docker container and its volumes.
+Removes the named Docker container and its attached anonymous volumes.
+
+Uses `container_name` as the lifecycle target.
 
 ```yaml
 - name: Remove a container with Docker
   vars:
-    # Names the container managed by the role.
-    container_name: "string"
+    # Names the container managed by the role. Example: `fabricx-orderer-assembler-1`.
+    container_name: "fabricx-orderer-assembler-1"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: docker/rm
@@ -525,19 +559,21 @@ Removes a Docker container and its volumes.
 
 ### docker/exec
 
-Execute a command in a Docker container
+> Execute a command in a Docker container
 
-Runs a command inside a Docker container.
+Runs `container_command` inside an existing Docker container.
+
+Passes `container_env` when provided and registers the Docker exec result.
 
 ```yaml
 - name: Execute a command in a Docker container
   vars:
-    # Names the container managed by the role.
-    container_name: "string"
-    # Supplies the command passed to the container runtime.
-    container_command: "string"
-    # Defines environment variables passed to the container process.
-    container_env: {}
+    # Names the container managed by the role. Example: `fabricx-orderer-assembler-1`.
+    container_name: "fabricx-orderer-assembler-1"
+    # Supplies the command passed to the container runtime. Example: `orderer --config /etc/fabricx/orderer.yaml`.
+    container_command: orderer --config /etc/fabricx/orderer.yaml
+    # Defines environment variables passed to the container process. Example: `{FABRIC_LOGGING_SPEC: INFO, ORDERER_GENERAL_LISTENPORT: 7050}`.
+    container_env: {FABRIC_LOGGING_SPEC: INFO, ORDERER_GENERAL_LISTENPORT: 7050}
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: docker/exec
@@ -545,19 +581,21 @@ Runs a command inside a Docker container.
 
 ### docker/registry/login
 
-Log in to a registry with Docker
+> Log in to a registry with Docker
 
-Logs Docker in to the requested container registry.
+Logs the Docker client in to `container_registry`.
+
+Uses the supplied username and password for image pull access.
 
 ```yaml
 - name: Log in to a registry with Docker
   vars:
-    # Names the container registry for login operations.
-    container_registry: "string"
-    # Provides the registry username.
-    container_registry_username: "string"
-    # Provides the registry password.
-    container_registry_password: "string"
+    # Names the container registry for login operations. Example: `ghcr.io`.
+    container_registry: "ghcr.io"
+    # Provides the registry username. Example: `iamapikey`.
+    container_registry_username: "iamapikey"
+    # Provides the registry password. Example: `{{ vault_container_registry_password }}`.
+    container_registry_password: "{{ vault_container_registry_password }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: docker/registry/login
@@ -565,15 +603,17 @@ Logs Docker in to the requested container registry.
 
 ### docker/network/create
 
-Create a Docker network
+> Create a Docker network
 
-Creates a Docker network with the requested driver and flags.
+Creates the named Docker network with the requested driver, attachable flag, and internal flag.
+
+Provides the network artifact used by bridge-mode containers.
 
 ```yaml
 - name: Create a Docker network
   vars:
-    # Names the bridge network attached to the container when bridge mode is selected.
-    container_network: "string"
+    # Names the bridge network attached to the container when bridge mode is selected. Example: `fabricx-net`.
+    container_network: "fabricx-net"
     # Selects the network driver used when creating a container network.
     container_network_driver: bridge
     # Marks Docker networks as attachable. Podman networks are always attachable.
@@ -587,15 +627,17 @@ Creates a Docker network with the requested driver and flags.
 
 ### docker/network/rm
 
-Remove a Docker network
+> Remove a Docker network
 
-Removes a Docker network.
+Removes the named Docker network.
+
+Uses `container_network` as the lifecycle target.
 
 ```yaml
 - name: Remove a Docker network
   vars:
-    # Names the bridge network attached to the container when bridge mode is selected.
-    container_network: "string"
+    # Names the bridge network attached to the container when bridge mode is selected. Example: `fabricx-net`.
+    container_network: "fabricx-net"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: docker/network/rm
@@ -603,15 +645,17 @@ Removes a Docker network.
 
 ### docker/volume/create
 
-Create a Docker volume
+> Create a Docker volume
 
-Creates a Docker volume and adjusts ownership when needed.
+Creates or updates a host path used as a Docker volume.
+
+Applies state, mode, ownership, and recursive permission inputs, using a short-lived helper container for rootless ownership or mode changes when needed.
 
 ```yaml
 - name: Create a Docker volume
   vars:
-    # Names the container managed by the role.
-    container_name: "string"
+    # Names the container managed by the role. Example: `fabricx-orderer-assembler-1`.
+    container_name: "fabricx-orderer-assembler-1"
     # Provides the host uid used to build `container_host_user`.
     container_host_uid: "{{ ansible_facts.user_uid }}"
     # Provides the host gid used to build `container_host_user`.
@@ -620,18 +664,18 @@ Creates a Docker volume and adjusts ownership when needed.
     container_host_user: "{{ container_host_uid }}:{{ container_host_gid }}"
     # Reports whether `container_host_user` resolves to `0:0`.
     container_host_user_is_root: "{{ container_host_user == '0:0' }}"
-    # Names the file system path used for a container volume.
-    container_volume_path: "string"
-    # Sets the file mode applied to a container volume path.
-    container_volume_mode: "string"
-    # Selects the file system state for a container volume path.
-    container_volume_type: "string"
-    # Provides the uid applied to a container volume path.
-    container_volume_uid: "string"
-    # Provides the gid applied to a container volume path.
-    container_volume_gid: "string"
-    # Applies recursive permission changes when set to `true`.
-    recurse: false
+    # Names the file system path used for a container volume. Example: `/var/hyperledger/fabricx/orderer/data`.
+    container_volume_path: "/var/hyperledger/fabricx/orderer/data"
+    # Sets the file mode applied to a container volume path. Example: `0750`.
+    container_volume_mode: "0750"
+    # Selects the file system state for a container volume path. Example: `bind`.
+    container_volume_type: "bind"
+    # Provides the uid applied to a container volume path. Example: `1000`.
+    container_volume_uid: 1000
+    # Provides the gid applied to a container volume path. Example: `1000`.
+    container_volume_gid: 1000
+    # Applies recursive permission changes when set to `true`. Example: `true`.
+    recurse: true
     # Marks whether the target host is macOS.
     container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
   ansible.builtin.include_role:
@@ -641,9 +685,11 @@ Creates a Docker volume and adjusts ownership when needed.
 
 ### docker/volume/rm
 
-Remove a Docker volume
+> Remove a Docker volume
 
-Removes a Docker volume path.
+Removes the host path used as a Docker volume.
+
+Uses `container_volume_path` as the lifecycle target.
 
 ```yaml
 - name: Remove a Docker volume
@@ -658,8 +704,8 @@ Removes a Docker volume path.
     container_host_user_is_root: "{{ container_host_user == '0:0' }}"
     # Marks whether the target host is macOS.
     container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
-    # Names the file system path used for a container volume.
-    container_volume_path: "string"
+    # Names the file system path used for a container volume. Example: `/var/hyperledger/fabricx/orderer/data`.
+    container_volume_path: "/var/hyperledger/fabricx/orderer/data"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: docker/volume/rm
@@ -667,9 +713,11 @@ Removes a Docker volume path.
 
 ### podman/install
 
-Install Podman on the target host
+> Install Podman on the target host
 
-Installs Podman and verifies that the binary is available.
+Installs the Podman runtime on supported hosts.
+
+Verifies that the Podman client is available for subsequent container lifecycle tasks.
 
 ```yaml
 - name: Install Podman on the target host
@@ -680,21 +728,23 @@ Installs Podman and verifies that the binary is available.
 
 ### podman/start
 
-Start a container with Podman
+> Start a container with Podman
 
-Starts a Podman container with the requested runtime options and optionally waits for health or port readiness.
+Starts or updates a Podman container with the requested image, command, environment, ports, volumes, network, resource limits, and log settings.
+
+Supports keep-id user namespace handling, optional healthcheck polling, retry controls, port readiness checks, and foreground output capture in `container_output`.
 
 ```yaml
 - name: Start a container with Podman
   vars:
-    # Names the container managed by the role.
-    container_name: "string"
-    # Selects the container image to start.
-    container_image: "string"
-    # Overrides the image entrypoint.
-    container_entrypoint: "string"
-    # Supplies the command passed to the container runtime.
-    container_command: "string"
+    # Names the container managed by the role. Example: `fabricx-orderer-assembler-1`.
+    container_name: "fabricx-orderer-assembler-1"
+    # Selects the container image to start. Example: `ghcr.io/hyperledger/fabric-x/orderer:latest`.
+    container_image: "ghcr.io/hyperledger/fabric-x/orderer:latest"
+    # Overrides the image entrypoint. Example: `[/bin/sh, -c]`.
+    container_entrypoint: [/bin/sh, -c]
+    # Supplies the command passed to the container runtime. Example: `orderer --config /etc/fabricx/orderer.yaml`.
+    container_command: orderer --config /etc/fabricx/orderer.yaml
     # Sets the hostname inside the container.
     container_hostname: "{{ container_name | default(inventory_hostname) }}"
     # Provides the host uid used to build `container_host_user`.
@@ -711,20 +761,20 @@ Starts a Podman container with the requested runtime options and optionally wait
     container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
     # Controls the container network mode.
     container_network_mode: "{{ 'bridge' if (container_on_mac or (container_network is defined)) else 'host' }}"
-    # Names the bridge network attached to the container when bridge mode is selected.
-    container_network: "string"
-    # Publishes container ports when bridge networking is used.
-    container_ports: ["entry1", "entry2"]
-    # Limits container memory using runtime syntax such as `2g`.
-    container_memory: "string"
-    # Limits CPU allocation for the container.
-    container_cpus: "string"
-    # Mounts host paths or named volumes into the container.
-    container_volumes: ["entry1", "entry2"]
-    # Applies runtime ulimit settings to the container.
-    container_ulimits: ["entry1", "entry2"]
-    # Defines environment variables passed to the container process.
-    container_env: {}
+    # Names the bridge network attached to the container when bridge mode is selected. Example: `fabricx-net`.
+    container_network: "fabricx-net"
+    # Publishes container ports when bridge networking is used. Example: `[7050:7050, 9443:9443]`.
+    container_ports: [7050:7050, 9443:9443]
+    # Limits container memory using runtime syntax such as `2g`. Example: `2g`.
+    container_memory: "2g"
+    # Limits CPU allocation for the container. Example: `2.0`.
+    container_cpus: "2.0"
+    # Mounts host paths or named volumes into the container. Example: `[/opt/fabricx/orderer/config:/etc/fabricx:ro]`.
+    container_volumes: [/opt/fabricx/orderer/config:/etc/fabricx:ro]
+    # Applies runtime ulimit settings to the container. Example: `[nofile=65536:65536]`.
+    container_ulimits: [nofile=65536:65536]
+    # Defines environment variables passed to the container process. Example: `{FABRIC_LOGGING_SPEC: INFO, ORDERER_GENERAL_LISTENPORT: 7050}`.
+    container_env: {FABRIC_LOGGING_SPEC: INFO, ORDERER_GENERAL_LISTENPORT: 7050}
     # Selects the runtime log driver.
     container_log_driver: json-file
     # Sets the maximum log file size.
@@ -733,8 +783,8 @@ Starts a Podman container with the requested runtime options and optionally wait
     container_log_lines: 0
     # Enables debug output.
     container_debug: "{{ lookup('env', 'DEBUG') | bool | default(false) }}"
-    # Defines the container healthcheck command.
-    container_healthcheck_test: "string"
+    # Defines the container healthcheck command. Example: `[CMD, curl, -f, http://localhost:9443/healthz]`.
+    container_healthcheck_test: [CMD, curl, -f, http://localhost:9443/healthz]
     # Sets the interval between healthcheck runs.
     container_healthcheck_interval: 30s
     # Removes the container automatically when it exits.
@@ -751,10 +801,10 @@ Starts a Podman container with the requested runtime options and optionally wait
     container_run_retries: 0
     # Waits for readiness checks after container start when set to `true`.
     container_wait_until_running: false
-    # Provides the host used by readiness checks when `container_wait_until_running` is true.
-    actual_host: "string"
-    # Provides the port probed by readiness checks.
-    container_wait_port: 1000
+    # Provides the host used by readiness checks when `container_wait_until_running` is true. Example: `orderer-assembler-1.example.com`.
+    actual_host: "orderer-assembler-1.example.com"
+    # Provides the port probed by readiness checks. Example: `7050`.
+    container_wait_port: 7050
     # Delays readiness checks after container start.
     container_wait_delay: 1
     # Sets the readiness check timeout.
@@ -766,15 +816,17 @@ Starts a Podman container with the requested runtime options and optionally wait
 
 ### podman/stop
 
-Stop a container with Podman
+> Stop a container with Podman
 
-Stops a Podman container when it exists.
+Stops the named Podman container when it exists.
+
+Uses `container_name` as the lifecycle target.
 
 ```yaml
 - name: Stop a container with Podman
   vars:
-    # Names the container managed by the role.
-    container_name: "string"
+    # Names the container managed by the role. Example: `fabricx-orderer-assembler-1`.
+    container_name: "fabricx-orderer-assembler-1"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: podman/stop
@@ -782,15 +834,17 @@ Stops a Podman container when it exists.
 
 ### podman/rm
 
-Remove a container with Podman
+> Remove a container with Podman
 
-Removes a Podman container and its volumes.
+Removes the named Podman container and its attached anonymous volumes.
+
+Uses `container_name` as the lifecycle target.
 
 ```yaml
 - name: Remove a container with Podman
   vars:
-    # Names the container managed by the role.
-    container_name: "string"
+    # Names the container managed by the role. Example: `fabricx-orderer-assembler-1`.
+    container_name: "fabricx-orderer-assembler-1"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: podman/rm
@@ -798,19 +852,21 @@ Removes a Podman container and its volumes.
 
 ### podman/exec
 
-Execute a command in a Podman container
+> Execute a command in a Podman container
 
-Runs a command inside a Podman container.
+Runs `container_command` inside an existing Podman container.
+
+Passes `container_env` when provided and registers the Podman exec result.
 
 ```yaml
 - name: Execute a command in a Podman container
   vars:
-    # Names the container managed by the role.
-    container_name: "string"
-    # Supplies the command passed to the container runtime.
-    container_command: "string"
-    # Defines environment variables passed to the container process.
-    container_env: {}
+    # Names the container managed by the role. Example: `fabricx-orderer-assembler-1`.
+    container_name: "fabricx-orderer-assembler-1"
+    # Supplies the command passed to the container runtime. Example: `orderer --config /etc/fabricx/orderer.yaml`.
+    container_command: orderer --config /etc/fabricx/orderer.yaml
+    # Defines environment variables passed to the container process. Example: `{FABRIC_LOGGING_SPEC: INFO, ORDERER_GENERAL_LISTENPORT: 7050}`.
+    container_env: {FABRIC_LOGGING_SPEC: INFO, ORDERER_GENERAL_LISTENPORT: 7050}
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: podman/exec
@@ -818,19 +874,21 @@ Runs a command inside a Podman container.
 
 ### podman/registry/login
 
-Log in to a registry with Podman
+> Log in to a registry with Podman
 
-Logs Podman in to the requested container registry.
+Logs the Podman client in to `container_registry`.
+
+Uses the supplied username and password for image pull access.
 
 ```yaml
 - name: Log in to a registry with Podman
   vars:
-    # Names the container registry for login operations.
-    container_registry: "string"
-    # Provides the registry username.
-    container_registry_username: "string"
-    # Provides the registry password.
-    container_registry_password: "string"
+    # Names the container registry for login operations. Example: `ghcr.io`.
+    container_registry: "ghcr.io"
+    # Provides the registry username. Example: `iamapikey`.
+    container_registry_username: "iamapikey"
+    # Provides the registry password. Example: `{{ vault_container_registry_password }}`.
+    container_registry_password: "{{ vault_container_registry_password }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: podman/registry/login
@@ -838,15 +896,17 @@ Logs Podman in to the requested container registry.
 
 ### podman/network/create
 
-Create a Podman network
+> Create a Podman network
 
-Creates a Podman network with the requested driver.
+Creates the named Podman network with the requested driver and internal flag.
+
+Provides the network artifact used by bridge-mode containers.
 
 ```yaml
 - name: Create a Podman network
   vars:
-    # Names the bridge network attached to the container when bridge mode is selected.
-    container_network: "string"
+    # Names the bridge network attached to the container when bridge mode is selected. Example: `fabricx-net`.
+    container_network: "fabricx-net"
     # Selects the network driver used when creating a container network.
     container_network_driver: bridge
     # Marks the container network as internal when set to `true`.
@@ -858,15 +918,17 @@ Creates a Podman network with the requested driver.
 
 ### podman/network/rm
 
-Remove a Podman network
+> Remove a Podman network
 
-Removes a Podman network.
+Removes the named Podman network.
+
+Uses `container_network` as the lifecycle target.
 
 ```yaml
 - name: Remove a Podman network
   vars:
-    # Names the bridge network attached to the container when bridge mode is selected.
-    container_network: "string"
+    # Names the bridge network attached to the container when bridge mode is selected. Example: `fabricx-net`.
+    container_network: "fabricx-net"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: podman/network/rm
@@ -874,15 +936,17 @@ Removes a Podman network.
 
 ### podman/volume/create
 
-Create a Podman volume
+> Create a Podman volume
 
-Creates a Podman volume and adjusts ownership when needed.
+Creates or updates a host path used as a Podman volume.
+
+Applies state, mode, ownership, and recursive permission inputs, using `podman unshare` for rootless ownership or mode changes when needed.
 
 ```yaml
 - name: Create a Podman volume
   vars:
-    # Names the container managed by the role.
-    container_name: "string"
+    # Names the container managed by the role. Example: `fabricx-orderer-assembler-1`.
+    container_name: "fabricx-orderer-assembler-1"
     # Provides the host uid used to build `container_host_user`.
     container_host_uid: "{{ ansible_facts.user_uid }}"
     # Provides the host gid used to build `container_host_user`.
@@ -891,18 +955,18 @@ Creates a Podman volume and adjusts ownership when needed.
     container_host_user: "{{ container_host_uid }}:{{ container_host_gid }}"
     # Reports whether `container_host_user` resolves to `0:0`.
     container_host_user_is_root: "{{ container_host_user == '0:0' }}"
-    # Names the file system path used for a container volume.
-    container_volume_path: "string"
-    # Sets the file mode applied to a container volume path.
-    container_volume_mode: "string"
-    # Selects the file system state for a container volume path.
-    container_volume_type: "string"
-    # Provides the uid applied to a container volume path.
-    container_volume_uid: "string"
-    # Provides the gid applied to a container volume path.
-    container_volume_gid: "string"
-    # Applies recursive permission changes when set to `true`.
-    recurse: false
+    # Names the file system path used for a container volume. Example: `/var/hyperledger/fabricx/orderer/data`.
+    container_volume_path: "/var/hyperledger/fabricx/orderer/data"
+    # Sets the file mode applied to a container volume path. Example: `0750`.
+    container_volume_mode: "0750"
+    # Selects the file system state for a container volume path. Example: `bind`.
+    container_volume_type: "bind"
+    # Provides the uid applied to a container volume path. Example: `1000`.
+    container_volume_uid: 1000
+    # Provides the gid applied to a container volume path. Example: `1000`.
+    container_volume_gid: 1000
+    # Applies recursive permission changes when set to `true`. Example: `true`.
+    recurse: true
     # Marks whether the target host is macOS.
     container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
   ansible.builtin.include_role:
@@ -912,9 +976,11 @@ Creates a Podman volume and adjusts ownership when needed.
 
 ### podman/volume/rm
 
-Remove a Podman volume
+> Remove a Podman volume
 
-Removes a Podman volume path.
+Removes the host path used as a Podman volume.
+
+Uses `container_volume_path` as the lifecycle target.
 
 ```yaml
 - name: Remove a Podman volume
@@ -929,8 +995,8 @@ Removes a Podman volume path.
     container_host_user_is_root: "{{ container_host_user == '0:0' }}"
     # Marks whether the target host is macOS.
     container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
-    # Names the file system path used for a container volume.
-    container_volume_path: "string"
+    # Names the file system path used for a container volume. Example: `/var/hyperledger/fabricx/orderer/data`.
+    container_volume_path: "/var/hyperledger/fabricx/orderer/data"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: podman/volume/rm
