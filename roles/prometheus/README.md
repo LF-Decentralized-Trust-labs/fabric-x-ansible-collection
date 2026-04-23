@@ -99,7 +99,7 @@ Creates the remote data directory and starts Prometheus through the shared conta
     remote_config_dir: "string"
     # Remote data directory consumed by `prometheus_remote_data_dir`.
     remote_data_dir: "string"
-    # Container registry endpoint for Prometheus images. Defaults to the `PROMETHEUS_REGISTRY_ENDPOINT` environment variable or `docker.io/prom`.
+    # Container registry endpoint for Prometheus images. The default reads `PROMETHEUS_REGISTRY_ENDPOINT` and falls back to `docker.io/prom`.
     prometheus_registry_endpoint: "{{ lookup('env', 'PROMETHEUS_REGISTRY_ENDPOINT') or 'docker.io/prom' }}"
     # Image name used when composing `prometheus_image`.
     prometheus_image_name: prometheus
@@ -107,11 +107,11 @@ Creates the remote data directory and starts Prometheus through the shared conta
     prometheus_image_tag: latest
     # Fully qualified Prometheus container image. The default is composed from `prometheus_registry_endpoint`, `prometheus_image_name`, and `prometheus_image_tag`.
     prometheus_image: "{{ prometheus_registry_endpoint }}/{{ prometheus_image_name }}:{{ prometheus_image_tag }}"
-    # Container name used for the Prometheus workload. Defaults to `inventory_hostname`.
+    # Container name used for the Prometheus workload. The default derives from `inventory_hostname`.
     prometheus_container_name: "{{ inventory_hostname }}"
-    # Remote directory where Prometheus configuration files are written. Defaults to `remote_config_dir`.
+    # Remote directory where Prometheus configuration files are written. The default derives from `remote_config_dir`.
     prometheus_remote_config_dir: "{{ remote_config_dir }}"
-    # Remote directory where Prometheus TSDB data is stored. Defaults to `remote_data_dir`.
+    # Remote directory where Prometheus TSDB data is stored. The default derives from `remote_data_dir`.
     prometheus_remote_data_dir: "{{ remote_data_dir }}"
     # In-container or in-pod mount point for Prometheus configuration files.
     prometheus_container_config_dir: /etc/prometheus/config
@@ -141,7 +141,7 @@ Creates the Kubernetes headless Service, optional NodePort Service, and Stateful
 ```yaml
 - name: Start Prometheus on Kubernetes
   vars:
-    # Container registry endpoint for Prometheus images. Defaults to the `PROMETHEUS_REGISTRY_ENDPOINT` environment variable or `docker.io/prom`.
+    # Container registry endpoint for Prometheus images. The default reads `PROMETHEUS_REGISTRY_ENDPOINT` and falls back to `docker.io/prom`.
     prometheus_registry_endpoint: "{{ lookup('env', 'PROMETHEUS_REGISTRY_ENDPOINT') or 'docker.io/prom' }}"
     # Image name used when composing `prometheus_image`.
     prometheus_image_name: prometheus
@@ -151,7 +151,7 @@ Creates the Kubernetes headless Service, optional NodePort Service, and Stateful
     prometheus_image: "{{ prometheus_registry_endpoint }}/{{ prometheus_image_name }}:{{ prometheus_image_tag }}"
     # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services. Example: `9090`.
     prometheus_port: 9090
-    # Base Kubernetes resource name used for the Prometheus StatefulSet and Services. Defaults to `inventory_hostname`.
+    # Base Kubernetes resource name used for the Prometheus StatefulSet and Services. The default derives from `inventory_hostname`.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
     # Enables the optional Kubernetes NodePort Service when set to `true`.
     prometheus_k8s_use_node_port: false
@@ -245,7 +245,7 @@ Stops the running Prometheus container through the shared container role.
 ```yaml
 - name: Stop the Prometheus container
   vars:
-    # Container name used for the Prometheus workload. Defaults to `inventory_hostname`.
+    # Container name used for the Prometheus workload. The default derives from `inventory_hostname`.
     prometheus_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
@@ -279,7 +279,7 @@ Removes the Prometheus container through the shared container role.
 ```yaml
 - name: Remove the Prometheus container
   vars:
-    # Container name used for the Prometheus workload. Defaults to `inventory_hostname`.
+    # Container name used for the Prometheus workload. The default derives from `inventory_hostname`.
     prometheus_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
@@ -297,7 +297,7 @@ Deletes the Prometheus StatefulSet and both Services from Kubernetes.
   vars:
     # Kubernetes namespace used for Prometheus resources.
     k8s_namespace: "string"
-    # Base Kubernetes resource name used for the Prometheus StatefulSet and Services. Defaults to `inventory_hostname`.
+    # Base Kubernetes resource name used for the Prometheus StatefulSet and Services. The default derives from `inventory_hostname`.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
@@ -315,7 +315,7 @@ Deletes Prometheus data from the active deployment mode.
   vars:
     # Remote data directory consumed by `prometheus_remote_data_dir`.
     remote_data_dir: "string"
-    # Remote directory where Prometheus TSDB data is stored. Defaults to `remote_data_dir`.
+    # Remote directory where Prometheus TSDB data is stored. The default derives from `remote_data_dir`.
     prometheus_remote_data_dir: "{{ remote_data_dir }}"
     # Enables the container deployment path when set to `true`. The default is the inverse of `prometheus_use_k8s`.
     prometheus_use_container: "{{ not prometheus_use_k8s }}"
@@ -337,7 +337,7 @@ Deletes the PersistentVolumeClaim created for the Prometheus StatefulSet.
   vars:
     # Kubernetes namespace used for Prometheus resources.
     k8s_namespace: "string"
-    # Base Kubernetes resource name used for the Prometheus StatefulSet and Services. Defaults to `inventory_hostname`.
+    # Base Kubernetes resource name used for the Prometheus StatefulSet and Services. The default derives from `inventory_hostname`.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
@@ -388,7 +388,7 @@ Delegates certificate creation to the shared OpenSSL role using Prometheus-speci
     organization: {}
     # Remote configuration directory consumed by `prometheus_remote_config_dir`.
     remote_config_dir: "string"
-    # Remote directory where Prometheus configuration files are written. Defaults to `remote_config_dir`.
+    # Remote directory where Prometheus configuration files are written. The default derives from `remote_config_dir`.
     prometheus_remote_config_dir: "{{ remote_config_dir }}"
     # Filename used for the Prometheus TLS private key.
     prometheus_tls_private_key_file: server.key
@@ -412,13 +412,13 @@ Creates or updates the Kubernetes Secret that stores the Prometheus TLS server k
     k8s_namespace: "string"
     # Remote configuration directory consumed by `prometheus_remote_config_dir`.
     remote_config_dir: "string"
-    # Remote directory where Prometheus configuration files are written. Defaults to `remote_config_dir`.
+    # Remote directory where Prometheus configuration files are written. The default derives from `remote_config_dir`.
     prometheus_remote_config_dir: "{{ remote_config_dir }}"
     # Filename used for the Prometheus TLS private key.
     prometheus_tls_private_key_file: server.key
     # Filename used for the Prometheus TLS certificate.
     prometheus_tls_cert_file: server.crt
-    # Base Kubernetes resource name used for the Prometheus StatefulSet and Services. Defaults to `inventory_hostname`.
+    # Base Kubernetes resource name used for the Prometheus StatefulSet and Services. The default derives from `inventory_hostname`.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
     # Enables HTTPS and TLS-aware health checks when set to `true`.
     prometheus_use_tls: false
@@ -440,7 +440,7 @@ Fetches the generated Prometheus TLS CA certificate and server certificate to th
     fetched_artifacts_dir: "string"
     # Remote configuration directory consumed by `prometheus_remote_config_dir`.
     remote_config_dir: "string"
-    # Remote directory where Prometheus configuration files are written. Defaults to `remote_config_dir`.
+    # Remote directory where Prometheus configuration files are written. The default derives from `remote_config_dir`.
     prometheus_remote_config_dir: "{{ remote_config_dir }}"
     # Enables HTTPS and TLS-aware health checks when set to `true`.
     prometheus_use_tls: false
@@ -460,7 +460,7 @@ Deletes the Prometheus TLS directory and removes the Kubernetes Secret when Kube
   vars:
     # Remote configuration directory consumed by `prometheus_remote_config_dir`.
     remote_config_dir: "string"
-    # Remote directory where Prometheus configuration files are written. Defaults to `remote_config_dir`.
+    # Remote directory where Prometheus configuration files are written. The default derives from `remote_config_dir`.
     prometheus_remote_config_dir: "{{ remote_config_dir }}"
     # Enables HTTPS and TLS-aware health checks when set to `true`.
     prometheus_use_tls: false
@@ -482,7 +482,7 @@ Deletes the Kubernetes Secret that stores the Prometheus TLS server keypair.
   vars:
     # Kubernetes namespace used for Prometheus resources.
     k8s_namespace: "string"
-    # Base Kubernetes resource name used for the Prometheus StatefulSet and Services. Defaults to `inventory_hostname`.
+    # Base Kubernetes resource name used for the Prometheus StatefulSet and Services. The default derives from `inventory_hostname`.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
@@ -500,7 +500,7 @@ Generates Prometheus configuration files on the remote host and optionally appli
   vars:
     # Remote configuration directory consumed by `prometheus_remote_config_dir`.
     remote_config_dir: "string"
-    # Remote directory where Prometheus configuration files are written. Defaults to `remote_config_dir`.
+    # Remote directory where Prometheus configuration files are written. The default derives from `remote_config_dir`.
     prometheus_remote_config_dir: "{{ remote_config_dir }}"
     # Filename of the main Prometheus scrape configuration.
     prometheus_config_file: prometheus.yaml
@@ -540,7 +540,7 @@ Creates or updates the ConfigMap that carries the Prometheus configuration and o
     k8s_namespace: "string"
     # Remote configuration directory consumed by `prometheus_remote_config_dir`.
     remote_config_dir: "string"
-    # Remote directory where Prometheus configuration files are written. Defaults to `remote_config_dir`.
+    # Remote directory where Prometheus configuration files are written. The default derives from `remote_config_dir`.
     prometheus_remote_config_dir: "{{ remote_config_dir }}"
     # Filename of the main Prometheus scrape configuration.
     prometheus_config_file: prometheus.yaml
@@ -548,7 +548,7 @@ Creates or updates the ConfigMap that carries the Prometheus configuration and o
     prometheus_web_config_file: web-config.yaml
     # Filename of the promtool HTTP client configuration used for TLS health checks.
     prometheus_http_config_file: http-config.yaml
-    # Base Kubernetes resource name used for the Prometheus StatefulSet and Services. Defaults to `inventory_hostname`.
+    # Base Kubernetes resource name used for the Prometheus StatefulSet and Services. The default derives from `inventory_hostname`.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
     # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap.
     prometheus_scrape_services: [{}]
@@ -570,7 +570,7 @@ Deletes the remote Prometheus configuration directory and optionally removes the
   vars:
     # Remote configuration directory consumed by `prometheus_remote_config_dir`.
     remote_config_dir: "string"
-    # Remote directory where Prometheus configuration files are written. Defaults to `remote_config_dir`.
+    # Remote directory where Prometheus configuration files are written. The default derives from `remote_config_dir`.
     prometheus_remote_config_dir: "{{ remote_config_dir }}"
     # Enables the Kubernetes deployment path when set to `true`.
     prometheus_use_k8s: false
@@ -590,7 +590,7 @@ Deletes the Kubernetes ConfigMap that stores Prometheus configuration.
   vars:
     # Kubernetes namespace used for Prometheus resources.
     k8s_namespace: "string"
-    # Base Kubernetes resource name used for the Prometheus StatefulSet and Services. Defaults to `inventory_hostname`.
+    # Base Kubernetes resource name used for the Prometheus StatefulSet and Services. The default derives from `inventory_hostname`.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
@@ -624,7 +624,7 @@ Collects logs for the Prometheus container through the shared container role.
 ```yaml
 - name: Fetch Prometheus container logs
   vars:
-    # Container name used for the Prometheus workload. Defaults to `inventory_hostname`.
+    # Container name used for the Prometheus workload. The default derives from `inventory_hostname`.
     prometheus_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
@@ -642,7 +642,7 @@ Collects logs for the Prometheus pod through the shared Kubernetes role.
   vars:
     # Kubernetes namespace used for Prometheus resources.
     k8s_namespace: "string"
-    # Base Kubernetes resource name used for the Prometheus StatefulSet and Services. Defaults to `inventory_hostname`.
+    # Base Kubernetes resource name used for the Prometheus StatefulSet and Services. The default derives from `inventory_hostname`.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus

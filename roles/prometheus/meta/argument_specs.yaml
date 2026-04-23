@@ -42,7 +42,7 @@ argument_specs:
         default: "{{ lookup('env', 'PROMETHEUS_REGISTRY_ENDPOINT') or 'docker.io/prom' }}"
         description:
           - Container registry endpoint for Prometheus images.
-          - Defaults to the C(PROMETHEUS_REGISTRY_ENDPOINT) environment variable or C(docker.io/prom).
+          - The default reads C(PROMETHEUS_REGISTRY_ENDPOINT) and falls back to C(docker.io/prom).
       prometheus_image_name: &prometheus_image_name
         type: str
         required: false
@@ -68,21 +68,21 @@ argument_specs:
         default: "{{ inventory_hostname }}"
         description:
           - Container name used for the Prometheus workload.
-          - Defaults to C(inventory_hostname).
+          - The default derives from C(inventory_hostname).
       prometheus_remote_config_dir: &prometheus_remote_config_dir
         type: path
         required: false
         default: "{{ remote_config_dir }}"
         description:
           - Remote directory where Prometheus configuration files are written.
-          - Defaults to C(remote_config_dir).
+          - The default derives from C(remote_config_dir).
       prometheus_remote_data_dir: &prometheus_remote_data_dir
         type: path
         required: false
         default: "{{ remote_data_dir }}"
         description:
           - Remote directory where Prometheus TSDB data is stored.
-          - Defaults to C(remote_data_dir).
+          - The default derives from C(remote_data_dir).
       prometheus_container_config_dir: &prometheus_container_config_dir
         type: path
         required: false
@@ -170,7 +170,7 @@ argument_specs:
         default: "{{ inventory_hostname }}"
         description:
           - Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
-          - Defaults to C(inventory_hostname).
+          - The default derives from C(inventory_hostname).
       prometheus_k8s_wait_timeout: &prometheus_k8s_wait_timeout
         type: int
         required: false

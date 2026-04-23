@@ -23,14 +23,12 @@ argument_specs:
         default: "fabric-x-orderer"
         description:
           - Armageddon image name.
-          - Default is `fabric-x-orderer`.
       armageddon_image_tag: &armageddon_image_tag
         type: str
         required: false
         default: "0.0.21-1"
         description:
           - Armageddon image tag.
-          - Default is `0.0.21-1`.
       armageddon_image: &armageddon_image
         type: str
         required: false
@@ -44,35 +42,30 @@ argument_specs:
         default: "armageddon"
         description:
           - Armageddon container name.
-          - Default is `armageddon`.
       armageddon_git_hub_url: &armageddon_git_hub_url
         type: str
         required: false
         default: "github.com"
         description:
           - Git host used for the Armageddon source repository.
-          - Default is `github.com`.
       armageddon_git_repo: &armageddon_git_repo
         type: str
         required: false
         default: "hyperledger/fabric-x-orderer"
         description:
           - Armageddon source repository path.
-          - Default is `hyperledger/fabric-x-orderer`.
       armageddon_git_commit: &armageddon_git_commit
         type: str
         required: false
         default: "v0.0.23"
         description:
           - Git ref used for Armageddon builds and installs.
-          - Default is `v0.0.23`.
       armageddon_source_code_package: &armageddon_source_code_package
         type: str
         required: false
         default: "cmd/armageddon"
         description:
           - Go package that builds the Armageddon binary.
-          - Default is `cmd/armageddon`.
       armageddon_bin_package: &armageddon_bin_package
         type: str
         required: false
@@ -86,14 +79,12 @@ argument_specs:
         default: "armageddon"
         description:
           - Armageddon executable name.
-          - Default is `armageddon`.
       armageddon_use_bin: &armageddon_use_bin
         type: bool
         required: false
         default: false
         description:
           - Run Armageddon as a local binary instead of a container.
-          - Default is `false`.
       config_build_dir: &config_build_dir
         type: path
         required: false
@@ -112,14 +103,12 @@ argument_specs:
         default: "/tmp/out"
         description:
           - Container directory for generated protobuf output.
-          - Default is `/tmp/out`.
       armageddon_container_config_dir: &armageddon_container_config_dir
         type: path
         required: false
         default: "/tmp/config"
         description:
           - Container directory for the rendered shared config file.
-          - Default is `/tmp/config`.
       armageddon_container_crypto_artifacts_dir:
         &armageddon_container_crypto_artifacts_dir
         type: path
@@ -127,21 +116,18 @@ argument_specs:
         default: "/tmp/crypto"
         description:
           - Container directory for mounted crypto artifacts.
-          - Default is `/tmp/crypto`.
       armageddon_config_file: &armageddon_config_file
         type: str
         required: false
         default: armageddon.yaml
         description:
           - Armageddon config filename.
-          - Default is `armageddon.yaml`.
       armageddon_shared_config_file: &armageddon_shared_config_file
         type: str
         required: false
         default: shared_config.yaml
         description:
           - Shared-config filename.
-          - Default is `shared_config.yaml`.
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         required: true

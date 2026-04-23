@@ -9,53 +9,39 @@
 # The default reads C(ARMAGEDDON_REGISTRY_ENDPOINT) and falls back to `docker.io/hyperledger`.
 armageddon_registry_endpoint: "{{ lookup('env', 'ARMAGEDDON_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 # Armageddon image name.
-# Default is `fabric-x-orderer`.
 armageddon_image_name: fabric-x-orderer
 # Armageddon image tag.
-# Default is `0.0.21-1`.
 armageddon_image_tag: 0.0.21-1
 # Fully qualified Armageddon image reference.
 # The default derives from C(armageddon_registry_endpoint), C(armageddon_image_name), and C(armageddon_image_tag).
 armageddon_image: '{{ armageddon_registry_endpoint }}/{{ armageddon_image_name }}:{{ armageddon_image_tag }}'
 # Armageddon container name.
-# Default is `armageddon`.
 armageddon_container_name: armageddon
 # Git host used for the Armageddon source repository.
-# Default is `github.com`.
 armageddon_git_hub_url: github.com
 # Armageddon source repository path.
-# Default is `hyperledger/fabric-x-orderer`.
 armageddon_git_repo: hyperledger/fabric-x-orderer
 # Git ref used for Armageddon builds and installs.
-# Default is `v0.0.23`.
 armageddon_git_commit: v0.0.23
 # Go package that builds the Armageddon binary.
-# Default is `cmd/armageddon`.
 armageddon_source_code_package: cmd/armageddon
 # Go module path used to install Armageddon.
 # The default derives from C(armageddon_git_hub_url), C(armageddon_git_repo), and C(armageddon_source_code_package).
 armageddon_bin_package: '{{ armageddon_git_hub_url }}/{{ armageddon_git_repo }}/{{ armageddon_source_code_package }}'
 # Armageddon executable name.
-# Default is `armageddon`.
 armageddon_bin_name: armageddon
 # Run Armageddon as a local binary instead of a container.
-# Default is `false`.
 armageddon_use_bin: false
 # Directory for rendered Armageddon config and generated protobuf output.
 # The default derives from C(config_build_dir).
 armageddon_artifacts_dir: '{{ config_build_dir }}/armageddon-artifacts'
 # Container directory for generated protobuf output.
-# Default is `/tmp/out`.
 armageddon_container_output_dir: /tmp/out
 # Container directory for the rendered shared config file.
-# Default is `/tmp/config`.
 armageddon_container_config_dir: /tmp/config
 # Container directory for mounted crypto artifacts.
-# Default is `/tmp/crypto`.
 armageddon_container_crypto_artifacts_dir: /tmp/crypto
 # Armageddon config filename.
-# Default is `armageddon.yaml`.
 armageddon_config_file: armageddon.yaml
 # Shared-config filename.
-# Default is `shared_config.yaml`.
 armageddon_shared_config_file: shared_config.yaml
