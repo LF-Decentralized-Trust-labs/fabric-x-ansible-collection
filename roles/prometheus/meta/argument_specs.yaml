@@ -3,9 +3,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+
 ---
 argument_specs:
-
   role-options:
     short_description: Shared Prometheus role options
     description:
