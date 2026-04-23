@@ -1,48 +1,46 @@
-
 # hyperledger.fabricx.yugabyte
 
 > Runs a Yugabyte distributed DB cluster (container and Kubernetes modes).
-
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [start](#task-start)
-  - [stop](#task-stop)
-  - [teardown](#task-teardown)
-  - [wipe](#task-wipe)
-  - [fetch_logs](#task-fetch_logs)
-  - [ping](#task-ping)
-  - [k8s/ping](#task-k8s-ping)
-  - [crypto/setup](#task-crypto-setup)
-  - [crypto/fetch](#task-crypto-fetch)
-  - [crypto/rm](#task-crypto-rm)
-  - [crypto/openssl/generate_csr](#task-crypto-openssl-generate_csr)
-  - [crypto/openssl/fetch_csr](#task-crypto-openssl-fetch_csr)
-  - [crypto/openssl/transfer_cert](#task-crypto-openssl-transfer_cert)
-  - [crypto/cryptogen/transfer](#task-crypto-cryptogen-transfer)
-  - [crypto/fabric_ca/enroll](#task-crypto-fabric_ca-enroll)
-  - [config/transfer](#task-config-transfer)
-  - [config/rm](#task-config-rm)
-  - [config/transfer_grafana_dashboard](#task-config-transfer_grafana_dashboard)
-  - [container/start](#task-container-start)
-  - [container/stop](#task-container-stop)
-  - [container/rm](#task-container-rm)
-  - [container/fetch_logs](#task-container-fetch_logs)
-  - [container/master/start](#task-container-master-start)
-  - [container/tablet/start](#task-container-tablet-start)
-  - [k8s/start](#task-k8s-start)
-  - [k8s/rm](#task-k8s-rm)
-  - [k8s/fetch_logs](#task-k8s-fetch_logs)
-  - [k8s/config/transfer](#task-k8s-config-transfer)
-  - [k8s/master/start](#task-k8s-master-start)
-  - [k8s/master/rm](#task-k8s-master-rm)
-  - [k8s/tablet/start](#task-k8s-tablet-start)
-  - [k8s/tablet/rm](#task-k8s-tablet-rm)
-  - [k8s/crypto/transfer](#task-k8s-crypto-transfer)
-  - [data/rm](#task-data-rm)
-  - [prometheus/get_scrapers](#task-prometheus-get_scrapers)
+  - [start](#start)
+  - [stop](#stop)
+  - [teardown](#teardown)
+  - [wipe](#wipe)
+  - [fetch_logs](#fetch_logs)
+  - [ping](#ping)
+  - [k8s/ping](#k8sping)
+  - [crypto/setup](#cryptosetup)
+  - [crypto/fetch](#cryptofetch)
+  - [crypto/rm](#cryptorm)
+  - [crypto/openssl/generate_csr](#cryptoopensslgenerate_csr)
+  - [crypto/openssl/fetch_csr](#cryptoopensslfetch_csr)
+  - [crypto/openssl/transfer_cert](#cryptoopenssltransfer_cert)
+  - [crypto/cryptogen/transfer](#cryptocryptogentransfer)
+  - [crypto/fabric_ca/enroll](#cryptofabric_caenroll)
+  - [config/transfer](#configtransfer)
+  - [config/rm](#configrm)
+  - [config/transfer_grafana_dashboard](#configtransfer_grafana_dashboard)
+  - [container/start](#containerstart)
+  - [container/stop](#containerstop)
+  - [container/rm](#containerrm)
+  - [container/fetch_logs](#containerfetch_logs)
+  - [container/master/start](#containermasterstart)
+  - [container/tablet/start](#containertabletstart)
+  - [k8s/start](#k8sstart)
+  - [k8s/rm](#k8srm)
+  - [k8s/fetch_logs](#k8sfetch_logs)
+  - [k8s/config/transfer](#k8sconfigtransfer)
+  - [k8s/master/start](#k8smasterstart)
+  - [k8s/master/rm](#k8smasterrm)
+  - [k8s/tablet/start](#k8stabletstart)
+  - [k8s/tablet/rm](#k8stabletrm)
+  - [k8s/crypto/transfer](#k8scryptotransfer)
+  - [data/rm](#datarm)
+  - [prometheus/get_scrapers](#prometheusget_scrapers)
 
 ## Role Defaults
 
@@ -50,15 +48,11 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 
 ## Tasks
 
-<a id="task-start"></a>
-
 ### start
 
 Start a YugabyteDB cluster
 
-
 Builds the master and tablet topology facts and dispatches to the container or Kubernetes startup path.
-
 
 ```yaml
 - name: Start a YugabyteDB cluster
@@ -74,15 +68,11 @@ Builds the master and tablet topology facts and dispatches to the container or K
     tasks_from: start
 ```
 
-<a id="task-stop"></a>
-
 ### stop
 
 Stop YugabyteDB runtime
 
-
 Dispatches to the container stop path when the role is running in container mode.
-
 
 ```yaml
 - name: Stop YugabyteDB runtime
@@ -96,15 +86,11 @@ Dispatches to the container stop path when the role is running in container mode
     tasks_from: stop
 ```
 
-<a id="task-teardown"></a>
-
 ### teardown
 
 Remove YugabyteDB runtime artifacts
 
-
 Removes running Kubernetes resources or containers, then deletes persisted data.
-
 
 ```yaml
 - name: Remove YugabyteDB runtime artifacts
@@ -118,15 +104,11 @@ Removes running Kubernetes resources or containers, then deletes persisted data.
     tasks_from: teardown
 ```
 
-<a id="task-wipe"></a>
-
 ### wipe
 
 Wipe YugabyteDB state
 
-
 Runs teardown and removes the role-managed crypto and configuration files.
-
 
 ```yaml
 - name: Wipe YugabyteDB state
@@ -135,15 +117,11 @@ Runs teardown and removes the role-managed crypto and configuration files.
     tasks_from: wipe
 ```
 
-<a id="task-fetch_logs"></a>
-
 ### fetch_logs
 
 Collect YugabyteDB logs
 
-
 Dispatches to the container or Kubernetes log collection path.
-
 
 ```yaml
 - name: Collect YugabyteDB logs
@@ -157,15 +135,11 @@ Dispatches to the container or Kubernetes log collection path.
     tasks_from: fetch_logs
 ```
 
-<a id="task-ping"></a>
-
 ### ping
 
 Check YugabyteDB service ports
 
-
 Selects the expected ports for a master or tablet host and delegates the reachability check.
-
 
 ```yaml
 - name: Check YugabyteDB service ports
@@ -195,15 +169,11 @@ Selects the expected ports for a master or tablet host and delegates the reachab
     tasks_from: ping
 ```
 
-<a id="task-k8s-ping"></a>
-
 ### k8s/ping
 
 Check YugabyteDB Kubernetes NodePorts
 
-
 Checks the configured YugabyteDB Kubernetes NodePort Services for the current master or tablet host when NodePort exposure is enabled.
-
 
 ```yaml
 - name: Check YugabyteDB Kubernetes NodePorts
@@ -233,15 +203,11 @@ Checks the configured YugabyteDB Kubernetes NodePort Services for the current ma
     tasks_from: k8s/ping
 ```
 
-<a id="task-crypto-setup"></a>
-
 ### crypto/setup
 
 Prepare YugabyteDB TLS assets
 
-
 Transfers or enrolls TLS material for YugabyteDB and creates the Kubernetes Secret when needed.
-
 
 ```yaml
 - name: Prepare YugabyteDB TLS assets
@@ -257,15 +223,11 @@ Transfers or enrolls TLS material for YugabyteDB and creates the Kubernetes Secr
     tasks_from: crypto/setup
 ```
 
-<a id="task-crypto-fetch"></a>
-
 ### crypto/fetch
 
 Fetch YugabyteDB TLS certificates
 
-
 Copies the generated node and CA certificates from the remote host to the control node.
-
 
 ```yaml
 - name: Fetch YugabyteDB TLS certificates
@@ -283,15 +245,11 @@ Copies the generated node and CA certificates from the remote host to the contro
     tasks_from: crypto/fetch
 ```
 
-<a id="task-crypto-rm"></a>
-
 ### crypto/rm
 
 Remove YugabyteDB TLS artifacts
 
-
 Deletes the remote TLS directory and the Kubernetes Secret when Kubernetes mode is enabled.
-
 
 ```yaml
 - name: Remove YugabyteDB TLS artifacts
@@ -313,15 +271,11 @@ Deletes the remote TLS directory and the Kubernetes Secret when Kubernetes mode 
     tasks_from: crypto/rm
 ```
 
-<a id="task-crypto-openssl-generate_csr"></a>
-
 ### crypto/openssl/generate_csr
 
 Generate a YugabyteDB TLS CSR
 
-
 Builds the SAN list and delegates CSR generation to the OpenSSL role.
-
 
 ```yaml
 - name: Generate a YugabyteDB TLS CSR
@@ -339,15 +293,11 @@ Builds the SAN list and delegates CSR generation to the OpenSSL role.
     tasks_from: crypto/openssl/generate_csr
 ```
 
-<a id="task-crypto-openssl-fetch_csr"></a>
-
 ### crypto/openssl/fetch_csr
 
 Fetch a YugabyteDB TLS CSR
 
-
 Copies the CSR and OpenSSL extension file from the remote host to the control node.
-
 
 ```yaml
 - name: Fetch a YugabyteDB TLS CSR
@@ -365,15 +315,11 @@ Copies the CSR and OpenSSL extension file from the remote host to the control no
     tasks_from: crypto/openssl/fetch_csr
 ```
 
-<a id="task-crypto-openssl-transfer_cert"></a>
-
 ### crypto/openssl/transfer_cert
 
 Transfer a signed YugabyteDB TLS certificate
 
-
 Copies the signed node certificate and trusted CA certificate to the remote host.
-
 
 ```yaml
 - name: Transfer a signed YugabyteDB TLS certificate
@@ -393,15 +339,11 @@ Copies the signed node certificate and trusted CA certificate to the remote host
     tasks_from: crypto/openssl/transfer_cert
 ```
 
-<a id="task-crypto-cryptogen-transfer"></a>
-
 ### crypto/cryptogen/transfer
 
 Copy cryptogen TLS material for YugabyteDB
 
-
 Transfers the TLS key, certificate, and CA certificate generated by cryptogen to the target host.
-
 
 ```yaml
 - name: Copy cryptogen TLS material for YugabyteDB
@@ -419,15 +361,11 @@ Transfers the TLS key, certificate, and CA certificate generated by cryptogen to
     tasks_from: crypto/cryptogen/transfer
 ```
 
-<a id="task-crypto-fabric_ca-enroll"></a>
-
 ### crypto/fabric_ca/enroll
 
 Enroll YugabyteDB TLS material with Fabric CA
 
-
 Copies the Fabric CA TLS root when needed and delegates the TLS enrollment flow to the Fabric CA role.
-
 
 ```yaml
 - name: Enroll YugabyteDB TLS material with Fabric CA
@@ -447,15 +385,11 @@ Copies the Fabric CA TLS root when needed and delegates the TLS enrollment flow 
     tasks_from: crypto/fabric_ca/enroll
 ```
 
-<a id="task-config-transfer"></a>
-
 ### config/transfer
 
 Transfer YugabyteDB initialization config
 
-
 Renders the initialization SQL script and creates the Kubernetes ConfigMap when Kubernetes mode is enabled.
-
 
 ```yaml
 - name: Transfer YugabyteDB initialization config
@@ -479,15 +413,11 @@ Renders the initialization SQL script and creates the Kubernetes ConfigMap when 
     tasks_from: config/transfer
 ```
 
-<a id="task-config-rm"></a>
-
 ### config/rm
 
 Remove YugabyteDB configuration
 
-
 Deletes the remote configuration directory and the Kubernetes ConfigMap when Kubernetes mode is enabled.
-
 
 ```yaml
 - name: Remove YugabyteDB configuration
@@ -507,15 +437,11 @@ Deletes the remote configuration directory and the Kubernetes ConfigMap when Kub
     tasks_from: config/rm
 ```
 
-<a id="task-config-transfer_grafana_dashboard"></a>
-
 ### config/transfer_grafana_dashboard
 
 Transfer the YugabyteDB Grafana dashboard
 
-
 Selects the built-in dashboard JSON file and delegates the copy step to the Grafana role.
-
 
 ```yaml
 - name: Transfer the YugabyteDB Grafana dashboard
@@ -524,15 +450,11 @@ Selects the built-in dashboard JSON file and delegates the copy step to the Graf
     tasks_from: config/transfer_grafana_dashboard
 ```
 
-<a id="task-container-start"></a>
-
 ### container/start
 
 Dispatch YugabyteDB container startup
 
-
 Selects the master or tablet container startup path for the current host.
-
 
 ```yaml
 - name: Dispatch YugabyteDB container startup
@@ -544,15 +466,11 @@ Selects the master or tablet container startup path for the current host.
     tasks_from: container/start
 ```
 
-<a id="task-container-stop"></a>
-
 ### container/stop
 
 Stop a YugabyteDB container
 
-
 Stops the container associated with the current YugabyteDB host.
-
 
 ```yaml
 - name: Stop a YugabyteDB container
@@ -564,15 +482,11 @@ Stops the container associated with the current YugabyteDB host.
     tasks_from: container/stop
 ```
 
-<a id="task-container-rm"></a>
-
 ### container/rm
 
 Remove a YugabyteDB container
 
-
 Deletes the container associated with the current YugabyteDB host.
-
 
 ```yaml
 - name: Remove a YugabyteDB container
@@ -584,15 +498,11 @@ Deletes the container associated with the current YugabyteDB host.
     tasks_from: container/rm
 ```
 
-<a id="task-container-fetch_logs"></a>
-
 ### container/fetch_logs
 
 Fetch logs from a YugabyteDB container
 
-
 Delegates log collection for the current YugabyteDB container.
-
 
 ```yaml
 - name: Fetch logs from a YugabyteDB container
@@ -604,15 +514,11 @@ Delegates log collection for the current YugabyteDB container.
     tasks_from: container/fetch_logs
 ```
 
-<a id="task-container-master-start"></a>
-
 ### container/master/start
 
 Start a YugabyteDB master container
 
-
 Creates the data directory, assembles the master command line, and starts the master container.
-
 
 ```yaml
 - name: Start a YugabyteDB master container
@@ -660,15 +566,11 @@ Creates the data directory, assembles the master command line, and starts the ma
     tasks_from: container/master/start
 ```
 
-<a id="task-container-tablet-start"></a>
-
 ### container/tablet/start
 
 Start a YugabyteDB tablet container
 
-
 Creates the data directory, assembles the tablet command line, starts the container, and initializes the database on the first tablet.
-
 
 ```yaml
 - name: Start a YugabyteDB tablet container
@@ -726,15 +628,11 @@ Creates the data directory, assembles the tablet command line, starts the contai
     tasks_from: container/tablet/start
 ```
 
-<a id="task-k8s-start"></a>
-
 ### k8s/start
 
 Dispatch YugabyteDB Kubernetes startup
 
-
 Selects the master or tablet Kubernetes startup path for the current host.
-
 
 ```yaml
 - name: Dispatch YugabyteDB Kubernetes startup
@@ -746,15 +644,11 @@ Selects the master or tablet Kubernetes startup path for the current host.
     tasks_from: k8s/start
 ```
 
-<a id="task-k8s-rm"></a>
-
 ### k8s/rm
 
 Dispatch YugabyteDB Kubernetes removal
 
-
 Selects the master or tablet Kubernetes removal path for the current host.
-
 
 ```yaml
 - name: Dispatch YugabyteDB Kubernetes removal
@@ -766,15 +660,11 @@ Selects the master or tablet Kubernetes removal path for the current host.
     tasks_from: k8s/rm
 ```
 
-<a id="task-k8s-fetch_logs"></a>
-
 ### k8s/fetch_logs
 
 Fetch logs from YugabyteDB pods
 
-
 Delegates pod log collection for the Kubernetes resource associated with the current host.
-
 
 ```yaml
 - name: Fetch logs from YugabyteDB pods
@@ -786,15 +676,11 @@ Delegates pod log collection for the Kubernetes resource associated with the cur
     tasks_from: k8s/fetch_logs
 ```
 
-<a id="task-k8s-config-transfer"></a>
-
 ### k8s/config/transfer
 
 Create a YugabyteDB ConfigMap
 
-
 Creates the ConfigMap that exposes the initialization SQL script to tablet pods.
-
 
 ```yaml
 - name: Create a YugabyteDB ConfigMap
@@ -816,15 +702,11 @@ Creates the ConfigMap that exposes the initialization SQL script to tablet pods.
     tasks_from: k8s/config/transfer
 ```
 
-<a id="task-k8s-master-start"></a>
-
 ### k8s/master/start
 
 Start a YugabyteDB master StatefulSet
 
-
 Applies the master Services and StatefulSet for the current YugabyteDB master node.
-
 
 ```yaml
 - name: Start a YugabyteDB master StatefulSet
@@ -898,15 +780,11 @@ Applies the master Services and StatefulSet for the current YugabyteDB master no
     tasks_from: k8s/master/start
 ```
 
-<a id="task-k8s-master-rm"></a>
-
 ### k8s/master/rm
 
 Remove a YugabyteDB master StatefulSet
 
-
 Deletes the master StatefulSet and its Services for the current YugabyteDB master node.
-
 
 ```yaml
 - name: Remove a YugabyteDB master StatefulSet
@@ -920,15 +798,11 @@ Deletes the master StatefulSet and its Services for the current YugabyteDB maste
     tasks_from: k8s/master/rm
 ```
 
-<a id="task-k8s-tablet-start"></a>
-
 ### k8s/tablet/start
 
 Start a YugabyteDB tablet StatefulSet
 
-
 Applies the tablet Services and StatefulSet for the current YugabyteDB tablet node, then initializes the database on the first tablet.
-
 
 ```yaml
 - name: Start a YugabyteDB tablet StatefulSet
@@ -1020,15 +894,11 @@ Applies the tablet Services and StatefulSet for the current YugabyteDB tablet no
     tasks_from: k8s/tablet/start
 ```
 
-<a id="task-k8s-tablet-rm"></a>
-
 ### k8s/tablet/rm
 
 Remove a YugabyteDB tablet StatefulSet
 
-
 Deletes the tablet StatefulSet and its Services for the current YugabyteDB tablet node.
-
 
 ```yaml
 - name: Remove a YugabyteDB tablet StatefulSet
@@ -1042,15 +912,11 @@ Deletes the tablet StatefulSet and its Services for the current YugabyteDB table
     tasks_from: k8s/tablet/rm
 ```
 
-<a id="task-k8s-crypto-transfer"></a>
-
 ### k8s/crypto/transfer
 
 Create a YugabyteDB TLS Secret
 
-
 Creates the Kubernetes Secret that exposes the YugabyteDB TLS key pair and CA certificate.
-
 
 ```yaml
 - name: Create a YugabyteDB TLS Secret
@@ -1070,15 +936,11 @@ Creates the Kubernetes Secret that exposes the YugabyteDB TLS key pair and CA ce
     tasks_from: k8s/crypto/transfer
 ```
 
-<a id="task-data-rm"></a>
-
 ### data/rm
 
 Remove YugabyteDB persisted data
 
-
 Deletes the local data directory in container mode or the Kubernetes PVC in Kubernetes mode.
-
 
 ```yaml
 - name: Remove YugabyteDB persisted data
@@ -1100,15 +962,11 @@ Deletes the local data directory in container mode or the Kubernetes PVC in Kube
     tasks_from: data/rm
 ```
 
-<a id="task-prometheus-get_scrapers"></a>
-
 ### prometheus/get_scrapers
 
 Build Prometheus scrapers for YugabyteDB
 
-
 Groups YugabyteDB hosts by cluster and assembles the Prometheus scrape configuration for their exposed metrics endpoints.
-
 
 ```yaml
 - name: Build Prometheus scrapers for YugabyteDB
@@ -1121,5 +979,3 @@ Groups YugabyteDB hosts by cluster and assembles the Prometheus scrape configura
     name: hyperledger.fabricx.yugabyte
     tasks_from: prometheus/get_scrapers
 ```
-
-

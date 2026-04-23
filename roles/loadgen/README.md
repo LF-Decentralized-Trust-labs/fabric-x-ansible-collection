@@ -1,49 +1,47 @@
-
 # hyperledger.fabricx.loadgen
 
 > Runs a Load Generator to test Fabric-X network throughput.
-
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [start](#task-start)
-  - [stop](#task-stop)
-  - [teardown](#task-teardown)
-  - [wipe](#task-wipe)
-  - [fetch_logs](#task-fetch_logs)
-  - [ping](#task-ping)
-  - [get_metrics](#task-get_metrics)
-  - [limit_rate](#task-limit_rate)
-  - [prometheus/get_scrapers](#task-prometheus-get_scrapers)
-  - [config/transfer](#task-config-transfer)
-  - [config/mtls/monitoring/transfer](#task-config-mtls-monitoring-transfer)
-  - [config/rm](#task-config-rm)
-  - [crypto/setup](#task-crypto-setup)
-  - [crypto/cryptogen/transfer](#task-crypto-cryptogen-transfer)
-  - [crypto/fabric_ca/enroll](#task-crypto-fabric_ca-enroll)
-  - [crypto/fetch](#task-crypto-fetch)
-  - [crypto/rm](#task-crypto-rm)
-  - [bin/build](#task-bin-build)
-  - [bin/install](#task-bin-install)
-  - [bin/rm](#task-bin-rm)
-  - [bin/start](#task-bin-start)
-  - [bin/stop](#task-bin-stop)
-  - [bin/transfer](#task-bin-transfer)
-  - [bin/fetch_logs](#task-bin-fetch_logs)
-  - [container/start](#task-container-start)
-  - [container/stop](#task-container-stop)
-  - [container/rm](#task-container-rm)
-  - [container/fetch_logs](#task-container-fetch_logs)
-  - [k8s/start](#task-k8s-start)
-  - [k8s/ping](#task-k8s-ping)
-  - [k8s/rm](#task-k8s-rm)
-  - [k8s/fetch_logs](#task-k8s-fetch_logs)
-  - [k8s/config/transfer](#task-k8s-config-transfer)
-  - [k8s/config/rm](#task-k8s-config-rm)
-  - [k8s/crypto/transfer](#task-k8s-crypto-transfer)
-  - [k8s/crypto/rm](#task-k8s-crypto-rm)
+  - [start](#start)
+  - [stop](#stop)
+  - [teardown](#teardown)
+  - [wipe](#wipe)
+  - [fetch_logs](#fetch_logs)
+  - [ping](#ping)
+  - [get_metrics](#get_metrics)
+  - [limit_rate](#limit_rate)
+  - [prometheus/get_scrapers](#prometheusget_scrapers)
+  - [config/transfer](#configtransfer)
+  - [config/mtls/monitoring/transfer](#configmtlsmonitoringtransfer)
+  - [config/rm](#configrm)
+  - [crypto/setup](#cryptosetup)
+  - [crypto/cryptogen/transfer](#cryptocryptogentransfer)
+  - [crypto/fabric_ca/enroll](#cryptofabric_caenroll)
+  - [crypto/fetch](#cryptofetch)
+  - [crypto/rm](#cryptorm)
+  - [bin/build](#binbuild)
+  - [bin/install](#bininstall)
+  - [bin/rm](#binrm)
+  - [bin/start](#binstart)
+  - [bin/stop](#binstop)
+  - [bin/transfer](#bintransfer)
+  - [bin/fetch_logs](#binfetch_logs)
+  - [container/start](#containerstart)
+  - [container/stop](#containerstop)
+  - [container/rm](#containerrm)
+  - [container/fetch_logs](#containerfetch_logs)
+  - [k8s/start](#k8sstart)
+  - [k8s/ping](#k8sping)
+  - [k8s/rm](#k8srm)
+  - [k8s/fetch_logs](#k8sfetch_logs)
+  - [k8s/config/transfer](#k8sconfigtransfer)
+  - [k8s/config/rm](#k8sconfigrm)
+  - [k8s/crypto/transfer](#k8scryptotransfer)
+  - [k8s/crypto/rm](#k8scryptorm)
 
 ## Role Defaults
 
@@ -51,15 +49,11 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 
 ## Tasks
 
-<a id="task-start"></a>
-
 ### start
 
 Start the load generator
 
-
 Start the Loadgen runtime selected by the runtime mode flags.
-
 
 ```yaml
 - name: Start the load generator
@@ -75,15 +69,11 @@ Start the Loadgen runtime selected by the runtime mode flags.
     tasks_from: start
 ```
 
-<a id="task-stop"></a>
-
 ### stop
 
 Stop the load generator
 
-
 Stop the active Loadgen runtime selected by the runtime mode flags.
-
 
 ```yaml
 - name: Stop the load generator
@@ -97,15 +87,11 @@ Stop the active Loadgen runtime selected by the runtime mode flags.
     tasks_from: stop
 ```
 
-<a id="task-teardown"></a>
-
 ### teardown
 
 Remove runtime artifacts
 
-
 Remove runtime resources for the active Loadgen deployment mode.
-
 
 ```yaml
 - name: Remove runtime artifacts
@@ -121,15 +107,11 @@ Remove runtime resources for the active Loadgen deployment mode.
     tasks_from: teardown
 ```
 
-<a id="task-wipe"></a>
-
 ### wipe
 
 Remove all load generator data
 
-
 Remove runtime resources, binary artifacts, crypto material, and generated configuration.
-
 
 ```yaml
 - name: Remove all load generator data
@@ -141,15 +123,11 @@ Remove runtime resources, binary artifacts, crypto material, and generated confi
     tasks_from: wipe
 ```
 
-<a id="task-fetch_logs"></a>
-
 ### fetch_logs
 
 Collect runtime logs
 
-
 Collect Loadgen logs for the active runtime mode.
-
 
 ```yaml
 - name: Collect runtime logs
@@ -165,15 +143,11 @@ Collect Loadgen logs for the active runtime mode.
     tasks_from: fetch_logs
 ```
 
-<a id="task-ping"></a>
-
 ### ping
 
 Check the HTTP endpoint
 
-
 Verify that the Loadgen HTTP control port is reachable.
-
 
 ```yaml
 - name: Check the HTTP endpoint
@@ -187,15 +161,11 @@ Verify that the Loadgen HTTP control port is reachable.
     tasks_from: ping
 ```
 
-<a id="task-get_metrics"></a>
-
 ### get_metrics
 
 Fetch exported metrics
 
-
 Query the Loadgen metrics endpoint.
-
 
 ```yaml
 - name: Fetch exported metrics
@@ -223,15 +193,11 @@ Query the Loadgen metrics endpoint.
     tasks_from: get_metrics
 ```
 
-<a id="task-limit_rate"></a>
-
 ### limit_rate
 
 Update the runtime rate limit
 
-
 Send an HTTP request that updates the generated transaction rate.
-
 
 ```yaml
 - name: Update the runtime rate limit
@@ -253,15 +219,11 @@ Send an HTTP request that updates the generated transaction rate.
     tasks_from: limit_rate
 ```
 
-<a id="task-prometheus-get_scrapers"></a>
-
 ### prometheus/get_scrapers
 
 Build Prometheus scrape targets
 
-
 Build the Prometheus scrape service definition for all Loadgen hosts.
-
 
 ```yaml
 - name: Build Prometheus scrape targets
@@ -275,15 +237,11 @@ Build the Prometheus scrape service definition for all Loadgen hosts.
     tasks_from: prometheus/get_scrapers
 ```
 
-<a id="task-config-transfer"></a>
-
 ### config/transfer
 
 Dispatch configuration rendering
 
-
 Render and transfer Loadgen configuration.
-
 
 ```yaml
 - name: Dispatch configuration rendering
@@ -411,15 +369,11 @@ Render and transfer Loadgen configuration.
     tasks_from: config/transfer
 ```
 
-<a id="task-config-mtls-monitoring-transfer"></a>
-
 ### config/mtls/monitoring/transfer
 
 Transfer monitoring mTLS CA bundles
 
-
 Transfer CA bundles trusted by the monitoring endpoint.
-
 
 ```yaml
 - name: Transfer monitoring mTLS CA bundles
@@ -437,15 +391,11 @@ Transfer CA bundles trusted by the monitoring endpoint.
     tasks_from: config/mtls/monitoring/transfer
 ```
 
-<a id="task-config-rm"></a>
-
 ### config/rm
 
 Remove rendered configuration
 
-
 Remove host-side configuration files and optionally the Kubernetes ConfigMap.
-
 
 ```yaml
 - name: Remove rendered configuration
@@ -461,15 +411,11 @@ Remove host-side configuration files and optionally the Kubernetes ConfigMap.
     tasks_from: config/rm
 ```
 
-<a id="task-crypto-setup"></a>
-
 ### crypto/setup
 
 Prepare crypto material
 
-
 Prepare the Loadgen MSP and TLS artifacts using cryptogen or Fabric CA.
-
 
 ```yaml
 - name: Prepare crypto material
@@ -483,15 +429,11 @@ Prepare the Loadgen MSP and TLS artifacts using cryptogen or Fabric CA.
     tasks_from: crypto/setup
 ```
 
-<a id="task-crypto-cryptogen-transfer"></a>
-
 ### crypto/cryptogen/transfer
 
 Transfer cryptogen artifacts
 
-
 Transfer MSP and TLS artifacts generated by cryptogen to the Loadgen host.
-
 
 ```yaml
 - name: Transfer cryptogen artifacts
@@ -513,15 +455,11 @@ Transfer MSP and TLS artifacts generated by cryptogen to the Loadgen host.
     tasks_from: crypto/cryptogen/transfer
 ```
 
-<a id="task-crypto-fabric_ca-enroll"></a>
-
 ### crypto/fabric_ca/enroll
 
 Enroll identities with Fabric CA
 
-
 Enroll the Loadgen peer and user identities against Fabric CA.
-
 
 ```yaml
 - name: Enroll identities with Fabric CA
@@ -545,15 +483,11 @@ Enroll the Loadgen peer and user identities against Fabric CA.
     tasks_from: crypto/fabric_ca/enroll
 ```
 
-<a id="task-crypto-fetch"></a>
-
 ### crypto/fetch
 
 Fetch generated certificates
 
-
 Fetch Loadgen MSP signcerts and TLS certificates back to the control node.
-
 
 ```yaml
 - name: Fetch generated certificates
@@ -575,15 +509,11 @@ Fetch Loadgen MSP signcerts and TLS certificates back to the control node.
     tasks_from: crypto/fetch
 ```
 
-<a id="task-crypto-rm"></a>
-
 ### crypto/rm
 
 Remove crypto material
 
-
 Remove Loadgen MSP and TLS artifacts from the host and optionally from Kubernetes.
-
 
 ```yaml
 - name: Remove crypto material
@@ -603,15 +533,11 @@ Remove Loadgen MSP and TLS artifacts from the host and optionally from Kubernete
     tasks_from: crypto/rm
 ```
 
-<a id="task-bin-build"></a>
-
 ### bin/build
 
 Build the load generator binary
 
-
 Build the Loadgen binary from source through the shared bin role.
-
 
 ```yaml
 - name: Build the load generator binary
@@ -633,15 +559,11 @@ Build the Loadgen binary from source through the shared bin role.
     tasks_from: bin/build
 ```
 
-<a id="task-bin-install"></a>
-
 ### bin/install
 
 Install the load generator binary
 
-
 Install the Loadgen binary through the shared bin role.
-
 
 ```yaml
 - name: Install the load generator binary
@@ -663,15 +585,11 @@ Install the Loadgen binary through the shared bin role.
     tasks_from: bin/install
 ```
 
-<a id="task-bin-rm"></a>
-
 ### bin/rm
 
 Remove the load generator binary
 
-
 Remove the installed Loadgen binary.
-
 
 ```yaml
 - name: Remove the load generator binary
@@ -683,15 +601,11 @@ Remove the installed Loadgen binary.
     tasks_from: bin/rm
 ```
 
-<a id="task-bin-start"></a>
-
 ### bin/start
 
 Start the binary runtime
 
-
 Start the Loadgen as a local binary process.
-
 
 ```yaml
 - name: Start the binary runtime
@@ -711,15 +625,11 @@ Start the Loadgen as a local binary process.
     tasks_from: bin/start
 ```
 
-<a id="task-bin-stop"></a>
-
 ### bin/stop
 
 Stop the binary runtime
 
-
 Stop the Loadgen binary process.
-
 
 ```yaml
 - name: Stop the binary runtime
@@ -728,15 +638,11 @@ Stop the Loadgen binary process.
     tasks_from: bin/stop
 ```
 
-<a id="task-bin-transfer"></a>
-
 ### bin/transfer
 
 Transfer the load generator binary
 
-
 Transfer the Loadgen binary through the shared bin role.
-
 
 ```yaml
 - name: Transfer the load generator binary
@@ -748,15 +654,11 @@ Transfer the Loadgen binary through the shared bin role.
     tasks_from: bin/transfer
 ```
 
-<a id="task-bin-fetch_logs"></a>
-
 ### bin/fetch_logs
 
 Fetch binary logs
 
-
 Collect logs from a binary-based Loadgen runtime.
-
 
 ```yaml
 - name: Fetch binary logs
@@ -765,15 +667,11 @@ Collect logs from a binary-based Loadgen runtime.
     tasks_from: bin/fetch_logs
 ```
 
-<a id="task-container-start"></a>
-
 ### container/start
 
 Start the container runtime
 
-
 Start the Loadgen as a local container.
-
 
 ```yaml
 - name: Start the container runtime
@@ -807,15 +705,11 @@ Start the Loadgen as a local container.
     tasks_from: container/start
 ```
 
-<a id="task-container-stop"></a>
-
 ### container/stop
 
 Stop the container runtime
 
-
 Stop the Loadgen container.
-
 
 ```yaml
 - name: Stop the container runtime
@@ -827,15 +721,11 @@ Stop the Loadgen container.
     tasks_from: container/stop
 ```
 
-<a id="task-container-rm"></a>
-
 ### container/rm
 
 Remove the container runtime
 
-
 Remove the Loadgen container and image reference.
-
 
 ```yaml
 - name: Remove the container runtime
@@ -847,15 +737,11 @@ Remove the Loadgen container and image reference.
     tasks_from: container/rm
 ```
 
-<a id="task-container-fetch_logs"></a>
-
 ### container/fetch_logs
 
 Fetch container logs
 
-
 Collect logs from a containerized Loadgen runtime.
-
 
 ```yaml
 - name: Fetch container logs
@@ -867,15 +753,11 @@ Collect logs from a containerized Loadgen runtime.
     tasks_from: container/fetch_logs
 ```
 
-<a id="task-k8s-start"></a>
-
 ### k8s/start
 
 Start the Kubernetes deployment
 
-
 Create the Kubernetes Service, NodePort Service, and Deployment for the Loadgen.
-
 
 ```yaml
 - name: Start the Kubernetes deployment
@@ -945,15 +827,11 @@ Create the Kubernetes Service, NodePort Service, and Deployment for the Loadgen.
     tasks_from: k8s/start
 ```
 
-<a id="task-k8s-ping"></a>
-
 ### k8s/ping
 
 Check the Kubernetes node ports
 
-
 Verify that the Loadgen NodePort endpoints are reachable.
-
 
 ```yaml
 - name: Check the Kubernetes node ports
@@ -977,15 +855,11 @@ Verify that the Loadgen NodePort endpoints are reachable.
     tasks_from: k8s/ping
 ```
 
-<a id="task-k8s-rm"></a>
-
 ### k8s/rm
 
 Remove Kubernetes resources
 
-
 Remove the Kubernetes Deployment and Services created for the Loadgen.
-
 
 ```yaml
 - name: Remove Kubernetes resources
@@ -999,15 +873,11 @@ Remove the Kubernetes Deployment and Services created for the Loadgen.
     tasks_from: k8s/rm
 ```
 
-<a id="task-k8s-fetch_logs"></a>
-
 ### k8s/fetch_logs
 
 Fetch pod logs
 
-
 Collect logs from the Kubernetes pod running Loadgen.
-
 
 ```yaml
 - name: Fetch pod logs
@@ -1019,15 +889,11 @@ Collect logs from the Kubernetes pod running Loadgen.
     tasks_from: k8s/fetch_logs
 ```
 
-<a id="task-k8s-config-transfer"></a>
-
 ### k8s/config/transfer
 
 Publish the Kubernetes ConfigMap
 
-
 Publish the rendered Loadgen configuration and CA bundles as a ConfigMap.
-
 
 ```yaml
 - name: Publish the Kubernetes ConfigMap
@@ -1063,15 +929,11 @@ Publish the rendered Loadgen configuration and CA bundles as a ConfigMap.
     tasks_from: k8s/config/transfer
 ```
 
-<a id="task-k8s-config-rm"></a>
-
 ### k8s/config/rm
 
 Remove the Kubernetes ConfigMap
 
-
 Remove the ConfigMap created for the Loadgen configuration.
-
 
 ```yaml
 - name: Remove the Kubernetes ConfigMap
@@ -1085,15 +947,11 @@ Remove the ConfigMap created for the Loadgen configuration.
     tasks_from: k8s/config/rm
 ```
 
-<a id="task-k8s-crypto-transfer"></a>
-
 ### k8s/crypto/transfer
 
 Publish the Kubernetes Secret
 
-
 Publish the Loadgen MSP and TLS material as a Kubernetes Secret.
-
 
 ```yaml
 - name: Publish the Kubernetes Secret
@@ -1123,15 +981,11 @@ Publish the Loadgen MSP and TLS material as a Kubernetes Secret.
     tasks_from: k8s/crypto/transfer
 ```
 
-<a id="task-k8s-crypto-rm"></a>
-
 ### k8s/crypto/rm
 
 Remove the Kubernetes Secret
 
-
 Remove the Secret created for Loadgen MSP and TLS material.
-
 
 ```yaml
 - name: Remove the Kubernetes Secret
@@ -1146,5 +1000,3 @@ Remove the Secret created for Loadgen MSP and TLS material.
     name: hyperledger.fabricx.loadgen
     tasks_from: k8s/crypto/rm
 ```
-
-

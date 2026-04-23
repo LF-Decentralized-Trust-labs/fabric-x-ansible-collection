@@ -1,31 +1,29 @@
-
 # hyperledger.fabricx.jaeger
 
 > Runs a Jaeger instance for distributed tracing.
-
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [start](#task-start)
-  - [stop](#task-stop)
-  - [teardown](#task-teardown)
-  - [wipe](#task-wipe)
-  - [fetch_logs](#task-fetch_logs)
-  - [ping](#task-ping)
-  - [container/start](#task-container-start)
-  - [container/stop](#task-container-stop)
-  - [container/rm](#task-container-rm)
-  - [container/fetch_logs](#task-container-fetch_logs)
-  - [k8s/start](#task-k8s-start)
-  - [k8s/rm](#task-k8s-rm)
-  - [k8s/fetch_logs](#task-k8s-fetch_logs)
-  - [k8s/ping](#task-k8s-ping)
-  - [config/transfer](#task-config-transfer)
-  - [config/rm](#task-config-rm)
-  - [k8s/config/transfer](#task-k8s-config-transfer)
-  - [k8s/config/rm](#task-k8s-config-rm)
+  - [start](#start)
+  - [stop](#stop)
+  - [teardown](#teardown)
+  - [wipe](#wipe)
+  - [fetch_logs](#fetch_logs)
+  - [ping](#ping)
+  - [container/start](#containerstart)
+  - [container/stop](#containerstop)
+  - [container/rm](#containerrm)
+  - [container/fetch_logs](#containerfetch_logs)
+  - [k8s/start](#k8sstart)
+  - [k8s/rm](#k8srm)
+  - [k8s/fetch_logs](#k8sfetch_logs)
+  - [k8s/ping](#k8sping)
+  - [config/transfer](#configtransfer)
+  - [config/rm](#configrm)
+  - [k8s/config/transfer](#k8sconfigtransfer)
+  - [k8s/config/rm](#k8sconfigrm)
 
 ## Role Defaults
 
@@ -33,15 +31,11 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 
 ## Tasks
 
-<a id="task-start"></a>
-
 ### start
 
 Select the Jaeger deployment mode to start
 
-
 Dispatches Jaeger startup to the container or Kubernetes implementation.
-
 
 ```yaml
 - name: Select the Jaeger deployment mode to start
@@ -55,15 +49,11 @@ Dispatches Jaeger startup to the container or Kubernetes implementation.
     tasks_from: start
 ```
 
-<a id="task-stop"></a>
-
 ### stop
 
 Select the Jaeger deployment mode to stop
 
-
 Dispatches Jaeger shutdown to the container implementation.
-
 
 ```yaml
 - name: Select the Jaeger deployment mode to stop
@@ -75,15 +65,11 @@ Dispatches Jaeger shutdown to the container implementation.
     tasks_from: stop
 ```
 
-<a id="task-teardown"></a>
-
 ### teardown
 
 Select the Jaeger deployment mode to remove
 
-
 Dispatches Jaeger removal to the container or Kubernetes implementation.
-
 
 ```yaml
 - name: Select the Jaeger deployment mode to remove
@@ -97,15 +83,11 @@ Dispatches Jaeger removal to the container or Kubernetes implementation.
     tasks_from: teardown
 ```
 
-<a id="task-wipe"></a>
-
 ### wipe
 
 Remove the Jaeger deployment and configuration
 
-
 Runs the teardown and configuration cleanup entry points for Jaeger.
-
 
 ```yaml
 - name: Remove the Jaeger deployment and configuration
@@ -114,15 +96,11 @@ Runs the teardown and configuration cleanup entry points for Jaeger.
     tasks_from: wipe
 ```
 
-<a id="task-fetch_logs"></a>
-
 ### fetch_logs
 
 Select the Jaeger deployment mode to collect logs from
 
-
 Dispatches Jaeger log collection to the container or Kubernetes implementation.
-
 
 ```yaml
 - name: Select the Jaeger deployment mode to collect logs from
@@ -136,15 +114,11 @@ Dispatches Jaeger log collection to the container or Kubernetes implementation.
     tasks_from: fetch_logs
 ```
 
-<a id="task-ping"></a>
-
 ### ping
 
 Check that Jaeger service ports are reachable
 
-
 Builds the Jaeger port list and delegates the connectivity check to the utils role.
-
 
 ```yaml
 - name: Check that Jaeger service ports are reachable
@@ -168,17 +142,13 @@ Builds the Jaeger port list and delegates the connectivity check to the utils ro
     tasks_from: ping
 ```
 
-<a id="task-container-start"></a>
-
 ### container/start
 
 Start Jaeger in a container runtime
 
-
 Builds Jaeger runtime settings and delegates container startup to the container role.
 
 This entry point requires the ElasticSearch host inventory to be available.
-
 
 ```yaml
 - name: Start Jaeger in a container runtime
@@ -218,15 +188,11 @@ This entry point requires the ElasticSearch host inventory to be available.
     tasks_from: container/start
 ```
 
-<a id="task-container-stop"></a>
-
 ### container/stop
 
 Stop the Jaeger container
 
-
 Delegates Jaeger container shutdown to the container role.
-
 
 ```yaml
 - name: Stop the Jaeger container
@@ -246,15 +212,11 @@ Delegates Jaeger container shutdown to the container role.
     tasks_from: container/stop
 ```
 
-<a id="task-container-rm"></a>
-
 ### container/rm
 
 Remove the Jaeger container
 
-
 Delegates Jaeger container removal to the container role.
-
 
 ```yaml
 - name: Remove the Jaeger container
@@ -274,15 +236,11 @@ Delegates Jaeger container removal to the container role.
     tasks_from: container/rm
 ```
 
-<a id="task-container-fetch_logs"></a>
-
 ### container/fetch_logs
 
 Fetch logs from the Jaeger container
 
-
 Delegates Jaeger container log collection to the container role.
-
 
 ```yaml
 - name: Fetch logs from the Jaeger container
@@ -294,19 +252,15 @@ Delegates Jaeger container log collection to the container role.
     tasks_from: container/fetch_logs
 ```
 
-<a id="task-k8s-start"></a>
-
 ### k8s/start
 
 Start Jaeger on Kubernetes
-
 
 Applies the Jaeger Kubernetes service, node port service, and deployment resources.
 
 The NodePort service is created only when `jaeger_k8s_use_node_port` is set to `true`.
 
 This entry point requires the ElasticSearch host inventory to be available.
-
 
 ```yaml
 - name: Start Jaeger on Kubernetes
@@ -380,15 +334,11 @@ This entry point requires the ElasticSearch host inventory to be available.
     tasks_from: k8s/start
 ```
 
-<a id="task-k8s-rm"></a>
-
 ### k8s/rm
 
 Remove Jaeger Kubernetes resources
 
-
 Deletes the Jaeger deployment and service resources from Kubernetes.
-
 
 ```yaml
 - name: Remove Jaeger Kubernetes resources
@@ -402,15 +352,11 @@ Deletes the Jaeger deployment and service resources from Kubernetes.
     tasks_from: k8s/rm
 ```
 
-<a id="task-k8s-fetch_logs"></a>
-
 ### k8s/fetch_logs
 
 Fetch logs from Jaeger pods
 
-
 Delegates Jaeger pod log collection to the k8s role using the Jaeger pod label selector.
-
 
 ```yaml
 - name: Fetch logs from Jaeger pods
@@ -422,17 +368,13 @@ Delegates Jaeger pod log collection to the k8s role using the Jaeger pod label s
     tasks_from: k8s/fetch_logs
 ```
 
-<a id="task-k8s-ping"></a>
-
 ### k8s/ping
 
 Check that Jaeger Kubernetes node ports are reachable
 
-
 Builds the Jaeger Kubernetes node port list and delegates the connectivity check to the utils role.
 
 The node port values default to the corresponding Jaeger service ports.
-
 
 ```yaml
 - name: Check that Jaeger Kubernetes node ports are reachable
@@ -468,17 +410,13 @@ The node port values default to the corresponding Jaeger service ports.
     tasks_from: k8s/ping
 ```
 
-<a id="task-config-transfer"></a>
-
 ### config/transfer
 
 Transfer Jaeger configuration assets
 
-
 Creates the Jaeger configuration directory and copies the ElasticSearch CA certificate when TLS is enabled.
 
 Delegates Kubernetes ConfigMap creation to the Jaeger Kubernetes config entry point when requested.
-
 
 ```yaml
 - name: Transfer Jaeger configuration assets
@@ -498,17 +436,13 @@ Delegates Kubernetes ConfigMap creation to the Jaeger Kubernetes config entry po
     tasks_from: config/transfer
 ```
 
-<a id="task-config-rm"></a>
-
 ### config/rm
 
 Remove Jaeger configuration assets
 
-
 Deletes the remote Jaeger configuration directory.
 
 Nested Jaeger Kubernetes config cleanup validates its own required arguments.
-
 
 ```yaml
 - name: Remove Jaeger configuration assets
@@ -522,15 +456,11 @@ Nested Jaeger Kubernetes config cleanup validates its own required arguments.
     tasks_from: config/rm
 ```
 
-<a id="task-k8s-config-transfer"></a>
-
 ### k8s/config/transfer
 
 Create the Jaeger Kubernetes ConfigMap
 
-
 Applies the Jaeger ConfigMap that carries the ElasticSearch CA certificate when TLS is enabled.
-
 
 ```yaml
 - name: Create the Jaeger Kubernetes ConfigMap
@@ -550,15 +480,11 @@ Applies the Jaeger ConfigMap that carries the ElasticSearch CA certificate when 
     tasks_from: k8s/config/transfer
 ```
 
-<a id="task-k8s-config-rm"></a>
-
 ### k8s/config/rm
 
 Remove the Jaeger Kubernetes ConfigMap
 
-
 Deletes the Jaeger ConfigMap from Kubernetes when the Kubernetes deployment mode is enabled.
-
 
 ```yaml
 - name: Remove the Jaeger Kubernetes ConfigMap
@@ -573,5 +499,3 @@ Deletes the Jaeger ConfigMap from Kubernetes when the Kubernetes deployment mode
     name: hyperledger.fabricx.jaeger
     tasks_from: k8s/config/rm
 ```
-
-

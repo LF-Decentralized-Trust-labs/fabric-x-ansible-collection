@@ -17,9 +17,9 @@ Namespace/name: `hyperledger.fabricx`. Authoritative version and deps: [`galaxy.
    #
    ```
 
-   CI enforces this via `ci/check_license_header.sh`.
+   CI enforces this via `scripts/check_license_header.sh`.
 
-2. **No trailing spaces** in `.j2` files — enforced by `ci/check_trailing_spaces.sh`.
+2. **No trailing spaces** in `.j2` files — enforced by `scripts/check_trailing_spaces.sh`.
 3. **Lint** — run `make lint` before committing (`ansible-lint` over roles, playbooks, examples).
 4. **Idempotency** — all tasks must be idempotent; use `creates:`, `changed_when:`, or appropriate modules.
 5. **Task names** — every `ansible.builtin.*` task must have a `name:` field.

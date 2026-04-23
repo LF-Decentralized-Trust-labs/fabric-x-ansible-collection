@@ -1,69 +1,67 @@
-
 # hyperledger.fabricx.fabric_ca
 
 > Runs a Hyperledger Fabric CA server and client for certificate management across binary, container, and Kubernetes deployments.
-
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [client/enroll](#task-client-enroll)
-  - [client/register](#task-client-register)
-  - [client/reenroll](#task-client-reenroll)
-  - [client/identity_list](#task-client-identity_list)
-  - [client/revoke](#task-client-revoke)
-  - [client/gencrl](#task-client-gencrl)
-  - [client/effective_address](#task-client-effective_address)
-  - [client/cryptogenize](#task-client-cryptogenize)
-  - [client/bin/build](#task-client-bin-build)
-  - [client/bin/install](#task-client-bin-install)
-  - [client/bin/transfer](#task-client-bin-transfer)
-  - [client/bin/rm](#task-client-bin-rm)
-  - [client/bin/enroll](#task-client-bin-enroll)
-  - [client/bin/register](#task-client-bin-register)
-  - [client/bin/reenroll](#task-client-bin-reenroll)
-  - [client/bin/identity_list](#task-client-bin-identity_list)
-  - [client/bin/revoke](#task-client-bin-revoke)
-  - [client/bin/gencrl](#task-client-bin-gencrl)
-  - [client/container/enroll](#task-client-container-enroll)
-  - [client/container/register](#task-client-container-register)
-  - [client/container/reenroll](#task-client-container-reenroll)
-  - [client/container/identity_list](#task-client-container-identity_list)
-  - [client/container/revoke](#task-client-container-revoke)
-  - [client/container/gencrl](#task-client-container-gencrl)
-  - [server/start](#task-server-start)
-  - [server/stop](#task-server-stop)
-  - [server/teardown](#task-server-teardown)
-  - [server/wipe](#task-server-wipe)
-  - [server/ping](#task-server-ping)
-  - [server/fetch_logs](#task-server-fetch_logs)
-  - [server/bin/build](#task-server-bin-build)
-  - [server/bin/install](#task-server-bin-install)
-  - [server/bin/start](#task-server-bin-start)
-  - [server/bin/stop](#task-server-bin-stop)
-  - [server/bin/fetch_logs](#task-server-bin-fetch_logs)
-  - [server/bin/rm](#task-server-bin-rm)
-  - [server/bin/transfer](#task-server-bin-transfer)
-  - [server/container/start](#task-server-container-start)
-  - [server/container/stop](#task-server-container-stop)
-  - [server/container/fetch_logs](#task-server-container-fetch_logs)
-  - [server/container/rm](#task-server-container-rm)
-  - [server/k8s/start](#task-server-k8s-start)
-  - [k8s/server/ping](#task-k8s-server-ping)
-  - [server/k8s/fetch_logs](#task-server-k8s-fetch_logs)
-  - [server/k8s/rm](#task-server-k8s-rm)
-  - [server/k8s/config/transfer](#task-server-k8s-config-transfer)
-  - [server/k8s/config/rm](#task-server-k8s-config-rm)
-  - [server/k8s/crypto/transfer](#task-server-k8s-crypto-transfer)
-  - [server/k8s/crypto/rm](#task-server-k8s-crypto-rm)
-  - [server/crypto/setup](#task-server-crypto-setup)
-  - [server/crypto/x509/setup](#task-server-crypto-x509-setup)
-  - [server/crypto/idemix/setup](#task-server-crypto-idemix-setup)
-  - [server/crypto/fetch](#task-server-crypto-fetch)
-  - [server/crypto/rm](#task-server-crypto-rm)
-  - [server/config/transfer](#task-server-config-transfer)
-  - [server/config/rm](#task-server-config-rm)
+  - [client/enroll](#clientenroll)
+  - [client/register](#clientregister)
+  - [client/reenroll](#clientreenroll)
+  - [client/identity_list](#clientidentity_list)
+  - [client/revoke](#clientrevoke)
+  - [client/gencrl](#clientgencrl)
+  - [client/effective_address](#clienteffective_address)
+  - [client/cryptogenize](#clientcryptogenize)
+  - [client/bin/build](#clientbinbuild)
+  - [client/bin/install](#clientbininstall)
+  - [client/bin/transfer](#clientbintransfer)
+  - [client/bin/rm](#clientbinrm)
+  - [client/bin/enroll](#clientbinenroll)
+  - [client/bin/register](#clientbinregister)
+  - [client/bin/reenroll](#clientbinreenroll)
+  - [client/bin/identity_list](#clientbinidentity_list)
+  - [client/bin/revoke](#clientbinrevoke)
+  - [client/bin/gencrl](#clientbingencrl)
+  - [client/container/enroll](#clientcontainerenroll)
+  - [client/container/register](#clientcontainerregister)
+  - [client/container/reenroll](#clientcontainerreenroll)
+  - [client/container/identity_list](#clientcontaineridentity_list)
+  - [client/container/revoke](#clientcontainerrevoke)
+  - [client/container/gencrl](#clientcontainergencrl)
+  - [server/start](#serverstart)
+  - [server/stop](#serverstop)
+  - [server/teardown](#serverteardown)
+  - [server/wipe](#serverwipe)
+  - [server/ping](#serverping)
+  - [server/fetch_logs](#serverfetch_logs)
+  - [server/bin/build](#serverbinbuild)
+  - [server/bin/install](#serverbininstall)
+  - [server/bin/start](#serverbinstart)
+  - [server/bin/stop](#serverbinstop)
+  - [server/bin/fetch_logs](#serverbinfetch_logs)
+  - [server/bin/rm](#serverbinrm)
+  - [server/bin/transfer](#serverbintransfer)
+  - [server/container/start](#servercontainerstart)
+  - [server/container/stop](#servercontainerstop)
+  - [server/container/fetch_logs](#servercontainerfetch_logs)
+  - [server/container/rm](#servercontainerrm)
+  - [server/k8s/start](#serverk8sstart)
+  - [k8s/server/ping](#k8sserverping)
+  - [server/k8s/fetch_logs](#serverk8sfetch_logs)
+  - [server/k8s/rm](#serverk8srm)
+  - [server/k8s/config/transfer](#serverk8sconfigtransfer)
+  - [server/k8s/config/rm](#serverk8sconfigrm)
+  - [server/k8s/crypto/transfer](#serverk8scryptotransfer)
+  - [server/k8s/crypto/rm](#serverk8scryptorm)
+  - [server/crypto/setup](#servercryptosetup)
+  - [server/crypto/x509/setup](#servercryptox509setup)
+  - [server/crypto/idemix/setup](#servercryptoidemixsetup)
+  - [server/crypto/fetch](#servercryptofetch)
+  - [server/crypto/rm](#servercryptorm)
+  - [server/config/transfer](#serverconfigtransfer)
+  - [server/config/rm](#serverconfigrm)
 
 ## Role Defaults
 
@@ -71,15 +69,11 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 
 ## Tasks
 
-<a id="task-client-enroll"></a>
-
 ### client/enroll
 
 Dispatch client enrollment
 
-
 Selects the client enrollment implementation.
-
 
 ```yaml
 - name: Dispatch client enrollment
@@ -91,15 +85,11 @@ Selects the client enrollment implementation.
     tasks_from: client/enroll
 ```
 
-<a id="task-client-register"></a>
-
 ### client/register
 
 Dispatch client registration
 
-
 Selects the client registration implementation.
-
 
 ```yaml
 - name: Dispatch client registration
@@ -111,15 +101,11 @@ Selects the client registration implementation.
     tasks_from: client/register
 ```
 
-<a id="task-client-reenroll"></a>
-
 ### client/reenroll
 
 Dispatch client reenrollment
 
-
 Selects the client reenrollment implementation.
-
 
 ```yaml
 - name: Dispatch client reenrollment
@@ -131,15 +117,11 @@ Selects the client reenrollment implementation.
     tasks_from: client/reenroll
 ```
 
-<a id="task-client-identity_list"></a>
-
 ### client/identity_list
 
 Dispatch client identity listing
 
-
 Selects the client identity listing implementation.
-
 
 ```yaml
 - name: Dispatch client identity listing
@@ -151,15 +133,11 @@ Selects the client identity listing implementation.
     tasks_from: client/identity_list
 ```
 
-<a id="task-client-revoke"></a>
-
 ### client/revoke
 
 Dispatch client revocation
 
-
 Selects the client revocation implementation.
-
 
 ```yaml
 - name: Dispatch client revocation
@@ -171,15 +149,11 @@ Selects the client revocation implementation.
     tasks_from: client/revoke
 ```
 
-<a id="task-client-gencrl"></a>
-
 ### client/gencrl
 
 Dispatch client CRL generation
 
-
 Selects the client CRL generation implementation.
-
 
 ```yaml
 - name: Dispatch client CRL generation
@@ -191,17 +165,13 @@ Selects the client CRL generation implementation.
     tasks_from: client/gencrl
 ```
 
-<a id="task-client-effective_address"></a>
-
 ### client/effective_address
 
 Resolve the Fabric CA connection address
 
-
 Resolves the effective Fabric CA host and port for client operations.
 
 The referenced host must define `actual_host` and the Fabric CA server port settings; when it enables NodePort, the client uses `fabric_ca_server_k8s_port_node_port` instead of `fabric_ca_port`.
-
 
 ```yaml
 - name: Resolve the Fabric CA connection address
@@ -213,15 +183,11 @@ The referenced host must define `actual_host` and the Fabric CA server port sett
     tasks_from: client/effective_address
 ```
 
-<a id="task-client-cryptogenize"></a>
-
 ### client/cryptogenize
 
 Normalize enrolled MSP output
 
-
 Copies enrolled client material into cryptogen-compatible filenames.
-
 
 ```yaml
 - name: Normalize enrolled MSP output
@@ -241,15 +207,11 @@ Copies enrolled client material into cryptogen-compatible filenames.
     tasks_from: client/cryptogenize
 ```
 
-<a id="task-client-bin-build"></a>
-
 ### client/bin/build
 
 Build the Fabric CA client binary
 
-
 Builds the Fabric CA client binary from source.
-
 
 ```yaml
 - name: Build the Fabric CA client binary
@@ -269,15 +231,11 @@ Builds the Fabric CA client binary from source.
     tasks_from: client/bin/build
 ```
 
-<a id="task-client-bin-install"></a>
-
 ### client/bin/install
 
 Install the Fabric CA client binary
 
-
 Installs the Fabric CA client binary.
-
 
 ```yaml
 - name: Install the Fabric CA client binary
@@ -297,15 +255,11 @@ Installs the Fabric CA client binary.
     tasks_from: client/bin/install
 ```
 
-<a id="task-client-bin-transfer"></a>
-
 ### client/bin/transfer
 
 Transfer the Fabric CA client binary
 
-
 Copies the built Fabric CA client binary to the managed host.
-
 
 ```yaml
 - name: Transfer the Fabric CA client binary
@@ -317,15 +271,11 @@ Copies the built Fabric CA client binary to the managed host.
     tasks_from: client/bin/transfer
 ```
 
-<a id="task-client-bin-rm"></a>
-
 ### client/bin/rm
 
 Remove the Fabric CA client binary
 
-
 Removes the Fabric CA client binary from the managed host.
-
 
 ```yaml
 - name: Remove the Fabric CA client binary
@@ -337,15 +287,11 @@ Removes the Fabric CA client binary from the managed host.
     tasks_from: client/bin/rm
 ```
 
-<a id="task-client-bin-enroll"></a>
-
 ### client/bin/enroll
 
 Enroll an identity with the client binary
 
-
 Enrolls an identity with the locally installed client binary.
-
 
 ```yaml
 - name: Enroll an identity with the client binary
@@ -381,15 +327,11 @@ Enrolls an identity with the locally installed client binary.
     tasks_from: client/bin/enroll
 ```
 
-<a id="task-client-bin-register"></a>
-
 ### client/bin/register
 
 Register an identity with the client binary
 
-
 Registers a new identity with the locally installed client binary.
-
 
 ```yaml
 - name: Register an identity with the client binary
@@ -415,15 +357,11 @@ Registers a new identity with the locally installed client binary.
     tasks_from: client/bin/register
 ```
 
-<a id="task-client-bin-reenroll"></a>
-
 ### client/bin/reenroll
 
 Reenroll an identity with the client binary
 
-
 Reenrolls an existing identity with the locally installed client binary.
-
 
 ```yaml
 - name: Reenroll an identity with the client binary
@@ -455,15 +393,11 @@ Reenrolls an existing identity with the locally installed client binary.
     tasks_from: client/bin/reenroll
 ```
 
-<a id="task-client-bin-identity_list"></a>
-
 ### client/bin/identity_list
 
 List Fabric CA identities with the client binary
 
-
 Lists identities registered in the target Fabric CA server with the locally installed client binary.
-
 
 ```yaml
 - name: List Fabric CA identities with the client binary
@@ -487,15 +421,11 @@ Lists identities registered in the target Fabric CA server with the locally inst
     tasks_from: client/bin/identity_list
 ```
 
-<a id="task-client-bin-revoke"></a>
-
 ### client/bin/revoke
 
 Revoke an identity with the client binary
 
-
 Revokes an enrolled identity with the locally installed client binary.
-
 
 ```yaml
 - name: Revoke an identity with the client binary
@@ -521,15 +451,11 @@ Revokes an enrolled identity with the locally installed client binary.
     tasks_from: client/bin/revoke
 ```
 
-<a id="task-client-bin-gencrl"></a>
-
 ### client/bin/gencrl
 
 Generate a CRL with the client binary
 
-
 Generates a certificate revocation list from the target Fabric CA server with the locally installed client binary.
-
 
 ```yaml
 - name: Generate a CRL with the client binary
@@ -553,15 +479,11 @@ Generates a certificate revocation list from the target Fabric CA server with th
     tasks_from: client/bin/gencrl
 ```
 
-<a id="task-client-container-enroll"></a>
-
 ### client/container/enroll
 
 Enroll an identity with the client container
 
-
 Enrolls an identity with a transient container.
-
 
 ```yaml
 - name: Enroll an identity with the client container
@@ -607,15 +529,11 @@ Enrolls an identity with a transient container.
     tasks_from: client/container/enroll
 ```
 
-<a id="task-client-container-register"></a>
-
 ### client/container/register
 
 Register an identity with the client container
 
-
 Registers a new identity with a transient container.
-
 
 ```yaml
 - name: Register an identity with the client container
@@ -651,15 +569,11 @@ Registers a new identity with a transient container.
     tasks_from: client/container/register
 ```
 
-<a id="task-client-container-reenroll"></a>
-
 ### client/container/reenroll
 
 Reenroll an identity with the client container
 
-
 Reenrolls an existing identity with a transient container.
-
 
 ```yaml
 - name: Reenroll an identity with the client container
@@ -701,15 +615,11 @@ Reenrolls an existing identity with a transient container.
     tasks_from: client/container/reenroll
 ```
 
-<a id="task-client-container-identity_list"></a>
-
 ### client/container/identity_list
 
 List Fabric CA identities with the client container
 
-
 Lists identities registered in the target Fabric CA server with a transient container.
-
 
 ```yaml
 - name: List Fabric CA identities with the client container
@@ -743,15 +653,11 @@ Lists identities registered in the target Fabric CA server with a transient cont
     tasks_from: client/container/identity_list
 ```
 
-<a id="task-client-container-revoke"></a>
-
 ### client/container/revoke
 
 Revoke an identity with the client container
 
-
 Revokes an enrolled identity with a transient container.
-
 
 ```yaml
 - name: Revoke an identity with the client container
@@ -785,15 +691,11 @@ Revokes an enrolled identity with a transient container.
     tasks_from: client/container/revoke
 ```
 
-<a id="task-client-container-gencrl"></a>
-
 ### client/container/gencrl
 
 Generate a CRL with the client container
 
-
 Generates a certificate revocation list from the target Fabric CA server with a transient container.
-
 
 ```yaml
 - name: Generate a CRL with the client container
@@ -825,15 +727,11 @@ Generates a certificate revocation list from the target Fabric CA server with a 
     tasks_from: client/container/gencrl
 ```
 
-<a id="task-server-start"></a>
-
 ### server/start
 
 Dispatch server startup
 
-
 Selects the server runtime to start.
-
 
 ```yaml
 - name: Dispatch server startup
@@ -849,15 +747,11 @@ Selects the server runtime to start.
     tasks_from: server/start
 ```
 
-<a id="task-server-stop"></a>
-
 ### server/stop
 
 Dispatch server stop
 
-
 Selects the server runtime to stop.
-
 
 ```yaml
 - name: Dispatch server stop
@@ -871,15 +765,11 @@ Selects the server runtime to stop.
     tasks_from: server/stop
 ```
 
-<a id="task-server-teardown"></a>
-
 ### server/teardown
 
 Dispatch server teardown
 
-
 Selects the server runtime resources to remove.
-
 
 ```yaml
 - name: Dispatch server teardown
@@ -895,15 +785,11 @@ Selects the server runtime resources to remove.
     tasks_from: server/teardown
 ```
 
-<a id="task-server-wipe"></a>
-
 ### server/wipe
 
 Wipe all server assets
 
-
 Removes the server runtime, binaries, configuration, and Kubernetes crypto.
-
 
 ```yaml
 - name: Wipe all server assets
@@ -915,15 +801,11 @@ Removes the server runtime, binaries, configuration, and Kubernetes crypto.
     tasks_from: server/wipe
 ```
 
-<a id="task-server-ping"></a>
-
 ### server/ping
 
 Check server ports
 
-
 Checks that the Fabric CA API and operations ports are reachable.
-
 
 ```yaml
 - name: Check server ports
@@ -939,15 +821,11 @@ Checks that the Fabric CA API and operations ports are reachable.
     tasks_from: server/ping
 ```
 
-<a id="task-server-fetch_logs"></a>
-
 ### server/fetch_logs
 
 Dispatch server log collection
 
-
 Selects the server runtime logs to collect.
-
 
 ```yaml
 - name: Dispatch server log collection
@@ -963,15 +841,11 @@ Selects the server runtime logs to collect.
     tasks_from: server/fetch_logs
 ```
 
-<a id="task-server-bin-build"></a>
-
 ### server/bin/build
 
 Build the Fabric CA server binary
 
-
 Builds the Fabric CA server binary from source.
-
 
 ```yaml
 - name: Build the Fabric CA server binary
@@ -991,15 +865,11 @@ Builds the Fabric CA server binary from source.
     tasks_from: server/bin/build
 ```
 
-<a id="task-server-bin-install"></a>
-
 ### server/bin/install
 
 Install the Fabric CA server binary
 
-
 Installs the Fabric CA server binary.
-
 
 ```yaml
 - name: Install the Fabric CA server binary
@@ -1019,15 +889,11 @@ Installs the Fabric CA server binary.
     tasks_from: server/bin/install
 ```
 
-<a id="task-server-bin-start"></a>
-
 ### server/bin/start
 
 Start the Fabric CA server binary
 
-
 Starts the Fabric CA server as a managed local binary process.
-
 
 ```yaml
 - name: Start the Fabric CA server binary
@@ -1043,15 +909,11 @@ Starts the Fabric CA server as a managed local binary process.
     tasks_from: server/bin/start
 ```
 
-<a id="task-server-bin-stop"></a>
-
 ### server/bin/stop
 
 Stop the Fabric CA server binary
 
-
 Stops the managed Fabric CA server binary process.
-
 
 ```yaml
 - name: Stop the Fabric CA server binary
@@ -1060,15 +922,11 @@ Stops the managed Fabric CA server binary process.
     tasks_from: server/bin/stop
 ```
 
-<a id="task-server-bin-fetch_logs"></a>
-
 ### server/bin/fetch_logs
 
 Fetch server binary logs
 
-
 Collects logs for the managed Fabric CA server binary process.
-
 
 ```yaml
 - name: Fetch server binary logs
@@ -1077,15 +935,11 @@ Collects logs for the managed Fabric CA server binary process.
     tasks_from: server/bin/fetch_logs
 ```
 
-<a id="task-server-bin-rm"></a>
-
 ### server/bin/rm
 
 Remove the Fabric CA server binary
 
-
 Removes the Fabric CA server binary from the managed host.
-
 
 ```yaml
 - name: Remove the Fabric CA server binary
@@ -1097,15 +951,11 @@ Removes the Fabric CA server binary from the managed host.
     tasks_from: server/bin/rm
 ```
 
-<a id="task-server-bin-transfer"></a>
-
 ### server/bin/transfer
 
 Transfer the Fabric CA server binary
 
-
 Copies the built Fabric CA server binary to the managed host.
-
 
 ```yaml
 - name: Transfer the Fabric CA server binary
@@ -1117,15 +967,11 @@ Copies the built Fabric CA server binary to the managed host.
     tasks_from: server/bin/transfer
 ```
 
-<a id="task-server-container-start"></a>
-
 ### server/container/start
 
 Start the Fabric CA server container
 
-
 Starts the Fabric CA server as a managed container.
-
 
 ```yaml
 - name: Start the Fabric CA server container
@@ -1155,15 +1001,11 @@ Starts the Fabric CA server as a managed container.
     tasks_from: server/container/start
 ```
 
-<a id="task-server-container-stop"></a>
-
 ### server/container/stop
 
 Stop the Fabric CA server container
 
-
 Stops the managed Fabric CA server container.
-
 
 ```yaml
 - name: Stop the Fabric CA server container
@@ -1175,15 +1017,11 @@ Stops the managed Fabric CA server container.
     tasks_from: server/container/stop
 ```
 
-<a id="task-server-container-fetch_logs"></a>
-
 ### server/container/fetch_logs
 
 Fetch server container logs
 
-
 Collects logs for the managed Fabric CA server container.
-
 
 ```yaml
 - name: Fetch server container logs
@@ -1195,15 +1033,11 @@ Collects logs for the managed Fabric CA server container.
     tasks_from: server/container/fetch_logs
 ```
 
-<a id="task-server-container-rm"></a>
-
 ### server/container/rm
 
 Remove the Fabric CA server container
 
-
 Removes the managed Fabric CA server container.
-
 
 ```yaml
 - name: Remove the Fabric CA server container
@@ -1215,15 +1049,11 @@ Removes the managed Fabric CA server container.
     tasks_from: server/container/rm
 ```
 
-<a id="task-server-k8s-start"></a>
-
 ### server/k8s/start
 
 Start the Fabric CA server on Kubernetes
 
-
 Creates the Fabric CA resources on Kubernetes.
-
 
 ```yaml
 - name: Start the Fabric CA server on Kubernetes
@@ -1275,15 +1105,11 @@ Creates the Fabric CA resources on Kubernetes.
     tasks_from: server/k8s/start
 ```
 
-<a id="task-k8s-server-ping"></a>
-
 ### k8s/server/ping
 
 Check Fabric CA node ports
 
-
 Checks that the Fabric CA API and operations NodePorts are reachable when Kubernetes NodePort exposure is enabled.
-
 
 ```yaml
 - name: Check Fabric CA node ports
@@ -1299,15 +1125,11 @@ Checks that the Fabric CA API and operations NodePorts are reachable when Kubern
     tasks_from: k8s/server/ping
 ```
 
-<a id="task-server-k8s-fetch_logs"></a>
-
 ### server/k8s/fetch_logs
 
 Fetch server pod logs
 
-
 Collects pod logs for the Fabric CA Kubernetes deployment.
-
 
 ```yaml
 - name: Fetch server pod logs
@@ -1319,15 +1141,11 @@ Collects pod logs for the Fabric CA Kubernetes deployment.
     tasks_from: server/k8s/fetch_logs
 ```
 
-<a id="task-server-k8s-rm"></a>
-
 ### server/k8s/rm
 
 Remove server Kubernetes runtime resources
 
-
 Deletes the Fabric CA Kubernetes runtime resources.
-
 
 ```yaml
 - name: Remove server Kubernetes runtime resources
@@ -1341,15 +1159,11 @@ Deletes the Fabric CA Kubernetes runtime resources.
     tasks_from: server/k8s/rm
 ```
 
-<a id="task-server-k8s-config-transfer"></a>
-
 ### server/k8s/config/transfer
 
 Transfer server config to a ConfigMap
 
-
 Creates or updates the Fabric CA Kubernetes ConfigMap.
-
 
 ```yaml
 - name: Transfer server config to a ConfigMap
@@ -1369,15 +1183,11 @@ Creates or updates the Fabric CA Kubernetes ConfigMap.
     tasks_from: server/k8s/config/transfer
 ```
 
-<a id="task-server-k8s-config-rm"></a>
-
 ### server/k8s/config/rm
 
 Remove the server ConfigMap
 
-
 Deletes the Fabric CA Kubernetes ConfigMap.
-
 
 ```yaml
 - name: Remove the server ConfigMap
@@ -1391,15 +1201,11 @@ Deletes the Fabric CA Kubernetes ConfigMap.
     tasks_from: server/k8s/config/rm
 ```
 
-<a id="task-server-k8s-crypto-transfer"></a>
-
 ### server/k8s/crypto/transfer
 
 Transfer server crypto to a Secret
 
-
 Creates or updates the Fabric CA Kubernetes Secret.
-
 
 ```yaml
 - name: Transfer server crypto to a Secret
@@ -1427,15 +1233,11 @@ Creates or updates the Fabric CA Kubernetes Secret.
     tasks_from: server/k8s/crypto/transfer
 ```
 
-<a id="task-server-k8s-crypto-rm"></a>
-
 ### server/k8s/crypto/rm
 
 Remove the server Secret
 
-
 Deletes the Fabric CA Kubernetes Secret.
-
 
 ```yaml
 - name: Remove the server Secret
@@ -1449,15 +1251,11 @@ Deletes the Fabric CA Kubernetes Secret.
     tasks_from: server/k8s/crypto/rm
 ```
 
-<a id="task-server-crypto-setup"></a>
-
 ### server/crypto/setup
 
 Generate server crypto material
 
-
 Generates x509 and Idemix crypto material for the Fabric CA server.
-
 
 ```yaml
 - name: Generate server crypto material
@@ -1469,15 +1267,11 @@ Generates x509 and Idemix crypto material for the Fabric CA server.
     tasks_from: server/crypto/setup
 ```
 
-<a id="task-server-crypto-x509-setup"></a>
-
 ### server/crypto/x509/setup
 
 Generate server x509 crypto
 
-
 Generates the Fabric CA root CA and TLS keypairs.
-
 
 ```yaml
 - name: Generate server x509 crypto
@@ -1509,15 +1303,11 @@ Generates the Fabric CA root CA and TLS keypairs.
     tasks_from: server/crypto/x509/setup
 ```
 
-<a id="task-server-crypto-idemix-setup"></a>
-
 ### server/crypto/idemix/setup
 
 Generate server Idemix crypto
 
-
 Generates the Fabric CA Idemix issuer keys.
-
 
 ```yaml
 - name: Generate server Idemix crypto
@@ -1533,15 +1323,11 @@ Generates the Fabric CA Idemix issuer keys.
     tasks_from: server/crypto/idemix/setup
 ```
 
-<a id="task-server-crypto-fetch"></a>
-
 ### server/crypto/fetch
 
 Fetch server certificates
 
-
 Fetches the Fabric CA server certificate material.
-
 
 ```yaml
 - name: Fetch server certificates
@@ -1561,15 +1347,11 @@ Fetches the Fabric CA server certificate material.
     tasks_from: server/crypto/fetch
 ```
 
-<a id="task-server-crypto-rm"></a>
-
 ### server/crypto/rm
 
 Remove server Secret
 
-
 Deletes the Kubernetes Secret that stores the Fabric CA server crypto material.
-
 
 ```yaml
 - name: Remove server Secret
@@ -1581,15 +1363,11 @@ Deletes the Kubernetes Secret that stores the Fabric CA server crypto material.
     tasks_from: server/crypto/rm
 ```
 
-<a id="task-server-config-transfer"></a>
-
 ### server/config/transfer
 
 Render and transfer server config
 
-
 Renders the Fabric CA server configuration and copies the PostgreSQL TLS CA certificate when needed.
-
 
 ```yaml
 - name: Render and transfer server config
@@ -1645,15 +1423,11 @@ Renders the Fabric CA server configuration and copies the PostgreSQL TLS CA cert
     tasks_from: server/config/transfer
 ```
 
-<a id="task-server-config-rm"></a>
-
 ### server/config/rm
 
 Remove server config resources
 
-
 Deletes the Fabric CA server configuration resources.
-
 
 ```yaml
 - name: Remove server config resources
@@ -1668,5 +1442,3 @@ Deletes the Fabric CA server configuration resources.
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/config/rm
 ```
-
-

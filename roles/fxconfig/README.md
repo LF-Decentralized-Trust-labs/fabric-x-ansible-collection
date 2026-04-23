@@ -1,38 +1,36 @@
-
 # hyperledger.fabricx.fxconfig
 
 > Runs the `fxconfig` CLI utility for namespace lifecycle management on Fabric-X.
-
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [bin/build](#task-bin-build)
-  - [bin/endorse](#task-bin-endorse)
-  - [bin/install](#task-bin-install)
-  - [bin/merge](#task-bin-merge)
-  - [bin/namespace/create](#task-bin-namespace-create)
-  - [bin/namespace/list](#task-bin-namespace-list)
-  - [bin/rm](#task-bin-rm)
-  - [bin/submit](#task-bin-submit)
-  - [bin/transfer](#task-bin-transfer)
-  - [config/mtls/transfer](#task-config-mtls-transfer)
-  - [config/tls/transfer](#task-config-tls-transfer)
-  - [config/transfer](#task-config-transfer)
-  - [container/endorse](#task-container-endorse)
-  - [container/merge](#task-container-merge)
-  - [container/namespace/create](#task-container-namespace-create)
-  - [container/namespace/list](#task-container-namespace-list)
-  - [container/submit](#task-container-submit)
-  - [endorse](#task-endorse)
-  - [get_endorser](#task-get_endorser)
-  - [merge](#task-merge)
-  - [namespace/create](#task-namespace-create)
-  - [namespace/group](#task-namespace-group)
-  - [namespace/list](#task-namespace-list)
-  - [submit](#task-submit)
-  - [wipe](#task-wipe)
+  - [bin/build](#binbuild)
+  - [bin/endorse](#binendorse)
+  - [bin/install](#bininstall)
+  - [bin/merge](#binmerge)
+  - [bin/namespace/create](#binnamespacecreate)
+  - [bin/namespace/list](#binnamespacelist)
+  - [bin/rm](#binrm)
+  - [bin/submit](#binsubmit)
+  - [bin/transfer](#bintransfer)
+  - [config/mtls/transfer](#configmtlstransfer)
+  - [config/tls/transfer](#configtlstransfer)
+  - [config/transfer](#configtransfer)
+  - [container/endorse](#containerendorse)
+  - [container/merge](#containermerge)
+  - [container/namespace/create](#containernamespacecreate)
+  - [container/namespace/list](#containernamespacelist)
+  - [container/submit](#containersubmit)
+  - [endorse](#endorse)
+  - [get_endorser](#get_endorser)
+  - [merge](#merge)
+  - [namespace/create](#namespacecreate)
+  - [namespace/group](#namespacegroup)
+  - [namespace/list](#namespacelist)
+  - [submit](#submit)
+  - [wipe](#wipe)
 
 ## Role Defaults
 
@@ -40,15 +38,11 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 
 ## Tasks
 
-<a id="task-bin-build"></a>
-
 ### bin/build
 
 Build the fxconfig binary
 
-
 Builds the fxconfig Go binary by delegating compilation to the shared bin role.
-
 
 ```yaml
 - name: Build the fxconfig binary
@@ -68,15 +62,11 @@ Builds the fxconfig Go binary by delegating compilation to the shared bin role.
     tasks_from: bin/build
 ```
 
-<a id="task-bin-endorse"></a>
-
 ### bin/endorse
 
 Endorse a namespace transaction with the fxconfig binary
 
-
 Copies a transaction to the target host, endorses it with the local fxconfig binary, and fetches the endorsed JSON artifact.
-
 
 ```yaml
 - name: Endorse a namespace transaction with the fxconfig binary
@@ -98,15 +88,11 @@ Copies a transaction to the target host, endorses it with the local fxconfig bin
     tasks_from: bin/endorse
 ```
 
-<a id="task-bin-install"></a>
-
 ### bin/install
 
 Install the fxconfig binary
 
-
 Installs the fxconfig Go package by delegating to the shared bin role.
-
 
 ```yaml
 - name: Install the fxconfig binary
@@ -126,15 +112,11 @@ Installs the fxconfig Go package by delegating to the shared bin role.
     tasks_from: bin/install
 ```
 
-<a id="task-bin-merge"></a>
-
 ### bin/merge
 
 Merge endorsed transactions with the fxconfig binary
 
-
 Collects endorsed transaction files and merges them into a single transaction using the local fxconfig binary.
-
 
 ```yaml
 - name: Merge endorsed transactions with the fxconfig binary
@@ -158,15 +140,11 @@ Collects endorsed transaction files and merges them into a single transaction us
     tasks_from: bin/merge
 ```
 
-<a id="task-bin-namespace-create"></a>
-
 ### bin/namespace/create
 
 Create a namespace transaction with the fxconfig binary
 
-
 Creates a namespace transaction JSON file with the local fxconfig binary.
-
 
 ```yaml
 - name: Create a namespace transaction with the fxconfig binary
@@ -192,15 +170,11 @@ Creates a namespace transaction JSON file with the local fxconfig binary.
     tasks_from: bin/namespace/create
 ```
 
-<a id="task-bin-namespace-list"></a>
-
 ### bin/namespace/list
 
 List namespaces with the fxconfig binary
 
-
 Lists namespaces from the configured Fabric-X network by invoking the local fxconfig binary.
-
 
 ```yaml
 - name: List namespaces with the fxconfig binary
@@ -222,15 +196,11 @@ Lists namespaces from the configured Fabric-X network by invoking the local fxco
     tasks_from: bin/namespace/list
 ```
 
-<a id="task-bin-rm"></a>
-
 ### bin/rm
 
 Remove the fxconfig binary
 
-
 Removes the fxconfig binary from the managed host by delegating to the shared bin role.
-
 
 ```yaml
 - name: Remove the fxconfig binary
@@ -242,15 +212,11 @@ Removes the fxconfig binary from the managed host by delegating to the shared bi
     tasks_from: bin/rm
 ```
 
-<a id="task-bin-submit"></a>
-
 ### bin/submit
 
 Submit a namespace transaction with the fxconfig binary
 
-
 Transfers a merged transaction to the managed host and submits it with the local fxconfig binary.
-
 
 ```yaml
 - name: Submit a namespace transaction with the fxconfig binary
@@ -270,15 +236,11 @@ Transfers a merged transaction to the managed host and submits it with the local
     tasks_from: bin/submit
 ```
 
-<a id="task-bin-transfer"></a>
-
 ### bin/transfer
 
 Transfer the fxconfig binary
 
-
 Transfers the fxconfig binary to the managed host by delegating to the shared bin role.
-
 
 ```yaml
 - name: Transfer the fxconfig binary
@@ -290,15 +252,11 @@ Transfers the fxconfig binary to the managed host by delegating to the shared bi
     tasks_from: bin/transfer
 ```
 
-<a id="task-config-mtls-transfer"></a>
-
 ### config/mtls/transfer
 
 Transfer fxconfig mTLS client material
 
-
 Copies the client certificate and key used by fxconfig for mTLS connections into the role-specific configuration directory.
-
 
 ```yaml
 - name: Transfer fxconfig mTLS client material
@@ -316,17 +274,13 @@ Copies the client certificate and key used by fxconfig for mTLS connections into
     tasks_from: config/mtls/transfer
 ```
 
-<a id="task-config-tls-transfer"></a>
-
 ### config/tls/transfer
 
 Transfer fxconfig TLS trust material
 
-
 Copies the Orderer Router and Committer Query-Service CA certificates required by the rendered fxconfig configuration.
 
 Inventory hosts named by the gating variables must expose connection metadata, RPC ports, and TLS flags.
-
 
 ```yaml
 - name: Transfer fxconfig TLS trust material
@@ -346,17 +300,13 @@ Inventory hosts named by the gating variables must expose connection metadata, R
     tasks_from: config/tls/transfer
 ```
 
-<a id="task-config-transfer"></a>
-
 ### config/transfer
 
 Transfer fxconfig configuration material
 
-
 Renders the fxconfig configuration file, copies MSP material, and stages TLS and mTLS assets when the inventory enables them.
 
 Inventory hosts named by the routing variables must expose connection metadata, RPC ports, and TLS or mTLS flags.
-
 
 ```yaml
 - name: Transfer fxconfig configuration material
@@ -408,15 +358,11 @@ Inventory hosts named by the routing variables must expose connection metadata, 
     tasks_from: config/transfer
 ```
 
-<a id="task-container-endorse"></a>
-
 ### container/endorse
 
 Endorse a namespace transaction with the fxconfig container
 
-
 Copies a transaction to the target host, endorses it with a transient fxconfig container, and fetches the endorsed JSON artifact.
-
 
 ```yaml
 - name: Endorse a namespace transaction with the fxconfig container
@@ -450,15 +396,11 @@ Copies a transaction to the target host, endorses it with a transient fxconfig c
     tasks_from: container/endorse
 ```
 
-<a id="task-container-merge"></a>
-
 ### container/merge
 
 Merge endorsed transactions with the fxconfig container
 
-
 Collects endorsed transactions and merges them into a single artifact by running fxconfig in a transient container.
-
 
 ```yaml
 - name: Merge endorsed transactions with the fxconfig container
@@ -494,15 +436,11 @@ Collects endorsed transactions and merges them into a single artifact by running
     tasks_from: container/merge
 ```
 
-<a id="task-container-namespace-create"></a>
-
 ### container/namespace/create
 
 Create a namespace transaction with the fxconfig container
 
-
 Creates a namespace transaction JSON file by running fxconfig in a transient container.
-
 
 ```yaml
 - name: Create a namespace transaction with the fxconfig container
@@ -538,15 +476,11 @@ Creates a namespace transaction JSON file by running fxconfig in a transient con
     tasks_from: container/namespace/create
 ```
 
-<a id="task-container-namespace-list"></a>
-
 ### container/namespace/list
 
 List namespaces with the fxconfig container
 
-
 Lists namespaces from the configured Fabric-X network by running fxconfig in a transient container.
-
 
 ```yaml
 - name: List namespaces with the fxconfig container
@@ -580,15 +514,11 @@ Lists namespaces from the configured Fabric-X network by running fxconfig in a t
     tasks_from: container/namespace/list
 ```
 
-<a id="task-container-submit"></a>
-
 ### container/submit
 
 Submit a namespace transaction with the fxconfig container
 
-
 Transfers a merged transaction to the managed host and submits it by running fxconfig in a transient container.
-
 
 ```yaml
 - name: Submit a namespace transaction with the fxconfig container
@@ -620,15 +550,11 @@ Transfers a merged transaction to the managed host and submits it by running fxc
     tasks_from: container/submit
 ```
 
-<a id="task-endorse"></a>
-
 ### endorse
 
 Endorse a namespace transaction
 
-
 Dispatches transaction endorsement to either the host binary or a transient container based on `fxconfig_use_bin`.
-
 
 ```yaml
 - name: Endorse a namespace transaction
@@ -664,15 +590,11 @@ Dispatches transaction endorsement to either the host binary or a transient cont
     tasks_from: endorse
 ```
 
-<a id="task-get_endorser"></a>
-
 ### get_endorser
 
 Resolve the namespace endorser user
 
-
 Selects the preferred endorser from `organization.users` and stores it in `fxconfig_endorser_user`.
-
 
 ```yaml
 - name: Resolve the namespace endorser user
@@ -684,15 +606,11 @@ Selects the preferred endorser from `organization.users` and stores it in `fxcon
     tasks_from: get_endorser
 ```
 
-<a id="task-merge"></a>
-
 ### merge
 
 Merge endorsed namespace transactions
 
-
 Dispatches merge operations to either the host binary or a transient container based on `fxconfig_use_bin`.
-
 
 ```yaml
 - name: Merge endorsed namespace transactions
@@ -730,15 +648,11 @@ Dispatches merge operations to either the host binary or a transient container b
     tasks_from: merge
 ```
 
-<a id="task-namespace-create"></a>
-
 ### namespace/create
 
 Create a namespace transaction
 
-
 Dispatches namespace transaction creation to either the host binary or a transient container based on `fxconfig_use_bin`.
-
 
 ```yaml
 - name: Create a namespace transaction
@@ -776,17 +690,13 @@ Dispatches namespace transaction creation to either the host binary or a transie
     tasks_from: namespace/create
 ```
 
-<a id="task-namespace-group"></a>
-
 ### namespace/group
 
 Group hosts by declared namespaces
 
-
 Builds a namespace-to-host mapping from inventory organization data.
 
 Inventory hosts selected via `fxconfig_hosts` must define the organization data expected by the helper.
-
 
 ```yaml
 - name: Group hosts by declared namespaces
@@ -800,15 +710,11 @@ Inventory hosts selected via `fxconfig_hosts` must define the organization data 
     tasks_from: namespace/group
 ```
 
-<a id="task-namespace-list"></a>
-
 ### namespace/list
 
 List namespaces
 
-
 Dispatches namespace listing to either the host binary or a transient container based on `fxconfig_use_bin`.
-
 
 ```yaml
 - name: List namespaces
@@ -844,15 +750,11 @@ Dispatches namespace listing to either the host binary or a transient container 
     tasks_from: namespace/list
 ```
 
-<a id="task-submit"></a>
-
 ### submit
 
 Submit a namespace transaction
 
-
 Dispatches merged transaction submission to either the host binary or a transient container based on `fxconfig_use_bin`.
-
 
 ```yaml
 - name: Submit a namespace transaction
@@ -886,15 +788,11 @@ Dispatches merged transaction submission to either the host binary or a transien
     tasks_from: submit
 ```
 
-<a id="task-wipe"></a>
-
 ### wipe
 
 Remove fxconfig binaries when enabled
 
-
 Removes the fxconfig binary from the managed host when the binary workflow is enabled.
-
 
 ```yaml
 - name: Remove fxconfig binaries when enabled
@@ -907,5 +805,3 @@ Removes the fxconfig binary from the managed host when the binary workflow is en
     name: hyperledger.fabricx.fxconfig
     tasks_from: wipe
 ```
-
-

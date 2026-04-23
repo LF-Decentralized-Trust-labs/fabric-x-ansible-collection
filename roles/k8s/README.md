@@ -1,16 +1,14 @@
-
 # hyperledger.fabricx.k8s
 
 > Provides utility tasks for interacting with a Kubernetes cluster.
-
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [namespace/create](#task-namespace-create)
-  - [registry/create_pull_secret](#task-registry-create_pull_secret)
-  - [fetch_logs](#task-fetch_logs)
+  - [namespace/create](#namespacecreate)
+  - [registry/create_pull_secret](#registrycreate_pull_secret)
+  - [fetch_logs](#fetch_logs)
 
 ## Role Defaults
 
@@ -18,17 +16,13 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 
 ## Tasks
 
-<a id="task-namespace-create"></a>
-
 ### namespace/create
 
 Ensure a Kubernetes namespace exists
 
-
 Ensures the target Kubernetes namespace is present in the cluster.
 
 Requires a valid kubeconfig on the control node and the kubernetes.core collection.
-
 
 ```yaml
 - name: Ensure a Kubernetes namespace exists
@@ -42,17 +36,13 @@ Requires a valid kubeconfig on the control node and the kubernetes.core collecti
     tasks_from: namespace/create
 ```
 
-<a id="task-registry-create_pull_secret"></a>
-
 ### registry/create_pull_secret
 
 Create a Kubernetes image pull secret
 
-
 Creates or updates a Docker registry imagePullSecret in the target namespace.
 
 Renders a kubernetes.io/dockerconfigjson secret from the configured registry credentials.
-
 
 ```yaml
 - name: Create a Kubernetes image pull secret
@@ -72,17 +62,13 @@ Renders a kubernetes.io/dockerconfigjson secret from the configured registry cre
     tasks_from: registry/create_pull_secret
 ```
 
-<a id="task-fetch_logs"></a>
-
 ### fetch_logs
 
 Fetch Kubernetes pod logs
 
-
 Collects pod logs selected by label from the target namespace, writes them on the managed host, and fetches them back to the control node.
 
 Log collection tolerates missing pods or missing log content and still attempts artifact retrieval.
-
 
 ```yaml
 - name: Fetch Kubernetes pod logs
@@ -109,5 +95,3 @@ Log collection tolerates missing pods or missing log content and still attempts 
     name: hyperledger.fabricx.k8s
     tasks_from: fetch_logs
 ```
-
-

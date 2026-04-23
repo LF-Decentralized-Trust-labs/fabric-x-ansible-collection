@@ -1,20 +1,18 @@
-
 # hyperledger.fabricx.cryptogen
 
 > Generates crypto material for Hyperledger Fabric-X networks using the `cryptogen` CLI tool.
-
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [start](#task-start)
-  - [fetch](#task-fetch)
-  - [config/build](#task-config-build)
-  - [container/start](#task-container-start)
-  - [bin/install](#task-bin-install)
-  - [bin/build](#task-bin-build)
-  - [bin/start](#task-bin-start)
+  - [start](#start)
+  - [fetch](#fetch)
+  - [config/build](#configbuild)
+  - [container/start](#containerstart)
+  - [bin/install](#bininstall)
+  - [bin/build](#binbuild)
+  - [bin/start](#binstart)
 
 ## Role Defaults
 
@@ -22,17 +20,13 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 
 ## Tasks
 
-<a id="task-start"></a>
-
 ### start
 
 Select the cryptogen execution mode
 
-
 Choose whether cryptogen runs as a binary or in a container.
 
 This dispatcher includes either the `bin/start` or `container/start` entry point.
-
 
 ```yaml
 - name: Select the cryptogen execution mode
@@ -44,17 +38,13 @@ This dispatcher includes either the `bin/start` or `container/start` entry point
     tasks_from: start
 ```
 
-<a id="task-fetch"></a>
-
 ### fetch
 
 Fetch generated MSP directories
 
-
 Copy generated MSP directories for orderer and peer organizations into the fetched artifacts directory.
 
 Run this after crypto material has already been generated.
-
 
 ```yaml
 - name: Fetch generated MSP directories
@@ -74,17 +64,13 @@ Run this after crypto material has already been generated.
     tasks_from: fetch
 ```
 
-<a id="task-config-build"></a>
-
 ### config/build
 
 Build the cryptogen configuration file
 
-
 Render `crypto-config.yaml` for the cryptogen CLI.
 
 This entry point gathers host IPv4 facts for referenced orderer and peer hosts before templating.
-
 
 ```yaml
 - name: Build the cryptogen configuration file
@@ -104,17 +90,13 @@ This entry point gathers host IPv4 facts for referenced orderer and peer hosts b
     tasks_from: config/build
 ```
 
-<a id="task-container-start"></a>
-
 ### container/start
 
 Generate crypto material with a container
 
-
 Clean the output directory and run the cryptogen CLI in a container.
 
 This entry point delegates container startup to `hyperledger.fabricx.container`.
-
 
 ```yaml
 - name: Generate crypto material with a container
@@ -148,17 +130,13 @@ This entry point delegates container startup to `hyperledger.fabricx.container`.
     tasks_from: container/start
 ```
 
-<a id="task-bin-install"></a>
-
 ### bin/install
 
 Install the cryptogen binary
 
-
 Install the cryptogen binary through `hyperledger.fabricx.bin`.
 
 This entry point is intended for binary-mode deployments.
-
 
 ```yaml
 - name: Install the cryptogen binary
@@ -182,17 +160,13 @@ This entry point is intended for binary-mode deployments.
     tasks_from: bin/install
 ```
 
-<a id="task-bin-build"></a>
-
 ### bin/build
 
 Build the cryptogen binary from source
 
-
 Build the cryptogen binary from the configured source repository through `hyperledger.fabricx.bin`.
 
 This entry point builds on the control node and writes the binary into `cli_bin_dir`.
-
 
 ```yaml
 - name: Build the cryptogen binary from source
@@ -214,17 +188,13 @@ This entry point builds on the control node and writes the binary into `cli_bin_
     tasks_from: bin/build
 ```
 
-<a id="task-bin-start"></a>
-
 ### bin/start
 
 Generate crypto material with the binary
 
-
 Clean the output directory and run the cryptogen binary on the target host.
 
 This entry point delegates command execution to `hyperledger.fabricx.bin`.
-
 
 ```yaml
 - name: Generate crypto material with the binary
@@ -245,5 +215,3 @@ This entry point delegates command execution to `hyperledger.fabricx.bin`.
     name: hyperledger.fabricx.cryptogen
     tasks_from: bin/start
 ```
-
-

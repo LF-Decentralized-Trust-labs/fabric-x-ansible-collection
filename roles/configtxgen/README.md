@@ -1,19 +1,17 @@
-
 # hyperledger.fabricx.configtxgen
 
 > Runs the `configtxgen` CLI tool to generate Fabric-X genesis blocks.
-
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [config/build](#task-config-build)
-  - [bin/build](#task-bin-build)
-  - [bin/install](#task-bin-install)
-  - [bin/start](#task-bin-start)
-  - [container/start](#task-container-start)
-  - [start](#task-start)
+  - [config/build](#configbuild)
+  - [bin/build](#binbuild)
+  - [bin/install](#bininstall)
+  - [bin/start](#binstart)
+  - [container/start](#containerstart)
+  - [start](#start)
 
 ## Role Defaults
 
@@ -21,17 +19,13 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 
 ## Tasks
 
-<a id="task-config-build"></a>
-
 ### config/build
 
 Build the configtxgen configuration file
 
-
 Generate `configtx.yaml` for Fabric-X genesis block creation.
 
 Render the config template using the provided inputs, including the path selection controlled by `configtxgen_use_bin`.
-
 
 ```yaml
 - name: Build the configtxgen configuration file
@@ -63,17 +57,13 @@ Render the config template using the provided inputs, including the path selecti
     tasks_from: config/build
 ```
 
-<a id="task-bin-build"></a>
-
 ### bin/build
 
 Build the configtxgen binary
 
-
 Build the `configtxgen` binary from the Fabric-X source tree on the control node.
 
 This entry point passes the binary destination to the shared `bin` role.
-
 
 ```yaml
 - name: Build the configtxgen binary
@@ -95,17 +85,13 @@ This entry point passes the binary destination to the shared `bin` role.
     tasks_from: bin/build
 ```
 
-<a id="task-bin-install"></a>
-
 ### bin/install
 
 Install the configtxgen binary
 
-
 Install the `configtxgen` Go package through the shared `bin` role.
 
 The package default derives from `configtxgen_git_hub_url`, `configtxgen_git_repo`, and `configtxgen_source_code_package`.
-
 
 ```yaml
 - name: Install the configtxgen binary
@@ -129,17 +115,13 @@ The package default derives from `configtxgen_git_hub_url`, `configtxgen_git_rep
     tasks_from: bin/install
 ```
 
-<a id="task-bin-start"></a>
-
 ### bin/start
 
 Generate a genesis block with the configtxgen binary
 
-
 Run the local `configtxgen` binary to generate the channel genesis block.
 
 The artifacts directory default derives from `config_build_dir`, and the channel ID default derives from `channel_id`.
-
 
 ```yaml
 - name: Generate a genesis block with the configtxgen binary
@@ -163,17 +145,13 @@ The artifacts directory default derives from `config_build_dir`, and the channel
     tasks_from: bin/start
 ```
 
-<a id="task-container-start"></a>
-
 ### container/start
 
 Generate a genesis block with the configtxgen container
 
-
 Run `configtxgen` in a container to generate the channel genesis block.
 
 The image, artifacts directory, and channel ID defaults derive from the base registry, build, and channel inputs.
-
 
 ```yaml
 - name: Generate a genesis block with the configtxgen container
@@ -221,17 +199,13 @@ The image, artifacts directory, and channel ID defaults derive from the base reg
     tasks_from: container/start
 ```
 
-<a id="task-start"></a>
-
 ### start
 
 Dispatch genesis block generation
 
-
 Select the binary or container execution path for `configtxgen`.
 
 The concrete entry point validates the remaining inputs.
-
 
 ```yaml
 - name: Dispatch genesis block generation
@@ -242,5 +216,3 @@ The concrete entry point validates the remaining inputs.
     name: hyperledger.fabricx.configtxgen
     tasks_from: start
 ```
-
-

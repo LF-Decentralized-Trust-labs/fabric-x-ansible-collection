@@ -1,45 +1,43 @@
-
 # hyperledger.fabricx.container
 
 > Handles container lifecycle management (supports `podman` and `docker`).
-
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [install](#task-install)
-  - [get_container_client](#task-get_container_client)
-  - [start](#task-start)
-  - [stop](#task-stop)
-  - [rm](#task-rm)
-  - [exec](#task-exec)
-  - [fetch_logs](#task-fetch_logs)
-  - [registry/login](#task-registry-login)
-  - [network/create](#task-network-create)
-  - [network/rm](#task-network-rm)
-  - [volume/create](#task-volume-create)
-  - [volume/rm](#task-volume-rm)
-  - [docker/install](#task-docker-install)
-  - [docker/start](#task-docker-start)
-  - [docker/stop](#task-docker-stop)
-  - [docker/rm](#task-docker-rm)
-  - [docker/exec](#task-docker-exec)
-  - [docker/registry/login](#task-docker-registry-login)
-  - [docker/network/create](#task-docker-network-create)
-  - [docker/network/rm](#task-docker-network-rm)
-  - [docker/volume/create](#task-docker-volume-create)
-  - [docker/volume/rm](#task-docker-volume-rm)
-  - [podman/install](#task-podman-install)
-  - [podman/start](#task-podman-start)
-  - [podman/stop](#task-podman-stop)
-  - [podman/rm](#task-podman-rm)
-  - [podman/exec](#task-podman-exec)
-  - [podman/registry/login](#task-podman-registry-login)
-  - [podman/network/create](#task-podman-network-create)
-  - [podman/network/rm](#task-podman-network-rm)
-  - [podman/volume/create](#task-podman-volume-create)
-  - [podman/volume/rm](#task-podman-volume-rm)
+  - [install](#install)
+  - [get_container_client](#get_container_client)
+  - [start](#start)
+  - [stop](#stop)
+  - [rm](#rm)
+  - [exec](#exec)
+  - [fetch_logs](#fetch_logs)
+  - [registry/login](#registrylogin)
+  - [network/create](#networkcreate)
+  - [network/rm](#networkrm)
+  - [volume/create](#volumecreate)
+  - [volume/rm](#volumerm)
+  - [docker/install](#dockerinstall)
+  - [docker/start](#dockerstart)
+  - [docker/stop](#dockerstop)
+  - [docker/rm](#dockerrm)
+  - [docker/exec](#dockerexec)
+  - [docker/registry/login](#dockerregistrylogin)
+  - [docker/network/create](#dockernetworkcreate)
+  - [docker/network/rm](#dockernetworkrm)
+  - [docker/volume/create](#dockervolumecreate)
+  - [docker/volume/rm](#dockervolumerm)
+  - [podman/install](#podmaninstall)
+  - [podman/start](#podmanstart)
+  - [podman/stop](#podmanstop)
+  - [podman/rm](#podmanrm)
+  - [podman/exec](#podmanexec)
+  - [podman/registry/login](#podmanregistrylogin)
+  - [podman/network/create](#podmannetworkcreate)
+  - [podman/network/rm](#podmannetworkrm)
+  - [podman/volume/create](#podmanvolumecreate)
+  - [podman/volume/rm](#podmanvolumerm)
 
 ## Role Defaults
 
@@ -47,15 +45,11 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 
 ## Tasks
 
-<a id="task-install"></a>
-
 ### install
 
 Install a supported container client
 
-
 Detects an available container client and installs Docker or Podman on Linux when needed.
-
 
 ```yaml
 - name: Install a supported container client
@@ -67,15 +61,11 @@ Detects an available container client and installs Docker or Podman on Linux whe
     tasks_from: install
 ```
 
-<a id="task-get_container_client"></a>
-
 ### get_container_client
 
 Detect the available container client
 
-
 Chooses the requested container client or auto-detects one from the current host.
-
 
 ```yaml
 - name: Detect the available container client
@@ -87,15 +77,11 @@ Chooses the requested container client or auto-detects one from the current host
     tasks_from: get_container_client
 ```
 
-<a id="task-start"></a>
-
 ### start
 
 Start a container with the selected client
 
-
 Logs the command in debug mode, resolves the container client, and delegates startup to the matching backend task file.
-
 
 ```yaml
 - name: Start a container with the selected client
@@ -179,15 +165,11 @@ Logs the command in debug mode, resolves the container client, and delegates sta
     tasks_from: start
 ```
 
-<a id="task-stop"></a>
-
 ### stop
 
 Stop a container with the selected client
 
-
 Resolves the active container client and delegates container shutdown to the matching backend task file.
-
 
 ```yaml
 - name: Stop a container with the selected client
@@ -201,15 +183,11 @@ Resolves the active container client and delegates container shutdown to the mat
     tasks_from: stop
 ```
 
-<a id="task-rm"></a>
-
 ### rm
 
 Remove a container with the selected client
 
-
 Resolves the active container client and delegates container removal to the matching backend task file.
-
 
 ```yaml
 - name: Remove a container with the selected client
@@ -223,15 +201,11 @@ Resolves the active container client and delegates container removal to the matc
     tasks_from: rm
 ```
 
-<a id="task-exec"></a>
-
 ### exec
 
 Execute a command in a container
 
-
 Resolves the active container client and delegates command execution to the matching backend task file.
-
 
 ```yaml
 - name: Execute a command in a container
@@ -249,15 +223,11 @@ Resolves the active container client and delegates command execution to the matc
     tasks_from: exec
 ```
 
-<a id="task-fetch_logs"></a>
-
 ### fetch_logs
 
 Fetch container logs from the remote host
 
-
 Resolves the active container client, writes logs on the remote node, and fetches them to the control host.
-
 
 ```yaml
 - name: Fetch container logs from the remote host
@@ -283,15 +253,11 @@ Resolves the active container client, writes logs on the remote node, and fetche
     tasks_from: fetch_logs
 ```
 
-<a id="task-registry-login"></a>
-
 ### registry/login
 
 Log in to a container registry
 
-
 Resolves the active container client and delegates registry login to the matching backend task file.
-
 
 ```yaml
 - name: Log in to a container registry
@@ -309,15 +275,11 @@ Resolves the active container client and delegates registry login to the matchin
     tasks_from: registry/login
 ```
 
-<a id="task-network-create"></a>
-
 ### network/create
 
 Create a container network
 
-
 Resolves the active container client and delegates network creation to the matching backend task file.
-
 
 ```yaml
 - name: Create a container network
@@ -337,15 +299,11 @@ Resolves the active container client and delegates network creation to the match
     tasks_from: network/create
 ```
 
-<a id="task-network-rm"></a>
-
 ### network/rm
 
 Remove a container network
 
-
 Resolves the active container client and delegates network removal to the matching backend task file.
-
 
 ```yaml
 - name: Remove a container network
@@ -359,15 +317,11 @@ Resolves the active container client and delegates network removal to the matchi
     tasks_from: network/rm
 ```
 
-<a id="task-volume-create"></a>
-
 ### volume/create
 
 Create a container volume
 
-
 Resolves the active container client and delegates volume creation to the matching backend task file.
-
 
 ```yaml
 - name: Create a container volume
@@ -403,15 +357,11 @@ Resolves the active container client and delegates volume creation to the matchi
     tasks_from: volume/create
 ```
 
-<a id="task-volume-rm"></a>
-
 ### volume/rm
 
 Remove a container volume
 
-
 Resolves the active container client and delegates volume removal to the matching backend task file.
-
 
 ```yaml
 - name: Remove a container volume
@@ -435,15 +385,11 @@ Resolves the active container client and delegates volume removal to the matchin
     tasks_from: volume/rm
 ```
 
-<a id="task-docker-install"></a>
-
 ### docker/install
 
 Install Docker on the target host
 
-
 Installs Docker on Linux, enables the service, and runs a hello-world container to verify the client.
-
 
 ```yaml
 - name: Install Docker on the target host
@@ -452,15 +398,11 @@ Installs Docker on Linux, enables the service, and runs a hello-world container 
     tasks_from: docker/install
 ```
 
-<a id="task-docker-start"></a>
-
 ### docker/start
 
 Start a container with Docker
 
-
 Starts a Docker container with the requested runtime options and optionally waits for health or port readiness.
-
 
 ```yaml
 - name: Start a container with Docker
@@ -540,15 +482,11 @@ Starts a Docker container with the requested runtime options and optionally wait
     tasks_from: docker/start
 ```
 
-<a id="task-docker-stop"></a>
-
 ### docker/stop
 
 Stop a container with Docker
 
-
 Stops a Docker container when it exists.
-
 
 ```yaml
 - name: Stop a container with Docker
@@ -560,15 +498,11 @@ Stops a Docker container when it exists.
     tasks_from: docker/stop
 ```
 
-<a id="task-docker-rm"></a>
-
 ### docker/rm
 
 Remove a container with Docker
 
-
 Removes a Docker container and its volumes.
-
 
 ```yaml
 - name: Remove a container with Docker
@@ -580,15 +514,11 @@ Removes a Docker container and its volumes.
     tasks_from: docker/rm
 ```
 
-<a id="task-docker-exec"></a>
-
 ### docker/exec
 
 Execute a command in a Docker container
 
-
 Runs a command inside a Docker container.
-
 
 ```yaml
 - name: Execute a command in a Docker container
@@ -604,15 +534,11 @@ Runs a command inside a Docker container.
     tasks_from: docker/exec
 ```
 
-<a id="task-docker-registry-login"></a>
-
 ### docker/registry/login
 
 Log in to a registry with Docker
 
-
 Logs Docker in to the requested container registry.
-
 
 ```yaml
 - name: Log in to a registry with Docker
@@ -628,15 +554,11 @@ Logs Docker in to the requested container registry.
     tasks_from: docker/registry/login
 ```
 
-<a id="task-docker-network-create"></a>
-
 ### docker/network/create
 
 Create a Docker network
 
-
 Creates a Docker network with the requested driver and flags.
-
 
 ```yaml
 - name: Create a Docker network
@@ -654,15 +576,11 @@ Creates a Docker network with the requested driver and flags.
     tasks_from: docker/network/create
 ```
 
-<a id="task-docker-network-rm"></a>
-
 ### docker/network/rm
 
 Remove a Docker network
 
-
 Removes a Docker network.
-
 
 ```yaml
 - name: Remove a Docker network
@@ -674,15 +592,11 @@ Removes a Docker network.
     tasks_from: docker/network/rm
 ```
 
-<a id="task-docker-volume-create"></a>
-
 ### docker/volume/create
 
 Create a Docker volume
 
-
 Creates a Docker volume and adjusts ownership when needed.
-
 
 ```yaml
 - name: Create a Docker volume
@@ -716,15 +630,11 @@ Creates a Docker volume and adjusts ownership when needed.
     tasks_from: docker/volume/create
 ```
 
-<a id="task-docker-volume-rm"></a>
-
 ### docker/volume/rm
 
 Remove a Docker volume
 
-
 Removes a Docker volume path.
-
 
 ```yaml
 - name: Remove a Docker volume
@@ -746,15 +656,11 @@ Removes a Docker volume path.
     tasks_from: docker/volume/rm
 ```
 
-<a id="task-podman-install"></a>
-
 ### podman/install
 
 Install Podman on the target host
 
-
 Installs Podman and verifies that the binary is available.
-
 
 ```yaml
 - name: Install Podman on the target host
@@ -763,15 +669,11 @@ Installs Podman and verifies that the binary is available.
     tasks_from: podman/install
 ```
 
-<a id="task-podman-start"></a>
-
 ### podman/start
 
 Start a container with Podman
 
-
 Starts a Podman container with the requested runtime options and optionally waits for health or port readiness.
-
 
 ```yaml
 - name: Start a container with Podman
@@ -853,15 +755,11 @@ Starts a Podman container with the requested runtime options and optionally wait
     tasks_from: podman/start
 ```
 
-<a id="task-podman-stop"></a>
-
 ### podman/stop
 
 Stop a container with Podman
 
-
 Stops a Podman container when it exists.
-
 
 ```yaml
 - name: Stop a container with Podman
@@ -873,15 +771,11 @@ Stops a Podman container when it exists.
     tasks_from: podman/stop
 ```
 
-<a id="task-podman-rm"></a>
-
 ### podman/rm
 
 Remove a container with Podman
 
-
 Removes a Podman container and its volumes.
-
 
 ```yaml
 - name: Remove a container with Podman
@@ -893,15 +787,11 @@ Removes a Podman container and its volumes.
     tasks_from: podman/rm
 ```
 
-<a id="task-podman-exec"></a>
-
 ### podman/exec
 
 Execute a command in a Podman container
 
-
 Runs a command inside a Podman container.
-
 
 ```yaml
 - name: Execute a command in a Podman container
@@ -917,15 +807,11 @@ Runs a command inside a Podman container.
     tasks_from: podman/exec
 ```
 
-<a id="task-podman-registry-login"></a>
-
 ### podman/registry/login
 
 Log in to a registry with Podman
 
-
 Logs Podman in to the requested container registry.
-
 
 ```yaml
 - name: Log in to a registry with Podman
@@ -941,15 +827,11 @@ Logs Podman in to the requested container registry.
     tasks_from: podman/registry/login
 ```
 
-<a id="task-podman-network-create"></a>
-
 ### podman/network/create
 
 Create a Podman network
 
-
 Creates a Podman network with the requested driver.
-
 
 ```yaml
 - name: Create a Podman network
@@ -965,15 +847,11 @@ Creates a Podman network with the requested driver.
     tasks_from: podman/network/create
 ```
 
-<a id="task-podman-network-rm"></a>
-
 ### podman/network/rm
 
 Remove a Podman network
 
-
 Removes a Podman network.
-
 
 ```yaml
 - name: Remove a Podman network
@@ -985,15 +863,11 @@ Removes a Podman network.
     tasks_from: podman/network/rm
 ```
 
-<a id="task-podman-volume-create"></a>
-
 ### podman/volume/create
 
 Create a Podman volume
 
-
 Creates a Podman volume and adjusts ownership when needed.
-
 
 ```yaml
 - name: Create a Podman volume
@@ -1027,15 +901,11 @@ Creates a Podman volume and adjusts ownership when needed.
     tasks_from: podman/volume/create
 ```
 
-<a id="task-podman-volume-rm"></a>
-
 ### podman/volume/rm
 
 Remove a Podman volume
 
-
 Removes a Podman volume path.
-
 
 ```yaml
 - name: Remove a Podman volume
@@ -1056,5 +926,3 @@ Removes a Podman volume path.
     name: hyperledger.fabricx.container
     tasks_from: podman/volume/rm
 ```
-
-

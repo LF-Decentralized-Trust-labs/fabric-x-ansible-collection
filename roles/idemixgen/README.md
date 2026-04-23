@@ -1,21 +1,19 @@
-
 # hyperledger.fabricx.idemixgen
 
 > Runs the `idemixgen` CLI tool for Idemix CA key generation and signer configuration.
-
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [ca-keygen](#task-ca-keygen)
-  - [signerconfig](#task-signerconfig)
-  - [bin/build](#task-bin-build)
-  - [bin/install](#task-bin-install)
-  - [bin/ca-keygen](#task-bin-ca-keygen)
-  - [bin/signerconfig](#task-bin-signerconfig)
-  - [container/ca-keygen](#task-container-ca-keygen)
-  - [container/signerconfig](#task-container-signerconfig)
+  - [ca-keygen](#ca-keygen)
+  - [signerconfig](#signerconfig)
+  - [bin/build](#binbuild)
+  - [bin/install](#bininstall)
+  - [bin/ca-keygen](#binca-keygen)
+  - [bin/signerconfig](#binsignerconfig)
+  - [container/ca-keygen](#containerca-keygen)
+  - [container/signerconfig](#containersignerconfig)
 
 ## Role Defaults
 
@@ -23,17 +21,13 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 
 ## Tasks
 
-<a id="task-ca-keygen"></a>
-
 ### ca-keygen
 
 Dispatch Idemix CA key generation
 
-
 Runs Idemix CA key generation through the container or binary path.
 
 Set `idemixgen_use_bin` to choose the execution mode.
-
 
 ```yaml
 - name: Dispatch Idemix CA key generation
@@ -45,17 +39,13 @@ Set `idemixgen_use_bin` to choose the execution mode.
     tasks_from: ca-keygen
 ```
 
-<a id="task-signerconfig"></a>
-
 ### signerconfig
 
 Dispatch Idemix signer configuration generation
 
-
 Runs Idemix signer configuration generation through the container or binary path.
 
 Set `idemixgen_use_bin` to choose the execution mode.
-
 
 ```yaml
 - name: Dispatch Idemix signer configuration generation
@@ -67,17 +57,13 @@ Set `idemixgen_use_bin` to choose the execution mode.
     tasks_from: signerconfig
 ```
 
-<a id="task-bin-build"></a>
-
 ### bin/build
 
 Build the idemixgen binary
 
-
 Builds the idemixgen CLI from source on the control node.
 
 This entry point passes the configured git source and package path to the shared binary builder.
-
 
 ```yaml
 - name: Build the idemixgen binary
@@ -99,17 +85,13 @@ This entry point passes the configured git source and package path to the shared
     tasks_from: bin/build
 ```
 
-<a id="task-bin-install"></a>
-
 ### bin/install
 
 Install the idemixgen binary
 
-
 Installs the idemixgen CLI from the configured repository and commit.
 
 This entry point is used before binary-mode execution.
-
 
 ```yaml
 - name: Install the idemixgen binary
@@ -133,17 +115,13 @@ This entry point is used before binary-mode execution.
     tasks_from: bin/install
 ```
 
-<a id="task-bin-ca-keygen"></a>
-
 ### bin/ca-keygen
 
 Generate Idemix CA key material with the binary
 
-
 Runs `idemixgen ca-keygen` through the locally installed binary.
 
 The task removes any existing CA and MSP output directories before generating fresh artifacts.
-
 
 ```yaml
 - name: Generate Idemix CA key material with the binary
@@ -165,17 +143,13 @@ The task removes any existing CA and MSP output directories before generating fr
     tasks_from: bin/ca-keygen
 ```
 
-<a id="task-bin-signerconfig"></a>
-
 ### bin/signerconfig
 
 Generate Idemix signer configuration with the binary
 
-
 Runs `idemixgen signerconfig` through the locally installed binary.
 
 The task removes any existing MSP and user output directories before generating fresh artifacts.
-
 
 ```yaml
 - name: Generate Idemix signer configuration with the binary
@@ -205,17 +179,13 @@ The task removes any existing MSP and user output directories before generating 
     tasks_from: bin/signerconfig
 ```
 
-<a id="task-container-ca-keygen"></a>
-
 ### container/ca-keygen
 
 Generate Idemix CA key material in a container
 
-
 Runs `idemixgen ca-keygen` in the configured container image.
 
 The task removes any existing CA and MSP output directories before generating fresh artifacts.
-
 
 ```yaml
 - name: Generate Idemix CA key material in a container
@@ -247,17 +217,13 @@ The task removes any existing CA and MSP output directories before generating fr
     tasks_from: container/ca-keygen
 ```
 
-<a id="task-container-signerconfig"></a>
-
 ### container/signerconfig
 
 Generate Idemix signer configuration in a container
 
-
 Runs `idemixgen signerconfig` in the configured container image.
 
 The task removes any existing MSP and user output directories before generating fresh artifacts.
-
 
 ```yaml
 - name: Generate Idemix signer configuration in a container
@@ -296,5 +262,3 @@ The task removes any existing MSP and user output directories before generating 
     name: hyperledger.fabricx.idemixgen
     tasks_from: container/signerconfig
 ```
-
-

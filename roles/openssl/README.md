@@ -1,18 +1,16 @@
-
 # hyperledger.fabricx.openssl
 
 > Runs the `openssl` CLI utility for certificate and key generation.
-
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [install](#task-install)
-  - [generate_keypair](#task-generate_keypair)
-  - [generate_self_signed_cert](#task-generate_self_signed_cert)
-  - [generate_csr](#task-generate_csr)
-  - [generate_cert](#task-generate_cert)
+  - [install](#install)
+  - [generate_keypair](#generate_keypair)
+  - [generate_self_signed_cert](#generate_self_signed_cert)
+  - [generate_csr](#generate_csr)
+  - [generate_cert](#generate_cert)
 
 ## Role Defaults
 
@@ -20,15 +18,11 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 
 ## Tasks
 
-<a id="task-install"></a>
-
 ### install
 
 Install the OpenSSL CLI
 
-
 Install the `openssl` package on the target host by delegating to the package role.
-
 
 ```yaml
 - name: Install the OpenSSL CLI
@@ -37,15 +31,11 @@ Install the `openssl` package on the target host by delegating to the package ro
     tasks_from: install
 ```
 
-<a id="task-generate_keypair"></a>
-
 ### generate_keypair
 
 Generate an asymmetric key pair
 
-
 Generate a private key and the matching public key on the target host.
-
 
 ```yaml
 - name: Generate an asymmetric key pair
@@ -63,17 +53,13 @@ Generate a private key and the matching public key on the target host.
     tasks_from: generate_keypair
 ```
 
-<a id="task-generate_self_signed_cert"></a>
-
 ### generate_self_signed_cert
 
 Generate a self-signed certificate
 
-
 Generate a private key and a self-signed X.509 certificate.
 
 The role also renders a temporary OpenSSL config file and copies the certificate to the CA filename.
-
 
 ```yaml
 - name: Generate a self-signed certificate
@@ -150,15 +136,11 @@ The role also renders a temporary OpenSSL config file and copies the certificate
     tasks_from: generate_self_signed_cert
 ```
 
-<a id="task-generate_csr"></a>
-
 ### generate_csr
 
 Generate a certificate signing request
 
-
 Generate a private key and a certificate signing request using a rendered OpenSSL config file.
-
 
 ```yaml
 - name: Generate a certificate signing request
@@ -235,15 +217,11 @@ Generate a private key and a certificate signing request using a rendered OpenSS
     tasks_from: generate_csr
 ```
 
-<a id="task-generate_cert"></a>
-
 ### generate_cert
 
 Sign a certificate from a CSR
 
-
 Generate a certificate from an existing CSR using the provided CA certificate and private key.
-
 
 ```yaml
 - name: Sign a certificate from a CSR
@@ -264,5 +242,3 @@ Generate a certificate from an existing CSR using the provided CA certificate an
     name: hyperledger.fabricx.openssl
     tasks_from: generate_cert
 ```
-
-

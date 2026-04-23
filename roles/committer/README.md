@@ -1,89 +1,87 @@
-
 # hyperledger.fabricx.committer
 
 > Runs Fabric-X Committer components (`validator`, `verifier`, `coordinator`, `sidecar`, `query-service`).
-
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [ping](#task-ping)
-  - [k8s/ping](#task-k8s-ping)
-  - [validator/start](#task-validator-start)
-  - [verifier/start](#task-verifier-start)
-  - [coordinator/start](#task-coordinator-start)
-  - [sidecar/start](#task-sidecar-start)
-  - [query_service/start](#task-query_service-start)
-  - [stop](#task-stop)
-  - [teardown](#task-teardown)
-  - [query_service/teardown](#task-query_service-teardown)
-  - [sidecar/teardown](#task-sidecar-teardown)
-  - [coordinator/teardown](#task-coordinator-teardown)
-  - [wipe](#task-wipe)
-  - [fetch_logs](#task-fetch_logs)
-  - [get_metrics](#task-get_metrics)
-  - [start](#task-start)
-  - [crypto/setup](#task-crypto-setup)
-  - [crypto/fetch](#task-crypto-fetch)
-  - [bin/install](#task-bin-install)
-  - [bin/build](#task-bin-build)
-  - [bin/stop](#task-bin-stop)
-  - [bin/rm](#task-bin-rm)
-  - [bin/fetch_logs](#task-bin-fetch_logs)
-  - [bin/transfer](#task-bin-transfer)
-  - [validator/container/start](#task-validator-container-start)
-  - [verifier/container/start](#task-verifier-container-start)
-  - [coordinator/container/start](#task-coordinator-container-start)
-  - [sidecar/container/start](#task-sidecar-container-start)
-  - [query_service/container/start](#task-query_service-container-start)
-  - [container/stop](#task-container-stop)
-  - [container/rm](#task-container-rm)
-  - [container/fetch_logs](#task-container-fetch_logs)
-  - [config/transfer](#task-config-transfer)
-  - [config/rm](#task-config-rm)
-  - [config/transfer_grafana_dashboard](#task-config-transfer_grafana_dashboard)
-  - [config/db/transfer](#task-config-db-transfer)
-  - [config/db/postgres/transfer](#task-config-db-postgres-transfer)
-  - [config/db/yugabyte/transfer](#task-config-db-yugabyte-transfer)
-  - [config/mtls/transfer](#task-config-mtls-transfer)
-  - [config/mtls/monitoring/transfer](#task-config-mtls-monitoring-transfer)
-  - [crypto/rm](#task-crypto-rm)
-  - [crypto/cryptogen/transfer](#task-crypto-cryptogen-transfer)
-  - [crypto/fabric_ca/enroll](#task-crypto-fabric_ca-enroll)
-  - [data/rm](#task-data-rm)
-  - [k8s/config/rm](#task-k8s-config-rm)
-  - [k8s/crypto/rm](#task-k8s-crypto-rm)
-  - [k8s/crypto/transfer](#task-k8s-crypto-transfer)
-  - [k8s/fetch_logs](#task-k8s-fetch_logs)
-  - [prometheus/get_scrapers](#task-prometheus-get_scrapers)
-  - [validator/bin/start](#task-validator-bin-start)
-  - [verifier/bin/start](#task-verifier-bin-start)
-  - [coordinator/bin/start](#task-coordinator-bin-start)
-  - [sidecar/bin/start](#task-sidecar-bin-start)
-  - [query_service/bin/start](#task-query_service-bin-start)
-  - [validator/config/transfer](#task-validator-config-transfer)
-  - [verifier/config/transfer](#task-verifier-config-transfer)
-  - [coordinator/config/transfer](#task-coordinator-config-transfer)
-  - [sidecar/config/transfer](#task-sidecar-config-transfer)
-  - [query_service/config/transfer](#task-query_service-config-transfer)
-  - [validator/k8s/start](#task-validator-k8s-start)
-  - [verifier/k8s/start](#task-verifier-k8s-start)
-  - [coordinator/k8s/start](#task-coordinator-k8s-start)
-  - [sidecar/k8s/start](#task-sidecar-k8s-start)
-  - [query_service/k8s/start](#task-query_service-k8s-start)
-  - [validator/k8s/rm](#task-validator-k8s-rm)
-  - [verifier/k8s/rm](#task-verifier-k8s-rm)
-  - [coordinator/k8s/rm](#task-coordinator-k8s-rm)
-  - [sidecar/k8s/rm](#task-sidecar-k8s-rm)
-  - [query_service/k8s/rm](#task-query_service-k8s-rm)
-  - [validator/k8s/config/transfer](#task-validator-k8s-config-transfer)
-  - [verifier/k8s/config/transfer](#task-verifier-k8s-config-transfer)
-  - [coordinator/k8s/config/transfer](#task-coordinator-k8s-config-transfer)
-  - [sidecar/k8s/config/transfer](#task-sidecar-k8s-config-transfer)
-  - [query_service/k8s/config/transfer](#task-query_service-k8s-config-transfer)
-  - [validator/teardown](#task-validator-teardown)
-  - [verifier/teardown](#task-verifier-teardown)
+  - [ping](#ping)
+  - [k8s/ping](#k8sping)
+  - [validator/start](#validatorstart)
+  - [verifier/start](#verifierstart)
+  - [coordinator/start](#coordinatorstart)
+  - [sidecar/start](#sidecarstart)
+  - [query_service/start](#query_servicestart)
+  - [stop](#stop)
+  - [teardown](#teardown)
+  - [query_service/teardown](#query_serviceteardown)
+  - [sidecar/teardown](#sidecarteardown)
+  - [coordinator/teardown](#coordinatorteardown)
+  - [wipe](#wipe)
+  - [fetch_logs](#fetch_logs)
+  - [get_metrics](#get_metrics)
+  - [start](#start)
+  - [crypto/setup](#cryptosetup)
+  - [crypto/fetch](#cryptofetch)
+  - [bin/install](#bininstall)
+  - [bin/build](#binbuild)
+  - [bin/stop](#binstop)
+  - [bin/rm](#binrm)
+  - [bin/fetch_logs](#binfetch_logs)
+  - [bin/transfer](#bintransfer)
+  - [validator/container/start](#validatorcontainerstart)
+  - [verifier/container/start](#verifiercontainerstart)
+  - [coordinator/container/start](#coordinatorcontainerstart)
+  - [sidecar/container/start](#sidecarcontainerstart)
+  - [query_service/container/start](#query_servicecontainerstart)
+  - [container/stop](#containerstop)
+  - [container/rm](#containerrm)
+  - [container/fetch_logs](#containerfetch_logs)
+  - [config/transfer](#configtransfer)
+  - [config/rm](#configrm)
+  - [config/transfer_grafana_dashboard](#configtransfer_grafana_dashboard)
+  - [config/db/transfer](#configdbtransfer)
+  - [config/db/postgres/transfer](#configdbpostgrestransfer)
+  - [config/db/yugabyte/transfer](#configdbyugabytetransfer)
+  - [config/mtls/transfer](#configmtlstransfer)
+  - [config/mtls/monitoring/transfer](#configmtlsmonitoringtransfer)
+  - [crypto/rm](#cryptorm)
+  - [crypto/cryptogen/transfer](#cryptocryptogentransfer)
+  - [crypto/fabric_ca/enroll](#cryptofabric_caenroll)
+  - [data/rm](#datarm)
+  - [k8s/config/rm](#k8sconfigrm)
+  - [k8s/crypto/rm](#k8scryptorm)
+  - [k8s/crypto/transfer](#k8scryptotransfer)
+  - [k8s/fetch_logs](#k8sfetch_logs)
+  - [prometheus/get_scrapers](#prometheusget_scrapers)
+  - [validator/bin/start](#validatorbinstart)
+  - [verifier/bin/start](#verifierbinstart)
+  - [coordinator/bin/start](#coordinatorbinstart)
+  - [sidecar/bin/start](#sidecarbinstart)
+  - [query_service/bin/start](#query_servicebinstart)
+  - [validator/config/transfer](#validatorconfigtransfer)
+  - [verifier/config/transfer](#verifierconfigtransfer)
+  - [coordinator/config/transfer](#coordinatorconfigtransfer)
+  - [sidecar/config/transfer](#sidecarconfigtransfer)
+  - [query_service/config/transfer](#query_serviceconfigtransfer)
+  - [validator/k8s/start](#validatork8sstart)
+  - [verifier/k8s/start](#verifierk8sstart)
+  - [coordinator/k8s/start](#coordinatork8sstart)
+  - [sidecar/k8s/start](#sidecark8sstart)
+  - [query_service/k8s/start](#query_servicek8sstart)
+  - [validator/k8s/rm](#validatork8srm)
+  - [verifier/k8s/rm](#verifierk8srm)
+  - [coordinator/k8s/rm](#coordinatork8srm)
+  - [sidecar/k8s/rm](#sidecark8srm)
+  - [query_service/k8s/rm](#query_servicek8srm)
+  - [validator/k8s/config/transfer](#validatork8sconfigtransfer)
+  - [verifier/k8s/config/transfer](#verifierk8sconfigtransfer)
+  - [coordinator/k8s/config/transfer](#coordinatork8sconfigtransfer)
+  - [sidecar/k8s/config/transfer](#sidecark8sconfigtransfer)
+  - [query_service/k8s/config/transfer](#query_servicek8sconfigtransfer)
+  - [validator/teardown](#validatorteardown)
+  - [verifier/teardown](#verifierteardown)
 
 ## Role Defaults
 
@@ -91,15 +89,11 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 
 ## Tasks
 
-<a id="task-ping"></a>
-
 ### ping
 
 Check the committer gRPC endpoint
 
-
 Validate that the Fabric-X Committer RPC port is reachable.
-
 
 ```yaml
 - name: Check the committer gRPC endpoint
@@ -113,15 +107,11 @@ Validate that the Fabric-X Committer RPC port is reachable.
     tasks_from: ping
 ```
 
-<a id="task-k8s-ping"></a>
-
 ### k8s/ping
 
 Check the committer Kubernetes NodePorts
 
-
 Validate that the optional Kubernetes NodePort Service exposes the RPC and metrics ports.
-
 
 ```yaml
 - name: Check the committer Kubernetes NodePorts
@@ -137,17 +127,13 @@ Validate that the optional Kubernetes NodePort Service exposes the RPC and metri
     tasks_from: k8s/ping
 ```
 
-<a id="task-validator-start"></a>
-
 ### validator/start
 
 Start a validator component
 
-
 Start a validator in bin, container, or Kubernetes mode.
 
 The selected runtime path depends on `committer_use_bin` and `committer_use_k8s`.
-
 
 ```yaml
 - name: Start a validator component
@@ -163,15 +149,11 @@ The selected runtime path depends on `committer_use_bin` and `committer_use_k8s`
     tasks_from: validator/start
 ```
 
-<a id="task-verifier-start"></a>
-
 ### verifier/start
 
 Start a verifier component
 
-
 Start a verifier in bin, container, or Kubernetes mode.
-
 
 ```yaml
 - name: Start a verifier component
@@ -187,17 +169,13 @@ Start a verifier in bin, container, or Kubernetes mode.
     tasks_from: verifier/start
 ```
 
-<a id="task-coordinator-start"></a>
-
 ### coordinator/start
 
 Start a coordinator component
 
-
 Start a coordinator in bin, container, or Kubernetes mode.
 
 Coordinators connect to validator and verifier hosts that must already be configured.
-
 
 ```yaml
 - name: Start a coordinator component
@@ -213,17 +191,13 @@ Coordinators connect to validator and verifier hosts that must already be config
     tasks_from: coordinator/start
 ```
 
-<a id="task-sidecar-start"></a>
-
 ### sidecar/start
 
 Start a sidecar component
 
-
 Start a sidecar in bin, container, or Kubernetes mode.
 
 Sidecars require persistent data storage and connect to coordinator and orderer hosts.
-
 
 ```yaml
 - name: Start a sidecar component
@@ -239,15 +213,11 @@ Sidecars require persistent data storage and connect to coordinator and orderer 
     tasks_from: sidecar/start
 ```
 
-<a id="task-query_service-start"></a>
-
 ### query_service/start
 
 Start a query-service component
 
-
 Start a query-service in bin, container, or Kubernetes mode.
-
 
 ```yaml
 - name: Start a query-service component
@@ -263,17 +233,13 @@ Start a query-service in bin, container, or Kubernetes mode.
     tasks_from: query_service/start
 ```
 
-<a id="task-stop"></a>
-
 ### stop
 
 Stop a committer process
 
-
 Stop the selected component in bin or container mode.
 
 Kubernetes teardown is handled through the teardown entry points instead.
-
 
 ```yaml
 - name: Stop a committer process
@@ -291,17 +257,13 @@ Kubernetes teardown is handled through the teardown entry points instead.
     tasks_from: stop
 ```
 
-<a id="task-teardown"></a>
-
 ### teardown
 
 Teardown a selected component
 
-
 Remove the selected component according to its deployment mode.
 
 Sidecar teardown also removes sidecar data.
-
 
 ```yaml
 - name: Teardown a selected component
@@ -313,15 +275,11 @@ Sidecar teardown also removes sidecar data.
     tasks_from: teardown
 ```
 
-<a id="task-query_service-teardown"></a>
-
 ### query_service/teardown
 
 Teardown the query-service
 
-
 Remove the query-service according to its deployment mode.
-
 
 ```yaml
 - name: Teardown the query-service
@@ -337,15 +295,11 @@ Remove the query-service according to its deployment mode.
     tasks_from: query_service/teardown
 ```
 
-<a id="task-sidecar-teardown"></a>
-
 ### sidecar/teardown
 
 Teardown the sidecar
 
-
 Remove the sidecar according to its deployment mode and delete sidecar data.
-
 
 ```yaml
 - name: Teardown the sidecar
@@ -361,15 +315,11 @@ Remove the sidecar according to its deployment mode and delete sidecar data.
     tasks_from: sidecar/teardown
 ```
 
-<a id="task-coordinator-teardown"></a>
-
 ### coordinator/teardown
 
 Teardown the coordinator
 
-
 Remove the coordinator according to its deployment mode.
-
 
 ```yaml
 - name: Teardown the coordinator
@@ -385,15 +335,11 @@ Remove the coordinator according to its deployment mode.
     tasks_from: coordinator/teardown
 ```
 
-<a id="task-wipe"></a>
-
 ### wipe
 
 Remove all committer artifacts
 
-
 Tear down the selected component and remove binary, config, and crypto assets.
-
 
 ```yaml
 - name: Remove all committer artifacts
@@ -407,15 +353,11 @@ Tear down the selected component and remove binary, config, and crypto assets.
     tasks_from: wipe
 ```
 
-<a id="task-fetch_logs"></a>
-
 ### fetch_logs
 
 Collect committer logs
 
-
 Fetch logs from the selected deployment mode.
-
 
 ```yaml
 - name: Collect committer logs
@@ -431,15 +373,11 @@ Fetch logs from the selected deployment mode.
     tasks_from: fetch_logs
 ```
 
-<a id="task-get_metrics"></a>
-
 ### get_metrics
 
 Retrieve Prometheus metrics
 
-
 Query the component metrics endpoint and print the response body.
-
 
 ```yaml
 - name: Retrieve Prometheus metrics
@@ -455,15 +393,11 @@ Query the component metrics endpoint and print the response body.
     tasks_from: get_metrics
 ```
 
-<a id="task-start"></a>
-
 ### start
 
 Start a committer component by type
 
-
 Dispatch startup to the selected committer component.
-
 
 ```yaml
 - name: Start a committer component by type
@@ -475,17 +409,13 @@ Dispatch startup to the selected committer component.
     tasks_from: start
 ```
 
-<a id="task-crypto-setup"></a>
-
 ### crypto/setup
 
 Prepare crypto material
 
-
 Transfer cryptogen artifacts or enroll with Fabric CA for the selected component.
 
 When `committer_use_k8s` is true, also create the Kubernetes secret for the component.
-
 
 ```yaml
 - name: Prepare crypto material
@@ -499,17 +429,13 @@ When `committer_use_k8s` is true, also create the Kubernetes secret for the comp
     tasks_from: crypto/setup
 ```
 
-<a id="task-crypto-fetch"></a>
-
 ### crypto/fetch
 
 Fetch TLS certificates
 
-
 Fetch the committer TLS CA certificate and server certificate to the control node.
 
 This task runs only when `committer_use_tls` is true.
-
 
 ```yaml
 - name: Fetch TLS certificates
@@ -527,15 +453,11 @@ This task runs only when `committer_use_tls` is true.
     tasks_from: crypto/fetch
 ```
 
-<a id="task-bin-install"></a>
-
 ### bin/install
 
 Install the committer binary
 
-
 Install the committer binary through the shared `bin` role Go installer entry point.
-
 
 ```yaml
 - name: Install the committer binary
@@ -557,15 +479,11 @@ Install the committer binary through the shared `bin` role Go installer entry po
     tasks_from: bin/install
 ```
 
-<a id="task-bin-build"></a>
-
 ### bin/build
 
 Build the committer binary
 
-
 Build the committer binary through the shared `bin` role Go build entry point.
-
 
 ```yaml
 - name: Build the committer binary
@@ -585,15 +503,11 @@ Build the committer binary through the shared `bin` role Go build entry point.
     tasks_from: bin/build
 ```
 
-<a id="task-bin-stop"></a>
-
 ### bin/stop
 
 Stop a committer binary
 
-
 Stop the running committer binary process through the shared `bin` role.
-
 
 ```yaml
 - name: Stop a committer binary
@@ -602,15 +516,11 @@ Stop the running committer binary process through the shared `bin` role.
     tasks_from: bin/stop
 ```
 
-<a id="task-bin-rm"></a>
-
 ### bin/rm
 
 Remove the committer binary
 
-
 Remove the installed committer binary from the target host.
-
 
 ```yaml
 - name: Remove the committer binary
@@ -622,15 +532,11 @@ Remove the installed committer binary from the target host.
     tasks_from: bin/rm
 ```
 
-<a id="task-bin-fetch_logs"></a>
-
 ### bin/fetch_logs
 
 Fetch committer binary logs
 
-
 Collect logs generated by the committer binary through the shared `bin` role.
-
 
 ```yaml
 - name: Fetch committer binary logs
@@ -639,15 +545,11 @@ Collect logs generated by the committer binary through the shared `bin` role.
     tasks_from: bin/fetch_logs
 ```
 
-<a id="task-bin-transfer"></a>
-
 ### bin/transfer
 
 Transfer the committer binary
 
-
 Copy the built committer binary to the target host.
-
 
 ```yaml
 - name: Transfer the committer binary
@@ -659,15 +561,11 @@ Copy the built committer binary to the target host.
     tasks_from: bin/transfer
 ```
 
-<a id="task-validator-container-start"></a>
-
 ### validator/container/start
 
 Start the validator container
 
-
 Run the validator container with its generated configuration directory mounted read-only.
-
 
 ```yaml
 - name: Start the validator container
@@ -691,15 +589,11 @@ Run the validator container with its generated configuration directory mounted r
     tasks_from: validator/container/start
 ```
 
-<a id="task-verifier-container-start"></a>
-
 ### verifier/container/start
 
 Start the verifier container
 
-
 Run the verifier container with its generated configuration directory mounted read-only.
-
 
 ```yaml
 - name: Start the verifier container
@@ -723,15 +617,11 @@ Run the verifier container with its generated configuration directory mounted re
     tasks_from: verifier/container/start
 ```
 
-<a id="task-coordinator-container-start"></a>
-
 ### coordinator/container/start
 
 Start the coordinator container
 
-
 Run the coordinator container with its generated configuration directory mounted read-only.
-
 
 ```yaml
 - name: Start the coordinator container
@@ -755,15 +645,11 @@ Run the coordinator container with its generated configuration directory mounted
     tasks_from: coordinator/container/start
 ```
 
-<a id="task-sidecar-container-start"></a>
-
 ### sidecar/container/start
 
 Start the sidecar container
 
-
 Ensure the sidecar data directory exists and run the sidecar container with config and data volumes mounted.
-
 
 ```yaml
 - name: Start the sidecar container
@@ -791,15 +677,11 @@ Ensure the sidecar data directory exists and run the sidecar container with conf
     tasks_from: sidecar/container/start
 ```
 
-<a id="task-query_service-container-start"></a>
-
 ### query_service/container/start
 
 Start the query-service container
 
-
 Run the query-service container with its generated configuration directory mounted read-only.
-
 
 ```yaml
 - name: Start the query-service container
@@ -823,15 +705,11 @@ Run the query-service container with its generated configuration directory mount
     tasks_from: query_service/container/start
 ```
 
-<a id="task-container-stop"></a>
-
 ### container/stop
 
 Stop a committer container
 
-
 Stop the committer container through the shared `container` role.
-
 
 ```yaml
 - name: Stop a committer container
@@ -843,15 +721,11 @@ Stop the committer container through the shared `container` role.
     tasks_from: container/stop
 ```
 
-<a id="task-container-rm"></a>
-
 ### container/rm
 
 Remove a committer container
 
-
 Remove the committer container through the shared `container` role.
-
 
 ```yaml
 - name: Remove a committer container
@@ -863,15 +737,11 @@ Remove the committer container through the shared `container` role.
     tasks_from: container/rm
 ```
 
-<a id="task-container-fetch_logs"></a>
-
 ### container/fetch_logs
 
 Fetch committer container logs
 
-
 Collect logs from the committer container through the shared `container` role.
-
 
 ```yaml
 - name: Fetch committer container logs
@@ -883,15 +753,11 @@ Collect logs from the committer container through the shared `container` role.
     tasks_from: container/fetch_logs
 ```
 
-<a id="task-config-transfer"></a>
-
 ### config/transfer
 
 Generate config by component type
 
-
 Dispatch configuration generation to the selected committer component.
-
 
 ```yaml
 - name: Generate config by component type
@@ -903,15 +769,11 @@ Dispatch configuration generation to the selected committer component.
     tasks_from: config/transfer
 ```
 
-<a id="task-config-rm"></a>
-
 ### config/rm
 
 Remove committer configuration
 
-
 Remove the component config directory and the Kubernetes ConfigMap when enabled.
-
 
 ```yaml
 - name: Remove committer configuration
@@ -925,15 +787,11 @@ Remove the component config directory and the Kubernetes ConfigMap when enabled.
     tasks_from: config/rm
 ```
 
-<a id="task-config-transfer_grafana_dashboard"></a>
-
 ### config/transfer_grafana_dashboard
 
 Transfer the committer Grafana dashboard
 
-
 Publish the committer Grafana dashboard through the shared Grafana helper flow.
-
 
 ```yaml
 - name: Transfer the committer Grafana dashboard
@@ -942,15 +800,11 @@ Publish the committer Grafana dashboard through the shared Grafana helper flow.
     tasks_from: config/transfer_grafana_dashboard
 ```
 
-<a id="task-config-db-transfer"></a>
-
 ### config/db/transfer
 
 Transfer DB config by backend type
 
-
 Dispatch database configuration generation to the selected backend.
-
 
 ```yaml
 - name: Transfer DB config by backend type
@@ -964,15 +818,11 @@ Dispatch database configuration generation to the selected backend.
     tasks_from: config/db/transfer
 ```
 
-<a id="task-config-db-postgres-transfer"></a>
-
 ### config/db/postgres/transfer
 
 Transfer PostgreSQL DB config
 
-
 Generate the PostgreSQL connection settings consumed by the committer component.
-
 
 ```yaml
 - name: Transfer PostgreSQL DB config
@@ -988,15 +838,11 @@ Generate the PostgreSQL connection settings consumed by the committer component.
     tasks_from: config/db/postgres/transfer
 ```
 
-<a id="task-config-db-yugabyte-transfer"></a>
-
 ### config/db/yugabyte/transfer
 
 Transfer Yugabyte DB config
 
-
 Generate the Yugabyte connection settings consumed by the committer component.
-
 
 ```yaml
 - name: Transfer Yugabyte DB config
@@ -1012,15 +858,11 @@ Generate the Yugabyte connection settings consumed by the committer component.
     tasks_from: config/db/yugabyte/transfer
 ```
 
-<a id="task-config-mtls-transfer"></a>
-
 ### config/mtls/transfer
 
 Transfer committer mTLS certificates
 
-
 Copy mTLS certificates for the committer service-to-service connections.
-
 
 ```yaml
 - name: Transfer committer mTLS certificates
@@ -1038,15 +880,11 @@ Copy mTLS certificates for the committer service-to-service connections.
     tasks_from: config/mtls/transfer
 ```
 
-<a id="task-config-mtls-monitoring-transfer"></a>
-
 ### config/mtls/monitoring/transfer
 
 Transfer monitoring mTLS certificates
 
-
 Copy monitoring mTLS certificates for Prometheus scraping.
-
 
 ```yaml
 - name: Transfer monitoring mTLS certificates
@@ -1064,15 +902,11 @@ Copy monitoring mTLS certificates for Prometheus scraping.
     tasks_from: config/mtls/monitoring/transfer
 ```
 
-<a id="task-crypto-rm"></a>
-
 ### crypto/rm
 
 Remove committer crypto material
 
-
 Remove local TLS assets and the Kubernetes Secret when enabled.
-
 
 ```yaml
 - name: Remove committer crypto material
@@ -1088,15 +922,11 @@ Remove local TLS assets and the Kubernetes Secret when enabled.
     tasks_from: crypto/rm
 ```
 
-<a id="task-crypto-cryptogen-transfer"></a>
-
 ### crypto/cryptogen/transfer
 
 Transfer committer crypto from cryptogen
 
-
 Copy cryptogen-generated TLS assets for the selected committer component.
-
 
 ```yaml
 - name: Transfer committer crypto from cryptogen
@@ -1116,15 +946,11 @@ Copy cryptogen-generated TLS assets for the selected committer component.
     tasks_from: crypto/cryptogen/transfer
 ```
 
-<a id="task-crypto-fabric_ca-enroll"></a>
-
 ### crypto/fabric_ca/enroll
 
 Enroll committer crypto with Fabric CA
 
-
 Enroll the selected committer component against its Fabric CA and write the resulting TLS assets.
-
 
 ```yaml
 - name: Enroll committer crypto with Fabric CA
@@ -1146,15 +972,11 @@ Enroll the selected committer component against its Fabric CA and write the resu
     tasks_from: crypto/fabric_ca/enroll
 ```
 
-<a id="task-data-rm"></a>
-
 ### data/rm
 
 Remove sidecar data
 
-
 Remove the sidecar data directory and sidecar PVC when Kubernetes mode is enabled.
-
 
 ```yaml
 - name: Remove sidecar data
@@ -1172,15 +994,11 @@ Remove the sidecar data directory and sidecar PVC when Kubernetes mode is enable
     tasks_from: data/rm
 ```
 
-<a id="task-k8s-config-rm"></a>
-
 ### k8s/config/rm
 
 Remove the committer ConfigMap
 
-
 Delete the committer Kubernetes ConfigMap.
-
 
 ```yaml
 - name: Remove the committer ConfigMap
@@ -1194,15 +1012,11 @@ Delete the committer Kubernetes ConfigMap.
     tasks_from: k8s/config/rm
 ```
 
-<a id="task-k8s-crypto-rm"></a>
-
 ### k8s/crypto/rm
 
 Remove the committer Secret
 
-
 Delete the committer Kubernetes Secret.
-
 
 ```yaml
 - name: Remove the committer Secret
@@ -1216,15 +1030,11 @@ Delete the committer Kubernetes Secret.
     tasks_from: k8s/crypto/rm
 ```
 
-<a id="task-k8s-crypto-transfer"></a>
-
 ### k8s/crypto/transfer
 
 Create the committer Secret
 
-
 Create the committer Kubernetes Secret from the generated TLS materials.
-
 
 ```yaml
 - name: Create the committer Secret
@@ -1246,15 +1056,11 @@ Create the committer Kubernetes Secret from the generated TLS materials.
     tasks_from: k8s/crypto/transfer
 ```
 
-<a id="task-k8s-fetch_logs"></a>
-
 ### k8s/fetch_logs
 
 Fetch committer pod logs
 
-
 Collect logs from committer pods through the shared Kubernetes helper role.
-
 
 ```yaml
 - name: Fetch committer pod logs
@@ -1266,15 +1072,11 @@ Collect logs from committer pods through the shared Kubernetes helper role.
     tasks_from: k8s/fetch_logs
 ```
 
-<a id="task-prometheus-get_scrapers"></a>
-
 ### prometheus/get_scrapers
 
 Build Prometheus scrape targets for committer
 
-
 Construct the Prometheus scrape service definitions for all deployed committer component types.
-
 
 ```yaml
 - name: Build Prometheus scrape targets for committer
@@ -1288,15 +1090,11 @@ Construct the Prometheus scrape service definitions for all deployed committer c
     tasks_from: prometheus/get_scrapers
 ```
 
-<a id="task-validator-bin-start"></a>
-
 ### validator/bin/start
 
 Start the validator binary
 
-
 Run the validator binary with its generated configuration file.
-
 
 ```yaml
 - name: Start the validator binary
@@ -1314,15 +1112,11 @@ Run the validator binary with its generated configuration file.
     tasks_from: validator/bin/start
 ```
 
-<a id="task-verifier-bin-start"></a>
-
 ### verifier/bin/start
 
 Start the verifier binary
 
-
 Run the verifier binary with its generated configuration file.
-
 
 ```yaml
 - name: Start the verifier binary
@@ -1340,15 +1134,11 @@ Run the verifier binary with its generated configuration file.
     tasks_from: verifier/bin/start
 ```
 
-<a id="task-coordinator-bin-start"></a>
-
 ### coordinator/bin/start
 
 Start the coordinator binary
 
-
 Run the coordinator binary with its generated configuration file.
-
 
 ```yaml
 - name: Start the coordinator binary
@@ -1366,15 +1156,11 @@ Run the coordinator binary with its generated configuration file.
     tasks_from: coordinator/bin/start
 ```
 
-<a id="task-sidecar-bin-start"></a>
-
 ### sidecar/bin/start
 
 Start the sidecar binary
 
-
 Ensure the sidecar data directory exists and run the sidecar binary.
-
 
 ```yaml
 - name: Start the sidecar binary
@@ -1394,15 +1180,11 @@ Ensure the sidecar data directory exists and run the sidecar binary.
     tasks_from: sidecar/bin/start
 ```
 
-<a id="task-query_service-bin-start"></a>
-
 ### query_service/bin/start
 
 Start the query-service binary
 
-
 Run the query-service binary with its generated configuration file.
-
 
 ```yaml
 - name: Start the query-service binary
@@ -1420,15 +1202,11 @@ Run the query-service binary with its generated configuration file.
     tasks_from: query_service/bin/start
 ```
 
-<a id="task-validator-config-transfer"></a>
-
 ### validator/config/transfer
 
 Generate validator config
 
-
 Render validator configuration, DB settings, mTLS assets, and optional Kubernetes ConfigMap.
-
 
 ```yaml
 - name: Generate validator config
@@ -1508,15 +1286,11 @@ Render validator configuration, DB settings, mTLS assets, and optional Kubernete
     tasks_from: validator/config/transfer
 ```
 
-<a id="task-verifier-config-transfer"></a>
-
 ### verifier/config/transfer
 
 Generate verifier config
 
-
 Render verifier configuration, mTLS assets, and optional Kubernetes ConfigMap.
-
 
 ```yaml
 - name: Generate verifier config
@@ -1576,15 +1350,11 @@ Render verifier configuration, mTLS assets, and optional Kubernetes ConfigMap.
     tasks_from: verifier/config/transfer
 ```
 
-<a id="task-coordinator-config-transfer"></a>
-
 ### coordinator/config/transfer
 
 Generate coordinator config
 
-
 Render coordinator configuration, validator and verifier CA bundles, and optional Kubernetes ConfigMap.
-
 
 ```yaml
 - name: Generate coordinator config
@@ -1662,15 +1432,11 @@ Render coordinator configuration, validator and verifier CA bundles, and optiona
     tasks_from: coordinator/config/transfer
 ```
 
-<a id="task-sidecar-config-transfer"></a>
-
 ### sidecar/config/transfer
 
 Generate sidecar config
 
-
 Render sidecar configuration, upstream TLS bundles, and optional Kubernetes ConfigMap.
-
 
 ```yaml
 - name: Generate sidecar config
@@ -1744,15 +1510,11 @@ Render sidecar configuration, upstream TLS bundles, and optional Kubernetes Conf
     tasks_from: sidecar/config/transfer
 ```
 
-<a id="task-query_service-config-transfer"></a>
-
 ### query_service/config/transfer
 
 Generate query-service config
 
-
 Render query-service configuration, DB settings, mTLS assets, and optional Kubernetes ConfigMap.
-
 
 ```yaml
 - name: Generate query-service config
@@ -1836,15 +1598,11 @@ Render query-service configuration, DB settings, mTLS assets, and optional Kuber
     tasks_from: query_service/config/transfer
 ```
 
-<a id="task-validator-k8s-start"></a>
-
 ### validator/k8s/start
 
 Start the validator on Kubernetes
 
-
 Ensure the namespace exists and apply the validator Service, NodePort Service, and Deployment.
-
 
 ```yaml
 - name: Start the validator on Kubernetes
@@ -1858,15 +1616,11 @@ Ensure the namespace exists and apply the validator Service, NodePort Service, a
     tasks_from: validator/k8s/start
 ```
 
-<a id="task-verifier-k8s-start"></a>
-
 ### verifier/k8s/start
 
 Start the verifier on Kubernetes
 
-
 Ensure the namespace exists and apply the verifier Service, NodePort Service, and Deployment.
-
 
 ```yaml
 - name: Start the verifier on Kubernetes
@@ -1880,15 +1634,11 @@ Ensure the namespace exists and apply the verifier Service, NodePort Service, an
     tasks_from: verifier/k8s/start
 ```
 
-<a id="task-coordinator-k8s-start"></a>
-
 ### coordinator/k8s/start
 
 Start the coordinator on Kubernetes
 
-
 Ensure the namespace exists and apply the coordinator Service, NodePort Service, and Deployment.
-
 
 ```yaml
 - name: Start the coordinator on Kubernetes
@@ -1906,15 +1656,11 @@ Ensure the namespace exists and apply the coordinator Service, NodePort Service,
     tasks_from: coordinator/k8s/start
 ```
 
-<a id="task-sidecar-k8s-start"></a>
-
 ### sidecar/k8s/start
 
 Start the sidecar on Kubernetes
 
-
 Ensure the namespace exists and apply the sidecar Service, NodePort Service, and StatefulSet.
-
 
 ```yaml
 - name: Start the sidecar on Kubernetes
@@ -1928,15 +1674,11 @@ Ensure the namespace exists and apply the sidecar Service, NodePort Service, and
     tasks_from: sidecar/k8s/start
 ```
 
-<a id="task-query_service-k8s-start"></a>
-
 ### query_service/k8s/start
 
 Start the query-service on Kubernetes
 
-
 Ensure the namespace exists and apply the query-service Service, NodePort Service, and Deployment.
-
 
 ```yaml
 - name: Start the query-service on Kubernetes
@@ -1950,15 +1692,11 @@ Ensure the namespace exists and apply the query-service Service, NodePort Servic
     tasks_from: query_service/k8s/start
 ```
 
-<a id="task-validator-k8s-rm"></a>
-
 ### validator/k8s/rm
 
 Remove validator Kubernetes resources
 
-
 Delete the validator Deployment and Services.
-
 
 ```yaml
 - name: Remove validator Kubernetes resources
@@ -1972,15 +1710,11 @@ Delete the validator Deployment and Services.
     tasks_from: validator/k8s/rm
 ```
 
-<a id="task-verifier-k8s-rm"></a>
-
 ### verifier/k8s/rm
 
 Remove verifier Kubernetes resources
 
-
 Delete the verifier Deployment and Services.
-
 
 ```yaml
 - name: Remove verifier Kubernetes resources
@@ -1994,15 +1728,11 @@ Delete the verifier Deployment and Services.
     tasks_from: verifier/k8s/rm
 ```
 
-<a id="task-coordinator-k8s-rm"></a>
-
 ### coordinator/k8s/rm
 
 Remove coordinator Kubernetes resources
 
-
 Delete the coordinator Deployment and Services.
-
 
 ```yaml
 - name: Remove coordinator Kubernetes resources
@@ -2016,15 +1746,11 @@ Delete the coordinator Deployment and Services.
     tasks_from: coordinator/k8s/rm
 ```
 
-<a id="task-sidecar-k8s-rm"></a>
-
 ### sidecar/k8s/rm
 
 Remove sidecar Kubernetes resources
 
-
 Delete the sidecar StatefulSet and Services.
-
 
 ```yaml
 - name: Remove sidecar Kubernetes resources
@@ -2038,15 +1764,11 @@ Delete the sidecar StatefulSet and Services.
     tasks_from: sidecar/k8s/rm
 ```
 
-<a id="task-query_service-k8s-rm"></a>
-
 ### query_service/k8s/rm
 
 Remove query-service Kubernetes resources
 
-
 Delete the query-service Deployment and Services.
-
 
 ```yaml
 - name: Remove query-service Kubernetes resources
@@ -2060,15 +1782,11 @@ Delete the query-service Deployment and Services.
     tasks_from: query_service/k8s/rm
 ```
 
-<a id="task-validator-k8s-config-transfer"></a>
-
 ### validator/k8s/config/transfer
 
 Create the validator ConfigMap
 
-
 Ensure the namespace exists and create the validator Kubernetes ConfigMap.
-
 
 ```yaml
 - name: Create the validator ConfigMap
@@ -2080,15 +1798,11 @@ Ensure the namespace exists and create the validator Kubernetes ConfigMap.
     tasks_from: validator/k8s/config/transfer
 ```
 
-<a id="task-verifier-k8s-config-transfer"></a>
-
 ### verifier/k8s/config/transfer
 
 Create the verifier ConfigMap
 
-
 Ensure the namespace exists and create the verifier Kubernetes ConfigMap.
-
 
 ```yaml
 - name: Create the verifier ConfigMap
@@ -2097,15 +1811,11 @@ Ensure the namespace exists and create the verifier Kubernetes ConfigMap.
     tasks_from: verifier/k8s/config/transfer
 ```
 
-<a id="task-coordinator-k8s-config-transfer"></a>
-
 ### coordinator/k8s/config/transfer
 
 Create the coordinator ConfigMap
 
-
 Ensure the namespace exists and create the coordinator Kubernetes ConfigMap.
-
 
 ```yaml
 - name: Create the coordinator ConfigMap
@@ -2121,15 +1831,11 @@ Ensure the namespace exists and create the coordinator Kubernetes ConfigMap.
     tasks_from: coordinator/k8s/config/transfer
 ```
 
-<a id="task-sidecar-k8s-config-transfer"></a>
-
 ### sidecar/k8s/config/transfer
 
 Create the sidecar ConfigMap
 
-
 Ensure the namespace exists and create the sidecar Kubernetes ConfigMap.
-
 
 ```yaml
 - name: Create the sidecar ConfigMap
@@ -2141,15 +1847,11 @@ Ensure the namespace exists and create the sidecar Kubernetes ConfigMap.
     tasks_from: sidecar/k8s/config/transfer
 ```
 
-<a id="task-query_service-k8s-config-transfer"></a>
-
 ### query_service/k8s/config/transfer
 
 Create the query-service ConfigMap
 
-
 Ensure the namespace exists and create the query-service Kubernetes ConfigMap.
-
 
 ```yaml
 - name: Create the query-service ConfigMap
@@ -2161,15 +1863,11 @@ Ensure the namespace exists and create the query-service Kubernetes ConfigMap.
     tasks_from: query_service/k8s/config/transfer
 ```
 
-<a id="task-validator-teardown"></a>
-
 ### validator/teardown
 
 Teardown the validator
 
-
 Remove validator runtime resources for the active deployment mode.
-
 
 ```yaml
 - name: Teardown the validator
@@ -2185,15 +1883,11 @@ Remove validator runtime resources for the active deployment mode.
     tasks_from: validator/teardown
 ```
 
-<a id="task-verifier-teardown"></a>
-
 ### verifier/teardown
 
 Teardown the verifier
 
-
 Remove verifier runtime resources for the active deployment mode.
-
 
 ```yaml
 - name: Teardown the verifier
@@ -2208,5 +1902,3 @@ Remove verifier runtime resources for the active deployment mode.
     name: hyperledger.fabricx.committer
     tasks_from: verifier/teardown
 ```
-
-

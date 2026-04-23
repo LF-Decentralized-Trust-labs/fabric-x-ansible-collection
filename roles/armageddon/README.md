@@ -1,19 +1,17 @@
-
 # hyperledger.fabricx.armageddon
 
 > Runs the `armageddon` CLI tool for genesis block and shared config generation.
-
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [config/build](#task-config-build)
-  - [create_shared_config](#task-create_shared_config)
-  - [bin/install](#task-bin-install)
-  - [bin/build](#task-bin-build)
-  - [bin/create_shared_config](#task-bin-create_shared_config)
-  - [container/create_shared_config](#task-container-create_shared_config)
+  - [config/build](#configbuild)
+  - [create_shared_config](#create_shared_config)
+  - [bin/install](#bininstall)
+  - [bin/build](#binbuild)
+  - [bin/create_shared_config](#bincreate_shared_config)
+  - [container/create_shared_config](#containercreate_shared_config)
 
 ## Role Defaults
 
@@ -21,17 +19,13 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 
 ## Tasks
 
-<a id="task-config-build"></a>
-
 ### config/build
 
 Render the shared Armageddon config
 
-
 Render `shared_config.yaml` for the Fabric-X orderer topology.
 
 When `armageddon_use_bin` is true, the template reads `fetched_artifacts_dir`; otherwise it uses `armageddon_container_crypto_artifacts_dir`.
-
 
 ```yaml
 - name: Render the shared Armageddon config
@@ -55,17 +49,13 @@ When `armageddon_use_bin` is true, the template reads `fetched_artifacts_dir`; o
     tasks_from: config/build
 ```
 
-<a id="task-create_shared_config"></a>
-
 ### create_shared_config
 
 Dispatch shared-config generation
 
-
 Dispatch shared-config generation to the binary or container flow.
 
 `armageddon_use_bin` selects which sub-entry point runs.
-
 
 ```yaml
 - name: Dispatch shared-config generation
@@ -77,17 +67,13 @@ Dispatch shared-config generation to the binary or container flow.
     tasks_from: create_shared_config
 ```
 
-<a id="task-bin-install"></a>
-
 ### bin/install
 
 Install the Armageddon binary
 
-
 Install Armageddon through the shared binary helper.
 
 `armageddon_bin_package` defaults to the Go module path built from `armageddon_git_hub_url`, `armageddon_git_repo`, and `armageddon_source_code_package`.
-
 
 ```yaml
 - name: Install the Armageddon binary
@@ -111,17 +97,13 @@ Install Armageddon through the shared binary helper.
     tasks_from: bin/install
 ```
 
-<a id="task-bin-build"></a>
-
 ### bin/build
 
 Build the Armageddon binary from source
 
-
 Build Armageddon from source through the shared Go helper.
 
 The Go source package comes from `armageddon_source_code_package`.
-
 
 ```yaml
 - name: Build the Armageddon binary from source
@@ -143,17 +125,13 @@ The Go source package comes from `armageddon_source_code_package`.
     tasks_from: bin/build
 ```
 
-<a id="task-bin-create_shared_config"></a>
-
 ### bin/create_shared_config
 
 Generate shared-config protobuf with the binary
 
-
 Run the installed Armageddon binary to generate `shared_config.binpb`.
 
 The input config is read from `armageddon_artifacts_dir`/`armageddon_shared_config_file` and the output is written back to `armageddon_artifacts_dir`.
-
 
 ```yaml
 - name: Generate shared-config protobuf with the binary
@@ -173,17 +151,13 @@ The input config is read from `armageddon_artifacts_dir`/`armageddon_shared_conf
     tasks_from: bin/create_shared_config
 ```
 
-<a id="task-container-create_shared_config"></a>
-
 ### container/create_shared_config
 
 Generate shared-config protobuf with a container
 
-
 Run the Armageddon container to generate `shared_config.binpb`.
 
 The image default derives from `armageddon_registry_endpoint`, `armageddon_image_name`, and `armageddon_image_tag`.
-
 
 ```yaml
 - name: Generate shared-config protobuf with a container
@@ -216,5 +190,3 @@ The image default derives from `armageddon_registry_endpoint`, `armageddon_image
     name: hyperledger.fabricx.armageddon
     tasks_from: container/create_shared_config
 ```
-
-

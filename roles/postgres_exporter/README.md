@@ -1,39 +1,37 @@
-
 # hyperledger.fabricx.postgres_exporter
 
 > Runs a [Prometheus Postgres Exporter](https://github.com/prometheus-community/postgres_exporter) to collect PostgreSQL metrics.
-
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [start](#task-start)
-  - [stop](#task-stop)
-  - [teardown](#task-teardown)
-  - [wipe](#task-wipe)
-  - [fetch_logs](#task-fetch_logs)
-  - [ping](#task-ping)
-  - [container/start](#task-container-start)
-  - [container/stop](#task-container-stop)
-  - [container/rm](#task-container-rm)
-  - [container/fetch_logs](#task-container-fetch_logs)
-  - [config/transfer](#task-config-transfer)
-  - [config/rm](#task-config-rm)
-  - [config/transfer_grafana_dashboard](#task-config-transfer_grafana_dashboard)
-  - [crypto/setup](#task-crypto-setup)
-  - [crypto/fetch](#task-crypto-fetch)
-  - [crypto/rm](#task-crypto-rm)
-  - [crypto/openssl/generate_cert](#task-crypto-openssl-generate_cert)
-  - [k8s/start](#task-k8s-start)
-  - [k8s/ping](#task-k8s-ping)
-  - [k8s/rm](#task-k8s-rm)
-  - [k8s/fetch_logs](#task-k8s-fetch_logs)
-  - [k8s/config/transfer](#task-k8s-config-transfer)
-  - [k8s/config/rm](#task-k8s-config-rm)
-  - [k8s/crypto/transfer](#task-k8s-crypto-transfer)
-  - [k8s/crypto/rm](#task-k8s-crypto-rm)
-  - [prometheus/get_scrapers](#task-prometheus-get_scrapers)
+  - [start](#start)
+  - [stop](#stop)
+  - [teardown](#teardown)
+  - [wipe](#wipe)
+  - [fetch_logs](#fetch_logs)
+  - [ping](#ping)
+  - [container/start](#containerstart)
+  - [container/stop](#containerstop)
+  - [container/rm](#containerrm)
+  - [container/fetch_logs](#containerfetch_logs)
+  - [config/transfer](#configtransfer)
+  - [config/rm](#configrm)
+  - [config/transfer_grafana_dashboard](#configtransfer_grafana_dashboard)
+  - [crypto/setup](#cryptosetup)
+  - [crypto/fetch](#cryptofetch)
+  - [crypto/rm](#cryptorm)
+  - [crypto/openssl/generate_cert](#cryptoopensslgenerate_cert)
+  - [k8s/start](#k8sstart)
+  - [k8s/ping](#k8sping)
+  - [k8s/rm](#k8srm)
+  - [k8s/fetch_logs](#k8sfetch_logs)
+  - [k8s/config/transfer](#k8sconfigtransfer)
+  - [k8s/config/rm](#k8sconfigrm)
+  - [k8s/crypto/transfer](#k8scryptotransfer)
+  - [k8s/crypto/rm](#k8scryptorm)
+  - [prometheus/get_scrapers](#prometheusget_scrapers)
 
 ## Role Defaults
 
@@ -41,17 +39,13 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 
 ## Tasks
 
-<a id="task-start"></a>
-
 ### start
 
 Start Postgres Exporter
 
-
 Dispatches to the container or Kubernetes startup path for Postgres Exporter.
 
 The backend selection is controlled by `postgres_exporter_use_container` and `postgres_exporter_use_k8s`.
-
 
 ```yaml
 - name: Start Postgres Exporter
@@ -65,17 +59,13 @@ The backend selection is controlled by `postgres_exporter_use_container` and `po
     tasks_from: start
 ```
 
-<a id="task-stop"></a>
-
 ### stop
 
 Stop Postgres Exporter
 
-
 Stops a container-based Postgres Exporter deployment.
 
 This entry point only dispatches when `postgres_exporter_use_container` resolves to `true`.
-
 
 ```yaml
 - name: Stop Postgres Exporter
@@ -87,17 +77,13 @@ This entry point only dispatches when `postgres_exporter_use_container` resolves
     tasks_from: stop
 ```
 
-<a id="task-teardown"></a>
-
 ### teardown
 
 Remove Postgres Exporter runtime resources
 
-
 Removes the active Postgres Exporter runtime resources for the enabled backend.
 
 This dispatches to the container removal path or the Kubernetes removal path.
-
 
 ```yaml
 - name: Remove Postgres Exporter runtime resources
@@ -111,17 +97,13 @@ This dispatches to the container removal path or the Kubernetes removal path.
     tasks_from: teardown
 ```
 
-<a id="task-wipe"></a>
-
 ### wipe
 
 Remove all Postgres Exporter artifacts
 
-
 Removes runtime resources, TLS artifacts, and generated configuration for Postgres Exporter.
 
 This entry point combines `teardown`, `crypto/rm`, and `config/rm`, so it validates the variables needed by all three paths.
-
 
 ```yaml
 - name: Remove all Postgres Exporter artifacts
@@ -130,17 +112,13 @@ This entry point combines `teardown`, `crypto/rm`, and `config/rm`, so it valida
     tasks_from: wipe
 ```
 
-<a id="task-fetch_logs"></a>
-
 ### fetch_logs
 
 Fetch Postgres Exporter logs
 
-
 Collects logs from the Postgres Exporter container or Kubernetes pod.
 
 The backend selection is controlled by `postgres_exporter_use_container` and `postgres_exporter_use_k8s`.
-
 
 ```yaml
 - name: Fetch Postgres Exporter logs
@@ -156,15 +134,11 @@ The backend selection is controlled by `postgres_exporter_use_container` and `po
     tasks_from: fetch_logs
 ```
 
-<a id="task-ping"></a>
-
 ### ping
 
 Check Postgres Exporter reachability
 
-
 Checks whether the Postgres Exporter metrics port is reachable on the current host.
-
 
 ```yaml
 - name: Check Postgres Exporter reachability
@@ -178,17 +152,13 @@ Checks whether the Postgres Exporter metrics port is reachable on the current ho
     tasks_from: ping
 ```
 
-<a id="task-container-start"></a>
-
 ### container/start
 
 Start the Postgres Exporter container
 
-
 Builds the exporter database connection string and starts the Postgres Exporter container.
 
 The default `postgres_exporter_image` value derives from `postgres_exporter_registry_endpoint`, `postgres_exporter_image_name`, and `postgres_exporter_image_tag`.
-
 
 ```yaml
 - name: Start the Postgres Exporter container
@@ -224,15 +194,11 @@ The default `postgres_exporter_image` value derives from `postgres_exporter_regi
     tasks_from: container/start
 ```
 
-<a id="task-container-stop"></a>
-
 ### container/stop
 
 Stop the Postgres Exporter container
 
-
 Stops the Postgres Exporter container.
-
 
 ```yaml
 - name: Stop the Postgres Exporter container
@@ -244,15 +210,11 @@ Stops the Postgres Exporter container.
     tasks_from: container/stop
 ```
 
-<a id="task-container-rm"></a>
-
 ### container/rm
 
 Remove the Postgres Exporter container
 
-
 Removes the Postgres Exporter container.
-
 
 ```yaml
 - name: Remove the Postgres Exporter container
@@ -264,15 +226,11 @@ Removes the Postgres Exporter container.
     tasks_from: container/rm
 ```
 
-<a id="task-container-fetch_logs"></a>
-
 ### container/fetch_logs
 
 Fetch Postgres Exporter container logs
 
-
 Fetches logs from the Postgres Exporter container.
-
 
 ```yaml
 - name: Fetch Postgres Exporter container logs
@@ -284,17 +242,13 @@ Fetches logs from the Postgres Exporter container.
     tasks_from: container/fetch_logs
 ```
 
-<a id="task-config-transfer"></a>
-
 ### config/transfer
 
 Generate and transfer Postgres Exporter configuration
 
-
 Generates the Postgres Exporter configuration files and copies the PostgreSQL CA certificate when the monitored database uses TLS.
 
 For Kubernetes deployments this also applies the ConfigMap.
-
 
 ```yaml
 - name: Generate and transfer Postgres Exporter configuration
@@ -326,17 +280,13 @@ For Kubernetes deployments this also applies the ConfigMap.
     tasks_from: config/transfer
 ```
 
-<a id="task-config-rm"></a>
-
 ### config/rm
 
 Remove Postgres Exporter configuration
 
-
 Removes generated Postgres Exporter configuration files from the remote host.
 
 For Kubernetes deployments this also deletes the related ConfigMap.
-
 
 ```yaml
 - name: Remove Postgres Exporter configuration
@@ -352,17 +302,13 @@ For Kubernetes deployments this also deletes the related ConfigMap.
     tasks_from: config/rm
 ```
 
-<a id="task-config-transfer_grafana_dashboard"></a>
-
 ### config/transfer_grafana_dashboard
 
 Transfer the packaged Grafana dashboard
 
-
 Sets the packaged Postgres Exporter dashboard path and delegates dashboard copy to the Grafana role.
 
 This entry point does not validate any Postgres Exporter variables because it only derives paths from `role_path`.
-
 
 ```yaml
 - name: Transfer the packaged Grafana dashboard
@@ -371,17 +317,13 @@ This entry point does not validate any Postgres Exporter variables because it on
     tasks_from: config/transfer_grafana_dashboard
 ```
 
-<a id="task-crypto-setup"></a>
-
 ### crypto/setup
 
 Generate Postgres Exporter TLS artifacts
 
-
 Generates the Postgres Exporter TLS files when `postgres_exporter_use_tls` is true.
 
 For Kubernetes deployments this also applies the Secret used by the pod.
-
 
 ```yaml
 - name: Generate Postgres Exporter TLS artifacts
@@ -395,17 +337,13 @@ For Kubernetes deployments this also applies the Secret used by the pod.
     tasks_from: crypto/setup
 ```
 
-<a id="task-crypto-fetch"></a>
-
 ### crypto/fetch
 
 Fetch Postgres Exporter TLS artifacts
 
-
 Fetches the generated Postgres Exporter TLS CA certificate and server certificate to the control node.
 
 This entry point only transfers files when `postgres_exporter_use_tls` is true.
-
 
 ```yaml
 - name: Fetch Postgres Exporter TLS artifacts
@@ -423,17 +361,13 @@ This entry point only transfers files when `postgres_exporter_use_tls` is true.
     tasks_from: crypto/fetch
 ```
 
-<a id="task-crypto-rm"></a>
-
 ### crypto/rm
 
 Remove Postgres Exporter TLS artifacts
 
-
 Removes generated Postgres Exporter TLS files from the remote host.
 
 For Kubernetes deployments this also deletes the related Secret.
-
 
 ```yaml
 - name: Remove Postgres Exporter TLS artifacts
@@ -451,17 +385,13 @@ For Kubernetes deployments this also deletes the related Secret.
     tasks_from: crypto/rm
 ```
 
-<a id="task-crypto-openssl-generate_cert"></a>
-
 ### crypto/openssl/generate_cert
 
 Generate Postgres Exporter TLS files with OpenSSL
 
-
 Delegates self-signed certificate generation to the OpenSSL role using Postgres Exporter-specific file paths.
 
 The default `postgres_exporter_remote_config_dir` value derives from `remote_config_dir`.
-
 
 ```yaml
 - name: Generate Postgres Exporter TLS files with OpenSSL
@@ -481,19 +411,15 @@ The default `postgres_exporter_remote_config_dir` value derives from `remote_con
     tasks_from: crypto/openssl/generate_cert
 ```
 
-<a id="task-k8s-start"></a>
-
 ### k8s/start
 
 Start Postgres Exporter on Kubernetes
-
 
 Applies the Service, optional NodePort Service, and Deployment for Postgres Exporter.
 
 The NodePort Service is optional and only rendered when `postgres_exporter_k8s_use_node_port` is true.
 
 The default `postgres_exporter_k8s_port_node_port` value derives from `postgres_exporter_port`, and the default `postgres_exporter_image` value derives from `postgres_exporter_registry_endpoint`, `postgres_exporter_image_name`, and `postgres_exporter_image_tag`.
-
 
 ```yaml
 - name: Start Postgres Exporter on Kubernetes
@@ -557,17 +483,13 @@ The default `postgres_exporter_k8s_port_node_port` value derives from `postgres_
     tasks_from: k8s/start
 ```
 
-<a id="task-k8s-ping"></a>
-
 ### k8s/ping
 
 Check Postgres Exporter node port reachability
 
-
 Checks whether the optional Postgres Exporter NodePort Service is reachable.
 
 The default `postgres_exporter_k8s_port_node_port` value derives from `postgres_exporter_port`.
-
 
 ```yaml
 - name: Check Postgres Exporter node port reachability
@@ -583,15 +505,11 @@ The default `postgres_exporter_k8s_port_node_port` value derives from `postgres_
     tasks_from: k8s/ping
 ```
 
-<a id="task-k8s-rm"></a>
-
 ### k8s/rm
 
 Remove Postgres Exporter Kubernetes resources
 
-
 Removes the Postgres Exporter Deployment and Services from Kubernetes.
-
 
 ```yaml
 - name: Remove Postgres Exporter Kubernetes resources
@@ -605,15 +523,11 @@ Removes the Postgres Exporter Deployment and Services from Kubernetes.
     tasks_from: k8s/rm
 ```
 
-<a id="task-k8s-fetch_logs"></a>
-
 ### k8s/fetch_logs
 
 Fetch Postgres Exporter pod logs
 
-
 Delegates Postgres Exporter pod log collection to the shared Kubernetes role.
-
 
 ```yaml
 - name: Fetch Postgres Exporter pod logs
@@ -625,17 +539,13 @@ Delegates Postgres Exporter pod log collection to the shared Kubernetes role.
     tasks_from: k8s/fetch_logs
 ```
 
-<a id="task-k8s-config-transfer"></a>
-
 ### k8s/config/transfer
 
 Apply the Postgres Exporter ConfigMap
 
-
 Ensures the Kubernetes namespace exists and applies the ConfigMap rendered from the local Postgres Exporter configuration files.
 
 The default `postgres_exporter_remote_config_dir` value derives from `remote_config_dir`.
-
 
 ```yaml
 - name: Apply the Postgres Exporter ConfigMap
@@ -661,15 +571,11 @@ The default `postgres_exporter_remote_config_dir` value derives from `remote_con
     tasks_from: k8s/config/transfer
 ```
 
-<a id="task-k8s-config-rm"></a>
-
 ### k8s/config/rm
 
 Remove the Postgres Exporter ConfigMap
 
-
 Deletes the Postgres Exporter ConfigMap from Kubernetes.
-
 
 ```yaml
 - name: Remove the Postgres Exporter ConfigMap
@@ -683,17 +589,13 @@ Deletes the Postgres Exporter ConfigMap from Kubernetes.
     tasks_from: k8s/config/rm
 ```
 
-<a id="task-k8s-crypto-transfer"></a>
-
 ### k8s/crypto/transfer
 
 Apply the Postgres Exporter Secret
 
-
 Builds the exporter database connection string for Kubernetes and applies the Secret that stores TLS material and connection data.
 
 The default `postgres_exporter_remote_config_dir` value derives from `remote_config_dir`.
-
 
 ```yaml
 - name: Apply the Postgres Exporter Secret
@@ -721,15 +623,11 @@ The default `postgres_exporter_remote_config_dir` value derives from `remote_con
     tasks_from: k8s/crypto/transfer
 ```
 
-<a id="task-k8s-crypto-rm"></a>
-
 ### k8s/crypto/rm
 
 Remove the Postgres Exporter Secret
 
-
 Deletes the Postgres Exporter Secret from Kubernetes.
-
 
 ```yaml
 - name: Remove the Postgres Exporter Secret
@@ -743,17 +641,13 @@ Deletes the Postgres Exporter Secret from Kubernetes.
     tasks_from: k8s/crypto/rm
 ```
 
-<a id="task-prometheus-get_scrapers"></a>
-
 ### prometheus/get_scrapers
 
 Build Prometheus scrape definitions for Postgres Exporter
 
-
 Builds the `postgres_exporter_prometheus_scrape_services` fact for the Postgres Exporter hosts listed in `postgres_exporter_hosts`.
 
 The TLS CA path for each host derives from `fetched_artifacts_dir` and the current loop host.
-
 
 ```yaml
 - name: Build Prometheus scrape definitions for Postgres Exporter
@@ -766,5 +660,3 @@ The TLS CA path for each host derives from `fetched_artifacts_dir` and the curre
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: prometheus/get_scrapers
 ```
-
-

@@ -1,16 +1,14 @@
-
 # hyperledger.fabricx.tmux
 
 > Runs `tmux` sessions for managing long-running processes.
-
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [install](#task-install)
-  - [start](#task-start)
-  - [stop](#task-stop)
+  - [install](#install)
+  - [start](#start)
+  - [stop](#stop)
 
 ## Role Defaults
 
@@ -18,15 +16,11 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 
 ## Tasks
 
-<a id="task-install"></a>
-
 ### install
 
 Install tmux
 
-
 Install the `tmux` package on the target host by delegating to the package role.
-
 
 ```yaml
 - name: Install tmux
@@ -35,17 +29,13 @@ Install the `tmux` package on the target host by delegating to the package role.
     tasks_from: install
 ```
 
-<a id="task-start"></a>
-
 ### start
 
 Start a tmux session
 
-
 Start a detached tmux session when `tmux_session_name` does not already exist.
 
 The session runs `tmux_cmd_to_run` from `tmux_chdir` on the target host.
-
 
 ```yaml
 - name: Start a tmux session
@@ -61,15 +51,11 @@ The session runs `tmux_cmd_to_run` from `tmux_chdir` on the target host.
     tasks_from: start
 ```
 
-<a id="task-stop"></a>
-
 ### stop
 
 Stop a tmux session
 
-
 Stop an existing tmux session on the target host when `tmux_session_name` is present.
-
 
 ```yaml
 - name: Stop a tmux session
@@ -80,5 +66,3 @@ Stop an existing tmux session on the target host when `tmux_session_name` is pre
     name: hyperledger.fabricx.tmux
     tasks_from: stop
 ```
-
-

@@ -1,35 +1,33 @@
-
 # hyperledger.fabricx.elasticsearch
 
 > Runs an ElasticSearch container for log storage.
-
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [start](#task-start)
-  - [stop](#task-stop)
-  - [teardown](#task-teardown)
-  - [wipe](#task-wipe)
-  - [fetch_logs](#task-fetch_logs)
-  - [ping](#task-ping)
-  - [container/start](#task-container-start)
-  - [container/stop](#task-container-stop)
-  - [container/rm](#task-container-rm)
-  - [container/fetch_logs](#task-container-fetch_logs)
-  - [config/rm](#task-config-rm)
-  - [data/rm](#task-data-rm)
-  - [crypto/setup](#task-crypto-setup)
-  - [crypto/fetch](#task-crypto-fetch)
-  - [crypto/rm](#task-crypto-rm)
-  - [crypto/openssl/generate_cert](#task-crypto-openssl-generate_cert)
-  - [k8s/start](#task-k8s-start)
-  - [k8s/ping](#task-k8s-ping)
-  - [k8s/rm](#task-k8s-rm)
-  - [k8s/fetch_logs](#task-k8s-fetch_logs)
-  - [k8s/crypto/rm](#task-k8s-crypto-rm)
-  - [k8s/crypto/transfer](#task-k8s-crypto-transfer)
+  - [start](#start)
+  - [stop](#stop)
+  - [teardown](#teardown)
+  - [wipe](#wipe)
+  - [fetch_logs](#fetch_logs)
+  - [ping](#ping)
+  - [container/start](#containerstart)
+  - [container/stop](#containerstop)
+  - [container/rm](#containerrm)
+  - [container/fetch_logs](#containerfetch_logs)
+  - [config/rm](#configrm)
+  - [data/rm](#datarm)
+  - [crypto/setup](#cryptosetup)
+  - [crypto/fetch](#cryptofetch)
+  - [crypto/rm](#cryptorm)
+  - [crypto/openssl/generate_cert](#cryptoopensslgenerate_cert)
+  - [k8s/start](#k8sstart)
+  - [k8s/ping](#k8sping)
+  - [k8s/rm](#k8srm)
+  - [k8s/fetch_logs](#k8sfetch_logs)
+  - [k8s/crypto/rm](#k8scryptorm)
+  - [k8s/crypto/transfer](#k8scryptotransfer)
 
 ## Role Defaults
 
@@ -37,17 +35,13 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 
 ## Tasks
 
-<a id="task-start"></a>
-
 ### start
 
 Start ElasticSearch
 
-
 Starts ElasticSearch using the selected deployment mode.
 
 Container mode is the default unless `elasticsearch_use_k8s` is enabled.
-
 
 ```yaml
 - name: Start ElasticSearch
@@ -61,17 +55,13 @@ Container mode is the default unless `elasticsearch_use_k8s` is enabled.
     tasks_from: start
 ```
 
-<a id="task-stop"></a>
-
 ### stop
 
 Stop the ElasticSearch container
 
-
 Stops the ElasticSearch container instance.
 
 Uses the container helper role internally.
-
 
 ```yaml
 - name: Stop the ElasticSearch container
@@ -83,17 +73,13 @@ Uses the container helper role internally.
     tasks_from: stop
 ```
 
-<a id="task-teardown"></a>
-
 ### teardown
 
 Remove ElasticSearch runtime resources and data
 
-
 Removes ElasticSearch runtime resources for the selected deployment mode.
 
 Also removes the container data directory or Kubernetes PVC through the `data/rm` entry point.
-
 
 ```yaml
 - name: Remove ElasticSearch runtime resources and data
@@ -107,17 +93,13 @@ Also removes the container data directory or Kubernetes PVC through the `data/rm
     tasks_from: teardown
 ```
 
-<a id="task-wipe"></a>
-
 ### wipe
 
 Wipe ElasticSearch data and configuration
 
-
 Removes ElasticSearch runtime resources, TLS materials, and configuration files.
 
 This entry point sequences the teardown, crypto cleanup, and config cleanup flows.
-
 
 ```yaml
 - name: Wipe ElasticSearch data and configuration
@@ -126,17 +108,13 @@ This entry point sequences the teardown, crypto cleanup, and config cleanup flow
     tasks_from: wipe
 ```
 
-<a id="task-fetch_logs"></a>
-
 ### fetch_logs
 
 Fetch ElasticSearch logs
 
-
 Collects ElasticSearch logs from the selected deployment mode.
 
 Delegates to the container or Kubernetes log collection entry point.
-
 
 ```yaml
 - name: Fetch ElasticSearch logs
@@ -150,17 +128,13 @@ Delegates to the container or Kubernetes log collection entry point.
     tasks_from: fetch_logs
 ```
 
-<a id="task-ping"></a>
-
 ### ping
 
 Check ElasticSearch reachability
 
-
 Probes the ElasticSearch ports in container mode.
 
 Delegates to `k8s/ping` when ElasticSearch runs on Kubernetes.
-
 
 ```yaml
 - name: Check ElasticSearch reachability
@@ -176,17 +150,13 @@ Delegates to `k8s/ping` when ElasticSearch runs on Kubernetes.
     tasks_from: ping
 ```
 
-<a id="task-container-start"></a>
-
 ### container/start
 
 Start ElasticSearch in a container
 
-
 Creates the required data volume and starts the ElasticSearch container.
 
 Configures TLS volume mounts and environment variables when TLS is enabled.
-
 
 ```yaml
 - name: Start ElasticSearch in a container
@@ -228,17 +198,13 @@ Configures TLS volume mounts and environment variables when TLS is enabled.
     tasks_from: container/start
 ```
 
-<a id="task-container-stop"></a>
-
 ### container/stop
 
 Stop the ElasticSearch container
 
-
 Stops the ElasticSearch container instance.
 
 Uses the container helper role internally.
-
 
 ```yaml
 - name: Stop the ElasticSearch container
@@ -250,17 +216,13 @@ Uses the container helper role internally.
     tasks_from: container/stop
 ```
 
-<a id="task-container-rm"></a>
-
 ### container/rm
 
 Remove the ElasticSearch container
 
-
 Removes the ElasticSearch container instance.
 
 Container volumes are handled separately by the `data/rm` entry point.
-
 
 ```yaml
 - name: Remove the ElasticSearch container
@@ -272,17 +234,13 @@ Container volumes are handled separately by the `data/rm` entry point.
     tasks_from: container/rm
 ```
 
-<a id="task-container-fetch_logs"></a>
-
 ### container/fetch_logs
 
 Fetch ElasticSearch container logs
 
-
 Collects logs from the ElasticSearch container instance.
 
 Uses the container helper role internally.
-
 
 ```yaml
 - name: Fetch ElasticSearch container logs
@@ -294,17 +252,13 @@ Uses the container helper role internally.
     tasks_from: container/fetch_logs
 ```
 
-<a id="task-config-rm"></a>
-
 ### config/rm
 
 Remove the ElasticSearch configuration directory
 
-
 Deletes the remote ElasticSearch configuration directory from the target host.
 
 This also removes TLS materials stored under that directory.
-
 
 ```yaml
 - name: Remove the ElasticSearch configuration directory
@@ -318,17 +272,13 @@ This also removes TLS materials stored under that directory.
     tasks_from: config/rm
 ```
 
-<a id="task-data-rm"></a>
-
 ### data/rm
 
 Remove ElasticSearch data storage
 
-
 Removes the ElasticSearch persistent data directory in container deployments.
 
 Deletes the ElasticSearch PVC in Kubernetes deployments.
-
 
 ```yaml
 - name: Remove ElasticSearch data storage
@@ -350,17 +300,13 @@ Deletes the ElasticSearch PVC in Kubernetes deployments.
     tasks_from: data/rm
 ```
 
-<a id="task-crypto-setup"></a>
-
 ### crypto/setup
 
 Prepare ElasticSearch TLS materials
 
-
 Generates TLS materials when TLS is enabled.
 
 Uploads the generated materials to Kubernetes when Kubernetes mode is enabled.
-
 
 ```yaml
 - name: Prepare ElasticSearch TLS materials
@@ -374,17 +320,13 @@ Uploads the generated materials to Kubernetes when Kubernetes mode is enabled.
     tasks_from: crypto/setup
 ```
 
-<a id="task-crypto-fetch"></a>
-
 ### crypto/fetch
 
 Fetch ElasticSearch TLS certificates
 
-
 Fetches the ElasticSearch CA certificate and server certificate from the remote host.
 
 This entry point only performs work when TLS is enabled.
-
 
 ```yaml
 - name: Fetch ElasticSearch TLS certificates
@@ -402,17 +344,13 @@ This entry point only performs work when TLS is enabled.
     tasks_from: crypto/fetch
 ```
 
-<a id="task-crypto-rm"></a>
-
 ### crypto/rm
 
 Remove ElasticSearch TLS materials
 
-
 Deletes local ElasticSearch TLS files from the remote host.
 
 Removes the Kubernetes Secret when Kubernetes mode is enabled.
-
 
 ```yaml
 - name: Remove ElasticSearch TLS materials
@@ -430,17 +368,13 @@ Removes the Kubernetes Secret when Kubernetes mode is enabled.
     tasks_from: crypto/rm
 ```
 
-<a id="task-crypto-openssl-generate_cert"></a>
-
 ### crypto/openssl/generate_cert
 
 Generate ElasticSearch TLS materials with OpenSSL
 
-
 Generates a self-signed TLS certificate and private key for ElasticSearch on the target host.
 
 Writes the generated files under the ElasticSearch remote configuration directory.
-
 
 ```yaml
 - name: Generate ElasticSearch TLS materials with OpenSSL
@@ -460,17 +394,13 @@ Writes the generated files under the ElasticSearch remote configuration director
     tasks_from: crypto/openssl/generate_cert
 ```
 
-<a id="task-k8s-start"></a>
-
 ### k8s/start
 
 Start ElasticSearch on Kubernetes
 
-
 Ensures the Kubernetes namespace exists and applies the ElasticSearch Services and StatefulSet.
 
 Uses the role templates to configure storage, TLS mounts, and the optional NodePort Service.
-
 
 ```yaml
 - name: Start ElasticSearch on Kubernetes
@@ -538,17 +468,13 @@ Uses the role templates to configure storage, TLS mounts, and the optional NodeP
     tasks_from: k8s/start
 ```
 
-<a id="task-k8s-ping"></a>
-
 ### k8s/ping
 
 Check ElasticSearch NodePort reachability on Kubernetes
 
-
 Probes the ElasticSearch HTTP and transport NodePorts when `elasticsearch_k8s_use_node_port` is `true`.
 
 Each port is only checked when its matching NodePort value is defined.
-
 
 ```yaml
 - name: Check ElasticSearch NodePort reachability on Kubernetes
@@ -564,17 +490,13 @@ Each port is only checked when its matching NodePort value is defined.
     tasks_from: k8s/ping
 ```
 
-<a id="task-k8s-rm"></a>
-
 ### k8s/rm
 
 Remove ElasticSearch Kubernetes resources
 
-
 Deletes the ElasticSearch StatefulSet and Services from Kubernetes.
 
 The persistent volume claim is removed separately by the `data/rm` entry point.
-
 
 ```yaml
 - name: Remove ElasticSearch Kubernetes resources
@@ -588,17 +510,13 @@ The persistent volume claim is removed separately by the `data/rm` entry point.
     tasks_from: k8s/rm
 ```
 
-<a id="task-k8s-fetch_logs"></a>
-
 ### k8s/fetch_logs
 
 Fetch ElasticSearch pod logs
 
-
 Collects logs from the ElasticSearch pod in Kubernetes.
 
 Selects pods using the ElasticSearch application label.
-
 
 ```yaml
 - name: Fetch ElasticSearch pod logs
@@ -612,17 +530,13 @@ Selects pods using the ElasticSearch application label.
     tasks_from: k8s/fetch_logs
 ```
 
-<a id="task-k8s-crypto-rm"></a>
-
 ### k8s/crypto/rm
 
 Remove the ElasticSearch Kubernetes TLS Secret
 
-
 Deletes the Kubernetes Secret that stores ElasticSearch TLS materials.
 
 This entry point is typically invoked from the ElasticSearch crypto cleanup workflow.
-
 
 ```yaml
 - name: Remove the ElasticSearch Kubernetes TLS Secret
@@ -636,17 +550,13 @@ This entry point is typically invoked from the ElasticSearch crypto cleanup work
     tasks_from: k8s/crypto/rm
 ```
 
-<a id="task-k8s-crypto-transfer"></a>
-
 ### k8s/crypto/transfer
 
 Apply the ElasticSearch Kubernetes TLS Secret
 
-
 Applies the Kubernetes Secret that stores ElasticSearch TLS materials.
 
 Ensures the Kubernetes namespace exists before applying the Secret.
-
 
 ```yaml
 - name: Apply the ElasticSearch Kubernetes TLS Secret
@@ -669,5 +579,3 @@ Ensures the Kubernetes namespace exists before applying the Secret.
     name: hyperledger.fabricx.elasticsearch
     tasks_from: k8s/crypto/transfer
 ```
-
-

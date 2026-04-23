@@ -1,16 +1,14 @@
-
 # hyperledger.fabricx.git
 
 > Performs `git` operations on a node.
-
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [install](#task-install)
-  - [clone](#task-clone)
-  - [get_repo_name](#task-get_repo_name)
+  - [install](#install)
+  - [clone](#clone)
+  - [get_repo_name](#get_repo_name)
 
 ## Role Defaults
 
@@ -18,17 +16,13 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 
 ## Tasks
 
-<a id="task-install"></a>
-
 ### install
 
 Install git on the target host
 
-
 Installs the Git package on the managed node.
 
 This entry point delegates package installation to the shared package role.
-
 
 ```yaml
 - name: Install git on the target host
@@ -37,17 +31,13 @@ This entry point delegates package installation to the shared package role.
     tasks_from: install
 ```
 
-<a id="task-clone"></a>
-
 ### clone
 
 Clone or update a Git repository into a target directory
 
-
 Clones a Git repository at the requested revision into a derived destination directory.
 
 Repeated runs update the existing checkout in place through `ansible.builtin.git`.
-
 
 ```yaml
 - name: Clone or update a Git repository into a target directory
@@ -73,17 +63,13 @@ Repeated runs update the existing checkout in place through `ansible.builtin.git
     tasks_from: clone
 ```
 
-<a id="task-get_repo_name"></a>
-
 ### get_repo_name
 
 Compute the repository checkout directory name
 
-
 Derives `git_repo_name` as `<basename(git_repo`>@<git_commit>).
 
 The resulting fact is used by `clone` before creating the checkout directory.
-
 
 ```yaml
 - name: Compute the repository checkout directory name
@@ -96,5 +82,3 @@ The resulting fact is used by `clone` before creating the checkout directory.
     name: hyperledger.fabricx.git
     tasks_from: get_repo_name
 ```
-
-

@@ -1,17 +1,15 @@
-
 # hyperledger.fabricx.go
 
 > Provides tasks for building and installing Go binaries, and mapping Ansible facts to Go platform values (GOOS/GOARCH).
-
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [install_go](#task-install_go)
-  - [map_platform](#task-map_platform)
-  - [build](#task-build)
-  - [install](#task-install)
+  - [install_go](#install_go)
+  - [map_platform](#map_platform)
+  - [build](#build)
+  - [install](#install)
 
 ## Role Defaults
 
@@ -19,17 +17,13 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 
 ## Tasks
 
-<a id="task-install_go"></a>
-
 ### install_go
 
 Install the Go toolchain on the target host
 
-
 Installs the Go runtime when it is not already present on the target host.
 
 This entry point maps the target platform before downloading the matching Go archive.
-
 
 ```yaml
 - name: Install the Go toolchain on the target host
@@ -47,17 +41,13 @@ This entry point maps the target platform before downloading the matching Go arc
     tasks_from: install_go
 ```
 
-<a id="task-map_platform"></a>
-
 ### map_platform
 
 Map Ansible host facts to GOOS and GOARCH values
 
-
 Reads host facts and derives the Go platform identifiers used for cross-compilation and downloads.
 
 This entry point sets `go_os` and `go_arch` facts for later tasks in the role.
-
 
 ```yaml
 - name: Map Ansible host facts to GOOS and GOARCH values
@@ -69,17 +59,13 @@ This entry point sets `go_os` and `go_arch` facts for later tasks in the role.
     tasks_from: map_platform
 ```
 
-<a id="task-build"></a>
-
 ### build
 
 Build a Go binary from source
 
-
 Runs `go build` for the selected source package and output name.
 
 This entry point can cross-compile by mapping host facts and optionally enabling CGO.
-
 
 ```yaml
 - name: Build a Go binary from source
@@ -101,17 +87,13 @@ This entry point can cross-compile by mapping host facts and optionally enabling
     tasks_from: build
 ```
 
-<a id="task-install"></a>
-
 ### install
 
 Install a Go package with go install
 
-
 Runs `go install` for the requested package using the mapped target platform values.
 
 This entry point can place the installed binary in a custom output directory and optionally enable CGO.
-
 
 ```yaml
 - name: Install a Go package with go install
@@ -130,5 +112,3 @@ This entry point can place the installed binary in a custom output directory and
     name: hyperledger.fabricx.go
     tasks_from: install
 ```
-
-

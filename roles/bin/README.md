@@ -1,21 +1,19 @@
-
 # hyperledger.fabricx.bin
 
 > Handles binary build, installation, and lifecycle management on target nodes.
-
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [go/build](#task-go-build)
-  - [go/install](#task-go-install)
-  - [map_platform_to_host](#task-map_platform_to_host)
-  - [transfer](#task-transfer)
-  - [start](#task-start)
-  - [stop](#task-stop)
-  - [rm](#task-rm)
-  - [fetch_logs](#task-fetch_logs)
+  - [go/build](#gobuild)
+  - [go/install](#goinstall)
+  - [map_platform_to_host](#map_platform_to_host)
+  - [transfer](#transfer)
+  - [start](#start)
+  - [stop](#stop)
+  - [rm](#rm)
+  - [fetch_logs](#fetch_logs)
 
 ## Role Defaults
 
@@ -23,17 +21,13 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 
 ## Tasks
 
-<a id="task-go-build"></a>
-
 ### go/build
 
 Build a Go binary for each target platform
 
-
 Clones the source repository, groups target hosts by platform, and builds one binary per unique operating system and architecture combination.
 
 This entry point validates only variables owned by the bin role and does not redeclare git or go role inputs passed through internal includes.
-
 
 ```yaml
 - name: Build a Go binary for each target platform
@@ -67,17 +61,13 @@ This entry point validates only variables owned by the bin role and does not red
     tasks_from: go/build
 ```
 
-<a id="task-go-install"></a>
-
 ### go/install
 
 Install a Go binary for each target platform
 
-
 Groups target hosts by platform and invokes the go install entry point once per unique operating system and architecture combination.
 
 This entry point validates only bin role inputs and does not redeclare go role variables forwarded internally.
-
 
 ```yaml
 - name: Install a Go binary for each target platform
@@ -103,17 +93,13 @@ This entry point validates only bin role inputs and does not redeclare go role v
     tasks_from: go/install
 ```
 
-<a id="task-map_platform_to_host"></a>
-
 ### map_platform_to_host
 
 Map hosts to unique platform keys
 
-
 Builds the `bin_platforms` fact by grouping target hosts that share the same operating system and architecture values.
 
 Host facts for each listed host must already be available before this entry point runs.
-
 
 ```yaml
 - name: Map hosts to unique platform keys
@@ -125,17 +111,13 @@ Host facts for each listed host must already be available before this entry poin
     tasks_from: map_platform_to_host
 ```
 
-<a id="task-transfer"></a>
-
 ### transfer
 
 Copy a binary to the managed host
 
-
 Ensures the target binary directory exists on the managed host and copies the selected binary into it.
 
 The source binary must already exist at the resolved local or control-node path before this entry point runs.
-
 
 ```yaml
 - name: Copy a binary to the managed host
@@ -163,17 +145,13 @@ The source binary must already exist at the resolved local or control-node path 
     tasks_from: transfer
 ```
 
-<a id="task-start"></a>
-
 ### start
 
 Start a binary process
 
-
 Builds the runtime command, optionally redirects logs, and starts the binary either in tmux or directly in the shell.
 
 Set `bin_command` to the executable command to run. Set `bin_wait_port` only when `bin_wait_until_running` is true.
-
 
 ```yaml
 - name: Start a binary process
@@ -221,17 +199,13 @@ Set `bin_command` to the executable command to run. Set `bin_wait_port` only whe
     tasks_from: start
 ```
 
-<a id="task-stop"></a>
-
 ### stop
 
 Stop a tmux-managed binary process
 
-
 Stops the tmux session associated with the binary when tmux-based execution is enabled.
 
 When tmux execution is disabled this entry point performs no action.
-
 
 ```yaml
 - name: Stop a tmux-managed binary process
@@ -245,15 +219,11 @@ When tmux execution is disabled this entry point performs no action.
     tasks_from: stop
 ```
 
-<a id="task-rm"></a>
-
 ### rm
 
 Remove a binary from the managed host
 
-
 Deletes the binary file from the managed host.
-
 
 ```yaml
 - name: Remove a binary from the managed host
@@ -267,15 +237,11 @@ Deletes the binary file from the managed host.
     tasks_from: rm
 ```
 
-<a id="task-fetch_logs"></a>
-
 ### fetch_logs
 
 Fetch binary log output
 
-
 Copies the binary log file from the managed host to the control node without failing when the file is absent.
-
 
 ```yaml
 - name: Fetch binary log output
@@ -298,5 +264,3 @@ Copies the binary log file from the managed host to the control node without fai
     name: hyperledger.fabricx.bin
     tasks_from: fetch_logs
 ```
-
-

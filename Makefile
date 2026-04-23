@@ -35,15 +35,15 @@ ANSIBLE_PLAYBOOK ?= $(VENV_BIN_DIR)/ansible-playbook
 ANSIBLE_GALAXY ?= $(VENV_BIN_DIR)/ansible-galaxy
 ANSIBLE_LINT ?= $(VENV_BIN_DIR)/ansible-lint
 ANSIBLE_PYTHON_INTERPRETER ?= $(VENV_BIN_DIR)/python
-AAR_DOC ?= $(VENV_BIN_DIR)/aar-doc
 export ANSIBLE_PYTHON_INTERPRETER
 else
 ANSIBLE_PLAYBOOK ?= ansible-playbook
 ANSIBLE_GALAXY ?= ansible-galaxy
 ANSIBLE_LINT ?= ansible-lint
 ANSIBLE_PYTHON_INTERPRETER ?= python3
-AAR_DOC ?= aar-doc
 endif
+
+AAR_DOC ?= $(ANSIBLE_PYTHON_INTERPRETER) $(PROJECT_DIR)/scripts/aar-doc.py
 
 # Color codes for echo messages
 COLOR_CYAN := \033[0;36m
@@ -146,13 +146,8 @@ generate-docs:
 	@printf "$(COLOR_CYAN)🚩 Generating role docs from argument_specs.yaml...$(COLOR_RESET)\n"
 	@for role in roles/*/; do \
 	    printf "  → $$role\n"; \
-	    $(AAR_DOC) --output-mode replace --output-template $(PROJECT_DIR)/ci/templates/readme_full.j2 $$role markdown; \
-	    $(ANSIBLE_PYTHON_INTERPRETER) $(PROJECT_DIR)/ci/aar_doc_wrapper.py --output-file main.yaml $$role defaults; \
-	    if [ -f $$role/defaults/main.yaml ]; then \
-	        printf '#\n# Copyright IBM Corp. All Rights Reserved.\n#\n# SPDX-License-Identifier: Apache-2.0\n#\n' > /tmp/_aar_doc_header.yaml; \
-	        cat $$role/defaults/main.yaml >> /tmp/_aar_doc_header.yaml; \
-	        mv /tmp/_aar_doc_header.yaml $$role/defaults/main.yaml; \
-	    fi; \
+	    $(AAR_DOC) --output-mode replace --output-template $(PROJECT_DIR)/scripts/templates/role_readme.md.j2 $$role markdown; \
+	    $(AAR_DOC) --output-file main.yaml $$role defaults; \
 	done
 
 # Check that generated docs are in sync with argument_specs.yaml
@@ -165,13 +160,13 @@ check-docs: generate-docs
 .PHONY: check-license-header
 check-license-header:
 	@printf "$(COLOR_CYAN)🚩 Checking license headers...$(COLOR_RESET)\n"
-	./ci/check_license_header.sh
+	./scripts/check_license_header.sh
 
 # Check that no trailing spaces are added in the j2 files
 .PHONY: check-trailing-spaces
 check-trailing-spaces:
 	@printf "$(COLOR_CYAN)🚩 Checking for trailing spaces in templates...$(COLOR_RESET)\n"
-	./ci/check_trailing_spaces.sh
+	./scripts/check_trailing_spaces.sh
 
 # =======================
 # Deployment

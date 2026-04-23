@@ -1,43 +1,41 @@
-
 # hyperledger.fabricx.postgres
 
 > Runs a PostgreSQL database instance as a container.
-
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [ping](#task-ping)
-  - [start](#task-start)
-  - [stop](#task-stop)
-  - [teardown](#task-teardown)
-  - [wipe](#task-wipe)
-  - [fetch_logs](#task-fetch_logs)
-  - [data/rm](#task-data-rm)
-  - [container/start](#task-container-start)
-  - [container/stop](#task-container-stop)
-  - [container/rm](#task-container-rm)
-  - [container/fetch_logs](#task-container-fetch_logs)
-  - [k8s/start](#task-k8s-start)
-  - [k8s/ping](#task-k8s-ping)
-  - [k8s/rm](#task-k8s-rm)
-  - [k8s/fetch_logs](#task-k8s-fetch_logs)
-  - [k8s/crypto/transfer](#task-k8s-crypto-transfer)
-  - [k8s/crypto/rm](#task-k8s-crypto-rm)
-  - [k8s/config/transfer](#task-k8s-config-transfer)
-  - [k8s/config/rm](#task-k8s-config-rm)
-  - [openshift/start](#task-openshift-start)
-  - [openshift/rm](#task-openshift-rm)
-  - [crypto/setup](#task-crypto-setup)
-  - [crypto/fetch](#task-crypto-fetch)
-  - [crypto/rm](#task-crypto-rm)
-  - [crypto/openssl/generate_cert](#task-crypto-openssl-generate_cert)
-  - [crypto/cryptogen/transfer](#task-crypto-cryptogen-transfer)
-  - [crypto/fabric_ca/enroll](#task-crypto-fabric_ca-enroll)
-  - [config/transfer](#task-config-transfer)
-  - [config/rm](#task-config-rm)
-  - [config/mtls/transfer](#task-config-mtls-transfer)
+  - [ping](#ping)
+  - [start](#start)
+  - [stop](#stop)
+  - [teardown](#teardown)
+  - [wipe](#wipe)
+  - [fetch_logs](#fetch_logs)
+  - [data/rm](#datarm)
+  - [container/start](#containerstart)
+  - [container/stop](#containerstop)
+  - [container/rm](#containerrm)
+  - [container/fetch_logs](#containerfetch_logs)
+  - [k8s/start](#k8sstart)
+  - [k8s/ping](#k8sping)
+  - [k8s/rm](#k8srm)
+  - [k8s/fetch_logs](#k8sfetch_logs)
+  - [k8s/crypto/transfer](#k8scryptotransfer)
+  - [k8s/crypto/rm](#k8scryptorm)
+  - [k8s/config/transfer](#k8sconfigtransfer)
+  - [k8s/config/rm](#k8sconfigrm)
+  - [openshift/start](#openshiftstart)
+  - [openshift/rm](#openshiftrm)
+  - [crypto/setup](#cryptosetup)
+  - [crypto/fetch](#cryptofetch)
+  - [crypto/rm](#cryptorm)
+  - [crypto/openssl/generate_cert](#cryptoopensslgenerate_cert)
+  - [crypto/cryptogen/transfer](#cryptocryptogentransfer)
+  - [crypto/fabric_ca/enroll](#cryptofabric_caenroll)
+  - [config/transfer](#configtransfer)
+  - [config/rm](#configrm)
+  - [config/mtls/transfer](#configmtlstransfer)
 
 ## Role Defaults
 
@@ -45,12 +43,9 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 
 ## Tasks
 
-<a id="task-ping"></a>
-
 ### ping
 
 Check PostgreSQL reachability
-
 
 Validates that the PostgreSQL port is reachable on the target host.
 
@@ -59,7 +54,6 @@ In container mode, probes `postgres_port` directly.
 In Kubernetes mode, delegates to the `k8s/ping` entry point which probes the NodePort when `postgres_k8s_use_node_port` is enabled and `postgres_k8s_port_node_port` is defined.
 
 Also probes the postgres_exporter port when it is defined.
-
 
 ```yaml
 - name: Check PostgreSQL reachability
@@ -75,12 +69,9 @@ Also probes the postgres_exporter port when it is defined.
     tasks_from: ping
 ```
 
-<a id="task-start"></a>
-
 ### start
 
 Start PostgreSQL
-
 
 Starts PostgreSQL using the selected deployment mode.
 
@@ -89,7 +80,6 @@ The container mode is the default unless `postgres_use_k8s` or `postgres_use_ope
 When Kubernetes mode is selected, validates the Service and StatefulSet inputs, plus optional NodePort inputs used by the k8s startup path.
 
 When OpenShift mode is selected, validates the Service and StatefulSet inputs required by the openshift startup path.
-
 
 ```yaml
 - name: Start PostgreSQL
@@ -105,17 +95,13 @@ When OpenShift mode is selected, validates the Service and StatefulSet inputs re
     tasks_from: start
 ```
 
-<a id="task-stop"></a>
-
 ### stop
 
 Stop PostgreSQL
 
-
 Stops PostgreSQL when it runs in container mode.
 
 `postgres_use_container` defaults from `postgres_use_k8s` and `postgres_use_openshift`.
-
 
 ```yaml
 - name: Stop PostgreSQL
@@ -131,17 +117,13 @@ Stops PostgreSQL when it runs in container mode.
     tasks_from: stop
 ```
 
-<a id="task-teardown"></a>
-
 ### teardown
 
 Remove PostgreSQL runtime resources
 
-
 Removes PostgreSQL runtime resources for the selected deployment mode.
 
 Persistent data is removed through the `data/rm` entry point.
-
 
 ```yaml
 - name: Remove PostgreSQL runtime resources
@@ -157,17 +139,13 @@ Persistent data is removed through the `data/rm` entry point.
     tasks_from: teardown
 ```
 
-<a id="task-wipe"></a>
-
 ### wipe
 
 Wipe PostgreSQL data and configuration
 
-
 Removes PostgreSQL runtime resources, TLS materials, and configuration files.
 
 This entry point sequences the teardown, crypto cleanup, and config cleanup flows.
-
 
 ```yaml
 - name: Wipe PostgreSQL data and configuration
@@ -176,17 +154,13 @@ This entry point sequences the teardown, crypto cleanup, and config cleanup flow
     tasks_from: wipe
 ```
 
-<a id="task-fetch_logs"></a>
-
 ### fetch_logs
 
 Fetch PostgreSQL logs
 
-
 Collects PostgreSQL logs from the selected deployment mode.
 
 Delegates to the container or Kubernetes log collection entry point.
-
 
 ```yaml
 - name: Fetch PostgreSQL logs
@@ -202,17 +176,13 @@ Delegates to the container or Kubernetes log collection entry point.
     tasks_from: fetch_logs
 ```
 
-<a id="task-data-rm"></a>
-
 ### data/rm
 
 Remove PostgreSQL data storage
 
-
 Removes the PostgreSQL persistent data directory in container deployments.
 
 Deletes the PostgreSQL PVC in Kubernetes and OpenShift deployments.
-
 
 ```yaml
 - name: Remove PostgreSQL data storage
@@ -234,17 +204,13 @@ Deletes the PostgreSQL PVC in Kubernetes and OpenShift deployments.
     tasks_from: data/rm
 ```
 
-<a id="task-container-start"></a>
-
 ### container/start
 
 Start PostgreSQL in a container
 
-
 Creates the required data volume and starts the PostgreSQL container.
 
 Configures TLS and mTLS command-line options when those features are enabled.
-
 
 ```yaml
 - name: Start PostgreSQL in a container
@@ -296,17 +262,13 @@ Configures TLS and mTLS command-line options when those features are enabled.
     tasks_from: container/start
 ```
 
-<a id="task-container-stop"></a>
-
 ### container/stop
 
 Stop the PostgreSQL container
 
-
 Stops the PostgreSQL container instance.
 
 Uses the container helper role internally.
-
 
 ```yaml
 - name: Stop the PostgreSQL container
@@ -318,17 +280,13 @@ Uses the container helper role internally.
     tasks_from: container/stop
 ```
 
-<a id="task-container-rm"></a>
-
 ### container/rm
 
 Remove the PostgreSQL container
 
-
 Removes the PostgreSQL container instance.
 
 Container volumes are handled separately by the `data/rm` entry point.
-
 
 ```yaml
 - name: Remove the PostgreSQL container
@@ -340,17 +298,13 @@ Container volumes are handled separately by the `data/rm` entry point.
     tasks_from: container/rm
 ```
 
-<a id="task-container-fetch_logs"></a>
-
 ### container/fetch_logs
 
 Fetch PostgreSQL container logs
 
-
 Collects logs from the PostgreSQL container instance.
 
 Uses the container helper role internally.
-
 
 ```yaml
 - name: Fetch PostgreSQL container logs
@@ -362,19 +316,15 @@ Uses the container helper role internally.
     tasks_from: container/fetch_logs
 ```
 
-<a id="task-k8s-start"></a>
-
 ### k8s/start
 
 Start PostgreSQL on Kubernetes
-
 
 Ensures the Kubernetes namespace exists and applies the PostgreSQL Service and StatefulSet resources.
 
 Applies the optional NodePort Service when `postgres_k8s_use_node_port` is enabled.
 
 Uses the role templates to configure storage, credentials, TLS, and optional mTLS mounts.
-
 
 ```yaml
 - name: Start PostgreSQL on Kubernetes
@@ -450,17 +400,13 @@ Uses the role templates to configure storage, credentials, TLS, and optional mTL
     tasks_from: k8s/start
 ```
 
-<a id="task-k8s-ping"></a>
-
 ### k8s/ping
 
 Check PostgreSQL NodePort reachability on Kubernetes
 
-
 Probes the PostgreSQL NodePort when `postgres_k8s_use_node_port` is enabled and `postgres_k8s_port_node_port` is defined.
 
 This entry point is invoked internally by `ping` when PostgreSQL runs on Kubernetes.
-
 
 ```yaml
 - name: Check PostgreSQL NodePort reachability on Kubernetes
@@ -474,17 +420,13 @@ This entry point is invoked internally by `ping` when PostgreSQL runs on Kuberne
     tasks_from: k8s/ping
 ```
 
-<a id="task-k8s-rm"></a>
-
 ### k8s/rm
 
 Remove PostgreSQL Kubernetes resources
 
-
 Deletes the PostgreSQL StatefulSet, Service, and NodePort Service resources from Kubernetes.
 
 The persistent volume claim is removed separately by the `data/rm` entry point.
-
 
 ```yaml
 - name: Remove PostgreSQL Kubernetes resources
@@ -498,17 +440,13 @@ The persistent volume claim is removed separately by the `data/rm` entry point.
     tasks_from: k8s/rm
 ```
 
-<a id="task-k8s-fetch_logs"></a>
-
 ### k8s/fetch_logs
 
 Fetch PostgreSQL pod logs
 
-
 Collects logs from the PostgreSQL pod in Kubernetes.
 
 Selects pods using the PostgreSQL application label.
-
 
 ```yaml
 - name: Fetch PostgreSQL pod logs
@@ -522,17 +460,13 @@ Selects pods using the PostgreSQL application label.
     tasks_from: k8s/fetch_logs
 ```
 
-<a id="task-k8s-crypto-transfer"></a>
-
 ### k8s/crypto/transfer
 
 Apply the PostgreSQL Kubernetes Secret
 
-
 Applies the Kubernetes Secret that stores PostgreSQL credentials and optional TLS materials.
 
 Ensures the Kubernetes namespace exists before applying the Secret.
-
 
 ```yaml
 - name: Apply the PostgreSQL Kubernetes Secret
@@ -562,17 +496,13 @@ Ensures the Kubernetes namespace exists before applying the Secret.
     tasks_from: k8s/crypto/transfer
 ```
 
-<a id="task-k8s-crypto-rm"></a>
-
 ### k8s/crypto/rm
 
 Remove the PostgreSQL Kubernetes Secret
 
-
 Deletes the Kubernetes Secret that stores PostgreSQL credentials and TLS materials.
 
 This entry point is typically invoked from the PostgreSQL crypto cleanup workflow.
-
 
 ```yaml
 - name: Remove the PostgreSQL Kubernetes Secret
@@ -586,17 +516,13 @@ This entry point is typically invoked from the PostgreSQL crypto cleanup workflo
     tasks_from: k8s/crypto/rm
 ```
 
-<a id="task-k8s-config-transfer"></a>
-
 ### k8s/config/transfer
 
 Apply the PostgreSQL Kubernetes ConfigMap
 
-
 Applies the Kubernetes ConfigMap that stores PostgreSQL mTLS configuration files.
 
 Ensures the Kubernetes namespace exists before applying the ConfigMap.
-
 
 ```yaml
 - name: Apply the PostgreSQL Kubernetes ConfigMap
@@ -618,17 +544,13 @@ Ensures the Kubernetes namespace exists before applying the ConfigMap.
     tasks_from: k8s/config/transfer
 ```
 
-<a id="task-k8s-config-rm"></a>
-
 ### k8s/config/rm
 
 Remove the PostgreSQL Kubernetes ConfigMap
 
-
 Deletes the Kubernetes ConfigMap that stores PostgreSQL mTLS configuration.
 
 This entry point is typically invoked from the PostgreSQL config cleanup workflow.
-
 
 ```yaml
 - name: Remove the PostgreSQL Kubernetes ConfigMap
@@ -642,19 +564,15 @@ This entry point is typically invoked from the PostgreSQL config cleanup workflo
     tasks_from: k8s/config/rm
 ```
 
-<a id="task-openshift-start"></a>
-
 ### openshift/start
 
 Start PostgreSQL on OpenShift
-
 
 Reuses the generic `k8s/start` flow for OpenShift.
 
 Namespace creation and optional NodePort behavior are controlled by the shared Kubernetes variables consumed by `k8s/start`.
 
 Uses the same role templates to configure storage, credentials, TLS, and optional mTLS mounts.
-
 
 ```yaml
 - name: Start PostgreSQL on OpenShift
@@ -726,17 +644,13 @@ Uses the same role templates to configure storage, credentials, TLS, and optiona
     tasks_from: openshift/start
 ```
 
-<a id="task-openshift-rm"></a>
-
 ### openshift/rm
 
 Remove PostgreSQL OpenShift resources
 
-
 Reuses the generic `k8s/rm` flow for OpenShift resource removal.
 
 The persistent volume claim is removed separately by the `data/rm` entry point.
-
 
 ```yaml
 - name: Remove PostgreSQL OpenShift resources
@@ -750,17 +664,13 @@ The persistent volume claim is removed separately by the `data/rm` entry point.
     tasks_from: openshift/rm
 ```
 
-<a id="task-crypto-setup"></a>
-
 ### crypto/setup
 
 Prepare PostgreSQL TLS materials
 
-
 Selects the PostgreSQL TLS generation path for OpenSSL, cryptogen, or Fabric CA.
 
 Also applies the Kubernetes Secret when Kubernetes or OpenShift mode is enabled.
-
 
 ```yaml
 - name: Prepare PostgreSQL TLS materials
@@ -778,17 +688,13 @@ Also applies the Kubernetes Secret when Kubernetes or OpenShift mode is enabled.
     tasks_from: crypto/setup
 ```
 
-<a id="task-crypto-fetch"></a>
-
 ### crypto/fetch
 
 Fetch PostgreSQL TLS certificates
 
-
 Fetches the PostgreSQL TLS CA certificate and server certificate to the control node.
 
 This task runs only when `postgres_use_tls` is true.
-
 
 ```yaml
 - name: Fetch PostgreSQL TLS certificates
@@ -806,17 +712,13 @@ This task runs only when `postgres_use_tls` is true.
     tasks_from: crypto/fetch
 ```
 
-<a id="task-crypto-rm"></a>
-
 ### crypto/rm
 
 Remove PostgreSQL TLS materials
 
-
 Deletes PostgreSQL TLS files from the remote host when TLS is enabled.
 
 Also removes the Kubernetes Secret used for TLS materials when Kubernetes or OpenShift mode is enabled.
-
 
 ```yaml
 - name: Remove PostgreSQL TLS materials
@@ -838,17 +740,13 @@ Also removes the Kubernetes Secret used for TLS materials when Kubernetes or Ope
     tasks_from: crypto/rm
 ```
 
-<a id="task-crypto-openssl-generate_cert"></a>
-
 ### crypto/openssl/generate_cert
 
 Generate PostgreSQL TLS materials with OpenSSL
 
-
 Generates a self-signed TLS keypair for PostgreSQL on the target host.
 
 Used when PostgreSQL TLS is enabled without a peer organization definition.
-
 
 ```yaml
 - name: Generate PostgreSQL TLS materials with OpenSSL
@@ -868,17 +766,13 @@ Used when PostgreSQL TLS is enabled without a peer organization definition.
     tasks_from: crypto/openssl/generate_cert
 ```
 
-<a id="task-crypto-cryptogen-transfer"></a>
-
 ### crypto/cryptogen/transfer
 
 Transfer PostgreSQL TLS materials from cryptogen
 
-
 Copies PostgreSQL TLS files generated by cryptogen from the control node to the target host.
 
 Used when PostgreSQL belongs to a peer organization without a Fabric CA host.
-
 
 ```yaml
 - name: Transfer PostgreSQL TLS materials from cryptogen
@@ -900,17 +794,13 @@ Used when PostgreSQL belongs to a peer organization without a Fabric CA host.
     tasks_from: crypto/cryptogen/transfer
 ```
 
-<a id="task-crypto-fabric_ca-enroll"></a>
-
 ### crypto/fabric_ca/enroll
 
 Enroll PostgreSQL with Fabric CA for TLS
 
-
 Enrolls PostgreSQL through Fabric CA to generate TLS materials on the target host.
 
 Requires the organization definition to reference a Fabric CA host and peer identity.
-
 
 ```yaml
 - name: Enroll PostgreSQL with Fabric CA for TLS
@@ -934,17 +824,13 @@ Requires the organization definition to reference a Fabric CA host and peer iden
     tasks_from: crypto/fabric_ca/enroll
 ```
 
-<a id="task-config-transfer"></a>
-
 ### config/transfer
 
 Transfer PostgreSQL configuration
 
-
 Ensures the PostgreSQL configuration directory exists and prepares optional mTLS configuration.
 
 Also applies the PostgreSQL ConfigMap when Kubernetes or OpenShift mode is enabled.
-
 
 ```yaml
 - name: Transfer PostgreSQL configuration
@@ -966,17 +852,13 @@ Also applies the PostgreSQL ConfigMap when Kubernetes or OpenShift mode is enabl
     tasks_from: config/transfer
 ```
 
-<a id="task-config-rm"></a>
-
 ### config/rm
 
 Remove PostgreSQL configuration
 
-
 Deletes PostgreSQL configuration files from the remote host.
 
 Also removes the PostgreSQL ConfigMap when Kubernetes or OpenShift mode is enabled.
-
 
 ```yaml
 - name: Remove PostgreSQL configuration
@@ -994,17 +876,13 @@ Also removes the PostgreSQL ConfigMap when Kubernetes or OpenShift mode is enabl
     tasks_from: config/rm
 ```
 
-<a id="task-config-mtls-transfer"></a>
-
 ### config/mtls/transfer
 
 Transfer PostgreSQL mTLS configuration
 
-
 Renders `pg_hba.conf` and assembles the PostgreSQL client CA bundle used for mTLS.
 
 Copies client certificates from previously fetched artifacts on the control node.
-
 
 ```yaml
 - name: Transfer PostgreSQL mTLS configuration
@@ -1021,5 +899,3 @@ Copies client certificates from previously fetched artifacts on the control node
     name: hyperledger.fabricx.postgres
     tasks_from: config/mtls/transfer
 ```
-
-

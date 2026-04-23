@@ -1,53 +1,51 @@
-
 # hyperledger.fabricx.orderer
 
 > Runs Fabric-X Orderer components (`consensus`, `batcher`, `assembler`, `router`).
-
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [start](#task-start)
-  - [stop](#task-stop)
-  - [teardown](#task-teardown)
-  - [wipe](#task-wipe)
-  - [fetch_logs](#task-fetch_logs)
-  - [ping](#task-ping)
-  - [get_metrics](#task-get_metrics)
-  - [bin/build](#task-bin-build)
-  - [bin/install](#task-bin-install)
-  - [bin/transfer](#task-bin-transfer)
-  - [bin/rm](#task-bin-rm)
-  - [bin/start](#task-bin-start)
-  - [bin/stop](#task-bin-stop)
-  - [bin/fetch_logs](#task-bin-fetch_logs)
-  - [bin/teardown](#task-bin-teardown)
-  - [container/start](#task-container-start)
-  - [container/stop](#task-container-stop)
-  - [container/rm](#task-container-rm)
-  - [container/fetch_logs](#task-container-fetch_logs)
-  - [container/teardown](#task-container-teardown)
-  - [data/rm](#task-data-rm)
-  - [config/transfer](#task-config-transfer)
-  - [config/mtls/transfer](#task-config-mtls-transfer)
-  - [config/rm](#task-config-rm)
-  - [config/transfer_grafana_dashboard](#task-config-transfer_grafana_dashboard)
-  - [crypto/setup](#task-crypto-setup)
-  - [crypto/cryptogen/transfer](#task-crypto-cryptogen-transfer)
-  - [crypto/fabric_ca/enroll](#task-crypto-fabric_ca-enroll)
-  - [crypto/fetch](#task-crypto-fetch)
-  - [crypto/rm](#task-crypto-rm)
-  - [k8s/start](#task-k8s-start)
-  - [k8s/ping](#task-k8s-ping)
-  - [k8s/rm](#task-k8s-rm)
-  - [k8s/teardown](#task-k8s-teardown)
-  - [k8s/fetch_logs](#task-k8s-fetch_logs)
-  - [k8s/config/transfer](#task-k8s-config-transfer)
-  - [k8s/config/rm](#task-k8s-config-rm)
-  - [k8s/crypto/transfer](#task-k8s-crypto-transfer)
-  - [k8s/crypto/rm](#task-k8s-crypto-rm)
-  - [prometheus/get_scrapers](#task-prometheus-get_scrapers)
+  - [start](#start)
+  - [stop](#stop)
+  - [teardown](#teardown)
+  - [wipe](#wipe)
+  - [fetch_logs](#fetch_logs)
+  - [ping](#ping)
+  - [get_metrics](#get_metrics)
+  - [bin/build](#binbuild)
+  - [bin/install](#bininstall)
+  - [bin/transfer](#bintransfer)
+  - [bin/rm](#binrm)
+  - [bin/start](#binstart)
+  - [bin/stop](#binstop)
+  - [bin/fetch_logs](#binfetch_logs)
+  - [bin/teardown](#binteardown)
+  - [container/start](#containerstart)
+  - [container/stop](#containerstop)
+  - [container/rm](#containerrm)
+  - [container/fetch_logs](#containerfetch_logs)
+  - [container/teardown](#containerteardown)
+  - [data/rm](#datarm)
+  - [config/transfer](#configtransfer)
+  - [config/mtls/transfer](#configmtlstransfer)
+  - [config/rm](#configrm)
+  - [config/transfer_grafana_dashboard](#configtransfer_grafana_dashboard)
+  - [crypto/setup](#cryptosetup)
+  - [crypto/cryptogen/transfer](#cryptocryptogentransfer)
+  - [crypto/fabric_ca/enroll](#cryptofabric_caenroll)
+  - [crypto/fetch](#cryptofetch)
+  - [crypto/rm](#cryptorm)
+  - [k8s/start](#k8sstart)
+  - [k8s/ping](#k8sping)
+  - [k8s/rm](#k8srm)
+  - [k8s/teardown](#k8steardown)
+  - [k8s/fetch_logs](#k8sfetch_logs)
+  - [k8s/config/transfer](#k8sconfigtransfer)
+  - [k8s/config/rm](#k8sconfigrm)
+  - [k8s/crypto/transfer](#k8scryptotransfer)
+  - [k8s/crypto/rm](#k8scryptorm)
+  - [prometheus/get_scrapers](#prometheusget_scrapers)
 
 ## Role Defaults
 
@@ -55,15 +53,11 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 
 ## Tasks
 
-<a id="task-start"></a>
-
 ### start
 
 Dispatch orderer startup by component and deployment mode
 
-
 Selects the orderer component implementation and delegates to the matching deployment-mode start task.
-
 
 ```yaml
 - name: Dispatch orderer startup by component and deployment mode
@@ -81,15 +75,11 @@ Selects the orderer component implementation and delegates to the matching deplo
     tasks_from: start
 ```
 
-<a id="task-stop"></a>
-
 ### stop
 
 Dispatch orderer shutdown by component and deployment mode
 
-
 Selects the orderer component implementation and delegates to the matching deployment-mode stop task.
-
 
 ```yaml
 - name: Dispatch orderer shutdown by component and deployment mode
@@ -107,15 +97,11 @@ Selects the orderer component implementation and delegates to the matching deplo
     tasks_from: stop
 ```
 
-<a id="task-teardown"></a>
-
 ### teardown
 
 Dispatch orderer teardown by component and deployment mode
 
-
 Selects the orderer component implementation and delegates to the matching deployment-mode teardown task.
-
 
 ```yaml
 - name: Dispatch orderer teardown by component and deployment mode
@@ -133,15 +119,11 @@ Selects the orderer component implementation and delegates to the matching deplo
     tasks_from: teardown
 ```
 
-<a id="task-wipe"></a>
-
 ### wipe
 
 Remove orderer runtime state, config, and optional binary
 
-
 Runs teardown and removes generated configuration, crypto material, and optionally the installed binary.
-
 
 ```yaml
 - name: Remove orderer runtime state, config, and optional binary
@@ -153,15 +135,11 @@ Runs teardown and removes generated configuration, crypto material, and optional
     tasks_from: wipe
 ```
 
-<a id="task-fetch_logs"></a>
-
 ### fetch_logs
 
 Fetch orderer logs from the active deployment backend
 
-
 Delegates log collection to the Kubernetes, container, or binary implementation according to the enabled deployment mode.
-
 
 ```yaml
 - name: Fetch orderer logs from the active deployment backend
@@ -177,15 +155,11 @@ Delegates log collection to the Kubernetes, container, or binary implementation 
     tasks_from: fetch_logs
 ```
 
-<a id="task-ping"></a>
-
 ### ping
 
 Check the orderer gRPC port
 
-
 Pings the configured orderer gRPC endpoint through the shared utils role, or the Kubernetes NodePort endpoints when enabled.
-
 
 ```yaml
 - name: Check the orderer gRPC port
@@ -199,15 +173,11 @@ Pings the configured orderer gRPC endpoint through the shared utils role, or the
     tasks_from: ping
 ```
 
-<a id="task-get_metrics"></a>
-
 ### get_metrics
 
 Retrieve orderer Prometheus metrics
 
-
 Fetches metrics from the orderer monitoring endpoint when metrics are enabled.
-
 
 ```yaml
 - name: Retrieve orderer Prometheus metrics
@@ -223,15 +193,11 @@ Fetches metrics from the orderer monitoring endpoint when metrics are enabled.
     tasks_from: get_metrics
 ```
 
-<a id="task-bin-build"></a>
-
 ### bin/build
 
 Build the orderer binary from source
 
-
 Builds the orderer binary through the shared bin role using the configured Git repository and Go package.
-
 
 ```yaml
 - name: Build the orderer binary from source
@@ -251,15 +217,11 @@ Builds the orderer binary through the shared bin role using the configured Git r
     tasks_from: bin/build
 ```
 
-<a id="task-bin-install"></a>
-
 ### bin/install
 
 Install the published orderer binary
 
-
 Installs the configured released orderer binary through the shared bin role.
-
 
 ```yaml
 - name: Install the published orderer binary
@@ -281,15 +243,11 @@ Installs the configured released orderer binary through the shared bin role.
     tasks_from: bin/install
 ```
 
-<a id="task-bin-transfer"></a>
-
 ### bin/transfer
 
 Transfer the orderer binary to the target host
 
-
 Copies the built or downloaded orderer binary through the shared bin role.
-
 
 ```yaml
 - name: Transfer the orderer binary to the target host
@@ -301,15 +259,11 @@ Copies the built or downloaded orderer binary through the shared bin role.
     tasks_from: bin/transfer
 ```
 
-<a id="task-bin-rm"></a>
-
 ### bin/rm
 
 Remove the installed orderer binary
 
-
 Deletes the orderer binary through the shared bin role.
-
 
 ```yaml
 - name: Remove the installed orderer binary
@@ -321,15 +275,11 @@ Deletes the orderer binary through the shared bin role.
     tasks_from: bin/rm
 ```
 
-<a id="task-bin-start"></a>
-
 ### bin/start
 
 Start the orderer binary process
 
-
 Ensures the data directory exists and starts the orderer binary with the selected component configuration.
-
 
 ```yaml
 - name: Start the orderer binary process
@@ -355,15 +305,11 @@ Ensures the data directory exists and starts the orderer binary with the selecte
     tasks_from: bin/start
 ```
 
-<a id="task-bin-stop"></a>
-
 ### bin/stop
 
 Stop the orderer binary process
 
-
 Stops the orderer binary through the shared bin role.
-
 
 ```yaml
 - name: Stop the orderer binary process
@@ -372,15 +318,11 @@ Stops the orderer binary through the shared bin role.
     tasks_from: bin/stop
 ```
 
-<a id="task-bin-fetch_logs"></a>
-
 ### bin/fetch_logs
 
 Fetch logs for the orderer binary process
 
-
 Collects binary-process logs through the shared bin role.
-
 
 ```yaml
 - name: Fetch logs for the orderer binary process
@@ -389,15 +331,11 @@ Collects binary-process logs through the shared bin role.
     tasks_from: bin/fetch_logs
 ```
 
-<a id="task-bin-teardown"></a>
-
 ### bin/teardown
 
 Remove the orderer binary runtime state
 
-
 Stops the orderer binary and removes its persisted data.
-
 
 ```yaml
 - name: Remove the orderer binary runtime state
@@ -406,15 +344,11 @@ Stops the orderer binary and removes its persisted data.
     tasks_from: bin/teardown
 ```
 
-<a id="task-container-start"></a>
-
 ### container/start
 
 Start the orderer container
 
-
 Ensures the data directory exists and starts the orderer container with the configured ports and volume mounts.
-
 
 ```yaml
 - name: Start the orderer container
@@ -454,15 +388,11 @@ Ensures the data directory exists and starts the orderer container with the conf
     tasks_from: container/start
 ```
 
-<a id="task-container-stop"></a>
-
 ### container/stop
 
 Stop the orderer container
 
-
 Stops the orderer container through the shared container role.
-
 
 ```yaml
 - name: Stop the orderer container
@@ -474,15 +404,11 @@ Stops the orderer container through the shared container role.
     tasks_from: container/stop
 ```
 
-<a id="task-container-rm"></a>
-
 ### container/rm
 
 Remove the orderer container
 
-
 Deletes the orderer container through the shared container role.
-
 
 ```yaml
 - name: Remove the orderer container
@@ -494,15 +420,11 @@ Deletes the orderer container through the shared container role.
     tasks_from: container/rm
 ```
 
-<a id="task-container-fetch_logs"></a>
-
 ### container/fetch_logs
 
 Fetch logs from the orderer container
 
-
 Collects logs for the configured orderer container.
-
 
 ```yaml
 - name: Fetch logs from the orderer container
@@ -514,15 +436,11 @@ Collects logs for the configured orderer container.
     tasks_from: container/fetch_logs
 ```
 
-<a id="task-container-teardown"></a>
-
 ### container/teardown
 
 Remove the orderer container runtime state
 
-
 Deletes the orderer container and removes its persisted data.
-
 
 ```yaml
 - name: Remove the orderer container runtime state
@@ -531,15 +449,11 @@ Deletes the orderer container and removes its persisted data.
     tasks_from: container/teardown
 ```
 
-<a id="task-data-rm"></a>
-
 ### data/rm
 
 Remove orderer persisted data
 
-
 Deletes the orderer data directory locally or removes the Kubernetes PVC when running in Kubernetes mode.
-
 
 ```yaml
 - name: Remove orderer persisted data
@@ -557,15 +471,11 @@ Deletes the orderer data directory locally or removes the Kubernetes PVC when ru
     tasks_from: data/rm
 ```
 
-<a id="task-config-transfer"></a>
-
 ### config/transfer
 
 Render and transfer orderer configuration
 
-
 Creates the main orderer configuration file, copies the genesis block, and optionally prepares mTLS and Kubernetes-specific configuration.
-
 
 ```yaml
 - name: Render and transfer orderer configuration
@@ -625,15 +535,11 @@ Creates the main orderer configuration file, copies the genesis block, and optio
     tasks_from: config/transfer
 ```
 
-<a id="task-config-mtls-transfer"></a>
-
 ### config/mtls/transfer
 
 Transfer mTLS CA certificates for orderer clients and orgs
 
-
 Copies trusted client and organization TLS CA certificates into the orderer mTLS directory structure.
-
 
 ```yaml
 - name: Transfer mTLS CA certificates for orderer clients and orgs
@@ -653,15 +559,11 @@ Copies trusted client and organization TLS CA certificates into the orderer mTLS
     tasks_from: config/mtls/transfer
 ```
 
-<a id="task-config-rm"></a>
-
 ### config/rm
 
 Remove orderer configuration
 
-
 Deletes the orderer configuration directory and optionally removes Kubernetes ConfigMap resources.
-
 
 ```yaml
 - name: Remove orderer configuration
@@ -677,15 +579,11 @@ Deletes the orderer configuration directory and optionally removes Kubernetes Co
     tasks_from: config/rm
 ```
 
-<a id="task-config-transfer_grafana_dashboard"></a>
-
 ### config/transfer_grafana_dashboard
 
 Copy the orderer Grafana dashboard
 
-
 Publishes the bundled Fabric-X Orderer Grafana dashboard through the grafana role.
-
 
 ```yaml
 - name: Copy the orderer Grafana dashboard
@@ -694,15 +592,11 @@ Publishes the bundled Fabric-X Orderer Grafana dashboard through the grafana rol
     tasks_from: config/transfer_grafana_dashboard
 ```
 
-<a id="task-crypto-setup"></a>
-
 ### crypto/setup
 
 Prepare orderer crypto material
 
-
 Validates TLS prerequisites, provisions crypto material through cryptogen or Fabric CA, and optionally creates the Kubernetes Secret.
-
 
 ```yaml
 - name: Prepare orderer crypto material
@@ -720,15 +614,11 @@ Validates TLS prerequisites, provisions crypto material through cryptogen or Fab
     tasks_from: crypto/setup
 ```
 
-<a id="task-crypto-cryptogen-transfer"></a>
-
 ### crypto/cryptogen/transfer
 
 Transfer cryptogen-generated orderer crypto material
 
-
 Copies cryptogen-generated MSP and TLS artifacts into the remote orderer configuration directory.
-
 
 ```yaml
 - name: Transfer cryptogen-generated orderer crypto material
@@ -748,15 +638,11 @@ Copies cryptogen-generated MSP and TLS artifacts into the remote orderer configu
     tasks_from: crypto/cryptogen/transfer
 ```
 
-<a id="task-crypto-fabric_ca-enroll"></a>
-
 ### crypto/fabric_ca/enroll
 
 Enroll the orderer with Fabric CA
 
-
 Copies the Fabric CA TLS certificate when needed and enrolls both MSP and TLS identities for the orderer.
-
 
 ```yaml
 - name: Enroll the orderer with Fabric CA
@@ -776,15 +662,11 @@ Copies the Fabric CA TLS certificate when needed and enrolls both MSP and TLS id
     tasks_from: crypto/fabric_ca/enroll
 ```
 
-<a id="task-crypto-fetch"></a>
-
 ### crypto/fetch
 
 Fetch orderer certificates to the control node
 
-
 Fetches the orderer sign certificate, TLS certificate, and TLS CA certificate for downstream artifact generation.
-
 
 ```yaml
 - name: Fetch orderer certificates to the control node
@@ -804,15 +686,11 @@ Fetches the orderer sign certificate, TLS certificate, and TLS CA certificate fo
     tasks_from: crypto/fetch
 ```
 
-<a id="task-crypto-rm"></a>
-
 ### crypto/rm
 
 Remove orderer crypto material
 
-
 Deletes the orderer MSP and TLS directories and optionally removes the Kubernetes Secret.
-
 
 ```yaml
 - name: Remove orderer crypto material
@@ -828,15 +706,11 @@ Deletes the orderer MSP and TLS directories and optionally removes the Kubernete
     tasks_from: crypto/rm
 ```
 
-<a id="task-k8s-start"></a>
-
 ### k8s/start
 
 Create the orderer Kubernetes workload
 
-
 Creates the orderer Services and StatefulSet in Kubernetes after ensuring the namespace exists, and optionally creates the NodePort Service.
-
 
 ```yaml
 - name: Create the orderer Kubernetes workload
@@ -908,15 +782,11 @@ Creates the orderer Services and StatefulSet in Kubernetes after ensuring the na
     tasks_from: k8s/start
 ```
 
-<a id="task-k8s-ping"></a>
-
 ### k8s/ping
 
 Check the orderer Kubernetes Service ports
 
-
 Checks the Kubernetes NodePort endpoints when NodePort exposure is enabled.
-
 
 ```yaml
 - name: Check the orderer Kubernetes Service ports
@@ -932,15 +802,11 @@ Checks the Kubernetes NodePort endpoints when NodePort exposure is enabled.
     tasks_from: k8s/ping
 ```
 
-<a id="task-k8s-rm"></a>
-
 ### k8s/rm
 
 Remove the orderer Kubernetes workload
 
-
 Deletes the orderer StatefulSet and Services from Kubernetes.
-
 
 ```yaml
 - name: Remove the orderer Kubernetes workload
@@ -954,15 +820,11 @@ Deletes the orderer StatefulSet and Services from Kubernetes.
     tasks_from: k8s/rm
 ```
 
-<a id="task-k8s-teardown"></a>
-
 ### k8s/teardown
 
 Remove the orderer Kubernetes workload and data
 
-
 Deletes the Kubernetes workload and removes persisted orderer data.
-
 
 ```yaml
 - name: Remove the orderer Kubernetes workload and data
@@ -971,15 +833,11 @@ Deletes the Kubernetes workload and removes persisted orderer data.
     tasks_from: k8s/teardown
 ```
 
-<a id="task-k8s-fetch_logs"></a>
-
 ### k8s/fetch_logs
 
 Fetch logs from the orderer Kubernetes pod
 
-
 Collects logs from pods selected by the orderer Kubernetes app label.
-
 
 ```yaml
 - name: Fetch logs from the orderer Kubernetes pod
@@ -991,15 +849,11 @@ Collects logs from pods selected by the orderer Kubernetes app label.
     tasks_from: k8s/fetch_logs
 ```
 
-<a id="task-k8s-config-transfer"></a>
-
 ### k8s/config/transfer
 
 Create the orderer Kubernetes ConfigMap
 
-
 Slurps the genesis block and renders the orderer ConfigMap, including optional mTLS CA bundles.
-
 
 ```yaml
 - name: Create the orderer Kubernetes ConfigMap
@@ -1027,15 +881,11 @@ Slurps the genesis block and renders the orderer ConfigMap, including optional m
     tasks_from: k8s/config/transfer
 ```
 
-<a id="task-k8s-config-rm"></a>
-
 ### k8s/config/rm
 
 Remove the orderer Kubernetes ConfigMap
 
-
 Deletes the ConfigMap that holds orderer configuration and genesis material.
-
 
 ```yaml
 - name: Remove the orderer Kubernetes ConfigMap
@@ -1049,15 +899,11 @@ Deletes the ConfigMap that holds orderer configuration and genesis material.
     tasks_from: k8s/config/rm
 ```
 
-<a id="task-k8s-crypto-transfer"></a>
-
 ### k8s/crypto/transfer
 
 Create the orderer Kubernetes Secret
 
-
 Resolves the orderer crypto file locations and renders the Kubernetes Secret containing MSP and TLS material.
-
 
 ```yaml
 - name: Create the orderer Kubernetes Secret
@@ -1081,15 +927,11 @@ Resolves the orderer crypto file locations and renders the Kubernetes Secret con
     tasks_from: k8s/crypto/transfer
 ```
 
-<a id="task-k8s-crypto-rm"></a>
-
 ### k8s/crypto/rm
 
 Remove the orderer Kubernetes Secret
 
-
 Deletes the Secret that stores orderer MSP and TLS material.
-
 
 ```yaml
 - name: Remove the orderer Kubernetes Secret
@@ -1103,15 +945,11 @@ Deletes the Secret that stores orderer MSP and TLS material.
     tasks_from: k8s/crypto/rm
 ```
 
-<a id="task-prometheus-get_scrapers"></a>
-
 ### prometheus/get_scrapers
 
 Build Prometheus scrape targets for orderer hosts
 
-
 Groups orderer hosts by component type and exposes Prometheus scrape service definitions for downstream monitoring configuration.
-
 
 ```yaml
 - name: Build Prometheus scrape targets for orderer hosts
@@ -1122,5 +960,3 @@ Groups orderer hosts by component type and exposes Prometheus scrape service def
     name: hyperledger.fabricx.orderer
     tasks_from: prometheus/get_scrapers
 ```
-
-

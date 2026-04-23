@@ -1,39 +1,37 @@
-
 # hyperledger.fabricx.grafana
 
 > Runs a Grafana instance to visualize Fabric-X component metrics in container or Kubernetes mode.
-
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [start](#task-start)
-  - [stop](#task-stop)
-  - [teardown](#task-teardown)
-  - [wipe](#task-wipe)
-  - [fetch_logs](#task-fetch_logs)
-  - [ping](#task-ping)
-  - [container/start](#task-container-start)
-  - [container/stop](#task-container-stop)
-  - [container/rm](#task-container-rm)
-  - [container/fetch_logs](#task-container-fetch_logs)
-  - [config/transfer](#task-config-transfer)
-  - [config/rm](#task-config-rm)
-  - [config/copy_dashboard](#task-config-copy_dashboard)
-  - [crypto/setup](#task-crypto-setup)
-  - [crypto/fetch](#task-crypto-fetch)
-  - [crypto/rm](#task-crypto-rm)
-  - [crypto/openssl/generate_cert](#task-crypto-openssl-generate_cert)
-  - [k8s/start](#task-k8s-start)
-  - [k8s/ping](#task-k8s-ping)
-  - [k8s/rm](#task-k8s-rm)
-  - [k8s/fetch_logs](#task-k8s-fetch_logs)
-  - [k8s/config/transfer](#task-k8s-config-transfer)
-  - [k8s/config/rm](#task-k8s-config-rm)
-  - [k8s/config/copy_dashboard](#task-k8s-config-copy_dashboard)
-  - [k8s/crypto/transfer](#task-k8s-crypto-transfer)
-  - [k8s/crypto/rm](#task-k8s-crypto-rm)
+  - [start](#start)
+  - [stop](#stop)
+  - [teardown](#teardown)
+  - [wipe](#wipe)
+  - [fetch_logs](#fetch_logs)
+  - [ping](#ping)
+  - [container/start](#containerstart)
+  - [container/stop](#containerstop)
+  - [container/rm](#containerrm)
+  - [container/fetch_logs](#containerfetch_logs)
+  - [config/transfer](#configtransfer)
+  - [config/rm](#configrm)
+  - [config/copy_dashboard](#configcopy_dashboard)
+  - [crypto/setup](#cryptosetup)
+  - [crypto/fetch](#cryptofetch)
+  - [crypto/rm](#cryptorm)
+  - [crypto/openssl/generate_cert](#cryptoopensslgenerate_cert)
+  - [k8s/start](#k8sstart)
+  - [k8s/ping](#k8sping)
+  - [k8s/rm](#k8srm)
+  - [k8s/fetch_logs](#k8sfetch_logs)
+  - [k8s/config/transfer](#k8sconfigtransfer)
+  - [k8s/config/rm](#k8sconfigrm)
+  - [k8s/config/copy_dashboard](#k8sconfigcopy_dashboard)
+  - [k8s/crypto/transfer](#k8scryptotransfer)
+  - [k8s/crypto/rm](#k8scryptorm)
 
 ## Role Defaults
 
@@ -41,17 +39,13 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 
 ## Tasks
 
-<a id="task-start"></a>
-
 ### start
 
 Start Grafana in the selected deployment mode
 
-
 Starts Grafana by dispatching to the container or Kubernetes entry point.
 
 Set exactly one deployment mode flag for the target host.
-
 
 ```yaml
 - name: Start Grafana in the selected deployment mode
@@ -65,15 +59,11 @@ Set exactly one deployment mode flag for the target host.
     tasks_from: start
 ```
 
-<a id="task-stop"></a>
-
 ### stop
 
 Stop Grafana in container mode
 
-
 Stops the Grafana container when container mode is enabled.
-
 
 ```yaml
 - name: Stop Grafana in container mode
@@ -87,15 +77,11 @@ Stops the Grafana container when container mode is enabled.
     tasks_from: stop
 ```
 
-<a id="task-teardown"></a>
-
 ### teardown
 
 Remove Grafana in the selected deployment mode
 
-
 Removes the Grafana container or Kubernetes workload by dispatching to the matching entry point.
-
 
 ```yaml
 - name: Remove Grafana in the selected deployment mode
@@ -109,15 +95,11 @@ Removes the Grafana container or Kubernetes workload by dispatching to the match
     tasks_from: teardown
 ```
 
-<a id="task-wipe"></a>
-
 ### wipe
 
 Remove all Grafana data
 
-
 Removes the Grafana workload, TLS material, and generated configuration.
-
 
 ```yaml
 - name: Remove all Grafana data
@@ -126,15 +108,11 @@ Removes the Grafana workload, TLS material, and generated configuration.
     tasks_from: wipe
 ```
 
-<a id="task-fetch_logs"></a>
-
 ### fetch_logs
 
 Collect Grafana logs for the selected deployment mode
 
-
 Collects Grafana logs from the container deployment or from the Kubernetes pod.
-
 
 ```yaml
 - name: Collect Grafana logs for the selected deployment mode
@@ -148,17 +126,13 @@ Collects Grafana logs from the container deployment or from the Kubernetes pod.
     tasks_from: fetch_logs
 ```
 
-<a id="task-ping"></a>
-
 ### ping
 
 Check that the Grafana web port is reachable
 
-
 Verifies that the Grafana web interface port is reachable on the target host.
 
 In Kubernetes mode, also validates the optional NodePort configuration when enabled.
-
 
 ```yaml
 - name: Check that the Grafana web port is reachable
@@ -172,17 +146,13 @@ In Kubernetes mode, also validates the optional NodePort configuration when enab
     tasks_from: ping
 ```
 
-<a id="task-container-start"></a>
-
 ### container/start
 
 Start the Grafana container
 
-
 Starts the containerized Grafana deployment.
 
 TLS files are mounted when TLS is enabled.
-
 
 ```yaml
 - name: Start the Grafana container
@@ -220,15 +190,11 @@ TLS files are mounted when TLS is enabled.
     tasks_from: container/start
 ```
 
-<a id="task-container-stop"></a>
-
 ### container/stop
 
 Stop the Grafana container
 
-
 Stops the running Grafana container by name.
-
 
 ```yaml
 - name: Stop the Grafana container
@@ -240,15 +206,11 @@ Stops the running Grafana container by name.
     tasks_from: container/stop
 ```
 
-<a id="task-container-rm"></a>
-
 ### container/rm
 
 Remove the Grafana container
 
-
 Removes the Grafana container by name.
-
 
 ```yaml
 - name: Remove the Grafana container
@@ -260,15 +222,11 @@ Removes the Grafana container by name.
     tasks_from: container/rm
 ```
 
-<a id="task-container-fetch_logs"></a>
-
 ### container/fetch_logs
 
 Fetch logs from the Grafana container
 
-
 Collects logs from the named Grafana container.
-
 
 ```yaml
 - name: Fetch logs from the Grafana container
@@ -280,17 +238,13 @@ Collects logs from the named Grafana container.
     tasks_from: container/fetch_logs
 ```
 
-<a id="task-config-transfer"></a>
-
 ### config/transfer
 
 Transfer Grafana configuration files
 
-
 Writes Grafana provisioning files to the remote host.
 
 Applies the Kubernetes ConfigMap when Kubernetes mode is enabled.
-
 
 ```yaml
 - name: Transfer Grafana configuration files
@@ -316,17 +270,13 @@ Applies the Kubernetes ConfigMap when Kubernetes mode is enabled.
     tasks_from: config/transfer
 ```
 
-<a id="task-config-rm"></a>
-
 ### config/rm
 
 Remove Grafana configuration files
 
-
 Removes the remote Grafana provisioning directory.
 
 Deletes the Kubernetes ConfigMap when Kubernetes mode is enabled.
-
 
 ```yaml
 - name: Remove Grafana configuration files
@@ -342,17 +292,13 @@ Deletes the Kubernetes ConfigMap when Kubernetes mode is enabled.
     tasks_from: config/rm
 ```
 
-<a id="task-config-copy_dashboard"></a>
-
 ### config/copy_dashboard
 
 Copy a Grafana dashboard JSON file
 
-
 Copies one Grafana dashboard JSON file into the remote dashboards directory.
 
 Applies the dashboard ConfigMap when Kubernetes mode is enabled.
-
 
 ```yaml
 - name: Copy a Grafana dashboard JSON file
@@ -372,17 +318,13 @@ Applies the dashboard ConfigMap when Kubernetes mode is enabled.
     tasks_from: config/copy_dashboard
 ```
 
-<a id="task-crypto-setup"></a>
-
 ### crypto/setup
 
 Prepare Grafana TLS material
 
-
 Generates Grafana TLS material when TLS is enabled.
 
 Applies the Kubernetes Secret when Kubernetes mode is enabled.
-
 
 ```yaml
 - name: Prepare Grafana TLS material
@@ -396,15 +338,11 @@ Applies the Kubernetes Secret when Kubernetes mode is enabled.
     tasks_from: crypto/setup
 ```
 
-<a id="task-crypto-fetch"></a>
-
 ### crypto/fetch
 
 Fetch the Grafana TLS CA certificate
 
-
 Fetches the Grafana TLS CA certificate when TLS is enabled.
-
 
 ```yaml
 - name: Fetch the Grafana TLS CA certificate
@@ -422,17 +360,13 @@ Fetches the Grafana TLS CA certificate when TLS is enabled.
     tasks_from: crypto/fetch
 ```
 
-<a id="task-crypto-rm"></a>
-
 ### crypto/rm
 
 Remove Grafana TLS material
 
-
 Removes the Grafana TLS directory when TLS is enabled.
 
 Deletes the Kubernetes Secret when Kubernetes mode is enabled.
-
 
 ```yaml
 - name: Remove Grafana TLS material
@@ -450,15 +384,11 @@ Deletes the Kubernetes Secret when Kubernetes mode is enabled.
     tasks_from: crypto/rm
 ```
 
-<a id="task-crypto-openssl-generate_cert"></a>
-
 ### crypto/openssl/generate_cert
 
 Generate a self-signed certificate for Grafana
 
-
 Generates the Grafana TLS key pair and certificate using OpenSSL.
-
 
 ```yaml
 - name: Generate a self-signed certificate for Grafana
@@ -478,17 +408,13 @@ Generates the Grafana TLS key pair and certificate using OpenSSL.
     tasks_from: crypto/openssl/generate_cert
 ```
 
-<a id="task-k8s-start"></a>
-
 ### k8s/start
 
 Start Grafana on Kubernetes
 
-
 Applies the Grafana Service, optional NodePort Service, and Deployment on Kubernetes.
 
 Generated provisioning files and optional dashboard ConfigMaps must already exist.
-
 
 ```yaml
 - name: Start Grafana on Kubernetes
@@ -556,15 +482,11 @@ Generated provisioning files and optional dashboard ConfigMaps must already exis
     tasks_from: k8s/start
 ```
 
-<a id="task-k8s-ping"></a>
-
 ### k8s/ping
 
 Check that the Grafana NodePort is reachable
 
-
 Checks that the Grafana NodePort is reachable when NodePort mode is enabled.
-
 
 ```yaml
 - name: Check that the Grafana NodePort is reachable
@@ -580,15 +502,11 @@ Checks that the Grafana NodePort is reachable when NodePort mode is enabled.
     tasks_from: k8s/ping
 ```
 
-<a id="task-k8s-rm"></a>
-
 ### k8s/rm
 
 Remove Grafana Kubernetes resources
 
-
 Deletes the Grafana Deployment, Service, and NodePort Service from Kubernetes.
-
 
 ```yaml
 - name: Remove Grafana Kubernetes resources
@@ -602,15 +520,11 @@ Deletes the Grafana Deployment, Service, and NodePort Service from Kubernetes.
     tasks_from: k8s/rm
 ```
 
-<a id="task-k8s-fetch_logs"></a>
-
 ### k8s/fetch_logs
 
 Fetch logs from the Grafana pod
 
-
 Collects logs from the Grafana pod selected by the Grafana application label.
-
 
 ```yaml
 - name: Fetch logs from the Grafana pod
@@ -622,15 +536,11 @@ Collects logs from the Grafana pod selected by the Grafana application label.
     tasks_from: k8s/fetch_logs
 ```
 
-<a id="task-k8s-config-transfer"></a>
-
 ### k8s/config/transfer
 
 Apply the Grafana Kubernetes ConfigMap
 
-
 Applies the Kubernetes ConfigMap that contains Grafana provisioning files.
-
 
 ```yaml
 - name: Apply the Grafana Kubernetes ConfigMap
@@ -654,15 +564,11 @@ Applies the Kubernetes ConfigMap that contains Grafana provisioning files.
     tasks_from: k8s/config/transfer
 ```
 
-<a id="task-k8s-config-rm"></a>
-
 ### k8s/config/rm
 
 Delete Grafana Kubernetes ConfigMaps
 
-
 Deletes the Grafana provisioning ConfigMap and dashboard ConfigMaps.
-
 
 ```yaml
 - name: Delete Grafana Kubernetes ConfigMaps
@@ -680,15 +586,11 @@ Deletes the Grafana provisioning ConfigMap and dashboard ConfigMaps.
     tasks_from: k8s/config/rm
 ```
 
-<a id="task-k8s-config-copy_dashboard"></a>
-
 ### k8s/config/copy_dashboard
 
 Apply a Grafana dashboard Kubernetes ConfigMap
 
-
 Applies a dashboard ConfigMap for one Grafana dashboard JSON file.
-
 
 ```yaml
 - name: Apply a Grafana dashboard Kubernetes ConfigMap
@@ -706,15 +608,11 @@ Applies a dashboard ConfigMap for one Grafana dashboard JSON file.
     tasks_from: k8s/config/copy_dashboard
 ```
 
-<a id="task-k8s-crypto-transfer"></a>
-
 ### k8s/crypto/transfer
 
 Apply the Grafana Kubernetes Secret
 
-
 Applies the Grafana Kubernetes Secret that holds admin credentials and optional TLS material.
-
 
 ```yaml
 - name: Apply the Grafana Kubernetes Secret
@@ -742,15 +640,11 @@ Applies the Grafana Kubernetes Secret that holds admin credentials and optional 
     tasks_from: k8s/crypto/transfer
 ```
 
-<a id="task-k8s-crypto-rm"></a>
-
 ### k8s/crypto/rm
 
 Delete the Grafana Kubernetes Secret
 
-
 Deletes the Grafana Kubernetes Secret.
-
 
 ```yaml
 - name: Delete the Grafana Kubernetes Secret
@@ -763,5 +657,3 @@ Deletes the Grafana Kubernetes Secret.
     name: hyperledger.fabricx.grafana
     tasks_from: k8s/crypto/rm
 ```
-
-

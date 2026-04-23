@@ -1,39 +1,37 @@
-
 # hyperledger.fabricx.prometheus
 
 > Runs a Prometheus metrics collector in container or Kubernetes mode.
-
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
 - [Tasks](#tasks)
-  - [ping](#task-ping)
-  - [start](#task-start)
-  - [container/start](#task-container-start)
-  - [k8s/start](#task-k8s-start)
-  - [k8s/ping](#task-k8s-ping)
-  - [stop](#task-stop)
-  - [container/stop](#task-container-stop)
-  - [teardown](#task-teardown)
-  - [container/rm](#task-container-rm)
-  - [k8s/rm](#task-k8s-rm)
-  - [data/rm](#task-data-rm)
-  - [k8s/data/rm](#task-k8s-data-rm)
-  - [wipe](#task-wipe)
-  - [crypto/setup](#task-crypto-setup)
-  - [crypto/openssl/generate_cert](#task-crypto-openssl-generate_cert)
-  - [k8s/crypto/transfer](#task-k8s-crypto-transfer)
-  - [crypto/fetch](#task-crypto-fetch)
-  - [crypto/rm](#task-crypto-rm)
-  - [k8s/crypto/rm](#task-k8s-crypto-rm)
-  - [config/transfer](#task-config-transfer)
-  - [k8s/config/transfer](#task-k8s-config-transfer)
-  - [config/rm](#task-config-rm)
-  - [k8s/config/rm](#task-k8s-config-rm)
-  - [fetch_logs](#task-fetch_logs)
-  - [container/fetch_logs](#task-container-fetch_logs)
-  - [k8s/fetch_logs](#task-k8s-fetch_logs)
+  - [ping](#ping)
+  - [start](#start)
+  - [container/start](#containerstart)
+  - [k8s/start](#k8sstart)
+  - [k8s/ping](#k8sping)
+  - [stop](#stop)
+  - [container/stop](#containerstop)
+  - [teardown](#teardown)
+  - [container/rm](#containerrm)
+  - [k8s/rm](#k8srm)
+  - [data/rm](#datarm)
+  - [k8s/data/rm](#k8sdatarm)
+  - [wipe](#wipe)
+  - [crypto/setup](#cryptosetup)
+  - [crypto/openssl/generate_cert](#cryptoopensslgenerate_cert)
+  - [k8s/crypto/transfer](#k8scryptotransfer)
+  - [crypto/fetch](#cryptofetch)
+  - [crypto/rm](#cryptorm)
+  - [k8s/crypto/rm](#k8scryptorm)
+  - [config/transfer](#configtransfer)
+  - [k8s/config/transfer](#k8sconfigtransfer)
+  - [config/rm](#configrm)
+  - [k8s/config/rm](#k8sconfigrm)
+  - [fetch_logs](#fetch_logs)
+  - [container/fetch_logs](#containerfetch_logs)
+  - [k8s/fetch_logs](#k8sfetch_logs)
 
 ## Role Defaults
 
@@ -41,15 +39,11 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 
 ## Tasks
 
-<a id="task-ping"></a>
-
 ### ping
 
 Check that the Prometheus port is reachable
 
-
 Validates network reachability to the Prometheus listener on the target host or to the Kubernetes NodePort when enabled.
-
 
 ```yaml
 - name: Check that the Prometheus port is reachable
@@ -63,17 +57,13 @@ Validates network reachability to the Prometheus listener on the target host or 
     tasks_from: ping
 ```
 
-<a id="task-start"></a>
-
 ### start
 
 Start Prometheus in the selected deployment mode
 
-
 Starts Prometheus either as a container or as Kubernetes resources based on the deployment mode flags.
 
 When Kubernetes mode is enabled, it can also apply the optional NodePort Service.
-
 
 ```yaml
 - name: Start Prometheus in the selected deployment mode
@@ -87,15 +77,11 @@ When Kubernetes mode is enabled, it can also apply the optional NodePort Service
     tasks_from: start
 ```
 
-<a id="task-container-start"></a>
-
 ### container/start
 
 Start the Prometheus container
 
-
 Creates the remote data directory and starts Prometheus through the shared container role.
-
 
 ```yaml
 - name: Start the Prometheus container
@@ -137,15 +123,11 @@ Creates the remote data directory and starts Prometheus through the shared conta
     tasks_from: container/start
 ```
 
-<a id="task-k8s-start"></a>
-
 ### k8s/start
 
 Start Prometheus on Kubernetes
 
-
 Creates the Kubernetes headless Service, optional NodePort Service, and StatefulSet resources for Prometheus after ensuring the namespace exists.
-
 
 ```yaml
 - name: Start Prometheus on Kubernetes
@@ -209,15 +191,11 @@ Creates the Kubernetes headless Service, optional NodePort Service, and Stateful
     tasks_from: k8s/start
 ```
 
-<a id="task-k8s-ping"></a>
-
 ### k8s/ping
 
 Check that the Prometheus NodePort is reachable
 
-
 Validates network reachability to the Kubernetes NodePort when the optional NodePort Service is enabled.
-
 
 ```yaml
 - name: Check that the Prometheus NodePort is reachable
@@ -233,15 +211,11 @@ Validates network reachability to the Kubernetes NodePort when the optional Node
     tasks_from: k8s/ping
 ```
 
-<a id="task-stop"></a>
-
 ### stop
 
 Stop the Prometheus container deployment
 
-
 Stops Prometheus when the container deployment path is enabled.
-
 
 ```yaml
 - name: Stop the Prometheus container deployment
@@ -253,15 +227,11 @@ Stops Prometheus when the container deployment path is enabled.
     tasks_from: stop
 ```
 
-<a id="task-container-stop"></a>
-
 ### container/stop
 
 Stop the Prometheus container
 
-
 Stops the running Prometheus container through the shared container role.
-
 
 ```yaml
 - name: Stop the Prometheus container
@@ -273,15 +243,11 @@ Stops the running Prometheus container through the shared container role.
     tasks_from: container/stop
 ```
 
-<a id="task-teardown"></a>
-
 ### teardown
 
 Remove the Prometheus deployment
 
-
 Removes the Prometheus container or Kubernetes workload and then deletes its data.
-
 
 ```yaml
 - name: Remove the Prometheus deployment
@@ -295,15 +261,11 @@ Removes the Prometheus container or Kubernetes workload and then deletes its dat
     tasks_from: teardown
 ```
 
-<a id="task-container-rm"></a>
-
 ### container/rm
 
 Remove the Prometheus container
 
-
 Removes the Prometheus container through the shared container role.
-
 
 ```yaml
 - name: Remove the Prometheus container
@@ -315,15 +277,11 @@ Removes the Prometheus container through the shared container role.
     tasks_from: container/rm
 ```
 
-<a id="task-k8s-rm"></a>
-
 ### k8s/rm
 
 Remove Prometheus Kubernetes resources
 
-
 Deletes the Prometheus StatefulSet and both Services from Kubernetes.
-
 
 ```yaml
 - name: Remove Prometheus Kubernetes resources
@@ -337,15 +295,11 @@ Deletes the Prometheus StatefulSet and both Services from Kubernetes.
     tasks_from: k8s/rm
 ```
 
-<a id="task-data-rm"></a>
-
 ### data/rm
 
 Remove Prometheus data
 
-
 Deletes Prometheus data from the active deployment mode.
-
 
 ```yaml
 - name: Remove Prometheus data
@@ -363,15 +317,11 @@ Deletes Prometheus data from the active deployment mode.
     tasks_from: data/rm
 ```
 
-<a id="task-k8s-data-rm"></a>
-
 ### k8s/data/rm
 
 Remove the Prometheus data PVC
 
-
 Deletes the PersistentVolumeClaim created for the Prometheus StatefulSet.
-
 
 ```yaml
 - name: Remove the Prometheus data PVC
@@ -385,15 +335,11 @@ Deletes the PersistentVolumeClaim created for the Prometheus StatefulSet.
     tasks_from: k8s/data/rm
 ```
 
-<a id="task-wipe"></a>
-
 ### wipe
 
 Remove all Prometheus data and configuration
 
-
 Tears down Prometheus and removes its data, TLS material, and generated configuration files.
-
 
 ```yaml
 - name: Remove all Prometheus data and configuration
@@ -402,15 +348,11 @@ Tears down Prometheus and removes its data, TLS material, and generated configur
     tasks_from: wipe
 ```
 
-<a id="task-crypto-setup"></a>
-
 ### crypto/setup
 
 Generate Prometheus TLS materials
 
-
 Generates TLS assets for Prometheus and applies the Kubernetes Secret when Kubernetes mode is enabled.
-
 
 ```yaml
 - name: Generate Prometheus TLS materials
@@ -424,15 +366,11 @@ Generates TLS assets for Prometheus and applies the Kubernetes Secret when Kuber
     tasks_from: crypto/setup
 ```
 
-<a id="task-crypto-openssl-generate_cert"></a>
-
 ### crypto/openssl/generate_cert
 
 Generate a self-signed TLS certificate for Prometheus
 
-
 Delegates certificate creation to the shared OpenSSL role using Prometheus-specific output paths.
-
 
 ```yaml
 - name: Generate a self-signed TLS certificate for Prometheus
@@ -452,15 +390,11 @@ Delegates certificate creation to the shared OpenSSL role using Prometheus-speci
     tasks_from: crypto/openssl/generate_cert
 ```
 
-<a id="task-k8s-crypto-transfer"></a>
-
 ### k8s/crypto/transfer
 
 Apply the Prometheus TLS Secret on Kubernetes
 
-
 Creates or updates the Kubernetes Secret that stores the Prometheus TLS server keypair.
-
 
 ```yaml
 - name: Apply the Prometheus TLS Secret on Kubernetes
@@ -484,15 +418,11 @@ Creates or updates the Kubernetes Secret that stores the Prometheus TLS server k
     tasks_from: k8s/crypto/transfer
 ```
 
-<a id="task-crypto-fetch"></a>
-
 ### crypto/fetch
 
 Fetch Prometheus TLS certificates
 
-
 Fetches the generated Prometheus TLS CA certificate and server certificate to the control node.
-
 
 ```yaml
 - name: Fetch Prometheus TLS certificates
@@ -510,15 +440,11 @@ Fetches the generated Prometheus TLS CA certificate and server certificate to th
     tasks_from: crypto/fetch
 ```
 
-<a id="task-crypto-rm"></a>
-
 ### crypto/rm
 
 Remove Prometheus TLS materials
 
-
 Deletes the Prometheus TLS directory and removes the Kubernetes Secret when Kubernetes mode is enabled.
-
 
 ```yaml
 - name: Remove Prometheus TLS materials
@@ -536,15 +462,11 @@ Deletes the Prometheus TLS directory and removes the Kubernetes Secret when Kube
     tasks_from: crypto/rm
 ```
 
-<a id="task-k8s-crypto-rm"></a>
-
 ### k8s/crypto/rm
 
 Remove the Prometheus TLS Secret
 
-
 Deletes the Kubernetes Secret that stores the Prometheus TLS server keypair.
-
 
 ```yaml
 - name: Remove the Prometheus TLS Secret
@@ -558,15 +480,11 @@ Deletes the Kubernetes Secret that stores the Prometheus TLS server keypair.
     tasks_from: k8s/crypto/rm
 ```
 
-<a id="task-config-transfer"></a>
-
 ### config/transfer
 
 Transfer Prometheus configuration files
 
-
 Generates Prometheus configuration files on the remote host and optionally applies the Kubernetes ConfigMap.
-
 
 ```yaml
 - name: Transfer Prometheus configuration files
@@ -600,15 +518,11 @@ Generates Prometheus configuration files on the remote host and optionally appli
     tasks_from: config/transfer
 ```
 
-<a id="task-k8s-config-transfer"></a>
-
 ### k8s/config/transfer
 
 Apply the Prometheus ConfigMap on Kubernetes
 
-
 Creates or updates the ConfigMap that carries the Prometheus configuration and optional TLS CA files.
-
 
 ```yaml
 - name: Apply the Prometheus ConfigMap on Kubernetes
@@ -636,15 +550,11 @@ Creates or updates the ConfigMap that carries the Prometheus configuration and o
     tasks_from: k8s/config/transfer
 ```
 
-<a id="task-config-rm"></a>
-
 ### config/rm
 
 Remove Prometheus configuration files
 
-
 Deletes the remote Prometheus configuration directory and optionally removes the Kubernetes ConfigMap.
-
 
 ```yaml
 - name: Remove Prometheus configuration files
@@ -660,15 +570,11 @@ Deletes the remote Prometheus configuration directory and optionally removes the
     tasks_from: config/rm
 ```
 
-<a id="task-k8s-config-rm"></a>
-
 ### k8s/config/rm
 
 Remove the Prometheus ConfigMap
 
-
 Deletes the Kubernetes ConfigMap that stores Prometheus configuration.
-
 
 ```yaml
 - name: Remove the Prometheus ConfigMap
@@ -682,15 +588,11 @@ Deletes the Kubernetes ConfigMap that stores Prometheus configuration.
     tasks_from: k8s/config/rm
 ```
 
-<a id="task-fetch_logs"></a>
-
 ### fetch_logs
 
 Fetch Prometheus logs from the active deployment mode
 
-
 Collects Prometheus logs from either the container deployment or the Kubernetes pod.
-
 
 ```yaml
 - name: Fetch Prometheus logs from the active deployment mode
@@ -704,15 +606,11 @@ Collects Prometheus logs from either the container deployment or the Kubernetes 
     tasks_from: fetch_logs
 ```
 
-<a id="task-container-fetch_logs"></a>
-
 ### container/fetch_logs
 
 Fetch Prometheus container logs
 
-
 Collects logs for the Prometheus container through the shared container role.
-
 
 ```yaml
 - name: Fetch Prometheus container logs
@@ -724,15 +622,11 @@ Collects logs for the Prometheus container through the shared container role.
     tasks_from: container/fetch_logs
 ```
 
-<a id="task-k8s-fetch_logs"></a>
-
 ### k8s/fetch_logs
 
 Fetch Prometheus pod logs
 
-
 Collects logs for the Prometheus pod through the shared Kubernetes role.
-
 
 ```yaml
 - name: Fetch Prometheus pod logs
@@ -745,5 +639,3 @@ Collects logs for the Prometheus pod through the shared Kubernetes role.
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/fetch_logs
 ```
-
-
