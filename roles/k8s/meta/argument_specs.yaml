@@ -64,19 +64,18 @@ argument_specs:
         type: path
         required: false
         description:
-          - Shared managed-host root directory used to derive the remote log path.
+          - Shared managed-host root directory for the remote log path.
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         required: false
         description:
-          - Shared control-node artifact root used to derive the fetched log directory.
+          - Shared control-node artifact root for the fetched log directory.
       k8s_remote_logs_dir: &k8s_remote_logs_dir
         type: path
         required: false
         default: "{{ remote_node_dir }}/logs"
         description:
           - Specifies the directory on the managed host where pod logs are written before transfer.
-          - The default derives from C(remote_node_dir).
       k8s_remote_logs_file: &k8s_remote_logs_file
         type: str
         required: false
@@ -89,7 +88,6 @@ argument_specs:
         default: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}"
         description:
           - Specifies the directory on the control node where fetched pod logs are stored.
-          - The default derives from C(fetched_artifacts_dir) and C(inventory_hostname).
       k8s_fetched_logs_file: &k8s_fetched_logs_file
         type: str
         required: false

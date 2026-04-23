@@ -39,9 +39,9 @@ Render the config template using the provided inputs, including the path selecti
 ```yaml
 - name: Build the configtxgen configuration file
   vars:
-    # Base build directory used to derive `configtxgen_artifacts_dir`.
+    # Base build directory for `configtxgen_artifacts_dir`.
     config_build_dir: "string"
-    # Directory used for the generated config file and genesis block artifacts. The default derives from `config_build_dir`.
+    # Directory used for the generated config file and genesis block artifacts.
     configtxgen_artifacts_dir: "{{ config_build_dir }}/configtxgen-artifacts"
     # Dispatch selector for the public start entry point and the config template branch selection. When false, the container path is used.
     configtxgen_use_bin: false
@@ -77,9 +77,9 @@ This entry point passes the binary destination to the shared `bin` role.
 ```yaml
 - name: Build the configtxgen binary
   vars:
-    # Git host used to derive `configtxgen_bin_package`.
+    # Git host for `configtxgen_bin_package`.
     configtxgen_git_hub_url: github.com
-    # Repository path used to derive `configtxgen_bin_package`.
+    # Repository path for `configtxgen_bin_package`.
     configtxgen_git_repo: hyperledger/fabric-x
     # Git reference used by the binary build and install entry points.
     configtxgen_git_commit: v0.0.8
@@ -100,18 +100,16 @@ Install the configtxgen binary
 
 Install the `configtxgen` Go package through the shared `bin` role.
 
-The package default derives from `configtxgen_git_hub_url`, `configtxgen_git_repo`, and `configtxgen_source_code_package`.
-
 ```yaml
 - name: Install the configtxgen binary
   vars:
-    # Git host used to derive `configtxgen_bin_package`.
+    # Git host for `configtxgen_bin_package`.
     configtxgen_git_hub_url: github.com
-    # Repository path used to derive `configtxgen_bin_package`.
+    # Repository path for `configtxgen_bin_package`.
     configtxgen_git_repo: hyperledger/fabric-x
     # Go package path for the `configtxgen` source tree.
     configtxgen_source_code_package: tools/configtxgen
-    # Go package reference used by `bin/install`. The default derives from `configtxgen_git_hub_url`, `configtxgen_git_repo`, and `configtxgen_source_code_package`.
+    # Go package reference used by `bin/install`.
     configtxgen_bin_package: "{{ configtxgen_git_hub_url }}/{{ configtxgen_git_repo }}/{{ configtxgen_source_code_package }}"
     # Git reference used by the binary build and install entry points.
     configtxgen_git_commit: v0.0.8
@@ -130,24 +128,22 @@ Generate a genesis block with the configtxgen binary
 
 Run the local `configtxgen` binary to generate the channel genesis block.
 
-The artifacts directory default derives from `config_build_dir`, and the channel ID default derives from `channel_id`.
-
 ```yaml
 - name: Generate a genesis block with the configtxgen binary
   vars:
-    # Channel identifier used to derive `configtxgen_channel_id`.
+    # Channel identifier for `configtxgen_channel_id`.
     channel_id: "string"
-    # Base build directory used to derive `configtxgen_artifacts_dir`.
+    # Base build directory for `configtxgen_artifacts_dir`.
     config_build_dir: "string"
     # Directory used as the `configtxgen` binary destination or lookup path.
     cli_bin_dir: "string"
     # Executable name used by the binary and container entry points.
     configtxgen_bin_name: configtxgen
-    # Channel identifier passed to `configtxgen` and used in the output block filename. The default derives from `channel_id`.
+    # Channel identifier passed to `configtxgen` and used in the output block filename.
     configtxgen_channel_id: "{{ channel_id }}"
     # Config profile passed to `configtxgen`.
     configtxgen_profile_id: OrgsChannel
-    # Directory used for the generated config file and genesis block artifacts. The default derives from `config_build_dir`.
+    # Directory used for the generated config file and genesis block artifacts.
     configtxgen_artifacts_dir: "{{ config_build_dir }}/configtxgen-artifacts"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.configtxgen
@@ -160,30 +156,28 @@ Generate a genesis block with the configtxgen container
 
 Run `configtxgen` in a container to generate the channel genesis block.
 
-The image, artifacts directory, and channel ID defaults derive from the base registry, build, and channel inputs.
-
 ```yaml
 - name: Generate a genesis block with the configtxgen container
   vars:
-    # Channel identifier used to derive `configtxgen_channel_id`.
+    # Channel identifier for `configtxgen_channel_id`.
     channel_id: "string"
-    # Base build directory used to derive `configtxgen_artifacts_dir`.
+    # Base build directory for `configtxgen_artifacts_dir`.
     config_build_dir: "string"
-    # Directory used for the generated config file and genesis block artifacts. The default derives from `config_build_dir`.
+    # Directory used for the generated config file and genesis block artifacts.
     configtxgen_artifacts_dir: "{{ config_build_dir }}/configtxgen-artifacts"
     # Container name used by the container entry point.
     configtxgen_container_name: configtxgen
-    # Image registry endpoint used to derive `configtxgen_image`. The default reads `CONFIGTXGEN_REGISTRY_ENDPOINT` and falls back to `docker.io/hyperledger`.
+    # Image registry endpoint for `configtxgen_image`.
     configtxgen_registry_endpoint: "{{ lookup('env', 'CONFIGTXGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # Image repository name used to derive `configtxgen_image`.
+    # Image repository name for `configtxgen_image`.
     configtxgen_image_name: fabric-x-tools
-    # Image tag used to derive `configtxgen_image`.
+    # Image tag for `configtxgen_image`.
     configtxgen_image_tag: 0.0.8
-    # Full container image reference for `configtxgen`. The default derives from `configtxgen_registry_endpoint`, `configtxgen_image_name`, and `configtxgen_image_tag`.
+    # Full container image reference for `configtxgen`.
     configtxgen_image: "{{ configtxgen_registry_endpoint }}/{{ configtxgen_image_name }}:{{ configtxgen_image_tag }}"
     # Executable name used by the binary and container entry points.
     configtxgen_bin_name: configtxgen
-    # Channel identifier passed to `configtxgen` and used in the output block filename. The default derives from `channel_id`.
+    # Channel identifier passed to `configtxgen` and used in the output block filename.
     configtxgen_channel_id: "{{ channel_id }}"
     # Config profile passed to `configtxgen`.
     configtxgen_profile_id: OrgsChannel

@@ -42,7 +42,6 @@ argument_specs:
         default: "{{ not yugabyte_use_k8s }}"
         description:
           - "Enables container mode for the YugabyteDB role."
-          - "The default derives from C(yugabyte_use_k8s)."
       yugabyte_use_tls: &yugabyte_use_tls
         type: bool
         required: false
@@ -55,28 +54,24 @@ argument_specs:
         default: "{{ yugabyte_use_tls }}"
         description:
           - "Enables HTTPS for the YugabyteDB webserver."
-          - "The default derives from C(yugabyte_use_tls)."
       yugabyte_client_to_server_use_tls: &yugabyte_client_to_server_use_tls
         type: bool
         required: false
         default: "{{ yugabyte_use_tls }}"
         description:
           - "Enables client-to-server TLS for YugabyteDB RPC and SQL access."
-          - "The default derives from C(yugabyte_use_tls)."
       yugabyte_node_to_node_use_tls: &yugabyte_node_to_node_use_tls
         type: bool
         required: false
         default: "{{ yugabyte_use_tls }}"
         description:
           - "Enables node-to-node TLS for YugabyteDB."
-          - "The default derives from C(yugabyte_use_tls)."
       yugabyte_registry_endpoint: &yugabyte_registry_endpoint
         type: str
         required: false
         default: "{{ lookup('env', 'YUGABYTE_REGISTRY_ENDPOINT') or 'docker.io/yugabytedb' }}"
         description:
           - "Sets the registry endpoint used to resolve the YugabyteDB image."
-          - "The default derives from C(YUGABYTE_REGISTRY_ENDPOINT) or falls back to a built-in registry."
       yugabyte_image_name: &yugabyte_image_name
         type: str
         required: false
@@ -95,21 +90,18 @@ argument_specs:
         default: "{{ yugabyte_registry_endpoint }}/{{ yugabyte_image_name }}:{{ yugabyte_image_tag }}"
         description:
           - "Sets the YugabyteDB container image."
-          - "The default derives from C(yugabyte_registry_endpoint), C(yugabyte_image_name), and C(yugabyte_image_tag)."
       yugabyte_container_name: &yugabyte_container_name
         type: str
         required: false
         default: "{{ inventory_hostname }}"
         description:
           - "Names the YugabyteDB container associated with the current host."
-          - "The default derives from C(inventory_hostname)."
       yugabyte_remote_config_dir: &yugabyte_remote_config_dir
         type: path
         required: false
         default: "{{ remote_config_dir }}"
         description:
           - "Sets the remote configuration directory used by YugabyteDB tasks."
-          - "The default derives from C(remote_config_dir)."
       remote_config_dir: &remote_config_dir
         type: path
         required: false
@@ -121,7 +113,6 @@ argument_specs:
         default: "{{ remote_data_dir }}"
         description:
           - "Sets the remote data directory used by YugabyteDB tasks."
-          - "The default derives from C(remote_data_dir)."
       remote_data_dir: &remote_data_dir
         type: path
         required: false
@@ -216,7 +207,6 @@ argument_specs:
         default: "{{ inventory_hostname }}"
         description:
           - "Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled."
-          - "The default derives from C(inventory_hostname)."
       yugabyte_k8s_wait: &yugabyte_k8s_wait
         type: bool
         required: false

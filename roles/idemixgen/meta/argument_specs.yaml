@@ -19,7 +19,7 @@ argument_specs:
         required: false
         description:
           - "Sets the shared build root used by C(idemixgen_output_dir)."
-          - "Required when relying on the default of C(idemixgen_output_dir)."
+          - "Required when using C(idemixgen_output_dir)."
       idemixgen_bin_name: &idemixgen_bin_name
         type: str
         required: false
@@ -32,7 +32,6 @@ argument_specs:
         default: "{{ idemixgen_git_hub_url }}/{{ idemixgen_git_repo }}/{{ idemixgen_source_code_package }}"
         description:
           - "Defines the Go package path used to install idemixgen."
-          - "The default derives from C(idemixgen_git_hub_url), C(idemixgen_git_repo), and C(idemixgen_source_code_package)."
       idemixgen_ca_input_dir: &idemixgen_ca_input_dir
         type: path
         required: true
@@ -44,7 +43,6 @@ argument_specs:
         default: "idemixgen-{{ inventory_hostname }}"
         description:
           - "Defines the container name used for the idemixgen run."
-          - "The default derives from C(inventory_hostname)."
       idemixgen_container_output_dir: &idemixgen_container_output_dir
         type: path
         required: false
@@ -63,7 +61,6 @@ argument_specs:
         default: "{{ inventory_hostname }}"
         description:
           - "Defines the enrollment identifier embedded in the signer configuration."
-          - "The default derives from C(inventory_hostname)."
       idemixgen_git_commit: &idemixgen_git_commit
         type: str
         required: false
@@ -88,7 +85,6 @@ argument_specs:
         default: "{{ idemixgen_registry_endpoint }}/{{ idemixgen_image_name }}:{{ idemixgen_image_tag }}"
         description:
           - "Defines the container image used to run idemixgen."
-          - "The default derives from C(idemixgen_registry_endpoint), C(idemixgen_image_name), and C(idemixgen_image_tag)."
       idemixgen_image_name: &idemixgen_image_name
         type: str
         required: false
@@ -107,7 +103,6 @@ argument_specs:
         default: "{{ config_build_dir }}/idemixgen-artifacts"
         description:
           - "Sets the host directory where the generated artifacts are written."
-          - "The default derives from C(config_build_dir)."
       idemixgen_org_domain: &idemixgen_org_domain
         type: str
         required: true
@@ -119,7 +114,6 @@ argument_specs:
         default: "{{ lookup('env', 'IDEMIXGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
         description:
           - "Defines the container registry used for the idemixgen image."
-          - "The default derives from C(IDEMIXGEN_REGISTRY_ENDPOINT) or C(docker.io/hyperledger)."
       idemixgen_rev_handle: &idemixgen_rev_handle
         type: int
         required: false

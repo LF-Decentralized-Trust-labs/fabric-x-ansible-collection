@@ -19,7 +19,6 @@ argument_specs:
         default: "{{ remote_config_dir }}"
         description:
           - Remote config directory used by Loadgen.
-          - The default derives from C(remote_config_dir).
       loadgen_container_config_dir: &loadgen_container_config_dir
         type: path
         required: false
@@ -38,7 +37,6 @@ argument_specs:
         default: "{{ loadgen_remote_config_dir if loadgen_use_bin else loadgen_container_config_dir }}"
         description:
           - Effective config directory used inside rendered Loadgen configuration.
-          - The default derives from C(loadgen_remote_config_dir), C(loadgen_use_bin), and C(loadgen_container_config_dir).
       loadgen_use_bin: &loadgen_use_bin
         type: bool
         required: false
@@ -64,7 +62,6 @@ argument_specs:
         default: "{{ (not loadgen_use_bin) and (not loadgen_use_k8s) }}"
         description:
           - Run the container runtime.
-          - The default derives from C(loadgen_use_bin) and C(loadgen_use_k8s).
       loadgen_registry_endpoint: &loadgen_registry_endpoint
         type: str
         required: false
@@ -89,7 +86,6 @@ argument_specs:
         default: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
         description:
           - Loadgen container image.
-          - The default derives from C(loadgen_registry_endpoint), C(loadgen_image_name), and C(loadgen_image_tag).
       loadgen_container_name: &loadgen_container_name
         type: str
         required: false
@@ -126,7 +122,6 @@ argument_specs:
         default: "{{ loadgen_git_hub_url }}/{{ loadgen_git_repo }}/{{ loadgen_source_code_package }}"
         description:
           - Go package used for binary installation.
-          - The default derives from C(loadgen_git_hub_url), C(loadgen_git_repo), and C(loadgen_source_code_package).
       loadgen_bin_name: &loadgen_bin_name
         type: str
         required: false
@@ -166,14 +161,12 @@ argument_specs:
         default: "{{ loadgen_use_tls }}"
         description:
           - Enable TLS for the monitoring endpoint.
-          - The default mirrors C(loadgen_use_tls).
       loadgen_monitoring_use_mtls: &loadgen_monitoring_use_mtls
         type: bool
         required: false
         default: "{{ loadgen_use_mtls }}"
         description:
           - Enable mTLS for the monitoring endpoint.
-          - The default mirrors C(loadgen_use_mtls).
       loadgen_monitoring_http_protocol: &loadgen_monitoring_http_protocol
         type: str
         required: false
@@ -208,7 +201,6 @@ argument_specs:
         default: "{{ organization.peer.name | default(inventory_hostname) }}"
         description:
           - Crypto identity name used for MSP and TLS file names.
-          - The default derives from C(organization.peer.name) with C(inventory_hostname) fallback.
       loadgen_log_level: &loadgen_log_level
         type: str
         required: false
@@ -460,19 +452,16 @@ argument_specs:
         required: false
         description:
           - NodePort used for the HTTP control port when C(loadgen_use_k8s) and C(loadgen_k8s_use_node_port) are true.
-          - The default mirrors C(loadgen_web_port).
       loadgen_k8s_metrics_node_port: &loadgen_k8s_metrics_node_port
         type: int
         required: false
         description:
           - NodePort used for the metrics port when C(loadgen_use_k8s) and C(loadgen_k8s_use_node_port) are true.
-          - The default mirrors C(loadgen_metrics_port).
       loadgen_k8s_rpc_node_port: &loadgen_k8s_rpc_node_port
         type: int
         required: false
         description:
           - NodePort used for the gRPC control port when C(loadgen_use_k8s) and C(loadgen_k8s_use_node_port) are true.
-          - The default mirrors C(loadgen_rpc_port).
       k8s_image_pull_secret: &k8s_image_pull_secret
         type: str
         required: false

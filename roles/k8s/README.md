@@ -88,15 +88,15 @@ Log collection tolerates missing pods or missing log content and still attempts 
     k8s_pod_label_selectors: ["entry1", "entry2"]
     # Optionally specifies the container name to query from multi-container pods. When omitted, Kubernetes uses the default container.
     k8s_pod_container: "string"
-    # Shared managed-host root directory used to derive the remote log path.
+    # Shared managed-host root directory for the remote log path.
     remote_node_dir: "string"
-    # Shared control-node artifact root used to derive the fetched log directory.
+    # Shared control-node artifact root for the fetched log directory.
     fetched_artifacts_dir: "string"
-    # Specifies the directory on the managed host where pod logs are written before transfer. The default derives from `remote_node_dir`.
+    # Specifies the directory on the managed host where pod logs are written before transfer.
     k8s_remote_logs_dir: "{{ remote_node_dir }}/logs"
     # Specifies the filename used for pod logs on the managed host.
     k8s_remote_logs_file: logs.txt
-    # Specifies the directory on the control node where fetched pod logs are stored. The default derives from `fetched_artifacts_dir` and `inventory_hostname`.
+    # Specifies the directory on the control node where fetched pod logs are stored.
     k8s_fetched_logs_dir: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}"
     # Specifies the filename used for the fetched log artifact on the control node.
     k8s_fetched_logs_file: logs.txt

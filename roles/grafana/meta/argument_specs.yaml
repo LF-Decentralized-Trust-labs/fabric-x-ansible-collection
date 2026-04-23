@@ -13,7 +13,7 @@ argument_specs:
         required: false
         description:
           - Sets the shared remote config root used by Grafana.
-          - Required when relying on it to derive the default for C(grafana_remote_config_dir).
+          - Required when using it for C(grafana_remote_config_dir).
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         required: false
@@ -31,7 +31,7 @@ argument_specs:
         required: false
         description:
           - Sets the optional organization mapping used for TLS certificate generation.
-          - When set, C(organization.domain) is used as the OpenSSL organization name and otherwise defaults to C(inventory_hostname).
+          - When set, C(organization.domain) is used as the OpenSSL organization name.
       k8s_namespace: &k8s_namespace
         type: str
         required: true
@@ -88,7 +88,6 @@ argument_specs:
         default: "{{ lookup('env', 'GRAFANA_REGISTRY_ENDPOINT') or 'docker.io/grafana' }}"
         description:
           - Sets the Grafana image registry endpoint.
-          - The default derives from the C(GRAFANA_REGISTRY_ENDPOINT) environment variable.
       grafana_image_name: &grafana_image_name
         type: str
         required: false
@@ -107,21 +106,18 @@ argument_specs:
         default: "{{ grafana_registry_endpoint }}/{{ grafana_image_name }}:{{ grafana_image_tag }}"
         description:
           - Sets the Grafana image reference.
-          - The default derives from C(grafana_registry_endpoint), C(grafana_image_name), and C(grafana_image_tag).
       grafana_container_name: &grafana_container_name
         type: str
         required: false
         default: "{{ inventory_hostname }}"
         description:
           - Sets the Grafana container name.
-          - The default derives from C(inventory_hostname).
       grafana_remote_config_dir: &grafana_remote_config_dir
         type: path
         required: false
         default: "{{ remote_config_dir }}"
         description:
           - Sets the remote directory that stores Grafana provisioning files and TLS material.
-          - The default derives from C(remote_config_dir).
       grafana_container_config_dir: &grafana_container_config_dir
         type: path
         required: false
@@ -187,14 +183,12 @@ argument_specs:
         default: "{{ not grafana_use_k8s }}"
         description:
           - Enables container mode.
-          - The default derives from C(grafana_use_k8s).
       grafana_k8s_resource_name: &grafana_k8s_resource_name
         type: str
         required: false
         default: "{{ inventory_hostname }}"
         description:
           - Sets the base Kubernetes resource name for Grafana.
-          - The default derives from C(inventory_hostname).
       grafana_k8s_wait_timeout: &grafana_k8s_wait_timeout
         type: int
         required: false

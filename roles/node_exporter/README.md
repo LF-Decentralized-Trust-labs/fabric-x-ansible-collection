@@ -58,7 +58,7 @@ Starts Node Exporter using the container or Kubernetes backend selected for the 
 ```yaml
 - name: Start Node Exporter
   vars:
-    # Enables the container backend. The default is derived from `node_exporter_use_k8s`.
+    # Enables the container backend.
     node_exporter_use_container: "{{ not node_exporter_use_k8s }}"
     # Enables the Kubernetes backend or cleanup path when true.
     node_exporter_use_k8s: false
@@ -76,7 +76,7 @@ Stops a container-based Node Exporter deployment.
 ```yaml
 - name: Stop Node Exporter
   vars:
-    # Enables the container backend. The default is derived from `node_exporter_use_k8s`.
+    # Enables the container backend.
     node_exporter_use_container: "{{ not node_exporter_use_k8s }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
@@ -92,7 +92,7 @@ Removes Node Exporter runtime resources for the enabled backend.
 ```yaml
 - name: Remove Node Exporter runtime resources
   vars:
-    # Enables the container backend. The default is derived from `node_exporter_use_k8s`.
+    # Enables the container backend.
     node_exporter_use_container: "{{ not node_exporter_use_k8s }}"
     # Enables the Kubernetes backend or cleanup path when true.
     node_exporter_use_k8s: false
@@ -123,7 +123,7 @@ Collects logs from the active Node Exporter backend for this host.
 ```yaml
 - name: Collect Node Exporter logs
   vars:
-    # Enables the container backend. The default is derived from `node_exporter_use_k8s`.
+    # Enables the container backend.
     node_exporter_use_container: "{{ not node_exporter_use_k8s }}"
     # Enables the Kubernetes backend or cleanup path when true.
     node_exporter_use_k8s: false
@@ -179,7 +179,7 @@ Also applies the Kubernetes ConfigMap when the Kubernetes backend is enabled.
   vars:
     # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`.
     remote_deploy_dir: "string"
-    # Sets the remote Node Exporter configuration directory. The default derives from `remote_deploy_dir`.
+    # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
     # Sets the configuration mount point inside the Node Exporter container.
     node_exporter_container_config_dir: /var/config
@@ -211,7 +211,7 @@ Also removes the Kubernetes ConfigMap when the Kubernetes backend is enabled.
   vars:
     # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`.
     remote_deploy_dir: "string"
-    # Sets the remote Node Exporter configuration directory. The default derives from `remote_deploy_dir`.
+    # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
     # Enables the Kubernetes backend or cleanup path when true.
     node_exporter_use_k8s: false
@@ -266,7 +266,7 @@ Fetches the generated Node Exporter CA certificate and server certificate from t
     remote_deploy_dir: "string"
     # Sets the local directory used to store fetched TLS artifacts.
     fetched_artifacts_dir: "string"
-    # Sets the remote Node Exporter configuration directory. The default derives from `remote_deploy_dir`.
+    # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
     # Enables the TLS web configuration and certificate paths when true.
     node_exporter_use_tls: false
@@ -288,7 +288,7 @@ Also removes the Kubernetes TLS Secret when the Kubernetes backend is enabled.
   vars:
     # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`.
     remote_deploy_dir: "string"
-    # Sets the remote Node Exporter configuration directory. The default derives from `remote_deploy_dir`.
+    # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
     # Enables the TLS web configuration and certificate paths when true.
     node_exporter_use_tls: false
@@ -310,7 +310,7 @@ Delegates to the OpenSSL role to generate a self-signed certificate and private 
   vars:
     # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`.
     remote_deploy_dir: "string"
-    # Sets the remote Node Exporter configuration directory. The default derives from `remote_deploy_dir`.
+    # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
     # Sets the Node Exporter TLS private key filename.
     node_exporter_tls_private_key_file: server.key
@@ -334,19 +334,19 @@ Starts the Node Exporter container with the configured image, port, mounts, and 
   vars:
     # Sets the container name used for the Node Exporter runtime.
     node_exporter_container_name: node-exporter
-    # Sets the registry endpoint used to build the default Node Exporter image reference. The default reads `NODE_EXPORTER_REGISTRY_ENDPOINT` and falls back to `docker.io/prom`.
+    # Sets the registry endpoint used to build the default Node Exporter image reference.
     node_exporter_registry_endpoint: "{{ lookup('env', 'NODE_EXPORTER_REGISTRY_ENDPOINT') or 'docker.io/prom' }}"
     # Sets the Node Exporter image name used in the default image reference.
     node_exporter_image_name: node-exporter
     # Sets the Node Exporter image tag used in the default image reference.
     node_exporter_image_tag: latest
-    # Sets the full Node Exporter image reference. The default derives from `node_exporter_registry_endpoint`, `node_exporter_image_name`, and `node_exporter_image_tag`.
+    # Sets the full Node Exporter image reference.
     node_exporter_image: "{{ node_exporter_registry_endpoint }}/{{ node_exporter_image_name }}:{{ node_exporter_image_tag }}"
     # Sets the TCP port exposed by Node Exporter and seeds the default Kubernetes NodePort value.
     node_exporter_port: 1000
     # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`.
     remote_deploy_dir: "string"
-    # Sets the remote Node Exporter configuration directory. The default derives from `remote_deploy_dir`.
+    # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
     # Sets the configuration mount point inside the Node Exporter container.
     node_exporter_container_config_dir: /var/config
@@ -372,13 +372,13 @@ Stops the Node Exporter container by delegating to the shared container role.
   vars:
     # Sets the container name used for the Node Exporter runtime.
     node_exporter_container_name: node-exporter
-    # Sets the registry endpoint used to build the default Node Exporter image reference. The default reads `NODE_EXPORTER_REGISTRY_ENDPOINT` and falls back to `docker.io/prom`.
+    # Sets the registry endpoint used to build the default Node Exporter image reference.
     node_exporter_registry_endpoint: "{{ lookup('env', 'NODE_EXPORTER_REGISTRY_ENDPOINT') or 'docker.io/prom' }}"
     # Sets the Node Exporter image name used in the default image reference.
     node_exporter_image_name: node-exporter
     # Sets the Node Exporter image tag used in the default image reference.
     node_exporter_image_tag: latest
-    # Sets the full Node Exporter image reference. The default derives from `node_exporter_registry_endpoint`, `node_exporter_image_name`, and `node_exporter_image_tag`.
+    # Sets the full Node Exporter image reference.
     node_exporter_image: "{{ node_exporter_registry_endpoint }}/{{ node_exporter_image_name }}:{{ node_exporter_image_tag }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
@@ -396,13 +396,13 @@ Removes the Node Exporter container by delegating to the shared container role.
   vars:
     # Sets the container name used for the Node Exporter runtime.
     node_exporter_container_name: node-exporter
-    # Sets the registry endpoint used to build the default Node Exporter image reference. The default reads `NODE_EXPORTER_REGISTRY_ENDPOINT` and falls back to `docker.io/prom`.
+    # Sets the registry endpoint used to build the default Node Exporter image reference.
     node_exporter_registry_endpoint: "{{ lookup('env', 'NODE_EXPORTER_REGISTRY_ENDPOINT') or 'docker.io/prom' }}"
     # Sets the Node Exporter image name used in the default image reference.
     node_exporter_image_name: node-exporter
     # Sets the Node Exporter image tag used in the default image reference.
     node_exporter_image_tag: latest
-    # Sets the full Node Exporter image reference. The default derives from `node_exporter_registry_endpoint`, `node_exporter_image_name`, and `node_exporter_image_tag`.
+    # Sets the full Node Exporter image reference.
     node_exporter_image: "{{ node_exporter_registry_endpoint }}/{{ node_exporter_image_name }}:{{ node_exporter_image_tag }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
@@ -436,21 +436,21 @@ Creates the Kubernetes Service, optional NodePort Service, and DaemonSet for Nod
   vars:
     # Sets how long to wait for the Node Exporter DaemonSet rollout.
     node_exporter_k8s_wait_timeout: 120
-    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. The default derives from `inventory_hostname`.
+    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the TCP port exposed by Node Exporter and seeds the default Kubernetes NodePort value.
     node_exporter_port: 1000
-    # Sets the Kubernetes NodePort used for Node Exporter when `node_exporter_k8s_use_node_port` is true. The default derives from `node_exporter_port`.
+    # Sets the Kubernetes NodePort used for Node Exporter when `node_exporter_k8s_use_node_port` is true.
     node_exporter_k8s_port_node_port: 1000
     # Enables the optional NodePort Service and NodePort reachability check when true.
     node_exporter_k8s_use_node_port: false
-    # Sets the registry endpoint used to build the default Node Exporter image reference. The default reads `NODE_EXPORTER_REGISTRY_ENDPOINT` and falls back to `docker.io/prom`.
+    # Sets the registry endpoint used to build the default Node Exporter image reference.
     node_exporter_registry_endpoint: "{{ lookup('env', 'NODE_EXPORTER_REGISTRY_ENDPOINT') or 'docker.io/prom' }}"
     # Sets the Node Exporter image name used in the default image reference.
     node_exporter_image_name: node-exporter
     # Sets the Node Exporter image tag used in the default image reference.
     node_exporter_image_tag: latest
-    # Sets the full Node Exporter image reference. The default derives from `node_exporter_registry_endpoint`, `node_exporter_image_name`, and `node_exporter_image_tag`.
+    # Sets the full Node Exporter image reference.
     node_exporter_image: "{{ node_exporter_registry_endpoint }}/{{ node_exporter_image_name }}:{{ node_exporter_image_tag }}"
     # Enables the TLS web configuration and certificate paths when true.
     node_exporter_use_tls: false
@@ -500,7 +500,7 @@ Checks that the Kubernetes NodePort exposed by Node Exporter is reachable when t
     node_exporter_port: 1000
     # Enables the optional NodePort Service and NodePort reachability check when true.
     node_exporter_k8s_use_node_port: false
-    # Sets the Kubernetes NodePort used for Node Exporter when `node_exporter_k8s_use_node_port` is true. The default derives from `node_exporter_port`.
+    # Sets the Kubernetes NodePort used for Node Exporter when `node_exporter_k8s_use_node_port` is true.
     node_exporter_k8s_port_node_port: 1000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
@@ -516,7 +516,7 @@ Removes the Kubernetes DaemonSet and Services created for Node Exporter.
 ```yaml
 - name: Remove Node Exporter Kubernetes resources
   vars:
-    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. The default derives from `inventory_hostname`.
+    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true.
     k8s_namespace: "string"
@@ -534,7 +534,7 @@ Collects logs from Node Exporter pods by delegating to the shared Kubernetes rol
 ```yaml
 - name: Fetch logs from Node Exporter pods
   vars:
-    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. The default derives from `inventory_hostname`.
+    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
@@ -550,7 +550,7 @@ Ensures the target namespace exists and applies the ConfigMap used by the Node E
 ```yaml
 - name: Apply the Node Exporter Kubernetes ConfigMap
   vars:
-    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. The default derives from `inventory_hostname`.
+    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
     # Enables the TLS web configuration and certificate paths when true.
     node_exporter_use_tls: false
@@ -558,7 +558,7 @@ Ensures the target namespace exists and applies the ConfigMap used by the Node E
     node_exporter_web_config_file: web-config.yaml
     # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`.
     remote_deploy_dir: "string"
-    # Sets the remote Node Exporter configuration directory. The default derives from `remote_deploy_dir`.
+    # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
     # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true.
     k8s_namespace: "string"
@@ -576,7 +576,7 @@ Deletes the ConfigMap used by the Node Exporter Kubernetes deployment.
 ```yaml
 - name: Remove the Node Exporter Kubernetes ConfigMap
   vars:
-    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. The default derives from `inventory_hostname`.
+    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true.
     k8s_namespace: "string"
@@ -594,13 +594,13 @@ Ensures the target namespace exists and applies the Secret that stores Node Expo
 ```yaml
 - name: Apply the Node Exporter Kubernetes TLS Secret
   vars:
-    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. The default derives from `inventory_hostname`.
+    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
     # Enables the TLS web configuration and certificate paths when true.
     node_exporter_use_tls: false
     # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`.
     remote_deploy_dir: "string"
-    # Sets the remote Node Exporter configuration directory. The default derives from `remote_deploy_dir`.
+    # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
     # Sets the Node Exporter TLS private key filename.
     node_exporter_tls_private_key_file: server.key
@@ -622,7 +622,7 @@ Deletes the Secret that stores Node Exporter TLS material for Kubernetes deploym
 ```yaml
 - name: Remove the Node Exporter Kubernetes TLS Secret
   vars:
-    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. The default derives from `inventory_hostname`.
+    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true.
     k8s_namespace: "string"

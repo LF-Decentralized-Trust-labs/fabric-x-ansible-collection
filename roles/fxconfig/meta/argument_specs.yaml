@@ -57,7 +57,7 @@ argument_specs:
         required: false
         default: "{{ fxconfig_git_hub_url }}/{{ fxconfig_git_repo }}/{{ fxconfig_source_code_package }}"
         description:
-          - "Defines the Go package path used to install fxconfig. The default derives from C(fxconfig_git_hub_url), C(fxconfig_git_repo), and C(fxconfig_source_code_package)."
+          - "Defines the Go package path used to install fxconfig."
       fxconfig_config_file: &fxconfig_config_file
         type: str
         required: false
@@ -111,19 +111,19 @@ argument_specs:
         required: false
         default: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
         description:
-          - "Defines the fxconfig container image. The default derives from C(fxconfig_registry_endpoint), C(fxconfig_image_name), and C(fxconfig_image_tag)."
+          - "Defines the fxconfig container image."
       fxconfig_image_name: &fxconfig_image_name
         type: str
         required: false
         default: "fabric-x-tools"
         description:
-          - "Defines the image name used by the default fxconfig container image. Example: C(fabric-x-tools)."
+          - "Defines the image name used by the fxconfig container image. Example: C(fabric-x-tools)."
       fxconfig_image_tag: &fxconfig_image_tag
         type: str
         required: false
         default: "0.0.12"
         description:
-          - "Defines the image tag used by the default fxconfig container image. Example: C(0.0.12)."
+          - "Defines the image tag used by the fxconfig container image. Example: C(0.0.12)."
       fxconfig_log_format: &fxconfig_log_format
         type: str
         required: false
@@ -146,19 +146,19 @@ argument_specs:
         required: false
         default: "{{ organization.name }}MSP"
         description:
-          - "Defines the MSP identifier written into the rendered configuration. The default derives from C(organization.name)."
+          - "Defines the MSP identifier written into the rendered configuration."
       fxconfig_mtls_client_cert_path: &fxconfig_mtls_client_cert_path
         type: path
         required: false
         default: "{{ remote_config_dir }}/tls/server.crt"
         description:
-          - "Defines the source certificate path used for fxconfig mTLS. The default derives from C(remote_config_dir)."
+          - "Defines the source certificate path used for fxconfig mTLS."
       fxconfig_mtls_client_key_path: &fxconfig_mtls_client_key_path
         type: path
         required: false
         default: "{{ remote_config_dir }}/tls/server.key"
         description:
-          - "Defines the source private key path used for fxconfig mTLS. The default derives from C(remote_config_dir)."
+          - "Defines the source private key path used for fxconfig mTLS."
       fxconfig_namespace_id: &fxconfig_namespace_id
         type: raw
         required: true
@@ -179,19 +179,19 @@ argument_specs:
         required: false
         default: "{{ fxconfig_remote_config_dir }}/tx.json"
         description:
-          - "Defines the transaction artifact path on the managed host. The default derives from C(fxconfig_remote_config_dir)."
+          - "Defines the transaction artifact path on the managed host."
       fxconfig_registry_endpoint: &fxconfig_registry_endpoint
         type: str
         required: false
         default: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
         description:
-          - "Defines the registry endpoint used by the default fxconfig container image. Example: C(docker.io/hyperledger)."
+          - "Defines the registry endpoint used by the fxconfig container image. Example: C(docker.io/hyperledger)."
       fxconfig_remote_config_dir: &fxconfig_remote_config_dir
         type: path
         required: false
         default: "{{ remote_config_dir }}/fxconfig"
         description:
-          - "Defines the fxconfig remote configuration directory. The default derives from C(remote_config_dir)."
+          - "Defines the fxconfig remote configuration directory."
       fxconfig_source_code_package: &fxconfig_source_code_package
         type: str
         required: false

@@ -84,9 +84,9 @@ Copies a transaction to the target host, endorses it with the local fxconfig bin
     fxconfig_bin_name: fxconfig
     # Defines the fxconfig configuration filename. Example: `fxconfig.yaml`.
     fxconfig_config_file: fxconfig.yaml
-    # Defines the transaction artifact path on the managed host. The default derives from `fxconfig_remote_config_dir`.
+    # Defines the transaction artifact path on the managed host.
     fxconfig_output: "{{ fxconfig_remote_config_dir }}/tx.json"
-    # Defines the fxconfig remote configuration directory. The default derives from `remote_config_dir`.
+    # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
     # Supplies the JSON transaction file to endorse. Example: `/tmp/fxconfig-artifacts/workload/ns.json`.
     fxconfig_tx_to_endorse: "string"
@@ -106,7 +106,7 @@ Installs the fxconfig Go package by delegating to the shared bin role.
 ```yaml
 - name: Install the fxconfig binary
   vars:
-    # Defines the Go package path used to install fxconfig. The default derives from `fxconfig_git_hub_url`, `fxconfig_git_repo`, and `fxconfig_source_code_package`.
+    # Defines the Go package path used to install fxconfig.
     fxconfig_bin_package: "{{ fxconfig_git_hub_url }}/{{ fxconfig_git_repo }}/{{ fxconfig_source_code_package }}"
     # Selects the Git ref used by build and install workflows. Example: `v0.0.12`.
     fxconfig_git_commit: v0.0.12
@@ -138,9 +138,9 @@ Collects endorsed transaction files and merges them into a single transaction us
     fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
     # Defines the fxconfig log level. Example: `info`.
     fxconfig_log_level: info
-    # Defines the transaction artifact path on the managed host. The default derives from `fxconfig_remote_config_dir`.
+    # Defines the transaction artifact path on the managed host.
     fxconfig_output: "{{ fxconfig_remote_config_dir }}/tx.json"
-    # Defines the fxconfig remote configuration directory. The default derives from `remote_config_dir`.
+    # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
     # Provides the base remote configuration directory used by the role. Example: `/opt/hlf/config`.
     remote_config_dir: "string"
@@ -168,9 +168,9 @@ Creates a namespace transaction JSON file with the local fxconfig binary.
     fxconfig_namespace_id: "string"
     # Defines the namespace endorsement policy. Example: `threshold:/tmp/pubkey.pem`.
     fxconfig_namespace_policy: "string"
-    # Defines the transaction artifact path on the managed host. The default derives from `fxconfig_remote_config_dir`.
+    # Defines the transaction artifact path on the managed host.
     fxconfig_output: "{{ fxconfig_remote_config_dir }}/tx.json"
-    # Defines the fxconfig remote configuration directory. The default derives from `remote_config_dir`.
+    # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
     # Provides the base remote configuration directory used by the role. Example: `/opt/hlf/config`.
     remote_config_dir: "string"
@@ -196,7 +196,7 @@ Lists namespaces from the configured Fabric-X network by invoking the local fxco
     fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
     # Defines the fxconfig log level. Example: `info`.
     fxconfig_log_level: info
-    # Defines the fxconfig remote configuration directory. The default derives from `remote_config_dir`.
+    # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
     # Provides the base remote configuration directory used by the role. Example: `/opt/hlf/config`.
     remote_config_dir: "string"
@@ -234,7 +234,7 @@ Transfers a merged transaction to the managed host and submits it with the local
     fxconfig_bin_name: fxconfig
     # Defines the fxconfig configuration filename. Example: `fxconfig.yaml`.
     fxconfig_config_file: fxconfig.yaml
-    # Defines the fxconfig remote configuration directory. The default derives from `remote_config_dir`.
+    # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
     # Supplies the merged JSON transaction file to submit. Example: `/tmp/fxconfig-artifacts/workload/merged.json`.
     fxconfig_tx_to_submit_path: "string"
@@ -270,11 +270,11 @@ Copies the client certificate and key used by fxconfig for mTLS connections into
 ```yaml
 - name: Transfer fxconfig mTLS client material
   vars:
-    # Defines the source certificate path used for fxconfig mTLS. The default derives from `remote_config_dir`.
+    # Defines the source certificate path used for fxconfig mTLS.
     fxconfig_mtls_client_cert_path: "{{ remote_config_dir }}/tls/server.crt"
-    # Defines the source private key path used for fxconfig mTLS. The default derives from `remote_config_dir`.
+    # Defines the source private key path used for fxconfig mTLS.
     fxconfig_mtls_client_key_path: "{{ remote_config_dir }}/tls/server.key"
-    # Defines the fxconfig remote configuration directory. The default derives from `remote_config_dir`.
+    # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
     # Provides the base remote configuration directory used by the role. Example: `/opt/hlf/config`.
     remote_config_dir: "string"
@@ -298,7 +298,7 @@ Inventory hosts named by the gating variables must expose connection metadata, R
     committer_query_service_host: "string"
     # Defines the local directory that stores fetched artifacts. Example: `/tmp/fabricx-artifacts`.
     fetched_artifacts_dir: "string"
-    # Defines the fxconfig remote configuration directory. The default derives from `remote_config_dir`.
+    # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
     # Identifies the inventory host for the Orderer Router component. Example: `orderer-router-1`.
     orderer_router_host: "string"
@@ -344,15 +344,15 @@ Inventory hosts named by the routing variables must expose connection metadata, 
     fxconfig_log_level: info
     # Defines the source MSP directory copied into the fxconfig configuration directory. Example: `/opt/hlf/config/users/User1@example.com/msp`.
     fxconfig_msp_config_path: "string"
-    # Defines the MSP identifier written into the rendered configuration. The default derives from `organization.name`.
+    # Defines the MSP identifier written into the rendered configuration.
     fxconfig_msp_id: "{{ organization.name }}MSP"
-    # Defines the source certificate path used for fxconfig mTLS. The default derives from `remote_config_dir`.
+    # Defines the source certificate path used for fxconfig mTLS.
     fxconfig_mtls_client_cert_path: "{{ remote_config_dir }}/tls/server.crt"
-    # Defines the source private key path used for fxconfig mTLS. The default derives from `remote_config_dir`.
+    # Defines the source private key path used for fxconfig mTLS.
     fxconfig_mtls_client_key_path: "{{ remote_config_dir }}/tls/server.key"
     # Defines the orderer connection timeout written into the rendered configuration. Example: `30s`.
     fxconfig_orderer_connection_timeout: "string"
-    # Defines the fxconfig remote configuration directory. The default derives from `remote_config_dir`.
+    # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
     # Selects the host-binary workflow instead of the container workflow.
     fxconfig_use_bin: false
@@ -384,17 +384,17 @@ Copies a transaction to the target host, endorses it with a transient fxconfig c
     fxconfig_container_config_dir: /config
     # Defines the base container name used by fxconfig workflows. Example: `fxconfig`.
     fxconfig_container_name: fxconfig
-    # Defines the fxconfig container image. The default derives from `fxconfig_registry_endpoint`, `fxconfig_image_name`, and `fxconfig_image_tag`.
+    # Defines the fxconfig container image.
     fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
-    # Defines the image name used by the default fxconfig container image. Example: `fabric-x-tools`.
+    # Defines the image name used by the fxconfig container image. Example: `fabric-x-tools`.
     fxconfig_image_name: fabric-x-tools
-    # Defines the image tag used by the default fxconfig container image. Example: `0.0.12`.
+    # Defines the image tag used by the fxconfig container image. Example: `0.0.12`.
     fxconfig_image_tag: 0.0.12
-    # Defines the transaction artifact path on the managed host. The default derives from `fxconfig_remote_config_dir`.
+    # Defines the transaction artifact path on the managed host.
     fxconfig_output: "{{ fxconfig_remote_config_dir }}/tx.json"
-    # Defines the registry endpoint used by the default fxconfig container image. Example: `docker.io/hyperledger`.
+    # Defines the registry endpoint used by the fxconfig container image. Example: `docker.io/hyperledger`.
     fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # Defines the fxconfig remote configuration directory. The default derives from `remote_config_dir`.
+    # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
     # Supplies the JSON transaction file to endorse. Example: `/tmp/fxconfig-artifacts/workload/ns.json`.
     fxconfig_tx_to_endorse: "string"
@@ -422,21 +422,21 @@ Collects endorsed transactions and merges them into a single artifact by running
     fxconfig_container_name: fxconfig
     # Defines the directory containing endorsed JSON transactions. Example: `/tmp/fxconfig-artifacts/workload/endorsed`.
     fxconfig_endorsed_txs_dir: "string"
-    # Defines the fxconfig container image. The default derives from `fxconfig_registry_endpoint`, `fxconfig_image_name`, and `fxconfig_image_tag`.
+    # Defines the fxconfig container image.
     fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
-    # Defines the image name used by the default fxconfig container image. Example: `fabric-x-tools`.
+    # Defines the image name used by the fxconfig container image. Example: `fabric-x-tools`.
     fxconfig_image_name: fabric-x-tools
-    # Defines the image tag used by the default fxconfig container image. Example: `0.0.12`.
+    # Defines the image tag used by the fxconfig container image. Example: `0.0.12`.
     fxconfig_image_tag: 0.0.12
     # Defines the fxconfig log format.
     fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
     # Defines the fxconfig log level. Example: `info`.
     fxconfig_log_level: info
-    # Defines the transaction artifact path on the managed host. The default derives from `fxconfig_remote_config_dir`.
+    # Defines the transaction artifact path on the managed host.
     fxconfig_output: "{{ fxconfig_remote_config_dir }}/tx.json"
-    # Defines the registry endpoint used by the default fxconfig container image. Example: `docker.io/hyperledger`.
+    # Defines the registry endpoint used by the fxconfig container image. Example: `docker.io/hyperledger`.
     fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # Defines the fxconfig remote configuration directory. The default derives from `remote_config_dir`.
+    # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
     # Provides the base remote configuration directory used by the role. Example: `/opt/hlf/config`.
     remote_config_dir: "string"
@@ -458,11 +458,11 @@ Creates a namespace transaction JSON file by running fxconfig in a transient con
     fxconfig_bin_name: fxconfig
     # Defines the base container name used by fxconfig workflows. Example: `fxconfig`.
     fxconfig_container_name: fxconfig
-    # Defines the fxconfig container image. The default derives from `fxconfig_registry_endpoint`, `fxconfig_image_name`, and `fxconfig_image_tag`.
+    # Defines the fxconfig container image.
     fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
-    # Defines the image name used by the default fxconfig container image. Example: `fabric-x-tools`.
+    # Defines the image name used by the fxconfig container image. Example: `fabric-x-tools`.
     fxconfig_image_name: fabric-x-tools
-    # Defines the image tag used by the default fxconfig container image. Example: `0.0.12`.
+    # Defines the image tag used by the fxconfig container image. Example: `0.0.12`.
     fxconfig_image_tag: 0.0.12
     # Defines the fxconfig log format.
     fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
@@ -472,11 +472,11 @@ Creates a namespace transaction JSON file by running fxconfig in a transient con
     fxconfig_namespace_id: "string"
     # Defines the namespace endorsement policy. Example: `threshold:/tmp/pubkey.pem`.
     fxconfig_namespace_policy: "string"
-    # Defines the transaction artifact path on the managed host. The default derives from `fxconfig_remote_config_dir`.
+    # Defines the transaction artifact path on the managed host.
     fxconfig_output: "{{ fxconfig_remote_config_dir }}/tx.json"
-    # Defines the registry endpoint used by the default fxconfig container image. Example: `docker.io/hyperledger`.
+    # Defines the registry endpoint used by the fxconfig container image. Example: `docker.io/hyperledger`.
     fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # Defines the fxconfig remote configuration directory. The default derives from `remote_config_dir`.
+    # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
     # Provides the base remote configuration directory used by the role. Example: `/opt/hlf/config`.
     remote_config_dir: "string"
@@ -502,19 +502,19 @@ Lists namespaces from the configured Fabric-X network by running fxconfig in a t
     fxconfig_container_config_dir: /config
     # Defines the base container name used by fxconfig workflows. Example: `fxconfig`.
     fxconfig_container_name: fxconfig
-    # Defines the fxconfig container image. The default derives from `fxconfig_registry_endpoint`, `fxconfig_image_name`, and `fxconfig_image_tag`.
+    # Defines the fxconfig container image.
     fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
-    # Defines the image name used by the default fxconfig container image. Example: `fabric-x-tools`.
+    # Defines the image name used by the fxconfig container image. Example: `fabric-x-tools`.
     fxconfig_image_name: fabric-x-tools
-    # Defines the image tag used by the default fxconfig container image. Example: `0.0.12`.
+    # Defines the image tag used by the fxconfig container image. Example: `0.0.12`.
     fxconfig_image_tag: 0.0.12
     # Defines the fxconfig log format.
     fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
     # Defines the fxconfig log level. Example: `info`.
     fxconfig_log_level: info
-    # Defines the registry endpoint used by the default fxconfig container image. Example: `docker.io/hyperledger`.
+    # Defines the registry endpoint used by the fxconfig container image. Example: `docker.io/hyperledger`.
     fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # Defines the fxconfig remote configuration directory. The default derives from `remote_config_dir`.
+    # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
     # Provides the base remote configuration directory used by the role. Example: `/opt/hlf/config`.
     remote_config_dir: "string"
@@ -540,15 +540,15 @@ Transfers a merged transaction to the managed host and submits it by running fxc
     fxconfig_container_config_dir: /config
     # Defines the base container name used by fxconfig workflows. Example: `fxconfig`.
     fxconfig_container_name: fxconfig
-    # Defines the fxconfig container image. The default derives from `fxconfig_registry_endpoint`, `fxconfig_image_name`, and `fxconfig_image_tag`.
+    # Defines the fxconfig container image.
     fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
-    # Defines the image name used by the default fxconfig container image. Example: `fabric-x-tools`.
+    # Defines the image name used by the fxconfig container image. Example: `fabric-x-tools`.
     fxconfig_image_name: fabric-x-tools
-    # Defines the image tag used by the default fxconfig container image. Example: `0.0.12`.
+    # Defines the image tag used by the fxconfig container image. Example: `0.0.12`.
     fxconfig_image_tag: 0.0.12
-    # Defines the registry endpoint used by the default fxconfig container image. Example: `docker.io/hyperledger`.
+    # Defines the registry endpoint used by the fxconfig container image. Example: `docker.io/hyperledger`.
     fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # Defines the fxconfig remote configuration directory. The default derives from `remote_config_dir`.
+    # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
     # Supplies the merged JSON transaction file to submit. Example: `/tmp/fxconfig-artifacts/workload/merged.json`.
     fxconfig_tx_to_submit_path: "string"
@@ -576,17 +576,17 @@ Dispatches transaction endorsement to either the host binary or a transient cont
     fxconfig_container_config_dir: /config
     # Defines the base container name used by fxconfig workflows. Example: `fxconfig`.
     fxconfig_container_name: fxconfig
-    # Defines the fxconfig container image. The default derives from `fxconfig_registry_endpoint`, `fxconfig_image_name`, and `fxconfig_image_tag`.
+    # Defines the fxconfig container image.
     fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
-    # Defines the image name used by the default fxconfig container image. Example: `fabric-x-tools`.
+    # Defines the image name used by the fxconfig container image. Example: `fabric-x-tools`.
     fxconfig_image_name: fabric-x-tools
-    # Defines the image tag used by the default fxconfig container image. Example: `0.0.12`.
+    # Defines the image tag used by the fxconfig container image. Example: `0.0.12`.
     fxconfig_image_tag: 0.0.12
-    # Defines the transaction artifact path on the managed host. The default derives from `fxconfig_remote_config_dir`.
+    # Defines the transaction artifact path on the managed host.
     fxconfig_output: "{{ fxconfig_remote_config_dir }}/tx.json"
-    # Defines the registry endpoint used by the default fxconfig container image. Example: `docker.io/hyperledger`.
+    # Defines the registry endpoint used by the fxconfig container image. Example: `docker.io/hyperledger`.
     fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # Defines the fxconfig remote configuration directory. The default derives from `remote_config_dir`.
+    # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
     # Supplies the JSON transaction file to endorse. Example: `/tmp/fxconfig-artifacts/workload/ns.json`.
     fxconfig_tx_to_endorse: "string"
@@ -632,21 +632,21 @@ Dispatches merge operations to either the host binary or a transient container b
     fxconfig_container_name: fxconfig
     # Defines the directory containing endorsed JSON transactions. Example: `/tmp/fxconfig-artifacts/workload/endorsed`.
     fxconfig_endorsed_txs_dir: "string"
-    # Defines the fxconfig container image. The default derives from `fxconfig_registry_endpoint`, `fxconfig_image_name`, and `fxconfig_image_tag`.
+    # Defines the fxconfig container image.
     fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
-    # Defines the image name used by the default fxconfig container image. Example: `fabric-x-tools`.
+    # Defines the image name used by the fxconfig container image. Example: `fabric-x-tools`.
     fxconfig_image_name: fabric-x-tools
-    # Defines the image tag used by the default fxconfig container image. Example: `0.0.12`.
+    # Defines the image tag used by the fxconfig container image. Example: `0.0.12`.
     fxconfig_image_tag: 0.0.12
     # Defines the fxconfig log format.
     fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
     # Defines the fxconfig log level. Example: `info`.
     fxconfig_log_level: info
-    # Defines the transaction artifact path on the managed host. The default derives from `fxconfig_remote_config_dir`.
+    # Defines the transaction artifact path on the managed host.
     fxconfig_output: "{{ fxconfig_remote_config_dir }}/tx.json"
-    # Defines the registry endpoint used by the default fxconfig container image. Example: `docker.io/hyperledger`.
+    # Defines the registry endpoint used by the fxconfig container image. Example: `docker.io/hyperledger`.
     fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # Defines the fxconfig remote configuration directory. The default derives from `remote_config_dir`.
+    # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
     # Selects the host-binary workflow instead of the container workflow.
     fxconfig_use_bin: false
@@ -670,11 +670,11 @@ Dispatches namespace transaction creation to either the host binary or a transie
     fxconfig_bin_name: fxconfig
     # Defines the base container name used by fxconfig workflows. Example: `fxconfig`.
     fxconfig_container_name: fxconfig
-    # Defines the fxconfig container image. The default derives from `fxconfig_registry_endpoint`, `fxconfig_image_name`, and `fxconfig_image_tag`.
+    # Defines the fxconfig container image.
     fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
-    # Defines the image name used by the default fxconfig container image. Example: `fabric-x-tools`.
+    # Defines the image name used by the fxconfig container image. Example: `fabric-x-tools`.
     fxconfig_image_name: fabric-x-tools
-    # Defines the image tag used by the default fxconfig container image. Example: `0.0.12`.
+    # Defines the image tag used by the fxconfig container image. Example: `0.0.12`.
     fxconfig_image_tag: 0.0.12
     # Defines the fxconfig log format.
     fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
@@ -684,11 +684,11 @@ Dispatches namespace transaction creation to either the host binary or a transie
     fxconfig_namespace_id: "string"
     # Defines the namespace endorsement policy. Example: `threshold:/tmp/pubkey.pem`.
     fxconfig_namespace_policy: "string"
-    # Defines the transaction artifact path on the managed host. The default derives from `fxconfig_remote_config_dir`.
+    # Defines the transaction artifact path on the managed host.
     fxconfig_output: "{{ fxconfig_remote_config_dir }}/tx.json"
-    # Defines the registry endpoint used by the default fxconfig container image. Example: `docker.io/hyperledger`.
+    # Defines the registry endpoint used by the fxconfig container image. Example: `docker.io/hyperledger`.
     fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # Defines the fxconfig remote configuration directory. The default derives from `remote_config_dir`.
+    # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
     # Selects the host-binary workflow instead of the container workflow.
     fxconfig_use_bin: false
@@ -736,19 +736,19 @@ Dispatches namespace listing to either the host binary or a transient container 
     fxconfig_container_config_dir: /config
     # Defines the base container name used by fxconfig workflows. Example: `fxconfig`.
     fxconfig_container_name: fxconfig
-    # Defines the fxconfig container image. The default derives from `fxconfig_registry_endpoint`, `fxconfig_image_name`, and `fxconfig_image_tag`.
+    # Defines the fxconfig container image.
     fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
-    # Defines the image name used by the default fxconfig container image. Example: `fabric-x-tools`.
+    # Defines the image name used by the fxconfig container image. Example: `fabric-x-tools`.
     fxconfig_image_name: fabric-x-tools
-    # Defines the image tag used by the default fxconfig container image. Example: `0.0.12`.
+    # Defines the image tag used by the fxconfig container image. Example: `0.0.12`.
     fxconfig_image_tag: 0.0.12
     # Defines the fxconfig log format.
     fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
     # Defines the fxconfig log level. Example: `info`.
     fxconfig_log_level: info
-    # Defines the fxconfig remote configuration directory. The default derives from `remote_config_dir`.
+    # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
-    # Defines the registry endpoint used by the default fxconfig container image. Example: `docker.io/hyperledger`.
+    # Defines the registry endpoint used by the fxconfig container image. Example: `docker.io/hyperledger`.
     fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # Selects the host-binary workflow instead of the container workflow.
     fxconfig_use_bin: false
@@ -776,15 +776,15 @@ Dispatches merged transaction submission to either the host binary or a transien
     fxconfig_container_config_dir: /config
     # Defines the base container name used by fxconfig workflows. Example: `fxconfig`.
     fxconfig_container_name: fxconfig
-    # Defines the fxconfig container image. The default derives from `fxconfig_registry_endpoint`, `fxconfig_image_name`, and `fxconfig_image_tag`.
+    # Defines the fxconfig container image.
     fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
-    # Defines the image name used by the default fxconfig container image. Example: `fabric-x-tools`.
+    # Defines the image name used by the fxconfig container image. Example: `fabric-x-tools`.
     fxconfig_image_name: fabric-x-tools
-    # Defines the image tag used by the default fxconfig container image. Example: `0.0.12`.
+    # Defines the image tag used by the fxconfig container image. Example: `0.0.12`.
     fxconfig_image_tag: 0.0.12
-    # Defines the registry endpoint used by the default fxconfig container image. Example: `docker.io/hyperledger`.
+    # Defines the registry endpoint used by the fxconfig container image. Example: `docker.io/hyperledger`.
     fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # Defines the fxconfig remote configuration directory. The default derives from `remote_config_dir`.
+    # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
     # Supplies the merged JSON transaction file to submit. Example: `/tmp/fxconfig-artifacts/workload/merged.json`.
     fxconfig_tx_to_submit_path: "string"

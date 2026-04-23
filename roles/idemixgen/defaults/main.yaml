@@ -10,17 +10,14 @@
 # Defines the idemixgen binary name.
 idemixgen_bin_name: idemixgen
 # Defines the Go package path used to install idemixgen.
-# The default derives from C(idemixgen_git_hub_url), C(idemixgen_git_repo), and C(idemixgen_source_code_package).
 idemixgen_bin_package: '{{ idemixgen_git_hub_url }}/{{ idemixgen_git_repo }}/{{ idemixgen_source_code_package }}'
 # Defines the container name used for the idemixgen run.
-# The default derives from C(inventory_hostname).
 idemixgen_container_name: idemixgen-{{ inventory_hostname }}
 # Sets the output directory path used inside the container.
 idemixgen_container_output_dir: /tmp/out
 # Selects the cryptographic curve passed to idemixgen.
 idemixgen_curve_id: BLS12_381_BBS
 # Defines the enrollment identifier embedded in the signer configuration.
-# The default derives from C(inventory_hostname).
 idemixgen_enrollment_id: '{{ inventory_hostname }}'
 # Pins the git ref used for the idemixgen binary install or build.
 idemixgen_git_commit: v0.0.2
@@ -29,17 +26,14 @@ idemixgen_git_hub_url: github.com
 # Defines the owner and repository path for the idemixgen source.
 idemixgen_git_repo: IBM/idemix
 # Defines the container image used to run idemixgen.
-# The default derives from C(idemixgen_registry_endpoint), C(idemixgen_image_name), and C(idemixgen_image_tag).
 idemixgen_image: "{{ idemixgen_registry_endpoint }}/{{ idemixgen_image_name }}:{{ idemixgen_image_tag }}"
 # Defines the image name used for the idemixgen container.
 idemixgen_image_name: fabric-x-tools
 # Defines the image tag used for the idemixgen container.
 idemixgen_image_tag: 0.0.14
 # Sets the host directory where the generated artifacts are written.
-# The default derives from C(config_build_dir).
 idemixgen_output_dir: '{{ config_build_dir }}/idemixgen-artifacts'
 # Defines the container registry used for the idemixgen image.
-# The default derives from C(IDEMIXGEN_REGISTRY_ENDPOINT) or C(docker.io/hyperledger).
 idemixgen_registry_endpoint: "{{ lookup('env', 'IDEMIXGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 # Defines the revocation handle embedded in the signer configuration.
 # The default is a random integer from 100 to 998.

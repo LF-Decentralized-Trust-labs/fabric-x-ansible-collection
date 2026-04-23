@@ -13,20 +13,17 @@ argument_specs:
         type: path
         required: false
         description:
-          - "Sets the base directory on the control node used to derive C(bin_control_source_code_dir) and C(bin_control_dir)."
-          - "Required when relying on the defaults of those options and C(bin_build_on_control_node) is true."
+          - "Sets the base directory on the control node for C(bin_control_source_code_dir) and C(bin_control_dir)."
       remote_node_dir: &remote_node_dir
         type: path
         required: false
         description:
-          - "Sets the base directory on the managed host used to derive C(bin_remote_source_code_dir), C(bin_remote_dir), and C(bin_remote_logs_dir)."
-          - "Required when relying on the defaults of those options."
+          - "Sets the base directory on the managed host for C(bin_remote_source_code_dir), C(bin_remote_dir), and C(bin_remote_logs_dir)."
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         required: false
         description:
-          - "Sets the local directory used to derive C(bin_fetched_logs_dir)."
-          - "Required when relying on the default of that option."
+          - "Sets the local directory for C(bin_fetched_logs_dir)."
       bin_build_on_control_node: &bin_build_on_control_node
         type: bool
         required: false
@@ -39,56 +36,48 @@ argument_specs:
         default: "{{ ansible_facts.system }}"
         description:
           - "Sets the target operating system used when deriving platform-specific build output paths."
-          - "The default derives from C(ansible_facts.system)."
       bin_target_arch: &bin_target_arch
         type: str
         required: false
         default: "{{ ansible_facts.architecture }}"
         description:
           - "Sets the target CPU architecture used when deriving platform-specific build output paths."
-          - "The default derives from C(ansible_facts.architecture)."
       bin_name: &bin_name
         type: str
         required: false
         default: "{{ inventory_hostname }}"
         description:
           - "Sets the output binary name. Example: C(sample-go)."
-          - "The default derives from C(inventory_hostname)."
       bin_control_source_code_dir: &bin_control_source_code_dir
         type: path
         required: false
         default: "{{ control_node_dir }}/code"
         description:
           - "Defines the source code directory on the control node when builds run locally."
-          - "The default derives from C(control_node_dir)."
       bin_control_dir: &bin_control_dir
         type: path
         required: false
         default: "{{ control_node_dir }}/bin/{{ bin_target_os }}/{{ bin_target_arch }}"
         description:
           - "Defines the platform-specific output directory on the control node for built or installed binaries."
-          - "The default derives from C(control_node_dir), C(bin_target_os), and C(bin_target_arch)."
       bin_source_code_dir: &bin_source_code_dir
         type: path
         required: false
         default: "{{ bin_control_source_code_dir if bin_build_on_control_node else bin_remote_source_code_dir }}"
         description:
           - "Defines the source code directory used when invoking the go build role after cloning."
-          - "The default derives from C(bin_control_source_code_dir), C(bin_build_on_control_node), and C(bin_remote_source_code_dir)."
       bin_remote_source_code_dir: &bin_remote_source_code_dir
         type: path
         required: false
         default: "{{ remote_node_dir }}/code"
         description:
           - "Defines the source code directory on the managed host when builds do not run on the control node."
-          - "The default derives from C(remote_node_dir)."
       bin_dir: &bin_dir
         type: path
         required: false
         default: "{{ bin_control_dir if bin_build_on_control_node else bin_remote_dir }}"
         description:
           - "Sets the directory where built binaries are written for each target platform."
-          - "The default derives from C(bin_control_dir), C(bin_build_on_control_node), and C(bin_remote_dir)."
       bin_hosts: &bin_hosts
         type: list
         elements: str
@@ -97,14 +86,12 @@ argument_specs:
           - "{{ inventory_hostname }}"
         description:
           - "Lists the hosts whose facts are used to determine the operating system and architecture combinations that must be built."
-          - "The default derives from C(inventory_hostname)."
       bin_remote_dir: &bin_remote_dir
         type: path
         required: false
         default: "{{ remote_node_dir }}/bin"
         description:
           - "Sets the directory that is prefixed to C(bin_command) when constructing the executable path."
-          - "The default derives from C(remote_node_dir)."
       bin_command: &bin_command
         type: str
         required: true
@@ -128,7 +115,6 @@ argument_specs:
         default: "{{ remote_node_dir }}/logs"
         description:
           - "Sets the directory used for redirected log output when C(bin_collect_logs) is enabled."
-          - "The default derives from C(remote_node_dir)."
       bin_remote_logs_file: &bin_remote_logs_file
         type: str
         required: false
@@ -141,7 +127,6 @@ argument_specs:
         default: "{{ lookup('env', 'DEBUG') | bool | default(false) }}"
         description:
           - "Controls whether the assembled command and direct-run output are printed for debugging."
-          - "The default derives from the C(DEBUG) environment variable."
       bin_run_with_tmux: &bin_run_with_tmux
         type: bool
         required: false
@@ -207,7 +192,6 @@ argument_specs:
         default: "{{ fetched_artifacts_dir }}/{{ bin_name }}"
         description:
           - "Sets the destination directory on the control node where the fetched log file is stored."
-          - "The default derives from C(fetched_artifacts_dir) and C(bin_name)."
       bin_fetched_logs_file: &bin_fetched_logs_file
         type: str
         required: false

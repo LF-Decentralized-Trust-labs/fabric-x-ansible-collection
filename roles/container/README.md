@@ -105,21 +105,21 @@ Logs the command in debug mode, resolves the container client, and delegates sta
     container_entrypoint: "string"
     # Supplies the command passed to the container runtime.
     container_command: "string"
-    # Sets the hostname inside the container. The default derives from `container_name` and `inventory_hostname`.
+    # Sets the hostname inside the container.
     container_hostname: "{{ container_name | default(inventory_hostname) }}"
-    # Provides the host uid used to build `container_host_user`. The default derives from `ansible_facts.user_uid`.
+    # Provides the host uid used to build `container_host_user`.
     container_host_uid: "{{ ansible_facts.user_uid }}"
-    # Provides the host gid used to build `container_host_user`. The default derives from `ansible_facts.user_gid`.
+    # Provides the host gid used to build `container_host_user`.
     container_host_gid: "{{ ansible_facts.user_gid }}"
-    # Builds the host uid:gid pair used for rootless container execution. The default derives from `container_host_uid` and `container_host_gid`.
+    # Builds the host uid:gid pair used for rootless container execution.
     container_host_user: "{{ container_host_uid }}:{{ container_host_gid }}"
-    # Reports whether `container_host_user` resolves to `0:0`. The default derives from `container_host_user`.
+    # Reports whether `container_host_user` resolves to `0:0`.
     container_host_user_is_root: "{{ container_host_user == '0:0' }}"
     # Runs the container as the detected host user when set to `true`.
     container_run_as_host_user: false
-    # Marks whether the target host is macOS. The default derives from `ansible_facts.os_family`.
+    # Marks whether the target host is macOS.
     container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
-    # Controls the container network mode. The default derives from `container_on_mac` and `container_network`.
+    # Controls the container network mode.
     container_network_mode: "{{ 'bridge' if (container_on_mac or (container_network is defined)) else 'host' }}"
     # Names the bridge network attached to the container when bridge mode is selected.
     container_network: "string"
@@ -141,7 +141,7 @@ Logs the command in debug mode, resolves the container client, and delegates sta
     container_log_max_size: 1g
     # Limits the number of log lines shown in debug output.
     container_log_lines: 0
-    # Enables debug output. The default derives from `DEBUG` in the environment.
+    # Enables debug output.
     container_debug: "{{ lookup('env', 'DEBUG') | bool | default(false) }}"
     # Defines the container healthcheck command.
     container_healthcheck_test: "string"
@@ -245,11 +245,11 @@ Resolves the active container client, writes logs on the remote node, and fetche
     container_client: "{{ lookup('env', 'CONTAINER_CLIENT') or '' }}"
     # Names the container managed by the role.
     container_name: "string"
-    # Sets the remote directory used to stage collected container logs. The default derives from `remote_node_dir`.
+    # Sets the remote directory used to stage collected container logs.
     container_remote_logs_dir: "{{ remote_node_dir }}/logs"
     # Sets the filename used for collected container logs.
     container_remote_logs_file: logs.txt
-    # Sets the local destination for fetched container logs. The default derives from `fetched_artifacts_dir` and `container_name`.
+    # Sets the local destination for fetched container logs.
     container_fetched_logs_dir: "{{ fetched_artifacts_dir }}/{{ container_name }}"
     # Sets the filename used for fetched container logs.
     container_fetched_logs_file: logs.txt
@@ -339,15 +339,15 @@ Resolves the active container client and delegates volume creation to the matchi
     container_client: "{{ lookup('env', 'CONTAINER_CLIENT') or '' }}"
     # Names the container managed by the role.
     container_name: "string"
-    # Provides the host uid used to build `container_host_user`. The default derives from `ansible_facts.user_uid`.
+    # Provides the host uid used to build `container_host_user`.
     container_host_uid: "{{ ansible_facts.user_uid }}"
-    # Provides the host gid used to build `container_host_user`. The default derives from `ansible_facts.user_gid`.
+    # Provides the host gid used to build `container_host_user`.
     container_host_gid: "{{ ansible_facts.user_gid }}"
-    # Builds the host uid:gid pair used for rootless container execution. The default derives from `container_host_uid` and `container_host_gid`.
+    # Builds the host uid:gid pair used for rootless container execution.
     container_host_user: "{{ container_host_uid }}:{{ container_host_gid }}"
-    # Reports whether `container_host_user` resolves to `0:0`. The default derives from `container_host_user`.
+    # Reports whether `container_host_user` resolves to `0:0`.
     container_host_user_is_root: "{{ container_host_user == '0:0' }}"
-    # Marks whether the target host is macOS. The default derives from `ansible_facts.os_family`.
+    # Marks whether the target host is macOS.
     container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
     # Names the file system path used for a container volume.
     container_volume_path: "string"
@@ -377,15 +377,15 @@ Resolves the active container client and delegates volume removal to the matchin
   vars:
     # Selects the container client to verify or use. Leave it empty to auto-detect `podman` first and then `docker`.
     container_client: "{{ lookup('env', 'CONTAINER_CLIENT') or '' }}"
-    # Provides the host uid used to build `container_host_user`. The default derives from `ansible_facts.user_uid`.
+    # Provides the host uid used to build `container_host_user`.
     container_host_uid: "{{ ansible_facts.user_uid }}"
-    # Provides the host gid used to build `container_host_user`. The default derives from `ansible_facts.user_gid`.
+    # Provides the host gid used to build `container_host_user`.
     container_host_gid: "{{ ansible_facts.user_gid }}"
-    # Builds the host uid:gid pair used for rootless container execution. The default derives from `container_host_uid` and `container_host_gid`.
+    # Builds the host uid:gid pair used for rootless container execution.
     container_host_user: "{{ container_host_uid }}:{{ container_host_gid }}"
-    # Reports whether `container_host_user` resolves to `0:0`. The default derives from `container_host_user`.
+    # Reports whether `container_host_user` resolves to `0:0`.
     container_host_user_is_root: "{{ container_host_user == '0:0' }}"
-    # Marks whether the target host is macOS. The default derives from `ansible_facts.os_family`.
+    # Marks whether the target host is macOS.
     container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
     # Names the file system path used for a container volume.
     container_volume_path: "string"
@@ -424,19 +424,19 @@ Starts a Docker container with the requested runtime options and optionally wait
     container_entrypoint: "string"
     # Supplies the command passed to the container runtime.
     container_command: "string"
-    # Sets the hostname inside the container. The default derives from `container_name` and `inventory_hostname`.
+    # Sets the hostname inside the container.
     container_hostname: "{{ container_name | default(inventory_hostname) }}"
-    # Provides the host uid used to build `container_host_user`. The default derives from `ansible_facts.user_uid`.
+    # Provides the host uid used to build `container_host_user`.
     container_host_uid: "{{ ansible_facts.user_uid }}"
-    # Provides the host gid used to build `container_host_user`. The default derives from `ansible_facts.user_gid`.
+    # Provides the host gid used to build `container_host_user`.
     container_host_gid: "{{ ansible_facts.user_gid }}"
-    # Builds the host uid:gid pair used for rootless container execution. The default derives from `container_host_uid` and `container_host_gid`.
+    # Builds the host uid:gid pair used for rootless container execution.
     container_host_user: "{{ container_host_uid }}:{{ container_host_gid }}"
     # Runs the container as the detected host user when set to `true`.
     container_run_as_host_user: false
-    # Marks whether the target host is macOS. The default derives from `ansible_facts.os_family`.
+    # Marks whether the target host is macOS.
     container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
-    # Controls the container network mode. The default derives from `container_on_mac` and `container_network`.
+    # Controls the container network mode.
     container_network_mode: "{{ 'bridge' if (container_on_mac or (container_network is defined)) else 'host' }}"
     # Names the bridge network attached to the container when bridge mode is selected.
     container_network: "string"
@@ -458,7 +458,7 @@ Starts a Docker container with the requested runtime options and optionally wait
     container_log_max_size: 1g
     # Limits the number of log lines shown in debug output.
     container_log_lines: 0
-    # Enables debug output. The default derives from `DEBUG` in the environment.
+    # Enables debug output.
     container_debug: "{{ lookup('env', 'DEBUG') | bool | default(false) }}"
     # Defines the container healthcheck command.
     container_healthcheck_test: "string"
@@ -612,13 +612,13 @@ Creates a Docker volume and adjusts ownership when needed.
   vars:
     # Names the container managed by the role.
     container_name: "string"
-    # Provides the host uid used to build `container_host_user`. The default derives from `ansible_facts.user_uid`.
+    # Provides the host uid used to build `container_host_user`.
     container_host_uid: "{{ ansible_facts.user_uid }}"
-    # Provides the host gid used to build `container_host_user`. The default derives from `ansible_facts.user_gid`.
+    # Provides the host gid used to build `container_host_user`.
     container_host_gid: "{{ ansible_facts.user_gid }}"
-    # Builds the host uid:gid pair used for rootless container execution. The default derives from `container_host_uid` and `container_host_gid`.
+    # Builds the host uid:gid pair used for rootless container execution.
     container_host_user: "{{ container_host_uid }}:{{ container_host_gid }}"
-    # Reports whether `container_host_user` resolves to `0:0`. The default derives from `container_host_user`.
+    # Reports whether `container_host_user` resolves to `0:0`.
     container_host_user_is_root: "{{ container_host_user == '0:0' }}"
     # Names the file system path used for a container volume.
     container_volume_path: "string"
@@ -632,7 +632,7 @@ Creates a Docker volume and adjusts ownership when needed.
     container_volume_gid: "string"
     # Applies recursive permission changes when set to `true`.
     recurse: false
-    # Marks whether the target host is macOS. The default derives from `ansible_facts.os_family`.
+    # Marks whether the target host is macOS.
     container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
@@ -648,15 +648,15 @@ Removes a Docker volume path.
 ```yaml
 - name: Remove a Docker volume
   vars:
-    # Provides the host uid used to build `container_host_user`. The default derives from `ansible_facts.user_uid`.
+    # Provides the host uid used to build `container_host_user`.
     container_host_uid: "{{ ansible_facts.user_uid }}"
-    # Provides the host gid used to build `container_host_user`. The default derives from `ansible_facts.user_gid`.
+    # Provides the host gid used to build `container_host_user`.
     container_host_gid: "{{ ansible_facts.user_gid }}"
-    # Builds the host uid:gid pair used for rootless container execution. The default derives from `container_host_uid` and `container_host_gid`.
+    # Builds the host uid:gid pair used for rootless container execution.
     container_host_user: "{{ container_host_uid }}:{{ container_host_gid }}"
-    # Reports whether `container_host_user` resolves to `0:0`. The default derives from `container_host_user`.
+    # Reports whether `container_host_user` resolves to `0:0`.
     container_host_user_is_root: "{{ container_host_user == '0:0' }}"
-    # Marks whether the target host is macOS. The default derives from `ansible_facts.os_family`.
+    # Marks whether the target host is macOS.
     container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
     # Names the file system path used for a container volume.
     container_volume_path: "string"
@@ -695,21 +695,21 @@ Starts a Podman container with the requested runtime options and optionally wait
     container_entrypoint: "string"
     # Supplies the command passed to the container runtime.
     container_command: "string"
-    # Sets the hostname inside the container. The default derives from `container_name` and `inventory_hostname`.
+    # Sets the hostname inside the container.
     container_hostname: "{{ container_name | default(inventory_hostname) }}"
-    # Provides the host uid used to build `container_host_user`. The default derives from `ansible_facts.user_uid`.
+    # Provides the host uid used to build `container_host_user`.
     container_host_uid: "{{ ansible_facts.user_uid }}"
-    # Provides the host gid used to build `container_host_user`. The default derives from `ansible_facts.user_gid`.
+    # Provides the host gid used to build `container_host_user`.
     container_host_gid: "{{ ansible_facts.user_gid }}"
-    # Builds the host uid:gid pair used for rootless container execution. The default derives from `container_host_uid` and `container_host_gid`.
+    # Builds the host uid:gid pair used for rootless container execution.
     container_host_user: "{{ container_host_uid }}:{{ container_host_gid }}"
-    # Reports whether `container_host_user` resolves to `0:0`. The default derives from `container_host_user`.
+    # Reports whether `container_host_user` resolves to `0:0`.
     container_host_user_is_root: "{{ container_host_user == '0:0' }}"
     # Runs the container as the detected host user when set to `true`.
     container_run_as_host_user: false
-    # Marks whether the target host is macOS. The default derives from `ansible_facts.os_family`.
+    # Marks whether the target host is macOS.
     container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
-    # Controls the container network mode. The default derives from `container_on_mac` and `container_network`.
+    # Controls the container network mode.
     container_network_mode: "{{ 'bridge' if (container_on_mac or (container_network is defined)) else 'host' }}"
     # Names the bridge network attached to the container when bridge mode is selected.
     container_network: "string"
@@ -731,7 +731,7 @@ Starts a Podman container with the requested runtime options and optionally wait
     container_log_max_size: 1g
     # Limits the number of log lines shown in debug output.
     container_log_lines: 0
-    # Enables debug output. The default derives from `DEBUG` in the environment.
+    # Enables debug output.
     container_debug: "{{ lookup('env', 'DEBUG') | bool | default(false) }}"
     # Defines the container healthcheck command.
     container_healthcheck_test: "string"
@@ -883,13 +883,13 @@ Creates a Podman volume and adjusts ownership when needed.
   vars:
     # Names the container managed by the role.
     container_name: "string"
-    # Provides the host uid used to build `container_host_user`. The default derives from `ansible_facts.user_uid`.
+    # Provides the host uid used to build `container_host_user`.
     container_host_uid: "{{ ansible_facts.user_uid }}"
-    # Provides the host gid used to build `container_host_user`. The default derives from `ansible_facts.user_gid`.
+    # Provides the host gid used to build `container_host_user`.
     container_host_gid: "{{ ansible_facts.user_gid }}"
-    # Builds the host uid:gid pair used for rootless container execution. The default derives from `container_host_uid` and `container_host_gid`.
+    # Builds the host uid:gid pair used for rootless container execution.
     container_host_user: "{{ container_host_uid }}:{{ container_host_gid }}"
-    # Reports whether `container_host_user` resolves to `0:0`. The default derives from `container_host_user`.
+    # Reports whether `container_host_user` resolves to `0:0`.
     container_host_user_is_root: "{{ container_host_user == '0:0' }}"
     # Names the file system path used for a container volume.
     container_volume_path: "string"
@@ -903,7 +903,7 @@ Creates a Podman volume and adjusts ownership when needed.
     container_volume_gid: "string"
     # Applies recursive permission changes when set to `true`.
     recurse: false
-    # Marks whether the target host is macOS. The default derives from `ansible_facts.os_family`.
+    # Marks whether the target host is macOS.
     container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
@@ -919,15 +919,15 @@ Removes a Podman volume path.
 ```yaml
 - name: Remove a Podman volume
   vars:
-    # Provides the host uid used to build `container_host_user`. The default derives from `ansible_facts.user_uid`.
+    # Provides the host uid used to build `container_host_user`.
     container_host_uid: "{{ ansible_facts.user_uid }}"
-    # Provides the host gid used to build `container_host_user`. The default derives from `ansible_facts.user_gid`.
+    # Provides the host gid used to build `container_host_user`.
     container_host_gid: "{{ ansible_facts.user_gid }}"
-    # Builds the host uid:gid pair used for rootless container execution. The default derives from `container_host_uid` and `container_host_gid`.
+    # Builds the host uid:gid pair used for rootless container execution.
     container_host_user: "{{ container_host_uid }}:{{ container_host_gid }}"
-    # Reports whether `container_host_user` resolves to `0:0`. The default derives from `container_host_user`.
+    # Reports whether `container_host_user` resolves to `0:0`.
     container_host_user_is_root: "{{ container_host_user == '0:0' }}"
-    # Marks whether the target host is macOS. The default derives from `ansible_facts.os_family`.
+    # Marks whether the target host is macOS.
     container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
     # Names the file system path used for a container volume.
     container_volume_path: "string"

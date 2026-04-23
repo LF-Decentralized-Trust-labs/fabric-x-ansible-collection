@@ -42,7 +42,6 @@ argument_specs:
         default: "{{ lookup('env', 'PROMETHEUS_REGISTRY_ENDPOINT') or 'docker.io/prom' }}"
         description:
           - Container registry endpoint for Prometheus images.
-          - The default reads C(PROMETHEUS_REGISTRY_ENDPOINT) and falls back to C(docker.io/prom).
       prometheus_image_name: &prometheus_image_name
         type: str
         required: false
@@ -61,28 +60,24 @@ argument_specs:
         default: "{{ prometheus_registry_endpoint }}/{{ prometheus_image_name }}:{{ prometheus_image_tag }}"
         description:
           - Fully qualified Prometheus container image.
-          - The default is composed from C(prometheus_registry_endpoint), C(prometheus_image_name), and C(prometheus_image_tag).
       prometheus_container_name: &prometheus_container_name
         type: str
         required: false
         default: "{{ inventory_hostname }}"
         description:
           - Container name used for the Prometheus workload.
-          - The default derives from C(inventory_hostname).
       prometheus_remote_config_dir: &prometheus_remote_config_dir
         type: path
         required: false
         default: "{{ remote_config_dir }}"
         description:
           - Remote directory where Prometheus configuration files are written.
-          - The default derives from C(remote_config_dir).
       prometheus_remote_data_dir: &prometheus_remote_data_dir
         type: path
         required: false
         default: "{{ remote_data_dir }}"
         description:
           - Remote directory where Prometheus TSDB data is stored.
-          - The default derives from C(remote_data_dir).
       prometheus_container_config_dir: &prometheus_container_config_dir
         type: path
         required: false
@@ -163,14 +158,12 @@ argument_specs:
         default: "{{ not prometheus_use_k8s }}"
         description:
           - Enables the container deployment path when set to C(true).
-          - The default is the inverse of C(prometheus_use_k8s).
       prometheus_k8s_resource_name: &prometheus_k8s_resource_name
         type: str
         required: false
         default: "{{ inventory_hostname }}"
         description:
           - Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
-          - The default derives from C(inventory_hostname).
       prometheus_k8s_wait_timeout: &prometheus_k8s_wait_timeout
         type: int
         required: false

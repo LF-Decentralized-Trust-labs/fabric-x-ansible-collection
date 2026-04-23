@@ -73,7 +73,7 @@ Selects the orderer component implementation and delegates to the matching deplo
   vars:
     # Orderer component to start.
     orderer_component_type: "string"
-    # Deployment backend selected by the top-level dispatcher. The default derives from `orderer_use_bin` and `orderer_use_k8s`.
+    # Deployment backend selected by the top-level dispatcher.
     orderer_deployment_mode: "{%- if orderer_use_bin -%}bin{%- elif orderer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
     # Selects the binary deployment branch.
     orderer_use_bin: false
@@ -95,7 +95,7 @@ Selects the orderer component implementation and delegates to the matching deplo
   vars:
     # Orderer component to start.
     orderer_component_type: "string"
-    # Deployment backend selected by the top-level dispatcher. The default derives from `orderer_use_bin` and `orderer_use_k8s`.
+    # Deployment backend selected by the top-level dispatcher.
     orderer_deployment_mode: "{%- if orderer_use_bin -%}bin{%- elif orderer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
     # Selects the binary deployment branch.
     orderer_use_bin: false
@@ -117,7 +117,7 @@ Selects the orderer component implementation and delegates to the matching deplo
   vars:
     # Orderer component to start.
     orderer_component_type: "string"
-    # Deployment backend selected by the top-level dispatcher. The default derives from `orderer_use_bin` and `orderer_use_k8s`.
+    # Deployment backend selected by the top-level dispatcher.
     orderer_deployment_mode: "{%- if orderer_use_bin -%}bin{%- elif orderer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
     # Selects the binary deployment branch.
     orderer_use_bin: false
@@ -155,7 +155,7 @@ Delegates log collection to the Kubernetes, container, or binary implementation 
   vars:
     # Selects the Kubernetes deployment branch.
     orderer_use_k8s: false
-    # Selects the container deployment branch. The default derives from `orderer_use_bin` and `orderer_use_k8s`.
+    # Selects the container deployment branch.
     orderer_use_container: "{{ (not orderer_use_bin) and (not orderer_use_k8s) }}"
     # Selects the binary deployment branch.
     orderer_use_bin: false
@@ -237,7 +237,7 @@ Installs the configured released orderer binary through the shared bin role.
   vars:
     # Binary name used by the bin branches.
     orderer_bin_name: arma
-    # Go package path used by the install branch. The default derives from `orderer_git_hub_url`, `orderer_git_repo`, and `orderer_source_code_package`.
+    # Go package path used by the install branch.
     orderer_bin_package: "{{ orderer_git_hub_url }}/{{ orderer_git_repo }}/{{ orderer_source_code_package }}"
     # Git host used to resolve the orderer source repository.
     orderer_git_hub_url: github.com
@@ -301,9 +301,9 @@ Ensures the data directory exists and starts the orderer binary with the selecte
     remote_config_dir: "string"
     # Shared base directory for persisted runtime data.
     remote_data_dir: "string"
-    # Remote directory where orderer configuration is written. The default derives from `remote_config_dir`.
+    # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
-    # Remote directory where orderer data is stored. The default derives from `remote_data_dir`.
+    # Remote directory where orderer data is stored.
     orderer_remote_data_dir: "{{ remote_data_dir }}"
     # Rendered orderer configuration filename.
     orderer_config_file: node_config.yaml
@@ -364,11 +364,11 @@ Ensures the data directory exists and starts the orderer container with the conf
   vars:
     # Orderer component to start.
     orderer_component_type: "string"
-    # Container name used by the container lifecycle branch. The default derives from `inventory_hostname`.
+    # Container name used by the container lifecycle branch.
     orderer_container_name: "{{ inventory_hostname }}"
-    # Full image reference used by the container and Kubernetes branches. The default derives from `orderer_registry_endpoint`, `orderer_image_name`, and `orderer_image_tag`.
+    # Full image reference used by the container and Kubernetes branches.
     orderer_image: "{{ orderer_registry_endpoint }}/{{ orderer_image_name }}:{{ orderer_image_tag }}"
-    # Registry prefix used to build the orderer image reference. The default derives from `ORDERER_REGISTRY_ENDPOINT`.
+    # Registry prefix used to build the orderer image reference.
     orderer_registry_endpoint: "{{ lookup('env', 'ORDERER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # Image name used for the orderer container.
     orderer_image_name: fabric-x-orderer
@@ -378,9 +378,9 @@ Ensures the data directory exists and starts the orderer container with the conf
     remote_config_dir: "string"
     # Shared base directory for persisted runtime data.
     remote_data_dir: "string"
-    # Remote directory where orderer configuration is written. The default derives from `remote_config_dir`.
+    # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
-    # Remote directory where orderer data is stored. The default derives from `remote_data_dir`.
+    # Remote directory where orderer data is stored.
     orderer_remote_data_dir: "{{ remote_data_dir }}"
     # Container path where orderer configuration is mounted.
     orderer_container_config_dir: /config
@@ -406,7 +406,7 @@ Stops the orderer container through the shared container role.
 ```yaml
 - name: Stop the orderer container
   vars:
-    # Container name used by the container lifecycle branch. The default derives from `inventory_hostname`.
+    # Container name used by the container lifecycle branch.
     orderer_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -422,7 +422,7 @@ Deletes the orderer container through the shared container role.
 ```yaml
 - name: Remove the orderer container
   vars:
-    # Container name used by the container lifecycle branch. The default derives from `inventory_hostname`.
+    # Container name used by the container lifecycle branch.
     orderer_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -438,7 +438,7 @@ Collects logs for the configured orderer container.
 ```yaml
 - name: Fetch logs from the orderer container
   vars:
-    # Container name used by the container lifecycle branch. The default derives from `inventory_hostname`.
+    # Container name used by the container lifecycle branch.
     orderer_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -467,7 +467,7 @@ Deletes the orderer data directory locally or removes the Kubernetes PVC when ru
 ```yaml
 - name: Remove orderer persisted data
   vars:
-    # Remote directory where orderer data is stored. The default derives from `remote_data_dir`.
+    # Remote directory where orderer data is stored.
     orderer_remote_data_dir: "{{ remote_data_dir }}"
     # Shared base directory for persisted runtime data.
     remote_data_dir: "string"
@@ -495,17 +495,17 @@ Creates the main orderer configuration file, copies the genesis block, and optio
     remote_config_dir: "string"
     # Shared base directory for persisted runtime data.
     remote_data_dir: "string"
-    # Remote directory where orderer configuration is written. The default derives from `remote_config_dir`.
+    # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
-    # Remote directory where orderer data is stored. The default derives from `remote_data_dir`.
+    # Remote directory where orderer data is stored.
     orderer_remote_data_dir: "{{ remote_data_dir }}"
     # Container path where orderer configuration is mounted.
     orderer_container_config_dir: /config
     # Container path where orderer data is mounted.
     orderer_container_data_dir: /data
-    # Configuration path embedded into rendered orderer files. The default derives from `orderer_remote_config_dir`, `orderer_use_bin`, and `orderer_container_config_dir`.
+    # Configuration path embedded into rendered orderer files.
     orderer_config_dir: "{{ orderer_remote_config_dir if orderer_use_bin else orderer_container_config_dir }}"
-    # Data path embedded into rendered orderer files. The default derives from `orderer_remote_data_dir`, `orderer_use_bin`, and `orderer_container_data_dir`.
+    # Data path embedded into rendered orderer files.
     orderer_data_dir: "{{ orderer_remote_data_dir if orderer_use_bin else orderer_container_data_dir }}"
     # Rendered orderer configuration filename.
     orderer_config_file: node_config.yaml
@@ -513,7 +513,7 @@ Creates the main orderer configuration file, copies the genesis block, and optio
     configtxgen_artifacts_dir: "string"
     # Channel identifier used to derive the genesis block filename.
     channel_id: "string"
-    # Genesis block filename copied into the config directory. The default derives from `channel_id`.
+    # Genesis block filename copied into the config directory.
     orderer_genesis_block_file: "{{ channel_id }}_block.pb"
     # Selects the binary deployment branch.
     orderer_use_bin: false
@@ -527,7 +527,7 @@ Creates the main orderer configuration file, copies the genesis block, and optio
     orderer_rpc_port: 1000
     # Metrics port written into the rendered config when enabled.
     orderer_metrics_port: 1000
-    # Optional metrics logging interval written into the rendered config. The template falls back to 10s when unset.
+    # Optional metrics logging interval written into the rendered config.
     orderer_metrics_log_interval: "string"
     # Client identifiers whose mTLS CA certificates are mounted or transferred.
     orderer_mtls_clients: ["entry1", "entry2"]
@@ -557,7 +557,7 @@ Copies trusted client and organization TLS CA certificates into the orderer mTLS
     remote_config_dir: "string"
     # Control-node directory containing fetched crypto artifacts.
     fetched_artifacts_dir: "string"
-    # Remote directory where orderer configuration is written. The default derives from `remote_config_dir`.
+    # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
     # Client identifiers whose mTLS CA certificates are mounted or transferred.
     orderer_mtls_clients: ["entry1", "entry2"]
@@ -579,7 +579,7 @@ Deletes the orderer configuration directory and optionally removes Kubernetes Co
   vars:
     # Shared base directory for generated configuration.
     remote_config_dir: "string"
-    # Remote directory where orderer configuration is written. The default derives from `remote_config_dir`.
+    # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
     # Selects the Kubernetes deployment branch.
     orderer_use_k8s: false
@@ -638,9 +638,9 @@ Copies cryptogen-generated MSP and TLS artifacts into the remote orderer configu
     remote_config_dir: "string"
     # Organization metadata shared by the orderer crypto and config branches.
     organization: {}
-    # Orderer identity name used to derive crypto artifact paths. The default derives from `organization.orderer.name` and falls back to `inventory_hostname`.
+    # Orderer identity name used to derive crypto artifact paths.
     orderer_crypto_name: "{{ organization.orderer.name | default(inventory_hostname) }}"
-    # Remote directory where orderer configuration is written. The default derives from `remote_config_dir`.
+    # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -664,7 +664,7 @@ Copies the Fabric CA TLS certificate when needed and enrolls both MSP and TLS id
     remote_config_dir: "string"
     # Organization metadata shared by the orderer crypto and config branches.
     organization: {}
-    # Remote directory where orderer configuration is written. The default derives from `remote_config_dir`.
+    # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -686,9 +686,9 @@ Fetches the orderer sign certificate, TLS certificate, and TLS CA certificate fo
     remote_config_dir: "string"
     # Organization metadata shared by the orderer crypto and config branches.
     organization: {}
-    # Orderer identity name used to derive crypto artifact paths. The default derives from `organization.orderer.name` and falls back to `inventory_hostname`.
+    # Orderer identity name used to derive crypto artifact paths.
     orderer_crypto_name: "{{ organization.orderer.name | default(inventory_hostname) }}"
-    # Remote directory where orderer configuration is written. The default derives from `remote_config_dir`.
+    # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -706,7 +706,7 @@ Deletes the orderer MSP and TLS directories and optionally removes the Kubernete
   vars:
     # Shared base directory for generated configuration.
     remote_config_dir: "string"
-    # Remote directory where orderer configuration is written. The default derives from `remote_config_dir`.
+    # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
     # Selects the Kubernetes deployment branch.
     orderer_use_k8s: false
@@ -726,7 +726,7 @@ Creates the orderer Services and StatefulSet in Kubernetes after ensuring the na
   vars:
     # Orderer component to start.
     orderer_component_type: "string"
-    # Base name used for the orderer Kubernetes objects, including the optional NodePort Service. The default derives from `inventory_hostname`.
+    # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
     # Seconds to wait for the orderer StatefulSet rollout.
     orderer_k8s_wait_timeout: 120
@@ -736,15 +736,15 @@ Creates the orderer Services and StatefulSet in Kubernetes after ensuring the na
     orderer_rpc_port: 1000
     # Metrics port exposed by the orderer.
     orderer_metrics_port: 1000
-    # NodePort used to expose the orderer gRPC service when NodePort exposure is enabled. The default derives from `orderer_rpc_port`.
+    # NodePort used to expose the orderer gRPC service when NodePort exposure is enabled.
     orderer_k8s_rpc_node_port: 1000
-    # NodePort used to expose the orderer metrics endpoint when NodePort exposure is enabled. The default derives from `orderer_metrics_port`.
+    # NodePort used to expose the orderer metrics endpoint when NodePort exposure is enabled.
     orderer_k8s_metrics_node_port: 1000
     # Filesystem group applied to mounted ConfigMap and Secret volumes.
     orderer_k8s_fs_group: 10001
-    # Full image reference used by the container and Kubernetes branches. The default derives from `orderer_registry_endpoint`, `orderer_image_name`, and `orderer_image_tag`.
+    # Full image reference used by the container and Kubernetes branches.
     orderer_image: "{{ orderer_registry_endpoint }}/{{ orderer_image_name }}:{{ orderer_image_tag }}"
-    # Registry prefix used to build the orderer image reference. The default derives from `ORDERER_REGISTRY_ENDPOINT`.
+    # Registry prefix used to build the orderer image reference.
     orderer_registry_endpoint: "{{ lookup('env', 'ORDERER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # Image name used for the orderer container.
     orderer_image_name: fabric-x-orderer
@@ -802,9 +802,9 @@ Checks the Kubernetes NodePort endpoints when NodePort exposure is enabled.
   vars:
     # Enables the optional NodePort Service for the orderer Kubernetes deployment. The NodePort Service and Kubernetes ping branch use this toggle.
     orderer_k8s_use_node_port: false
-    # NodePort used to expose the orderer gRPC service when NodePort exposure is enabled. The default derives from `orderer_rpc_port`.
+    # NodePort used to expose the orderer gRPC service when NodePort exposure is enabled.
     orderer_k8s_rpc_node_port: 1000
-    # NodePort used to expose the orderer metrics endpoint when NodePort exposure is enabled. The default derives from `orderer_metrics_port`.
+    # NodePort used to expose the orderer metrics endpoint when NodePort exposure is enabled.
     orderer_k8s_metrics_node_port: 1000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -820,7 +820,7 @@ Deletes the orderer StatefulSet and Services from Kubernetes.
 ```yaml
 - name: Remove the orderer Kubernetes workload
   vars:
-    # Base name used for the orderer Kubernetes objects, including the optional NodePort Service. The default derives from `inventory_hostname`.
+    # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for orderer resources.
     k8s_namespace: "string"
@@ -851,7 +851,7 @@ Collects logs from pods selected by the orderer Kubernetes app label.
 ```yaml
 - name: Fetch logs from the orderer Kubernetes pod
   vars:
-    # Base name used for the orderer Kubernetes objects, including the optional NodePort Service. The default derives from `inventory_hostname`.
+    # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -869,9 +869,9 @@ Slurps the genesis block and renders the orderer ConfigMap, including optional m
   vars:
     # Shared base directory for generated configuration.
     remote_config_dir: "string"
-    # Remote directory where orderer configuration is written. The default derives from `remote_config_dir`.
+    # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
-    # Base name used for the orderer Kubernetes objects, including the optional NodePort Service. The default derives from `inventory_hostname`.
+    # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
     # Orderer component to start.
     orderer_component_type: "string"
@@ -899,7 +899,7 @@ Deletes the ConfigMap that holds orderer configuration and genesis material.
 ```yaml
 - name: Remove the orderer Kubernetes ConfigMap
   vars:
-    # Base name used for the orderer Kubernetes objects, including the optional NodePort Service. The default derives from `inventory_hostname`.
+    # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for orderer resources.
     k8s_namespace: "string"
@@ -919,13 +919,13 @@ Resolves the orderer crypto file locations and renders the Kubernetes Secret con
   vars:
     # Shared base directory for generated configuration.
     remote_config_dir: "string"
-    # Remote directory where orderer configuration is written. The default derives from `remote_config_dir`.
+    # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
     # Organization metadata shared by the orderer crypto and config branches.
     organization: {}
-    # Orderer identity name used to derive crypto artifact paths. The default derives from `organization.orderer.name` and falls back to `inventory_hostname`.
+    # Orderer identity name used to derive crypto artifact paths.
     orderer_crypto_name: "{{ organization.orderer.name | default(inventory_hostname) }}"
-    # Base name used for the orderer Kubernetes objects, including the optional NodePort Service. The default derives from `inventory_hostname`.
+    # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
     # Orderer component to start.
     orderer_component_type: "string"
@@ -945,7 +945,7 @@ Deletes the Secret that stores orderer MSP and TLS material.
 ```yaml
 - name: Remove the orderer Kubernetes Secret
   vars:
-    # Base name used for the orderer Kubernetes objects, including the optional NodePort Service. The default derives from `inventory_hostname`.
+    # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for orderer resources.
     k8s_namespace: "string"

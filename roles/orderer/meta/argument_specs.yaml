@@ -64,7 +64,6 @@ argument_specs:
         default: "{{ lookup('env', 'ORDERER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
         description:
           - "Registry prefix used to build the orderer image reference."
-          - "The default derives from C(ORDERER_REGISTRY_ENDPOINT)."
       orderer_image_name: &orderer_image_name
         type: str
         required: false
@@ -83,14 +82,12 @@ argument_specs:
         default: "{{ orderer_registry_endpoint }}/{{ orderer_image_name }}:{{ orderer_image_tag }}"
         description:
           - "Full image reference used by the container and Kubernetes branches."
-          - "The default derives from C(orderer_registry_endpoint), C(orderer_image_name), and C(orderer_image_tag)."
       orderer_container_name: &orderer_container_name
         type: str
         required: false
         default: "{{ inventory_hostname }}"
         description:
           - "Container name used by the container lifecycle branch."
-          - "The default derives from C(inventory_hostname)."
       orderer_git_hub_url: &orderer_git_hub_url
         type: str
         required: false
@@ -121,7 +118,6 @@ argument_specs:
         default: "{{ orderer_git_hub_url }}/{{ orderer_git_repo }}/{{ orderer_source_code_package }}"
         description:
           - "Go package path used by the install branch."
-          - "The default derives from C(orderer_git_hub_url), C(orderer_git_repo), and C(orderer_source_code_package)."
       orderer_bin_name: &orderer_bin_name
         type: str
         required: false
@@ -134,7 +130,6 @@ argument_specs:
         default: "{{ inventory_hostname }}"
         description:
           - "Base name used for the orderer Kubernetes objects, including the optional NodePort Service."
-          - "The default derives from C(inventory_hostname)."
       orderer_k8s_wait_timeout: &orderer_k8s_wait_timeout
         type: int
         required: false
@@ -159,13 +154,11 @@ argument_specs:
         required: false
         description:
           - "NodePort used to expose the orderer gRPC service when NodePort exposure is enabled."
-          - "The default derives from C(orderer_rpc_port)."
       orderer_k8s_metrics_node_port: &orderer_k8s_metrics_node_port
         type: int
         required: false
         description:
           - "NodePort used to expose the orderer metrics endpoint when NodePort exposure is enabled."
-          - "The default derives from C(orderer_metrics_port)."
       orderer_container_config_dir: &orderer_container_config_dir
         type: path
         required: false
@@ -184,14 +177,12 @@ argument_specs:
         default: "{{ remote_config_dir }}"
         description:
           - "Remote directory where orderer configuration is written."
-          - "The default derives from C(remote_config_dir)."
       orderer_remote_data_dir: &orderer_remote_data_dir
         type: path
         required: false
         default: "{{ remote_data_dir }}"
         description:
           - "Remote directory where orderer data is stored."
-          - "The default derives from C(remote_data_dir)."
       orderer_config_file: &orderer_config_file
         type: str
         required: false
@@ -204,28 +195,24 @@ argument_specs:
         default: "{{ channel_id }}_block.pb"
         description:
           - "Genesis block filename copied into the config directory."
-          - "The default derives from C(channel_id)."
       orderer_crypto_name: &orderer_crypto_name
         type: str
         required: false
         default: "{{ organization.orderer.name | default(inventory_hostname) }}"
         description:
           - "Orderer identity name used to derive crypto artifact paths."
-          - "The default derives from C(organization.orderer.name) and falls back to C(inventory_hostname)."
       orderer_config_dir: &orderer_config_dir
         type: path
         required: false
         default: "{{ orderer_remote_config_dir if orderer_use_bin else orderer_container_config_dir }}"
         description:
           - "Configuration path embedded into rendered orderer files."
-          - "The default derives from C(orderer_remote_config_dir), C(orderer_use_bin), and C(orderer_container_config_dir)."
       orderer_data_dir: &orderer_data_dir
         type: path
         required: false
         default: "{{ orderer_remote_data_dir if orderer_use_bin else orderer_container_data_dir }}"
         description:
           - "Data path embedded into rendered orderer files."
-          - "The default derives from C(orderer_remote_data_dir), C(orderer_use_bin), and C(orderer_container_data_dir)."
       orderer_group: &orderer_group
         type: str
         required: true
@@ -272,7 +259,6 @@ argument_specs:
         required: false
         description:
           - "Optional metrics logging interval written into the rendered config."
-          - "The template falls back to 10s when unset."
       orderer_http_protocol: &orderer_http_protocol
         type: str
         required: false
@@ -300,7 +286,6 @@ argument_specs:
         default: "{{ (not orderer_use_bin) and (not orderer_use_k8s) }}"
         description:
           - "Selects the container deployment branch."
-          - "The default derives from C(orderer_use_bin) and C(orderer_use_k8s)."
       orderer_deployment_mode: &orderer_deployment_mode
         type: str
         required: false
@@ -311,7 +296,6 @@ argument_specs:
           - k8s
         description:
           - "Deployment backend selected by the top-level dispatcher."
-          - "The default derives from C(orderer_use_bin) and C(orderer_use_k8s)."
       orderer_use_tls: &orderer_use_tls
         type: bool
         required: false

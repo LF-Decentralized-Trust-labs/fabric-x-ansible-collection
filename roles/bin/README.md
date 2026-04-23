@@ -41,29 +41,29 @@ This entry point validates only variables owned by the bin role and does not red
 ```yaml
 - name: Build a Go binary for each target platform
   vars:
-    # Sets the base directory on the control node used to derive `bin_control_source_code_dir` and `bin_control_dir`. Required when relying on the defaults of those options and `bin_build_on_control_node` is true.
+    # Sets the base directory on the control node for `bin_control_source_code_dir` and `bin_control_dir`.
     control_node_dir: "string"
-    # Sets the base directory on the managed host used to derive `bin_remote_source_code_dir`, `bin_remote_dir`, and `bin_remote_logs_dir`. Required when relying on the defaults of those options.
+    # Sets the base directory on the managed host for `bin_remote_source_code_dir`, `bin_remote_dir`, and `bin_remote_logs_dir`.
     remote_node_dir: "string"
     # Controls whether source code is cloned and binaries are built on the control node instead of on the managed host.
     bin_build_on_control_node: false
-    # Sets the target operating system used when deriving platform-specific build output paths. The default derives from `ansible_facts.system`.
+    # Sets the target operating system used when deriving platform-specific build output paths.
     bin_target_os: "{{ ansible_facts.system }}"
-    # Sets the target CPU architecture used when deriving platform-specific build output paths. The default derives from `ansible_facts.architecture`.
+    # Sets the target CPU architecture used when deriving platform-specific build output paths.
     bin_target_arch: "{{ ansible_facts.architecture }}"
-    # Sets the output binary name. Example: `sample-go`. The default derives from `inventory_hostname`.
+    # Sets the output binary name. Example: `sample-go`.
     bin_name: "{{ inventory_hostname }}"
-    # Defines the source code directory on the control node when builds run locally. The default derives from `control_node_dir`.
+    # Defines the source code directory on the control node when builds run locally.
     bin_control_source_code_dir: "{{ control_node_dir }}/code"
-    # Defines the platform-specific output directory on the control node for built or installed binaries. The default derives from `control_node_dir`, `bin_target_os`, and `bin_target_arch`.
+    # Defines the platform-specific output directory on the control node for built or installed binaries.
     bin_control_dir: "{{ control_node_dir }}/bin/{{ bin_target_os }}/{{ bin_target_arch }}"
-    # Defines the source code directory used when invoking the go build role after cloning. The default derives from `bin_control_source_code_dir`, `bin_build_on_control_node`, and `bin_remote_source_code_dir`.
+    # Defines the source code directory used when invoking the go build role after cloning.
     bin_source_code_dir: "{{ bin_control_source_code_dir if bin_build_on_control_node else bin_remote_source_code_dir }}"
-    # Defines the source code directory on the managed host when builds do not run on the control node. The default derives from `remote_node_dir`.
+    # Defines the source code directory on the managed host when builds do not run on the control node.
     bin_remote_source_code_dir: "{{ remote_node_dir }}/code"
-    # Sets the directory where built binaries are written for each target platform. The default derives from `bin_control_dir`, `bin_build_on_control_node`, and `bin_remote_dir`.
+    # Sets the directory where built binaries are written for each target platform.
     bin_dir: "{{ bin_control_dir if bin_build_on_control_node else bin_remote_dir }}"
-    # Lists the hosts whose facts are used to determine the operating system and architecture combinations that must be built. The default derives from `inventory_hostname`.
+    # Lists the hosts whose facts are used to determine the operating system and architecture combinations that must be built.
     bin_hosts: 
       - "{{ inventory_hostname }}"
   ansible.builtin.include_role:
@@ -82,21 +82,21 @@ This entry point validates only bin role inputs and does not redeclare go role v
 ```yaml
 - name: Install a Go binary for each target platform
   vars:
-    # Sets the base directory on the control node used to derive `bin_control_source_code_dir` and `bin_control_dir`. Required when relying on the defaults of those options and `bin_build_on_control_node` is true.
+    # Sets the base directory on the control node for `bin_control_source_code_dir` and `bin_control_dir`.
     control_node_dir: "string"
-    # Sets the base directory on the managed host used to derive `bin_remote_source_code_dir`, `bin_remote_dir`, and `bin_remote_logs_dir`. Required when relying on the defaults of those options.
+    # Sets the base directory on the managed host for `bin_remote_source_code_dir`, `bin_remote_dir`, and `bin_remote_logs_dir`.
     remote_node_dir: "string"
     # Controls whether source code is cloned and binaries are built on the control node instead of on the managed host.
     bin_build_on_control_node: false
-    # Sets the target operating system used when deriving platform-specific build output paths. The default derives from `ansible_facts.system`.
+    # Sets the target operating system used when deriving platform-specific build output paths.
     bin_target_os: "{{ ansible_facts.system }}"
-    # Sets the target CPU architecture used when deriving platform-specific build output paths. The default derives from `ansible_facts.architecture`.
+    # Sets the target CPU architecture used when deriving platform-specific build output paths.
     bin_target_arch: "{{ ansible_facts.architecture }}"
-    # Defines the platform-specific output directory on the control node for built or installed binaries. The default derives from `control_node_dir`, `bin_target_os`, and `bin_target_arch`.
+    # Defines the platform-specific output directory on the control node for built or installed binaries.
     bin_control_dir: "{{ control_node_dir }}/bin/{{ bin_target_os }}/{{ bin_target_arch }}"
-    # Sets the directory where built binaries are written for each target platform. The default derives from `bin_control_dir`, `bin_build_on_control_node`, and `bin_remote_dir`.
+    # Sets the directory where built binaries are written for each target platform.
     bin_dir: "{{ bin_control_dir if bin_build_on_control_node else bin_remote_dir }}"
-    # Lists the hosts whose facts are used to determine the operating system and architecture combinations that must be built. The default derives from `inventory_hostname`.
+    # Lists the hosts whose facts are used to determine the operating system and architecture combinations that must be built.
     bin_hosts: 
       - "{{ inventory_hostname }}"
   ansible.builtin.include_role:
@@ -115,7 +115,7 @@ Host facts for each listed host must already be available before this entry poin
 ```yaml
 - name: Map hosts to unique platform keys
   vars:
-    # Lists the hosts whose facts are used to determine the operating system and architecture combinations that must be built. The default derives from `inventory_hostname`.
+    # Lists the hosts whose facts are used to determine the operating system and architecture combinations that must be built.
     bin_hosts: 
       - "{{ inventory_hostname }}"
   ansible.builtin.include_role:
@@ -134,23 +134,23 @@ The source binary must already exist at the resolved local or control-node path 
 ```yaml
 - name: Copy a binary to the managed host
   vars:
-    # Sets the base directory on the control node used to derive `bin_control_source_code_dir` and `bin_control_dir`. Required when relying on the defaults of those options and `bin_build_on_control_node` is true.
+    # Sets the base directory on the control node for `bin_control_source_code_dir` and `bin_control_dir`.
     control_node_dir: "string"
-    # Sets the base directory on the managed host used to derive `bin_remote_source_code_dir`, `bin_remote_dir`, and `bin_remote_logs_dir`. Required when relying on the defaults of those options.
+    # Sets the base directory on the managed host for `bin_remote_source_code_dir`, `bin_remote_dir`, and `bin_remote_logs_dir`.
     remote_node_dir: "string"
     # Controls whether source code is cloned and binaries are built on the control node instead of on the managed host.
     bin_build_on_control_node: false
-    # Sets the target operating system used when deriving platform-specific build output paths. The default derives from `ansible_facts.system`.
+    # Sets the target operating system used when deriving platform-specific build output paths.
     bin_target_os: "{{ ansible_facts.system }}"
-    # Sets the target CPU architecture used when deriving platform-specific build output paths. The default derives from `ansible_facts.architecture`.
+    # Sets the target CPU architecture used when deriving platform-specific build output paths.
     bin_target_arch: "{{ ansible_facts.architecture }}"
-    # Defines the platform-specific output directory on the control node for built or installed binaries. The default derives from `control_node_dir`, `bin_target_os`, and `bin_target_arch`.
+    # Defines the platform-specific output directory on the control node for built or installed binaries.
     bin_control_dir: "{{ control_node_dir }}/bin/{{ bin_target_os }}/{{ bin_target_arch }}"
-    # Sets the output binary name. Example: `sample-go`. The default derives from `inventory_hostname`.
+    # Sets the output binary name. Example: `sample-go`.
     bin_name: "{{ inventory_hostname }}"
-    # Sets the directory where built binaries are written for each target platform. The default derives from `bin_control_dir`, `bin_build_on_control_node`, and `bin_remote_dir`.
+    # Sets the directory where built binaries are written for each target platform.
     bin_dir: "{{ bin_control_dir if bin_build_on_control_node else bin_remote_dir }}"
-    # Sets the directory that is prefixed to `bin_command` when constructing the executable path. The default derives from `remote_node_dir`.
+    # Sets the directory that is prefixed to `bin_command` when constructing the executable path.
     bin_remote_dir: "{{ remote_node_dir }}/bin"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
@@ -168,25 +168,25 @@ Set `bin_command` to the executable command to run. Set `bin_wait_port` only whe
 ```yaml
 - name: Start a binary process
   vars:
-    # Sets the base directory on the managed host used to derive `bin_remote_source_code_dir`, `bin_remote_dir`, and `bin_remote_logs_dir`. Required when relying on the defaults of those options.
+    # Sets the base directory on the managed host for `bin_remote_source_code_dir`, `bin_remote_dir`, and `bin_remote_logs_dir`.
     remote_node_dir: "string"
     # Defines the command to execute, relative to `bin_remote_dir` when that directory is set. Example: `myservice --config /etc/myservice/config.yaml`.
     bin_command: "string"
     # Provides environment variables prefixed onto the command line before the binary is started.
     bin_env: {}
-    # Sets the directory that is prefixed to `bin_command` when constructing the executable path. The default derives from `remote_node_dir`.
+    # Sets the directory that is prefixed to `bin_command` when constructing the executable path.
     bin_remote_dir: "{{ remote_node_dir }}/bin"
     # Controls whether stdout and stderr are redirected to a log file on the managed host.
     bin_collect_logs: true
-    # Sets the directory used for redirected log output when `bin_collect_logs` is enabled. The default derives from `remote_node_dir`.
+    # Sets the directory used for redirected log output when `bin_collect_logs` is enabled.
     bin_remote_logs_dir: "{{ remote_node_dir }}/logs"
     # Sets the log file name used when `bin_collect_logs` is enabled.
     bin_remote_logs_file: logs.txt
-    # Controls whether the assembled command and direct-run output are printed for debugging. The default derives from the `DEBUG` environment variable.
+    # Controls whether the assembled command and direct-run output are printed for debugging.
     bin_debug: "{{ lookup('env', 'DEBUG') | bool | default(false) }}"
     # Controls whether the binary is started in a tmux session instead of through a direct shell invocation.
     bin_run_with_tmux: true
-    # Sets the output binary name. Example: `sample-go`. The default derives from `inventory_hostname`.
+    # Sets the output binary name. Example: `sample-go`.
     bin_name: "{{ inventory_hostname }}"
     # Sets the working directory used for tmux and direct shell execution when a specific directory is required.
     bin_chdir: "string"
@@ -222,7 +222,7 @@ When tmux execution is disabled this entry point performs no action.
 ```yaml
 - name: Stop a tmux-managed binary process
   vars:
-    # Sets the output binary name. Example: `sample-go`. The default derives from `inventory_hostname`.
+    # Sets the output binary name. Example: `sample-go`.
     bin_name: "{{ inventory_hostname }}"
     # Controls whether the binary is started in a tmux session instead of through a direct shell invocation.
     bin_run_with_tmux: true
@@ -240,9 +240,9 @@ Deletes the binary file from the managed host.
 ```yaml
 - name: Remove a binary from the managed host
   vars:
-    # Sets the directory that is prefixed to `bin_command` when constructing the executable path. The default derives from `remote_node_dir`.
+    # Sets the directory that is prefixed to `bin_command` when constructing the executable path.
     bin_remote_dir: "{{ remote_node_dir }}/bin"
-    # Sets the output binary name. Example: `sample-go`. The default derives from `inventory_hostname`.
+    # Sets the output binary name. Example: `sample-go`.
     bin_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
@@ -258,17 +258,17 @@ Copies the binary log file from the managed host to the control node without fai
 ```yaml
 - name: Fetch binary log output
   vars:
-    # Sets the local directory used to derive `bin_fetched_logs_dir`. Required when relying on the default of that option.
+    # Sets the local directory for `bin_fetched_logs_dir`.
     fetched_artifacts_dir: "string"
-    # Sets the base directory on the managed host used to derive `bin_remote_source_code_dir`, `bin_remote_dir`, and `bin_remote_logs_dir`. Required when relying on the defaults of those options.
+    # Sets the base directory on the managed host for `bin_remote_source_code_dir`, `bin_remote_dir`, and `bin_remote_logs_dir`.
     remote_node_dir: "string"
-    # Sets the output binary name. Example: `sample-go`. The default derives from `inventory_hostname`.
+    # Sets the output binary name. Example: `sample-go`.
     bin_name: "{{ inventory_hostname }}"
-    # Sets the directory used for redirected log output when `bin_collect_logs` is enabled. The default derives from `remote_node_dir`.
+    # Sets the directory used for redirected log output when `bin_collect_logs` is enabled.
     bin_remote_logs_dir: "{{ remote_node_dir }}/logs"
     # Sets the log file name used when `bin_collect_logs` is enabled.
     bin_remote_logs_file: logs.txt
-    # Sets the destination directory on the control node where the fetched log file is stored. The default derives from `fetched_artifacts_dir` and `bin_name`.
+    # Sets the destination directory on the control node where the fetched log file is stored.
     bin_fetched_logs_dir: "{{ fetched_artifacts_dir }}/{{ bin_name }}"
     # Sets the destination file name used for the fetched log output.
     bin_fetched_logs_file: logs.txt

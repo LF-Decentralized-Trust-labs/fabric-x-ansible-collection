@@ -109,7 +109,6 @@ argument_specs:
         default: "{{ lookup('env', 'ELASTICSEARCH_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
         description:
           - Container registry endpoint used to build C(elasticsearch_image).
-          - The default derives from C(ELASTICSEARCH_REGISTRY_ENDPOINT) and falls back to C(docker.io/library).
       elasticsearch_image_name: &elasticsearch_image_name
         type: str
         required: false
@@ -128,28 +127,24 @@ argument_specs:
         default: "{{ elasticsearch_registry_endpoint }}/{{ elasticsearch_image_name }}:{{ elasticsearch_image_tag }}"
         description:
           - Full container image reference for ElasticSearch.
-          - The default derives from C(elasticsearch_registry_endpoint), C(elasticsearch_image_name), and C(elasticsearch_image_tag).
       elasticsearch_container_name: &elasticsearch_container_name
         type: str
         required: false
         default: "{{ inventory_hostname }}"
         description:
           - Container name for the ElasticSearch instance.
-          - The default derives from C(inventory_hostname).
       elasticsearch_remote_config_dir: &elasticsearch_remote_config_dir
         type: path
         required: false
         default: "{{ remote_config_dir }}"
         description:
           - Remote directory used for ElasticSearch configuration and TLS files.
-          - The default derives from C(remote_config_dir).
       elasticsearch_remote_data_dir: &elasticsearch_remote_data_dir
         type: path
         required: false
         default: "{{ remote_data_dir }}"
         description:
           - Remote directory used for ElasticSearch persistent data.
-          - The default derives from C(remote_data_dir).
       elasticsearch_container_config_dir: &elasticsearch_container_config_dir
         type: path
         required: false
@@ -192,14 +187,12 @@ argument_specs:
         default: "{{ not elasticsearch_use_k8s }}"
         description:
           - Runs ElasticSearch as a container when set to C(true).
-          - The default derives from C(elasticsearch_use_k8s).
       elasticsearch_k8s_resource_name: &elasticsearch_k8s_resource_name
         type: str
         required: false
         default: "{{ inventory_hostname }}"
         description:
           - Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
-          - The default derives from C(inventory_hostname).
       elasticsearch_k8s_wait_timeout: &elasticsearch_k8s_wait_timeout
         type: int
         required: false

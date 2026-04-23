@@ -10,37 +10,28 @@
 # Enables Kubernetes mode for the YugabyteDB role.
 yugabyte_use_k8s: false
 # Enables container mode for the YugabyteDB role.
-# The default derives from C(yugabyte_use_k8s).
 yugabyte_use_container: '{{ not yugabyte_use_k8s }}'
 # Enables TLS asset handling for YugabyteDB.
 yugabyte_use_tls: false
 # Enables HTTPS for the YugabyteDB webserver.
-# The default derives from C(yugabyte_use_tls).
 yugabyte_webserver_use_tls: '{{ yugabyte_use_tls }}'
 # Enables client-to-server TLS for YugabyteDB RPC and SQL access.
-# The default derives from C(yugabyte_use_tls).
 yugabyte_client_to_server_use_tls: '{{ yugabyte_use_tls }}'
 # Enables node-to-node TLS for YugabyteDB.
-# The default derives from C(yugabyte_use_tls).
 yugabyte_node_to_node_use_tls: '{{ yugabyte_use_tls }}'
 # Sets the registry endpoint used to resolve the YugabyteDB image.
-# The default derives from C(YUGABYTE_REGISTRY_ENDPOINT) or falls back to a built-in registry.
 yugabyte_registry_endpoint: "{{ lookup('env', 'YUGABYTE_REGISTRY_ENDPOINT') or 'docker.io/yugabytedb' }}"
 # Sets the YugabyteDB image name.
 yugabyte_image_name: yugabyte
 # Sets the YugabyteDB image tag.
 yugabyte_image_tag: 2025.2.1.0-b141
 # Sets the YugabyteDB container image.
-# The default derives from C(yugabyte_registry_endpoint), C(yugabyte_image_name), and C(yugabyte_image_tag).
 yugabyte_image: "{{ yugabyte_registry_endpoint }}/{{ yugabyte_image_name }}:{{ yugabyte_image_tag }}"
 # Names the YugabyteDB container associated with the current host.
-# The default derives from C(inventory_hostname).
 yugabyte_container_name: '{{ inventory_hostname }}'
 # Sets the remote configuration directory used by YugabyteDB tasks.
-# The default derives from C(remote_config_dir).
 yugabyte_remote_config_dir: '{{ remote_config_dir }}'
 # Sets the remote data directory used by YugabyteDB tasks.
-# The default derives from C(remote_data_dir).
 yugabyte_remote_data_dir: '{{ remote_data_dir }}'
 # Sets the in-container data directory used by YugabyteDB.
 yugabyte_container_data_dir: /var/data
@@ -65,7 +56,6 @@ yugabyte_tablet_cql_bind_port: 9042
 # Sets the tablet YCQL web UI port.
 yugabyte_tablet_cql_web_port: 12000
 # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
-# The default derives from C(inventory_hostname).
 yugabyte_k8s_resource_name: '{{ inventory_hostname }}'
 # Waits for YugabyteDB Kubernetes resources to become ready.
 yugabyte_k8s_wait: true

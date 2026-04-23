@@ -16,7 +16,6 @@ argument_specs:
         default: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
         description:
           - Container registry endpoint for the committer image.
-          - The default falls back to C(docker.io/hyperledger) when the C(COMMITTER_REGISTRY_ENDPOINT) environment variable is unset.
       committer_image_name:
         type: str
         required: false
@@ -35,14 +34,12 @@ argument_specs:
         default: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
         description:
           - Fully qualified committer image.
-          - The default derives from C(committer_registry_endpoint), C(committer_image_name), and C(committer_image_tag).
       committer_container_name: &committer_container_name
         type: str
         required: false
         default: "{{ inventory_hostname }}"
         description:
           - Container name used by the committer container helper.
-          - The default derives from C(inventory_hostname).
       committer_git_hub_url: &committer_git_hub_url
         type: str
         required: false
@@ -73,7 +70,6 @@ argument_specs:
         default: "{{ committer_git_hub_url }}/{{ committer_git_repo }}/{{ committer_source_code_package }}"
         description:
           - Go package path used by the shared binary installer.
-          - The default derives from C(committer_git_hub_url), C(committer_git_repo), and C(committer_source_code_package).
       committer_bin_name: &committer_bin_name
         type: str
         required: false
@@ -98,21 +94,19 @@ argument_specs:
         default: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
         description:
           - Enable container deployment mode.
-          - The default derives from C(committer_use_bin) and C(committer_use_k8s).
       committer_deployment_mode: &committer_deployment_mode
         type: str
         required: false
         default: "{%- if committer_use_bin -%}bin{%- elif committer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
         description:
           - Deployment mode selected by the role.
-          - The default derives from C(committer_use_bin) and C(committer_use_k8s).
       committer_k8s_resource_name: &committer_k8s_resource_name
         type: str
         required: false
         default: "{{ inventory_hostname }}"
         description:
           - Base Kubernetes resource name for committer objects.
-          - The default derives from C(inventory_hostname) and is used by the service, workload, secret, and optional NodePort resources.
+          - Used by the service, workload, secret, and optional NodePort resources.
       committer_k8s_wait_timeout: &committer_k8s_wait_timeout
         type: int
         required: false
@@ -149,14 +143,12 @@ argument_specs:
         default: "{{ remote_config_dir }}"
         description:
           - Remote config directory managed by the role.
-          - The default derives from C(remote_config_dir).
       committer_remote_data_dir: &committer_remote_data_dir
         type: path
         required: false
         default: "{{ remote_data_dir }}"
         description:
           - Remote data directory managed by the role.
-          - The default derives from C(remote_data_dir).
       committer_container_config_dir: &committer_container_config_dir
         type: path
         required: false
@@ -175,21 +167,18 @@ argument_specs:
         default: "{{ committer_remote_config_dir if committer_use_bin else committer_container_config_dir }}"
         description:
           - Active config directory used by the committer runtime.
-          - The default derives from C(committer_remote_config_dir), C(committer_use_bin), and C(committer_container_config_dir).
       committer_data_dir: &committer_data_dir
         type: path
         required: false
         default: "{{ committer_remote_data_dir if committer_use_bin else committer_container_data_dir }}"
         description:
           - Active data directory used by the committer runtime.
-          - The default derives from C(committer_remote_data_dir), C(committer_use_bin), and C(committer_container_data_dir).
       committer_config_file: &committer_config_file
         type: str
         required: false
         default: "config-{{ committer_component_type }}.yml"
         description:
           - Generated config file name used by the selected component.
-          - The default derives from C(committer_component_type).
       committer_use_tls: &committer_use_tls
         type: bool
         required: false
@@ -202,7 +191,6 @@ argument_specs:
         default: "{{ committer_use_tls }}"
         description:
           - Enable TLS for the monitoring endpoint.
-          - The default derives from C(committer_use_tls).
       committer_use_mtls: &committer_use_mtls
         type: bool
         required: false
@@ -215,21 +203,18 @@ argument_specs:
         default: "{{ committer_use_mtls }}"
         description:
           - Enable mTLS for the monitoring endpoint.
-          - The default derives from C(committer_use_mtls).
       committer_http_protocol: &committer_http_protocol
         type: str
         required: false
         default: "{{ 'https' if committer_use_tls else 'http' }}"
         description:
           - HTTP protocol used by the metrics client.
-          - The default derives from C(committer_use_tls).
       committer_crypto_name: &committer_crypto_name
         type: str
         required: false
         default: "{{ organization.peer.name | default(inventory_hostname) }}"
         description:
           - Crypto material base name for the committer.
-          - The default derives from C(organization.peer.name) when present, otherwise C(inventory_hostname).
       committer_rpc_port: &committer_rpc_port
         type: int
         required: true

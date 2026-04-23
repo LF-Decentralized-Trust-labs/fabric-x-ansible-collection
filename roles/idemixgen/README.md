@@ -109,7 +109,7 @@ This entry point is used before binary-mode execution.
     cli_bin_dir: "string"
     # Defines the idemixgen binary name.
     idemixgen_bin_name: idemixgen
-    # Defines the Go package path used to install idemixgen. The default derives from `idemixgen_git_hub_url`, `idemixgen_git_repo`, and `idemixgen_source_code_package`.
+    # Defines the Go package path used to install idemixgen.
     idemixgen_bin_package: "{{ idemixgen_git_hub_url }}/{{ idemixgen_git_repo }}/{{ idemixgen_source_code_package }}"
     # Pins the git ref used for the idemixgen binary install or build.
     idemixgen_git_commit: v0.0.2
@@ -137,13 +137,13 @@ The task removes any existing CA and MSP output directories before generating fr
   vars:
     # Sets the shared directory used by the binary execution path.
     cli_bin_dir: "string"
-    # Sets the shared build root used by `idemixgen_output_dir`. Required when relying on the default of `idemixgen_output_dir`.
+    # Sets the shared build root used by `idemixgen_output_dir`. Required when using `idemixgen_output_dir`.
     config_build_dir: "string"
     # Defines the idemixgen binary name.
     idemixgen_bin_name: idemixgen
     # Selects the cryptographic curve passed to idemixgen.
     idemixgen_curve_id: BLS12_381_BBS
-    # Sets the host directory where the generated artifacts are written. The default derives from `config_build_dir`.
+    # Sets the host directory where the generated artifacts are written.
     idemixgen_output_dir: "{{ config_build_dir }}/idemixgen-artifacts"
     # Enables Aries-based Idemix material generation.
     idemixgen_use_aries: false
@@ -165,7 +165,7 @@ The task removes any existing MSP and user output directories before generating 
   vars:
     # Sets the shared directory used by the binary execution path.
     cli_bin_dir: "string"
-    # Sets the shared build root used by `idemixgen_output_dir`. Required when relying on the default of `idemixgen_output_dir`.
+    # Sets the shared build root used by `idemixgen_output_dir`. Required when using `idemixgen_output_dir`.
     config_build_dir: "string"
     # Defines the idemixgen binary name.
     idemixgen_bin_name: idemixgen
@@ -173,11 +173,11 @@ The task removes any existing MSP and user output directories before generating 
     idemixgen_ca_input_dir: "string"
     # Selects the cryptographic curve passed to idemixgen.
     idemixgen_curve_id: BLS12_381_BBS
-    # Defines the enrollment identifier embedded in the signer configuration. The default derives from `inventory_hostname`.
+    # Defines the enrollment identifier embedded in the signer configuration.
     idemixgen_enrollment_id: "{{ inventory_hostname }}"
     # Sets the organization unit passed to `signerconfig`.
     idemixgen_org_domain: "string"
-    # Sets the host directory where the generated artifacts are written. The default derives from `config_build_dir`.
+    # Sets the host directory where the generated artifacts are written.
     idemixgen_output_dir: "{{ config_build_dir }}/idemixgen-artifacts"
     # Defines the revocation handle embedded in the signer configuration. The default is a random integer from 100 to 998.
     idemixgen_rev_handle: "{{ range(100, 999) | random }}"
@@ -199,25 +199,25 @@ The task removes any existing CA and MSP output directories before generating fr
 ```yaml
 - name: Generate Idemix CA key material in a container
   vars:
-    # Sets the shared build root used by `idemixgen_output_dir`. Required when relying on the default of `idemixgen_output_dir`.
+    # Sets the shared build root used by `idemixgen_output_dir`. Required when using `idemixgen_output_dir`.
     config_build_dir: "string"
     # Defines the idemixgen binary name.
     idemixgen_bin_name: idemixgen
-    # Defines the container name used for the idemixgen run. The default derives from `inventory_hostname`.
+    # Defines the container name used for the idemixgen run.
     idemixgen_container_name: "idemixgen-{{ inventory_hostname }}"
     # Sets the output directory path used inside the container.
     idemixgen_container_output_dir: /tmp/out
     # Selects the cryptographic curve passed to idemixgen.
     idemixgen_curve_id: BLS12_381_BBS
-    # Defines the container image used to run idemixgen. The default derives from `idemixgen_registry_endpoint`, `idemixgen_image_name`, and `idemixgen_image_tag`.
+    # Defines the container image used to run idemixgen.
     idemixgen_image: "{{ idemixgen_registry_endpoint }}/{{ idemixgen_image_name }}:{{ idemixgen_image_tag }}"
     # Defines the image name used for the idemixgen container.
     idemixgen_image_name: fabric-x-tools
     # Defines the image tag used for the idemixgen container.
     idemixgen_image_tag: 0.0.14
-    # Sets the host directory where the generated artifacts are written. The default derives from `config_build_dir`.
+    # Sets the host directory where the generated artifacts are written.
     idemixgen_output_dir: "{{ config_build_dir }}/idemixgen-artifacts"
-    # Defines the container registry used for the idemixgen image. The default derives from `IDEMIXGEN_REGISTRY_ENDPOINT` or `docker.io/hyperledger`.
+    # Defines the container registry used for the idemixgen image.
     idemixgen_registry_endpoint: "{{ lookup('env', 'IDEMIXGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # Enables Aries-based Idemix material generation.
     idemixgen_use_aries: false
@@ -237,21 +237,21 @@ The task removes any existing MSP and user output directories before generating 
 ```yaml
 - name: Generate Idemix signer configuration in a container
   vars:
-    # Sets the shared build root used by `idemixgen_output_dir`. Required when relying on the default of `idemixgen_output_dir`.
+    # Sets the shared build root used by `idemixgen_output_dir`. Required when using `idemixgen_output_dir`.
     config_build_dir: "string"
     # Defines the idemixgen binary name.
     idemixgen_bin_name: idemixgen
     # Sets the directory containing the CA material consumed by `signerconfig`.
     idemixgen_ca_input_dir: "string"
-    # Defines the container name used for the idemixgen run. The default derives from `inventory_hostname`.
+    # Defines the container name used for the idemixgen run.
     idemixgen_container_name: "idemixgen-{{ inventory_hostname }}"
     # Sets the output directory path used inside the container.
     idemixgen_container_output_dir: /tmp/out
     # Selects the cryptographic curve passed to idemixgen.
     idemixgen_curve_id: BLS12_381_BBS
-    # Defines the enrollment identifier embedded in the signer configuration. The default derives from `inventory_hostname`.
+    # Defines the enrollment identifier embedded in the signer configuration.
     idemixgen_enrollment_id: "{{ inventory_hostname }}"
-    # Defines the container image used to run idemixgen. The default derives from `idemixgen_registry_endpoint`, `idemixgen_image_name`, and `idemixgen_image_tag`.
+    # Defines the container image used to run idemixgen.
     idemixgen_image: "{{ idemixgen_registry_endpoint }}/{{ idemixgen_image_name }}:{{ idemixgen_image_tag }}"
     # Defines the image name used for the idemixgen container.
     idemixgen_image_name: fabric-x-tools
@@ -259,9 +259,9 @@ The task removes any existing MSP and user output directories before generating 
     idemixgen_image_tag: 0.0.14
     # Sets the organization unit passed to `signerconfig`.
     idemixgen_org_domain: "string"
-    # Sets the host directory where the generated artifacts are written. The default derives from `config_build_dir`.
+    # Sets the host directory where the generated artifacts are written.
     idemixgen_output_dir: "{{ config_build_dir }}/idemixgen-artifacts"
-    # Defines the container registry used for the idemixgen image. The default derives from `IDEMIXGEN_REGISTRY_ENDPOINT` or `docker.io/hyperledger`.
+    # Defines the container registry used for the idemixgen image.
     idemixgen_registry_endpoint: "{{ lookup('env', 'IDEMIXGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # Defines the revocation handle embedded in the signer configuration. The default is a random integer from 100 to 998.
     idemixgen_rev_handle: "{{ range(100, 999) | random }}"

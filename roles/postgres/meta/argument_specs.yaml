@@ -59,7 +59,6 @@ argument_specs:
         default: "{{ lookup('env', 'POSTGRES_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
         description:
           - Container registry endpoint used to build C(postgres_image).
-          - The default derives from C(POSTGRES_REGISTRY_ENDPOINT) and falls back to C(docker.io/library).
       postgres_image_name: &postgres_image_name
         type: str
         required: false
@@ -78,28 +77,24 @@ argument_specs:
         default: "{{ postgres_registry_endpoint }}/{{ postgres_image_name }}:{{ postgres_image_tag }}"
         description:
           - Full container image reference for PostgreSQL.
-          - The default derives from C(postgres_registry_endpoint), C(postgres_image_name), and C(postgres_image_tag).
       postgres_container_name: &postgres_container_name
         type: str
         required: false
         default: "{{ inventory_hostname }}"
         description:
           - Container name for the PostgreSQL instance.
-          - The default derives from C(inventory_hostname).
       postgres_remote_config_dir: &postgres_remote_config_dir
         type: path
         required: false
         default: "{{ remote_config_dir }}"
         description:
           - Remote directory used for PostgreSQL configuration and TLS files.
-          - The default derives from C(remote_config_dir).
       postgres_remote_data_dir: &postgres_remote_data_dir
         type: path
         required: false
         default: "{{ remote_data_dir }}"
         description:
           - Remote directory used for PostgreSQL persistent data.
-          - The default derives from C(remote_data_dir).
       postgres_container_config_dir: &postgres_container_config_dir
         type: path
         required: false
@@ -142,14 +137,12 @@ argument_specs:
         default: "{{ (not postgres_use_k8s) and (not postgres_use_openshift) }}"
         description:
           - Run PostgreSQL as a container when set to C(true).
-          - The default derives from C(postgres_use_k8s) and C(postgres_use_openshift).
       postgres_k8s_resource_name: &postgres_k8s_resource_name
         type: str
         required: false
         default: "{{ inventory_hostname }}"
         description:
           - Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
-          - The default derives from C(inventory_hostname).
       postgres_k8s_wait_timeout: &postgres_k8s_wait_timeout
         type: int
         required: false
@@ -243,52 +236,44 @@ argument_specs:
         required: false
         description:
           - Override for the readiness probe initial delay in seconds.
-          - The template default is C(10).
       k8s_readiness_probe_period_seconds: &k8s_readiness_probe_period_seconds
         type: int
         required: false
         description:
           - Override for the readiness probe period in seconds.
-          - The template default is C(10).
       k8s_readiness_probe_timeout_seconds: &k8s_readiness_probe_timeout_seconds
         type: int
         required: false
         description:
           - Override for the readiness probe timeout in seconds.
-          - The template default is C(5).
       k8s_readiness_probe_failure_threshold:
         &k8s_readiness_probe_failure_threshold
         type: int
         required: false
         description:
           - Override for the readiness probe failure threshold.
-          - The template default is C(3).
       k8s_liveness_probe_initial_delay_seconds:
         &k8s_liveness_probe_initial_delay_seconds
         type: int
         required: false
         description:
           - Override for the liveness probe initial delay in seconds.
-          - The template default is C(30).
       k8s_liveness_probe_period_seconds: &k8s_liveness_probe_period_seconds
         type: int
         required: false
         description:
           - Override for the liveness probe period in seconds.
-          - The template default is C(15).
       k8s_liveness_probe_timeout_seconds: &k8s_liveness_probe_timeout_seconds
         type: int
         required: false
         description:
           - Override for the liveness probe timeout in seconds.
-          - The template default is C(5).
       k8s_liveness_probe_failure_threshold:
         &k8s_liveness_probe_failure_threshold
         type: int
         required: false
         description:
           - Override for the liveness probe failure threshold.
-          - The template default is C(5).
       organization: &organization
         type: dict
         description:
@@ -323,7 +308,7 @@ argument_specs:
     short_description: Stop PostgreSQL
     description:
       - Stops PostgreSQL when it runs in container mode.
-      - C(postgres_use_container) defaults from C(postgres_use_k8s) and C(postgres_use_openshift).
+      - C(postgres_use_container) is enabled when neither C(postgres_use_k8s) nor C(postgres_use_openshift) is enabled.
     options:
       postgres_use_k8s: *postgres_use_k8s
       postgres_use_openshift: *postgres_use_openshift

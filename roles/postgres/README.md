@@ -97,7 +97,7 @@ When OpenShift mode is selected, validates the Service and StatefulSet inputs re
     postgres_use_k8s: false
     # Run PostgreSQL on OpenShift when set to `true`.
     postgres_use_openshift: false
-    # Run PostgreSQL as a container when set to `true`. The default derives from `postgres_use_k8s` and `postgres_use_openshift`.
+    # Run PostgreSQL as a container when set to `true`.
     postgres_use_container: "{{ (not postgres_use_k8s) and (not postgres_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
@@ -110,7 +110,7 @@ Stop PostgreSQL
 
 Stops PostgreSQL when it runs in container mode.
 
-`postgres_use_container` defaults from `postgres_use_k8s` and `postgres_use_openshift`.
+`postgres_use_container` is enabled when neither `postgres_use_k8s` nor `postgres_use_openshift` is enabled.
 
 ```yaml
 - name: Stop PostgreSQL
@@ -119,7 +119,7 @@ Stops PostgreSQL when it runs in container mode.
     postgres_use_k8s: false
     # Run PostgreSQL on OpenShift when set to `true`.
     postgres_use_openshift: false
-    # Run PostgreSQL as a container when set to `true`. The default derives from `postgres_use_k8s` and `postgres_use_openshift`.
+    # Run PostgreSQL as a container when set to `true`.
     postgres_use_container: "{{ (not postgres_use_k8s) and (not postgres_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
@@ -141,7 +141,7 @@ Persistent data is removed through the `data/rm` entry point.
     postgres_use_k8s: false
     # Run PostgreSQL on OpenShift when set to `true`.
     postgres_use_openshift: false
-    # Run PostgreSQL as a container when set to `true`. The default derives from `postgres_use_k8s` and `postgres_use_openshift`.
+    # Run PostgreSQL as a container when set to `true`.
     postgres_use_container: "{{ (not postgres_use_k8s) and (not postgres_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
@@ -178,7 +178,7 @@ Delegates to the container or Kubernetes log collection entry point.
     postgres_use_k8s: false
     # Run PostgreSQL on OpenShift when set to `true`.
     postgres_use_openshift: false
-    # Run PostgreSQL as a container when set to `true`. The default derives from `postgres_use_k8s` and `postgres_use_openshift`.
+    # Run PostgreSQL as a container when set to `true`.
     postgres_use_container: "{{ (not postgres_use_k8s) and (not postgres_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
@@ -200,9 +200,9 @@ Deletes the PostgreSQL PVC in Kubernetes and OpenShift deployments.
     postgres_use_k8s: false
     # Run PostgreSQL on OpenShift when set to `true`.
     postgres_use_openshift: false
-    # Run PostgreSQL as a container when set to `true`. The default derives from `postgres_use_k8s` and `postgres_use_openshift`.
+    # Run PostgreSQL as a container when set to `true`.
     postgres_use_container: "{{ (not postgres_use_k8s) and (not postgres_use_openshift) }}"
-    # Remote directory used for PostgreSQL persistent data. The default derives from `remote_data_dir`.
+    # Remote directory used for PostgreSQL persistent data.
     postgres_remote_data_dir: "{{ remote_data_dir }}"
     # Outer remote data directory consumed by `postgres_remote_data_dir`. This dependency is validated wherever PostgreSQL persistent data is used.
     remote_data_dir: "string"
@@ -224,21 +224,21 @@ Configures TLS and mTLS command-line options when those features are enabled.
 ```yaml
 - name: Start PostgreSQL in a container
   vars:
-    # Container name for the PostgreSQL instance. The default derives from `inventory_hostname`.
+    # Container name for the PostgreSQL instance.
     postgres_container_name: "{{ inventory_hostname }}"
-    # Container registry endpoint used to build `postgres_image`. The default derives from `POSTGRES_REGISTRY_ENDPOINT` and falls back to `docker.io/library`.
+    # Container registry endpoint used to build `postgres_image`.
     postgres_registry_endpoint: "{{ lookup('env', 'POSTGRES_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
     # PostgreSQL image repository name.
     postgres_image_name: postgres
     # PostgreSQL image tag.
     postgres_image_tag: 16.4
-    # Full container image reference for PostgreSQL. The default derives from `postgres_registry_endpoint`, `postgres_image_name`, and `postgres_image_tag`.
+    # Full container image reference for PostgreSQL.
     postgres_image: "{{ postgres_registry_endpoint }}/{{ postgres_image_name }}:{{ postgres_image_tag }}"
-    # Remote directory used for PostgreSQL configuration and TLS files. The default derives from `remote_config_dir`.
+    # Remote directory used for PostgreSQL configuration and TLS files.
     postgres_remote_config_dir: "{{ remote_config_dir }}"
     # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
     remote_config_dir: "string"
-    # Remote directory used for PostgreSQL persistent data. The default derives from `remote_data_dir`.
+    # Remote directory used for PostgreSQL persistent data.
     postgres_remote_data_dir: "{{ remote_data_dir }}"
     # Outer remote data directory consumed by `postgres_remote_data_dir`. This dependency is validated wherever PostgreSQL persistent data is used.
     remote_data_dir: "string"
@@ -282,7 +282,7 @@ Uses the container helper role internally.
 ```yaml
 - name: Stop the PostgreSQL container
   vars:
-    # Container name for the PostgreSQL instance. The default derives from `inventory_hostname`.
+    # Container name for the PostgreSQL instance.
     postgres_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
@@ -300,7 +300,7 @@ Container volumes are handled separately by the `data/rm` entry point.
 ```yaml
 - name: Remove the PostgreSQL container
   vars:
-    # Container name for the PostgreSQL instance. The default derives from `inventory_hostname`.
+    # Container name for the PostgreSQL instance.
     postgres_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
@@ -318,7 +318,7 @@ Uses the container helper role internally.
 ```yaml
 - name: Fetch PostgreSQL container logs
   vars:
-    # Container name for the PostgreSQL instance. The default derives from `inventory_hostname`.
+    # Container name for the PostgreSQL instance.
     postgres_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
@@ -338,7 +338,7 @@ Uses the role templates to configure storage, credentials, TLS, and optional mTL
 ```yaml
 - name: Start PostgreSQL on Kubernetes
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. The default derives from `inventory_hostname`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
     k8s_namespace: "string"
@@ -352,13 +352,13 @@ Uses the role templates to configure storage, credentials, TLS, and optional mTL
     postgres_k8s_port_node_port: 1000
     # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
     postgres_port: 1000
-    # Container registry endpoint used to build `postgres_image`. The default derives from `POSTGRES_REGISTRY_ENDPOINT` and falls back to `docker.io/library`.
+    # Container registry endpoint used to build `postgres_image`.
     postgres_registry_endpoint: "{{ lookup('env', 'POSTGRES_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
     # PostgreSQL image repository name.
     postgres_image_name: postgres
     # PostgreSQL image tag.
     postgres_image_tag: 16.4
-    # Full container image reference for PostgreSQL. The default derives from `postgres_registry_endpoint`, `postgres_image_name`, and `postgres_image_tag`.
+    # Full container image reference for PostgreSQL.
     postgres_image: "{{ postgres_registry_endpoint }}/{{ postgres_image_name }}:{{ postgres_image_tag }}"
     # Configuration directory path inside the PostgreSQL container.
     postgres_container_config_dir: /var/lib/postgresql/config
@@ -388,21 +388,21 @@ Uses the role templates to configure storage, credentials, TLS, and optional mTL
     k8s_storage_class: "string"
     # Existing Kubernetes `imagePullSecret` name used when the PostgreSQL image is stored in a private registry.
     k8s_image_pull_secret: "string"
-    # Override for the readiness probe initial delay in seconds. The template default is `10`.
+    # Override for the readiness probe initial delay in seconds.
     k8s_readiness_probe_initial_delay_seconds: 1000
-    # Override for the readiness probe period in seconds. The template default is `10`.
+    # Override for the readiness probe period in seconds.
     k8s_readiness_probe_period_seconds: 1000
-    # Override for the readiness probe timeout in seconds. The template default is `5`.
+    # Override for the readiness probe timeout in seconds.
     k8s_readiness_probe_timeout_seconds: 1000
-    # Override for the readiness probe failure threshold. The template default is `3`.
+    # Override for the readiness probe failure threshold.
     k8s_readiness_probe_failure_threshold: 1000
-    # Override for the liveness probe initial delay in seconds. The template default is `30`.
+    # Override for the liveness probe initial delay in seconds.
     k8s_liveness_probe_initial_delay_seconds: 1000
-    # Override for the liveness probe period in seconds. The template default is `15`.
+    # Override for the liveness probe period in seconds.
     k8s_liveness_probe_period_seconds: 1000
-    # Override for the liveness probe timeout in seconds. The template default is `5`.
+    # Override for the liveness probe timeout in seconds.
     k8s_liveness_probe_timeout_seconds: 1000
-    # Override for the liveness probe failure threshold. The template default is `5`.
+    # Override for the liveness probe failure threshold.
     k8s_liveness_probe_failure_threshold: 1000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
@@ -440,7 +440,7 @@ The persistent volume claim is removed separately by the `data/rm` entry point.
 ```yaml
 - name: Remove PostgreSQL Kubernetes resources
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. The default derives from `inventory_hostname`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
     k8s_namespace: "string"
@@ -460,7 +460,7 @@ Selects pods using the PostgreSQL application label.
 ```yaml
 - name: Fetch PostgreSQL pod logs
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. The default derives from `inventory_hostname`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
     k8s_namespace: "string"
@@ -480,11 +480,11 @@ Ensures the Kubernetes namespace exists before applying the Secret.
 ```yaml
 - name: Apply the PostgreSQL Kubernetes Secret
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. The default derives from `inventory_hostname`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
     k8s_namespace: "string"
-    # Remote directory used for PostgreSQL configuration and TLS files. The default derives from `remote_config_dir`.
+    # Remote directory used for PostgreSQL configuration and TLS files.
     postgres_remote_config_dir: "{{ remote_config_dir }}"
     # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
     remote_config_dir: "string"
@@ -516,7 +516,7 @@ This entry point is typically invoked from the PostgreSQL crypto cleanup workflo
 ```yaml
 - name: Remove the PostgreSQL Kubernetes Secret
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. The default derives from `inventory_hostname`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
     k8s_namespace: "string"
@@ -536,11 +536,11 @@ Ensures the Kubernetes namespace exists before applying the ConfigMap.
 ```yaml
 - name: Apply the PostgreSQL Kubernetes ConfigMap
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. The default derives from `inventory_hostname`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
     k8s_namespace: "string"
-    # Remote directory used for PostgreSQL configuration and TLS files. The default derives from `remote_config_dir`.
+    # Remote directory used for PostgreSQL configuration and TLS files.
     postgres_remote_config_dir: "{{ remote_config_dir }}"
     # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
     remote_config_dir: "string"
@@ -564,7 +564,7 @@ This entry point is typically invoked from the PostgreSQL config cleanup workflo
 ```yaml
 - name: Remove the PostgreSQL Kubernetes ConfigMap
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. The default derives from `inventory_hostname`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
     k8s_namespace: "string"
@@ -586,7 +586,7 @@ Uses the same role templates to configure storage, credentials, TLS, and optiona
 ```yaml
 - name: Start PostgreSQL on OpenShift
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. The default derives from `inventory_hostname`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
     k8s_namespace: "string"
@@ -596,13 +596,13 @@ Uses the same role templates to configure storage, credentials, TLS, and optiona
     postgres_k8s_fs_group: 999
     # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
     postgres_port: 1000
-    # Container registry endpoint used to build `postgres_image`. The default derives from `POSTGRES_REGISTRY_ENDPOINT` and falls back to `docker.io/library`.
+    # Container registry endpoint used to build `postgres_image`.
     postgres_registry_endpoint: "{{ lookup('env', 'POSTGRES_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
     # PostgreSQL image repository name.
     postgres_image_name: postgres
     # PostgreSQL image tag.
     postgres_image_tag: 16.4
-    # Full container image reference for PostgreSQL. The default derives from `postgres_registry_endpoint`, `postgres_image_name`, and `postgres_image_tag`.
+    # Full container image reference for PostgreSQL.
     postgres_image: "{{ postgres_registry_endpoint }}/{{ postgres_image_name }}:{{ postgres_image_tag }}"
     # Configuration directory path inside the PostgreSQL container.
     postgres_container_config_dir: /var/lib/postgresql/config
@@ -632,21 +632,21 @@ Uses the same role templates to configure storage, credentials, TLS, and optiona
     k8s_storage_class: "string"
     # Existing Kubernetes `imagePullSecret` name used when the PostgreSQL image is stored in a private registry.
     k8s_image_pull_secret: "string"
-    # Override for the readiness probe initial delay in seconds. The template default is `10`.
+    # Override for the readiness probe initial delay in seconds.
     k8s_readiness_probe_initial_delay_seconds: 1000
-    # Override for the readiness probe period in seconds. The template default is `10`.
+    # Override for the readiness probe period in seconds.
     k8s_readiness_probe_period_seconds: 1000
-    # Override for the readiness probe timeout in seconds. The template default is `5`.
+    # Override for the readiness probe timeout in seconds.
     k8s_readiness_probe_timeout_seconds: 1000
-    # Override for the readiness probe failure threshold. The template default is `3`.
+    # Override for the readiness probe failure threshold.
     k8s_readiness_probe_failure_threshold: 1000
-    # Override for the liveness probe initial delay in seconds. The template default is `30`.
+    # Override for the liveness probe initial delay in seconds.
     k8s_liveness_probe_initial_delay_seconds: 1000
-    # Override for the liveness probe period in seconds. The template default is `15`.
+    # Override for the liveness probe period in seconds.
     k8s_liveness_probe_period_seconds: 1000
-    # Override for the liveness probe timeout in seconds. The template default is `5`.
+    # Override for the liveness probe timeout in seconds.
     k8s_liveness_probe_timeout_seconds: 1000
-    # Override for the liveness probe failure threshold. The template default is `5`.
+    # Override for the liveness probe failure threshold.
     k8s_liveness_probe_failure_threshold: 1000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
@@ -664,7 +664,7 @@ The persistent volume claim is removed separately by the `data/rm` entry point.
 ```yaml
 - name: Remove PostgreSQL OpenShift resources
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. The default derives from `inventory_hostname`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
     k8s_namespace: "string"
@@ -710,7 +710,7 @@ This task runs only when `postgres_use_tls` is true.
   vars:
     # Enable server-side TLS for PostgreSQL.
     postgres_use_tls: false
-    # Remote directory used for PostgreSQL configuration and TLS files. The default derives from `remote_config_dir`.
+    # Remote directory used for PostgreSQL configuration and TLS files.
     postgres_remote_config_dir: "{{ remote_config_dir }}"
     # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
     remote_config_dir: "string"
@@ -738,7 +738,7 @@ Also removes the Kubernetes Secret used for TLS materials when Kubernetes or Ope
     postgres_use_k8s: false
     # Run PostgreSQL on OpenShift when set to `true`.
     postgres_use_openshift: false
-    # Remote directory used for PostgreSQL configuration and TLS files. The default derives from `remote_config_dir`.
+    # Remote directory used for PostgreSQL configuration and TLS files.
     postgres_remote_config_dir: "{{ remote_config_dir }}"
     # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
     remote_config_dir: "string"
@@ -760,7 +760,7 @@ Used when PostgreSQL TLS is enabled without a peer organization definition.
 ```yaml
 - name: Generate PostgreSQL TLS materials with OpenSSL
   vars:
-    # Remote directory used for PostgreSQL configuration and TLS files. The default derives from `remote_config_dir`.
+    # Remote directory used for PostgreSQL configuration and TLS files.
     postgres_remote_config_dir: "{{ remote_config_dir }}"
     # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
     remote_config_dir: "string"
@@ -786,7 +786,7 @@ Used when PostgreSQL belongs to a peer organization without a Fabric CA host.
 ```yaml
 - name: Transfer PostgreSQL TLS materials from cryptogen
   vars:
-    # Remote directory used for PostgreSQL configuration and TLS files. The default derives from `remote_config_dir`.
+    # Remote directory used for PostgreSQL configuration and TLS files.
     postgres_remote_config_dir: "{{ remote_config_dir }}"
     # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
     remote_config_dir: "string"
@@ -814,7 +814,7 @@ Requires the organization definition to reference a Fabric CA host and peer iden
 ```yaml
 - name: Enroll PostgreSQL with Fabric CA for TLS
   vars:
-    # Remote directory used for PostgreSQL configuration and TLS files. The default derives from `remote_config_dir`.
+    # Remote directory used for PostgreSQL configuration and TLS files.
     postgres_remote_config_dir: "{{ remote_config_dir }}"
     # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
     remote_config_dir: "string"
@@ -844,7 +844,7 @@ Also applies the PostgreSQL ConfigMap when Kubernetes or OpenShift mode is enabl
 ```yaml
 - name: Transfer PostgreSQL configuration
   vars:
-    # Remote directory used for PostgreSQL configuration and TLS files. The default derives from `remote_config_dir`.
+    # Remote directory used for PostgreSQL configuration and TLS files.
     postgres_remote_config_dir: "{{ remote_config_dir }}"
     # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
     remote_config_dir: "string"
@@ -872,7 +872,7 @@ Also removes the PostgreSQL ConfigMap when Kubernetes or OpenShift mode is enabl
 ```yaml
 - name: Remove PostgreSQL configuration
   vars:
-    # Remote directory used for PostgreSQL configuration and TLS files. The default derives from `remote_config_dir`.
+    # Remote directory used for PostgreSQL configuration and TLS files.
     postgres_remote_config_dir: "{{ remote_config_dir }}"
     # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
     remote_config_dir: "string"
@@ -896,7 +896,7 @@ Copies client certificates from previously fetched artifacts on the control node
 ```yaml
 - name: Transfer PostgreSQL mTLS configuration
   vars:
-    # Remote directory used for PostgreSQL configuration and TLS files. The default derives from `remote_config_dir`.
+    # Remote directory used for PostgreSQL configuration and TLS files.
     postgres_remote_config_dir: "{{ remote_config_dir }}"
     # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
     remote_config_dir: "string"

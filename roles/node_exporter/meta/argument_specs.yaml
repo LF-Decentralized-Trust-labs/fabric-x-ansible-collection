@@ -105,7 +105,6 @@ argument_specs:
         default: "{{ lookup('env', 'NODE_EXPORTER_REGISTRY_ENDPOINT') or 'docker.io/prom' }}"
         description:
           - Sets the registry endpoint used to build the default Node Exporter image reference.
-          - The default reads C(NODE_EXPORTER_REGISTRY_ENDPOINT) and falls back to C(docker.io/prom).
 
       node_exporter_image_name: &node_exporter_image_name
         type: str
@@ -127,7 +126,6 @@ argument_specs:
         default: "{{ node_exporter_registry_endpoint }}/{{ node_exporter_image_name }}:{{ node_exporter_image_tag }}"
         description:
           - Sets the full Node Exporter image reference.
-          - The default derives from C(node_exporter_registry_endpoint), C(node_exporter_image_name), and C(node_exporter_image_tag).
 
       node_exporter_container_name: &node_exporter_container_name
         type: str
@@ -142,7 +140,6 @@ argument_specs:
         default: "{{ remote_deploy_dir }}/node-exporter/config"
         description:
           - Sets the remote Node Exporter configuration directory.
-          - The default derives from C(remote_deploy_dir).
 
       node_exporter_container_config_dir: &node_exporter_container_config_dir
         type: path
@@ -199,7 +196,6 @@ argument_specs:
         default: "{{ not node_exporter_use_k8s }}"
         description:
           - Enables the container backend.
-          - The default is derived from C(node_exporter_use_k8s).
 
       node_exporter_k8s_resource_name: &node_exporter_k8s_resource_name
         type: str
@@ -207,7 +203,6 @@ argument_specs:
         default: "{{ inventory_hostname }}"
         description:
           - Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
-          - The default derives from C(inventory_hostname).
 
       node_exporter_k8s_wait_timeout: &node_exporter_k8s_wait_timeout
         type: int
@@ -228,7 +223,6 @@ argument_specs:
         required: false
         description:
           - Sets the Kubernetes NodePort used for Node Exporter when C(node_exporter_k8s_use_node_port) is true.
-          - The default derives from C(node_exporter_port).
 
       node_exporter_port: &node_exporter_port
         type: int

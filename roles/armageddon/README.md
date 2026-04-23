@@ -43,9 +43,9 @@ When `armageddon_use_bin` is true, the template reads `fetched_artifacts_dir`; o
     armageddon_orderer_hosts: ["entry1", "entry2"]
     # Run Armageddon as a local binary instead of a container.
     armageddon_use_bin: false
-    # Base directory for the default `armageddon_artifacts_dir` value.
+    # Base directory for `armageddon_artifacts_dir`.
     config_build_dir: "string"
-    # Directory for rendered Armageddon config and generated protobuf output. The default derives from `config_build_dir`.
+    # Directory for rendered Armageddon config and generated protobuf output.
     armageddon_artifacts_dir: "{{ config_build_dir }}/armageddon-artifacts"
     # Host directory with fetched crypto artifacts. The config build flow reads it in binary mode and the container flow mounts it read-only.
     fetched_artifacts_dir: "string"
@@ -84,14 +84,12 @@ Install the Armageddon binary
 
 Install Armageddon through the shared binary helper.
 
-`armageddon_bin_package` defaults to the Go module path built from `armageddon_git_hub_url`, `armageddon_git_repo`, and `armageddon_source_code_package`.
-
 ```yaml
 - name: Install the Armageddon binary
   vars:
     # Armageddon executable name.
     armageddon_bin_name: armageddon
-    # Go module path used to install Armageddon. The default derives from `armageddon_git_hub_url`, `armageddon_git_repo`, and `armageddon_source_code_package`.
+    # Go module path used to install Armageddon.
     armageddon_bin_package: "{{ armageddon_git_hub_url }}/{{ armageddon_git_repo }}/{{ armageddon_source_code_package }}"
     # Git host used for the Armageddon source repository.
     armageddon_git_hub_url: github.com
@@ -149,9 +147,9 @@ The input config is read from `armageddon_artifacts_dir`/`armageddon_shared_conf
   vars:
     # Armageddon executable name.
     armageddon_bin_name: armageddon
-    # Base directory for the default `armageddon_artifacts_dir` value.
+    # Base directory for `armageddon_artifacts_dir`.
     config_build_dir: "string"
-    # Directory for rendered Armageddon config and generated protobuf output. The default derives from `config_build_dir`.
+    # Directory for rendered Armageddon config and generated protobuf output.
     armageddon_artifacts_dir: "{{ config_build_dir }}/armageddon-artifacts"
     # Armageddon config filename.
     armageddon_config_file: armageddon.yaml
@@ -170,20 +168,18 @@ Generate shared-config protobuf with a container
 
 Run the Armageddon container to generate `shared_config.binpb`.
 
-The image default derives from `armageddon_registry_endpoint`, `armageddon_image_name`, and `armageddon_image_tag`.
-
 ```yaml
 - name: Generate shared-config protobuf with a container
   vars:
     # Armageddon container name.
     armageddon_container_name: armageddon
-    # Registry endpoint for the Armageddon image. The default reads `ARMAGEDDON_REGISTRY_ENDPOINT` and falls back to `docker.io/hyperledger`.
+    # Registry endpoint for the Armageddon image.
     armageddon_registry_endpoint: "{{ lookup('env', 'ARMAGEDDON_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # Armageddon image name.
     armageddon_image_name: fabric-x-orderer
     # Armageddon image tag.
     armageddon_image_tag: 0.0.21-1
-    # Fully qualified Armageddon image reference. The default derives from `armageddon_registry_endpoint`, `armageddon_image_name`, and `armageddon_image_tag`.
+    # Fully qualified Armageddon image reference.
     armageddon_image: "{{ armageddon_registry_endpoint }}/{{ armageddon_image_name }}:{{ armageddon_image_tag }}"
     # Container directory for the rendered shared config file.
     armageddon_container_config_dir: /tmp/config
@@ -193,9 +189,9 @@ The image default derives from `armageddon_registry_endpoint`, `armageddon_image
     armageddon_shared_config_file: shared_config.yaml
     # Container directory for generated protobuf output.
     armageddon_container_output_dir: /tmp/out
-    # Base directory for the default `armageddon_artifacts_dir` value.
+    # Base directory for `armageddon_artifacts_dir`.
     config_build_dir: "string"
-    # Directory for rendered Armageddon config and generated protobuf output. The default derives from `config_build_dir`.
+    # Directory for rendered Armageddon config and generated protobuf output.
     armageddon_artifacts_dir: "{{ config_build_dir }}/armageddon-artifacts"
     # Container directory for mounted crypto artifacts.
     armageddon_container_crypto_artifacts_dir: /tmp/crypto

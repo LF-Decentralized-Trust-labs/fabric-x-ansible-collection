@@ -13,7 +13,6 @@ argument_specs:
         required: false
         description:
           - Base directory for remote role state.
-          - The default for C(openssl_remote_config_dir) derives from this value.
       actual_host: &actual_host
         type: str
         required: false
@@ -61,7 +60,6 @@ argument_specs:
         default: "{{ remote_node_dir }}/openssl"
         description:
           - Directory for the temporary OpenSSL config file.
-          - The default derives from C(remote_node_dir).
       openssl_ext_file_path: &openssl_ext_file_path
         type: path
         required: false
@@ -162,8 +160,7 @@ argument_specs:
             | list
           }}
         description:
-          - Hosts used to derive SAN entries.
-          - The default derives from C(ansible_host) and C(actual_host).
+          - Hosts used for SAN entries.
       openssl_san_dns_entries: &openssl_san_dns_entries
         type: list
         elements: str
@@ -175,8 +172,7 @@ argument_specs:
             | list
           }}
         description:
-          - DNS SAN entries derived from C(openssl_san_hosts).
-          - The default also uses C(openssl_san_ipv4_regex).
+          - DNS SAN entries generated from C(openssl_san_hosts).
       openssl_san_ip_entries: &openssl_san_ip_entries
         type: list
         elements: str
@@ -191,14 +187,13 @@ argument_specs:
             | list
           }}
         description:
-          - IP SAN entries derived from C(openssl_san_hosts).
-          - The default also uses C(openssl_san_ipv4_regex) and C(ansible_facts.all_ipv4_addresses).
+          - IP SAN entries generated from C(openssl_san_hosts) and C(ansible_facts.all_ipv4_addresses).
       openssl_san_entries: &openssl_san_entries
         type: list
         elements: str
         default: "{{ openssl_san_dns_entries + openssl_san_ip_entries }}"
         description:
-          - Final SAN list derived from C(openssl_san_dns_entries) and C(openssl_san_ip_entries).
+          - Final SAN list assembled from DNS and IP SAN entries.
 
   install:
     short_description: Install the OpenSSL CLI

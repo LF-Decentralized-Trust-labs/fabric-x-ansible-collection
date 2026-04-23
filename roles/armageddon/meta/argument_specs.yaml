@@ -16,7 +16,6 @@ argument_specs:
         default: "{{ lookup('env', 'ARMAGEDDON_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
         description:
           - Registry endpoint for the Armageddon image.
-          - The default reads C(ARMAGEDDON_REGISTRY_ENDPOINT) and falls back to `docker.io/hyperledger`.
       armageddon_image_name: &armageddon_image_name
         type: str
         required: false
@@ -35,7 +34,6 @@ argument_specs:
         default: "{{ armageddon_registry_endpoint }}/{{ armageddon_image_name }}:{{ armageddon_image_tag }}"
         description:
           - Fully qualified Armageddon image reference.
-          - The default derives from C(armageddon_registry_endpoint), C(armageddon_image_name), and C(armageddon_image_tag).
       armageddon_container_name: &armageddon_container_name
         type: str
         required: false
@@ -72,7 +70,6 @@ argument_specs:
         default: "{{ armageddon_git_hub_url }}/{{ armageddon_git_repo }}/{{ armageddon_source_code_package }}"
         description:
           - Go module path used to install Armageddon.
-          - The default derives from C(armageddon_git_hub_url), C(armageddon_git_repo), and C(armageddon_source_code_package).
       armageddon_bin_name: &armageddon_bin_name
         type: str
         required: false
@@ -89,14 +86,13 @@ argument_specs:
         type: path
         required: false
         description:
-          - Base directory for the default C(armageddon_artifacts_dir) value.
+          - Base directory for C(armageddon_artifacts_dir).
       armageddon_artifacts_dir: &armageddon_artifacts_dir
         type: path
         required: false
         default: "{{ config_build_dir }}/armageddon-artifacts"
         description:
           - Directory for rendered Armageddon config and generated protobuf output.
-          - The default derives from C(config_build_dir).
       armageddon_container_output_dir: &armageddon_container_output_dir
         type: path
         required: false
@@ -175,7 +171,6 @@ argument_specs:
     short_description: Install the Armageddon binary
     description:
       - Install Armageddon through the shared binary helper.
-      - C(armageddon_bin_package) defaults to the Go module path built from C(armageddon_git_hub_url), C(armageddon_git_repo), and C(armageddon_source_code_package).
     options:
       armageddon_bin_name: *armageddon_bin_name
       armageddon_bin_package: *armageddon_bin_package
@@ -215,7 +210,6 @@ argument_specs:
     short_description: Generate shared-config protobuf with a container
     description:
       - Run the Armageddon container to generate `shared_config.binpb`.
-      - The image default derives from C(armageddon_registry_endpoint), C(armageddon_image_name), and C(armageddon_image_tag).
     options:
       armageddon_container_name: *armageddon_container_name
       armageddon_registry_endpoint: *armageddon_registry_endpoint

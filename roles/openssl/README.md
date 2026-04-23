@@ -73,7 +73,7 @@ The role also renders a temporary OpenSSL config file and copies the certificate
 ```yaml
 - name: Generate a self-signed certificate
   vars:
-    # Base directory for remote role state. The default for `openssl_remote_config_dir` derives from this value.
+    # Base directory for remote role state.
     remote_node_dir: "string"
     # Inventory host address used in SAN defaults.
     actual_host: "string"
@@ -83,7 +83,7 @@ The role also renders a temporary OpenSSL config file and copies the certificate
     openssl_private_key_path: "string"
     # Path to the certificate file to create.
     openssl_cert_path: "string"
-    # Directory for the temporary OpenSSL config file. The default derives from `remote_node_dir`.
+    # Directory for the temporary OpenSSL config file.
     openssl_remote_config_dir: "{{ remote_node_dir }}/openssl"
     # Remove the rendered OpenSSL config directory after generation.
     openssl_clean_after_gen: false
@@ -117,14 +117,14 @@ The role also renders a temporary OpenSSL config file and copies the certificate
     openssl_extended_key_usage: serverAuth, clientAuth
     # Regex used to split SAN hosts into DNS and IP entries.
     openssl_san_ipv4_regex: "^[0-9]{1,3}(\\.[0-9]{1,3}){3}$"
-    # Hosts used to derive SAN entries. The default derives from `ansible_host` and `actual_host`.
+    # Hosts used for SAN entries.
     openssl_san_hosts: >-
       {{
         [ansible_host, actual_host]
         | unique
         | list
       }}
-    # DNS SAN entries derived from `openssl_san_hosts`. The default also uses `openssl_san_ipv4_regex`.
+    # DNS SAN entries generated from `openssl_san_hosts`.
     openssl_san_dns_entries: >-
       {{
         openssl_san_hosts
@@ -132,7 +132,7 @@ The role also renders a temporary OpenSSL config file and copies the certificate
         | map('regex_replace', '^', 'DNS:')
         | list
       }}
-    # IP SAN entries derived from `openssl_san_hosts`. The default also uses `openssl_san_ipv4_regex` and `ansible_facts.all_ipv4_addresses`.
+    # IP SAN entries generated from `openssl_san_hosts` and `ansible_facts.all_ipv4_addresses`.
     openssl_san_ip_entries: >-
       {{
         (
@@ -143,7 +143,7 @@ The role also renders a temporary OpenSSL config file and copies the certificate
         | map('regex_replace', '^', 'IP:')
         | list
       }}
-    # Final SAN list derived from `openssl_san_dns_entries` and `openssl_san_ip_entries`.
+    # Final SAN list assembled from DNS and IP SAN entries.
     openssl_san_entries: "{{ openssl_san_dns_entries + openssl_san_ip_entries }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openssl
@@ -159,7 +159,7 @@ Generate a private key and a certificate signing request using a rendered OpenSS
 ```yaml
 - name: Generate a certificate signing request
   vars:
-    # Base directory for remote role state. The default for `openssl_remote_config_dir` derives from this value.
+    # Base directory for remote role state.
     remote_node_dir: "string"
     # Inventory host address used in SAN defaults.
     actual_host: "string"
@@ -169,7 +169,7 @@ Generate a private key and a certificate signing request using a rendered OpenSS
     openssl_private_key_path: "string"
     # Path to the CSR file to create.
     openssl_csr_path: "string"
-    # Directory for the temporary OpenSSL config file. The default derives from `remote_node_dir`.
+    # Directory for the temporary OpenSSL config file.
     openssl_remote_config_dir: "{{ remote_node_dir }}/openssl"
     # Optional extension file path passed to `openssl x509 -extfile`.
     openssl_ext_file_path: "string"
@@ -203,14 +203,14 @@ Generate a private key and a certificate signing request using a rendered OpenSS
     openssl_extended_key_usage: serverAuth, clientAuth
     # Regex used to split SAN hosts into DNS and IP entries.
     openssl_san_ipv4_regex: "^[0-9]{1,3}(\\.[0-9]{1,3}){3}$"
-    # Hosts used to derive SAN entries. The default derives from `ansible_host` and `actual_host`.
+    # Hosts used for SAN entries.
     openssl_san_hosts: >-
       {{
         [ansible_host, actual_host]
         | unique
         | list
       }}
-    # DNS SAN entries derived from `openssl_san_hosts`. The default also uses `openssl_san_ipv4_regex`.
+    # DNS SAN entries generated from `openssl_san_hosts`.
     openssl_san_dns_entries: >-
       {{
         openssl_san_hosts
@@ -218,7 +218,7 @@ Generate a private key and a certificate signing request using a rendered OpenSS
         | map('regex_replace', '^', 'DNS:')
         | list
       }}
-    # IP SAN entries derived from `openssl_san_hosts`. The default also uses `openssl_san_ipv4_regex` and `ansible_facts.all_ipv4_addresses`.
+    # IP SAN entries generated from `openssl_san_hosts` and `ansible_facts.all_ipv4_addresses`.
     openssl_san_ip_entries: >-
       {{
         (
@@ -229,7 +229,7 @@ Generate a private key and a certificate signing request using a rendered OpenSS
         | map('regex_replace', '^', 'IP:')
         | list
       }}
-    # Final SAN list derived from `openssl_san_dns_entries` and `openssl_san_ip_entries`.
+    # Final SAN list assembled from DNS and IP SAN entries.
     openssl_san_entries: "{{ openssl_san_dns_entries + openssl_san_ip_entries }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openssl

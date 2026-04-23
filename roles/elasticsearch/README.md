@@ -57,7 +57,7 @@ Container mode is the default unless `elasticsearch_use_k8s` is enabled.
   vars:
     # Runs ElasticSearch on Kubernetes when set to `true`.
     elasticsearch_use_k8s: false
-    # Runs ElasticSearch as a container when set to `true`. The default derives from `elasticsearch_use_k8s`.
+    # Runs ElasticSearch as a container when set to `true`.
     elasticsearch_use_container: "{{ not elasticsearch_use_k8s }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
@@ -75,7 +75,7 @@ Uses the container helper role internally.
 ```yaml
 - name: Stop the ElasticSearch container
   vars:
-    # Container name for the ElasticSearch instance. The default derives from `inventory_hostname`.
+    # Container name for the ElasticSearch instance.
     elasticsearch_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
@@ -95,7 +95,7 @@ Also removes the container data directory or Kubernetes PVC through the `data/rm
   vars:
     # Runs ElasticSearch on Kubernetes when set to `true`.
     elasticsearch_use_k8s: false
-    # Runs ElasticSearch as a container when set to `true`. The default derives from `elasticsearch_use_k8s`.
+    # Runs ElasticSearch as a container when set to `true`.
     elasticsearch_use_container: "{{ not elasticsearch_use_k8s }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
@@ -130,7 +130,7 @@ Delegates to the container or Kubernetes log collection entry point.
   vars:
     # Runs ElasticSearch on Kubernetes when set to `true`.
     elasticsearch_use_k8s: false
-    # Runs ElasticSearch as a container when set to `true`. The default derives from `elasticsearch_use_k8s`.
+    # Runs ElasticSearch as a container when set to `true`.
     elasticsearch_use_container: "{{ not elasticsearch_use_k8s }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
@@ -170,21 +170,21 @@ Configures TLS volume mounts and environment variables when TLS is enabled.
 ```yaml
 - name: Start ElasticSearch in a container
   vars:
-    # Container name for the ElasticSearch instance. The default derives from `inventory_hostname`.
+    # Container name for the ElasticSearch instance.
     elasticsearch_container_name: "{{ inventory_hostname }}"
-    # Container registry endpoint used to build `elasticsearch_image`. The default derives from `ELASTICSEARCH_REGISTRY_ENDPOINT` and falls back to `docker.io/library`.
+    # Container registry endpoint used to build `elasticsearch_image`.
     elasticsearch_registry_endpoint: "{{ lookup('env', 'ELASTICSEARCH_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
     # ElasticSearch image repository name.
     elasticsearch_image_name: elasticsearch
     # ElasticSearch image tag.
     elasticsearch_image_tag: 8.19.6
-    # Full container image reference for ElasticSearch. The default derives from `elasticsearch_registry_endpoint`, `elasticsearch_image_name`, and `elasticsearch_image_tag`.
+    # Full container image reference for ElasticSearch.
     elasticsearch_image: "{{ elasticsearch_registry_endpoint }}/{{ elasticsearch_image_name }}:{{ elasticsearch_image_tag }}"
-    # Remote directory used for ElasticSearch configuration and TLS files. The default derives from `remote_config_dir`.
+    # Remote directory used for ElasticSearch configuration and TLS files.
     elasticsearch_remote_config_dir: "{{ remote_config_dir }}"
     # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Required when relying on the default of that option.
     remote_config_dir: "string"
-    # Remote directory used for ElasticSearch persistent data. The default derives from `remote_data_dir`.
+    # Remote directory used for ElasticSearch persistent data.
     elasticsearch_remote_data_dir: "{{ remote_data_dir }}"
     # Shared remote data directory consumed by `elasticsearch_remote_data_dir`. Required when relying on the default of that option.
     remote_data_dir: "string"
@@ -218,7 +218,7 @@ Uses the container helper role internally.
 ```yaml
 - name: Stop the ElasticSearch container
   vars:
-    # Container name for the ElasticSearch instance. The default derives from `inventory_hostname`.
+    # Container name for the ElasticSearch instance.
     elasticsearch_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
@@ -236,7 +236,7 @@ Container volumes are handled separately by the `data/rm` entry point.
 ```yaml
 - name: Remove the ElasticSearch container
   vars:
-    # Container name for the ElasticSearch instance. The default derives from `inventory_hostname`.
+    # Container name for the ElasticSearch instance.
     elasticsearch_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
@@ -254,7 +254,7 @@ Uses the container helper role internally.
 ```yaml
 - name: Fetch ElasticSearch container logs
   vars:
-    # Container name for the ElasticSearch instance. The default derives from `inventory_hostname`.
+    # Container name for the ElasticSearch instance.
     elasticsearch_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
@@ -272,7 +272,7 @@ This also removes TLS materials stored under that directory.
 ```yaml
 - name: Remove the ElasticSearch configuration directory
   vars:
-    # Remote directory used for ElasticSearch configuration and TLS files. The default derives from `remote_config_dir`.
+    # Remote directory used for ElasticSearch configuration and TLS files.
     elasticsearch_remote_config_dir: "{{ remote_config_dir }}"
     # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Required when relying on the default of that option.
     remote_config_dir: "string"
@@ -294,13 +294,13 @@ Deletes the ElasticSearch PVC in Kubernetes deployments.
   vars:
     # Runs ElasticSearch on Kubernetes when set to `true`.
     elasticsearch_use_k8s: false
-    # Runs ElasticSearch as a container when set to `true`. The default derives from `elasticsearch_use_k8s`.
+    # Runs ElasticSearch as a container when set to `true`.
     elasticsearch_use_container: "{{ not elasticsearch_use_k8s }}"
-    # Remote directory used for ElasticSearch persistent data. The default derives from `remote_data_dir`.
+    # Remote directory used for ElasticSearch persistent data.
     elasticsearch_remote_data_dir: "{{ remote_data_dir }}"
     # Shared remote data directory consumed by `elasticsearch_remote_data_dir`. Required when relying on the default of that option.
     remote_data_dir: "string"
-    # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret. The default derives from `inventory_hostname`.
+    # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for ElasticSearch resources. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
     k8s_namespace: "string"
@@ -342,7 +342,7 @@ This entry point only performs work when TLS is enabled.
   vars:
     # Enables TLS material handling and HTTPS configuration for ElasticSearch.
     elasticsearch_use_tls: false
-    # Remote directory used for ElasticSearch configuration and TLS files. The default derives from `remote_config_dir`.
+    # Remote directory used for ElasticSearch configuration and TLS files.
     elasticsearch_remote_config_dir: "{{ remote_config_dir }}"
     # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Required when relying on the default of that option.
     remote_config_dir: "string"
@@ -364,7 +364,7 @@ Removes the Kubernetes Secret when Kubernetes mode is enabled.
 ```yaml
 - name: Remove ElasticSearch TLS materials
   vars:
-    # Remote directory used for ElasticSearch configuration and TLS files. The default derives from `remote_config_dir`.
+    # Remote directory used for ElasticSearch configuration and TLS files.
     elasticsearch_remote_config_dir: "{{ remote_config_dir }}"
     # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Required when relying on the default of that option.
     remote_config_dir: "string"
@@ -388,7 +388,7 @@ Writes the generated files under the ElasticSearch remote configuration director
 ```yaml
 - name: Generate ElasticSearch TLS materials with OpenSSL
   vars:
-    # Remote directory used for ElasticSearch configuration and TLS files. The default derives from `remote_config_dir`.
+    # Remote directory used for ElasticSearch configuration and TLS files.
     elasticsearch_remote_config_dir: "{{ remote_config_dir }}"
     # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Required when relying on the default of that option.
     remote_config_dir: "string"
@@ -414,7 +414,7 @@ Uses the role templates to configure storage, TLS mounts, and the optional NodeP
 ```yaml
 - name: Start ElasticSearch on Kubernetes
   vars:
-    # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret. The default derives from `inventory_hostname`.
+    # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for ElasticSearch resources. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
     k8s_namespace: "string"
@@ -432,13 +432,13 @@ Uses the role templates to configure storage, TLS mounts, and the optional NodeP
     elasticsearch_http_port: 1000
     # ElasticSearch transport port used by the container and Kubernetes Service. Example: `9300`.
     elasticsearch_transport_port: 1000
-    # Container registry endpoint used to build `elasticsearch_image`. The default derives from `ELASTICSEARCH_REGISTRY_ENDPOINT` and falls back to `docker.io/library`.
+    # Container registry endpoint used to build `elasticsearch_image`.
     elasticsearch_registry_endpoint: "{{ lookup('env', 'ELASTICSEARCH_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
     # ElasticSearch image repository name.
     elasticsearch_image_name: elasticsearch
     # ElasticSearch image tag.
     elasticsearch_image_tag: 8.19.6
-    # Full container image reference for ElasticSearch. The default derives from `elasticsearch_registry_endpoint`, `elasticsearch_image_name`, and `elasticsearch_image_tag`.
+    # Full container image reference for ElasticSearch.
     elasticsearch_image: "{{ elasticsearch_registry_endpoint }}/{{ elasticsearch_image_name }}:{{ elasticsearch_image_tag }}"
     # Base configuration directory path inside the ElasticSearch container.
     elasticsearch_container_config_dir: /usr/share/elasticsearch
@@ -510,7 +510,7 @@ The persistent volume claim is removed separately by the `data/rm` entry point.
 ```yaml
 - name: Remove ElasticSearch Kubernetes resources
   vars:
-    # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret. The default derives from `inventory_hostname`.
+    # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for ElasticSearch resources. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
     k8s_namespace: "string"
@@ -530,7 +530,7 @@ Selects pods using the ElasticSearch application label.
 ```yaml
 - name: Fetch ElasticSearch pod logs
   vars:
-    # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret. The default derives from `inventory_hostname`.
+    # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for ElasticSearch resources. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
     k8s_namespace: "string"
@@ -550,7 +550,7 @@ This entry point is typically invoked from the ElasticSearch crypto cleanup work
 ```yaml
 - name: Remove the ElasticSearch Kubernetes TLS Secret
   vars:
-    # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret. The default derives from `inventory_hostname`.
+    # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for ElasticSearch resources. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
     k8s_namespace: "string"
@@ -570,13 +570,13 @@ Ensures the Kubernetes namespace exists before applying the Secret.
 ```yaml
 - name: Apply the ElasticSearch Kubernetes TLS Secret
   vars:
-    # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret. The default derives from `inventory_hostname`.
+    # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for ElasticSearch resources. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
     k8s_namespace: "string"
     # Enables TLS material handling and HTTPS configuration for ElasticSearch.
     elasticsearch_use_tls: false
-    # Remote directory used for ElasticSearch configuration and TLS files. The default derives from `remote_config_dir`.
+    # Remote directory used for ElasticSearch configuration and TLS files.
     elasticsearch_remote_config_dir: "{{ remote_config_dir }}"
     # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Required when relying on the default of that option.
     remote_config_dir: "string"

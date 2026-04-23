@@ -12,14 +12,11 @@ go_version: 1.25.8
 # Sets the base directory where the Go distribution is extracted.
 go_install_dir: /usr/local
 # Selects the host whose facts are mapped into C(go_os) and C(go_arch).
-# The default derives from C(inventory_hostname).
 go_host_to_map: '{{ inventory_hostname }}'
 # Enables CGO for build and install commands.
 # A compatible C compiler is required when this is C(true).
 go_cgo_enabled: false
 # Sets the directory exported as C(GOBIN) for installed binaries.
-# The default derives from C(GOBIN) when set, otherwise from C(GOPATH).
 go_output_dir: "{{ lookup('env', 'GOBIN') | default(lookup('env', 'GOPATH') + '/bin', true) }}"
 # Appends a package subdirectory under C(go_source_code_path) before invoking C(go build).
-# The default is blank, which builds from the source root.
 go_source_code_package: ""

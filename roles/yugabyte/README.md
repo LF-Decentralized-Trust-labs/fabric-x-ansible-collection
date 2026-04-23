@@ -70,7 +70,7 @@ Builds the master and tablet topology facts and dispatches to the container or K
     yugabyte_cluster: ["entry1", "entry2"]
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
-    # Enables container mode for the YugabyteDB role. The default derives from `yugabyte_use_k8s`.
+    # Enables container mode for the YugabyteDB role.
     yugabyte_use_container: "{{ not yugabyte_use_k8s }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
@@ -88,7 +88,7 @@ Dispatches to the container stop path when the role is running in container mode
   vars:
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
-    # Enables container mode for the YugabyteDB role. The default derives from `yugabyte_use_k8s`.
+    # Enables container mode for the YugabyteDB role.
     yugabyte_use_container: "{{ not yugabyte_use_k8s }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
@@ -106,7 +106,7 @@ Removes running Kubernetes resources or containers, then deletes persisted data.
   vars:
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
-    # Enables container mode for the YugabyteDB role. The default derives from `yugabyte_use_k8s`.
+    # Enables container mode for the YugabyteDB role.
     yugabyte_use_container: "{{ not yugabyte_use_k8s }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
@@ -137,7 +137,7 @@ Dispatches to the container or Kubernetes log collection path.
   vars:
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
-    # Enables container mode for the YugabyteDB role. The default derives from `yugabyte_use_k8s`.
+    # Enables container mode for the YugabyteDB role.
     yugabyte_use_container: "{{ not yugabyte_use_k8s }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
@@ -245,7 +245,7 @@ Copies the generated node and CA certificates from the remote host to the contro
     remote_config_dir: "string"
     # Enables TLS asset handling for YugabyteDB.
     yugabyte_use_tls: false
-    # Sets the remote configuration directory used by YugabyteDB tasks. The default derives from `remote_config_dir`.
+    # Sets the remote configuration directory used by YugabyteDB tasks.
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
     # Defines the control-node directory that stores fetched YugabyteDB artifacts. Required when TLS-enabled tasks need access to fetched CA or certificate artifacts, such as when `yugabyte_use_tls` or webserver TLS is enabled.
     fetched_artifacts_dir: "string"
@@ -269,9 +269,9 @@ Deletes the remote TLS directory and the Kubernetes Secret when Kubernetes mode 
     yugabyte_use_tls: false
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
-    # Sets the remote configuration directory used by YugabyteDB tasks. The default derives from `remote_config_dir`.
+    # Sets the remote configuration directory used by YugabyteDB tasks.
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
-    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled. The default derives from `inventory_hostname`.
+    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the Kubernetes namespace used by YugabyteDB resources.
     k8s_namespace: "string"
@@ -293,7 +293,7 @@ Builds the SAN list and delegates CSR generation to the OpenSSL role.
     remote_config_dir: "string"
     # Enables TLS asset handling for YugabyteDB.
     yugabyte_use_tls: false
-    # Sets the remote configuration directory used by YugabyteDB tasks. The default derives from `remote_config_dir`.
+    # Sets the remote configuration directory used by YugabyteDB tasks.
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
     # Provides the organization metadata consumed by the crypto entry points that require it. The mapping is expected to expose `domain`, `role`, `peer.name`, `peer.secret`, and `fabric_ca_host` when relevant.
     organization: {}
@@ -315,7 +315,7 @@ Copies the CSR and OpenSSL extension file from the remote host to the control no
     remote_config_dir: "string"
     # Enables TLS asset handling for YugabyteDB.
     yugabyte_use_tls: false
-    # Sets the remote configuration directory used by YugabyteDB tasks. The default derives from `remote_config_dir`.
+    # Sets the remote configuration directory used by YugabyteDB tasks.
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
     # Defines the control-node directory that stores fetched YugabyteDB artifacts. Required when TLS-enabled tasks need access to fetched CA or certificate artifacts, such as when `yugabyte_use_tls` or webserver TLS is enabled.
     fetched_artifacts_dir: "string"
@@ -337,7 +337,7 @@ Copies the signed node certificate and trusted CA certificate to the remote host
     remote_config_dir: "string"
     # Enables TLS asset handling for YugabyteDB.
     yugabyte_use_tls: false
-    # Sets the remote configuration directory used by YugabyteDB tasks. The default derives from `remote_config_dir`.
+    # Sets the remote configuration directory used by YugabyteDB tasks.
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
     # Defines the control-node directory that stores fetched YugabyteDB artifacts. Required when TLS-enabled tasks need access to fetched CA or certificate artifacts, such as when `yugabyte_use_tls` or webserver TLS is enabled.
     fetched_artifacts_dir: "string"
@@ -359,7 +359,7 @@ Transfers the TLS key, certificate, and CA certificate generated by cryptogen to
   vars:
     # Sets the shared remote configuration directory consumed by YugabyteDB.
     remote_config_dir: "string"
-    # Sets the remote configuration directory used by YugabyteDB tasks. The default derives from `remote_config_dir`.
+    # Sets the remote configuration directory used by YugabyteDB tasks.
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
     # Defines the control-node directory that stores cryptogen-generated artifacts.
     cryptogen_artifacts_dir: "string"
@@ -381,7 +381,7 @@ Copies the Fabric CA TLS root when needed and delegates the TLS enrollment flow 
   vars:
     # Sets the shared remote configuration directory consumed by YugabyteDB.
     remote_config_dir: "string"
-    # Sets the remote configuration directory used by YugabyteDB tasks. The default derives from `remote_config_dir`.
+    # Sets the remote configuration directory used by YugabyteDB tasks.
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
     # Defines the control-node directory that stores fetched YugabyteDB artifacts. Required when TLS-enabled tasks need access to fetched CA or certificate artifacts, such as when `yugabyte_use_tls` or webserver TLS is enabled.
     fetched_artifacts_dir: "string"
@@ -405,7 +405,7 @@ Renders the initialization SQL script and creates the Kubernetes ConfigMap when 
   vars:
     # Sets the shared remote configuration directory consumed by YugabyteDB.
     remote_config_dir: "string"
-    # Sets the remote configuration directory used by YugabyteDB tasks. The default derives from `remote_config_dir`.
+    # Sets the remote configuration directory used by YugabyteDB tasks.
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
     # Names the SQL initialization script used by tablet pods.
     yugabyte_init_script_file: 01-yb-init.sql
@@ -433,11 +433,11 @@ Deletes the remote configuration directory and the Kubernetes ConfigMap when Kub
   vars:
     # Sets the shared remote configuration directory consumed by YugabyteDB.
     remote_config_dir: "string"
-    # Sets the remote configuration directory used by YugabyteDB tasks. The default derives from `remote_config_dir`.
+    # Sets the remote configuration directory used by YugabyteDB tasks.
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
-    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled. The default derives from `inventory_hostname`.
+    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the Kubernetes namespace used by YugabyteDB resources.
     k8s_namespace: "string"
@@ -484,7 +484,7 @@ Stops the container associated with the current YugabyteDB host.
 ```yaml
 - name: Stop a YugabyteDB container
   vars:
-    # Names the YugabyteDB container associated with the current host. The default derives from `inventory_hostname`.
+    # Names the YugabyteDB container associated with the current host.
     yugabyte_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
@@ -500,7 +500,7 @@ Deletes the container associated with the current YugabyteDB host.
 ```yaml
 - name: Remove a YugabyteDB container
   vars:
-    # Names the YugabyteDB container associated with the current host. The default derives from `inventory_hostname`.
+    # Names the YugabyteDB container associated with the current host.
     yugabyte_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
@@ -516,7 +516,7 @@ Delegates log collection for the current YugabyteDB container.
 ```yaml
 - name: Fetch logs from a YugabyteDB container
   vars:
-    # Names the YugabyteDB container associated with the current host. The default derives from `inventory_hostname`.
+    # Names the YugabyteDB container associated with the current host.
     yugabyte_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
@@ -536,21 +536,21 @@ Creates the data directory, assembles the master command line, and starts the ma
     remote_data_dir: "string"
     # Sets the shared remote configuration directory consumed by YugabyteDB.
     remote_config_dir: "string"
-    # Sets the remote data directory used by YugabyteDB tasks. The default derives from `remote_data_dir`.
+    # Sets the remote data directory used by YugabyteDB tasks.
     yugabyte_remote_data_dir: "{{ remote_data_dir }}"
     # Sets the in-container data directory used by YugabyteDB.
     yugabyte_container_data_dir: /var/data
-    # Sets the remote configuration directory used by YugabyteDB tasks. The default derives from `remote_config_dir`.
+    # Sets the remote configuration directory used by YugabyteDB tasks.
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
-    # Names the YugabyteDB container associated with the current host. The default derives from `inventory_hostname`.
+    # Names the YugabyteDB container associated with the current host.
     yugabyte_container_name: "{{ inventory_hostname }}"
-    # Sets the registry endpoint used to resolve the YugabyteDB image. The default derives from `YUGABYTE_REGISTRY_ENDPOINT` or falls back to a built-in registry.
+    # Sets the registry endpoint used to resolve the YugabyteDB image.
     yugabyte_registry_endpoint: "{{ lookup('env', 'YUGABYTE_REGISTRY_ENDPOINT') or 'docker.io/yugabytedb' }}"
     # Sets the YugabyteDB image name.
     yugabyte_image_name: yugabyte
     # Sets the YugabyteDB image tag.
     yugabyte_image_tag: 2025.2.1.0-b141
-    # Sets the YugabyteDB container image. The default derives from `yugabyte_registry_endpoint`, `yugabyte_image_name`, and `yugabyte_image_tag`.
+    # Sets the YugabyteDB container image.
     yugabyte_image: "{{ yugabyte_registry_endpoint }}/{{ yugabyte_image_name }}:{{ yugabyte_image_tag }}"
     # Lists the master RPC endpoints used to bootstrap YugabyteDB tablets and health checks.
     yugabyte_master_endpoints: "string"
@@ -564,11 +564,11 @@ Creates the data directory, assembles the master command line, and starts the ma
     yugabyte_logs_level: 3
     # Enables TLS asset handling for YugabyteDB.
     yugabyte_use_tls: false
-    # Enables node-to-node TLS for YugabyteDB. The default derives from `yugabyte_use_tls`.
+    # Enables node-to-node TLS for YugabyteDB.
     yugabyte_node_to_node_use_tls: "{{ yugabyte_use_tls }}"
-    # Enables client-to-server TLS for YugabyteDB RPC and SQL access. The default derives from `yugabyte_use_tls`.
+    # Enables client-to-server TLS for YugabyteDB RPC and SQL access.
     yugabyte_client_to_server_use_tls: "{{ yugabyte_use_tls }}"
-    # Enables HTTPS for the YugabyteDB webserver. The default derives from `yugabyte_use_tls`.
+    # Enables HTTPS for the YugabyteDB webserver.
     yugabyte_webserver_use_tls: "{{ yugabyte_use_tls }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
@@ -588,23 +588,23 @@ Creates the data directory, assembles the tablet command line, starts the contai
     remote_data_dir: "string"
     # Sets the shared remote configuration directory consumed by YugabyteDB.
     remote_config_dir: "string"
-    # Sets the remote data directory used by YugabyteDB tasks. The default derives from `remote_data_dir`.
+    # Sets the remote data directory used by YugabyteDB tasks.
     yugabyte_remote_data_dir: "{{ remote_data_dir }}"
-    # Sets the remote configuration directory used by YugabyteDB tasks. The default derives from `remote_config_dir`.
+    # Sets the remote configuration directory used by YugabyteDB tasks.
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
     # Sets the in-container data directory used by YugabyteDB.
     yugabyte_container_data_dir: /var/data
     # Names the SQL initialization script used by tablet pods.
     yugabyte_init_script_file: 01-yb-init.sql
-    # Names the YugabyteDB container associated with the current host. The default derives from `inventory_hostname`.
+    # Names the YugabyteDB container associated with the current host.
     yugabyte_container_name: "{{ inventory_hostname }}"
-    # Sets the registry endpoint used to resolve the YugabyteDB image. The default derives from `YUGABYTE_REGISTRY_ENDPOINT` or falls back to a built-in registry.
+    # Sets the registry endpoint used to resolve the YugabyteDB image.
     yugabyte_registry_endpoint: "{{ lookup('env', 'YUGABYTE_REGISTRY_ENDPOINT') or 'docker.io/yugabytedb' }}"
     # Sets the YugabyteDB image name.
     yugabyte_image_name: yugabyte
     # Sets the YugabyteDB image tag.
     yugabyte_image_tag: 2025.2.1.0-b141
-    # Sets the YugabyteDB container image. The default derives from `yugabyte_registry_endpoint`, `yugabyte_image_name`, and `yugabyte_image_tag`.
+    # Sets the YugabyteDB container image.
     yugabyte_image: "{{ yugabyte_registry_endpoint }}/{{ yugabyte_image_name }}:{{ yugabyte_image_tag }}"
     # Lists the master RPC endpoints used to bootstrap YugabyteDB tablets and health checks.
     yugabyte_master_endpoints: "string"
@@ -626,11 +626,11 @@ Creates the data directory, assembles the tablet command line, starts the contai
     yugabyte_logs_level: 3
     # Enables TLS asset handling for YugabyteDB.
     yugabyte_use_tls: false
-    # Enables node-to-node TLS for YugabyteDB. The default derives from `yugabyte_use_tls`.
+    # Enables node-to-node TLS for YugabyteDB.
     yugabyte_node_to_node_use_tls: "{{ yugabyte_use_tls }}"
-    # Enables client-to-server TLS for YugabyteDB RPC and SQL access. The default derives from `yugabyte_use_tls`.
+    # Enables client-to-server TLS for YugabyteDB RPC and SQL access.
     yugabyte_client_to_server_use_tls: "{{ yugabyte_use_tls }}"
-    # Enables HTTPS for the YugabyteDB webserver. The default derives from `yugabyte_use_tls`.
+    # Enables HTTPS for the YugabyteDB webserver.
     yugabyte_webserver_use_tls: "{{ yugabyte_use_tls }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
@@ -678,7 +678,7 @@ Delegates pod log collection for the Kubernetes resource associated with the cur
 ```yaml
 - name: Fetch logs from YugabyteDB pods
   vars:
-    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled. The default derives from `inventory_hostname`.
+    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
@@ -700,11 +700,11 @@ Creates the ConfigMap that exposes the initialization SQL script to tablet pods.
     k8s_namespace: "string"
     # Sets the shared remote configuration directory consumed by YugabyteDB.
     remote_config_dir: "string"
-    # Sets the remote configuration directory used by YugabyteDB tasks. The default derives from `remote_config_dir`.
+    # Sets the remote configuration directory used by YugabyteDB tasks.
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
     # Names the SQL initialization script used by tablet pods.
     yugabyte_init_script_file: 01-yb-init.sql
-    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled. The default derives from `inventory_hostname`.
+    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
@@ -724,11 +724,11 @@ Applies the master Services and StatefulSet for the current YugabyteDB master no
     k8s_namespace: "string"
     # Enables creation of the master and tablet NodePort Services for YugabyteDB Kubernetes deployments. The flag also enables the matching NodePort reachability checks in `k8s/ping`.
     yugabyte_k8s_use_node_port: false
-    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled. The default derives from `inventory_hostname`.
+    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
-    # Sets the YugabyteDB container image. The default derives from `yugabyte_registry_endpoint`, `yugabyte_image_name`, and `yugabyte_image_tag`.
+    # Sets the YugabyteDB container image.
     yugabyte_image: "{{ yugabyte_registry_endpoint }}/{{ yugabyte_image_name }}:{{ yugabyte_image_tag }}"
-    # Sets the registry endpoint used to resolve the YugabyteDB image. The default derives from `YUGABYTE_REGISTRY_ENDPOINT` or falls back to a built-in registry.
+    # Sets the registry endpoint used to resolve the YugabyteDB image.
     yugabyte_registry_endpoint: "{{ lookup('env', 'YUGABYTE_REGISTRY_ENDPOINT') or 'docker.io/yugabytedb' }}"
     # Sets the YugabyteDB image name.
     yugabyte_image_name: yugabyte
@@ -752,11 +752,11 @@ Applies the master Services and StatefulSet for the current YugabyteDB master no
     yugabyte_k8s_wait_timeout: 300
     # Enables TLS asset handling for YugabyteDB.
     yugabyte_use_tls: false
-    # Enables node-to-node TLS for YugabyteDB. The default derives from `yugabyte_use_tls`.
+    # Enables node-to-node TLS for YugabyteDB.
     yugabyte_node_to_node_use_tls: "{{ yugabyte_use_tls }}"
-    # Enables client-to-server TLS for YugabyteDB RPC and SQL access. The default derives from `yugabyte_use_tls`.
+    # Enables client-to-server TLS for YugabyteDB RPC and SQL access.
     yugabyte_client_to_server_use_tls: "{{ yugabyte_use_tls }}"
-    # Enables HTTPS for the YugabyteDB webserver. The default derives from `yugabyte_use_tls`.
+    # Enables HTTPS for the YugabyteDB webserver.
     yugabyte_webserver_use_tls: "{{ yugabyte_use_tls }}"
     # Optionally sets the NodePort used to expose the master RPC service when `yugabyte_k8s_use_node_port` is enabled.
     yugabyte_k8s_master_rpc_node_port: 1000
@@ -800,7 +800,7 @@ Deletes the master StatefulSet and its Services for the current YugabyteDB maste
   vars:
     # Sets the Kubernetes namespace used by YugabyteDB resources.
     k8s_namespace: "string"
-    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled. The default derives from `inventory_hostname`.
+    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
@@ -820,11 +820,11 @@ Applies the tablet Services and StatefulSet for the current YugabyteDB tablet no
     k8s_namespace: "string"
     # Enables creation of the master and tablet NodePort Services for YugabyteDB Kubernetes deployments. The flag also enables the matching NodePort reachability checks in `k8s/ping`.
     yugabyte_k8s_use_node_port: false
-    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled. The default derives from `inventory_hostname`.
+    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
-    # Sets the YugabyteDB container image. The default derives from `yugabyte_registry_endpoint`, `yugabyte_image_name`, and `yugabyte_image_tag`.
+    # Sets the YugabyteDB container image.
     yugabyte_image: "{{ yugabyte_registry_endpoint }}/{{ yugabyte_image_name }}:{{ yugabyte_image_tag }}"
-    # Sets the registry endpoint used to resolve the YugabyteDB image. The default derives from `YUGABYTE_REGISTRY_ENDPOINT` or falls back to a built-in registry.
+    # Sets the registry endpoint used to resolve the YugabyteDB image.
     yugabyte_registry_endpoint: "{{ lookup('env', 'YUGABYTE_REGISTRY_ENDPOINT') or 'docker.io/yugabytedb' }}"
     # Sets the YugabyteDB image name.
     yugabyte_image_name: yugabyte
@@ -854,11 +854,11 @@ Applies the tablet Services and StatefulSet for the current YugabyteDB tablet no
     yugabyte_k8s_wait_timeout: 300
     # Enables TLS asset handling for YugabyteDB.
     yugabyte_use_tls: false
-    # Enables node-to-node TLS for YugabyteDB. The default derives from `yugabyte_use_tls`.
+    # Enables node-to-node TLS for YugabyteDB.
     yugabyte_node_to_node_use_tls: "{{ yugabyte_use_tls }}"
-    # Enables client-to-server TLS for YugabyteDB RPC and SQL access. The default derives from `yugabyte_use_tls`.
+    # Enables client-to-server TLS for YugabyteDB RPC and SQL access.
     yugabyte_client_to_server_use_tls: "{{ yugabyte_use_tls }}"
-    # Enables HTTPS for the YugabyteDB webserver. The default derives from `yugabyte_use_tls`.
+    # Enables HTTPS for the YugabyteDB webserver.
     yugabyte_webserver_use_tls: "{{ yugabyte_use_tls }}"
     # Optionally sets the NodePort used to expose the tablet YSQL service when `yugabyte_k8s_use_node_port` is enabled.
     yugabyte_k8s_tablet_pgsql_node_port: 1000
@@ -914,7 +914,7 @@ Deletes the tablet StatefulSet and its Services for the current YugabyteDB table
   vars:
     # Sets the Kubernetes namespace used by YugabyteDB resources.
     k8s_namespace: "string"
-    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled. The default derives from `inventory_hostname`.
+    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
@@ -934,9 +934,9 @@ Creates the Kubernetes Secret that exposes the YugabyteDB TLS key pair and CA ce
     k8s_namespace: "string"
     # Sets the shared remote configuration directory consumed by YugabyteDB.
     remote_config_dir: "string"
-    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled. The default derives from `inventory_hostname`.
+    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
-    # Sets the remote configuration directory used by YugabyteDB tasks. The default derives from `remote_config_dir`.
+    # Sets the remote configuration directory used by YugabyteDB tasks.
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
     # Enables TLS asset handling for YugabyteDB.
     yugabyte_use_tls: false
@@ -956,13 +956,13 @@ Deletes the local data directory in container mode or the Kubernetes PVC in Kube
   vars:
     # Sets the shared remote data directory consumed by YugabyteDB.
     remote_data_dir: "string"
-    # Enables container mode for the YugabyteDB role. The default derives from `yugabyte_use_k8s`.
+    # Enables container mode for the YugabyteDB role.
     yugabyte_use_container: "{{ not yugabyte_use_k8s }}"
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
-    # Sets the remote data directory used by YugabyteDB tasks. The default derives from `remote_data_dir`.
+    # Sets the remote data directory used by YugabyteDB tasks.
     yugabyte_remote_data_dir: "{{ remote_data_dir }}"
-    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled. The default derives from `inventory_hostname`.
+    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the Kubernetes namespace used by YugabyteDB resources.
     k8s_namespace: "string"

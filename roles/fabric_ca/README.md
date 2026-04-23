@@ -249,7 +249,7 @@ Installs the Fabric CA client binary.
 ```yaml
 - name: Install the Fabric CA client binary
   vars:
-    # Sets the client Go package path; the default derives from `fabric_ca_git_hub_url`, `fabric_ca_git_repo`, and `fabric_ca_client_source_code_package`.
+    # Sets the client Go package path.
     fabric_ca_client_bin_package: "{{ fabric_ca_git_hub_url }}/{{ fabric_ca_git_repo }}/{{ fabric_ca_client_source_code_package }}"
     # Sets the Git host used for Fabric CA source lookups.
     fabric_ca_git_hub_url: github.com
@@ -315,7 +315,7 @@ Enrolls an identity with the locally installed client binary.
     fabric_ca_host: "string"
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
-    # Sets the client URL scheme; the default derives from `fabric_ca_use_tls`.
+    # Sets the client URL scheme.
     fabric_ca_scheme: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
     # Sets the CA name.
     fabric_ca_name: "{{ inventory_hostname }}"
@@ -323,9 +323,9 @@ Enrolls an identity with the locally installed client binary.
     fabric_ca_idemix_enrollment_profile: idemix
     # Sets an optional enrollment profile such as `tls`.
     fabric_ca_enrollment_profile: "string"
-    # Provides the resolved host address used in computed defaults such as `fabric_ca_csr_hosts` and in client effective-address resolution.
+    # Provides the resolved host address used in client effective-address resolution.
     actual_host: "string"
-    # Sets the CSR SAN host list; the default derives from `actual_host`, `ansible_host`, and `inventory_hostname`.
+    # Sets the CSR SAN host list.
     fabric_ca_csr_hosts: 
       - "{{ ansible_host }}"
       - "{{ actual_host }}"
@@ -356,7 +356,7 @@ Registers a new identity with the locally installed client binary.
     fabric_ca_host: "string"
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
-    # Sets the client URL scheme; the default derives from `fabric_ca_use_tls`.
+    # Sets the client URL scheme.
     fabric_ca_scheme: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
     # Sets the CA name.
     fabric_ca_name: "{{ inventory_hostname }}"
@@ -386,15 +386,15 @@ Reenrolls an existing identity with the locally installed client binary.
     fabric_ca_host: "string"
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
-    # Sets the client URL scheme; the default derives from `fabric_ca_use_tls`.
+    # Sets the client URL scheme.
     fabric_ca_scheme: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
     # Sets the CA name.
     fabric_ca_name: "{{ inventory_hostname }}"
     # Sets an optional enrollment profile such as `tls`.
     fabric_ca_enrollment_profile: "string"
-    # Provides the resolved host address used in computed defaults such as `fabric_ca_csr_hosts` and in client effective-address resolution.
+    # Provides the resolved host address used in client effective-address resolution.
     actual_host: "string"
-    # Sets the CSR SAN host list; the default derives from `actual_host`, `ansible_host`, and `inventory_hostname`.
+    # Sets the CSR SAN host list.
     fabric_ca_csr_hosts: 
       - "{{ ansible_host }}"
       - "{{ actual_host }}"
@@ -423,7 +423,7 @@ Lists identities registered in the target Fabric CA server with the locally inst
     fabric_ca_host: "string"
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
-    # Sets the client URL scheme; the default derives from `fabric_ca_use_tls`.
+    # Sets the client URL scheme.
     fabric_ca_scheme: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
     # Sets the CA name.
     fabric_ca_name: "{{ inventory_hostname }}"
@@ -453,7 +453,7 @@ Revokes an enrolled identity with the locally installed client binary.
     fabric_ca_host: "string"
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
-    # Sets the client URL scheme; the default derives from `fabric_ca_use_tls`.
+    # Sets the client URL scheme.
     fabric_ca_scheme: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
     # Sets the CA name.
     fabric_ca_name: "{{ inventory_hostname }}"
@@ -481,7 +481,7 @@ Generates a certificate revocation list from the target Fabric CA server with th
     fabric_ca_host: "string"
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
-    # Sets the client URL scheme; the default derives from `fabric_ca_use_tls`.
+    # Sets the client URL scheme.
     fabric_ca_scheme: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
     # Sets the CA name.
     fabric_ca_name: "{{ inventory_hostname }}"
@@ -511,7 +511,7 @@ Enrolls an identity with a transient container.
     fabric_ca_enrollment_type: bccsp
     # Names the inventory host that provides the target Fabric CA server.
     fabric_ca_host: "string"
-    # Sets the Fabric CA image; the default derives from `fabric_ca_registry_endpoint`, `fabric_ca_image_name`, and `fabric_ca_image_tag`.
+    # Sets the Fabric CA image.
     fabric_ca_image: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
     # Sets the registry endpoint used to resolve the Fabric CA image.
     fabric_ca_registry_endpoint: "{{ lookup('env', 'FABRIC_CA_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
@@ -523,7 +523,7 @@ Enrolls an identity with a transient container.
     fabric_ca_client_bin_name: fabric-ca-client
     # Sets the in-container client config root.
     fabric_ca_client_container_config_dir: /config
-    # Sets the client URL scheme; the default derives from `fabric_ca_use_tls`.
+    # Sets the client URL scheme.
     fabric_ca_scheme: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
     # Sets the CA name.
     fabric_ca_name: "{{ inventory_hostname }}"
@@ -531,9 +531,9 @@ Enrolls an identity with a transient container.
     fabric_ca_idemix_enrollment_profile: idemix
     # Sets an optional enrollment profile such as `tls`.
     fabric_ca_enrollment_profile: "string"
-    # Provides the resolved host address used in computed defaults such as `fabric_ca_csr_hosts` and in client effective-address resolution.
+    # Provides the resolved host address used in client effective-address resolution.
     actual_host: "string"
-    # Sets the CSR SAN host list; the default derives from `actual_host`, `ansible_host`, and `inventory_hostname`.
+    # Sets the CSR SAN host list.
     fabric_ca_csr_hosts: 
       - "{{ ansible_host }}"
       - "{{ actual_host }}"
@@ -562,7 +562,7 @@ Registers a new identity with a transient container.
     fabric_ca_identity: {}
     # Names the inventory host that provides the target Fabric CA server.
     fabric_ca_host: "string"
-    # Sets the Fabric CA image; the default derives from `fabric_ca_registry_endpoint`, `fabric_ca_image_name`, and `fabric_ca_image_tag`.
+    # Sets the Fabric CA image.
     fabric_ca_image: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
     # Sets the registry endpoint used to resolve the Fabric CA image.
     fabric_ca_registry_endpoint: "{{ lookup('env', 'FABRIC_CA_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
@@ -574,7 +574,7 @@ Registers a new identity with a transient container.
     fabric_ca_client_bin_name: fabric-ca-client
     # Sets the in-container client config root.
     fabric_ca_client_container_config_dir: /config
-    # Sets the client URL scheme; the default derives from `fabric_ca_use_tls`.
+    # Sets the client URL scheme.
     fabric_ca_scheme: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
     # Sets the CA name.
     fabric_ca_name: "{{ inventory_hostname }}"
@@ -602,7 +602,7 @@ Reenrolls an existing identity with a transient container.
     fabric_ca_identity: {}
     # Names the inventory host that provides the target Fabric CA server.
     fabric_ca_host: "string"
-    # Sets the Fabric CA image; the default derives from `fabric_ca_registry_endpoint`, `fabric_ca_image_name`, and `fabric_ca_image_tag`.
+    # Sets the Fabric CA image.
     fabric_ca_image: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
     # Sets the registry endpoint used to resolve the Fabric CA image.
     fabric_ca_registry_endpoint: "{{ lookup('env', 'FABRIC_CA_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
@@ -614,15 +614,15 @@ Reenrolls an existing identity with a transient container.
     fabric_ca_client_bin_name: fabric-ca-client
     # Sets the in-container client config root.
     fabric_ca_client_container_config_dir: /config
-    # Sets the client URL scheme; the default derives from `fabric_ca_use_tls`.
+    # Sets the client URL scheme.
     fabric_ca_scheme: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
     # Sets the CA name.
     fabric_ca_name: "{{ inventory_hostname }}"
     # Sets an optional enrollment profile such as `tls`.
     fabric_ca_enrollment_profile: "string"
-    # Provides the resolved host address used in computed defaults such as `fabric_ca_csr_hosts` and in client effective-address resolution.
+    # Provides the resolved host address used in client effective-address resolution.
     actual_host: "string"
-    # Sets the CSR SAN host list; the default derives from `actual_host`, `ansible_host`, and `inventory_hostname`.
+    # Sets the CSR SAN host list.
     fabric_ca_csr_hosts: 
       - "{{ ansible_host }}"
       - "{{ actual_host }}"
@@ -649,7 +649,7 @@ Lists identities registered in the target Fabric CA server with a transient cont
     fabric_ca_msp_dir: "string"
     # Names the inventory host that provides the target Fabric CA server.
     fabric_ca_host: "string"
-    # Sets the Fabric CA image; the default derives from `fabric_ca_registry_endpoint`, `fabric_ca_image_name`, and `fabric_ca_image_tag`.
+    # Sets the Fabric CA image.
     fabric_ca_image: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
     # Sets the registry endpoint used to resolve the Fabric CA image.
     fabric_ca_registry_endpoint: "{{ lookup('env', 'FABRIC_CA_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
@@ -661,7 +661,7 @@ Lists identities registered in the target Fabric CA server with a transient cont
     fabric_ca_client_bin_name: fabric-ca-client
     # Sets the in-container client config root.
     fabric_ca_client_container_config_dir: /config
-    # Sets the client URL scheme; the default derives from `fabric_ca_use_tls`.
+    # Sets the client URL scheme.
     fabric_ca_scheme: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
     # Sets the CA name.
     fabric_ca_name: "{{ inventory_hostname }}"
@@ -689,7 +689,7 @@ Revokes an enrolled identity with a transient container.
     fabric_ca_identity: {}
     # Names the inventory host that provides the target Fabric CA server.
     fabric_ca_host: "string"
-    # Sets the Fabric CA image; the default derives from `fabric_ca_registry_endpoint`, `fabric_ca_image_name`, and `fabric_ca_image_tag`.
+    # Sets the Fabric CA image.
     fabric_ca_image: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
     # Sets the registry endpoint used to resolve the Fabric CA image.
     fabric_ca_registry_endpoint: "{{ lookup('env', 'FABRIC_CA_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
@@ -699,7 +699,7 @@ Revokes an enrolled identity with a transient container.
     fabric_ca_image_tag: 1.5.15
     # Sets the in-container client config root.
     fabric_ca_client_container_config_dir: /config
-    # Sets the client URL scheme; the default derives from `fabric_ca_use_tls`.
+    # Sets the client URL scheme.
     fabric_ca_scheme: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
     # Sets the CA name.
     fabric_ca_name: "{{ inventory_hostname }}"
@@ -725,7 +725,7 @@ Generates a certificate revocation list from the target Fabric CA server with a 
     fabric_ca_msp_dir: "string"
     # Names the inventory host that provides the target Fabric CA server.
     fabric_ca_host: "string"
-    # Sets the Fabric CA image; the default derives from `fabric_ca_registry_endpoint`, `fabric_ca_image_name`, and `fabric_ca_image_tag`.
+    # Sets the Fabric CA image.
     fabric_ca_image: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
     # Sets the registry endpoint used to resolve the Fabric CA image.
     fabric_ca_registry_endpoint: "{{ lookup('env', 'FABRIC_CA_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
@@ -735,7 +735,7 @@ Generates a certificate revocation list from the target Fabric CA server with a 
     fabric_ca_image_tag: 1.5.15
     # Sets the in-container client config root.
     fabric_ca_client_container_config_dir: /config
-    # Sets the client URL scheme; the default derives from `fabric_ca_use_tls`.
+    # Sets the client URL scheme.
     fabric_ca_scheme: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
     # Sets the CA name.
     fabric_ca_name: "{{ inventory_hostname }}"
@@ -757,7 +757,7 @@ Selects the server runtime to start.
 ```yaml
 - name: Dispatch server startup
   vars:
-    # Uses the container server flow; the default derives from `fabric_ca_server_use_bin` and `fabric_ca_server_use_k8s`.
+    # Uses the container server flow.
     fabric_ca_server_use_container: "{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) }}"
     # Uses the binary server flow instead of container or Kubernetes.
     fabric_ca_server_use_bin: false
@@ -777,7 +777,7 @@ Selects the server runtime to stop.
 ```yaml
 - name: Dispatch server stop
   vars:
-    # Uses the container server flow; the default derives from `fabric_ca_server_use_bin` and `fabric_ca_server_use_k8s`.
+    # Uses the container server flow.
     fabric_ca_server_use_container: "{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) }}"
     # Uses the binary server flow instead of container or Kubernetes.
     fabric_ca_server_use_bin: false
@@ -795,7 +795,7 @@ Selects the server runtime resources to remove.
 ```yaml
 - name: Dispatch server teardown
   vars:
-    # Uses the container server flow; the default derives from `fabric_ca_server_use_bin` and `fabric_ca_server_use_k8s`.
+    # Uses the container server flow.
     fabric_ca_server_use_container: "{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) }}"
     # Uses the binary server flow instead of container or Kubernetes.
     fabric_ca_server_use_bin: false
@@ -851,7 +851,7 @@ Selects the server runtime logs to collect.
 ```yaml
 - name: Dispatch server log collection
   vars:
-    # Uses the container server flow; the default derives from `fabric_ca_server_use_bin` and `fabric_ca_server_use_k8s`.
+    # Uses the container server flow.
     fabric_ca_server_use_container: "{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) }}"
     # Uses the binary server flow instead of container or Kubernetes.
     fabric_ca_server_use_bin: false
@@ -895,7 +895,7 @@ Installs the Fabric CA server binary.
 ```yaml
 - name: Install the Fabric CA server binary
   vars:
-    # Sets the server Go package path; the default derives from `fabric_ca_git_hub_url`, `fabric_ca_git_repo`, and `fabric_ca_server_source_code_package`.
+    # Sets the server Go package path.
     fabric_ca_server_bin_package: "{{ fabric_ca_git_hub_url }}/{{ fabric_ca_git_repo }}/{{ fabric_ca_server_source_code_package }}"
     # Sets the Git host used for Fabric CA source lookups.
     fabric_ca_git_hub_url: github.com
@@ -919,7 +919,7 @@ Starts the Fabric CA server as a managed local binary process.
 ```yaml
 - name: Start the Fabric CA server binary
   vars:
-    # Sets the remote Fabric CA config root; the default derives from `remote_config_dir`.
+    # Sets the remote Fabric CA config root.
     fabric_ca_server_remote_config_dir: "{{ remote_config_dir }}"
     # Provides the shared remote configuration root used by this role.
     remote_config_dir: "string"
@@ -997,7 +997,7 @@ Starts the Fabric CA server as a managed container.
 ```yaml
 - name: Start the Fabric CA server container
   vars:
-    # Sets the remote Fabric CA config root; the default derives from `remote_config_dir`.
+    # Sets the remote Fabric CA config root.
     fabric_ca_server_remote_config_dir: "{{ remote_config_dir }}"
     # Provides the shared remote configuration root used by this role.
     remote_config_dir: "string"
@@ -1005,7 +1005,7 @@ Starts the Fabric CA server as a managed container.
     fabric_ca_server_container_config_dir: /config
     # Sets the container name used for the Fabric CA server runtime.
     fabric_ca_container_name: "{{ inventory_hostname }}"
-    # Sets the Fabric CA image; the default derives from `fabric_ca_registry_endpoint`, `fabric_ca_image_name`, and `fabric_ca_image_tag`.
+    # Sets the Fabric CA image.
     fabric_ca_image: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
     # Sets the registry endpoint used to resolve the Fabric CA image.
     fabric_ca_registry_endpoint: "{{ lookup('env', 'FABRIC_CA_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
@@ -1085,7 +1085,7 @@ Creates the Fabric CA resources on Kubernetes.
     fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
     # Enables the optional Kubernetes NodePort Service for the Fabric CA server; client address resolution uses the node-port mapping on the referenced server host.
     fabric_ca_server_k8s_use_node_port: false
-    # Sets the Fabric CA image; the default derives from `fabric_ca_registry_endpoint`, `fabric_ca_image_name`, and `fabric_ca_image_tag`.
+    # Sets the Fabric CA image.
     fabric_ca_image: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
     # Sets the registry endpoint used to resolve the Fabric CA image.
     fabric_ca_registry_endpoint: "{{ lookup('env', 'FABRIC_CA_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
@@ -1117,9 +1117,9 @@ Creates the Fabric CA resources on Kubernetes.
     k8s_namespace: "string"
     # Provides an optional Kubernetes image pull secret from shared inventory.
     k8s_image_pull_secret: "string"
-    # Sets the Kubernetes NodePort for the API port; the default derives from `fabric_ca_port` and is used when NodePort exposure is enabled.
+    # Sets the Kubernetes NodePort for the API port and is used when NodePort exposure is enabled.
     fabric_ca_server_k8s_port_node_port: 1000
-    # Sets the Kubernetes NodePort for the operations port; the default derives from `fabric_ca_operations_port` and is used when NodePort exposure is enabled.
+    # Sets the Kubernetes NodePort for the operations port and is used when NodePort exposure is enabled.
     fabric_ca_server_k8s_operations_node_port: 1000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
@@ -1137,9 +1137,9 @@ Checks that the Fabric CA API and operations NodePorts are reachable when Kubern
   vars:
     # Enables the optional Kubernetes NodePort Service for the Fabric CA server; client address resolution uses the node-port mapping on the referenced server host.
     fabric_ca_server_k8s_use_node_port: false
-    # Sets the Kubernetes NodePort for the API port; the default derives from `fabric_ca_port` and is used when NodePort exposure is enabled.
+    # Sets the Kubernetes NodePort for the API port and is used when NodePort exposure is enabled.
     fabric_ca_server_k8s_port_node_port: 1000
-    # Sets the Kubernetes NodePort for the operations port; the default derives from `fabric_ca_operations_port` and is used when NodePort exposure is enabled.
+    # Sets the Kubernetes NodePort for the operations port and is used when NodePort exposure is enabled.
     fabric_ca_server_k8s_operations_node_port: 1000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
@@ -1189,7 +1189,7 @@ Creates or updates the Fabric CA Kubernetes ConfigMap.
 ```yaml
 - name: Transfer server config to a ConfigMap
   vars:
-    # Sets the remote Fabric CA config root; the default derives from `remote_config_dir`.
+    # Sets the remote Fabric CA config root.
     fabric_ca_server_remote_config_dir: "{{ remote_config_dir }}"
     # Provides the shared remote configuration root used by this role.
     remote_config_dir: "string"
@@ -1231,7 +1231,7 @@ Creates or updates the Fabric CA Kubernetes Secret.
 ```yaml
 - name: Transfer server crypto to a Secret
   vars:
-    # Sets the remote Fabric CA config root; the default derives from `remote_config_dir`.
+    # Sets the remote Fabric CA config root.
     fabric_ca_server_remote_config_dir: "{{ remote_config_dir }}"
     # Provides the shared remote configuration root used by this role.
     remote_config_dir: "string"
@@ -1297,11 +1297,11 @@ Generates the Fabric CA root CA and TLS keypairs.
 ```yaml
 - name: Generate server x509 crypto
   vars:
-    # Sets the remote Fabric CA config root; the default derives from `remote_config_dir`.
+    # Sets the remote Fabric CA config root.
     fabric_ca_server_remote_config_dir: "{{ remote_config_dir }}"
     # Provides the shared remote configuration root used by this role.
     remote_config_dir: "string"
-    # Provides the resolved host address used in computed defaults such as `fabric_ca_csr_hosts` and in client effective-address resolution.
+    # Provides the resolved host address used in client effective-address resolution.
     actual_host: "string"
     # Sets the server CA private key filename.
     fabric_ca_server_ca_private_key_file: ca-key.pem
@@ -1313,9 +1313,9 @@ Generates the Fabric CA root CA and TLS keypairs.
     fabric_ca_server_tls_cert_file: tls-cert.pem
     # Sets the curve used for Fabric CA server key generation.
     fabric_ca_server_openssl_curve: P-256
-    # Sets the CSR common name; the default derives from `fabric_ca_name`.
+    # Sets the CSR common name.
     fabric_ca_csr_cn: "{{ fabric_ca_name }}"
-    # Sets the CSR SAN host list; the default derives from `actual_host`, `ansible_host`, and `inventory_hostname`.
+    # Sets the CSR SAN host list.
     fabric_ca_csr_hosts: 
       - "{{ ansible_host }}"
       - "{{ actual_host }}"
@@ -1336,11 +1336,11 @@ Generates the Fabric CA Idemix issuer keys.
 ```yaml
 - name: Generate server Idemix crypto
   vars:
-    # Sets the remote Fabric CA config root; the default derives from `remote_config_dir`.
+    # Sets the remote Fabric CA config root.
     fabric_ca_server_remote_config_dir: "{{ remote_config_dir }}"
     # Provides the shared remote configuration root used by this role.
     remote_config_dir: "string"
-    # Sets the transient Idemix output directory; the default derives from `fabric_ca_server_remote_config_dir`.
+    # Sets the transient Idemix output directory.
     fabric_ca_server_idemixgen_output_dir: "{{ fabric_ca_server_remote_config_dir }}/idemixgen-artifacts"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
@@ -1360,7 +1360,7 @@ Fetches the Fabric CA server certificate material.
     organization: {}
     # Provides the shared local artifacts root used by this role.
     fetched_artifacts_dir: "string"
-    # Sets the remote Fabric CA config root; the default derives from `remote_config_dir`.
+    # Sets the remote Fabric CA config root.
     fabric_ca_server_remote_config_dir: "{{ remote_config_dir }}"
     # Provides the shared remote configuration root used by this role.
     remote_config_dir: "string"
@@ -1396,7 +1396,7 @@ Renders the Fabric CA server configuration and copies the PostgreSQL TLS CA cert
 ```yaml
 - name: Render and transfer server config
   vars:
-    # Sets the remote Fabric CA config root; the default derives from `remote_config_dir`.
+    # Sets the remote Fabric CA config root.
     fabric_ca_server_remote_config_dir: "{{ remote_config_dir }}"
     # Provides the shared remote configuration root used by this role.
     remote_config_dir: "string"
@@ -1406,7 +1406,7 @@ Renders the Fabric CA server configuration and copies the PostgreSQL TLS CA cert
     fabric_ca_log_level: INFO
     # Enables TLS for server and client connections.
     fabric_ca_use_tls: false
-    # Sets the server config directory; the default derives from `fabric_ca_server_remote_config_dir`, `fabric_ca_server_use_bin`, and `fabric_ca_server_container_config_dir`.
+    # Sets the server config directory.
     fabric_ca_server_config_dir: "{{ fabric_ca_server_remote_config_dir if fabric_ca_server_use_bin else fabric_ca_server_container_config_dir }}"
     # Sets the in-container Fabric CA config root.
     fabric_ca_server_container_config_dir: /config
@@ -1424,14 +1424,14 @@ Renders the Fabric CA server configuration and copies the PostgreSQL TLS CA cert
     fabric_ca_server_ca_cert_file: ca-cert.pem
     # Supplies the bootstrap administrator rendered into the server registry section; `name` and `secret` are required. Store the secret in Ansible Vault.
     fabric_ca_admin: {}
-    # Sets the CSR common name; the default derives from `fabric_ca_name`.
+    # Sets the CSR common name.
     fabric_ca_csr_cn: "{{ fabric_ca_name }}"
-    # Sets the CSR SAN host list; the default derives from `actual_host`, `ansible_host`, and `inventory_hostname`.
+    # Sets the CSR SAN host list.
     fabric_ca_csr_hosts: 
       - "{{ ansible_host }}"
       - "{{ actual_host }}"
       - "{{ inventory_hostname }}"
-    # Provides the resolved host address used in computed defaults such as `fabric_ca_csr_hosts` and in client effective-address resolution.
+    # Provides the resolved host address used in client effective-address resolution.
     actual_host: "string"
     # Sets the CSR expiry.
     fabric_ca_csr_expiry: 131400h
@@ -1459,7 +1459,7 @@ Deletes the Fabric CA server configuration resources.
 ```yaml
 - name: Remove server config resources
   vars:
-    # Sets the remote Fabric CA config root; the default derives from `remote_config_dir`.
+    # Sets the remote Fabric CA config root.
     fabric_ca_server_remote_config_dir: "{{ remote_config_dir }}"
     # Provides the shared remote configuration root used by this role.
     remote_config_dir: "string"

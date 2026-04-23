@@ -59,7 +59,7 @@ Set exactly one deployment mode flag for the target host.
 ```yaml
 - name: Start Grafana in the selected deployment mode
   vars:
-    # Enables container mode. The default derives from `grafana_use_k8s`.
+    # Enables container mode.
     grafana_use_container: "{{ not grafana_use_k8s }}"
     # Enables Kubernetes mode.
     grafana_use_k8s: false
@@ -77,7 +77,7 @@ Stops the Grafana container when container mode is enabled.
 ```yaml
 - name: Stop Grafana in container mode
   vars:
-    # Enables container mode. The default derives from `grafana_use_k8s`.
+    # Enables container mode.
     grafana_use_container: "{{ not grafana_use_k8s }}"
     # Enables Kubernetes mode.
     grafana_use_k8s: false
@@ -95,7 +95,7 @@ Removes the Grafana container or Kubernetes workload by dispatching to the match
 ```yaml
 - name: Remove Grafana in the selected deployment mode
   vars:
-    # Enables container mode. The default derives from `grafana_use_k8s`.
+    # Enables container mode.
     grafana_use_container: "{{ not grafana_use_k8s }}"
     # Enables Kubernetes mode.
     grafana_use_k8s: false
@@ -126,7 +126,7 @@ Collects Grafana logs from the container deployment or from the Kubernetes pod.
 ```yaml
 - name: Collect Grafana logs for the selected deployment mode
   vars:
-    # Enables container mode. The default derives from `grafana_use_k8s`.
+    # Enables container mode.
     grafana_use_container: "{{ not grafana_use_k8s }}"
     # Enables Kubernetes mode.
     grafana_use_k8s: false
@@ -166,11 +166,11 @@ TLS files are mounted when TLS is enabled.
 ```yaml
 - name: Start the Grafana container
   vars:
-    # Sets the Grafana container name. The default derives from `inventory_hostname`.
+    # Sets the Grafana container name.
     grafana_container_name: "{{ inventory_hostname }}"
-    # Sets the Grafana image reference. The default derives from `grafana_registry_endpoint`, `grafana_image_name`, and `grafana_image_tag`.
+    # Sets the Grafana image reference.
     grafana_image: "{{ grafana_registry_endpoint }}/{{ grafana_image_name }}:{{ grafana_image_tag }}"
-    # Sets the Grafana image registry endpoint. The default derives from the `GRAFANA_REGISTRY_ENDPOINT` environment variable.
+    # Sets the Grafana image registry endpoint.
     grafana_registry_endpoint: "{{ lookup('env', 'GRAFANA_REGISTRY_ENDPOINT') or 'docker.io/grafana' }}"
     # Sets the Grafana image name.
     grafana_image_name: grafana-oss
@@ -182,9 +182,9 @@ TLS files are mounted when TLS is enabled.
     grafana_password: "string"
     # Sets the Grafana web port.
     grafana_web_port: 3000
-    # Sets the remote directory that stores Grafana provisioning files and TLS material. The default derives from `remote_config_dir`.
+    # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the shared remote config root used by Grafana. Required when relying on it to derive the default for `grafana_remote_config_dir`.
+    # Sets the shared remote config root used by Grafana. Required when using it for `grafana_remote_config_dir`.
     remote_config_dir: "string"
     # Sets the provisioning path inside the Grafana container.
     grafana_container_config_dir: /etc/grafana/provisioning
@@ -208,7 +208,7 @@ Stops the running Grafana container by name.
 ```yaml
 - name: Stop the Grafana container
   vars:
-    # Sets the Grafana container name. The default derives from `inventory_hostname`.
+    # Sets the Grafana container name.
     grafana_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
@@ -224,7 +224,7 @@ Removes the Grafana container by name.
 ```yaml
 - name: Remove the Grafana container
   vars:
-    # Sets the Grafana container name. The default derives from `inventory_hostname`.
+    # Sets the Grafana container name.
     grafana_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
@@ -240,7 +240,7 @@ Collects logs from the named Grafana container.
 ```yaml
 - name: Fetch logs from the Grafana container
   vars:
-    # Sets the Grafana container name. The default derives from `inventory_hostname`.
+    # Sets the Grafana container name.
     grafana_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
@@ -258,9 +258,9 @@ Applies the Kubernetes ConfigMap when Kubernetes mode is enabled.
 ```yaml
 - name: Transfer Grafana configuration files
   vars:
-    # Sets the remote directory that stores Grafana provisioning files and TLS material. The default derives from `remote_config_dir`.
+    # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the shared remote config root used by Grafana. Required when relying on it to derive the default for `grafana_remote_config_dir`.
+    # Sets the shared remote config root used by Grafana. Required when using it for `grafana_remote_config_dir`.
     remote_config_dir: "string"
     # Sets the Grafana datasource provisioning filename.
     grafana_datasource_file: datasources.yaml
@@ -290,9 +290,9 @@ Deletes the Kubernetes ConfigMap when Kubernetes mode is enabled.
 ```yaml
 - name: Remove Grafana configuration files
   vars:
-    # Sets the remote directory that stores Grafana provisioning files and TLS material. The default derives from `remote_config_dir`.
+    # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the shared remote config root used by Grafana. Required when relying on it to derive the default for `grafana_remote_config_dir`.
+    # Sets the shared remote config root used by Grafana. Required when using it for `grafana_remote_config_dir`.
     remote_config_dir: "string"
     # Enables Kubernetes mode.
     grafana_use_k8s: false
@@ -314,9 +314,9 @@ Applies the dashboard ConfigMap when Kubernetes mode is enabled.
   vars:
     # Sets the local path to the Grafana dashboard JSON file.
     grafana_dashboard_path: "string"
-    # Sets the remote directory that stores Grafana provisioning files and TLS material. The default derives from `remote_config_dir`.
+    # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the shared remote config root used by Grafana. Required when relying on it to derive the default for `grafana_remote_config_dir`.
+    # Sets the shared remote config root used by Grafana. Required when using it for `grafana_remote_config_dir`.
     remote_config_dir: "string"
     # Sets the Grafana dashboard filename.
     grafana_dashboard_file: dashboard.json
@@ -358,9 +358,9 @@ Fetches the Grafana TLS CA certificate when TLS is enabled.
   vars:
     # Enables Grafana TLS handling.
     grafana_use_tls: false
-    # Sets the remote directory that stores Grafana provisioning files and TLS material. The default derives from `remote_config_dir`.
+    # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the shared remote config root used by Grafana. Required when relying on it to derive the default for `grafana_remote_config_dir`.
+    # Sets the shared remote config root used by Grafana. Required when using it for `grafana_remote_config_dir`.
     remote_config_dir: "string"
     # Sets the shared fetched-artifacts root used by Grafana. Required when relying on it to derive paths for fetched TLS artifacts.
     fetched_artifacts_dir: "string"
@@ -384,9 +384,9 @@ Deletes the Kubernetes Secret when Kubernetes mode is enabled.
     grafana_use_tls: false
     # Enables Kubernetes mode.
     grafana_use_k8s: false
-    # Sets the remote directory that stores Grafana provisioning files and TLS material. The default derives from `remote_config_dir`.
+    # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the shared remote config root used by Grafana. Required when relying on it to derive the default for `grafana_remote_config_dir`.
+    # Sets the shared remote config root used by Grafana. Required when using it for `grafana_remote_config_dir`.
     remote_config_dir: "string"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
@@ -402,11 +402,11 @@ Generates the Grafana TLS key pair and certificate using OpenSSL.
 ```yaml
 - name: Generate a self-signed certificate for Grafana
   vars:
-    # Sets the optional organization mapping used for TLS certificate generation. When set, `organization.domain` is used as the OpenSSL organization name and otherwise defaults to `inventory_hostname`.
+    # Sets the optional organization mapping used for TLS certificate generation. When set, `organization.domain` is used as the OpenSSL organization name.
     organization: {}
-    # Sets the remote directory that stores Grafana provisioning files and TLS material. The default derives from `remote_config_dir`.
+    # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the shared remote config root used by Grafana. Required when relying on it to derive the default for `grafana_remote_config_dir`.
+    # Sets the shared remote config root used by Grafana. Required when using it for `grafana_remote_config_dir`.
     remote_config_dir: "string"
     # Sets the Grafana TLS private key filename.
     grafana_tls_private_key_file: server.key
@@ -428,7 +428,7 @@ Generated provisioning files and optional dashboard ConfigMaps must already exis
 ```yaml
 - name: Start Grafana on Kubernetes
   vars:
-    # Sets the base Kubernetes resource name for Grafana. The default derives from `inventory_hostname`.
+    # Sets the base Kubernetes resource name for Grafana.
     grafana_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the Grafana web port.
     grafana_web_port: 3000
@@ -440,17 +440,17 @@ Generated provisioning files and optional dashboard ConfigMaps must already exis
     grafana_k8s_wait_timeout: 120
     # Sets the Grafana pod filesystem group.
     grafana_k8s_fs_group: 472
-    # Sets the Grafana image reference. The default derives from `grafana_registry_endpoint`, `grafana_image_name`, and `grafana_image_tag`.
+    # Sets the Grafana image reference.
     grafana_image: "{{ grafana_registry_endpoint }}/{{ grafana_image_name }}:{{ grafana_image_tag }}"
-    # Sets the Grafana image registry endpoint. The default derives from the `GRAFANA_REGISTRY_ENDPOINT` environment variable.
+    # Sets the Grafana image registry endpoint.
     grafana_registry_endpoint: "{{ lookup('env', 'GRAFANA_REGISTRY_ENDPOINT') or 'docker.io/grafana' }}"
     # Sets the Grafana image name.
     grafana_image_name: grafana-oss
     # Sets the Grafana image tag.
     grafana_image_tag: latest
-    # Sets the remote directory that stores Grafana provisioning files and TLS material. The default derives from `remote_config_dir`.
+    # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the shared remote config root used by Grafana. Required when relying on it to derive the default for `grafana_remote_config_dir`.
+    # Sets the shared remote config root used by Grafana. Required when using it for `grafana_remote_config_dir`.
     remote_config_dir: "string"
     # Sets the provisioning path inside the Grafana container.
     grafana_container_config_dir: /etc/grafana/provisioning
@@ -520,7 +520,7 @@ Deletes the Grafana Deployment, Service, and NodePort Service from Kubernetes.
 ```yaml
 - name: Remove Grafana Kubernetes resources
   vars:
-    # Sets the base Kubernetes resource name for Grafana. The default derives from `inventory_hostname`.
+    # Sets the base Kubernetes resource name for Grafana.
     grafana_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the Kubernetes namespace used for Grafana resources.
     k8s_namespace: "string"
@@ -538,7 +538,7 @@ Collects logs from the Grafana pod selected by the Grafana application label.
 ```yaml
 - name: Fetch logs from the Grafana pod
   vars:
-    # Sets the base Kubernetes resource name for Grafana. The default derives from `inventory_hostname`.
+    # Sets the base Kubernetes resource name for Grafana.
     grafana_k8s_resource_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
@@ -554,11 +554,11 @@ Applies the Kubernetes ConfigMap that contains Grafana provisioning files.
 ```yaml
 - name: Apply the Grafana Kubernetes ConfigMap
   vars:
-    # Sets the base Kubernetes resource name for Grafana. The default derives from `inventory_hostname`.
+    # Sets the base Kubernetes resource name for Grafana.
     grafana_k8s_resource_name: "{{ inventory_hostname }}"
-    # Sets the remote directory that stores Grafana provisioning files and TLS material. The default derives from `remote_config_dir`.
+    # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the shared remote config root used by Grafana. Required when relying on it to derive the default for `grafana_remote_config_dir`.
+    # Sets the shared remote config root used by Grafana. Required when using it for `grafana_remote_config_dir`.
     remote_config_dir: "string"
     # Sets the Grafana datasource provisioning filename.
     grafana_datasource_file: datasources.yaml
@@ -582,11 +582,11 @@ Deletes the Grafana provisioning ConfigMap and dashboard ConfigMaps.
 ```yaml
 - name: Delete Grafana Kubernetes ConfigMaps
   vars:
-    # Sets the base Kubernetes resource name for Grafana. The default derives from `inventory_hostname`.
+    # Sets the base Kubernetes resource name for Grafana.
     grafana_k8s_resource_name: "{{ inventory_hostname }}"
-    # Sets the remote directory that stores Grafana provisioning files and TLS material. The default derives from `remote_config_dir`.
+    # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the shared remote config root used by Grafana. Required when relying on it to derive the default for `grafana_remote_config_dir`.
+    # Sets the shared remote config root used by Grafana. Required when using it for `grafana_remote_config_dir`.
     remote_config_dir: "string"
     # Sets the Kubernetes namespace used for Grafana resources.
     k8s_namespace: "string"
@@ -604,7 +604,7 @@ Applies a dashboard ConfigMap for one Grafana dashboard JSON file.
 ```yaml
 - name: Apply a Grafana dashboard Kubernetes ConfigMap
   vars:
-    # Sets the base Kubernetes resource name for Grafana. The default derives from `inventory_hostname`.
+    # Sets the base Kubernetes resource name for Grafana.
     grafana_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the Grafana dashboard filename.
     grafana_dashboard_file: dashboard.json
@@ -626,11 +626,11 @@ Applies the Grafana Kubernetes Secret that holds admin credentials and optional 
 ```yaml
 - name: Apply the Grafana Kubernetes Secret
   vars:
-    # Sets the base Kubernetes resource name for Grafana. The default derives from `inventory_hostname`.
+    # Sets the base Kubernetes resource name for Grafana.
     grafana_k8s_resource_name: "{{ inventory_hostname }}"
-    # Sets the remote directory that stores Grafana provisioning files and TLS material. The default derives from `remote_config_dir`.
+    # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the shared remote config root used by Grafana. Required when relying on it to derive the default for `grafana_remote_config_dir`.
+    # Sets the shared remote config root used by Grafana. Required when using it for `grafana_remote_config_dir`.
     remote_config_dir: "string"
     # Sets the Grafana admin username.
     grafana_username: "string"
@@ -658,7 +658,7 @@ Deletes the Grafana Kubernetes Secret.
 ```yaml
 - name: Delete the Grafana Kubernetes Secret
   vars:
-    # Sets the base Kubernetes resource name for Grafana. The default derives from `inventory_hostname`.
+    # Sets the base Kubernetes resource name for Grafana.
     grafana_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the Kubernetes namespace used for Grafana resources.
     k8s_namespace: "string"

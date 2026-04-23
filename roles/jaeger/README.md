@@ -49,7 +49,7 @@ Dispatches Jaeger startup to the container or Kubernetes implementation.
 ```yaml
 - name: Select the Jaeger deployment mode to start
   vars:
-    # Runs the container-based Jaeger path when set to `true`. The default derives from `jaeger_use_k8s`.
+    # Runs the container-based Jaeger path when set to `true`.
     jaeger_use_container: "{{ not jaeger_use_k8s }}"
     # Runs the Kubernetes Jaeger path when set to `true`.
     jaeger_use_k8s: false
@@ -67,7 +67,7 @@ Dispatches Jaeger shutdown to the container implementation.
 ```yaml
 - name: Select the Jaeger deployment mode to stop
   vars:
-    # Runs the container-based Jaeger path when set to `true`. The default derives from `jaeger_use_k8s`.
+    # Runs the container-based Jaeger path when set to `true`.
     jaeger_use_container: "{{ not jaeger_use_k8s }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
@@ -83,7 +83,7 @@ Dispatches Jaeger removal to the container or Kubernetes implementation.
 ```yaml
 - name: Select the Jaeger deployment mode to remove
   vars:
-    # Runs the container-based Jaeger path when set to `true`. The default derives from `jaeger_use_k8s`.
+    # Runs the container-based Jaeger path when set to `true`.
     jaeger_use_container: "{{ not jaeger_use_k8s }}"
     # Runs the Kubernetes Jaeger path when set to `true`.
     jaeger_use_k8s: false
@@ -114,7 +114,7 @@ Dispatches Jaeger log collection to the container or Kubernetes implementation.
 ```yaml
 - name: Select the Jaeger deployment mode to collect logs from
   vars:
-    # Runs the container-based Jaeger path when set to `true`. The default derives from `jaeger_use_k8s`.
+    # Runs the container-based Jaeger path when set to `true`.
     jaeger_use_container: "{{ not jaeger_use_k8s }}"
     # Runs the Kubernetes Jaeger path when set to `true`.
     jaeger_use_k8s: false
@@ -164,7 +164,7 @@ This entry point requires the ElasticSearch host inventory to be available.
   vars:
     # Names the inventory host running ElasticSearch for Jaeger span storage.
     elasticsearch_host: "string"
-    # Sets the Jaeger container name. The default derives from `inventory_hostname`.
+    # Sets the Jaeger container name.
     jaeger_container_name: "{{ inventory_hostname }}"
     # Sets the registry endpoint for the Jaeger image.
     jaeger_registry_endpoint: "{{ lookup('env', 'JAEGER_REGISTRY_ENDPOINT') or 'docker.io/jaegertracing' }}"
@@ -172,11 +172,11 @@ This entry point requires the ElasticSearch host inventory to be available.
     jaeger_image_name: all-in-one
     # Sets the Jaeger image tag.
     jaeger_image_tag: latest
-    # Sets the Jaeger container image. The default derives from `jaeger_registry_endpoint`, `jaeger_image_name`, and `jaeger_image_tag`.
+    # Sets the Jaeger container image.
     jaeger_image: "{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_image_tag }}"
-    # Sets the shared remote configuration base directory. This backs the default of `jaeger_remote_config_dir`.
+    # Sets the shared remote configuration base directory.
     remote_config_dir: "string"
-    # Sets the remote directory mounted into the Jaeger container for configuration and certificates. The default derives from `remote_config_dir`.
+    # Sets the remote directory mounted into the Jaeger container for configuration and certificates.
     jaeger_remote_config_dir: "{{ remote_config_dir }}"
     # Sets the in-container directory where Jaeger reads configuration and certificates.
     jaeger_container_config_dir: /var/config
@@ -206,7 +206,7 @@ Delegates Jaeger container shutdown to the container role.
 ```yaml
 - name: Stop the Jaeger container
   vars:
-    # Sets the Jaeger container name. The default derives from `inventory_hostname`.
+    # Sets the Jaeger container name.
     jaeger_container_name: "{{ inventory_hostname }}"
     # Sets the registry endpoint for the Jaeger image.
     jaeger_registry_endpoint: "{{ lookup('env', 'JAEGER_REGISTRY_ENDPOINT') or 'docker.io/jaegertracing' }}"
@@ -214,7 +214,7 @@ Delegates Jaeger container shutdown to the container role.
     jaeger_image_name: all-in-one
     # Sets the Jaeger image tag.
     jaeger_image_tag: latest
-    # Sets the Jaeger container image. The default derives from `jaeger_registry_endpoint`, `jaeger_image_name`, and `jaeger_image_tag`.
+    # Sets the Jaeger container image.
     jaeger_image: "{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_image_tag }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
@@ -230,7 +230,7 @@ Delegates Jaeger container removal to the container role.
 ```yaml
 - name: Remove the Jaeger container
   vars:
-    # Sets the Jaeger container name. The default derives from `inventory_hostname`.
+    # Sets the Jaeger container name.
     jaeger_container_name: "{{ inventory_hostname }}"
     # Sets the registry endpoint for the Jaeger image.
     jaeger_registry_endpoint: "{{ lookup('env', 'JAEGER_REGISTRY_ENDPOINT') or 'docker.io/jaegertracing' }}"
@@ -238,7 +238,7 @@ Delegates Jaeger container removal to the container role.
     jaeger_image_name: all-in-one
     # Sets the Jaeger image tag.
     jaeger_image_tag: latest
-    # Sets the Jaeger container image. The default derives from `jaeger_registry_endpoint`, `jaeger_image_name`, and `jaeger_image_tag`.
+    # Sets the Jaeger container image.
     jaeger_image: "{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_image_tag }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
@@ -254,7 +254,7 @@ Delegates Jaeger container log collection to the container role.
 ```yaml
 - name: Fetch logs from the Jaeger container
   vars:
-    # Sets the Jaeger container name. The default derives from `inventory_hostname`.
+    # Sets the Jaeger container name.
     jaeger_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
@@ -276,7 +276,7 @@ This entry point requires the ElasticSearch host inventory to be available.
   vars:
     # Names the inventory host running ElasticSearch for Jaeger span storage.
     elasticsearch_host: "string"
-    # Sets the Kubernetes resource name used for Jaeger objects. The default derives from `inventory_hostname`.
+    # Sets the Kubernetes resource name used for Jaeger objects.
     jaeger_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the rollout wait timeout for the Jaeger Kubernetes deployment.
     jaeger_k8s_wait_timeout: 120
@@ -290,7 +290,7 @@ This entry point requires the ElasticSearch host inventory to be available.
     jaeger_image_name: all-in-one
     # Sets the Jaeger image tag.
     jaeger_image_tag: latest
-    # Sets the Jaeger container image. The default derives from `jaeger_registry_endpoint`, `jaeger_image_name`, and `jaeger_image_tag`.
+    # Sets the Jaeger container image.
     jaeger_image: "{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_image_tag }}"
     # Sets the in-container directory where Jaeger reads configuration and certificates.
     jaeger_container_config_dir: /var/config
@@ -306,17 +306,17 @@ This entry point requires the ElasticSearch host inventory to be available.
     jaeger_grpc_server_port: 14250
     # Sets the Jaeger OTLP gRPC collector port.
     jaeger_collector_port: 4317
-    # Sets the Kubernetes NodePort for the Jaeger UI service. The default derives from `jaeger_ui_port`.
+    # Sets the Kubernetes NodePort for the Jaeger UI service.
     jaeger_k8s_ui_node_port: 1000
-    # Sets the Kubernetes NodePort for the Jaeger admin service. The default derives from `jaeger_admin_port`.
+    # Sets the Kubernetes NodePort for the Jaeger admin service.
     jaeger_k8s_admin_node_port: 1000
-    # Sets the Kubernetes NodePort for the Jaeger collector HTTP server. The default derives from `jaeger_http_server_port`.
+    # Sets the Kubernetes NodePort for the Jaeger collector HTTP server.
     jaeger_k8s_http_server_node_port: 1000
-    # Sets the Kubernetes NodePort for the Jaeger OTLP HTTP collector. The default derives from `jaeger_http_collector_port`.
+    # Sets the Kubernetes NodePort for the Jaeger OTLP HTTP collector.
     jaeger_k8s_http_collector_node_port: 1000
-    # Sets the Kubernetes NodePort for the Jaeger gRPC server. The default derives from `jaeger_grpc_server_port`.
+    # Sets the Kubernetes NodePort for the Jaeger gRPC server.
     jaeger_k8s_grpc_server_node_port: 1000
-    # Sets the Kubernetes NodePort for the Jaeger OTLP gRPC collector. The default derives from `jaeger_collector_port`.
+    # Sets the Kubernetes NodePort for the Jaeger OTLP gRPC collector.
     jaeger_k8s_collector_node_port: 1000
     # Sets the Kubernetes namespace used for Jaeger resources.
     k8s_namespace: "string"
@@ -352,7 +352,7 @@ Deletes the Jaeger deployment and service resources from Kubernetes.
 ```yaml
 - name: Remove Jaeger Kubernetes resources
   vars:
-    # Sets the Kubernetes resource name used for Jaeger objects. The default derives from `inventory_hostname`.
+    # Sets the Kubernetes resource name used for Jaeger objects.
     jaeger_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the Kubernetes namespace used for Jaeger resources.
     k8s_namespace: "string"
@@ -370,7 +370,7 @@ Delegates Jaeger pod log collection to the k8s role using the Jaeger pod label s
 ```yaml
 - name: Fetch logs from Jaeger pods
   vars:
-    # Sets the Kubernetes resource name used for Jaeger objects. The default derives from `inventory_hostname`.
+    # Sets the Kubernetes resource name used for Jaeger objects.
     jaeger_k8s_resource_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
@@ -382,8 +382,6 @@ Delegates Jaeger pod log collection to the k8s role using the Jaeger pod label s
 Check that Jaeger Kubernetes node ports are reachable
 
 Builds the Jaeger Kubernetes node port list and delegates the connectivity check to the utils role.
-
-The node port values default to the corresponding Jaeger service ports.
 
 ```yaml
 - name: Check that Jaeger Kubernetes node ports are reachable
@@ -402,17 +400,17 @@ The node port values default to the corresponding Jaeger service ports.
     jaeger_grpc_server_port: 14250
     # Sets the Jaeger OTLP gRPC collector port.
     jaeger_collector_port: 4317
-    # Sets the Kubernetes NodePort for the Jaeger UI service. The default derives from `jaeger_ui_port`.
+    # Sets the Kubernetes NodePort for the Jaeger UI service.
     jaeger_k8s_ui_node_port: 1000
-    # Sets the Kubernetes NodePort for the Jaeger admin service. The default derives from `jaeger_admin_port`.
+    # Sets the Kubernetes NodePort for the Jaeger admin service.
     jaeger_k8s_admin_node_port: 1000
-    # Sets the Kubernetes NodePort for the Jaeger collector HTTP server. The default derives from `jaeger_http_server_port`.
+    # Sets the Kubernetes NodePort for the Jaeger collector HTTP server.
     jaeger_k8s_http_server_node_port: 1000
-    # Sets the Kubernetes NodePort for the Jaeger OTLP HTTP collector. The default derives from `jaeger_http_collector_port`.
+    # Sets the Kubernetes NodePort for the Jaeger OTLP HTTP collector.
     jaeger_k8s_http_collector_node_port: 1000
-    # Sets the Kubernetes NodePort for the Jaeger gRPC server. The default derives from `jaeger_grpc_server_port`.
+    # Sets the Kubernetes NodePort for the Jaeger gRPC server.
     jaeger_k8s_grpc_server_node_port: 1000
-    # Sets the Kubernetes NodePort for the Jaeger OTLP gRPC collector. The default derives from `jaeger_collector_port`.
+    # Sets the Kubernetes NodePort for the Jaeger OTLP gRPC collector.
     jaeger_k8s_collector_node_port: 1000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
@@ -434,9 +432,9 @@ Delegates Kubernetes ConfigMap creation to the Jaeger Kubernetes config entry po
     elasticsearch_host: "string"
     # Sets the local directory containing fetched artifacts used by Jaeger.
     fetched_artifacts_dir: "string"
-    # Sets the shared remote configuration base directory. This backs the default of `jaeger_remote_config_dir`.
+    # Sets the shared remote configuration base directory.
     remote_config_dir: "string"
-    # Sets the remote directory mounted into the Jaeger container for configuration and certificates. The default derives from `remote_config_dir`.
+    # Sets the remote directory mounted into the Jaeger container for configuration and certificates.
     jaeger_remote_config_dir: "{{ remote_config_dir }}"
     # Runs the Kubernetes Jaeger path when set to `true`.
     jaeger_use_k8s: false
@@ -456,9 +454,9 @@ Nested Jaeger Kubernetes config cleanup validates its own required arguments.
 ```yaml
 - name: Remove Jaeger configuration assets
   vars:
-    # Sets the shared remote configuration base directory. This backs the default of `jaeger_remote_config_dir`.
+    # Sets the shared remote configuration base directory.
     remote_config_dir: "string"
-    # Sets the remote directory mounted into the Jaeger container for configuration and certificates. The default derives from `remote_config_dir`.
+    # Sets the remote directory mounted into the Jaeger container for configuration and certificates.
     jaeger_remote_config_dir: "{{ remote_config_dir }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
@@ -476,11 +474,11 @@ Applies the Jaeger ConfigMap that carries the ElasticSearch CA certificate when 
   vars:
     # Names the inventory host running ElasticSearch for Jaeger span storage.
     elasticsearch_host: "string"
-    # Sets the Kubernetes resource name used for Jaeger objects. The default derives from `inventory_hostname`.
+    # Sets the Kubernetes resource name used for Jaeger objects.
     jaeger_k8s_resource_name: "{{ inventory_hostname }}"
-    # Sets the shared remote configuration base directory. This backs the default of `jaeger_remote_config_dir`.
+    # Sets the shared remote configuration base directory.
     remote_config_dir: "string"
-    # Sets the remote directory mounted into the Jaeger container for configuration and certificates. The default derives from `remote_config_dir`.
+    # Sets the remote directory mounted into the Jaeger container for configuration and certificates.
     jaeger_remote_config_dir: "{{ remote_config_dir }}"
     # Sets the Kubernetes namespace used for Jaeger resources.
     k8s_namespace: "string"
@@ -498,7 +496,7 @@ Deletes the Jaeger ConfigMap from Kubernetes when the Kubernetes deployment mode
 ```yaml
 - name: Remove the Jaeger Kubernetes ConfigMap
   vars:
-    # Sets the Kubernetes resource name used for Jaeger objects. The default derives from `inventory_hostname`.
+    # Sets the Kubernetes resource name used for Jaeger objects.
     jaeger_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the Kubernetes namespace used for Jaeger resources.
     k8s_namespace: "string"

@@ -9,7 +9,7 @@
 
 # Defines the fxconfig binary name. Example: C(fxconfig).
 fxconfig_bin_name: fxconfig
-# Defines the Go package path used to install fxconfig. The default derives from C(fxconfig_git_hub_url), C(fxconfig_git_repo), and C(fxconfig_source_code_package).
+# Defines the Go package path used to install fxconfig.
 fxconfig_bin_package: '{{ fxconfig_git_hub_url }}/{{ fxconfig_git_repo }}/{{ fxconfig_source_code_package }}'
 # Defines the fxconfig configuration filename. Example: C(fxconfig.yaml).
 fxconfig_config_file: fxconfig.yaml
@@ -23,27 +23,27 @@ fxconfig_git_commit: v0.0.12
 fxconfig_git_hub_url: github.com
 # Defines the Fabric-X source repository path. Example: C(hyperledger/fabric-x).
 fxconfig_git_repo: hyperledger/fabric-x
-# Defines the fxconfig container image. The default derives from C(fxconfig_registry_endpoint), C(fxconfig_image_name), and C(fxconfig_image_tag).
+# Defines the fxconfig container image.
 fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
-# Defines the image name used by the default fxconfig container image. Example: C(fabric-x-tools).
+# Defines the image name used by the fxconfig container image. Example: C(fabric-x-tools).
 fxconfig_image_name: fabric-x-tools
-# Defines the image tag used by the default fxconfig container image. Example: C(0.0.12).
+# Defines the image tag used by the fxconfig container image. Example: C(0.0.12).
 fxconfig_image_tag: 0.0.12
 # Defines the fxconfig log format.
 fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
 # Defines the fxconfig log level. Example: C(info).
 fxconfig_log_level: info
-# Defines the MSP identifier written into the rendered configuration. The default derives from C(organization.name).
+# Defines the MSP identifier written into the rendered configuration.
 fxconfig_msp_id: '{{ organization.name }}MSP'
-# Defines the source certificate path used for fxconfig mTLS. The default derives from C(remote_config_dir).
+# Defines the source certificate path used for fxconfig mTLS.
 fxconfig_mtls_client_cert_path: '{{ remote_config_dir }}/tls/server.crt'
-# Defines the source private key path used for fxconfig mTLS. The default derives from C(remote_config_dir).
+# Defines the source private key path used for fxconfig mTLS.
 fxconfig_mtls_client_key_path: '{{ remote_config_dir }}/tls/server.key'
-# Defines the transaction artifact path on the managed host. The default derives from C(fxconfig_remote_config_dir).
+# Defines the transaction artifact path on the managed host.
 fxconfig_output: '{{ fxconfig_remote_config_dir }}/tx.json'
-# Defines the registry endpoint used by the default fxconfig container image. Example: C(docker.io/hyperledger).
+# Defines the registry endpoint used by the fxconfig container image. Example: C(docker.io/hyperledger).
 fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-# Defines the fxconfig remote configuration directory. The default derives from C(remote_config_dir).
+# Defines the fxconfig remote configuration directory.
 fxconfig_remote_config_dir: '{{ remote_config_dir }}/fxconfig'
 # Defines the Go package path containing the fxconfig source code. Example: C(tools/fxconfig).
 fxconfig_source_code_package: tools/fxconfig

@@ -41,7 +41,7 @@ This entry point maps the target platform before downloading the matching Go arc
     go_version: 1.25.8
     # Sets the base directory where the Go distribution is extracted.
     go_install_dir: /usr/local
-    # Selects the host whose facts are mapped into `go_os` and `go_arch`. The default derives from `inventory_hostname`.
+    # Selects the host whose facts are mapped into `go_os` and `go_arch`.
     go_host_to_map: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.go
@@ -59,7 +59,7 @@ This entry point sets `go_os` and `go_arch` facts for later tasks in the role.
 ```yaml
 - name: Map Ansible host facts to GOOS and GOARCH values
   vars:
-    # Selects the host whose facts are mapped into `go_os` and `go_arch`. The default derives from `inventory_hostname`.
+    # Selects the host whose facts are mapped into `go_os` and `go_arch`.
     go_host_to_map: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.go
@@ -81,9 +81,9 @@ This entry point can cross-compile by mapping host facts and optionally enabling
     go_output_name: "string"
     # Defines the base directory containing the Go source tree to build.
     go_source_code_path: "string"
-    # Appends a package subdirectory under `go_source_code_path` before invoking `go build`. The default is blank, which builds from the source root.
+    # Appends a package subdirectory under `go_source_code_path` before invoking `go build`.
     go_source_code_package: ""
-    # Selects the host whose facts are mapped into `go_os` and `go_arch`. The default derives from `inventory_hostname`.
+    # Selects the host whose facts are mapped into `go_os` and `go_arch`.
     go_host_to_map: "{{ inventory_hostname }}"
     # Enables CGO for build and install commands. A compatible C compiler is required when this is `true`.
     go_cgo_enabled: false
@@ -107,9 +107,9 @@ This entry point can place the installed binary in a custom output directory and
   vars:
     # Specifies the Go package or module path passed to `go install`.
     go_package: "string"
-    # Sets the directory exported as `GOBIN` for installed binaries. The default derives from `GOBIN` when set, otherwise from `GOPATH`.
+    # Sets the directory exported as `GOBIN` for installed binaries.
     go_output_dir: "{{ lookup('env', 'GOBIN') | default(lookup('env', 'GOPATH') + '/bin', true) }}"
-    # Selects the host whose facts are mapped into `go_os` and `go_arch`. The default derives from `inventory_hostname`.
+    # Selects the host whose facts are mapped into `go_os` and `go_arch`.
     go_host_to_map: "{{ inventory_hostname }}"
     # Enables CGO for build and install commands. A compatible C compiler is required when this is `true`.
     go_cgo_enabled: false

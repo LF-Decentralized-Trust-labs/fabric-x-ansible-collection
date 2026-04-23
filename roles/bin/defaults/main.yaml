@@ -10,47 +10,35 @@
 # Controls whether source code is cloned and binaries are built on the control node instead of on the managed host.
 bin_build_on_control_node: false
 # Sets the target operating system used when deriving platform-specific build output paths.
-# The default derives from C(ansible_facts.system).
 bin_target_os: '{{ ansible_facts.system }}'
 # Sets the target CPU architecture used when deriving platform-specific build output paths.
-# The default derives from C(ansible_facts.architecture).
 bin_target_arch: '{{ ansible_facts.architecture }}'
 # Sets the output binary name. Example: C(sample-go).
-# The default derives from C(inventory_hostname).
 bin_name: '{{ inventory_hostname }}'
 # Defines the source code directory on the control node when builds run locally.
-# The default derives from C(control_node_dir).
 bin_control_source_code_dir: '{{ control_node_dir }}/code'
 # Defines the platform-specific output directory on the control node for built or installed binaries.
-# The default derives from C(control_node_dir), C(bin_target_os), and C(bin_target_arch).
 bin_control_dir: '{{ control_node_dir }}/bin/{{ bin_target_os }}/{{ bin_target_arch }}'
 # Defines the source code directory used when invoking the go build role after cloning.
-# The default derives from C(bin_control_source_code_dir), C(bin_build_on_control_node), and C(bin_remote_source_code_dir).
 bin_source_code_dir: '{{ bin_control_source_code_dir if bin_build_on_control_node else bin_remote_source_code_dir }}'
 # Defines the source code directory on the managed host when builds do not run on the control node.
-# The default derives from C(remote_node_dir).
 bin_remote_source_code_dir: '{{ remote_node_dir }}/code'
 # Sets the directory where built binaries are written for each target platform.
-# The default derives from C(bin_control_dir), C(bin_build_on_control_node), and C(bin_remote_dir).
 bin_dir: '{{ bin_control_dir if bin_build_on_control_node else bin_remote_dir }}'
 # Lists the hosts whose facts are used to determine the operating system and architecture combinations that must be built.
-# The default derives from C(inventory_hostname).
 bin_hosts:
   - '{{ inventory_hostname }}'
 # Sets the directory that is prefixed to C(bin_command) when constructing the executable path.
-# The default derives from C(remote_node_dir).
 bin_remote_dir: '{{ remote_node_dir }}/bin'
 # Provides environment variables prefixed onto the command line before the binary is started.
 bin_env: {}
 # Controls whether stdout and stderr are redirected to a log file on the managed host.
 bin_collect_logs: true
 # Sets the directory used for redirected log output when C(bin_collect_logs) is enabled.
-# The default derives from C(remote_node_dir).
 bin_remote_logs_dir: '{{ remote_node_dir }}/logs'
 # Sets the log file name used when C(bin_collect_logs) is enabled.
 bin_remote_logs_file: logs.txt
 # Controls whether the assembled command and direct-run output are printed for debugging.
-# The default derives from the C(DEBUG) environment variable.
 bin_debug: "{{ lookup('env', 'DEBUG') | bool | default(false) }}"
 # Controls whether the binary is started in a tmux session instead of through a direct shell invocation.
 bin_run_with_tmux: true
@@ -71,7 +59,6 @@ bin_wait_delay: 1
 # Sets the maximum wait time in seconds for C(bin_wait_port) to become reachable.
 bin_wait_timeout: 60
 # Sets the destination directory on the control node where the fetched log file is stored.
-# The default derives from C(fetched_artifacts_dir) and C(bin_name).
 bin_fetched_logs_dir: '{{ fetched_artifacts_dir }}/{{ bin_name }}'
 # Sets the destination file name used for the fetched log output.
 bin_fetched_logs_file: logs.txt

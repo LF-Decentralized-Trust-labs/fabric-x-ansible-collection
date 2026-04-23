@@ -27,7 +27,7 @@ argument_specs:
         type: bool
         default: "{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) }}"
         description:
-          - "Uses the container server flow; the default derives from C(fabric_ca_server_use_bin) and C(fabric_ca_server_use_k8s)."
+          - "Uses the container server flow."
       fabric_ca_registry_endpoint: &fabric_ca_registry_endpoint
         type: str
         default: "{{ lookup('env', 'FABRIC_CA_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
@@ -47,7 +47,7 @@ argument_specs:
         type: str
         default: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
         description:
-          - "Sets the Fabric CA image; the default derives from C(fabric_ca_registry_endpoint), C(fabric_ca_image_name), and C(fabric_ca_image_tag)."
+          - "Sets the Fabric CA image."
       fabric_ca_container_name: &fabric_ca_container_name
         type: str
         default: "{{ inventory_hostname }}"
@@ -78,7 +78,7 @@ argument_specs:
         type: str
         default: "{{ fabric_ca_git_hub_url }}/{{ fabric_ca_git_repo }}/{{ fabric_ca_server_source_code_package }}"
         description:
-          - "Sets the server Go package path; the default derives from C(fabric_ca_git_hub_url), C(fabric_ca_git_repo), and C(fabric_ca_server_source_code_package)."
+          - "Sets the server Go package path."
       fabric_ca_server_bin_name: &fabric_ca_server_bin_name
         type: str
         default: fabric-ca-server
@@ -94,7 +94,7 @@ argument_specs:
         type: str
         default: "{{ fabric_ca_git_hub_url }}/{{ fabric_ca_git_repo }}/{{ fabric_ca_client_source_code_package }}"
         description:
-          - "Sets the client Go package path; the default derives from C(fabric_ca_git_hub_url), C(fabric_ca_git_repo), and C(fabric_ca_client_source_code_package)."
+          - "Sets the client Go package path."
       fabric_ca_client_bin_name: &fabric_ca_client_bin_name
         type: str
         default: fabric-ca-client
@@ -135,7 +135,7 @@ argument_specs:
         required: false
         default: "{{ remote_config_dir }}"
         description:
-          - "Sets the remote Fabric CA config root; the default derives from C(remote_config_dir)."
+          - "Sets the remote Fabric CA config root."
       fabric_ca_server_container_config_dir:
         &fabric_ca_server_container_config_dir
         type: path
@@ -157,7 +157,7 @@ argument_specs:
         type: path
         default: "{{ fabric_ca_server_remote_config_dir if fabric_ca_server_use_bin else fabric_ca_server_container_config_dir }}"
         description:
-          - "Sets the server config directory; the default derives from C(fabric_ca_server_remote_config_dir), C(fabric_ca_server_use_bin), and C(fabric_ca_server_container_config_dir)."
+          - "Sets the server config directory."
       fabric_ca_server_k8s_resource_name: &fabric_ca_server_k8s_resource_name
         type: str
         default: "{{ inventory_hostname }}"
@@ -191,12 +191,12 @@ argument_specs:
       fabric_ca_server_k8s_port_node_port: &fabric_ca_server_k8s_port_node_port
         type: int
         description:
-          - "Sets the Kubernetes NodePort for the API port; the default derives from C(fabric_ca_port) and is used when NodePort exposure is enabled."
+          - "Sets the Kubernetes NodePort for the API port and is used when NodePort exposure is enabled."
       fabric_ca_server_k8s_operations_node_port:
         &fabric_ca_server_k8s_operations_node_port
         type: int
         description:
-          - "Sets the Kubernetes NodePort for the operations port; the default derives from C(fabric_ca_operations_port) and is used when NodePort exposure is enabled."
+          - "Sets the Kubernetes NodePort for the operations port and is used when NodePort exposure is enabled."
       fabric_ca_log_level: &fabric_ca_log_level
         type: str
         default: INFO
@@ -211,7 +211,7 @@ argument_specs:
         type: str
         default: "{{ 'https' if fabric_ca_use_tls else 'http' }}"
         description:
-          - "Sets the client URL scheme; the default derives from C(fabric_ca_use_tls)."
+          - "Sets the client URL scheme."
       fabric_ca_name: &fabric_ca_name
         type: str
         default: "{{ inventory_hostname }}"
@@ -239,7 +239,7 @@ argument_specs:
         type: str
         required: true
         description:
-          - "Provides the resolved host address used in computed defaults such as C(fabric_ca_csr_hosts) and in client effective-address resolution."
+          - "Provides the resolved host address used in client effective-address resolution."
       fabric_ca_csr_hosts: &fabric_ca_csr_hosts
         type: list
         elements: str
@@ -249,7 +249,7 @@ argument_specs:
           - "{{ actual_host }}"
           - "{{ inventory_hostname }}"
         description:
-          - "Sets the CSR SAN host list; the default derives from C(actual_host), C(ansible_host), and C(inventory_hostname)."
+          - "Sets the CSR SAN host list."
       fabric_ca_server_openssl_curve: &fabric_ca_server_openssl_curve
         type: str
         default: P-256
@@ -282,12 +282,12 @@ argument_specs:
         type: path
         default: "{{ fabric_ca_server_remote_config_dir }}/idemixgen-artifacts"
         description:
-          - "Sets the transient Idemix output directory; the default derives from C(fabric_ca_server_remote_config_dir)."
+          - "Sets the transient Idemix output directory."
       fabric_ca_csr_cn: &fabric_ca_csr_cn
         type: str
         default: "{{ fabric_ca_name }}"
         description:
-          - "Sets the CSR common name; the default derives from C(fabric_ca_name)."
+          - "Sets the CSR common name."
       fabric_ca_csr_expiry: &fabric_ca_csr_expiry
         type: str
         default: 131400h

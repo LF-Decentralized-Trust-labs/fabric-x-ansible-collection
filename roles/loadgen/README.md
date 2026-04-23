@@ -67,7 +67,7 @@ Start the Loadgen runtime selected by the runtime mode flags.
 ```yaml
 - name: Start the load generator
   vars:
-    # Run the container runtime. The default derives from `loadgen_use_bin` and `loadgen_use_k8s`.
+    # Run the container runtime.
     loadgen_use_container: "{{ (not loadgen_use_bin) and (not loadgen_use_k8s) }}"
     # Run the binary runtime.
     loadgen_use_bin: false
@@ -87,7 +87,7 @@ Stop the active Loadgen runtime selected by the runtime mode flags.
 ```yaml
 - name: Stop the load generator
   vars:
-    # Run the container runtime. The default derives from `loadgen_use_bin` and `loadgen_use_k8s`.
+    # Run the container runtime.
     loadgen_use_container: "{{ (not loadgen_use_bin) and (not loadgen_use_k8s) }}"
     # Run the binary runtime.
     loadgen_use_bin: false
@@ -105,7 +105,7 @@ Remove runtime resources for the active Loadgen deployment mode.
 ```yaml
 - name: Remove runtime artifacts
   vars:
-    # Run the container runtime. The default derives from `loadgen_use_bin` and `loadgen_use_k8s`.
+    # Run the container runtime.
     loadgen_use_container: "{{ (not loadgen_use_bin) and (not loadgen_use_k8s) }}"
     # Run the binary runtime.
     loadgen_use_bin: false
@@ -141,7 +141,7 @@ Collect Loadgen logs for the active runtime mode.
 ```yaml
 - name: Collect runtime logs
   vars:
-    # Run the container runtime. The default derives from `loadgen_use_bin` and `loadgen_use_k8s`.
+    # Run the container runtime.
     loadgen_use_container: "{{ (not loadgen_use_bin) and (not loadgen_use_k8s) }}"
     # Run the binary runtime.
     loadgen_use_bin: false
@@ -183,11 +183,11 @@ Query the Loadgen metrics endpoint.
     actual_host: "string"
     # Prometheus metrics port exposed by Loadgen.
     loadgen_metrics_port: 1000
-    # NodePort used for the metrics port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. The default mirrors `loadgen_metrics_port`.
+    # NodePort used for the metrics port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true.
     loadgen_k8s_metrics_node_port: 1000
     # Protocol used to reach the monitoring endpoint.
     loadgen_monitoring_http_protocol: "{{ 'https' if loadgen_monitoring_use_tls else 'http' }}"
-    # Enable TLS for the monitoring endpoint. The default mirrors `loadgen_use_tls`.
+    # Enable TLS for the monitoring endpoint.
     loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
@@ -215,7 +215,7 @@ Send an HTTP request that updates the generated transaction rate.
     actual_host: "string"
     # HTTP control port exposed by Loadgen.
     loadgen_web_port: 1000
-    # NodePort used for the HTTP control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. The default mirrors `loadgen_web_port`.
+    # NodePort used for the HTTP control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true.
     loadgen_k8s_web_node_port: 1000
     # Maximum generated transaction rate.
     loadgen_limit_rate: 1000
@@ -257,11 +257,11 @@ Render and transfer Loadgen configuration.
   vars:
     # Base remote config directory that feeds `loadgen_remote_config_dir`.
     remote_config_dir: "string"
-    # Remote config directory used by Loadgen. The default derives from `remote_config_dir`.
+    # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Config mount path inside a container or pod.
     loadgen_container_config_dir: /config
-    # Effective config directory used inside rendered Loadgen configuration. The default derives from `loadgen_remote_config_dir`, `loadgen_use_bin`, and `loadgen_container_config_dir`.
+    # Effective config directory used inside rendered Loadgen configuration.
     loadgen_config_dir: "{{ loadgen_remote_config_dir if loadgen_use_bin else loadgen_container_config_dir }}"
     # Rendered Loadgen config filename.
     loadgen_config_file: config-loadgen.yaml
@@ -271,7 +271,7 @@ Render and transfer Loadgen configuration.
     loadgen_use_k8s: false
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
-    # Enable TLS for the monitoring endpoint. The default mirrors `loadgen_use_tls`.
+    # Enable TLS for the monitoring endpoint.
     loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
     # Enable mTLS for the main endpoint.
     loadgen_use_mtls: false
@@ -371,7 +371,7 @@ Render and transfer Loadgen configuration.
     loadgen_limit_blocks: 1000
     # Optional stopping limit for generated transactions.
     loadgen_limit_transactions: 1000
-    # Enable mTLS for the monitoring endpoint. The default mirrors `loadgen_use_mtls`.
+    # Enable mTLS for the monitoring endpoint.
     loadgen_monitoring_use_mtls: "{{ loadgen_use_mtls }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
@@ -387,7 +387,7 @@ Transfer CA bundles trusted by the monitoring endpoint.
 ```yaml
 - name: Transfer monitoring mTLS CA bundles
   vars:
-    # Remote config directory used by Loadgen. The default derives from `remote_config_dir`.
+    # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Local artifacts directory used for fetched TLS and MSP files.
     fetched_artifacts_dir: "string"
@@ -409,7 +409,7 @@ Remove host-side configuration files and optionally the Kubernetes ConfigMap.
 ```yaml
 - name: Remove rendered configuration
   vars:
-    # Remote config directory used by Loadgen. The default derives from `remote_config_dir`.
+    # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Base remote config directory that feeds `loadgen_remote_config_dir`.
     remote_config_dir: "string"
@@ -451,13 +451,13 @@ Transfer MSP and TLS artifacts generated by cryptogen to the Loadgen host.
     organization: {}
     # Local cryptogen output directory.
     cryptogen_artifacts_dir: "string"
-    # Remote config directory used by Loadgen. The default derives from `remote_config_dir`.
+    # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Base remote config directory that feeds `loadgen_remote_config_dir`.
     remote_config_dir: "string"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
-    # Enable TLS for the monitoring endpoint. The default mirrors `loadgen_use_tls`.
+    # Enable TLS for the monitoring endpoint.
     loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
@@ -477,7 +477,7 @@ Enroll the Loadgen peer and user identities against Fabric CA.
     organization: {}
     # Local artifacts directory used for fetched TLS and MSP files.
     fetched_artifacts_dir: "string"
-    # Remote config directory used by Loadgen. The default derives from `remote_config_dir`.
+    # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Base remote config directory that feeds `loadgen_remote_config_dir`.
     remote_config_dir: "string"
@@ -485,7 +485,7 @@ Enroll the Loadgen peer and user identities against Fabric CA.
     actual_host: "string"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
-    # Enable TLS for the monitoring endpoint. The default mirrors `loadgen_use_tls`.
+    # Enable TLS for the monitoring endpoint.
     loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
@@ -505,13 +505,13 @@ Fetch Loadgen MSP signcerts and TLS certificates back to the control node.
     organization: {}
     # Local artifacts directory used for fetched TLS and MSP files.
     fetched_artifacts_dir: "string"
-    # Remote config directory used by Loadgen. The default derives from `remote_config_dir`.
+    # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Base remote config directory that feeds `loadgen_remote_config_dir`.
     remote_config_dir: "string"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
-    # Enable TLS for the monitoring endpoint. The default mirrors `loadgen_use_tls`.
+    # Enable TLS for the monitoring endpoint.
     loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
@@ -527,13 +527,13 @@ Remove Loadgen MSP and TLS artifacts from the host and optionally from Kubernete
 ```yaml
 - name: Remove crypto material
   vars:
-    # Remote config directory used by Loadgen. The default derives from `remote_config_dir`.
+    # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Base remote config directory that feeds `loadgen_remote_config_dir`.
     remote_config_dir: "string"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
-    # Enable TLS for the monitoring endpoint. The default mirrors `loadgen_use_tls`.
+    # Enable TLS for the monitoring endpoint.
     loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
     # Use Kubernetes resources.
     loadgen_use_k8s: false
@@ -561,7 +561,7 @@ Build the Loadgen binary from source through the shared bin role.
     loadgen_git_commit: v0.1.9
     # Go package path for the Loadgen binary.
     loadgen_source_code_package: cmd/loadgen
-    # Go package used for binary installation. The default derives from `loadgen_git_hub_url`, `loadgen_git_repo`, and `loadgen_source_code_package`.
+    # Go package used for binary installation.
     loadgen_bin_package: "{{ loadgen_git_hub_url }}/{{ loadgen_git_repo }}/{{ loadgen_source_code_package }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
@@ -579,7 +579,7 @@ Install the Loadgen binary through the shared bin role.
   vars:
     # Binary name used by the shared bin role.
     loadgen_bin_name: loadgen
-    # Go package used for binary installation. The default derives from `loadgen_git_hub_url`, `loadgen_git_repo`, and `loadgen_source_code_package`.
+    # Go package used for binary installation.
     loadgen_bin_package: "{{ loadgen_git_hub_url }}/{{ loadgen_git_repo }}/{{ loadgen_source_code_package }}"
     # Git host used for binary builds.
     loadgen_git_hub_url: github.com
@@ -621,7 +621,7 @@ Start the Loadgen as a local binary process.
   vars:
     # Binary name used by the shared bin role.
     loadgen_bin_name: loadgen
-    # Remote config directory used by Loadgen. The default derives from `remote_config_dir`.
+    # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Base remote config directory that feeds `loadgen_remote_config_dir`.
     remote_config_dir: "string"
@@ -687,7 +687,7 @@ Start the Loadgen as a local container.
   vars:
     # Container name used by the runtime.
     loadgen_container_name: "{{ inventory_hostname }}"
-    # Loadgen container image. The default derives from `loadgen_registry_endpoint`, `loadgen_image_name`, and `loadgen_image_tag`.
+    # Loadgen container image.
     loadgen_image: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
     # Image registry endpoint.
     loadgen_registry_endpoint: "{{ lookup('env', 'LOADGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
@@ -697,7 +697,7 @@ Start the Loadgen as a local container.
     loadgen_image_tag: 0.1.9
     # Base remote config directory that feeds `loadgen_remote_config_dir`.
     remote_config_dir: "string"
-    # Remote config directory used by Loadgen. The default derives from `remote_config_dir`.
+    # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Config mount path inside a container or pod.
     loadgen_container_config_dir: /config
@@ -777,7 +777,7 @@ Create the Kubernetes Service, NodePort Service, and Deployment for the Loadgen.
     orderer_hosts: ["entry1", "entry2"]
     # Organization definition consumed by crypto, config, and Kubernetes templates.
     organization: {}
-    # Loadgen container image. The default derives from `loadgen_registry_endpoint`, `loadgen_image_name`, and `loadgen_image_tag`.
+    # Loadgen container image.
     loadgen_image: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
     # Image registry endpoint.
     loadgen_registry_endpoint: "{{ lookup('env', 'LOADGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
@@ -799,11 +799,11 @@ Create the Kubernetes Service, NodePort Service, and Deployment for the Loadgen.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
-    # Enable TLS for the monitoring endpoint. The default mirrors `loadgen_use_tls`.
+    # Enable TLS for the monitoring endpoint.
     loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
     # Enable mTLS for the main endpoint.
     loadgen_use_mtls: false
-    # Enable mTLS for the monitoring endpoint. The default mirrors `loadgen_use_mtls`.
+    # Enable mTLS for the monitoring endpoint.
     loadgen_monitoring_use_mtls: "{{ loadgen_use_mtls }}"
     # Additional mTLS client identities trusted by the main endpoint.
     loadgen_mtls_clients: ["entry1", "entry2"]
@@ -825,11 +825,11 @@ Create the Kubernetes Service, NodePort Service, and Deployment for the Loadgen.
     loadgen_metrics_port: 1000
     # gRPC control port exposed by Loadgen.
     loadgen_rpc_port: 1000
-    # NodePort used for the HTTP control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. The default mirrors `loadgen_web_port`.
+    # NodePort used for the HTTP control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true.
     loadgen_k8s_web_node_port: 1000
-    # NodePort used for the metrics port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. The default mirrors `loadgen_metrics_port`.
+    # NodePort used for the metrics port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true.
     loadgen_k8s_metrics_node_port: 1000
-    # NodePort used for the gRPC control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. The default mirrors `loadgen_rpc_port`.
+    # NodePort used for the gRPC control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true.
     loadgen_k8s_rpc_node_port: 1000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
@@ -853,11 +853,11 @@ Verify that the Loadgen NodePort endpoints are reachable.
     loadgen_metrics_port: 1000
     # gRPC control port exposed by Loadgen.
     loadgen_rpc_port: 1000
-    # NodePort used for the HTTP control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. The default mirrors `loadgen_web_port`.
+    # NodePort used for the HTTP control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true.
     loadgen_k8s_web_node_port: 1000
-    # NodePort used for the metrics port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. The default mirrors `loadgen_metrics_port`.
+    # NodePort used for the metrics port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true.
     loadgen_k8s_metrics_node_port: 1000
-    # NodePort used for the gRPC control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. The default mirrors `loadgen_rpc_port`.
+    # NodePort used for the gRPC control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true.
     loadgen_k8s_rpc_node_port: 1000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
@@ -911,7 +911,7 @@ Publish the rendered Loadgen configuration and CA bundles as a ConfigMap.
     k8s_namespace: "string"
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
-    # Remote config directory used by Loadgen. The default derives from `remote_config_dir`.
+    # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Rendered Loadgen config filename.
     loadgen_config_file: config-loadgen.yaml
@@ -923,7 +923,7 @@ Publish the rendered Loadgen configuration and CA bundles as a ConfigMap.
     committer_sidecar_host: "string"
     # Enable mTLS for the main endpoint.
     loadgen_use_mtls: false
-    # Enable mTLS for the monitoring endpoint. The default mirrors `loadgen_use_mtls`.
+    # Enable mTLS for the monitoring endpoint.
     loadgen_monitoring_use_mtls: "{{ loadgen_use_mtls }}"
     # Additional mTLS client identities trusted by the main endpoint.
     loadgen_mtls_clients: ["entry1", "entry2"]
@@ -969,13 +969,13 @@ Publish the Loadgen MSP and TLS material as a Kubernetes Secret.
     organization: {}
     # Base remote config directory that feeds `loadgen_remote_config_dir`.
     remote_config_dir: "string"
-    # Remote config directory used by Loadgen. The default derives from `remote_config_dir`.
+    # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Local artifacts directory used for fetched TLS and MSP files.
     fetched_artifacts_dir: "string"
     # Canonical host name used for metrics and Fabric CA enrollment.
     actual_host: "string"
-    # Crypto identity name used for MSP and TLS file names. The default derives from `organization.peer.name` with `inventory_hostname` fallback.
+    # Crypto identity name used for MSP and TLS file names.
     loadgen_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}"
     # Kubernetes namespace used for loadgen resources.
     k8s_namespace: "string"
@@ -983,7 +983,7 @@ Publish the Loadgen MSP and TLS material as a Kubernetes Secret.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
-    # Enable TLS for the monitoring endpoint. The default mirrors `loadgen_use_tls`.
+    # Enable TLS for the monitoring endpoint.
     loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen

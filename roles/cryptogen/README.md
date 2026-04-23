@@ -62,7 +62,7 @@ Run this after crypto material has already been generated.
     config_build_dir: "string"
     # Sets the destination directory for fetched MSP folders.
     fetched_artifacts_dir: "string"
-    # Sets the directory where cryptogen writes generated crypto material. The default derives from `cryptogen_artifacts_dir`, which in turn derives from `config_build_dir`.
+    # Sets the directory where cryptogen writes generated crypto material.
     cryptogen_output_dir: "{{ cryptogen_artifacts_dir }}/crypto"
     # Maps orderer organization domains to their organization definitions.
     cryptogen_orderers_by_org: {}
@@ -86,7 +86,7 @@ This entry point gathers host IPv4 facts for referenced orderer and peer hosts b
   vars:
     # Sets the base directory for generated configuration artifacts.
     config_build_dir: "string"
-    # Sets the directory that stores cryptogen inputs and generated files. The default derives from `config_build_dir`.
+    # Sets the directory that stores cryptogen inputs and generated files.
     cryptogen_artifacts_dir: "{{ config_build_dir }}/cryptogen-artifacts"
     # Sets the cryptogen configuration filename.
     cryptogen_config_file: crypto-config.yaml
@@ -112,17 +112,17 @@ This entry point delegates container startup to `hyperledger.fabricx.container`.
   vars:
     # Sets the base directory for generated configuration artifacts.
     config_build_dir: "string"
-    # Sets the directory that stores cryptogen inputs and generated files. The default derives from `config_build_dir`.
+    # Sets the directory that stores cryptogen inputs and generated files.
     cryptogen_artifacts_dir: "{{ config_build_dir }}/cryptogen-artifacts"
-    # Sets the directory where cryptogen writes generated crypto material. The default derives from `cryptogen_artifacts_dir`, which in turn derives from `config_build_dir`.
+    # Sets the directory where cryptogen writes generated crypto material.
     cryptogen_output_dir: "{{ cryptogen_artifacts_dir }}/crypto"
-    # Sets the registry used for the cryptogen container image. The default derives from the `CRYPTOGEN_REGISTRY_ENDPOINT` environment variable.
+    # Sets the registry used for the cryptogen container image.
     cryptogen_registry_endpoint: "{{ lookup('env', 'CRYPTOGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # Sets the cryptogen image name.
     cryptogen_image_name: fabric-x-tools
     # Sets the cryptogen image tag.
     cryptogen_image_tag: 0.0.8
-    # Sets the full cryptogen image reference. The default derives from `cryptogen_registry_endpoint`, `cryptogen_image_name`, and `cryptogen_image_tag`.
+    # Sets the full cryptogen image reference.
     cryptogen_image: "{{ cryptogen_registry_endpoint }}/{{ cryptogen_image_name }}:{{ cryptogen_image_tag }}"
     # Sets the container name used for the cryptogen run.
     cryptogen_container_name: cryptogen
@@ -130,7 +130,7 @@ This entry point delegates container startup to `hyperledger.fabricx.container`.
     cryptogen_bin_name: cryptogen
     # Sets the container directory that receives the mounted cryptogen inputs.
     cryptogen_container_artifacts_dir: /tmp/cryptogen-artifacts
-    # Sets the container directory where cryptogen writes generated crypto material. The default derives from `cryptogen_container_artifacts_dir`.
+    # Sets the container directory where cryptogen writes generated crypto material.
     cryptogen_container_output_dir: "{{ cryptogen_container_artifacts_dir }}/crypto"
     # Sets the cryptogen configuration filename.
     cryptogen_config_file: crypto-config.yaml
@@ -162,7 +162,7 @@ This entry point is intended for binary-mode deployments.
     cryptogen_git_commit: v0.0.8
     # Sets the Go package path that contains the cryptogen source.
     cryptogen_source_code_package: tools/cryptogen
-    # Sets the Go package path used to install cryptogen. The default derives from `cryptogen_git_hub_url`, `cryptogen_git_repo`, and `cryptogen_source_code_package`.
+    # Sets the Go package path used to install cryptogen.
     cryptogen_bin_package: "{{ cryptogen_git_hub_url }}/{{ cryptogen_git_repo }}/{{ cryptogen_source_code_package }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.cryptogen
@@ -212,9 +212,9 @@ This entry point delegates command execution to `hyperledger.fabricx.bin`.
     cli_bin_dir: "string"
     # Sets the base directory for generated configuration artifacts.
     config_build_dir: "string"
-    # Sets the directory that stores cryptogen inputs and generated files. The default derives from `config_build_dir`.
+    # Sets the directory that stores cryptogen inputs and generated files.
     cryptogen_artifacts_dir: "{{ config_build_dir }}/cryptogen-artifacts"
-    # Sets the directory where cryptogen writes generated crypto material. The default derives from `cryptogen_artifacts_dir`, which in turn derives from `config_build_dir`.
+    # Sets the directory where cryptogen writes generated crypto material.
     cryptogen_output_dir: "{{ cryptogen_artifacts_dir }}/crypto"
     # Sets the cryptogen executable name.
     cryptogen_bin_name: cryptogen

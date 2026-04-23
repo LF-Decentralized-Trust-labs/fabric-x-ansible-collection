@@ -58,35 +58,30 @@ argument_specs:
         default: "{{ container_name | default(inventory_hostname) }}"
         description:
           - "Sets the hostname inside the container."
-          - "The default derives from C(container_name) and C(inventory_hostname)."
       container_host_uid: &container_host_uid
         type: int
         required: false
         default: "{{ ansible_facts.user_uid }}"
         description:
           - "Provides the host uid used to build C(container_host_user)."
-          - "The default derives from C(ansible_facts.user_uid)."
       container_host_gid: &container_host_gid
         type: int
         required: false
         default: "{{ ansible_facts.user_gid }}"
         description:
           - "Provides the host gid used to build C(container_host_user)."
-          - "The default derives from C(ansible_facts.user_gid)."
       container_host_user: &container_host_user
         type: str
         required: false
         default: "{{ container_host_uid }}:{{ container_host_gid }}"
         description:
           - "Builds the host uid:gid pair used for rootless container execution."
-          - "The default derives from C(container_host_uid) and C(container_host_gid)."
       container_host_user_is_root: &container_host_user_is_root
         type: bool
         required: false
         default: "{{ container_host_user == '0:0' }}"
         description:
           - "Reports whether C(container_host_user) resolves to C(0:0)."
-          - "The default derives from C(container_host_user)."
       container_run_as_host_user: &container_run_as_host_user
         type: bool
         required: false
@@ -99,14 +94,12 @@ argument_specs:
         default: "{{ ansible_facts.os_family == 'Darwin' }}"
         description:
           - "Marks whether the target host is macOS."
-          - "The default derives from C(ansible_facts.os_family)."
       container_network_mode: &container_network_mode
         type: str
         required: false
         default: "{{ 'bridge' if (container_on_mac or (container_network is defined)) else 'host' }}"
         description:
           - "Controls the container network mode."
-          - "The default derives from C(container_on_mac) and C(container_network)."
       container_network: &container_network
         type: str
         description:
@@ -168,7 +161,6 @@ argument_specs:
         default: "{{ lookup('env', 'DEBUG') | bool | default(false) }}"
         description:
           - "Enables debug output."
-          - "The default derives from C(DEBUG) in the environment."
       container_healthcheck_test: &container_healthcheck_test
         type: raw
         required: false
@@ -309,7 +301,6 @@ argument_specs:
         default: "{{ fetched_artifacts_dir }}/{{ container_name }}"
         description:
           - "Sets the local destination for fetched container logs."
-          - "The default derives from C(fetched_artifacts_dir) and C(container_name)."
       container_fetched_logs_file: &container_fetched_logs_file
         type: str
         required: false
@@ -322,7 +313,6 @@ argument_specs:
         default: "{{ remote_node_dir }}/logs"
         description:
           - "Sets the remote directory used to stage collected container logs."
-          - "The default derives from C(remote_node_dir)."
       container_remote_logs_file: &container_remote_logs_file
         type: str
         required: false

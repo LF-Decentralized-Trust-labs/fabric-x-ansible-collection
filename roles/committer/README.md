@@ -151,7 +151,7 @@ The selected runtime path depends on `committer_use_bin` and `committer_use_k8s`
     committer_use_bin: false
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
-    # Enable container deployment mode. The default derives from `committer_use_bin` and `committer_use_k8s`.
+    # Enable container deployment mode.
     committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
@@ -171,7 +171,7 @@ Start a verifier in bin, container, or Kubernetes mode.
     committer_use_bin: false
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
-    # Enable container deployment mode. The default derives from `committer_use_bin` and `committer_use_k8s`.
+    # Enable container deployment mode.
     committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
@@ -193,7 +193,7 @@ Coordinators connect to validator and verifier hosts that must already be config
     committer_use_bin: false
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
-    # Enable container deployment mode. The default derives from `committer_use_bin` and `committer_use_k8s`.
+    # Enable container deployment mode.
     committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
@@ -215,7 +215,7 @@ Sidecars require persistent data storage and connect to coordinator and orderer 
     committer_use_bin: false
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
-    # Enable container deployment mode. The default derives from `committer_use_bin` and `committer_use_k8s`.
+    # Enable container deployment mode.
     committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
@@ -235,7 +235,7 @@ Start a query-service in bin, container, or Kubernetes mode.
     committer_use_bin: false
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
-    # Enable container deployment mode. The default derives from `committer_use_bin` and `committer_use_k8s`.
+    # Enable container deployment mode.
     committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
@@ -255,7 +255,7 @@ Kubernetes teardown is handled through the teardown entry points instead.
   vars:
     # Committer component handled by the entry point.
     committer_component_type: "string"
-    # Deployment mode selected by the role. The default derives from `committer_use_bin` and `committer_use_k8s`.
+    # Deployment mode selected by the role.
     committer_deployment_mode: "{%- if committer_use_bin -%}bin{%- elif committer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
     # Enable host-binary deployment mode.
     committer_use_bin: false
@@ -297,7 +297,7 @@ Remove the query-service according to its deployment mode.
     committer_use_bin: false
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
-    # Enable container deployment mode. The default derives from `committer_use_bin` and `committer_use_k8s`.
+    # Enable container deployment mode.
     committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
@@ -317,7 +317,7 @@ Remove the sidecar according to its deployment mode and delete sidecar data.
     committer_use_bin: false
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
-    # Enable container deployment mode. The default derives from `committer_use_bin` and `committer_use_k8s`.
+    # Enable container deployment mode.
     committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
@@ -337,7 +337,7 @@ Remove the coordinator according to its deployment mode.
     committer_use_bin: false
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
-    # Enable container deployment mode. The default derives from `committer_use_bin` and `committer_use_k8s`.
+    # Enable container deployment mode.
     committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
@@ -375,7 +375,7 @@ Fetch logs from the selected deployment mode.
     committer_use_bin: false
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
-    # Enable container deployment mode. The default derives from `committer_use_bin` and `committer_use_k8s`.
+    # Enable container deployment mode.
     committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
@@ -393,7 +393,7 @@ Query the component metrics endpoint and print the response body.
   vars:
     # Reachable host or IP address used by the metrics client and Fabric-CA CSR generation.
     actual_host: "string"
-    # HTTP protocol used by the metrics client. The default derives from `committer_use_tls`.
+    # HTTP protocol used by the metrics client.
     committer_http_protocol: "{{ 'https' if committer_use_tls else 'http' }}"
     # Metrics port exposed by the selected committer component.
     committer_metrics_port: 1000
@@ -451,7 +451,7 @@ This task runs only when `committer_use_tls` is true.
   vars:
     # Remote config directory used by delegated crypto tasks.
     remote_config_dir: "string"
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Control-node directory that stores fetched artifacts.
     fetched_artifacts_dir: "string"
@@ -473,7 +473,7 @@ Install the committer binary through the shared `bin` role Go installer entry po
   vars:
     # Binary name managed by the committer role.
     committer_bin_name: committer
-    # Go package path used by the shared binary installer. The default derives from `committer_git_hub_url`, `committer_git_repo`, and `committer_source_code_package`.
+    # Go package path used by the shared binary installer.
     committer_bin_package: "{{ committer_git_hub_url }}/{{ committer_git_repo }}/{{ committer_source_code_package }}"
     # Git host used for the committer source repository.
     committer_git_hub_url: github.com
@@ -579,15 +579,15 @@ Run the validator container with its generated configuration directory mounted r
 ```yaml
 - name: Start the validator container
   vars:
-    # Container name used by the committer container helper. The default derives from `inventory_hostname`.
+    # Container name used by the committer container helper.
     committer_container_name: "{{ inventory_hostname }}"
-    # Fully qualified committer image. The default derives from `committer_registry_endpoint`, `committer_image_name`, and `committer_image_tag`.
+    # Fully qualified committer image.
     committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
     # Config directory inside the committer container.
     committer_container_config_dir: /config
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
-    # Generated config file name used by the selected component. The default derives from `committer_component_type`.
+    # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
     # RPC port exposed by the selected committer component.
     committer_rpc_port: 1000
@@ -607,15 +607,15 @@ Run the verifier container with its generated configuration directory mounted re
 ```yaml
 - name: Start the verifier container
   vars:
-    # Container name used by the committer container helper. The default derives from `inventory_hostname`.
+    # Container name used by the committer container helper.
     committer_container_name: "{{ inventory_hostname }}"
-    # Fully qualified committer image. The default derives from `committer_registry_endpoint`, `committer_image_name`, and `committer_image_tag`.
+    # Fully qualified committer image.
     committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
     # Config directory inside the committer container.
     committer_container_config_dir: /config
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
-    # Generated config file name used by the selected component. The default derives from `committer_component_type`.
+    # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
     # RPC port exposed by the selected committer component.
     committer_rpc_port: 1000
@@ -635,15 +635,15 @@ Run the coordinator container with its generated configuration directory mounted
 ```yaml
 - name: Start the coordinator container
   vars:
-    # Container name used by the committer container helper. The default derives from `inventory_hostname`.
+    # Container name used by the committer container helper.
     committer_container_name: "{{ inventory_hostname }}"
-    # Fully qualified committer image. The default derives from `committer_registry_endpoint`, `committer_image_name`, and `committer_image_tag`.
+    # Fully qualified committer image.
     committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
     # Config directory inside the committer container.
     committer_container_config_dir: /config
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
-    # Generated config file name used by the selected component. The default derives from `committer_component_type`.
+    # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
     # RPC port exposed by the selected committer component.
     committer_rpc_port: 1000
@@ -663,19 +663,19 @@ Ensure the sidecar data directory exists and run the sidecar container with conf
 ```yaml
 - name: Start the sidecar container
   vars:
-    # Container name used by the committer container helper. The default derives from `inventory_hostname`.
+    # Container name used by the committer container helper.
     committer_container_name: "{{ inventory_hostname }}"
-    # Fully qualified committer image. The default derives from `committer_registry_endpoint`, `committer_image_name`, and `committer_image_tag`.
+    # Fully qualified committer image.
     committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
     # Config directory inside the committer container.
     committer_container_config_dir: /config
     # Data directory inside the committer container.
     committer_container_data_dir: /data
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
-    # Remote data directory managed by the role. The default derives from `remote_data_dir`.
+    # Remote data directory managed by the role.
     committer_remote_data_dir: "{{ remote_data_dir }}"
-    # Generated config file name used by the selected component. The default derives from `committer_component_type`.
+    # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
     # RPC port exposed by the selected committer component.
     committer_rpc_port: 1000
@@ -695,15 +695,15 @@ Run the query-service container with its generated configuration directory mount
 ```yaml
 - name: Start the query-service container
   vars:
-    # Container name used by the committer container helper. The default derives from `inventory_hostname`.
+    # Container name used by the committer container helper.
     committer_container_name: "{{ inventory_hostname }}"
-    # Fully qualified committer image. The default derives from `committer_registry_endpoint`, `committer_image_name`, and `committer_image_tag`.
+    # Fully qualified committer image.
     committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
     # Config directory inside the committer container.
     committer_container_config_dir: /config
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
-    # Generated config file name used by the selected component. The default derives from `committer_component_type`.
+    # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
     # RPC port exposed by the selected committer component.
     committer_rpc_port: 1000
@@ -723,7 +723,7 @@ Stop the committer container through the shared `container` role.
 ```yaml
 - name: Stop a committer container
   vars:
-    # Container name used by the committer container helper. The default derives from `inventory_hostname`.
+    # Container name used by the committer container helper.
     committer_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
@@ -739,7 +739,7 @@ Remove the committer container through the shared `container` role.
 ```yaml
 - name: Remove a committer container
   vars:
-    # Container name used by the committer container helper. The default derives from `inventory_hostname`.
+    # Container name used by the committer container helper.
     committer_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
@@ -755,7 +755,7 @@ Collect logs from the committer container through the shared `container` role.
 ```yaml
 - name: Fetch committer container logs
   vars:
-    # Container name used by the committer container helper. The default derives from `inventory_hostname`.
+    # Container name used by the committer container helper.
     committer_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
@@ -787,7 +787,7 @@ Remove the component config directory and the Kubernetes ConfigMap when enabled.
 ```yaml
 - name: Remove committer configuration
   vars:
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
@@ -838,7 +838,7 @@ Generate the PostgreSQL connection settings consumed by the committer component.
   vars:
     # Inventory host name of the Postgres backend used by validator or query-service configuration.
     postgres_db_host: "string"
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Control-node directory that stores fetched artifacts.
     fetched_artifacts_dir: "string"
@@ -858,7 +858,7 @@ Generate the Yugabyte connection settings consumed by the committer component.
   vars:
     # Yugabyte cluster identifier used by validator or query-service configuration.
     yugabyte_cluster_ref_id: "string"
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Control-node directory that stores fetched artifacts.
     fetched_artifacts_dir: "string"
@@ -880,7 +880,7 @@ Copy mTLS certificates for the committer service-to-service connections.
     committer_mtls_clients: ["entry1", "entry2"]
     # mTLS organizations trusted by the component.
     committer_mtls_orgs: [{}]
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Control-node directory that stores fetched artifacts.
     fetched_artifacts_dir: "string"
@@ -902,7 +902,7 @@ Copy monitoring mTLS certificates for Prometheus scraping.
     committer_monitoring_mtls_clients: ["entry1", "entry2"]
     # Monitoring mTLS organizations trusted by the component.
     committer_monitoring_mtls_orgs: [{}]
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Control-node directory that stores fetched artifacts.
     fetched_artifacts_dir: "string"
@@ -920,7 +920,7 @@ Remove local TLS assets and the Kubernetes Secret when enabled.
 ```yaml
 - name: Remove committer crypto material
   vars:
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Enable TLS material for the selected component.
     committer_use_tls: false
@@ -946,7 +946,7 @@ Copy cryptogen-generated TLS assets for the selected committer component.
     committer_component_type: "string"
     # Control-node directory that stores cryptogen output.
     cryptogen_artifacts_dir: "string"
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Enable TLS material for the selected component.
     committer_use_tls: false
@@ -968,7 +968,7 @@ Enroll the selected committer component against its Fabric CA and write the resu
     organization: {}
     # Committer component handled by the entry point.
     committer_component_type: "string"
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Control-node directory that stores fetched artifacts.
     fetched_artifacts_dir: "string"
@@ -990,9 +990,9 @@ Remove the sidecar data directory and sidecar PVC when Kubernetes mode is enable
 ```yaml
 - name: Remove sidecar data
   vars:
-    # Remote data directory managed by the role. The default derives from `remote_data_dir`.
+    # Remote data directory managed by the role.
     committer_remote_data_dir: "{{ remote_data_dir }}"
-    # Base Kubernetes resource name for committer objects. The default derives from `inventory_hostname` and is used by the service, workload, secret, and optional NodePort resources.
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
@@ -1012,7 +1012,7 @@ Delete the committer Kubernetes ConfigMap.
 ```yaml
 - name: Remove the committer ConfigMap
   vars:
-    # Base Kubernetes resource name for committer objects. The default derives from `inventory_hostname` and is used by the service, workload, secret, and optional NodePort resources.
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace that contains the committer resources.
     k8s_namespace: "string"
@@ -1030,7 +1030,7 @@ Delete the committer Kubernetes Secret.
 ```yaml
 - name: Remove the committer Secret
   vars:
-    # Base Kubernetes resource name for committer objects. The default derives from `inventory_hostname` and is used by the service, workload, secret, and optional NodePort resources.
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace that contains the committer resources.
     k8s_namespace: "string"
@@ -1050,11 +1050,11 @@ Create the committer Kubernetes Secret from the generated TLS materials.
   vars:
     # Committer component handled by the entry point.
     committer_component_type: "string"
-    # Crypto material base name for the committer. The default derives from `organization.peer.name` when present, otherwise `inventory_hostname`.
+    # Crypto material base name for the committer.
     committer_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}"
-    # Base Kubernetes resource name for committer objects. The default derives from `inventory_hostname` and is used by the service, workload, secret, and optional NodePort resources.
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Kubernetes namespace that contains the committer resources.
     k8s_namespace: "string"
@@ -1074,7 +1074,7 @@ Collect logs from committer pods through the shared Kubernetes helper role.
 ```yaml
 - name: Fetch committer pod logs
   vars:
-    # Base Kubernetes resource name for committer objects. The default derives from `inventory_hostname` and is used by the service, workload, secret, and optional NodePort resources.
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
@@ -1110,9 +1110,9 @@ Run the validator binary with its generated configuration file.
   vars:
     # Binary name managed by the committer role.
     committer_bin_name: committer
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
-    # Generated config file name used by the selected component. The default derives from `committer_component_type`.
+    # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
     # RPC port exposed by the selected committer component.
     committer_rpc_port: 1000
@@ -1132,9 +1132,9 @@ Run the verifier binary with its generated configuration file.
   vars:
     # Binary name managed by the committer role.
     committer_bin_name: committer
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
-    # Generated config file name used by the selected component. The default derives from `committer_component_type`.
+    # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
     # RPC port exposed by the selected committer component.
     committer_rpc_port: 1000
@@ -1154,9 +1154,9 @@ Run the coordinator binary with its generated configuration file.
   vars:
     # Binary name managed by the committer role.
     committer_bin_name: committer
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
-    # Generated config file name used by the selected component. The default derives from `committer_component_type`.
+    # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
     # RPC port exposed by the selected committer component.
     committer_rpc_port: 1000
@@ -1176,11 +1176,11 @@ Ensure the sidecar data directory exists and run the sidecar binary.
   vars:
     # Binary name managed by the committer role.
     committer_bin_name: committer
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
-    # Remote data directory managed by the role. The default derives from `remote_data_dir`.
+    # Remote data directory managed by the role.
     committer_remote_data_dir: "{{ remote_data_dir }}"
-    # Generated config file name used by the selected component. The default derives from `committer_component_type`.
+    # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
     # RPC port exposed by the selected committer component.
     committer_rpc_port: 1000
@@ -1200,9 +1200,9 @@ Run the query-service binary with its generated configuration file.
   vars:
     # Binary name managed by the committer role.
     committer_bin_name: committer
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
-    # Generated config file name used by the selected component. The default derives from `committer_component_type`.
+    # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
     # RPC port exposed by the selected committer component.
     committer_rpc_port: 1000
@@ -1220,7 +1220,7 @@ Render validator configuration, DB settings, mTLS assets, and optional Kubernete
 ```yaml
 - name: Generate validator config
   vars:
-    # Active config directory used by the committer runtime. The default derives from `committer_remote_config_dir`, `committer_use_bin`, and `committer_container_config_dir`.
+    # Active config directory used by the committer runtime.
     committer_config_dir: "{{ committer_remote_config_dir if committer_use_bin else committer_container_config_dir }}"
     # Maximum size of the committer database connection pool.
     committer_database_max_connections: 1000
@@ -1236,9 +1236,9 @@ Render validator configuration, DB settings, mTLS assets, and optional Kubernete
     committer_database_retry_multiplier: 1000
     # Jitter factor applied to database retry intervals.
     committer_database_retry_randomization_factor: 1000
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
-    # Generated config file name used by the selected component. The default derives from `committer_component_type`.
+    # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
     # Metrics port exposed by the selected committer component.
     committer_metrics_port: 1000
@@ -1246,11 +1246,11 @@ Render validator configuration, DB settings, mTLS assets, and optional Kubernete
     committer_rpc_port: 1000
     # Enable TLS material for the selected component.
     committer_use_tls: false
-    # Enable TLS for the monitoring endpoint. The default derives from `committer_use_tls`.
+    # Enable TLS for the monitoring endpoint.
     committer_monitoring_use_tls: "{{ committer_use_tls }}"
     # Enable mTLS for the selected component.
     committer_use_mtls: false
-    # Enable mTLS for the monitoring endpoint. The default derives from `committer_use_mtls`.
+    # Enable mTLS for the monitoring endpoint.
     committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
     # Server rate-limit requests per second.
     committer_server_rate_limit_requests_per_second: 1000
@@ -1304,11 +1304,11 @@ Render verifier configuration, mTLS assets, and optional Kubernetes ConfigMap.
 ```yaml
 - name: Generate verifier config
   vars:
-    # Active config directory used by the committer runtime. The default derives from `committer_remote_config_dir`, `committer_use_bin`, and `committer_container_config_dir`.
+    # Active config directory used by the committer runtime.
     committer_config_dir: "{{ committer_remote_config_dir if committer_use_bin else committer_container_config_dir }}"
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
-    # Generated config file name used by the selected component. The default derives from `committer_component_type`.
+    # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
     # Metrics port exposed by the selected committer component.
     committer_metrics_port: 1000
@@ -1316,11 +1316,11 @@ Render verifier configuration, mTLS assets, and optional Kubernetes ConfigMap.
     committer_rpc_port: 1000
     # Enable TLS material for the selected component.
     committer_use_tls: false
-    # Enable TLS for the monitoring endpoint. The default derives from `committer_use_tls`.
+    # Enable TLS for the monitoring endpoint.
     committer_monitoring_use_tls: "{{ committer_use_tls }}"
     # Enable mTLS for the selected component.
     committer_use_mtls: false
-    # Enable mTLS for the monitoring endpoint. The default derives from `committer_use_mtls`.
+    # Enable mTLS for the monitoring endpoint.
     committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
     # Server rate-limit requests per second.
     committer_server_rate_limit_requests_per_second: 1000
@@ -1368,7 +1368,7 @@ Render coordinator configuration, validator and verifier CA bundles, and optiona
 ```yaml
 - name: Generate coordinator config
   vars:
-    # Active config directory used by the committer runtime. The default derives from `committer_remote_config_dir`, `committer_use_bin`, and `committer_container_config_dir`.
+    # Active config directory used by the committer runtime.
     committer_config_dir: "{{ committer_remote_config_dir if committer_use_bin else committer_container_config_dir }}"
     # Maximum size of the committer database connection pool.
     committer_database_max_connections: 1000
@@ -1384,9 +1384,9 @@ Render coordinator configuration, validator and verifier CA bundles, and optiona
     committer_database_retry_multiplier: 1000
     # Jitter factor applied to database retry intervals.
     committer_database_retry_randomization_factor: 1000
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
-    # Generated config file name used by the selected component. The default derives from `committer_component_type`.
+    # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
     # Metrics port exposed by the selected committer component.
     committer_metrics_port: 1000
@@ -1394,11 +1394,11 @@ Render coordinator configuration, validator and verifier CA bundles, and optiona
     committer_rpc_port: 1000
     # Enable TLS material for the selected component.
     committer_use_tls: false
-    # Enable TLS for the monitoring endpoint. The default derives from `committer_use_tls`.
+    # Enable TLS for the monitoring endpoint.
     committer_monitoring_use_tls: "{{ committer_use_tls }}"
     # Enable mTLS for the selected component.
     committer_use_mtls: false
-    # Enable mTLS for the monitoring endpoint. The default derives from `committer_use_mtls`.
+    # Enable mTLS for the monitoring endpoint.
     committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
     # Server rate-limit requests per second.
     committer_server_rate_limit_requests_per_second: 1000
@@ -1450,13 +1450,13 @@ Render sidecar configuration, upstream TLS bundles, and optional Kubernetes Conf
 ```yaml
 - name: Generate sidecar config
   vars:
-    # Active config directory used by the committer runtime. The default derives from `committer_remote_config_dir`, `committer_use_bin`, and `committer_container_config_dir`.
+    # Active config directory used by the committer runtime.
     committer_config_dir: "{{ committer_remote_config_dir if committer_use_bin else committer_container_config_dir }}"
-    # Active data directory used by the committer runtime. The default derives from `committer_remote_data_dir`, `committer_use_bin`, and `committer_container_data_dir`.
+    # Active data directory used by the committer runtime.
     committer_data_dir: "{{ committer_remote_data_dir if committer_use_bin else committer_container_data_dir }}"
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
-    # Generated config file name used by the selected component. The default derives from `committer_component_type`.
+    # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
     # Metrics port exposed by the selected committer component.
     committer_metrics_port: 1000
@@ -1464,11 +1464,11 @@ Render sidecar configuration, upstream TLS bundles, and optional Kubernetes Conf
     committer_rpc_port: 1000
     # Enable TLS material for the selected component.
     committer_use_tls: false
-    # Enable TLS for the monitoring endpoint. The default derives from `committer_use_tls`.
+    # Enable TLS for the monitoring endpoint.
     committer_monitoring_use_tls: "{{ committer_use_tls }}"
     # Enable mTLS for the selected component.
     committer_use_mtls: false
-    # Enable mTLS for the monitoring endpoint. The default derives from `committer_use_mtls`.
+    # Enable mTLS for the monitoring endpoint.
     committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
     # Server rate-limit requests per second.
     committer_server_rate_limit_requests_per_second: 1000
@@ -1528,7 +1528,7 @@ Render query-service configuration, DB settings, mTLS assets, and optional Kuber
 ```yaml
 - name: Generate query-service config
   vars:
-    # Active config directory used by the committer runtime. The default derives from `committer_remote_config_dir`, `committer_use_bin`, and `committer_container_config_dir`.
+    # Active config directory used by the committer runtime.
     committer_config_dir: "{{ committer_remote_config_dir if committer_use_bin else committer_container_config_dir }}"
     # Maximum size of the committer database connection pool.
     committer_database_max_connections: 1000
@@ -1544,9 +1544,9 @@ Render query-service configuration, DB settings, mTLS assets, and optional Kuber
     committer_database_retry_multiplier: 1000
     # Jitter factor applied to database retry intervals.
     committer_database_retry_randomization_factor: 1000
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
-    # Generated config file name used by the selected component. The default derives from `committer_component_type`.
+    # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
     # Metrics port exposed by the selected committer component.
     committer_metrics_port: 1000
@@ -1554,11 +1554,11 @@ Render query-service configuration, DB settings, mTLS assets, and optional Kuber
     committer_rpc_port: 1000
     # Enable TLS material for the selected component.
     committer_use_tls: false
-    # Enable TLS for the monitoring endpoint. The default derives from `committer_use_tls`.
+    # Enable TLS for the monitoring endpoint.
     committer_monitoring_use_tls: "{{ committer_use_tls }}"
     # Enable mTLS for the selected component.
     committer_use_mtls: false
-    # Enable mTLS for the monitoring endpoint. The default derives from `committer_use_mtls`.
+    # Enable mTLS for the monitoring endpoint.
     committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
     # Server rate-limit requests per second.
     committer_server_rate_limit_requests_per_second: 1000
@@ -1710,7 +1710,7 @@ Delete the validator Deployment and Services.
 ```yaml
 - name: Remove validator Kubernetes resources
   vars:
-    # Base Kubernetes resource name for committer objects. The default derives from `inventory_hostname` and is used by the service, workload, secret, and optional NodePort resources.
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace that contains the committer resources.
     k8s_namespace: "string"
@@ -1728,7 +1728,7 @@ Delete the verifier Deployment and Services.
 ```yaml
 - name: Remove verifier Kubernetes resources
   vars:
-    # Base Kubernetes resource name for committer objects. The default derives from `inventory_hostname` and is used by the service, workload, secret, and optional NodePort resources.
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace that contains the committer resources.
     k8s_namespace: "string"
@@ -1746,7 +1746,7 @@ Delete the coordinator Deployment and Services.
 ```yaml
 - name: Remove coordinator Kubernetes resources
   vars:
-    # Base Kubernetes resource name for committer objects. The default derives from `inventory_hostname` and is used by the service, workload, secret, and optional NodePort resources.
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace that contains the committer resources.
     k8s_namespace: "string"
@@ -1764,7 +1764,7 @@ Delete the sidecar StatefulSet and Services.
 ```yaml
 - name: Remove sidecar Kubernetes resources
   vars:
-    # Base Kubernetes resource name for committer objects. The default derives from `inventory_hostname` and is used by the service, workload, secret, and optional NodePort resources.
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace that contains the committer resources.
     k8s_namespace: "string"
@@ -1782,7 +1782,7 @@ Delete the query-service Deployment and Services.
 ```yaml
 - name: Remove query-service Kubernetes resources
   vars:
-    # Base Kubernetes resource name for committer objects. The default derives from `inventory_hostname` and is used by the service, workload, secret, and optional NodePort resources.
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace that contains the committer resources.
     k8s_namespace: "string"
@@ -1800,7 +1800,7 @@ Ensure the namespace exists and create the validator Kubernetes ConfigMap.
 ```yaml
 - name: Create the validator ConfigMap
   vars:
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
@@ -1829,7 +1829,7 @@ Ensure the namespace exists and create the coordinator Kubernetes ConfigMap.
 ```yaml
 - name: Create the coordinator ConfigMap
   vars:
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Inventory hosts for validator components.
     committer_validators: ["entry1", "entry2"]
@@ -1849,7 +1849,7 @@ Ensure the namespace exists and create the sidecar Kubernetes ConfigMap.
 ```yaml
 - name: Create the sidecar ConfigMap
   vars:
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
@@ -1865,7 +1865,7 @@ Ensure the namespace exists and create the query-service Kubernetes ConfigMap.
 ```yaml
 - name: Create the query-service ConfigMap
   vars:
-    # Remote config directory managed by the role. The default derives from `remote_config_dir`.
+    # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
@@ -1883,7 +1883,7 @@ Remove validator runtime resources for the active deployment mode.
   vars:
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
-    # Enable container deployment mode. The default derives from `committer_use_bin` and `committer_use_k8s`.
+    # Enable container deployment mode.
     committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
     # Enable host-binary deployment mode.
     committer_use_bin: false
@@ -1903,7 +1903,7 @@ Remove verifier runtime resources for the active deployment mode.
   vars:
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
-    # Enable container deployment mode. The default derives from `committer_use_bin` and `committer_use_k8s`.
+    # Enable container deployment mode.
     committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
     # Enable host-binary deployment mode.
     committer_use_bin: false
