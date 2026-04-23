@@ -47,7 +47,6 @@ LICENSE_HEADER = "\n".join(
         "#",
     ],
 ) + "\n"
-_ORIGINAL_WRITE_MARKDOWN = _m.write_markdown
 
 # ``aar-doc`` uses a module-level ``ruamel.yaml.YAML`` instance for dumping the
 # generated defaults. Setting an effectively unlimited width prevents long
@@ -68,15 +67,21 @@ def _add_default_preserving_scalar_style(self, name, value, description, depth=0
     resulting ``RoleDefault`` still carries the original YAML style.
     """
     if isinstance(value, SingleQuotedScalarString):
+        # Convert single-quoted scalars to double-quoted so the output uses " consistently.
         value = DoubleQuotedScalarString(str(value).strip())
     elif isinstance(value, ScalarString):
+        # For any other ruamel scalar subclass (e.g. FoldedScalarString), preserve the
+        # original style by re-instantiating with the same type after stripping whitespace.
         value = type(value)(str(value).strip())
     elif isinstance(value, str):
+        # Plain Python strings just need leading/trailing whitespace removed.
         value = value.strip()
 
     if self._overwrite:
+        # Always replace the entry when overwrite mode is active.
         self._defaults[name] = _d.RoleDefault(name, value, description, depth)
     else:
+        # In non-overwrite mode, only store the value if the key doesn't exist yet.
         self._defaults.setdefault(name, _d.RoleDefault(name, value, description, depth))
 
 
@@ -98,39 +103,54 @@ def _safe_quote_recursive_preserving_scalar_style(self, value):
     remaining readable.
     """
     if isinstance(value, list):
+        # Recurse into each list element independently.
         return [self.safe_quote_recursive(v) for v in value]
     if isinstance(value, dict):
+        # Recurse into each dict value in-place; keys are always plain strings.
         for key, item in value.items():
             value[key] = self.safe_quote_recursive(item)
         return value
     if isinstance(value, ScalarString):
         if "\n" in str(value):
+            # Multi-line ruamel scalars already carry the correct block style — leave them alone.
             return value
+        # Single-line ruamel scalar: strip the wrapper so the plain-string checks below apply.
         value = str(value)
     if isinstance(value, str):
         if value in ("yes", "no"):
+            # YAML interprets bare yes/no as booleans, so quote them to preserve string semantics.
             return DoubleQuotedScalarString(value)
         if "\n" in value:
+            # Multi-line plain string: use a folded block scalar (>-) for readability.
             return FoldedScalarString(value)
         if ":" in value or len(value) == 0:
+            # Strings containing ":" would break YAML parsing if unquoted; empty strings need quotes too.
             return DoubleQuotedScalarString(value)
+    # All other values (numbers, booleans, None) are returned as-is.
     return value
 
 
 def _write_defaults_with_license_header(output_file_path, role_path, role_defaults):
     """Write generated defaults with the collection license header."""
+    # aar-doc passes README.md as the output path when generating defaults alongside docs;
+    # in that case redirect the output to defaults/main.yml inside the role directory.
     if output_file_path.name == "README.md":
         output = role_path / "defaults" / "main.yml"
     elif output_file_path.is_absolute():
+        # An absolute path is used as-is.
         output = output_file_path
     else:
+        # A relative path is resolved relative to the role's defaults/ directory.
         output = role_path / "defaults" / output_file_path
     output = Path(output).resolve()
 
+    # Create the parent directory if it doesn't exist yet.
     output.parent.mkdir(parents=True, exist_ok=True)
 
     with open(output, "w", encoding="utf-8") as defaults_file:
+        # Write the Apache-2.0 license header first.
         defaults_file.write(LICENSE_HEADER)
+        # Write the YAML document start marker and the "do not edit" banner.
         defaults_file.writelines(
             [
                 "---" + linesep,
@@ -139,33 +159,16 @@ def _write_defaults_with_license_header(output_file_path, role_path, role_defaul
                 linesep,
             ],
         )
+        # Serialize the collected role defaults into the file using ruamel.
         _d.yaml.dump(role_defaults, defaults_file)
-
-
-def _write_markdown_without_leading_blank_line(ctx, content):
-    """Normalize generated Markdown before delegating to aar-doc."""
-    _ORIGINAL_WRITE_MARKDOWN(ctx, content.lstrip("\n"))
-
-    output = ctx.obj["config"]["output_file"].expanduser()
-    if "/" not in str(output):
-        output = ctx.obj["config"]["role_path"] / output
-    output = Path(output).resolve()
-
-    normalized = output.read_text(encoding="utf-8").lstrip("\n")
-    output.write_text(normalized, encoding="utf-8")
-
 
 # Replace the two upstream methods used during defaults generation with the
 # style-preserving versions above. The rest of ``aar-doc`` remains unchanged.
 _d.RoleDefaultsManager.add_default = _add_default_preserving_scalar_style
 _d.RoleDefaultsManager.safe_quote_recursive = _safe_quote_recursive_preserving_scalar_style
 _d.write_defaults = _write_defaults_with_license_header
-_m.write_markdown = _write_markdown_without_leading_blank_line
 
-import aar_doc.cli as _cli  # noqa: E402
 from aar_doc.cli import app  # noqa: E402
-
-_cli.write_markdown = _write_markdown_without_leading_blank_line
 
 # Re-export the original Typer application so this wrapper can be invoked as a
 # drop-in replacement for the ``aar-doc`` CLI.
