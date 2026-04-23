@@ -48,9 +48,7 @@ ansible-doc -t role hyperledger.fabricx.elasticsearch
 
 > Start ElasticSearch
 
-Starts ElasticSearch using the selected deployment mode.
-
-Container mode is the default unless `elasticsearch_use_k8s` is enabled, in which case the Kubernetes StatefulSet, Services, and optional TLS Secret are managed instead.
+Starts ElasticSearch using the selected deployment mode.Container mode is the default unless `elasticsearch_use_k8s` is enabled, in which case the Kubernetes StatefulSet, Services, and optional TLS Secret are managed instead.
 
 ```yaml
 - name: Start ElasticSearch
@@ -68,9 +66,7 @@ Container mode is the default unless `elasticsearch_use_k8s` is enabled, in whic
 
 > Stop the ElasticSearch container
 
-Stops the ElasticSearch container instance without removing its data volume or configuration files.
-
-Uses the container helper role internally and only applies in container mode.
+Stops the ElasticSearch container instance without removing its data volume or configuration files.Uses the container helper role internally and only applies in container mode.
 
 ```yaml
 - name: Stop the ElasticSearch container
@@ -86,9 +82,7 @@ Uses the container helper role internally and only applies in container mode.
 
 > Remove ElasticSearch runtime resources and data
 
-Removes ElasticSearch runtime resources for the selected deployment mode.
-
-Also removes the container data directory or Kubernetes PVC through the `data/rm` entry point, leaving TLS and config cleanup to `wipe`.
+Removes ElasticSearch runtime resources for the selected deployment mode.Also removes the container data directory or Kubernetes PVC through the `data/rm` entry point, leaving TLS and config cleanup to `wipe`.
 
 ```yaml
 - name: Remove ElasticSearch runtime resources and data
@@ -106,9 +100,7 @@ Also removes the container data directory or Kubernetes PVC through the `data/rm
 
 > Wipe ElasticSearch data and configuration
 
-Removes ElasticSearch runtime resources, TLS materials, and configuration files.
-
-This entry point sequences the teardown, crypto cleanup, and config cleanup flows to clear the instance state.
+Removes ElasticSearch runtime resources, TLS materials, and configuration files.This entry point sequences the teardown, crypto cleanup, and config cleanup flows to clear the instance state.
 
 ```yaml
 - name: Wipe ElasticSearch data and configuration
@@ -121,9 +113,7 @@ This entry point sequences the teardown, crypto cleanup, and config cleanup flow
 
 > Fetch ElasticSearch logs
 
-Collects ElasticSearch logs from the selected deployment mode.
-
-Delegates to the container or Kubernetes log collection entry point and writes the results to the control node fetch directory.
+Collects ElasticSearch logs from the selected deployment mode.Delegates to the container or Kubernetes log collection entry point and writes the results to the control node fetch directory.
 
 ```yaml
 - name: Fetch ElasticSearch logs
@@ -141,9 +131,7 @@ Delegates to the container or Kubernetes log collection entry point and writes t
 
 > Check ElasticSearch reachability
 
-Probes the ElasticSearch HTTP and transport ports in container mode.
-
-Delegates to `k8s/ping` when ElasticSearch runs on Kubernetes and checks the optional NodePort Service instead.
+Probes the ElasticSearch HTTP and transport ports in container mode.Delegates to `k8s/ping` when ElasticSearch runs on Kubernetes and checks the optional NodePort Service instead.
 
 ```yaml
 - name: Check ElasticSearch reachability
@@ -163,9 +151,7 @@ Delegates to `k8s/ping` when ElasticSearch runs on Kubernetes and checks the opt
 
 > Start ElasticSearch in a container
 
-Creates the required data volume, prepares the configuration path, and starts the ElasticSearch container.
-
-Configures TLS volume mounts, environment variables, and the selected HTTP and transport ports when TLS is enabled.
+Creates the required data volume, prepares the configuration path, and starts the ElasticSearch container.Configures TLS volume mounts, environment variables, and the selected HTTP and transport ports when TLS is enabled.
 
 ```yaml
 - name: Start ElasticSearch in a container
@@ -211,9 +197,7 @@ Configures TLS volume mounts, environment variables, and the selected HTTP and t
 
 > Stop the ElasticSearch container
 
-Stops the ElasticSearch container instance while preserving the container data directory.
-
-Uses the container helper role internally.
+Stops the ElasticSearch container instance while preserving the container data directory.Uses the container helper role internally.
 
 ```yaml
 - name: Stop the ElasticSearch container
@@ -229,9 +213,7 @@ Uses the container helper role internally.
 
 > Remove the ElasticSearch container
 
-Removes the ElasticSearch container instance.
-
-Container volumes are handled separately by the `data/rm` entry point, so the persisted data path stays under role control.
+Removes the ElasticSearch container instance.Container volumes are handled separately by the `data/rm` entry point, so the persisted data path stays under role control.
 
 ```yaml
 - name: Remove the ElasticSearch container
@@ -247,9 +229,7 @@ Container volumes are handled separately by the `data/rm` entry point, so the pe
 
 > Fetch ElasticSearch container logs
 
-Collects logs from the ElasticSearch container instance and stores them on the control node.
-
-Uses the container helper role internally.
+Collects logs from the ElasticSearch container instance and stores them on the control node.Uses the container helper role internally.
 
 ```yaml
 - name: Fetch ElasticSearch container logs
@@ -265,9 +245,7 @@ Uses the container helper role internally.
 
 > Remove the ElasticSearch configuration directory
 
-Deletes the remote ElasticSearch configuration directory from the target host.
-
-This also removes TLS materials stored under that directory and clears the container or Kubernetes config path at the source.
+Deletes the remote ElasticSearch configuration directory from the target host.This also removes TLS materials stored under that directory and clears the container or Kubernetes config path at the source.
 
 ```yaml
 - name: Remove the ElasticSearch configuration directory
@@ -285,9 +263,7 @@ This also removes TLS materials stored under that directory and clears the conta
 
 > Remove ElasticSearch data storage
 
-Removes the ElasticSearch persistent data directory in container deployments.
-
-Deletes the ElasticSearch PVC in Kubernetes deployments so the data artifact is gone regardless of deployment mode.
+Removes the ElasticSearch persistent data directory in container deployments.Deletes the ElasticSearch PVC in Kubernetes deployments so the data artifact is gone regardless of deployment mode.
 
 ```yaml
 - name: Remove ElasticSearch data storage
@@ -313,9 +289,7 @@ Deletes the ElasticSearch PVC in Kubernetes deployments so the data artifact is 
 
 > Prepare ElasticSearch TLS materials
 
-Generates TLS materials when TLS is enabled.
-
-Uploads the generated materials to Kubernetes when Kubernetes mode is enabled so the Secret and mounted certs stay in sync.
+Generates TLS materials when TLS is enabled.Uploads the generated materials to Kubernetes when Kubernetes mode is enabled so the Secret and mounted certs stay in sync.
 
 ```yaml
 - name: Prepare ElasticSearch TLS materials
@@ -333,9 +307,7 @@ Uploads the generated materials to Kubernetes when Kubernetes mode is enabled so
 
 > Fetch ElasticSearch TLS certificates
 
-Fetches the ElasticSearch CA certificate and server certificate from the remote host into the control-node artifact directory.
-
-This entry point only performs work when TLS is enabled.
+Fetches the ElasticSearch CA certificate and server certificate from the remote host into the control-node artifact directory.This entry point only performs work when TLS is enabled.
 
 ```yaml
 - name: Fetch ElasticSearch TLS certificates
@@ -357,9 +329,7 @@ This entry point only performs work when TLS is enabled.
 
 > Remove ElasticSearch TLS materials
 
-Deletes local ElasticSearch TLS files from the remote host.
-
-Removes the Kubernetes Secret when Kubernetes mode is enabled and TLS artifacts are no longer needed.
+Deletes local ElasticSearch TLS files from the remote host.Removes the Kubernetes Secret when Kubernetes mode is enabled and TLS artifacts are no longer needed.
 
 ```yaml
 - name: Remove ElasticSearch TLS materials
@@ -381,9 +351,7 @@ Removes the Kubernetes Secret when Kubernetes mode is enabled and TLS artifacts 
 
 > Generate ElasticSearch TLS materials with OpenSSL
 
-Generates a self-signed TLS certificate and private key for ElasticSearch on the target host.
-
-Writes the generated files under the ElasticSearch remote configuration directory for later container or Kubernetes use.
+Generates a self-signed TLS certificate and private key for ElasticSearch on the target host.Writes the generated files under the ElasticSearch remote configuration directory for later container or Kubernetes use.
 
 ```yaml
 - name: Generate ElasticSearch TLS materials with OpenSSL
@@ -396,8 +364,9 @@ Writes the generated files under the ElasticSearch remote configuration director
     elasticsearch_tls_private_key_file: server.key
     # Filename of the ElasticSearch TLS certificate under the TLS directory.
     elasticsearch_tls_cert_file: server.crt
-    # Optionally provides organization metadata used to derive the TLS certificate organization name. Example: `{common_name: elasticsearch.fabricx.example}`.
-    organization: {common_name: elasticsearch.fabricx.example}
+    # Optionally provides organization metadata used to derive the TLS certificate organization name. Example: `{'common_name': 'elasticsearch.fabricx.example'}`.
+    organization:
+      common_name: 'elasticsearch.fabricx.example'
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: crypto/openssl/generate_cert
@@ -407,9 +376,7 @@ Writes the generated files under the ElasticSearch remote configuration director
 
 > Start ElasticSearch on Kubernetes
 
-Ensures the Kubernetes namespace exists and applies the ElasticSearch headless Service, optional NodePort Service, StatefulSet, and PVC.
-
-Uses the role templates to configure storage, TLS mounts, the configured image, and rollout waiting behavior.
+Ensures the Kubernetes namespace exists and applies the ElasticSearch headless Service, optional NodePort Service, StatefulSet, and PVC.Uses the role templates to configure storage, TLS mounts, the configured image, and rollout waiting behavior.
 
 ```yaml
 - name: Start ElasticSearch on Kubernetes
@@ -481,9 +448,7 @@ Uses the role templates to configure storage, TLS mounts, the configured image, 
 
 > Check ElasticSearch NodePort reachability on Kubernetes
 
-Probes the ElasticSearch HTTP and transport NodePorts when `elasticsearch_k8s_use_node_port` is `true`.
-
-Each port is only checked when its matching NodePort value is defined, which lets the role verify only the exported service ports.
+Probes the ElasticSearch HTTP and transport NodePorts when `elasticsearch_k8s_use_node_port` is `true`.Each port is only checked when its matching NodePort value is defined, which lets the role verify only the exported service ports.
 
 ```yaml
 - name: Check ElasticSearch NodePort reachability on Kubernetes
@@ -503,9 +468,7 @@ Each port is only checked when its matching NodePort value is defined, which let
 
 > Remove ElasticSearch Kubernetes resources
 
-Deletes the ElasticSearch StatefulSet and Services from Kubernetes.
-
-The persistent volume claim is removed separately by the `data/rm` entry point so data cleanup stays explicit.
+Deletes the ElasticSearch StatefulSet and Services from Kubernetes.The persistent volume claim is removed separately by the `data/rm` entry point so data cleanup stays explicit.
 
 ```yaml
 - name: Remove ElasticSearch Kubernetes resources
@@ -523,9 +486,7 @@ The persistent volume claim is removed separately by the `data/rm` entry point s
 
 > Fetch ElasticSearch pod logs
 
-Collects logs from the ElasticSearch pod in Kubernetes and writes them to the control node artifact path.
-
-Selects pods using the ElasticSearch application label.
+Collects logs from the ElasticSearch pod in Kubernetes and writes them to the control node artifact path.Selects pods using the ElasticSearch application label.
 
 ```yaml
 - name: Fetch ElasticSearch pod logs
@@ -543,9 +504,7 @@ Selects pods using the ElasticSearch application label.
 
 > Remove the ElasticSearch Kubernetes TLS Secret
 
-Deletes the Kubernetes Secret that stores ElasticSearch TLS materials.
-
-This entry point is typically invoked from the ElasticSearch crypto cleanup workflow after the remote certs are removed.
+Deletes the Kubernetes Secret that stores ElasticSearch TLS materials.This entry point is typically invoked from the ElasticSearch crypto cleanup workflow after the remote certs are removed.
 
 ```yaml
 - name: Remove the ElasticSearch Kubernetes TLS Secret
@@ -563,9 +522,7 @@ This entry point is typically invoked from the ElasticSearch crypto cleanup work
 
 > Apply the ElasticSearch Kubernetes TLS Secret
 
-Applies the Kubernetes Secret that stores ElasticSearch TLS materials.
-
-Ensures the Kubernetes namespace exists before applying the Secret and keeps the pod-mounted certificate paths aligned with the remote files.
+Applies the Kubernetes Secret that stores ElasticSearch TLS materials.Ensures the Kubernetes namespace exists before applying the Secret and keeps the pod-mounted certificate paths aligned with the remote files.
 
 ```yaml
 - name: Apply the ElasticSearch Kubernetes TLS Secret

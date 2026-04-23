@@ -70,11 +70,7 @@ Validates network reachability to the active Prometheus listener on the target h
 
 > Start Prometheus in the selected deployment mode
 
-Starts Prometheus as either a container or Kubernetes workload based on the deployment mode flags.
-
-Renders configuration, prepares storage, and applies Kubernetes resources needed for the selected mode.
-
-When Kubernetes mode is enabled, it can also expose Prometheus through the optional NodePort Service.
+Starts Prometheus as either a container or Kubernetes workload based on the deployment mode flags.Renders configuration, prepares storage, and applies Kubernetes resources needed for the selected mode.When Kubernetes mode is enabled, it can also expose Prometheus through the optional NodePort Service.
 
 ```yaml
 - name: Start Prometheus in the selected deployment mode
@@ -386,8 +382,10 @@ Delegates certificate creation to the shared OpenSSL role using Prometheus-speci
 ```yaml
 - name: Generate a self-signed TLS certificate for Prometheus
   vars:
-    # Optional certificate organization data forwarded to OpenSSL. Example: `{ common_name: prometheus.observability.svc.cluster.local, organization_name: Hyperledger Fabric-X }`.
-    organization: { common_name: prometheus.observability.svc.cluster.local, organization_name: Hyperledger Fabric-X }
+    # Optional certificate organization data forwarded to OpenSSL. Example: `{'common_name': 'prometheus.observability.svc.cluster.local', 'organization_name': 'Hyperledger Fabric-X'}`.
+    organization:
+      common_name: 'prometheus.observability.svc.cluster.local'
+      organization_name: 'Hyperledger Fabric-X'
     # Remote configuration directory consumed by `prometheus_remote_config_dir`. Example: `/var/lib/prometheus/config`.
     remote_config_dir: "/var/lib/prometheus/config"
     # Remote directory where Prometheus configuration files are written.
@@ -495,9 +493,7 @@ Deletes the Kubernetes Secret that stores the Prometheus TLS server keypair.
 
 > Transfer Prometheus configuration files
 
-Renders the main scrape configuration and supporting files on the remote host, including scrape target lists and TLS client settings.
-
-Applies the Kubernetes ConfigMap when Kubernetes mode is enabled.
+Renders the main scrape configuration and supporting files on the remote host, including scrape target lists and TLS client settings.Applies the Kubernetes ConfigMap when Kubernetes mode is enabled.
 
 ```yaml
 - name: Transfer Prometheus configuration files
@@ -521,7 +517,7 @@ Applies the Kubernetes ConfigMap when Kubernetes mode is enabled.
     # Filename used for the Prometheus TLS certificate.
     prometheus_tls_cert_file: server.crt
     # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }]`.
-    prometheus_scrape_services: [{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }]
+    prometheus_scrape_services:[{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }]
     # Enables HTTPS and TLS-aware health checks when set to `true`.
     prometheus_use_tls: false
     # Enables the Kubernetes deployment path when set to `true`.
@@ -555,7 +551,7 @@ Creates or updates the ConfigMap that carries the rendered Prometheus configurat
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
     # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }]`.
-    prometheus_scrape_services: [{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }]
+    prometheus_scrape_services:[{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }]
     # Enables HTTPS and TLS-aware health checks when set to `true`.
     prometheus_use_tls: false
   ansible.builtin.include_role:

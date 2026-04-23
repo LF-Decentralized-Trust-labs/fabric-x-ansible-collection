@@ -287,9 +287,7 @@ Copies the client certificate and key consumed by fxconfig for mTLS connections 
 
 > Transfer fxconfig TLS trust material
 
-Copies fetched Orderer Router and Committer Query-Service CA certificates into the fxconfig TLS trust directories consumed by the rendered configuration.
-
-Inventory hosts named by the endpoint variables must expose connection metadata, RPC ports, and TLS flags.
+Copies fetched Orderer Router and Committer Query-Service CA certificates into the fxconfig TLS trust directories consumed by the rendered configuration.Inventory hosts named by the endpoint variables must expose connection metadata, RPC ports, and TLS flags.
 
 ```yaml
 - name: Transfer fxconfig TLS trust material
@@ -313,11 +311,7 @@ Inventory hosts named by the endpoint variables must expose connection metadata,
 
 > Transfer fxconfig configuration material
 
-Creates the remote fxconfig configuration directory, renders the fxconfig file, copies MSP material, and stages TLS or mTLS assets when the inventory enables them.
-
-For k8s deployments that expose NodePorts, writes NodePort addresses from the Orderer Router, Committer Sidecar, and Committer Query-Service hostvars; otherwise writes the component RPC addresses.
-
-Consumes fetched TLS artifacts, MSP directories, channel identifiers, endpoint hosts, RPC ports, and optional timeout values.
+Creates the remote fxconfig configuration directory, renders the fxconfig file, copies MSP material, and stages TLS or mTLS assets when the inventory enables them.For k8s deployments that expose NodePorts, writes NodePort addresses from the Orderer Router, Committer Sidecar, and Committer Query-Service hostvars; otherwise writes the component RPC addresses.Consumes fetched TLS artifacts, MSP directories, channel identifiers, endpoint hosts, RPC ports, and optional timeout values.
 
 ```yaml
 - name: Transfer fxconfig configuration material
@@ -361,7 +355,9 @@ Consumes fetched TLS artifacts, MSP directories, channel identifiers, endpoint h
     # Identifies the inventory host for the Orderer Router endpoint consumed by fxconfig. Example: `orderer-router-1`.
     orderer_router_host: "orderer-router-1"
     # Provides organization metadata required by tasks that read `organization.*`, including names, users, domains, and namespace declarations. Example: `{'name': 'Org1', 'domain': 'org1.example.com'}`.
-    organization: {'name': 'Org1', 'domain': 'org1.example.com'}
+    organization:
+      name: 'Org1'
+      domain: 'org1.example.com'
     # Provides the base remote configuration directory used by the role. Example: `/opt/hyperledger/fabricx/config`.
     remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
@@ -451,9 +447,7 @@ Collects endorsed namespace transaction JSON files from the artifact directory, 
 
 > Create a namespace transaction with the fxconfig container
 
-Creates a namespace transaction JSON artifact for the configured namespace and endorsement policy by running fxconfig in a transient container.
-
-For threshold policies, mounts the referenced signing certificate into the container and rewrites the policy path for container execution.
+Creates a namespace transaction JSON artifact for the configured namespace and endorsement policy by running fxconfig in a transient container.For threshold policies, mounts the referenced signing certificate into the container and rewrites the policy path for container execution.
 
 ```yaml
 - name: Create a namespace transaction with the fxconfig container
@@ -567,9 +561,7 @@ Transfers a merged namespace transaction JSON artifact to the managed host, moun
 
 > Endorse a namespace transaction
 
-Dispatches namespace transaction endorsement to either the host binary or a transient container based on `fxconfig_use_bin`.
-
-Consumes a namespace transaction JSON artifact and the rendered fxconfig configuration, then fetches the endorsed artifact.
+Dispatches namespace transaction endorsement to either the host binary or a transient container based on `fxconfig_use_bin`.Consumes a namespace transaction JSON artifact and the rendered fxconfig configuration, then fetches the endorsed artifact.
 
 ```yaml
 - name: Endorse a namespace transaction
@@ -615,7 +607,9 @@ Selects the preferred endorser from `organization.users` for namespace transacti
 - name: Resolve the namespace endorser user
   vars:
     # Provides organization metadata required by tasks that read `organization.*`, including names, users, domains, and namespace declarations. Example: `{'name': 'Org1', 'domain': 'org1.example.com'}`.
-    organization: {'name': 'Org1', 'domain': 'org1.example.com'}
+    organization:
+      name: 'Org1'
+      domain: 'org1.example.com'
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
     tasks_from: get_endorser
@@ -625,9 +619,7 @@ Selects the preferred endorser from `organization.users` for namespace transacti
 
 > Merge endorsed namespace transactions
 
-Dispatches endorsed namespace transaction merging to either the host binary or a transient container based on `fxconfig_use_bin`.
-
-Consumes endorsed JSON artifacts and writes the merged transaction artifact used by submission.
+Dispatches endorsed namespace transaction merging to either the host binary or a transient container based on `fxconfig_use_bin`.Consumes endorsed JSON artifacts and writes the merged transaction artifact used by submission.
 
 ```yaml
 - name: Merge endorsed namespace transactions
@@ -669,9 +661,7 @@ Consumes endorsed JSON artifacts and writes the merged transaction artifact used
 
 > Create a namespace transaction
 
-Dispatches namespace transaction creation to either the host binary or a transient container based on `fxconfig_use_bin`.
-
-Writes a namespace transaction JSON artifact for the configured namespace identifier and endorsement policy.
+Dispatches namespace transaction creation to either the host binary or a transient container based on `fxconfig_use_bin`.Writes a namespace transaction JSON artifact for the configured namespace identifier and endorsement policy.
 
 ```yaml
 - name: Create a namespace transaction
@@ -713,11 +703,7 @@ Writes a namespace transaction JSON artifact for the configured namespace identi
 
 > Group hosts by declared namespaces
 
-Builds a namespace-to-host mapping from inventory organization data before creating, endorsing, merging, and submitting namespace transactions.
-
-For threshold policies, resolves the signing certificate path under the fetched crypto artifact directory.
-
-Inventory hosts selected via `fxconfig_hosts` must define organization namespace data.
+Builds a namespace-to-host mapping from inventory organization data before creating, endorsing, merging, and submitting namespace transactions.For threshold policies, resolves the signing certificate path under the fetched crypto artifact directory.Inventory hosts selected via `fxconfig_hosts` must define organization namespace data.
 
 ```yaml
 - name: Group hosts by declared namespaces
@@ -725,7 +711,9 @@ Inventory hosts selected via `fxconfig_hosts` must define organization namespace
     # Defines the local directory that stores fetched crypto and TLS artifacts consumed by fxconfig. Example: `/tmp/fabricx/config-build`.
     fetched_artifacts_dir: "/tmp/fabricx/config-build"
     # Limits namespace grouping to a subset of inventory hosts. If omitted, the task considers all hosts. Example: `['committer-sidecar', 'committer-query-service']`. Selected hosts must expose the organization metadata expected by the namespace grouping helper.
-    fxconfig_hosts: ['committer-sidecar', 'committer-query-service']
+    fxconfig_hosts:
+      - committer-sidecar
+      - committer-query-service
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
     tasks_from: namespace/group
@@ -735,9 +723,7 @@ Inventory hosts selected via `fxconfig_hosts` must define organization namespace
 
 > List namespaces
 
-Dispatches namespace listing to either the host binary or a transient container based on `fxconfig_use_bin`.
-
-Consumes the rendered fxconfig configuration that points at the Orderer Router and Committer services.
+Dispatches namespace listing to either the host binary or a transient container based on `fxconfig_use_bin`.Consumes the rendered fxconfig configuration that points at the Orderer Router and Committer services.
 
 ```yaml
 - name: List namespaces
@@ -777,9 +763,7 @@ Consumes the rendered fxconfig configuration that points at the Orderer Router a
 
 > Submit a namespace transaction
 
-Dispatches merged namespace transaction submission to either the host binary or a transient container based on `fxconfig_use_bin`.
-
-Consumes the merged JSON artifact and rendered fxconfig configuration, then waits for submission completion.
+Dispatches merged namespace transaction submission to either the host binary or a transient container based on `fxconfig_use_bin`.Consumes the merged JSON artifact and rendered fxconfig configuration, then waits for submission completion.
 
 ```yaml
 - name: Submit a namespace transaction

@@ -102,9 +102,7 @@ ansible-doc -t role hyperledger.fabricx.committer
 
 > Check the committer gRPC endpoint
 
-Validate that the Fabric-X Committer RPC port is reachable.
-
-Uses `committer_rpc_port` on host deployments and skips the direct host check in Kubernetes mode.
+Validate that the Fabric-X Committer RPC port is reachable.Uses `committer_rpc_port` on host deployments and skips the direct host check in Kubernetes mode.
 
 ```yaml
 - name: Check the committer gRPC endpoint
@@ -122,9 +120,7 @@ Uses `committer_rpc_port` on host deployments and skips the direct host check in
 
 > Check the committer Kubernetes NodePorts
 
-Validate that the optional Kubernetes NodePort Service exposes the RPC and metrics ports.
-
-Requires explicit RPC and metrics NodePort values when external Kubernetes access is enabled.
+Validate that the optional Kubernetes NodePort Service exposes the RPC and metrics ports.Requires explicit RPC and metrics NodePort values when external Kubernetes access is enabled.
 
 ```yaml
 - name: Check the committer Kubernetes NodePorts
@@ -144,11 +140,7 @@ Requires explicit RPC and metrics NodePort values when external Kubernetes acces
 
 > Start a validator component
 
-Start a validator in bin, container, or Kubernetes mode.
-
-The selected runtime path depends on `committer_use_bin` and `committer_use_k8s`.
-
-Expects validator configuration and database settings to be generated before the process starts.
+Start a validator in bin, container, or Kubernetes mode.The selected runtime path depends on `committer_use_bin` and `committer_use_k8s`.Expects validator configuration and database settings to be generated before the process starts.
 
 ```yaml
 - name: Start a validator component
@@ -168,11 +160,7 @@ Expects validator configuration and database settings to be generated before the
 
 > Start a verifier component
 
-Start a verifier in bin, container, or Kubernetes mode.
-
-The selected runtime path depends on `committer_use_bin` and `committer_use_k8s`.
-
-Expects verifier configuration and optional TLS/mTLS assets to be available.
+Start a verifier in bin, container, or Kubernetes mode.The selected runtime path depends on `committer_use_bin` and `committer_use_k8s`.Expects verifier configuration and optional TLS/mTLS assets to be available.
 
 ```yaml
 - name: Start a verifier component
@@ -192,11 +180,7 @@ Expects verifier configuration and optional TLS/mTLS assets to be available.
 
 > Start a coordinator component
 
-Start a coordinator in bin, container, or Kubernetes mode.
-
-Coordinators connect to validator and verifier hosts that must already be configured.
-
-Uses `committer_validators` and `committer_verifiers` to locate upstream committers.
+Start a coordinator in bin, container, or Kubernetes mode.Coordinators connect to validator and verifier hosts that must already be configured.Uses `committer_validators` and `committer_verifiers` to locate upstream committers.
 
 ```yaml
 - name: Start a coordinator component
@@ -216,11 +200,7 @@ Uses `committer_validators` and `committer_verifiers` to locate upstream committ
 
 > Start a sidecar component
 
-Start a sidecar in bin, container, or Kubernetes mode.
-
-Sidecars require persistent data storage and connect to coordinator and orderer hosts.
-
-Uses MSP material plus `committer_coordinator`, `orderer_assemblers`, and `channel_id`.
+Start a sidecar in bin, container, or Kubernetes mode.Sidecars require persistent data storage and connect to coordinator and orderer hosts.Uses MSP material plus `committer_coordinator`, `orderer_assemblers`, and `channel_id`.
 
 ```yaml
 - name: Start a sidecar component
@@ -240,11 +220,7 @@ Uses MSP material plus `committer_coordinator`, `orderer_assemblers`, and `chann
 
 > Start a query-service component
 
-Start a query-service in bin, container, or Kubernetes mode.
-
-The selected runtime path depends on `committer_use_bin` and `committer_use_k8s`.
-
-Expects generated database-backed query-service configuration.
+Start a query-service in bin, container, or Kubernetes mode.The selected runtime path depends on `committer_use_bin` and `committer_use_k8s`.Expects generated database-backed query-service configuration.
 
 ```yaml
 - name: Start a query-service component
@@ -264,11 +240,7 @@ Expects generated database-backed query-service configuration.
 
 > Stop a committer process
 
-Stop the selected component in bin or container mode.
-
-Kubernetes teardown is handled through the teardown entry points instead.
-
-Selects the stop path from `committer_component_type` and `committer_deployment_mode`.
+Stop the selected component in bin or container mode.Kubernetes teardown is handled through the teardown entry points instead.Selects the stop path from `committer_component_type` and `committer_deployment_mode`.
 
 ```yaml
 - name: Stop a committer process
@@ -290,11 +262,7 @@ Selects the stop path from `committer_component_type` and `committer_deployment_
 
 > Teardown a selected component
 
-Remove the selected component according to its deployment mode.
-
-Sidecar teardown also removes sidecar data.
-
-Dispatches by `committer_component_type` to the component-specific teardown entry point.
+Remove the selected component according to its deployment mode.Sidecar teardown also removes sidecar data.Dispatches by `committer_component_type` to the component-specific teardown entry point.
 
 ```yaml
 - name: Teardown a selected component
@@ -310,9 +278,7 @@ Dispatches by `committer_component_type` to the component-specific teardown entr
 
 > Teardown the query-service
 
-Remove the query-service according to its deployment mode.
-
-Deletes the runtime process, container, or Kubernetes query-service resources.
+Remove the query-service according to its deployment mode.Deletes the runtime process, container, or Kubernetes query-service resources.
 
 ```yaml
 - name: Teardown the query-service
@@ -332,9 +298,7 @@ Deletes the runtime process, container, or Kubernetes query-service resources.
 
 > Teardown the sidecar
 
-Remove the sidecar according to its deployment mode and delete sidecar data.
-
-Deletes the runtime process, container, or Kubernetes StatefulSet and storage artifacts.
+Remove the sidecar according to its deployment mode and delete sidecar data.Deletes the runtime process, container, or Kubernetes StatefulSet and storage artifacts.
 
 ```yaml
 - name: Teardown the sidecar
@@ -354,9 +318,7 @@ Deletes the runtime process, container, or Kubernetes StatefulSet and storage ar
 
 > Teardown the coordinator
 
-Remove the coordinator according to its deployment mode.
-
-Deletes the runtime process, container, or Kubernetes coordinator resources.
+Remove the coordinator according to its deployment mode.Deletes the runtime process, container, or Kubernetes coordinator resources.
 
 ```yaml
 - name: Teardown the coordinator
@@ -376,9 +338,7 @@ Deletes the runtime process, container, or Kubernetes coordinator resources.
 
 > Remove all committer artifacts
 
-Tear down the selected component and remove binary, config, and crypto assets.
-
-Intended for full cleanup of role-managed host artifacts after stopping the component.
+Tear down the selected component and remove binary, config, and crypto assets.Intended for full cleanup of role-managed host artifacts after stopping the component.
 
 ```yaml
 - name: Remove all committer artifacts
@@ -396,9 +356,7 @@ Intended for full cleanup of role-managed host artifacts after stopping the comp
 
 > Collect committer logs
 
-Fetch logs from the selected deployment mode.
-
-Dispatches to binary, container, or Kubernetes log collection based on deployment flags.
+Fetch logs from the selected deployment mode.Dispatches to binary, container, or Kubernetes log collection based on deployment flags.
 
 ```yaml
 - name: Collect committer logs
@@ -418,9 +376,7 @@ Dispatches to binary, container, or Kubernetes log collection based on deploymen
 
 > Retrieve Prometheus metrics
 
-Query the component metrics endpoint and print the response body.
-
-Uses `actual_host`, `committer_http_protocol`, and `committer_metrics_port`.
+Query the component metrics endpoint and print the response body.Uses `actual_host`, `committer_http_protocol`, and `committer_metrics_port`.
 
 ```yaml
 - name: Retrieve Prometheus metrics
@@ -440,9 +396,7 @@ Uses `actual_host`, `committer_http_protocol`, and `committer_metrics_port`.
 
 > Start a committer component by type
 
-Dispatch startup to the selected committer component.
-
-`committer_component_type` selects validator, verifier, coordinator, sidecar, or query-service.
+Dispatch startup to the selected committer component.`committer_component_type` selects validator, verifier, coordinator, sidecar, or query-service.
 
 ```yaml
 - name: Start a committer component by type
@@ -458,17 +412,17 @@ Dispatch startup to the selected committer component.
 
 > Prepare crypto material
 
-Transfer cryptogen artifacts or enroll with Fabric CA for the selected component.
-
-When `committer_use_k8s` is true, also create the Kubernetes secret for the component.
-
-Uses `organization` to determine Fabric CA enrollment or cryptogen artifact paths.
+Transfer cryptogen artifacts or enroll with Fabric CA for the selected component.When `committer_use_k8s` is true, also create the Kubernetes secret for the component.Uses `organization` to determine Fabric CA enrollment or cryptogen artifact paths.
 
 ```yaml
 - name: Prepare crypto material
   vars:
     # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
-    organization: {'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}
+    organization:
+      name: 'Org1'
+      domain: 'org1.example.com'
+      peer:
+        name: 'committer-sidecar-1'
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
   ansible.builtin.include_role:
@@ -480,11 +434,7 @@ Uses `organization` to determine Fabric CA enrollment or cryptogen artifact path
 
 > Fetch TLS certificates
 
-Fetch the committer TLS CA certificate and server certificate to the control node.
-
-This task runs only when `committer_use_tls` is true.
-
-Stores fetched files under `fetched_artifacts_dir` for downstream trust bundle generation.
+Fetch the committer TLS CA certificate and server certificate to the control node.This task runs only when `committer_use_tls` is true.Stores fetched files under `fetched_artifacts_dir` for downstream trust bundle generation.
 
 ```yaml
 - name: Fetch TLS certificates
@@ -506,9 +456,7 @@ Stores fetched files under `fetched_artifacts_dir` for downstream trust bundle g
 
 > Install the committer binary
 
-Install the committer binary through the shared `bin` role Go installer entry point.
-
-Uses the configured Git repository, ref, package path, and binary name.
+Install the committer binary through the shared `bin` role Go installer entry point.Uses the configured Git repository, ref, package path, and binary name.
 
 ```yaml
 - name: Install the committer binary
@@ -534,9 +482,7 @@ Uses the configured Git repository, ref, package path, and binary name.
 
 > Build the committer binary
 
-Build the committer binary through the shared `bin` role Go build entry point.
-
-Produces the local committer binary artifact later transferred to target hosts.
+Build the committer binary through the shared `bin` role Go build entry point.Produces the local committer binary artifact later transferred to target hosts.
 
 ```yaml
 - name: Build the committer binary
@@ -560,9 +506,7 @@ Produces the local committer binary artifact later transferred to target hosts.
 
 > Stop a committer binary
 
-Stop the running committer binary process through the shared `bin` role.
-
-Applies to validator, verifier, coordinator, sidecar, and query-service host-binary processes.
+Stop the running committer binary process through the shared `bin` role.Applies to validator, verifier, coordinator, sidecar, and query-service host-binary processes.
 
 ```yaml
 - name: Stop a committer binary
@@ -575,9 +519,7 @@ Applies to validator, verifier, coordinator, sidecar, and query-service host-bin
 
 > Remove the committer binary
 
-Remove the installed committer binary from the target host.
-
-Uses `committer_bin_name` as the target executable name.
+Remove the installed committer binary from the target host.Uses `committer_bin_name` as the target executable name.
 
 ```yaml
 - name: Remove the committer binary
@@ -593,9 +535,7 @@ Uses `committer_bin_name` as the target executable name.
 
 > Fetch committer binary logs
 
-Collect logs generated by the committer binary through the shared `bin` role.
-
-Applies to host-binary deployments.
+Collect logs generated by the committer binary through the shared `bin` role.Applies to host-binary deployments.
 
 ```yaml
 - name: Fetch committer binary logs
@@ -608,9 +548,7 @@ Applies to host-binary deployments.
 
 > Transfer the committer binary
 
-Copy the built committer binary to the target host.
-
-Uses `committer_bin_name` for the executable transferred by the shared `bin` role.
+Copy the built committer binary to the target host.Uses `committer_bin_name` for the executable transferred by the shared `bin` role.
 
 ```yaml
 - name: Transfer the committer binary
@@ -626,9 +564,7 @@ Uses `committer_bin_name` for the executable transferred by the shared `bin` rol
 
 > Start the validator container
 
-Run the validator container with its generated configuration directory mounted read-only.
-
-Publishes validator RPC and metrics ports from the container to the host.
+Run the validator container with its generated configuration directory mounted read-only.Publishes validator RPC and metrics ports from the container to the host.
 
 ```yaml
 - name: Start the validator container
@@ -656,9 +592,7 @@ Publishes validator RPC and metrics ports from the container to the host.
 
 > Start the verifier container
 
-Run the verifier container with its generated configuration directory mounted read-only.
-
-Publishes verifier RPC and metrics ports from the container to the host.
+Run the verifier container with its generated configuration directory mounted read-only.Publishes verifier RPC and metrics ports from the container to the host.
 
 ```yaml
 - name: Start the verifier container
@@ -686,9 +620,7 @@ Publishes verifier RPC and metrics ports from the container to the host.
 
 > Start the coordinator container
 
-Run the coordinator container with its generated configuration directory mounted read-only.
-
-Publishes coordinator RPC and metrics ports from the container to the host.
+Run the coordinator container with its generated configuration directory mounted read-only.Publishes coordinator RPC and metrics ports from the container to the host.
 
 ```yaml
 - name: Start the coordinator container
@@ -716,9 +648,7 @@ Publishes coordinator RPC and metrics ports from the container to the host.
 
 > Start the sidecar container
 
-Ensure the sidecar data directory exists and run the sidecar container with config and data volumes mounted.
-
-Persists the sidecar ledger under `committer_remote_data_dir`.
+Ensure the sidecar data directory exists and run the sidecar container with config and data volumes mounted.Persists the sidecar ledger under `committer_remote_data_dir`.
 
 ```yaml
 - name: Start the sidecar container
@@ -750,9 +680,7 @@ Persists the sidecar ledger under `committer_remote_data_dir`.
 
 > Start the query-service container
 
-Run the query-service container with its generated configuration directory mounted read-only.
-
-Publishes query-service RPC and metrics ports from the container to the host.
+Run the query-service container with its generated configuration directory mounted read-only.Publishes query-service RPC and metrics ports from the container to the host.
 
 ```yaml
 - name: Start the query-service container
@@ -780,9 +708,7 @@ Publishes query-service RPC and metrics ports from the container to the host.
 
 > Stop a committer container
 
-Stop the committer container through the shared `container` role.
-
-Uses `committer_container_name` for the selected component container.
+Stop the committer container through the shared `container` role.Uses `committer_container_name` for the selected component container.
 
 ```yaml
 - name: Stop a committer container
@@ -798,9 +724,7 @@ Uses `committer_container_name` for the selected component container.
 
 > Remove a committer container
 
-Remove the committer container through the shared `container` role.
-
-Uses `committer_container_name` for the selected component container.
+Remove the committer container through the shared `container` role.Uses `committer_container_name` for the selected component container.
 
 ```yaml
 - name: Remove a committer container
@@ -816,9 +740,7 @@ Uses `committer_container_name` for the selected component container.
 
 > Fetch committer container logs
 
-Collect logs from the committer container through the shared `container` role.
-
-Uses `committer_container_name` for the selected component container.
+Collect logs from the committer container through the shared `container` role.Uses `committer_container_name` for the selected component container.
 
 ```yaml
 - name: Fetch committer container logs
@@ -834,9 +756,7 @@ Uses `committer_container_name` for the selected component container.
 
 > Generate config by component type
 
-Dispatch configuration generation to the selected committer component.
-
-Renders the component YAML config and any required companion artifacts.
+Dispatch configuration generation to the selected committer component.Renders the component YAML config and any required companion artifacts.
 
 ```yaml
 - name: Generate config by component type
@@ -852,9 +772,7 @@ Renders the component YAML config and any required companion artifacts.
 
 > Remove committer configuration
 
-Remove the component config directory and the Kubernetes ConfigMap when enabled.
-
-Cleans `committer_remote_config_dir` and, for Kubernetes, the component ConfigMap.
+Remove the component config directory and the Kubernetes ConfigMap when enabled.Cleans `committer_remote_config_dir` and, for Kubernetes, the component ConfigMap.
 
 ```yaml
 - name: Remove committer configuration
@@ -872,9 +790,7 @@ Cleans `committer_remote_config_dir` and, for Kubernetes, the component ConfigMa
 
 > Transfer the committer Grafana dashboard
 
-Publish the committer Grafana dashboard through the shared Grafana helper flow.
-
-Installs dashboard configuration used to visualize committer metrics.
+Publish the committer Grafana dashboard through the shared Grafana helper flow.Installs dashboard configuration used to visualize committer metrics.
 
 ```yaml
 - name: Transfer the committer Grafana dashboard
@@ -887,9 +803,7 @@ Installs dashboard configuration used to visualize committer metrics.
 
 > Transfer DB config by backend type
 
-Dispatch database configuration generation to the selected backend.
-
-Selects PostgreSQL via `postgres_db_host` or YugabyteDB via `yugabyte_cluster_ref_id`.
+Dispatch database configuration generation to the selected backend.Selects PostgreSQL via `postgres_db_host` or YugabyteDB via `yugabyte_cluster_ref_id`.
 
 ```yaml
 - name: Transfer DB config by backend type
@@ -907,9 +821,7 @@ Selects PostgreSQL via `postgres_db_host` or YugabyteDB via `yugabyte_cluster_re
 
 > Transfer PostgreSQL DB config
 
-Generate the PostgreSQL connection settings consumed by the committer component.
-
-Copies the Postgres TLS CA certificate from `fetched_artifacts_dir` when needed.
+Generate the PostgreSQL connection settings consumed by the committer component.Copies the Postgres TLS CA certificate from `fetched_artifacts_dir` when needed.
 
 ```yaml
 - name: Transfer PostgreSQL DB config
@@ -929,9 +841,7 @@ Copies the Postgres TLS CA certificate from `fetched_artifacts_dir` when needed.
 
 > Transfer Yugabyte DB config
 
-Generate the Yugabyte connection settings consumed by the committer component.
-
-Copies the Yugabyte TLS CA certificate from `fetched_artifacts_dir` when needed.
+Generate the Yugabyte connection settings consumed by the committer component.Copies the Yugabyte TLS CA certificate from `fetched_artifacts_dir` when needed.
 
 ```yaml
 - name: Transfer Yugabyte DB config
@@ -951,17 +861,18 @@ Copies the Yugabyte TLS CA certificate from `fetched_artifacts_dir` when needed.
 
 > Transfer committer mTLS certificates
 
-Copy mTLS certificates for the committer service-to-service connections.
-
-Builds trust bundles for `committer_mtls_clients` and `committer_mtls_orgs`.
+Copy mTLS certificates for the committer service-to-service connections.Builds trust bundles for `committer_mtls_clients` and `committer_mtls_orgs`.
 
 ```yaml
 - name: Transfer committer mTLS certificates
   vars:
     # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
-    committer_mtls_clients: ['committer-sidecar-1', 'loadgen-1']
+    committer_mtls_clients:
+      - committer-sidecar-1
+      - loadgen-1
     # mTLS organizations trusted by the component. Example: `[{'domain': 'org2.example.com'}]`.
-    committer_mtls_orgs: [{'domain': 'org2.example.com'}]
+    committer_mtls_orgs:
+      - domain: 'org2.example.com'
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
@@ -975,17 +886,17 @@ Builds trust bundles for `committer_mtls_clients` and `committer_mtls_orgs`.
 
 > Transfer monitoring mTLS certificates
 
-Copy monitoring mTLS certificates for Prometheus scraping.
-
-Builds monitoring trust bundles for Prometheus clients and monitoring organizations.
+Copy monitoring mTLS certificates for Prometheus scraping.Builds monitoring trust bundles for Prometheus clients and monitoring organizations.
 
 ```yaml
 - name: Transfer monitoring mTLS certificates
   vars:
     # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
-    committer_monitoring_mtls_clients: ['prometheus-1']
+    committer_monitoring_mtls_clients:
+      - prometheus-1
     # Monitoring mTLS organizations trusted by the component. Example: `[{'domain': 'monitoring.example.com'}]`.
-    committer_monitoring_mtls_orgs: [{'domain': 'monitoring.example.com'}]
+    committer_monitoring_mtls_orgs:
+      - domain: 'monitoring.example.com'
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
@@ -999,9 +910,7 @@ Builds monitoring trust bundles for Prometheus clients and monitoring organizati
 
 > Remove committer crypto material
 
-Remove local TLS assets and the Kubernetes Secret when enabled.
-
-Cleans TLS material under `committer_remote_config_dir` for the selected component.
+Remove local TLS assets and the Kubernetes Secret when enabled.Cleans TLS material under `committer_remote_config_dir` for the selected component.
 
 ```yaml
 - name: Remove committer crypto material
@@ -1021,15 +930,17 @@ Cleans TLS material under `committer_remote_config_dir` for the selected compone
 
 > Transfer committer crypto from cryptogen
 
-Copy cryptogen-generated TLS assets for the selected committer component.
-
-Sidecar components also receive MSP material from the organization peer directory.
+Copy cryptogen-generated TLS assets for the selected committer component.Sidecar components also receive MSP material from the organization peer directory.
 
 ```yaml
 - name: Transfer committer crypto from cryptogen
   vars:
     # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
-    organization: {'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}
+    organization:
+      name: 'Org1'
+      domain: 'org1.example.com'
+      peer:
+        name: 'committer-sidecar-1'
     # Committer component handled by the entry point. Example: `coordinator`.
     committer_component_type: "coordinator"
     # Control-node directory that stores cryptogen output. Example: `/tmp/fabricx/crypto-material`.
@@ -1047,15 +958,17 @@ Sidecar components also receive MSP material from the organization peer director
 
 > Enroll committer crypto with Fabric CA
 
-Enroll the selected committer component against its Fabric CA and write the resulting TLS assets.
-
-Uses `actual_host` as a TLS CSR host and writes certificates under `committer_remote_config_dir`.
+Enroll the selected committer component against its Fabric CA and write the resulting TLS assets.Uses `actual_host` as a TLS CSR host and writes certificates under `committer_remote_config_dir`.
 
 ```yaml
 - name: Enroll committer crypto with Fabric CA
   vars:
     # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
-    organization: {'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}
+    organization:
+      name: 'Org1'
+      domain: 'org1.example.com'
+      peer:
+        name: 'committer-sidecar-1'
     # Committer component handled by the entry point. Example: `coordinator`.
     committer_component_type: "coordinator"
     # Remote config directory managed by the role.
@@ -1075,9 +988,7 @@ Uses `actual_host` as a TLS CSR host and writes certificates under `committer_re
 
 > Remove sidecar data
 
-Remove the sidecar data directory and sidecar PVC when Kubernetes mode is enabled.
-
-Applies only to sidecar ledger data stored under `committer_remote_data_dir`.
+Remove the sidecar data directory and sidecar PVC when Kubernetes mode is enabled.Applies only to sidecar ledger data stored under `committer_remote_data_dir`.
 
 ```yaml
 - name: Remove sidecar data
@@ -1099,9 +1010,7 @@ Applies only to sidecar ledger data stored under `committer_remote_data_dir`.
 
 > Remove the committer ConfigMap
 
-Delete the committer Kubernetes ConfigMap.
-
-Uses `committer_k8s_resource_name` and `k8s_namespace` to identify the ConfigMap.
+Delete the committer Kubernetes ConfigMap.Uses `committer_k8s_resource_name` and `k8s_namespace` to identify the ConfigMap.
 
 ```yaml
 - name: Remove the committer ConfigMap
@@ -1119,9 +1028,7 @@ Uses `committer_k8s_resource_name` and `k8s_namespace` to identify the ConfigMap
 
 > Remove the committer Secret
 
-Delete the committer Kubernetes Secret.
-
-Uses `committer_k8s_resource_name` and `k8s_namespace` to identify the Secret.
+Delete the committer Kubernetes Secret.Uses `committer_k8s_resource_name` and `k8s_namespace` to identify the Secret.
 
 ```yaml
 - name: Remove the committer Secret
@@ -1139,9 +1046,7 @@ Uses `committer_k8s_resource_name` and `k8s_namespace` to identify the Secret.
 
 > Create the committer Secret
 
-Create the committer Kubernetes Secret from the generated TLS materials.
-
-Includes TLS keys, TLS certificates, and sidecar MSP material when required by the component.
+Create the committer Kubernetes Secret from the generated TLS materials.Includes TLS keys, TLS certificates, and sidecar MSP material when required by the component.
 
 ```yaml
 - name: Create the committer Secret
@@ -1157,7 +1062,11 @@ Includes TLS keys, TLS certificates, and sidecar MSP material when required by t
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
     # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
-    organization: {'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}
+    organization:
+      name: 'Org1'
+      domain: 'org1.example.com'
+      peer:
+        name: 'committer-sidecar-1'
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: k8s/crypto/transfer
@@ -1167,9 +1076,7 @@ Includes TLS keys, TLS certificates, and sidecar MSP material when required by t
 
 > Fetch committer pod logs
 
-Collect logs from committer pods through the shared Kubernetes helper role.
-
-Uses `committer_k8s_resource_name` to select the component workload.
+Collect logs from committer pods through the shared Kubernetes helper role.Uses `committer_k8s_resource_name` to select the component workload.
 
 ```yaml
 - name: Fetch committer pod logs
@@ -1185,15 +1092,17 @@ Uses `committer_k8s_resource_name` to select the component workload.
 
 > Build Prometheus scrape targets for committer
 
-Construct the Prometheus scrape service definitions for all deployed committer component types.
-
-Reads `committer_hosts` and fetched TLS artifacts to build scrape targets.
+Construct the Prometheus scrape service definitions for all deployed committer component types.Reads `committer_hosts` and fetched TLS artifacts to build scrape targets.
 
 ```yaml
 - name: Build Prometheus scrape targets for committer
   vars:
     # Inventory hosts for committer components used by Prometheus scrape generation. Example: `['committer-validator-1', 'committer-verifier-1', 'committer-coordinator-1', 'committer-sidecar-1']`.
-    committer_hosts: ['committer-validator-1', 'committer-verifier-1', 'committer-coordinator-1', 'committer-sidecar-1']
+    committer_hosts:
+      - committer-validator-1
+      - committer-verifier-1
+      - committer-coordinator-1
+      - committer-sidecar-1
     # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx/artifacts"
   ansible.builtin.include_role:
@@ -1205,9 +1114,7 @@ Reads `committer_hosts` and fetched TLS artifacts to build scrape targets.
 
 > Start the validator binary
 
-Run the validator binary with its generated configuration file.
-
-Waits for the validator RPC port after starting `start-vc`.
+Run the validator binary with its generated configuration file.Waits for the validator RPC port after starting `start-vc`.
 
 ```yaml
 - name: Start the validator binary
@@ -1229,9 +1136,7 @@ Waits for the validator RPC port after starting `start-vc`.
 
 > Start the verifier binary
 
-Run the verifier binary with its generated configuration file.
-
-Waits for the verifier RPC port after starting `start-verifier`.
+Run the verifier binary with its generated configuration file.Waits for the verifier RPC port after starting `start-verifier`.
 
 ```yaml
 - name: Start the verifier binary
@@ -1253,9 +1158,7 @@ Waits for the verifier RPC port after starting `start-verifier`.
 
 > Start the coordinator binary
 
-Run the coordinator binary with its generated configuration file.
-
-Waits for the coordinator RPC port after starting `start-coordinator`.
+Run the coordinator binary with its generated configuration file.Waits for the coordinator RPC port after starting `start-coordinator`.
 
 ```yaml
 - name: Start the coordinator binary
@@ -1277,9 +1180,7 @@ Waits for the coordinator RPC port after starting `start-coordinator`.
 
 > Start the sidecar binary
 
-Ensure the sidecar data directory exists and run the sidecar binary.
-
-Waits for the sidecar RPC port after starting `start-sidecar`.
+Ensure the sidecar data directory exists and run the sidecar binary.Waits for the sidecar RPC port after starting `start-sidecar`.
 
 ```yaml
 - name: Start the sidecar binary
@@ -1303,9 +1204,7 @@ Waits for the sidecar RPC port after starting `start-sidecar`.
 
 > Start the query-service binary
 
-Run the query-service binary with its generated configuration file.
-
-Waits for the query-service RPC port after starting `start-query`.
+Run the query-service binary with its generated configuration file.Waits for the query-service RPC port after starting `start-query`.
 
 ```yaml
 - name: Start the query-service binary
@@ -1327,9 +1226,7 @@ Waits for the query-service RPC port after starting `start-query`.
 
 > Generate validator config
 
-Render validator configuration, DB settings, mTLS assets, and optional Kubernetes ConfigMap.
-
-Requires either `postgres_db_host` or `yugabyte_cluster_ref_id` for the state database.
+Render validator configuration, DB settings, mTLS assets, and optional Kubernetes ConfigMap.Requires either `postgres_db_host` or `yugabyte_cluster_ref_id` for the state database.
 
 ```yaml
 - name: Generate validator config
@@ -1413,9 +1310,7 @@ Requires either `postgres_db_host` or `yugabyte_cluster_ref_id` for the state da
 
 > Generate verifier config
 
-Render verifier configuration, mTLS assets, and optional Kubernetes ConfigMap.
-
-Includes verifier parallel executor settings and RPC/metrics server settings.
+Render verifier configuration, mTLS assets, and optional Kubernetes ConfigMap.Includes verifier parallel executor settings and RPC/metrics server settings.
 
 ```yaml
 - name: Generate verifier config
@@ -1479,9 +1374,7 @@ Includes verifier parallel executor settings and RPC/metrics server settings.
 
 > Generate coordinator config
 
-Render coordinator configuration, validator and verifier CA bundles, and optional Kubernetes ConfigMap.
-
-Uses `committer_validators` and `committer_verifiers` to build upstream endpoint lists.
+Render coordinator configuration, validator and verifier CA bundles, and optional Kubernetes ConfigMap.Uses `committer_validators` and `committer_verifiers` to build upstream endpoint lists.
 
 ```yaml
 - name: Generate coordinator config
@@ -1547,9 +1440,13 @@ Uses `committer_validators` and `committer_verifiers` to build upstream endpoint
     # Per-goroutine channel buffer size for the coordinator. Example: `10`.
     committer_coordinator_per_channel_buffer_size_per_goroutine: 10
     # Inventory hosts for validator components. Example: `['committer-validator-1', 'committer-validator-2']`.
-    committer_validators: ['committer-validator-1', 'committer-validator-2']
+    committer_validators:
+      - committer-validator-1
+      - committer-validator-2
     # Inventory hosts for verifier components. Example: `['committer-verifier-1', 'committer-verifier-2']`.
-    committer_verifiers: ['committer-verifier-1', 'committer-verifier-2']
+    committer_verifiers:
+      - committer-verifier-1
+      - committer-verifier-2
     # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx/artifacts"
     # Enable Kubernetes deployment mode.
@@ -1563,9 +1460,7 @@ Uses `committer_validators` and `committer_verifiers` to build upstream endpoint
 
 > Generate sidecar config
 
-Render sidecar configuration, upstream TLS bundles, and optional Kubernetes ConfigMap.
-
-Uses `orderer_assemblers`, `committer_coordinator`, `channel_id`, and MSP material.
+Render sidecar configuration, upstream TLS bundles, and optional Kubernetes ConfigMap.Uses `orderer_assemblers`, `committer_coordinator`, `channel_id`, and MSP material.
 
 ```yaml
 - name: Generate sidecar config
@@ -1615,7 +1510,11 @@ Uses `orderer_assemblers`, `committer_coordinator`, `channel_id`, and MSP materi
     # Fabric channel identifier consumed by sidecar configuration. Example: `mychannel`.
     channel_id: "mychannel"
     # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
-    organization: {'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}
+    organization:
+      name: 'Org1'
+      domain: 'org1.example.com'
+      peer:
+        name: 'committer-sidecar-1'
     # Inventory host name of the coordinator component. Example: `committer-coordinator-1`.
     committer_coordinator: "committer-coordinator-1"
     # Interval between sidecar committed-block updates. Example: `5s`.
@@ -1629,7 +1528,9 @@ Uses `orderer_assemblers`, `committer_coordinator`, `channel_id`, and MSP materi
     # Sidecar notification timeout. Example: `10m`.
     committer_sidecar_notification_max_timeout: "10m"
     # Inventory hosts for orderer assembler components. Example: `['orderer-assembler-1', 'orderer-assembler-2']`.
-    orderer_assemblers: ['orderer-assembler-1', 'orderer-assembler-2']
+    orderer_assemblers:
+      - orderer-assembler-1
+      - orderer-assembler-2
     # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx/artifacts"
     # Enable Kubernetes deployment mode.
@@ -1643,9 +1544,7 @@ Uses `orderer_assemblers`, `committer_coordinator`, `channel_id`, and MSP materi
 
 > Generate query-service config
 
-Render query-service configuration, DB settings, mTLS assets, and optional Kubernetes ConfigMap.
-
-Requires either `postgres_db_host` or `yugabyte_cluster_ref_id` for the query database.
+Render query-service configuration, DB settings, mTLS assets, and optional Kubernetes ConfigMap.Requires either `postgres_db_host` or `yugabyte_cluster_ref_id` for the query database.
 
 ```yaml
 - name: Generate query-service config
@@ -1733,9 +1632,7 @@ Requires either `postgres_db_host` or `yugabyte_cluster_ref_id` for the query da
 
 > Start the validator on Kubernetes
 
-Ensure the namespace exists and apply the validator Service, NodePort Service, and Deployment.
-
-Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
+Ensure the namespace exists and apply the validator Service, NodePort Service, and Deployment.Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
 
 ```yaml
 - name: Start the validator on Kubernetes
@@ -1753,9 +1650,7 @@ Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings
 
 > Start the verifier on Kubernetes
 
-Ensure the namespace exists and apply the verifier Service, NodePort Service, and Deployment.
-
-Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
+Ensure the namespace exists and apply the verifier Service, NodePort Service, and Deployment.Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
 
 ```yaml
 - name: Start the verifier on Kubernetes
@@ -1773,9 +1668,7 @@ Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings
 
 > Start the coordinator on Kubernetes
 
-Ensure the namespace exists and apply the coordinator Service, NodePort Service, and Deployment.
-
-Uses validator and verifier host lists to prepare TLS mounts and startup dependencies.
+Ensure the namespace exists and apply the coordinator Service, NodePort Service, and Deployment.Uses validator and verifier host lists to prepare TLS mounts and startup dependencies.
 
 ```yaml
 - name: Start the coordinator on Kubernetes
@@ -1785,9 +1678,13 @@ Uses validator and verifier host lists to prepare TLS mounts and startup depende
     # Wait timeout in seconds for Kubernetes rollouts.
     committer_k8s_wait_timeout: 120
     # Inventory hosts for validator components. Example: `['committer-validator-1', 'committer-validator-2']`.
-    committer_validators: ['committer-validator-1', 'committer-validator-2']
+    committer_validators:
+      - committer-validator-1
+      - committer-validator-2
     # Inventory hosts for verifier components. Example: `['committer-verifier-1', 'committer-verifier-2']`.
-    committer_verifiers: ['committer-verifier-1', 'committer-verifier-2']
+    committer_verifiers:
+      - committer-verifier-1
+      - committer-verifier-2
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: coordinator/k8s/start
@@ -1797,9 +1694,7 @@ Uses validator and verifier host lists to prepare TLS mounts and startup depende
 
 > Start the sidecar on Kubernetes
 
-Ensure the namespace exists and apply the sidecar Service, NodePort Service, and StatefulSet.
-
-Creates the persistent sidecar ledger volume from the configured storage settings.
+Ensure the namespace exists and apply the sidecar Service, NodePort Service, and StatefulSet.Creates the persistent sidecar ledger volume from the configured storage settings.
 
 ```yaml
 - name: Start the sidecar on Kubernetes
@@ -1817,9 +1712,7 @@ Creates the persistent sidecar ledger volume from the configured storage setting
 
 > Start the query-service on Kubernetes
 
-Ensure the namespace exists and apply the query-service Service, NodePort Service, and Deployment.
-
-Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
+Ensure the namespace exists and apply the query-service Service, NodePort Service, and Deployment.Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
 
 ```yaml
 - name: Start the query-service on Kubernetes
@@ -1837,9 +1730,7 @@ Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings
 
 > Remove validator Kubernetes resources
 
-Delete the validator Deployment and Services.
-
-Uses `committer_k8s_resource_name` in `k8s_namespace` to select resources.
+Delete the validator Deployment and Services.Uses `committer_k8s_resource_name` in `k8s_namespace` to select resources.
 
 ```yaml
 - name: Remove validator Kubernetes resources
@@ -1857,9 +1748,7 @@ Uses `committer_k8s_resource_name` in `k8s_namespace` to select resources.
 
 > Remove verifier Kubernetes resources
 
-Delete the verifier Deployment and Services.
-
-Uses `committer_k8s_resource_name` in `k8s_namespace` to select resources.
+Delete the verifier Deployment and Services.Uses `committer_k8s_resource_name` in `k8s_namespace` to select resources.
 
 ```yaml
 - name: Remove verifier Kubernetes resources
@@ -1877,9 +1766,7 @@ Uses `committer_k8s_resource_name` in `k8s_namespace` to select resources.
 
 > Remove coordinator Kubernetes resources
 
-Delete the coordinator Deployment and Services.
-
-Uses `committer_k8s_resource_name` in `k8s_namespace` to select resources.
+Delete the coordinator Deployment and Services.Uses `committer_k8s_resource_name` in `k8s_namespace` to select resources.
 
 ```yaml
 - name: Remove coordinator Kubernetes resources
@@ -1897,9 +1784,7 @@ Uses `committer_k8s_resource_name` in `k8s_namespace` to select resources.
 
 > Remove sidecar Kubernetes resources
 
-Delete the sidecar StatefulSet and Services.
-
-Uses `committer_k8s_resource_name` in `k8s_namespace` to select resources.
+Delete the sidecar StatefulSet and Services.Uses `committer_k8s_resource_name` in `k8s_namespace` to select resources.
 
 ```yaml
 - name: Remove sidecar Kubernetes resources
@@ -1917,9 +1802,7 @@ Uses `committer_k8s_resource_name` in `k8s_namespace` to select resources.
 
 > Remove query-service Kubernetes resources
 
-Delete the query-service Deployment and Services.
-
-Uses `committer_k8s_resource_name` in `k8s_namespace` to select resources.
+Delete the query-service Deployment and Services.Uses `committer_k8s_resource_name` in `k8s_namespace` to select resources.
 
 ```yaml
 - name: Remove query-service Kubernetes resources
@@ -1937,9 +1820,7 @@ Uses `committer_k8s_resource_name` in `k8s_namespace` to select resources.
 
 > Create the validator ConfigMap
 
-Ensure the namespace exists and create the validator Kubernetes ConfigMap.
-
-Publishes the rendered validator config and mounted CA files for Kubernetes pods.
+Ensure the namespace exists and create the validator Kubernetes ConfigMap.Publishes the rendered validator config and mounted CA files for Kubernetes pods.
 
 ```yaml
 - name: Create the validator ConfigMap
@@ -1955,9 +1836,7 @@ Publishes the rendered validator config and mounted CA files for Kubernetes pods
 
 > Create the verifier ConfigMap
 
-Ensure the namespace exists and create the verifier Kubernetes ConfigMap.
-
-Publishes the rendered verifier config and mounted CA files for Kubernetes pods.
+Ensure the namespace exists and create the verifier Kubernetes ConfigMap.Publishes the rendered verifier config and mounted CA files for Kubernetes pods.
 
 ```yaml
 - name: Create the verifier ConfigMap
@@ -1970,9 +1849,7 @@ Publishes the rendered verifier config and mounted CA files for Kubernetes pods.
 
 > Create the coordinator ConfigMap
 
-Ensure the namespace exists and create the coordinator Kubernetes ConfigMap.
-
-Publishes rendered coordinator config plus validator and verifier CA bundle files.
+Ensure the namespace exists and create the coordinator Kubernetes ConfigMap.Publishes rendered coordinator config plus validator and verifier CA bundle files.
 
 ```yaml
 - name: Create the coordinator ConfigMap
@@ -1980,9 +1857,13 @@ Publishes rendered coordinator config plus validator and verifier CA bundle file
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Inventory hosts for validator components. Example: `['committer-validator-1', 'committer-validator-2']`.
-    committer_validators: ['committer-validator-1', 'committer-validator-2']
+    committer_validators:
+      - committer-validator-1
+      - committer-validator-2
     # Inventory hosts for verifier components. Example: `['committer-verifier-1', 'committer-verifier-2']`.
-    committer_verifiers: ['committer-verifier-1', 'committer-verifier-2']
+    committer_verifiers:
+      - committer-verifier-1
+      - committer-verifier-2
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: coordinator/k8s/config/transfer
@@ -1992,9 +1873,7 @@ Publishes rendered coordinator config plus validator and verifier CA bundle file
 
 > Create the sidecar ConfigMap
 
-Ensure the namespace exists and create the sidecar Kubernetes ConfigMap.
-
-Publishes rendered sidecar config plus orderer and coordinator CA bundle files.
+Ensure the namespace exists and create the sidecar Kubernetes ConfigMap.Publishes rendered sidecar config plus orderer and coordinator CA bundle files.
 
 ```yaml
 - name: Create the sidecar ConfigMap
@@ -2010,9 +1889,7 @@ Publishes rendered sidecar config plus orderer and coordinator CA bundle files.
 
 > Create the query-service ConfigMap
 
-Ensure the namespace exists and create the query-service Kubernetes ConfigMap.
-
-Publishes the rendered query-service config and mounted DB CA file when used.
+Ensure the namespace exists and create the query-service Kubernetes ConfigMap.Publishes the rendered query-service config and mounted DB CA file when used.
 
 ```yaml
 - name: Create the query-service ConfigMap
@@ -2028,9 +1905,7 @@ Publishes the rendered query-service config and mounted DB CA file when used.
 
 > Teardown the validator
 
-Remove validator runtime resources for the active deployment mode.
-
-Dispatches to Kubernetes, container, or host-binary cleanup based on deployment flags.
+Remove validator runtime resources for the active deployment mode.Dispatches to Kubernetes, container, or host-binary cleanup based on deployment flags.
 
 ```yaml
 - name: Teardown the validator
@@ -2050,9 +1925,7 @@ Dispatches to Kubernetes, container, or host-binary cleanup based on deployment 
 
 > Teardown the verifier
 
-Remove verifier runtime resources for the active deployment mode.
-
-Dispatches to Kubernetes, container, or host-binary cleanup based on deployment flags.
+Remove verifier runtime resources for the active deployment mode.Dispatches to Kubernetes, container, or host-binary cleanup based on deployment flags.
 
 ```yaml
 - name: Teardown the verifier

@@ -52,13 +52,7 @@ ansible-doc -t role hyperledger.fabricx.postgres_exporter
 
 > Start Postgres Exporter
 
-Dispatches to the container or Kubernetes startup path for Postgres Exporter.
-
-In container mode it renders the exporter config, builds the PostgreSQL datasource from the monitored host facts, and starts the exporter container.
-
-In Kubernetes mode it renders the ConfigMap, Secret, and Service resources needed to run the exporter Deployment against the same datasource.
-
-The backend selection is controlled by `postgres_exporter_use_container` and `postgres_exporter_use_k8s`.
+Dispatches to the container or Kubernetes startup path for Postgres Exporter.In container mode it renders the exporter config, builds the PostgreSQL datasource from the monitored host facts, and starts the exporter container.In Kubernetes mode it renders the ConfigMap, Secret, and Service resources needed to run the exporter Deployment against the same datasource.The backend selection is controlled by `postgres_exporter_use_container` and `postgres_exporter_use_k8s`.
 
 ```yaml
 - name: Start Postgres Exporter
@@ -76,9 +70,7 @@ The backend selection is controlled by `postgres_exporter_use_container` and `po
 
 > Stop Postgres Exporter
 
-Stops a container-based Postgres Exporter deployment without removing generated configuration or TLS artifacts.
-
-This entry point only dispatches when `postgres_exporter_use_container` resolves to `true`.
+Stops a container-based Postgres Exporter deployment without removing generated configuration or TLS artifacts.This entry point only dispatches when `postgres_exporter_use_container` resolves to `true`.
 
 ```yaml
 - name: Stop Postgres Exporter
@@ -94,9 +86,7 @@ This entry point only dispatches when `postgres_exporter_use_container` resolves
 
 > Remove Postgres Exporter runtime resources
 
-Removes the active Postgres Exporter runtime resources for the enabled backend.
-
-This dispatches to the container removal path or the Kubernetes removal path, depending on the selected backend.
+Removes the active Postgres Exporter runtime resources for the enabled backend.This dispatches to the container removal path or the Kubernetes removal path, depending on the selected backend.
 
 ```yaml
 - name: Remove Postgres Exporter runtime resources
@@ -114,9 +104,7 @@ This dispatches to the container removal path or the Kubernetes removal path, de
 
 > Remove all Postgres Exporter artifacts
 
-Removes runtime resources, TLS artifacts, and generated configuration for Postgres Exporter.
-
-This entry point combines `teardown`, `crypto/rm`, and `config/rm`, so it validates the variables needed by all three paths.
+Removes runtime resources, TLS artifacts, and generated configuration for Postgres Exporter.This entry point combines `teardown`, `crypto/rm`, and `config/rm`, so it validates the variables needed by all three paths.
 
 ```yaml
 - name: Remove all Postgres Exporter artifacts
@@ -129,9 +117,7 @@ This entry point combines `teardown`, `crypto/rm`, and `config/rm`, so it valida
 
 > Fetch Postgres Exporter logs
 
-Collects logs from the Postgres Exporter container or Kubernetes pod for the active backend.
-
-The backend selection is controlled by `postgres_exporter_use_container` and `postgres_exporter_use_k8s`.
+Collects logs from the Postgres Exporter container or Kubernetes pod for the active backend.The backend selection is controlled by `postgres_exporter_use_container` and `postgres_exporter_use_k8s`.
 
 ```yaml
 - name: Fetch Postgres Exporter logs
@@ -151,9 +137,7 @@ The backend selection is controlled by `postgres_exporter_use_container` and `po
 
 > Check Postgres Exporter reachability
 
-Checks whether the Postgres Exporter metrics port is reachable on the current host.
-
-In Kubernetes mode this validates the optional NodePort exposure instead of the container listener.
+Checks whether the Postgres Exporter metrics port is reachable on the current host.In Kubernetes mode this validates the optional NodePort exposure instead of the container listener.
 
 ```yaml
 - name: Check Postgres Exporter reachability
@@ -171,9 +155,7 @@ In Kubernetes mode this validates the optional NodePort exposure instead of the 
 
 > Start the Postgres Exporter container
 
-Builds the exporter PostgreSQL datasource from the monitored host facts, renders the container configuration, and starts the Postgres Exporter container.
-
-When the monitored database uses TLS, the exporter mounts the copied CA certificate and connects with `sslmode=verify-full`.
+Builds the exporter PostgreSQL datasource from the monitored host facts, renders the container configuration, and starts the Postgres Exporter container.When the monitored database uses TLS, the exporter mounts the copied CA certificate and connects with `sslmode=verify-full`.
 
 ```yaml
 - name: Start the Postgres Exporter container
@@ -261,11 +243,7 @@ Fetches logs from the Postgres Exporter container using the configured container
 
 > Generate and transfer Postgres Exporter configuration
 
-Generates the Postgres Exporter configuration files and copies the PostgreSQL CA certificate when the monitored database uses TLS.
-
-The rendered configuration includes the datasource assembled from the monitored PostgreSQL host facts.
-
-For Kubernetes deployments this also applies the ConfigMap.
+Generates the Postgres Exporter configuration files and copies the PostgreSQL CA certificate when the monitored database uses TLS.The rendered configuration includes the datasource assembled from the monitored PostgreSQL host facts.For Kubernetes deployments this also applies the ConfigMap.
 
 ```yaml
 - name: Generate and transfer Postgres Exporter configuration
@@ -301,9 +279,7 @@ For Kubernetes deployments this also applies the ConfigMap.
 
 > Remove Postgres Exporter configuration
 
-Removes generated Postgres Exporter configuration files from the remote host.
-
-For Kubernetes deployments this also deletes the related ConfigMap.
+Removes generated Postgres Exporter configuration files from the remote host.For Kubernetes deployments this also deletes the related ConfigMap.
 
 ```yaml
 - name: Remove Postgres Exporter configuration
@@ -323,9 +299,7 @@ For Kubernetes deployments this also deletes the related ConfigMap.
 
 > Transfer the packaged Grafana dashboard
 
-Sets the packaged Postgres Exporter dashboard path and delegates dashboard copy to the Grafana role.
-
-This entry point does not validate any Postgres Exporter variables because it only derives paths from `role_path`.
+Sets the packaged Postgres Exporter dashboard path and delegates dashboard copy to the Grafana role.This entry point does not validate any Postgres Exporter variables because it only derives paths from `role_path`.
 
 ```yaml
 - name: Transfer the packaged Grafana dashboard
@@ -338,9 +312,7 @@ This entry point does not validate any Postgres Exporter variables because it on
 
 > Generate Postgres Exporter TLS artifacts
 
-Generates the Postgres Exporter TLS files when `postgres_exporter_use_tls` is true.
-
-For Kubernetes deployments this also applies the Secret used by the pod.
+Generates the Postgres Exporter TLS files when `postgres_exporter_use_tls` is true.For Kubernetes deployments this also applies the Secret used by the pod.
 
 ```yaml
 - name: Generate Postgres Exporter TLS artifacts
@@ -358,9 +330,7 @@ For Kubernetes deployments this also applies the Secret used by the pod.
 
 > Fetch Postgres Exporter TLS artifacts
 
-Fetches the generated Postgres Exporter TLS CA certificate and server certificate to the control node.
-
-This entry point only transfers files when `postgres_exporter_use_tls` is true.
+Fetches the generated Postgres Exporter TLS CA certificate and server certificate to the control node.This entry point only transfers files when `postgres_exporter_use_tls` is true.
 
 ```yaml
 - name: Fetch Postgres Exporter TLS artifacts
@@ -382,9 +352,7 @@ This entry point only transfers files when `postgres_exporter_use_tls` is true.
 
 > Remove Postgres Exporter TLS artifacts
 
-Removes generated Postgres Exporter TLS files from the remote host.
-
-For Kubernetes deployments this also deletes the related Secret.
+Removes generated Postgres Exporter TLS files from the remote host.For Kubernetes deployments this also deletes the related Secret.
 
 ```yaml
 - name: Remove Postgres Exporter TLS artifacts
@@ -411,8 +379,9 @@ Delegates self-signed certificate generation to the OpenSSL role using Postgres 
 ```yaml
 - name: Generate Postgres Exporter TLS files with OpenSSL
   vars:
-    # Provides organization metadata forwarded to the OpenSSL role. Example: `{domain: org1.example.com}`.
-    organization: {domain: org1.example.com}
+    # Provides organization metadata forwarded to the OpenSSL role. Example: `{'domain': 'org1.example.com'}`.
+    organization:
+      domain: 'org1.example.com'
     # Provides the shared remote configuration directory used by Postgres Exporter. Example: `/opt/fabricx/postgres-exporter/config`.
     remote_config_dir: "/opt/fabricx/postgres-exporter/config"
     # Sets the remote directory that stores Postgres Exporter configuration and TLS files.
@@ -430,11 +399,7 @@ Delegates self-signed certificate generation to the OpenSSL role using Postgres 
 
 > Start Postgres Exporter on Kubernetes
 
-Applies the Service, optional NodePort Service, and Deployment for Postgres Exporter.
-
-The Deployment connects to the monitored PostgreSQL host using the same datasource facts used by the container path.
-
-The NodePort Service is optional and only rendered when `postgres_exporter_k8s_use_node_port` is true.
+Applies the Service, optional NodePort Service, and Deployment for Postgres Exporter.The Deployment connects to the monitored PostgreSQL host using the same datasource facts used by the container path.The NodePort Service is optional and only rendered when `postgres_exporter_k8s_use_node_port` is true.
 
 ```yaml
 - name: Start Postgres Exporter on Kubernetes
@@ -502,9 +467,7 @@ The NodePort Service is optional and only rendered when `postgres_exporter_k8s_u
 
 > Check Postgres Exporter node port reachability
 
-Checks whether the optional Postgres Exporter NodePort Service is reachable.
-
-This verifies the exposed service port rather than the pod-local metrics listener.
+Checks whether the optional Postgres Exporter NodePort Service is reachable.This verifies the exposed service port rather than the pod-local metrics listener.
 
 ```yaml
 - name: Check Postgres Exporter node port reachability
@@ -558,9 +521,7 @@ Delegates Postgres Exporter pod log collection to the shared Kubernetes role.
 
 > Apply the Postgres Exporter ConfigMap
 
-Ensures the Kubernetes namespace exists and applies the ConfigMap rendered from the local Postgres Exporter configuration files.
-
-The generated configuration points the exporter at the monitored PostgreSQL host facts.
+Ensures the Kubernetes namespace exists and applies the ConfigMap rendered from the local Postgres Exporter configuration files.The generated configuration points the exporter at the monitored PostgreSQL host facts.
 
 ```yaml
 - name: Apply the Postgres Exporter ConfigMap
@@ -658,17 +619,17 @@ Deletes the Postgres Exporter Secret from Kubernetes.
 
 > Build Prometheus scrape definitions for Postgres Exporter
 
-Builds the `postgres_exporter_prometheus_scrape_services` fact for the Postgres Exporter hosts listed in `postgres_exporter_hosts`.
-
-The TLS CA path for each host derives from `fetched_artifacts_dir` and the current loop host.
+Builds the `postgres_exporter_prometheus_scrape_services` fact for the Postgres Exporter hosts listed in `postgres_exporter_hosts`.The TLS CA path for each host derives from `fetched_artifacts_dir` and the current loop host.
 
 ```yaml
 - name: Build Prometheus scrape definitions for Postgres Exporter
   vars:
     # Provides the control-node directory used to fetch or stage Postgres Exporter TLS artifacts. Example: `/tmp/postgres-exporter-artifacts`.
     fetched_artifacts_dir: "/tmp/postgres-exporter-artifacts"
-    # Lists the inventory hosts that run Postgres Exporter and should be exposed to Prometheus. Example: `[postgres-exporter-a, postgres-exporter-b]`.
-    postgres_exporter_hosts: [postgres-exporter-a, postgres-exporter-b]
+    # Lists the inventory hosts that run Postgres Exporter and should be exposed to Prometheus. Example: `['postgres-exporter-a', 'postgres-exporter-b']`.
+    postgres_exporter_hosts:
+      - postgres-exporter-a
+      - postgres-exporter-b
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: prometheus/get_scrapers

@@ -68,7 +68,7 @@ argument_specs:
         required: true
         description:
           - "Inventory hosts dedicated to orderer nodes."
-          - "Example: C([orderer-consenter-1, orderer-batcher-1, orderer-assembler-1, orderer-router-1])."
+          - "Example: C(['orderer-consenter-1', 'orderer-batcher-1', 'orderer-assembler-1', 'orderer-router-1'])."
       orderer_registry_endpoint: &orderer_registry_endpoint
         type: str
         required: false
@@ -335,20 +335,21 @@ argument_specs:
         required: false
         description:
           - "Client identifiers whose mTLS CA certificates are mounted or transferred."
-          - "Example: C([loadgen-1, gateway-1]) to trust fetched C(tls/ca.crt) files under those artifact directories."
+          - "Trusts fetched C(tls/ca.crt) files under those artifact directories."
+          - "Example: C(['loadgen-1', 'gateway-1'])."
       orderer_mtls_orgs: &orderer_mtls_orgs
         type: list
         elements: dict
         required: false
         description:
           - "Organization dictionaries whose mTLS CA certificates are mounted or transferred."
-          - "Example: C([{domain: org1.example.com}, {domain: org2.example.com}])."
+          - "Example: C([{'domain': 'org1.example.com'}, {'domain': 'org2.example.com'}])."
       organization: &organization
         type: dict
         required: true
         description:
           - "Organization metadata shared by the orderer crypto and config branches."
-          - "Example: C({domain: orderer.example.com, orderer: {name: orderer-consenter-1}, fabric_ca_host: ca-orderer})."
+          - "Example: C({'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'})."
       k8s_storage_class: &k8s_storage_class
         type: str
         required: false

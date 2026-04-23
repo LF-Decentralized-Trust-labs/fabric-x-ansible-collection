@@ -16,7 +16,7 @@ argument_specs:
         required: false
         description:
           - Optional certificate organization data forwarded to OpenSSL.
-          - "Example: C({ common_name: prometheus.observability.svc.cluster.local, organization_name: Hyperledger Fabric-X })."
+          - "Example: C({'common_name': 'prometheus.observability.svc.cluster.local', 'organization_name': 'Hyperledger Fabric-X'})."
       remote_config_dir: &remote_config_dir
         type: path
         required: true
@@ -213,7 +213,8 @@ argument_specs:
         description:
           - Optional Kubernetes storage class name for the Prometheus PVC.
           - "Example: C(fast-ssd)."
-      k8s_readiness_probe_initial_delay_seconds: &k8s_readiness_probe_initial_delay_seconds
+      k8s_readiness_probe_initial_delay_seconds:
+        &k8s_readiness_probe_initial_delay_seconds
         type: int
         required: false
         description:
@@ -231,13 +232,15 @@ argument_specs:
         description:
           - Timeout for each readiness probe request.
           - "Example: C(3)."
-      k8s_readiness_probe_failure_threshold: &k8s_readiness_probe_failure_threshold
+      k8s_readiness_probe_failure_threshold:
+        &k8s_readiness_probe_failure_threshold
         type: int
         required: false
         description:
           - Number of failed readiness probes before the pod is marked unready.
           - "Example: C(3)."
-      k8s_liveness_probe_initial_delay_seconds: &k8s_liveness_probe_initial_delay_seconds
+      k8s_liveness_probe_initial_delay_seconds:
+        &k8s_liveness_probe_initial_delay_seconds
         type: int
         required: false
         description:
@@ -255,7 +258,8 @@ argument_specs:
         description:
           - Timeout for each liveness probe request.
           - "Example: C(5)."
-      k8s_liveness_probe_failure_threshold: &k8s_liveness_probe_failure_threshold
+      k8s_liveness_probe_failure_threshold:
+        &k8s_liveness_probe_failure_threshold
         type: int
         required: false
         description:

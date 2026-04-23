@@ -183,14 +183,215 @@ def _extract_c_example(text):
     return m.group(1) if m else None
 
 
+import ast as _ast_mod
+import json as _json_mod
+
+
+def _yaml_render_obj(obj, indent):
+    """Recursively render a Python object as YAML lines at the given indent level.
+
+    Returns a list of strings (without trailing newlines).  The first element
+    is always a non-empty line; callers that want the block to start on the
+    *next* line (after a ``: ``) should prepend an empty string.
+    """
+    prefix = " " * indent
+    lines = []
+    if isinstance(obj, dict):
+        for key, val in obj.items():
+            if isinstance(val, (dict, list)):
+                nested = _yaml_render_obj(val, indent + 2)
+                lines.append(f"{prefix}{key}:")
+                lines.extend(nested)
+            elif isinstance(val, str):
+                lines.append(f"{prefix}{key}: '{val}'")
+            else:
+                lines.append(f"{prefix}{key}: {val}")
+    elif isinstance(obj, list):
+        for item in obj:
+            if isinstance(item, (dict, list)):
+                nested = _yaml_render_obj(item, indent + 2)
+                # First nested line gets the "- " prefix; remainder are indented.
+                first = nested[0] if nested else ""
+                rest = nested[1:]
+                lines.append(f"{prefix}- {first.lstrip()}")
+                lines.extend(rest)
+            elif isinstance(item, str):
+                lines.append(f"{prefix}- {item}")
+            else:
+                lines.append(f"{prefix}- {item}")
+    return lines
+
+
+def _to_yaml_sequence(value_str, indent=6):
+    """Parse a stringified list and render it as a YAML block sequence.
+
+    Each item is placed on its own line prefixed with ``- `` at the given
+    indentation level so that the output aligns correctly inside the YAML
+    code blocks produced by the role README template (vars are at 4 spaces,
+    so sequence items sit at 6 spaces by default).
+
+    The returned string starts with ``\\n`` so the caller's ``: `` suffix
+    becomes a blank scalar and the items follow on subsequent lines.
+    Falls back to the original string when parsing fails or the value is
+    not a list.
+    """
+    try:
+        obj = _ast_mod.literal_eval(value_str)
+    except (ValueError, SyntaxError):
+        try:
+            obj = _json_mod.loads(value_str)
+        except (ValueError, _json_mod.JSONDecodeError):
+            return value_str
+    if not isinstance(obj, list):
+        return value_str
+    return "\n" + "\n".join(_yaml_render_obj(obj, indent))
+
+
+def _to_yaml_dict(value_str, indent=6):
+    """Parse a stringified dict and render it as a recursive YAML block mapping.
+
+    Each key-value pair is placed on its own line at the given indentation
+    level. Nested dicts and lists are expanded recursively using the same
+    block style rather than being serialised as compact JSON.
+
+    String values are single-quoted; other scalar values are rendered as-is.
+
+    The returned string starts with ``\\n`` so the caller's ``: `` suffix
+    becomes a blank scalar and the mapping follows on subsequent lines.
+    Falls back to the original string when parsing fails or the value is
+    not a dict.
+    """
+    try:
+        obj = _ast_mod.literal_eval(value_str)
+    except (ValueError, SyntaxError):
+        try:
+            obj = _json_mod.loads(value_str)
+        except (ValueError, _json_mod.JSONDecodeError):
+            return value_str
+    if not isinstance(obj, dict):
+        return value_str
+    return "\n" + "\n".join(_yaml_render_obj(obj, indent))
+
+
 # Inject ``extract_c_example`` into every Jinja2 Environment created inside
 # aar_doc so that output templates can call it as a filter.
 _orig_env_init = _c.jinja2.Environment.__init__
 
 
+def _render_default_value(value, indent="      "):
+    """Render a role default value as a YAML-compatible string.
+
+    Mirrors ``macros/default.md.j2`` so the template can use
+    ``{{ var.default | render_default }}`` instead of the macro import.
+
+    - ``true`` / ``false`` for Python booleans.
+    - Multiline strings become a folded block scalar (``>-``).
+    - Strings containing YAML-sensitive characters are double-quoted.
+    - Dicts and lists are expanded as YAML block mappings / sequences;
+      nesting is handled recursively with two extra spaces per level.
+    - Any other type is coerced to its string representation.
+    """
+    if value is True:
+        return "true"
+    if value is False:
+        return "false"
+    if isinstance(value, str):
+        if "\n" in value:
+            lines = value.split("\n")
+            return ">-\n" + "\n".join(f"{indent}{line}" for line in lines)
+        if not value:
+            return '""'
+        if any(c in value for c in ("{", ":", "#", "[", "]")):
+            escaped = value.replace("\\", "\\\\").replace('"', '\\"')
+            return f'"{escaped}"'
+        return value
+    if isinstance(value, dict):
+        if not value:
+            return "{}"
+        inner = indent + "  "
+        lines = [
+            f"{indent}{k}: {_render_default_value(v, inner)}"
+            for k, v in value.items()
+        ]
+        return "\n" + "\n".join(lines)
+    if isinstance(value, (list, tuple)):
+        inner = indent + "  "
+        lines = [
+            f"{indent}- {_render_default_value(item, inner)}"
+            for item in value
+        ]
+        return "\n" + "\n".join(lines)
+    return str(value)
+
+
+def _render_default(value):
+    """Jinja2 filter: render a role default value as YAML.
+
+    Prepends a single space when the result is an inline scalar so that the
+    template can use ``{{ var_name }}:{{ var.default | render_default }}``
+    without leaving a trailing space on block-scalar key lines.
+    """
+    result = _render_default_value(value)
+    return result if result.startswith("\n") else f" {result}"
+
+
+def _render_placeholder(var, indent=6):
+    """Jinja2 filter: render a placeholder YAML value for a variable without a default.
+
+    Mirrors ``macros/placeholder.md.j2`` so the template can use
+    ``{{ var | render_placeholder }}`` instead of the macro import.
+
+    Extracts the last ``Example: C(...)`` from the variable description and
+    formats it according to the variable type.  Falls back to generic
+    type-based placeholders when no example is present.
+    """
+    var_type = var.get("type", "str")
+    desc = var.get("description", [])
+    desc_list = [desc] if isinstance(desc, str) else (desc or [])
+
+    # Collect the last ``Example: C(...)`` found across all description lines.
+    example_val = None
+    for line in desc_list:
+        if isinstance(line, str) and "Example: C(" in line:
+            extracted = _extract_c_example(line)
+            if extracted is not None:
+                example_val = extracted
+
+    if example_val is not None:
+        if var_type in ("str", "path"):
+            return f' "{example_val}"'
+        if var_type == "list":
+            return _to_yaml_sequence(example_val, indent)
+        if var_type == "dict":
+            return _to_yaml_dict(example_val, indent)
+        return f" {example_val}"
+
+    # Generic fallback placeholders when no example is present.
+    if var_type in ("int", "float"):
+        return " 1000"
+    if var_type == "bool":
+        return " false"
+    if var_type == "list":
+        elements = var.get("elements", "str")
+        if elements in ("int", "float"):
+            return " [1000, 2000]"
+        if elements == "bool":
+            return " [true, false]"
+        if elements == "dict":
+            return " [{}]"
+        return ' ["entry1", "entry2"]'
+    if var_type == "dict":
+        return " {}"
+    return ' "string"'
+
+
 def _env_init_with_extras(self, *args, **kwargs):
     _orig_env_init(self, *args, **kwargs)
     self.filters["extract_c_example"] = _extract_c_example
+    self.filters["to_yaml_sequence"] = _to_yaml_sequence
+    self.filters["to_yaml_dict"] = _to_yaml_dict
+    self.filters["render_default"] = _render_default
+    self.filters["render_placeholder"] = _render_placeholder
 
 
 _c.jinja2.Environment.__init__ = _env_init_with_extras

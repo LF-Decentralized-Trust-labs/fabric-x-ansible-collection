@@ -63,15 +63,13 @@ argument_specs:
         description:
           - Optionally overrides the readiness probe initial delay in seconds.
           - "Example: C(10)."
-      k8s_readiness_probe_period_seconds:
-        &k8s_readiness_probe_period_seconds
+      k8s_readiness_probe_period_seconds: &k8s_readiness_probe_period_seconds
         type: int
         required: false
         description:
           - Optionally overrides the readiness probe interval in seconds.
           - "Example: C(5)."
-      k8s_readiness_probe_timeout_seconds:
-        &k8s_readiness_probe_timeout_seconds
+      k8s_readiness_probe_timeout_seconds: &k8s_readiness_probe_timeout_seconds
         type: int
         required: false
         description:
@@ -91,15 +89,13 @@ argument_specs:
         description:
           - Optionally overrides the liveness probe initial delay in seconds.
           - "Example: C(30)."
-      k8s_liveness_probe_period_seconds:
-        &k8s_liveness_probe_period_seconds
+      k8s_liveness_probe_period_seconds: &k8s_liveness_probe_period_seconds
         type: int
         required: false
         description:
           - Optionally overrides the liveness probe interval in seconds.
           - "Example: C(10)."
-      k8s_liveness_probe_timeout_seconds:
-        &k8s_liveness_probe_timeout_seconds
+      k8s_liveness_probe_timeout_seconds: &k8s_liveness_probe_timeout_seconds
         type: int
         required: false
         description:
@@ -117,7 +113,7 @@ argument_specs:
         required: false
         description:
           - Optionally provides organization metadata used to derive the TLS certificate organization name.
-          - "Example: C({common_name: elasticsearch.fabricx.example})."
+          - "Example: C({'common_name': 'elasticsearch.fabricx.example'})."
       elasticsearch_registry_endpoint: &elasticsearch_registry_endpoint
         type: str
         required: false
@@ -235,7 +231,8 @@ argument_specs:
           - Only relevant when C(elasticsearch_k8s_use_node_port) is C(true).
           - When undefined, Kubernetes allocates the NodePort automatically.
           - "Example: C(30920)."
-      elasticsearch_k8s_transport_node_port: &elasticsearch_k8s_transport_node_port
+      elasticsearch_k8s_transport_node_port:
+        &elasticsearch_k8s_transport_node_port
         type: int
         required: false
         description:

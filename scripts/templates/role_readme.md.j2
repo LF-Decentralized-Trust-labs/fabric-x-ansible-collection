@@ -1,6 +1,3 @@
-{%- import 'macros/default.md.j2' as default -%}
-{%- import 'macros/description.md.j2' as description -%}
-{%- import 'macros/placeholder.md.j2' as placeholder -%}
 # {{ role }}
 {% if metadata.galaxy_info is defined and metadata.galaxy_info.description is defined %}
 > {{ metadata.galaxy_info.description | ansible_doc_markup }}
@@ -37,7 +34,7 @@ ansible-doc -t role {{ role }}
 
 > {{ current_role_task.short_description | ansible_doc_markup }}
 {% if current_role_task.description is defined %}
-{{ description.render(current_role_task.description) }}
+{{ ([current_role_task.description] if current_role_task.description is string else current_role_task.description) | map('ansible_doc_markup') | join('') }}
 {% endif %}
 ```yaml
 - name: {{ current_role_task.short_description }}
@@ -46,9 +43,9 @@ ansible-doc -t role {{ role }}
 {%- for var_name, var in current_role_task.options.items() %}
     # {{ var.display_description | ansible_doc_markup }}
 {%- if var.default is defined and var.default is not none %}
-    {{ var_name }}: {{ default.render(var.default) }}
+    {{ var_name }}:{{ var.default | render_default }}
 {%- else %}
-    {{ var_name }}: {{ placeholder.render(var) }}
+    {{ var_name }}:{{ var | render_placeholder }}
 {%- endif %}
 {%- endfor %}
 {%- endif %}

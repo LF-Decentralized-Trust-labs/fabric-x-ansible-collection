@@ -66,9 +66,7 @@ ansible-doc -t role hyperledger.fabricx.orderer
 
 > Dispatch orderer startup by component and deployment mode
 
-Dispatches `consensus`, `batcher`, `assembler`, or `router` startup to the selected `bin`, `container`, or `k8s` implementation.
-
-Consumes configuration, crypto, genesis, and TLS material prepared by the config and crypto entrypoints.
+Dispatches `consensus`, `batcher`, `assembler`, or `router` startup to the selected `bin`, `container`, or `k8s` implementation.Consumes configuration, crypto, genesis, and TLS material prepared by the config and crypto entrypoints.
 
 ```yaml
 - name: Dispatch orderer startup by component and deployment mode
@@ -90,9 +88,7 @@ Consumes configuration, crypto, genesis, and TLS material prepared by the config
 
 > Dispatch orderer shutdown by component and deployment mode
 
-Dispatches component shutdown to the active binary, container, or Kubernetes lifecycle implementation.
-
-Stops the running orderer process or workload without removing generated config, crypto, genesis, or data artifacts.
+Dispatches component shutdown to the active binary, container, or Kubernetes lifecycle implementation.Stops the running orderer process or workload without removing generated config, crypto, genesis, or data artifacts.
 
 ```yaml
 - name: Dispatch orderer shutdown by component and deployment mode
@@ -114,9 +110,7 @@ Stops the running orderer process or workload without removing generated config,
 
 > Dispatch orderer teardown by component and deployment mode
 
-Dispatches component teardown to the selected deployment backend.
-
-Removes runtime resources for the consenter, batcher, assembler, or router while leaving reusable generated config and crypto cleanup to dedicated entrypoints.
+Dispatches component teardown to the selected deployment backend.Removes runtime resources for the consenter, batcher, assembler, or router while leaving reusable generated config and crypto cleanup to dedicated entrypoints.
 
 ```yaml
 - name: Dispatch orderer teardown by component and deployment mode
@@ -138,9 +132,7 @@ Removes runtime resources for the consenter, batcher, assembler, or router while
 
 > Remove orderer runtime state, config, and optional binary
 
-Runs lifecycle teardown, removes generated orderer configuration and MSP/TLS material, and removes the installed binary when binary mode is selected.
-
-Use for a full role-local reset after generated artifacts have been fetched or are no longer needed.
+Runs lifecycle teardown, removes generated orderer configuration and MSP/TLS material, and removes the installed binary when binary mode is selected.Use for a full role-local reset after generated artifacts have been fetched or are no longer needed.
 
 ```yaml
 - name: Remove orderer runtime state, config, and optional binary
@@ -156,9 +148,7 @@ Use for a full role-local reset after generated artifacts have been fetched or a
 
 > Fetch orderer logs from the active deployment backend
 
-Delegates log collection to the Kubernetes pod selector, container name, or binary process implementation according to the enabled deployment mode.
-
-Collects runtime logs for any orderer component without modifying config, crypto, or data artifacts.
+Delegates log collection to the Kubernetes pod selector, container name, or binary process implementation according to the enabled deployment mode.Collects runtime logs for any orderer component without modifying config, crypto, or data artifacts.
 
 ```yaml
 - name: Fetch orderer logs from the active deployment backend
@@ -178,9 +168,7 @@ Collects runtime logs for any orderer component without modifying config, crypto
 
 > Check the orderer gRPC port
 
-Checks the configured orderer gRPC listener for binary and container deployments.
-
-When Kubernetes mode is active, delegates to the NodePort ping branch so exposed Service ports can be checked from the control node.
+Checks the configured orderer gRPC listener for binary and container deployments.When Kubernetes mode is active, delegates to the NodePort ping branch so exposed Service ports can be checked from the control node.
 
 ```yaml
 - name: Check the orderer gRPC port
@@ -198,9 +186,7 @@ When Kubernetes mode is active, delegates to the NodePort ping branch so exposed
 
 > Retrieve orderer Prometheus metrics
 
-Fetches Prometheus metrics from the configured orderer monitoring endpoint using the selected HTTP protocol.
-
-Consumes the metrics listener written into the generated orderer config.
+Fetches Prometheus metrics from the configured orderer monitoring endpoint using the selected HTTP protocol.Consumes the metrics listener written into the generated orderer config.
 
 ```yaml
 - name: Retrieve orderer Prometheus metrics
@@ -220,9 +206,7 @@ Consumes the metrics listener written into the generated orderer config.
 
 > Build the orderer binary from source
 
-Builds the orderer binary through the shared bin role using the configured Git repository, ref, and Go package path.
-
-Produces a binary that can be transferred and started for consenter, batcher, assembler, or router component modes.
+Builds the orderer binary through the shared bin role using the configured Git repository, ref, and Go package path.Produces a binary that can be transferred and started for consenter, batcher, assembler, or router component modes.
 
 ```yaml
 - name: Build the orderer binary from source
@@ -246,9 +230,7 @@ Produces a binary that can be transferred and started for consenter, batcher, as
 
 > Install the published orderer binary
 
-Installs the configured released orderer binary through the shared bin role.
-
-Uses the Git host, repository, package path, and ref metadata to resolve the published binary package.
+Installs the configured released orderer binary through the shared bin role.Uses the Git host, repository, package path, and ref metadata to resolve the published binary package.
 
 ```yaml
 - name: Install the published orderer binary
@@ -274,9 +256,7 @@ Uses the Git host, repository, package path, and ref metadata to resolve the pub
 
 > Transfer the orderer binary to the target host
 
-Copies the built or downloaded orderer binary through the shared bin role.
-
-Prepares target hosts for binary-mode lifecycle tasks without rendering config or crypto.
+Copies the built or downloaded orderer binary through the shared bin role.Prepares target hosts for binary-mode lifecycle tasks without rendering config or crypto.
 
 ```yaml
 - name: Transfer the orderer binary to the target host
@@ -292,9 +272,7 @@ Prepares target hosts for binary-mode lifecycle tasks without rendering config o
 
 > Remove the installed orderer binary
 
-Deletes the installed orderer binary through the shared bin role.
-
-Does not remove generated config, crypto material, or persisted orderer data.
+Deletes the installed orderer binary through the shared bin role.Does not remove generated config, crypto material, or persisted orderer data.
 
 ```yaml
 - name: Remove the installed orderer binary
@@ -310,9 +288,7 @@ Does not remove generated config, crypto material, or persisted orderer data.
 
 > Start the orderer binary process
 
-Ensures the binary-mode data directory exists and starts `orderer_bin_name` with the selected component subcommand and generated config file.
-
-Consumes remote config, genesis, MSP, and TLS material already transferred into the orderer config directory.
+Ensures the binary-mode data directory exists and starts `orderer_bin_name` with the selected component subcommand and generated config file.Consumes remote config, genesis, MSP, and TLS material already transferred into the orderer config directory.
 
 ```yaml
 - name: Start the orderer binary process
@@ -342,9 +318,7 @@ Consumes remote config, genesis, MSP, and TLS material already transferred into 
 
 > Stop the orderer binary process
 
-Stops the orderer binary process through the shared bin role.
-
-Leaves the binary, generated config, crypto, logs, and persisted data in place for restart or inspection.
+Stops the orderer binary process through the shared bin role.Leaves the binary, generated config, crypto, logs, and persisted data in place for restart or inspection.
 
 ```yaml
 - name: Stop the orderer binary process
@@ -357,9 +331,7 @@ Leaves the binary, generated config, crypto, logs, and persisted data in place f
 
 > Fetch logs for the orderer binary process
 
-Collects logs for the binary-mode orderer process through the shared bin role.
-
-Useful after running consenter, batcher, assembler, or router components directly on the host.
+Collects logs for the binary-mode orderer process through the shared bin role.Useful after running consenter, batcher, assembler, or router components directly on the host.
 
 ```yaml
 - name: Fetch logs for the orderer binary process
@@ -372,9 +344,7 @@ Useful after running consenter, batcher, assembler, or router components directl
 
 > Remove the orderer binary runtime state
 
-Stops the binary-mode orderer process and removes its persisted data directory.
-
-Keeps generated configuration and crypto artifacts under the config directory for explicit cleanup or later reuse.
+Stops the binary-mode orderer process and removes its persisted data directory.Keeps generated configuration and crypto artifacts under the config directory for explicit cleanup or later reuse.
 
 ```yaml
 - name: Remove the orderer binary runtime state
@@ -387,9 +357,7 @@ Keeps generated configuration and crypto artifacts under the config directory fo
 
 > Start the orderer container
 
-Ensures the host data directory exists and starts the orderer container with the selected component command.
-
-Mounts generated config and TLS/MSP material read-only, mounts the data directory read-write, and exposes gRPC and metrics ports.
+Ensures the host data directory exists and starts the orderer container with the selected component command.Mounts generated config and TLS/MSP material read-only, mounts the data directory read-write, and exposes gRPC and metrics ports.
 
 ```yaml
 - name: Start the orderer container
@@ -433,9 +401,7 @@ Mounts generated config and TLS/MSP material read-only, mounts the data director
 
 > Stop the orderer container
 
-Stops the named orderer container through the shared container role.
-
-Leaves the container definition, mounted config, crypto material, and persisted data for restart or inspection.
+Stops the named orderer container through the shared container role.Leaves the container definition, mounted config, crypto material, and persisted data for restart or inspection.
 
 ```yaml
 - name: Stop the orderer container
@@ -451,9 +417,7 @@ Leaves the container definition, mounted config, crypto material, and persisted 
 
 > Remove the orderer container
 
-Deletes the named orderer container through the shared container role.
-
-Does not remove host-side generated config, crypto material, or persisted data directories.
+Deletes the named orderer container through the shared container role.Does not remove host-side generated config, crypto material, or persisted data directories.
 
 ```yaml
 - name: Remove the orderer container
@@ -469,9 +433,7 @@ Does not remove host-side generated config, crypto material, or persisted data d
 
 > Fetch logs from the orderer container
 
-Collects logs for the configured orderer container.
-
-Covers consenter, batcher, assembler, and router containers by using the role's container name.
+Collects logs for the configured orderer container.Covers consenter, batcher, assembler, and router containers by using the role's container name.
 
 ```yaml
 - name: Fetch logs from the orderer container
@@ -487,9 +449,7 @@ Covers consenter, batcher, assembler, and router containers by using the role's 
 
 > Remove the orderer container runtime state
 
-Deletes the orderer container and removes its persisted data directory.
-
-Keeps generated config and crypto artifacts on the host unless the config or crypto cleanup entrypoints are run.
+Deletes the orderer container and removes its persisted data directory.Keeps generated config and crypto artifacts on the host unless the config or crypto cleanup entrypoints are run.
 
 ```yaml
 - name: Remove the orderer container runtime state
@@ -502,9 +462,7 @@ Keeps generated config and crypto artifacts on the host unless the config or cry
 
 > Remove orderer persisted data
 
-Deletes the orderer data directory for binary and container deployments.
-
-In Kubernetes mode, removes the orderer PVC so StatefulSet-managed component data can be recreated.
+Deletes the orderer data directory for binary and container deployments.In Kubernetes mode, removes the orderer PVC so StatefulSet-managed component data can be recreated.
 
 ```yaml
 - name: Remove orderer persisted data
@@ -526,9 +484,7 @@ In Kubernetes mode, removes the orderer PVC so StatefulSet-managed component dat
 
 > Render and transfer orderer configuration
 
-Renders the component-specific orderer config for `consensus`, `batcher`, `assembler`, or `router`.
-
-Copies the genesis block from configtxgen artifacts, writes data and config paths for the selected deployment mode, and prepares optional TLS, mTLS, metrics, and Kubernetes ConfigMap artifacts.
+Renders the component-specific orderer config for `consensus`, `batcher`, `assembler`, or `router`.Copies the genesis block from configtxgen artifacts, writes data and config paths for the selected deployment mode, and prepares optional TLS, mTLS, metrics, and Kubernetes ConfigMap artifacts.
 
 ```yaml
 - name: Render and transfer orderer configuration
@@ -573,12 +529,20 @@ Copies the genesis block from configtxgen artifacts, writes data and config path
     orderer_metrics_port: 1000
     # Optional metrics logging interval written into the rendered config. Example: `10s`.
     orderer_metrics_log_interval: "10s"
-    # Client identifiers whose mTLS CA certificates are mounted or transferred. Example: `[loadgen-1, gateway-1]` to trust fetched `tls/ca.crt` files under those artifact directories.
-    orderer_mtls_clients: ["entry1", "entry2"]
-    # Organization dictionaries whose mTLS CA certificates are mounted or transferred. Example: `[{domain: org1.example.com}, {domain: org2.example.com}]`.
-    orderer_mtls_orgs: [{domain: org1.example.com}, {domain: org2.example.com}]
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{domain: orderer.example.com, orderer: {name: orderer-consenter-1}, fabric_ca_host: ca-orderer}`.
-    organization: {domain: orderer.example.com, orderer: {name: orderer-consenter-1}, fabric_ca_host: ca-orderer}
+    # Client identifiers whose mTLS CA certificates are mounted or transferred. Trusts fetched `tls/ca.crt` files under those artifact directories. Example: `['loadgen-1', 'gateway-1']`.
+    orderer_mtls_clients:
+      - loadgen-1
+      - gateway-1
+    # Organization dictionaries whose mTLS CA certificates are mounted or transferred. Example: `[{'domain': 'org1.example.com'}, {'domain': 'org2.example.com'}]`.
+    orderer_mtls_orgs:
+      - domain: 'org1.example.com'
+      - domain: 'org2.example.com'
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
+    organization:
+      domain: 'orderer.example.com'
+      orderer:
+        name: 'orderer-consenter-1'
+      fabric_ca_host: 'ca-orderer'
     # Party identifier written into the orderer configuration. Example: `consenter-1`, `batcher-1`, `assembler-1`, or `router-1`.
     orderer_group: "router-1"
     # Batcher shard identifier written only by the batcher template. Example: `0` for the first batcher shard.
@@ -592,9 +556,7 @@ Copies the genesis block from configtxgen artifacts, writes data and config path
 
 > Transfer mTLS CA certificates for orderer clients and orgs
 
-Copies trusted client and organization TLS CA certificates into the orderer mTLS directory structure.
-
-Consumes fetched client `tls/ca.crt` files and peer organization tlsca certificates so generated configs can enable client mutual TLS.
+Copies trusted client and organization TLS CA certificates into the orderer mTLS directory structure.Consumes fetched client `tls/ca.crt` files and peer organization tlsca certificates so generated configs can enable client mutual TLS.
 
 ```yaml
 - name: Transfer mTLS CA certificates for orderer clients and orgs
@@ -605,10 +567,14 @@ Consumes fetched client `tls/ca.crt` files and peer organization tlsca certifica
     fetched_artifacts_dir: "/tmp/fabric-x/artifacts/fetched"
     # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
-    # Client identifiers whose mTLS CA certificates are mounted or transferred. Example: `[loadgen-1, gateway-1]` to trust fetched `tls/ca.crt` files under those artifact directories.
-    orderer_mtls_clients: ["entry1", "entry2"]
-    # Organization dictionaries whose mTLS CA certificates are mounted or transferred. Example: `[{domain: org1.example.com}, {domain: org2.example.com}]`.
-    orderer_mtls_orgs: [{domain: org1.example.com}, {domain: org2.example.com}]
+    # Client identifiers whose mTLS CA certificates are mounted or transferred. Trusts fetched `tls/ca.crt` files under those artifact directories. Example: `['loadgen-1', 'gateway-1']`.
+    orderer_mtls_clients:
+      - loadgen-1
+      - gateway-1
+    # Organization dictionaries whose mTLS CA certificates are mounted or transferred. Example: `[{'domain': 'org1.example.com'}, {'domain': 'org2.example.com'}]`.
+    orderer_mtls_orgs:
+      - domain: 'org1.example.com'
+      - domain: 'org2.example.com'
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: config/mtls/transfer
@@ -618,9 +584,7 @@ Consumes fetched client `tls/ca.crt` files and peer organization tlsca certifica
 
 > Remove orderer configuration
 
-Deletes the orderer configuration directory, including rendered config, genesis block, mTLS trust bundles, and deployment-local config artifacts.
-
-In Kubernetes mode, also delegates removal of the orderer ConfigMap.
+Deletes the orderer configuration directory, including rendered config, genesis block, mTLS trust bundles, and deployment-local config artifacts.In Kubernetes mode, also delegates removal of the orderer ConfigMap.
 
 ```yaml
 - name: Remove orderer configuration
@@ -640,9 +604,7 @@ In Kubernetes mode, also delegates removal of the orderer ConfigMap.
 
 > Copy the orderer Grafana dashboard
 
-Publishes the bundled Fabric-X Orderer Grafana dashboard through the grafana role.
-
-The dashboard consumes Prometheus scrape targets produced for consenter, batcher, assembler, and router metrics endpoints.
+Publishes the bundled Fabric-X Orderer Grafana dashboard through the grafana role.The dashboard consumes Prometheus scrape targets produced for consenter, batcher, assembler, and router metrics endpoints.
 
 ```yaml
 - name: Copy the orderer Grafana dashboard
@@ -655,9 +617,7 @@ The dashboard consumes Prometheus scrape targets produced for consenter, batcher
 
 > Prepare orderer crypto material
 
-Validates TLS and mTLS prerequisites, provisions orderer MSP and TLS material through cryptogen or Fabric CA, and optionally creates the Kubernetes Secret.
-
-Produces the crypto artifacts consumed by config rendering, binary/container mounts, and Kubernetes workloads.
+Validates TLS and mTLS prerequisites, provisions orderer MSP and TLS material through cryptogen or Fabric CA, and optionally creates the Kubernetes Secret.Produces the crypto artifacts consumed by config rendering, binary/container mounts, and Kubernetes workloads.
 
 ```yaml
 - name: Prepare orderer crypto material
@@ -666,8 +626,12 @@ Produces the crypto artifacts consumed by config rendering, binary/container mou
     orderer_use_tls: false
     # Enables client mutual TLS in the rendered config.
     orderer_use_mtls: false
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{domain: orderer.example.com, orderer: {name: orderer-consenter-1}, fabric_ca_host: ca-orderer}`.
-    organization: {domain: orderer.example.com, orderer: {name: orderer-consenter-1}, fabric_ca_host: ca-orderer}
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
+    organization:
+      domain: 'orderer.example.com'
+      orderer:
+        name: 'orderer-consenter-1'
+      fabric_ca_host: 'ca-orderer'
     # Selects the Kubernetes deployment branch.
     orderer_use_k8s: false
   ansible.builtin.include_role:
@@ -679,9 +643,7 @@ Produces the crypto artifacts consumed by config rendering, binary/container mou
 
 > Transfer cryptogen-generated orderer crypto material
 
-Copies cryptogen-generated MSP and TLS artifacts for the orderer identity into the remote configuration directory.
-
-Consumes the cryptogen artifact tree for the orderer organization and prepares material for local mounts or Kubernetes Secret creation.
+Copies cryptogen-generated MSP and TLS artifacts for the orderer identity into the remote configuration directory.Consumes the cryptogen artifact tree for the orderer organization and prepares material for local mounts or Kubernetes Secret creation.
 
 ```yaml
 - name: Transfer cryptogen-generated orderer crypto material
@@ -690,8 +652,12 @@ Consumes the cryptogen artifact tree for the orderer organization and prepares m
     cryptogen_artifacts_dir: "/tmp/fabric-x/artifacts/cryptogen"
     # Shared base directory for generated configuration. Example: `/var/hyperledger/fabric-x/config/orderer/assembler-1`.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{domain: orderer.example.com, orderer: {name: orderer-consenter-1}, fabric_ca_host: ca-orderer}`.
-    organization: {domain: orderer.example.com, orderer: {name: orderer-consenter-1}, fabric_ca_host: ca-orderer}
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
+    organization:
+      domain: 'orderer.example.com'
+      orderer:
+        name: 'orderer-consenter-1'
+      fabric_ca_host: 'ca-orderer'
     # Orderer identity name used to derive crypto artifact paths.
     orderer_crypto_name: "{{ organization.orderer.name | default(inventory_hostname) }}"
     # Remote directory where orderer configuration is written.
@@ -705,9 +671,7 @@ Consumes the cryptogen artifact tree for the orderer organization and prepares m
 
 > Enroll the orderer with Fabric CA
 
-Copies the Fabric CA TLS certificate when needed and enrolls both MSP and TLS identities for the orderer host.
-
-Writes generated MSP and server TLS material into the orderer config directory for later config, runtime, and fetch tasks.
+Copies the Fabric CA TLS certificate when needed and enrolls both MSP and TLS identities for the orderer host.Writes generated MSP and server TLS material into the orderer config directory for later config, runtime, and fetch tasks.
 
 ```yaml
 - name: Enroll the orderer with Fabric CA
@@ -718,8 +682,12 @@ Writes generated MSP and server TLS material into the orderer config directory f
     actual_host: "10.10.20.31"
     # Shared base directory for generated configuration. Example: `/var/hyperledger/fabric-x/config/orderer/assembler-1`.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{domain: orderer.example.com, orderer: {name: orderer-consenter-1}, fabric_ca_host: ca-orderer}`.
-    organization: {domain: orderer.example.com, orderer: {name: orderer-consenter-1}, fabric_ca_host: ca-orderer}
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
+    organization:
+      domain: 'orderer.example.com'
+      orderer:
+        name: 'orderer-consenter-1'
+      fabric_ca_host: 'ca-orderer'
     # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
   ansible.builtin.include_role:
@@ -731,9 +699,7 @@ Writes generated MSP and server TLS material into the orderer config directory f
 
 > Fetch orderer certificates to the control node
 
-Fetches the orderer sign certificate, TLS server certificate, and TLS CA certificate to the control node.
-
-Publishes artifacts consumed by downstream config generation, client mTLS trust bundles, and other roles.
+Fetches the orderer sign certificate, TLS server certificate, and TLS CA certificate to the control node.Publishes artifacts consumed by downstream config generation, client mTLS trust bundles, and other roles.
 
 ```yaml
 - name: Fetch orderer certificates to the control node
@@ -742,8 +708,12 @@ Publishes artifacts consumed by downstream config generation, client mTLS trust 
     fetched_artifacts_dir: "/tmp/fabric-x/artifacts/fetched"
     # Shared base directory for generated configuration. Example: `/var/hyperledger/fabric-x/config/orderer/assembler-1`.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{domain: orderer.example.com, orderer: {name: orderer-consenter-1}, fabric_ca_host: ca-orderer}`.
-    organization: {domain: orderer.example.com, orderer: {name: orderer-consenter-1}, fabric_ca_host: ca-orderer}
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
+    organization:
+      domain: 'orderer.example.com'
+      orderer:
+        name: 'orderer-consenter-1'
+      fabric_ca_host: 'ca-orderer'
     # Orderer identity name used to derive crypto artifact paths.
     orderer_crypto_name: "{{ organization.orderer.name | default(inventory_hostname) }}"
     # Remote directory where orderer configuration is written.
@@ -757,9 +727,7 @@ Publishes artifacts consumed by downstream config generation, client mTLS trust 
 
 > Remove orderer crypto material
 
-Deletes the orderer MSP and TLS directories from the config path.
-
-In Kubernetes mode, also delegates deletion of the Secret that mounted MSP and TLS material into the workload.
+Deletes the orderer MSP and TLS directories from the config path.In Kubernetes mode, also delegates deletion of the Secret that mounted MSP and TLS material into the workload.
 
 ```yaml
 - name: Remove orderer crypto material
@@ -779,9 +747,7 @@ In Kubernetes mode, also delegates deletion of the Secret that mounted MSP and T
 
 > Create the orderer Kubernetes workload
 
-Creates the orderer Kubernetes Service, StatefulSet, and optional NodePort Service after ensuring the namespace exists.
-
-Consumes ConfigMap and Secret artifacts generated by the Kubernetes config and crypto transfer entrypoints, then starts the selected component container.
+Creates the orderer Kubernetes Service, StatefulSet, and optional NodePort Service after ensuring the namespace exists.Consumes ConfigMap and Secret artifacts generated by the Kubernetes config and crypto transfer entrypoints, then starts the selected component container.
 
 ```yaml
 - name: Create the orderer Kubernetes workload
@@ -818,12 +784,20 @@ Consumes ConfigMap and Secret artifacts generated by the Kubernetes config and c
     orderer_container_data_dir: /data
     # Enables client mutual TLS in the rendered config.
     orderer_use_mtls: false
-    # Client identifiers whose mTLS CA certificates are mounted or transferred. Example: `[loadgen-1, gateway-1]` to trust fetched `tls/ca.crt` files under those artifact directories.
-    orderer_mtls_clients: ["entry1", "entry2"]
-    # Organization dictionaries whose mTLS CA certificates are mounted or transferred. Example: `[{domain: org1.example.com}, {domain: org2.example.com}]`.
-    orderer_mtls_orgs: [{domain: org1.example.com}, {domain: org2.example.com}]
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{domain: orderer.example.com, orderer: {name: orderer-consenter-1}, fabric_ca_host: ca-orderer}`.
-    organization: {domain: orderer.example.com, orderer: {name: orderer-consenter-1}, fabric_ca_host: ca-orderer}
+    # Client identifiers whose mTLS CA certificates are mounted or transferred. Trusts fetched `tls/ca.crt` files under those artifact directories. Example: `['loadgen-1', 'gateway-1']`.
+    orderer_mtls_clients:
+      - loadgen-1
+      - gateway-1
+    # Organization dictionaries whose mTLS CA certificates are mounted or transferred. Example: `[{'domain': 'org1.example.com'}, {'domain': 'org2.example.com'}]`.
+    orderer_mtls_orgs:
+      - domain: 'org1.example.com'
+      - domain: 'org2.example.com'
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
+    organization:
+      domain: 'orderer.example.com'
+      orderer:
+        name: 'orderer-consenter-1'
+      fabric_ca_host: 'ca-orderer'
     # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
     k8s_namespace: "fabricx-orderer"
     # PVC storage request used by the orderer StatefulSet. Example: `20Gi`.
@@ -857,9 +831,7 @@ Consumes ConfigMap and Secret artifacts generated by the Kubernetes config and c
 
 > Check the orderer Kubernetes Service ports
 
-Checks the Kubernetes NodePort endpoints when NodePort exposure is enabled.
-
-Validates externally reachable gRPC and optional metrics service ports for the orderer workload.
+Checks the Kubernetes NodePort endpoints when NodePort exposure is enabled.Validates externally reachable gRPC and optional metrics service ports for the orderer workload.
 
 ```yaml
 - name: Check the orderer Kubernetes Service ports
@@ -879,9 +851,7 @@ Validates externally reachable gRPC and optional metrics service ports for the o
 
 > Remove the orderer Kubernetes workload
 
-Deletes the orderer StatefulSet and Services from the configured namespace.
-
-Leaves ConfigMap, Secret, and PVC artifacts for explicit config, crypto, or data cleanup entrypoints.
+Deletes the orderer StatefulSet and Services from the configured namespace.Leaves ConfigMap, Secret, and PVC artifacts for explicit config, crypto, or data cleanup entrypoints.
 
 ```yaml
 - name: Remove the orderer Kubernetes workload
@@ -899,9 +869,7 @@ Leaves ConfigMap, Secret, and PVC artifacts for explicit config, crypto, or data
 
 > Remove the orderer Kubernetes workload and data
 
-Deletes the Kubernetes workload and removes persisted orderer data.
-
-Keeps generated ConfigMap and Secret artifacts unless their dedicated removal entrypoints are invoked.
+Deletes the Kubernetes workload and removes persisted orderer data.Keeps generated ConfigMap and Secret artifacts unless their dedicated removal entrypoints are invoked.
 
 ```yaml
 - name: Remove the orderer Kubernetes workload and data
@@ -914,9 +882,7 @@ Keeps generated ConfigMap and Secret artifacts unless their dedicated removal en
 
 > Fetch logs from the orderer Kubernetes pod
 
-Collects logs from pods selected by the orderer Kubernetes app label.
-
-Works for consenter, batcher, assembler, and router workloads by using the generated resource name labels.
+Collects logs from pods selected by the orderer Kubernetes app label.Works for consenter, batcher, assembler, and router workloads by using the generated resource name labels.
 
 ```yaml
 - name: Fetch logs from the orderer Kubernetes pod
@@ -932,9 +898,7 @@ Works for consenter, batcher, assembler, and router workloads by using the gener
 
 > Create the orderer Kubernetes ConfigMap
 
-Slurps the generated genesis block and renders the orderer ConfigMap.
-
-Includes the component config file and optional mTLS CA bundles consumed by the Kubernetes StatefulSet.
+Slurps the generated genesis block and renders the orderer ConfigMap.Includes the component config file and optional mTLS CA bundles consumed by the Kubernetes StatefulSet.
 
 ```yaml
 - name: Create the orderer Kubernetes ConfigMap
@@ -951,10 +915,14 @@ Includes the component config file and optional mTLS CA bundles consumed by the 
     orderer_config_file: node_config.yaml
     # Enables client mutual TLS in the rendered config.
     orderer_use_mtls: false
-    # Client identifiers whose mTLS CA certificates are mounted or transferred. Example: `[loadgen-1, gateway-1]` to trust fetched `tls/ca.crt` files under those artifact directories.
-    orderer_mtls_clients: ["entry1", "entry2"]
-    # Organization dictionaries whose mTLS CA certificates are mounted or transferred. Example: `[{domain: org1.example.com}, {domain: org2.example.com}]`.
-    orderer_mtls_orgs: [{domain: org1.example.com}, {domain: org2.example.com}]
+    # Client identifiers whose mTLS CA certificates are mounted or transferred. Trusts fetched `tls/ca.crt` files under those artifact directories. Example: `['loadgen-1', 'gateway-1']`.
+    orderer_mtls_clients:
+      - loadgen-1
+      - gateway-1
+    # Organization dictionaries whose mTLS CA certificates are mounted or transferred. Example: `[{'domain': 'org1.example.com'}, {'domain': 'org2.example.com'}]`.
+    orderer_mtls_orgs:
+      - domain: 'org1.example.com'
+      - domain: 'org2.example.com'
     # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
     k8s_namespace: "fabricx-orderer"
   ansible.builtin.include_role:
@@ -966,9 +934,7 @@ Includes the component config file and optional mTLS CA bundles consumed by the 
 
 > Remove the orderer Kubernetes ConfigMap
 
-Deletes the ConfigMap that holds orderer configuration, genesis material, and optional mTLS CA bundles.
-
-Does not remove the local generated config directory.
+Deletes the ConfigMap that holds orderer configuration, genesis material, and optional mTLS CA bundles.Does not remove the local generated config directory.
 
 ```yaml
 - name: Remove the orderer Kubernetes ConfigMap
@@ -986,9 +952,7 @@ Does not remove the local generated config directory.
 
 > Create the orderer Kubernetes Secret
 
-Resolves orderer MSP and TLS file locations and renders the Kubernetes Secret.
-
-The Secret is consumed by the StatefulSet to mount MSP private key, signcert, CA certs, TLS server key, TLS server certificate, and TLS CA material.
+Resolves orderer MSP and TLS file locations and renders the Kubernetes Secret.The Secret is consumed by the StatefulSet to mount MSP private key, signcert, CA certs, TLS server key, TLS server certificate, and TLS CA material.
 
 ```yaml
 - name: Create the orderer Kubernetes Secret
@@ -997,8 +961,12 @@ The Secret is consumed by the StatefulSet to mount MSP private key, signcert, CA
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
     # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{domain: orderer.example.com, orderer: {name: orderer-consenter-1}, fabric_ca_host: ca-orderer}`.
-    organization: {domain: orderer.example.com, orderer: {name: orderer-consenter-1}, fabric_ca_host: ca-orderer}
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
+    organization:
+      domain: 'orderer.example.com'
+      orderer:
+        name: 'orderer-consenter-1'
+      fabric_ca_host: 'ca-orderer'
     # Orderer identity name used to derive crypto artifact paths.
     orderer_crypto_name: "{{ organization.orderer.name | default(inventory_hostname) }}"
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
@@ -1016,9 +984,7 @@ The Secret is consumed by the StatefulSet to mount MSP private key, signcert, CA
 
 > Remove the orderer Kubernetes Secret
 
-Deletes the Secret that stores orderer MSP and TLS material.
-
-Does not remove the local MSP and TLS directories under the orderer config path.
+Deletes the Secret that stores orderer MSP and TLS material.Does not remove the local MSP and TLS directories under the orderer config path.
 
 ```yaml
 - name: Remove the orderer Kubernetes Secret
@@ -1036,15 +1002,17 @@ Does not remove the local MSP and TLS directories under the orderer config path.
 
 > Build Prometheus scrape targets for orderer hosts
 
-Groups orderer hosts by component type and exposes Prometheus scrape service definitions for downstream monitoring configuration.
-
-Produces scrape targets for consenter, batcher, assembler, and router metrics endpoints using each host's configured metrics port.
+Groups orderer hosts by component type and exposes Prometheus scrape service definitions for downstream monitoring configuration.Produces scrape targets for consenter, batcher, assembler, and router metrics endpoints using each host's configured metrics port.
 
 ```yaml
 - name: Build Prometheus scrape targets for orderer hosts
   vars:
-    # Inventory hosts dedicated to orderer nodes. Example: `[orderer-consenter-1, orderer-batcher-1, orderer-assembler-1, orderer-router-1]`.
-    orderer_hosts: [orderer-consenter-1, orderer-batcher-1, orderer-assembler-1, orderer-router-1]
+    # Inventory hosts dedicated to orderer nodes. Example: `['orderer-consenter-1', 'orderer-batcher-1', 'orderer-assembler-1', 'orderer-router-1']`.
+    orderer_hosts:
+      - orderer-consenter-1
+      - orderer-batcher-1
+      - orderer-assembler-1
+      - orderer-router-1
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: prometheus/get_scrapers

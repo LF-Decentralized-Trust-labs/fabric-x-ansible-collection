@@ -61,15 +61,19 @@ ansible-doc -t role hyperledger.fabricx.yugabyte
 
 > Start a YugabyteDB cluster
 
-Builds master and tablet topology facts from `yugabyte_cluster`, derives the master RPC endpoint list, and dispatches each host to the container or Kubernetes startup path.
-
-Master hosts run `yb-master` with a replication factor based on the master host list; tablet hosts run `yb-tserver` and the first tablet initializes the configured database.
+Builds master and tablet topology facts from `yugabyte_cluster`, derives the master RPC endpoint list, and dispatches each host to the container or Kubernetes startup path.Master hosts run `yb-master` with a replication factor based on the master host list; tablet hosts run `yb-tserver` and the first tablet initializes the configured database.
 
 ```yaml
 - name: Start a YugabyteDB cluster
   vars:
-    # Lists the inventory hosts that belong to the YugabyteDB cluster. Example: `[yb-master-1, yb-master-2, yb-master-3, yb-tserver-1, yb-tserver-2, yb-tserver-3]`.
-    yugabyte_cluster: [yb-master-1, yb-master-2, yb-master-3, yb-tserver-1, yb-tserver-2, yb-tserver-3]
+    # Lists the inventory hosts that belong to the YugabyteDB cluster. Example: `['yb-master-1', 'yb-master-2', 'yb-master-3', 'yb-tserver-1', 'yb-tserver-2', 'yb-tserver-3']`.
+    yugabyte_cluster:
+      - yb-master-1
+      - yb-master-2
+      - yb-master-3
+      - yb-tserver-1
+      - yb-tserver-2
+      - yb-tserver-3
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
     # Enables container mode for the YugabyteDB role.
@@ -83,9 +87,7 @@ Master hosts run `yb-master` with a replication factor based on the master host 
 
 > Stop YugabyteDB runtime
 
-Stops the YugabyteDB runtime for container deployments.
-
-Kubernetes mode is managed through the removal entry points because StatefulSets and Services are reconciled resources.
+Stops the YugabyteDB runtime for container deployments.Kubernetes mode is managed through the removal entry points because StatefulSets and Services are reconciled resources.
 
 ```yaml
 - name: Stop YugabyteDB runtime
@@ -103,9 +105,7 @@ Kubernetes mode is managed through the removal entry points because StatefulSets
 
 > Remove YugabyteDB runtime artifacts
 
-Removes the active YugabyteDB runtime in the selected deployment mode and then removes persisted role-managed data.
-
-Container mode deletes the running container and host data directory; Kubernetes mode deletes StatefulSets, Services, optional NodePort Services, and PVCs.
+Removes the active YugabyteDB runtime in the selected deployment mode and then removes persisted role-managed data.Container mode deletes the running container and host data directory; Kubernetes mode deletes StatefulSets, Services, optional NodePort Services, and PVCs.
 
 ```yaml
 - name: Remove YugabyteDB runtime artifacts
@@ -123,9 +123,7 @@ Container mode deletes the running container and host data directory; Kubernetes
 
 > Wipe YugabyteDB state
 
-Runs teardown, removes persisted data, and deletes role-managed TLS and initialization configuration artifacts.
-
-Use this entry point when the YugabyteDB node should be returned to a clean state before regeneration.
+Runs teardown, removes persisted data, and deletes role-managed TLS and initialization configuration artifacts.Use this entry point when the YugabyteDB node should be returned to a clean state before regeneration.
 
 ```yaml
 - name: Wipe YugabyteDB state
@@ -138,9 +136,7 @@ Use this entry point when the YugabyteDB node should be returned to a clean stat
 
 > Collect YugabyteDB logs
 
-Collects YugabyteDB logs through the selected deployment mode.
-
-Container mode fetches logs from the named container; Kubernetes mode fetches pod logs selected by the resource labels.
+Collects YugabyteDB logs through the selected deployment mode.Container mode fetches logs from the named container; Kubernetes mode fetches pod logs selected by the resource labels.
 
 ```yaml
 - name: Collect YugabyteDB logs
@@ -158,9 +154,7 @@ Container mode fetches logs from the named container; Kubernetes mode fetches po
 
 > Check YugabyteDB service ports
 
-Selects the expected master or tablet service ports for the current host and delegates reachability checks.
-
-Masters expose RPC and webserver ports; tablets expose YSQL, RPC, webserver, YSQL web UI, YCQL, and YCQL web UI ports.
+Selects the expected master or tablet service ports for the current host and delegates reachability checks.Masters expose RPC and webserver ports; tablets expose YSQL, RPC, webserver, YSQL web UI, YCQL, and YCQL web UI ports.
 
 ```yaml
 - name: Check YugabyteDB service ports
@@ -194,9 +188,7 @@ Masters expose RPC and webserver ports; tablets expose YSQL, RPC, webserver, YSQ
 
 > Check YugabyteDB Kubernetes NodePorts
 
-Checks the configured YugabyteDB Kubernetes NodePort Services for the current master or tablet host when NodePort exposure is enabled.
-
-The checked ports match the optional master and tablet NodePort values rendered into the Kubernetes Services.
+Checks the configured YugabyteDB Kubernetes NodePort Services for the current master or tablet host when NodePort exposure is enabled.The checked ports match the optional master and tablet NodePort values rendered into the Kubernetes Services.
 
 ```yaml
 - name: Check YugabyteDB Kubernetes NodePorts
@@ -230,9 +222,7 @@ The checked ports match the optional master and tablet NodePort values rendered 
 
 > Prepare YugabyteDB TLS assets
 
-Prepares TLS assets for YugabyteDB when TLS is enabled, using the configured crypto source.
-
-The flow can generate CSRs, fetch certificates, transfer cryptogen material, enroll through Fabric CA, and create the Kubernetes Secret used by pods.
+Prepares TLS assets for YugabyteDB when TLS is enabled, using the configured crypto source.The flow can generate CSRs, fetch certificates, transfer cryptogen material, enroll through Fabric CA, and create the Kubernetes Secret used by pods.
 
 ```yaml
 - name: Prepare YugabyteDB TLS assets
@@ -241,8 +231,14 @@ The flow can generate CSRs, fetch certificates, transfer cryptogen material, enr
     yugabyte_use_tls: false
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
-    # Provides the organization metadata consumed by the crypto entry points. The mapping is expected to expose `domain`, `role`, `peer.name`, `peer.secret`, and `fabric_ca_host` when relevant. Example: `{domain: org1.example.com, role: peer, peer: {name: yb-tserver-1, secret: yb-tserver-1pw}, fabric_ca_host: ca-org1}`.
-    organization: {domain: org1.example.com, role: peer, peer: {name: yb-tserver-1, secret: yb-tserver-1pw}, fabric_ca_host: ca-org1}
+    # Provides the organization metadata consumed by the crypto entry points. The mapping is expected to expose `domain`, `role`, `peer.name`, `peer.secret`, and `fabric_ca_host` when relevant. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'yb-tserver-1', 'secret': 'yb-tserver-1pw'}, 'fabric_ca_host': 'ca-org1'}`.
+    organization:
+      domain: 'org1.example.com'
+      role: 'peer'
+      peer:
+        name: 'yb-tserver-1'
+        secret: 'yb-tserver-1pw'
+      fabric_ca_host: 'ca-org1'
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: crypto/setup
@@ -252,9 +248,7 @@ The flow can generate CSRs, fetch certificates, transfer cryptogen material, enr
 
 > Fetch YugabyteDB TLS certificates
 
-Copies generated YugabyteDB node and CA certificates from the remote host to the control-node artifact directory.
-
-Fetched artifacts are reused by certificate transfer, Kubernetes Secret generation, and TLS-enabled Prometheus scraper configuration.
+Copies generated YugabyteDB node and CA certificates from the remote host to the control-node artifact directory.Fetched artifacts are reused by certificate transfer, Kubernetes Secret generation, and TLS-enabled Prometheus scraper configuration.
 
 ```yaml
 - name: Fetch YugabyteDB TLS certificates
@@ -276,9 +270,7 @@ Fetched artifacts are reused by certificate transfer, Kubernetes Secret generati
 
 > Remove YugabyteDB TLS artifacts
 
-Deletes the remote YugabyteDB TLS directory and, in Kubernetes mode, removes the generated TLS Secret.
-
-This removes role-managed key, certificate, and CA material without changing database data.
+Deletes the remote YugabyteDB TLS directory and, in Kubernetes mode, removes the generated TLS Secret.This removes role-managed key, certificate, and CA material without changing database data.
 
 ```yaml
 - name: Remove YugabyteDB TLS artifacts
@@ -304,9 +296,7 @@ This removes role-managed key, certificate, and CA material without changing dat
 
 > Generate a YugabyteDB TLS CSR
 
-Builds the YugabyteDB TLS SAN list from host addresses and organization metadata, then delegates CSR generation to the OpenSSL role.
-
-The generated key, CSR, and extension file are written under the remote YugabyteDB TLS configuration path.
+Builds the YugabyteDB TLS SAN list from host addresses and organization metadata, then delegates CSR generation to the OpenSSL role.The generated key, CSR, and extension file are written under the remote YugabyteDB TLS configuration path.
 
 ```yaml
 - name: Generate a YugabyteDB TLS CSR
@@ -317,8 +307,14 @@ The generated key, CSR, and extension file are written under the remote Yugabyte
     yugabyte_use_tls: false
     # Sets the remote configuration directory used by YugabyteDB tasks.
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
-    # Provides the organization metadata consumed by the crypto entry points that require it. The mapping is expected to expose `domain`, `role`, `peer.name`, `peer.secret`, and `fabric_ca_host` when relevant. Example: `{domain: org1.example.com, role: peer, peer: {name: yb-tserver-1, secret: yb-tserver-1pw}, fabric_ca_host: ca-org1}`.
-    organization: {domain: org1.example.com, role: peer, peer: {name: yb-tserver-1, secret: yb-tserver-1pw}, fabric_ca_host: ca-org1}
+    # Provides the organization metadata consumed by the crypto entry points that require it. The mapping is expected to expose `domain`, `role`, `peer.name`, `peer.secret`, and `fabric_ca_host` when relevant. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'yb-tserver-1', 'secret': 'yb-tserver-1pw'}, 'fabric_ca_host': 'ca-org1'}`.
+    organization:
+      domain: 'org1.example.com'
+      role: 'peer'
+      peer:
+        name: 'yb-tserver-1'
+        secret: 'yb-tserver-1pw'
+      fabric_ca_host: 'ca-org1'
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: crypto/openssl/generate_csr
@@ -328,9 +324,7 @@ The generated key, CSR, and extension file are written under the remote Yugabyte
 
 > Fetch a YugabyteDB TLS CSR
 
-Copies the YugabyteDB CSR and OpenSSL extension file from the remote TLS directory to the control-node artifact directory.
-
-Use this before signing the node certificate outside the target host.
+Copies the YugabyteDB CSR and OpenSSL extension file from the remote TLS directory to the control-node artifact directory.Use this before signing the node certificate outside the target host.
 
 ```yaml
 - name: Fetch a YugabyteDB TLS CSR
@@ -352,9 +346,7 @@ Use this before signing the node certificate outside the target host.
 
 > Transfer a signed YugabyteDB TLS certificate
 
-Copies the signed YugabyteDB node certificate and trusted organization TLS CA certificate to the remote TLS directory.
-
-The transferred files are consumed by container volume mounts or by Kubernetes Secret generation.
+Copies the signed YugabyteDB node certificate and trusted organization TLS CA certificate to the remote TLS directory.The transferred files are consumed by container volume mounts or by Kubernetes Secret generation.
 
 ```yaml
 - name: Transfer a signed YugabyteDB TLS certificate
@@ -367,8 +359,14 @@ The transferred files are consumed by container volume mounts or by Kubernetes S
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
     # Defines the control-node directory that stores fetched YugabyteDB artifacts. Required when TLS-enabled tasks need access to fetched CA or certificate artifacts, such as when `yugabyte_use_tls` or webserver TLS is enabled. Example: `/tmp/fabric-x/artifacts/yugabyte`.
     fetched_artifacts_dir: "/tmp/fabric-x/artifacts/yugabyte"
-    # Provides the organization metadata consumed by the crypto entry points that require it. The mapping is expected to expose `domain`, `role`, `peer.name`, `peer.secret`, and `fabric_ca_host` when relevant. Example: `{domain: org1.example.com, role: peer, peer: {name: yb-tserver-1, secret: yb-tserver-1pw}, fabric_ca_host: ca-org1}`.
-    organization: {domain: org1.example.com, role: peer, peer: {name: yb-tserver-1, secret: yb-tserver-1pw}, fabric_ca_host: ca-org1}
+    # Provides the organization metadata consumed by the crypto entry points that require it. The mapping is expected to expose `domain`, `role`, `peer.name`, `peer.secret`, and `fabric_ca_host` when relevant. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'yb-tserver-1', 'secret': 'yb-tserver-1pw'}, 'fabric_ca_host': 'ca-org1'}`.
+    organization:
+      domain: 'org1.example.com'
+      role: 'peer'
+      peer:
+        name: 'yb-tserver-1'
+        secret: 'yb-tserver-1pw'
+      fabric_ca_host: 'ca-org1'
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: crypto/openssl/transfer_cert
@@ -378,9 +376,7 @@ The transferred files are consumed by container volume mounts or by Kubernetes S
 
 > Copy cryptogen TLS material for YugabyteDB
 
-Transfers the YugabyteDB TLS key, certificate, and CA certificate generated by cryptogen to the target host.
-
-The source path is resolved from the organization domain and peer identity, with the inventory host used as the peer name when no peer name is provided.
+Transfers the YugabyteDB TLS key, certificate, and CA certificate generated by cryptogen to the target host.The source path is resolved from the organization domain and peer identity, with the inventory host used as the peer name when no peer name is provided.
 
 ```yaml
 - name: Copy cryptogen TLS material for YugabyteDB
@@ -391,8 +387,14 @@ The source path is resolved from the organization domain and peer identity, with
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
     # Defines the control-node directory that stores cryptogen-generated artifacts. Example: `/tmp/fabric-x/crypto-config`.
     cryptogen_artifacts_dir: "/tmp/fabric-x/crypto-config"
-    # Provides the organization metadata consumed by the crypto entry points that require it. The mapping is expected to expose `domain`, `role`, `peer.name`, `peer.secret`, and `fabric_ca_host` when relevant. Example: `{domain: org1.example.com, role: peer, peer: {name: yb-tserver-1, secret: yb-tserver-1pw}, fabric_ca_host: ca-org1}`.
-    organization: {domain: org1.example.com, role: peer, peer: {name: yb-tserver-1, secret: yb-tserver-1pw}, fabric_ca_host: ca-org1}
+    # Provides the organization metadata consumed by the crypto entry points that require it. The mapping is expected to expose `domain`, `role`, `peer.name`, `peer.secret`, and `fabric_ca_host` when relevant. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'yb-tserver-1', 'secret': 'yb-tserver-1pw'}, 'fabric_ca_host': 'ca-org1'}`.
+    organization:
+      domain: 'org1.example.com'
+      role: 'peer'
+      peer:
+        name: 'yb-tserver-1'
+        secret: 'yb-tserver-1pw'
+      fabric_ca_host: 'ca-org1'
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: crypto/cryptogen/transfer
@@ -402,9 +404,7 @@ The source path is resolved from the organization domain and peer identity, with
 
 > Enroll YugabyteDB TLS material with Fabric CA
 
-Copies the Fabric CA TLS root when needed and delegates YugabyteDB TLS enrollment to the Fabric CA role.
-
-Enrollment uses organization metadata, peer credentials, and the actual external host so generated certificates include the expected SANs.
+Copies the Fabric CA TLS root when needed and delegates YugabyteDB TLS enrollment to the Fabric CA role.Enrollment uses organization metadata, peer credentials, and the actual external host so generated certificates include the expected SANs.
 
 ```yaml
 - name: Enroll YugabyteDB TLS material with Fabric CA
@@ -417,8 +417,14 @@ Enrollment uses organization metadata, peer credentials, and the actual external
     fetched_artifacts_dir: "/tmp/fabric-x/artifacts/yugabyte"
     # Provides the externally reachable host name or address added to TLS SAN entries. Example: `yb-tserver-1.example.com`.
     actual_host: "yb-tserver-1.example.com"
-    # Provides the organization metadata consumed by the crypto entry points that require it. The mapping is expected to expose `domain`, `role`, `peer.name`, `peer.secret`, and `fabric_ca_host` when relevant. Example: `{domain: org1.example.com, role: peer, peer: {name: yb-tserver-1, secret: yb-tserver-1pw}, fabric_ca_host: ca-org1}`.
-    organization: {domain: org1.example.com, role: peer, peer: {name: yb-tserver-1, secret: yb-tserver-1pw}, fabric_ca_host: ca-org1}
+    # Provides the organization metadata consumed by the crypto entry points that require it. The mapping is expected to expose `domain`, `role`, `peer.name`, `peer.secret`, and `fabric_ca_host` when relevant. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'yb-tserver-1', 'secret': 'yb-tserver-1pw'}, 'fabric_ca_host': 'ca-org1'}`.
+    organization:
+      domain: 'org1.example.com'
+      role: 'peer'
+      peer:
+        name: 'yb-tserver-1'
+        secret: 'yb-tserver-1pw'
+      fabric_ca_host: 'ca-org1'
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: crypto/fabric_ca/enroll
@@ -428,9 +434,7 @@ Enrollment uses organization metadata, peer credentials, and the actual external
 
 > Transfer YugabyteDB initialization config
 
-Renders the YugabyteDB initialization SQL script that creates the configured database user and database.
-
-Container mode places the script in the remote config directory; Kubernetes mode also creates the ConfigMap mounted by tablet pods.
+Renders the YugabyteDB initialization SQL script that creates the configured database user and database.Container mode places the script in the remote config directory; Kubernetes mode also creates the ConfigMap mounted by tablet pods.
 
 ```yaml
 - name: Transfer YugabyteDB initialization config
@@ -458,9 +462,7 @@ Container mode places the script in the remote config directory; Kubernetes mode
 
 > Remove YugabyteDB configuration
 
-Deletes the remote YugabyteDB configuration directory and, in Kubernetes mode, removes the generated initialization ConfigMap.
-
-This cleans role-managed config without removing running resources unless paired with teardown or wipe.
+Deletes the remote YugabyteDB configuration directory and, in Kubernetes mode, removes the generated initialization ConfigMap.This cleans role-managed config without removing running resources unless paired with teardown or wipe.
 
 ```yaml
 - name: Remove YugabyteDB configuration
@@ -484,9 +486,7 @@ This cleans role-managed config without removing running resources unless paired
 
 > Transfer the YugabyteDB Grafana dashboard
 
-Selects the built-in YugabyteDB dashboard JSON file and delegates the copy step to the Grafana role.
-
-The dashboard complements the Prometheus scraper configuration generated by this role.
+Selects the built-in YugabyteDB dashboard JSON file and delegates the copy step to the Grafana role.The dashboard complements the Prometheus scraper configuration generated by this role.
 
 ```yaml
 - name: Transfer the YugabyteDB Grafana dashboard
@@ -499,9 +499,7 @@ The dashboard complements the Prometheus scraper configuration generated by this
 
 > Dispatch YugabyteDB container startup
 
-Selects the master or tablet container startup path for the current host.
-
-The selected path starts either `yb-master` or `yb-tserver` with the role-managed data, config, TLS, and port settings.
+Selects the master or tablet container startup path for the current host.The selected path starts either `yb-master` or `yb-tserver` with the role-managed data, config, TLS, and port settings.
 
 ```yaml
 - name: Dispatch YugabyteDB container startup
@@ -517,9 +515,7 @@ The selected path starts either `yb-master` or `yb-tserver` with the role-manage
 
 > Stop a YugabyteDB container
 
-Stops the container associated with the current YugabyteDB host.
-
-This leaves host data and configuration directories in place for a later restart.
+Stops the container associated with the current YugabyteDB host.This leaves host data and configuration directories in place for a later restart.
 
 ```yaml
 - name: Stop a YugabyteDB container
@@ -535,9 +531,7 @@ This leaves host data and configuration directories in place for a later restart
 
 > Remove a YugabyteDB container
 
-Deletes the container associated with the current YugabyteDB host.
-
-This removes the runtime container only; data cleanup is handled by `data/rm` or `teardown`.
+Deletes the container associated with the current YugabyteDB host.This removes the runtime container only; data cleanup is handled by `data/rm` or `teardown`.
 
 ```yaml
 - name: Remove a YugabyteDB container
@@ -553,9 +547,7 @@ This removes the runtime container only; data cleanup is handled by `data/rm` or
 
 > Fetch logs from a YugabyteDB container
 
-Delegates log collection for the current YugabyteDB container.
-
-Collected logs come from the named master or tablet container for troubleshooting.
+Delegates log collection for the current YugabyteDB container.Collected logs come from the named master or tablet container for troubleshooting.
 
 ```yaml
 - name: Fetch logs from a YugabyteDB container
@@ -571,9 +563,7 @@ Collected logs come from the named master or tablet container for troubleshootin
 
 > Start a YugabyteDB master container
 
-Creates the host data directory, assembles the `yb-master` command line, and starts the master container.
-
-The container publishes master RPC and webserver ports, mounts the data directory, and mounts TLS material when TLS is enabled.
+Creates the host data directory, assembles the `yb-master` command line, and starts the master container.The container publishes master RPC and webserver ports, mounts the data directory, and mounts TLS material when TLS is enabled.
 
 ```yaml
 - name: Start a YugabyteDB master container
@@ -604,8 +594,11 @@ The container publishes master RPC and webserver ports, mounts the data director
     yugabyte_master_rpc_bind_port: 7100
     # Sets the master webserver port.
     yugabyte_master_webserver_port: 7000
-    # Provides the ordered list of master hosts used to compute replication factors. Example: `[yb-master-1, yb-master-2, yb-master-3]`.
-    yugabyte_master_hosts: [yb-master-1, yb-master-2, yb-master-3]
+    # Provides the ordered list of master hosts used to compute replication factors. Example: `['yb-master-1', 'yb-master-2', 'yb-master-3']`.
+    yugabyte_master_hosts:
+      - yb-master-1
+      - yb-master-2
+      - yb-master-3
     # Sets the YugabyteDB log verbosity threshold.
     yugabyte_logs_level: 3
     # Enables TLS asset handling for YugabyteDB.
@@ -625,9 +618,7 @@ The container publishes master RPC and webserver ports, mounts the data director
 
 > Start a YugabyteDB tablet container
 
-Creates the host data directory, assembles the `yb-tserver` command line, starts the tablet container, and initializes the database on the first tablet host.
-
-The container publishes YSQL, RPC, webserver, and YCQL ports, mounts initialization config, and mounts TLS material when TLS is enabled.
+Creates the host data directory, assembles the `yb-tserver` command line, starts the tablet container, and initializes the database on the first tablet host.The container publishes YSQL, RPC, webserver, and YCQL ports, mounts initialization config, and mounts TLS material when TLS is enabled.
 
 ```yaml
 - name: Start a YugabyteDB tablet container
@@ -668,8 +659,11 @@ The container publishes YSQL, RPC, webserver, and YCQL ports, mounts initializat
     yugabyte_tablet_cql_bind_port: 9042
     # Sets the tablet YCQL web UI port.
     yugabyte_tablet_cql_web_port: 12000
-    # Provides the ordered list of tablet hosts used to initialize the first tablet. Example: `[yb-tserver-1, yb-tserver-2, yb-tserver-3]`.
-    yugabyte_tablet_hosts: [yb-tserver-1, yb-tserver-2, yb-tserver-3]
+    # Provides the ordered list of tablet hosts used to initialize the first tablet. Example: `['yb-tserver-1', 'yb-tserver-2', 'yb-tserver-3']`.
+    yugabyte_tablet_hosts:
+      - yb-tserver-1
+      - yb-tserver-2
+      - yb-tserver-3
     # Sets the YugabyteDB log verbosity threshold.
     yugabyte_logs_level: 3
     # Enables TLS asset handling for YugabyteDB.
@@ -689,9 +683,7 @@ The container publishes YSQL, RPC, webserver, and YCQL ports, mounts initializat
 
 > Dispatch YugabyteDB Kubernetes startup
 
-Selects the master or tablet Kubernetes startup path for the current host.
-
-The selected path applies the Service, optional NodePort Service, StatefulSet, PVC template, image pull secret reference, and probe settings for the node type.
+Selects the master or tablet Kubernetes startup path for the current host.The selected path applies the Service, optional NodePort Service, StatefulSet, PVC template, image pull secret reference, and probe settings for the node type.
 
 ```yaml
 - name: Dispatch YugabyteDB Kubernetes startup
@@ -707,9 +699,7 @@ The selected path applies the Service, optional NodePort Service, StatefulSet, P
 
 > Dispatch YugabyteDB Kubernetes removal
 
-Selects the master or tablet Kubernetes removal path for the current host.
-
-The selected path removes the StatefulSet, ClusterIP Service, and optional NodePort Service for the node type.
+Selects the master or tablet Kubernetes removal path for the current host.The selected path removes the StatefulSet, ClusterIP Service, and optional NodePort Service for the node type.
 
 ```yaml
 - name: Dispatch YugabyteDB Kubernetes removal
@@ -725,9 +715,7 @@ The selected path removes the StatefulSet, ClusterIP Service, and optional NodeP
 
 > Fetch logs from YugabyteDB pods
 
-Delegates pod log collection for the Kubernetes resource associated with the current host.
-
-Pods are selected by the role-managed Kubernetes resource label for the master or tablet StatefulSet.
+Delegates pod log collection for the Kubernetes resource associated with the current host.Pods are selected by the role-managed Kubernetes resource label for the master or tablet StatefulSet.
 
 ```yaml
 - name: Fetch logs from YugabyteDB pods
@@ -743,9 +731,7 @@ Pods are selected by the role-managed Kubernetes resource label for the master o
 
 > Create a YugabyteDB ConfigMap
 
-Creates the ConfigMap that exposes the initialization SQL script to tablet pods.
-
-The ConfigMap is only populated for tablet components because tablets run the YSQL initialization command.
+Creates the ConfigMap that exposes the initialization SQL script to tablet pods.The ConfigMap is only populated for tablet components because tablets run the YSQL initialization command.
 
 ```yaml
 - name: Create a YugabyteDB ConfigMap
@@ -771,9 +757,7 @@ The ConfigMap is only populated for tablet components because tablets run the YS
 
 > Start a YugabyteDB master StatefulSet
 
-Applies the master ClusterIP Service, optional NodePort Service, and StatefulSet for the current YugabyteDB master node.
-
-The StatefulSet runs `yb-master`, configures replication from the master host list, attaches persistent storage, mounts TLS Secrets when enabled, and waits for readiness when requested.
+Applies the master ClusterIP Service, optional NodePort Service, and StatefulSet for the current YugabyteDB master node.The StatefulSet runs `yb-master`, configures replication from the master host list, attaches persistent storage, mounts TLS Secrets when enabled, and waits for readiness when requested.
 
 ```yaml
 - name: Start a YugabyteDB master StatefulSet
@@ -798,8 +782,11 @@ The StatefulSet runs `yb-master`, configures replication from the master host li
     yugabyte_master_rpc_bind_port: 7100
     # Sets the master webserver port.
     yugabyte_master_webserver_port: 7000
-    # Provides the ordered list of master hosts used to compute replication factors. Example: `[yb-master-1, yb-master-2, yb-master-3]`.
-    yugabyte_master_hosts: [yb-master-1, yb-master-2, yb-master-3]
+    # Provides the ordered list of master hosts used to compute replication factors. Example: `['yb-master-1', 'yb-master-2', 'yb-master-3']`.
+    yugabyte_master_hosts:
+      - yb-master-1
+      - yb-master-2
+      - yb-master-3
     # Sets the YugabyteDB log verbosity threshold.
     yugabyte_logs_level: 3
     # Sets the in-container data directory used by YugabyteDB.
@@ -851,9 +838,7 @@ The StatefulSet runs `yb-master`, configures replication from the master host li
 
 > Remove a YugabyteDB master StatefulSet
 
-Deletes the master StatefulSet and its Services for the current YugabyteDB master node.
-
-PersistentVolumeClaims are left for `data/rm` so runtime removal and data removal stay separate.
+Deletes the master StatefulSet and its Services for the current YugabyteDB master node.PersistentVolumeClaims are left for `data/rm` so runtime removal and data removal stay separate.
 
 ```yaml
 - name: Remove a YugabyteDB master StatefulSet
@@ -871,9 +856,7 @@ PersistentVolumeClaims are left for `data/rm` so runtime removal and data remova
 
 > Start a YugabyteDB tablet StatefulSet
 
-Applies the tablet ClusterIP Service, optional NodePort Service, and StatefulSet for the current YugabyteDB tablet node, then initializes the database on the first tablet.
-
-The StatefulSet runs `yb-tserver`, connects to the configured masters, attaches persistent storage, mounts the initialization ConfigMap and TLS Secret when enabled, and waits for readiness when requested.
+Applies the tablet ClusterIP Service, optional NodePort Service, and StatefulSet for the current YugabyteDB tablet node, then initializes the database on the first tablet.The StatefulSet runs `yb-tserver`, connects to the configured masters, attaches persistent storage, mounts the initialization ConfigMap and TLS Secret when enabled, and waits for readiness when requested.
 
 ```yaml
 - name: Start a YugabyteDB tablet StatefulSet
@@ -936,8 +919,11 @@ The StatefulSet runs `yb-tserver`, connects to the configured masters, attaches 
     yugabyte_k8s_tablet_cql_web_node_port: 32200
     # Names the SQL initialization script used by tablet pods.
     yugabyte_init_script_file: 01-yb-init.sql
-    # Provides the ordered list of tablet hosts used to initialize the first tablet. Example: `[yb-tserver-1, yb-tserver-2, yb-tserver-3]`.
-    yugabyte_tablet_hosts: [yb-tserver-1, yb-tserver-2, yb-tserver-3]
+    # Provides the ordered list of tablet hosts used to initialize the first tablet. Example: `['yb-tserver-1', 'yb-tserver-2', 'yb-tserver-3']`.
+    yugabyte_tablet_hosts:
+      - yb-tserver-1
+      - yb-tserver-2
+      - yb-tserver-3
     # Sets the image pull secret used by Kubernetes deployments when defined. Example: `registry-pull-secret`.
     k8s_image_pull_secret: "registry-pull-secret"
     # Sets the storage class used by Kubernetes PersistentVolumeClaims when defined. Example: `fast-ssd`.
@@ -969,9 +955,7 @@ The StatefulSet runs `yb-tserver`, connects to the configured masters, attaches 
 
 > Remove a YugabyteDB tablet StatefulSet
 
-Deletes the tablet StatefulSet and its Services for the current YugabyteDB tablet node.
-
-PersistentVolumeClaims are left for `data/rm` so runtime removal and data removal stay separate.
+Deletes the tablet StatefulSet and its Services for the current YugabyteDB tablet node.PersistentVolumeClaims are left for `data/rm` so runtime removal and data removal stay separate.
 
 ```yaml
 - name: Remove a YugabyteDB tablet StatefulSet
@@ -989,9 +973,7 @@ PersistentVolumeClaims are left for `data/rm` so runtime removal and data remova
 
 > Create a YugabyteDB TLS Secret
 
-Creates the Kubernetes Secret that exposes the YugabyteDB TLS key pair and CA certificate to pods.
-
-The Secret is mounted by master and tablet StatefulSets when YugabyteDB TLS is enabled.
+Creates the Kubernetes Secret that exposes the YugabyteDB TLS key pair and CA certificate to pods.The Secret is mounted by master and tablet StatefulSets when YugabyteDB TLS is enabled.
 
 ```yaml
 - name: Create a YugabyteDB TLS Secret
@@ -1015,9 +997,7 @@ The Secret is mounted by master and tablet StatefulSets when YugabyteDB TLS is e
 
 > Remove YugabyteDB persisted data
 
-Deletes persisted YugabyteDB data for the selected deployment mode.
-
-Container mode removes the host data directory; Kubernetes mode removes the PVC associated with the StatefulSet volume claim.
+Deletes persisted YugabyteDB data for the selected deployment mode.Container mode removes the host data directory; Kubernetes mode removes the PVC associated with the StatefulSet volume claim.
 
 ```yaml
 - name: Remove YugabyteDB persisted data
@@ -1043,15 +1023,19 @@ Container mode removes the host data directory; Kubernetes mode removes the PVC 
 
 > Build Prometheus scrapers for YugabyteDB
 
-Groups YugabyteDB hosts by cluster and assembles Prometheus scrape configuration for exposed master and tablet metrics endpoints.
-
-When webserver TLS is enabled, the generated scraper references the fetched organization TLS CA artifact for HTTPS scraping.
+Groups YugabyteDB hosts by cluster and assembles Prometheus scrape configuration for exposed master and tablet metrics endpoints.When webserver TLS is enabled, the generated scraper references the fetched organization TLS CA artifact for HTTPS scraping.
 
 ```yaml
 - name: Build Prometheus scrapers for YugabyteDB
   vars:
-    # Lists the inventory hosts that belong to the YugabyteDB clusters monitored by Prometheus. Example: `[yb-master-1, yb-master-2, yb-master-3, yb-tserver-1, yb-tserver-2, yb-tserver-3]`.
-    yugabyte_hosts: [yb-master-1, yb-master-2, yb-master-3, yb-tserver-1, yb-tserver-2, yb-tserver-3]
+    # Lists the inventory hosts that belong to the YugabyteDB clusters monitored by Prometheus. Example: `['yb-master-1', 'yb-master-2', 'yb-master-3', 'yb-tserver-1', 'yb-tserver-2', 'yb-tserver-3']`.
+    yugabyte_hosts:
+      - yb-master-1
+      - yb-master-2
+      - yb-master-3
+      - yb-tserver-1
+      - yb-tserver-2
+      - yb-tserver-3
     # Defines the control-node directory that stores fetched YugabyteDB artifacts. Required when TLS-enabled tasks need access to fetched CA or certificate artifacts, such as when `yugabyte_use_tls` or webserver TLS is enabled. Example: `/tmp/fabric-x/artifacts/yugabyte`.
     fetched_artifacts_dir: "/tmp/fabric-x/artifacts/yugabyte"
   ansible.builtin.include_role:

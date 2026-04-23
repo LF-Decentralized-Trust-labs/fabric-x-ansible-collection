@@ -6,7 +6,7 @@
 ---
 galaxy_info:
   author: IBM
-  description: >
+  description: >-
     Provides shared helpers for building, installing, transferring, starting, stopping, and collecting logs for Fabric-X binaries.
     The role supports both control-node and managed-host execution paths and groups hosts by platform before invoking the Go helpers.
   license: Apache-2.0

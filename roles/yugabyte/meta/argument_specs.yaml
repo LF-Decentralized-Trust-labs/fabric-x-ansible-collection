@@ -17,14 +17,14 @@ argument_specs:
         required: true
         description:
           - "Lists the inventory hosts that belong to the YugabyteDB cluster."
-          - "Example: C([yb-master-1, yb-master-2, yb-master-3, yb-tserver-1, yb-tserver-2, yb-tserver-3])."
+          - "Example: C(['yb-master-1', 'yb-master-2', 'yb-master-3', 'yb-tserver-1', 'yb-tserver-2', 'yb-tserver-3'])."
       yugabyte_hosts: &yugabyte_hosts
         type: list
         elements: str
         required: true
         description:
           - "Lists the inventory hosts that belong to the YugabyteDB clusters monitored by Prometheus."
-          - "Example: C([yb-master-1, yb-master-2, yb-master-3, yb-tserver-1, yb-tserver-2, yb-tserver-3])."
+          - "Example: C(['yb-master-1', 'yb-master-2', 'yb-master-3', 'yb-tserver-1', 'yb-tserver-2', 'yb-tserver-3'])."
       yugabyte_component_type: &yugabyte_component_type
         type: str
         required: true
@@ -154,14 +154,14 @@ argument_specs:
         required: true
         description:
           - "Provides the ordered list of master hosts used to compute replication factors."
-          - "Example: C([yb-master-1, yb-master-2, yb-master-3])."
+          - "Example: C(['yb-master-1', 'yb-master-2', 'yb-master-3'])."
       yugabyte_tablet_hosts: &yugabyte_tablet_hosts
         type: list
         elements: str
         required: true
         description:
           - "Provides the ordered list of tablet hosts used to initialize the first tablet."
-          - "Example: C([yb-tserver-1, yb-tserver-2, yb-tserver-3])."
+          - "Example: C(['yb-tserver-1', 'yb-tserver-2', 'yb-tserver-3'])."
       yugabyte_master_rpc_bind_port: &yugabyte_master_rpc_bind_port
         type: int
         required: false
@@ -241,7 +241,8 @@ argument_specs:
         description:
           - "Optionally sets the NodePort used to expose the master RPC service when C(yugabyte_k8s_use_node_port) is enabled."
           - "Example: C(32100)."
-      yugabyte_k8s_master_webserver_node_port: &yugabyte_k8s_master_webserver_node_port
+      yugabyte_k8s_master_webserver_node_port:
+        &yugabyte_k8s_master_webserver_node_port
         type: int
         required: false
         description:
@@ -259,25 +260,29 @@ argument_specs:
         description:
           - "Optionally sets the NodePort used to expose the tablet RPC service when C(yugabyte_k8s_use_node_port) is enabled."
           - "Example: C(32101)."
-      yugabyte_k8s_tablet_webserver_node_port: &yugabyte_k8s_tablet_webserver_node_port
+      yugabyte_k8s_tablet_webserver_node_port:
+        &yugabyte_k8s_tablet_webserver_node_port
         type: int
         required: false
         description:
           - "Optionally sets the NodePort used to expose the tablet webserver service when C(yugabyte_k8s_use_node_port) is enabled."
           - "Example: C(32001)."
-      yugabyte_k8s_tablet_pgsql_web_node_port: &yugabyte_k8s_tablet_pgsql_web_node_port
+      yugabyte_k8s_tablet_pgsql_web_node_port:
+        &yugabyte_k8s_tablet_pgsql_web_node_port
         type: int
         required: false
         description:
           - "Optionally sets the NodePort used to expose the tablet YSQL web UI service when C(yugabyte_k8s_use_node_port) is enabled."
           - "Example: C(32300)."
-      yugabyte_k8s_tablet_cql_bind_node_port: &yugabyte_k8s_tablet_cql_bind_node_port
+      yugabyte_k8s_tablet_cql_bind_node_port:
+        &yugabyte_k8s_tablet_cql_bind_node_port
         type: int
         required: false
         description:
           - "Optionally sets the NodePort used to expose the tablet YCQL bind service when C(yugabyte_k8s_use_node_port) is enabled."
           - "Example: C(32042)."
-      yugabyte_k8s_tablet_cql_web_node_port: &yugabyte_k8s_tablet_cql_web_node_port
+      yugabyte_k8s_tablet_cql_web_node_port:
+        &yugabyte_k8s_tablet_cql_web_node_port
         type: int
         required: false
         description:
@@ -308,14 +313,14 @@ argument_specs:
         description:
           - "Provides the organization metadata consumed by the crypto entry points."
           - "The mapping is expected to expose C(domain), C(role), C(peer.name), C(peer.secret), and C(fabric_ca_host) when relevant."
-          - "Example: C({domain: org1.example.com, role: peer, peer: {name: yb-tserver-1, secret: yb-tserver-1pw}, fabric_ca_host: ca-org1})."
+          - "Example: C({'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'yb-tserver-1', 'secret': 'yb-tserver-1pw'}, 'fabric_ca_host': 'ca-org1'})."
       organization_required: &organization_required
         type: dict
         required: true
         description:
           - "Provides the organization metadata consumed by the crypto entry points that require it."
           - "The mapping is expected to expose C(domain), C(role), C(peer.name), C(peer.secret), and C(fabric_ca_host) when relevant."
-          - "Example: C({domain: org1.example.com, role: peer, peer: {name: yb-tserver-1, secret: yb-tserver-1pw}, fabric_ca_host: ca-org1})."
+          - "Example: C({'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'yb-tserver-1', 'secret': 'yb-tserver-1pw'}, 'fabric_ca_host': 'ca-org1'})."
       yugabyte_db: &yugabyte_db
         type: str
         required: true
@@ -359,7 +364,8 @@ argument_specs:
         description:
           - "Sets the image pull secret used by Kubernetes deployments when defined."
           - "Example: C(registry-pull-secret)."
-      k8s_readiness_probe_initial_delay_seconds: &k8s_readiness_probe_initial_delay_seconds
+      k8s_readiness_probe_initial_delay_seconds:
+        &k8s_readiness_probe_initial_delay_seconds
         type: int
         required: false
         description:
@@ -377,13 +383,15 @@ argument_specs:
         description:
           - "Overrides the readiness probe timeout used by Kubernetes templates when defined."
           - "Example: C(5)."
-      k8s_readiness_probe_failure_threshold: &k8s_readiness_probe_failure_threshold
+      k8s_readiness_probe_failure_threshold:
+        &k8s_readiness_probe_failure_threshold
         type: int
         required: false
         description:
           - "Overrides the readiness probe failure threshold used by Kubernetes templates when defined."
           - "Example: C(12)."
-      k8s_liveness_probe_initial_delay_seconds: &k8s_liveness_probe_initial_delay_seconds
+      k8s_liveness_probe_initial_delay_seconds:
+        &k8s_liveness_probe_initial_delay_seconds
         type: int
         required: false
         description:
@@ -401,7 +409,8 @@ argument_specs:
         description:
           - "Overrides the liveness probe timeout used by Kubernetes templates when defined."
           - "Example: C(5)."
-      k8s_liveness_probe_failure_threshold: &k8s_liveness_probe_failure_threshold
+      k8s_liveness_probe_failure_threshold:
+        &k8s_liveness_probe_failure_threshold
         type: int
         required: false
         description:

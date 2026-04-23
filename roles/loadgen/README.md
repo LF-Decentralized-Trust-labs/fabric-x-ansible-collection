@@ -62,11 +62,7 @@ ansible-doc -t role hyperledger.fabricx.loadgen
 
 > Start the load generator
 
-Start the Loadgen runtime selected by the deployment mode flags.
-
-Container mode is the default, binary mode starts the installed `loadgen` process, and Kubernetes mode applies Services and a Deployment.
-
-The runtime consumes the rendered Loadgen configuration and crypto material prepared by the config and crypto entry points.
+Start the Loadgen runtime selected by the deployment mode flags.Container mode is the default, binary mode starts the installed `loadgen` process, and Kubernetes mode applies Services and a Deployment.The runtime consumes the rendered Loadgen configuration and crypto material prepared by the config and crypto entry points.
 
 ```yaml
 - name: Start the load generator
@@ -86,9 +82,7 @@ The runtime consumes the rendered Loadgen configuration and crypto material prep
 
 > Stop the load generator
 
-Stop the active Loadgen runtime selected by the deployment mode flags.
-
-Stops the local binary process or container without removing configuration, crypto material, logs, or Kubernetes resources.
+Stop the active Loadgen runtime selected by the deployment mode flags.Stops the local binary process or container without removing configuration, crypto material, logs, or Kubernetes resources.
 
 ```yaml
 - name: Stop the load generator
@@ -106,9 +100,7 @@ Stops the local binary process or container without removing configuration, cryp
 
 > Remove runtime artifacts
 
-Remove runtime resources for the selected Loadgen deployment mode.
-
-Deletes the local container or Kubernetes workload resources while leaving generated config, crypto material, and fetched artifacts intact.
+Remove runtime resources for the selected Loadgen deployment mode.Deletes the local container or Kubernetes workload resources while leaving generated config, crypto material, and fetched artifacts intact.
 
 ```yaml
 - name: Remove runtime artifacts
@@ -128,9 +120,7 @@ Deletes the local container or Kubernetes workload resources while leaving gener
 
 > Remove all load generator data
 
-Remove Loadgen runtime resources, binary artifacts, generated configuration, and crypto material from the host.
-
-Use this lifecycle entry point for a full role-local cleanup before rebuilding config or credentials.
+Remove Loadgen runtime resources, binary artifacts, generated configuration, and crypto material from the host.Use this lifecycle entry point for a full role-local cleanup before rebuilding config or credentials.
 
 ```yaml
 - name: Remove all load generator data
@@ -146,9 +136,7 @@ Use this lifecycle entry point for a full role-local cleanup before rebuilding c
 
 > Collect runtime logs
 
-Collect Loadgen logs for the selected deployment mode.
-
-Binary, container, and Kubernetes modes delegate to their mode-specific log collection tasks and store the fetched runtime output as role artifacts.
+Collect Loadgen logs for the selected deployment mode.Binary, container, and Kubernetes modes delegate to their mode-specific log collection tasks and store the fetched runtime output as role artifacts.
 
 ```yaml
 - name: Collect runtime logs
@@ -168,9 +156,7 @@ Binary, container, and Kubernetes modes delegate to their mode-specific log coll
 
 > Check the HTTP endpoint
 
-Verify that the Loadgen HTTP control endpoint is reachable.
-
-Uses direct host access for binary and container deployments and delegates to the Kubernetes ping task when `loadgen_use_k8s` is enabled.
+Verify that the Loadgen HTTP control endpoint is reachable.Uses direct host access for binary and container deployments and delegates to the Kubernetes ping task when `loadgen_use_k8s` is enabled.
 
 ```yaml
 - name: Check the HTTP endpoint
@@ -188,9 +174,7 @@ Uses direct host access for binary and container deployments and delegates to th
 
 > Fetch exported metrics
 
-Query the Loadgen Prometheus metrics endpoint over HTTP or HTTPS.
-
-In Kubernetes NodePort mode, targets the configured metrics NodePort; otherwise, it uses the host metrics port and selected monitoring protocol.
+Query the Loadgen Prometheus metrics endpoint over HTTP or HTTPS.In Kubernetes NodePort mode, targets the configured metrics NodePort; otherwise, it uses the host metrics port and selected monitoring protocol.
 
 ```yaml
 - name: Fetch exported metrics
@@ -222,9 +206,7 @@ In Kubernetes NodePort mode, targets the configured metrics NodePort; otherwise,
 
 > Update the runtime rate limit
 
-Send a control-plane HTTP request that changes the active generated transaction rate.
-
-Supports host ports for binary and container deployments and the configured HTTP NodePort for Kubernetes access.
+Send a control-plane HTTP request that changes the active generated transaction rate.Supports host ports for binary and container deployments and the configured HTTP NodePort for Kubernetes access.
 
 ```yaml
 - name: Update the runtime rate limit
@@ -250,15 +232,15 @@ Supports host ports for binary and container deployments and the configured HTTP
 
 > Build Prometheus scrape targets
 
-Build Prometheus scrape target definitions for all Loadgen hosts.
-
-Includes monitoring endpoint and TLS artifact paths consumed by the Prometheus role when scraping Loadgen metrics.
+Build Prometheus scrape target definitions for all Loadgen hosts.Includes monitoring endpoint and TLS artifact paths consumed by the Prometheus role when scraping Loadgen metrics.
 
 ```yaml
 - name: Build Prometheus scrape targets
   vars:
-    # Inventory hosts running Loadgen instances. Example: `[loadgen1, loadgen2]`.
-    loadgen_hosts: [loadgen1, loadgen2]
+    # Inventory hosts running Loadgen instances. Example: `['loadgen1', 'loadgen2']`.
+    loadgen_hosts:
+      - loadgen1
+      - loadgen2
     # Local artifacts directory used for fetched TLS and MSP files. Example: `/tmp/fabricx-artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
   ansible.builtin.include_role:
@@ -270,11 +252,7 @@ Includes monitoring endpoint and TLS artifact paths consumed by the Prometheus r
 
 > Dispatch configuration rendering
 
-Render the Loadgen configuration file and transfer config-side support artifacts.
-
-The generated config contains orderer router and assembler targets, optional committer sidecar access, TLS and mTLS paths, workload profile settings, stream limits, and logging behavior.
-
-For Kubernetes deployments, also publishes the rendered config and trusted CA bundles as a ConfigMap.
+Render the Loadgen configuration file and transfer config-side support artifacts.The generated config contains orderer router and assembler targets, optional committer sidecar access, TLS and mTLS paths, workload profile settings, stream limits, and logging behavior.For Kubernetes deployments, also publishes the rendered config and trusted CA bundles as a ConfigMap.
 
 ```yaml
 - name: Dispatch configuration rendering
@@ -299,18 +277,29 @@ For Kubernetes deployments, also publishes the rendered config and trusted CA bu
     loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
     # Enable mTLS for the main endpoint.
     loadgen_use_mtls: false
-    # Committer inventory hosts used by the dispatcher to derive client targets. Example: `[committer-sidecar1, committer-validator1]`.
-    committer_hosts: [committer-sidecar1, committer-validator1]
-    # Orderer inventory hosts used by the dispatcher to derive client targets. Example: `[orderer-router1, orderer-assembler1]`.
-    orderer_hosts: [orderer-router1, orderer-assembler1]
-    # Additional mTLS client identities trusted by the main endpoint. Example: `[orderer-router1, committer-sidecar1]`.
-    loadgen_mtls_clients: [orderer-router1, committer-sidecar1]
-    # Additional mTLS organizations trusted by the main endpoint. Example: `[{domain: org1.example.com}, {domain: org2.example.com}]`.
-    loadgen_mtls_orgs: [{domain: org1.example.com}, {domain: org2.example.com}]
-    # Additional mTLS client identities trusted by the monitoring endpoint. Example: `[prometheus1, node-exporter1]`.
-    loadgen_monitoring_mtls_clients: [prometheus1, node-exporter1]
-    # Additional mTLS organizations trusted by the monitoring endpoint. Example: `[{domain: monitoring.example.com}]`.
-    loadgen_monitoring_mtls_orgs: [{domain: monitoring.example.com}]
+    # Committer inventory hosts used by the dispatcher to derive client targets. Example: `['committer-sidecar1', 'committer-validator1']`.
+    committer_hosts:
+      - committer-sidecar1
+      - committer-validator1
+    # Orderer inventory hosts used by the dispatcher to derive client targets. Example: `['orderer-router1', 'orderer-assembler1']`.
+    orderer_hosts:
+      - orderer-router1
+      - orderer-assembler1
+    # Additional mTLS client identities trusted by the main endpoint. Example: `['orderer-router1', 'committer-sidecar1']`.
+    loadgen_mtls_clients:
+      - orderer-router1
+      - committer-sidecar1
+    # Additional mTLS organizations trusted by the main endpoint. Example: `[{'domain': 'org1.example.com'}, {'domain': 'org2.example.com'}]`.
+    loadgen_mtls_orgs:
+      - domain: 'org1.example.com'
+      - domain: 'org2.example.com'
+    # Additional mTLS client identities trusted by the monitoring endpoint. Example: `['prometheus1', 'node-exporter1']`.
+    loadgen_monitoring_mtls_clients:
+      - prometheus1
+      - node-exporter1
+    # Additional mTLS organizations trusted by the monitoring endpoint. Example: `[{'domain': 'monitoring.example.com'}]`.
+    loadgen_monitoring_mtls_orgs:
+      - domain: 'monitoring.example.com'
     # HTTP control port exposed by Loadgen. Example: `8080`.
     loadgen_web_port: 8080
     # Prometheus metrics port exposed by Loadgen. Example: `9443`.
@@ -381,12 +370,21 @@ For Kubernetes deployments, also publishes the rendered config and trusted CA bu
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
     # Channel identifier rendered into generated transactions. Example: `fabricx-channel`.
     channel_id: "fabricx-channel"
-    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{name: Org1, domain: org1.example.com, peer: {name: loadgen1, secret: loadgen1pw}}`.
-    organization: {name: Org1, domain: org1.example.com, peer: {name: loadgen1, secret: loadgen1pw}}
-    # Orderer router hosts targeted by the orderer client. Example: `[orderer-router1, orderer-router2]`.
-    orderer_router_hosts: [orderer-router1, orderer-router2]
-    # Orderer assembler hosts targeted by the orderer client. Example: `[orderer-assembler1, orderer-assembler2]`.
-    orderer_assembler_hosts: [orderer-assembler1, orderer-assembler2]
+    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'loadgen1', 'secret': 'loadgen1pw'}}`.
+    organization:
+      name: 'Org1'
+      domain: 'org1.example.com'
+      peer:
+        name: 'loadgen1'
+        secret: 'loadgen1pw'
+    # Orderer router hosts targeted by the orderer client. Example: `['orderer-router1', 'orderer-router2']`.
+    orderer_router_hosts:
+      - orderer-router1
+      - orderer-router2
+    # Orderer assembler hosts targeted by the orderer client. Example: `['orderer-assembler1', 'orderer-assembler2']`.
+    orderer_assembler_hosts:
+      - orderer-assembler1
+      - orderer-assembler2
     # Sidecar host targeted by the orderer and sidecar clients. Example: `committer-sidecar1`.
     committer_sidecar_host: "committer-sidecar1"
     # Broadcast goroutine count used by the orderer client. Example: `8` for a load generator submitting to orderer routers.
@@ -406,9 +404,7 @@ For Kubernetes deployments, also publishes the rendered config and trusted CA bu
 
 > Transfer monitoring mTLS CA bundles
 
-Transfer CA bundles trusted by the Loadgen monitoring endpoint.
-
-Copies client and organization CA files into the config tree so the metrics listener can verify Prometheus or other monitoring clients when mTLS is enabled.
+Transfer CA bundles trusted by the Loadgen monitoring endpoint.Copies client and organization CA files into the config tree so the metrics listener can verify Prometheus or other monitoring clients when mTLS is enabled.
 
 ```yaml
 - name: Transfer monitoring mTLS CA bundles
@@ -417,10 +413,13 @@ Copies client and organization CA files into the config tree so the metrics list
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Local artifacts directory used for fetched TLS and MSP files. Example: `/tmp/fabricx-artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
-    # Additional mTLS client identities trusted by the monitoring endpoint. Example: `[prometheus1, node-exporter1]`.
-    loadgen_monitoring_mtls_clients: [prometheus1, node-exporter1]
-    # Additional mTLS organizations trusted by the monitoring endpoint. Example: `[{domain: monitoring.example.com}]`.
-    loadgen_monitoring_mtls_orgs: [{domain: monitoring.example.com}]
+    # Additional mTLS client identities trusted by the monitoring endpoint. Example: `['prometheus1', 'node-exporter1']`.
+    loadgen_monitoring_mtls_clients:
+      - prometheus1
+      - node-exporter1
+    # Additional mTLS organizations trusted by the monitoring endpoint. Example: `[{'domain': 'monitoring.example.com'}]`.
+    loadgen_monitoring_mtls_orgs:
+      - domain: 'monitoring.example.com'
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: config/mtls/monitoring/transfer
@@ -430,9 +429,7 @@ Copies client and organization CA files into the config tree so the metrics list
 
 > Remove rendered configuration
 
-Remove host-side rendered Loadgen configuration.
-
-Also removes the Kubernetes ConfigMap when Kubernetes deployment mode is enabled.
+Remove host-side rendered Loadgen configuration.Also removes the Kubernetes ConfigMap when Kubernetes deployment mode is enabled.
 
 ```yaml
 - name: Remove rendered configuration
@@ -452,15 +449,18 @@ Also removes the Kubernetes ConfigMap when Kubernetes deployment mode is enabled
 
 > Prepare crypto material
 
-Prepare Loadgen MSP, user, and TLS material through the configured crypto source.
-
-Delegates to cryptogen transfer or Fabric CA enrollment, then publishes Kubernetes Secret material when Kubernetes mode is enabled.
+Prepare Loadgen MSP, user, and TLS material through the configured crypto source.Delegates to cryptogen transfer or Fabric CA enrollment, then publishes Kubernetes Secret material when Kubernetes mode is enabled.
 
 ```yaml
 - name: Prepare crypto material
   vars:
-    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{name: Org1, domain: org1.example.com, peer: {name: loadgen1, secret: loadgen1pw}}`.
-    organization: {name: Org1, domain: org1.example.com, peer: {name: loadgen1, secret: loadgen1pw}}
+    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'loadgen1', 'secret': 'loadgen1pw'}}`.
+    organization:
+      name: 'Org1'
+      domain: 'org1.example.com'
+      peer:
+        name: 'loadgen1'
+        secret: 'loadgen1pw'
     # Use Kubernetes resources.
     loadgen_use_k8s: false
   ansible.builtin.include_role:
@@ -472,15 +472,18 @@ Delegates to cryptogen transfer or Fabric CA enrollment, then publishes Kubernet
 
 > Transfer cryptogen artifacts
 
-Transfer MSP, user, and TLS artifacts generated by cryptogen to the Loadgen host config directory.
-
-The copied paths are consumed by the rendered orderer client, sidecar client, server, and monitoring TLS sections.
+Transfer MSP, user, and TLS artifacts generated by cryptogen to the Loadgen host config directory.The copied paths are consumed by the rendered orderer client, sidecar client, server, and monitoring TLS sections.
 
 ```yaml
 - name: Transfer cryptogen artifacts
   vars:
-    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{name: Org1, domain: org1.example.com, peer: {name: loadgen1, secret: loadgen1pw}}`.
-    organization: {name: Org1, domain: org1.example.com, peer: {name: loadgen1, secret: loadgen1pw}}
+    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'loadgen1', 'secret': 'loadgen1pw'}}`.
+    organization:
+      name: 'Org1'
+      domain: 'org1.example.com'
+      peer:
+        name: 'loadgen1'
+        secret: 'loadgen1pw'
     # Local cryptogen output directory. Example: `/tmp/fabricx-crypto`.
     cryptogen_artifacts_dir: "/tmp/fabricx-crypto"
     # Remote config directory used by Loadgen.
@@ -500,15 +503,18 @@ The copied paths are consumed by the rendered orderer client, sidecar client, se
 
 > Enroll identities with Fabric CA
 
-Enroll Loadgen peer, user, and optional TLS identities against Fabric CA.
-
-Writes MSP and TLS artifacts under the remote config directory for use by the generated Loadgen config and later fetch or Kubernetes transfer tasks.
+Enroll Loadgen peer, user, and optional TLS identities against Fabric CA.Writes MSP and TLS artifacts under the remote config directory for use by the generated Loadgen config and later fetch or Kubernetes transfer tasks.
 
 ```yaml
 - name: Enroll identities with Fabric CA
   vars:
-    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{name: Org1, domain: org1.example.com, peer: {name: loadgen1, secret: loadgen1pw}}`.
-    organization: {name: Org1, domain: org1.example.com, peer: {name: loadgen1, secret: loadgen1pw}}
+    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'loadgen1', 'secret': 'loadgen1pw'}}`.
+    organization:
+      name: 'Org1'
+      domain: 'org1.example.com'
+      peer:
+        name: 'loadgen1'
+        secret: 'loadgen1pw'
     # Local artifacts directory used for fetched TLS and MSP files. Example: `/tmp/fabricx-artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
     # Remote config directory used by Loadgen.
@@ -530,15 +536,18 @@ Writes MSP and TLS artifacts under the remote config directory for use by the ge
 
 > Fetch generated certificates
 
-Fetch generated Loadgen MSP signcerts and TLS certificates back to the control node.
-
-Stores artifacts under the fetched artifacts directory so other roles can trust Loadgen endpoints or reuse generated crypto outputs.
+Fetch generated Loadgen MSP signcerts and TLS certificates back to the control node.Stores artifacts under the fetched artifacts directory so other roles can trust Loadgen endpoints or reuse generated crypto outputs.
 
 ```yaml
 - name: Fetch generated certificates
   vars:
-    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{name: Org1, domain: org1.example.com, peer: {name: loadgen1, secret: loadgen1pw}}`.
-    organization: {name: Org1, domain: org1.example.com, peer: {name: loadgen1, secret: loadgen1pw}}
+    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'loadgen1', 'secret': 'loadgen1pw'}}`.
+    organization:
+      name: 'Org1'
+      domain: 'org1.example.com'
+      peer:
+        name: 'loadgen1'
+        secret: 'loadgen1pw'
     # Local artifacts directory used for fetched TLS and MSP files. Example: `/tmp/fabricx-artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
     # Remote config directory used by Loadgen.
@@ -558,9 +567,7 @@ Stores artifacts under the fetched artifacts directory so other roles can trust 
 
 > Remove crypto material
 
-Remove Loadgen MSP, user, and TLS artifacts from the host config directory.
-
-Also removes the Kubernetes Secret when Kubernetes deployment mode is enabled.
+Remove Loadgen MSP, user, and TLS artifacts from the host config directory.Also removes the Kubernetes Secret when Kubernetes deployment mode is enabled.
 
 ```yaml
 - name: Remove crypto material
@@ -584,9 +591,7 @@ Also removes the Kubernetes Secret when Kubernetes deployment mode is enabled.
 
 > Build the load generator binary
 
-Build the `loadgen` binary from the configured Fabric-X source repository.
-
-Uses the shared binary helper role and the configured Git host, repository, revision, and Go package path.
+Build the `loadgen` binary from the configured Fabric-X source repository.Uses the shared binary helper role and the configured Git host, repository, revision, and Go package path.
 
 ```yaml
 - name: Build the load generator binary
@@ -612,9 +617,7 @@ Uses the shared binary helper role and the configured Git host, repository, revi
 
 > Install the load generator binary
 
-Install the `loadgen` binary through the shared binary helper role.
-
-Consumes the configured Go package and source revision so binary deployments can start the local process.
+Install the `loadgen` binary through the shared binary helper role.Consumes the configured Go package and source revision so binary deployments can start the local process.
 
 ```yaml
 - name: Install the load generator binary
@@ -640,9 +643,7 @@ Consumes the configured Go package and source revision so binary deployments can
 
 > Remove the load generator binary
 
-Remove the installed `loadgen` binary managed by the shared binary helper role.
-
-Does not remove generated configuration, crypto material, or runtime logs.
+Remove the installed `loadgen` binary managed by the shared binary helper role.Does not remove generated configuration, crypto material, or runtime logs.
 
 ```yaml
 - name: Remove the load generator binary
@@ -658,9 +659,7 @@ Does not remove generated configuration, crypto material, or runtime logs.
 
 > Start the binary runtime
 
-Start Loadgen as a local binary process using the rendered config file.
-
-Waits on the HTTP control port after invoking `loadgen start --config=...`.
+Start Loadgen as a local binary process using the rendered config file.Waits on the HTTP control port after invoking `loadgen start --config=...`.
 
 ```yaml
 - name: Start the binary runtime
@@ -684,9 +683,7 @@ Waits on the HTTP control port after invoking `loadgen start --config=...`.
 
 > Stop the binary runtime
 
-Stop the local Loadgen binary process managed by the shared binary helper role.
-
-Leaves the remote config directory and logs available for inspection or collection.
+Stop the local Loadgen binary process managed by the shared binary helper role.Leaves the remote config directory and logs available for inspection or collection.
 
 ```yaml
 - name: Stop the binary runtime
@@ -699,9 +696,7 @@ Leaves the remote config directory and logs available for inspection or collecti
 
 > Transfer the load generator binary
 
-Transfer a prebuilt `loadgen` binary through the shared binary helper role.
-
-Used by binary deployments when the executable is built elsewhere and then staged onto the target host.
+Transfer a prebuilt `loadgen` binary through the shared binary helper role.Used by binary deployments when the executable is built elsewhere and then staged onto the target host.
 
 ```yaml
 - name: Transfer the load generator binary
@@ -717,9 +712,7 @@ Used by binary deployments when the executable is built elsewhere and then stage
 
 > Fetch binary logs
 
-Collect logs emitted by a binary-based Loadgen runtime.
-
-Fetches process logs without changing the running state or removing generated artifacts.
+Collect logs emitted by a binary-based Loadgen runtime.Fetches process logs without changing the running state or removing generated artifacts.
 
 ```yaml
 - name: Fetch binary logs
@@ -732,9 +725,7 @@ Fetches process logs without changing the running state or removing generated ar
 
 > Start the container runtime
 
-Start Loadgen as a local container with the rendered config directory mounted read-only.
-
-Exposes the HTTP, Prometheus metrics, and gRPC ports and waits for the HTTP control port to become reachable.
+Start Loadgen as a local container with the rendered config directory mounted read-only.Exposes the HTTP, Prometheus metrics, and gRPC ports and waits for the HTTP control port to become reachable.
 
 ```yaml
 - name: Start the container runtime
@@ -772,9 +763,7 @@ Exposes the HTTP, Prometheus metrics, and gRPC ports and waits for the HTTP cont
 
 > Stop the container runtime
 
-Stop the local Loadgen container.
-
-Preserves the container definition, image reference, mounted configuration, crypto material, and logs for later cleanup or collection.
+Stop the local Loadgen container.Preserves the container definition, image reference, mounted configuration, crypto material, and logs for later cleanup or collection.
 
 ```yaml
 - name: Stop the container runtime
@@ -790,9 +779,7 @@ Preserves the container definition, image reference, mounted configuration, cryp
 
 > Remove the container runtime
 
-Remove the local Loadgen container runtime resources.
-
-Leaves host-side generated configuration and crypto material under the remote config directory.
+Remove the local Loadgen container runtime resources.Leaves host-side generated configuration and crypto material under the remote config directory.
 
 ```yaml
 - name: Remove the container runtime
@@ -808,9 +795,7 @@ Leaves host-side generated configuration and crypto material under the remote co
 
 > Fetch container logs
 
-Collect logs from a containerized Loadgen runtime.
-
-Reads container logs for the configured container name without modifying runtime or config state.
+Collect logs from a containerized Loadgen runtime.Reads container logs for the configured container name without modifying runtime or config state.
 
 ```yaml
 - name: Fetch container logs
@@ -826,19 +811,26 @@ Reads container logs for the configured container name without modifying runtime
 
 > Start the Kubernetes deployment
 
-Create or update Kubernetes resources for Loadgen.
-
-Ensures the namespace exists, applies the Service, optional NodePort Service, and Deployment, and mounts generated ConfigMap and Secret artifacts into the pod.
+Create or update Kubernetes resources for Loadgen.Ensures the namespace exists, applies the Service, optional NodePort Service, and Deployment, and mounts generated ConfigMap and Secret artifacts into the pod.
 
 ```yaml
 - name: Start the Kubernetes deployment
   vars:
-    # Committer inventory hosts used by the dispatcher to derive client targets. Example: `[committer-sidecar1, committer-validator1]`.
-    committer_hosts: [committer-sidecar1, committer-validator1]
-    # Orderer inventory hosts used by the dispatcher to derive client targets. Example: `[orderer-router1, orderer-assembler1]`.
-    orderer_hosts: [orderer-router1, orderer-assembler1]
-    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{name: Org1, domain: org1.example.com, peer: {name: loadgen1, secret: loadgen1pw}}`.
-    organization: {name: Org1, domain: org1.example.com, peer: {name: loadgen1, secret: loadgen1pw}}
+    # Committer inventory hosts used by the dispatcher to derive client targets. Example: `['committer-sidecar1', 'committer-validator1']`.
+    committer_hosts:
+      - committer-sidecar1
+      - committer-validator1
+    # Orderer inventory hosts used by the dispatcher to derive client targets. Example: `['orderer-router1', 'orderer-assembler1']`.
+    orderer_hosts:
+      - orderer-router1
+      - orderer-assembler1
+    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'loadgen1', 'secret': 'loadgen1pw'}}`.
+    organization:
+      name: 'Org1'
+      domain: 'org1.example.com'
+      peer:
+        name: 'loadgen1'
+        secret: 'loadgen1pw'
     # Loadgen container image.
     loadgen_image: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
     # Image registry endpoint.
@@ -867,14 +859,21 @@ Ensures the namespace exists, applies the Service, optional NodePort Service, an
     loadgen_use_mtls: false
     # Enable mTLS for the monitoring endpoint.
     loadgen_monitoring_use_mtls: "{{ loadgen_use_mtls }}"
-    # Additional mTLS client identities trusted by the main endpoint. Example: `[orderer-router1, committer-sidecar1]`.
-    loadgen_mtls_clients: [orderer-router1, committer-sidecar1]
-    # Additional mTLS organizations trusted by the main endpoint. Example: `[{domain: org1.example.com}, {domain: org2.example.com}]`.
-    loadgen_mtls_orgs: [{domain: org1.example.com}, {domain: org2.example.com}]
-    # Additional mTLS client identities trusted by the monitoring endpoint. Example: `[prometheus1, node-exporter1]`.
-    loadgen_monitoring_mtls_clients: [prometheus1, node-exporter1]
-    # Additional mTLS organizations trusted by the monitoring endpoint. Example: `[{domain: monitoring.example.com}]`.
-    loadgen_monitoring_mtls_orgs: [{domain: monitoring.example.com}]
+    # Additional mTLS client identities trusted by the main endpoint. Example: `['orderer-router1', 'committer-sidecar1']`.
+    loadgen_mtls_clients:
+      - orderer-router1
+      - committer-sidecar1
+    # Additional mTLS organizations trusted by the main endpoint. Example: `[{'domain': 'org1.example.com'}, {'domain': 'org2.example.com'}]`.
+    loadgen_mtls_orgs:
+      - domain: 'org1.example.com'
+      - domain: 'org2.example.com'
+    # Additional mTLS client identities trusted by the monitoring endpoint. Example: `['prometheus1', 'node-exporter1']`.
+    loadgen_monitoring_mtls_clients:
+      - prometheus1
+      - node-exporter1
+    # Additional mTLS organizations trusted by the monitoring endpoint. Example: `[{'domain': 'monitoring.example.com'}]`.
+    loadgen_monitoring_mtls_orgs:
+      - domain: 'monitoring.example.com'
     # Optional image pull secret used by Kubernetes workloads. Example: `fabricx-registry-pull`.
     k8s_image_pull_secret: "fabricx-registry-pull"
     # Use Kubernetes resources.
@@ -902,9 +901,7 @@ Ensures the namespace exists, applies the Service, optional NodePort Service, an
 
 > Check the Kubernetes node ports
 
-Verify that Kubernetes-exposed Loadgen endpoints are reachable.
-
-Checks configured HTTP, metrics, and gRPC NodePorts when NodePort access is enabled, otherwise uses the service ports.
+Verify that Kubernetes-exposed Loadgen endpoints are reachable.Checks configured HTTP, metrics, and gRPC NodePorts when NodePort access is enabled, otherwise uses the service ports.
 
 ```yaml
 - name: Check the Kubernetes node ports
@@ -932,9 +929,7 @@ Checks configured HTTP, metrics, and gRPC NodePorts when NodePort access is enab
 
 > Remove Kubernetes resources
 
-Remove the Kubernetes Deployment and Services created for Loadgen.
-
-Does not remove the ConfigMap or Secret; use the Kubernetes config and crypto remove entry points for those generated artifacts.
+Remove the Kubernetes Deployment and Services created for Loadgen.Does not remove the ConfigMap or Secret; use the Kubernetes config and crypto remove entry points for those generated artifacts.
 
 ```yaml
 - name: Remove Kubernetes resources
@@ -952,9 +947,7 @@ Does not remove the ConfigMap or Secret; use the Kubernetes config and crypto re
 
 > Fetch pod logs
 
-Collect logs from the Kubernetes pod running Loadgen.
-
-Uses the configured Kubernetes resource name to fetch pod output without changing workload state.
+Collect logs from the Kubernetes pod running Loadgen.Uses the configured Kubernetes resource name to fetch pod output without changing workload state.
 
 ```yaml
 - name: Fetch pod logs
@@ -970,9 +963,7 @@ Uses the configured Kubernetes resource name to fetch pod output without changin
 
 > Publish the Kubernetes ConfigMap
 
-Publish the rendered Loadgen configuration and trusted CA bundles as a Kubernetes ConfigMap.
-
-The ConfigMap is consumed by the Loadgen Deployment and includes orderer, sidecar, TLS, mTLS, workload, stream, and logging config content.
+Publish the rendered Loadgen configuration and trusted CA bundles as a Kubernetes ConfigMap.The ConfigMap is consumed by the Loadgen Deployment and includes orderer, sidecar, TLS, mTLS, workload, stream, and logging config content.
 
 ```yaml
 - name: Publish the Kubernetes ConfigMap
@@ -985,24 +976,35 @@ The ConfigMap is consumed by the Loadgen Deployment and includes orderer, sideca
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Rendered Loadgen config filename.
     loadgen_config_file: config-loadgen.yaml
-    # Orderer router hosts targeted by the orderer client. Example: `[orderer-router1, orderer-router2]`.
-    orderer_router_hosts: [orderer-router1, orderer-router2]
-    # Orderer assembler hosts targeted by the orderer client. Example: `[orderer-assembler1, orderer-assembler2]`.
-    orderer_assembler_hosts: [orderer-assembler1, orderer-assembler2]
+    # Orderer router hosts targeted by the orderer client. Example: `['orderer-router1', 'orderer-router2']`.
+    orderer_router_hosts:
+      - orderer-router1
+      - orderer-router2
+    # Orderer assembler hosts targeted by the orderer client. Example: `['orderer-assembler1', 'orderer-assembler2']`.
+    orderer_assembler_hosts:
+      - orderer-assembler1
+      - orderer-assembler2
     # Sidecar host targeted by the orderer and sidecar clients. Example: `committer-sidecar1`.
     committer_sidecar_host: "committer-sidecar1"
     # Enable mTLS for the main endpoint.
     loadgen_use_mtls: false
     # Enable mTLS for the monitoring endpoint.
     loadgen_monitoring_use_mtls: "{{ loadgen_use_mtls }}"
-    # Additional mTLS client identities trusted by the main endpoint. Example: `[orderer-router1, committer-sidecar1]`.
-    loadgen_mtls_clients: [orderer-router1, committer-sidecar1]
-    # Additional mTLS organizations trusted by the main endpoint. Example: `[{domain: org1.example.com}, {domain: org2.example.com}]`.
-    loadgen_mtls_orgs: [{domain: org1.example.com}, {domain: org2.example.com}]
-    # Additional mTLS client identities trusted by the monitoring endpoint. Example: `[prometheus1, node-exporter1]`.
-    loadgen_monitoring_mtls_clients: [prometheus1, node-exporter1]
-    # Additional mTLS organizations trusted by the monitoring endpoint. Example: `[{domain: monitoring.example.com}]`.
-    loadgen_monitoring_mtls_orgs: [{domain: monitoring.example.com}]
+    # Additional mTLS client identities trusted by the main endpoint. Example: `['orderer-router1', 'committer-sidecar1']`.
+    loadgen_mtls_clients:
+      - orderer-router1
+      - committer-sidecar1
+    # Additional mTLS organizations trusted by the main endpoint. Example: `[{'domain': 'org1.example.com'}, {'domain': 'org2.example.com'}]`.
+    loadgen_mtls_orgs:
+      - domain: 'org1.example.com'
+      - domain: 'org2.example.com'
+    # Additional mTLS client identities trusted by the monitoring endpoint. Example: `['prometheus1', 'node-exporter1']`.
+    loadgen_monitoring_mtls_clients:
+      - prometheus1
+      - node-exporter1
+    # Additional mTLS organizations trusted by the monitoring endpoint. Example: `[{'domain': 'monitoring.example.com'}]`.
+    loadgen_monitoring_mtls_orgs:
+      - domain: 'monitoring.example.com'
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: k8s/config/transfer
@@ -1012,9 +1014,7 @@ The ConfigMap is consumed by the Loadgen Deployment and includes orderer, sideca
 
 > Remove the Kubernetes ConfigMap
 
-Remove the Kubernetes ConfigMap created for Loadgen configuration.
-
-Leaves host-side rendered config files intact for inspection, regeneration, or non-Kubernetes deployments.
+Remove the Kubernetes ConfigMap created for Loadgen configuration.Leaves host-side rendered config files intact for inspection, regeneration, or non-Kubernetes deployments.
 
 ```yaml
 - name: Remove the Kubernetes ConfigMap
@@ -1032,15 +1032,18 @@ Leaves host-side rendered config files intact for inspection, regeneration, or n
 
 > Publish the Kubernetes Secret
 
-Publish Loadgen MSP and TLS material as a Kubernetes Secret.
-
-The Secret is consumed by the Loadgen Deployment and is built from fetched or remote crypto artifacts for the selected identity.
+Publish Loadgen MSP and TLS material as a Kubernetes Secret.The Secret is consumed by the Loadgen Deployment and is built from fetched or remote crypto artifacts for the selected identity.
 
 ```yaml
 - name: Publish the Kubernetes Secret
   vars:
-    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{name: Org1, domain: org1.example.com, peer: {name: loadgen1, secret: loadgen1pw}}`.
-    organization: {name: Org1, domain: org1.example.com, peer: {name: loadgen1, secret: loadgen1pw}}
+    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'loadgen1', 'secret': 'loadgen1pw'}}`.
+    organization:
+      name: 'Org1'
+      domain: 'org1.example.com'
+      peer:
+        name: 'loadgen1'
+        secret: 'loadgen1pw'
     # Base remote config directory that feeds `loadgen_remote_config_dir`. Example: `/var/hyperledger/fabricx/loadgen/lg-1/config`.
     remote_config_dir: "/var/hyperledger/fabricx/loadgen/lg-1/config"
     # Remote config directory used by Loadgen.
@@ -1068,9 +1071,7 @@ The Secret is consumed by the Loadgen Deployment and is built from fetched or re
 
 > Remove the Kubernetes Secret
 
-Remove the Kubernetes Secret created for Loadgen MSP and TLS material.
-
-Leaves host-side crypto artifacts and fetched local artifacts untouched.
+Remove the Kubernetes Secret created for Loadgen MSP and TLS material.Leaves host-side crypto artifacts and fetched local artifacts untouched.
 
 ```yaml
 - name: Remove the Kubernetes Secret

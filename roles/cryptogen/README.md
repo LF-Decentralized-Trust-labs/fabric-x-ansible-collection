@@ -33,9 +33,7 @@ ansible-doc -t role hyperledger.fabricx.cryptogen
 
 > Select the cryptogen execution mode
 
-Choose whether cryptogen runs as a binary or in a container.
-
-This dispatcher selects either the `bin/start` or `container/start` entry point so the role can render configuration and generate crypto material in the requested execution mode.
+Choose whether cryptogen runs as a binary or in a container.This dispatcher selects either the `bin/start` or `container/start` entry point so the role can render configuration and generate crypto material in the requested execution mode.
 
 ```yaml
 - name: Select the cryptogen execution mode
@@ -51,11 +49,7 @@ This dispatcher selects either the `bin/start` or `container/start` entry point 
 
 > Fetch generated MSP directories
 
-Copy generated MSP directories for orderer and peer organizations into the fetched artifacts directory.
-
-The role mirrors each organization MSP subtree from `cryptogen_output_dir` into `{{ fetched_artifacts_dir }}/crypto/ordererOrganizations` and `{{ fetched_artifacts_dir }}/crypto/peerOrganizations`.
-
-Run this after crypto material has already been generated so downstream roles can consume the fetched artifacts.
+Copy generated MSP directories for orderer and peer organizations into the fetched artifacts directory.The role mirrors each organization MSP subtree from `cryptogen_output_dir` into `{{ fetched_artifacts_dir }}/crypto/ordererOrganizations` and `{{ fetched_artifacts_dir }}/crypto/peerOrganizations`.Run this after crypto material has already been generated so downstream roles can consume the fetched artifacts.
 
 ```yaml
 - name: Fetch generated MSP directories
@@ -79,11 +73,7 @@ Run this after crypto material has already been generated so downstream roles ca
 
 > Build the cryptogen configuration file
 
-Render `crypto-config.yaml` for the cryptogen CLI.
-
-This entry point gathers host IPv4 facts for referenced orderer and peer hosts before templating `{{ cryptogen_artifacts_dir }}/{{ cryptogen_config_file }}`.
-
-The rendered file captures the Fabric-X organization layout that cryptogen uses to generate orderer and peer MSP and TLS material.
+Render `crypto-config.yaml` for the cryptogen CLI.This entry point gathers host IPv4 facts for referenced orderer and peer hosts before templating `{{ cryptogen_artifacts_dir }}/{{ cryptogen_config_file }}`.The rendered file captures the Fabric-X organization layout that cryptogen uses to generate orderer and peer MSP and TLS material.
 
 ```yaml
 - name: Build the cryptogen configuration file
@@ -107,11 +97,7 @@ The rendered file captures the Fabric-X organization layout that cryptogen uses 
 
 > Generate crypto material with a container
 
-Clean the output directory and run the cryptogen CLI in a container.
-
-The container mounts the rendered configuration from `{{ cryptogen_artifacts_dir }}` and writes generated material to `{{ cryptogen_output_dir }}`.
-
-This entry point delegates container startup to `hyperledger.fabricx.container`.
+Clean the output directory and run the cryptogen CLI in a container.The container mounts the rendered configuration from `{{ cryptogen_artifacts_dir }}` and writes generated material to `{{ cryptogen_output_dir }}`.This entry point delegates container startup to `hyperledger.fabricx.container`.
 
 ```yaml
 - name: Generate crypto material with a container
@@ -149,9 +135,7 @@ This entry point delegates container startup to `hyperledger.fabricx.container`.
 
 > Install the cryptogen binary
 
-Install the cryptogen binary through `hyperledger.fabricx.bin`.
-
-This entry point is intended for binary-mode deployments that execute cryptogen on the target host.
+Install the cryptogen binary through `hyperledger.fabricx.bin`.This entry point is intended for binary-mode deployments that execute cryptogen on the target host.
 
 ```yaml
 - name: Install the cryptogen binary
@@ -179,9 +163,7 @@ This entry point is intended for binary-mode deployments that execute cryptogen 
 
 > Build the cryptogen binary from source
 
-Build the cryptogen binary from the configured source repository through `hyperledger.fabricx.bin`.
-
-This entry point builds on the control node and writes the binary into `cli_bin_dir` for later reuse by the binary start path.
+Build the cryptogen binary from the configured source repository through `hyperledger.fabricx.bin`.This entry point builds on the control node and writes the binary into `cli_bin_dir` for later reuse by the binary start path.
 
 ```yaml
 - name: Build the cryptogen binary from source
@@ -207,11 +189,7 @@ This entry point builds on the control node and writes the binary into `cli_bin_
 
 > Generate crypto material with the binary
 
-Clean the output directory and run the cryptogen binary on the target host.
-
-The binary consumes the rendered configuration from `{{ cryptogen_artifacts_dir }}` and writes generated material to `{{ cryptogen_output_dir }}`.
-
-This entry point delegates command execution to `hyperledger.fabricx.bin`.
+Clean the output directory and run the cryptogen binary on the target host.The binary consumes the rendered configuration from `{{ cryptogen_artifacts_dir }}` and writes generated material to `{{ cryptogen_output_dir }}`.This entry point delegates command execution to `hyperledger.fabricx.bin`.
 
 ```yaml
 - name: Generate crypto material with the binary

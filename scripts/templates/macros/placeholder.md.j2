@@ -15,6 +15,10 @@
 {%- if example.found -%}
 {%- if var_type in ['str', 'path'] -%}
 "{{ example.val }}"
+{%- elif var_type == 'list' -%}
+{{ example.val | to_yaml_sequence }}
+{%- elif var_type == 'dict' -%}
+{{ example.val | to_yaml_dict }}
 {%- else -%}
 {{ example.val }}
 {%- endif -%}

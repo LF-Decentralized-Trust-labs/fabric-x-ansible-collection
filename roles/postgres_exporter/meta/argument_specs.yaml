@@ -26,7 +26,7 @@ argument_specs:
         required: false
         description:
           - "Provides organization metadata forwarded to the OpenSSL role."
-          - "Example: C({domain: org1.example.com})."
+          - "Example: C({'domain': 'org1.example.com'})."
       k8s_namespace: &k8s_namespace
         type: str
         required: true
@@ -229,7 +229,7 @@ argument_specs:
         required: true
         description:
           - "Lists the inventory hosts that run Postgres Exporter and should be exposed to Prometheus."
-          - "Example: C([postgres-exporter-a, postgres-exporter-b])."
+          - "Example: C(['postgres-exporter-a', 'postgres-exporter-b'])."
 
   start:
     short_description: Start Postgres Exporter

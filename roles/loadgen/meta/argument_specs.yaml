@@ -321,13 +321,13 @@ argument_specs:
         required: false
         description:
           - Optional query tuning block consumed by the load profile.
-          - "Example: C({size: 4, min_invalid_keys_portion: 0.1, shuffle: true})."
+          - "Example: C({'size': 4, 'min_invalid_keys_portion': 0.1, 'shuffle': True})."
       loadgen_conflicts_settings: &loadgen_conflicts_settings
         type: dict
         required: false
         description:
           - Optional conflict injection block consumed by the load profile.
-          - "Example: C({invalid_signatures: 1, dependencies: [{source: 1, target: 2}]})."
+          - "Example: C({'invalid_signatures': 1, 'dependencies': [{'source': 1, 'target': 2}]})."
       loadgen_monitoring_rate_limit_requests_per_second:
         &loadgen_monitoring_rate_limit_requests_per_second
         type: int
@@ -407,7 +407,7 @@ argument_specs:
         required: true
         description:
           - Inventory hosts running Loadgen instances.
-          - "Example: C([loadgen1, loadgen2])."
+          - "Example: C(['loadgen1', 'loadgen2'])."
       actual_host: &actual_host
         type: str
         required: true
@@ -419,7 +419,7 @@ argument_specs:
         required: true
         description:
           - Organization definition consumed by crypto, config, and Kubernetes templates.
-          - "Example: C({name: Org1, domain: org1.example.com, peer: {name: loadgen1, secret: loadgen1pw}})."
+          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'loadgen1', 'secret': 'loadgen1pw'}})."
       channel_id: &channel_id
         type: str
         required: true
@@ -444,14 +444,14 @@ argument_specs:
         required: true
         description:
           - Committer inventory hosts used by the dispatcher to derive client targets.
-          - "Example: C([committer-sidecar1, committer-validator1])."
+          - "Example: C(['committer-sidecar1', 'committer-validator1'])."
       orderer_hosts: &orderer_hosts
         type: list
         elements: str
         required: true
         description:
           - Orderer inventory hosts used by the dispatcher to derive client targets.
-          - "Example: C([orderer-router1, orderer-assembler1])."
+          - "Example: C(['orderer-router1', 'orderer-assembler1'])."
       committer_sidecar_host: &committer_sidecar_host
         type: str
         required: false
@@ -464,14 +464,14 @@ argument_specs:
         required: false
         description:
           - Orderer router hosts targeted by the orderer client.
-          - "Example: C([orderer-router1, orderer-router2])."
+          - "Example: C(['orderer-router1', 'orderer-router2'])."
       orderer_assembler_hosts: &orderer_assembler_hosts
         type: list
         elements: str
         required: false
         description:
           - Orderer assembler hosts targeted by the orderer client.
-          - "Example: C([orderer-assembler1, orderer-assembler2])."
+          - "Example: C(['orderer-assembler1', 'orderer-assembler2'])."
       k8s_namespace: &k8s_namespace
         type: str
         required: true
@@ -526,28 +526,28 @@ argument_specs:
         required: false
         description:
           - Additional mTLS client identities trusted by the main endpoint.
-          - "Example: C([orderer-router1, committer-sidecar1])."
+          - "Example: C(['orderer-router1', 'committer-sidecar1'])."
       loadgen_mtls_orgs: &loadgen_mtls_orgs
         type: list
         elements: dict
         required: false
         description:
           - Additional mTLS organizations trusted by the main endpoint.
-          - "Example: C([{domain: org1.example.com}, {domain: org2.example.com}])."
+          - "Example: C([{'domain': 'org1.example.com'}, {'domain': 'org2.example.com'}])."
       loadgen_monitoring_mtls_clients: &loadgen_monitoring_mtls_clients
         type: list
         elements: str
         required: false
         description:
           - Additional mTLS client identities trusted by the monitoring endpoint.
-          - "Example: C([prometheus1, node-exporter1])."
+          - "Example: C(['prometheus1', 'node-exporter1'])."
       loadgen_monitoring_mtls_orgs: &loadgen_monitoring_mtls_orgs
         type: list
         elements: dict
         required: false
         description:
           - Additional mTLS organizations trusted by the monitoring endpoint.
-          - "Example: C([{domain: monitoring.example.com}])."
+          - "Example: C([{'domain': 'monitoring.example.com'}])."
   start:
     short_description: Start the load generator
     description:

@@ -261,7 +261,7 @@ argument_specs:
         required: true
         description:
           - Lists the inventory hosts exposed as Prometheus scrape targets.
-          - "Example: C([worker-1, worker-2, worker-3])."
+          - "Example: C(['worker-1', 'worker-2', 'worker-3'])."
 
   start:
     short_description: Start Node Exporter

@@ -82,9 +82,7 @@ ansible-doc -t role hyperledger.fabricx.fabric_ca
 
 > Dispatch client enrollment
 
-Dispatches client enrollment to the binary or transient-container implementation.
-
-Creates MSP or Idemix material for the requested identity under `fabric_ca_msp_dir`, using TLS profile settings when requested.
+Dispatches client enrollment to the binary or transient-container implementation.Creates MSP or Idemix material for the requested identity under `fabric_ca_msp_dir`, using TLS profile settings when requested.
 
 ```yaml
 - name: Dispatch client enrollment
@@ -100,9 +98,7 @@ Creates MSP or Idemix material for the requested identity under `fabric_ca_msp_d
 
 > Dispatch client registration
 
-Dispatches identity registration to the binary or transient-container implementation.
-
-Registers a new Fabric CA identity such as a peer, orderer, admin, or client using an already enrolled registrar MSP.
+Dispatches identity registration to the binary or transient-container implementation.Registers a new Fabric CA identity such as a peer, orderer, admin, or client using an already enrolled registrar MSP.
 
 ```yaml
 - name: Dispatch client registration
@@ -118,9 +114,7 @@ Registers a new Fabric CA identity such as a peer, orderer, admin, or client usi
 
 > Dispatch client reenrollment
 
-Dispatches reenrollment to the binary or transient-container implementation.
-
-Refreshes the enrolled identity certificates in `fabric_ca_msp_dir`, including TLS certificates when `fabric_ca_enrollment_profile` is `tls`.
+Dispatches reenrollment to the binary or transient-container implementation.Refreshes the enrolled identity certificates in `fabric_ca_msp_dir`, including TLS certificates when `fabric_ca_enrollment_profile` is `tls`.
 
 ```yaml
 - name: Dispatch client reenrollment
@@ -136,9 +130,7 @@ Refreshes the enrolled identity certificates in `fabric_ca_msp_dir`, including T
 
 > Dispatch client identity listing
 
-Dispatches Fabric CA identity listing to the binary or transient-container implementation.
-
-Uses the enrolled registrar MSP to query identities registered on the target Fabric CA server.
+Dispatches Fabric CA identity listing to the binary or transient-container implementation.Uses the enrolled registrar MSP to query identities registered on the target Fabric CA server.
 
 ```yaml
 - name: Dispatch client identity listing
@@ -154,9 +146,7 @@ Uses the enrolled registrar MSP to query identities registered on the target Fab
 
 > Dispatch client revocation
 
-Dispatches identity revocation to the binary or transient-container implementation.
-
-Revokes the configured identity on the target Fabric CA server using the registrar MSP.
+Dispatches identity revocation to the binary or transient-container implementation.Revokes the configured identity on the target Fabric CA server using the registrar MSP.
 
 ```yaml
 - name: Dispatch client revocation
@@ -172,9 +162,7 @@ Revokes the configured identity on the target Fabric CA server using the registr
 
 > Dispatch client CRL generation
 
-Dispatches certificate revocation list generation to the binary or transient-container implementation.
-
-Fetches the CRL from the target Fabric CA server using the enrolled registrar MSP.
+Dispatches certificate revocation list generation to the binary or transient-container implementation.Fetches the CRL from the target Fabric CA server using the enrolled registrar MSP.
 
 ```yaml
 - name: Dispatch client CRL generation
@@ -190,9 +178,7 @@ Fetches the CRL from the target Fabric CA server using the enrolled registrar MS
 
 > Resolve the Fabric CA connection address
 
-Resolves the effective Fabric CA host, port, and URL scheme used by client operations.
-
-The referenced host must define `actual_host` and the Fabric CA server port settings; when it enables NodePort, the client uses `fabric_ca_server_k8s_port_node_port` instead of `fabric_ca_port`.
+Resolves the effective Fabric CA host, port, and URL scheme used by client operations.The referenced host must define `actual_host` and the Fabric CA server port settings; when it enables NodePort, the client uses `fabric_ca_server_k8s_port_node_port` instead of `fabric_ca_port`.
 
 ```yaml
 - name: Resolve the Fabric CA connection address
@@ -208,9 +194,7 @@ The referenced host must define `actual_host` and the Fabric CA server port sett
 
 > Normalize enrolled MSP output
 
-Copies enrolled client MSP and TLS material into cryptogen-compatible filenames.
-
-Produces normalized files such as `ca.crt`, `server.crt`, and `server.key` for consumers that expect cryptogen layout.
+Copies enrolled client MSP and TLS material into cryptogen-compatible filenames.Produces normalized files such as `ca.crt`, `server.crt`, and `server.key` for consumers that expect cryptogen layout.
 
 ```yaml
 - name: Normalize enrolled MSP output
@@ -234,9 +218,7 @@ Produces normalized files such as `ca.crt`, `server.crt`, and `server.key` for c
 
 > Build the Fabric CA client binary
 
-Builds the Fabric CA client binary from the configured Fabric CA Git source revision.
-
-Produces the local `fabric-ca-client` artifact later transferred to managed hosts.
+Builds the Fabric CA client binary from the configured Fabric CA Git source revision.Produces the local `fabric-ca-client` artifact later transferred to managed hosts.
 
 ```yaml
 - name: Build the Fabric CA client binary
@@ -260,9 +242,7 @@ Produces the local `fabric-ca-client` artifact later transferred to managed host
 
 > Install the Fabric CA client binary
 
-Installs the Fabric CA client binary directly on the managed host with Go tooling.
-
-Uses the configured repository, source package, and revision without changing client enrollment data.
+Installs the Fabric CA client binary directly on the managed host with Go tooling.Uses the configured repository, source package, and revision without changing client enrollment data.
 
 ```yaml
 - name: Install the Fabric CA client binary
@@ -286,9 +266,7 @@ Uses the configured repository, source package, and revision without changing cl
 
 > Transfer the Fabric CA client binary
 
-Copies the previously built Fabric CA client binary to the managed host.
-
-Prepares the binary runtime path used by client enrollment, registration, revocation, and CRL tasks.
+Copies the previously built Fabric CA client binary to the managed host.Prepares the binary runtime path used by client enrollment, registration, revocation, and CRL tasks.
 
 ```yaml
 - name: Transfer the Fabric CA client binary
@@ -304,9 +282,7 @@ Prepares the binary runtime path used by client enrollment, registration, revoca
 
 > Remove the Fabric CA client binary
 
-Removes the Fabric CA client binary from the managed host.
-
-Leaves enrolled MSP, TLS, and Idemix artifacts untouched.
+Removes the Fabric CA client binary from the managed host.Leaves enrolled MSP, TLS, and Idemix artifacts untouched.
 
 ```yaml
 - name: Remove the Fabric CA client binary
@@ -322,9 +298,7 @@ Leaves enrolled MSP, TLS, and Idemix artifacts untouched.
 
 > Enroll an identity with the client binary
 
-Enrolls an identity with the locally installed Fabric CA client binary.
-
-Writes X.509 MSP, TLS, or Idemix enrollment artifacts under `fabric_ca_msp_dir` depending on enrollment type and profile.
+Enrolls an identity with the locally installed Fabric CA client binary.Writes X.509 MSP, TLS, or Idemix enrollment artifacts under `fabric_ca_msp_dir` depending on enrollment type and profile.
 
 ```yaml
 - name: Enroll an identity with the client binary
@@ -332,7 +306,7 @@ Writes X.509 MSP, TLS, or Idemix enrollment artifacts under `fabric_ca_msp_dir` 
     # Sets the MSP directory used by Fabric CA client flows and MSP normalization. Example: `/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp`.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
     # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `peer0.org1.example.com`.
-    fabric_ca_identity: peer0.org1.example.com
+    fabric_ca_identity:peer0.org1.example.com
     # Selects the enrollment type.
     fabric_ca_enrollment_type: bccsp
     # Names the inventory host that provides the target Fabric CA server. Example: `ca-org1`.
@@ -350,7 +324,7 @@ Writes X.509 MSP, TLS, or Idemix enrollment artifacts under `fabric_ca_msp_dir` 
     # Provides the resolved host address used in client effective-address resolution. Example: `ca-org1.example.com`.
     actual_host: "ca-org1.example.com"
     # Sets the CSR SAN host list.
-    fabric_ca_csr_hosts: 
+    fabric_ca_csr_hosts:
       - "{{ ansible_host }}"
       - "{{ actual_host }}"
       - "{{ inventory_hostname }}"
@@ -367,9 +341,7 @@ Writes X.509 MSP, TLS, or Idemix enrollment artifacts under `fabric_ca_msp_dir` 
 
 > Register an identity with the client binary
 
-Registers a new identity with the locally installed Fabric CA client binary.
-
-Uses the registrar MSP in `fabric_ca_msp_dir` to create the configured enrollment ID, secret, type, and affiliation on the target server.
+Registers a new identity with the locally installed Fabric CA client binary.Uses the registrar MSP in `fabric_ca_msp_dir` to create the configured enrollment ID, secret, type, and affiliation on the target server.
 
 ```yaml
 - name: Register an identity with the client binary
@@ -377,7 +349,7 @@ Uses the registrar MSP in `fabric_ca_msp_dir` to create the configured enrollmen
     # Sets the MSP directory used by Fabric CA client flows and MSP normalization. Example: `/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp`.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
     # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `peer0.org1.example.com`.
-    fabric_ca_identity: peer0.org1.example.com
+    fabric_ca_identity:peer0.org1.example.com
     # Names the inventory host that provides the target Fabric CA server. Example: `ca-org1`.
     fabric_ca_host: "ca-org1"
     # Sets the client binary name.
@@ -399,9 +371,7 @@ Uses the registrar MSP in `fabric_ca_msp_dir` to create the configured enrollmen
 
 > Reenroll an identity with the client binary
 
-Reenrolls an existing identity with the locally installed Fabric CA client binary.
-
-Refreshes certificate material in `fabric_ca_msp_dir`, preserving the selected CA name, CSR hosts, TLS settings, and enrollment profile.
+Reenrolls an existing identity with the locally installed Fabric CA client binary.Refreshes certificate material in `fabric_ca_msp_dir`, preserving the selected CA name, CSR hosts, TLS settings, and enrollment profile.
 
 ```yaml
 - name: Reenroll an identity with the client binary
@@ -409,7 +379,7 @@ Refreshes certificate material in `fabric_ca_msp_dir`, preserving the selected C
     # Sets the MSP directory used by Fabric CA client flows and MSP normalization. Example: `/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp`.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
     # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `peer0.org1.example.com`.
-    fabric_ca_identity: peer0.org1.example.com
+    fabric_ca_identity:peer0.org1.example.com
     # Names the inventory host that provides the target Fabric CA server. Example: `ca-org1`.
     fabric_ca_host: "ca-org1"
     # Sets the client binary name.
@@ -423,7 +393,7 @@ Refreshes certificate material in `fabric_ca_msp_dir`, preserving the selected C
     # Provides the resolved host address used in client effective-address resolution. Example: `ca-org1.example.com`.
     actual_host: "ca-org1.example.com"
     # Sets the CSR SAN host list.
-    fabric_ca_csr_hosts: 
+    fabric_ca_csr_hosts:
       - "{{ ansible_host }}"
       - "{{ actual_host }}"
       - "{{ inventory_hostname }}"
@@ -440,9 +410,7 @@ Refreshes certificate material in `fabric_ca_msp_dir`, preserving the selected C
 
 > List Fabric CA identities with the client binary
 
-Lists identities registered in the target Fabric CA server with the locally installed client binary.
-
-Uses the enrolled registrar MSP and effective server address to report identities without changing server state.
+Lists identities registered in the target Fabric CA server with the locally installed client binary.Uses the enrolled registrar MSP and effective server address to report identities without changing server state.
 
 ```yaml
 - name: List Fabric CA identities with the client binary
@@ -470,9 +438,7 @@ Uses the enrolled registrar MSP and effective server address to report identitie
 
 > Revoke an identity with the client binary
 
-Revokes an enrolled identity with the locally installed Fabric CA client binary.
-
-Uses the registrar MSP to revoke the configured enrollment ID on the target server while leaving local files for cleanup by separate tasks.
+Revokes an enrolled identity with the locally installed Fabric CA client binary.Uses the registrar MSP to revoke the configured enrollment ID on the target server while leaving local files for cleanup by separate tasks.
 
 ```yaml
 - name: Revoke an identity with the client binary
@@ -480,7 +446,7 @@ Uses the registrar MSP to revoke the configured enrollment ID on the target serv
     # Sets the MSP directory used by Fabric CA client flows and MSP normalization. Example: `/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp`.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
     # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `peer0.org1.example.com`.
-    fabric_ca_identity: peer0.org1.example.com
+    fabric_ca_identity:peer0.org1.example.com
     # Names the inventory host that provides the target Fabric CA server. Example: `ca-org1`.
     fabric_ca_host: "ca-org1"
     # Sets the client binary name.
@@ -502,9 +468,7 @@ Uses the registrar MSP to revoke the configured enrollment ID on the target serv
 
 > Generate a CRL with the client binary
 
-Generates a certificate revocation list from the target Fabric CA server with the locally installed client binary.
-
-Uses the registrar MSP and effective address to retrieve current revocation data without changing runtime resources.
+Generates a certificate revocation list from the target Fabric CA server with the locally installed client binary.Uses the registrar MSP and effective address to retrieve current revocation data without changing runtime resources.
 
 ```yaml
 - name: Generate a CRL with the client binary
@@ -532,9 +496,7 @@ Uses the registrar MSP and effective address to retrieve current revocation data
 
 > Enroll an identity with the client container
 
-Enrolls an identity with a transient Fabric CA client container.
-
-Mounts the local MSP/config path into the container and writes X.509, TLS, or Idemix artifacts under `fabric_ca_msp_dir`.
+Enrolls an identity with a transient Fabric CA client container.Mounts the local MSP/config path into the container and writes X.509, TLS, or Idemix artifacts under `fabric_ca_msp_dir`.
 
 ```yaml
 - name: Enroll an identity with the client container
@@ -542,7 +504,7 @@ Mounts the local MSP/config path into the container and writes X.509, TLS, or Id
     # Sets the MSP directory used by Fabric CA client flows and MSP normalization. Example: `/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp`.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
     # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `peer0.org1.example.com`.
-    fabric_ca_identity: peer0.org1.example.com
+    fabric_ca_identity:peer0.org1.example.com
     # Selects the enrollment type.
     fabric_ca_enrollment_type: bccsp
     # Names the inventory host that provides the target Fabric CA server. Example: `ca-org1`.
@@ -570,7 +532,7 @@ Mounts the local MSP/config path into the container and writes X.509, TLS, or Id
     # Provides the resolved host address used in client effective-address resolution. Example: `ca-org1.example.com`.
     actual_host: "ca-org1.example.com"
     # Sets the CSR SAN host list.
-    fabric_ca_csr_hosts: 
+    fabric_ca_csr_hosts:
       - "{{ ansible_host }}"
       - "{{ actual_host }}"
       - "{{ inventory_hostname }}"
@@ -587,9 +549,7 @@ Mounts the local MSP/config path into the container and writes X.509, TLS, or Id
 
 > Register an identity with the client container
 
-Registers a new identity with a transient Fabric CA client container.
-
-Uses the mounted registrar MSP to create the configured enrollment ID, secret, type, and affiliation on the target server.
+Registers a new identity with a transient Fabric CA client container.Uses the mounted registrar MSP to create the configured enrollment ID, secret, type, and affiliation on the target server.
 
 ```yaml
 - name: Register an identity with the client container
@@ -597,7 +557,7 @@ Uses the mounted registrar MSP to create the configured enrollment ID, secret, t
     # Sets the MSP directory used by Fabric CA client flows and MSP normalization. Example: `/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp`.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
     # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `peer0.org1.example.com`.
-    fabric_ca_identity: peer0.org1.example.com
+    fabric_ca_identity:peer0.org1.example.com
     # Names the inventory host that provides the target Fabric CA server. Example: `ca-org1`.
     fabric_ca_host: "ca-org1"
     # Sets the Fabric CA image.
@@ -629,9 +589,7 @@ Uses the mounted registrar MSP to create the configured enrollment ID, secret, t
 
 > Reenroll an identity with the client container
 
-Reenrolls an existing identity with a transient Fabric CA client container.
-
-Refreshes mounted MSP or TLS certificate material while preserving the selected CA name and CSR host settings.
+Reenrolls an existing identity with a transient Fabric CA client container.Refreshes mounted MSP or TLS certificate material while preserving the selected CA name and CSR host settings.
 
 ```yaml
 - name: Reenroll an identity with the client container
@@ -639,7 +597,7 @@ Refreshes mounted MSP or TLS certificate material while preserving the selected 
     # Sets the MSP directory used by Fabric CA client flows and MSP normalization. Example: `/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp`.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
     # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `peer0.org1.example.com`.
-    fabric_ca_identity: peer0.org1.example.com
+    fabric_ca_identity:peer0.org1.example.com
     # Names the inventory host that provides the target Fabric CA server. Example: `ca-org1`.
     fabric_ca_host: "ca-org1"
     # Sets the Fabric CA image.
@@ -663,7 +621,7 @@ Refreshes mounted MSP or TLS certificate material while preserving the selected 
     # Provides the resolved host address used in client effective-address resolution. Example: `ca-org1.example.com`.
     actual_host: "ca-org1.example.com"
     # Sets the CSR SAN host list.
-    fabric_ca_csr_hosts: 
+    fabric_ca_csr_hosts:
       - "{{ ansible_host }}"
       - "{{ actual_host }}"
       - "{{ inventory_hostname }}"
@@ -680,9 +638,7 @@ Refreshes mounted MSP or TLS certificate material while preserving the selected 
 
 > List Fabric CA identities with the client container
 
-Lists identities registered in the target Fabric CA server with a transient client container.
-
-Mounts the registrar MSP read-only for query-style behavior and does not change server runtime resources.
+Lists identities registered in the target Fabric CA server with a transient client container.Mounts the registrar MSP read-only for query-style behavior and does not change server runtime resources.
 
 ```yaml
 - name: List Fabric CA identities with the client container
@@ -720,9 +676,7 @@ Mounts the registrar MSP read-only for query-style behavior and does not change 
 
 > Revoke an identity with the client container
 
-Revokes an enrolled identity with a transient Fabric CA client container.
-
-Uses the mounted registrar MSP to revoke the configured enrollment ID on the target server.
+Revokes an enrolled identity with a transient Fabric CA client container.Uses the mounted registrar MSP to revoke the configured enrollment ID on the target server.
 
 ```yaml
 - name: Revoke an identity with the client container
@@ -730,7 +684,7 @@ Uses the mounted registrar MSP to revoke the configured enrollment ID on the tar
     # Sets the MSP directory used by Fabric CA client flows and MSP normalization. Example: `/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp`.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
     # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `peer0.org1.example.com`.
-    fabric_ca_identity: peer0.org1.example.com
+    fabric_ca_identity:peer0.org1.example.com
     # Names the inventory host that provides the target Fabric CA server. Example: `ca-org1`.
     fabric_ca_host: "ca-org1"
     # Sets the Fabric CA image.
@@ -760,9 +714,7 @@ Uses the mounted registrar MSP to revoke the configured enrollment ID on the tar
 
 > Generate a CRL with the client container
 
-Generates a certificate revocation list from the target Fabric CA server with a transient client container.
-
-Mounts the registrar MSP and retrieves revocation data without installing client binaries on the host.
+Generates a certificate revocation list from the target Fabric CA server with a transient client container.Mounts the registrar MSP and retrieves revocation data without installing client binaries on the host.
 
 ```yaml
 - name: Generate a CRL with the client container
@@ -798,9 +750,7 @@ Mounts the registrar MSP and retrieves revocation data without installing client
 
 > Dispatch server startup
 
-Dispatches Fabric CA server startup to the binary, container, or Kubernetes runtime.
-
-Starts the server after config and crypto artifacts have been prepared by the corresponding config and crypto tasks.
+Dispatches Fabric CA server startup to the binary, container, or Kubernetes runtime.Starts the server after config and crypto artifacts have been prepared by the corresponding config and crypto tasks.
 
 ```yaml
 - name: Dispatch server startup
@@ -820,9 +770,7 @@ Starts the server after config and crypto artifacts have been prepared by the co
 
 > Dispatch server stop
 
-Dispatches Fabric CA server stop to the binary or container runtime.
-
-Stops local runtime processes while leaving configuration, crypto, and fetched artifacts in place.
+Dispatches Fabric CA server stop to the binary or container runtime.Stops local runtime processes while leaving configuration, crypto, and fetched artifacts in place.
 
 ```yaml
 - name: Dispatch server stop
@@ -840,9 +788,7 @@ Stops local runtime processes while leaving configuration, crypto, and fetched a
 
 > Dispatch server teardown
 
-Dispatches Fabric CA server runtime removal across binary, container, or Kubernetes deployments.
-
-Removes runtime resources while preserving role-managed configuration and crypto unless dedicated cleanup tasks are invoked.
+Dispatches Fabric CA server runtime removal across binary, container, or Kubernetes deployments.Removes runtime resources while preserving role-managed configuration and crypto unless dedicated cleanup tasks are invoked.
 
 ```yaml
 - name: Dispatch server teardown
@@ -862,9 +808,7 @@ Removes runtime resources while preserving role-managed configuration and crypto
 
 > Wipe all server assets
 
-Removes Fabric CA server runtime resources, binaries, configuration, and Kubernetes crypto resources.
-
-Use for full role cleanup when local and Kubernetes artifacts should be removed together.
+Removes Fabric CA server runtime resources, binaries, configuration, and Kubernetes crypto resources.Use for full role cleanup when local and Kubernetes artifacts should be removed together.
 
 ```yaml
 - name: Wipe all server assets
@@ -880,9 +824,7 @@ Use for full role cleanup when local and Kubernetes artifacts should be removed 
 
 > Check server ports
 
-Checks that the Fabric CA API and operations endpoints are reachable.
-
-Uses direct host ports for local runtimes and delegates to the NodePort ping task for Kubernetes NodePort exposure.
+Checks that the Fabric CA API and operations endpoints are reachable.Uses direct host ports for local runtimes and delegates to the NodePort ping task for Kubernetes NodePort exposure.
 
 ```yaml
 - name: Check server ports
@@ -902,9 +844,7 @@ Uses direct host ports for local runtimes and delegates to the NodePort ping tas
 
 > Dispatch server log collection
 
-Dispatches Fabric CA server log collection for binary, container, or Kubernetes deployments.
-
-Collects runtime logs without changing server process, pod, configuration, or crypto state.
+Dispatches Fabric CA server log collection for binary, container, or Kubernetes deployments.Collects runtime logs without changing server process, pod, configuration, or crypto state.
 
 ```yaml
 - name: Dispatch server log collection
@@ -924,9 +864,7 @@ Collects runtime logs without changing server process, pod, configuration, or cr
 
 > Build the Fabric CA server binary
 
-Builds the Fabric CA server binary from the configured Fabric CA Git source revision.
-
-Produces the local `fabric-ca-server` artifact later transferred to managed hosts.
+Builds the Fabric CA server binary from the configured Fabric CA Git source revision.Produces the local `fabric-ca-server` artifact later transferred to managed hosts.
 
 ```yaml
 - name: Build the Fabric CA server binary
@@ -950,9 +888,7 @@ Produces the local `fabric-ca-server` artifact later transferred to managed host
 
 > Install the Fabric CA server binary
 
-Installs the Fabric CA server binary directly on the managed host with Go tooling.
-
-Uses the configured repository, source package, and revision without rendering server configuration.
+Installs the Fabric CA server binary directly on the managed host with Go tooling.Uses the configured repository, source package, and revision without rendering server configuration.
 
 ```yaml
 - name: Install the Fabric CA server binary
@@ -976,9 +912,7 @@ Uses the configured repository, source package, and revision without rendering s
 
 > Start the Fabric CA server binary
 
-Starts the Fabric CA server as a managed local binary process.
-
-Reads the rendered server config and crypto from `fabric_ca_server_remote_config_dir` and exposes the configured API port.
+Starts the Fabric CA server as a managed local binary process.Reads the rendered server config and crypto from `fabric_ca_server_remote_config_dir` and exposes the configured API port.
 
 ```yaml
 - name: Start the Fabric CA server binary
@@ -998,9 +932,7 @@ Reads the rendered server config and crypto from `fabric_ca_server_remote_config
 
 > Stop the Fabric CA server binary
 
-Stops the managed Fabric CA server binary process.
-
-Leaves binaries, rendered configuration, logs, and crypto material available for restart or collection.
+Stops the managed Fabric CA server binary process.Leaves binaries, rendered configuration, logs, and crypto material available for restart or collection.
 
 ```yaml
 - name: Stop the Fabric CA server binary
@@ -1013,9 +945,7 @@ Leaves binaries, rendered configuration, logs, and crypto material available for
 
 > Fetch server binary logs
 
-Collects logs for the managed Fabric CA server binary process.
-
-Fetches runtime output for diagnosis without stopping the server or modifying artifacts.
+Collects logs for the managed Fabric CA server binary process.Fetches runtime output for diagnosis without stopping the server or modifying artifacts.
 
 ```yaml
 - name: Fetch server binary logs
@@ -1028,9 +958,7 @@ Fetches runtime output for diagnosis without stopping the server or modifying ar
 
 > Remove the Fabric CA server binary
 
-Removes the Fabric CA server binary from the managed host.
-
-Does not remove rendered configuration, crypto material, or fetched log artifacts.
+Removes the Fabric CA server binary from the managed host.Does not remove rendered configuration, crypto material, or fetched log artifacts.
 
 ```yaml
 - name: Remove the Fabric CA server binary
@@ -1046,9 +974,7 @@ Does not remove rendered configuration, crypto material, or fetched log artifact
 
 > Transfer the Fabric CA server binary
 
-Copies the previously built Fabric CA server binary to the managed host.
-
-Prepares the binary runtime while leaving server configuration and crypto generation to separate tasks.
+Copies the previously built Fabric CA server binary to the managed host.Prepares the binary runtime while leaving server configuration and crypto generation to separate tasks.
 
 ```yaml
 - name: Transfer the Fabric CA server binary
@@ -1064,9 +990,7 @@ Prepares the binary runtime while leaving server configuration and crypto genera
 
 > Start the Fabric CA server container
 
-Starts the Fabric CA server as a managed container.
-
-Mounts rendered configuration and crypto into the container and publishes the configured API and operations ports.
+Starts the Fabric CA server as a managed container.Mounts rendered configuration and crypto into the container and publishes the configured API and operations ports.
 
 ```yaml
 - name: Start the Fabric CA server container
@@ -1100,9 +1024,7 @@ Mounts rendered configuration and crypto into the container and publishes the co
 
 > Stop the Fabric CA server container
 
-Stops the managed Fabric CA server container.
-
-Keeps the container definition, mounted configuration, and crypto artifacts available for restart.
+Stops the managed Fabric CA server container.Keeps the container definition, mounted configuration, and crypto artifacts available for restart.
 
 ```yaml
 - name: Stop the Fabric CA server container
@@ -1118,9 +1040,7 @@ Keeps the container definition, mounted configuration, and crypto artifacts avai
 
 > Fetch server container logs
 
-Collects logs for the managed Fabric CA server container.
-
-Reads container runtime output without changing container, image, configuration, or crypto state.
+Collects logs for the managed Fabric CA server container.Reads container runtime output without changing container, image, configuration, or crypto state.
 
 ```yaml
 - name: Fetch server container logs
@@ -1136,9 +1056,7 @@ Reads container runtime output without changing container, image, configuration,
 
 > Remove the Fabric CA server container
 
-Removes the managed Fabric CA server container.
-
-Leaves remote configuration directories and generated crypto files for explicit cleanup tasks.
+Removes the managed Fabric CA server container.Leaves remote configuration directories and generated crypto files for explicit cleanup tasks.
 
 ```yaml
 - name: Remove the Fabric CA server container
@@ -1154,9 +1072,7 @@ Leaves remote configuration directories and generated crypto files for explicit 
 
 > Start the Fabric CA server on Kubernetes
 
-Creates Fabric CA Kubernetes runtime resources for the server.
-
-Uses the ConfigMap and Secret produced by transfer tasks, configures API and operations Services, and optionally exposes NodePorts.
+Creates Fabric CA Kubernetes runtime resources for the server.Uses the ConfigMap and Secret produced by transfer tasks, configures API and operations Services, and optionally exposes NodePorts.
 
 ```yaml
 - name: Start the Fabric CA server on Kubernetes
@@ -1212,9 +1128,7 @@ Uses the ConfigMap and Secret produced by transfer tasks, configures API and ope
 
 > Check Fabric CA node ports
 
-Checks that the Fabric CA API and operations NodePorts are reachable when Kubernetes NodePort exposure is enabled.
-
-Validates external access to the Kubernetes Service without changing deployment, ConfigMap, or Secret resources.
+Checks that the Fabric CA API and operations NodePorts are reachable when Kubernetes NodePort exposure is enabled.Validates external access to the Kubernetes Service without changing deployment, ConfigMap, or Secret resources.
 
 ```yaml
 - name: Check Fabric CA node ports
@@ -1234,9 +1148,7 @@ Validates external access to the Kubernetes Service without changing deployment,
 
 > Fetch server pod logs
 
-Collects pod logs for the Fabric CA Kubernetes deployment.
-
-Fetches runtime output from the server pod in `k8s_namespace` without changing cluster resources.
+Collects pod logs for the Fabric CA Kubernetes deployment.Fetches runtime output from the server pod in `k8s_namespace` without changing cluster resources.
 
 ```yaml
 - name: Fetch server pod logs
@@ -1252,9 +1164,7 @@ Fetches runtime output from the server pod in `k8s_namespace` without changing c
 
 > Remove server Kubernetes runtime resources
 
-Deletes the Fabric CA Kubernetes runtime resources.
-
-Removes Deployment and Service objects while leaving ConfigMap and Secret cleanup to their dedicated tasks.
+Deletes the Fabric CA Kubernetes runtime resources.Removes Deployment and Service objects while leaving ConfigMap and Secret cleanup to their dedicated tasks.
 
 ```yaml
 - name: Remove server Kubernetes runtime resources
@@ -1272,9 +1182,7 @@ Removes Deployment and Service objects while leaving ConfigMap and Secret cleanu
 
 > Transfer server config to a ConfigMap
 
-Creates or updates the Fabric CA Kubernetes ConfigMap from rendered server configuration.
-
-Publishes config files into `k8s_namespace` for consumption by the Kubernetes server runtime.
+Creates or updates the Fabric CA Kubernetes ConfigMap from rendered server configuration.Publishes config files into `k8s_namespace` for consumption by the Kubernetes server runtime.
 
 ```yaml
 - name: Transfer server config to a ConfigMap
@@ -1298,9 +1206,7 @@ Publishes config files into `k8s_namespace` for consumption by the Kubernetes se
 
 > Remove the server ConfigMap
 
-Deletes the Fabric CA Kubernetes ConfigMap.
-
-Removes Kubernetes config resources while leaving runtime and crypto Secret cleanup to separate tasks.
+Deletes the Fabric CA Kubernetes ConfigMap.Removes Kubernetes config resources while leaving runtime and crypto Secret cleanup to separate tasks.
 
 ```yaml
 - name: Remove the server ConfigMap
@@ -1318,9 +1224,7 @@ Removes Kubernetes config resources while leaving runtime and crypto Secret clea
 
 > Transfer server crypto to a Secret
 
-Creates or updates the Fabric CA Kubernetes Secret containing server crypto material.
-
-Transfers CA and optional TLS keypairs from the remote config directory into `k8s_namespace`.
+Creates or updates the Fabric CA Kubernetes Secret containing server crypto material.Transfers CA and optional TLS keypairs from the remote config directory into `k8s_namespace`.
 
 ```yaml
 - name: Transfer server crypto to a Secret
@@ -1352,9 +1256,7 @@ Transfers CA and optional TLS keypairs from the remote config directory into `k8
 
 > Remove the server Secret
 
-Deletes the Fabric CA Kubernetes Secret.
-
-Removes server CA and TLS key material from Kubernetes while leaving local files untouched.
+Deletes the Fabric CA Kubernetes Secret.Removes server CA and TLS key material from Kubernetes while leaving local files untouched.
 
 ```yaml
 - name: Remove the server Secret
@@ -1372,9 +1274,7 @@ Removes server CA and TLS key material from Kubernetes while leaving local files
 
 > Generate server crypto material
 
-Generates X.509 and Idemix crypto material for the Fabric CA server.
-
-Coordinates the role's root CA, TLS, and Idemix issuer artifact generation before runtime start or Kubernetes transfer.
+Generates X.509 and Idemix crypto material for the Fabric CA server.Coordinates the role's root CA, TLS, and Idemix issuer artifact generation before runtime start or Kubernetes transfer.
 
 ```yaml
 - name: Generate server crypto material
@@ -1390,9 +1290,7 @@ Coordinates the role's root CA, TLS, and Idemix issuer artifact generation befor
 
 > Generate server x509 crypto
 
-Generates the Fabric CA root CA and TLS keypairs.
-
-Writes private keys and certificates into `fabric_ca_server_remote_config_dir` using the configured common name, SAN hosts, organization domain, and curve.
+Generates the Fabric CA root CA and TLS keypairs.Writes private keys and certificates into `fabric_ca_server_remote_config_dir` using the configured common name, SAN hosts, organization domain, and curve.
 
 ```yaml
 - name: Generate server x509 crypto
@@ -1416,12 +1314,12 @@ Writes private keys and certificates into `fabric_ca_server_remote_config_dir` u
     # Sets the CSR common name.
     fabric_ca_csr_cn: "{{ fabric_ca_name }}"
     # Sets the CSR SAN host list.
-    fabric_ca_csr_hosts: 
+    fabric_ca_csr_hosts:
       - "{{ ansible_host }}"
       - "{{ actual_host }}"
       - "{{ inventory_hostname }}"
     # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `org1.example.com`.
-    organization: org1.example.com
+    organization:org1.example.com
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/crypto/x509/setup
@@ -1431,9 +1329,7 @@ Writes private keys and certificates into `fabric_ca_server_remote_config_dir` u
 
 > Generate server Idemix crypto
 
-Generates the Fabric CA Idemix issuer keys.
-
-Stages Idemix issuer artifacts in the transient output directory and places them where the server configuration expects them.
+Generates the Fabric CA Idemix issuer keys.Stages Idemix issuer artifacts in the transient output directory and places them where the server configuration expects them.
 
 ```yaml
 - name: Generate server Idemix crypto
@@ -1453,15 +1349,13 @@ Stages Idemix issuer artifacts in the transient output directory and places them
 
 > Fetch server certificates
 
-Fetches the Fabric CA server certificate material.
-
-Copies CA certificates from the managed host into `fetched_artifacts_dir` for cross-role trust distribution.
+Fetches the Fabric CA server certificate material.Copies CA certificates from the managed host into `fetched_artifacts_dir` for cross-role trust distribution.
 
 ```yaml
 - name: Fetch server certificates
   vars:
     # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `org1.example.com`.
-    organization: org1.example.com
+    organization:org1.example.com
     # Provides the shared local artifacts root used by this role. Example: `/tmp/fabricx/fetched-artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx/fetched-artifacts"
     # Sets the remote Fabric CA config root.
@@ -1479,9 +1373,7 @@ Copies CA certificates from the managed host into `fetched_artifacts_dir` for cr
 
 > Remove server Secret
 
-Deletes Kubernetes crypto resources for the Fabric CA server when Kubernetes mode is enabled.
-
-Leaves local X.509 and Idemix files to the config cleanup path unless the broader wipe flow is used.
+Deletes Kubernetes crypto resources for the Fabric CA server when Kubernetes mode is enabled.Leaves local X.509 and Idemix files to the config cleanup path unless the broader wipe flow is used.
 
 ```yaml
 - name: Remove server Secret
@@ -1497,9 +1389,7 @@ Leaves local X.509 and Idemix files to the config cleanup path unless the broade
 
 > Render and transfer server config
 
-Renders and transfers the Fabric CA server configuration.
-
-Includes bootstrap admin, CA name, TLS, CSR, operations, PostgreSQL, and registry settings, and copies the PostgreSQL TLS CA certificate when needed.
+Renders and transfers the Fabric CA server configuration.Includes bootstrap admin, CA name, TLS, CSR, operations, PostgreSQL, and registry settings, and copies the PostgreSQL TLS CA certificate when needed.
 
 ```yaml
 - name: Render and transfer server config
@@ -1531,11 +1421,11 @@ Includes bootstrap admin, CA name, TLS, CSR, operations, PostgreSQL, and registr
     # Sets the server CA certificate filename.
     fabric_ca_server_ca_cert_file: ca-cert.pem
     # Supplies the bootstrap administrator rendered into the server registry section; `name` and `secret` are required. Store the secret in Ansible Vault. Example: `admin`.
-    fabric_ca_admin: admin
+    fabric_ca_admin:admin
     # Sets the CSR common name.
     fabric_ca_csr_cn: "{{ fabric_ca_name }}"
     # Sets the CSR SAN host list.
-    fabric_ca_csr_hosts: 
+    fabric_ca_csr_hosts:
       - "{{ ansible_host }}"
       - "{{ actual_host }}"
       - "{{ inventory_hostname }}"
@@ -1544,7 +1434,7 @@ Includes bootstrap admin, CA name, TLS, CSR, operations, PostgreSQL, and registr
     # Sets the CSR expiry.
     fabric_ca_csr_expiry: 131400h
     # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `org1.example.com`.
-    organization: org1.example.com
+    organization:org1.example.com
     # Names the PostgreSQL host defined elsewhere in inventory. Example: `postgres0.example.com`.
     postgres_db_host: "postgres0.example.com"
     # Provides the shared local artifacts root used by this role. Example: `/tmp/fabricx/fetched-artifacts`.
@@ -1562,9 +1452,7 @@ Includes bootstrap admin, CA name, TLS, CSR, operations, PostgreSQL, and registr
 
 > Remove server config resources
 
-Deletes Fabric CA server configuration resources.
-
-Removes local or Kubernetes config artifacts according to runtime mode while leaving fetched artifacts untouched.
+Deletes Fabric CA server configuration resources.Removes local or Kubernetes config artifacts according to runtime mode while leaving fetched artifacts untouched.
 
 ```yaml
 - name: Remove server config resources

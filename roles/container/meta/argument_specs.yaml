@@ -53,7 +53,7 @@ argument_specs:
         required: false
         description:
           - "Overrides the image entrypoint."
-          - "Example: C([/bin/sh, -c])."
+          - "Example: C(['/bin/sh', '-c'])."
       container_command: &container_command
         type: raw
         description:
@@ -137,20 +137,20 @@ argument_specs:
         required: false
         description:
           - "Mounts host paths or named volumes into the container."
-          - "Example: C([/opt/fabricx/orderer/config:/etc/fabricx:ro])."
+          - "Example: C(['/opt/fabricx/orderer/config:/etc/fabricx:ro'])."
       container_ulimits: &container_ulimits
         type: list
         elements: raw
         required: false
         description:
           - "Applies runtime ulimit settings to the container."
-          - "Example: C([nofile=65536:65536])."
+          - "Example: C(['nofile=65536:65536'])."
       container_env: &container_env
         type: dict
         required: false
         description:
           - "Defines environment variables passed to the container process."
-          - "Example: C({FABRIC_LOGGING_SPEC: INFO, ORDERER_GENERAL_LISTENPORT: 7050})."
+          - "Example: C({'FABRIC_LOGGING_SPEC': 'INFO', 'ORDERER_GENERAL_LISTENPORT': '7050'})."
       container_log_driver: &container_log_driver
         type: str
         required: false
@@ -180,7 +180,7 @@ argument_specs:
         required: false
         description:
           - "Defines the container healthcheck command."
-          - "Example: C([CMD, curl, -f, http://localhost:9443/healthz])."
+          - "Example: C(['CMD', 'curl', '-f', 'http://localhost:9443/healthz'])."
       container_healthcheck_interval: &container_healthcheck_interval
         type: str
         required: false

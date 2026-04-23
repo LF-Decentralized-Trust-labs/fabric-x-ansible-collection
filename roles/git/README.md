@@ -29,9 +29,7 @@ ansible-doc -t role hyperledger.fabricx.git
 
 > Install git on the target host
 
-Installs the Git package on the managed node.
-
-This entry point delegates package installation to the shared package role.
+Installs the Git package on the managed node.This entry point delegates package installation to the shared package role.
 
 ```yaml
 - name: Install git on the target host
@@ -44,9 +42,7 @@ This entry point delegates package installation to the shared package role.
 
 > Clone or update a Git repository into a target directory
 
-Clones a Git repository at the requested revision into a derived destination directory.
-
-Repeated runs update the existing checkout in place through `ansible.builtin.git`.
+Clones a Git repository at the requested revision into a derived destination directory.Repeated runs update the existing checkout in place through `ansible.builtin.git`.
 
 ```yaml
 - name: Clone or update a Git repository into a target directory
@@ -76,9 +72,7 @@ Repeated runs update the existing checkout in place through `ansible.builtin.git
 
 > Compute the repository checkout directory name
 
-Derives `git_repo_name` as `<basename(git_repo`>@<git_commit>).
-
-The resulting fact is used by `clone` before creating the checkout directory.
+Derives `git_repo_name` as `<basename(git_repo`>@<git_commit>).The resulting fact is used by `clone` before creating the checkout directory.
 
 ```yaml
 - name: Compute the repository checkout directory name
