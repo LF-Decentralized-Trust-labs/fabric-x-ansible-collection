@@ -6,7 +6,7 @@
 ---
 argument_specs:
 
-  _shared_options:
+  role-options:
     short_description: Shared package options
     description:
       - Reusable option definitions for package entry points.

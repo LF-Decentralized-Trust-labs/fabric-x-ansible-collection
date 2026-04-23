@@ -6,7 +6,7 @@
 # yamllint disable rule:line-length
 ---
 argument_specs:
-  _shared_options:
+  role-options:
     short_description: Shared PostgreSQL options
     description:
       - Shared option definitions reused by PostgreSQL entry points.

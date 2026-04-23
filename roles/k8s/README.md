@@ -5,6 +5,7 @@
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
+- [ansible-doc](#ansible-doc)
 - [Tasks](#tasks)
   - [namespace/create](#namespacecreate)
   - [registry/create_pull_secret](#registrycreate_pull_secret)
@@ -13,6 +14,14 @@
 ## Role Defaults
 
 See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults and inline variable descriptions.
+
+## ansible-doc
+
+You can view the role documentation in your terminal running:
+
+```shell
+ansible-doc -t role hyperledger.fabricx.k8s
+```
 
 ## Tasks
 

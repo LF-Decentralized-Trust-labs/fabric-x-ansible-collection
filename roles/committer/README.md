@@ -5,6 +5,7 @@
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
+- [ansible-doc](#ansible-doc)
 - [Tasks](#tasks)
   - [ping](#ping)
   - [k8s/ping](#k8sping)
@@ -86,6 +87,14 @@
 ## Role Defaults
 
 See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults and inline variable descriptions.
+
+## ansible-doc
+
+You can view the role documentation in your terminal running:
+
+```shell
+ansible-doc -t role hyperledger.fabricx.committer
+```
 
 ## Tasks
 

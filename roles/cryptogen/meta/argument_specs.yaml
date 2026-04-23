@@ -6,7 +6,7 @@
 ---
 argument_specs:
 
-  _shared_options:
+  role-options:
     short_description: Shared option catalog for cryptogen role entry points
     options:
       config_build_dir: &config_build_dir

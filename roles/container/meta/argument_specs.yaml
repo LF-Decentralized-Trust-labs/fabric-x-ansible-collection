@@ -6,7 +6,7 @@
 ---
 argument_specs:
 
-  _shared_options:
+  role-options:
     short_description: Shared container role options
     description:
       - "Reusable inputs for container lifecycle tasks and backend dispatchers."

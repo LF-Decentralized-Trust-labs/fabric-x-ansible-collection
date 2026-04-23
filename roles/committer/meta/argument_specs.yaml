@@ -5,7 +5,7 @@
 #
 ---
 argument_specs:
-  _shared_options:
+  role-options:
     short_description: Shared committer options
     description:
       - Reusable option definitions shared by the committer role entry points.

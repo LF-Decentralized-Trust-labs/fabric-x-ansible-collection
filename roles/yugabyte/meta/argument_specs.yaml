@@ -5,7 +5,7 @@
 #
 ---
 argument_specs:
-  _shared_options:
+  role-options:
     short_description: Shared YugabyteDB argument definitions
     description:
       - "Reusable option catalog for the YugabyteDB role."

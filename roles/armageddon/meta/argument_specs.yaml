@@ -5,7 +5,7 @@
 #
 ---
 argument_specs:
-  _shared_options:
+  role-options:
     short_description: Shared Armageddon option catalog
     description:
       - Shared option definitions reused by the Armageddon entry points.

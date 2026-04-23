@@ -5,7 +5,7 @@
 #
 ---
 argument_specs:
-  _shared_options:
+  role-options:
     short_description: Shared option catalog for fxconfig role entry points
     options:
       channel_id: &channel_id

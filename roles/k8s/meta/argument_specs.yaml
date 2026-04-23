@@ -5,7 +5,7 @@
 #
 ---
 argument_specs:
-  _shared_options:
+  role-options:
     short_description: Shared k8s options
     description:
       - Shared option definitions reused by the k8s role entry points.

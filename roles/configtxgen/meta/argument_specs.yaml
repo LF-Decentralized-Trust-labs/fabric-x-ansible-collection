@@ -5,7 +5,7 @@
 #
 ---
 argument_specs:
-  _shared_options:
+  role-options:
     short_description: Shared configtxgen options
     description:
       - Internal option catalog reused by all public entry points in this role.

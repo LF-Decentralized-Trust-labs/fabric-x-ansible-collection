@@ -9,9 +9,10 @@
 ## Table of Contents <!-- omit in toc -->
 
 - [Role Defaults](#role-defaults)
+- [ansible-doc](#ansible-doc)
 - [Tasks](#tasks)
 {%- for current_role_task_name, current_role_task in argument_specs.items() %}
-{%- if current_role_task_name != '_shared_options' %}
+{%- if current_role_task_name != 'role-options' %}
   - [{{ current_role_task_name }}](#{{ current_role_task_name | replace('/', '') }})
 {%- endif %}
 {%- endfor %}
@@ -20,9 +21,17 @@
 
 See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults and inline variable descriptions.
 
+## ansible-doc
+
+You can view the role documentation in your terminal running:
+
+```shell
+ansible-doc -t role {{ role }}
+```
+
 ## Tasks
 {%- for current_role_task_name, current_role_task in argument_specs.items() %}
-{%- if current_role_task_name != '_shared_options' %}
+{%- if current_role_task_name != 'role-options' %}
 
 ### {{ current_role_task_name }}
 

@@ -6,7 +6,7 @@
 ---
 argument_specs:
 
-  _shared_options:
+  role-options:
     short_description: Shared option catalog for tmux role entry points
     options:
       tmux_session_name: &tmux_session_name

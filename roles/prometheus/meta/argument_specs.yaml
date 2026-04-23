@@ -6,7 +6,7 @@
 ---
 argument_specs:
 
-  _shared_options:
+  role-options:
     short_description: Shared Prometheus role options
     description:
       - Reusable option definitions for Prometheus entry points.

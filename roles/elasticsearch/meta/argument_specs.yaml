@@ -5,7 +5,7 @@
 #
 ---
 argument_specs:
-  _shared_options:
+  role-options:
     short_description: Shared ElasticSearch argument definitions
     description:
       - Reusable option catalog for the ElasticSearch role.

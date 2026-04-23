@@ -5,7 +5,7 @@
 #
 ---
 argument_specs:
-  _shared_options:
+  role-options:
     short_description: Shared option catalog for go role entry points
     description:
       - Reusable options for install_go, map_platform, build, and install.
