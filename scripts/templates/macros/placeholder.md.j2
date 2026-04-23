@@ -1,0 +1,23 @@
+{%- macro render(var) -%}
+{%- set var_type = var.get('type', 'str') -%}
+{%- if var_type in ['int', 'float'] -%}
+1000
+{%- elif var_type == 'bool' -%}
+false
+{%- elif var_type == 'list' -%}
+{%- set elements = var.get('elements', 'str') -%}
+{%- if elements in ['int', 'float'] -%}
+[1000, 2000]
+{%- elif elements == 'bool' -%}
+[true, false]
+{%- elif elements == 'dict' -%}
+[{}]
+{%- else -%}
+["entry1", "entry2"]
+{%- endif -%}
+{%- elif var_type == 'dict' -%}
+{}
+{%- else -%}
+"string"
+{%- endif -%}
+{%- endmacro %}

@@ -1,97 +1,9 @@
-{%- macro render_description(description) -%}
-{%- if description is string -%}
-{{ description | ansible_doc_markup }}
-{%- else -%}
-{%- set ns = namespace(lines=[]) -%}
-{%- for line in description -%}
-{%- set ns.lines = ns.lines + [line | ansible_doc_markup] -%}
-{%- endfor -%}
-{{ ns.lines | join('\n\n') }}
-{%- endif -%}
-{%- endmacro %}
-{%- macro render_default(value, indent='      ') -%}
-{%- if value is sameas true -%}
-true
-{%- elif value is sameas false -%}
-false
-{%- elif value is string -%}
-{%- set text = value | string -%}
-{%- if '\n' in text -%}
->-
-{%- for line in text.split('\n') %}
-{{ indent }}{{ line }}
-{%- endfor -%}
-{%- elif text | length == 0 -%}
-""
-{%- elif '{' in text or ':' in text or '#' in text or '[' in text or ']' in text -%}
-"{{ text | replace('\\', '\\\\') | replace('"', '\\"') }}"
-{%- else -%}
-{{ text }}
-{%- endif -%}
-{%- else -%}
-{{ value }}
-{%- endif -%}
-{%- endmacro %}
-{%- macro render_placeholder(var) -%}
-{%- set var_type = var.get('type', 'str') -%}
-{%- if var_type in ['int', 'float'] -%}
-1000
-{%- elif var_type == 'bool' -%}
-false
-{%- elif var_type == 'list' -%}
-{%- set elements = var.get('elements', 'str') -%}
-{%- if elements in ['int', 'float'] -%}
-[1000, 2000]
-{%- elif elements == 'bool' -%}
-[true, false]
-{%- elif elements == 'dict' -%}
-[{}]
-{%- else -%}
-["entry1", "entry2"]
-{%- endif -%}
-{%- elif var_type == 'dict' -%}
-{}
-{%- else -%}
-"string"
-{%- endif -%}
-{%- endmacro %}
-{%- macro render_task(ep_name, ep, role) -%}
-### {{ ep_name }}
-
-{{ ep.short_description | ansible_doc_markup }}
-{% if ep.description is defined %}
-{{ render_description(ep.description) }}
-{% endif %}
-{%- set options = {} -%}
-{%- if ep.options is defined %}
-{%- set options = ep.options -%}
-{%- endif %}
-```yaml
-- name: {{ ep.short_description }}
-{%- if options %}
-  vars:
-{%- for var_name, var in options.items() %}
-    # {{ var.display_description | ansible_doc_markup }}
-{%- if var.default is defined and var.default is not none %}
-    {{ var_name }}: {{ render_default(var.default) }}
-{%- else %}
-    {{ var_name }}: {{ render_placeholder(var) }}
-{%- endif %}
-{%- endfor %}
-{%- endif %}
-  ansible.builtin.include_role:
-    name: {{ role }}
-    tasks_from: {{ ep_name }}
-```
-{%- endmacro %}
+{%- import 'macros/default.md.j2' as default -%}
+{%- import 'macros/description.md.j2' as description -%}
+{%- import 'macros/placeholder.md.j2' as placeholder -%}
 # {{ role }}
-{%- set role_description = "" -%}
-{%- if metadata.galaxy_info is defined and metadata.galaxy_info.description is defined -%}
-{%- set role_description = metadata.galaxy_info.description -%}
-{%- endif %}
-{%- if role_description %}
-
-> {{ role_description | ansible_doc_markup }}
+{% if metadata.galaxy_info is defined and metadata.galaxy_info.description is defined %}
+> {{ metadata.galaxy_info.description | ansible_doc_markup }}
 {%- endif %}
 
 ## Table of Contents <!-- omit in toc -->
@@ -112,7 +24,33 @@ See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults a
 {%- for ep_name, ep in argument_specs.items() %}
 {%- if ep_name != '_shared_options' %}
 
-{{ render_task(ep_name, ep, role) }}
+### {{ ep_name }}
+
+{{ ep.short_description | ansible_doc_markup }}
+{% if ep.description is defined %}
+{{ description.render(ep.description) }}
+{% endif %}
+{%- set options = {} -%}
+{%- if ep.options is defined %}
+{%- set options = ep.options -%}
+{%- endif %}
+```yaml
+- name: {{ ep.short_description }}
+{%- if options %}
+  vars:
+{%- for var_name, var in options.items() %}
+    # {{ var.display_description | ansible_doc_markup }}
+{%- if var.default is defined and var.default is not none %}
+    {{ var_name }}: {{ default.render(var.default) }}
+{%- else %}
+    {{ var_name }}: {{ placeholder.render(var) }}
+{%- endif %}
+{%- endfor %}
+{%- endif %}
+  ansible.builtin.include_role:
+    name: {{ role }}
+    tasks_from: {{ ep_name }}
+```
 {%- if not loop.last %}
 
 {%- endif %}

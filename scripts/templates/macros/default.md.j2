@@ -1,0 +1,23 @@
+{%- macro render(value, indent='      ') -%}
+{%- if value is sameas true -%}
+true
+{%- elif value is sameas false -%}
+false
+{%- elif value is string -%}
+{%- set text = value | string -%}
+{%- if '\n' in text -%}
+>-
+{%- for line in text.split('\n') %}
+{{ indent }}{{ line }}
+{%- endfor -%}
+{%- elif text | length == 0 -%}
+""
+{%- elif '{' in text or ':' in text or '#' in text or '[' in text or ']' in text -%}
+"{{ text | replace('\\', '\\\\') | replace('"', '\\"') }}"
+{%- else -%}
+{{ text }}
+{%- endif -%}
+{%- else -%}
+{{ value }}
+{%- endif -%}
+{%- endmacro %}

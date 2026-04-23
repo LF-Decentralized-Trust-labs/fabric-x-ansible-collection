@@ -136,7 +136,8 @@ make help                  # full command reference
 
 1. If the modification introduces new tasks under `tasks/`, `tasks/config/` or `tasks/crypto`, update the role README.
 2. If the modification introduces new variables, put them in `defaults/main.yaml` only if it makes sense that such variables can have multiple values.
-3. Run `make lint` and fix any issues before committing.
+3. If the modification introduces new variables into a role task, declare them in `roles/<role>/meta/argument_specs.yaml` (add an entry under `_shared_options` with an anchor, and reference it via alias in the relevant entrypoint's `options:`), then run `make generate-docs` to regenerate `defaults/main.yaml` and `README.md` for that role.
+4. Run `make lint` and fix any issues before committing.
 
 ---
 

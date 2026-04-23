@@ -24,9 +24,9 @@
         tasks_from: map_platform
     - name: Download Go binary package
       ansible.builtin.get_url:
-        url: "{{ go_download_url }}"
+        url: "https://go.dev/dl/go{{ go_version }}.{{ go_os }}-{{ go_arch }}.tar.gz"
         dest: "/tmp/go{{ go_version }}.{{ go_os }}-{{ go_arch }}.tar.gz"
-        mode: '0644'
+        mode: "0644"
     - name: Extract Go to /usr/local
       ansible.builtin.unarchive:
         src: "/tmp/go{{ go_version }}.{{ go_os }}-{{ go_arch }}.tar.gz"
@@ -39,7 +39,7 @@
         path: "{{ ansible_user_dir }}/.profile"
         line: "export PATH=$PATH:{{ go_install_dir }}/go/bin"
         create: true
-        mode: '0644'
+        mode: "0644"
     - name: Verify Go installation
       ansible.builtin.command: "{{ go_install_dir }}/go/bin/go version"
       register: go_verify

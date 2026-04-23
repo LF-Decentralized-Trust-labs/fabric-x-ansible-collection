@@ -30,8 +30,6 @@ This entry point maps the target platform before downloading the matching Go arc
   vars:
     # Specifies the Go release version to install.
     go_version: 1.25.8
-    # Download URL for the Go archive. The default derives from `go_version`, `go_os`, and `go_arch`.
-    go_download_url: "https://go.dev/dl/go{{ go_version }}.{{ go_os }}-{{ go_arch }}.tar.gz"
     # Sets the base directory where the Go distribution is extracted.
     go_install_dir: /usr/local
     # Selects the host whose facts are mapped into `go_os` and `go_arch`. The default derives from `inventory_hostname`.

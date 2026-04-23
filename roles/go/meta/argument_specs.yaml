@@ -5,7 +5,6 @@
 #
 ---
 argument_specs:
-
   _shared_options:
     short_description: Shared option catalog for go role entry points
     description:
@@ -17,13 +16,6 @@ argument_specs:
         default: "1.25.8"
         description:
           - Specifies the Go release version to install.
-      go_download_url: &go_download_url
-        type: str
-        required: false
-        default: "https://go.dev/dl/go{{ go_version }}.{{ go_os }}-{{ go_arch }}.tar.gz"
-        description:
-          - Download URL for the Go archive.
-          - The default derives from C(go_version), C(go_os), and C(go_arch).
       go_install_dir: &go_install_dir
         type: path
         required: false
@@ -88,7 +80,6 @@ argument_specs:
       - This entry point maps the target platform before downloading the matching Go archive.
     options:
       go_version: *go_version
-      go_download_url: *go_download_url
       go_install_dir: *go_install_dir
       go_host_to_map: *go_host_to_map
 
