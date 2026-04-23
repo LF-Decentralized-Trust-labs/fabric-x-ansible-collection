@@ -1,9 +1,4 @@
-{#-
-# Copyright IBM Corp. All Rights Reserved.
-#
-# SPDX-License-Identifier: Apache-2.0
-#
-#-#}{%- macro render_description(description) -%}
+{%- macro render_description(description) -%}
 {%- if description is string -%}
 {{ description | ansible_doc_markup }}
 {%- else -%}
@@ -63,13 +58,15 @@ false
 {%- macro render_task(ep_name, ep, role) -%}
 ### {{ ep_name }}
 
-{{ ep.short_description | ansible_doc_markup }}{%- if ep.description is defined %}
-{{ '\n' }}{{ render_description(ep.description) }}{%- endif %}
+{{ ep.short_description | ansible_doc_markup }}
+{% if ep.description is defined %}
+{{ render_description(ep.description) }}
+{% endif %}
 {%- set options = {} -%}
 {%- if ep.options is defined %}
 {%- set options = ep.options -%}
 {%- endif %}
-{{ '\n' }}```yaml
+```yaml
 - name: {{ ep.short_description }}
 {%- if options %}
   vars:
