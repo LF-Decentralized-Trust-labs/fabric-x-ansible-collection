@@ -41,6 +41,8 @@ fabric_ca_client_source_code_package: cmd/fabric-ca-client
 fabric_ca_client_bin_package: '{{ fabric_ca_git_hub_url }}/{{ fabric_ca_git_repo }}/{{ fabric_ca_client_source_code_package }}'
 # Sets the client binary name.
 fabric_ca_client_bin_name: fabric-ca-client
+# Sets the remote Fabric CA config root; the default derives from C(remote_config_dir).
+fabric_ca_server_remote_config_dir: '{{ remote_config_dir }}'
 # Sets the in-container Fabric CA config root.
 fabric_ca_server_container_config_dir: /config
 # Sets the in-container client config root.
@@ -71,6 +73,11 @@ fabric_ca_name: '{{ inventory_hostname }}'
 fabric_ca_enrollment_type: bccsp
 # Sets the Idemix enrollment profile.
 fabric_ca_idemix_enrollment_profile: idemix
+# Sets the CSR SAN host list; the default derives from C(actual_host), C(ansible_host), and C(inventory_hostname).
+fabric_ca_csr_hosts:
+  - '{{ ansible_host }}'
+  - '{{ actual_host }}'
+  - '{{ inventory_hostname }}'
 # Sets the curve used for Fabric CA server key generation.
 fabric_ca_server_openssl_curve: P-256
 # Sets the server CA private key filename.

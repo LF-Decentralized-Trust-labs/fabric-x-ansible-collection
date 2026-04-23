@@ -16,6 +16,7 @@ argument_specs:
       loadgen_remote_config_dir: &loadgen_remote_config_dir
         type: path
         required: false
+        default: "{{ remote_config_dir }}"
         description:
           - Remote config directory used by Loadgen.
           - The default derives from C(remote_config_dir).

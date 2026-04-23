@@ -75,7 +75,7 @@ The role also renders a temporary OpenSSL config file and copies the certificate
     # Path to the certificate file to create.
     openssl_cert_path: "string"
     # Directory for the temporary OpenSSL config file. The default derives from `remote_node_dir`.
-    openssl_remote_config_dir: "string"
+    openssl_remote_config_dir: "{{ remote_node_dir }}/openssl"
     # Remove the rendered OpenSSL config directory after generation.
     openssl_clean_after_gen: false
     # Filename used when copying the self-signed certificate as the CA certificate.
@@ -109,7 +109,12 @@ The role also renders a temporary OpenSSL config file and copies the certificate
     # Regex used to split SAN hosts into DNS and IP entries.
     openssl_san_ipv4_regex: "^[0-9]{1,3}(\\.[0-9]{1,3}){3}$"
     # Hosts used to derive SAN entries. The default derives from `ansible_host` and `actual_host`.
-    openssl_san_hosts: "{{ [ansible_host, actual_host] | unique | list }}"
+    openssl_san_hosts: >-
+      {{
+        [ansible_host, actual_host]
+        | unique
+        | list
+      }}
     # DNS SAN entries derived from `openssl_san_hosts`. The default also uses `openssl_san_ipv4_regex`.
     openssl_san_dns_entries: >-
       {{
@@ -156,7 +161,7 @@ Generate a private key and a certificate signing request using a rendered OpenSS
     # Path to the CSR file to create.
     openssl_csr_path: "string"
     # Directory for the temporary OpenSSL config file. The default derives from `remote_node_dir`.
-    openssl_remote_config_dir: "string"
+    openssl_remote_config_dir: "{{ remote_node_dir }}/openssl"
     # Optional extension file path passed to `openssl x509 -extfile`.
     openssl_ext_file_path: "string"
     # Remove the rendered OpenSSL config directory after generation.
@@ -190,7 +195,12 @@ Generate a private key and a certificate signing request using a rendered OpenSS
     # Regex used to split SAN hosts into DNS and IP entries.
     openssl_san_ipv4_regex: "^[0-9]{1,3}(\\.[0-9]{1,3}){3}$"
     # Hosts used to derive SAN entries. The default derives from `ansible_host` and `actual_host`.
-    openssl_san_hosts: "{{ [ansible_host, actual_host] | unique | list }}"
+    openssl_san_hosts: >-
+      {{
+        [ansible_host, actual_host]
+        | unique
+        | list
+      }}
     # DNS SAN entries derived from `openssl_san_hosts`. The default also uses `openssl_san_ipv4_regex`.
     openssl_san_dns_entries: >-
       {{

@@ -68,7 +68,8 @@ argument_specs:
         default: v1.5.15
         description:
           - "Pins the Fabric CA source revision."
-      fabric_ca_server_source_code_package: &fabric_ca_server_source_code_package
+      fabric_ca_server_source_code_package:
+        &fabric_ca_server_source_code_package
         type: str
         default: cmd/fabric-ca-server
         description:
@@ -83,7 +84,8 @@ argument_specs:
         default: fabric-ca-server
         description:
           - "Sets the server binary name."
-      fabric_ca_client_source_code_package: &fabric_ca_client_source_code_package
+      fabric_ca_client_source_code_package:
+        &fabric_ca_client_source_code_package
         type: str
         default: cmd/fabric-ca-client
         description:
@@ -130,15 +132,18 @@ argument_specs:
           - "Provides the organization metadata defined elsewhere in inventory; C(domain) is required."
       fabric_ca_server_remote_config_dir: &fabric_ca_server_remote_config_dir
         type: path
-        required: true
+        required: false
+        default: "{{ remote_config_dir }}"
         description:
           - "Sets the remote Fabric CA config root; the default derives from C(remote_config_dir)."
-      fabric_ca_server_container_config_dir: &fabric_ca_server_container_config_dir
+      fabric_ca_server_container_config_dir:
+        &fabric_ca_server_container_config_dir
         type: path
         default: /config
         description:
           - "Sets the in-container Fabric CA config root."
-      fabric_ca_client_container_config_dir: &fabric_ca_client_container_config_dir
+      fabric_ca_client_container_config_dir:
+        &fabric_ca_client_container_config_dir
         type: path
         default: /config
         description:
@@ -188,7 +193,8 @@ argument_specs:
         default: "{{ fabric_ca_port }}"
         description:
           - "Sets the Kubernetes NodePort for the API port; the default derives from C(fabric_ca_port) and is used when NodePort exposure is enabled."
-      fabric_ca_server_k8s_operations_node_port: &fabric_ca_server_k8s_operations_node_port
+      fabric_ca_server_k8s_operations_node_port:
+        &fabric_ca_server_k8s_operations_node_port
         type: int
         default: "{{ fabric_ca_operations_port }}"
         description:
@@ -240,6 +246,10 @@ argument_specs:
         type: list
         elements: str
         required: false
+        default:
+          - "{{ ansible_host }}"
+          - "{{ actual_host }}"
+          - "{{ inventory_hostname }}"
         description:
           - "Sets the CSR SAN host list; the default derives from C(actual_host), C(ansible_host), and C(inventory_hostname)."
       fabric_ca_server_openssl_curve: &fabric_ca_server_openssl_curve
@@ -247,7 +257,8 @@ argument_specs:
         default: P-256
         description:
           - "Sets the curve used for Fabric CA server key generation."
-      fabric_ca_server_ca_private_key_file: &fabric_ca_server_ca_private_key_file
+      fabric_ca_server_ca_private_key_file:
+        &fabric_ca_server_ca_private_key_file
         type: str
         default: ca-key.pem
         description:
@@ -257,7 +268,8 @@ argument_specs:
         default: ca-cert.pem
         description:
           - "Sets the server CA certificate filename."
-      fabric_ca_server_tls_private_key_file: &fabric_ca_server_tls_private_key_file
+      fabric_ca_server_tls_private_key_file:
+        &fabric_ca_server_tls_private_key_file
         type: str
         default: tls-key.pem
         description:
@@ -267,7 +279,8 @@ argument_specs:
         default: tls-cert.pem
         description:
           - "Sets the server TLS certificate filename."
-      fabric_ca_server_idemixgen_output_dir: &fabric_ca_server_idemixgen_output_dir
+      fabric_ca_server_idemixgen_output_dir:
+        &fabric_ca_server_idemixgen_output_dir
         type: path
         default: "{{ fabric_ca_server_remote_config_dir }}/idemixgen-artifacts"
         description:
@@ -287,12 +300,14 @@ argument_specs:
         required: true
         description:
           - "Sets the MSP directory used by Fabric CA client flows and MSP normalization."
-      fabric_ca_cryptogenize_tls_ca_cert_file: &fabric_ca_cryptogenize_tls_ca_cert_file
+      fabric_ca_cryptogenize_tls_ca_cert_file:
+        &fabric_ca_cryptogenize_tls_ca_cert_file
         type: str
         default: ca.crt
         description:
           - "Sets the normalized TLS CA certificate filename."
-      fabric_ca_cryptogenize_tls_cert_file: &fabric_ca_cryptogenize_tls_cert_file
+      fabric_ca_cryptogenize_tls_cert_file:
+        &fabric_ca_cryptogenize_tls_cert_file
         type: str
         default: server.crt
         description:

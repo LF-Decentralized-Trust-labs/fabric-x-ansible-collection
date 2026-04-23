@@ -53,6 +53,9 @@ armageddon_container_config_dir: /tmp/config
 # Container directory for mounted crypto artifacts.
 # Default is `/tmp/crypto`.
 armageddon_container_crypto_artifacts_dir: /tmp/crypto
+# Armageddon config filename.
+# Default is `armageddon.yaml`.
+armageddon_config_file: armageddon.yaml
 # Shared-config filename.
 # Default is `shared_config.yaml`.
 armageddon_shared_config_file: shared_config.yaml

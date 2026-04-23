@@ -42,6 +42,8 @@ When `armageddon_use_bin` is true, the template reads `fetched_artifacts_dir`; o
     fetched_artifacts_dir: "string"
     # Container directory for mounted crypto artifacts. Default is `/tmp/crypto`.
     armageddon_container_crypto_artifacts_dir: /tmp/crypto
+    # Armageddon config filename. Default is `armageddon.yaml`.
+    armageddon_config_file: armageddon.yaml
     # Shared-config filename. Default is `shared_config.yaml`.
     armageddon_shared_config_file: shared_config.yaml
   ansible.builtin.include_role:
@@ -142,6 +144,8 @@ The input config is read from `armageddon_artifacts_dir`/`armageddon_shared_conf
     config_build_dir: "string"
     # Directory for rendered Armageddon config and generated protobuf output. The default derives from `config_build_dir`.
     armageddon_artifacts_dir: "{{ config_build_dir }}/armageddon-artifacts"
+    # Armageddon config filename. Default is `armageddon.yaml`.
+    armageddon_config_file: armageddon.yaml
     # Shared-config filename. Default is `shared_config.yaml`.
     armageddon_shared_config_file: shared_config.yaml
     # Directory where the Armageddon binary is installed or executed. The binary helper roles use this as the local or remote binary directory.
@@ -174,6 +178,8 @@ The image default derives from `armageddon_registry_endpoint`, `armageddon_image
     armageddon_image: "{{ armageddon_registry_endpoint }}/{{ armageddon_image_name }}:{{ armageddon_image_tag }}"
     # Container directory for the rendered shared config file. Default is `/tmp/config`.
     armageddon_container_config_dir: /tmp/config
+    # Armageddon config filename. Default is `armageddon.yaml`.
+    armageddon_config_file: armageddon.yaml
     # Shared-config filename. Default is `shared_config.yaml`.
     armageddon_shared_config_file: shared_config.yaml
     # Container directory for generated protobuf output. Default is `/tmp/out`.

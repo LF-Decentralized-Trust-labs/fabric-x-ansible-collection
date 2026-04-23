@@ -5,7 +5,6 @@
 #
 ---
 argument_specs:
-
   _shared_options:
     short_description: Shared option catalog for openssl role entry points
     options:
@@ -59,6 +58,7 @@ argument_specs:
       openssl_remote_config_dir: &openssl_remote_config_dir
         type: path
         required: false
+        default: "{{ remote_node_dir }}/openssl"
         description:
           - Directory for the temporary OpenSSL config file.
           - The default derives from C(remote_node_dir).
@@ -155,7 +155,12 @@ argument_specs:
       openssl_san_hosts: &openssl_san_hosts
         type: list
         elements: str
-        default: "{{ [ansible_host, actual_host] | unique | list }}"
+        default: >-
+          {{
+            [ansible_host, actual_host]
+            | unique
+            | list
+          }}
         description:
           - Hosts used to derive SAN entries.
           - The default derives from C(ansible_host) and C(actual_host).

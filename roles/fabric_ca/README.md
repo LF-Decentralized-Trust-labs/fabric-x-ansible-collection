@@ -317,7 +317,7 @@ Enrolls an identity with the locally installed client binary.
     # Provides the resolved host address used in computed defaults such as `fabric_ca_csr_hosts` and in client effective-address resolution.
     actual_host: "string"
     # Sets the CSR SAN host list; the default derives from `actual_host`, `ansible_host`, and `inventory_hostname`.
-    fabric_ca_csr_hosts: ["entry1", "entry2"]
+    fabric_ca_csr_hosts: ['{{ ansible_host }}', '{{ actual_host }}', '{{ inventory_hostname }}']
     # Enables TLS for server and client connections.
     fabric_ca_use_tls: false
     # Sets the TLS root certificate file used by Fabric CA client flows when TLS is enabled.
@@ -383,7 +383,7 @@ Reenrolls an existing identity with the locally installed client binary.
     # Provides the resolved host address used in computed defaults such as `fabric_ca_csr_hosts` and in client effective-address resolution.
     actual_host: "string"
     # Sets the CSR SAN host list; the default derives from `actual_host`, `ansible_host`, and `inventory_hostname`.
-    fabric_ca_csr_hosts: ["entry1", "entry2"]
+    fabric_ca_csr_hosts: ['{{ ansible_host }}', '{{ actual_host }}', '{{ inventory_hostname }}']
     # Enables TLS for server and client connections.
     fabric_ca_use_tls: false
     # Sets the TLS root certificate file used by Fabric CA client flows when TLS is enabled.
@@ -519,7 +519,7 @@ Enrolls an identity with a transient container.
     # Provides the resolved host address used in computed defaults such as `fabric_ca_csr_hosts` and in client effective-address resolution.
     actual_host: "string"
     # Sets the CSR SAN host list; the default derives from `actual_host`, `ansible_host`, and `inventory_hostname`.
-    fabric_ca_csr_hosts: ["entry1", "entry2"]
+    fabric_ca_csr_hosts: ['{{ ansible_host }}', '{{ actual_host }}', '{{ inventory_hostname }}']
     # Enables TLS for server and client connections.
     fabric_ca_use_tls: false
     # Sets the TLS root certificate file used by Fabric CA client flows when TLS is enabled.
@@ -605,7 +605,7 @@ Reenrolls an existing identity with a transient container.
     # Provides the resolved host address used in computed defaults such as `fabric_ca_csr_hosts` and in client effective-address resolution.
     actual_host: "string"
     # Sets the CSR SAN host list; the default derives from `actual_host`, `ansible_host`, and `inventory_hostname`.
-    fabric_ca_csr_hosts: ["entry1", "entry2"]
+    fabric_ca_csr_hosts: ['{{ ansible_host }}', '{{ actual_host }}', '{{ inventory_hostname }}']
     # Enables TLS for server and client connections.
     fabric_ca_use_tls: false
     # Sets the TLS root certificate file used by Fabric CA client flows when TLS is enabled.
@@ -899,7 +899,7 @@ Starts the Fabric CA server as a managed local binary process.
 - name: Start the Fabric CA server binary
   vars:
     # Sets the remote Fabric CA config root; the default derives from `remote_config_dir`.
-    fabric_ca_server_remote_config_dir: "string"
+    fabric_ca_server_remote_config_dir: "{{ remote_config_dir }}"
     # Provides the shared remote configuration root used by this role.
     remote_config_dir: "string"
     # Sets the Fabric CA API port.
@@ -977,7 +977,7 @@ Starts the Fabric CA server as a managed container.
 - name: Start the Fabric CA server container
   vars:
     # Sets the remote Fabric CA config root; the default derives from `remote_config_dir`.
-    fabric_ca_server_remote_config_dir: "string"
+    fabric_ca_server_remote_config_dir: "{{ remote_config_dir }}"
     # Provides the shared remote configuration root used by this role.
     remote_config_dir: "string"
     # Sets the in-container Fabric CA config root.
@@ -1169,7 +1169,7 @@ Creates or updates the Fabric CA Kubernetes ConfigMap.
 - name: Transfer server config to a ConfigMap
   vars:
     # Sets the remote Fabric CA config root; the default derives from `remote_config_dir`.
-    fabric_ca_server_remote_config_dir: "string"
+    fabric_ca_server_remote_config_dir: "{{ remote_config_dir }}"
     # Provides the shared remote configuration root used by this role.
     remote_config_dir: "string"
     # Sets the Kubernetes resource name for the Fabric CA server and its Service resources.
@@ -1211,7 +1211,7 @@ Creates or updates the Fabric CA Kubernetes Secret.
 - name: Transfer server crypto to a Secret
   vars:
     # Sets the remote Fabric CA config root; the default derives from `remote_config_dir`.
-    fabric_ca_server_remote_config_dir: "string"
+    fabric_ca_server_remote_config_dir: "{{ remote_config_dir }}"
     # Provides the shared remote configuration root used by this role.
     remote_config_dir: "string"
     # Sets the Kubernetes resource name for the Fabric CA server and its Service resources.
@@ -1277,7 +1277,7 @@ Generates the Fabric CA root CA and TLS keypairs.
 - name: Generate server x509 crypto
   vars:
     # Sets the remote Fabric CA config root; the default derives from `remote_config_dir`.
-    fabric_ca_server_remote_config_dir: "string"
+    fabric_ca_server_remote_config_dir: "{{ remote_config_dir }}"
     # Provides the shared remote configuration root used by this role.
     remote_config_dir: "string"
     # Provides the resolved host address used in computed defaults such as `fabric_ca_csr_hosts` and in client effective-address resolution.
@@ -1295,7 +1295,7 @@ Generates the Fabric CA root CA and TLS keypairs.
     # Sets the CSR common name; the default derives from `fabric_ca_name`.
     fabric_ca_csr_cn: "{{ fabric_ca_name }}"
     # Sets the CSR SAN host list; the default derives from `actual_host`, `ansible_host`, and `inventory_hostname`.
-    fabric_ca_csr_hosts: ["entry1", "entry2"]
+    fabric_ca_csr_hosts: ['{{ ansible_host }}', '{{ actual_host }}', '{{ inventory_hostname }}']
     # Provides the organization metadata defined elsewhere in inventory; `domain` is required.
     organization: {}
   ansible.builtin.include_role:
@@ -1313,7 +1313,7 @@ Generates the Fabric CA Idemix issuer keys.
 - name: Generate server Idemix crypto
   vars:
     # Sets the remote Fabric CA config root; the default derives from `remote_config_dir`.
-    fabric_ca_server_remote_config_dir: "string"
+    fabric_ca_server_remote_config_dir: "{{ remote_config_dir }}"
     # Provides the shared remote configuration root used by this role.
     remote_config_dir: "string"
     # Sets the transient Idemix output directory; the default derives from `fabric_ca_server_remote_config_dir`.
@@ -1337,7 +1337,7 @@ Fetches the Fabric CA server certificate material.
     # Provides the shared local artifacts root used by this role.
     fetched_artifacts_dir: "string"
     # Sets the remote Fabric CA config root; the default derives from `remote_config_dir`.
-    fabric_ca_server_remote_config_dir: "string"
+    fabric_ca_server_remote_config_dir: "{{ remote_config_dir }}"
     # Provides the shared remote configuration root used by this role.
     remote_config_dir: "string"
     # Sets the server CA certificate filename.
@@ -1373,7 +1373,7 @@ Renders the Fabric CA server configuration and copies the PostgreSQL TLS CA cert
 - name: Render and transfer server config
   vars:
     # Sets the remote Fabric CA config root; the default derives from `remote_config_dir`.
-    fabric_ca_server_remote_config_dir: "string"
+    fabric_ca_server_remote_config_dir: "{{ remote_config_dir }}"
     # Provides the shared remote configuration root used by this role.
     remote_config_dir: "string"
     # Sets the Fabric CA API port.
@@ -1403,7 +1403,7 @@ Renders the Fabric CA server configuration and copies the PostgreSQL TLS CA cert
     # Sets the CSR common name; the default derives from `fabric_ca_name`.
     fabric_ca_csr_cn: "{{ fabric_ca_name }}"
     # Sets the CSR SAN host list; the default derives from `actual_host`, `ansible_host`, and `inventory_hostname`.
-    fabric_ca_csr_hosts: ["entry1", "entry2"]
+    fabric_ca_csr_hosts: ['{{ ansible_host }}', '{{ actual_host }}', '{{ inventory_hostname }}']
     # Provides the resolved host address used in computed defaults such as `fabric_ca_csr_hosts` and in client effective-address resolution.
     actual_host: "string"
     # Sets the CSR expiry.
@@ -1433,7 +1433,7 @@ Deletes the Fabric CA server configuration resources.
 - name: Remove server config resources
   vars:
     # Sets the remote Fabric CA config root; the default derives from `remote_config_dir`.
-    fabric_ca_server_remote_config_dir: "string"
+    fabric_ca_server_remote_config_dir: "{{ remote_config_dir }}"
     # Provides the shared remote configuration root used by this role.
     remote_config_dir: "string"
     # Uses the Kubernetes server flow instead of the local runtimes.
