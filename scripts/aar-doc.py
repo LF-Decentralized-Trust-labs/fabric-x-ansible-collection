@@ -29,13 +29,14 @@ The wrapper therefore monkey-patches the small parts of ``aar_doc.defaults``
 that turn parsed argument spec values into the final YAML output.
 """
 
-import re as _re
+import ast
+import json
+import re
 from os import linesep
 from pathlib import Path
 
 import aar_doc.core as _c
 import aar_doc.defaults as _d
-import aar_doc.markdown as _m
 from ruamel.yaml.scalarstring import (DoubleQuotedScalarString,
                                       FoldedScalarString, ScalarString,
                                       SingleQuotedScalarString)
@@ -164,27 +165,15 @@ def _write_defaults_with_license_header(output_file_path, role_path, role_defaul
         # Serialize the collected role defaults into the file using ruamel.
         _d.yaml.dump(role_defaults, defaults_file)
 
-# Replace the two upstream methods used during defaults generation with the
-# style-preserving versions above. The rest of ``aar-doc`` remains unchanged.
-_d.RoleDefaultsManager.add_default = _add_default_preserving_scalar_style
-_d.RoleDefaultsManager.safe_quote_recursive = _safe_quote_recursive_preserving_scalar_style
-_d.write_defaults = _write_defaults_with_license_header
-
 
 def _extract_c_example(text):
     """Extract the value inside the last C(...) from an Example description line.
 
     Matches ``C(<value>)`` optionally followed by a period at end of string.
-    Uses a character-class ``[^)]+`` so that nested parentheses in the
-    surrounding sentence (e.g. ``or C(0)``) resolve to the last occurrence.
     Returns the captured group as a string, or ``None`` when no match is found.
     """
-    m = _re.search(r"C\(([^)]+)\)\.?\s*$", str(text))
+    m = re.search(r"C\(([^)]+)\)\.?\s*$", str(text))
     return m.group(1) if m else None
-
-
-import ast as _ast_mod
-import json as _json_mod
 
 
 def _yaml_render_obj(obj, indent):
@@ -236,11 +225,11 @@ def _to_yaml_sequence(value_str, indent=6):
     not a list.
     """
     try:
-        obj = _ast_mod.literal_eval(value_str)
+        obj = ast.literal_eval(value_str)
     except (ValueError, SyntaxError):
         try:
-            obj = _json_mod.loads(value_str)
-        except (ValueError, _json_mod.JSONDecodeError):
+            obj = json.loads(value_str)
+        except (ValueError, json.JSONDecodeError):
             return value_str
     if not isinstance(obj, list):
         return value_str
@@ -262,20 +251,15 @@ def _to_yaml_dict(value_str, indent=6):
     not a dict.
     """
     try:
-        obj = _ast_mod.literal_eval(value_str)
+        obj = ast.literal_eval(value_str)
     except (ValueError, SyntaxError):
         try:
-            obj = _json_mod.loads(value_str)
-        except (ValueError, _json_mod.JSONDecodeError):
+            obj = json.loads(value_str)
+        except (ValueError, json.JSONDecodeError):
             return value_str
     if not isinstance(obj, dict):
         return value_str
     return "\n" + "\n".join(_yaml_render_obj(obj, indent))
-
-
-# Inject ``extract_c_example`` into every Jinja2 Environment created inside
-# aar_doc so that output templates can call it as a filter.
-_orig_env_init = _c.jinja2.Environment.__init__
 
 
 def _render_default_value(value, indent="      "):
@@ -379,19 +363,20 @@ def _render_placeholder(var, indent=6):
     return ' "string"'
 
 
+_orig_env_init = _c.jinja2.Environment.__init__
+
+
 def _env_init_with_extras(self, *args, **kwargs):
     _orig_env_init(self, *args, **kwargs)
-    self.filters["extract_c_example"] = _extract_c_example
-    self.filters["to_yaml_sequence"] = _to_yaml_sequence
-    self.filters["to_yaml_dict"] = _to_yaml_dict
     self.filters["render_default"] = _render_default
     self.filters["render_placeholder"] = _render_placeholder
 
 
 _c.jinja2.Environment.__init__ = _env_init_with_extras
+_d.RoleDefaultsManager.add_default = _add_default_preserving_scalar_style
+_d.RoleDefaultsManager.safe_quote_recursive = _safe_quote_recursive_preserving_scalar_style
+_d.write_defaults = _write_defaults_with_license_header
 
 from aar_doc.cli import app  # noqa: E402
 
-# Re-export the original Typer application so this wrapper can be invoked as a
-# drop-in replacement for the ``aar-doc`` CLI.
 app()
