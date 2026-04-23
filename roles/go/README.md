@@ -83,8 +83,8 @@ Runs `go build` for the selected source tree and output name. Uses `GOOS`, `GOAR
     go_cgo_enabled: false
     # Provides optional Go build tags passed to the Go command. Example: `['netgo', 'osusergo']`. The list is joined with commas before execution.
     go_tags:
-      - netgo
-      - osusergo
+      - "netgo"
+      - "osusergo"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.go
     tasks_from: build
@@ -109,8 +109,8 @@ Runs `go install` for the requested package or module path using the mapped targ
     go_cgo_enabled: false
     # Provides optional Go build tags passed to the Go command. Example: `['netgo', 'osusergo']`. The list is joined with commas before execution.
     go_tags:
-      - netgo
-      - osusergo
+      - "netgo"
+      - "osusergo"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.go
     tasks_from: install

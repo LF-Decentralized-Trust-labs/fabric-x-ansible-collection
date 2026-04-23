@@ -80,8 +80,8 @@ Collects pod logs from the target namespace for pods matched by `k8s_pod_label_s
     k8s_namespace: "fabric-x"
     # Specifies the Kubernetes label selectors used to select pods for log collection. Example: `['app=fabric-x-orderer', 'component=assembler']`.
     k8s_pod_label_selectors:
-      - app=fabric-x-orderer
-      - component=assembler
+      - "app=fabric-x-orderer"
+      - "component=assembler"
     # Optionally specifies the container name to query from multi-container pods. Example: `orderer`. When omitted, Kubernetes uses the default container.
     k8s_pod_container: "orderer"
     # Shared managed-host root directory for the remote log path. Example: `/var/tmp/fabricx`.

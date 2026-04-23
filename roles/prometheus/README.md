@@ -384,8 +384,8 @@ Delegates certificate creation to the shared OpenSSL role using Prometheus-speci
   vars:
     # Optional certificate organization data forwarded to OpenSSL. Example: `{'common_name': 'prometheus.observability.svc.cluster.local', 'organization_name': 'Hyperledger Fabric-X'}`.
     organization:
-      common_name: 'prometheus.observability.svc.cluster.local'
-      organization_name: 'Hyperledger Fabric-X'
+      common_name: "prometheus.observability.svc.cluster.local"
+      organization_name: "Hyperledger Fabric-X"
     # Remote configuration directory consumed by `prometheus_remote_config_dir`. Example: `/var/lib/prometheus/config`.
     remote_config_dir: "/var/lib/prometheus/config"
     # Remote directory where Prometheus configuration files are written.

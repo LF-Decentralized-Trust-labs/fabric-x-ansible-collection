@@ -388,8 +388,8 @@ Generates the Grafana TLS key pair and certificate using OpenSSL for the staged 
   vars:
     # Sets the optional organization mapping used for TLS certificate generation. Example: `{'name': 'Grafana', 'domain': 'grafana.fabricx.example'}`. When set, `organization.domain` is used as the OpenSSL organization name.
     organization:
-      name: 'Grafana'
-      domain: 'grafana.fabricx.example'
+      name: "Grafana"
+      domain: "grafana.fabricx.example"
     # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
     # Sets the shared remote config root used by Grafana. Example: `/var/hyperledger/fabricx/grafana`. Required when using it for `grafana_remote_config_dir`.

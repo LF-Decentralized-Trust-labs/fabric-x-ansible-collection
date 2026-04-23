@@ -634,9 +634,9 @@ Builds the scrape service definitions Prometheus uses to collect metrics from th
   vars:
     # Lists the inventory hosts exposed as Prometheus scrape targets. Example: `['worker-1', 'worker-2', 'worker-3']`.
     node_exporter_hosts:
-      - worker-1
-      - worker-2
-      - worker-3
+      - "worker-1"
+      - "worker-2"
+      - "worker-3"
     # Sets the local directory used to store fetched TLS artifacts. Example: `/tmp/fabricx-artifacts/node-exporter`.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts/node-exporter"
   ansible.builtin.include_role:

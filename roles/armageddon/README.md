@@ -39,9 +39,9 @@ Render `shared_config.yaml` for the Fabric-X orderer topology. This entry point 
   vars:
     # Inventory hosts that form the Fabric-X orderer topology. Each host must expose `orderer_group`, `orderer_component_type`, `organization`, `ansible_host`, and `orderer_rpc_port`. Example: `['orderer1', 'orderer2', 'orderer3']`
     armageddon_orderer_hosts:
-      - orderer1
-      - orderer2
-      - orderer3
+      - "orderer1"
+      - "orderer2"
+      - "orderer3"
     # Run Armageddon as a local binary instead of a container.
     armageddon_use_bin: false
     # Base directory for `armageddon_artifacts_dir`. Example: `/opt/fabricx/build/armageddon`.

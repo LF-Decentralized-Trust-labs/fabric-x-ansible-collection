@@ -366,7 +366,7 @@ Generates a self-signed TLS certificate and private key for ElasticSearch on the
     elasticsearch_tls_cert_file: server.crt
     # Optionally provides organization metadata used to derive the TLS certificate organization name. Example: `{'common_name': 'elasticsearch.fabricx.example'}`.
     organization:
-      common_name: 'elasticsearch.fabricx.example'
+      common_name: "elasticsearch.fabricx.example"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: crypto/openssl/generate_cert

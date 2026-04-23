@@ -203,7 +203,7 @@ def _yaml_render_obj(obj, indent):
                 lines.append(f"{prefix}{key}:")
                 lines.extend(nested)
             elif isinstance(val, str):
-                lines.append(f"{prefix}{key}: '{val}'")
+                lines.append(f'{prefix}{key}: "{val}"')
             else:
                 lines.append(f"{prefix}{key}: {val}")
     elif isinstance(obj, list):
@@ -216,7 +216,7 @@ def _yaml_render_obj(obj, indent):
                 lines.append(f"{prefix}- {first.lstrip()}")
                 lines.extend(rest)
             elif isinstance(item, str):
-                lines.append(f"{prefix}- {item}")
+                lines.append(f'{prefix}- "{item}"')
             else:
                 lines.append(f"{prefix}- {item}")
     return lines
@@ -281,9 +281,6 @@ _orig_env_init = _c.jinja2.Environment.__init__
 def _render_default_value(value, indent="      "):
     """Render a role default value as a YAML-compatible string.
 
-    Mirrors ``macros/default.md.j2`` so the template can use
-    ``{{ var.default | render_default }}`` instead of the macro import.
-
     - ``true`` / ``false`` for Python booleans.
     - Multiline strings become a folded block scalar (``>-``).
     - Strings containing YAML-sensitive characters are double-quoted.
@@ -337,9 +334,6 @@ def _render_default(value):
 
 def _render_placeholder(var, indent=6):
     """Jinja2 filter: render a placeholder YAML value for a variable without a default.
-
-    Mirrors ``macros/placeholder.md.j2`` so the template can use
-    ``{{ var | render_placeholder }}`` instead of the macro import.
 
     Extracts the last ``Example: C(...)`` from the variable description and
     formats it according to the variable type.  Falls back to generic

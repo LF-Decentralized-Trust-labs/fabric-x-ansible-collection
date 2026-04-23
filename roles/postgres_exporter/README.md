@@ -381,7 +381,7 @@ Delegates self-signed certificate generation to the OpenSSL role using Postgres 
   vars:
     # Provides organization metadata forwarded to the OpenSSL role. Example: `{'domain': 'org1.example.com'}`.
     organization:
-      domain: 'org1.example.com'
+      domain: "org1.example.com"
     # Provides the shared remote configuration directory used by Postgres Exporter. Example: `/opt/fabricx/postgres-exporter/config`.
     remote_config_dir: "/opt/fabricx/postgres-exporter/config"
     # Sets the remote directory that stores Postgres Exporter configuration and TLS files.
@@ -628,8 +628,8 @@ Builds the `postgres_exporter_prometheus_scrape_services` fact for the Postgres 
     fetched_artifacts_dir: "/tmp/postgres-exporter-artifacts"
     # Lists the inventory hosts that run Postgres Exporter and should be exposed to Prometheus. Example: `['postgres-exporter-a', 'postgres-exporter-b']`.
     postgres_exporter_hosts:
-      - postgres-exporter-a
-      - postgres-exporter-b
+      - "postgres-exporter-a"
+      - "postgres-exporter-b"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: prometheus/get_scrapers

@@ -239,8 +239,8 @@ Build Prometheus scrape target definitions for all Loadgen hosts. Includes monit
   vars:
     # Inventory hosts running Loadgen instances. Example: `['loadgen1', 'loadgen2']`.
     loadgen_hosts:
-      - loadgen1
-      - loadgen2
+      - "loadgen1"
+      - "loadgen2"
     # Local artifacts directory used for fetched TLS and MSP files. Example: `/tmp/fabricx-artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
   ansible.builtin.include_role:
@@ -279,27 +279,27 @@ Render the Loadgen configuration file and transfer config-side support artifacts
     loadgen_use_mtls: false
     # Committer inventory hosts used by the dispatcher to derive client targets. Example: `['committer-sidecar1', 'committer-validator1']`.
     committer_hosts:
-      - committer-sidecar1
-      - committer-validator1
+      - "committer-sidecar1"
+      - "committer-validator1"
     # Orderer inventory hosts used by the dispatcher to derive client targets. Example: `['orderer-router1', 'orderer-assembler1']`.
     orderer_hosts:
-      - orderer-router1
-      - orderer-assembler1
+      - "orderer-router1"
+      - "orderer-assembler1"
     # Additional mTLS client identities trusted by the main endpoint. Example: `['orderer-router1', 'committer-sidecar1']`.
     loadgen_mtls_clients:
-      - orderer-router1
-      - committer-sidecar1
+      - "orderer-router1"
+      - "committer-sidecar1"
     # Additional mTLS organizations trusted by the main endpoint. Example: `[{'domain': 'org1.example.com'}, {'domain': 'org2.example.com'}]`.
     loadgen_mtls_orgs:
-      - domain: 'org1.example.com'
-      - domain: 'org2.example.com'
+      - domain: "org1.example.com"
+      - domain: "org2.example.com"
     # Additional mTLS client identities trusted by the monitoring endpoint. Example: `['prometheus1', 'node-exporter1']`.
     loadgen_monitoring_mtls_clients:
-      - prometheus1
-      - node-exporter1
+      - "prometheus1"
+      - "node-exporter1"
     # Additional mTLS organizations trusted by the monitoring endpoint. Example: `[{'domain': 'monitoring.example.com'}]`.
     loadgen_monitoring_mtls_orgs:
-      - domain: 'monitoring.example.com'
+      - domain: "monitoring.example.com"
     # HTTP control port exposed by Loadgen. Example: `8080`.
     loadgen_web_port: 8080
     # Prometheus metrics port exposed by Loadgen. Example: `9443`.
@@ -372,19 +372,19 @@ Render the Loadgen configuration file and transfer config-side support artifacts
     channel_id: "fabricx-channel"
     # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'loadgen1', 'secret': 'loadgen1pw'}}`.
     organization:
-      name: 'Org1'
-      domain: 'org1.example.com'
+      name: "Org1"
+      domain: "org1.example.com"
       peer:
-        name: 'loadgen1'
-        secret: 'loadgen1pw'
+        name: "loadgen1"
+        secret: "loadgen1pw"
     # Orderer router hosts targeted by the orderer client. Example: `['orderer-router1', 'orderer-router2']`.
     orderer_router_hosts:
-      - orderer-router1
-      - orderer-router2
+      - "orderer-router1"
+      - "orderer-router2"
     # Orderer assembler hosts targeted by the orderer client. Example: `['orderer-assembler1', 'orderer-assembler2']`.
     orderer_assembler_hosts:
-      - orderer-assembler1
-      - orderer-assembler2
+      - "orderer-assembler1"
+      - "orderer-assembler2"
     # Sidecar host targeted by the orderer and sidecar clients. Example: `committer-sidecar1`.
     committer_sidecar_host: "committer-sidecar1"
     # Broadcast goroutine count used by the orderer client. Example: `8` for a load generator submitting to orderer routers.
@@ -415,11 +415,11 @@ Transfer CA bundles trusted by the Loadgen monitoring endpoint. Copies client an
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
     # Additional mTLS client identities trusted by the monitoring endpoint. Example: `['prometheus1', 'node-exporter1']`.
     loadgen_monitoring_mtls_clients:
-      - prometheus1
-      - node-exporter1
+      - "prometheus1"
+      - "node-exporter1"
     # Additional mTLS organizations trusted by the monitoring endpoint. Example: `[{'domain': 'monitoring.example.com'}]`.
     loadgen_monitoring_mtls_orgs:
-      - domain: 'monitoring.example.com'
+      - domain: "monitoring.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: config/mtls/monitoring/transfer
@@ -456,11 +456,11 @@ Prepare Loadgen MSP, user, and TLS material through the configured crypto source
   vars:
     # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'loadgen1', 'secret': 'loadgen1pw'}}`.
     organization:
-      name: 'Org1'
-      domain: 'org1.example.com'
+      name: "Org1"
+      domain: "org1.example.com"
       peer:
-        name: 'loadgen1'
-        secret: 'loadgen1pw'
+        name: "loadgen1"
+        secret: "loadgen1pw"
     # Use Kubernetes resources.
     loadgen_use_k8s: false
   ansible.builtin.include_role:
@@ -479,11 +479,11 @@ Transfer MSP, user, and TLS artifacts generated by cryptogen to the Loadgen host
   vars:
     # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'loadgen1', 'secret': 'loadgen1pw'}}`.
     organization:
-      name: 'Org1'
-      domain: 'org1.example.com'
+      name: "Org1"
+      domain: "org1.example.com"
       peer:
-        name: 'loadgen1'
-        secret: 'loadgen1pw'
+        name: "loadgen1"
+        secret: "loadgen1pw"
     # Local cryptogen output directory. Example: `/tmp/fabricx-crypto`.
     cryptogen_artifacts_dir: "/tmp/fabricx-crypto"
     # Remote config directory used by Loadgen.
@@ -510,11 +510,11 @@ Enroll Loadgen peer, user, and optional TLS identities against Fabric CA. Writes
   vars:
     # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'loadgen1', 'secret': 'loadgen1pw'}}`.
     organization:
-      name: 'Org1'
-      domain: 'org1.example.com'
+      name: "Org1"
+      domain: "org1.example.com"
       peer:
-        name: 'loadgen1'
-        secret: 'loadgen1pw'
+        name: "loadgen1"
+        secret: "loadgen1pw"
     # Local artifacts directory used for fetched TLS and MSP files. Example: `/tmp/fabricx-artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
     # Remote config directory used by Loadgen.
@@ -543,11 +543,11 @@ Fetch generated Loadgen MSP signcerts and TLS certificates back to the control n
   vars:
     # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'loadgen1', 'secret': 'loadgen1pw'}}`.
     organization:
-      name: 'Org1'
-      domain: 'org1.example.com'
+      name: "Org1"
+      domain: "org1.example.com"
       peer:
-        name: 'loadgen1'
-        secret: 'loadgen1pw'
+        name: "loadgen1"
+        secret: "loadgen1pw"
     # Local artifacts directory used for fetched TLS and MSP files. Example: `/tmp/fabricx-artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
     # Remote config directory used by Loadgen.
@@ -818,19 +818,19 @@ Create or update Kubernetes resources for Loadgen. Ensures the namespace exists,
   vars:
     # Committer inventory hosts used by the dispatcher to derive client targets. Example: `['committer-sidecar1', 'committer-validator1']`.
     committer_hosts:
-      - committer-sidecar1
-      - committer-validator1
+      - "committer-sidecar1"
+      - "committer-validator1"
     # Orderer inventory hosts used by the dispatcher to derive client targets. Example: `['orderer-router1', 'orderer-assembler1']`.
     orderer_hosts:
-      - orderer-router1
-      - orderer-assembler1
+      - "orderer-router1"
+      - "orderer-assembler1"
     # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'loadgen1', 'secret': 'loadgen1pw'}}`.
     organization:
-      name: 'Org1'
-      domain: 'org1.example.com'
+      name: "Org1"
+      domain: "org1.example.com"
       peer:
-        name: 'loadgen1'
-        secret: 'loadgen1pw'
+        name: "loadgen1"
+        secret: "loadgen1pw"
     # Loadgen container image.
     loadgen_image: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
     # Image registry endpoint.
@@ -861,19 +861,19 @@ Create or update Kubernetes resources for Loadgen. Ensures the namespace exists,
     loadgen_monitoring_use_mtls: "{{ loadgen_use_mtls }}"
     # Additional mTLS client identities trusted by the main endpoint. Example: `['orderer-router1', 'committer-sidecar1']`.
     loadgen_mtls_clients:
-      - orderer-router1
-      - committer-sidecar1
+      - "orderer-router1"
+      - "committer-sidecar1"
     # Additional mTLS organizations trusted by the main endpoint. Example: `[{'domain': 'org1.example.com'}, {'domain': 'org2.example.com'}]`.
     loadgen_mtls_orgs:
-      - domain: 'org1.example.com'
-      - domain: 'org2.example.com'
+      - domain: "org1.example.com"
+      - domain: "org2.example.com"
     # Additional mTLS client identities trusted by the monitoring endpoint. Example: `['prometheus1', 'node-exporter1']`.
     loadgen_monitoring_mtls_clients:
-      - prometheus1
-      - node-exporter1
+      - "prometheus1"
+      - "node-exporter1"
     # Additional mTLS organizations trusted by the monitoring endpoint. Example: `[{'domain': 'monitoring.example.com'}]`.
     loadgen_monitoring_mtls_orgs:
-      - domain: 'monitoring.example.com'
+      - domain: "monitoring.example.com"
     # Optional image pull secret used by Kubernetes workloads. Example: `fabricx-registry-pull`.
     k8s_image_pull_secret: "fabricx-registry-pull"
     # Use Kubernetes resources.
@@ -978,12 +978,12 @@ Publish the rendered Loadgen configuration and trusted CA bundles as a Kubernete
     loadgen_config_file: config-loadgen.yaml
     # Orderer router hosts targeted by the orderer client. Example: `['orderer-router1', 'orderer-router2']`.
     orderer_router_hosts:
-      - orderer-router1
-      - orderer-router2
+      - "orderer-router1"
+      - "orderer-router2"
     # Orderer assembler hosts targeted by the orderer client. Example: `['orderer-assembler1', 'orderer-assembler2']`.
     orderer_assembler_hosts:
-      - orderer-assembler1
-      - orderer-assembler2
+      - "orderer-assembler1"
+      - "orderer-assembler2"
     # Sidecar host targeted by the orderer and sidecar clients. Example: `committer-sidecar1`.
     committer_sidecar_host: "committer-sidecar1"
     # Enable mTLS for the main endpoint.
@@ -992,19 +992,19 @@ Publish the rendered Loadgen configuration and trusted CA bundles as a Kubernete
     loadgen_monitoring_use_mtls: "{{ loadgen_use_mtls }}"
     # Additional mTLS client identities trusted by the main endpoint. Example: `['orderer-router1', 'committer-sidecar1']`.
     loadgen_mtls_clients:
-      - orderer-router1
-      - committer-sidecar1
+      - "orderer-router1"
+      - "committer-sidecar1"
     # Additional mTLS organizations trusted by the main endpoint. Example: `[{'domain': 'org1.example.com'}, {'domain': 'org2.example.com'}]`.
     loadgen_mtls_orgs:
-      - domain: 'org1.example.com'
-      - domain: 'org2.example.com'
+      - domain: "org1.example.com"
+      - domain: "org2.example.com"
     # Additional mTLS client identities trusted by the monitoring endpoint. Example: `['prometheus1', 'node-exporter1']`.
     loadgen_monitoring_mtls_clients:
-      - prometheus1
-      - node-exporter1
+      - "prometheus1"
+      - "node-exporter1"
     # Additional mTLS organizations trusted by the monitoring endpoint. Example: `[{'domain': 'monitoring.example.com'}]`.
     loadgen_monitoring_mtls_orgs:
-      - domain: 'monitoring.example.com'
+      - domain: "monitoring.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: k8s/config/transfer
@@ -1039,11 +1039,11 @@ Publish Loadgen MSP and TLS material as a Kubernetes Secret. The Secret is consu
   vars:
     # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'loadgen1', 'secret': 'loadgen1pw'}}`.
     organization:
-      name: 'Org1'
-      domain: 'org1.example.com'
+      name: "Org1"
+      domain: "org1.example.com"
       peer:
-        name: 'loadgen1'
-        secret: 'loadgen1pw'
+        name: "loadgen1"
+        secret: "loadgen1pw"
     # Base remote config directory that feeds `loadgen_remote_config_dir`. Example: `/var/hyperledger/fabricx/loadgen/lg-1/config`.
     remote_config_dir: "/var/hyperledger/fabricx/loadgen/lg-1/config"
     # Remote config directory used by Loadgen.

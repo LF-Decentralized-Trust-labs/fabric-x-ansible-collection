@@ -131,14 +131,14 @@ Starts or updates a container through the selected Docker or Podman backend. Acc
     container_cpus: "2.0"
     # Mounts host paths or named volumes into the container. Example: `['/opt/fabricx/orderer/config:/etc/fabricx:ro']`.
     container_volumes:
-      - /opt/fabricx/orderer/config:/etc/fabricx:ro
+      - "/opt/fabricx/orderer/config:/etc/fabricx:ro"
     # Applies runtime ulimit settings to the container. Example: `['nofile=65536:65536']`.
     container_ulimits:
-      - nofile=65536:65536
+      - "nofile=65536:65536"
     # Defines environment variables passed to the container process. Example: `{'FABRIC_LOGGING_SPEC': 'INFO', 'ORDERER_GENERAL_LISTENPORT': '7050'}`.
     container_env:
-      FABRIC_LOGGING_SPEC: 'INFO'
-      ORDERER_GENERAL_LISTENPORT: '7050'
+      FABRIC_LOGGING_SPEC: "INFO"
+      ORDERER_GENERAL_LISTENPORT: "7050"
     # Selects the runtime log driver.
     container_log_driver: json-file
     # Sets the maximum log file size.
@@ -231,8 +231,8 @@ Runs `container_command` inside an existing container through the selected Docke
     container_command: orderer --config /etc/fabricx/orderer.yaml
     # Defines environment variables passed to the container process. Example: `{'FABRIC_LOGGING_SPEC': 'INFO', 'ORDERER_GENERAL_LISTENPORT': '7050'}`.
     container_env:
-      FABRIC_LOGGING_SPEC: 'INFO'
-      ORDERER_GENERAL_LISTENPORT: '7050'
+      FABRIC_LOGGING_SPEC: "INFO"
+      ORDERER_GENERAL_LISTENPORT: "7050"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: exec
@@ -454,14 +454,14 @@ Starts or updates a Docker container with the requested image, command, environm
     container_cpus: "2.0"
     # Mounts host paths or named volumes into the container. Example: `['/opt/fabricx/orderer/config:/etc/fabricx:ro']`.
     container_volumes:
-      - /opt/fabricx/orderer/config:/etc/fabricx:ro
+      - "/opt/fabricx/orderer/config:/etc/fabricx:ro"
     # Applies runtime ulimit settings to the container. Example: `['nofile=65536:65536']`.
     container_ulimits:
-      - nofile=65536:65536
+      - "nofile=65536:65536"
     # Defines environment variables passed to the container process. Example: `{'FABRIC_LOGGING_SPEC': 'INFO', 'ORDERER_GENERAL_LISTENPORT': '7050'}`.
     container_env:
-      FABRIC_LOGGING_SPEC: 'INFO'
-      ORDERER_GENERAL_LISTENPORT: '7050'
+      FABRIC_LOGGING_SPEC: "INFO"
+      ORDERER_GENERAL_LISTENPORT: "7050"
     # Selects the runtime log driver.
     container_log_driver: json-file
     # Sets the maximum log file size.
@@ -548,8 +548,8 @@ Runs `container_command` inside an existing Docker container. Passes `container_
     container_command: orderer --config /etc/fabricx/orderer.yaml
     # Defines environment variables passed to the container process. Example: `{'FABRIC_LOGGING_SPEC': 'INFO', 'ORDERER_GENERAL_LISTENPORT': '7050'}`.
     container_env:
-      FABRIC_LOGGING_SPEC: 'INFO'
-      ORDERER_GENERAL_LISTENPORT: '7050'
+      FABRIC_LOGGING_SPEC: "INFO"
+      ORDERER_GENERAL_LISTENPORT: "7050"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: docker/exec
@@ -733,14 +733,14 @@ Starts or updates a Podman container with the requested image, command, environm
     container_cpus: "2.0"
     # Mounts host paths or named volumes into the container. Example: `['/opt/fabricx/orderer/config:/etc/fabricx:ro']`.
     container_volumes:
-      - /opt/fabricx/orderer/config:/etc/fabricx:ro
+      - "/opt/fabricx/orderer/config:/etc/fabricx:ro"
     # Applies runtime ulimit settings to the container. Example: `['nofile=65536:65536']`.
     container_ulimits:
-      - nofile=65536:65536
+      - "nofile=65536:65536"
     # Defines environment variables passed to the container process. Example: `{'FABRIC_LOGGING_SPEC': 'INFO', 'ORDERER_GENERAL_LISTENPORT': '7050'}`.
     container_env:
-      FABRIC_LOGGING_SPEC: 'INFO'
-      ORDERER_GENERAL_LISTENPORT: '7050'
+      FABRIC_LOGGING_SPEC: "INFO"
+      ORDERER_GENERAL_LISTENPORT: "7050"
     # Selects the runtime log driver.
     container_log_driver: json-file
     # Sets the maximum log file size.
@@ -827,8 +827,8 @@ Runs `container_command` inside an existing Podman container. Passes `container_
     container_command: orderer --config /etc/fabricx/orderer.yaml
     # Defines environment variables passed to the container process. Example: `{'FABRIC_LOGGING_SPEC': 'INFO', 'ORDERER_GENERAL_LISTENPORT': '7050'}`.
     container_env:
-      FABRIC_LOGGING_SPEC: 'INFO'
-      ORDERER_GENERAL_LISTENPORT: '7050'
+      FABRIC_LOGGING_SPEC: "INFO"
+      ORDERER_GENERAL_LISTENPORT: "7050"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: podman/exec

@@ -419,10 +419,10 @@ Transfer cryptogen artifacts or enroll with Fabric CA for the selected component
   vars:
     # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
     organization:
-      name: 'Org1'
-      domain: 'org1.example.com'
+      name: "Org1"
+      domain: "org1.example.com"
       peer:
-        name: 'committer-sidecar-1'
+        name: "committer-sidecar-1"
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
   ansible.builtin.include_role:
@@ -868,11 +868,11 @@ Copy mTLS certificates for the committer service-to-service connections. Builds 
   vars:
     # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
     committer_mtls_clients:
-      - committer-sidecar-1
-      - loadgen-1
+      - "committer-sidecar-1"
+      - "loadgen-1"
     # mTLS organizations trusted by the component. Example: `[{'domain': 'org2.example.com'}]`.
     committer_mtls_orgs:
-      - domain: 'org2.example.com'
+      - domain: "org2.example.com"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
@@ -893,10 +893,10 @@ Copy monitoring mTLS certificates for Prometheus scraping. Builds monitoring tru
   vars:
     # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
     committer_monitoring_mtls_clients:
-      - prometheus-1
+      - "prometheus-1"
     # Monitoring mTLS organizations trusted by the component. Example: `[{'domain': 'monitoring.example.com'}]`.
     committer_monitoring_mtls_orgs:
-      - domain: 'monitoring.example.com'
+      - domain: "monitoring.example.com"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
@@ -937,10 +937,10 @@ Copy cryptogen-generated TLS assets for the selected committer component. Sideca
   vars:
     # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
     organization:
-      name: 'Org1'
-      domain: 'org1.example.com'
+      name: "Org1"
+      domain: "org1.example.com"
       peer:
-        name: 'committer-sidecar-1'
+        name: "committer-sidecar-1"
     # Committer component handled by the entry point. Example: `coordinator`.
     committer_component_type: "coordinator"
     # Control-node directory that stores cryptogen output. Example: `/tmp/fabricx/crypto-material`.
@@ -965,10 +965,10 @@ Enroll the selected committer component against its Fabric CA and write the resu
   vars:
     # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
     organization:
-      name: 'Org1'
-      domain: 'org1.example.com'
+      name: "Org1"
+      domain: "org1.example.com"
       peer:
-        name: 'committer-sidecar-1'
+        name: "committer-sidecar-1"
     # Committer component handled by the entry point. Example: `coordinator`.
     committer_component_type: "coordinator"
     # Remote config directory managed by the role.
@@ -1063,10 +1063,10 @@ Create the committer Kubernetes Secret from the generated TLS materials. Include
     k8s_namespace: "fabricx-committer"
     # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
     organization:
-      name: 'Org1'
-      domain: 'org1.example.com'
+      name: "Org1"
+      domain: "org1.example.com"
       peer:
-        name: 'committer-sidecar-1'
+        name: "committer-sidecar-1"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: k8s/crypto/transfer
@@ -1099,10 +1099,10 @@ Construct the Prometheus scrape service definitions for all deployed committer c
   vars:
     # Inventory hosts for committer components used by Prometheus scrape generation. Example: `['committer-validator-1', 'committer-verifier-1', 'committer-coordinator-1', 'committer-sidecar-1']`.
     committer_hosts:
-      - committer-validator-1
-      - committer-verifier-1
-      - committer-coordinator-1
-      - committer-sidecar-1
+      - "committer-validator-1"
+      - "committer-verifier-1"
+      - "committer-coordinator-1"
+      - "committer-sidecar-1"
     # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx/artifacts"
   ansible.builtin.include_role:
@@ -1441,12 +1441,12 @@ Render coordinator configuration, validator and verifier CA bundles, and optiona
     committer_coordinator_per_channel_buffer_size_per_goroutine: 10
     # Inventory hosts for validator components. Example: `['committer-validator-1', 'committer-validator-2']`.
     committer_validators:
-      - committer-validator-1
-      - committer-validator-2
+      - "committer-validator-1"
+      - "committer-validator-2"
     # Inventory hosts for verifier components. Example: `['committer-verifier-1', 'committer-verifier-2']`.
     committer_verifiers:
-      - committer-verifier-1
-      - committer-verifier-2
+      - "committer-verifier-1"
+      - "committer-verifier-2"
     # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx/artifacts"
     # Enable Kubernetes deployment mode.
@@ -1511,10 +1511,10 @@ Render sidecar configuration, upstream TLS bundles, and optional Kubernetes Conf
     channel_id: "mychannel"
     # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
     organization:
-      name: 'Org1'
-      domain: 'org1.example.com'
+      name: "Org1"
+      domain: "org1.example.com"
       peer:
-        name: 'committer-sidecar-1'
+        name: "committer-sidecar-1"
     # Inventory host name of the coordinator component. Example: `committer-coordinator-1`.
     committer_coordinator: "committer-coordinator-1"
     # Interval between sidecar committed-block updates. Example: `5s`.
@@ -1529,8 +1529,8 @@ Render sidecar configuration, upstream TLS bundles, and optional Kubernetes Conf
     committer_sidecar_notification_max_timeout: "10m"
     # Inventory hosts for orderer assembler components. Example: `['orderer-assembler-1', 'orderer-assembler-2']`.
     orderer_assemblers:
-      - orderer-assembler-1
-      - orderer-assembler-2
+      - "orderer-assembler-1"
+      - "orderer-assembler-2"
     # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx/artifacts"
     # Enable Kubernetes deployment mode.
@@ -1679,12 +1679,12 @@ Ensure the namespace exists and apply the coordinator Service, NodePort Service,
     committer_k8s_wait_timeout: 120
     # Inventory hosts for validator components. Example: `['committer-validator-1', 'committer-validator-2']`.
     committer_validators:
-      - committer-validator-1
-      - committer-validator-2
+      - "committer-validator-1"
+      - "committer-validator-2"
     # Inventory hosts for verifier components. Example: `['committer-verifier-1', 'committer-verifier-2']`.
     committer_verifiers:
-      - committer-verifier-1
-      - committer-verifier-2
+      - "committer-verifier-1"
+      - "committer-verifier-2"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: coordinator/k8s/start
@@ -1858,12 +1858,12 @@ Ensure the namespace exists and create the coordinator Kubernetes ConfigMap. Pub
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Inventory hosts for validator components. Example: `['committer-validator-1', 'committer-validator-2']`.
     committer_validators:
-      - committer-validator-1
-      - committer-validator-2
+      - "committer-validator-1"
+      - "committer-validator-2"
     # Inventory hosts for verifier components. Example: `['committer-verifier-1', 'committer-verifier-2']`.
     committer_verifiers:
-      - committer-verifier-1
-      - committer-verifier-2
+      - "committer-verifier-1"
+      - "committer-verifier-2"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: coordinator/k8s/config/transfer

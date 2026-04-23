@@ -356,8 +356,8 @@ Creates the remote fxconfig configuration directory, renders the fxconfig file, 
     orderer_router_host: "orderer-router-1"
     # Provides organization metadata required by tasks that read `organization.*`, including names, users, domains, and namespace declarations. Example: `{'name': 'Org1', 'domain': 'org1.example.com'}`.
     organization:
-      name: 'Org1'
-      domain: 'org1.example.com'
+      name: "Org1"
+      domain: "org1.example.com"
     # Provides the base remote configuration directory used by the role. Example: `/opt/hyperledger/fabricx/config`.
     remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
@@ -608,8 +608,8 @@ Selects the preferred endorser from `organization.users` for namespace transacti
   vars:
     # Provides organization metadata required by tasks that read `organization.*`, including names, users, domains, and namespace declarations. Example: `{'name': 'Org1', 'domain': 'org1.example.com'}`.
     organization:
-      name: 'Org1'
-      domain: 'org1.example.com'
+      name: "Org1"
+      domain: "org1.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
     tasks_from: get_endorser
@@ -712,8 +712,8 @@ Builds a namespace-to-host mapping from inventory organization data before creat
     fetched_artifacts_dir: "/tmp/fabricx/config-build"
     # Limits namespace grouping to a subset of inventory hosts. If omitted, the task considers all hosts. Example: `['committer-sidecar', 'committer-query-service']`. Selected hosts must expose the organization metadata expected by the namespace grouping helper.
     fxconfig_hosts:
-      - committer-sidecar
-      - committer-query-service
+      - "committer-sidecar"
+      - "committer-query-service"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
     tasks_from: namespace/group
