@@ -34,7 +34,9 @@ from pathlib import Path
 
 import aar_doc.defaults as _d
 import aar_doc.markdown as _m
-from ruamel.yaml.scalarstring import FoldedScalarString, ScalarString, SingleQuotedScalarString
+from ruamel.yaml.scalarstring import (DoubleQuotedScalarString,
+                                      FoldedScalarString, ScalarString,
+                                      SingleQuotedScalarString)
 
 LICENSE_HEADER = "\n".join(
     [
@@ -65,7 +67,9 @@ def _add_default_preserving_scalar_style(self, name, value, description, depth=0
     Here we rebuild the same scalar subclass after trimming whitespace so the
     resulting ``RoleDefault`` still carries the original YAML style.
     """
-    if isinstance(value, ScalarString):
+    if isinstance(value, SingleQuotedScalarString):
+        value = DoubleQuotedScalarString(str(value).strip())
+    elif isinstance(value, ScalarString):
         value = type(value)(str(value).strip())
     elif isinstance(value, str):
         value = value.strip()
@@ -105,11 +109,11 @@ def _safe_quote_recursive_preserving_scalar_style(self, value):
         value = str(value)
     if isinstance(value, str):
         if value in ("yes", "no"):
-            return SingleQuotedScalarString(value)
+            return DoubleQuotedScalarString(value)
         if "\n" in value:
             return FoldedScalarString(value)
         if ":" in value:
-            return SingleQuotedScalarString(value)
+            return DoubleQuotedScalarString(value)
     return value
 
 
@@ -153,8 +157,8 @@ _d.RoleDefaultsManager.safe_quote_recursive = _safe_quote_recursive_preserving_s
 _d.write_defaults = _write_defaults_with_license_header
 _m.write_markdown = _write_markdown_without_leading_blank_line
 
-from aar_doc.cli import app  # noqa: E402
 import aar_doc.cli as _cli  # noqa: E402
+from aar_doc.cli import app  # noqa: E402
 
 _cli.write_markdown = _write_markdown_without_leading_blank_line
 

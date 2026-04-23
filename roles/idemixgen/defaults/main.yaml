@@ -28,7 +28,7 @@ idemixgen_git_hub_url: github.com
 idemixgen_git_repo: IBM/idemix
 # Defines the container image used to run idemixgen.
 # The default derives from C(idemixgen_registry_endpoint), C(idemixgen_image_name), and C(idemixgen_image_tag).
-idemixgen_image: '{{ idemixgen_registry_endpoint }}/{{ idemixgen_image_name }}:{{ idemixgen_image_tag }}'
+idemixgen_image: "{{ idemixgen_registry_endpoint }}/{{ idemixgen_image_name }}:{{ idemixgen_image_tag }}"
 # Defines the image name used for the idemixgen container.
 idemixgen_image_name: fabric-x-tools
 # Defines the image tag used for the idemixgen container.

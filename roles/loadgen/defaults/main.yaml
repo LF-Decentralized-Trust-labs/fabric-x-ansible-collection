@@ -33,7 +33,7 @@ loadgen_image_name: fabric-x-loadgen
 loadgen_image_tag: 0.1.9
 # Loadgen container image.
 # The default derives from C(loadgen_registry_endpoint), C(loadgen_image_name), and C(loadgen_image_tag).
-loadgen_image: '{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}'
+loadgen_image: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
 # Container name used by the runtime.
 loadgen_container_name: '{{ inventory_hostname }}'
 # Git host used for binary builds.
@@ -71,7 +71,7 @@ loadgen_crypto_name: '{{ organization.peer.name | default(inventory_hostname) }}
 # Log level specification.
 loadgen_log_level: info
 # Log message format template.
-loadgen_log_format: '%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}'
+loadgen_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
 # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
 loadgen_k8s_resource_name: '{{ inventory_hostname }}'
 # Deployment rollout wait timeout in seconds.

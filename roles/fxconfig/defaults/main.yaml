@@ -22,13 +22,13 @@ fxconfig_git_hub_url: github.com
 # Defines the Fabric-X source repository path. Example: C(hyperledger/fabric-x).
 fxconfig_git_repo: hyperledger/fabric-x
 # Defines the fxconfig container image. The default derives from C(fxconfig_registry_endpoint), C(fxconfig_image_name), and C(fxconfig_image_tag).
-fxconfig_image: '{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}'
+fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
 # Defines the image name used by the default fxconfig container image. Example: C(fabric-x-tools).
 fxconfig_image_name: fabric-x-tools
 # Defines the image tag used by the default fxconfig container image. Example: C(0.0.12).
 fxconfig_image_tag: 0.0.12
 # Defines the fxconfig log format.
-fxconfig_log_format: '%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}'
+fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
 # Defines the fxconfig log level. Example: C(info).
 fxconfig_log_level: info
 # Defines the MSP identifier written into the rendered configuration. The default derives from C(organization.name).

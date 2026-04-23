@@ -15,7 +15,7 @@ openssl_ca_cert_file: ca.crt
 # OpenSSL algorithm passed to C(openssl genpkey).
 openssl_key_alg: RSA
 # Key type passed to C(openssl req -newkey).
-openssl_key_type: 'rsa:4096'
+openssl_key_type: "rsa:4096"
 # Number of days the generated certificate remains valid.
 openssl_cert_duration: 365
 # Message digest written into the generated OpenSSL request config.
@@ -29,7 +29,7 @@ openssl_organization: MyOrg Inc.
 # Common Name written into the certificate subject.
 openssl_common_name: example.com
 # Basic constraints value written into the X.509 v3 extensions.
-openssl_basic_constraints: 'CA:false'
+openssl_basic_constraints: "CA:false"
 # Key usage written into the X.509 v3 extensions.
 openssl_key_usage: keyEncipherment, digitalSignature
 # Extended key usage written into the X.509 v3 extensions.

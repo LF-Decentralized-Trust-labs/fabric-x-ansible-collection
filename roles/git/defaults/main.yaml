@@ -13,9 +13,9 @@ git_hub_url: github.com
 # Selects the SSH-derived default repository URI when true; otherwise HTTPS is used.
 git_use_ssh: false
 # Default HTTPS repository URI built from C(git_hub_url) and C(git_repo).
-git_https_uri: 'https://{{ git_hub_url }}/{{ git_repo }}.git'
+git_https_uri: "https://{{ git_hub_url }}/{{ git_repo }}.git"
 # Default SSH repository URI built from C(git_hub_url) and C(git_repo).
-git_ssh_uri: 'git@{{ git_hub_url }}:{{ git_repo }}.git'
+git_ssh_uri: "git@{{ git_hub_url }}:{{ git_repo }}.git"
 # Effective repository URI passed to C(ansible.builtin.git).
 # Defaults to C(git_ssh_uri) when C(git_use_ssh) is true, otherwise C(git_https_uri).
 git_uri: '{{ git_ssh_uri if git_use_ssh else git_https_uri }}'

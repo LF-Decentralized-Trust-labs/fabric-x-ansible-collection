@@ -14,7 +14,7 @@ node_exporter_image_name: node-exporter
 node_exporter_image_tag: latest
 # Sets the full Node Exporter image reference.
 # The default derives from C(node_exporter_registry_endpoint), C(node_exporter_image_name), and C(node_exporter_image_tag).
-node_exporter_image: '{{ node_exporter_registry_endpoint }}/{{ node_exporter_image_name }}:{{ node_exporter_image_tag }}'
+node_exporter_image: "{{ node_exporter_registry_endpoint }}/{{ node_exporter_image_name }}:{{ node_exporter_image_tag }}"
 # Sets the container name used for the Node Exporter runtime.
 node_exporter_container_name: node-exporter
 # Sets the remote Node Exporter configuration directory.

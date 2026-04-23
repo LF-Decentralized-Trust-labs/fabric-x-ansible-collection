@@ -30,7 +30,7 @@ yugabyte_image_name: yugabyte
 yugabyte_image_tag: 2025.2.1.0-b141
 # Sets the YugabyteDB container image.
 # The default derives from C(yugabyte_registry_endpoint), C(yugabyte_image_name), and C(yugabyte_image_tag).
-yugabyte_image: '{{ yugabyte_registry_endpoint }}/{{ yugabyte_image_name }}:{{ yugabyte_image_tag }}'
+yugabyte_image: "{{ yugabyte_registry_endpoint }}/{{ yugabyte_image_name }}:{{ yugabyte_image_tag }}"
 # Names the YugabyteDB container associated with the current host.
 # The default derives from C(inventory_hostname).
 yugabyte_container_name: '{{ inventory_hostname }}'

@@ -20,7 +20,7 @@ fabric_ca_image_name: fabric-ca
 # Sets the Fabric CA image tag.
 fabric_ca_image_tag: 1.5.15
 # Sets the Fabric CA image; the default derives from C(fabric_ca_registry_endpoint), C(fabric_ca_image_name), and C(fabric_ca_image_tag).
-fabric_ca_image: '{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}'
+fabric_ca_image: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
 # Sets the container name used for the Fabric CA server runtime.
 fabric_ca_container_name: '{{ inventory_hostname }}'
 # Sets the Git host used for Fabric CA source lookups.

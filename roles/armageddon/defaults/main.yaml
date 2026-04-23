@@ -14,7 +14,7 @@ armageddon_image_name: fabric-x-orderer
 armageddon_image_tag: 0.0.21-1
 # Fully qualified Armageddon image reference.
 # The default derives from C(armageddon_registry_endpoint), C(armageddon_image_name), and C(armageddon_image_tag).
-armageddon_image: '{{ armageddon_registry_endpoint }}/{{ armageddon_image_name }}:{{ armageddon_image_tag }}'
+armageddon_image: "{{ armageddon_registry_endpoint }}/{{ armageddon_image_name }}:{{ armageddon_image_tag }}"
 # Armageddon container name.
 armageddon_container_name: armageddon
 # Git host used for the Armageddon source repository.

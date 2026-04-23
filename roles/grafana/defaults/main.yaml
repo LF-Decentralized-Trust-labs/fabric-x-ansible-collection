@@ -14,7 +14,7 @@ grafana_image_name: grafana-oss
 grafana_image_tag: latest
 # Sets the Grafana image reference.
 # The default derives from C(grafana_registry_endpoint), C(grafana_image_name), and C(grafana_image_tag).
-grafana_image: '{{ grafana_registry_endpoint }}/{{ grafana_image_name }}:{{ grafana_image_tag }}'
+grafana_image: "{{ grafana_registry_endpoint }}/{{ grafana_image_name }}:{{ grafana_image_tag }}"
 # Sets the Grafana container name.
 # The default derives from C(inventory_hostname).
 grafana_container_name: '{{ inventory_hostname }}'

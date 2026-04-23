@@ -14,7 +14,7 @@ orderer_image_name: fabric-x-orderer
 orderer_image_tag: 0.0.23
 # Full image reference used by the container and Kubernetes branches.
 # The default derives from C(orderer_registry_endpoint), C(orderer_image_name), and C(orderer_image_tag).
-orderer_image: '{{ orderer_registry_endpoint }}/{{ orderer_image_name }}:{{ orderer_image_tag }}'
+orderer_image: "{{ orderer_registry_endpoint }}/{{ orderer_image_name }}:{{ orderer_image_tag }}"
 # Container name used by the container lifecycle branch.
 # The default derives from C(inventory_hostname).
 orderer_container_name: '{{ inventory_hostname }}'

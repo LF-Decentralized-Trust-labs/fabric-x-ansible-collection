@@ -14,7 +14,7 @@ postgres_exporter_image_name: postgres-exporter
 postgres_exporter_image_tag: latest
 # Sets the full Postgres Exporter image reference.
 # The default derives from C(postgres_exporter_registry_endpoint), C(postgres_exporter_image_name), and C(postgres_exporter_image_tag).
-postgres_exporter_image: '{{ postgres_exporter_registry_endpoint }}/{{ postgres_exporter_image_name }}:{{ postgres_exporter_image_tag }}'
+postgres_exporter_image: "{{ postgres_exporter_registry_endpoint }}/{{ postgres_exporter_image_name }}:{{ postgres_exporter_image_tag }}"
 # Sets the Postgres Exporter container name.
 # The default derives from C(inventory_hostname).
 postgres_exporter_container_name: '{{ inventory_hostname }}'

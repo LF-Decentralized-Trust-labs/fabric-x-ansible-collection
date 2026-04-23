@@ -22,7 +22,7 @@ cryptogen_image_name: fabric-x-tools
 cryptogen_image_tag: 0.0.8
 # Sets the full cryptogen image reference.
 # The default derives from C(cryptogen_registry_endpoint), C(cryptogen_image_name), and C(cryptogen_image_tag).
-cryptogen_image: '{{ cryptogen_registry_endpoint }}/{{ cryptogen_image_name }}:{{ cryptogen_image_tag }}'
+cryptogen_image: "{{ cryptogen_registry_endpoint }}/{{ cryptogen_image_name }}:{{ cryptogen_image_tag }}"
 # Sets the container name used for the cryptogen run.
 cryptogen_container_name: cryptogen
 # Sets the container directory that receives the mounted cryptogen inputs.

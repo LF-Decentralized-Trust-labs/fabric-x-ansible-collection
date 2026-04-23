@@ -19,10 +19,10 @@ container_host_uid: '{{ ansible_facts.user_uid }}'
 container_host_gid: '{{ ansible_facts.user_gid }}'
 # Builds the host uid:gid pair used for rootless container execution.
 # The default derives from C(container_host_uid) and C(container_host_gid).
-container_host_user: '{{ container_host_uid }}:{{ container_host_gid }}'
+container_host_user: "{{ container_host_uid }}:{{ container_host_gid }}"
 # Reports whether C(container_host_user) resolves to C(0:0).
 # The default derives from C(container_host_user).
-container_host_user_is_root: '{{ container_host_user == ''0:0'' }}'
+container_host_user_is_root: "{{ container_host_user == '0:0' }}"
 # Runs the container as the detected host user when set to C(true).
 container_run_as_host_user: false
 # Marks whether the target host is macOS.

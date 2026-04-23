@@ -14,7 +14,7 @@ elasticsearch_image_name: elasticsearch
 elasticsearch_image_tag: 8.19.6
 # Full container image reference for ElasticSearch.
 # The default derives from C(elasticsearch_registry_endpoint), C(elasticsearch_image_name), and C(elasticsearch_image_tag).
-elasticsearch_image: '{{ elasticsearch_registry_endpoint }}/{{ elasticsearch_image_name }}:{{ elasticsearch_image_tag }}'
+elasticsearch_image: "{{ elasticsearch_registry_endpoint }}/{{ elasticsearch_image_name }}:{{ elasticsearch_image_tag }}"
 # Container name for the ElasticSearch instance.
 # The default derives from C(inventory_hostname).
 elasticsearch_container_name: '{{ inventory_hostname }}'

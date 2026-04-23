@@ -14,7 +14,7 @@ prometheus_image_name: prometheus
 prometheus_image_tag: latest
 # Fully qualified Prometheus container image.
 # The default is composed from C(prometheus_registry_endpoint), C(prometheus_image_name), and C(prometheus_image_tag).
-prometheus_image: '{{ prometheus_registry_endpoint }}/{{ prometheus_image_name }}:{{ prometheus_image_tag }}'
+prometheus_image: "{{ prometheus_registry_endpoint }}/{{ prometheus_image_name }}:{{ prometheus_image_tag }}"
 # Container name used for the Prometheus workload.
 # The default derives from C(inventory_hostname).
 prometheus_container_name: '{{ inventory_hostname }}'

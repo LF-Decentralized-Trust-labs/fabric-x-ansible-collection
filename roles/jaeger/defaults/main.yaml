@@ -18,7 +18,7 @@ jaeger_image_name: all-in-one
 jaeger_image_tag: latest
 # Sets the Jaeger container image.
 # The default derives from C(jaeger_registry_endpoint), C(jaeger_image_name), and C(jaeger_image_tag).
-jaeger_image: '{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_image_tag }}'
+jaeger_image: "{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_image_tag }}"
 # Sets the Jaeger container name.
 # The default derives from C(inventory_hostname).
 jaeger_container_name: '{{ inventory_hostname }}'

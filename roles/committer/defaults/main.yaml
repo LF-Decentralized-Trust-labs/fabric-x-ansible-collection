@@ -14,7 +14,7 @@ committer_image_name: fabric-x-committer
 committer_image_tag: 0.1.9
 # Fully qualified committer image.
 # The default derives from C(committer_registry_endpoint), C(committer_image_name), and C(committer_image_tag).
-committer_image: '{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}'
+committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
 # Container name used by the committer container helper.
 # The default derives from C(inventory_hostname).
 committer_container_name: '{{ inventory_hostname }}'
@@ -88,4 +88,4 @@ committer_crypto_name: '{{ organization.peer.name | default(inventory_hostname) 
 # Log level emitted by the committer component.
 committer_log_level: info
 # Log format emitted by the committer component.
-committer_log_format: '%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}'
+committer_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
