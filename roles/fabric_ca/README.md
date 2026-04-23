@@ -1097,9 +1097,9 @@ Creates the Fabric CA resources on Kubernetes.
     # Provides an optional Kubernetes image pull secret from shared inventory.
     k8s_image_pull_secret: "string"
     # Sets the Kubernetes NodePort for the API port; the default derives from `fabric_ca_port` and is used when NodePort exposure is enabled.
-    fabric_ca_server_k8s_port_node_port: "{{ fabric_ca_port }}"
+    fabric_ca_server_k8s_port_node_port: 1000
     # Sets the Kubernetes NodePort for the operations port; the default derives from `fabric_ca_operations_port` and is used when NodePort exposure is enabled.
-    fabric_ca_server_k8s_operations_node_port: "{{ fabric_ca_operations_port }}"
+    fabric_ca_server_k8s_operations_node_port: 1000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/k8s/start
@@ -1117,9 +1117,9 @@ Checks that the Fabric CA API and operations NodePorts are reachable when Kubern
     # Enables the optional Kubernetes NodePort Service for the Fabric CA server; client address resolution uses the node-port mapping on the referenced server host.
     fabric_ca_server_k8s_use_node_port: false
     # Sets the Kubernetes NodePort for the API port; the default derives from `fabric_ca_port` and is used when NodePort exposure is enabled.
-    fabric_ca_server_k8s_port_node_port: "{{ fabric_ca_port }}"
+    fabric_ca_server_k8s_port_node_port: 1000
     # Sets the Kubernetes NodePort for the operations port; the default derives from `fabric_ca_operations_port` and is used when NodePort exposure is enabled.
-    fabric_ca_server_k8s_operations_node_port: "{{ fabric_ca_operations_port }}"
+    fabric_ca_server_k8s_operations_node_port: 1000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: k8s/server/ping

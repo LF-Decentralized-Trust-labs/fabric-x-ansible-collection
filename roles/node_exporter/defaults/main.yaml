@@ -44,6 +44,3 @@ node_exporter_k8s_resource_name: '{{ inventory_hostname }}'
 node_exporter_k8s_wait_timeout: 120
 # Enables the optional NodePort Service and NodePort reachability check when true.
 node_exporter_k8s_use_node_port: false
-# Sets the Kubernetes NodePort used for Node Exporter when C(node_exporter_k8s_use_node_port) is true.
-# The default derives from C(node_exporter_port).
-node_exporter_k8s_port_node_port: '{{ node_exporter_port }}'

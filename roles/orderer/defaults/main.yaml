@@ -41,12 +41,6 @@ orderer_k8s_fs_group: 10001
 # Enables the optional NodePort Service for the orderer Kubernetes deployment.
 # The NodePort Service and Kubernetes ping branch use this toggle.
 orderer_k8s_use_node_port: false
-# NodePort used to expose the orderer gRPC service when NodePort exposure is enabled.
-# The default derives from C(orderer_rpc_port).
-orderer_k8s_rpc_node_port: '{{ orderer_rpc_port }}'
-# NodePort used to expose the orderer metrics endpoint when NodePort exposure is enabled.
-# The default derives from C(orderer_metrics_port).
-orderer_k8s_metrics_node_port: '{{ orderer_metrics_port }}'
 # Container path where orderer configuration is mounted.
 orderer_container_config_dir: /config
 # Container path where orderer data is mounted.

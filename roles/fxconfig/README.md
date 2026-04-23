@@ -314,15 +314,15 @@ Inventory hosts named by the routing variables must expose connection metadata, 
     # Defines the Fabric-X channel used by the task. Example: `arma`.
     channel_id: "string"
     # Defines the query-service connection timeout. Example: `30s`.
-    fxconfig_committer_query_service_connection_timeout: 30s
+    fxconfig_committer_query_service_connection_timeout: "string"
     # Identifies the inventory host for the Committer Query-Service component. Example: `committer-query-service-1`.
     committer_query_service_host: "string"
     # Defines the sidecar connection timeout. Example: `30s`.
-    fxconfig_committer_sidecar_connection_timeout: 30s
+    fxconfig_committer_sidecar_connection_timeout: "string"
     # Identifies the inventory host for the Committer Sidecar component. Example: `committer-sidecar-1`.
     committer_sidecar_host: "string"
     # Defines the sidecar waiting timeout. Example: `30s`.
-    fxconfig_committer_sidecar_waiting_timeout: 30s
+    fxconfig_committer_sidecar_waiting_timeout: "string"
     # Defines the local directory that stores fetched artifacts. Example: `/tmp/fabricx-artifacts`.
     fetched_artifacts_dir: "string"
     # Defines the fxconfig configuration filename. Example: `fxconfig.yaml`.
@@ -342,7 +342,7 @@ Inventory hosts named by the routing variables must expose connection metadata, 
     # Defines the source private key path used for fxconfig mTLS. The default derives from `remote_config_dir`.
     fxconfig_mtls_client_key_path: "{{ remote_config_dir }}/tls/server.key"
     # Defines the orderer connection timeout written into the rendered configuration. Example: `30s`.
-    fxconfig_orderer_connection_timeout: 30s
+    fxconfig_orderer_connection_timeout: "string"
     # Defines the fxconfig remote configuration directory. The default derives from `remote_config_dir`.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
     # Selects the host-binary workflow instead of the container workflow.

@@ -5,7 +5,6 @@
 #
 ---
 argument_specs:
-
   _shared_options:
     short_description: Shared option catalog for postgres_exporter role entry points
     options:
@@ -36,7 +35,8 @@ argument_specs:
         required: false
         description:
           - "Sets the optional Kubernetes image pull secret used by the Postgres Exporter Deployment."
-      k8s_readiness_probe_initial_delay_seconds: &k8s_readiness_probe_initial_delay_seconds
+      k8s_readiness_probe_initial_delay_seconds:
+        &k8s_readiness_probe_initial_delay_seconds
         type: int
         required: false
         description:
@@ -54,13 +54,15 @@ argument_specs:
         description:
           - "Overrides the Deployment readiness probe timeout."
           - "The template default is 5 seconds when this variable is unset."
-      k8s_readiness_probe_failure_threshold: &k8s_readiness_probe_failure_threshold
+      k8s_readiness_probe_failure_threshold:
+        &k8s_readiness_probe_failure_threshold
         type: int
         required: false
         description:
           - "Overrides the Deployment readiness probe failure threshold."
           - "The template default is 3 failures when this variable is unset."
-      k8s_liveness_probe_initial_delay_seconds: &k8s_liveness_probe_initial_delay_seconds
+      k8s_liveness_probe_initial_delay_seconds:
+        &k8s_liveness_probe_initial_delay_seconds
         type: int
         required: false
         description:
@@ -78,7 +80,8 @@ argument_specs:
         description:
           - "Overrides the Deployment liveness probe timeout."
           - "The template default is 5 seconds when this variable is unset."
-      k8s_liveness_probe_failure_threshold: &k8s_liveness_probe_failure_threshold
+      k8s_liveness_probe_failure_threshold:
+        &k8s_liveness_probe_failure_threshold
         type: int
         required: false
         description:
@@ -130,7 +133,8 @@ argument_specs:
         description:
           - "Sets the remote directory that stores Postgres Exporter configuration and TLS files."
           - "The default derives from C(remote_config_dir)."
-      postgres_exporter_container_config_dir: &postgres_exporter_container_config_dir
+      postgres_exporter_container_config_dir:
+        &postgres_exporter_container_config_dir
         type: path
         required: false
         default: /var/config
@@ -154,7 +158,8 @@ argument_specs:
         default: false
         description:
           - "Enables Postgres Exporter TLS assets and HTTPS listener configuration when set to C(true)."
-      postgres_exporter_tls_private_key_file: &postgres_exporter_tls_private_key_file
+      postgres_exporter_tls_private_key_file:
+        &postgres_exporter_tls_private_key_file
         type: str
         required: false
         default: server.key
@@ -205,10 +210,10 @@ argument_specs:
         description:
           - "Enables the optional NodePort Service used to expose Postgres Exporter externally from Kubernetes."
           - "When set to C(true), C(postgres_exporter_k8s_port_node_port) is used to populate the Service's node port."
-      postgres_exporter_k8s_port_node_port: &postgres_exporter_k8s_port_node_port
+      postgres_exporter_k8s_port_node_port:
+        &postgres_exporter_k8s_port_node_port
         type: int
         required: false
-        default: "{{ postgres_exporter_port }}"
         description:
           - "Sets the NodePort value exposed by the optional Postgres Exporter Kubernetes Service."
           - "The default derives from C(postgres_exporter_port) so the NodePort stays aligned with the exporter metrics port."

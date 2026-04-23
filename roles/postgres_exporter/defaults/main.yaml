@@ -48,6 +48,3 @@ postgres_exporter_k8s_fs_group: 65534
 # Enables the optional NodePort Service used to expose Postgres Exporter externally from Kubernetes.
 # When set to C(true), C(postgres_exporter_k8s_port_node_port) is used to populate the Service's node port.
 postgres_exporter_k8s_use_node_port: false
-# Sets the NodePort value exposed by the optional Postgres Exporter Kubernetes Service.
-# The default derives from C(postgres_exporter_port) so the NodePort stays aligned with the exporter metrics port.
-postgres_exporter_k8s_port_node_port: '{{ postgres_exporter_port }}'

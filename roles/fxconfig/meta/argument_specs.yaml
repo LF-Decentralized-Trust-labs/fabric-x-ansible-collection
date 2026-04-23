@@ -17,7 +17,6 @@ argument_specs:
         &fxconfig_committer_query_service_connection_timeout
         type: str
         required: false
-        default: "30s"
         description:
           - "Defines the query-service connection timeout. Example: C(30s)."
       committer_query_service_host: &committer_query_service_host
@@ -29,7 +28,6 @@ argument_specs:
         &fxconfig_committer_sidecar_connection_timeout
         type: str
         required: false
-        default: "30s"
         description:
           - "Defines the sidecar connection timeout. Example: C(30s)."
       committer_sidecar_host: &committer_sidecar_host
@@ -41,7 +39,6 @@ argument_specs:
         &fxconfig_committer_sidecar_waiting_timeout
         type: str
         required: false
-        default: "30s"
         description:
           - "Defines the sidecar waiting timeout. Example: C(30s)."
       fetched_artifacts_dir: &fetched_artifacts_dir
@@ -175,7 +172,6 @@ argument_specs:
       fxconfig_orderer_connection_timeout: &fxconfig_orderer_connection_timeout
         type: str
         required: false
-        default: "30s"
         description:
           - "Defines the orderer connection timeout written into the rendered configuration. Example: C(30s)."
       fxconfig_output: &fxconfig_output

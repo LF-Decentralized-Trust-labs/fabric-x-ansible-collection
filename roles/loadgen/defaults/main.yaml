@@ -72,20 +72,9 @@ loadgen_crypto_name: '{{ organization.peer.name | default(inventory_hostname) }}
 loadgen_log_level: info
 # Log message format template.
 loadgen_log_format: '%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}'
-# Maximum generated transaction rate.
-loadgen_limit_rate: 10
 # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
 loadgen_k8s_resource_name: '{{ inventory_hostname }}'
 # Deployment rollout wait timeout in seconds.
 loadgen_k8s_wait_timeout: 120
 # Pod FSGroup used for mounted config and secrets.
 loadgen_k8s_fs_group: 10001
-# NodePort used for the HTTP control port when C(loadgen_use_k8s) and C(loadgen_k8s_use_node_port) are true.
-# The default mirrors C(loadgen_web_port).
-loadgen_k8s_web_node_port: '{{ loadgen_web_port }}'
-# NodePort used for the metrics port when C(loadgen_use_k8s) and C(loadgen_k8s_use_node_port) are true.
-# The default mirrors C(loadgen_metrics_port).
-loadgen_k8s_metrics_node_port: '{{ loadgen_metrics_port }}'
-# NodePort used for the gRPC control port when C(loadgen_use_k8s) and C(loadgen_k8s_use_node_port) are true.
-# The default mirrors C(loadgen_rpc_port).
-loadgen_k8s_rpc_node_port: '{{ loadgen_rpc_port }}'

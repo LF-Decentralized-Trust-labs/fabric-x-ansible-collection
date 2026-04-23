@@ -49,21 +49,3 @@ jaeger_k8s_fs_group: 0
 # Exposes the Jaeger Kubernetes service through a NodePort service when set to C(true).
 # The NodePort service uses the per-port node port values below.
 jaeger_k8s_use_node_port: false
-# Sets the Kubernetes NodePort for the Jaeger UI service.
-# The default derives from C(jaeger_ui_port).
-jaeger_k8s_ui_node_port: '{{ jaeger_ui_port }}'
-# Sets the Kubernetes NodePort for the Jaeger admin service.
-# The default derives from C(jaeger_admin_port).
-jaeger_k8s_admin_node_port: '{{ jaeger_admin_port }}'
-# Sets the Kubernetes NodePort for the Jaeger collector HTTP server.
-# The default derives from C(jaeger_http_server_port).
-jaeger_k8s_http_server_node_port: '{{ jaeger_http_server_port }}'
-# Sets the Kubernetes NodePort for the Jaeger OTLP HTTP collector.
-# The default derives from C(jaeger_http_collector_port).
-jaeger_k8s_http_collector_node_port: '{{ jaeger_http_collector_port }}'
-# Sets the Kubernetes NodePort for the Jaeger gRPC server.
-# The default derives from C(jaeger_grpc_server_port).
-jaeger_k8s_grpc_server_node_port: '{{ jaeger_grpc_server_port }}'
-# Sets the Kubernetes NodePort for the Jaeger OTLP gRPC collector.
-# The default derives from C(jaeger_collector_port).
-jaeger_k8s_collector_node_port: '{{ jaeger_collector_port }}'

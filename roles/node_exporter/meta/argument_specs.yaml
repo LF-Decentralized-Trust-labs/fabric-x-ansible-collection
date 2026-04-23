@@ -5,7 +5,6 @@
 #
 ---
 argument_specs:
-
   _shared_options:
     short_description: Shared option catalog for node_exporter role entry points
     options:
@@ -40,7 +39,8 @@ argument_specs:
         description:
           - Sets the optional image pull secret used by the Node Exporter DaemonSet.
 
-      k8s_readiness_probe_initial_delay_seconds: &k8s_readiness_probe_initial_delay_seconds
+      k8s_readiness_probe_initial_delay_seconds:
+        &k8s_readiness_probe_initial_delay_seconds
         type: int
         required: false
         description:
@@ -61,14 +61,16 @@ argument_specs:
           - Overrides the DaemonSet readiness probe timeout.
           - The template defaults to 5 seconds.
 
-      k8s_readiness_probe_failure_threshold: &k8s_readiness_probe_failure_threshold
+      k8s_readiness_probe_failure_threshold:
+        &k8s_readiness_probe_failure_threshold
         type: int
         required: false
         description:
           - Overrides the DaemonSet readiness probe failure threshold.
           - The template defaults to 3 failures.
 
-      k8s_liveness_probe_initial_delay_seconds: &k8s_liveness_probe_initial_delay_seconds
+      k8s_liveness_probe_initial_delay_seconds:
+        &k8s_liveness_probe_initial_delay_seconds
         type: int
         required: false
         description:
@@ -89,7 +91,8 @@ argument_specs:
           - Overrides the DaemonSet liveness probe timeout.
           - The template defaults to 5 seconds.
 
-      k8s_liveness_probe_failure_threshold: &k8s_liveness_probe_failure_threshold
+      k8s_liveness_probe_failure_threshold:
+        &k8s_liveness_probe_failure_threshold
         type: int
         required: false
         description:
@@ -223,7 +226,6 @@ argument_specs:
       node_exporter_k8s_port_node_port: &node_exporter_k8s_port_node_port
         type: int
         required: false
-        default: "{{ node_exporter_port }}"
         description:
           - Sets the Kubernetes NodePort used for Node Exporter when C(node_exporter_k8s_use_node_port) is true.
           - The default derives from C(node_exporter_port).

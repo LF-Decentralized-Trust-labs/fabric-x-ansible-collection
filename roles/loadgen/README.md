@@ -175,7 +175,7 @@ Query the Loadgen metrics endpoint.
     # Prometheus metrics port exposed by Loadgen.
     loadgen_metrics_port: 1000
     # NodePort used for the metrics port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. The default mirrors `loadgen_metrics_port`.
-    loadgen_k8s_metrics_node_port: "{{ loadgen_metrics_port }}"
+    loadgen_k8s_metrics_node_port: 1000
     # Protocol used to reach the monitoring endpoint.
     loadgen_monitoring_http_protocol: "{{ 'https' if loadgen_monitoring_use_tls else 'http' }}"
     # Enable TLS for the monitoring endpoint. The default mirrors `loadgen_use_tls`.
@@ -207,9 +207,9 @@ Send an HTTP request that updates the generated transaction rate.
     # HTTP control port exposed by Loadgen.
     loadgen_web_port: 1000
     # NodePort used for the HTTP control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. The default mirrors `loadgen_web_port`.
-    loadgen_k8s_web_node_port: "{{ loadgen_web_port }}"
+    loadgen_k8s_web_node_port: 1000
     # Maximum generated transaction rate.
-    loadgen_limit_rate: 10
+    loadgen_limit_rate: 1000
     # Use Kubernetes resources.
     loadgen_use_k8s: false
     # Expose the Kubernetes Service via NodePort when `loadgen_use_k8s` is enabled. This drives the HTTP, metrics, and gRPC NodePort access paths.
@@ -335,7 +335,7 @@ Render and transfer Loadgen configuration.
     # Number of latency histogram buckets.
     loadgen_latency_buckets: 1000
     # Maximum generated transaction rate.
-    loadgen_limit_rate: 10
+    loadgen_limit_rate: 1000
     # Batch size used by the stream pipeline.
     loadgen_stream_batches: 1000
     # Channel buffer size used by the stream pipeline.
@@ -817,11 +817,11 @@ Create the Kubernetes Service, NodePort Service, and Deployment for the Loadgen.
     # gRPC control port exposed by Loadgen.
     loadgen_rpc_port: 1000
     # NodePort used for the HTTP control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. The default mirrors `loadgen_web_port`.
-    loadgen_k8s_web_node_port: "{{ loadgen_web_port }}"
+    loadgen_k8s_web_node_port: 1000
     # NodePort used for the metrics port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. The default mirrors `loadgen_metrics_port`.
-    loadgen_k8s_metrics_node_port: "{{ loadgen_metrics_port }}"
+    loadgen_k8s_metrics_node_port: 1000
     # NodePort used for the gRPC control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. The default mirrors `loadgen_rpc_port`.
-    loadgen_k8s_rpc_node_port: "{{ loadgen_rpc_port }}"
+    loadgen_k8s_rpc_node_port: 1000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: k8s/start
@@ -845,11 +845,11 @@ Verify that the Loadgen NodePort endpoints are reachable.
     # gRPC control port exposed by Loadgen.
     loadgen_rpc_port: 1000
     # NodePort used for the HTTP control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. The default mirrors `loadgen_web_port`.
-    loadgen_k8s_web_node_port: "{{ loadgen_web_port }}"
+    loadgen_k8s_web_node_port: 1000
     # NodePort used for the metrics port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. The default mirrors `loadgen_metrics_port`.
-    loadgen_k8s_metrics_node_port: "{{ loadgen_metrics_port }}"
+    loadgen_k8s_metrics_node_port: 1000
     # NodePort used for the gRPC control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. The default mirrors `loadgen_rpc_port`.
-    loadgen_k8s_rpc_node_port: "{{ loadgen_rpc_port }}"
+    loadgen_k8s_rpc_node_port: 1000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: k8s/ping

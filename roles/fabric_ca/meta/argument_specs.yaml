@@ -190,13 +190,11 @@ argument_specs:
           - "Sets the Fabric CA operations port."
       fabric_ca_server_k8s_port_node_port: &fabric_ca_server_k8s_port_node_port
         type: int
-        default: "{{ fabric_ca_port }}"
         description:
           - "Sets the Kubernetes NodePort for the API port; the default derives from C(fabric_ca_port) and is used when NodePort exposure is enabled."
       fabric_ca_server_k8s_operations_node_port:
         &fabric_ca_server_k8s_operations_node_port
         type: int
-        default: "{{ fabric_ca_operations_port }}"
         description:
           - "Sets the Kubernetes NodePort for the operations port; the default derives from C(fabric_ca_operations_port) and is used when NodePort exposure is enabled."
       fabric_ca_log_level: &fabric_ca_log_level
@@ -329,22 +327,6 @@ argument_specs:
         description:
           - "Supplies the bootstrap administrator rendered into the server registry section; C(name) and C(secret) are required."
           - "Store the secret in Ansible Vault."
-        options:
-          name:
-            type: str
-            required: true
-            description:
-              - "Sets the admin name."
-          secret:
-            type: str
-            required: true
-            description:
-              - "Sets the admin secret."
-          attrs:
-            type: dict
-            required: false
-            description:
-              - "Sets optional admin attributes."
       fabric_ca_tls_certfile: &fabric_ca_tls_certfile
         type: path
         required: false

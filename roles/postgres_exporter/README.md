@@ -463,7 +463,7 @@ The default `postgres_exporter_k8s_port_node_port` value derives from `postgres_
     # Enables the optional NodePort Service used to expose Postgres Exporter externally from Kubernetes. When set to `true`, `postgres_exporter_k8s_port_node_port` is used to populate the Service's node port.
     postgres_exporter_k8s_use_node_port: false
     # Sets the NodePort value exposed by the optional Postgres Exporter Kubernetes Service. The default derives from `postgres_exporter_port` so the NodePort stays aligned with the exporter metrics port.
-    postgres_exporter_k8s_port_node_port: "{{ postgres_exporter_port }}"
+    postgres_exporter_k8s_port_node_port: 1000
     # Sets the Postgres Exporter metrics port. Example: `9187`.
     postgres_exporter_port: 1000
     # Sets the configuration directory mounted inside the container or pod.
@@ -499,7 +499,7 @@ The default `postgres_exporter_k8s_port_node_port` value derives from `postgres_
     # Enables the optional NodePort Service used to expose Postgres Exporter externally from Kubernetes. When set to `true`, `postgres_exporter_k8s_port_node_port` is used to populate the Service's node port.
     postgres_exporter_k8s_use_node_port: false
     # Sets the NodePort value exposed by the optional Postgres Exporter Kubernetes Service. The default derives from `postgres_exporter_port` so the NodePort stays aligned with the exporter metrics port.
-    postgres_exporter_k8s_port_node_port: "{{ postgres_exporter_port }}"
+    postgres_exporter_k8s_port_node_port: 1000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: k8s/ping

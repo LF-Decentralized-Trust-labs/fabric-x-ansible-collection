@@ -57,10 +57,6 @@ fabric_ca_server_k8s_wait_timeout: 120
 fabric_ca_server_k8s_fs_group: 0
 # Enables the optional Kubernetes NodePort Service for the Fabric CA server; client address resolution uses the node-port mapping on the referenced server host.
 fabric_ca_server_k8s_use_node_port: false
-# Sets the Kubernetes NodePort for the API port; the default derives from C(fabric_ca_port) and is used when NodePort exposure is enabled.
-fabric_ca_server_k8s_port_node_port: '{{ fabric_ca_port }}'
-# Sets the Kubernetes NodePort for the operations port; the default derives from C(fabric_ca_operations_port) and is used when NodePort exposure is enabled.
-fabric_ca_server_k8s_operations_node_port: '{{ fabric_ca_operations_port }}'
 # Sets the server log level.
 fabric_ca_log_level: INFO
 # Enables TLS for server and client connections.
@@ -100,6 +96,3 @@ fabric_ca_cryptogenize_tls_ca_cert_file: ca.crt
 fabric_ca_cryptogenize_tls_cert_file: server.crt
 # Sets the normalized TLS private key filename.
 fabric_ca_cryptogenize_tls_key_file: server.key
-# Supplies the bootstrap administrator rendered into the server registry section; C(name) and C(secret) are required.
-# Store the secret in Ansible Vault.
-fabric_ca_admin: {}

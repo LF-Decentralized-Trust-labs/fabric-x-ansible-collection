@@ -157,14 +157,12 @@ argument_specs:
       orderer_k8s_rpc_node_port: &orderer_k8s_rpc_node_port
         type: int
         required: false
-        default: "{{ orderer_rpc_port }}"
         description:
           - "NodePort used to expose the orderer gRPC service when NodePort exposure is enabled."
           - "The default derives from C(orderer_rpc_port)."
       orderer_k8s_metrics_node_port: &orderer_k8s_metrics_node_port
         type: int
         required: false
-        default: "{{ orderer_metrics_port }}"
         description:
           - "NodePort used to expose the orderer metrics endpoint when NodePort exposure is enabled."
           - "The default derives from C(orderer_metrics_port)."

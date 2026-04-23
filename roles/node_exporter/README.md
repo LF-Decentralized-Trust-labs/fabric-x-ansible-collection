@@ -432,7 +432,7 @@ Creates the Kubernetes Service, optional NodePort Service, and DaemonSet for Nod
     # Sets the TCP port exposed by Node Exporter and seeds the default Kubernetes NodePort value.
     node_exporter_port: 1000
     # Sets the Kubernetes NodePort used for Node Exporter when `node_exporter_k8s_use_node_port` is true. The default derives from `node_exporter_port`.
-    node_exporter_k8s_port_node_port: "{{ node_exporter_port }}"
+    node_exporter_k8s_port_node_port: 1000
     # Enables the optional NodePort Service and NodePort reachability check when true.
     node_exporter_k8s_use_node_port: false
     # Sets the registry endpoint used to build the default Node Exporter image reference. The default reads `NODE_EXPORTER_REGISTRY_ENDPOINT` and falls back to `docker.io/prom`.
@@ -492,7 +492,7 @@ Checks that the Kubernetes NodePort exposed by Node Exporter is reachable when t
     # Enables the optional NodePort Service and NodePort reachability check when true.
     node_exporter_k8s_use_node_port: false
     # Sets the Kubernetes NodePort used for Node Exporter when `node_exporter_k8s_use_node_port` is true. The default derives from `node_exporter_port`.
-    node_exporter_k8s_port_node_port: "{{ node_exporter_port }}"
+    node_exporter_k8s_port_node_port: 1000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: k8s/ping

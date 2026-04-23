@@ -298,17 +298,17 @@ This entry point requires the ElasticSearch host inventory to be available.
     # Sets the Jaeger OTLP gRPC collector port.
     jaeger_collector_port: 4317
     # Sets the Kubernetes NodePort for the Jaeger UI service. The default derives from `jaeger_ui_port`.
-    jaeger_k8s_ui_node_port: "{{ jaeger_ui_port }}"
+    jaeger_k8s_ui_node_port: 1000
     # Sets the Kubernetes NodePort for the Jaeger admin service. The default derives from `jaeger_admin_port`.
-    jaeger_k8s_admin_node_port: "{{ jaeger_admin_port }}"
+    jaeger_k8s_admin_node_port: 1000
     # Sets the Kubernetes NodePort for the Jaeger collector HTTP server. The default derives from `jaeger_http_server_port`.
-    jaeger_k8s_http_server_node_port: "{{ jaeger_http_server_port }}"
+    jaeger_k8s_http_server_node_port: 1000
     # Sets the Kubernetes NodePort for the Jaeger OTLP HTTP collector. The default derives from `jaeger_http_collector_port`.
-    jaeger_k8s_http_collector_node_port: "{{ jaeger_http_collector_port }}"
+    jaeger_k8s_http_collector_node_port: 1000
     # Sets the Kubernetes NodePort for the Jaeger gRPC server. The default derives from `jaeger_grpc_server_port`.
-    jaeger_k8s_grpc_server_node_port: "{{ jaeger_grpc_server_port }}"
+    jaeger_k8s_grpc_server_node_port: 1000
     # Sets the Kubernetes NodePort for the Jaeger OTLP gRPC collector. The default derives from `jaeger_collector_port`.
-    jaeger_k8s_collector_node_port: "{{ jaeger_collector_port }}"
+    jaeger_k8s_collector_node_port: 1000
     # Sets the Kubernetes namespace used for Jaeger resources.
     k8s_namespace: "string"
     # Sets the Kubernetes imagePullSecret name when the deployment needs one.
@@ -394,17 +394,17 @@ The node port values default to the corresponding Jaeger service ports.
     # Sets the Jaeger OTLP gRPC collector port.
     jaeger_collector_port: 4317
     # Sets the Kubernetes NodePort for the Jaeger UI service. The default derives from `jaeger_ui_port`.
-    jaeger_k8s_ui_node_port: "{{ jaeger_ui_port }}"
+    jaeger_k8s_ui_node_port: 1000
     # Sets the Kubernetes NodePort for the Jaeger admin service. The default derives from `jaeger_admin_port`.
-    jaeger_k8s_admin_node_port: "{{ jaeger_admin_port }}"
+    jaeger_k8s_admin_node_port: 1000
     # Sets the Kubernetes NodePort for the Jaeger collector HTTP server. The default derives from `jaeger_http_server_port`.
-    jaeger_k8s_http_server_node_port: "{{ jaeger_http_server_port }}"
+    jaeger_k8s_http_server_node_port: 1000
     # Sets the Kubernetes NodePort for the Jaeger OTLP HTTP collector. The default derives from `jaeger_http_collector_port`.
-    jaeger_k8s_http_collector_node_port: "{{ jaeger_http_collector_port }}"
+    jaeger_k8s_http_collector_node_port: 1000
     # Sets the Kubernetes NodePort for the Jaeger gRPC server. The default derives from `jaeger_grpc_server_port`.
-    jaeger_k8s_grpc_server_node_port: "{{ jaeger_grpc_server_port }}"
+    jaeger_k8s_grpc_server_node_port: 1000
     # Sets the Kubernetes NodePort for the Jaeger OTLP gRPC collector. The default derives from `jaeger_collector_port`.
-    jaeger_k8s_collector_node_port: "{{ jaeger_collector_port }}"
+    jaeger_k8s_collector_node_port: 1000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: k8s/ping

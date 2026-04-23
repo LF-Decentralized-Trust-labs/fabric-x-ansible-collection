@@ -350,7 +350,6 @@ argument_specs:
       loadgen_limit_rate: &loadgen_limit_rate
         type: int
         required: false
-        default: 10
         description:
           - Maximum generated transaction rate.
       loadgen_limit_blocks: &loadgen_limit_blocks
@@ -459,21 +458,18 @@ argument_specs:
       loadgen_k8s_web_node_port: &loadgen_k8s_web_node_port
         type: int
         required: false
-        default: "{{ loadgen_web_port }}"
         description:
           - NodePort used for the HTTP control port when C(loadgen_use_k8s) and C(loadgen_k8s_use_node_port) are true.
           - The default mirrors C(loadgen_web_port).
       loadgen_k8s_metrics_node_port: &loadgen_k8s_metrics_node_port
         type: int
         required: false
-        default: "{{ loadgen_metrics_port }}"
         description:
           - NodePort used for the metrics port when C(loadgen_use_k8s) and C(loadgen_k8s_use_node_port) are true.
           - The default mirrors C(loadgen_metrics_port).
       loadgen_k8s_rpc_node_port: &loadgen_k8s_rpc_node_port
         type: int
         required: false
-        default: "{{ loadgen_rpc_port }}"
         description:
           - NodePort used for the gRPC control port when C(loadgen_use_k8s) and C(loadgen_k8s_use_node_port) are true.
           - The default mirrors C(loadgen_rpc_port).

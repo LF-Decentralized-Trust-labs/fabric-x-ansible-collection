@@ -728,9 +728,9 @@ Creates the orderer Services and StatefulSet in Kubernetes after ensuring the na
     # Metrics port exposed by the orderer.
     orderer_metrics_port: 1000
     # NodePort used to expose the orderer gRPC service when NodePort exposure is enabled. The default derives from `orderer_rpc_port`.
-    orderer_k8s_rpc_node_port: "{{ orderer_rpc_port }}"
+    orderer_k8s_rpc_node_port: 1000
     # NodePort used to expose the orderer metrics endpoint when NodePort exposure is enabled. The default derives from `orderer_metrics_port`.
-    orderer_k8s_metrics_node_port: "{{ orderer_metrics_port }}"
+    orderer_k8s_metrics_node_port: 1000
     # Filesystem group applied to mounted ConfigMap and Secret volumes.
     orderer_k8s_fs_group: 10001
     # Full image reference used by the container and Kubernetes branches. The default derives from `orderer_registry_endpoint`, `orderer_image_name`, and `orderer_image_tag`.
@@ -794,9 +794,9 @@ Checks the Kubernetes NodePort endpoints when NodePort exposure is enabled.
     # Enables the optional NodePort Service for the orderer Kubernetes deployment. The NodePort Service and Kubernetes ping branch use this toggle.
     orderer_k8s_use_node_port: false
     # NodePort used to expose the orderer gRPC service when NodePort exposure is enabled. The default derives from `orderer_rpc_port`.
-    orderer_k8s_rpc_node_port: "{{ orderer_rpc_port }}"
+    orderer_k8s_rpc_node_port: 1000
     # NodePort used to expose the orderer metrics endpoint when NodePort exposure is enabled. The default derives from `orderer_metrics_port`.
-    orderer_k8s_metrics_node_port: "{{ orderer_metrics_port }}"
+    orderer_k8s_metrics_node_port: 1000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: k8s/ping
