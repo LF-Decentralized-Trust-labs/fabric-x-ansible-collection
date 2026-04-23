@@ -64,7 +64,8 @@ This entry point validates only variables owned by the bin role and does not red
     # Sets the directory where built binaries are written for each target platform. The default derives from `bin_control_dir`, `bin_build_on_control_node`, and `bin_remote_dir`.
     bin_dir: "{{ bin_control_dir if bin_build_on_control_node else bin_remote_dir }}"
     # Lists the hosts whose facts are used to determine the operating system and architecture combinations that must be built. The default derives from `inventory_hostname`.
-    bin_hosts: ['{{ inventory_hostname }}']
+    bin_hosts: 
+      - "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: go/build
@@ -96,7 +97,8 @@ This entry point validates only bin role inputs and does not redeclare go role v
     # Sets the directory where built binaries are written for each target platform. The default derives from `bin_control_dir`, `bin_build_on_control_node`, and `bin_remote_dir`.
     bin_dir: "{{ bin_control_dir if bin_build_on_control_node else bin_remote_dir }}"
     # Lists the hosts whose facts are used to determine the operating system and architecture combinations that must be built. The default derives from `inventory_hostname`.
-    bin_hosts: ['{{ inventory_hostname }}']
+    bin_hosts: 
+      - "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: go/install
@@ -114,7 +116,8 @@ Host facts for each listed host must already be available before this entry poin
 - name: Map hosts to unique platform keys
   vars:
     # Lists the hosts whose facts are used to determine the operating system and architecture combinations that must be built. The default derives from `inventory_hostname`.
-    bin_hosts: ['{{ inventory_hostname }}']
+    bin_hosts: 
+      - "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: map_platform_to_host

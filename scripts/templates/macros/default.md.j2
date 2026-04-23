@@ -17,6 +17,18 @@ false
 {%- else -%}
 {{ text }}
 {%- endif -%}
+{%- elif value is mapping -%}
+{%- if value | length == 0 -%}
+{}
+{%- else -%}
+{%- for k, v in value.items() %}
+{{ indent }}{{ k }}: {{ render(v, indent + '  ') }}
+{%- endfor -%}
+{%- endif -%}
+{%- elif value is sequence -%}
+{%- for item in value %}
+{{ indent }}- {{ render(item, indent + '  ') }}
+{%- endfor -%}
 {%- else -%}
 {{ value }}
 {%- endif -%}

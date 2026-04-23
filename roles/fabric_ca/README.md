@@ -326,7 +326,10 @@ Enrolls an identity with the locally installed client binary.
     # Provides the resolved host address used in computed defaults such as `fabric_ca_csr_hosts` and in client effective-address resolution.
     actual_host: "string"
     # Sets the CSR SAN host list; the default derives from `actual_host`, `ansible_host`, and `inventory_hostname`.
-    fabric_ca_csr_hosts: ['{{ ansible_host }}', '{{ actual_host }}', '{{ inventory_hostname }}']
+    fabric_ca_csr_hosts: 
+      - "{{ ansible_host }}"
+      - "{{ actual_host }}"
+      - "{{ inventory_hostname }}"
     # Enables TLS for server and client connections.
     fabric_ca_use_tls: false
     # Sets the TLS root certificate file used by Fabric CA client flows when TLS is enabled.
@@ -392,7 +395,10 @@ Reenrolls an existing identity with the locally installed client binary.
     # Provides the resolved host address used in computed defaults such as `fabric_ca_csr_hosts` and in client effective-address resolution.
     actual_host: "string"
     # Sets the CSR SAN host list; the default derives from `actual_host`, `ansible_host`, and `inventory_hostname`.
-    fabric_ca_csr_hosts: ['{{ ansible_host }}', '{{ actual_host }}', '{{ inventory_hostname }}']
+    fabric_ca_csr_hosts: 
+      - "{{ ansible_host }}"
+      - "{{ actual_host }}"
+      - "{{ inventory_hostname }}"
     # Enables TLS for server and client connections.
     fabric_ca_use_tls: false
     # Sets the TLS root certificate file used by Fabric CA client flows when TLS is enabled.
@@ -528,7 +534,10 @@ Enrolls an identity with a transient container.
     # Provides the resolved host address used in computed defaults such as `fabric_ca_csr_hosts` and in client effective-address resolution.
     actual_host: "string"
     # Sets the CSR SAN host list; the default derives from `actual_host`, `ansible_host`, and `inventory_hostname`.
-    fabric_ca_csr_hosts: ['{{ ansible_host }}', '{{ actual_host }}', '{{ inventory_hostname }}']
+    fabric_ca_csr_hosts: 
+      - "{{ ansible_host }}"
+      - "{{ actual_host }}"
+      - "{{ inventory_hostname }}"
     # Enables TLS for server and client connections.
     fabric_ca_use_tls: false
     # Sets the TLS root certificate file used by Fabric CA client flows when TLS is enabled.
@@ -614,7 +623,10 @@ Reenrolls an existing identity with a transient container.
     # Provides the resolved host address used in computed defaults such as `fabric_ca_csr_hosts` and in client effective-address resolution.
     actual_host: "string"
     # Sets the CSR SAN host list; the default derives from `actual_host`, `ansible_host`, and `inventory_hostname`.
-    fabric_ca_csr_hosts: ['{{ ansible_host }}', '{{ actual_host }}', '{{ inventory_hostname }}']
+    fabric_ca_csr_hosts: 
+      - "{{ ansible_host }}"
+      - "{{ actual_host }}"
+      - "{{ inventory_hostname }}"
     # Enables TLS for server and client connections.
     fabric_ca_use_tls: false
     # Sets the TLS root certificate file used by Fabric CA client flows when TLS is enabled.
@@ -1304,7 +1316,10 @@ Generates the Fabric CA root CA and TLS keypairs.
     # Sets the CSR common name; the default derives from `fabric_ca_name`.
     fabric_ca_csr_cn: "{{ fabric_ca_name }}"
     # Sets the CSR SAN host list; the default derives from `actual_host`, `ansible_host`, and `inventory_hostname`.
-    fabric_ca_csr_hosts: ['{{ ansible_host }}', '{{ actual_host }}', '{{ inventory_hostname }}']
+    fabric_ca_csr_hosts: 
+      - "{{ ansible_host }}"
+      - "{{ actual_host }}"
+      - "{{ inventory_hostname }}"
     # Provides the organization metadata defined elsewhere in inventory; `domain` is required.
     organization: {}
   ansible.builtin.include_role:
@@ -1412,7 +1427,10 @@ Renders the Fabric CA server configuration and copies the PostgreSQL TLS CA cert
     # Sets the CSR common name; the default derives from `fabric_ca_name`.
     fabric_ca_csr_cn: "{{ fabric_ca_name }}"
     # Sets the CSR SAN host list; the default derives from `actual_host`, `ansible_host`, and `inventory_hostname`.
-    fabric_ca_csr_hosts: ['{{ ansible_host }}', '{{ actual_host }}', '{{ inventory_hostname }}']
+    fabric_ca_csr_hosts: 
+      - "{{ ansible_host }}"
+      - "{{ actual_host }}"
+      - "{{ inventory_hostname }}"
     # Provides the resolved host address used in computed defaults such as `fabric_ca_csr_hosts` and in client effective-address resolution.
     actual_host: "string"
     # Sets the CSR expiry.
