@@ -44,7 +44,7 @@ Install the `openssl` package on the target host by delegating to the package ro
 
 > Generate an asymmetric key pair
 
-Generate a private key and the matching public key on the target host.The private key is written to `openssl_private_key_path` and the public key to `openssl_public_key_path`.The task is idempotent and skips regeneration when both output files already exist.
+Generate a private key and the matching public key on the target host. The private key is written to `openssl_private_key_path` and the public key to `openssl_public_key_path`. The task is idempotent and skips regeneration when both output files already exist.
 
 ```yaml
 - name: Generate an asymmetric key pair
@@ -66,7 +66,7 @@ Generate a private key and the matching public key on the target host.The privat
 
 > Generate a self-signed certificate
 
-Generate a private key and a self-signed X.509 certificate.The certificate is written to `openssl_cert_path` and remains valid for `openssl_cert_duration` days.The role renders a temporary OpenSSL config file beneath `openssl_remote_config_dir`, then copies the generated certificate to `openssl_ca_cert_file` in the certificate directory so the self-signed output can also act as a CA certificate.When `openssl_clean_after_gen` is true, the temporary configuration directory is removed after generation.
+Generate a private key and a self-signed X.509 certificate. The certificate is written to `openssl_cert_path` and remains valid for `openssl_cert_duration` days. The role renders a temporary OpenSSL config file beneath `openssl_remote_config_dir`, then copies the generated certificate to `openssl_ca_cert_file` in the certificate directory so the self-signed output can also act as a CA certificate. When `openssl_clean_after_gen` is true, the temporary configuration directory is removed after generation.
 
 ```yaml
 - name: Generate a self-signed certificate
@@ -152,7 +152,7 @@ Generate a private key and a self-signed X.509 certificate.The certificate is wr
 
 > Generate a certificate signing request
 
-Generate a private key and certificate signing request using a rendered OpenSSL config file.The private key is written to `openssl_private_key_path` and the CSR to `openssl_csr_path`.The role renders a temporary OpenSSL config file beneath `openssl_remote_config_dir` and, when `openssl_ext_file_path` is set, also renders an extension file for later signing.When `openssl_clean_after_gen` is true, the temporary configuration directory is removed after generation.
+Generate a private key and certificate signing request using a rendered OpenSSL config file. The private key is written to `openssl_private_key_path` and the CSR to `openssl_csr_path`. The role renders a temporary OpenSSL config file beneath `openssl_remote_config_dir` and, when `openssl_ext_file_path` is set, also renders an extension file for later signing. When `openssl_clean_after_gen` is true, the temporary configuration directory is removed after generation.
 
 ```yaml
 - name: Generate a certificate signing request
@@ -238,7 +238,7 @@ Generate a private key and certificate signing request using a rendered OpenSSL 
 
 > Sign a certificate from a CSR
 
-Generate a certificate from an existing CSR using the provided CA certificate and private key.The signed certificate is written to `openssl_cert_path` and remains valid for `openssl_cert_duration` days.When `openssl_ext_file_path` is set, the role applies the rendered extension file while signing so the resulting certificate inherits the requested X.509 v3 extensions.
+Generate a certificate from an existing CSR using the provided CA certificate and private key. The signed certificate is written to `openssl_cert_path` and remains valid for `openssl_cert_duration` days. When `openssl_ext_file_path` is set, the role applies the rendered extension file while signing so the resulting certificate inherits the requested X.509 v3 extensions.
 
 ```yaml
 - name: Sign a certificate from a CSR

@@ -53,7 +53,7 @@ ansible-doc -t role hyperledger.fabricx.node_exporter
 
 > Start Node Exporter
 
-Starts Node Exporter using the backend selected for the host.In container mode, launches the local `node_exporter_container_name` container and publishes `node_exporter_port`.In Kubernetes mode, creates the Service and DaemonSet in `k8s_namespace` and waits for rollout completion.
+Starts Node Exporter using the backend selected for the host. In container mode, launches the local `node_exporter_container_name` container and publishes `node_exporter_port`. In Kubernetes mode, creates the Service and DaemonSet in `k8s_namespace` and waits for rollout completion.
 
 ```yaml
 - name: Start Node Exporter
@@ -71,7 +71,7 @@ Starts Node Exporter using the backend selected for the host.In container mode, 
 
 > Stop Node Exporter
 
-Stops the container-backed Node Exporter workload for the host.Kubernetes deployments use `teardown` instead of this entry point.
+Stops the container-backed Node Exporter workload for the host. Kubernetes deployments use `teardown` instead of this entry point.
 
 ```yaml
 - name: Stop Node Exporter
@@ -87,7 +87,7 @@ Stops the container-backed Node Exporter workload for the host.Kubernetes deploy
 
 > Remove Node Exporter runtime resources
 
-Removes Node Exporter runtime resources for the enabled backend.Container mode removes the local runtime container.Kubernetes mode removes the Service, optional NodePort Service, and DaemonSet.
+Removes Node Exporter runtime resources for the enabled backend. Container mode removes the local runtime container. Kubernetes mode removes the Service, optional NodePort Service, and DaemonSet.
 
 ```yaml
 - name: Remove Node Exporter runtime resources
@@ -105,7 +105,7 @@ Removes Node Exporter runtime resources for the enabled backend.Container mode r
 
 > Remove Node Exporter data and runtime resources
 
-Removes runtime resources, generated TLS material, and transferred configuration for Node Exporter.Use this to fully reset either deployment mode on the current host.
+Removes runtime resources, generated TLS material, and transferred configuration for Node Exporter. Use this to fully reset either deployment mode on the current host.
 
 ```yaml
 - name: Remove Node Exporter data and runtime resources
@@ -118,7 +118,7 @@ Removes runtime resources, generated TLS material, and transferred configuration
 
 > Collect Node Exporter logs
 
-Collects logs from the active Node Exporter backend for this host.Container mode reads the container log stream.Kubernetes mode reads the matching pod logs from the DaemonSet.
+Collects logs from the active Node Exporter backend for this host. Container mode reads the container log stream. Kubernetes mode reads the matching pod logs from the DaemonSet.
 
 ```yaml
 - name: Collect Node Exporter logs
@@ -136,7 +136,7 @@ Collects logs from the active Node Exporter backend for this host.Container mode
 
 > Check Node Exporter reachability
 
-Verifies that the Node Exporter metrics port is reachable on the current host.Kubernetes deployments verify the optional NodePort exposure when it is enabled.
+Verifies that the Node Exporter metrics port is reachable on the current host. Kubernetes deployments verify the optional NodePort exposure when it is enabled.
 
 ```yaml
 - name: Check Node Exporter reachability
@@ -154,7 +154,7 @@ Verifies that the Node Exporter metrics port is reachable on the current host.Ku
 
 > Build the Node Exporter host group
 
-Adds one inventory host per unique `ansible_host` with a defined `node_exporter_port` to the `node_exporter_hosts` group.Example hosts include `worker-1`, `worker-2`, and `worker-3`.
+Adds one inventory host per unique `ansible_host` with a defined `node_exporter_port` to the `node_exporter_hosts` group. Example hosts include `worker-1`, `worker-2`, and `worker-3`.
 
 ```yaml
 - name: Build the Node Exporter host group
@@ -170,7 +170,7 @@ Adds one inventory host per unique `ansible_host` with a defined `node_exporter_
 
 > Transfer Node Exporter configuration
 
-Creates the Node Exporter configuration directory and renders the web configuration file when TLS is enabled.Container mode writes the config under `node_exporter_remote_config_dir` for bind-mounting into the runtime container.Kubernetes mode also applies the ConfigMap that supplies the same config to the DaemonSet.
+Creates the Node Exporter configuration directory and renders the web configuration file when TLS is enabled. Container mode writes the config under `node_exporter_remote_config_dir` for bind-mounting into the runtime container. Kubernetes mode also applies the ConfigMap that supplies the same config to the DaemonSet.
 
 ```yaml
 - name: Transfer Node Exporter configuration
@@ -200,7 +200,7 @@ Creates the Node Exporter configuration directory and renders the web configurat
 
 > Remove Node Exporter configuration
 
-Removes transferred Node Exporter configuration files from the remote host.Kubernetes mode also removes the ConfigMap used by the DaemonSet.
+Removes transferred Node Exporter configuration files from the remote host. Kubernetes mode also removes the ConfigMap used by the DaemonSet.
 
 ```yaml
 - name: Remove Node Exporter configuration
@@ -233,7 +233,7 @@ Copies the bundled Node Exporter dashboard into Grafana by delegating to the Gra
 
 > Generate Node Exporter TLS material
 
-Generates TLS material for Node Exporter when TLS is enabled.Container mode writes certs and keys under `node_exporter_remote_config_dir`/tls.Kubernetes mode also applies the Secret that mounts the same artifacts into the DaemonSet.
+Generates TLS material for Node Exporter when TLS is enabled. Container mode writes certs and keys under `node_exporter_remote_config_dir`/tls. Kubernetes mode also applies the Secret that mounts the same artifacts into the DaemonSet.
 
 ```yaml
 - name: Generate Node Exporter TLS material
@@ -251,7 +251,7 @@ Generates TLS material for Node Exporter when TLS is enabled.Container mode writ
 
 > Fetch Node Exporter TLS certificates
 
-Fetches the generated Node Exporter CA certificate and server certificate from the remote host when TLS is enabled.Writes the artifacts into `fetched_artifacts_dir` for later reuse.
+Fetches the generated Node Exporter CA certificate and server certificate from the remote host when TLS is enabled. Writes the artifacts into `fetched_artifacts_dir` for later reuse.
 
 ```yaml
 - name: Fetch Node Exporter TLS certificates
@@ -273,7 +273,7 @@ Fetches the generated Node Exporter CA certificate and server certificate from t
 
 > Remove Node Exporter TLS material
 
-Removes generated TLS material for Node Exporter.Kubernetes mode also removes the TLS Secret used by the DaemonSet.
+Removes generated TLS material for Node Exporter. Kubernetes mode also removes the TLS Secret used by the DaemonSet.
 
 ```yaml
 - name: Remove Node Exporter TLS material
@@ -295,7 +295,7 @@ Removes generated TLS material for Node Exporter.Kubernetes mode also removes th
 
 > Generate a self-signed TLS certificate for Node Exporter
 
-Delegates to the OpenSSL role to generate a self-signed certificate and private key for Node Exporter.Uses the organization data and TLS filenames to place the artifacts under the Node Exporter config path.
+Delegates to the OpenSSL role to generate a self-signed certificate and private key for Node Exporter. Uses the organization data and TLS filenames to place the artifacts under the Node Exporter config path.
 
 ```yaml
 - name: Generate a self-signed TLS certificate for Node Exporter
@@ -319,7 +319,7 @@ Delegates to the OpenSSL role to generate a self-signed certificate and private 
 
 > Start Node Exporter in a container
 
-Starts the Node Exporter container with the configured image, port, mounts, and optional TLS web configuration.The container name comes from `node_exporter_container_name` and the image from `node_exporter_image`.The runtime binds the host root filesystem plus `node_exporter_remote_config_dir` for config and TLS material.
+Starts the Node Exporter container with the configured image, port, mounts, and optional TLS web configuration. The container name comes from `node_exporter_container_name` and the image from `node_exporter_image`. The runtime binds the host root filesystem plus `node_exporter_remote_config_dir` for config and TLS material.
 
 ```yaml
 - name: Start Node Exporter in a container
@@ -357,7 +357,7 @@ Starts the Node Exporter container with the configured image, port, mounts, and 
 
 > Stop the Node Exporter container
 
-Stops the Node Exporter container by delegating to the shared container role.Uses the configured container name and image reference to identify the runtime.
+Stops the Node Exporter container by delegating to the shared container role. Uses the configured container name and image reference to identify the runtime.
 
 ```yaml
 - name: Stop the Node Exporter container
@@ -381,7 +381,7 @@ Stops the Node Exporter container by delegating to the shared container role.Use
 
 > Remove the Node Exporter container
 
-Removes the Node Exporter container by delegating to the shared container role.Leaves the config and TLS paths untouched so a later start can reuse them if desired.
+Removes the Node Exporter container by delegating to the shared container role. Leaves the config and TLS paths untouched so a later start can reuse them if desired.
 
 ```yaml
 - name: Remove the Node Exporter container
@@ -405,7 +405,7 @@ Removes the Node Exporter container by delegating to the shared container role.L
 
 > Fetch logs from the Node Exporter container
 
-Collects logs from the Node Exporter container by delegating to the shared container role.This is the container-mode log path used by the top-level fetch_logs entry point.
+Collects logs from the Node Exporter container by delegating to the shared container role. This is the container-mode log path used by the top-level fetch_logs entry point.
 
 ```yaml
 - name: Fetch logs from the Node Exporter container
@@ -421,7 +421,7 @@ Collects logs from the Node Exporter container by delegating to the shared conta
 
 > Start Node Exporter on Kubernetes
 
-Creates the Kubernetes Service, optional NodePort Service, and DaemonSet for Node Exporter.Uses `k8s_namespace`, `node_exporter_k8s_resource_name`, and `node_exporter_port` to shape the workload identity and service exposure.Waits for the DaemonSet rollout before returning.
+Creates the Kubernetes Service, optional NodePort Service, and DaemonSet for Node Exporter. Uses `k8s_namespace`, `node_exporter_k8s_resource_name`, and `node_exporter_port` to shape the workload identity and service exposure. Waits for the DaemonSet rollout before returning.
 
 ```yaml
 - name: Start Node Exporter on Kubernetes
@@ -483,7 +483,7 @@ Creates the Kubernetes Service, optional NodePort Service, and DaemonSet for Nod
 
 > Check Node Exporter reachability on Kubernetes
 
-Checks that the Kubernetes NodePort exposed by Node Exporter is reachable when the NodePort Service is enabled.Skips the NodePort check when `node_exporter_k8s_use_node_port` is false.
+Checks that the Kubernetes NodePort exposed by Node Exporter is reachable when the NodePort Service is enabled. Skips the NodePort check when `node_exporter_k8s_use_node_port` is false.
 
 ```yaml
 - name: Check Node Exporter reachability on Kubernetes
@@ -503,7 +503,7 @@ Checks that the Kubernetes NodePort exposed by Node Exporter is reachable when t
 
 > Remove Node Exporter Kubernetes resources
 
-Removes the Kubernetes DaemonSet and Services created for Node Exporter.Targets the workload by `k8s_namespace` and `node_exporter_k8s_resource_name`.
+Removes the Kubernetes DaemonSet and Services created for Node Exporter. Targets the workload by `k8s_namespace` and `node_exporter_k8s_resource_name`.
 
 ```yaml
 - name: Remove Node Exporter Kubernetes resources
@@ -521,7 +521,7 @@ Removes the Kubernetes DaemonSet and Services created for Node Exporter.Targets 
 
 > Fetch logs from Node Exporter pods
 
-Collects logs from Node Exporter pods by delegating to the shared Kubernetes role.This is the Kubernetes-mode log path used by the top-level fetch_logs entry point.
+Collects logs from Node Exporter pods by delegating to the shared Kubernetes role. This is the Kubernetes-mode log path used by the top-level fetch_logs entry point.
 
 ```yaml
 - name: Fetch logs from Node Exporter pods
@@ -537,7 +537,7 @@ Collects logs from Node Exporter pods by delegating to the shared Kubernetes rol
 
 > Apply the Node Exporter Kubernetes ConfigMap
 
-Ensures the target namespace exists and applies the ConfigMap used by the Node Exporter DaemonSet.The ConfigMap points at `node_exporter_remote_config_dir` content and the rendered web config when TLS is enabled.
+Ensures the target namespace exists and applies the ConfigMap used by the Node Exporter DaemonSet. The ConfigMap points at `node_exporter_remote_config_dir` content and the rendered web config when TLS is enabled.
 
 ```yaml
 - name: Apply the Node Exporter Kubernetes ConfigMap
@@ -563,7 +563,7 @@ Ensures the target namespace exists and applies the ConfigMap used by the Node E
 
 > Remove the Node Exporter Kubernetes ConfigMap
 
-Deletes the ConfigMap used by the Node Exporter Kubernetes deployment.Keeps the namespace and runtime pods untouched so teardown can be handled separately.
+Deletes the ConfigMap used by the Node Exporter Kubernetes deployment. Keeps the namespace and runtime pods untouched so teardown can be handled separately.
 
 ```yaml
 - name: Remove the Node Exporter Kubernetes ConfigMap
@@ -581,7 +581,7 @@ Deletes the ConfigMap used by the Node Exporter Kubernetes deployment.Keeps the 
 
 > Apply the Node Exporter Kubernetes TLS Secret
 
-Ensures the target namespace exists and applies the Secret that stores Node Exporter TLS material.The Secret name matches `node_exporter_k8s_resource_name`.
+Ensures the target namespace exists and applies the Secret that stores Node Exporter TLS material. The Secret name matches `node_exporter_k8s_resource_name`.
 
 ```yaml
 - name: Apply the Node Exporter Kubernetes TLS Secret
@@ -609,7 +609,7 @@ Ensures the target namespace exists and applies the Secret that stores Node Expo
 
 > Remove the Node Exporter Kubernetes TLS Secret
 
-Deletes the Secret that stores Node Exporter TLS material for Kubernetes deployments.Targets the Secret named after `node_exporter_k8s_resource_name`.
+Deletes the Secret that stores Node Exporter TLS material for Kubernetes deployments. Targets the Secret named after `node_exporter_k8s_resource_name`.
 
 ```yaml
 - name: Remove the Node Exporter Kubernetes TLS Secret
@@ -627,7 +627,7 @@ Deletes the Secret that stores Node Exporter TLS material for Kubernetes deploym
 
 > Build Prometheus scrape targets for Node Exporter
 
-Builds the scrape service definitions Prometheus uses to collect metrics from the selected Node Exporter hosts.Uses the host list from `node_exporter_hosts` together with `node_exporter_port` to create scrape targets.
+Builds the scrape service definitions Prometheus uses to collect metrics from the selected Node Exporter hosts. Uses the host list from `node_exporter_hosts` together with `node_exporter_port` to create scrape targets.
 
 ```yaml
 - name: Build Prometheus scrape targets for Node Exporter

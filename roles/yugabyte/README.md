@@ -61,7 +61,7 @@ ansible-doc -t role hyperledger.fabricx.yugabyte
 
 > Start a YugabyteDB cluster
 
-Builds master and tablet topology facts from `yugabyte_cluster`, derives the master RPC endpoint list, and dispatches each host to the container or Kubernetes startup path.Master hosts run `yb-master` with a replication factor based on the master host list; tablet hosts run `yb-tserver` and the first tablet initializes the configured database.
+Builds master and tablet topology facts from `yugabyte_cluster`, derives the master RPC endpoint list, and dispatches each host to the container or Kubernetes startup path. Master hosts run `yb-master` with a replication factor based on the master host list; tablet hosts run `yb-tserver` and the first tablet initializes the configured database.
 
 ```yaml
 - name: Start a YugabyteDB cluster
@@ -87,7 +87,7 @@ Builds master and tablet topology facts from `yugabyte_cluster`, derives the mas
 
 > Stop YugabyteDB runtime
 
-Stops the YugabyteDB runtime for container deployments.Kubernetes mode is managed through the removal entry points because StatefulSets and Services are reconciled resources.
+Stops the YugabyteDB runtime for container deployments. Kubernetes mode is managed through the removal entry points because StatefulSets and Services are reconciled resources.
 
 ```yaml
 - name: Stop YugabyteDB runtime
@@ -105,7 +105,7 @@ Stops the YugabyteDB runtime for container deployments.Kubernetes mode is manage
 
 > Remove YugabyteDB runtime artifacts
 
-Removes the active YugabyteDB runtime in the selected deployment mode and then removes persisted role-managed data.Container mode deletes the running container and host data directory; Kubernetes mode deletes StatefulSets, Services, optional NodePort Services, and PVCs.
+Removes the active YugabyteDB runtime in the selected deployment mode and then removes persisted role-managed data. Container mode deletes the running container and host data directory; Kubernetes mode deletes StatefulSets, Services, optional NodePort Services, and PVCs.
 
 ```yaml
 - name: Remove YugabyteDB runtime artifacts
@@ -123,7 +123,7 @@ Removes the active YugabyteDB runtime in the selected deployment mode and then r
 
 > Wipe YugabyteDB state
 
-Runs teardown, removes persisted data, and deletes role-managed TLS and initialization configuration artifacts.Use this entry point when the YugabyteDB node should be returned to a clean state before regeneration.
+Runs teardown, removes persisted data, and deletes role-managed TLS and initialization configuration artifacts. Use this entry point when the YugabyteDB node should be returned to a clean state before regeneration.
 
 ```yaml
 - name: Wipe YugabyteDB state
@@ -136,7 +136,7 @@ Runs teardown, removes persisted data, and deletes role-managed TLS and initiali
 
 > Collect YugabyteDB logs
 
-Collects YugabyteDB logs through the selected deployment mode.Container mode fetches logs from the named container; Kubernetes mode fetches pod logs selected by the resource labels.
+Collects YugabyteDB logs through the selected deployment mode. Container mode fetches logs from the named container; Kubernetes mode fetches pod logs selected by the resource labels.
 
 ```yaml
 - name: Collect YugabyteDB logs
@@ -154,7 +154,7 @@ Collects YugabyteDB logs through the selected deployment mode.Container mode fet
 
 > Check YugabyteDB service ports
 
-Selects the expected master or tablet service ports for the current host and delegates reachability checks.Masters expose RPC and webserver ports; tablets expose YSQL, RPC, webserver, YSQL web UI, YCQL, and YCQL web UI ports.
+Selects the expected master or tablet service ports for the current host and delegates reachability checks. Masters expose RPC and webserver ports; tablets expose YSQL, RPC, webserver, YSQL web UI, YCQL, and YCQL web UI ports.
 
 ```yaml
 - name: Check YugabyteDB service ports
@@ -188,7 +188,7 @@ Selects the expected master or tablet service ports for the current host and del
 
 > Check YugabyteDB Kubernetes NodePorts
 
-Checks the configured YugabyteDB Kubernetes NodePort Services for the current master or tablet host when NodePort exposure is enabled.The checked ports match the optional master and tablet NodePort values rendered into the Kubernetes Services.
+Checks the configured YugabyteDB Kubernetes NodePort Services for the current master or tablet host when NodePort exposure is enabled. The checked ports match the optional master and tablet NodePort values rendered into the Kubernetes Services.
 
 ```yaml
 - name: Check YugabyteDB Kubernetes NodePorts
@@ -222,7 +222,7 @@ Checks the configured YugabyteDB Kubernetes NodePort Services for the current ma
 
 > Prepare YugabyteDB TLS assets
 
-Prepares TLS assets for YugabyteDB when TLS is enabled, using the configured crypto source.The flow can generate CSRs, fetch certificates, transfer cryptogen material, enroll through Fabric CA, and create the Kubernetes Secret used by pods.
+Prepares TLS assets for YugabyteDB when TLS is enabled, using the configured crypto source. The flow can generate CSRs, fetch certificates, transfer cryptogen material, enroll through Fabric CA, and create the Kubernetes Secret used by pods.
 
 ```yaml
 - name: Prepare YugabyteDB TLS assets
@@ -248,7 +248,7 @@ Prepares TLS assets for YugabyteDB when TLS is enabled, using the configured cry
 
 > Fetch YugabyteDB TLS certificates
 
-Copies generated YugabyteDB node and CA certificates from the remote host to the control-node artifact directory.Fetched artifacts are reused by certificate transfer, Kubernetes Secret generation, and TLS-enabled Prometheus scraper configuration.
+Copies generated YugabyteDB node and CA certificates from the remote host to the control-node artifact directory. Fetched artifacts are reused by certificate transfer, Kubernetes Secret generation, and TLS-enabled Prometheus scraper configuration.
 
 ```yaml
 - name: Fetch YugabyteDB TLS certificates
@@ -270,7 +270,7 @@ Copies generated YugabyteDB node and CA certificates from the remote host to the
 
 > Remove YugabyteDB TLS artifacts
 
-Deletes the remote YugabyteDB TLS directory and, in Kubernetes mode, removes the generated TLS Secret.This removes role-managed key, certificate, and CA material without changing database data.
+Deletes the remote YugabyteDB TLS directory and, in Kubernetes mode, removes the generated TLS Secret. This removes role-managed key, certificate, and CA material without changing database data.
 
 ```yaml
 - name: Remove YugabyteDB TLS artifacts
@@ -296,7 +296,7 @@ Deletes the remote YugabyteDB TLS directory and, in Kubernetes mode, removes the
 
 > Generate a YugabyteDB TLS CSR
 
-Builds the YugabyteDB TLS SAN list from host addresses and organization metadata, then delegates CSR generation to the OpenSSL role.The generated key, CSR, and extension file are written under the remote YugabyteDB TLS configuration path.
+Builds the YugabyteDB TLS SAN list from host addresses and organization metadata, then delegates CSR generation to the OpenSSL role. The generated key, CSR, and extension file are written under the remote YugabyteDB TLS configuration path.
 
 ```yaml
 - name: Generate a YugabyteDB TLS CSR
@@ -324,7 +324,7 @@ Builds the YugabyteDB TLS SAN list from host addresses and organization metadata
 
 > Fetch a YugabyteDB TLS CSR
 
-Copies the YugabyteDB CSR and OpenSSL extension file from the remote TLS directory to the control-node artifact directory.Use this before signing the node certificate outside the target host.
+Copies the YugabyteDB CSR and OpenSSL extension file from the remote TLS directory to the control-node artifact directory. Use this before signing the node certificate outside the target host.
 
 ```yaml
 - name: Fetch a YugabyteDB TLS CSR
@@ -346,7 +346,7 @@ Copies the YugabyteDB CSR and OpenSSL extension file from the remote TLS directo
 
 > Transfer a signed YugabyteDB TLS certificate
 
-Copies the signed YugabyteDB node certificate and trusted organization TLS CA certificate to the remote TLS directory.The transferred files are consumed by container volume mounts or by Kubernetes Secret generation.
+Copies the signed YugabyteDB node certificate and trusted organization TLS CA certificate to the remote TLS directory. The transferred files are consumed by container volume mounts or by Kubernetes Secret generation.
 
 ```yaml
 - name: Transfer a signed YugabyteDB TLS certificate
@@ -376,7 +376,7 @@ Copies the signed YugabyteDB node certificate and trusted organization TLS CA ce
 
 > Copy cryptogen TLS material for YugabyteDB
 
-Transfers the YugabyteDB TLS key, certificate, and CA certificate generated by cryptogen to the target host.The source path is resolved from the organization domain and peer identity, with the inventory host used as the peer name when no peer name is provided.
+Transfers the YugabyteDB TLS key, certificate, and CA certificate generated by cryptogen to the target host. The source path is resolved from the organization domain and peer identity, with the inventory host used as the peer name when no peer name is provided.
 
 ```yaml
 - name: Copy cryptogen TLS material for YugabyteDB
@@ -404,7 +404,7 @@ Transfers the YugabyteDB TLS key, certificate, and CA certificate generated by c
 
 > Enroll YugabyteDB TLS material with Fabric CA
 
-Copies the Fabric CA TLS root when needed and delegates YugabyteDB TLS enrollment to the Fabric CA role.Enrollment uses organization metadata, peer credentials, and the actual external host so generated certificates include the expected SANs.
+Copies the Fabric CA TLS root when needed and delegates YugabyteDB TLS enrollment to the Fabric CA role. Enrollment uses organization metadata, peer credentials, and the actual external host so generated certificates include the expected SANs.
 
 ```yaml
 - name: Enroll YugabyteDB TLS material with Fabric CA
@@ -434,7 +434,7 @@ Copies the Fabric CA TLS root when needed and delegates YugabyteDB TLS enrollmen
 
 > Transfer YugabyteDB initialization config
 
-Renders the YugabyteDB initialization SQL script that creates the configured database user and database.Container mode places the script in the remote config directory; Kubernetes mode also creates the ConfigMap mounted by tablet pods.
+Renders the YugabyteDB initialization SQL script that creates the configured database user and database. Container mode places the script in the remote config directory; Kubernetes mode also creates the ConfigMap mounted by tablet pods.
 
 ```yaml
 - name: Transfer YugabyteDB initialization config
@@ -462,7 +462,7 @@ Renders the YugabyteDB initialization SQL script that creates the configured dat
 
 > Remove YugabyteDB configuration
 
-Deletes the remote YugabyteDB configuration directory and, in Kubernetes mode, removes the generated initialization ConfigMap.This cleans role-managed config without removing running resources unless paired with teardown or wipe.
+Deletes the remote YugabyteDB configuration directory and, in Kubernetes mode, removes the generated initialization ConfigMap. This cleans role-managed config without removing running resources unless paired with teardown or wipe.
 
 ```yaml
 - name: Remove YugabyteDB configuration
@@ -486,7 +486,7 @@ Deletes the remote YugabyteDB configuration directory and, in Kubernetes mode, r
 
 > Transfer the YugabyteDB Grafana dashboard
 
-Selects the built-in YugabyteDB dashboard JSON file and delegates the copy step to the Grafana role.The dashboard complements the Prometheus scraper configuration generated by this role.
+Selects the built-in YugabyteDB dashboard JSON file and delegates the copy step to the Grafana role. The dashboard complements the Prometheus scraper configuration generated by this role.
 
 ```yaml
 - name: Transfer the YugabyteDB Grafana dashboard
@@ -499,7 +499,7 @@ Selects the built-in YugabyteDB dashboard JSON file and delegates the copy step 
 
 > Dispatch YugabyteDB container startup
 
-Selects the master or tablet container startup path for the current host.The selected path starts either `yb-master` or `yb-tserver` with the role-managed data, config, TLS, and port settings.
+Selects the master or tablet container startup path for the current host. The selected path starts either `yb-master` or `yb-tserver` with the role-managed data, config, TLS, and port settings.
 
 ```yaml
 - name: Dispatch YugabyteDB container startup
@@ -515,7 +515,7 @@ Selects the master or tablet container startup path for the current host.The sel
 
 > Stop a YugabyteDB container
 
-Stops the container associated with the current YugabyteDB host.This leaves host data and configuration directories in place for a later restart.
+Stops the container associated with the current YugabyteDB host. This leaves host data and configuration directories in place for a later restart.
 
 ```yaml
 - name: Stop a YugabyteDB container
@@ -531,7 +531,7 @@ Stops the container associated with the current YugabyteDB host.This leaves host
 
 > Remove a YugabyteDB container
 
-Deletes the container associated with the current YugabyteDB host.This removes the runtime container only; data cleanup is handled by `data/rm` or `teardown`.
+Deletes the container associated with the current YugabyteDB host. This removes the runtime container only; data cleanup is handled by `data/rm` or `teardown`.
 
 ```yaml
 - name: Remove a YugabyteDB container
@@ -547,7 +547,7 @@ Deletes the container associated with the current YugabyteDB host.This removes t
 
 > Fetch logs from a YugabyteDB container
 
-Delegates log collection for the current YugabyteDB container.Collected logs come from the named master or tablet container for troubleshooting.
+Delegates log collection for the current YugabyteDB container. Collected logs come from the named master or tablet container for troubleshooting.
 
 ```yaml
 - name: Fetch logs from a YugabyteDB container
@@ -563,7 +563,7 @@ Delegates log collection for the current YugabyteDB container.Collected logs com
 
 > Start a YugabyteDB master container
 
-Creates the host data directory, assembles the `yb-master` command line, and starts the master container.The container publishes master RPC and webserver ports, mounts the data directory, and mounts TLS material when TLS is enabled.
+Creates the host data directory, assembles the `yb-master` command line, and starts the master container. The container publishes master RPC and webserver ports, mounts the data directory, and mounts TLS material when TLS is enabled.
 
 ```yaml
 - name: Start a YugabyteDB master container
@@ -618,7 +618,7 @@ Creates the host data directory, assembles the `yb-master` command line, and sta
 
 > Start a YugabyteDB tablet container
 
-Creates the host data directory, assembles the `yb-tserver` command line, starts the tablet container, and initializes the database on the first tablet host.The container publishes YSQL, RPC, webserver, and YCQL ports, mounts initialization config, and mounts TLS material when TLS is enabled.
+Creates the host data directory, assembles the `yb-tserver` command line, starts the tablet container, and initializes the database on the first tablet host. The container publishes YSQL, RPC, webserver, and YCQL ports, mounts initialization config, and mounts TLS material when TLS is enabled.
 
 ```yaml
 - name: Start a YugabyteDB tablet container
@@ -683,7 +683,7 @@ Creates the host data directory, assembles the `yb-tserver` command line, starts
 
 > Dispatch YugabyteDB Kubernetes startup
 
-Selects the master or tablet Kubernetes startup path for the current host.The selected path applies the Service, optional NodePort Service, StatefulSet, PVC template, image pull secret reference, and probe settings for the node type.
+Selects the master or tablet Kubernetes startup path for the current host. The selected path applies the Service, optional NodePort Service, StatefulSet, PVC template, image pull secret reference, and probe settings for the node type.
 
 ```yaml
 - name: Dispatch YugabyteDB Kubernetes startup
@@ -699,7 +699,7 @@ Selects the master or tablet Kubernetes startup path for the current host.The se
 
 > Dispatch YugabyteDB Kubernetes removal
 
-Selects the master or tablet Kubernetes removal path for the current host.The selected path removes the StatefulSet, ClusterIP Service, and optional NodePort Service for the node type.
+Selects the master or tablet Kubernetes removal path for the current host. The selected path removes the StatefulSet, ClusterIP Service, and optional NodePort Service for the node type.
 
 ```yaml
 - name: Dispatch YugabyteDB Kubernetes removal
@@ -715,7 +715,7 @@ Selects the master or tablet Kubernetes removal path for the current host.The se
 
 > Fetch logs from YugabyteDB pods
 
-Delegates pod log collection for the Kubernetes resource associated with the current host.Pods are selected by the role-managed Kubernetes resource label for the master or tablet StatefulSet.
+Delegates pod log collection for the Kubernetes resource associated with the current host. Pods are selected by the role-managed Kubernetes resource label for the master or tablet StatefulSet.
 
 ```yaml
 - name: Fetch logs from YugabyteDB pods
@@ -731,7 +731,7 @@ Delegates pod log collection for the Kubernetes resource associated with the cur
 
 > Create a YugabyteDB ConfigMap
 
-Creates the ConfigMap that exposes the initialization SQL script to tablet pods.The ConfigMap is only populated for tablet components because tablets run the YSQL initialization command.
+Creates the ConfigMap that exposes the initialization SQL script to tablet pods. The ConfigMap is only populated for tablet components because tablets run the YSQL initialization command.
 
 ```yaml
 - name: Create a YugabyteDB ConfigMap
@@ -757,7 +757,7 @@ Creates the ConfigMap that exposes the initialization SQL script to tablet pods.
 
 > Start a YugabyteDB master StatefulSet
 
-Applies the master ClusterIP Service, optional NodePort Service, and StatefulSet for the current YugabyteDB master node.The StatefulSet runs `yb-master`, configures replication from the master host list, attaches persistent storage, mounts TLS Secrets when enabled, and waits for readiness when requested.
+Applies the master ClusterIP Service, optional NodePort Service, and StatefulSet for the current YugabyteDB master node. The StatefulSet runs `yb-master`, configures replication from the master host list, attaches persistent storage, mounts TLS Secrets when enabled, and waits for readiness when requested.
 
 ```yaml
 - name: Start a YugabyteDB master StatefulSet
@@ -838,7 +838,7 @@ Applies the master ClusterIP Service, optional NodePort Service, and StatefulSet
 
 > Remove a YugabyteDB master StatefulSet
 
-Deletes the master StatefulSet and its Services for the current YugabyteDB master node.PersistentVolumeClaims are left for `data/rm` so runtime removal and data removal stay separate.
+Deletes the master StatefulSet and its Services for the current YugabyteDB master node. PersistentVolumeClaims are left for `data/rm` so runtime removal and data removal stay separate.
 
 ```yaml
 - name: Remove a YugabyteDB master StatefulSet
@@ -856,7 +856,7 @@ Deletes the master StatefulSet and its Services for the current YugabyteDB maste
 
 > Start a YugabyteDB tablet StatefulSet
 
-Applies the tablet ClusterIP Service, optional NodePort Service, and StatefulSet for the current YugabyteDB tablet node, then initializes the database on the first tablet.The StatefulSet runs `yb-tserver`, connects to the configured masters, attaches persistent storage, mounts the initialization ConfigMap and TLS Secret when enabled, and waits for readiness when requested.
+Applies the tablet ClusterIP Service, optional NodePort Service, and StatefulSet for the current YugabyteDB tablet node, then initializes the database on the first tablet. The StatefulSet runs `yb-tserver`, connects to the configured masters, attaches persistent storage, mounts the initialization ConfigMap and TLS Secret when enabled, and waits for readiness when requested.
 
 ```yaml
 - name: Start a YugabyteDB tablet StatefulSet
@@ -955,7 +955,7 @@ Applies the tablet ClusterIP Service, optional NodePort Service, and StatefulSet
 
 > Remove a YugabyteDB tablet StatefulSet
 
-Deletes the tablet StatefulSet and its Services for the current YugabyteDB tablet node.PersistentVolumeClaims are left for `data/rm` so runtime removal and data removal stay separate.
+Deletes the tablet StatefulSet and its Services for the current YugabyteDB tablet node. PersistentVolumeClaims are left for `data/rm` so runtime removal and data removal stay separate.
 
 ```yaml
 - name: Remove a YugabyteDB tablet StatefulSet
@@ -973,7 +973,7 @@ Deletes the tablet StatefulSet and its Services for the current YugabyteDB table
 
 > Create a YugabyteDB TLS Secret
 
-Creates the Kubernetes Secret that exposes the YugabyteDB TLS key pair and CA certificate to pods.The Secret is mounted by master and tablet StatefulSets when YugabyteDB TLS is enabled.
+Creates the Kubernetes Secret that exposes the YugabyteDB TLS key pair and CA certificate to pods. The Secret is mounted by master and tablet StatefulSets when YugabyteDB TLS is enabled.
 
 ```yaml
 - name: Create a YugabyteDB TLS Secret
@@ -997,7 +997,7 @@ Creates the Kubernetes Secret that exposes the YugabyteDB TLS key pair and CA ce
 
 > Remove YugabyteDB persisted data
 
-Deletes persisted YugabyteDB data for the selected deployment mode.Container mode removes the host data directory; Kubernetes mode removes the PVC associated with the StatefulSet volume claim.
+Deletes persisted YugabyteDB data for the selected deployment mode. Container mode removes the host data directory; Kubernetes mode removes the PVC associated with the StatefulSet volume claim.
 
 ```yaml
 - name: Remove YugabyteDB persisted data
@@ -1023,7 +1023,7 @@ Deletes persisted YugabyteDB data for the selected deployment mode.Container mod
 
 > Build Prometheus scrapers for YugabyteDB
 
-Groups YugabyteDB hosts by cluster and assembles Prometheus scrape configuration for exposed master and tablet metrics endpoints.When webserver TLS is enabled, the generated scraper references the fetched organization TLS CA artifact for HTTPS scraping.
+Groups YugabyteDB hosts by cluster and assembles Prometheus scrape configuration for exposed master and tablet metrics endpoints. When webserver TLS is enabled, the generated scraper references the fetched organization TLS CA artifact for HTTPS scraping.
 
 ```yaml
 - name: Build Prometheus scrapers for YugabyteDB

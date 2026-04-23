@@ -29,7 +29,7 @@ ansible-doc -t role hyperledger.fabricx.package
 
 > Dispatch package installation for the current operating system
 
-Shared entry point that dispatches to the Linux or macOS installer based on `ansible_facts.system`.Use this entry point when the target host may be either Linux or macOS and you want the role to choose the correct package manager path.This entry point validates `package_name` and `package_service_name`.
+Shared entry point that dispatches to the Linux or macOS installer based on `ansible_facts.system`. Use this entry point when the target host may be either Linux or macOS and you want the role to choose the correct package manager path. This entry point validates `package_name` and `package_service_name`.
 
 ```yaml
 - name: Dispatch package installation for the current operating system
@@ -47,7 +47,7 @@ Shared entry point that dispatches to the Linux or macOS installer based on `ans
 
 > Install a package on Linux
 
-Installs a package on Linux hosts after confirming the command is not already present and the package is available through the system package manager.Uses the host package manager to install the requested package identifier and then enables and starts the matching service when `package_service_name` is provided.
+Installs a package on Linux hosts after confirming the command is not already present and the package is available through the system package manager. Uses the host package manager to install the requested package identifier and then enables and starts the matching service when `package_service_name` is provided.
 
 ```yaml
 - name: Install a package on Linux
@@ -65,7 +65,7 @@ Installs a package on Linux hosts after confirming the command is not already pr
 
 > Install a package on macOS
 
-Installs a package on macOS hosts with Homebrew after confirming the command is not already present.Uses Homebrew to install the requested formula or cask and assumes Homebrew is already installed on the target host.
+Installs a package on macOS hosts with Homebrew after confirming the command is not already present. Uses Homebrew to install the requested formula or cask and assumes Homebrew is already installed on the target host.
 
 ```yaml
 - name: Install a package on macOS

@@ -52,7 +52,7 @@ ansible-doc -t role hyperledger.fabricx.grafana
 
 > Start Grafana in the selected deployment mode
 
-Starts Grafana by dispatching to the container or Kubernetes entry point after provisioning data sources, dashboards, and optional TLS artifacts have been prepared.Set exactly one deployment mode flag for the target host.
+Starts Grafana by dispatching to the container or Kubernetes entry point after provisioning data sources, dashboards, and optional TLS artifacts have been prepared. Set exactly one deployment mode flag for the target host.
 
 ```yaml
 - name: Start Grafana in the selected deployment mode
@@ -88,7 +88,7 @@ Stops the Grafana container without removing the generated provisioning or TLS a
 
 > Remove Grafana in the selected deployment mode
 
-Removes the Grafana container or Kubernetes workload by dispatching to the matching entry point.Leaves generated provisioning files and TLS material in place for reuse or later cleanup.
+Removes the Grafana container or Kubernetes workload by dispatching to the matching entry point. Leaves generated provisioning files and TLS material in place for reuse or later cleanup.
 
 ```yaml
 - name: Remove Grafana in the selected deployment mode
@@ -137,7 +137,7 @@ Collects Grafana logs from the container deployment or from the Kubernetes pod f
 
 > Check that the Grafana web port is reachable
 
-Verifies that the Grafana web interface port is reachable on the target host.In Kubernetes mode, also validates the optional NodePort configuration when enabled.
+Verifies that the Grafana web interface port is reachable on the target host. In Kubernetes mode, also validates the optional NodePort configuration when enabled.
 
 ```yaml
 - name: Check that the Grafana web port is reachable
@@ -155,7 +155,7 @@ Verifies that the Grafana web interface port is reachable on the target host.In 
 
 > Start the Grafana container
 
-Starts the containerized Grafana deployment with the generated datasource and dashboard provisioning files mounted into the container.TLS files are mounted when TLS is enabled.
+Starts the containerized Grafana deployment with the generated datasource and dashboard provisioning files mounted into the container. TLS files are mounted when TLS is enabled.
 
 ```yaml
 - name: Start the Grafana container
@@ -245,7 +245,7 @@ Collects logs from the named Grafana container for post-startup inspection.
 
 > Transfer Grafana configuration files
 
-Writes the datasource and dashboard provisioning files to the remote Grafana config directory.Applies the Kubernetes ConfigMap when Kubernetes mode is enabled.
+Writes the datasource and dashboard provisioning files to the remote Grafana config directory. Applies the Kubernetes ConfigMap when Kubernetes mode is enabled.
 
 ```yaml
 - name: Transfer Grafana configuration files
@@ -275,7 +275,7 @@ Writes the datasource and dashboard provisioning files to the remote Grafana con
 
 > Remove Grafana configuration files
 
-Removes the remote Grafana provisioning directory.Deletes the Kubernetes ConfigMap when Kubernetes mode is enabled.
+Removes the remote Grafana provisioning directory. Deletes the Kubernetes ConfigMap when Kubernetes mode is enabled.
 
 ```yaml
 - name: Remove Grafana configuration files
@@ -295,7 +295,7 @@ Removes the remote Grafana provisioning directory.Deletes the Kubernetes ConfigM
 
 > Copy a Grafana dashboard JSON file
 
-Copies one Grafana dashboard JSON file into the remote dashboards directory.Applies the dashboard ConfigMap when Kubernetes mode is enabled.
+Copies one Grafana dashboard JSON file into the remote dashboards directory. Applies the dashboard ConfigMap when Kubernetes mode is enabled.
 
 ```yaml
 - name: Copy a Grafana dashboard JSON file
@@ -319,7 +319,7 @@ Copies one Grafana dashboard JSON file into the remote dashboards directory.Appl
 
 > Prepare Grafana TLS material
 
-Generates Grafana TLS material when TLS is enabled and stages it with the other Grafana artifacts.Applies the Kubernetes Secret when Kubernetes mode is enabled.
+Generates Grafana TLS material when TLS is enabled and stages it with the other Grafana artifacts. Applies the Kubernetes Secret when Kubernetes mode is enabled.
 
 ```yaml
 - name: Prepare Grafana TLS material
@@ -359,7 +359,7 @@ Fetches the Grafana TLS CA certificate when TLS is enabled so other roles can tr
 
 > Remove Grafana TLS material
 
-Removes the Grafana TLS directory when TLS is enabled.Deletes the Kubernetes Secret when Kubernetes mode is enabled.
+Removes the Grafana TLS directory when TLS is enabled. Deletes the Kubernetes Secret when Kubernetes mode is enabled.
 
 ```yaml
 - name: Remove Grafana TLS material
@@ -407,7 +407,7 @@ Generates the Grafana TLS key pair and certificate using OpenSSL for the staged 
 
 > Start Grafana on Kubernetes
 
-Applies the Grafana Service, optional NodePort Service, Secret, ConfigMaps, and Deployment on Kubernetes.Generated datasource, dashboard, and TLS artifacts must already exist.
+Applies the Grafana Service, optional NodePort Service, Secret, ConfigMaps, and Deployment on Kubernetes. Generated datasource, dashboard, and TLS artifacts must already exist.
 
 ```yaml
 - name: Start Grafana on Kubernetes

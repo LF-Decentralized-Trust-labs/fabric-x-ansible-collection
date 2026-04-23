@@ -34,7 +34,7 @@ ansible-doc -t role {{ role }}
 
 > {{ current_role_task.short_description | ansible_doc_markup }}
 {% if current_role_task.description is defined %}
-{{ ([current_role_task.description] if current_role_task.description is string else current_role_task.description) | map('ansible_doc_markup') | join('') }}
+{{ ([current_role_task.description] if current_role_task.description is string else current_role_task.description) | map('ansible_doc_markup') | join(' ') }}
 {% endif %}
 ```yaml
 - name: {{ current_role_task.short_description }}

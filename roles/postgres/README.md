@@ -56,7 +56,7 @@ ansible-doc -t role hyperledger.fabricx.postgres
 
 > Check PostgreSQL reachability
 
-Validates PostgreSQL reachability for the selected deployment mode.In container mode, waits for the target host to accept connections on `postgres_port`.In Kubernetes mode, delegates to `k8s/ping`, which checks the configured NodePort only when `postgres_k8s_use_node_port` is enabled and `postgres_k8s_port_node_port` is defined.Also checks `postgres_exporter_port` when the exporter is defined for the host.
+Validates PostgreSQL reachability for the selected deployment mode. In container mode, waits for the target host to accept connections on `postgres_port`. In Kubernetes mode, delegates to `k8s/ping`, which checks the configured NodePort only when `postgres_k8s_use_node_port` is enabled and `postgres_k8s_port_node_port` is defined. Also checks `postgres_exporter_port` when the exporter is defined for the host.
 
 ```yaml
 - name: Check PostgreSQL reachability
@@ -76,7 +76,7 @@ Validates PostgreSQL reachability for the selected deployment mode.In container 
 
 > Start PostgreSQL
 
-Starts PostgreSQL using the selected deployment mode and dispatches to the matching runtime entry point.Container mode is the default unless `postgres_use_k8s` or `postgres_use_openshift` is enabled.Kubernetes mode creates or updates the namespace, headless Service, optional NodePort Service, and StatefulSet.OpenShift mode reuses the Kubernetes resource flow with the OpenShift deployment flag.
+Starts PostgreSQL using the selected deployment mode and dispatches to the matching runtime entry point. Container mode is the default unless `postgres_use_k8s` or `postgres_use_openshift` is enabled. Kubernetes mode creates or updates the namespace, headless Service, optional NodePort Service, and StatefulSet. OpenShift mode reuses the Kubernetes resource flow with the OpenShift deployment flag.
 
 ```yaml
 - name: Start PostgreSQL
@@ -96,7 +96,7 @@ Starts PostgreSQL using the selected deployment mode and dispatches to the match
 
 > Stop PostgreSQL
 
-Stops PostgreSQL runtime processes for deployments managed as a local container.Kubernetes and OpenShift deployments are not stopped by this entry point; use `teardown` or `wipe` to remove cluster resources.`postgres_use_container` is enabled when neither `postgres_use_k8s` nor `postgres_use_openshift` is enabled.
+Stops PostgreSQL runtime processes for deployments managed as a local container. Kubernetes and OpenShift deployments are not stopped by this entry point; use `teardown` or `wipe` to remove cluster resources. `postgres_use_container` is enabled when neither `postgres_use_k8s` nor `postgres_use_openshift` is enabled.
 
 ```yaml
 - name: Stop PostgreSQL
@@ -116,7 +116,7 @@ Stops PostgreSQL runtime processes for deployments managed as a local container.
 
 > Remove PostgreSQL runtime resources
 
-Removes PostgreSQL runtime resources for the selected deployment mode while leaving configuration, TLS files, and persistent data to their dedicated cleanup paths.Container mode removes the container instance.Kubernetes and OpenShift modes remove the StatefulSet and Services; the PVC is removed separately through `data/rm`.
+Removes PostgreSQL runtime resources for the selected deployment mode while leaving configuration, TLS files, and persistent data to their dedicated cleanup paths. Container mode removes the container instance. Kubernetes and OpenShift modes remove the StatefulSet and Services; the PVC is removed separately through `data/rm`.
 
 ```yaml
 - name: Remove PostgreSQL runtime resources
@@ -136,7 +136,7 @@ Removes PostgreSQL runtime resources for the selected deployment mode while leav
 
 > Wipe PostgreSQL data and configuration
 
-Fully removes PostgreSQL runtime resources, persistent data, TLS materials, and configuration files for the selected deployment mode.Sequences `teardown`, `data/rm`, `crypto/rm`, and `config/rm` so container directories and Kubernetes or OpenShift resources are cleaned consistently.
+Fully removes PostgreSQL runtime resources, persistent data, TLS materials, and configuration files for the selected deployment mode. Sequences `teardown`, `data/rm`, `crypto/rm`, and `config/rm` so container directories and Kubernetes or OpenShift resources are cleaned consistently.
 
 ```yaml
 - name: Wipe PostgreSQL data and configuration
@@ -149,7 +149,7 @@ Fully removes PostgreSQL runtime resources, persistent data, TLS materials, and 
 
 > Fetch PostgreSQL logs
 
-Collects PostgreSQL logs from the selected deployment mode without changing runtime state.Container mode fetches logs from `postgres_container_name`.Kubernetes and OpenShift modes fetch pod logs selected by `postgres_k8s_resource_name` in `k8s_namespace`.
+Collects PostgreSQL logs from the selected deployment mode without changing runtime state. Container mode fetches logs from `postgres_container_name`. Kubernetes and OpenShift modes fetch pod logs selected by `postgres_k8s_resource_name` in `k8s_namespace`.
 
 ```yaml
 - name: Fetch PostgreSQL logs
@@ -169,7 +169,7 @@ Collects PostgreSQL logs from the selected deployment mode without changing runt
 
 > Remove PostgreSQL data storage
 
-Removes PostgreSQL persistent data for the selected deployment mode.Container mode deletes `postgres_remote_data_dir`, such as `/var/lib/fabricx/postgres/postgres0/data`.Kubernetes and OpenShift modes delete the StatefulSet PVC in `k8s_namespace`.
+Removes PostgreSQL persistent data for the selected deployment mode. Container mode deletes `postgres_remote_data_dir`, such as `/var/lib/fabricx/postgres/postgres0/data`. Kubernetes and OpenShift modes delete the StatefulSet PVC in `k8s_namespace`.
 
 ```yaml
 - name: Remove PostgreSQL data storage
@@ -195,7 +195,7 @@ Removes PostgreSQL persistent data for the selected deployment mode.Container mo
 
 > Start PostgreSQL in a container
 
-Creates the PostgreSQL data directory, fixes TLS file permissions when TLS is enabled, and starts `postgres_container_name`.Passes initialization credentials through `POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_PASSWORD`.Mounts `postgres_remote_config_dir` and `postgres_remote_data_dir` into the container and waits for `postgres_port` to become reachable.Appends TLS, mTLS, and `postgres_extra_cmd_opts` command-line options when they are enabled.
+Creates the PostgreSQL data directory, fixes TLS file permissions when TLS is enabled, and starts `postgres_container_name`. Passes initialization credentials through `POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_PASSWORD`. Mounts `postgres_remote_config_dir` and `postgres_remote_data_dir` into the container and waits for `postgres_port` to become reachable. Appends TLS, mTLS, and `postgres_extra_cmd_opts` command-line options when they are enabled.
 
 ```yaml
 - name: Start PostgreSQL in a container
@@ -253,7 +253,7 @@ Creates the PostgreSQL data directory, fixes TLS file permissions when TLS is en
 
 > Stop the PostgreSQL container
 
-Stops the PostgreSQL container instance named by `postgres_container_name`.Uses the container helper role internally.
+Stops the PostgreSQL container instance named by `postgres_container_name`. Uses the container helper role internally.
 
 ```yaml
 - name: Stop the PostgreSQL container
@@ -269,7 +269,7 @@ Stops the PostgreSQL container instance named by `postgres_container_name`.Uses 
 
 > Remove the PostgreSQL container
 
-Removes the PostgreSQL container instance named by `postgres_container_name`.Container volumes are handled separately by the `data/rm` entry point.
+Removes the PostgreSQL container instance named by `postgres_container_name`. Container volumes are handled separately by the `data/rm` entry point.
 
 ```yaml
 - name: Remove the PostgreSQL container
@@ -285,7 +285,7 @@ Removes the PostgreSQL container instance named by `postgres_container_name`.Con
 
 > Fetch PostgreSQL container logs
 
-Collects logs from the PostgreSQL container instance named by `postgres_container_name`.Uses the container helper role internally.
+Collects logs from the PostgreSQL container instance named by `postgres_container_name`. Uses the container helper role internally.
 
 ```yaml
 - name: Fetch PostgreSQL container logs
@@ -301,7 +301,7 @@ Collects logs from the PostgreSQL container instance named by `postgres_containe
 
 > Start PostgreSQL on Kubernetes
 
-Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and StatefulSet named by `postgres_k8s_resource_name`.Applies `postgres_k8s_resource_name`-nodeport when `postgres_k8s_use_node_port` is enabled.Uses the role templates to configure credentials, PVC storage, TLS Secret mounts, optional mTLS ConfigMap mounts, image pull secrets, and readiness and liveness probes.Waits up to `postgres_k8s_wait_timeout` seconds for the StatefulSet rollout to complete.
+Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and StatefulSet named by `postgres_k8s_resource_name`. Applies `postgres_k8s_resource_name`-nodeport when `postgres_k8s_use_node_port` is enabled. Uses the role templates to configure credentials, PVC storage, TLS Secret mounts, optional mTLS ConfigMap mounts, image pull secrets, and readiness and liveness probes. Waits up to `postgres_k8s_wait_timeout` seconds for the StatefulSet rollout to complete.
 
 ```yaml
 - name: Start PostgreSQL on Kubernetes
@@ -383,7 +383,7 @@ Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and S
 
 > Check PostgreSQL NodePort reachability on Kubernetes
 
-Probes the PostgreSQL NodePort Service when `postgres_k8s_use_node_port` is enabled and `postgres_k8s_port_node_port` is defined.This entry point is invoked internally by `ping` when PostgreSQL runs on Kubernetes.
+Probes the PostgreSQL NodePort Service when `postgres_k8s_use_node_port` is enabled and `postgres_k8s_port_node_port` is defined. This entry point is invoked internally by `ping` when PostgreSQL runs on Kubernetes.
 
 ```yaml
 - name: Check PostgreSQL NodePort reachability on Kubernetes
@@ -401,7 +401,7 @@ Probes the PostgreSQL NodePort Service when `postgres_k8s_use_node_port` is enab
 
 > Remove PostgreSQL Kubernetes resources
 
-Deletes the PostgreSQL StatefulSet, headless Service, and optional NodePort Service resources from `k8s_namespace`.The persistent volume claim is removed separately by the `data/rm` entry point.
+Deletes the PostgreSQL StatefulSet, headless Service, and optional NodePort Service resources from `k8s_namespace`. The persistent volume claim is removed separately by the `data/rm` entry point.
 
 ```yaml
 - name: Remove PostgreSQL Kubernetes resources
@@ -419,7 +419,7 @@ Deletes the PostgreSQL StatefulSet, headless Service, and optional NodePort Serv
 
 > Fetch PostgreSQL pod logs
 
-Collects logs from the PostgreSQL pod in `k8s_namespace`.Selects pods using `postgres_k8s_resource_name` as the PostgreSQL application label.
+Collects logs from the PostgreSQL pod in `k8s_namespace`. Selects pods using `postgres_k8s_resource_name` as the PostgreSQL application label.
 
 ```yaml
 - name: Fetch PostgreSQL pod logs
@@ -437,7 +437,7 @@ Collects logs from the PostgreSQL pod in `k8s_namespace`.Selects pods using `pos
 
 > Apply the PostgreSQL Kubernetes Secret
 
-Applies the Kubernetes Secret named `postgres_k8s_resource_name`-secret.Stores PostgreSQL database, user, and password values plus optional server TLS files under the Secret.Ensures `k8s_namespace` exists before applying the Secret.
+Applies the Kubernetes Secret named `postgres_k8s_resource_name`-secret. Stores PostgreSQL database, user, and password values plus optional server TLS files under the Secret. Ensures `k8s_namespace` exists before applying the Secret.
 
 ```yaml
 - name: Apply the PostgreSQL Kubernetes Secret
@@ -471,7 +471,7 @@ Applies the Kubernetes Secret named `postgres_k8s_resource_name`-secret.Stores P
 
 > Remove the PostgreSQL Kubernetes Secret
 
-Deletes the Kubernetes Secret named `postgres_k8s_resource_name`-secret from `k8s_namespace`.The Secret stores PostgreSQL credentials and TLS materials.This entry point is typically invoked from the PostgreSQL crypto cleanup workflow.
+Deletes the Kubernetes Secret named `postgres_k8s_resource_name`-secret from `k8s_namespace`. The Secret stores PostgreSQL credentials and TLS materials. This entry point is typically invoked from the PostgreSQL crypto cleanup workflow.
 
 ```yaml
 - name: Remove the PostgreSQL Kubernetes Secret
@@ -489,7 +489,7 @@ Deletes the Kubernetes Secret named `postgres_k8s_resource_name`-secret from `k8
 
 > Apply the PostgreSQL Kubernetes ConfigMap
 
-Applies the Kubernetes ConfigMap named `postgres_k8s_resource_name`-config.Stores `pg_hba.conf` and the PostgreSQL mTLS client CA bundle when mTLS clients are configured.Ensures `k8s_namespace` exists before applying the ConfigMap.
+Applies the Kubernetes ConfigMap named `postgres_k8s_resource_name`-config. Stores `pg_hba.conf` and the PostgreSQL mTLS client CA bundle when mTLS clients are configured. Ensures `k8s_namespace` exists before applying the ConfigMap.
 
 ```yaml
 - name: Apply the PostgreSQL Kubernetes ConfigMap
@@ -517,7 +517,7 @@ Applies the Kubernetes ConfigMap named `postgres_k8s_resource_name`-config.Store
 
 > Remove the PostgreSQL Kubernetes ConfigMap
 
-Deletes the Kubernetes ConfigMap named `postgres_k8s_resource_name`-config from `k8s_namespace`.The ConfigMap stores PostgreSQL mTLS configuration.This entry point is typically invoked from the PostgreSQL config cleanup workflow.
+Deletes the Kubernetes ConfigMap named `postgres_k8s_resource_name`-config from `k8s_namespace`. The ConfigMap stores PostgreSQL mTLS configuration. This entry point is typically invoked from the PostgreSQL config cleanup workflow.
 
 ```yaml
 - name: Remove the PostgreSQL Kubernetes ConfigMap
@@ -535,7 +535,7 @@ Deletes the Kubernetes ConfigMap named `postgres_k8s_resource_name`-config from 
 
 > Start PostgreSQL on OpenShift
 
-Starts PostgreSQL on OpenShift by reusing the generic `k8s/start` resource flow.Creates or updates the namespace, headless Service, StatefulSet, PVC, credentials Secret, and optional mTLS ConfigMap.Uses the same storage, probe, TLS, and image pull settings as Kubernetes mode.
+Starts PostgreSQL on OpenShift by reusing the generic `k8s/start` resource flow. Creates or updates the namespace, headless Service, StatefulSet, PVC, credentials Secret, and optional mTLS ConfigMap. Uses the same storage, probe, TLS, and image pull settings as Kubernetes mode.
 
 ```yaml
 - name: Start PostgreSQL on OpenShift
@@ -613,7 +613,7 @@ Starts PostgreSQL on OpenShift by reusing the generic `k8s/start` resource flow.
 
 > Remove PostgreSQL OpenShift resources
 
-Removes PostgreSQL OpenShift resources by reusing the generic `k8s/rm` resource flow.Deletes the StatefulSet, headless Service, and optional NodePort Service from `k8s_namespace`.The persistent volume claim is removed separately by the `data/rm` entry point.
+Removes PostgreSQL OpenShift resources by reusing the generic `k8s/rm` resource flow. Deletes the StatefulSet, headless Service, and optional NodePort Service from `k8s_namespace`. The persistent volume claim is removed separately by the `data/rm` entry point.
 
 ```yaml
 - name: Remove PostgreSQL OpenShift resources
@@ -631,7 +631,7 @@ Removes PostgreSQL OpenShift resources by reusing the generic `k8s/rm` resource 
 
 > Prepare PostgreSQL TLS materials
 
-Selects the PostgreSQL TLS generation path for OpenSSL, cryptogen, or Fabric CA based on the supplied organization inputs.Applies the Kubernetes or OpenShift Secret when cluster deployment mode is enabled so credentials and optional TLS materials are available before startup.
+Selects the PostgreSQL TLS generation path for OpenSSL, cryptogen, or Fabric CA based on the supplied organization inputs. Applies the Kubernetes or OpenShift Secret when cluster deployment mode is enabled so credentials and optional TLS materials are available before startup.
 
 ```yaml
 - name: Prepare PostgreSQL TLS materials
@@ -659,7 +659,7 @@ Selects the PostgreSQL TLS generation path for OpenSSL, cryptogen, or Fabric CA 
 
 > Fetch PostgreSQL TLS certificates
 
-Fetches the PostgreSQL TLS CA certificate and server certificate from `postgres_remote_config_dir` to `fetched_artifacts_dir`.This task runs only when `postgres_use_tls` is true.
+Fetches the PostgreSQL TLS CA certificate and server certificate from `postgres_remote_config_dir` to `fetched_artifacts_dir`. This task runs only when `postgres_use_tls` is true.
 
 ```yaml
 - name: Fetch PostgreSQL TLS certificates
@@ -681,7 +681,7 @@ Fetches the PostgreSQL TLS CA certificate and server certificate from `postgres_
 
 > Remove PostgreSQL TLS materials
 
-Deletes PostgreSQL TLS files from `postgres_remote_config_dir` when TLS is enabled.Also removes the Kubernetes or OpenShift Secret used for credentials and TLS materials when cluster deployment mode is enabled.
+Deletes PostgreSQL TLS files from `postgres_remote_config_dir` when TLS is enabled. Also removes the Kubernetes or OpenShift Secret used for credentials and TLS materials when cluster deployment mode is enabled.
 
 ```yaml
 - name: Remove PostgreSQL TLS materials
@@ -707,7 +707,7 @@ Deletes PostgreSQL TLS files from `postgres_remote_config_dir` when TLS is enabl
 
 > Generate PostgreSQL TLS materials with OpenSSL
 
-Generates a self-signed TLS keypair for PostgreSQL under `postgres_remote_config_dir` on the target host.Used when PostgreSQL TLS is enabled without a peer organization definition.
+Generates a self-signed TLS keypair for PostgreSQL under `postgres_remote_config_dir` on the target host. Used when PostgreSQL TLS is enabled without a peer organization definition.
 
 ```yaml
 - name: Generate PostgreSQL TLS materials with OpenSSL
@@ -737,7 +737,7 @@ Generates a self-signed TLS keypair for PostgreSQL under `postgres_remote_config
 
 > Transfer PostgreSQL TLS materials from cryptogen
 
-Copies PostgreSQL TLS files generated by cryptogen from `cryptogen_artifacts_dir` on the control node to `postgres_remote_config_dir` on the target host.Used when PostgreSQL belongs to a peer organization without a Fabric CA host.
+Copies PostgreSQL TLS files generated by cryptogen from `cryptogen_artifacts_dir` on the control node to `postgres_remote_config_dir` on the target host. Used when PostgreSQL belongs to a peer organization without a Fabric CA host.
 
 ```yaml
 - name: Transfer PostgreSQL TLS materials from cryptogen
@@ -769,7 +769,7 @@ Copies PostgreSQL TLS files generated by cryptogen from `cryptogen_artifacts_dir
 
 > Enroll PostgreSQL with Fabric CA for TLS
 
-Enrolls PostgreSQL through Fabric CA to generate TLS materials under `postgres_remote_config_dir` on the target host.Uses `actual_host` in the CSR SAN list and writes fetched CA artifacts under `fetched_artifacts_dir`.Requires the organization definition to reference a Fabric CA host and peer identity.
+Enrolls PostgreSQL through Fabric CA to generate TLS materials under `postgres_remote_config_dir` on the target host. Uses `actual_host` in the CSR SAN list and writes fetched CA artifacts under `fetched_artifacts_dir`. Requires the organization definition to reference a Fabric CA host and peer identity.
 
 ```yaml
 - name: Enroll PostgreSQL with Fabric CA for TLS
@@ -803,7 +803,7 @@ Enrolls PostgreSQL through Fabric CA to generate TLS materials under `postgres_r
 
 > Transfer PostgreSQL configuration
 
-Ensures `postgres_remote_config_dir` exists and prepares optional mTLS configuration for PostgreSQL.Also applies the PostgreSQL ConfigMap when Kubernetes or OpenShift mode is enabled.
+Ensures `postgres_remote_config_dir` exists and prepares optional mTLS configuration for PostgreSQL. Also applies the PostgreSQL ConfigMap when Kubernetes or OpenShift mode is enabled.
 
 ```yaml
 - name: Transfer PostgreSQL configuration
@@ -831,7 +831,7 @@ Ensures `postgres_remote_config_dir` exists and prepares optional mTLS configura
 
 > Remove PostgreSQL configuration
 
-Deletes PostgreSQL configuration files from `postgres_remote_config_dir` on the remote host.Also removes the PostgreSQL ConfigMap when Kubernetes or OpenShift mode is enabled.
+Deletes PostgreSQL configuration files from `postgres_remote_config_dir` on the remote host. Also removes the PostgreSQL ConfigMap when Kubernetes or OpenShift mode is enabled.
 
 ```yaml
 - name: Remove PostgreSQL configuration
@@ -853,7 +853,7 @@ Deletes PostgreSQL configuration files from `postgres_remote_config_dir` on the 
 
 > Transfer PostgreSQL mTLS configuration
 
-Renders `pg_hba.conf` and assembles the PostgreSQL client CA bundle used for mTLS.Copies client certificates from `fetched_artifacts_dir` on the control node.
+Renders `pg_hba.conf` and assembles the PostgreSQL client CA bundle used for mTLS. Copies client certificates from `fetched_artifacts_dir` on the control node.
 
 ```yaml
 - name: Transfer PostgreSQL mTLS configuration

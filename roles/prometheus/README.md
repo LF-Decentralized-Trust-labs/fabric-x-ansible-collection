@@ -70,7 +70,7 @@ Validates network reachability to the active Prometheus listener on the target h
 
 > Start Prometheus in the selected deployment mode
 
-Starts Prometheus as either a container or Kubernetes workload based on the deployment mode flags.Renders configuration, prepares storage, and applies Kubernetes resources needed for the selected mode.When Kubernetes mode is enabled, it can also expose Prometheus through the optional NodePort Service.
+Starts Prometheus as either a container or Kubernetes workload based on the deployment mode flags. Renders configuration, prepares storage, and applies Kubernetes resources needed for the selected mode. When Kubernetes mode is enabled, it can also expose Prometheus through the optional NodePort Service.
 
 ```yaml
 - name: Start Prometheus in the selected deployment mode
@@ -493,7 +493,7 @@ Deletes the Kubernetes Secret that stores the Prometheus TLS server keypair.
 
 > Transfer Prometheus configuration files
 
-Renders the main scrape configuration and supporting files on the remote host, including scrape target lists and TLS client settings.Applies the Kubernetes ConfigMap when Kubernetes mode is enabled.
+Renders the main scrape configuration and supporting files on the remote host, including scrape target lists and TLS client settings. Applies the Kubernetes ConfigMap when Kubernetes mode is enabled.
 
 ```yaml
 - name: Transfer Prometheus configuration files

@@ -32,7 +32,7 @@ ansible-doc -t role hyperledger.fabricx.configtxgen
 
 > Render the configtxgen configuration file
 
-Generate `configtx.yaml` for Fabric-X genesis block creation.Render the config template from the selected crypto and armageddon artifact roots, then place it under `configtxgen_artifacts_dir`.The template switches between the binary and container artifact paths based on `configtxgen_use_bin`.
+Generate `configtx.yaml` for Fabric-X genesis block creation. Render the config template from the selected crypto and armageddon artifact roots, then place it under `configtxgen_artifacts_dir`. The template switches between the binary and container artifact paths based on `configtxgen_use_bin`.
 
 ```yaml
 - name: Render the configtxgen configuration file
@@ -68,7 +68,7 @@ Generate `configtx.yaml` for Fabric-X genesis block creation.Render the config t
 
 > Build the configtxgen binary on the control node
 
-Build the `configtxgen` binary from the Fabric-X source tree on the control node.The compiled executable is written to `cli_bin_dir` and reused by the binary start entry point.
+Build the `configtxgen` binary from the Fabric-X source tree on the control node. The compiled executable is written to `cli_bin_dir` and reused by the binary start entry point.
 
 ```yaml
 - name: Build the configtxgen binary on the control node
@@ -94,7 +94,7 @@ Build the `configtxgen` binary from the Fabric-X source tree on the control node
 
 > Install the configtxgen binary into the local bin directory
 
-Install the `configtxgen` Go package through the shared `bin` role.The installed executable lands in `cli_bin_dir` and is then used by the binary start entry point.
+Install the `configtxgen` Go package through the shared `bin` role. The installed executable lands in `cli_bin_dir` and is then used by the binary start entry point.
 
 ```yaml
 - name: Install the configtxgen binary into the local bin directory
@@ -122,7 +122,7 @@ Install the `configtxgen` Go package through the shared `bin` role.The installed
 
 > Generate a genesis block with the configtxgen binary
 
-Run the local `configtxgen` binary to generate the channel genesis block.The output block is written beneath `configtxgen_artifacts_dir` as `<channel_id>_block.pb`; with the bundled example channel, that becomes `fabricx-main-channel_block.pb`.
+Run the local `configtxgen` binary to generate the channel genesis block. The output block is written beneath `configtxgen_artifacts_dir` as `<channel_id>_block.pb`; with the bundled example channel, that becomes `fabricx-main-channel_block.pb`.
 
 ```yaml
 - name: Generate a genesis block with the configtxgen binary
@@ -150,7 +150,7 @@ Run the local `configtxgen` binary to generate the channel genesis block.The out
 
 > Generate a genesis block with the configtxgen container
 
-Run `configtxgen` in a container to generate the channel genesis block.The container consumes the rendered `configtx.yaml` plus mounted crypto and armageddon artifacts, then writes `<channel_id>_block.pb` beneath `configtxgen_container_artifacts_dir`.
+Run `configtxgen` in a container to generate the channel genesis block. The container consumes the rendered `configtx.yaml` plus mounted crypto and armageddon artifacts, then writes `<channel_id>_block.pb` beneath `configtxgen_container_artifacts_dir`.
 
 ```yaml
 - name: Generate a genesis block with the configtxgen container
@@ -202,7 +202,7 @@ Run `configtxgen` in a container to generate the channel genesis block.The conta
 
 > Dispatch genesis block generation to binary or container
 
-Select the binary or container execution path for `configtxgen` based on `configtxgen_use_bin`.Both execution paths consume the rendered configuration and emit the same `<channel_id>_block.pb` artifact name.
+Select the binary or container execution path for `configtxgen` based on `configtxgen_use_bin`. Both execution paths consume the rendered configuration and emit the same `<channel_id>_block.pb` artifact name.
 
 ```yaml
 - name: Dispatch genesis block generation to binary or container

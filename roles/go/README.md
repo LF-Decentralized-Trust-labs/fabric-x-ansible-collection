@@ -30,7 +30,7 @@ ansible-doc -t role hyperledger.fabricx.go
 
 > Install the Go toolchain on the target host
 
-Installs the Go runtime when it is not already present on the target host.Maps the selected host to `GOOS` and `GOARCH` before downloading the matching Go archive.Example: `Linux x86_64 -> GOOS=linux, GOARCH=amd64`.Extracts the archive into `go_install_dir` and leaves the Go binaries ready for PATH updates.
+Installs the Go runtime when it is not already present on the target host. Maps the selected host to `GOOS` and `GOARCH` before downloading the matching Go archive. Example: `Linux x86_64 -> GOOS=linux, GOARCH=amd64`. Extracts the archive into `go_install_dir` and leaves the Go binaries ready for PATH updates.
 
 ```yaml
 - name: Install the Go toolchain on the target host
@@ -50,7 +50,7 @@ Installs the Go runtime when it is not already present on the target host.Maps t
 
 > Map Ansible host facts to GOOS and GOARCH values
 
-Reads host facts and derives the Go platform identifiers used for cross-compilation and downloads.Example: `Linux x86_64 -> GOOS=linux, GOARCH=amd64`.This entry point sets `go_os` and `go_arch` facts for later tasks in the role.
+Reads host facts and derives the Go platform identifiers used for cross-compilation and downloads. Example: `Linux x86_64 -> GOOS=linux, GOARCH=amd64`. This entry point sets `go_os` and `go_arch` facts for later tasks in the role.
 
 ```yaml
 - name: Map Ansible host facts to GOOS and GOARCH values
@@ -66,7 +66,7 @@ Reads host facts and derives the Go platform identifiers used for cross-compilat
 
 > Build a Go binary from source
 
-Runs `go build` for the selected source tree and output name.Uses `GOOS`, `GOARCH`, `CGO_ENABLED`, and optional build tags to support cross-compilation.Example: `macOS arm64 building a Linux amd64 binary with GOOS=linux and GOARCH=amd64`.This entry point can also set `CC` when CGO is enabled for Linux targets from macOS.
+Runs `go build` for the selected source tree and output name. Uses `GOOS`, `GOARCH`, `CGO_ENABLED`, and optional build tags to support cross-compilation. Example: `macOS arm64 building a Linux amd64 binary with GOOS=linux and GOARCH=amd64`. This entry point can also set `CC` when CGO is enabled for Linux targets from macOS.
 
 ```yaml
 - name: Build a Go binary from source
@@ -94,7 +94,7 @@ Runs `go build` for the selected source tree and output name.Uses `GOOS`, `GOARC
 
 > Install a Go package with go install
 
-Runs `go install` for the requested package or module path using the mapped target platform values.Exports `GOBIN` to place installed binaries in `go_output_dir` and can optionally enable CGO.Example: `go install github.com/hyperledger/fabric-x/tools/fxconfig@v0.0.12 with GOOS=linux and GOARCH=amd64`.This entry point also supports build tags and the same platform mapping used by `go build`.
+Runs `go install` for the requested package or module path using the mapped target platform values. Exports `GOBIN` to place installed binaries in `go_output_dir` and can optionally enable CGO. Example: `go install github.com/hyperledger/fabric-x/tools/fxconfig@v0.0.12 with GOOS=linux and GOARCH=amd64`. This entry point also supports build tags and the same platform mapping used by `go build`.
 
 ```yaml
 - name: Install a Go package with go install

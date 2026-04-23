@@ -34,7 +34,7 @@ ansible-doc -t role hyperledger.fabricx.idemixgen
 
 > Dispatch Idemix CA key generation in binary or container mode
 
-Select whether Idemix CA key generation runs in a container or through the locally installed binary.The generated CA key material is written under `idemixgen_output_dir`/ca and the CA MSP material under `idemixgen_output_dir`/msp.Set `idemixgen_use_bin` to choose the execution mode.
+Select whether Idemix CA key generation runs in a container or through the locally installed binary. The generated CA key material is written under `idemixgen_output_dir`/ca and the CA MSP material under `idemixgen_output_dir`/msp. Set `idemixgen_use_bin` to choose the execution mode.
 
 ```yaml
 - name: Dispatch Idemix CA key generation in binary or container mode
@@ -50,7 +50,7 @@ Select whether Idemix CA key generation runs in a container or through the local
 
 > Dispatch Idemix signer configuration generation in binary or container mode
 
-Select whether Idemix signer configuration generation runs in a container or through the locally installed binary.The signer configuration consumes `idemixgen_ca_input_dir` and writes MSP and user artifacts under `idemixgen_output_dir`.Set `idemixgen_use_bin` to choose the execution mode.
+Select whether Idemix signer configuration generation runs in a container or through the locally installed binary. The signer configuration consumes `idemixgen_ca_input_dir` and writes MSP and user artifacts under `idemixgen_output_dir`. Set `idemixgen_use_bin` to choose the execution mode.
 
 ```yaml
 - name: Dispatch Idemix signer configuration generation in binary or container mode
@@ -66,7 +66,7 @@ Select whether Idemix signer configuration generation runs in a container or thr
 
 > Build the idemixgen binary
 
-Builds the idemixgen CLI from source on the control node so binary-mode CA key generation and signer configuration can run locally.This entry point passes the configured git source and package path to the shared binary builder.
+Builds the idemixgen CLI from source on the control node so binary-mode CA key generation and signer configuration can run locally. This entry point passes the configured git source and package path to the shared binary builder.
 
 ```yaml
 - name: Build the idemixgen binary
@@ -92,7 +92,7 @@ Builds the idemixgen CLI from source on the control node so binary-mode CA key g
 
 > Install the idemixgen binary
 
-Installs the idemixgen CLI from the configured repository and commit before binary-mode CA key generation or signer configuration.This entry point is used before binary-mode execution.
+Installs the idemixgen CLI from the configured repository and commit before binary-mode CA key generation or signer configuration. This entry point is used before binary-mode execution.
 
 ```yaml
 - name: Install the idemixgen binary
@@ -120,7 +120,7 @@ Installs the idemixgen CLI from the configured repository and commit before bina
 
 > Generate Idemix CA key material with the binary
 
-Runs `idemixgen ca-keygen` through the locally installed binary.The task removes any existing CA and MSP output directories before generating fresh artifacts under `idemixgen_output_dir`.
+Runs `idemixgen ca-keygen` through the locally installed binary. The task removes any existing CA and MSP output directories before generating fresh artifacts under `idemixgen_output_dir`.
 
 ```yaml
 - name: Generate Idemix CA key material with the binary
@@ -146,7 +146,7 @@ Runs `idemixgen ca-keygen` through the locally installed binary.The task removes
 
 > Generate Idemix signer configuration with the binary
 
-Runs `idemixgen signerconfig` through the locally installed binary.The task removes any existing MSP and user output directories before generating fresh artifacts under `idemixgen_output_dir`.
+Runs `idemixgen signerconfig` through the locally installed binary. The task removes any existing MSP and user output directories before generating fresh artifacts under `idemixgen_output_dir`.
 
 ```yaml
 - name: Generate Idemix signer configuration with the binary
@@ -180,7 +180,7 @@ Runs `idemixgen signerconfig` through the locally installed binary.The task remo
 
 > Generate Idemix CA key material in a container
 
-Runs `idemixgen ca-keygen` in the configured container image.The task removes any existing CA and MSP output directories before generating fresh artifacts under `idemixgen_output_dir`.
+Runs `idemixgen ca-keygen` in the configured container image. The task removes any existing CA and MSP output directories before generating fresh artifacts under `idemixgen_output_dir`.
 
 ```yaml
 - name: Generate Idemix CA key material in a container
@@ -216,7 +216,7 @@ Runs `idemixgen ca-keygen` in the configured container image.The task removes an
 
 > Generate Idemix signer configuration in a container
 
-Runs `idemixgen signerconfig` in the configured container image.The task removes any existing MSP and user output directories before generating fresh artifacts under `idemixgen_output_dir`.
+Runs `idemixgen signerconfig` in the configured container image. The task removes any existing MSP and user output directories before generating fresh artifacts under `idemixgen_output_dir`.
 
 ```yaml
 - name: Generate Idemix signer configuration in a container

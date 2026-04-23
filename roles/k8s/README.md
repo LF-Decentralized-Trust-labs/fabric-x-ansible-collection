@@ -29,7 +29,7 @@ ansible-doc -t role hyperledger.fabricx.k8s
 
 > Ensure a Kubernetes namespace exists
 
-Creates or updates the named Kubernetes namespace resource in the target cluster.Uses the control-node kubeconfig and the kubernetes.core collection to apply a Namespace object named by `k8s_namespace`.Skips the task when `k8s_create_namespace` is false.
+Creates or updates the named Kubernetes namespace resource in the target cluster. Uses the control-node kubeconfig and the kubernetes.core collection to apply a Namespace object named by `k8s_namespace`. Skips the task when `k8s_create_namespace` is false.
 
 ```yaml
 - name: Ensure a Kubernetes namespace exists
@@ -47,7 +47,7 @@ Creates or updates the named Kubernetes namespace resource in the target cluster
 
 > Create a Kubernetes image pull secret
 
-Creates or updates a `kubernetes.io/dockerconfigjson` Secret named by `k8s_image_pull_secret` in the target namespace.Renders the secret from the configured registry host, username, and password for image pulls.Requires the namespace to exist and a valid kubeconfig on the control node.
+Creates or updates a `kubernetes.io/dockerconfigjson` Secret named by `k8s_image_pull_secret` in the target namespace. Renders the secret from the configured registry host, username, and password for image pulls. Requires the namespace to exist and a valid kubeconfig on the control node.
 
 ```yaml
 - name: Create a Kubernetes image pull secret
@@ -71,7 +71,7 @@ Creates or updates a `kubernetes.io/dockerconfigjson` Secret named by `k8s_image
 
 > Fetch Kubernetes pod logs
 
-Collects pod logs from the target namespace for pods matched by `k8s_pod_label_selectors`.Optionally narrows collection to `k8s_pod_container` when the selected pods expose multiple containers.Writes the collected logs to `k8s_remote_logs_dir`/`k8s_remote_logs_file` on the managed host and fetches them to `k8s_fetched_logs_dir`/`k8s_fetched_logs_file` on the control node.Continues even when no pod logs are returned so artifact retrieval still happens.
+Collects pod logs from the target namespace for pods matched by `k8s_pod_label_selectors`. Optionally narrows collection to `k8s_pod_container` when the selected pods expose multiple containers. Writes the collected logs to `k8s_remote_logs_dir`/`k8s_remote_logs_file` on the managed host and fetches them to `k8s_fetched_logs_dir`/`k8s_fetched_logs_file` on the control node. Continues even when no pod logs are returned so artifact retrieval still happens.
 
 ```yaml
 - name: Fetch Kubernetes pod logs

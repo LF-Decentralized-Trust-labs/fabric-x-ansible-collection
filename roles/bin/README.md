@@ -34,7 +34,7 @@ ansible-doc -t role hyperledger.fabricx.bin
 
 > Build a Go binary for each target platform
 
-Clones the source repository, groups target hosts by platform, and builds one binary per unique operating system and architecture combination.When `bin_build_on_control_node` is true, cloning and compilation happen on the control node; otherwise they run on the managed host.The resulting binaries are written under `bin_dir` using `bin_name`, and this entry point only validates bin role inputs before delegating to the git and go roles.
+Clones the source repository, groups target hosts by platform, and builds one binary per unique operating system and architecture combination. When `bin_build_on_control_node` is true, cloning and compilation happen on the control node; otherwise they run on the managed host. The resulting binaries are written under `bin_dir` using `bin_name`, and this entry point only validates bin role inputs before delegating to the git and go roles.
 
 ```yaml
 - name: Build a Go binary for each target platform
@@ -73,7 +73,7 @@ Clones the source repository, groups target hosts by platform, and builds one bi
 
 > Install a Go binary for each target platform
 
-Groups target hosts by platform and invokes the go install entry point once per unique operating system and architecture combination.The installed binaries are placed under `bin_dir`, and the role reuses gathered host facts to avoid repeating work for hosts that share the same platform.This entry point validates only bin role inputs and forwards the platform-specific context to the go role.
+Groups target hosts by platform and invokes the go install entry point once per unique operating system and architecture combination. The installed binaries are placed under `bin_dir`, and the role reuses gathered host facts to avoid repeating work for hosts that share the same platform. This entry point validates only bin role inputs and forwards the platform-specific context to the go role.
 
 ```yaml
 - name: Install a Go binary for each target platform
@@ -104,7 +104,7 @@ Groups target hosts by platform and invokes the go install entry point once per 
 
 > Map hosts to unique platform keys
 
-Builds the `bin_platforms` fact by grouping target hosts that share the same operating system and architecture values.The resulting fact maps each platform key to its OS, architecture, and host list, and host facts for every target must already be available before this entry point runs.
+Builds the `bin_platforms` fact by grouping target hosts that share the same operating system and architecture values. The resulting fact maps each platform key to its OS, architecture, and host list, and host facts for every target must already be available before this entry point runs.
 
 ```yaml
 - name: Map hosts to unique platform keys
@@ -121,7 +121,7 @@ Builds the `bin_platforms` fact by grouping target hosts that share the same ope
 
 > Copy a binary to the managed host
 
-Ensures the target binary directory exists on the managed host and copies the selected binary into it.The source binary is read from `bin_dir`/`bin_name` and written to `bin_remote_dir`/`bin_name`, so the built artifact must already exist before this entry point runs.
+Ensures the target binary directory exists on the managed host and copies the selected binary into it. The source binary is read from `bin_dir`/`bin_name` and written to `bin_remote_dir`/`bin_name`, so the built artifact must already exist before this entry point runs.
 
 ```yaml
 - name: Copy a binary to the managed host
@@ -153,7 +153,7 @@ Ensures the target binary directory exists on the managed host and copies the se
 
 > Start a binary process
 
-Builds the runtime command, optionally redirects logs, and starts the binary either in tmux or directly in the shell.When logging is enabled the role writes to `bin_remote_logs_dir`/`bin_remote_logs_file`, and readiness checks wait on `bin_wait_port` only when `bin_wait_until_running` is true.Set `bin_command` to the executable command to run, and use `bin_chdir` when the process must start from a specific working directory.
+Builds the runtime command, optionally redirects logs, and starts the binary either in tmux or directly in the shell. When logging is enabled the role writes to `bin_remote_logs_dir`/`bin_remote_logs_file`, and readiness checks wait on `bin_wait_port` only when `bin_wait_until_running` is true. Set `bin_command` to the executable command to run, and use `bin_chdir` when the process must start from a specific working directory.
 
 ```yaml
 - name: Start a binary process
@@ -205,7 +205,7 @@ Builds the runtime command, optionally redirects logs, and starts the binary eit
 
 > Stop a tmux-managed binary process
 
-Stops the tmux session associated with the binary when tmux-based execution is enabled.When tmux execution is disabled this entry point performs no action, so direct-shell starts are left untouched.
+Stops the tmux session associated with the binary when tmux-based execution is enabled. When tmux execution is disabled this entry point performs no action, so direct-shell starts are left untouched.
 
 ```yaml
 - name: Stop a tmux-managed binary process
@@ -241,7 +241,7 @@ Deletes the binary file from the managed host at `bin_remote_dir`/`bin_name`.
 
 > Fetch binary log output
 
-Copies the binary log file from the managed host to the control node without failing when the file is absent.The fetched file is stored under `bin_fetched_logs_dir`/`bin_fetched_logs_file`, making it easy to collect logs from repeated runs.
+Copies the binary log file from the managed host to the control node without failing when the file is absent. The fetched file is stored under `bin_fetched_logs_dir`/`bin_fetched_logs_file`, making it easy to collect logs from repeated runs.
 
 ```yaml
 - name: Fetch binary log output

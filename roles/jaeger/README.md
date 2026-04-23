@@ -44,7 +44,7 @@ ansible-doc -t role hyperledger.fabricx.jaeger
 
 > Select the Jaeger deployment mode to start
 
-Starts Jaeger in container mode or applies the Kubernetes Service and Deployment manifests.Container mode configures the image, ports, and ElasticSearch connection before the container role starts the workload.Kubernetes mode creates the namespace, service objects, optional NodePort service, and deployment.
+Starts Jaeger in container mode or applies the Kubernetes Service and Deployment manifests. Container mode configures the image, ports, and ElasticSearch connection before the container role starts the workload. Kubernetes mode creates the namespace, service objects, optional NodePort service, and deployment.
 
 ```yaml
 - name: Select the Jaeger deployment mode to start
@@ -78,7 +78,7 @@ Stops the running Jaeger container without removing configuration assets.
 
 > Select the Jaeger deployment mode to remove
 
-Removes the container workload or Kubernetes resources for the active Jaeger deployment.Kubernetes teardown deletes the deployment, service, and optional NodePort service.
+Removes the container workload or Kubernetes resources for the active Jaeger deployment. Kubernetes teardown deletes the deployment, service, and optional NodePort service.
 
 ```yaml
 - name: Select the Jaeger deployment mode to remove
@@ -127,7 +127,7 @@ Collects logs from the running Jaeger container or from the Jaeger pods in Kuber
 
 > Check that Jaeger service ports are reachable
 
-Checks the Jaeger query, admin, collector, and OTLP endpoints with the utils ping helper.Container mode pings the published host ports, while Kubernetes mode checks the service ports and optional NodePort values.
+Checks the Jaeger query, admin, collector, and OTLP endpoints with the utils ping helper. Container mode pings the published host ports, while Kubernetes mode checks the service ports and optional NodePort values.
 
 ```yaml
 - name: Check that Jaeger service ports are reachable
@@ -155,7 +155,7 @@ Checks the Jaeger query, admin, collector, and OTLP endpoints with the utils pin
 
 > Start Jaeger in a container runtime
 
-Builds the Jaeger container environment, publishes the query and collector ports, and mounts the remote config directory.Starts the all-in-one container and waits for the query UI port to answer before returning.This entry point requires the ElasticSearch host inventory to be available.
+Builds the Jaeger container environment, publishes the query and collector ports, and mounts the remote config directory. Starts the all-in-one container and waits for the query UI port to answer before returning. This entry point requires the ElasticSearch host inventory to be available.
 
 ```yaml
 - name: Start Jaeger in a container runtime
@@ -263,7 +263,7 @@ Collects the container logs for the Jaeger runtime from the named container.
 
 > Start Jaeger on Kubernetes
 
-Applies the Jaeger Service, optional NodePort Service, and Deployment resources to Kubernetes.The deployment template mounts the configuration path, wires the ElasticSearch CA certificate, and uses the provided probe and port settings.The NodePort service is created only when `jaeger_k8s_use_node_port` is set to `true`.This entry point requires the ElasticSearch host inventory to be available.
+Applies the Jaeger Service, optional NodePort Service, and Deployment resources to Kubernetes. The deployment template mounts the configuration path, wires the ElasticSearch CA certificate, and uses the provided probe and port settings. The NodePort service is created only when `jaeger_k8s_use_node_port` is set to `true`. This entry point requires the ElasticSearch host inventory to be available.
 
 ```yaml
 - name: Start Jaeger on Kubernetes
@@ -415,7 +415,7 @@ Checks the Jaeger Kubernetes service ports and, when enabled, the NodePort value
 
 > Transfer Jaeger configuration assets
 
-Creates the remote Jaeger config path, copies the ElasticSearch CA certificate when TLS is enabled, and prepares the runtime config directory.In Kubernetes mode, also delegates ConfigMap creation to the Kubernetes config entry point.
+Creates the remote Jaeger config path, copies the ElasticSearch CA certificate when TLS is enabled, and prepares the runtime config directory. In Kubernetes mode, also delegates ConfigMap creation to the Kubernetes config entry point.
 
 ```yaml
 - name: Transfer Jaeger configuration assets
@@ -439,7 +439,7 @@ Creates the remote Jaeger config path, copies the ElasticSearch CA certificate w
 
 > Remove Jaeger configuration assets
 
-Deletes the remote Jaeger configuration directory and any copied certificate material.Nested Kubernetes config cleanup validates its own required arguments before removing the ConfigMap.
+Deletes the remote Jaeger configuration directory and any copied certificate material. Nested Kubernetes config cleanup validates its own required arguments before removing the ConfigMap.
 
 ```yaml
 - name: Remove Jaeger configuration assets

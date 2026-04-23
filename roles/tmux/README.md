@@ -42,7 +42,7 @@ Install the `tmux` package on the target host by delegating to the package role.
 
 > Start a detached tmux session
 
-Start a detached tmux session when `tmux_session_name` does not already exist.The session runs `tmux_cmd_to_run` from `tmux_chdir`, so long-lived commands can keep running in the background while logs are written to the command's own output path.
+Start a detached tmux session when `tmux_session_name` does not already exist. The session runs `tmux_cmd_to_run` from `tmux_chdir`, so long-lived commands can keep running in the background while logs are written to the command's own output path.
 
 ```yaml
 - name: Start a detached tmux session
@@ -62,7 +62,7 @@ Start a detached tmux session when `tmux_session_name` does not already exist.Th
 
 > Stop a detached tmux session
 
-Stop an existing detached tmux session on the target host when `tmux_session_name` is present.The stop entry point only removes the named session; it does not clean up any logs or other command artifacts.
+Stop an existing detached tmux session on the target host when `tmux_session_name` is present. The stop entry point only removes the named session; it does not clean up any logs or other command artifacts.
 
 ```yaml
 - name: Stop a detached tmux session

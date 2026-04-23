@@ -32,7 +32,7 @@ ansible-doc -t role hyperledger.fabricx.armageddon
 
 > Render the shared Armageddon config
 
-Render `shared_config.yaml` for the Fabric-X orderer topology.This entry point prepares the config consumed by both the binary and container shared-config flows.When `armageddon_use_bin` is true, the template reads `fetched_artifacts_dir`; otherwise it uses `armageddon_container_crypto_artifacts_dir`.
+Render `shared_config.yaml` for the Fabric-X orderer topology. This entry point prepares the config consumed by both the binary and container shared-config flows. When `armageddon_use_bin` is true, the template reads `fetched_artifacts_dir`; otherwise it uses `armageddon_container_crypto_artifacts_dir`.
 
 ```yaml
 - name: Render the shared Armageddon config
@@ -65,7 +65,7 @@ Render `shared_config.yaml` for the Fabric-X orderer topology.This entry point p
 
 > Dispatch shared-config generation
 
-Dispatch shared-config generation to the binary or container flow.This is the top-level Armageddon entry point for producing `shared_config.binpb` from the rendered shared config.`armageddon_use_bin` selects which sub-entry point runs.
+Dispatch shared-config generation to the binary or container flow. This is the top-level Armageddon entry point for producing `shared_config.binpb` from the rendered shared config. `armageddon_use_bin` selects which sub-entry point runs.
 
 ```yaml
 - name: Dispatch shared-config generation
@@ -81,7 +81,7 @@ Dispatch shared-config generation to the binary or container flow.This is the to
 
 > Install the Armageddon binary
 
-Install the Armageddon CLI through the shared binary helper for binary-mode deployments.The helper installs `armageddon_bin_name` into `cli_bin_dir` from `armageddon_bin_package` at `armageddon_git_commit`.
+Install the Armageddon CLI through the shared binary helper for binary-mode deployments. The helper installs `armageddon_bin_name` into `cli_bin_dir` from `armageddon_bin_package` at `armageddon_git_commit`.
 
 ```yaml
 - name: Install the Armageddon binary
@@ -109,7 +109,7 @@ Install the Armageddon CLI through the shared binary helper for binary-mode depl
 
 > Build the Armageddon binary from source
 
-Build the Armageddon CLI from source through the shared Go helper for binary-mode deployments.The helper checks out `armageddon_git_repo` at `armageddon_git_commit`, builds `armageddon_source_code_package`, and places the executable in `cli_bin_dir`.
+Build the Armageddon CLI from source through the shared Go helper for binary-mode deployments. The helper checks out `armageddon_git_repo` at `armageddon_git_commit`, builds `armageddon_source_code_package`, and places the executable in `cli_bin_dir`.
 
 ```yaml
 - name: Build the Armageddon binary from source
@@ -135,7 +135,7 @@ Build the Armageddon CLI from source through the shared Go helper for binary-mod
 
 > Generate shared-config protobuf with the binary
 
-Run the installed Armageddon binary to generate `shared_config.binpb`.This binary-mode entry point reads `armageddon_artifacts_dir`/`armageddon_shared_config_file` and writes the protobuf output back to `armageddon_artifacts_dir`.
+Run the installed Armageddon binary to generate `shared_config.binpb`. This binary-mode entry point reads `armageddon_artifacts_dir`/`armageddon_shared_config_file` and writes the protobuf output back to `armageddon_artifacts_dir`.
 
 ```yaml
 - name: Generate shared-config protobuf with the binary
@@ -161,7 +161,7 @@ Run the installed Armageddon binary to generate `shared_config.binpb`.This binar
 
 > Generate shared-config protobuf with a container
 
-Run the Armageddon container to generate `shared_config.binpb` for container-mode deployments.The container mounts the rendered shared config, crypto artifacts, and output directory before invoking the Armageddon CLI.
+Run the Armageddon container to generate `shared_config.binpb` for container-mode deployments. The container mounts the rendered shared config, crypto artifacts, and output directory before invoking the Armageddon CLI.
 
 ```yaml
 - name: Generate shared-config protobuf with a container

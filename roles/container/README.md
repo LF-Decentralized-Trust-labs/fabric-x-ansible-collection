@@ -58,7 +58,7 @@ ansible-doc -t role hyperledger.fabricx.container
 
 > Install a supported container client
 
-Verifies the requested container runtime or auto-detects a host runtime, preferring Podman and then Docker.Installs the selected runtime on supported Linux hosts when it is missing and verifies that the client can run containers.
+Verifies the requested container runtime or auto-detects a host runtime, preferring Podman and then Docker. Installs the selected runtime on supported Linux hosts when it is missing and verifies that the client can run containers.
 
 ```yaml
 - name: Install a supported container client
@@ -74,7 +74,7 @@ Verifies the requested container runtime or auto-detects a host runtime, preferr
 
 > Detect the available container client
 
-Selects the container runtime used by generic lifecycle tasks.Uses `container_client` when provided, otherwise probes the host for Podman first and Docker second.
+Selects the container runtime used by generic lifecycle tasks. Uses `container_client` when provided, otherwise probes the host for Podman first and Docker second.
 
 ```yaml
 - name: Detect the available container client
@@ -90,7 +90,7 @@ Selects the container runtime used by generic lifecycle tasks.Uses `container_cl
 
 > Start a container with the selected client
 
-Starts or updates a container through the selected Docker or Podman backend.Accepts image, command, environment, ports, volumes, network, resource limits, logging, retry, healthcheck, and readiness inputs.Stores runtime module output in `container_output` and can print captured process output when debug mode is enabled for foreground containers.
+Starts or updates a container through the selected Docker or Podman backend. Accepts image, command, environment, ports, volumes, network, resource limits, logging, retry, healthcheck, and readiness inputs. Stores runtime module output in `container_output` and can print captured process output when debug mode is enabled for foreground containers.
 
 ```yaml
 - name: Start a container with the selected client
@@ -182,7 +182,7 @@ Starts or updates a container through the selected Docker or Podman backend.Acce
 
 > Stop a container with the selected client
 
-Stops the named container through the selected Docker or Podman backend.Uses `container_name` as the lifecycle target and resolves `container_client` before dispatching.
+Stops the named container through the selected Docker or Podman backend. Uses `container_name` as the lifecycle target and resolves `container_client` before dispatching.
 
 ```yaml
 - name: Stop a container with the selected client
@@ -200,7 +200,7 @@ Stops the named container through the selected Docker or Podman backend.Uses `co
 
 > Remove a container with the selected client
 
-Removes the named container through the selected Docker or Podman backend.Uses `container_name` as the lifecycle target and removes associated container volumes where the backend supports it.
+Removes the named container through the selected Docker or Podman backend. Uses `container_name` as the lifecycle target and removes associated container volumes where the backend supports it.
 
 ```yaml
 - name: Remove a container with the selected client
@@ -218,7 +218,7 @@ Removes the named container through the selected Docker or Podman backend.Uses `
 
 > Execute a command in a container
 
-Runs `container_command` inside an existing container through the selected Docker or Podman backend.Passes `container_env` to the command when provided and registers the backend execution result.
+Runs `container_command` inside an existing container through the selected Docker or Podman backend. Passes `container_env` to the command when provided and registers the backend execution result.
 
 ```yaml
 - name: Execute a command in a container
@@ -242,7 +242,7 @@ Runs `container_command` inside an existing container through the selected Docke
 
 > Fetch container logs from the remote host
 
-Collects logs from the named container with the selected runtime client.Writes the log file under `container_remote_logs_dir` on the managed node, then fetches it to `container_fetched_logs_dir` on the control host.
+Collects logs from the named container with the selected runtime client. Writes the log file under `container_remote_logs_dir` on the managed node, then fetches it to `container_fetched_logs_dir` on the control host.
 
 ```yaml
 - name: Fetch container logs from the remote host
@@ -272,7 +272,7 @@ Collects logs from the named container with the selected runtime client.Writes t
 
 > Log in to a container registry
 
-Authenticates the selected Docker or Podman backend to `container_registry`.Uses the supplied username and password placeholders without changing registry credentials elsewhere.
+Authenticates the selected Docker or Podman backend to `container_registry`. Uses the supplied username and password placeholders without changing registry credentials elsewhere.
 
 ```yaml
 - name: Log in to a container registry
@@ -294,7 +294,7 @@ Authenticates the selected Docker or Podman backend to `container_registry`.Uses
 
 > Create a container network
 
-Creates the named network through the selected Docker or Podman backend.Uses driver, attachable, and internal-network inputs where the selected runtime supports them.
+Creates the named network through the selected Docker or Podman backend. Uses driver, attachable, and internal-network inputs where the selected runtime supports them.
 
 ```yaml
 - name: Create a container network
@@ -318,7 +318,7 @@ Creates the named network through the selected Docker or Podman backend.Uses dri
 
 > Remove a container network
 
-Removes the named network through the selected Docker or Podman backend.Uses `container_network` as the lifecycle target after resolving `container_client`.
+Removes the named network through the selected Docker or Podman backend. Uses `container_network` as the lifecycle target after resolving `container_client`.
 
 ```yaml
 - name: Remove a container network
@@ -336,7 +336,7 @@ Removes the named network through the selected Docker or Podman backend.Uses `co
 
 > Create a container volume
 
-Creates or updates a host path used as a container volume through the selected Docker or Podman backend.Applies path state, mode, ownership, and optional recursive permission inputs, using runtime-specific helpers when rootless ownership changes are needed.
+Creates or updates a host path used as a container volume through the selected Docker or Podman backend. Applies path state, mode, ownership, and optional recursive permission inputs, using runtime-specific helpers when rootless ownership changes are needed.
 
 ```yaml
 - name: Create a container volume
@@ -376,7 +376,7 @@ Creates or updates a host path used as a container volume through the selected D
 
 > Remove a container volume
 
-Removes the host path used as a container volume through the selected Docker or Podman backend.Uses `container_volume_path` as the lifecycle target after resolving `container_client`.
+Removes the host path used as a container volume through the selected Docker or Podman backend. Uses `container_volume_path` as the lifecycle target after resolving `container_client`.
 
 ```yaml
 - name: Remove a container volume
@@ -404,7 +404,7 @@ Removes the host path used as a container volume through the selected Docker or 
 
 > Install Docker on the target host
 
-Installs the Docker runtime on supported Linux hosts.Enables the Docker service and runs a hello-world container to verify that the client and daemon can launch containers.
+Installs the Docker runtime on supported Linux hosts. Enables the Docker service and runs a hello-world container to verify that the client and daemon can launch containers.
 
 ```yaml
 - name: Install Docker on the target host
@@ -417,7 +417,7 @@ Installs the Docker runtime on supported Linux hosts.Enables the Docker service 
 
 > Start a container with Docker
 
-Starts or updates a Docker container with the requested image, command, environment, ports, volumes, network, resource limits, and log settings.Supports rootless Docker adjustments, optional healthcheck state, retry controls, port readiness checks, and foreground output capture in `container_output`.
+Starts or updates a Docker container with the requested image, command, environment, ports, volumes, network, resource limits, and log settings. Supports rootless Docker adjustments, optional healthcheck state, retry controls, port readiness checks, and foreground output capture in `container_output`.
 
 ```yaml
 - name: Start a container with Docker
@@ -505,7 +505,7 @@ Starts or updates a Docker container with the requested image, command, environm
 
 > Stop a container with Docker
 
-Stops the named Docker container when it exists.Uses `container_name` as the lifecycle target.
+Stops the named Docker container when it exists. Uses `container_name` as the lifecycle target.
 
 ```yaml
 - name: Stop a container with Docker
@@ -521,7 +521,7 @@ Stops the named Docker container when it exists.Uses `container_name` as the lif
 
 > Remove a container with Docker
 
-Removes the named Docker container and its attached anonymous volumes.Uses `container_name` as the lifecycle target.
+Removes the named Docker container and its attached anonymous volumes. Uses `container_name` as the lifecycle target.
 
 ```yaml
 - name: Remove a container with Docker
@@ -537,7 +537,7 @@ Removes the named Docker container and its attached anonymous volumes.Uses `cont
 
 > Execute a command in a Docker container
 
-Runs `container_command` inside an existing Docker container.Passes `container_env` when provided and registers the Docker exec result.
+Runs `container_command` inside an existing Docker container. Passes `container_env` when provided and registers the Docker exec result.
 
 ```yaml
 - name: Execute a command in a Docker container
@@ -559,7 +559,7 @@ Runs `container_command` inside an existing Docker container.Passes `container_e
 
 > Log in to a registry with Docker
 
-Logs the Docker client in to `container_registry`.Uses the supplied username and password for image pull access.
+Logs the Docker client in to `container_registry`. Uses the supplied username and password for image pull access.
 
 ```yaml
 - name: Log in to a registry with Docker
@@ -579,7 +579,7 @@ Logs the Docker client in to `container_registry`.Uses the supplied username and
 
 > Create a Docker network
 
-Creates the named Docker network with the requested driver, attachable flag, and internal flag.Provides the network artifact used by bridge-mode containers.
+Creates the named Docker network with the requested driver, attachable flag, and internal flag. Provides the network artifact used by bridge-mode containers.
 
 ```yaml
 - name: Create a Docker network
@@ -601,7 +601,7 @@ Creates the named Docker network with the requested driver, attachable flag, and
 
 > Remove a Docker network
 
-Removes the named Docker network.Uses `container_network` as the lifecycle target.
+Removes the named Docker network. Uses `container_network` as the lifecycle target.
 
 ```yaml
 - name: Remove a Docker network
@@ -617,7 +617,7 @@ Removes the named Docker network.Uses `container_network` as the lifecycle targe
 
 > Create a Docker volume
 
-Creates or updates a host path used as a Docker volume.Applies state, mode, ownership, and recursive permission inputs, using a short-lived helper container for rootless ownership or mode changes when needed.
+Creates or updates a host path used as a Docker volume. Applies state, mode, ownership, and recursive permission inputs, using a short-lived helper container for rootless ownership or mode changes when needed.
 
 ```yaml
 - name: Create a Docker volume
@@ -655,7 +655,7 @@ Creates or updates a host path used as a Docker volume.Applies state, mode, owne
 
 > Remove a Docker volume
 
-Removes the host path used as a Docker volume.Uses `container_volume_path` as the lifecycle target.
+Removes the host path used as a Docker volume. Uses `container_volume_path` as the lifecycle target.
 
 ```yaml
 - name: Remove a Docker volume
@@ -681,7 +681,7 @@ Removes the host path used as a Docker volume.Uses `container_volume_path` as th
 
 > Install Podman on the target host
 
-Installs the Podman runtime on supported hosts.Verifies that the Podman client is available for subsequent container lifecycle tasks.
+Installs the Podman runtime on supported hosts. Verifies that the Podman client is available for subsequent container lifecycle tasks.
 
 ```yaml
 - name: Install Podman on the target host
@@ -694,7 +694,7 @@ Installs the Podman runtime on supported hosts.Verifies that the Podman client i
 
 > Start a container with Podman
 
-Starts or updates a Podman container with the requested image, command, environment, ports, volumes, network, resource limits, and log settings.Supports keep-id user namespace handling, optional healthcheck polling, retry controls, port readiness checks, and foreground output capture in `container_output`.
+Starts or updates a Podman container with the requested image, command, environment, ports, volumes, network, resource limits, and log settings. Supports keep-id user namespace handling, optional healthcheck polling, retry controls, port readiness checks, and foreground output capture in `container_output`.
 
 ```yaml
 - name: Start a container with Podman
@@ -784,7 +784,7 @@ Starts or updates a Podman container with the requested image, command, environm
 
 > Stop a container with Podman
 
-Stops the named Podman container when it exists.Uses `container_name` as the lifecycle target.
+Stops the named Podman container when it exists. Uses `container_name` as the lifecycle target.
 
 ```yaml
 - name: Stop a container with Podman
@@ -800,7 +800,7 @@ Stops the named Podman container when it exists.Uses `container_name` as the lif
 
 > Remove a container with Podman
 
-Removes the named Podman container and its attached anonymous volumes.Uses `container_name` as the lifecycle target.
+Removes the named Podman container and its attached anonymous volumes. Uses `container_name` as the lifecycle target.
 
 ```yaml
 - name: Remove a container with Podman
@@ -816,7 +816,7 @@ Removes the named Podman container and its attached anonymous volumes.Uses `cont
 
 > Execute a command in a Podman container
 
-Runs `container_command` inside an existing Podman container.Passes `container_env` when provided and registers the Podman exec result.
+Runs `container_command` inside an existing Podman container. Passes `container_env` when provided and registers the Podman exec result.
 
 ```yaml
 - name: Execute a command in a Podman container
@@ -838,7 +838,7 @@ Runs `container_command` inside an existing Podman container.Passes `container_e
 
 > Log in to a registry with Podman
 
-Logs the Podman client in to `container_registry`.Uses the supplied username and password for image pull access.
+Logs the Podman client in to `container_registry`. Uses the supplied username and password for image pull access.
 
 ```yaml
 - name: Log in to a registry with Podman
@@ -858,7 +858,7 @@ Logs the Podman client in to `container_registry`.Uses the supplied username and
 
 > Create a Podman network
 
-Creates the named Podman network with the requested driver and internal flag.Provides the network artifact used by bridge-mode containers.
+Creates the named Podman network with the requested driver and internal flag. Provides the network artifact used by bridge-mode containers.
 
 ```yaml
 - name: Create a Podman network
@@ -878,7 +878,7 @@ Creates the named Podman network with the requested driver and internal flag.Pro
 
 > Remove a Podman network
 
-Removes the named Podman network.Uses `container_network` as the lifecycle target.
+Removes the named Podman network. Uses `container_network` as the lifecycle target.
 
 ```yaml
 - name: Remove a Podman network
@@ -894,7 +894,7 @@ Removes the named Podman network.Uses `container_network` as the lifecycle targe
 
 > Create a Podman volume
 
-Creates or updates a host path used as a Podman volume.Applies state, mode, ownership, and recursive permission inputs, using `podman unshare` for rootless ownership or mode changes when needed.
+Creates or updates a host path used as a Podman volume. Applies state, mode, ownership, and recursive permission inputs, using `podman unshare` for rootless ownership or mode changes when needed.
 
 ```yaml
 - name: Create a Podman volume
@@ -932,7 +932,7 @@ Creates or updates a host path used as a Podman volume.Applies state, mode, owne
 
 > Remove a Podman volume
 
-Removes the host path used as a Podman volume.Uses `container_volume_path` as the lifecycle target.
+Removes the host path used as a Podman volume. Uses `container_volume_path` as the lifecycle target.
 
 ```yaml
 - name: Remove a Podman volume
