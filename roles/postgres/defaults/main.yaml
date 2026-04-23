@@ -34,9 +34,11 @@ postgres_use_tls: false
 postgres_use_mtls: false
 # Run PostgreSQL on Kubernetes when set to C(true).
 postgres_use_k8s: false
+# Run PostgreSQL on OpenShift when set to C(true).
+postgres_use_openshift: false
 # Run PostgreSQL as a container when set to C(true).
-# The default derives from C(postgres_use_k8s).
-postgres_use_container: '{{ not postgres_use_k8s }}'
+# The default derives from C(postgres_use_k8s) and C(postgres_use_openshift).
+postgres_use_container: '{{ (not postgres_use_k8s) and (not postgres_use_openshift) }}'
 # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
 # The default derives from C(inventory_hostname).
 postgres_k8s_resource_name: '{{ inventory_hostname }}'
@@ -44,8 +46,7 @@ postgres_k8s_resource_name: '{{ inventory_hostname }}'
 postgres_k8s_wait_timeout: 120
 # Kubernetes pod C(fsGroup) applied so mounted files are readable by the postgres process.
 postgres_k8s_fs_group: 999
-# Enable the optional Kubernetes NodePort Service for PostgreSQL when set to C(true).
-# When C(false) (default), no NodePort Service is created and the C(k8s/ping) check is skipped.
+# Enable the Kubernetes NodePort Service for PostgreSQL when set to C(true).
 postgres_k8s_use_node_port: false
 # Filename of the PostgreSQL TLS private key under the TLS config directory.
 postgres_tls_private_key_file: server.key

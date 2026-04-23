@@ -16,6 +16,13 @@ argument_specs:
         description:
           - Specifies the Kubernetes namespace managed by the task.
           - "Example: C(fabric-x)."
+      k8s_create_namespace: &k8s_create_namespace
+        type: bool
+        required: false
+        default: true
+        description:
+          - Controls whether the namespace creation task applies the namespace resource.
+          - When C(false), the namespace creation task is skipped.
       k8s_image_pull_secret: &k8s_image_pull_secret
         type: str
         required: true
@@ -97,6 +104,7 @@ argument_specs:
       - Requires a valid kubeconfig on the control node and the kubernetes.core collection.
     options:
       k8s_namespace: *k8s_namespace
+      k8s_create_namespace: *k8s_create_namespace
 
   registry/create_pull_secret:
     short_description: Create a Kubernetes image pull secret

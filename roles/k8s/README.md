@@ -35,6 +35,8 @@ Requires a valid kubeconfig on the control node and the kubernetes.core collecti
   vars:
     # Specifies the Kubernetes namespace managed by the task. Example: `fabric-x`.
     k8s_namespace: "string"
+    # Controls whether the namespace creation task applies the namespace resource. When `false`, the namespace creation task is skipped.
+    k8s_create_namespace: true
   ansible.builtin.include_role:
     name: hyperledger.fabricx.k8s
     tasks_from: namespace/create

@@ -10,6 +10,12 @@
     tasks_from: k8s/rm
   when: postgres_use_k8s
 
+- name: Remove Postgres DB OpenShift workload
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: openshift/rm
+  when: postgres_use_openshift
+
 - name: Remove Postgres DB container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
