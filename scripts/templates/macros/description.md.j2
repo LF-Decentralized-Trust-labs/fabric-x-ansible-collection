@@ -1,0 +1,11 @@
+{%- macro render(description) -%}
+{%- if description is string -%}
+{{ description | ansible_doc_markup }}
+{%- else -%}
+{%- set ns = namespace(lines=[]) -%}
+{%- for line in description -%}
+{%- set ns.lines = ns.lines + [line | ansible_doc_markup] -%}
+{%- endfor -%}
+{{ ns.lines | join('\n\n') }}
+{%- endif -%}
+{%- endmacro %}

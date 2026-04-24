@@ -3,13 +3,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+
 ---
 argument_specs:
-
-  _shared_options:
-    short_description: Shared package options
+  role-options:
+    short_description: Shared package options for OS-specific install entry points
     description:
-      - Reusable option definitions for package entry points.
+      - Reusable option definitions shared by the package install dispatcher and the Linux and macOS install entry points.
     options:
       package_name: &package_name
         type: str
@@ -17,17 +17,20 @@ argument_specs:
         description:
           - Names the executable or package to install on the target host.
           - Set this to the package identifier used by the host package manager.
+          - "Example: C(postgresql-client) on a Debian/Ubuntu host or C(postgresql@16) with Homebrew on macOS."
 
       package_service_name: &package_service_name
         type: str
         required: false
         description:
           - Names the Linux service to enable and start after installation.
+          - "Example: C(postgresql)."
 
   install:
-    short_description: Install a package for the current operating system
+    short_description: Dispatch package installation for the current operating system
     description:
-      - Installs a package by dispatching to the Linux or macOS entry point based on C(ansible_facts.system).
+      - Shared entry point that dispatches to the Linux or macOS installer based on C(ansible_facts.system).
+      - Use this entry point when the target host may be either Linux or macOS and you want the role to choose the correct package manager path.
       - This entry point validates C(package_name) and C(package_service_name).
     options:
       package_name: *package_name
@@ -37,7 +40,7 @@ argument_specs:
     short_description: Install a package on Linux
     description:
       - Installs a package on Linux hosts after confirming the command is not already present and the package is available through the system package manager.
-      - If a service name is provided, this entry point also enables and starts that service after installation.
+      - Uses the host package manager to install the requested package identifier and then enables and starts the matching service when C(package_service_name) is provided.
     options:
       package_name: *package_name
       package_service_name: *package_service_name
@@ -46,6 +49,6 @@ argument_specs:
     short_description: Install a package on macOS
     description:
       - Installs a package on macOS hosts with Homebrew after confirming the command is not already present.
-      - This entry point assumes Homebrew is already installed on the target host.
+      - Uses Homebrew to install the requested formula or cask and assumes Homebrew is already installed on the target host.
     options:
       package_name: *package_name

@@ -17,9 +17,9 @@ Namespace/name: `hyperledger.fabricx`. Authoritative version and deps: [`galaxy.
    #
    ```
 
-   CI enforces this via `ci/check_license_header.sh`.
+   CI enforces this via `scripts/check_license_header.sh`.
 
-2. **No trailing spaces** in `.j2` files — enforced by `ci/check_trailing_spaces.sh`.
+2. **No trailing spaces** in `.j2` files — enforced by `scripts/check_trailing_spaces.sh`.
 3. **Lint** — run `make lint` before committing (`ansible-lint` over roles, playbooks, examples).
 4. **Idempotency** — all tasks must be idempotent; use `creates:`, `changed_when:`, or appropriate modules.
 5. **Task names** — every `ansible.builtin.*` task must have a `name:` field.
@@ -136,7 +136,8 @@ make help                  # full command reference
 
 1. If the modification introduces new tasks under `tasks/`, `tasks/config/` or `tasks/crypto`, update the role README.
 2. If the modification introduces new variables, put them in `defaults/main.yaml` only if it makes sense that such variables can have multiple values.
-3. Run `make lint` and fix any issues before committing.
+3. If the modification introduces new variables into a role task, declare them in `roles/<role>/meta/argument_specs.yaml` (add an entry under `role-options`, and reference it from the relevant entrypoint's `options:`), then run `make generate-docs` to regenerate `defaults/main.yaml` and `README.md` for that role.
+4. Run `make lint` and fix any issues before committing.
 
 ---
 

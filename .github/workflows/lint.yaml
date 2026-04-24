@@ -36,3 +36,7 @@ jobs:
         # Check that all the files have the license header
       - name: Run the license check
         run: make check-license-header
+
+      # Check that generated docs are in sync with argument_specs.yaml
+      - name: Check generated docs are up to date
+        run: make check-docs

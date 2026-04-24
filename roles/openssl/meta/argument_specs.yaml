@@ -3,69 +3,80 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+
 ---
 argument_specs:
-
-  _shared_options:
+  role-options:
+    short_description: Shared option catalog for openssl role entry points
     options:
       remote_node_dir: &remote_node_dir
         type: path
         required: false
         description:
-          - Base directory for remote role state.
-          - The default for C(openssl_remote_config_dir) derives from this value.
+          - Base directory for remote role state and temporary OpenSSL config files.
+          - "Example: C(/tmp/fabricx/openssl)."
       actual_host: &actual_host
         type: str
         required: false
         description:
           - Inventory host address used in SAN defaults.
+          - "Example: C(peer0.org1.example.com)."
       ansible_host: &ansible_host
         type: str
         required: false
         description:
           - Inventory host address used in SAN defaults.
+          - "Example: C(192.0.2.15)."
       openssl_private_key_path: &openssl_private_key_path
         type: path
         required: true
         description:
           - Path to the private key file to create.
+          - "Example: C(/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.key)."
       openssl_public_key_path: &openssl_public_key_path
         type: path
         required: true
         description:
           - Path to the public key file to create.
+          - "Example: C(/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.pub)."
       openssl_cert_path: &openssl_cert_path
         type: path
         required: true
         description:
           - Path to the certificate file to create.
+          - "Example: C(/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.crt)."
       openssl_csr_path: &openssl_csr_path
         type: path
         required: true
         description:
           - Path to the CSR file to create.
+          - "Example: C(/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.csr)."
       openssl_ca_private_key_path: &openssl_ca_private_key_path
         type: path
         required: true
         description:
           - Path to the CA private key used to sign the certificate.
           - Store this value in Ansible Vault.
+          - "Example: C(/var/hyperledger/fabricx/crypto/org1.example.com/ca/ca.key)."
       openssl_ca_cert_path: &openssl_ca_cert_path
         type: path
         required: true
         description:
           - Path to the CA certificate used to sign the certificate.
+          - "Example: C(/var/hyperledger/fabricx/crypto/org1.example.com/ca/ca.crt)."
       openssl_remote_config_dir: &openssl_remote_config_dir
         type: path
         required: false
+        default: "{{ remote_node_dir }}/openssl"
         description:
           - Directory for the temporary OpenSSL config file.
-          - The default derives from C(remote_node_dir).
+          - For example, C(/tmp/fabricx/openssl).
       openssl_ext_file_path: &openssl_ext_file_path
         type: path
         required: false
         description:
           - Optional extension file path passed to C(openssl x509 -extfile).
+          - "Example: C(/var/hyperledger/fabricx/openssl/server.ext)."
       openssl_clean_after_gen: &openssl_clean_after_gen
         type: bool
         default: false
@@ -91,6 +102,7 @@ argument_specs:
         required: false
         description:
           - Optional key-generation option passed with C(-pkeyopt).
+          - "Example: C(rsa_keygen_bits:4096)."
       openssl_cert_duration: &openssl_cert_duration
         type: int
         default: 365
@@ -116,6 +128,7 @@ argument_specs:
         required: false
         description:
           - Optional locality or city written into the certificate subject.
+          - "Example: C(Zurich)."
       openssl_organization: &openssl_organization
         type: str
         default: MyOrg Inc.
@@ -126,6 +139,7 @@ argument_specs:
         required: false
         description:
           - Optional organizational unit written into the certificate subject.
+          - "Example: C(Platform Engineering)."
       openssl_common_name: &openssl_common_name
         type: str
         default: example.com
@@ -154,10 +168,14 @@ argument_specs:
       openssl_san_hosts: &openssl_san_hosts
         type: list
         elements: str
-        default: "{{ [ansible_host, actual_host] | unique | list }}"
+        default: >-
+          {{
+            [ansible_host, actual_host]
+            | unique
+            | list
+          }}
         description:
-          - Hosts used to derive SAN entries.
-          - The default derives from C(ansible_host) and C(actual_host).
+          - Hosts used for SAN entries.
       openssl_san_dns_entries: &openssl_san_dns_entries
         type: list
         elements: str
@@ -169,8 +187,7 @@ argument_specs:
             | list
           }}
         description:
-          - DNS SAN entries derived from C(openssl_san_hosts).
-          - The default also uses C(openssl_san_ipv4_regex).
+          - DNS SAN entries generated from C(openssl_san_hosts).
       openssl_san_ip_entries: &openssl_san_ip_entries
         type: list
         elements: str
@@ -185,14 +202,13 @@ argument_specs:
             | list
           }}
         description:
-          - IP SAN entries derived from C(openssl_san_hosts).
-          - The default also uses C(openssl_san_ipv4_regex) and C(ansible_facts.all_ipv4_addresses).
+          - IP SAN entries generated from C(openssl_san_hosts) and C(ansible_facts.all_ipv4_addresses).
       openssl_san_entries: &openssl_san_entries
         type: list
         elements: str
         default: "{{ openssl_san_dns_entries + openssl_san_ip_entries }}"
         description:
-          - Final SAN list derived from C(openssl_san_dns_entries) and C(openssl_san_ip_entries).
+          - Final SAN list assembled from DNS and IP SAN entries.
 
   install:
     short_description: Install the OpenSSL CLI
@@ -204,6 +220,8 @@ argument_specs:
     short_description: Generate an asymmetric key pair
     description:
       - Generate a private key and the matching public key on the target host.
+      - The private key is written to C(openssl_private_key_path) and the public key to C(openssl_public_key_path).
+      - The task is idempotent and skips regeneration when both output files already exist.
     options:
       openssl_private_key_path: *openssl_private_key_path
       openssl_public_key_path: *openssl_public_key_path
@@ -214,7 +232,9 @@ argument_specs:
     short_description: Generate a self-signed certificate
     description:
       - Generate a private key and a self-signed X.509 certificate.
-      - The role also renders a temporary OpenSSL config file and copies the certificate to the CA filename.
+      - The certificate is written to C(openssl_cert_path) and remains valid for C(openssl_cert_duration) days.
+      - The role renders a temporary OpenSSL config file beneath C(openssl_remote_config_dir), then copies the generated certificate to C(openssl_ca_cert_file) in the certificate directory so the self-signed output can also act as a CA certificate.
+      - When C(openssl_clean_after_gen) is true, the temporary configuration directory is removed after generation.
     options:
       remote_node_dir: *remote_node_dir
       actual_host: *actual_host
@@ -246,7 +266,10 @@ argument_specs:
   generate_csr:
     short_description: Generate a certificate signing request
     description:
-      - Generate a private key and a certificate signing request using a rendered OpenSSL config file.
+      - Generate a private key and certificate signing request using a rendered OpenSSL config file.
+      - The private key is written to C(openssl_private_key_path) and the CSR to C(openssl_csr_path).
+      - The role renders a temporary OpenSSL config file beneath C(openssl_remote_config_dir) and, when C(openssl_ext_file_path) is set, also renders an extension file for later signing.
+      - When C(openssl_clean_after_gen) is true, the temporary configuration directory is removed after generation.
     options:
       remote_node_dir: *remote_node_dir
       actual_host: *actual_host
@@ -279,6 +302,8 @@ argument_specs:
     short_description: Sign a certificate from a CSR
     description:
       - Generate a certificate from an existing CSR using the provided CA certificate and private key.
+      - The signed certificate is written to C(openssl_cert_path) and remains valid for C(openssl_cert_duration) days.
+      - When C(openssl_ext_file_path) is set, the role applies the rendered extension file while signing so the resulting certificate inherits the requested X.509 v3 extensions.
     options:
       openssl_ca_private_key_path: *openssl_ca_private_key_path
       openssl_ca_cert_path: *openssl_ca_cert_path

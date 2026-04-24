@@ -1,0 +1,60 @@
+# {{ role }}
+{% if metadata.galaxy_info is defined and metadata.galaxy_info.description is defined %}
+> {{ metadata.galaxy_info.description | ansible_doc_markup }}
+{%- endif %}
+
+## Table of Contents <!-- omit in toc -->
+
+- [Role Defaults](#role-defaults)
+- [ansible-doc](#ansible-doc)
+- [Tasks](#tasks)
+{%- for current_role_task_name, current_role_task in argument_specs.items() %}
+{%- if current_role_task_name != 'role-options' %}
+  - [{{ current_role_task_name | replace('_', '\\_') }}](#{{ current_role_task_name | replace('/', '') }})
+{%- endif %}
+{%- endfor %}
+
+## Role Defaults
+
+See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults and inline variable descriptions.
+
+## ansible-doc
+
+You can view the role documentation in your terminal running:
+
+```shell
+ansible-doc -t role {{ role }}
+```
+
+## Tasks
+{%- for current_role_task_name, current_role_task in argument_specs.items() %}
+{%- if current_role_task_name != 'role-options' %}
+
+### {{ current_role_task_name }}
+
+> {{ current_role_task.short_description | ansible_doc_markup }}
+{% if current_role_task.description is defined %}
+{{ ([current_role_task.description] if current_role_task.description is string else current_role_task.description) | map('ansible_doc_markup') | join(' ') }}
+{% endif %}
+```yaml
+- name: {{ current_role_task.short_description }}
+{%- if current_role_task.options is defined and current_role_task.options.items() | length > 0 %}
+  vars:
+{%- for var_name, var in current_role_task.options.items() %}
+    # {{ var.display_description | ansible_doc_markup }}
+{%- if var.default is defined and var.default is not none %}
+    {{ var_name }}:{{ var.default | render_default }}
+{%- else %}
+    {{ var_name }}:{{ var | render_placeholder }}
+{%- endif %}
+{%- endfor %}
+{%- endif %}
+  ansible.builtin.include_role:
+    name: {{ role }}
+    tasks_from: {{ current_role_task_name }}
+```
+{%- if not loop.last %}
+
+{%- endif %}
+{%- endif %}
+{%- endfor %}

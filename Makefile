@@ -43,6 +43,8 @@ ANSIBLE_LINT ?= ansible-lint
 ANSIBLE_PYTHON_INTERPRETER ?= python3
 endif
 
+AAR_DOC ?= $(ANSIBLE_PYTHON_INTERPRETER) $(PROJECT_DIR)/scripts/aar-doc.py
+
 # Color codes for echo messages
 COLOR_CYAN := \033[0;36m
 COLOR_GREEN := \033[0;32m
@@ -138,17 +140,33 @@ lint:
 	@printf "$(COLOR_CYAN)🚩 Running ansible-lint checks...$(COLOR_RESET)\n"
 	$(ANSIBLE_LINT) --offline roles playbooks examples
 
+# Generate role READMEs and defaults from argument_specs.yaml
+.PHONY: generate-docs
+generate-docs:
+	@printf "$(COLOR_CYAN)🚩 Generating role docs from argument_specs.yaml...$(COLOR_RESET)\n"
+	@for role in roles/*/; do \
+	    printf "  → $$role\n"; \
+	    $(AAR_DOC) --output-mode replace --output-template $(PROJECT_DIR)/scripts/templates/role_readme.md.j2 $$role markdown; \
+	    $(AAR_DOC) --output-file main.yaml $$role defaults; \
+	done
+
+# Check that generated docs are in sync with argument_specs.yaml
+.PHONY: check-docs
+check-docs: generate-docs
+	@git diff --exit-code roles/*/defaults/main.yaml roles/*/README.md \
+	    || (printf "$(COLOR_RESET)ERROR: Generated docs are out of date. Run 'make generate-docs' and commit the changes.\n" && exit 1)
+
 # Check the license header
 .PHONY: check-license-header
 check-license-header:
 	@printf "$(COLOR_CYAN)🚩 Checking license headers...$(COLOR_RESET)\n"
-	./ci/check_license_header.sh
+	./scripts/check_license_header.sh
 
 # Check that no trailing spaces are added in the j2 files
 .PHONY: check-trailing-spaces
 check-trailing-spaces:
 	@printf "$(COLOR_CYAN)🚩 Checking for trailing spaces in templates...$(COLOR_RESET)\n"
-	./ci/check_trailing_spaces.sh
+	./scripts/check_trailing_spaces.sh
 
 # =======================
 # Deployment

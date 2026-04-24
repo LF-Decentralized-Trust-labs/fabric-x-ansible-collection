@@ -3,9 +3,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+
 ---
 argument_specs:
-  _shared_options:
+  role-options:
     short_description: Shared k8s options
     description:
       - Shared option definitions reused by the k8s role entry points.
@@ -14,7 +15,7 @@ argument_specs:
         type: str
         required: true
         description:
-          - Specifies the Kubernetes namespace managed by the task.
+          - Specifies the Kubernetes namespace targeted by the task.
           - "Example: C(fabric-x)."
       k8s_create_namespace: &k8s_create_namespace
         type: bool
@@ -27,7 +28,7 @@ argument_specs:
         type: str
         required: true
         description:
-          - Specifies the name of the Kubernetes Secret used for image pulls.
+          - Specifies the Kubernetes Secret name used for image pulls.
           - "Example: C(regcred)."
       k8s_container_registry: &k8s_container_registry
         type: str
@@ -39,44 +40,47 @@ argument_specs:
         type: str
         required: true
         description:
-          - Specifies the username stored in the generated image pull secret.
+          - Specifies the registry username stored in the generated image pull secret.
           - "Example: C(iamapikey)."
       k8s_container_registry_password: &k8s_container_registry_password
         type: str
         required: true
         description:
-          - Specifies the password or token stored in the generated image pull secret.
-          - This value should be stored in an Ansible Vault.
+          - Specifies the registry password or token stored in the generated image pull secret.
+          - Store this value in an Ansible Vault.
+          - "Example: C(my_private_cr_password)."
       k8s_pod_label_selectors: &k8s_pod_label_selectors
         type: list
         elements: str
         required: true
         description:
-          - Specifies the label selectors passed to the Kubernetes log query.
-          - "Example: C(['app=fabric-x-orderer'])."
+          - Specifies the Kubernetes label selectors used to select pods for log collection.
+          - "Example: C(['app=fabric-x-orderer', 'component=assembler'])."
       k8s_pod_container: &k8s_pod_container
         type: str
         required: false
         description:
           - Optionally specifies the container name to query from multi-container pods.
+          - "Example: C(orderer)."
           - When omitted, Kubernetes uses the default container.
       remote_node_dir: &remote_node_dir
         type: path
         required: false
         description:
-          - Shared managed-host root directory used to derive the remote log path.
+          - Shared managed-host root directory for the remote log path.
+          - "Example: C(/var/tmp/fabricx)."
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         required: false
         description:
-          - Shared control-node artifact root used to derive the fetched log directory.
+          - Shared control-node artifact root for the fetched log directory.
+          - "Example: C(artifacts)."
       k8s_remote_logs_dir: &k8s_remote_logs_dir
         type: path
         required: false
         default: "{{ remote_node_dir }}/logs"
         description:
           - Specifies the directory on the managed host where pod logs are written before transfer.
-          - The default derives from C(remote_node_dir).
       k8s_remote_logs_file: &k8s_remote_logs_file
         type: str
         required: false
@@ -89,7 +93,6 @@ argument_specs:
         default: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}"
         description:
           - Specifies the directory on the control node where fetched pod logs are stored.
-          - The default derives from C(fetched_artifacts_dir) and C(inventory_hostname).
       k8s_fetched_logs_file: &k8s_fetched_logs_file
         type: str
         required: false
@@ -100,8 +103,9 @@ argument_specs:
   namespace/create:
     short_description: Ensure a Kubernetes namespace exists
     description:
-      - Ensures the target Kubernetes namespace is present in the cluster.
-      - Requires a valid kubeconfig on the control node and the kubernetes.core collection.
+      - Creates or updates the named Kubernetes namespace resource in the target cluster.
+      - Uses the control-node kubeconfig and the kubernetes.core collection to apply a Namespace object named by C(k8s_namespace).
+      - Skips the task when C(k8s_create_namespace) is false.
     options:
       k8s_namespace: *k8s_namespace
       k8s_create_namespace: *k8s_create_namespace
@@ -109,8 +113,9 @@ argument_specs:
   registry/create_pull_secret:
     short_description: Create a Kubernetes image pull secret
     description:
-      - Creates or updates a Docker registry imagePullSecret in the target namespace.
-      - Renders a kubernetes.io/dockerconfigjson secret from the configured registry credentials.
+      - Creates or updates a C(kubernetes.io/dockerconfigjson) Secret named by C(k8s_image_pull_secret) in the target namespace.
+      - Renders the secret from the configured registry host, username, and password for image pulls.
+      - Requires the namespace to exist and a valid kubeconfig on the control node.
     options:
       k8s_namespace: *k8s_namespace
       k8s_image_pull_secret: *k8s_image_pull_secret
@@ -121,8 +126,10 @@ argument_specs:
   fetch_logs:
     short_description: Fetch Kubernetes pod logs
     description:
-      - Collects pod logs selected by label from the target namespace, writes them on the managed host, and fetches them back to the control node.
-      - Log collection tolerates missing pods or missing log content and still attempts artifact retrieval.
+      - Collects pod logs from the target namespace for pods matched by C(k8s_pod_label_selectors).
+      - Optionally narrows collection to C(k8s_pod_container) when the selected pods expose multiple containers.
+      - Writes the collected logs to C(k8s_remote_logs_dir)/C(k8s_remote_logs_file) on the managed host and fetches them to C(k8s_fetched_logs_dir)/C(k8s_fetched_logs_file) on the control node.
+      - Continues even when no pod logs are returned so artifact retrieval still happens.
     options:
       k8s_namespace: *k8s_namespace
       k8s_pod_label_selectors: *k8s_pod_label_selectors
