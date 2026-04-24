@@ -90,9 +90,7 @@ For more information, please look at the [Roles](./roles/README.md) documentatio
 
 To run such Ansible collection, you need to have the following prerequisites installed on your control node:
 
-- `python`;
-- [`podman`](https://podman.io/docs/installation) or [`docker`](https://docs.docker.com/engine/install/);
-- [`go`](https://go.dev/doc/install).
+- `python` >= 3.11.
 
 After having cloned this repository, run:
 
@@ -114,7 +112,7 @@ make install-remote-node-deps
 
 This repository comes with some Ansible inventories and playbooks examples that could be used to start a sample Fabric-X network on your local machine. Please look at the [examples README](./examples/README.md) to understand better which network you can run with each inventory and how to enhance them for your use case.
 
-By default, the [fabric-x.yaml](./examples/inventory/fabric-x.yaml) inventory is used:
+By default, the [fabric-x.yaml](./examples/inventory/local/fabric-x.yaml) inventory is used:
 
 ![fabric-x-inventory](./examples/images/fabric-x.drawio.png)
 
@@ -224,7 +222,7 @@ Here there is a list of the most used commands:
 
 By default all the `Makefile` commands target all the hosts which are defined within the reference inventory. However, the playbooks have been tailored in such a way that the actions can be restricted to a sub-group (or even a single host) through the `target_hosts` Ansible variable, which is reflected as the `TARGET_HOSTS` variable in the [Makefile](./Makefile).
 
-The `Makefile` comes with a set of [predefined host groups](./target_hosts.mk) that can be used to easily restrict commands:
+The `Makefile` comes with a set of [predefined host groups](./target_groups.mk) that can be used to easily restrict commands:
 
 | Group                | Target                                           |
 | -------------------- | ------------------------------------------------ |
@@ -243,7 +241,7 @@ make fabric_x_orderers start
 
 restricts the command to the host group `fabric_x_orderers` defined within the inventory.
 
-All these groups are reflected in the [sample inventory](./examples/inventory/fabric-x.yaml). If you plan to use the playbooks provided with the collection, we recommend to keep the names identical in order to leverage all the playbooks capabilities.
+All these groups are reflected in the [sample inventory](./examples/inventory/local/fabric-x.yaml). If you plan to use the playbooks provided with the collection, we recommend to keep the names identical in order to leverage all the playbooks capabilities.
 
 ## Contributing
 

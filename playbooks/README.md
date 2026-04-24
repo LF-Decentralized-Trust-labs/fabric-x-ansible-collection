@@ -1,4 +1,4 @@
-# Hyperledger Fabric-X Ansible Collection Playbooks
+# Hyperledger Fabric-X Ansible Playbooks
 
 This folder contains playbooks that show how to use the `hyperledger.fabricx` Ansible collection roles.
 

@@ -1,0 +1,82 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+site_name: Hyperledger Fabric-X Ansible Collection
+site_description: Ansible collection for deploying and managing Hyperledger Fabric-X networks
+site_url: https://lf-decentralized-trust-labs.github.io/fabric-x-ansible-collection/
+repo_url: https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection
+repo_name: LF-Decentralized-Trust-labs/fabric-x-ansible-collection
+docs_dir: docs/mkdocs
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - admonition
+  - pymdownx.details
+  - toc:
+      permalink: true
+  - attr_list
+  - md_in_html
+
+nav:
+  - Home: index.md
+  - Inventories: examples/index.md
+  - Playbooks: playbooks/index.md
+  - Roles:
+      - Overview: roles/index.md
+      - armageddon: roles/armageddon/index.md
+      - bin: roles/bin/index.md
+      - committer: roles/committer/index.md
+      - configtxgen: roles/configtxgen/index.md
+      - container: roles/container/index.md
+      - cryptogen: roles/cryptogen/index.md
+      - elasticsearch: roles/elasticsearch/index.md
+      - fabric_ca: roles/fabric_ca/index.md
+      - fxconfig: roles/fxconfig/index.md
+      - git: roles/git/index.md
+      - go: roles/go/index.md
+      - grafana: roles/grafana/index.md
+      - idemixgen: roles/idemixgen/index.md
+      - jaeger: roles/jaeger/index.md
+      - k8s: roles/k8s/index.md
+      - loadgen: roles/loadgen/index.md
+      - node_exporter: roles/node_exporter/index.md
+      - openssl: roles/openssl/index.md
+      - orderer: roles/orderer/index.md
+      - package: roles/package/index.md
+      - postgres: roles/postgres/index.md
+      - postgres_exporter: roles/postgres_exporter/index.md
+      - prometheus: roles/prometheus/index.md
+      - tmux: roles/tmux/index.md
+      - utils: roles/utils/index.md
+      - yugabyte: roles/yugabyte/index.md

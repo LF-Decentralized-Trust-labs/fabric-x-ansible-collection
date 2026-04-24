@@ -44,6 +44,7 @@ ANSIBLE_PYTHON_INTERPRETER ?= python3
 endif
 
 AAR_DOC ?= $(ANSIBLE_PYTHON_INTERPRETER) $(PROJECT_DIR)/scripts/aar-doc.py
+MKDOCS ?= $(ANSIBLE_PYTHON_INTERPRETER) -m mkdocs
 
 # Color codes for echo messages
 COLOR_CYAN := \033[0;36m
@@ -155,6 +156,30 @@ generate-docs:
 check-docs: generate-docs
 	@git diff --exit-code roles/*/defaults/main.yaml roles/*/README.md \
 	    || (printf "$(COLOR_RESET)ERROR: Generated docs are out of date. Run 'make generate-docs' and commit the changes.\n" && exit 1)
+
+# Install MkDocs and the dependencies needed to build the documentation site.
+.PHONY: install-mkdocs
+install-mkdocs:
+	@printf "$(COLOR_CYAN)🚩 Installing MkDocs...$(COLOR_RESET)\n"
+	$(ANSIBLE_PYTHON_INTERPRETER) -m pip install -r $(PROJECT_DIR)/requirements-docs.txt
+
+# Generate the MkDocs source tree from the repository READMEs.
+.PHONY: mkdocs-generate
+mkdocs-generate:
+	@printf "$(COLOR_CYAN)🚩 Generating MkDocs source tree...$(COLOR_RESET)\n"
+	$(ANSIBLE_PYTHON_INTERPRETER) $(PROJECT_DIR)/scripts/build_mkdocs_source.py
+
+# Serve the documentation site locally.
+.PHONY: mkdocs-serve
+mkdocs-serve: mkdocs-generate
+	@printf "$(COLOR_CYAN)🚩 Serving MkDocs site...$(COLOR_RESET)\n"
+	$(MKDOCS) serve
+
+# Build the static documentation site.
+.PHONY: mkdocs-build
+mkdocs-build: mkdocs-generate
+	@printf "$(COLOR_CYAN)🚩 Building MkDocs site...$(COLOR_RESET)\n"
+	$(MKDOCS) build --strict
 
 # Check the license header
 .PHONY: check-license-header
