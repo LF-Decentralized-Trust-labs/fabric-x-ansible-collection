@@ -24,6 +24,7 @@ This repository contains the `hyperledger.fabricx` Ansible collection, which can
 - [Supported commands](#supported-commands)
   - [Restrict commands to a group of hosts](#restrict-commands-to-a-group-of-hosts)
 - [Contributing](#contributing)
+  - [Updating role documentation](#updating-role-documentation)
 - [License](#license)
 
 ## Installation
@@ -256,6 +257,14 @@ If you'd like to help improve this project, please follow these steps:
 
 ```bash
 git checkout -b your-feature-name
+```
+
+### Updating role documentation
+
+Role READMEs and role defaults are automatically generated from `meta/argument_specs.yaml`. When you add a new role task entry point or introduce variables for an existing entry point, update that role's `argument_specs.yaml` and then run:
+
+```shell
+make generate-docs
 ```
 
 ## License
