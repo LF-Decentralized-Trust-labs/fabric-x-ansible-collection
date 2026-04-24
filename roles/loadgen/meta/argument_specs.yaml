@@ -225,7 +225,7 @@ argument_specs:
         required: false
         description:
           - Broadcast goroutine count used by the orderer client.
-          - "Example: C(8) for a load generator submitting to orderer routers."
+          - "Example: C(8)."
       loadgen_key_size: &loadgen_key_size
         type: int
         required: false
@@ -237,7 +237,7 @@ argument_specs:
         required: false
         description:
           - Random seed used to build repeatable transaction streams.
-          - "Example: C(12345) to reproduce a load profile."
+          - "Example: C(12345)."
       loadgen_workers: &loadgen_workers
         type: int
         required: false
@@ -376,7 +376,7 @@ argument_specs:
         required: false
         description:
           - Maximum generated transaction rate.
-          - "Example: C(2500) transactions per second."
+          - "Example: C(2500)."
       loadgen_limit_blocks: &loadgen_limit_blocks
         type: int
         required: false

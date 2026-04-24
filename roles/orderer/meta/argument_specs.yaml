@@ -165,13 +165,13 @@ argument_specs:
         required: false
         description:
           - "NodePort used to expose the orderer gRPC service when NodePort exposure is enabled."
-          - "Example: C(31050) for a router or assembler gRPC endpoint."
+          - "Example: C(31050)."
       orderer_k8s_metrics_node_port: &orderer_k8s_metrics_node_port
         type: int
         required: false
         description:
           - "NodePort used to expose the orderer metrics endpoint when NodePort exposure is enabled."
-          - "Example: C(31051) for the matching orderer metrics endpoint."
+          - "Example: C(31051)."
       orderer_container_config_dir: &orderer_container_config_dir
         type: path
         required: false
@@ -248,32 +248,32 @@ argument_specs:
         required: false
         description:
           - "Batcher shard identifier written only by the batcher template."
-          - "Example: C(0) for the first batcher shard."
+          - "Example: C(0)."
       orderer_rpc_port: &orderer_rpc_port
         type: int
         required: true
         description:
           - "gRPC port exposed by the orderer."
-          - "Example: C(7050) for a consenter or C(7150) for a batcher."
+          - "Example: C(7050)."
       orderer_metrics_port: &orderer_metrics_port
         type: int
         required: true
         description:
           - "Metrics port exposed by the orderer."
-          - "Example: C(9443) for a router metrics endpoint."
+          - "Example: C(7060)."
       orderer_metrics_port_config_transfer:
         &orderer_metrics_port_config_transfer
         type: int
         required: false
         description:
           - "Metrics port written into the rendered config when enabled."
-          - "Example: C(9444) for an assembler monitoring listener."
+          - "Example: C(9444)."
       orderer_metrics_port_get_metrics: &orderer_metrics_port_get_metrics
         type: int
         required: false
         description:
           - "Metrics port queried by the metrics fetch branch."
-          - "Example: C(9445) for a batcher metrics scrape."
+          - "Example: C(9445)."
       orderer_metrics_log_interval: &orderer_metrics_log_interval
         type: str
         required: false

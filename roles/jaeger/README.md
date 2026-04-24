@@ -300,38 +300,38 @@ Applies the Jaeger Service, optional NodePort Service, and Deployment resources 
     jaeger_grpc_server_port: 14250
     # Sets the Jaeger OTLP gRPC collector port. Example: `4317` for OTLP/gRPC ingestion from Jaeger agents.
     jaeger_collector_port: 4317
-    # Sets the Kubernetes NodePort for the Jaeger UI service. Example: `30686` to expose the query UI on a stable node port.
-    jaeger_k8s_ui_node_port: 1000
-    # Sets the Kubernetes NodePort for the Jaeger admin service. Example: `30669` for the admin and health-check node port.
-    jaeger_k8s_admin_node_port: 1000
-    # Sets the Kubernetes NodePort for the Jaeger collector HTTP server. Example: `30668` for the collector HTTP node port.
-    jaeger_k8s_http_server_node_port: 1000
-    # Sets the Kubernetes NodePort for the Jaeger OTLP HTTP collector. Example: `30418` for OTLP/HTTP traffic through Kubernetes.
-    jaeger_k8s_http_collector_node_port: 1000
-    # Sets the Kubernetes NodePort for the Jaeger gRPC server. Example: `31450` for the gRPC collector service endpoint.
-    jaeger_k8s_grpc_server_node_port: 1000
-    # Sets the Kubernetes NodePort for the Jaeger OTLP gRPC collector. Example: `30417` for OTLP/gRPC traffic through Kubernetes.
-    jaeger_k8s_collector_node_port: 1000
+    # Sets the Kubernetes NodePort for the Jaeger UI service. Example: `30686`.
+    jaeger_k8s_ui_node_port: 30686
+    # Sets the Kubernetes NodePort for the Jaeger admin service. Example: `30669`.
+    jaeger_k8s_admin_node_port: 30669
+    # Sets the Kubernetes NodePort for the Jaeger collector HTTP server. Example: `30668`.
+    jaeger_k8s_http_server_node_port: 30668
+    # Sets the Kubernetes NodePort for the Jaeger OTLP HTTP collector. Example: `30418`.
+    jaeger_k8s_http_collector_node_port: 30418
+    # Sets the Kubernetes NodePort for the Jaeger gRPC server. Example: `31450`.
+    jaeger_k8s_grpc_server_node_port: 31450
+    # Sets the Kubernetes NodePort for the Jaeger OTLP gRPC collector. Example: `30417`.
+    jaeger_k8s_collector_node_port: 30417
     # Sets the Kubernetes namespace used for Jaeger resources. Example: `tracing` when Jaeger shares a namespace with other observability services.
     k8s_namespace: "string"
     # Sets the Kubernetes imagePullSecret name when the deployment needs one. Example: `registry-pull-secret` when the Jaeger image comes from a private registry.
     k8s_image_pull_secret: "string"
-    # Sets the readiness probe initial delay used by the Jaeger deployment template. Example: `5` to let the pod initialize before readiness checks begin.
-    k8s_readiness_probe_initial_delay_seconds: 1000
-    # Sets the readiness probe period used by the Jaeger deployment template. Example: `10` to check whether the query and collector endpoints are ready every ten seconds.
-    k8s_readiness_probe_period_seconds: 1000
-    # Sets the readiness probe timeout used by the Jaeger deployment template. Example: `2` for a fast readiness failure on the Jaeger service endpoint.
-    k8s_readiness_probe_timeout_seconds: 1000
-    # Sets the readiness probe failure threshold used by the Jaeger deployment template. Example: `3` to fail readiness after three consecutive misses.
-    k8s_readiness_probe_failure_threshold: 1000
-    # Sets the liveness probe initial delay used by the Jaeger deployment template. Example: `15` to wait for the query and collector services to settle before liveness checks.
-    k8s_liveness_probe_initial_delay_seconds: 1000
-    # Sets the liveness probe period used by the Jaeger deployment template. Example: `20` to run liveness checks at a slower cadence than readiness checks.
-    k8s_liveness_probe_period_seconds: 1000
-    # Sets the liveness probe timeout used by the Jaeger deployment template. Example: `2` for a quick failure if the admin endpoint stops responding.
-    k8s_liveness_probe_timeout_seconds: 1000
-    # Sets the liveness probe failure threshold used by the Jaeger deployment template. Example: `3` to restart the pod after three missed liveness checks.
-    k8s_liveness_probe_failure_threshold: 1000
+    # Sets the readiness probe initial delay used by the Jaeger deployment template. Example: `5`.
+    k8s_readiness_probe_initial_delay_seconds: 5
+    # Sets the readiness probe period used by the Jaeger deployment template. Example: `10`.
+    k8s_readiness_probe_period_seconds: 10
+    # Sets the readiness probe timeout used by the Jaeger deployment template. Example: `2`.
+    k8s_readiness_probe_timeout_seconds: 2
+    # Sets the readiness probe failure threshold used by the Jaeger deployment template. Example: `3`.
+    k8s_readiness_probe_failure_threshold: 3
+    # Sets the liveness probe initial delay used by the Jaeger deployment template. Example: `15`.
+    k8s_liveness_probe_initial_delay_seconds: 15
+    # Sets the liveness probe period used by the Jaeger deployment template. Example: `20`.
+    k8s_liveness_probe_period_seconds: 20
+    # Sets the liveness probe timeout used by the Jaeger deployment template. Example: `2`.
+    k8s_liveness_probe_timeout_seconds: 2
+    # Sets the liveness probe failure threshold used by the Jaeger deployment template. Example: `3`.
+    k8s_liveness_probe_failure_threshold: 3
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: k8s/start
@@ -394,18 +394,18 @@ Checks the Jaeger Kubernetes service ports and, when enabled, the NodePort value
     jaeger_grpc_server_port: 14250
     # Sets the Jaeger OTLP gRPC collector port. Example: `4317` for OTLP/gRPC ingestion from Jaeger agents.
     jaeger_collector_port: 4317
-    # Sets the Kubernetes NodePort for the Jaeger UI service. Example: `30686` to expose the query UI on a stable node port.
-    jaeger_k8s_ui_node_port: 1000
-    # Sets the Kubernetes NodePort for the Jaeger admin service. Example: `30669` for the admin and health-check node port.
-    jaeger_k8s_admin_node_port: 1000
-    # Sets the Kubernetes NodePort for the Jaeger collector HTTP server. Example: `30668` for the collector HTTP node port.
-    jaeger_k8s_http_server_node_port: 1000
-    # Sets the Kubernetes NodePort for the Jaeger OTLP HTTP collector. Example: `30418` for OTLP/HTTP traffic through Kubernetes.
-    jaeger_k8s_http_collector_node_port: 1000
-    # Sets the Kubernetes NodePort for the Jaeger gRPC server. Example: `31450` for the gRPC collector service endpoint.
-    jaeger_k8s_grpc_server_node_port: 1000
-    # Sets the Kubernetes NodePort for the Jaeger OTLP gRPC collector. Example: `30417` for OTLP/gRPC traffic through Kubernetes.
-    jaeger_k8s_collector_node_port: 1000
+    # Sets the Kubernetes NodePort for the Jaeger UI service. Example: `30686`.
+    jaeger_k8s_ui_node_port: 30686
+    # Sets the Kubernetes NodePort for the Jaeger admin service. Example: `30669`.
+    jaeger_k8s_admin_node_port: 30669
+    # Sets the Kubernetes NodePort for the Jaeger collector HTTP server. Example: `30668`.
+    jaeger_k8s_http_server_node_port: 30668
+    # Sets the Kubernetes NodePort for the Jaeger OTLP HTTP collector. Example: `30418`.
+    jaeger_k8s_http_collector_node_port: 30418
+    # Sets the Kubernetes NodePort for the Jaeger gRPC server. Example: `31450`.
+    jaeger_k8s_grpc_server_node_port: 31450
+    # Sets the Kubernetes NodePort for the Jaeger OTLP gRPC collector. Example: `30417`.
+    jaeger_k8s_collector_node_port: 30417
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: k8s/ping

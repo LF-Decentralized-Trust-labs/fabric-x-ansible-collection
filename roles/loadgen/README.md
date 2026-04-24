@@ -217,8 +217,8 @@ Send a control-plane HTTP request that changes the active generated transaction 
     loadgen_web_port: 8080
     # NodePort used for the HTTP control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. Example: `30080`.
     loadgen_k8s_web_node_port: 30080
-    # Maximum generated transaction rate. Example: `2500` transactions per second.
-    loadgen_limit_rate: 1000
+    # Maximum generated transaction rate. Example: `2500`.
+    loadgen_limit_rate: 2500
     # Use Kubernetes resources.
     loadgen_use_k8s: false
     # Expose the Kubernetes Service via NodePort when `loadgen_use_k8s` is enabled. This drives the HTTP, metrics, and gRPC NodePort access paths.
@@ -314,8 +314,8 @@ Render the Loadgen configuration file and transfer config-side support artifacts
     loadgen_generate_load: false
     # Generated key size in bytes. Example: `32`.
     loadgen_key_size: 32
-    # Random seed used to build repeatable transaction streams. Example: `12345` to reproduce a load profile.
-    loadgen_tx_seed: 1000
+    # Random seed used to build repeatable transaction streams. Example: `12345`.
+    loadgen_tx_seed: 12345
     # Worker goroutine count used by the load profile. Example: `16`.
     loadgen_workers: 16
     # Maximum generated block size. Example: `500`.
@@ -356,8 +356,8 @@ Render the Loadgen configuration file and transfer config-side support artifacts
     loadgen_max_latency: "5s"
     # Number of latency histogram buckets. Example: `1000`.
     loadgen_latency_buckets: 1000
-    # Maximum generated transaction rate. Example: `2500` transactions per second.
-    loadgen_limit_rate: 1000
+    # Maximum generated transaction rate. Example: `2500`.
+    loadgen_limit_rate: 2500
     # Batch size used by the stream pipeline. Example: `10`.
     loadgen_stream_batches: 10
     # Channel buffer size used by the stream pipeline. Example: `64`.
@@ -387,8 +387,8 @@ Render the Loadgen configuration file and transfer config-side support artifacts
       - "orderer-assembler2"
     # Sidecar host targeted by the orderer and sidecar clients. Example: `committer-sidecar1`.
     committer_sidecar_host: "committer-sidecar1"
-    # Broadcast goroutine count used by the orderer client. Example: `8` for a load generator submitting to orderer routers.
-    loadgen_broadcast_parallelism: 1000
+    # Broadcast goroutine count used by the orderer client. Example: `8`.
+    loadgen_broadcast_parallelism: 8
     # Optional stopping limit for generated blocks. Example: `100`.
     loadgen_limit_blocks: 100
     # Optional stopping limit for generated transactions. Example: `100000`.

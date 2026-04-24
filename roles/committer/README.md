@@ -1639,6 +1639,10 @@ Ensure the namespace exists and apply the validator Service, NodePort Service, a
   vars:
     # Enable the optional Kubernetes NodePort Service for committer RPC and metrics access.
     committer_k8s_use_node_port: false
+    # NodePort used for the RPC service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31051`.
+    committer_k8s_rpc_node_port: 31051
+    # NodePort used for the metrics service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31052`.
+    committer_k8s_metrics_node_port: 31052
     # Wait timeout in seconds for Kubernetes rollouts.
     committer_k8s_wait_timeout: 120
   ansible.builtin.include_role:
@@ -1657,6 +1661,10 @@ Ensure the namespace exists and apply the verifier Service, NodePort Service, an
   vars:
     # Enable the optional Kubernetes NodePort Service for committer RPC and metrics access.
     committer_k8s_use_node_port: false
+    # NodePort used for the RPC service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31051`.
+    committer_k8s_rpc_node_port: 31051
+    # NodePort used for the metrics service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31052`.
+    committer_k8s_metrics_node_port: 31052
     # Wait timeout in seconds for Kubernetes rollouts.
     committer_k8s_wait_timeout: 120
   ansible.builtin.include_role:
@@ -1675,6 +1683,10 @@ Ensure the namespace exists and apply the coordinator Service, NodePort Service,
   vars:
     # Enable the optional Kubernetes NodePort Service for committer RPC and metrics access.
     committer_k8s_use_node_port: false
+    # NodePort used for the RPC service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31051`.
+    committer_k8s_rpc_node_port: 31051
+    # NodePort used for the metrics service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31052`.
+    committer_k8s_metrics_node_port: 31052
     # Wait timeout in seconds for Kubernetes rollouts.
     committer_k8s_wait_timeout: 120
     # Inventory hosts for validator components. Example: `['committer-validator-1', 'committer-validator-2']`.
@@ -1701,6 +1713,10 @@ Ensure the namespace exists and apply the sidecar Service, NodePort Service, and
   vars:
     # Enable the optional Kubernetes NodePort Service for committer RPC and metrics access.
     committer_k8s_use_node_port: false
+    # NodePort used for the RPC service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31051`.
+    committer_k8s_rpc_node_port: 31051
+    # NodePort used for the metrics service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31052`.
+    committer_k8s_metrics_node_port: 31052
     # Wait timeout in seconds for Kubernetes rollouts.
     committer_k8s_wait_timeout: 120
   ansible.builtin.include_role:
@@ -1719,6 +1735,10 @@ Ensure the namespace exists and apply the query-service Service, NodePort Servic
   vars:
     # Enable the optional Kubernetes NodePort Service for committer RPC and metrics access.
     committer_k8s_use_node_port: false
+    # NodePort used for the RPC service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31051`.
+    committer_k8s_rpc_node_port: 31051
+    # NodePort used for the metrics service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31052`.
+    committer_k8s_metrics_node_port: 31052
     # Wait timeout in seconds for Kubernetes rollouts.
     committer_k8s_wait_timeout: 120
   ansible.builtin.include_role:

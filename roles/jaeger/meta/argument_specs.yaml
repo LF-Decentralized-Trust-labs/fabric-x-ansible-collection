@@ -155,37 +155,37 @@ argument_specs:
         required: false
         description:
           - "Sets the Kubernetes NodePort for the Jaeger UI service."
-          - "Example: C(30686) to expose the query UI on a stable node port."
+          - "Example: C(30686)."
       jaeger_k8s_admin_node_port: &jaeger_k8s_admin_node_port
         type: int
         required: false
         description:
           - "Sets the Kubernetes NodePort for the Jaeger admin service."
-          - "Example: C(30669) for the admin and health-check node port."
+          - "Example: C(30669)."
       jaeger_k8s_http_server_node_port: &jaeger_k8s_http_server_node_port
         type: int
         required: false
         description:
           - "Sets the Kubernetes NodePort for the Jaeger collector HTTP server."
-          - "Example: C(30668) for the collector HTTP node port."
+          - "Example: C(30668)."
       jaeger_k8s_http_collector_node_port: &jaeger_k8s_http_collector_node_port
         type: int
         required: false
         description:
           - "Sets the Kubernetes NodePort for the Jaeger OTLP HTTP collector."
-          - "Example: C(30418) for OTLP/HTTP traffic through Kubernetes."
+          - "Example: C(30418)."
       jaeger_k8s_grpc_server_node_port: &jaeger_k8s_grpc_server_node_port
         type: int
         required: false
         description:
           - "Sets the Kubernetes NodePort for the Jaeger gRPC server."
-          - "Example: C(31450) for the gRPC collector service endpoint."
+          - "Example: C(31450)."
       jaeger_k8s_collector_node_port: &jaeger_k8s_collector_node_port
         type: int
         required: false
         description:
           - "Sets the Kubernetes NodePort for the Jaeger OTLP gRPC collector."
-          - "Example: C(30417) for OTLP/gRPC traffic through Kubernetes."
+          - "Example: C(30417)."
       k8s_namespace: &k8s_namespace
         type: str
         required: true
@@ -204,52 +204,52 @@ argument_specs:
         required: false
         description:
           - "Sets the readiness probe initial delay used by the Jaeger deployment template."
-          - "Example: C(5) to let the pod initialize before readiness checks begin."
+          - "Example: C(5)."
       k8s_readiness_probe_period_seconds: &k8s_readiness_probe_period_seconds
         type: int
         required: false
         description:
           - "Sets the readiness probe period used by the Jaeger deployment template."
-          - "Example: C(10) to check whether the query and collector endpoints are ready every ten seconds."
+          - "Example: C(10)."
       k8s_readiness_probe_timeout_seconds: &k8s_readiness_probe_timeout_seconds
         type: int
         required: false
         description:
           - "Sets the readiness probe timeout used by the Jaeger deployment template."
-          - "Example: C(2) for a fast readiness failure on the Jaeger service endpoint."
+          - "Example: C(2)."
       k8s_readiness_probe_failure_threshold:
         &k8s_readiness_probe_failure_threshold
         type: int
         required: false
         description:
           - "Sets the readiness probe failure threshold used by the Jaeger deployment template."
-          - "Example: C(3) to fail readiness after three consecutive misses."
+          - "Example: C(3)."
       k8s_liveness_probe_initial_delay_seconds:
         &k8s_liveness_probe_initial_delay_seconds
         type: int
         required: false
         description:
           - "Sets the liveness probe initial delay used by the Jaeger deployment template."
-          - "Example: C(15) to wait for the query and collector services to settle before liveness checks."
+          - "Example: C(15)."
       k8s_liveness_probe_period_seconds: &k8s_liveness_probe_period_seconds
         type: int
         required: false
         description:
           - "Sets the liveness probe period used by the Jaeger deployment template."
-          - "Example: C(20) to run liveness checks at a slower cadence than readiness checks."
+          - "Example: C(20)."
       k8s_liveness_probe_timeout_seconds: &k8s_liveness_probe_timeout_seconds
         type: int
         required: false
         description:
           - "Sets the liveness probe timeout used by the Jaeger deployment template."
-          - "Example: C(2) for a quick failure if the admin endpoint stops responding."
+          - "Example: C(2)."
       k8s_liveness_probe_failure_threshold:
         &k8s_liveness_probe_failure_threshold
         type: int
         required: false
         description:
           - "Sets the liveness probe failure threshold used by the Jaeger deployment template."
-          - "Example: C(3) to restart the pod after three missed liveness checks."
+          - "Example: C(3)."
 
   start:
     short_description: Select the Jaeger deployment mode to start

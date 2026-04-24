@@ -173,8 +173,8 @@ Checks the configured orderer gRPC listener for binary and container deployments
 ```yaml
 - name: Check the orderer gRPC port
   vars:
-    # gRPC port exposed by the orderer. Example: `7050` for a consenter or `7150` for a batcher.
-    orderer_rpc_port: 1000
+    # gRPC port exposed by the orderer. Example: `7050`.
+    orderer_rpc_port: 7050
     # Selects the Kubernetes deployment branch.
     orderer_use_k8s: false
   ansible.builtin.include_role:
@@ -195,8 +195,8 @@ Fetches Prometheus metrics from the configured orderer monitoring endpoint using
     actual_host: "10.10.20.31"
     # Protocol used by the metrics fetch branch.
     orderer_http_protocol: http
-    # Metrics port queried by the metrics fetch branch. Example: `9445` for a batcher metrics scrape.
-    orderer_metrics_port: 1000
+    # Metrics port queried by the metrics fetch branch. Example: `9445`.
+    orderer_metrics_port: 9445
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: get_metrics
@@ -307,8 +307,8 @@ Ensures the binary-mode data directory exists and starts `orderer_bin_name` with
     orderer_remote_data_dir: "{{ remote_data_dir }}"
     # Rendered orderer configuration filename.
     orderer_config_file: node_config.yaml
-    # gRPC port exposed by the orderer. Example: `7050` for a consenter or `7150` for a batcher.
-    orderer_rpc_port: 1000
+    # gRPC port exposed by the orderer. Example: `7050`.
+    orderer_rpc_port: 7050
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: bin/start
@@ -388,10 +388,10 @@ Ensures the host data directory exists and starts the orderer container with the
     orderer_container_data_dir: /data
     # Rendered orderer configuration filename.
     orderer_config_file: node_config.yaml
-    # gRPC port exposed by the orderer. Example: `7050` for a consenter or `7150` for a batcher.
-    orderer_rpc_port: 1000
-    # Metrics port exposed by the orderer. Example: `9443` for a router metrics endpoint.
-    orderer_metrics_port: 1000
+    # gRPC port exposed by the orderer. Example: `7050`.
+    orderer_rpc_port: 7050
+    # Metrics port exposed by the orderer. Example: `7060`.
+    orderer_metrics_port: 7060
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: container/start
@@ -523,10 +523,10 @@ Renders the component-specific orderer config for `consensus`, `batcher`, `assem
     orderer_use_mtls: false
     # Selects the Kubernetes deployment branch.
     orderer_use_k8s: false
-    # gRPC port exposed by the orderer. Example: `7050` for a consenter or `7150` for a batcher.
-    orderer_rpc_port: 1000
-    # Metrics port written into the rendered config when enabled. Example: `9444` for an assembler monitoring listener.
-    orderer_metrics_port: 1000
+    # gRPC port exposed by the orderer. Example: `7050`.
+    orderer_rpc_port: 7050
+    # Metrics port written into the rendered config when enabled. Example: `9444`.
+    orderer_metrics_port: 9444
     # Optional metrics logging interval written into the rendered config. Example: `10s`.
     orderer_metrics_log_interval: "10s"
     # Client identifiers whose mTLS CA certificates are mounted or transferred. Trusts fetched `tls/ca.crt` files under those artifact directories. Example: `['loadgen-1', 'gateway-1']`.
@@ -545,8 +545,8 @@ Renders the component-specific orderer config for `consensus`, `batcher`, `assem
       fabric_ca_host: "ca-orderer"
     # Party identifier written into the orderer configuration. Example: `consenter-1`, `batcher-1`, `assembler-1`, or `router-1`.
     orderer_group: "router-1"
-    # Batcher shard identifier written only by the batcher template. Example: `0` for the first batcher shard.
-    orderer_shard_id: 1000
+    # Batcher shard identifier written only by the batcher template. Example: `0`.
+    orderer_shard_id: 0
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: config/transfer
@@ -760,14 +760,14 @@ Creates the orderer Kubernetes Service, StatefulSet, and optional NodePort Servi
     orderer_k8s_wait_timeout: 120
     # Enables the optional NodePort Service for the orderer Kubernetes deployment. The NodePort Service and Kubernetes ping branch use this toggle.
     orderer_k8s_use_node_port: false
-    # gRPC port exposed by the orderer. Example: `7050` for a consenter or `7150` for a batcher.
-    orderer_rpc_port: 1000
-    # Metrics port exposed by the orderer. Example: `9443` for a router metrics endpoint.
-    orderer_metrics_port: 1000
-    # NodePort used to expose the orderer gRPC service when NodePort exposure is enabled. Example: `31050` for a router or assembler gRPC endpoint.
-    orderer_k8s_rpc_node_port: 1000
-    # NodePort used to expose the orderer metrics endpoint when NodePort exposure is enabled. Example: `31051` for the matching orderer metrics endpoint.
-    orderer_k8s_metrics_node_port: 1000
+    # gRPC port exposed by the orderer. Example: `7050`.
+    orderer_rpc_port: 7050
+    # Metrics port exposed by the orderer. Example: `7060`.
+    orderer_metrics_port: 7060
+    # NodePort used to expose the orderer gRPC service when NodePort exposure is enabled. Example: `31050`.
+    orderer_k8s_rpc_node_port: 31050
+    # NodePort used to expose the orderer metrics endpoint when NodePort exposure is enabled. Example: `31051`.
+    orderer_k8s_metrics_node_port: 31051
     # Filesystem group applied to mounted ConfigMap and Secret volumes.
     orderer_k8s_fs_group: 10001
     # Full image reference used by the container and Kubernetes branches.
@@ -838,10 +838,10 @@ Checks the Kubernetes NodePort endpoints when NodePort exposure is enabled. Vali
   vars:
     # Enables the optional NodePort Service for the orderer Kubernetes deployment. The NodePort Service and Kubernetes ping branch use this toggle.
     orderer_k8s_use_node_port: false
-    # NodePort used to expose the orderer gRPC service when NodePort exposure is enabled. Example: `31050` for a router or assembler gRPC endpoint.
-    orderer_k8s_rpc_node_port: 1000
-    # NodePort used to expose the orderer metrics endpoint when NodePort exposure is enabled. Example: `31051` for the matching orderer metrics endpoint.
-    orderer_k8s_metrics_node_port: 1000
+    # NodePort used to expose the orderer gRPC service when NodePort exposure is enabled. Example: `31050`.
+    orderer_k8s_rpc_node_port: 31050
+    # NodePort used to expose the orderer metrics endpoint when NodePort exposure is enabled. Example: `31051`.
+    orderer_k8s_metrics_node_port: 31051
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: k8s/ping

@@ -1516,6 +1516,8 @@ argument_specs:
       - Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
     options:
       committer_k8s_use_node_port: *committer_k8s_use_node_port
+      committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
+      committer_k8s_metrics_node_port: *committer_k8s_metrics_node_port
       committer_k8s_wait_timeout: *committer_k8s_wait_timeout
 
   verifier/k8s/start:
@@ -1525,6 +1527,8 @@ argument_specs:
       - Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
     options:
       committer_k8s_use_node_port: *committer_k8s_use_node_port
+      committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
+      committer_k8s_metrics_node_port: *committer_k8s_metrics_node_port
       committer_k8s_wait_timeout: *committer_k8s_wait_timeout
 
   coordinator/k8s/start:
@@ -1534,6 +1538,8 @@ argument_specs:
       - Uses validator and verifier host lists to prepare TLS mounts and startup dependencies.
     options:
       committer_k8s_use_node_port: *committer_k8s_use_node_port
+      committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
+      committer_k8s_metrics_node_port: *committer_k8s_metrics_node_port
       committer_k8s_wait_timeout: *committer_k8s_wait_timeout
       committer_validators: *committer_validators
       committer_verifiers: *committer_verifiers
@@ -1545,6 +1551,8 @@ argument_specs:
       - Creates the persistent sidecar ledger volume from the configured storage settings.
     options:
       committer_k8s_use_node_port: *committer_k8s_use_node_port
+      committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
+      committer_k8s_metrics_node_port: *committer_k8s_metrics_node_port
       committer_k8s_wait_timeout: *committer_k8s_wait_timeout
 
   query_service/k8s/start:
@@ -1554,6 +1562,8 @@ argument_specs:
       - Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
     options:
       committer_k8s_use_node_port: *committer_k8s_use_node_port
+      committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
+      committer_k8s_metrics_node_port: *committer_k8s_metrics_node_port
       committer_k8s_wait_timeout: *committer_k8s_wait_timeout
 
   validator/k8s/rm:
