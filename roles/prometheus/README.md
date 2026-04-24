@@ -21,7 +21,7 @@
   - [k8s/data/rm](#k8sdatarm)
   - [wipe](#wipe)
   - [crypto/setup](#cryptosetup)
-  - [crypto/openssl/generate_cert](#cryptoopensslgenerate_cert)
+  - [crypto/openssl/generate\_cert](#cryptoopensslgenerate_cert)
   - [k8s/crypto/transfer](#k8scryptotransfer)
   - [crypto/fetch](#cryptofetch)
   - [crypto/rm](#cryptorm)
@@ -30,9 +30,9 @@
   - [k8s/config/transfer](#k8sconfigtransfer)
   - [config/rm](#configrm)
   - [k8s/config/rm](#k8sconfigrm)
-  - [fetch_logs](#fetch_logs)
-  - [container/fetch_logs](#containerfetch_logs)
-  - [k8s/fetch_logs](#k8sfetch_logs)
+  - [fetch\_logs](#fetch_logs)
+  - [container/fetch\_logs](#containerfetch_logs)
+  - [k8s/fetch\_logs](#k8sfetch_logs)
 
 ## Role Defaults
 

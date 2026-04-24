@@ -8,8 +8,8 @@
 - [ansible-doc](#ansible-doc)
 - [Tasks](#tasks)
   - [namespace/create](#namespacecreate)
-  - [registry/create_pull_secret](#registrycreate_pull_secret)
-  - [fetch_logs](#fetch_logs)
+  - [registry/create\_pull\_secret](#registrycreate_pull_secret)
+  - [fetch\_logs](#fetch_logs)
 
 ## Role Defaults
 

@@ -9,7 +9,7 @@
 - [Tasks](#tasks)
   - [install](#install)
   - [clone](#clone)
-  - [get_repo_name](#get_repo_name)
+  - [get\_repo\_name](#get_repo_name)
 
 ## Role Defaults
 

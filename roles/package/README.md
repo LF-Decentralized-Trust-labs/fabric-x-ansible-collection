@@ -8,8 +8,8 @@
 - [ansible-doc](#ansible-doc)
 - [Tasks](#tasks)
   - [install](#install)
-  - [install_on_linux](#install_on_linux)
-  - [install_on_macos](#install_on_macos)
+  - [install\_on\_linux](#install_on_linux)
+  - [install\_on\_macos](#install_on_macos)
 
 ## Role Defaults
 

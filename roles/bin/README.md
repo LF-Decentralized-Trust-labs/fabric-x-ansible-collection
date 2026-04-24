@@ -9,12 +9,12 @@
 - [Tasks](#tasks)
   - [go/build](#gobuild)
   - [go/install](#goinstall)
-  - [map_platform_to_host](#map_platform_to_host)
+  - [map\_platform\_to\_host](#map_platform_to_host)
   - [transfer](#transfer)
   - [start](#start)
   - [stop](#stop)
   - [rm](#rm)
-  - [fetch_logs](#fetch_logs)
+  - [fetch\_logs](#fetch_logs)
 
 ## Role Defaults
 

@@ -7,10 +7,10 @@
 - [Role Defaults](#role-defaults)
 - [ansible-doc](#ansible-doc)
 - [Tasks](#tasks)
-  - [generate_makefile_targets](#generate_makefile_targets)
+  - [generate\_makefile\_targets](#generate_makefile_targets)
   - [ping](#ping)
-  - [select_one_host_per_k8s_namespace](#select_one_host_per_k8s_namespace)
-  - [select_one_host_per_machine](#select_one_host_per_machine)
+  - [select\_one\_host\_per\_k8s\_namespace](#select_one_host_per_k8s_namespace)
+  - [select\_one\_host\_per\_machine](#select_one_host_per_machine)
 
 ## Role Defaults
 

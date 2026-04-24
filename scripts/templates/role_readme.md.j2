@@ -10,7 +10,7 @@
 - [Tasks](#tasks)
 {%- for current_role_task_name, current_role_task in argument_specs.items() %}
 {%- if current_role_task_name != 'role-options' %}
-  - [{{ current_role_task_name }}](#{{ current_role_task_name | replace('/', '') }})
+  - [{{ current_role_task_name | replace('_', '\\_') }}](#{{ current_role_task_name | replace('/', '') }})
 {%- endif %}
 {%- endfor %}
 

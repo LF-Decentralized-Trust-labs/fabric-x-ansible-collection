@@ -25,7 +25,7 @@
   - [container/namespace/list](#containernamespacelist)
   - [container/submit](#containersubmit)
   - [endorse](#endorse)
-  - [get_endorser](#get_endorser)
+  - [get\_endorser](#get_endorser)
   - [merge](#merge)
   - [namespace/create](#namespacecreate)
   - [namespace/group](#namespacegroup)

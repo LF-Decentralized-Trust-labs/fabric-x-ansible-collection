@@ -8,10 +8,10 @@
 - [ansible-doc](#ansible-doc)
 - [Tasks](#tasks)
   - [install](#install)
-  - [generate_keypair](#generate_keypair)
-  - [generate_self_signed_cert](#generate_self_signed_cert)
-  - [generate_csr](#generate_csr)
-  - [generate_cert](#generate_cert)
+  - [generate\_keypair](#generate_keypair)
+  - [generate\_self\_signed\_cert](#generate_self_signed_cert)
+  - [generate\_csr](#generate_csr)
+  - [generate\_cert](#generate_cert)
 
 ## Role Defaults
 

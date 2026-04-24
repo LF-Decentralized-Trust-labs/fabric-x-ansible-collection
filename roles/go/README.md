@@ -7,8 +7,8 @@
 - [Role Defaults](#role-defaults)
 - [ansible-doc](#ansible-doc)
 - [Tasks](#tasks)
-  - [install_go](#install_go)
-  - [map_platform](#map_platform)
+  - [install\_go](#install_go)
+  - [map\_platform](#map_platform)
   - [build](#build)
   - [install](#install)
 

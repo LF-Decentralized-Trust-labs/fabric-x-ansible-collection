@@ -8,11 +8,11 @@
 - [ansible-doc](#ansible-doc)
 - [Tasks](#tasks)
   - [config/build](#configbuild)
-  - [create_shared_config](#create_shared_config)
+  - [create\_shared\_config](#create_shared_config)
   - [bin/install](#bininstall)
   - [bin/build](#binbuild)
-  - [bin/create_shared_config](#bincreate_shared_config)
-  - [container/create_shared_config](#containercreate_shared_config)
+  - [bin/create\_shared\_config](#bincreate_shared_config)
+  - [container/create\_shared\_config](#containercreate_shared_config)
 
 ## Role Defaults
 
