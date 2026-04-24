@@ -159,8 +159,8 @@ Selects the expected master or tablet service ports for the current host and del
 ```yaml
 - name: Check YugabyteDB service ports
   vars:
-    # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `master` for `yb-master-1` or `tablet` for `yb-tserver-1`.
-    yugabyte_component_type: "yb-tserver-1"
+    # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `tablet`.
+    yugabyte_component_type: "tablet"
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
     # Sets the master webserver port.
@@ -193,8 +193,8 @@ Checks the configured YugabyteDB Kubernetes NodePort Services for the current ma
 ```yaml
 - name: Check YugabyteDB Kubernetes NodePorts
   vars:
-    # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `master` for `yb-master-1` or `tablet` for `yb-tserver-1`.
-    yugabyte_component_type: "yb-tserver-1"
+    # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `tablet`.
+    yugabyte_component_type: "tablet"
     # Enables creation of the master and tablet NodePort Services for YugabyteDB Kubernetes deployments. The flag also enables the matching NodePort reachability checks in `k8s/ping`.
     yugabyte_k8s_use_node_port: false
     # Optionally sets the NodePort used to expose the master RPC service when `yugabyte_k8s_use_node_port` is enabled. Example: `32100`.
@@ -504,8 +504,8 @@ Selects the master or tablet container startup path for the current host. The se
 ```yaml
 - name: Dispatch YugabyteDB container startup
   vars:
-    # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `master` for `yb-master-1` or `tablet` for `yb-tserver-1`.
-    yugabyte_component_type: "yb-tserver-1"
+    # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `tablet`.
+    yugabyte_component_type: "tablet"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: container/start
@@ -688,8 +688,8 @@ Selects the master or tablet Kubernetes startup path for the current host. The s
 ```yaml
 - name: Dispatch YugabyteDB Kubernetes startup
   vars:
-    # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `master` for `yb-master-1` or `tablet` for `yb-tserver-1`.
-    yugabyte_component_type: "yb-tserver-1"
+    # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `tablet`.
+    yugabyte_component_type: "tablet"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: k8s/start
@@ -704,8 +704,8 @@ Selects the master or tablet Kubernetes removal path for the current host. The s
 ```yaml
 - name: Dispatch YugabyteDB Kubernetes removal
   vars:
-    # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `master` for `yb-master-1` or `tablet` for `yb-tserver-1`.
-    yugabyte_component_type: "yb-tserver-1"
+    # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `tablet`.
+    yugabyte_component_type: "tablet"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: k8s/rm
@@ -736,8 +736,8 @@ Creates the ConfigMap that exposes the initialization SQL script to tablet pods.
 ```yaml
 - name: Create a YugabyteDB ConfigMap
   vars:
-    # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `master` for `yb-master-1` or `tablet` for `yb-tserver-1`.
-    yugabyte_component_type: "yb-tserver-1"
+    # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `tablet`.
+    yugabyte_component_type: "tablet"
     # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.
     k8s_namespace: "fabricx-yugabyte"
     # Sets the shared remote configuration directory consumed by YugabyteDB. Example: `/opt/hyperledger/fabric-x/yugabyte/config`.

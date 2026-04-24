@@ -33,7 +33,7 @@ argument_specs:
           - tablet
         description:
           - "Selects whether the current host is handled as a YugabyteDB master or tablet node."
-          - "Example: C(master) for C(yb-master-1) or C(tablet) for C(yb-tserver-1)."
+          - "Example: C(tablet)."
       yugabyte_use_k8s: &yugabyte_use_k8s
         type: bool
         required: false
