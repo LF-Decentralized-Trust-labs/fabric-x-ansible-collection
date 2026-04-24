@@ -226,8 +226,8 @@ Creates the PostgreSQL data directory, fixes TLS file permissions when TLS is en
     postgres_db: "fabricx"
     # PostgreSQL user name used during initialization and in the readiness checks. Example: `postgres`.
     postgres_user: "postgres"
-    # Password for `postgres_user` used during initialization. Store this value in an Ansible Vault. Example: `<vaulted-postgres-password>`.
-    postgres_password: "<vaulted-postgres-password>"
+    # Password for `postgres_user` used during initialization. Store this value in an Ansible Vault. Example: `my_postgres_password`.
+    postgres_password: "my_postgres_password"
     # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
     postgres_port: 5432
     # Enable server-side TLS for PostgreSQL.
@@ -336,8 +336,8 @@ Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and S
     postgres_db: "fabricx"
     # PostgreSQL user name used during initialization and in the readiness checks. Example: `postgres`.
     postgres_user: "postgres"
-    # Password for `postgres_user` used during initialization. Store this value in an Ansible Vault. Example: `<vaulted-postgres-password>`.
-    postgres_password: "<vaulted-postgres-password>"
+    # Password for `postgres_user` used during initialization. Store this value in an Ansible Vault. Example: `my_postgres_password`.
+    postgres_password: "my_postgres_password"
     # Enable server-side TLS for PostgreSQL.
     postgres_use_tls: false
     # Enable mutual TLS for PostgreSQL clients.
@@ -456,8 +456,8 @@ Applies the Kubernetes Secret named `postgres_k8s_resource_name`-secret. Stores 
     postgres_tls_cert_file: server.crt
     # PostgreSQL user name used during initialization and in the readiness checks. Example: `postgres`.
     postgres_user: "postgres"
-    # Password for `postgres_user` used during initialization. Store this value in an Ansible Vault. Example: `<vaulted-postgres-password>`.
-    postgres_password: "<vaulted-postgres-password>"
+    # Password for `postgres_user` used during initialization. Store this value in an Ansible Vault. Example: `my_postgres_password`.
+    postgres_password: "my_postgres_password"
     # PostgreSQL database name used during initialization and in the readiness checks. Example: `fabricx`.
     postgres_db: "fabricx"
     # Enable server-side TLS for PostgreSQL.
@@ -566,8 +566,8 @@ Starts PostgreSQL on OpenShift by reusing the generic `k8s/start` resource flow.
     postgres_db: "fabricx"
     # PostgreSQL user name used during initialization and in the readiness checks. Example: `postgres`.
     postgres_user: "postgres"
-    # Password for `postgres_user` used during initialization. Store this value in an Ansible Vault. Example: `<vaulted-postgres-password>`.
-    postgres_password: "<vaulted-postgres-password>"
+    # Password for `postgres_user` used during initialization. Store this value in an Ansible Vault. Example: `my_postgres_password`.
+    postgres_password: "my_postgres_password"
     # Enable server-side TLS for PostgreSQL.
     postgres_use_tls: false
     # Enable mutual TLS for PostgreSQL clients.

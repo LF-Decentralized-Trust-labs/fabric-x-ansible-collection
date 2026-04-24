@@ -49,7 +49,8 @@ argument_specs:
         description:
           - Sets the optional image pull secret used by the Grafana Deployment.
           - "Example: C(grafana-registry-secret)."
-      k8s_readiness_probe_initial_delay_seconds: &k8s_readiness_probe_initial_delay_seconds
+      k8s_readiness_probe_initial_delay_seconds:
+        &k8s_readiness_probe_initial_delay_seconds
         type: int
         required: false
         description:
@@ -67,13 +68,15 @@ argument_specs:
         description:
           - Sets the Grafana readiness probe timeout.
           - "Example: C(3)."
-      k8s_readiness_probe_failure_threshold: &k8s_readiness_probe_failure_threshold
+      k8s_readiness_probe_failure_threshold:
+        &k8s_readiness_probe_failure_threshold
         type: int
         required: false
         description:
           - Sets the Grafana readiness probe failure threshold.
           - "Example: C(3)."
-      k8s_liveness_probe_initial_delay_seconds: &k8s_liveness_probe_initial_delay_seconds
+      k8s_liveness_probe_initial_delay_seconds:
+        &k8s_liveness_probe_initial_delay_seconds
         type: int
         required: false
         description:
@@ -91,7 +94,8 @@ argument_specs:
         description:
           - Sets the Grafana liveness probe timeout.
           - "Example: C(5)."
-      k8s_liveness_probe_failure_threshold: &k8s_liveness_probe_failure_threshold
+      k8s_liveness_probe_failure_threshold:
+        &k8s_liveness_probe_failure_threshold
         type: int
         required: false
         description:
@@ -241,7 +245,7 @@ argument_specs:
         required: true
         description:
           - Sets the Grafana admin password.
-          - "Example: C({{ vault_grafana_admin_password }})."
+          - "Example: C(my_grafana_password)."
           - Store this value in Ansible Vault.
 
   start:

@@ -339,7 +339,7 @@ argument_specs:
         description:
           - "Sets the password for the YugabyteDB database user."
           - "Store this value in Ansible Vault."
-          - "Example: C({{ vault_yugabyte_password }})."
+          - "Example: C(my_yugabyte_password)."
       k8s_namespace: &k8s_namespace
         type: str
         required: true

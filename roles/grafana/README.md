@@ -172,8 +172,8 @@ Starts the containerized Grafana deployment with the generated datasource and da
     grafana_image_tag: latest
     # Sets the Grafana admin username. Example: `admin`.
     grafana_username: "admin"
-    # Sets the Grafana admin password. Example: `{{ vault_grafana_admin_password }}`. Store this value in Ansible Vault.
-    grafana_password: "{{ vault_grafana_admin_password }}"
+    # Sets the Grafana admin password. Example: `my_grafana_password`. Store this value in Ansible Vault.
+    grafana_password: "my_grafana_password"
     # Sets the Grafana web port.
     grafana_web_port: 3000
     # Sets the remote directory that stores Grafana provisioning files and TLS material.
@@ -618,8 +618,8 @@ Applies the Grafana Kubernetes Secret that holds admin credentials and optional 
     remote_config_dir: "/var/hyperledger/fabricx/grafana"
     # Sets the Grafana admin username. Example: `admin`.
     grafana_username: "admin"
-    # Sets the Grafana admin password. Example: `{{ vault_grafana_admin_password }}`. Store this value in Ansible Vault.
-    grafana_password: "{{ vault_grafana_admin_password }}"
+    # Sets the Grafana admin password. Example: `my_grafana_password`. Store this value in Ansible Vault.
+    grafana_password: "my_grafana_password"
     # Enables Grafana TLS handling.
     grafana_use_tls: false
     # Sets the Grafana TLS private key filename.

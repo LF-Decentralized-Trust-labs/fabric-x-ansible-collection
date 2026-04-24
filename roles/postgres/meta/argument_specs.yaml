@@ -211,7 +211,7 @@ argument_specs:
         description:
           - Password for C(postgres_user) used during initialization.
           - Store this value in an Ansible Vault.
-          - "Example: C(<vaulted-postgres-password>)."
+          - "Example: C(my_postgres_password)."
       postgres_extra_cmd_opts: &postgres_extra_cmd_opts
         type: str
         required: false

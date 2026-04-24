@@ -264,7 +264,7 @@ argument_specs:
         required: true
         description:
           - "Provides the registry password."
-          - "Example: C({{ vault_container_registry_password }})."
+          - "Example: C(my_cr_password)."
       container_network_driver: &container_network_driver
         type: str
         required: false

@@ -449,8 +449,8 @@ Renders the YugabyteDB initialization SQL script that creates the configured dat
     yugabyte_db: "fabricx"
     # Sets the YugabyteDB database user created by the initialization SQL script. Example: `fabricx_user`.
     yugabyte_user: "fabricx_user"
-    # Sets the password for the YugabyteDB database user. Store this value in Ansible Vault. Example: `{{ vault_yugabyte_password }}`.
-    yugabyte_password: "{{ vault_yugabyte_password }}"
+    # Sets the password for the YugabyteDB database user. Store this value in Ansible Vault. Example: `my_yugabyte_password`.
+    yugabyte_password: "my_yugabyte_password"
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
   ansible.builtin.include_role:

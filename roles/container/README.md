@@ -283,8 +283,8 @@ Authenticates the selected Docker or Podman backend to `container_registry`. Use
     container_registry: "ghcr.io"
     # Provides the registry username. Example: `iamapikey`.
     container_registry_username: "iamapikey"
-    # Provides the registry password. Example: `{{ vault_container_registry_password }}`.
-    container_registry_password: "{{ vault_container_registry_password }}"
+    # Provides the registry password. Example: `my_cr_password`.
+    container_registry_password: "my_cr_password"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: registry/login
@@ -568,8 +568,8 @@ Logs the Docker client in to `container_registry`. Uses the supplied username an
     container_registry: "ghcr.io"
     # Provides the registry username. Example: `iamapikey`.
     container_registry_username: "iamapikey"
-    # Provides the registry password. Example: `{{ vault_container_registry_password }}`.
-    container_registry_password: "{{ vault_container_registry_password }}"
+    # Provides the registry password. Example: `my_cr_password`.
+    container_registry_password: "my_cr_password"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: docker/registry/login
@@ -847,8 +847,8 @@ Logs the Podman client in to `container_registry`. Uses the supplied username an
     container_registry: "ghcr.io"
     # Provides the registry username. Example: `iamapikey`.
     container_registry_username: "iamapikey"
-    # Provides the registry password. Example: `{{ vault_container_registry_password }}`.
-    container_registry_password: "{{ vault_container_registry_password }}"
+    # Provides the registry password. Example: `my_cr_password`.
+    container_registry_password: "my_cr_password"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: podman/registry/login
