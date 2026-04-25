@@ -2,6 +2,13 @@
 
 The `yugabyte` playbooks provide standalone YugabyteDB crypto generation helpers. Normal YugabyteDB lifecycle operations for committer-backed deployments are invoked through the [committer playbooks](../committer/README.md).
 
+## Table of Contents <!-- omit in toc -->
+
+- [Playbooks flow](#playbooks-flow)
+- [generate\_crypto.yaml](#generate_cryptoyaml)
+
+## Playbooks flow
+
 ```mermaid
 flowchart LR
   CRYPTO[generate_crypto]

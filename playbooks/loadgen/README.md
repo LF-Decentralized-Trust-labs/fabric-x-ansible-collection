@@ -2,6 +2,24 @@
 
 The `loadgen` playbooks operate Fabric-X load generators. A load generator submits traffic to the orderer path and can expose control, metrics, and web endpoints depending on inventory settings.
 
+## Table of Contents <!-- omit in toc -->
+
+- [Playbooks flow](#playbooks-flow)
+- [binaries.yaml](#binariesyaml)
+- [generate\_crypto.yaml](#generate_cryptoyaml)
+- [configs.yaml](#configsyaml)
+- [start.yaml](#startyaml)
+- [stop.yaml](#stopyaml)
+- [teardown.yaml](#teardownyaml)
+- [wipe.yaml](#wipeyaml)
+- [limit\_rate.yaml](#limit_rateyaml)
+- [ping.yaml](#pingyaml)
+- [get\_metrics.yaml](#get_metricsyaml)
+- [fetch\_crypto.yaml](#fetch_cryptoyaml)
+- [fetch\_logs.yaml](#fetch_logsyaml)
+
+## Playbooks flow
+
 ```mermaid
 flowchart LR
   subgraph SETUP[Setup]

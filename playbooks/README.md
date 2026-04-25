@@ -2,6 +2,18 @@
 
 This directory contains the reusable playbooks that the `hyperledger.fabricx` collection provides. They compose the collection roles into standard Fabric-X lifecycle operations and are the building blocks for any Ansible project that deploys a Fabric-X network.
 
+## Table of Contents <!-- omit in toc -->
+
+- [Playbook Usage](#playbook-usage)
+- [install\_prerequisites.yaml](#install_prerequisitesyaml)
+- [log\_in\_container\_registry.yaml](#log_in_container_registryyaml)
+- [create\_container\_networks.yaml](#create_container_networksyaml)
+- [remove\_container\_networks.yaml](#remove_container_networksyaml)
+- [generate\_target\_hosts.yaml](#generate_target_hostsyaml)
+- [Namespaced Playbooks](#namespaced-playbooks)
+
+## Playbook Usage
+
 Each playbook can be run by its fully-qualified collection name:
 
 ```shell

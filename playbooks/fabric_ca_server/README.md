@@ -2,6 +2,24 @@
 
 The `fabric_ca_server` playbooks operate Fabric CA servers and the PostgreSQL databases used by those CA servers. Fabric CA inventories use them to create CA server crypto, start the CAs, enroll CA admins, and register identities for Fabric-X components and load generators.
 
+## Table of Contents <!-- omit in toc -->
+
+- [Playbooks flow](#playbooks-flow)
+- [binaries.yaml](#binariesyaml)
+- [generate\_crypto.yaml](#generate_cryptoyaml)
+- [configs.yaml](#configsyaml)
+- [start.yaml](#startyaml)
+- [init.yaml](#inityaml)
+- [register\_identities.yaml](#register_identitiesyaml)
+- [stop.yaml](#stopyaml)
+- [teardown.yaml](#teardownyaml)
+- [wipe.yaml](#wipeyaml)
+- [ping.yaml](#pingyaml)
+- [fetch\_crypto.yaml](#fetch_cryptoyaml)
+- [fetch\_logs.yaml](#fetch_logsyaml)
+
+## Playbooks flow
+
 ```mermaid
 flowchart LR
   subgraph SETUP[Setup]

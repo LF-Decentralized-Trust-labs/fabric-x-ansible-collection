@@ -2,6 +2,23 @@
 
 The `orderer` playbooks operate Fabric-X orderer components: routers, batchers, consenters, and assemblers. They target `fabric_x_orderers` by default and dispatch through each host's `orderer_component_type`.
 
+## Table of Contents <!-- omit in toc -->
+
+- [Playbooks flow](#playbooks-flow)
+- [binaries.yaml](#binariesyaml)
+- [generate\_crypto.yaml](#generate_cryptoyaml)
+- [configs.yaml](#configsyaml)
+- [start.yaml](#startyaml)
+- [stop.yaml](#stopyaml)
+- [teardown.yaml](#teardownyaml)
+- [wipe.yaml](#wipeyaml)
+- [ping.yaml](#pingyaml)
+- [get\_metrics.yaml](#get_metricsyaml)
+- [fetch\_crypto.yaml](#fetch_cryptoyaml)
+- [fetch\_logs.yaml](#fetch_logsyaml)
+
+## Playbooks flow
+
 ```mermaid
 flowchart LR
   subgraph SETUP[Setup]

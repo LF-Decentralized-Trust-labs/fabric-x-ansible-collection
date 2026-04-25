@@ -2,6 +2,21 @@
 
 The `monitoring` playbooks operate observability components: node exporter, PostgreSQL exporter, Prometheus, Grafana, Elasticsearch, and Jaeger when those hosts are present in the inventory.
 
+## Table of Contents <!-- omit in toc -->
+
+- [Playbooks flow](#playbooks-flow)
+- [generate\_crypto.yaml](#generate_cryptoyaml)
+- [configs.yaml](#configsyaml)
+- [start.yaml](#startyaml)
+- [stop.yaml](#stopyaml)
+- [teardown.yaml](#teardownyaml)
+- [wipe.yaml](#wipeyaml)
+- [ping.yaml](#pingyaml)
+- [fetch\_crypto.yaml](#fetch_cryptoyaml)
+- [fetch\_logs.yaml](#fetch_logsyaml)
+
+## Playbooks flow
+
 ```mermaid
 flowchart LR
   subgraph SETUP[Setup]

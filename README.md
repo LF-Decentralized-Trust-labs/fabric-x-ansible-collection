@@ -103,7 +103,7 @@ For example, the playbook [playbooks/orderer/start.yaml](./playbooks/orderer/sta
     tasks_from: start
 ```
 
-For more information, see the [Fabric-X concepts](./docs/concepts.md), [roles](./roles/README.md), [playbooks](./playbooks/README.md) and [example inventories](./examples/README.md) documentation.
+For more information, see the [roles](./roles/README.md), [playbooks](./playbooks/README.md), and [example inventories](./examples/README.md) documentation.
 
 ## Prerequisites
 
@@ -133,7 +133,7 @@ make install-remote-node-deps
 
 ## Run a sample Fabric-X network
 
-This repository comes with Ansible inventories and example playbooks that can start sample Fabric-X networks on your local machine, in Kubernetes, or across multiple machines. See the [examples README](./examples/README.md) for the inventory matrix and adaptation guidance.
+This repository comes with Ansible inventories and example playbooks that can start sample Fabric-X networks on your local machine, in Kubernetes, or across multiple machines. See the [examples README](./examples/README.md) for the available inventory families.
 
 By default, the [`local/fabric-x.yaml`](./examples/inventory/docs/local/fabric-x.md) inventory is used:
 

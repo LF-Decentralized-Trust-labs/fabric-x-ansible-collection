@@ -2,6 +2,13 @@
 
 The `fabric_ca_client` playbooks prepare the Fabric CA client binary used by enrollment and registration tasks. There is no separate long-running Fabric CA client service.
 
+## Table of Contents <!-- omit in toc -->
+
+- [Playbooks flow](#playbooks-flow)
+- [binaries.yaml](#binariesyaml)
+
+## Playbooks flow
+
 ```mermaid
 flowchart LR
   BIN[binaries]

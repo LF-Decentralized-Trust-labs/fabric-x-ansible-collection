@@ -2,6 +2,23 @@
 
 The `committer` playbooks operate Fabric-X committer services and their storage backend. A committer deployment can use PostgreSQL or YugabyteDB depending on the inventory.
 
+## Table of Contents <!-- omit in toc -->
+
+- [Playbooks flow](#playbooks-flow)
+- [binaries.yaml](#binariesyaml)
+- [generate\_crypto.yaml](#generate_cryptoyaml)
+- [configs.yaml](#configsyaml)
+- [start.yaml](#startyaml)
+- [stop.yaml](#stopyaml)
+- [teardown.yaml](#teardownyaml)
+- [wipe.yaml](#wipeyaml)
+- [ping.yaml](#pingyaml)
+- [get\_metrics.yaml](#get_metricsyaml)
+- [fetch\_crypto.yaml](#fetch_cryptoyaml)
+- [fetch\_logs.yaml](#fetch_logsyaml)
+
+## Playbooks flow
+
 ```mermaid
 flowchart LR
   subgraph SETUP[Setup]

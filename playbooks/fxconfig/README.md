@@ -2,6 +2,16 @@
 
 The `fxconfig` playbooks prepare and submit Fabric-X configuration transactions, including namespace creation. `fxconfig` is a control-plane tool that uses generated artifacts, endorser information from the inventory, and runtime endpoints.
 
+## Table of Contents <!-- omit in toc -->
+
+- [Playbooks flow](#playbooks-flow)
+- [binaries.yaml](#binariesyaml)
+- [configs.yaml](#configsyaml)
+- [create\_namespaces.yaml](#create_namespacesyaml)
+- [wipe.yaml](#wipeyaml)
+
+## Playbooks flow
+
 ```mermaid
 flowchart LR
   BIN[binaries] --> CONFIGS[configs]

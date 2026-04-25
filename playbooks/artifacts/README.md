@@ -2,6 +2,14 @@
 
 The `artifacts` playbooks generate network-wide material on the control node. They are normally run by the example setup flow, but can also be imported directly when composing your own orchestration.
 
+## Table of Contents <!-- omit in toc -->
+
+- [Playbooks flow](#playbooks-flow)
+- [build\_crypto\_material.yaml](#build_crypto_materialyaml)
+- [build\_genesis\_block.yaml](#build_genesis_blockyaml)
+
+## Playbooks flow
+
 ```mermaid
 flowchart LR
   CRYPTO[build_crypto_material] --> GENESIS[build_genesis_block]
