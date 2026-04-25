@@ -37,7 +37,11 @@ theme:
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
   - tables
@@ -48,10 +52,40 @@ markdown_extensions:
   - attr_list
   - md_in_html
 
+plugins:
+  - search
+
 nav:
   - Home: index.md
-  - Inventories: examples/index.md
-  - Playbooks: playbooks/index.md
+  - Examples:
+      - Overview: examples/index.md
+      - Inventory Overview: examples/inventory/docs/index.md
+      - Local:
+          - fabric-x: examples/inventory/docs/local/fabric-x.md
+          - fabric-x-yugabyte: examples/inventory/docs/local/fabric-x-yugabyte.md
+          - fabric-x-bin: examples/inventory/docs/local/fabric-x-bin.md
+          - fabric-x-cryptogen: examples/inventory/docs/local/fabric-x-cryptogen.md
+          - fabric-x-no-mtls: examples/inventory/docs/local/fabric-x-no-mtls.md
+          - fabric-x-no-tls: examples/inventory/docs/local/fabric-x-no-tls.md
+      - Kubernetes:
+          - fabric-x: examples/inventory/docs/k8s/fabric-x.md
+          - fabric-x-yugabyte: examples/inventory/docs/k8s/fabric-x-yugabyte.md
+          - fabric-x-cryptogen: examples/inventory/docs/k8s/fabric-x-cryptogen.md
+          - fabric-x-no-mtls: examples/inventory/docs/k8s/fabric-x-no-mtls.md
+          - fabric-x-no-tls: examples/inventory/docs/k8s/fabric-x-no-tls.md
+      - Distributed:
+          - fabric-x: examples/inventory/docs/distributed/fabric-x.md
+  - Playbooks:
+      - Overview: playbooks/index.md
+      - artifacts: playbooks/artifacts/index.md
+      - committer: playbooks/committer/index.md
+      - fabric_ca_client: playbooks/fabric_ca_client/index.md
+      - fabric_ca_server: playbooks/fabric_ca_server/index.md
+      - fxconfig: playbooks/fxconfig/index.md
+      - loadgen: playbooks/loadgen/index.md
+      - monitoring: playbooks/monitoring/index.md
+      - orderer: playbooks/orderer/index.md
+      - yugabyte: playbooks/yugabyte/index.md
   - Roles:
       - Overview: roles/index.md
       - armageddon: roles/armageddon/index.md

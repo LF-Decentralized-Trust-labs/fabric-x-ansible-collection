@@ -189,7 +189,28 @@ def discover_doc_pages(repo_root: Path) -> dict[Path, Path]:
         Path("playbooks") / "README.md": Path("playbooks") / "index.md",
         # Roles README
         Path("roles") / "README.md": Path("roles") / "index.md",
+        # Inventory documentation overview
+        Path("examples") / "inventory" / "docs" / "README.md": (
+            Path("examples") / "inventory" / "docs" / "index.md"
+        ),
     }
+
+    # Add per-inventory Markdown pages. These pages sit beside the example
+    # inventory YAML files and document each deployment variant.
+    inventory_docs_dir = repo_root / "examples" / "inventory" / "docs"
+    if inventory_docs_dir.exists():
+        for page in sorted(inventory_docs_dir.rglob("*.md")):
+            repo_page = page.relative_to(repo_root)
+            if repo_page in pages:
+                continue
+            pages[repo_page] = repo_page
+
+    # Add README pages for supported playbook namespaces.
+    for readme in sorted((repo_root / "playbooks").glob("*/README.md")):
+        namespace = readme.parent.name
+        pages[Path("playbooks") / namespace / "README.md"] = (
+            Path("playbooks") / namespace / "index.md"
+        )
 
     # Add to the static pages all the role README.md that are currently present in the repository.
     for readme in sorted((repo_root / "roles").glob("*/README.md")):
