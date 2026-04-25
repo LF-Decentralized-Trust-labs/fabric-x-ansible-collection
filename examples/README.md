@@ -185,7 +185,7 @@ export ANSIBLE_INVENTORY=examples/inventory/k8s/fabric-x.yaml
 
 ## Playbooks
 
-The example playbooks in [`playbooks/`](./playbooks/) are wrappers around the collection playbooks. They work with the group names used by the sample inventories.
+The example playbooks in [`playbooks/`](./playbooks/) are wrappers around the [collection playbooks](../playbooks/README.md). They work with the group names used by the sample inventories.
 
 Run the usual lifecycle through the repository `Makefile`:
 

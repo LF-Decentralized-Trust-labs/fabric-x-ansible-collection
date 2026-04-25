@@ -2,107 +2,103 @@
 
 This directory contains the reusable playbooks that the `hyperledger.fabricx` collection provides. They compose the collection roles into standard Fabric-X lifecycle operations and are the building blocks for any Ansible project that deploys a Fabric-X network.
 
-Each playbook is importable by its fully-qualified collection name:
+Each playbook can be run by its fully-qualified collection name:
+
+```shell
+ansible-playbook hyperledger.fabricx.orderer.start
+```
+
+It can also be imported by another playbook:
 
 ```yaml
 - name: Start Fabric-X orderer components
   ansible.builtin.import_playbook: hyperledger.fabricx.orderer.start
 ```
 
-## Table of Contents <!-- omit in toc -->
-
-- [Lifecycle Order](#lifecycle-order)
-- [Top-Level Utility Playbooks](#top-level-utility-playbooks)
-  - [install\_prerequisites](#install_prerequisites)
-  - [log\_in\_container\_registry](#log_in_container_registry)
-  - [create\_container\_networks](#create_container_networks)
-  - [remove\_container\_networks](#remove_container_networks)
-  - [generate\_target\_hosts](#generate_target_hosts)
-- [Namespaced playbooks](#namespaced-playbooks)
-- [Targeting a Subset of Hosts](#targeting-a-subset-of-hosts)
-
-## Lifecycle Order
-
-The playbooks cover two phases: setup (run once before the network starts) and runtime (repeated as needed). The order within the setup phase is a hard dependency chain.
+The top-level playbooks prepare shared host resources around the component-specific lifecycle. The normal setup flow runs prerequisites first, logs in to registries when private images are used, creates container networks for container-mode inventories, and then runs the namespaced playbooks for artifacts, configuration, services, and cleanup.
 
 ```mermaid
 flowchart LR
-  B[binaries] --> GC[generate_crypto]
-  GC --> GB[build_genesis_block]
-  GB --> C[configs]
-  C --> S[start]
-  S --> I[init]
+  PRE[install_prerequisites] --> REG[log_in_container_registry]
+  REG --> NET[create_container_networks]
+  NET --> NS[namespaced playbooks]
+  NS --> RM[remove_container_networks]
+  NS -.-> TARGETS[generate_target_hosts]
 ```
 
-- **binaries** — Components need binaries or container image paths before configuration can reference them.
-- **generate_crypto** — Identities and certificates must exist before any configuration is generated.
-- **build_genesis_block** — Orderer and committer configuration depends on the channel genesis material.
-- **configs** — Runtime configuration must be generated and distributed before services start.
-- **start** — Services are launched after all runtime inputs exist.
-- **init** — Post-start actions (such as namespace creation) run only after the relevant endpoints are reachable.
+## install_prerequisites.yaml
 
-## Top-Level Utility Playbooks
+[`install_prerequisites.yaml`](./install_prerequisites.yaml) prepares the machines that will run Fabric-X services. It first selects one representative inventory host per physical machine, then installs the shared operating-system and runtime prerequisites used by the rest of the collection: container engine support, tmux, OpenSSL, Git, Go, rsync, and chrony.
 
-The following playbooks live directly under `playbooks/` because they are not scoped to one component namespace.
-
-### install_prerequisites
-
-**Import path:** `hyperledger.fabricx.install_prerequisites`
-
-Install container engine, tmux, OpenSSL, Git, Go, and required OS packages on target machines. Selects one host per physical machine to avoid duplicate package operations.
-
-```yaml
-- name: Prepare all machines
-  ansible.builtin.import_playbook: hyperledger.fabricx.install_prerequisites
+```shell
+ansible-playbook hyperledger.fabricx.install_prerequisites --extra-vars '{"target_hosts": "all"}'
 ```
 
-### log_in_container_registry
+Properties:
 
-**Import path:** `hyperledger.fabricx.log_in_container_registry`
+- Target hosts: `all` by default for host discovery, then the generated `machines` group for installation.
+- Nuance: only one representative host per physical machine installs packages, which avoids repeating package operations when several inventory hosts map to the same `ansible_host`.
+- Nuance: use `target_hosts` to prepare only a subset of the inventory.
 
-Authenticate container engines against a registry and create Kubernetes image pull secrets where needed.
+## log_in_container_registry.yaml
 
-```yaml
-- name: Log in to container registry
-  ansible.builtin.import_playbook: hyperledger.fabricx.log_in_container_registry
+[`log_in_container_registry.yaml`](./log_in_container_registry.yaml) authenticates the deployment against a private container registry. It logs the container engine in once per physical machine, then creates Kubernetes image pull secrets once per selected Kubernetes namespace when Kubernetes hosts are present.
+
+```shell
+ansible-playbook hyperledger.fabricx.log_in_container_registry --extra-vars '{"target_hosts": "all"}'
 ```
 
-### create_container_networks
+Properties:
 
-**Import path:** `hyperledger.fabricx.create_container_networks`
+- Target hosts: `all` by default for host and namespace discovery, then the generated `machines` and `k8s_namespaces` groups for the actual login and pull-secret steps.
+- Nuance: requires the registry variables consumed by the container and Kubernetes roles, including `container_registry`, `container_registry_username`, and `container_registry_password`.
+- Nuance: useful before starting container or Kubernetes deployments that pull private images.
 
-Create per-machine container networks as defined in the inventory. Run before `start` for container-based deployments.
+## create_container_networks.yaml
 
-```yaml
-- name: Create container networks
-  ansible.builtin.import_playbook: hyperledger.fabricx.create_container_networks
+[`create_container_networks.yaml`](./create_container_networks.yaml) creates the container networks declared by the selected inventory hosts. It deduplicates work by building one execution target per `(ansible_host, container_network)` pair, so each required network is created once on each machine that needs it.
+
+```shell
+ansible-playbook hyperledger.fabricx.create_container_networks --extra-vars '{"target_hosts": "all"}'
 ```
 
-### remove_container_networks
+Properties:
 
-**Import path:** `hyperledger.fabricx.remove_container_networks`
+- Target hosts: `localhost` for discovery, then the generated `machines_with_container_networks` group for network creation.
+- Nuance: only hosts with `container_network` defined contribute a network target.
+- Nuance: run this before starting container-mode deployments that expect a pre-created network.
 
-Remove the container networks created for the deployment.
+## remove_container_networks.yaml
 
-```yaml
-- name: Remove container networks
-  ansible.builtin.import_playbook: hyperledger.fabricx.remove_container_networks
+[`remove_container_networks.yaml`](./remove_container_networks.yaml) removes the container networks that were created for the selected inventory hosts. It uses the same `(ansible_host, container_network)` deduplication as the create playbook, which makes cleanup operate once per machine and network.
+
+```shell
+ansible-playbook hyperledger.fabricx.remove_container_networks --extra-vars '{"target_hosts": "all"}'
 ```
 
-### generate_target_hosts
+Properties:
 
-**Import path:** `hyperledger.fabricx.generate_target_hosts`
+- Target hosts: `localhost` for discovery, then the generated `machines_with_container_networks` group for network removal.
+- Nuance: only hosts with `container_network` defined contribute a network target.
+- Nuance: run this after component teardown when the deployment no longer needs its container networks.
 
-Emit a host-list file from the inventory for downstream tooling.
+## generate_target_hosts.yaml
 
-```yaml
-- name: Generate target hosts file
-  ansible.builtin.import_playbook: hyperledger.fabricx.generate_target_hosts
+[`generate_target_hosts.yaml`](./generate_target_hosts.yaml) regenerates the Makefile helper targets for the selected inventory. It reads `groups['all']` and writes `target_hosts.mk` under `project_dir`, giving the top-level `Makefile` one target per inventory host that maps to `TARGET_HOSTS`.
+
+```shell
+ansible-playbook hyperledger.fabricx.generate_target_hosts
 ```
 
-## Namespaced playbooks
+Properties:
 
-Each subdirectory groups playbooks for one component family. Click the namespace name to see the full list of playbooks and their import paths.
+- Target hosts: `localhost`.
+- Nuance: writes `target_hosts.mk` to `project_dir`.
+- Nuance: normally used by `make targets`, but it can be run directly after inventory changes when you want the generated host-specific Makefile targets refreshed.
+
+## Namespaced Playbooks
+
+Namespaced playbooks are collections of playbooks tailored for a specific group of hosts:
 
 | Namespace                                        | Description                                                                                                                              |
 | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
@@ -115,14 +111,3 @@ Each subdirectory groups playbooks for one component family. Click the namespace
 | [loadgen](./loadgen/README.md)                   | Operates load generators: start, stop, reconfigure submission rate at runtime, collect metrics and logs.                                 |
 | [monitoring](./monitoring/README.md)             | Operates observability components: Prometheus, Grafana, node exporter, PostgreSQL exporter, Elasticsearch, and Jaeger.                   |
 | [yugabyte](./yugabyte/README.md)                 | Standalone TLS certificate generation for YugabyteDB clusters. Most YugabyteDB lifecycle is handled through the `committer` namespace.   |
-
-## Targeting a Subset of Hosts
-
-All playbooks accept a `target_hosts` variable that restricts execution to a subset of the inventory group. Pass it as an extra variable when importing:
-
-```yaml
-- name: Restart only the orderer assemblers
-  vars:
-    target_hosts: fabric_x_orderer_1
-  ansible.builtin.import_playbook: hyperledger.fabricx.orderer.start
-```
