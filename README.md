@@ -6,16 +6,6 @@ Hyperledger Fabric-X is an open source project that builds on top of Hyperledger
 
 This repository contains the `hyperledger.fabricx` Ansible collection, which can be used to deploy a Hyperledger Fabric-X network locally, on Kubernetes, or across multiple nodes.
 
-At a high level, a Fabric-X deployment contains:
-
-| Area            | What it does                                                                                       |
-| --------------- | -------------------------------------------------------------------------------------------------- |
-| Orderer         | Accepts submitted transactions, batches them, reaches consensus, and assembles ordered blocks.     |
-| Committer       | Validates, verifies, coordinates, stores, and serves committed data.                               |
-| Crypto services | Provide identities and certificates through Fabric CA or generated test material from `cryptogen`. |
-| Load generator  | Submits traffic to the network for testing and benchmarking.                                       |
-| Monitoring      | Collects metrics and exposes Grafana dashboards for operational visibility.                        |
-
 ## Table of Contents <!-- omit in toc -->
 
 - [Installation](#installation)
