@@ -142,8 +142,8 @@ lint:
 	$(ANSIBLE_LINT) --offline roles playbooks examples
 
 # Generate role READMEs and defaults from argument_specs.yaml
-.PHONY: generate-docs
-generate-docs:
+.PHONY: generate-roles-docs
+generate-roles-docs:
 	@printf "$(COLOR_CYAN)🚩 Generating role docs from argument_specs.yaml...$(COLOR_RESET)\n"
 	@for role in roles/*/; do \
 	    printf "  → $$role\n"; \
@@ -153,19 +153,13 @@ generate-docs:
 
 # Check that generated docs are in sync with argument_specs.yaml
 .PHONY: check-docs
-check-docs: generate-docs
+check-docs: generate-roles-docs
 	@git diff --exit-code roles/*/defaults/main.yaml roles/*/README.md \
-	    || (printf "$(COLOR_RESET)ERROR: Generated docs are out of date. Run 'make generate-docs' and commit the changes.\n" && exit 1)
-
-# Install MkDocs and the dependencies needed to build the documentation site.
-.PHONY: install-mkdocs
-install-mkdocs:
-	@printf "$(COLOR_CYAN)🚩 Installing MkDocs...$(COLOR_RESET)\n"
-	$(ANSIBLE_PYTHON_INTERPRETER) -m pip install -r $(PROJECT_DIR)/requirements-docs.txt
+	    || (printf "$(COLOR_RESET)ERROR: Generated docs are out of date. Run 'make generate-roles-docs' and commit the changes.\n" && exit 1)
 
 # Generate the MkDocs source tree from the repository READMEs.
 .PHONY: mkdocs-generate
-mkdocs-generate:
+mkdocs-generate: generate-roles-docs
 	@printf "$(COLOR_CYAN)🚩 Generating MkDocs source tree...$(COLOR_RESET)\n"
 	$(ANSIBLE_PYTHON_INTERPRETER) $(PROJECT_DIR)/scripts/build_mkdocs_source.py
 

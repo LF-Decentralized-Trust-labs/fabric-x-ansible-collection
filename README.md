@@ -307,7 +307,7 @@ git checkout -b your-feature-name
 Role READMEs and role defaults are automatically generated from `meta/argument_specs.yaml`. When you add a new role task entry point or introduce variables for an existing entry point, update that role's `argument_specs.yaml` and then run:
 
 ```shell
-make generate-docs
+make generate-roles-docs
 ```
 
 ## License
