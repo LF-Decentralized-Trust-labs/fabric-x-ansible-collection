@@ -175,8 +175,8 @@ Local inventories run a complete network on the control machine with `ansible_co
 
 [`local/group_vars/all/env.yaml`](./local/group_vars/all/env.yaml) uses local Ansible execution and writes deployment state below `out_dir`.
 
-| Inventory                                                        | Description                                                                   |
-| ---------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Inventory                                                             | Description                                                                   |
+| --------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
 | [`local/fabric-x.yaml`](./docs/local/fabric-x.md)                     | Default local container deployment with Fabric CA, PostgreSQL, TLS, and mTLS. |
 | [`local/fabric-x-yugabyte.yaml`](./docs/local/fabric-x-yugabyte.md)   | Local container deployment using YugabyteDB as the committer database.        |
 | [`local/fabric-x-bin.yaml`](./docs/local/fabric-x-bin.md)             | Local deployment that runs Fabric-X services as binaries.                     |
@@ -196,8 +196,8 @@ Kubernetes inventories deploy the same logical Fabric-X services as Kubernetes w
 
 [`k8s/group_vars/all/env.yaml`](./k8s/group_vars/all/env.yaml) uses local Ansible execution against Kubernetes services and adds Kubernetes defaults such as `k8s_namespace` and `k8s_storage_size`.
 
-| Inventory                                                    | Description                                                              |
-| ------------------------------------------------------------ | ------------------------------------------------------------------------ |
+| Inventory                                                         | Description                                                              |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------ |
 | [`k8s/fabric-x.yaml`](./docs/k8s/fabric-x.md)                     | Default Kubernetes deployment with Fabric CA, PostgreSQL, TLS, and mTLS. |
 | [`k8s/fabric-x-yugabyte.yaml`](./docs/k8s/fabric-x-yugabyte.md)   | Kubernetes deployment using YugabyteDB as the committer database.        |
 | [`k8s/fabric-x-cryptogen.yaml`](./docs/k8s/fabric-x-cryptogen.md) | Kubernetes deployment using centrally generated `cryptogen` material.    |
@@ -216,8 +216,8 @@ The distributed inventory is a performance-oriented SSH topology. It uses contai
 
 [`distributed/group_vars/all/env.yaml`](./distributed/group_vars/all/env.yaml) uses SSH, defines remote machine placeholders, and writes deployment state below a remote directory such as `/root/perf-deployment`.
 
-| Inventory                                                | Description                                                                 |
-| -------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Inventory                                                     | Description                                                                 |
+| ------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | [`distributed/fabric-x.yaml`](./docs/distributed/fabric-x.md) | Multi-machine reference topology for performance evaluation and adaptation. |
 
 !!! warning
