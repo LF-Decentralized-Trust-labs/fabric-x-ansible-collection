@@ -71,11 +71,11 @@ nav:
       - Overview: index.md
       - Examples: examples/index.md
       - Collection:
-          - Inventories: examples/inventory/docs/index.md
+          - Inventories: examples/inventory/index.md
           - Playbooks: playbooks/index.md
           - Roles: roles/index.md
   - Inventories:
-      - Overview: examples/inventory/docs/index.md
+      - Overview: examples/inventory/index.md
       - Local:
           - fabric-x: examples/inventory/docs/local/fabric-x.md
           - fabric-x-yugabyte: examples/inventory/docs/local/fabric-x-yugabyte.md

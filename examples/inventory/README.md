@@ -57,7 +57,7 @@ The sample inventories all describe a complete network with orderers, a committe
 
 ## How Playbooks Read the Inventory
 
-The collection playbooks target well-known groups. Those group names are part of the public contract of the examples and the [`Makefile`](../../../Makefile) workflow.
+The collection playbooks target well-known groups. Those group names are part of the public contract of the examples and the [`Makefile`](../../Makefile) workflow.
 
 For example, the orderer lifecycle playbooks target `fabric_x_orderers`, the committer lifecycle playbooks target `fabric_x_committer`, load generator playbooks target `load_generators`, and monitoring playbooks target `monitoring`. The example wrapper playbooks compose those lifecycle playbooks into `make start`, `make stop`, `make teardown`, and related commands.
 
@@ -95,7 +95,7 @@ The examples use a layered structure:
 - Child groups divide a service family into logical sub-topologies, such as `fabric_x_orderer_1` through `fabric_x_orderer_4`.
 - Host variables describe one service instance: its component type, ports, database reference, organization identity, and runtime-specific settings.
 - Each inventory family has an environment file that describes how Ansible reaches the target environment and where generated files live on each target.
-- [`examples/inventory/vars.yaml`](../vars.yaml) describes control-node paths used by the example playbooks.
+- [`examples/inventory/vars.yaml`](./vars.yaml) describes control-node paths used by the example playbooks.
 
 ```mermaid
 graph TD
@@ -112,7 +112,7 @@ Start from the closest sample inventory and change one dimension at a time: runt
 
 Use these rules when crafting a custom inventory:
 
-1. Keep hostnames stable and unique. They are used in generated configuration, service names, certificate names, output directories, and [`Makefile`](../../../Makefile) targets.
+1. Keep hostnames stable and unique. They are used in generated configuration, service names, certificate names, output directories, and [`Makefile`](../../Makefile) targets.
 2. Keep the standard parent groups unless you are also replacing the example playbooks.
 3. Set the dispatcher variable on every Fabric-X component host. Orderer hosts need `orderer_component_type`; committer hosts need `committer_component_type`.
 4. Assign unique ports for colocated services. This is especially important for local and distributed container deployments where several logical hosts can share one physical machine.
@@ -121,7 +121,7 @@ Use these rules when crafting a custom inventory:
 7. Keep service references in inventory hostnames, not ad hoc addresses. For example, validators reference `postgres_db_host` or YugabyteDB hosts; load generators and monitoring discover orderer and committer hosts through inventory groups.
 8. Define organizations consistently. Fabric CA inventories attach `fabric_ca_host`, enrollment names, secrets, and roles to organization data. `cryptogen` inventories still need organization names and domains so certificate material and channel configuration can be generated.
 9. Preserve the runtime-specific path variables from the selected inventory family's environment file, especially `remote_deploy_dir`, `remote_node_dir`, `remote_config_dir`, and `remote_data_dir`.
-10. After adding, removing, or renaming hosts, regenerate helper targets with `make targets` if you use the top-level [`Makefile`](../../../Makefile).
+10. After adding, removing, or renaming hosts, regenerate helper targets with `make targets` if you use the top-level [`Makefile`](../../Makefile).
 
 The practical test is simple: a reader should be able to pick any host in the inventory and understand what service it runs, where it runs, which organization owns it, how other services reach it, and where its generated files will be written.
 
@@ -157,7 +157,7 @@ Choose the smallest sample that exercises the behavior you need, then adapt it.
 
 ### Common Variables
 
-The [`examples/inventory/vars.yaml`](../vars.yaml) file defines general variables that are shared and valid across all the deployment environments. Among these vars there are:
+The [`examples/inventory/vars.yaml`](./vars.yaml) file defines general variables that are shared and valid across all the deployment environments. Among these vars there are:
 
 | Variable                  | Meaning                                                                                                                                 |
 | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
@@ -173,16 +173,16 @@ Each deployment environment also provides an environment file. The distinction m
 
 Local inventories run a complete network on the control machine with `ansible_connection: local`. They are the best starting point for development, functional testing, and learning the inventory contract.
 
-[`local/group_vars/all/env.yaml`](../local/group_vars/all/env.yaml) uses local Ansible execution and writes deployment state below `out_dir`.
+[`local/group_vars/all/env.yaml`](./local/group_vars/all/env.yaml) uses local Ansible execution and writes deployment state below `out_dir`.
 
 | Inventory                                                        | Description                                                                   |
 | ---------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| [`local/fabric-x.yaml`](./local/fabric-x.md)                     | Default local container deployment with Fabric CA, PostgreSQL, TLS, and mTLS. |
-| [`local/fabric-x-yugabyte.yaml`](./local/fabric-x-yugabyte.md)   | Local container deployment using YugabyteDB as the committer database.        |
-| [`local/fabric-x-bin.yaml`](./local/fabric-x-bin.md)             | Local deployment that runs Fabric-X services as binaries.                     |
-| [`local/fabric-x-cryptogen.yaml`](./local/fabric-x-cryptogen.md) | Local container deployment using centrally generated `cryptogen` material.    |
-| [`local/fabric-x-no-mtls.yaml`](./local/fabric-x-no-mtls.md)     | Local container deployment with TLS enabled and mTLS disabled.                |
-| [`local/fabric-x-no-tls.yaml`](./local/fabric-x-no-tls.md)       | Local container deployment with TLS and mTLS disabled for debugging only.     |
+| [`local/fabric-x.yaml`](./docs/local/fabric-x.md)                     | Default local container deployment with Fabric CA, PostgreSQL, TLS, and mTLS. |
+| [`local/fabric-x-yugabyte.yaml`](./docs/local/fabric-x-yugabyte.md)   | Local container deployment using YugabyteDB as the committer database.        |
+| [`local/fabric-x-bin.yaml`](./docs/local/fabric-x-bin.md)             | Local deployment that runs Fabric-X services as binaries.                     |
+| [`local/fabric-x-cryptogen.yaml`](./docs/local/fabric-x-cryptogen.md) | Local container deployment using centrally generated `cryptogen` material.    |
+| [`local/fabric-x-no-mtls.yaml`](./docs/local/fabric-x-no-mtls.md)     | Local container deployment with TLS enabled and mTLS disabled.                |
+| [`local/fabric-x-no-tls.yaml`](./docs/local/fabric-x-no-tls.md)       | Local container deployment with TLS and mTLS disabled for debugging only.     |
 
 When running local containers on macOS, set `LOCAL_ANSIBLE_HOST` so containers can reach services on the host:
 
@@ -194,15 +194,15 @@ export LOCAL_ANSIBLE_HOST=host.docker.internal
 
 Kubernetes inventories deploy the same logical Fabric-X services as Kubernetes workloads and services. They are useful when you need to validate Kubernetes manifests, service exposure, storage, and cluster behavior.
 
-[`k8s/group_vars/all/env.yaml`](../k8s/group_vars/all/env.yaml) uses local Ansible execution against Kubernetes services and adds Kubernetes defaults such as `k8s_namespace` and `k8s_storage_size`.
+[`k8s/group_vars/all/env.yaml`](./k8s/group_vars/all/env.yaml) uses local Ansible execution against Kubernetes services and adds Kubernetes defaults such as `k8s_namespace` and `k8s_storage_size`.
 
 | Inventory                                                    | Description                                                              |
 | ------------------------------------------------------------ | ------------------------------------------------------------------------ |
-| [`k8s/fabric-x.yaml`](./k8s/fabric-x.md)                     | Default Kubernetes deployment with Fabric CA, PostgreSQL, TLS, and mTLS. |
-| [`k8s/fabric-x-yugabyte.yaml`](./k8s/fabric-x-yugabyte.md)   | Kubernetes deployment using YugabyteDB as the committer database.        |
-| [`k8s/fabric-x-cryptogen.yaml`](./k8s/fabric-x-cryptogen.md) | Kubernetes deployment using centrally generated `cryptogen` material.    |
-| [`k8s/fabric-x-no-mtls.yaml`](./k8s/fabric-x-no-mtls.md)     | Kubernetes deployment with TLS enabled and mTLS disabled.                |
-| [`k8s/fabric-x-no-tls.yaml`](./k8s/fabric-x-no-tls.md)       | Kubernetes deployment with TLS and mTLS disabled for debugging only.     |
+| [`k8s/fabric-x.yaml`](./docs/k8s/fabric-x.md)                     | Default Kubernetes deployment with Fabric CA, PostgreSQL, TLS, and mTLS. |
+| [`k8s/fabric-x-yugabyte.yaml`](./docs/k8s/fabric-x-yugabyte.md)   | Kubernetes deployment using YugabyteDB as the committer database.        |
+| [`k8s/fabric-x-cryptogen.yaml`](./docs/k8s/fabric-x-cryptogen.md) | Kubernetes deployment using centrally generated `cryptogen` material.    |
+| [`k8s/fabric-x-no-mtls.yaml`](./docs/k8s/fabric-x-no-mtls.md)     | Kubernetes deployment with TLS enabled and mTLS disabled.                |
+| [`k8s/fabric-x-no-tls.yaml`](./docs/k8s/fabric-x-no-tls.md)       | Kubernetes deployment with TLS and mTLS disabled for debugging only.     |
 
 For remote clusters, set the externally reachable node address used by NodePort services:
 
@@ -214,15 +214,15 @@ export K8S_NODE_IP=<node-ip>
 
 The distributed inventory is a performance-oriented SSH topology. It uses containers, `cryptogen`, mTLS, YugabyteDB, multiple load generators, and multiple validator, verifier, batcher, and database instances.
 
-[`distributed/group_vars/all/env.yaml`](../distributed/group_vars/all/env.yaml) uses SSH, defines remote machine placeholders, and writes deployment state below a remote directory such as `/root/perf-deployment`.
+[`distributed/group_vars/all/env.yaml`](./distributed/group_vars/all/env.yaml) uses SSH, defines remote machine placeholders, and writes deployment state below a remote directory such as `/root/perf-deployment`.
 
 | Inventory                                                | Description                                                                 |
 | -------------------------------------------------------- | --------------------------------------------------------------------------- |
-| [`distributed/fabric-x.yaml`](./distributed/fabric-x.md) | Multi-machine reference topology for performance evaluation and adaptation. |
+| [`distributed/fabric-x.yaml`](./docs/distributed/fabric-x.md) | Multi-machine reference topology for performance evaluation and adaptation. |
 
 !!! warning
 
-    This inventory is not ready to run as-is. Replace the `host_machine_*` placeholders in [`distributed/group_vars/all/env.yaml`](../distributed/group_vars/all/env.yaml), confirm SSH access, update `remote_deploy_dir`, and review all port assignments before using it.
+    This inventory is not ready to run as-is. Replace the `host_machine_*` placeholders in [`distributed/group_vars/all/env.yaml`](./distributed/group_vars/all/env.yaml), confirm SSH access, update `remote_deploy_dir`, and review all port assignments before using it.
 
 ## Scaling a Component
 
@@ -257,4 +257,4 @@ fabric_x_orderer_1:
       orderer_rpc_port: 7050
 ```
 
-The [distributed sample](./inventory/docs/distributed/fabric-x.md) shows a larger SSH-based layout.
+The [distributed sample](./docs/distributed/fabric-x.md) shows a larger SSH-based layout.

@@ -190,9 +190,7 @@ def discover_doc_pages(repo_root: Path) -> dict[Path, Path]:
         # Roles README
         Path("roles") / "README.md": Path("roles") / "index.md",
         # Inventory documentation overview
-        Path("examples") / "inventory" / "docs" / "README.md": (
-            Path("examples") / "inventory" / "docs" / "index.md"
-        ),
+        Path("examples") / "inventory" / "README.md": Path("examples") / "inventory" / "index.md",
     }
 
     # Add per-inventory Markdown pages. These pages sit beside the example
