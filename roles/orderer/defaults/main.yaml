@@ -12,7 +12,7 @@ orderer_registry_endpoint: "{{ lookup('env', 'ORDERER_REGISTRY_ENDPOINT') or 'do
 # Image name used for the orderer container.
 orderer_image_name: fabric-x-orderer
 # Image tag used for the orderer container.
-orderer_image_tag: 0.0.23
+orderer_image_tag: 1.0.0-alpha
 # Full image reference used by the container and Kubernetes branches.
 orderer_image: "{{ orderer_registry_endpoint }}/{{ orderer_image_name }}:{{ orderer_image_tag }}"
 # Container name used by the container lifecycle branch.
@@ -22,7 +22,7 @@ orderer_git_hub_url: github.com
 # Repository path for the orderer source code.
 orderer_git_repo: hyperledger/fabric-x-orderer
 # Git ref or release tag used by the bin build and install branches.
-orderer_git_commit: v0.0.23
+orderer_git_commit: v1.0.0-alpha
 # Go package path that builds the orderer binary.
 orderer_source_code_package: cmd/arma
 # Go package path used by the install branch.

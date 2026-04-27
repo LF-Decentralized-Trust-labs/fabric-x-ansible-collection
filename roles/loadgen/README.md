@@ -193,6 +193,8 @@ Query the Loadgen Prometheus metrics endpoint over HTTP or HTTPS. In Kubernetes 
     loadgen_use_tls: false
     # Assert the latency metric when fetching metrics.
     loadgen_assert_metrics: false
+    # Optional override for the Loadgen metrics endpoint URL. Example: `http://loadgen1.example.com:9443/metrics`.
+    loadgen_metrics_endpoint: "http://loadgen1.example.com:9443/metrics"
     # Use Kubernetes resources.
     loadgen_use_k8s: false
     # Expose the Kubernetes Service via NodePort when `loadgen_use_k8s` is enabled. This drives the HTTP, metrics, and gRPC NodePort access paths.
@@ -219,6 +221,8 @@ Send a control-plane HTTP request that changes the active generated transaction 
     loadgen_k8s_web_node_port: 30080
     # Maximum generated transaction rate. Example: `2500`.
     loadgen_limit_rate: 2500
+    # Optional override for the Loadgen rate-limit endpoint URL. Example: `http://loadgen1.example.com:8080/setRateLimit`.
+    loadgen_limit_rate_endpoint: "http://loadgen1.example.com:8080/setRateLimit"
     # Use Kubernetes resources.
     loadgen_use_k8s: false
     # Expose the Kubernetes Service via NodePort when `loadgen_use_k8s` is enabled. This drives the HTTP, metrics, and gRPC NodePort access paths.

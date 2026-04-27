@@ -26,7 +26,7 @@ argument_specs:
       committer_image_tag:
         type: str
         required: false
-        default: "0.1.9"
+        default: "1.0.0-alpha"
         description:
           - Image tag for the committer container.
       committer_image: &committer_image
@@ -56,7 +56,7 @@ argument_specs:
       committer_git_commit: &committer_git_commit
         type: str
         required: false
-        default: v0.1.9
+        default: v1.0.0-alpha
         description:
           - Git ref used for building or installing the binary.
       committer_source_code_package: &committer_source_code_package
@@ -605,6 +605,19 @@ argument_specs:
         description:
           - Per-goroutine channel buffer size for the coordinator.
           - "Example: C(10)."
+      committer_sidecar_orderer_fault_tolerance_level:
+        &committer_sidecar_orderer_fault_tolerance_level
+        type: str
+        required: false
+        description:
+          - Fault tolerance level of the ordering service rendered into the sidecar config.
+        choices: [BFT, CFT]
+      committer_sidecar_orderer_suspicion_grace_period_per_block:
+        &committer_sidecar_orderer_suspicion_grace_period_per_block
+        type: str
+        required: false
+        description:
+          - Grace period per block before the sidecar suspects an orderer node is faulty.
       committer_sidecar_last_committed_block_set_interval:
         &committer_sidecar_last_committed_block_set_interval
         type: str
@@ -639,6 +652,18 @@ argument_specs:
         description:
           - Sidecar notification timeout.
           - "Example: C(10m)."
+      committer_sidecar_notification_max_active_tx_ids:
+        &committer_sidecar_notification_max_active_tx_ids
+        type: int
+        required: false
+        description:
+          - Maximum number of active transaction IDs tracked for notification subscriptions.
+      committer_sidecar_notification_max_tx_ids_per_request:
+        &committer_sidecar_notification_max_tx_ids_per_request
+        type: int
+        required: false
+        description:
+          - Maximum number of transaction IDs returned per notification request.
       committer_query_service_min_batch_keys:
         &committer_query_service_min_batch_keys
         type: int
@@ -1463,11 +1488,15 @@ argument_specs:
       channel_id: *channel_id
       organization: *organization
       committer_coordinator: *committer_coordinator
+      committer_sidecar_orderer_fault_tolerance_level: *committer_sidecar_orderer_fault_tolerance_level
+      committer_sidecar_orderer_suspicion_grace_period_per_block: *committer_sidecar_orderer_suspicion_grace_period_per_block
       committer_sidecar_last_committed_block_set_interval: *committer_sidecar_last_committed_block_set_interval
       committer_sidecar_waiting_txs_limit: *committer_sidecar_waiting_txs_limit
       committer_sidecar_channel_buffer_size: *committer_sidecar_channel_buffer_size
       committer_sidecar_ledger_sync_interval: *committer_sidecar_ledger_sync_interval
       committer_sidecar_notification_max_timeout: *committer_sidecar_notification_max_timeout
+      committer_sidecar_notification_max_active_tx_ids: *committer_sidecar_notification_max_active_tx_ids
+      committer_sidecar_notification_max_tx_ids_per_request: *committer_sidecar_notification_max_tx_ids_per_request
       orderer_assemblers: *orderer_assemblers
       configtxgen_artifacts_dir: *configtxgen_artifacts_dir
       fetched_artifacts_dir:

@@ -470,7 +470,7 @@ Install the committer binary through the shared `bin` role Go installer entry po
     # Git repository that contains the committer sources.
     committer_git_repo: hyperledger/fabric-x-committer
     # Git ref used for building or installing the binary.
-    committer_git_commit: v0.1.9
+    committer_git_commit: v1.0.0-alpha
     # Go package path used as the build or install target.
     committer_source_code_package: cmd/committer
   ansible.builtin.include_role:
@@ -494,7 +494,7 @@ Build the committer binary through the shared `bin` role Go build entry point. P
     # Git repository that contains the committer sources.
     committer_git_repo: hyperledger/fabric-x-committer
     # Git ref used for building or installing the binary.
-    committer_git_commit: v0.1.9
+    committer_git_commit: v1.0.0-alpha
     # Go package path used as the build or install target.
     committer_source_code_package: cmd/committer
   ansible.builtin.include_role:
@@ -1519,6 +1519,10 @@ Render sidecar configuration, upstream TLS bundles, and optional Kubernetes Conf
         name: "committer-sidecar-1"
     # Inventory host name of the coordinator component. Example: `committer-coordinator-1`.
     committer_coordinator: "committer-coordinator-1"
+    # Fault tolerance level of the ordering service rendered into the sidecar config.
+    committer_sidecar_orderer_fault_tolerance_level: "string"
+    # Grace period per block before the sidecar suspects an orderer node is faulty.
+    committer_sidecar_orderer_suspicion_grace_period_per_block: "string"
     # Interval between sidecar committed-block updates. Example: `5s`.
     committer_sidecar_last_committed_block_set_interval: "5s"
     # Sidecar waiting transaction limit. Example: `20000000`.
@@ -1529,6 +1533,10 @@ Render sidecar configuration, upstream TLS bundles, and optional Kubernetes Conf
     committer_sidecar_ledger_sync_interval: 100
     # Sidecar notification timeout. Example: `10m`.
     committer_sidecar_notification_max_timeout: "10m"
+    # Maximum number of active transaction IDs tracked for notification subscriptions.
+    committer_sidecar_notification_max_active_tx_ids: 1000
+    # Maximum number of transaction IDs returned per notification request.
+    committer_sidecar_notification_max_tx_ids_per_request: 1000
     # Inventory hosts for orderer assembler components. Example: `['orderer-assembler-1', 'orderer-assembler-2']`.
     orderer_assemblers:
       - "orderer-assembler-1"

@@ -12,7 +12,7 @@ committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or
 # Image name for the committer container.
 committer_image_name: fabric-x-committer
 # Image tag for the committer container.
-committer_image_tag: 0.1.9
+committer_image_tag: 1.0.0-alpha
 # Fully qualified committer image.
 committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
 # Container name used by the committer container helper.
@@ -22,7 +22,7 @@ committer_git_hub_url: github.com
 # Git repository that contains the committer sources.
 committer_git_repo: hyperledger/fabric-x-committer
 # Git ref used for building or installing the binary.
-committer_git_commit: v0.1.9
+committer_git_commit: v1.0.0-alpha
 # Go package path used as the build or install target.
 committer_source_code_package: cmd/committer
 # Go package path used by the shared binary installer.

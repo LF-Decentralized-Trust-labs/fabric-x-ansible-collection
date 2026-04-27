@@ -190,6 +190,12 @@ argument_specs:
         default: false
         description:
           - Assert the latency metric when fetching metrics.
+      loadgen_metrics_endpoint: &loadgen_metrics_endpoint
+        type: str
+        required: false
+        description:
+          - Optional override for the Loadgen metrics endpoint URL.
+          - "Example: C(http://loadgen1.example.com:9443/metrics)."
       loadgen_generate_config_block: &loadgen_generate_config_block
         type: bool
         required: false
@@ -397,6 +403,12 @@ argument_specs:
         description:
           - Maximum generated transaction rate.
           - "Example: C(2500)."
+      loadgen_limit_rate_endpoint: &loadgen_limit_rate_endpoint
+        type: str
+        required: false
+        description:
+          - Optional override for the Loadgen rate-limit endpoint URL.
+          - "Example: C(http://loadgen1.example.com:8080/setRateLimit)."
       loadgen_limit_blocks: &loadgen_limit_blocks
         type: int
         required: false
@@ -629,6 +641,7 @@ argument_specs:
       loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
       loadgen_use_tls: *loadgen_use_tls
       loadgen_assert_metrics: *loadgen_assert_metrics
+      loadgen_metrics_endpoint: *loadgen_metrics_endpoint
       loadgen_use_k8s: *loadgen_use_k8s
       loadgen_k8s_use_node_port: *loadgen_k8s_use_node_port
 
@@ -642,6 +655,7 @@ argument_specs:
       loadgen_web_port: *loadgen_web_port
       loadgen_k8s_web_node_port: *loadgen_k8s_web_node_port
       loadgen_limit_rate: *loadgen_limit_rate
+      loadgen_limit_rate_endpoint: *loadgen_limit_rate_endpoint
       loadgen_use_k8s: *loadgen_use_k8s
       loadgen_k8s_use_node_port: *loadgen_k8s_use_node_port
 
