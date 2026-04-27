@@ -272,4 +272,4 @@ fabric_x_orderer_1:
       orderer_rpc_port: 7050
 ```
 
-The distributed sample shows a larger SSH-based layout.
+The [distributed sample](./inventory/docs/distributed/fabric-x.md) shows a larger SSH-based layout.
