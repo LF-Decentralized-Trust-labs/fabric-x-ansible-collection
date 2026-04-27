@@ -310,7 +310,7 @@ Render the Loadgen configuration file and transfer config-side support artifacts
     loadgen_metrics_port: 9443
     # gRPC control port exposed by Loadgen. Example: `7051`.
     loadgen_rpc_port: 7051
-    # Render the config transaction block section.
+    # Render the config transaction block section. Example: `false`.
     loadgen_generate_config_block: false
     # Render the namespace creation section. Example: `true` when the workload should create namespace records before sending load.
     loadgen_generate_namespace: false
@@ -396,9 +396,9 @@ Render the Loadgen configuration file and transfer config-side support artifacts
     loadgen_config_block_file: config-block.pb.bin
     # Local configtxgen output directory containing the genesis config block.
     configtxgen_artifacts_dir: "string"
-    # Fault tolerance level of the ordering service rendered into the Loadgen config.
-    loadgen_orderer_fault_tolerance_level: BFT
-    # Maximum number of TX entries held in memory for latency tracking.
+    # Fault tolerance level of the ordering service rendered into the Loadgen config. Example: `BFT`.
+    loadgen_orderer_fault_tolerance_level: "BFT"
+    # Maximum number of TX entries held in memory for latency tracking. Example: `10000`.
     loadgen_monitoring_latency_max_tracked_txs: 10000
     # Broadcast goroutine count used by the orderer client. Example: `8`.
     loadgen_broadcast_parallelism: 8

@@ -199,9 +199,9 @@ argument_specs:
       loadgen_generate_config_block: &loadgen_generate_config_block
         type: bool
         required: false
-        default: false
         description:
           - Render the config transaction block section.
+          - "Example: C(false)."
       loadgen_generate_namespace: &loadgen_generate_namespace
         type: bool
         required: false
@@ -236,9 +236,9 @@ argument_specs:
         &loadgen_orderer_fault_tolerance_level
         type: str
         required: false
-        default: "BFT"
         description:
           - Fault tolerance level of the ordering service rendered into the Loadgen config.
+          - "Example: C(BFT)."
       loadgen_broadcast_parallelism: &loadgen_broadcast_parallelism
         type: int
         required: false
@@ -394,9 +394,9 @@ argument_specs:
         &loadgen_monitoring_latency_max_tracked_txs
         type: int
         required: false
-        default: 10000
         description:
           - Maximum number of TX entries held in memory for latency tracking.
+          - "Example: C(10000)."
       loadgen_limit_rate: &loadgen_limit_rate
         type: int
         required: false
