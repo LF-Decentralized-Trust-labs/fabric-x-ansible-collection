@@ -4,11 +4,13 @@
 
 Use it only when plaintext endpoints are deliberate, such as local protocol, connectivity, or compatibility debugging.
 
+> [!WARNING]
+> This inventory is meant for debugging only. It disables both TLS encryption and mTLS client authentication.
+
 ## Table of Contents <!-- omit in toc -->
 
 - [Network Diagram](#network-diagram)
-- [Inventory Specs](#inventory-specs)
-- [What Makes This Inventory Different](#what-makes-this-inventory-different)
+- [Inventory Details](#inventory-details)
 
 ## Network Diagram
 
@@ -16,7 +18,7 @@ The diagram below summarizes this inventory's Fabric-X services and how they fit
 
 ![local Fabric-X no TLS inventory](../../../images/fabric-x.drawio.png)
 
-## Inventory Specs
+## Inventory Details
 
 All long-running services run as local containers. Ansible connects locally and uses the same container runtime paths as [`fabric-x.yaml`](./fabric-x.md).
 
@@ -45,8 +47,4 @@ flowchart TD
   network --> plaintext["TLS and mTLS disabled"]
 ```
 
-## What Makes This Inventory Different
-
 TLS-related variables are intentionally omitted for Fabric-X, Fabric CA, PostgreSQL, load generator, and monitoring services. Because TLS is disabled, mTLS is disabled as well.
-
-Do not use this as a baseline for shared environments.

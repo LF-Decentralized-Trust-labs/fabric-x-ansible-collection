@@ -37,9 +37,20 @@ flowchart LR
 
 [`generate_crypto.yaml`](./generate_crypto.yaml) prepares TLS material for observability components that require it. It runs the relevant crypto setup/fetch tasks for monitoring hosts that define component-specific variables, such as Prometheus, Grafana, exporters, Elasticsearch, or Jaeger.
 
-```shell
-ansible-playbook hyperledger.fabricx.monitoring.generate_crypto --extra-vars '{"target_hosts": "monitoring"}'
-```
+=== "Command line"
+
+    ```shell
+    ansible-playbook hyperledger.fabricx.monitoring.generate_crypto --extra-vars '{"target_hosts": "monitoring"}'
+    ```
+
+=== "From a playbook"
+
+    ```yaml
+    - name: Run monitoring generate-crypto playbook
+      vars:
+        target_hosts: monitoring
+      ansible.builtin.import_playbook: hyperledger.fabricx.monitoring.generate_crypto
+    ```
 
 Properties:
 
@@ -50,9 +61,20 @@ Properties:
 
 [`configs.yaml`](./configs.yaml) assembles the monitoring configuration for the selected topology. It transfers exporter configuration, discovers scrape targets from Fabric-X and database hosts, renders Prometheus configuration, transfers Grafana dashboards, and configures optional Elasticsearch or Jaeger services when present.
 
-```shell
-ansible-playbook hyperledger.fabricx.monitoring.configs --extra-vars '{"target_hosts": "monitoring"}'
-```
+=== "Command line"
+
+    ```shell
+    ansible-playbook hyperledger.fabricx.monitoring.configs --extra-vars '{"target_hosts": "monitoring"}'
+    ```
+
+=== "From a playbook"
+
+    ```yaml
+    - name: Run monitoring configs playbook
+      vars:
+        target_hosts: monitoring
+      ansible.builtin.import_playbook: hyperledger.fabricx.monitoring.configs
+    ```
 
 Properties:
 
@@ -63,9 +85,20 @@ Properties:
 
 [`start.yaml`](./start.yaml) starts the monitoring stack described by the inventory. It conditionally starts node exporter, PostgreSQL exporter, Prometheus, Grafana, Elasticsearch, and Jaeger only on hosts that declare the matching variables.
 
-```shell
-ansible-playbook hyperledger.fabricx.monitoring.start --extra-vars '{"target_hosts": "monitoring"}'
-```
+=== "Command line"
+
+    ```shell
+    ansible-playbook hyperledger.fabricx.monitoring.start --extra-vars '{"target_hosts": "monitoring"}'
+    ```
+
+=== "From a playbook"
+
+    ```yaml
+    - name: Run monitoring start playbook
+      vars:
+        target_hosts: monitoring
+      ansible.builtin.import_playbook: hyperledger.fabricx.monitoring.start
+    ```
 
 Properties:
 
@@ -76,9 +109,20 @@ Properties:
 
 [`stop.yaml`](./stop.yaml) stops the monitoring components running on targeted hosts while leaving generated configuration and collected artifacts in place for later restart or inspection.
 
-```shell
-ansible-playbook hyperledger.fabricx.monitoring.stop --extra-vars '{"target_hosts": "monitoring"}'
-```
+=== "Command line"
+
+    ```shell
+    ansible-playbook hyperledger.fabricx.monitoring.stop --extra-vars '{"target_hosts": "monitoring"}'
+    ```
+
+=== "From a playbook"
+
+    ```yaml
+    - name: Run monitoring stop playbook
+      vars:
+        target_hosts: monitoring
+      ansible.builtin.import_playbook: hyperledger.fabricx.monitoring.stop
+    ```
 
 Properties:
 
@@ -89,9 +133,20 @@ Properties:
 
 [`teardown.yaml`](./teardown.yaml) tears down monitoring runtimes and their service data according to each role's implementation. Use it when you want to remove running observability services rather than just stop them.
 
-```shell
-ansible-playbook hyperledger.fabricx.monitoring.teardown --extra-vars '{"target_hosts": "monitoring"}'
-```
+=== "Command line"
+
+    ```shell
+    ansible-playbook hyperledger.fabricx.monitoring.teardown --extra-vars '{"target_hosts": "monitoring"}'
+    ```
+
+=== "From a playbook"
+
+    ```yaml
+    - name: Run monitoring teardown playbook
+      vars:
+        target_hosts: monitoring
+      ansible.builtin.import_playbook: hyperledger.fabricx.monitoring.teardown
+    ```
 
 Properties:
 
@@ -102,9 +157,20 @@ Properties:
 
 [`wipe.yaml`](./wipe.yaml) removes generated monitoring artifacts from targeted hosts, including configuration and role-managed files that should not survive a full cleanup.
 
-```shell
-ansible-playbook hyperledger.fabricx.monitoring.wipe --extra-vars '{"target_hosts": "monitoring"}'
-```
+=== "Command line"
+
+    ```shell
+    ansible-playbook hyperledger.fabricx.monitoring.wipe --extra-vars '{"target_hosts": "monitoring"}'
+    ```
+
+=== "From a playbook"
+
+    ```yaml
+    - name: Run monitoring wipe playbook
+      vars:
+        target_hosts: monitoring
+      ansible.builtin.import_playbook: hyperledger.fabricx.monitoring.wipe
+    ```
 
 Properties:
 
@@ -115,9 +181,20 @@ Properties:
 
 [`ping.yaml`](./ping.yaml) checks the reachable endpoints for monitoring services declared by targeted hosts. It is useful after startup to confirm dashboards, scrape services, and optional backends are responding.
 
-```shell
-ansible-playbook hyperledger.fabricx.monitoring.ping --extra-vars '{"target_hosts": "monitoring"}'
-```
+=== "Command line"
+
+    ```shell
+    ansible-playbook hyperledger.fabricx.monitoring.ping --extra-vars '{"target_hosts": "monitoring"}'
+    ```
+
+=== "From a playbook"
+
+    ```yaml
+    - name: Run monitoring ping playbook
+      vars:
+        target_hosts: monitoring
+      ansible.builtin.import_playbook: hyperledger.fabricx.monitoring.ping
+    ```
 
 Properties:
 
@@ -128,9 +205,20 @@ Properties:
 
 [`fetch_crypto.yaml`](./fetch_crypto.yaml) fetches monitoring TLS material from targeted hosts into the configured artifacts location for inspection or reuse.
 
-```shell
-ansible-playbook hyperledger.fabricx.monitoring.fetch_crypto --extra-vars '{"target_hosts": "monitoring"}'
-```
+=== "Command line"
+
+    ```shell
+    ansible-playbook hyperledger.fabricx.monitoring.fetch_crypto --extra-vars '{"target_hosts": "monitoring"}'
+    ```
+
+=== "From a playbook"
+
+    ```yaml
+    - name: Run monitoring fetch-crypto playbook
+      vars:
+        target_hosts: monitoring
+      ansible.builtin.import_playbook: hyperledger.fabricx.monitoring.fetch_crypto
+    ```
 
 Properties:
 
@@ -141,9 +229,20 @@ Properties:
 
 [`fetch_logs.yaml`](./fetch_logs.yaml) collects logs from the monitoring services declared on targeted hosts, which is useful when Prometheus targets, Grafana dashboards, or optional tracing/logging backends do not come up cleanly.
 
-```shell
-ansible-playbook hyperledger.fabricx.monitoring.fetch_logs --extra-vars '{"target_hosts": "monitoring"}'
-```
+=== "Command line"
+
+    ```shell
+    ansible-playbook hyperledger.fabricx.monitoring.fetch_logs --extra-vars '{"target_hosts": "monitoring"}'
+    ```
+
+=== "From a playbook"
+
+    ```yaml
+    - name: Run monitoring fetch-logs playbook
+      vars:
+        target_hosts: monitoring
+      ansible.builtin.import_playbook: hyperledger.fabricx.monitoring.fetch_logs
+    ```
 
 Properties:
 

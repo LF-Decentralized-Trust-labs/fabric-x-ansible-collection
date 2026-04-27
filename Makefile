@@ -159,7 +159,7 @@ check-docs: generate-roles-docs
 
 # Generate the MkDocs source tree from the repository READMEs.
 .PHONY: mkdocs-generate
-mkdocs-generate: generate-roles-docs
+mkdocs-generate:
 	@printf "$(COLOR_CYAN)🚩 Generating MkDocs source tree...$(COLOR_RESET)\n"
 	$(ANSIBLE_PYTHON_INTERPRETER) $(PROJECT_DIR)/scripts/build_mkdocs_source.py
 
@@ -225,7 +225,7 @@ binaries:
 
 # Clean all the artifacts (configs and bins) built on the controller node (e.g. make clean).
 .PHONY: clean
-clean: clean-cache
+clean: clean-cache clean-mkdocs
 	@printf "$(COLOR_CYAN)🚩 Cleaning local artifacts and cache...$(COLOR_RESET)\n"
 	rm -rf $(OUT_DIR)
 
@@ -234,6 +234,12 @@ clean: clean-cache
 clean-cache:
 	@printf "$(COLOR_CYAN)🚩 Cleaning Ansible cache...$(COLOR_RESET)\n"
 	rm -rf $(ANSIBLE_CACHE_PLUGIN_CONNECTION)
+
+# Clean the auto-generated mkdocs (e.g. make clean-mkdocs).
+.PHONY: clean-mkdocs
+clean-mkdocs:
+	@printf "$(COLOR_CYAN)🚩 Cleaning mkDocs artifacts...$(COLOR_RESET)\n"
+	rm -rf site docs/mkdocs
 
 # Create/Ship the configs to the remote nodes (e.g. make fabric_x configs).
 .PHONY: configs

@@ -7,8 +7,7 @@ Use this inventory first when you want the most representative single-machine de
 ## Table of Contents <!-- omit in toc -->
 
 - [Network Diagram](#network-diagram)
-- [Inventory Specs](#inventory-specs)
-- [What Makes This Inventory Different](#what-makes-this-inventory-different)
+- [Inventory Details](#inventory-details)
 
 ## Network Diagram
 
@@ -16,7 +15,7 @@ The diagram below summarizes this inventory's Fabric-X services and how they fit
 
 ![local Fabric-X inventory](../../../images/fabric-x.drawio.png)
 
-## Inventory Specs
+## Inventory Details
 
 All long-running infrastructure services and the load generator run as containers. Ansible connects locally through the environment in [`local/group_vars/all/env.yaml`](../../local/group_vars/all/env.yaml), and deployment state is written below the configured output directory.
 
@@ -43,8 +42,6 @@ flowchart TD
   fabric_x_committer --> committer_services["validator, verifier, coordinator, sidecar, query service"]
   fabric_x_committer --> committer_db["committer-db PostgreSQL"]
 ```
-
-## What Makes This Inventory Different
 
 This is the baseline local topology. Fabric CA issues identities for the orderer organizations and Org1. Fabric-X services use TLS and mTLS, while Fabric CA, PostgreSQL, load generator, and monitoring traffic use TLS where supported.
 

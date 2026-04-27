@@ -4,4 +4,5 @@ ansible-lint>=25.11.0
 kubernetes>=28.0.0
 aar-doc>=1.1.0
 mkdocs>=1.6.0
+mkdocs-callouts>=1.0.0
 mkdocs-material>=9.5.0

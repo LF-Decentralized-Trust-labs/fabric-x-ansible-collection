@@ -1,6 +1,6 @@
 # Hyperledger Fabric-X Ansible Collection
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE) ![Tests](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/test.yaml/badge.svg) ![Lint](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/lint.yaml/badge.svg) ![Publish](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/publish.yaml/badge.svg)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE) [![Docs](https://img.shields.io/badge/docs-online-brightgreen.svg)](https://lf-decentralized-trust-labs.github.io/fabric-x-ansible-collection/) ![Tests](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/test.yaml/badge.svg) ![Lint](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/lint.yaml/badge.svg) ![Publish](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/publish.yaml/badge.svg)
 
 Hyperledger Fabric-X is an open source project that builds on top of Hyperledger Fabric and is tailored specifically for digital asset use cases. Fabric-X builds on the core principles of Hyperledger Fabric (_sovereign_, _horizontally scalable smart contract execution_ and a _modular_, _agile_ architecture), making it well-suited to meet the governance and compliance needs of regulated digital assets.
 
@@ -10,7 +10,7 @@ This repository contains the `hyperledger.fabricx` Ansible collection, which can
 
 - [Installation](#installation)
   - [Option 1: Install from Ansible Galaxy](#option-1-install-from-ansible-galaxy)
-  - [Option 2: Install cloning the repository under `ANSIBLE_COLLECTIONS_PATHS` (for development)](#option-2-install-cloning-the-repository-under-ansible_collections_paths-for-development)
+  - [Option 2: Clone under `ANSIBLE_COLLECTIONS_PATHS` (for development)](#option-2-clone-under-ansible_collections_paths-for-development)
   - [Option 3: Install from source](#option-3-install-from-source)
 - [Usage](#usage)
 - [Prerequisites](#prerequisites)
@@ -46,9 +46,12 @@ Then install the collection's dependencies:
 ansible-galaxy collection install -r ~/.ansible/collections/ansible_collections/hyperledger/fabricx/requirements.yml
 ```
 
-### Option 2: Install cloning the repository under `ANSIBLE_COLLECTIONS_PATHS` (for development)
+### Option 2: Clone under `ANSIBLE_COLLECTIONS_PATHS` (for development)
 
 To install the `hyperledger.fabricx` collection on your control node, run:
+
+> [!NOTE]
+> This is the recommended way if you plan to develop and change the scripts, since it allows to test directly the modified scripts avoiding to reinstall the collection at every change.
 
 ```shell
 git clone https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection.git ~/.ansible/collections/ansible_collections/hyperledger/fabricx
@@ -56,9 +59,8 @@ cd ~/.ansible/collections/ansible_collections/hyperledger/fabricx
 make install-deps
 ```
 
-**NOTE**: This is the recommended way if you plan to develop and change the scripts, since it allows to test directly the modified scripts avoiding to reinstall the collection at every change.
-
-**WARNING**: Do not run `make install` with this setup — the collection is already live from the cloned directory. Running it would overwrite your checkout with a built artifact. Use `make install-deps` to install dependencies only. The Makefile will also guard against this and abort if it detects the risk.
+> [!WARNING]
+> Do not run `make install` with this setup — the collection is already live from the cloned directory. Running it would overwrite your checkout with a built artifact. Use `make install-deps` to install dependencies only. The Makefile will also guard against this and abort if it detects the risk.
 
 ### Option 3: Install from source
 
@@ -101,9 +103,10 @@ For more information, see the [roles](./roles/README.md), [playbooks](./playbook
 
 To run such Ansible collection, you need to have the following prerequisites installed on your control node:
 
-- `python` >= 3.11.
-- a recent Docker or Podman release when running container inventories. Docker 20.x or newer is the baseline used by the upstream Fabric-X documentation.
-- `kubectl` configured for the target cluster when running Kubernetes inventories.
+- `python` >= 3.11;
+- `docker` or `podman`;
+- `go` >= 2.16 (only needed if you run binary-based inventories);
+- `kubectl` (needed to run [k8s inventories](./examples/inventory/README.md#kubernetes)).
 
 After having cloned this repository, run:
 
@@ -119,7 +122,8 @@ The collection comes with a playbook that can be used to automatically setup all
 make install-remote-node-deps
 ```
 
-**IMPORTANT**: the playbook installs the needed packages and requires `sudo` permission. Make sure to use a passwordless `sudo` user so the playbook can complete.
+> [!WARNING]
+> The playbook installs the needed packages and requires `sudo` permission. Make sure to use a passwordless `sudo` user so the playbook can complete.
 
 ## Run a sample Fabric-X network
 
@@ -204,8 +208,8 @@ This command runs post-start initialization, such as creating the namespaces ind
 
 You can access [Grafana dashboards](http://localhost:3000/dashboards) (user=_admin_, password=_adminPWD_) to see how the Fabric-X network is handling the transactions processing.
 
-!!! note
-These Grafana credentials are sample defaults. Change them before using an adapted inventory in a shared environment.
+> [!NOTE]
+> These Grafana credentials are sample defaults. Change them before using an adapted inventory in a shared environment.
 
 ### 5. Teardown the network
 

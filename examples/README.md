@@ -2,7 +2,8 @@
 
 This directory contains sample inventories and wrapper playbooks for running Hyperledger Fabric-X networks with the `hyperledger.fabricx` collection.
 
-The samples are intentionally small enough to inspect and adapt. They are not a production blueprint. Use them to learn the inventory contract, validate changes locally, and create your own topology.
+> [!NOTE]
+> The samples are intentionally small enough to inspect and adapt. They are not a production blueprint. Use them to learn the inventory contract, validate changes locally, and create your own topology.
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -16,8 +17,6 @@ The samples are intentionally small enough to inspect and adapt. They are not a 
   - [Distributed Inventories](#distributed-inventories)
 - [Selecting an Inventory](#selecting-an-inventory)
 - [Playbooks](#playbooks)
-- [Scaling a Component](#scaling-a-component)
-- [Moving a Service to Another Machine](#moving-a-service-to-another-machine)
 
 ## Common Network Shape
 
@@ -204,7 +203,8 @@ export K8S_NODE_IP=<node-ip>
 
 Distributed inventories use SSH-managed machines for performance-oriented topologies with containers, `cryptogen`, mTLS, and YugabyteDB. They require SSH access, remote Python, a container engine, and real hostnames.
 
-The distributed sample uses `host_machine_*` placeholders. Replace all of them before running it.
+> [!WARNING]
+> The distributed sample uses `host_machine_*` placeholders. Replace all of them before running it.
 
 | Inventory                                                               | Runtime    | TLS | mTLS | Best for                                                     |
 | ----------------------------------------------------------------------- | ---------- | --- | ---- | ------------------------------------------------------------ |
@@ -238,38 +238,3 @@ make teardown
 ```
 
 For the complete playbook workflow and group contract, see the [playbooks documentation](../playbooks/README.md).
-
-## Scaling a Component
-
-Components marked as horizontally scalable can be replicated by adding hosts to the relevant group. For example, add a second batcher to `fabric_x_orderer_1`:
-
-```yaml
-fabric_x_orderer_1:
-  hosts:
-    orderer-batcher-1:
-      orderer_shard_id: 1
-      orderer_component_type: batcher
-      orderer_rpc_port: 7053
-    orderer-batcher-2:
-      orderer_shard_id: 2
-      orderer_component_type: batcher
-      orderer_rpc_port: 7063
-```
-
-Each replicated instance needs unique ports on the same target machine. Batcher replicas also need a unique `orderer_shard_id` within their orderer group.
-
-## Moving a Service to Another Machine
-
-Local inventories use `ansible_connection: local`. To run services on remote machines, change the connection model and assign `ansible_host` per service:
-
-```yaml
-fabric_x_orderer_1:
-  hosts:
-    orderer-router-1:
-      # Use ansible_host to define on which machine you want the service to run.
-      ansible_host: mysshmachine1.example.com
-      orderer_component_type: router
-      orderer_rpc_port: 7050
-```
-
-The distributed sample shows a larger SSH-based layout.

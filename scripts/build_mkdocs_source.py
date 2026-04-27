@@ -190,9 +190,7 @@ def discover_doc_pages(repo_root: Path) -> dict[Path, Path]:
         # Roles README
         Path("roles") / "README.md": Path("roles") / "index.md",
         # Inventory documentation overview
-        Path("examples") / "inventory" / "docs" / "README.md": (
-            Path("examples") / "inventory" / "docs" / "index.md"
-        ),
+        Path("examples") / "inventory" / "README.md": Path("examples") / "inventory" / "index.md",
     }
 
     # Add per-inventory Markdown pages. These pages sit beside the example
@@ -232,6 +230,15 @@ def discover_assets(repo_root: Path) -> dict[Path, Path]:
                 # links remain intuitive after rewriting.
                 repo_path = asset.relative_to(repo_root)
                 assets[repo_path] = repo_path
+
+    # Copy static MkDocs assets that are authored outside the generated
+    # docs/mkdocs tree.
+    docs_assets_dir = repo_root / "docs" / "assets"
+    if docs_assets_dir.exists():
+        for asset in sorted(docs_assets_dir.rglob("*")):
+            if asset.is_file():
+                repo_path = asset.relative_to(repo_root)
+                assets[repo_path] = Path("assets") / asset.relative_to(docs_assets_dir)
     return assets
 
 

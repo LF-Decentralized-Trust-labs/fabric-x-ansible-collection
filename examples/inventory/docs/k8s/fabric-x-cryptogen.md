@@ -4,11 +4,13 @@
 
 Use it for repeatable Kubernetes tests that should not exercise Fabric CA enrollment.
 
+> [!WARNING]
+> This inventory is intended for debugging and repeatable test runs. For production-style deployments, start from the Fabric CA based [`k8s/fabric-x.yaml`](./fabric-x.md) inventory instead.
+
 ## Table of Contents <!-- omit in toc -->
 
 - [Network Diagram](#network-diagram)
-- [Inventory Specs](#inventory-specs)
-- [What Makes This Inventory Different](#what-makes-this-inventory-different)
+- [Inventory Details](#inventory-details)
 
 ## Network Diagram
 
@@ -16,7 +18,7 @@ The diagram below summarizes this inventory's Fabric-X services and how they fit
 
 ![Kubernetes Fabric-X cryptogen inventory](../../../images/fabric-x-k8s-cryptogen.drawio.png)
 
-## Inventory Specs
+## Inventory Details
 
 Orderer, committer, PostgreSQL, load generator, node exporter, Prometheus, and Grafana use Kubernetes task paths. `cryptogen` runs on the control node and writes artifacts below `cryptogen_artifacts_dir`.
 
@@ -44,8 +46,4 @@ flowchart TD
   control_node_crypto -.-> fabric_x_committer
 ```
 
-## What Makes This Inventory Different
-
 Fabric CA is omitted entirely. Certificates and keys are generated centrally before Kubernetes-backed component configuration consumes them.
-
-The resulting material enables TLS and mTLS for Fabric-X components, but this is not a production baseline because private keys are generated on the control node.

@@ -7,8 +7,7 @@ Use it when you need to validate Fabric-X plus YugabyteDB on Kubernetes: workloa
 ## Table of Contents <!-- omit in toc -->
 
 - [Network Diagram](#network-diagram)
-- [Inventory Specs](#inventory-specs)
-- [What Makes This Inventory Different](#what-makes-this-inventory-different)
+- [Inventory Details](#inventory-details)
 
 ## Network Diagram
 
@@ -16,7 +15,7 @@ The diagram below summarizes this inventory's Fabric-X services and how they fit
 
 ![Kubernetes Fabric-X YugabyteDB inventory](../../../images/fabric-x-k8s-yugabyte.drawio.png)
 
-## Inventory Specs
+## Inventory Details
 
 Fabric CA, CA databases, orderer, committer, YugabyteDB, load generator, node exporter, Prometheus, and Grafana use Kubernetes task paths. YugabyteDB master and tablet webserver ports are exposed through fixed NodePorts for inspection.
 
@@ -28,6 +27,9 @@ This inventory deploys these logical services as Kubernetes workloads and servic
 - 1 YugabyteDB master and 1 YugabyteDB tablet in cluster `1`.
 - 1 load generator.
 - Monitoring with node exporter, Prometheus, and Grafana.
+
+> [!NOTE]
+> You can scale YugabyteDB for stronger performance by adding more master and tablet hosts. See the [distributed Fabric-X inventory](../distributed/fabric-x.md) for a larger topology with replicated YugabyteDB masters and tablets.
 
 ```mermaid
 flowchart TD
@@ -46,8 +48,6 @@ flowchart TD
   committer_dbs --> yugabyte_master["YugabyteDB master"]
   committer_dbs --> yugabyte_tablet["YugabyteDB tablet"]
 ```
-
-## What Makes This Inventory Different
 
 The validator and query service both use `yugabyte_cluster_ref_id: 1`, which points them at the YugabyteDB hosts under `committer_dbs`.
 

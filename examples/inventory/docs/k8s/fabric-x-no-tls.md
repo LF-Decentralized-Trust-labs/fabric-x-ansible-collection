@@ -4,11 +4,13 @@
 
 Use it for local-cluster debugging when plaintext endpoints are deliberate and the goal is to remove certificate handling from the test.
 
+> [!WARNING]
+> This inventory is meant for debugging only. It disables both TLS encryption and mTLS client authentication.
+
 ## Table of Contents <!-- omit in toc -->
 
 - [Network Diagram](#network-diagram)
-- [Inventory Specs](#inventory-specs)
-- [What Makes This Inventory Different](#what-makes-this-inventory-different)
+- [Inventory Details](#inventory-details)
 
 ## Network Diagram
 
@@ -16,7 +18,7 @@ The diagram below summarizes this inventory's Fabric-X services and how they fit
 
 ![Kubernetes Fabric-X no TLS inventory](../../../images/fabric-x-k8s.drawio.png)
 
-## Inventory Specs
+## Inventory Details
 
 Fabric CA, CA databases, orderer, committer, PostgreSQL, load generator, node exporter, Prometheus, and Grafana use Kubernetes task paths. External access follows the same NodePort pattern as [`fabric-x.yaml`](./fabric-x.md).
 
@@ -45,8 +47,4 @@ flowchart TD
   network --> plaintext["TLS and mTLS disabled"]
 ```
 
-## What Makes This Inventory Different
-
 TLS-related variables are intentionally omitted for the Kubernetes services in this inventory. Service traffic is unencrypted, and mTLS client certificate checks are disabled.
-
-This is for debugging Kubernetes service wiring with certificate handling removed. It should not be used as a production or shared-environment baseline.
