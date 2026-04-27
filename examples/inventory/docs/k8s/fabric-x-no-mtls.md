@@ -4,11 +4,14 @@
 
 Use it when you need encrypted Kubernetes service traffic but want to remove client certificate authentication from Fabric-X service-to-service calls.
 
+!!! warning
+
+    This inventory is meant for debugging only. It disables mTLS client authentication between Fabric-X services.
+
 ## Table of Contents <!-- omit in toc -->
 
 - [Network Diagram](#network-diagram)
-- [Inventory Specs](#inventory-specs)
-- [What Makes This Inventory Different](#what-makes-this-inventory-different)
+- [Inventory Details](#inventory-details)
 
 ## Network Diagram
 
@@ -16,7 +19,7 @@ The diagram below summarizes this inventory's Fabric-X services and how they fit
 
 ![Kubernetes Fabric-X no mTLS inventory](../../../images/fabric-x-k8s.drawio.png)
 
-## Inventory Specs
+## Inventory Details
 
 Fabric CA, CA databases, orderer, committer, PostgreSQL, load generator, node exporter, Prometheus, and Grafana use Kubernetes task paths. External access follows the same NodePort pattern as [`fabric-x.yaml`](./fabric-x.md).
 
@@ -44,8 +47,6 @@ flowchart TD
   fabric_x_committer --> committer_db["committer-db PostgreSQL"]
   fabric_x --> mtls["mTLS disabled"]
 ```
-
-## What Makes This Inventory Different
 
 TLS remains enabled for services that declare TLS variables. The `orderer_use_mtls` and `committer_use_mtls` variables are omitted, so Fabric-X services do not require client certificates from each other.
 

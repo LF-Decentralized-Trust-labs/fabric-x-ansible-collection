@@ -17,6 +17,8 @@ This directory documents the example inventories shipped with the collection. Us
   - [Local](#local)
   - [Kubernetes](#kubernetes)
   - [Distributed](#distributed)
+- [Scaling a Component](#scaling-a-component)
+- [Moving a Service to Another Machine](#moving-a-service-to-another-machine)
 
 ## What an Inventory Defines
 
@@ -125,15 +127,11 @@ The practical test is simple: a reader should be able to pick any host in the in
 
 ## Runtime Modes
 
-Runtime mode is expressed through inventory variables consumed by each role.
+Runtime mode is expressed through inventory variables consumed by each role:
 
-Container inventories start long-running services as containers on the target machine. They require a container engine and need non-conflicting host ports when multiple logical services share the same machine.
-
-Binary inventories install or build the required binaries and run services directly on the target machine, usually through the role's binary task paths. Use this mode when you want to debug processes without container boundaries.
-
-Kubernetes inventories describe workloads, services, persistent storage, and externally reachable NodePorts. The inventory hosts are still Ansible hosts, but they represent Kubernetes resources rather than SSH machines.
-
-Do not mix runtime modes casually inside one service family. Some roles support multiple modes, but support varies by role and component. Before changing a role's deployment mode, read the relevant [role documentation](../../../roles/README.md) and check the variables used by the closest sample.
+- **Container inventories** start long-running services as containers on the target machine. They require a container engine and is the default runtime mode unless otherwise specified;
+- **Binary inventories** build the services as binaries and run them on the target machine. Use this mode when you want to debug processes without container boundaries, but note that such mode is supported only by the Fabric-X services;
+- **Kubernetes inventories** describe workloads, services, persistent storage, and externally reachable NodePorts. The inventory hosts are still Ansible hosts, but they represent Kubernetes resources rather than SSH machines.
 
 ## Security and Crypto
 
@@ -141,9 +139,15 @@ The examples intentionally cover several security postures:
 
 - TLS with mTLS is the default for representative Fabric-X samples. Services encrypt traffic and supported service-to-service calls authenticate clients with certificates.
 - TLS without mTLS keeps transport encryption but disables client certificate authentication where mTLS variables are omitted or disabled. Use it for debugging interoperability or certificate issues.
-- No TLS is only for local debugging. It should not be used as a production starting point.
 - Fabric CA inventories enroll identities through CA services. This is the safest sample pattern because private keys can be generated on the node that owns them.
-- `cryptogen` inventories generate test certificates centrally on the control node. They are convenient for repeatable tests and performance runs, but they are not a production certificate lifecycle.
+
+!!! warning
+
+    No TLS is only for local debugging. It should not be used as a production starting point.
+
+!!! note
+
+    `cryptogen` inventories generate test certificates centrally on the control node. They are convenient for repeatable tests and performance runs, but they are not a production certificate lifecycle.
 
 Security choices affect several roles at once. If you disable TLS or mTLS for Fabric-X components, check the orderer, committer, load generator, monitoring, and database variables together so generated endpoints and certificate references remain consistent.
 
@@ -216,4 +220,41 @@ The distributed inventory is a performance-oriented SSH topology. It uses contai
 | -------------------------------------------------------- | --------------------------------------------------------------------------- |
 | [`distributed/fabric-x.yaml`](./distributed/fabric-x.md) | Multi-machine reference topology for performance evaluation and adaptation. |
 
-This inventory is not ready to run as-is. Replace the `host_machine_*` placeholders in [`distributed/group_vars/all/env.yaml`](../distributed/group_vars/all/env.yaml), confirm SSH access, update `remote_deploy_dir`, and review all port assignments before using it.
+!!! warning
+
+    This inventory is not ready to run as-is. Replace the `host_machine_*` placeholders in [`distributed/group_vars/all/env.yaml`](../distributed/group_vars/all/env.yaml), confirm SSH access, update `remote_deploy_dir`, and review all port assignments before using it.
+
+## Scaling a Component
+
+Components marked as horizontally scalable can be replicated by adding hosts to the relevant group. For example, add a second batcher to `fabric_x_orderer_1`:
+
+```yaml
+fabric_x_orderer_1:
+  hosts:
+    orderer-batcher-1:
+      orderer_shard_id: 1
+      orderer_component_type: batcher
+      orderer_rpc_port: 7053
+    orderer-batcher-2:
+      orderer_shard_id: 2
+      orderer_component_type: batcher
+      orderer_rpc_port: 7063
+```
+
+Each replicated instance needs unique ports on the same target machine. Batcher replicas also need a unique `orderer_shard_id` within their orderer group.
+
+## Moving a Service to Another Machine
+
+Local inventories use `ansible_connection: local`. To run services on remote machines, change the connection model and assign `ansible_host` per service:
+
+```yaml
+fabric_x_orderer_1:
+  hosts:
+    orderer-router-1:
+      # Use ansible_host to define on which machine you want the service to run.
+      ansible_host: mysshmachine1.example.com
+      orderer_component_type: router
+      orderer_rpc_port: 7050
+```
+
+The [distributed sample](./inventory/docs/distributed/fabric-x.md) shows a larger SSH-based layout.

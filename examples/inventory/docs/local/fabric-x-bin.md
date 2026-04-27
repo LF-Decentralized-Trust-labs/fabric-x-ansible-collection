@@ -4,11 +4,23 @@
 
 Use it when you want to test install, start, stop, and log handling for local binaries instead of containers.
 
+!!! note
+
+    This inventory runs these components as binaries managed through `tmux`:
+
+    - Fabric CA servers
+    - Orderer components
+    - Committer components
+    - Load generator
+    - `cryptogen` CLI
+    - Fabric CA client CLI
+
+    PostgreSQL databases still run as containers.
+
 ## Table of Contents <!-- omit in toc -->
 
 - [Network Diagram](#network-diagram)
-- [Inventory Specs](#inventory-specs)
-- [What Makes This Inventory Different](#what-makes-this-inventory-different)
+- [Inventory Details](#inventory-details)
 
 ## Network Diagram
 
@@ -16,7 +28,7 @@ The diagram below summarizes this inventory's Fabric-X services and how they fit
 
 ![local Fabric-X binary inventory](../../../images/fabric-x-bin.drawio.png)
 
-## Inventory Specs
+## Inventory Details
 
 Fabric-X, Fabric CA, and the load generator use binary task paths and are managed through `tmux`. PostgreSQL databases still run through container task paths.
 
@@ -43,8 +55,6 @@ flowchart TD
   fabric_x_committer --> committer_db["PostgreSQL container"]
   network --> tmux["tmux-managed processes"]
 ```
-
-## What Makes This Inventory Different
 
 The variables `orderer_use_bin`, `committer_use_bin`, `fabric_ca_server_use_bin`, and `loadgen_use_bin` select binary task paths. `cryptogen_use_bin` and `fabric_ca_client_use_bin` exercise the local helper binaries too.
 

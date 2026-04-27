@@ -13,15 +13,17 @@ docs_dir: docs/mkdocs
 
 theme:
   name: material
+  favicon: examples/images/lf-dec-trust-icon.png
+  logo: examples/images/lf-dec-trust-icon.png
   palette:
     - scheme: default
-      primary: indigo
+      primary: light blue
       accent: indigo
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - scheme: slate
-      primary: indigo
+      primary: black
       accent: indigo
       toggle:
         icon: material/brightness-4
@@ -55,11 +57,25 @@ markdown_extensions:
 plugins:
   - search
 
+extra:
+  social:
+    - icon: fontawesome/brands/discord
+      link: https://discord.com/channels/905194001349627914/1427642480504999976
+      name: Discord
+    - icon: fontawesome/brands/github
+      link: https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection
+      name: GitHub
+
 nav:
-  - Home: index.md
-  - Examples:
-      - Overview: examples/index.md
-      - Inventory Overview: examples/inventory/docs/index.md
+  - Home:
+      - Overview: index.md
+      - Examples: examples/index.md
+      - Collection:
+          - Inventories: examples/inventory/docs/index.md
+          - Playbooks: playbooks/index.md
+          - Roles: roles/index.md
+  - Inventories:
+      - Overview: examples/inventory/docs/index.md
       - Local:
           - fabric-x: examples/inventory/docs/local/fabric-x.md
           - fabric-x-yugabyte: examples/inventory/docs/local/fabric-x-yugabyte.md

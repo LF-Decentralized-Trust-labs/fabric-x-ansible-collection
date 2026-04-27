@@ -7,8 +7,7 @@ Use it as the baseline when validating Kubernetes workloads, services, storage, 
 ## Table of Contents <!-- omit in toc -->
 
 - [Network Diagram](#network-diagram)
-- [Inventory Specs](#inventory-specs)
-- [What Makes This Inventory Different](#what-makes-this-inventory-different)
+- [Inventory Details](#inventory-details)
 
 ## Network Diagram
 
@@ -16,7 +15,7 @@ The diagram below summarizes this inventory's Fabric-X services and how they fit
 
 ![Kubernetes Fabric-X inventory](../../../images/fabric-x-k8s.drawio.png)
 
-## Inventory Specs
+## Inventory Details
 
 Fabric CA, CA databases, orderer, committer, PostgreSQL, load generator, node exporter, Prometheus, and Grafana use Kubernetes task paths. Ansible still runs from the control node, but inventory hosts represent Kubernetes resources rather than SSH machines.
 
@@ -43,8 +42,6 @@ flowchart TD
   fabric_x_committer --> committer_services["validator, verifier, coordinator, sidecar, query service"]
   fabric_x_committer --> committer_db["committer-db PostgreSQL"]
 ```
-
-## What Makes This Inventory Different
 
 This is the Kubernetes equivalent of the default local inventory. External-facing services use fixed NodePort values, while internal services stay behind ClusterIP services.
 

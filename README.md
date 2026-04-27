@@ -10,7 +10,7 @@ This repository contains the `hyperledger.fabricx` Ansible collection, which can
 
 - [Installation](#installation)
   - [Option 1: Install from Ansible Galaxy](#option-1-install-from-ansible-galaxy)
-  - [Option 2: Install cloning the repository under `ANSIBLE_COLLECTIONS_PATHS` (for development)](#option-2-install-cloning-the-repository-under-ansible_collections_paths-for-development)
+  - [Option 2: Clone under `ANSIBLE_COLLECTIONS_PATHS` (for development)](#option-2-clone-under-ansible_collections_paths-for-development)
   - [Option 3: Install from source](#option-3-install-from-source)
 - [Usage](#usage)
 - [Prerequisites](#prerequisites)
@@ -46,7 +46,7 @@ Then install the collection's dependencies:
 ansible-galaxy collection install -r ~/.ansible/collections/ansible_collections/hyperledger/fabricx/requirements.yml
 ```
 
-### Option 2: Install cloning the repository under `ANSIBLE_COLLECTIONS_PATHS` (for development)
+### Option 2: Clone under `ANSIBLE_COLLECTIONS_PATHS` (for development)
 
 To install the `hyperledger.fabricx` collection on your control node, run:
 
@@ -56,9 +56,13 @@ cd ~/.ansible/collections/ansible_collections/hyperledger/fabricx
 make install-deps
 ```
 
-**NOTE**: This is the recommended way if you plan to develop and change the scripts, since it allows to test directly the modified scripts avoiding to reinstall the collection at every change.
+!!! note
 
-**WARNING**: Do not run `make install` with this setup — the collection is already live from the cloned directory. Running it would overwrite your checkout with a built artifact. Use `make install-deps` to install dependencies only. The Makefile will also guard against this and abort if it detects the risk.
+    This is the recommended way if you plan to develop and change the scripts, since it allows to test directly the modified scripts avoiding to reinstall the collection at every change.
+
+!!! warning
+
+    Do not run `make install` with this setup — the collection is already live from the cloned directory. Running it would overwrite your checkout with a built artifact. Use `make install-deps` to install dependencies only. The Makefile will also guard against this and abort if it detects the risk.
 
 ### Option 3: Install from source
 
@@ -101,9 +105,10 @@ For more information, see the [roles](./roles/README.md), [playbooks](./playbook
 
 To run such Ansible collection, you need to have the following prerequisites installed on your control node:
 
-- `python` >= 3.11.
-- a recent Docker or Podman release when running container inventories. Docker 20.x or newer is the baseline used by the upstream Fabric-X documentation.
-- `kubectl` configured for the target cluster when running Kubernetes inventories.
+- `python` >= 3.11;
+- `docker` or `podman`;
+- `go` >= 2.16 (only needed if you run binary-based inventories);
+- `kubectl` (needed to run [k8s inventories](./examples/inventory/docs/README.md#kubernetes)).
 
 After having cloned this repository, run:
 
@@ -119,7 +124,9 @@ The collection comes with a playbook that can be used to automatically setup all
 make install-remote-node-deps
 ```
 
-**IMPORTANT**: the playbook installs the needed packages and requires `sudo` permission. Make sure to use a passwordless `sudo` user so the playbook can complete.
+!!! warning "Important"
+
+    The playbook installs the needed packages and requires `sudo` permission. Make sure to use a passwordless `sudo` user so the playbook can complete.
 
 ## Run a sample Fabric-X network
 
@@ -205,7 +212,8 @@ This command runs post-start initialization, such as creating the namespaces ind
 You can access [Grafana dashboards](http://localhost:3000/dashboards) (user=_admin_, password=_adminPWD_) to see how the Fabric-X network is handling the transactions processing.
 
 !!! note
-These Grafana credentials are sample defaults. Change them before using an adapted inventory in a shared environment.
+
+    These Grafana credentials are sample defaults. Change them before using an adapted inventory in a shared environment.
 
 ### 5. Teardown the network
 

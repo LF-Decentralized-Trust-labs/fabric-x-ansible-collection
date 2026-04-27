@@ -7,8 +7,7 @@ This inventory is not ready to run as-is. Replace the `host_machine_*` placehold
 ## Table of Contents <!-- omit in toc -->
 
 - [Network Diagram](#network-diagram)
-- [Inventory Specs](#inventory-specs)
-- [What Makes This Inventory Different](#what-makes-this-inventory-different)
+- [Inventory Details](#inventory-details)
 
 ## Network Diagram
 
@@ -16,7 +15,7 @@ The diagram below summarizes this inventory's Fabric-X services and how they fit
 
 ![distributed Fabric-X inventory](../../../images/fabric-x-distributed.drawio.png)
 
-## Inventory Specs
+## Inventory Details
 
 Ansible reaches the target machines over SSH. The Fabric-X services, YugabyteDB, load generators, and monitoring components run as containers on remote hosts.
 
@@ -53,8 +52,6 @@ flowchart TD
   machines -.-> monitoring
   control_node_crypto -.-> fabric_x
 ```
-
-## What Makes This Inventory Different
 
 This is a performance-oriented reference topology, not a small development sample. It scales validators, verifiers, batchers, load generators, and YugabyteDB tablets across 16 remote machine placeholders.
 

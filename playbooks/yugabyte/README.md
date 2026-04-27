@@ -18,9 +18,20 @@ flowchart LR
 
 [`generate_crypto.yaml`](./generate_crypto.yaml) handles the standalone OpenSSL-based TLS path for YugabyteDB clusters. It creates a self-signed cluster CA on the control node, generates node CSRs on YugabyteDB hosts, fetches those CSRs for signing, writes node certificates, and transfers the signed TLS material back to the matching YugabyteDB nodes.
 
-```shell
-ansible-playbook hyperledger.fabricx.yugabyte.generate_crypto --extra-vars '{"target_hosts": "fabric_x_committer"}'
-```
+=== "Command line"
+
+    ```shell
+    ansible-playbook hyperledger.fabricx.yugabyte.generate_crypto --extra-vars '{"target_hosts": "fabric_x_committer"}'
+    ```
+
+=== "From a playbook"
+
+    ```yaml
+    - name: Run yugabyte generate-crypto playbook
+      vars:
+        target_hosts: fabric_x_committer
+      ansible.builtin.import_playbook: hyperledger.fabricx.yugabyte.generate_crypto
+    ```
 
 Properties:
 

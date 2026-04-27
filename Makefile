@@ -159,7 +159,7 @@ check-docs: generate-roles-docs
 
 # Generate the MkDocs source tree from the repository READMEs.
 .PHONY: mkdocs-generate
-mkdocs-generate: generate-roles-docs
+mkdocs-generate:
 	@printf "$(COLOR_CYAN)🚩 Generating MkDocs source tree...$(COLOR_RESET)\n"
 	$(ANSIBLE_PYTHON_INTERPRETER) $(PROJECT_DIR)/scripts/build_mkdocs_source.py
 

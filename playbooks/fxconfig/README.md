@@ -23,9 +23,18 @@ flowchart LR
 
 [`binaries.yaml`](./binaries.yaml) prepares the `fxconfig` CLI used for configuration transactions. It handles control-node install/build decisions first, then ensures remote hosts that declare `fxconfig_use_bin: true` have the binary available by transfer, local build, or install.
 
-```shell
-ansible-playbook hyperledger.fabricx.fxconfig.binaries
-```
+=== "Command line"
+
+    ```shell
+    ansible-playbook hyperledger.fabricx.fxconfig.binaries
+    ```
+
+=== "From a playbook"
+
+    ```yaml
+    - name: Run fxconfig binaries playbook
+      ansible.builtin.import_playbook: hyperledger.fabricx.fxconfig.binaries
+    ```
 
 Properties:
 
@@ -37,9 +46,18 @@ Properties:
 
 [`configs.yaml`](./configs.yaml) renders and transfers `fxconfig` configuration for hosts that declare namespace and user data. It selects the endorser identity, discovers the orderer router, committer query service, and committer sidecar endpoints, and writes the local configuration that later namespace operations use.
 
-```shell
-ansible-playbook hyperledger.fabricx.fxconfig.configs
-```
+=== "Command line"
+
+    ```shell
+    ansible-playbook hyperledger.fabricx.fxconfig.configs
+    ```
+
+=== "From a playbook"
+
+    ```yaml
+    - name: Run fxconfig configs playbook
+      ansible.builtin.import_playbook: hyperledger.fabricx.fxconfig.configs
+    ```
 
 Properties:
 
@@ -50,22 +68,43 @@ Properties:
 
 [`create_namespaces.yaml`](./create_namespaces.yaml) performs the full namespace transaction workflow. It groups namespace definitions from the inventory, creates unsigned namespace transactions on the control node, asks the relevant organizations to endorse them, merges the endorsements, and submits the finalized transactions to the running Fabric-X network.
 
-```shell
-ansible-playbook hyperledger.fabricx.fxconfig.create_namespaces
-```
+=== "Command line"
+
+    ```shell
+    ansible-playbook hyperledger.fabricx.fxconfig.create_namespaces
+    ```
+
+=== "From a playbook"
+
+    ```yaml
+    - name: Run fxconfig create-namespaces playbook
+      ansible.builtin.import_playbook: hyperledger.fabricx.fxconfig.create_namespaces
+    ```
 
 Properties:
 
 - Target hosts: `all` by default, with transaction construction and submission coordinated by the `fxconfig` role.
-- Nuance: run this after the network is started and the required committer endpoints are reachable. Running it too early fails by design because namespace transactions must be endorsed and submitted through live Fabric-X endpoints.
+
+!!! warning
+
+    Run this after the network is started and the required committer endpoints are reachable. Running it too early fails by design because namespace transactions must be endorsed and submitted through live Fabric-X endpoints.
 
 ## wipe.yaml
 
 [`wipe.yaml`](./wipe.yaml) removes generated `fxconfig` files from targeted hosts so namespace/configuration artifacts can be rebuilt cleanly during another setup or debug cycle.
 
-```shell
-ansible-playbook hyperledger.fabricx.fxconfig.wipe
-```
+=== "Command line"
+
+    ```shell
+    ansible-playbook hyperledger.fabricx.fxconfig.wipe
+    ```
+
+=== "From a playbook"
+
+    ```yaml
+    - name: Run fxconfig wipe playbook
+      ansible.builtin.import_playbook: hyperledger.fabricx.fxconfig.wipe
+    ```
 
 Properties:
 

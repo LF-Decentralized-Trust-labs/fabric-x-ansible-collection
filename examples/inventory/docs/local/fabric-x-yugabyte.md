@@ -7,8 +7,7 @@ Use it when you want to test the committer against YugabyteDB while keeping Fabr
 ## Table of Contents <!-- omit in toc -->
 
 - [Network Diagram](#network-diagram)
-- [Inventory Specs](#inventory-specs)
-- [What Makes This Inventory Different](#what-makes-this-inventory-different)
+- [Inventory Details](#inventory-details)
 
 ## Network Diagram
 
@@ -16,7 +15,7 @@ The diagram below summarizes this inventory's Fabric-X services and how they fit
 
 ![local Fabric-X YugabyteDB inventory](../../../images/fabric-x-yugabyte.drawio.png)
 
-## Inventory Specs
+## Inventory Details
 
 All long-running services run as local containers. The Fabric CA databases still use PostgreSQL containers, while the committer database is a compact YugabyteDB deployment.
 
@@ -28,6 +27,10 @@ This inventory deploys these logical services on the local machine:
 - 1 YugabyteDB master and 1 YugabyteDB tablet in cluster `1`.
 - 1 load generator.
 - Monitoring with node exporter, Prometheus, and Grafana.
+
+!!! note
+
+    You can scale YugabyteDB for stronger performance by adding more master and tablet hosts. See the [distributed Fabric-X inventory](../distributed/fabric-x.md) for a larger topology with replicated YugabyteDB masters and tablets.
 
 ```mermaid
 flowchart TD
@@ -46,8 +49,6 @@ flowchart TD
   committer_dbs --> yugabyte_master["YugabyteDB master"]
   committer_dbs --> yugabyte_tablet["YugabyteDB tablet"]
 ```
-
-## What Makes This Inventory Different
 
 The validator and query service both reference `yugabyte_cluster_ref_id: 1`, which points them at the YugabyteDB hosts under `committer_dbs`.
 
