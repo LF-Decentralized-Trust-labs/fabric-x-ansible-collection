@@ -1,0 +1,116 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+site_name: Hyperledger Fabric-X Ansible Collection
+site_description: Ansible collection for deploying and managing Hyperledger Fabric-X networks
+site_url: https://lf-decentralized-trust-labs.github.io/fabric-x-ansible-collection/
+repo_url: https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection
+repo_name: LF-Decentralized-Trust-labs/fabric-x-ansible-collection
+docs_dir: docs/mkdocs
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - admonition
+  - pymdownx.details
+  - toc:
+      permalink: true
+  - attr_list
+  - md_in_html
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - Examples:
+      - Overview: examples/index.md
+      - Inventory Overview: examples/inventory/docs/index.md
+      - Local:
+          - fabric-x: examples/inventory/docs/local/fabric-x.md
+          - fabric-x-yugabyte: examples/inventory/docs/local/fabric-x-yugabyte.md
+          - fabric-x-bin: examples/inventory/docs/local/fabric-x-bin.md
+          - fabric-x-cryptogen: examples/inventory/docs/local/fabric-x-cryptogen.md
+          - fabric-x-no-mtls: examples/inventory/docs/local/fabric-x-no-mtls.md
+          - fabric-x-no-tls: examples/inventory/docs/local/fabric-x-no-tls.md
+      - Kubernetes:
+          - fabric-x: examples/inventory/docs/k8s/fabric-x.md
+          - fabric-x-yugabyte: examples/inventory/docs/k8s/fabric-x-yugabyte.md
+          - fabric-x-cryptogen: examples/inventory/docs/k8s/fabric-x-cryptogen.md
+          - fabric-x-no-mtls: examples/inventory/docs/k8s/fabric-x-no-mtls.md
+          - fabric-x-no-tls: examples/inventory/docs/k8s/fabric-x-no-tls.md
+      - Distributed:
+          - fabric-x: examples/inventory/docs/distributed/fabric-x.md
+  - Playbooks:
+      - Overview: playbooks/index.md
+      - artifacts: playbooks/artifacts/index.md
+      - committer: playbooks/committer/index.md
+      - fabric_ca_client: playbooks/fabric_ca_client/index.md
+      - fabric_ca_server: playbooks/fabric_ca_server/index.md
+      - fxconfig: playbooks/fxconfig/index.md
+      - loadgen: playbooks/loadgen/index.md
+      - monitoring: playbooks/monitoring/index.md
+      - orderer: playbooks/orderer/index.md
+      - yugabyte: playbooks/yugabyte/index.md
+  - Roles:
+      - Overview: roles/index.md
+      - armageddon: roles/armageddon/index.md
+      - bin: roles/bin/index.md
+      - committer: roles/committer/index.md
+      - configtxgen: roles/configtxgen/index.md
+      - container: roles/container/index.md
+      - cryptogen: roles/cryptogen/index.md
+      - elasticsearch: roles/elasticsearch/index.md
+      - fabric_ca: roles/fabric_ca/index.md
+      - fxconfig: roles/fxconfig/index.md
+      - git: roles/git/index.md
+      - go: roles/go/index.md
+      - grafana: roles/grafana/index.md
+      - idemixgen: roles/idemixgen/index.md
+      - jaeger: roles/jaeger/index.md
+      - k8s: roles/k8s/index.md
+      - loadgen: roles/loadgen/index.md
+      - node_exporter: roles/node_exporter/index.md
+      - openssl: roles/openssl/index.md
+      - orderer: roles/orderer/index.md
+      - package: roles/package/index.md
+      - postgres: roles/postgres/index.md
+      - postgres_exporter: roles/postgres_exporter/index.md
+      - prometheus: roles/prometheus/index.md
+      - tmux: roles/tmux/index.md
+      - utils: roles/utils/index.md
+      - yugabyte: roles/yugabyte/index.md

@@ -8,9 +8,12 @@ target_hosts.mk
 .worktrees/
 graphify-out/
 plans/
+docs/mkdocs/
+site/
 
 # python
 .venv/
+__pycache__/
 
 # ansible
 .ansible/

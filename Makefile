@@ -44,6 +44,7 @@ ANSIBLE_PYTHON_INTERPRETER ?= python3
 endif
 
 AAR_DOC ?= $(ANSIBLE_PYTHON_INTERPRETER) $(PROJECT_DIR)/scripts/aar-doc.py
+MKDOCS ?= $(ANSIBLE_PYTHON_INTERPRETER) -m mkdocs
 
 # Color codes for echo messages
 COLOR_CYAN := \033[0;36m
@@ -141,8 +142,8 @@ lint:
 	$(ANSIBLE_LINT) --offline roles playbooks examples
 
 # Generate role READMEs and defaults from argument_specs.yaml
-.PHONY: generate-docs
-generate-docs:
+.PHONY: generate-roles-docs
+generate-roles-docs:
 	@printf "$(COLOR_CYAN)🚩 Generating role docs from argument_specs.yaml...$(COLOR_RESET)\n"
 	@for role in roles/*/; do \
 	    printf "  → $$role\n"; \
@@ -152,9 +153,27 @@ generate-docs:
 
 # Check that generated docs are in sync with argument_specs.yaml
 .PHONY: check-docs
-check-docs: generate-docs
+check-docs: generate-roles-docs
 	@git diff --exit-code roles/*/defaults/main.yaml roles/*/README.md \
-	    || (printf "$(COLOR_RESET)ERROR: Generated docs are out of date. Run 'make generate-docs' and commit the changes.\n" && exit 1)
+	    || (printf "$(COLOR_RESET)ERROR: Generated docs are out of date. Run 'make generate-roles-docs' and commit the changes.\n" && exit 1)
+
+# Generate the MkDocs source tree from the repository READMEs.
+.PHONY: mkdocs-generate
+mkdocs-generate: generate-roles-docs
+	@printf "$(COLOR_CYAN)🚩 Generating MkDocs source tree...$(COLOR_RESET)\n"
+	$(ANSIBLE_PYTHON_INTERPRETER) $(PROJECT_DIR)/scripts/build_mkdocs_source.py
+
+# Serve the documentation site locally.
+.PHONY: mkdocs-serve
+mkdocs-serve: mkdocs-generate
+	@printf "$(COLOR_CYAN)🚩 Serving MkDocs site...$(COLOR_RESET)\n"
+	$(MKDOCS) serve
+
+# Build the static documentation site.
+.PHONY: mkdocs-build
+mkdocs-build: mkdocs-generate
+	@printf "$(COLOR_CYAN)🚩 Building MkDocs site...$(COLOR_RESET)\n"
+	$(MKDOCS) build --strict
 
 # Check the license header
 .PHONY: check-license-header
