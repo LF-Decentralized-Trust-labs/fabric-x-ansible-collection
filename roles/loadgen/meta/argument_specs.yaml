@@ -199,6 +199,7 @@ argument_specs:
       loadgen_generate_config_block: &loadgen_generate_config_block
         type: bool
         required: false
+        default: false
         description:
           - Render the config transaction block section.
           - "Example: C(false)."

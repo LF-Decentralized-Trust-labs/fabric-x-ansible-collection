@@ -60,6 +60,9 @@ loadgen_monitoring_use_mtls: '{{ loadgen_use_mtls }}'
 loadgen_monitoring_http_protocol: "{{ 'https' if loadgen_monitoring_use_tls else 'http' }}"
 # Assert the latency metric when fetching metrics.
 loadgen_assert_metrics: false
+# Render the config transaction block section.
+# Example: C(false).
+loadgen_generate_config_block: false
 # Crypto identity name used for MSP and TLS file names.
 loadgen_crypto_name: '{{ organization.peer.name | default(inventory_hostname) }}'
 # Log level specification.
