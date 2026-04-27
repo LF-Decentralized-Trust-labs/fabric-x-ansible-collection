@@ -4,54 +4,84 @@
 
 ## Table of Contents <!-- omit in toc -->
 
-- [Prerequisites](#prerequisites)
+- [Role Defaults](#role-defaults)
+- [ansible-doc](#ansible-doc)
 - [Tasks](#tasks)
-  - [Lifecycle](#lifecycle)
-    - [install](#install)
-    - [clone](#clone)
-- [Variables](#variables)
+  - [install](#install)
+  - [clone](#clone)
+  - [get\_repo\_name](#get_repo_name)
 
-## Prerequisites
+## Role Defaults
 
-- `git` installed on the targeted node
+See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults and inline variable descriptions.
+
+## ansible-doc
+
+You can view the role documentation in your terminal running:
+
+```shell
+ansible-doc -t role hyperledger.fabricx.git
+```
 
 ## Tasks
 
-### Lifecycle
+### install
 
-| Task                            | Description             |
-| ------------------------------- | ----------------------- |
-| [install](./tasks/install.yaml) | Installs git            |
-| [clone](./tasks/clone.yaml)     | Clones a Git repository |
+> Install git on the target host
 
-#### install
-
-Installs `git` on the targeted node:
+Installs the Git package on the managed node. This entry point delegates package installation to the shared package role.
 
 ```yaml
-- name: Install git
+- name: Install git on the target host
   ansible.builtin.include_role:
     name: hyperledger.fabricx.git
     tasks_from: install
 ```
 
-#### clone
+### clone
 
-Clones a Git repository at a given commit into a specified location:
+> Clone or update a Git repository into a target directory
+
+Clones a Git repository at the requested revision into a derived destination directory. Repeated runs update the existing checkout in place through `ansible.builtin.git`.
 
 ```yaml
-- name: Clone the Fabric-X Orderer repository
+- name: Clone or update a Git repository into a target directory
   vars:
-    git_uri: https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection.git
-    git_dir: .ansible/collections/ansible_collections/hyperledger/fabricx
-    git_commit: latest
+    # Repository path component used to derive the checkout directory name and default repository URIs. The checkout name is computed from the basename of this value. Example: `LF-Decentralized-Trust-labs/fabric-x-ansible-collection`.
+    git_repo: "LF-Decentralized-Trust-labs/fabric-x-ansible-collection"
+    # Parent directory that will contain the checkout created by `clone`. The final destination is derived as `<git_dir>/<repo-basename>@<git_commit>`. Example: `/opt/fabricx/source`.
+    git_dir: "/opt/fabricx/source"
+    # Git branch, tag, or commit to check out. The value is appended to the derived checkout directory name and passed to `ansible.builtin.git` as the revision.
+    git_commit: main
+    # Hostname inserted into the default HTTPS and SSH repository URI templates.
+    git_hub_url: github.com
+    # Selects the SSH-derived default repository URI when true; otherwise HTTPS is used.
+    git_use_ssh: false
+    # Default HTTPS repository URI built from `git_hub_url` and `git_repo`.
+    git_https_uri: "https://{{ git_hub_url }}/{{ git_repo }}.git"
+    # Default SSH repository URI built from `git_hub_url` and `git_repo`.
+    git_ssh_uri: "git@{{ git_hub_url }}:{{ git_repo }}.git"
+    # Effective repository URI passed to `ansible.builtin.git`. Defaults to `git_ssh_uri` when `git_use_ssh` is true, otherwise `git_https_uri`.
+    git_uri: "{{ git_ssh_uri if git_use_ssh else git_https_uri }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.git
     tasks_from: clone
 ```
 
----
+### get_repo_name
 
-## Variables
+> Compute the repository checkout directory name
 
-See [`defaults/main.yaml`](defaults/main.yaml) for full variable documentation.
+Derives `git_repo_name` as `<basename(git_repo`>@<git_commit>). The resulting fact is used by `clone` before creating the checkout directory.
+
+```yaml
+- name: Compute the repository checkout directory name
+  vars:
+    # Repository path component used to derive the checkout directory name and default repository URIs. The checkout name is computed from the basename of this value. Example: `LF-Decentralized-Trust-labs/fabric-x-ansible-collection`.
+    git_repo: "LF-Decentralized-Trust-labs/fabric-x-ansible-collection"
+    # Git branch, tag, or commit to check out. The value is appended to the derived checkout directory name and passed to `ansible.builtin.git` as the revision.
+    git_commit: main
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.git
+    tasks_from: get_repo_name
+```

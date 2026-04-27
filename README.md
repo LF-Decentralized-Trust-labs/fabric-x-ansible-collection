@@ -1,29 +1,33 @@
 # Hyperledger Fabric-X Ansible Collection
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE) ![Tests](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/test.yaml/badge.svg) ![Lint](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/lint.yaml/badge.svg) ![Publish](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/publish.yaml/badge.svg)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE) [![Docs](https://img.shields.io/badge/docs-online-brightgreen.svg)](https://lf-decentralized-trust-labs.github.io/fabric-x-ansible-collection/) ![Tests](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/test.yaml/badge.svg) ![Lint](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/lint.yaml/badge.svg) ![Publish](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/publish.yaml/badge.svg)
 
-Hyperledger Fabric-X is an open source project that builds on top of Hyperledger Fabric and tailored specifically for digital assets use-cases. Fabric-X builds on the core principles of Hyperledger Fabric (_sovereign_, _horizontally scalable smart contract execution_ and a _modular_, _agile_ architecture) making it well-suited to meet the governance and compliance needs of regulated digital assets.
+Hyperledger Fabric-X is an open source project that builds on top of Hyperledger Fabric and is tailored specifically for digital asset use cases. Fabric-X builds on the core principles of Hyperledger Fabric (_sovereign_, _horizontally scalable smart contract execution_ and a _modular_, _agile_ architecture), making it well-suited to meet the governance and compliance needs of regulated digital assets.
 
-This repository contains the `hyperledger.fabricx` Ansible collection, which can be used to deploy an Hyperledger Fabric-X network and distribute the components over multiple nodes.
+This repository contains the `hyperledger.fabricx` Ansible collection, which can be used to deploy a Hyperledger Fabric-X network locally, on Kubernetes, or across multiple nodes.
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Installation](#installation)
   - [Option 1: Install from Ansible Galaxy](#option-1-install-from-ansible-galaxy)
-  - [Option 2: Install cloning the repository under `ANSIBLE_COLLECTIONS_PATHS` (for development)](#option-2-install-cloning-the-repository-under-ansible_collections_paths-for-development)
+  - [Option 2: Clone under `ANSIBLE_COLLECTIONS_PATHS` (for development)](#option-2-clone-under-ansible_collections_paths-for-development)
   - [Option 3: Install from source](#option-3-install-from-source)
 - [Usage](#usage)
 - [Prerequisites](#prerequisites)
   - [Setup the control node](#setup-the-control-node)
   - [Setup the remote nodes](#setup-the-remote-nodes)
 - [Run a sample Fabric-X network](#run-a-sample-fabric-x-network)
-  - [1. Generate the artifacts](#1-generate-the-artifacts)
+  - [Choose another sample inventory](#choose-another-sample-inventory)
+  - [Run with Podman/Docker on macOS](#run-with-podmandocker-on-macos)
+  - [1. Setup the network](#1-setup-the-network)
   - [2. Start the network](#2-start-the-network)
-  - [3. Teardown the network](#3-teardown-the-network)
-  - [Run with Podman/Docker on MacOS](#run-with-podmandocker-on-macos)
+  - [3. Initialize the network](#3-initialize-the-network)
+  - [4. Observe the network](#4-observe-the-network)
+  - [5. Teardown the network](#5-teardown-the-network)
 - [Supported commands](#supported-commands)
   - [Restrict commands to a group of hosts](#restrict-commands-to-a-group-of-hosts)
 - [Contributing](#contributing)
+  - [Updating role documentation](#updating-role-documentation)
 - [License](#license)
 
 ## Installation
@@ -42,9 +46,12 @@ Then install the collection's dependencies:
 ansible-galaxy collection install -r ~/.ansible/collections/ansible_collections/hyperledger/fabricx/requirements.yml
 ```
 
-### Option 2: Install cloning the repository under `ANSIBLE_COLLECTIONS_PATHS` (for development)
+### Option 2: Clone under `ANSIBLE_COLLECTIONS_PATHS` (for development)
 
 To install the `hyperledger.fabricx` collection on your control node, run:
+
+> [!NOTE]
+> This is the recommended way if you plan to develop and change the scripts, since it allows to test directly the modified scripts avoiding to reinstall the collection at every change.
 
 ```shell
 git clone https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection.git ~/.ansible/collections/ansible_collections/hyperledger/fabricx
@@ -52,9 +59,8 @@ cd ~/.ansible/collections/ansible_collections/hyperledger/fabricx
 make install-deps
 ```
 
-**NOTE**: This is the recommended way if you plan to develop and change the scripts, since it allows to test directly the modified scripts avoiding to reinstall the collection at every change.
-
-**WARNING**: Do not run `make install` with this setup — the collection is already live from the cloned directory. Running it would overwrite your checkout with a built artifact. Use `make install-deps` to install dependencies only. The Makefile will also guard against this and abort if it detects the risk.
+> [!WARNING]
+> Do not run `make install` with this setup — the collection is already live from the cloned directory. Running it would overwrite your checkout with a built artifact. Use `make install-deps` to install dependencies only. The Makefile will also guard against this and abort if it detects the risk.
 
 ### Option 3: Install from source
 
@@ -68,9 +74,17 @@ make install
 
 ## Usage
 
-The collection provides a set of Ansible roles that can be used to deploy an Hyperledger Fabric-X network in a distributed manner. Each role is devoted to a specific component.
+The collection provides a set of Ansible roles that can be used to deploy a Hyperledger Fabric-X network in a distributed manner. Each role is devoted to a specific component.
 
-Each role comes with tasks and each task performs a specific operation, like starting or stopping a component. The collection comes with a set of predefined playbooks that show how to use such roles. If you adapt your inventory to work with these playbooks, you can even directly use them without having to write your own playbooks.
+Each role comes with tasks and each task performs a specific operation, such as starting, stopping, configuring, or wiping a component. The collection also includes predefined playbooks that compose these roles into common lifecycle operations. If your inventory follows the expected group names, you can use those playbooks directly instead of writing your own orchestration layer.
+
+The collection is organized around three concepts:
+
+| Concept     | Description                                                                                                                     |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Roles       | Low-level component automation. Use these when you need custom orchestration.                                                   |
+| Playbooks   | Reusable lifecycle workflows that call the roles in the expected order.                                                         |
+| Inventories | The deployment model: which components exist, where they run, which ports they use, and which security/runtime mode is enabled. |
 
 For example, the playbook [playbooks/orderer/start.yaml](./playbooks/orderer/start.yaml) shows how to use the `hyperledger.fabricx.orderer` role to start a Fabric-X Orderer node:
 
@@ -81,7 +95,7 @@ For example, the playbook [playbooks/orderer/start.yaml](./playbooks/orderer/sta
     tasks_from: start
 ```
 
-For more information, please look at the [Roles](./roles/README.md) documentation.
+For more information, see the [roles](./roles/README.md), [playbooks](./playbooks/README.md), and [example inventories](./examples/README.md) documentation.
 
 ## Prerequisites
 
@@ -89,9 +103,10 @@ For more information, please look at the [Roles](./roles/README.md) documentatio
 
 To run such Ansible collection, you need to have the following prerequisites installed on your control node:
 
-- `python`;
-- [`podman`](https://podman.io/docs/installation) or [`docker`](https://docs.docker.com/engine/install/);
-- [`go`](https://go.dev/doc/install).
+- `python` >= 3.11;
+- `docker` or `podman`;
+- `go` >= 2.16 (only needed if you run binary-based inventories);
+- `kubectl` (needed to run [k8s inventories](./examples/inventory/README.md#kubernetes)).
 
 After having cloned this repository, run:
 
@@ -107,28 +122,65 @@ The collection comes with a playbook that can be used to automatically setup all
 make install-remote-node-deps
 ```
 
-**IMPORTANT**: the playbook install all the needed packages requiring the `sudo` permission. Make sure to have a passwordless `sudo` user in order to let the playbook succeed.
+> [!WARNING]
+> The playbook installs the needed packages and requires `sudo` permission. Make sure to use a passwordless `sudo` user so the playbook can complete.
 
 ## Run a sample Fabric-X network
 
-This repository comes with some Ansible inventories and playbooks examples that could be used to start a sample Fabric-X network on your local machine. Please look at the [examples README](./examples/README.md) to understand better which network you can run with each inventory and how to enhance them for your use case.
+This repository comes with Ansible inventories and example playbooks that can start sample Fabric-X networks on your local machine, in Kubernetes, or across multiple machines. See the [examples README](./examples/README.md) for the available inventory families.
 
-By default, the [fabric-x.yaml](./examples/inventory/fabric-x.yaml) inventory is used:
+By default, the [`local/fabric-x.yaml`](./examples/inventory/docs/local/fabric-x.md) inventory is used:
 
 ![fabric-x-inventory](./examples/images/fabric-x.drawio.png)
 
-To run it on your local machine, follow the steps hereafter indicated.
+This diagram shows the default local sample topology: Fabric CA services issue identities, four orderer groups produce ordered blocks, a PostgreSQL-backed committer validates and stores state, and monitoring collects metrics.
 
-### 1. Generate the artifacts
+To run it on your local machine, follow these steps.
 
-The first step consists in generating the artifacts needed by the nodes to run, which means:
+The sample lifecycle is:
 
-- generate the crypto material through the `cryptogen` CLI;
-- generate the genesis block through `armageddon` and `configtxgen` CLIs;
-- build/install the Fabric-X component binaries on the control node or directly on remote nodes, depending on the `bin_build_on_control_node` variable (see more the [Roles](./roles/README.md) documentation);
-- distribute the above-mentioned artifacts on the remote nodes.
+```mermaid
+flowchart LR
+  setup[make setup] --> start[make start]
+  start --> init[make init]
+```
 
-To achieve this, run:
+### Choose another sample inventory
+
+The current sample inventory families are:
+
+| Family      | Documentation                                                           | Notes                                                                            |
+| ----------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Local       | [Local inventories](./examples/README.md#local-inventories)             | Single-machine deployment, useful for trying and testing on your local machine   |
+| Distributed | [Distributed inventories](./examples/README.md#distributed-inventories) | Multi-machine deployment to scale the network and test high-throughput use-cases |
+| Kubernetes  | [Kubernetes inventories](./examples/README.md#kubernetes-inventories)   | Kubernetes deployments                                                           |
+
+Set `ANSIBLE_INVENTORY` to use another inventory without editing [`examples/ansible.cfg`](./examples/ansible.cfg):
+
+```shell
+export ANSIBLE_INVENTORY=examples/inventory/k8s/fabric-x.yaml
+```
+
+### Run with Podman/Docker on macOS
+
+If you run a local container inventory on macOS, you can run into connectivity issues between host processes and containers. Docker and Podman run Linux containers in a VM, so `localhost` inside a container is not the same endpoint as `localhost` on macOS.
+
+Set `LOCAL_ANSIBLE_HOST` so generated configuration points at an address containers can resolve:
+
+```yaml
+# add this to .bashrc or any other file sourced by your shell
+export LOCAL_ANSIBLE_HOST="host.docker.internal"
+```
+
+If binaries also need to resolve the same name from the macOS host, add it to `/etc/hosts`:
+
+```ini
+echo "127.0.0.1 host.docker.internal" | sudo tee -a /etc/hosts
+```
+
+### 1. Setup the network
+
+The first step consists in generating the artifacts needed by the nodes to run:
 
 ```shell
 make setup
@@ -136,17 +188,30 @@ make setup
 
 ### 2. Start the network
 
-Once the artifacts have been correctly generated and distributed, you can run them with:
+Once the artifacts have been correctly generated and distributed, you can start the nodes with the command:
 
 ```shell
 make start
 ```
 
-This command bootstraps all the components that have been indicated within the reference inventory. Once the command completes, a Fabric-X network should be running on your machine with a load of 1000 TPS (which can be incremented or decremented, see [Supported Commands](#supported-commands)).
+### 3. Initialize the network
+
+After the components are up, run:
+
+```shell
+make init
+```
+
+This command runs post-start initialization, such as creating the namespaces indicated in the inventory using `fxconfig`.
+
+### 4. Observe the network
 
 You can access [Grafana dashboards](http://localhost:3000/dashboards) (user=_admin_, password=_adminPWD_) to see how the Fabric-X network is handling the transactions processing.
 
-### 3. Teardown the network
+> [!NOTE]
+> These Grafana credentials are sample defaults. Change them before using an adapted inventory in a shared environment.
+
+### 5. Teardown the network
 
 To shut the network down, run:
 
@@ -156,23 +221,6 @@ make teardown
 
 The command proceeds by stopping all the running instances and also cleaning any artifact that has been generated on disk by such instances.
 
-### Run with Podman/Docker on MacOS
-
-If you run the sample inventory on macOS, you can run in connectivity issues between containers. Indeed, on `macOS` Docker runs using a Linux VM, which points to a different `localhost` from the host (_aka_ `macOS`) one.
-
-To overcome this problem, containers need to point to `host.docker.internal` in order to correctly resolve the other containers. Thus, run the following command in your shell:
-
-```yaml
-# add this to .bashrc or any other file sourced by your shell
-export LOCAL_ANSIBLE_HOST="host.docker.internal"
-```
-
-Moreover, since now all configuration files will point to `host.docker.internal`, add it as an alternative resolution name for your macOS `localhost` (in order to let the binaries resolve also `host.docker.internal`) by modifying `/etc/hosts`:
-
-```ini
-sudo echo "127.0.0.1 host.docker.internal" >> /etc/hosts
-```
-
 ## Supported commands
 
 All the high-level commands are defined within the [Makefile](./Makefile). To get the list of all the possible commands, run:
@@ -181,7 +229,7 @@ All the high-level commands are defined within the [Makefile](./Makefile). To ge
 make help
 ```
 
-Here there is a list of the most used commands:
+The most frequently used commands are:
 
 | Command                    | Usage                                                                        |
 | -------------------------- | ---------------------------------------------------------------------------- |
@@ -223,7 +271,7 @@ Here there is a list of the most used commands:
 
 By default all the `Makefile` commands target all the hosts which are defined within the reference inventory. However, the playbooks have been tailored in such a way that the actions can be restricted to a sub-group (or even a single host) through the `target_hosts` Ansible variable, which is reflected as the `TARGET_HOSTS` variable in the [Makefile](./Makefile).
 
-The `Makefile` comes with a set of [predefined host groups](./target_hosts.mk) that can be used to easily restrict commands:
+The `Makefile` comes with a set of [predefined host groups](./target_groups.mk) that can be used to easily restrict commands:
 
 | Group                | Target                                           |
 | -------------------- | ------------------------------------------------ |
@@ -242,7 +290,7 @@ make fabric_x_orderers start
 
 restricts the command to the host group `fabric_x_orderers` defined within the inventory.
 
-All these groups are reflected in the [sample inventory](./examples/inventory/fabric-x.yaml). If you plan to use the playbooks provided with the collection, we recommend to keep the names identical in order to leverage all the playbooks capabilities.
+All these groups are reflected in the [sample inventories](./examples/README.md). If you plan to use the playbooks provided with the collection, keep the group names identical so the high-level lifecycle commands keep working.
 
 ## Contributing
 
@@ -256,6 +304,14 @@ If you'd like to help improve this project, please follow these steps:
 
 ```bash
 git checkout -b your-feature-name
+```
+
+### Updating role documentation
+
+Role READMEs and role defaults are automatically generated from `meta/argument_specs.yaml`. When you add a new role task entry point or introduce variables for an existing entry point, update that role's `argument_specs.yaml` and then run:
+
+```shell
+make generate-roles-docs
 ```
 
 ## License

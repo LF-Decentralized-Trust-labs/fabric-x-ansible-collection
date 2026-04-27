@@ -3,9 +3,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+
 ---
 argument_specs:
-  _shared_options:
+  role-options:
     short_description: Shared Armageddon option catalog
     description:
       - Shared option definitions reused by the Armageddon entry points.
@@ -16,110 +17,96 @@ argument_specs:
         default: "{{ lookup('env', 'ARMAGEDDON_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
         description:
           - Registry endpoint for the Armageddon image.
-          - The default reads C(ARMAGEDDON_REGISTRY_ENDPOINT) and falls back to `docker.io/hyperledger`.
       armageddon_image_name: &armageddon_image_name
         type: str
         required: false
         default: "fabric-x-orderer"
         description:
           - Armageddon image name.
-          - Default is `fabric-x-orderer`.
       armageddon_image_tag: &armageddon_image_tag
         type: str
         required: false
         default: "0.0.21-1"
         description:
           - Armageddon image tag.
-          - Default is `0.0.21-1`.
       armageddon_image: &armageddon_image
         type: str
         required: false
         default: "{{ armageddon_registry_endpoint }}/{{ armageddon_image_name }}:{{ armageddon_image_tag }}"
         description:
           - Fully qualified Armageddon image reference.
-          - The default derives from C(armageddon_registry_endpoint), C(armageddon_image_name), and C(armageddon_image_tag).
       armageddon_container_name: &armageddon_container_name
         type: str
         required: false
         default: "armageddon"
         description:
           - Armageddon container name.
-          - Default is `armageddon`.
       armageddon_git_hub_url: &armageddon_git_hub_url
         type: str
         required: false
         default: "github.com"
         description:
           - Git host used for the Armageddon source repository.
-          - Default is `github.com`.
       armageddon_git_repo: &armageddon_git_repo
         type: str
         required: false
         default: "hyperledger/fabric-x-orderer"
         description:
           - Armageddon source repository path.
-          - Default is `hyperledger/fabric-x-orderer`.
       armageddon_git_commit: &armageddon_git_commit
         type: str
         required: false
         default: "v0.0.23"
         description:
           - Git ref used for Armageddon builds and installs.
-          - Default is `v0.0.23`.
       armageddon_source_code_package: &armageddon_source_code_package
         type: str
         required: false
         default: "cmd/armageddon"
         description:
           - Go package that builds the Armageddon binary.
-          - Default is `cmd/armageddon`.
       armageddon_bin_package: &armageddon_bin_package
         type: str
         required: false
         default: "{{ armageddon_git_hub_url }}/{{ armageddon_git_repo }}/{{ armageddon_source_code_package }}"
         description:
           - Go module path used to install Armageddon.
-          - The default derives from C(armageddon_git_hub_url), C(armageddon_git_repo), and C(armageddon_source_code_package).
       armageddon_bin_name: &armageddon_bin_name
         type: str
         required: false
         default: "armageddon"
         description:
           - Armageddon executable name.
-          - Default is `armageddon`.
       armageddon_use_bin: &armageddon_use_bin
         type: bool
         required: false
         default: false
         description:
           - Run Armageddon as a local binary instead of a container.
-          - Default is `false`.
       config_build_dir: &config_build_dir
         type: path
         required: false
         description:
-          - Base directory for the default C(armageddon_artifacts_dir) value.
+          - Base directory for C(armageddon_artifacts_dir).
+          - "Example: C(/opt/fabricx/build/armageddon)."
       armageddon_artifacts_dir: &armageddon_artifacts_dir
         type: path
         required: false
         default: "{{ config_build_dir }}/armageddon-artifacts"
         description:
           - Directory for rendered Armageddon config and generated protobuf output.
-          - The default derives from C(config_build_dir).
       armageddon_container_output_dir: &armageddon_container_output_dir
         type: path
         required: false
         default: "/tmp/out"
         description:
           - Container directory for generated protobuf output.
-          - Default is `/tmp/out`.
       armageddon_container_config_dir: &armageddon_container_config_dir
         type: path
         required: false
         default: "/tmp/config"
         description:
           - Container directory for the rendered shared config file.
-          - Default is `/tmp/config`.
       armageddon_container_crypto_artifacts_dir:
         &armageddon_container_crypto_artifacts_dir
         type: path
@@ -127,26 +114,32 @@ argument_specs:
         default: "/tmp/crypto"
         description:
           - Container directory for mounted crypto artifacts.
-          - Default is `/tmp/crypto`.
+      armageddon_config_file: &armageddon_config_file
+        type: str
+        required: false
+        default: armageddon.yaml
+        description:
+          - Armageddon config filename.
       armageddon_shared_config_file: &armageddon_shared_config_file
         type: str
         required: false
         default: shared_config.yaml
         description:
           - Shared-config filename.
-          - Default is `shared_config.yaml`.
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         required: true
         description:
           - Host directory with fetched crypto artifacts.
-          - The config build flow reads it in binary mode and the container flow mounts it read-only.
+          - The binary flow reads this directory directly and the container flow mounts it read-only.
+          - "Example: C(/opt/fabricx/fetched-artifacts)."
       cli_bin_dir: &cli_bin_dir
         type: path
         required: true
         description:
           - Directory where the Armageddon binary is installed or executed.
           - The binary helper roles use this as the local or remote binary directory.
+          - "Example: C(/usr/local/bin)."
       armageddon_orderer_hosts: &armageddon_orderer_hosts
         type: list
         elements: str
@@ -154,11 +147,13 @@ argument_specs:
         description:
           - Inventory hosts that form the Fabric-X orderer topology.
           - Each host must expose `orderer_group`, `orderer_component_type`, `organization`, `ansible_host`, and `orderer_rpc_port`.
+          - "Example: C(['orderer1', 'orderer2', 'orderer3'])"
 
   config/build:
     short_description: Render the shared Armageddon config
     description:
-      - Render `shared_config.yaml` for the Fabric-X orderer topology.
+      - Render C(shared_config.yaml) for the Fabric-X orderer topology.
+      - This entry point prepares the config consumed by both the binary and container shared-config flows.
       - When C(armageddon_use_bin) is true, the template reads C(fetched_artifacts_dir); otherwise it uses C(armageddon_container_crypto_artifacts_dir).
     options:
       armageddon_orderer_hosts: *armageddon_orderer_hosts
@@ -167,12 +162,14 @@ argument_specs:
       armageddon_artifacts_dir: *armageddon_artifacts_dir
       fetched_artifacts_dir: *fetched_artifacts_dir
       armageddon_container_crypto_artifacts_dir: *armageddon_container_crypto_artifacts_dir
+      armageddon_config_file: *armageddon_config_file
       armageddon_shared_config_file: *armageddon_shared_config_file
 
   create_shared_config:
     short_description: Dispatch shared-config generation
     description:
       - Dispatch shared-config generation to the binary or container flow.
+      - This is the top-level Armageddon entry point for producing C(shared_config.binpb) from the rendered shared config.
       - C(armageddon_use_bin) selects which sub-entry point runs.
     options:
       armageddon_use_bin: *armageddon_use_bin
@@ -180,8 +177,8 @@ argument_specs:
   bin/install:
     short_description: Install the Armageddon binary
     description:
-      - Install Armageddon through the shared binary helper.
-      - C(armageddon_bin_package) defaults to the Go module path built from C(armageddon_git_hub_url), C(armageddon_git_repo), and C(armageddon_source_code_package).
+      - Install the Armageddon CLI through the shared binary helper for binary-mode deployments.
+      - The helper installs C(armageddon_bin_name) into C(cli_bin_dir) from C(armageddon_bin_package) at C(armageddon_git_commit).
     options:
       armageddon_bin_name: *armageddon_bin_name
       armageddon_bin_package: *armageddon_bin_package
@@ -194,8 +191,8 @@ argument_specs:
   bin/build:
     short_description: Build the Armageddon binary from source
     description:
-      - Build Armageddon from source through the shared Go helper.
-      - The Go source package comes from C(armageddon_source_code_package).
+      - Build the Armageddon CLI from source through the shared Go helper for binary-mode deployments.
+      - The helper checks out C(armageddon_git_repo) at C(armageddon_git_commit), builds C(armageddon_source_code_package), and places the executable in C(cli_bin_dir).
     options:
       armageddon_bin_name: *armageddon_bin_name
       armageddon_git_hub_url: *armageddon_git_hub_url
@@ -207,20 +204,21 @@ argument_specs:
   bin/create_shared_config:
     short_description: Generate shared-config protobuf with the binary
     description:
-      - Run the installed Armageddon binary to generate `shared_config.binpb`.
-      - The input config is read from C(armageddon_artifacts_dir)/C(armageddon_shared_config_file) and the output is written back to C(armageddon_artifacts_dir).
+      - Run the installed Armageddon binary to generate C(shared_config.binpb).
+      - This binary-mode entry point reads C(armageddon_artifacts_dir)/C(armageddon_shared_config_file) and writes the protobuf output back to C(armageddon_artifacts_dir).
     options:
       armageddon_bin_name: *armageddon_bin_name
       config_build_dir: *config_build_dir
       armageddon_artifacts_dir: *armageddon_artifacts_dir
+      armageddon_config_file: *armageddon_config_file
       armageddon_shared_config_file: *armageddon_shared_config_file
       cli_bin_dir: *cli_bin_dir
 
   container/create_shared_config:
     short_description: Generate shared-config protobuf with a container
     description:
-      - Run the Armageddon container to generate `shared_config.binpb`.
-      - The image default derives from C(armageddon_registry_endpoint), C(armageddon_image_name), and C(armageddon_image_tag).
+      - Run the Armageddon container to generate C(shared_config.binpb) for container-mode deployments.
+      - The container mounts the rendered shared config, crypto artifacts, and output directory before invoking the Armageddon CLI.
     options:
       armageddon_container_name: *armageddon_container_name
       armageddon_registry_endpoint: *armageddon_registry_endpoint
@@ -228,6 +226,7 @@ argument_specs:
       armageddon_image_tag: *armageddon_image_tag
       armageddon_image: *armageddon_image
       armageddon_container_config_dir: *armageddon_container_config_dir
+      armageddon_config_file: *armageddon_config_file
       armageddon_shared_config_file: *armageddon_shared_config_file
       armageddon_container_output_dir: *armageddon_container_output_dir
       config_build_dir: *config_build_dir

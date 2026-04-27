@@ -3,9 +3,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+
 ---
 argument_specs:
-  _shared_options:
+  role-options:
+    short_description: Shared option catalog for git role entry points
     options:
       git_repo: &git_repo
         type: str
@@ -13,12 +15,14 @@ argument_specs:
         description:
           - Repository path component used to derive the checkout directory name and default repository URIs.
           - The checkout name is computed from the basename of this value.
+          - "Example: C(LF-Decentralized-Trust-labs/fabric-x-ansible-collection)."
       git_dir: &git_dir
         type: path
         required: true
         description:
           - Parent directory that will contain the checkout created by C(clone).
           - The final destination is derived as C(<git_dir>/<repo-basename>@<git_commit>).
+          - "Example: C(/opt/fabricx/source)."
       git_commit: &git_commit
         type: str
         required: false

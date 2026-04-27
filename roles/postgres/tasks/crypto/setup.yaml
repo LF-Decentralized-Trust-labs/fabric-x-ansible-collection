@@ -52,4 +52,4 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: k8s/crypto/transfer
-  when: postgres_use_k8s
+  when: postgres_use_k8s or postgres_use_openshift

@@ -10,6 +10,12 @@
     tasks_from: k8s/start
   when: postgres_use_k8s
 
+- name: Start Postgres DB on OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: openshift/start
+  when: postgres_use_openshift
+
 - name: Start Postgres DB container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres

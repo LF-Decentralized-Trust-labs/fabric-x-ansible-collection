@@ -3,41 +3,44 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
+
 ---
 argument_specs:
-
-  _shared_options:
+  role-options:
+    short_description: Shared option catalog for utils role entry points
     options:
       utils_ports_to_ping: &utils_ports_to_ping
         type: list
         elements: int
         required: true
         description:
-          - "Lists the TCP ports that the ping entry point probes on the current host. Example: C([9000, 9001])."
+          - "Lists the TCP ports that the ping entry point probes for reachability on the current host."
+          - "Example: C([7051, 9443])."
       actual_host: &actual_host
         type: str
         required: true
         description:
-          - "Sets the network address that the ping entry point probes for each port in C(utils_ports_to_ping). Example: C(orderer-router-1.example.com)."
+          - "Sets the inventory host address that the ping entry point probes for each port in C(utils_ports_to_ping)."
+          - "Example: C(orderer-router-1.example.com)."
       project_dir: &project_dir
         type: str
         required: true
         description:
-          - "Defines the project root directory used by utility entry points that write generated files. Example: C(/path/to/hyperledger/fabricx)."
+          - "Defines the project root directory used by utility entry points that generate Makefile targets, which writes C(target_hosts.mk) to C(project_dir/target_hosts.mk). Example: C(/path/to/hyperledger/fabricx)."
 
   generate_makefile_targets:
     short_description: Generate Makefile targets for inventory hosts
     description:
-      - "Generates a C(target_hosts.mk) file with one Makefile target per inventory host in C(groups['all'])."
-      - "The output path is C(project_dir + '/target_hosts.mk'), using the caller-provided C(project_dir) variable."
+      - "Creates the inventory dispatch group in Makefile form by writing one phony target per host in C(groups['all'])."
+      - "The generated targets are named after inventory hosts and route commands to a single host through C(TARGET_HOSTS), which is written to C(project_dir/target_hosts.mk)."
     options:
       project_dir: *project_dir
 
   ping:
     short_description: Check whether TCP ports are reachable
     description:
-      - "Checks whether each port in C(utils_ports_to_ping) is reachable on C(actual_host) for the current host."
-      - "Failures are handled through a silent rescue block, so unreachable ports do not fail the play."
+      - "Checks each port in C(utils_ports_to_ping) against C(actual_host) to verify whether the host is reachable on the requested network endpoints."
+      - "Unreachable ports are handled through a silent rescue block, so this entry point reports reachability without failing the play."
     options:
       utils_ports_to_ping: *utils_ports_to_ping
       actual_host: *actual_host
@@ -45,13 +48,13 @@ argument_specs:
   select_one_host_per_k8s_namespace:
     short_description: Create a group with one host per Kubernetes namespace
     description:
-      - "Creates the C(k8s_namespaces) group with one selected inventory host per distinct Kubernetes namespace."
+      - "Creates the C(k8s_namespaces) inventory group with one selected host per distinct Kubernetes namespace."
       - "Only hosts with C(k8s_image_pull_secret) defined participate, and the selection reads C(k8s_namespace) from C(hostvars) across C(ansible_play_hosts)."
     options: {}
 
   select_one_host_per_machine:
     short_description: Create a group with one host per machine
     description:
-      - "Creates the C(machines) group with one selected inventory host per distinct machine address."
+      - "Creates the C(machines) inventory group with one selected host per distinct machine address."
       - "The selection reads C(actual_host) from C(hostvars) across C(ansible_play_hosts) to identify hosts that share the same machine."
     options: {}
