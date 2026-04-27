@@ -66,12 +66,11 @@ committer:
     # List of paths to CA certificate files for verifying server certificates.
     ca-cert-paths:
       - {{ committer_config_dir }}/tls/coordinator/ca.crt
-    # TODO: currently this section must be set even for TLS only: https://github.com/hyperledger/fabric-x-committer/pull/464
+{% if (hostvars[committer_coordinator].committer_use_mtls is defined) and hostvars[committer_coordinator].committer_use_mtls %}
     # Path to the client's TLS private key file.
     key-path: {{ committer_config_dir }}/tls/server.key
     # Path to the client's TLS certificate file (public key) for authentication.
     cert-path: {{ committer_config_dir }}/tls/server.crt
-{% if (hostvars[committer_coordinator].committer_use_mtls is defined) and hostvars[committer_coordinator].committer_use_mtls %}
     # TLS mode for coordinator client connections: 'none' (no TLS), 'tls' (server auth only),
     # or 'mtls' (mutual TLS with client cert verification).
     mode: mtls
