@@ -1519,10 +1519,10 @@ Render sidecar configuration, upstream TLS bundles, and optional Kubernetes Conf
         name: "committer-sidecar-1"
     # Inventory host name of the coordinator component. Example: `committer-coordinator-1`.
     committer_coordinator: "committer-coordinator-1"
-    # Fault tolerance level of the ordering service rendered into the sidecar config.
-    committer_sidecar_orderer_fault_tolerance_level: "string"
-    # Grace period per block before the sidecar suspects an orderer node is faulty.
-    committer_sidecar_orderer_suspicion_grace_period_per_block: "string"
+    # Fault tolerance level of the ordering service rendered into the sidecar config. Example: `BFT`.
+    committer_sidecar_orderer_fault_tolerance_level: "BFT"
+    # Grace period per block before the sidecar suspects an orderer node is faulty. Example: `1s`.
+    committer_sidecar_orderer_suspicion_grace_period_per_block: "1s"
     # Interval between sidecar committed-block updates. Example: `5s`.
     committer_sidecar_last_committed_block_set_interval: "5s"
     # Sidecar waiting transaction limit. Example: `20000000`.
@@ -1533,9 +1533,9 @@ Render sidecar configuration, upstream TLS bundles, and optional Kubernetes Conf
     committer_sidecar_ledger_sync_interval: 100
     # Sidecar notification timeout. Example: `10m`.
     committer_sidecar_notification_max_timeout: "10m"
-    # Maximum number of active transaction IDs tracked for notification subscriptions.
-    committer_sidecar_notification_max_active_tx_ids: 1000
-    # Maximum number of transaction IDs returned per notification request.
+    # Maximum number of active transaction IDs tracked for notification subscriptions. Example: `100000`.
+    committer_sidecar_notification_max_active_tx_ids: 100000
+    # Maximum number of transaction IDs returned per notification request. Example: `1000`.
     committer_sidecar_notification_max_tx_ids_per_request: 1000
     # Inventory hosts for orderer assembler components. Example: `['orderer-assembler-1', 'orderer-assembler-2']`.
     orderer_assemblers:

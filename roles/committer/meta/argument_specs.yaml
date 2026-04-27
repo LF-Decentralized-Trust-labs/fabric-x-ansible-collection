@@ -611,6 +611,7 @@ argument_specs:
         required: false
         description:
           - Fault tolerance level of the ordering service rendered into the sidecar config.
+          - "Example: C(BFT)."
         choices: [BFT, CFT]
       committer_sidecar_orderer_suspicion_grace_period_per_block:
         &committer_sidecar_orderer_suspicion_grace_period_per_block
@@ -618,6 +619,7 @@ argument_specs:
         required: false
         description:
           - Grace period per block before the sidecar suspects an orderer node is faulty.
+          - "Example: C(1s)."
       committer_sidecar_last_committed_block_set_interval:
         &committer_sidecar_last_committed_block_set_interval
         type: str
@@ -658,12 +660,14 @@ argument_specs:
         required: false
         description:
           - Maximum number of active transaction IDs tracked for notification subscriptions.
+          - "Example: C(100000)."
       committer_sidecar_notification_max_tx_ids_per_request:
         &committer_sidecar_notification_max_tx_ids_per_request
         type: int
         required: false
         description:
           - Maximum number of transaction IDs returned per notification request.
+          - "Example: C(1000)."
       committer_query_service_min_batch_keys:
         &committer_query_service_min_batch_keys
         type: int
