@@ -59,6 +59,44 @@ Generate `configtx.yaml` for Fabric-X genesis block creation. Render the config 
     fetched_artifacts_dir: "/opt/fabricx/artifacts/crypto"
     # Directory containing armageddon artifacts used by the binary path and container mounts. Example: `/opt/fabricx/artifacts/armageddon`.
     armageddon_artifacts_dir: "/opt/fabricx/artifacts/armageddon"
+    # Operator for the orderer organization Readers Signature policy. Example: `OR`
+    configtxgen_orderer_org_policies_readers_operator: "OR"
+    # Operator for the orderer organization Writers Signature policy. Example: `OR`
+    configtxgen_orderer_org_policies_writers_operator: "OR"
+    # Operator for the orderer organization Admins Signature policy. Example: `OR`
+    configtxgen_orderer_org_policies_admins_operator: "OR"
+    # Operator for the orderer organization Endorsement Signature policy. Example: `OR`
+    configtxgen_orderer_org_policies_endorsement_operator: "OR"
+    # Operator for the peer organization Readers Signature policy. Example: `OR`
+    configtxgen_peer_org_policies_readers_operator: "OR"
+    # Operator for the peer organization Writers Signature policy. Example: `OR`
+    configtxgen_peer_org_policies_writers_operator: "OR"
+    # Operator for the peer organization Admins Signature policy. Example: `OR`
+    configtxgen_peer_org_policies_admins_operator: "OR"
+    # Operator for the peer organization Endorsement Signature policy. Example: `OR`
+    configtxgen_peer_org_policies_endorsement_operator: "OR"
+    # ImplicitMeta operator for the Application Readers policy. Example: `ANY`
+    configtxgen_application_policies_readers_operator: "ANY"
+    # ImplicitMeta operator for the Application Writers policy. Example: `ANY`
+    configtxgen_application_policies_writers_operator: "ANY"
+    # ImplicitMeta operator for the Application Admins policy. Example: `MAJORITY`
+    configtxgen_application_policies_admins_operator: "MAJORITY"
+    # ImplicitMeta operator for the Application Endorsement policy. Example: `MAJORITY`
+    configtxgen_application_policies_endorsement_operator: "MAJORITY"
+    # ImplicitMeta operator for the Orderer Readers policy. Example: `ANY`
+    configtxgen_orderer_policies_readers_operator: "ANY"
+    # ImplicitMeta operator for the Orderer Writers policy. Example: `ANY`
+    configtxgen_orderer_policies_writers_operator: "ANY"
+    # ImplicitMeta operator for the Orderer Admins policy. Example: `MAJORITY`
+    configtxgen_orderer_policies_admins_operator: "MAJORITY"
+    # ImplicitMeta operator for the Orderer BlockValidation policy. Example: `MAJORITY`
+    configtxgen_orderer_policies_block_validation_operator: "MAJORITY"
+    # ImplicitMeta operator for the Channel Readers policy. Example: `ANY`
+    configtxgen_channel_policies_readers_operator: "ANY"
+    # ImplicitMeta operator for the Channel Writers policy. Example: `ANY`
+    configtxgen_channel_policies_writers_operator: "ANY"
+    # ImplicitMeta operator for the Channel Admins policy. Example: `MAJORITY`
+    configtxgen_channel_policies_admins_operator: "MAJORITY"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.configtxgen
     tasks_from: config/build
