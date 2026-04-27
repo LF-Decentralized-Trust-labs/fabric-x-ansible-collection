@@ -60,6 +60,8 @@ committer_config_dir: '{{ committer_remote_config_dir if committer_use_bin else 
 committer_data_dir: '{{ committer_remote_data_dir if committer_use_bin else committer_container_data_dir }}'
 # Generated config file name used by the selected component.
 committer_config_file: config-{{ committer_component_type }}.yml
+# Filename of the genesis config block placed in the sidecar config directory.
+committer_sidecar_config_block_file: config-block.pb.bin
 # Enable TLS material for the selected component.
 committer_use_tls: false
 # Enable TLS for the monitoring endpoint.

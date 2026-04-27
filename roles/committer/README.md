@@ -1473,6 +1473,8 @@ Render sidecar configuration, upstream TLS bundles, and optional Kubernetes Conf
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Filename of the genesis config block placed in the sidecar config directory.
+    committer_sidecar_config_block_file: config-block.pb.bin
     # Metrics port exposed by the selected committer component. Example: `9443`.
     committer_metrics_port: 9443
     # RPC port exposed by the selected committer component. Example: `7051`.
@@ -1531,6 +1533,8 @@ Render sidecar configuration, upstream TLS bundles, and optional Kubernetes Conf
     orderer_assemblers:
       - "orderer-assembler-1"
       - "orderer-assembler-2"
+    # Control-node configtxgen output directory containing the genesis config block. Example: `/tmp/fabricx/configtxgen-artifacts`.
+    configtxgen_artifacts_dir: "/tmp/fabricx/configtxgen-artifacts"
     # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx/artifacts"
     # Enable Kubernetes deployment mode.
@@ -1711,6 +1715,8 @@ Ensure the namespace exists and apply the sidecar Service, NodePort Service, and
 ```yaml
 - name: Start the sidecar on Kubernetes
   vars:
+    # Filename of the genesis config block placed in the sidecar config directory.
+    committer_sidecar_config_block_file: config-block.pb.bin
     # Enable the optional Kubernetes NodePort Service for committer RPC and metrics access.
     committer_k8s_use_node_port: false
     # NodePort used for the RPC service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31051`.
@@ -1900,6 +1906,8 @@ Ensure the namespace exists and create the sidecar Kubernetes ConfigMap. Publish
   vars:
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
+    # Filename of the genesis config block placed in the sidecar config directory.
+    committer_sidecar_config_block_file: config-block.pb.bin
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: sidecar/k8s/config/transfer
