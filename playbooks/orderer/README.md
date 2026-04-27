@@ -40,20 +40,9 @@ flowchart LR
 
 [`binaries.yaml`](./binaries.yaml) prepares the orderer executable for inventories that run Fabric-X orderer components as binaries. It decides whether the control node should install or build the binary, then makes sure each targeted binary-mode router, batcher, consenter, or assembler has the executable by transfer, local build, or install.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.orderer.binaries --extra-vars '{"target_hosts": "fabric_x_orderers"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run orderer binaries playbook
-      vars:
-        target_hosts: fabric_x_orderers
-      ansible.builtin.import_playbook: hyperledger.fabricx.orderer.binaries
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.orderer.binaries --extra-vars '{"target_hosts": "fabric_x_orderers"}'
+```
 
 Properties:
 
@@ -65,20 +54,9 @@ Properties:
 
 [`generate_crypto.yaml`](./generate_crypto.yaml) creates the TLS/MSP material needed by targeted orderer components and fetches the resulting certificates and keys back to the configured artifacts location. Use it for inventories where orderer identities are generated or enrolled on the component hosts rather than supplied by the central `cryptogen` artifact flow.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.orderer.generate_crypto --extra-vars '{"target_hosts": "fabric_x_orderers"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run orderer generate-crypto playbook
-      vars:
-        target_hosts: fabric_x_orderers
-      ansible.builtin.import_playbook: hyperledger.fabricx.orderer.generate_crypto
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.orderer.generate_crypto --extra-vars '{"target_hosts": "fabric_x_orderers"}'
+```
 
 Properties:
 
@@ -88,20 +66,9 @@ Properties:
 
 [`configs.yaml`](./configs.yaml) transfers the generated orderer configuration to each targeted component host. The role uses `orderer_component_type` to place the router, batcher, consensus, or assembler configuration expected by that host.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.orderer.configs --extra-vars '{"target_hosts": "fabric_x_orderers"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run orderer configs playbook
-      vars:
-        target_hosts: fabric_x_orderers
-      ansible.builtin.import_playbook: hyperledger.fabricx.orderer.configs
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.orderer.configs --extra-vars '{"target_hosts": "fabric_x_orderers"}'
+```
 
 Properties:
 
@@ -112,20 +79,9 @@ Properties:
 
 [`start.yaml`](./start.yaml) starts the selected orderer components using the runtime mode declared in the inventory. Each host dispatches to the router, batcher, consensus, or assembler start task based on `orderer_component_type`.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.orderer.start --extra-vars '{"target_hosts": "fabric_x_orderers"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run orderer start playbook
-      vars:
-        target_hosts: fabric_x_orderers
-      ansible.builtin.import_playbook: hyperledger.fabricx.orderer.start
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.orderer.start --extra-vars '{"target_hosts": "fabric_x_orderers"}'
+```
 
 Properties:
 
@@ -137,20 +93,9 @@ Properties:
 
 [`stop.yaml`](./stop.yaml) stops the selected orderer processes, containers, or Kubernetes workloads without deleting generated configuration, crypto, or runtime data. Use it when you expect to restart the same deployment.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.orderer.stop --extra-vars '{"target_hosts": "fabric_x_orderers"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run orderer stop playbook
-      vars:
-        target_hosts: fabric_x_orderers
-      ansible.builtin.import_playbook: hyperledger.fabricx.orderer.stop
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.orderer.stop --extra-vars '{"target_hosts": "fabric_x_orderers"}'
+```
 
 Properties:
 
@@ -161,20 +106,9 @@ Properties:
 
 [`teardown.yaml`](./teardown.yaml) stops targeted orderer components and removes their runtime data according to the selected runtime mode. Use it for a stronger cleanup than `stop.yaml` when the current service state should not be preserved.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.orderer.teardown --extra-vars '{"target_hosts": "fabric_x_orderers"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run orderer teardown playbook
-      vars:
-        target_hosts: fabric_x_orderers
-      ansible.builtin.import_playbook: hyperledger.fabricx.orderer.teardown
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.orderer.teardown --extra-vars '{"target_hosts": "fabric_x_orderers"}'
+```
 
 Properties:
 
@@ -185,20 +119,9 @@ Properties:
 
 [`wipe.yaml`](./wipe.yaml) removes generated orderer files from targeted hosts, including configuration, fetched/generated crypto, and binary artifacts managed by the orderer role.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.orderer.wipe --extra-vars '{"target_hosts": "fabric_x_orderers"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run orderer wipe playbook
-      vars:
-        target_hosts: fabric_x_orderers
-      ansible.builtin.import_playbook: hyperledger.fabricx.orderer.wipe
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.orderer.wipe --extra-vars '{"target_hosts": "fabric_x_orderers"}'
+```
 
 Properties:
 
@@ -209,20 +132,9 @@ Properties:
 
 [`ping.yaml`](./ping.yaml) checks that targeted orderer endpoints are reachable after startup. It is a quick smoke test for router, batcher, consensus, and assembler service availability.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.orderer.ping --extra-vars '{"target_hosts": "fabric_x_orderers"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run orderer ping playbook
-      vars:
-        target_hosts: fabric_x_orderers
-      ansible.builtin.import_playbook: hyperledger.fabricx.orderer.ping
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.orderer.ping --extra-vars '{"target_hosts": "fabric_x_orderers"}'
+```
 
 Properties:
 
@@ -233,20 +145,9 @@ Properties:
 
 [`get_metrics.yaml`](./get_metrics.yaml) queries orderer metrics endpoints on targeted hosts and returns the collected metrics through Ansible output.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.orderer.get_metrics --extra-vars '{"target_hosts": "fabric_x_orderers"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run orderer get-metrics playbook
-      vars:
-        target_hosts: fabric_x_orderers
-      ansible.builtin.import_playbook: hyperledger.fabricx.orderer.get_metrics
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.orderer.get_metrics --extra-vars '{"target_hosts": "fabric_x_orderers"}'
+```
 
 Properties:
 
@@ -257,20 +158,9 @@ Properties:
 
 [`fetch_crypto.yaml`](./fetch_crypto.yaml) fetches orderer certificates and keys from targeted hosts into the configured artifacts directory. It is useful when crypto was generated remotely and later playbooks or troubleshooting need a control-node copy.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.orderer.fetch_crypto --extra-vars '{"target_hosts": "fabric_x_orderers"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run orderer fetch-crypto playbook
-      vars:
-        target_hosts: fabric_x_orderers
-      ansible.builtin.import_playbook: hyperledger.fabricx.orderer.fetch_crypto
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.orderer.fetch_crypto --extra-vars '{"target_hosts": "fabric_x_orderers"}'
+```
 
 Properties:
 
@@ -281,20 +171,9 @@ Properties:
 
 [`fetch_logs.yaml`](./fetch_logs.yaml) fetches orderer logs from targeted hosts into the configured output directory so component failures can be inspected from the control node.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.orderer.fetch_logs --extra-vars '{"target_hosts": "orderer-router-1"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run orderer fetch-logs playbook
-      vars:
-        target_hosts: "orderer-router-1"
-      ansible.builtin.import_playbook: hyperledger.fabricx.orderer.fetch_logs
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.orderer.fetch_logs --extra-vars '{"target_hosts": "orderer-router-1"}'
+```
 
 Properties:
 

@@ -19,18 +19,9 @@ flowchart LR
 
 [`build_crypto_material.yaml`](./build_crypto_material.yaml) is the control-node path for inventories that use centrally generated `cryptogen` material. It inspects the selected inventory, groups orderer and peer-style identities by organization, renders the `cryptogen` input, prepares the `cryptogen` binary if needed, runs generation, and stores the resulting MSP/TLS material in the configured artifacts directory.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.artifacts.build_crypto_material
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run artifacts build-crypto-material playbook
-      ansible.builtin.import_playbook: hyperledger.fabricx.artifacts.build_crypto_material
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.artifacts.build_crypto_material
+```
 
 Properties:
 
@@ -41,18 +32,9 @@ Properties:
 
 [`build_genesis_block.yaml`](./build_genesis_block.yaml) creates the channel bootstrap material shared by the network. It derives orderer organizations and endpoints from `fabric_x_orderers`, renders Armageddon and configtxgen configuration, prepares `configtxgen` when needed, and writes the genesis block artifacts consumed later by configuration, orderer, and committer setup.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.artifacts.build_genesis_block
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run artifacts build-genesis-block playbook
-      ansible.builtin.import_playbook: hyperledger.fabricx.artifacts.build_genesis_block
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.artifacts.build_genesis_block
+```
 
 Properties:
 

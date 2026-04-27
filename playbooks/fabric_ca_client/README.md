@@ -18,18 +18,9 @@ flowchart LR
 
 [`binaries.yaml`](./binaries.yaml) prepares the Fabric CA client wherever enrollment or registration tasks may need it. It can install or build the client on the control node, then transfer, install, or build it on remote Fabric CA servers and component hosts whose organizations enroll through Fabric CA.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.fabric_ca_client.binaries
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run fabric-ca-client binaries playbook
-      ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_client.binaries
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.fabric_ca_client.binaries
+```
 
 Properties:
 
