@@ -59,6 +59,44 @@ Generate `configtx.yaml` for Fabric-X genesis block creation. Render the config 
     fetched_artifacts_dir: "/opt/fabricx/artifacts/crypto"
     # Directory containing armageddon artifacts used by the binary path and container mounts. Example: `/opt/fabricx/artifacts/armageddon`.
     armageddon_artifacts_dir: "/opt/fabricx/artifacts/armageddon"
+    # Operator for the orderer organization Readers Signature policy. Example: `OR`
+    configtxgen_orderer_org_policies_readers_operator: "OR"
+    # Operator for the orderer organization Writers Signature policy. Example: `OR`
+    configtxgen_orderer_org_policies_writers_operator: "OR"
+    # Operator for the orderer organization Admins Signature policy. Example: `OR`
+    configtxgen_orderer_org_policies_admins_operator: "OR"
+    # Operator for the orderer organization Endorsement Signature policy. Example: `OR`
+    configtxgen_orderer_org_policies_endorsement_operator: "OR"
+    # Operator for the peer organization Readers Signature policy. Example: `OR`
+    configtxgen_peer_org_policies_readers_operator: "OR"
+    # Operator for the peer organization Writers Signature policy. Example: `OR`
+    configtxgen_peer_org_policies_writers_operator: "OR"
+    # Operator for the peer organization Admins Signature policy. Example: `OR`
+    configtxgen_peer_org_policies_admins_operator: "OR"
+    # Operator for the peer organization Endorsement Signature policy. Example: `OR`
+    configtxgen_peer_org_policies_endorsement_operator: "OR"
+    # ImplicitMeta operator for the Application Readers policy. Example: `ANY`
+    configtxgen_application_policies_readers_operator: "ANY"
+    # ImplicitMeta operator for the Application Writers policy. Example: `ANY`
+    configtxgen_application_policies_writers_operator: "ANY"
+    # ImplicitMeta operator for the Application Admins policy. Example: `MAJORITY`
+    configtxgen_application_policies_admins_operator: "MAJORITY"
+    # ImplicitMeta operator for the Application Endorsement policy. Example: `MAJORITY`
+    configtxgen_application_policies_endorsement_operator: "MAJORITY"
+    # ImplicitMeta operator for the Orderer Readers policy. Example: `ANY`
+    configtxgen_orderer_policies_readers_operator: "ANY"
+    # ImplicitMeta operator for the Orderer Writers policy. Example: `ANY`
+    configtxgen_orderer_policies_writers_operator: "ANY"
+    # ImplicitMeta operator for the Orderer Admins policy. Example: `MAJORITY`
+    configtxgen_orderer_policies_admins_operator: "MAJORITY"
+    # ImplicitMeta operator for the Orderer BlockValidation policy. Example: `MAJORITY`
+    configtxgen_orderer_policies_block_validation_operator: "MAJORITY"
+    # ImplicitMeta operator for the Channel Readers policy. Example: `ANY`
+    configtxgen_channel_policies_readers_operator: "ANY"
+    # ImplicitMeta operator for the Channel Writers policy. Example: `ANY`
+    configtxgen_channel_policies_writers_operator: "ANY"
+    # ImplicitMeta operator for the Channel Admins policy. Example: `MAJORITY`
+    configtxgen_channel_policies_admins_operator: "MAJORITY"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.configtxgen
     tasks_from: config/build
@@ -78,7 +116,7 @@ Build the `configtxgen` binary from the Fabric-X source tree on the control node
     # Repository path for `configtxgen_bin_package`.
     configtxgen_git_repo: hyperledger/fabric-x
     # Git reference used by the binary build and install entry points.
-    configtxgen_git_commit: v0.0.8
+    configtxgen_git_commit: v0.0.15
     # Go package path for the `configtxgen` source tree.
     configtxgen_source_code_package: tools/configtxgen
     # Executable name used by the binary and container entry points.
@@ -108,7 +146,7 @@ Install the `configtxgen` Go package through the shared `bin` role. The installe
     # Go package reference used by `bin/install`.
     configtxgen_bin_package: "{{ configtxgen_git_hub_url }}/{{ configtxgen_git_repo }}/{{ configtxgen_source_code_package }}"
     # Git reference used by the binary build and install entry points.
-    configtxgen_git_commit: v0.0.8
+    configtxgen_git_commit: v0.0.15
     # Executable name used by the binary and container entry points.
     configtxgen_bin_name: configtxgen
     # Directory used as the `configtxgen` binary destination or lookup path. Example: `/opt/fabricx/bin`.
@@ -168,7 +206,7 @@ Run `configtxgen` in a container to generate the channel genesis block. The cont
     # Image repository name for `configtxgen_image`.
     configtxgen_image_name: fabric-x-tools
     # Image tag for `configtxgen_image`.
-    configtxgen_image_tag: 0.0.8
+    configtxgen_image_tag: 0.0.15
     # Full container image reference for `configtxgen`.
     configtxgen_image: "{{ configtxgen_registry_endpoint }}/{{ configtxgen_image_name }}:{{ configtxgen_image_tag }}"
     # Executable name used by the binary and container entry points.

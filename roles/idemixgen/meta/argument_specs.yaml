@@ -97,7 +97,7 @@ argument_specs:
       idemixgen_image_tag: &idemixgen_image_tag
         type: str
         required: false
-        default: "0.0.14"
+        default: "0.0.15"
         description:
           - "Defines the image tag used for the idemixgen container."
       idemixgen_output_dir: &idemixgen_output_dir

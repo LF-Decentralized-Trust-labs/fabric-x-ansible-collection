@@ -33,6 +33,12 @@ argument_specs:
         default: "config-loadgen.yaml"
         description:
           - Rendered Loadgen config filename.
+      loadgen_config_block_file: &loadgen_config_block_file
+        type: str
+        required: false
+        default: "config-block.pb.bin"
+        description:
+          - Filename of the genesis config block placed in the Loadgen config directory.
       loadgen_config_dir: &loadgen_config_dir
         type: path
         required: false
@@ -79,7 +85,7 @@ argument_specs:
       loadgen_image_tag: &loadgen_image_tag
         type: str
         required: false
-        default: "0.1.9"
+        default: "1.0.0-alpha"
         description:
           - Image tag used by the Loadgen container.
       loadgen_image: &loadgen_image
@@ -109,7 +115,7 @@ argument_specs:
       loadgen_git_commit: &loadgen_git_commit
         type: str
         required: false
-        default: "v0.1.9"
+        default: "v1.0.0-alpha"
         description:
           - Git revision used for binary builds and installs.
       loadgen_source_code_package: &loadgen_source_code_package
@@ -184,12 +190,19 @@ argument_specs:
         default: false
         description:
           - Assert the latency metric when fetching metrics.
+      loadgen_metrics_endpoint: &loadgen_metrics_endpoint
+        type: str
+        required: false
+        description:
+          - Optional override for the Loadgen metrics endpoint URL.
+          - "Example: C(http://loadgen1.example.com:9443/metrics)."
       loadgen_generate_config_block: &loadgen_generate_config_block
         type: bool
         required: false
         default: false
         description:
           - Render the config transaction block section.
+          - "Example: C(false)."
       loadgen_generate_namespace: &loadgen_generate_namespace
         type: bool
         required: false
@@ -220,6 +233,13 @@ argument_specs:
         default: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
         description:
           - Log message format template.
+      loadgen_orderer_fault_tolerance_level:
+        &loadgen_orderer_fault_tolerance_level
+        type: str
+        required: false
+        description:
+          - Fault tolerance level of the ordering service rendered into the Loadgen config.
+          - "Example: C(BFT)."
       loadgen_broadcast_parallelism: &loadgen_broadcast_parallelism
         type: int
         required: false
@@ -371,12 +391,25 @@ argument_specs:
         description:
           - Number of latency histogram buckets.
           - "Example: C(1000)."
+      loadgen_monitoring_latency_max_tracked_txs:
+        &loadgen_monitoring_latency_max_tracked_txs
+        type: int
+        required: false
+        description:
+          - Maximum number of TX entries held in memory for latency tracking.
+          - "Example: C(10000)."
       loadgen_limit_rate: &loadgen_limit_rate
         type: int
         required: false
         description:
           - Maximum generated transaction rate.
           - "Example: C(2500)."
+      loadgen_limit_rate_endpoint: &loadgen_limit_rate_endpoint
+        type: str
+        required: false
+        description:
+          - Optional override for the Loadgen rate-limit endpoint URL.
+          - "Example: C(http://loadgen1.example.com:8080/setRateLimit)."
       loadgen_limit_blocks: &loadgen_limit_blocks
         type: int
         required: false
@@ -438,6 +471,11 @@ argument_specs:
         description:
           - Local cryptogen output directory.
           - "Example: C(/tmp/fabricx-crypto)."
+      configtxgen_artifacts_dir: &configtxgen_artifacts_dir
+        type: path
+        required: true
+        description:
+          - Local configtxgen output directory containing the genesis config block.
       committer_hosts: &committer_hosts
         type: list
         elements: str
@@ -458,20 +496,6 @@ argument_specs:
         description:
           - Sidecar host targeted by the orderer and sidecar clients.
           - "Example: C(committer-sidecar1)."
-      orderer_router_hosts: &orderer_router_hosts
-        type: list
-        elements: str
-        required: false
-        description:
-          - Orderer router hosts targeted by the orderer client.
-          - "Example: C(['orderer-router1', 'orderer-router2'])."
-      orderer_assembler_hosts: &orderer_assembler_hosts
-        type: list
-        elements: str
-        required: false
-        description:
-          - Orderer assembler hosts targeted by the orderer client.
-          - "Example: C(['orderer-assembler1', 'orderer-assembler2'])."
       k8s_namespace: &k8s_namespace
         type: str
         required: true
@@ -618,6 +642,7 @@ argument_specs:
       loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
       loadgen_use_tls: *loadgen_use_tls
       loadgen_assert_metrics: *loadgen_assert_metrics
+      loadgen_metrics_endpoint: *loadgen_metrics_endpoint
       loadgen_use_k8s: *loadgen_use_k8s
       loadgen_k8s_use_node_port: *loadgen_k8s_use_node_port
 
@@ -631,6 +656,7 @@ argument_specs:
       loadgen_web_port: *loadgen_web_port
       loadgen_k8s_web_node_port: *loadgen_k8s_web_node_port
       loadgen_limit_rate: *loadgen_limit_rate
+      loadgen_limit_rate_endpoint: *loadgen_limit_rate_endpoint
       loadgen_use_k8s: *loadgen_use_k8s
       loadgen_k8s_use_node_port: *loadgen_k8s_use_node_port
 
@@ -687,6 +713,8 @@ argument_specs:
       loadgen_read_write_tx_keys: *loadgen_read_write_tx_keys
       loadgen_read_write_tx_val_size: *loadgen_read_write_tx_val_size
       loadgen_key_scheme: *loadgen_key_scheme
+      loadgen_query_settings: *loadgen_query_settings
+      loadgen_conflicts_settings: *loadgen_conflicts_settings
       loadgen_monitoring_rate_limit_requests_per_second: *loadgen_monitoring_rate_limit_requests_per_second
       loadgen_monitoring_rate_limit_burst: *loadgen_monitoring_rate_limit_burst
       loadgen_latency_sampler_prefix: *loadgen_latency_sampler_prefix
@@ -702,9 +730,10 @@ argument_specs:
       fetched_artifacts_dir: *fetched_artifacts_dir
       channel_id: *channel_id
       organization: *organization
-      orderer_router_hosts: *orderer_router_hosts
-      orderer_assembler_hosts: *orderer_assembler_hosts
-      committer_sidecar_host: *committer_sidecar_host
+      loadgen_config_block_file: *loadgen_config_block_file
+      configtxgen_artifacts_dir: *configtxgen_artifacts_dir
+      loadgen_orderer_fault_tolerance_level: *loadgen_orderer_fault_tolerance_level
+      loadgen_monitoring_latency_max_tracked_txs: *loadgen_monitoring_latency_max_tracked_txs
       loadgen_broadcast_parallelism: *loadgen_broadcast_parallelism
       loadgen_limit_blocks: *loadgen_limit_blocks
       loadgen_limit_transactions: *loadgen_limit_transactions
@@ -981,8 +1010,7 @@ argument_specs:
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
       loadgen_remote_config_dir: *loadgen_remote_config_dir
       loadgen_config_file: *loadgen_config_file
-      orderer_router_hosts: *orderer_router_hosts
-      orderer_assembler_hosts: *orderer_assembler_hosts
+      loadgen_config_block_file: *loadgen_config_block_file
       committer_sidecar_host: *committer_sidecar_host
       loadgen_use_mtls: *loadgen_use_mtls
       loadgen_monitoring_use_mtls: *loadgen_monitoring_use_mtls

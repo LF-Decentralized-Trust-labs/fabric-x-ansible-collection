@@ -470,7 +470,7 @@ Install the committer binary through the shared `bin` role Go installer entry po
     # Git repository that contains the committer sources.
     committer_git_repo: hyperledger/fabric-x-committer
     # Git ref used for building or installing the binary.
-    committer_git_commit: v0.1.9
+    committer_git_commit: v1.0.0-alpha
     # Go package path used as the build or install target.
     committer_source_code_package: cmd/committer
   ansible.builtin.include_role:
@@ -494,7 +494,7 @@ Build the committer binary through the shared `bin` role Go build entry point. P
     # Git repository that contains the committer sources.
     committer_git_repo: hyperledger/fabric-x-committer
     # Git ref used for building or installing the binary.
-    committer_git_commit: v0.1.9
+    committer_git_commit: v1.0.0-alpha
     # Go package path used as the build or install target.
     committer_source_code_package: cmd/committer
   ansible.builtin.include_role:
@@ -1473,6 +1473,8 @@ Render sidecar configuration, upstream TLS bundles, and optional Kubernetes Conf
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Filename of the genesis config block placed in the sidecar config directory.
+    committer_sidecar_config_block_file: config-block.pb.bin
     # Metrics port exposed by the selected committer component. Example: `9443`.
     committer_metrics_port: 9443
     # RPC port exposed by the selected committer component. Example: `7051`.
@@ -1517,6 +1519,10 @@ Render sidecar configuration, upstream TLS bundles, and optional Kubernetes Conf
         name: "committer-sidecar-1"
     # Inventory host name of the coordinator component. Example: `committer-coordinator-1`.
     committer_coordinator: "committer-coordinator-1"
+    # Fault tolerance level of the ordering service rendered into the sidecar config. Example: `BFT`.
+    committer_sidecar_orderer_fault_tolerance_level: "BFT"
+    # Grace period per block before the sidecar suspects an orderer node is faulty. Example: `1s`.
+    committer_sidecar_orderer_suspicion_grace_period_per_block: "1s"
     # Interval between sidecar committed-block updates. Example: `5s`.
     committer_sidecar_last_committed_block_set_interval: "5s"
     # Sidecar waiting transaction limit. Example: `20000000`.
@@ -1527,10 +1533,16 @@ Render sidecar configuration, upstream TLS bundles, and optional Kubernetes Conf
     committer_sidecar_ledger_sync_interval: 100
     # Sidecar notification timeout. Example: `10m`.
     committer_sidecar_notification_max_timeout: "10m"
+    # Maximum number of active transaction IDs tracked for notification subscriptions. Example: `100000`.
+    committer_sidecar_notification_max_active_tx_ids: 100000
+    # Maximum number of transaction IDs returned per notification request. Example: `1000`.
+    committer_sidecar_notification_max_tx_ids_per_request: 1000
     # Inventory hosts for orderer assembler components. Example: `['orderer-assembler-1', 'orderer-assembler-2']`.
     orderer_assemblers:
       - "orderer-assembler-1"
       - "orderer-assembler-2"
+    # Control-node configtxgen output directory containing the genesis config block. Example: `/tmp/fabricx/configtxgen-artifacts`.
+    configtxgen_artifacts_dir: "/tmp/fabricx/configtxgen-artifacts"
     # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx/artifacts"
     # Enable Kubernetes deployment mode.
@@ -1711,6 +1723,8 @@ Ensure the namespace exists and apply the sidecar Service, NodePort Service, and
 ```yaml
 - name: Start the sidecar on Kubernetes
   vars:
+    # Filename of the genesis config block placed in the sidecar config directory.
+    committer_sidecar_config_block_file: config-block.pb.bin
     # Enable the optional Kubernetes NodePort Service for committer RPC and metrics access.
     committer_k8s_use_node_port: false
     # NodePort used for the RPC service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31051`.
@@ -1900,6 +1914,8 @@ Ensure the namespace exists and create the sidecar Kubernetes ConfigMap. Publish
   vars:
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
+    # Filename of the genesis config block placed in the sidecar config directory.
+    committer_sidecar_config_block_file: config-block.pb.bin
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: sidecar/k8s/config/transfer

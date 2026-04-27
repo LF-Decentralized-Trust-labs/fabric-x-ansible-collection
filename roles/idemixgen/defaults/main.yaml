@@ -30,7 +30,7 @@ idemixgen_image: "{{ idemixgen_registry_endpoint }}/{{ idemixgen_image_name }}:{
 # Defines the image name used for the idemixgen container.
 idemixgen_image_name: fabric-x-tools
 # Defines the image tag used for the idemixgen container.
-idemixgen_image_tag: 0.0.14
+idemixgen_image_tag: 0.0.15
 # Sets the host directory where the generated artifacts are written.
 idemixgen_output_dir: '{{ config_build_dir }}/idemixgen-artifacts'
 # Defines the container registry used for the idemixgen image.

@@ -84,7 +84,7 @@ argument_specs:
       orderer_image_tag: &orderer_image_tag
         type: str
         required: false
-        default: "0.0.23"
+        default: "1.0.0-alpha"
         description:
           - "Image tag used for the orderer container."
       orderer_image: &orderer_image
@@ -114,7 +114,7 @@ argument_specs:
       orderer_git_commit: &orderer_git_commit
         type: str
         required: false
-        default: v0.0.23
+        default: v1.0.0-alpha
         description:
           - "Git ref or release tag used by the bin build and install branches."
       orderer_source_code_package: &orderer_source_code_package

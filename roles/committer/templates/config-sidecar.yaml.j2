@@ -17,72 +17,42 @@
 # service.
 # ---------------------------------------------------------------------------
 orderer:
-  # The channel ID from which to fetch blocks.
-  channel-id: {{ channel_id }}
-  # Consensus type of the ordering service: 'BFT' (Byzantine Fault Tolerant) or 'CFT' (Crash Fault Tolerant / Raft).
-  # Defaults to 'CFT' if not specified. Affects how the sidecar interacts with orderers.
-  consensus-type: BFT
-  # Organizations map organization MSP IDs to their orderer connection details.
-  # It supports multi-organization deployments where each org has its own orderers and TLS root CAs.
-  # Each organization can have multiple orderer endpoints with different capabilities (broadcast, deliver).
+  # Fault tolerance level of the ordering service: 'BFT' (Byzantine Fault Tolerant) or 'CFT'.
+  # Affects how the sidecar interacts with the orderer.
+  fault-tolerance-level: {{ committer_sidecar_orderer_fault_tolerance_level | default('BFT') }}
+  # Path to the latest known config block file, used to obtain the latest endpoints and TLS credentials
+  # of the Orderer parties.
+  # It can be the genesis config block (required for new deployments).
+  # But it can also be used to bootstrap a deployment with a stale ledger.
+  latest-known-config-block-path: {{ committer_config_dir }}/{{ committer_sidecar_config_block_file }}
+{% if (hostvars[orderer_assembler_ref_host].orderer_use_tls is defined) and hostvars[orderer_assembler_ref_host].orderer_use_tls %}
+  # Sidecar uses these TLS credentials when connecting to the orderers as a client.
+  tls:
+    # Path to the client's TLS private key file.
+    key-path: {{ committer_config_dir }}/tls/server.key
+    # Path to the client's TLS certificate file (public key) for authentication.
+    cert-path: {{ committer_config_dir }}/tls/server.crt
+{% if (hostvars[orderer_assembler_ref_host].orderer_use_mtls is defined) and hostvars[orderer_assembler_ref_host].orderer_use_mtls %}
+    # TLS mode for orderer client connections.
+    mode: mtls
+{% else %}
+    # TLS mode for orderer client connections.
+    mode: tls
+{% endif %}
+{% endif %}
+  # Grace period per block to wait before suspecting an orderer node is faulty.
+  suspicion-grace-period-per-block: {{ committer_sidecar_orderer_suspicion_grace_period_per_block | default('1s') }}
   # Identity configuration for authenticating with orderers and signing requests.
   identity:
     # MSP ID of the organization this sidecar represents.
     msp-id: {{ organization.name }}MSP
     # Path to the MSP directory containing certificates and keys for the identity.
     msp-dir: {{ committer_config_dir }}/msp
-    # BCCSP (Blockchain crypto provider): Select which crypto implementation or
-    # library to use
     bccsp:
       Default: SW
-      # Settings for the SW crypto provider (i.e. when DEFAULT: SW)
       SW:
-        # The default Hash and Security level needs refactoring to be
-        # fully configurable. Changing these defaults requires coordination
-        # SHA2 is hardcoded in several places, not only BCCSP
         Security: 256
         Hash: SHA2
-  # Organizations map organization MSP IDs to their orderer connection details.
-  # It supports multi-organization deployments where each org has its own orderers and TLS root CAs.
-  # Each organization can have multiple orderer endpoints with different capabilities (broadcast, deliver).
-  organizations:
-{% for orderer_assembler in orderer_assemblers %}
-    # Organization identifier (key can be any string, typically matches MSP ID).
-    # Each organization entry contains its orderer endpoints and CA certificates.
-    {{ hostvars[orderer_assembler].organization.name }}:
-      endpoints:
-        - id={{ hostvars[orderer_assembler].orderer_group }},deliver,{{ hostvars[orderer_assembler].ansible_host }}:{{ hostvars[orderer_assembler].orderer_rpc_port }}
-{% if (hostvars[orderer_assembler_ref_host].orderer_use_tls is defined) and hostvars[orderer_assembler_ref_host].orderer_use_tls %}
-      # List of paths to CA certificate files for verifying orderer certificates.
-      # Each organization can have its own CA certificates.
-      ca-cert-paths:
-        - {{ committer_config_dir }}/tls/orderers/{{ orderer_assembler }}/server.crt
-{% endif %}
-{% endfor %}
-{% if (hostvars[orderer_assembler_ref_host].orderer_use_tls is defined) and hostvars[orderer_assembler_ref_host].orderer_use_tls %}
-  # Sidecar uses these TLS credentials when connecting to the orderers as a client.
-  tls:
-    # List of common CA certificate paths used across all orderer organizations.
-    # These are in addition to organization-specific CA certificates.
-    common-ca-cert-paths:
-{% for orderer_assembler in orderer_assemblers %}
-      - {{ committer_config_dir }}/tls/orderers/{{ orderer_assembler }}/ca.crt
-{% endfor %}
-    # TODO: currently this section must be set even for TLS only: https://github.com/hyperledger/fabric-x-committer/pull/464
-    # Path to the client's TLS private key file.
-    key-path: {{ committer_config_dir }}/tls/server.key
-    # Path to the client's TLS certificate file (public key) for authentication.
-    cert-path: {{ committer_config_dir }}/tls/server.crt
-{% if (hostvars[orderer_assembler_ref_host].orderer_use_mtls is defined) and hostvars[orderer_assembler_ref_host].orderer_use_mtls %}
-    # TLS mode for orderer client connections: 'none' (no TLS), 'tls' (server auth only),
-    # or 'mtls' (mutual TLS with client cert verification).
-    mode: mtls
-{% else %}
-    # TLS mode for orderer client connections: 'none' (no TLS), 'tls' (server auth only),
-    # or 'mtls' (mutual TLS with client cert verification).
-    mode: tls
-{% endif %}
-{% endif %}
 
 # ---------------------------------------------------------------------------
 # Coordinator (committer) connection configuration
@@ -96,12 +66,11 @@ committer:
     # List of paths to CA certificate files for verifying server certificates.
     ca-cert-paths:
       - {{ committer_config_dir }}/tls/coordinator/ca.crt
-    # TODO: currently this section must be set even for TLS only: https://github.com/hyperledger/fabric-x-committer/pull/464
+{% if (hostvars[committer_coordinator].committer_use_mtls is defined) and hostvars[committer_coordinator].committer_use_mtls %}
     # Path to the client's TLS private key file.
     key-path: {{ committer_config_dir }}/tls/server.key
     # Path to the client's TLS certificate file (public key) for authentication.
     cert-path: {{ committer_config_dir }}/tls/server.crt
-{% if (hostvars[committer_coordinator].committer_use_mtls is defined) and hostvars[committer_coordinator].committer_use_mtls %}
     # TLS mode for coordinator client connections: 'none' (no TLS), 'tls' (server auth only),
     # or 'mtls' (mutual TLS with client cert verification).
     mode: mtls
@@ -149,3 +118,9 @@ notification:
   # automatically closed. Prevents resource leaks from abandoned subscriptions.
   # If a client doesn't specify a timeout, this value is used.
   max-timeout: {{ committer_sidecar_notification_max_timeout | default('10m') }}
+  # Maximum number of active transaction IDs tracked for notification subscriptions.
+  # Default: 100,000
+  max-active-tx-ids: {{ committer_sidecar_notification_max_active_tx_ids | default(100000) }}
+  # Maximum number of transaction IDs returned per notification request.
+  # Default: 1,000
+  max-tx-ids-per-request: {{ committer_sidecar_notification_max_tx_ids_per_request | default(1000) }}

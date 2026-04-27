@@ -26,7 +26,7 @@ argument_specs:
       committer_image_tag:
         type: str
         required: false
-        default: "0.1.9"
+        default: "1.0.0-alpha"
         description:
           - Image tag for the committer container.
       committer_image: &committer_image
@@ -56,7 +56,7 @@ argument_specs:
       committer_git_commit: &committer_git_commit
         type: str
         required: false
-        default: v0.1.9
+        default: v1.0.0-alpha
         description:
           - Git ref used for building or installing the binary.
       committer_source_code_package: &committer_source_code_package
@@ -182,6 +182,12 @@ argument_specs:
         default: "config-{{ committer_component_type }}.yml"
         description:
           - Generated config file name used by the selected component.
+      committer_sidecar_config_block_file: &committer_sidecar_config_block_file
+        type: str
+        required: false
+        default: config-block.pb.bin
+        description:
+          - Filename of the genesis config block placed in the sidecar config directory.
       committer_use_tls: &committer_use_tls
         type: bool
         required: false
@@ -272,6 +278,12 @@ argument_specs:
         description:
           - Control-node directory that stores cryptogen output.
           - "Example: C(/tmp/fabricx/crypto-material)."
+      configtxgen_artifacts_dir: &configtxgen_artifacts_dir
+        type: path
+        required: true
+        description:
+          - Control-node configtxgen output directory containing the genesis config block.
+          - "Example: C(/tmp/fabricx/configtxgen-artifacts)."
       actual_host: &actual_host
         type: str
         description:
@@ -593,6 +605,21 @@ argument_specs:
         description:
           - Per-goroutine channel buffer size for the coordinator.
           - "Example: C(10)."
+      committer_sidecar_orderer_fault_tolerance_level:
+        &committer_sidecar_orderer_fault_tolerance_level
+        type: str
+        required: false
+        description:
+          - Fault tolerance level of the ordering service rendered into the sidecar config.
+          - "Example: C(BFT)."
+        choices: [BFT, CFT]
+      committer_sidecar_orderer_suspicion_grace_period_per_block:
+        &committer_sidecar_orderer_suspicion_grace_period_per_block
+        type: str
+        required: false
+        description:
+          - Grace period per block before the sidecar suspects an orderer node is faulty.
+          - "Example: C(1s)."
       committer_sidecar_last_committed_block_set_interval:
         &committer_sidecar_last_committed_block_set_interval
         type: str
@@ -627,6 +654,20 @@ argument_specs:
         description:
           - Sidecar notification timeout.
           - "Example: C(10m)."
+      committer_sidecar_notification_max_active_tx_ids:
+        &committer_sidecar_notification_max_active_tx_ids
+        type: int
+        required: false
+        description:
+          - Maximum number of active transaction IDs tracked for notification subscriptions.
+          - "Example: C(100000)."
+      committer_sidecar_notification_max_tx_ids_per_request:
+        &committer_sidecar_notification_max_tx_ids_per_request
+        type: int
+        required: false
+        description:
+          - Maximum number of transaction IDs returned per notification request.
+          - "Example: C(1000)."
       committer_query_service_min_batch_keys:
         &committer_query_service_min_batch_keys
         type: int
@@ -1430,6 +1471,7 @@ argument_specs:
       committer_data_dir: *committer_data_dir
       committer_remote_config_dir: *committer_remote_config_dir
       committer_config_file: *committer_config_file
+      committer_sidecar_config_block_file: *committer_sidecar_config_block_file
       committer_metrics_port: *committer_metrics_port
       committer_rpc_port: *committer_rpc_port
       committer_use_tls: *committer_use_tls
@@ -1450,12 +1492,17 @@ argument_specs:
       channel_id: *channel_id
       organization: *organization
       committer_coordinator: *committer_coordinator
+      committer_sidecar_orderer_fault_tolerance_level: *committer_sidecar_orderer_fault_tolerance_level
+      committer_sidecar_orderer_suspicion_grace_period_per_block: *committer_sidecar_orderer_suspicion_grace_period_per_block
       committer_sidecar_last_committed_block_set_interval: *committer_sidecar_last_committed_block_set_interval
       committer_sidecar_waiting_txs_limit: *committer_sidecar_waiting_txs_limit
       committer_sidecar_channel_buffer_size: *committer_sidecar_channel_buffer_size
       committer_sidecar_ledger_sync_interval: *committer_sidecar_ledger_sync_interval
       committer_sidecar_notification_max_timeout: *committer_sidecar_notification_max_timeout
+      committer_sidecar_notification_max_active_tx_ids: *committer_sidecar_notification_max_active_tx_ids
+      committer_sidecar_notification_max_tx_ids_per_request: *committer_sidecar_notification_max_tx_ids_per_request
       orderer_assemblers: *orderer_assemblers
+      configtxgen_artifacts_dir: *configtxgen_artifacts_dir
       fetched_artifacts_dir:
         <<: *fetched_artifacts_dir
         required: true
@@ -1550,6 +1597,7 @@ argument_specs:
       - Ensure the namespace exists and apply the sidecar Service, NodePort Service, and StatefulSet.
       - Creates the persistent sidecar ledger volume from the configured storage settings.
     options:
+      committer_sidecar_config_block_file: *committer_sidecar_config_block_file
       committer_k8s_use_node_port: *committer_k8s_use_node_port
       committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
       committer_k8s_metrics_node_port: *committer_k8s_metrics_node_port
@@ -1653,6 +1701,7 @@ argument_specs:
       - Publishes rendered sidecar config plus orderer and coordinator CA bundle files.
     options:
       committer_remote_config_dir: *committer_remote_config_dir
+      committer_sidecar_config_block_file: *committer_sidecar_config_block_file
 
   query_service/k8s/config/transfer:
     short_description: Create the query-service ConfigMap
