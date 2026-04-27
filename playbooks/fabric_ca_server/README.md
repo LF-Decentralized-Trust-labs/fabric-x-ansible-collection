@@ -43,20 +43,9 @@ flowchart LR
 
 [`binaries.yaml`](./binaries.yaml) prepares Fabric CA server executables for binary-mode CA deployments. It handles control-node install/build decisions, then ensures remote CA server hosts have the binary by transfer, local build, or install.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.fabric_ca_server.binaries --extra-vars '{"target_hosts": "fabric_cas"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run fabric-ca-server binaries playbook
-      vars:
-        target_hosts: fabric_cas
-      ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.binaries
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.fabric_ca_server.binaries --extra-vars '{"target_hosts": "fabric_cas"}'
+```
 
 Properties:
 
@@ -68,20 +57,9 @@ Properties:
 
 [`generate_crypto.yaml`](./generate_crypto.yaml) prepares TLS material for Fabric CA servers and their PostgreSQL database hosts. It runs CA-server crypto setup/fetch tasks on hosts with `fabric_ca_port` and database crypto tasks on matching PostgreSQL hosts.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.fabric_ca_server.generate_crypto --extra-vars '{"target_hosts": "fabric_cas"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run fabric-ca-server generate-crypto playbook
-      vars:
-        target_hosts: fabric_cas
-      ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.generate_crypto
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.fabric_ca_server.generate_crypto --extra-vars '{"target_hosts": "fabric_cas"}'
+```
 
 Properties:
 
@@ -92,20 +70,9 @@ Properties:
 
 [`configs.yaml`](./configs.yaml) transfers the PostgreSQL and Fabric CA server configuration needed before the CA stack starts. It configures CA database access as well as the Fabric CA server runtime settings.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.fabric_ca_server.configs --extra-vars '{"target_hosts": "fabric_cas"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run fabric-ca-server configs playbook
-      vars:
-        target_hosts: fabric_cas
-      ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.configs
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.fabric_ca_server.configs --extra-vars '{"target_hosts": "fabric_cas"}'
+```
 
 Properties:
 
@@ -116,20 +83,9 @@ Properties:
 
 [`start.yaml`](./start.yaml) starts the CA PostgreSQL databases first, then starts the Fabric CA servers that depend on them. This gives enrollment and registration tasks live CA endpoints to use.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.fabric_ca_server.start --extra-vars '{"target_hosts": "fabric_cas"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run fabric-ca-server start playbook
-      vars:
-        target_hosts: fabric_cas
-      ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.start
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.fabric_ca_server.start --extra-vars '{"target_hosts": "fabric_cas"}'
+```
 
 Properties:
 
@@ -140,20 +96,9 @@ Properties:
 
 [`init.yaml`](./init.yaml) enrolls Fabric CA administrator identities with the Fabric CA client. These admin identities are required before the registration playbook can create component users.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.fabric_ca_server.init --extra-vars '{"target_hosts": "fabric_ca_servers"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run fabric-ca-server init playbook
-      vars:
-        target_hosts: fabric_ca_servers
-      ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.init
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.fabric_ca_server.init --extra-vars '{"target_hosts": "fabric_ca_servers"}'
+```
 
 Properties:
 
@@ -164,20 +109,9 @@ Properties:
 
 [`register_identities.yaml`](./register_identities.yaml) derives Fabric-X component users from the inventory and registers them on the correct Fabric CA servers. It covers orderer, committer, and load generator identities as well as organization-level metadata.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.fabric_ca_server.register_identities --extra-vars '{"target_hosts": "fabric_ca_servers"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run fabric-ca-server register-identities playbook
-      vars:
-        target_hosts: fabric_ca_servers
-      ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.register_identities
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.fabric_ca_server.register_identities --extra-vars '{"target_hosts": "fabric_ca_servers"}'
+```
 
 Properties:
 
@@ -188,20 +122,9 @@ Properties:
 
 [`stop.yaml`](./stop.yaml) stops Fabric CA servers first, then stops their PostgreSQL databases. It leaves generated files and database data in place for a later restart.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.fabric_ca_server.stop --extra-vars '{"target_hosts": "fabric_cas"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run fabric-ca-server stop playbook
-      vars:
-        target_hosts: fabric_cas
-      ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.stop
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.fabric_ca_server.stop --extra-vars '{"target_hosts": "fabric_cas"}'
+```
 
 Properties:
 
@@ -212,20 +135,9 @@ Properties:
 
 [`teardown.yaml`](./teardown.yaml) tears down Fabric CA servers and their databases, removing runtime state according to the selected runtime mode.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.fabric_ca_server.teardown --extra-vars '{"target_hosts": "fabric_cas"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run fabric-ca-server teardown playbook
-      vars:
-        target_hosts: fabric_cas
-      ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.teardown
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.fabric_ca_server.teardown --extra-vars '{"target_hosts": "fabric_cas"}'
+```
 
 Properties:
 
@@ -236,20 +148,9 @@ Properties:
 
 [`wipe.yaml`](./wipe.yaml) removes Fabric CA server artifacts, Fabric CA client binaries, and CA database files managed by the roles.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.fabric_ca_server.wipe --extra-vars '{"target_hosts": "fabric_cas"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run fabric-ca-server wipe playbook
-      vars:
-        target_hosts: fabric_cas
-      ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.wipe
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.fabric_ca_server.wipe --extra-vars '{"target_hosts": "fabric_cas"}'
+```
 
 Properties:
 
@@ -260,20 +161,9 @@ Properties:
 
 [`ping.yaml`](./ping.yaml) checks CA database and Fabric CA server endpoints so you can confirm the enrollment stack is reachable before initialization or identity registration.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.fabric_ca_server.ping --extra-vars '{"target_hosts": "fabric_cas"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run fabric-ca-server ping playbook
-      vars:
-        target_hosts: fabric_cas
-      ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.ping
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.fabric_ca_server.ping --extra-vars '{"target_hosts": "fabric_cas"}'
+```
 
 Properties:
 
@@ -284,20 +174,9 @@ Properties:
 
 [`fetch_crypto.yaml`](./fetch_crypto.yaml) fetches Fabric CA server and CA database crypto material into the configured artifacts directory.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.fabric_ca_server.fetch_crypto --extra-vars '{"target_hosts": "fabric_cas"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run fabric-ca-server fetch-crypto playbook
-      vars:
-        target_hosts: fabric_cas
-      ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.fetch_crypto
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.fabric_ca_server.fetch_crypto --extra-vars '{"target_hosts": "fabric_cas"}'
+```
 
 Properties:
 
@@ -308,20 +187,9 @@ Properties:
 
 [`fetch_logs.yaml`](./fetch_logs.yaml) fetches Fabric CA server and CA database logs into the configured output directory for debugging enrollment, registration, or database startup issues.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.fabric_ca_server.fetch_logs --extra-vars '{"target_hosts": "fabric_cas"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run fabric-ca-server fetch-logs playbook
-      vars:
-        target_hosts: fabric_cas
-      ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.fetch_logs
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.fabric_ca_server.fetch_logs --extra-vars '{"target_hosts": "fabric_cas"}'
+```
 
 Properties:
 

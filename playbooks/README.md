@@ -16,18 +16,9 @@ This directory contains the reusable playbooks that the `hyperledger.fabricx` co
 
 Each playbook can be run by its fully-qualified collection name:
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.orderer.start
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run orderer start playbook
-      ansible.builtin.import_playbook: hyperledger.fabricx.orderer.start
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.orderer.start
+```
 
 The top-level playbooks prepare shared host resources around the component-specific lifecycle. The normal setup flow runs prerequisites first, logs in to registries when private images are used, creates container networks for container-mode inventories, and then runs the namespaced playbooks for artifacts, configuration, services, and cleanup.
 
@@ -44,20 +35,9 @@ flowchart LR
 
 [`install_prerequisites.yaml`](./install_prerequisites.yaml) prepares the machines that will run Fabric-X services. It first selects one representative inventory host per physical machine, then installs the shared operating-system and runtime prerequisites used by the rest of the collection: container engine support, tmux, OpenSSL, Git, Go, rsync, and chrony.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.install_prerequisites --extra-vars '{"target_hosts": "all"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run install-prerequisites playbook
-      vars:
-        target_hosts: all
-      ansible.builtin.import_playbook: hyperledger.fabricx.install_prerequisites
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.install_prerequisites --extra-vars '{"target_hosts": "all"}'
+```
 
 Properties:
 
@@ -69,20 +49,9 @@ Properties:
 
 [`log_in_container_registry.yaml`](./log_in_container_registry.yaml) authenticates the deployment against a private container registry. It logs the container engine in once per physical machine, then creates Kubernetes image pull secrets once per selected Kubernetes namespace when Kubernetes hosts are present.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.log_in_container_registry --extra-vars '{"target_hosts": "all"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run log-in-container-registry playbook
-      vars:
-        target_hosts: all
-      ansible.builtin.import_playbook: hyperledger.fabricx.log_in_container_registry
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.log_in_container_registry --extra-vars '{"target_hosts": "all"}'
+```
 
 Properties:
 
@@ -94,20 +63,9 @@ Properties:
 
 [`create_container_networks.yaml`](./create_container_networks.yaml) creates the container networks declared by the selected inventory hosts. It deduplicates work by building one execution target per `(ansible_host, container_network)` pair, so each required network is created once on each machine that needs it.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.create_container_networks --extra-vars '{"target_hosts": "all"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run create-container-networks playbook
-      vars:
-        target_hosts: all
-      ansible.builtin.import_playbook: hyperledger.fabricx.create_container_networks
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.create_container_networks --extra-vars '{"target_hosts": "all"}'
+```
 
 Properties:
 
@@ -119,20 +77,9 @@ Properties:
 
 [`remove_container_networks.yaml`](./remove_container_networks.yaml) removes the container networks that were created for the selected inventory hosts. It uses the same `(ansible_host, container_network)` deduplication as the create playbook, which makes cleanup operate once per machine and network.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.remove_container_networks --extra-vars '{"target_hosts": "all"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run remove-container-networks playbook
-      vars:
-        target_hosts: all
-      ansible.builtin.import_playbook: hyperledger.fabricx.remove_container_networks
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.remove_container_networks --extra-vars '{"target_hosts": "all"}'
+```
 
 Properties:
 
@@ -144,18 +91,9 @@ Properties:
 
 [`generate_target_hosts.yaml`](./generate_target_hosts.yaml) regenerates the Makefile helper targets for the selected inventory. It reads `groups['all']` and writes `target_hosts.mk` under `project_dir`, giving the top-level `Makefile` one target per inventory host that maps to `TARGET_HOSTS`.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.generate_target_hosts
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run generate-target-hosts playbook
-      ansible.builtin.import_playbook: hyperledger.fabricx.generate_target_hosts
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.generate_target_hosts
+```
 
 Properties:
 
