@@ -200,7 +200,7 @@ Runs `idemixgen ca-keygen` in the configured container image. The task removes a
     # Defines the image name used for the idemixgen container.
     idemixgen_image_name: fabric-x-tools
     # Defines the image tag used for the idemixgen container.
-    idemixgen_image_tag: v0.0.15
+    idemixgen_image_tag: 0.0.15
     # Sets the host directory where the generated artifacts are written.
     idemixgen_output_dir: "{{ config_build_dir }}/idemixgen-artifacts"
     # Defines the container registry used for the idemixgen image.
@@ -240,7 +240,7 @@ Runs `idemixgen signerconfig` in the configured container image. The task remove
     # Defines the image name used for the idemixgen container.
     idemixgen_image_name: fabric-x-tools
     # Defines the image tag used for the idemixgen container.
-    idemixgen_image_tag: v0.0.15
+    idemixgen_image_tag: 0.0.15
     # Sets the organization unit passed to `signerconfig`. Example: `org1.example.com`.
     idemixgen_org_domain: "org1.example.com"
     # Sets the host directory where the generated artifacts are written.
