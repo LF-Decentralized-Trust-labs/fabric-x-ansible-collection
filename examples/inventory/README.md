@@ -141,15 +141,13 @@ The examples intentionally cover several security postures:
 - TLS without mTLS keeps transport encryption but disables client certificate authentication where mTLS variables are omitted or disabled. Use it for debugging interoperability or certificate issues.
 - Fabric CA inventories enroll identities through CA services. This is the safest sample pattern because private keys can be generated on the node that owns them.
 
-!!! warning
-
-    No TLS is only for local debugging. It should not be used as a production starting point.
-
-!!! note
-
-    `cryptogen` inventories generate test certificates centrally on the control node. They are convenient for repeatable tests and performance runs, but they are not a production certificate lifecycle.
+> [!NOTE]
+> `cryptogen` inventories generate test certificates centrally on the control node. They are convenient for repeatable tests and performance runs, but they are not a production certificate lifecycle.
 
 Security choices affect several roles at once. If you disable TLS or mTLS for Fabric-X components, check the orderer, committer, load generator, monitoring, and database variables together so generated endpoints and certificate references remain consistent.
+
+> [!WARNING]
+> No TLS is only for local debugging. It should not be used as a production starting point.
 
 ## Sample Inventories
 
@@ -220,9 +218,8 @@ The distributed inventory is a performance-oriented SSH topology. It uses contai
 | ------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | [`distributed/fabric-x.yaml`](./docs/distributed/fabric-x.md) | Multi-machine reference topology for performance evaluation and adaptation. |
 
-!!! warning
-
-    This inventory is not ready to run as-is. Replace the `host_machine_*` placeholders in [`distributed/group_vars/all/env.yaml`](./distributed/group_vars/all/env.yaml), confirm SSH access, update `remote_deploy_dir`, and review all port assignments before using it.
+> [!WARNING]
+> This inventory is not ready to run as-is. Replace the `host_machine_*` placeholders in [`distributed/group_vars/all/env.yaml`](./distributed/group_vars/all/env.yaml), confirm SSH access, update `remote_deploy_dir`, and review all port assignments before using it.
 
 ## Scaling a Component
 

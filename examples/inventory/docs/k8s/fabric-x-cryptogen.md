@@ -4,9 +4,8 @@
 
 Use it for repeatable Kubernetes tests that should not exercise Fabric CA enrollment.
 
-!!! warning
-
-    This inventory is intended for debugging and repeatable test runs. For production-style deployments, start from the Fabric CA based [`k8s/fabric-x.yaml`](./fabric-x.md) inventory instead.
+> [!WARNING]
+> This inventory is intended for debugging and repeatable test runs. For production-style deployments, start from the Fabric CA based [`k8s/fabric-x.yaml`](./fabric-x.md) inventory instead.
 
 ## Table of Contents <!-- omit in toc -->
 

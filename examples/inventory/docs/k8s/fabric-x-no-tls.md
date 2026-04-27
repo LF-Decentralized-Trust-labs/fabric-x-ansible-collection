@@ -4,9 +4,8 @@
 
 Use it for local-cluster debugging when plaintext endpoints are deliberate and the goal is to remove certificate handling from the test.
 
-!!! warning
-
-    This inventory is meant for debugging only. It disables both TLS encryption and mTLS client authentication.
+> [!WARNING]
+> This inventory is meant for debugging only. It disables both TLS encryption and mTLS client authentication.
 
 ## Table of Contents <!-- omit in toc -->
 

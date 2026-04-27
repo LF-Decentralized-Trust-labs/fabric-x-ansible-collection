@@ -4,9 +4,8 @@
 
 Use it for fast, repeatable local tests where Fabric CA enrollment is not under test.
 
-!!! warning
-
-    This inventory is intended for debugging and repeatable test runs. For production-style deployments, start from the Fabric CA based [`local/fabric-x.yaml`](./fabric-x.md) inventory instead.
+> [!WARNING]
+> This inventory is intended for debugging and repeatable test runs. For production-style deployments, start from the Fabric CA based [`local/fabric-x.yaml`](./fabric-x.md) inventory instead.
 
 ## Table of Contents <!-- omit in toc -->
 

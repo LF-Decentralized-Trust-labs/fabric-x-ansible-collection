@@ -4,18 +4,17 @@
 
 Use it when you want to test install, start, stop, and log handling for local binaries instead of containers.
 
-!!! note
-
-    This inventory runs these components as binaries managed through `tmux`:
-
-    - Fabric CA servers
-    - Orderer components
-    - Committer components
-    - Load generator
-    - `cryptogen` CLI
-    - Fabric CA client CLI
-
-    PostgreSQL databases still run as containers.
+> [!NOTE]
+> This inventory runs these components as binaries managed through `tmux`:
+>
+> - Fabric CA servers
+> - Orderer components
+> - Committer components
+> - Load generator
+> - `cryptogen` CLI
+> - Fabric CA client CLI
+>
+> PostgreSQL databases still run as containers.
 
 ## Table of Contents <!-- omit in toc -->
 

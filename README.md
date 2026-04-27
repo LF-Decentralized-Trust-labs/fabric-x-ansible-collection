@@ -50,19 +50,17 @@ ansible-galaxy collection install -r ~/.ansible/collections/ansible_collections/
 
 To install the `hyperledger.fabricx` collection on your control node, run:
 
+> [!NOTE]
+> This is the recommended way if you plan to develop and change the scripts, since it allows to test directly the modified scripts avoiding to reinstall the collection at every change.
+
 ```shell
 git clone https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection.git ~/.ansible/collections/ansible_collections/hyperledger/fabricx
 cd ~/.ansible/collections/ansible_collections/hyperledger/fabricx
 make install-deps
 ```
 
-!!! note
-
-    This is the recommended way if you plan to develop and change the scripts, since it allows to test directly the modified scripts avoiding to reinstall the collection at every change.
-
-!!! warning
-
-    Do not run `make install` with this setup — the collection is already live from the cloned directory. Running it would overwrite your checkout with a built artifact. Use `make install-deps` to install dependencies only. The Makefile will also guard against this and abort if it detects the risk.
+> [!WARNING]
+> Do not run `make install` with this setup — the collection is already live from the cloned directory. Running it would overwrite your checkout with a built artifact. Use `make install-deps` to install dependencies only. The Makefile will also guard against this and abort if it detects the risk.
 
 ### Option 3: Install from source
 
@@ -124,9 +122,8 @@ The collection comes with a playbook that can be used to automatically setup all
 make install-remote-node-deps
 ```
 
-!!! warning "Important"
-
-    The playbook installs the needed packages and requires `sudo` permission. Make sure to use a passwordless `sudo` user so the playbook can complete.
+> [!WARNING]
+> The playbook installs the needed packages and requires `sudo` permission. Make sure to use a passwordless `sudo` user so the playbook can complete.
 
 ## Run a sample Fabric-X network
 
@@ -211,9 +208,8 @@ This command runs post-start initialization, such as creating the namespaces ind
 
 You can access [Grafana dashboards](http://localhost:3000/dashboards) (user=_admin_, password=_adminPWD_) to see how the Fabric-X network is handling the transactions processing.
 
-!!! note
-
-    These Grafana credentials are sample defaults. Change them before using an adapted inventory in a shared environment.
+> [!NOTE]
+> These Grafana credentials are sample defaults. Change them before using an adapted inventory in a shared environment.
 
 ### 5. Teardown the network
 

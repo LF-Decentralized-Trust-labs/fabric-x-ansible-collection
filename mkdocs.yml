@@ -29,35 +29,61 @@ theme:
         icon: material/brightness-4
         name: Switch to light mode
   features:
+    # Top-level nav items rendered as horizontal tabs.
     - navigation.tabs
+    # Render nav groups as expandable sections in the sidebar.
     - navigation.sections
+    # Show a "Back to top" button when scrolling up.
     - navigation.top
+    # Show autocomplete suggestions while typing in the search box.
     - search.suggest
+    # Highlight matching terms in search results.
     - search.highlight
+    # Add a one-click copy button to every code block.
     - content.code.copy
 
 markdown_extensions:
+  # GitHub-Flavored Markdown tables.
+  - tables
+  # Note/warning/tip/etc. admonition blocks (!!! note syntax).
+  - admonition
+  # Collapsible admonition blocks (??? note syntax).
+  - pymdownx.details
+  # Allows adding HTML attributes and CSS classes to Markdown elements.
+  - attr_list
+  # Allows embedding Markdown inside raw HTML blocks.
+  - md_in_html
+  # Tabbed content blocks (=== "Tab label" syntax).
+  - pymdownx.tabbed:
+      alternate_style: true
+  # Adds a permalink anchor (¶) to every heading.
+  - toc:
+      permalink: true
+  # Syntax highlighting for code blocks; anchor_linenums adds per-line anchors.
   - pymdownx.highlight:
       anchor_linenums: true
+  # Allows arbitrary fenced blocks, including Mermaid diagrams rendered client-side.
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
-  - pymdownx.tabbed:
-      alternate_style: true
-  - tables
-  - admonition
-  - pymdownx.details
-  - toc:
-      permalink: true
-  - attr_list
-  - md_in_html
 
 plugins:
+  # Built-in full-text search index.
   - search
+  # Converts GitHub/Obsidian-style callouts (> [!NOTE]) to MkDocs admonition
+  # blocks at build time, so the same source renders correctly on both GitHub
+  # and the MkDocs site.
+  # aliases: map Obsidian callout type aliases to their canonical MkDocs types.
+  # breakless_lists: auto-insert blank lines between list items and callout blocks.
+  - callouts:
+      aliases: true
+      breakless_lists: true
 
+# Additional JavaScript loaded on every page.
 extra_javascript:
+  # Binds Cmd+K / Ctrl+K to open the MkDocs search overlay.
   - assets/search-hotkeys.js
 
 extra:

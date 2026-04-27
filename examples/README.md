@@ -2,9 +2,8 @@
 
 This directory contains sample inventories and wrapper playbooks for running Hyperledger Fabric-X networks with the `hyperledger.fabricx` collection.
 
-!!! note
-
-    The samples are intentionally small enough to inspect and adapt. They are not a production blueprint. Use them to learn the inventory contract, validate changes locally, and create your own topology.
+> [!NOTE]
+> The samples are intentionally small enough to inspect and adapt. They are not a production blueprint. Use them to learn the inventory contract, validate changes locally, and create your own topology.
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -204,9 +203,8 @@ export K8S_NODE_IP=<node-ip>
 
 Distributed inventories use SSH-managed machines for performance-oriented topologies with containers, `cryptogen`, mTLS, and YugabyteDB. They require SSH access, remote Python, a container engine, and real hostnames.
 
-!!! warning
-
-    The distributed sample uses `host_machine_*` placeholders. Replace all of them before running it.
+> [!WARNING]
+> The distributed sample uses `host_machine_*` placeholders. Replace all of them before running it.
 
 | Inventory                                                               | Runtime    | TLS | mTLS | Best for                                                     |
 | ----------------------------------------------------------------------- | ---------- | --- | ---- | ------------------------------------------------------------ |

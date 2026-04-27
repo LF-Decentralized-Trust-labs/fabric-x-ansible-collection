@@ -4,9 +4,8 @@
 
 Use it when you need encrypted Kubernetes service traffic but want to remove client certificate authentication from Fabric-X service-to-service calls.
 
-!!! warning
-
-    This inventory is meant for debugging only. It disables mTLS client authentication between Fabric-X services.
+> [!WARNING]
+> This inventory is meant for debugging only. It disables mTLS client authentication between Fabric-X services.
 
 ## Table of Contents <!-- omit in toc -->
 

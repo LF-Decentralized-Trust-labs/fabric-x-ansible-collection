@@ -4,9 +4,8 @@
 
 Use it only when plaintext endpoints are deliberate, such as local protocol, connectivity, or compatibility debugging.
 
-!!! warning
-
-    This inventory is meant for debugging only. It disables both TLS encryption and mTLS client authentication.
+> [!WARNING]
+> This inventory is meant for debugging only. It disables both TLS encryption and mTLS client authentication.
 
 ## Table of Contents <!-- omit in toc -->
 

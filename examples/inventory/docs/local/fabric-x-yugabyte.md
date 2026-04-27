@@ -28,9 +28,8 @@ This inventory deploys these logical services on the local machine:
 - 1 load generator.
 - Monitoring with node exporter, Prometheus, and Grafana.
 
-!!! note
-
-    You can scale YugabyteDB for stronger performance by adding more master and tablet hosts. See the [distributed Fabric-X inventory](../distributed/fabric-x.md) for a larger topology with replicated YugabyteDB masters and tablets.
+> [!NOTE]
+> You can scale YugabyteDB for stronger performance by adding more master and tablet hosts. See the [distributed Fabric-X inventory](../distributed/fabric-x.md) for a larger topology with replicated YugabyteDB masters and tablets.
 
 ```mermaid
 flowchart TD

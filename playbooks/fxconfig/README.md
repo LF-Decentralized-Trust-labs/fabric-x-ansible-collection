@@ -7,7 +7,7 @@ The `fxconfig` playbooks prepare and submit Fabric-X configuration transactions,
 - [Playbooks flow](#playbooks-flow)
 - [binaries.yaml](#binariesyaml)
 - [configs.yaml](#configsyaml)
-- [create\_namespaces.yaml](#create_namespacesyaml)
+- [create_namespaces.yaml](#create_namespacesyaml)
 - [wipe.yaml](#wipeyaml)
 
 ## Playbooks flow
@@ -85,9 +85,8 @@ Properties:
 
 - Target hosts: `all` by default, with transaction construction and submission coordinated by the `fxconfig` role.
 
-!!! warning
-
-    Run this after the network is started and the required committer endpoints are reachable. Running it too early fails by design because namespace transactions must be endorsed and submitted through live Fabric-X endpoints.
+> [!WARNING]
+> Run this after the network is started and the required committer endpoints are reachable. Running it too early fails by design because namespace transactions must be endorsed and submitted through live Fabric-X endpoints.
 
 ## wipe.yaml
 
