@@ -34,6 +34,8 @@ all:
       org1: &Org1
         name: Org1
         domain: org1.example.com
+    cryptogen_use_bin: true
+    cryptogen_git_commit: 321cab8
   children:
     # =========================
     # Network (HLFX)

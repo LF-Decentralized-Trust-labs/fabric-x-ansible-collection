@@ -15,7 +15,7 @@
 # =========================
 - name: Transfer the MSP crypto material generated with cryptogen
   ansible.posix.synchronize:
-    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.name }}/peers/{{ organization.peer.name | default(inventory_hostname) }}.{{ organization.domain }}/msp"
+    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ organization.peer.name | default(inventory_hostname) }}.{{ organization.domain }}/msp"
     dest: "{{ committer_remote_config_dir }}"
   when:
     - committer_component_type == 'sidecar'
@@ -25,7 +25,7 @@
 # =========================
 - name: Transfer the TLS crypto material generated with cryptogen
   ansible.posix.synchronize:
-    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.name }}/peers/{{ organization.peer.name | default(inventory_hostname) }}.{{ organization.domain }}/tls"
+    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ organization.peer.name | default(inventory_hostname) }}.{{ organization.domain }}/tls"
     dest: "{{ committer_remote_config_dir }}"
   when:
     - committer_use_tls

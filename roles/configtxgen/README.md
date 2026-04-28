@@ -116,7 +116,7 @@ Build the `configtxgen` binary from the Fabric-X source tree on the control node
     # Repository path for `configtxgen_bin_package`.
     configtxgen_git_repo: hyperledger/fabric-x
     # Git reference used by the binary build and install entry points.
-    configtxgen_git_commit: v0.0.15
+    configtxgen_git_commit: v0.0.16
     # Go package path for the `configtxgen` source tree.
     configtxgen_source_code_package: tools/configtxgen
     # Executable name used by the binary and container entry points.
@@ -146,7 +146,7 @@ Install the `configtxgen` Go package through the shared `bin` role. The installe
     # Go package reference used by `bin/install`.
     configtxgen_bin_package: "{{ configtxgen_git_hub_url }}/{{ configtxgen_git_repo }}/{{ configtxgen_source_code_package }}"
     # Git reference used by the binary build and install entry points.
-    configtxgen_git_commit: v0.0.15
+    configtxgen_git_commit: v0.0.16
     # Executable name used by the binary and container entry points.
     configtxgen_bin_name: configtxgen
     # Directory used as the `configtxgen` binary destination or lookup path. Example: `/opt/fabricx/bin`.
@@ -206,7 +206,7 @@ Run `configtxgen` in a container to generate the channel genesis block. The cont
     # Image repository name for `configtxgen_image`.
     configtxgen_image_name: fabric-x-tools
     # Image tag for `configtxgen_image`.
-    configtxgen_image_tag: 0.0.15
+    configtxgen_image_tag: 0.0.16
     # Full container image reference for `configtxgen`.
     configtxgen_image: "{{ configtxgen_registry_endpoint }}/{{ configtxgen_image_name }}:{{ configtxgen_image_tag }}"
     # Executable name used by the binary and container entry points.

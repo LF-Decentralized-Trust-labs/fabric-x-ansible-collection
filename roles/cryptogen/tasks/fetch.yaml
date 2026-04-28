@@ -19,7 +19,7 @@
 
 - name: Fetch orderer organization MSP directory
   ansible.posix.synchronize:
-    src: "{{ cryptogen_output_dir }}/ordererOrganizations/{{ current_orderer_org_info.name }}/msp"
+    src: "{{ cryptogen_output_dir }}/ordererOrganizations/{{ current_orderer_org_info.domain }}/msp"
     dest: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ current_orderer_org_info.domain }}"
   loop: "{{ cryptogen_orderers_by_org.values() | list }}"
   loop_control:
@@ -38,7 +38,7 @@
 
 - name: Fetch peer organization MSP directory
   ansible.posix.synchronize:
-    src: "{{ cryptogen_output_dir }}/peerOrganizations/{{ current_peer_org_info.name }}/msp"
+    src: "{{ cryptogen_output_dir }}/peerOrganizations/{{ current_peer_org_info.domain }}/msp"
     dest: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ current_peer_org_info.domain }}"
   loop: "{{ cryptogen_peers_by_org.values() | list }}"
   loop_control:
