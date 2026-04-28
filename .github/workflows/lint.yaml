@@ -8,9 +8,9 @@ name: Lint
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
   pull_request:
-    branches: ["main"]
+    branches: [ "main" ]
   # Enable manual triggering
   workflow_dispatch:
 
@@ -33,9 +33,13 @@ jobs:
       - name: Run lint
         run: make install lint check-trailing-spaces
 
-        # Check that all the files have the license header
+      # Check that all the files have the license header
       - name: Run the license check
         run: make check-license-header
+
+      # Check that argument specs are up to date with the code
+      - name: Check that argument specs are up to date
+        run: make check-argument-specs
 
       # Check that generated docs are in sync with argument_specs.yaml
       - name: Check generated docs are up to date
