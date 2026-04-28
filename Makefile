@@ -187,6 +187,12 @@ check-trailing-spaces:
 	@printf "$(COLOR_CYAN)🚩 Checking for trailing spaces in templates...$(COLOR_RESET)\n"
 	./scripts/check_trailing_spaces.sh
 
+# Check that argument_specs.yaml entrypoints match tasks/ files for every role
+.PHONY: check-argument-specs
+check-argument-specs:
+	@printf "$(COLOR_CYAN)🚩 Checking argument_specs alignment with tasks...$(COLOR_RESET)\n"
+	$(ANSIBLE_PYTHON_INTERPRETER) ./scripts/check_argument_specs.py
+
 # =======================
 # Deployment
 # =======================

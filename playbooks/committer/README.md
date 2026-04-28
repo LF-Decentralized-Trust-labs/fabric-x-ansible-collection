@@ -40,20 +40,9 @@ flowchart LR
 
 [`binaries.yaml`](./binaries.yaml) prepares committer executables for binary-mode deployments. It handles control-node install/build work, then ensures targeted validator, verifier, coordinator, sidecar, and query-service hosts receive or build the binary they need.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.committer.binaries --extra-vars '{"target_hosts": "fabric_x_committer"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run committer binaries playbook
-      vars:
-        target_hosts: fabric_x_committer
-      ansible.builtin.import_playbook: hyperledger.fabricx.committer.binaries
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.committer.binaries --extra-vars '{"target_hosts": "fabric_x_committer"}'
+```
 
 Properties:
 
@@ -65,20 +54,9 @@ Properties:
 
 [`generate_crypto.yaml`](./generate_crypto.yaml) prepares TLS/MSP material for committer services and whichever database backend the inventory declares. It handles PostgreSQL, YugabyteDB, and Fabric-X committer hosts in one pass so the committer pipeline and storage backend use consistent artifacts.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.committer.generate_crypto --extra-vars '{"target_hosts": "fabric_x_committer"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run committer generate-crypto playbook
-      vars:
-        target_hosts: fabric_x_committer
-      ansible.builtin.import_playbook: hyperledger.fabricx.committer.generate_crypto
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.committer.generate_crypto --extra-vars '{"target_hosts": "fabric_x_committer"}'
+```
 
 Properties:
 
@@ -89,20 +67,9 @@ Properties:
 
 [`configs.yaml`](./configs.yaml) transfers database configuration when PostgreSQL or YugabyteDB hosts are present, then renders committer service configuration from the selected inventory. It discovers validators, verifiers, the coordinator, and orderer assemblers so the sidecar/coordinator path can connect to the right services.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.committer.configs --extra-vars '{"target_hosts": "fabric_x_committer"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run committer configs playbook
-      vars:
-        target_hosts: fabric_x_committer
-      ansible.builtin.import_playbook: hyperledger.fabricx.committer.configs
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.committer.configs --extra-vars '{"target_hosts": "fabric_x_committer"}'
+```
 
 Properties:
 
@@ -113,20 +80,9 @@ Properties:
 
 [`start.yaml`](./start.yaml) starts the committer storage backend before the Fabric-X committer services that depend on it. After PostgreSQL or YugabyteDB is running, it starts validators, verifiers, the coordinator, sidecar, and query service according to each host's `committer_component_type`.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.committer.start --extra-vars '{"target_hosts": "fabric_x_committer"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run committer start playbook
-      vars:
-        target_hosts: fabric_x_committer
-      ansible.builtin.import_playbook: hyperledger.fabricx.committer.start
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.committer.start --extra-vars '{"target_hosts": "fabric_x_committer"}'
+```
 
 Properties:
 
@@ -137,20 +93,9 @@ Properties:
 
 [`stop.yaml`](./stop.yaml) stops committer services before stopping the configured database backend. It leaves generated files and runtime data in place so the same committer deployment can be started again.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.committer.stop --extra-vars '{"target_hosts": "fabric_x_committer"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run committer stop playbook
-      vars:
-        target_hosts: fabric_x_committer
-      ansible.builtin.import_playbook: hyperledger.fabricx.committer.stop
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.committer.stop --extra-vars '{"target_hosts": "fabric_x_committer"}'
+```
 
 Properties:
 
@@ -161,20 +106,9 @@ Properties:
 
 [`teardown.yaml`](./teardown.yaml) tears down committer services and database runtime state. Use it when you want to remove the running deployment state rather than simply pause services.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.committer.teardown --extra-vars '{"target_hosts": "fabric_x_committer"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run committer teardown playbook
-      vars:
-        target_hosts: fabric_x_committer
-      ansible.builtin.import_playbook: hyperledger.fabricx.committer.teardown
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.committer.teardown --extra-vars '{"target_hosts": "fabric_x_committer"}'
+```
 
 Properties:
 
@@ -185,20 +119,9 @@ Properties:
 
 [`wipe.yaml`](./wipe.yaml) removes committer and database artifacts from targeted hosts, including generated configuration, crypto, and role-managed files that should not remain after a full cleanup.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.committer.wipe --extra-vars '{"target_hosts": "fabric_x_committer"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run committer wipe playbook
-      vars:
-        target_hosts: fabric_x_committer
-      ansible.builtin.import_playbook: hyperledger.fabricx.committer.wipe
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.committer.wipe --extra-vars '{"target_hosts": "fabric_x_committer"}'
+```
 
 Properties:
 
@@ -209,20 +132,9 @@ Properties:
 
 [`ping.yaml`](./ping.yaml) checks committer and database endpoints declared by targeted hosts. It is the quickest post-start validation for sidecar/query access and backend availability.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.committer.ping --extra-vars '{"target_hosts": "fabric_x_committer"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run committer ping playbook
-      vars:
-        target_hosts: fabric_x_committer
-      ansible.builtin.import_playbook: hyperledger.fabricx.committer.ping
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.committer.ping --extra-vars '{"target_hosts": "fabric_x_committer"}'
+```
 
 Properties:
 
@@ -233,20 +145,9 @@ Properties:
 
 [`get_metrics.yaml`](./get_metrics.yaml) queries committer metrics endpoints on targeted hosts and returns the collected metrics through Ansible output.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.committer.get_metrics --extra-vars '{"target_hosts": "fabric_x_committer"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run committer get-metrics playbook
-      vars:
-        target_hosts: fabric_x_committer
-      ansible.builtin.import_playbook: hyperledger.fabricx.committer.get_metrics
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.committer.get_metrics --extra-vars '{"target_hosts": "fabric_x_committer"}'
+```
 
 Properties:
 
@@ -257,20 +158,9 @@ Properties:
 
 [`fetch_crypto.yaml`](./fetch_crypto.yaml) fetches committer and database crypto material into the configured artifacts directory for inspection, reuse, or debugging.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.committer.fetch_crypto --extra-vars '{"target_hosts": "fabric_x_committer"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run committer fetch-crypto playbook
-      vars:
-        target_hosts: fabric_x_committer
-      ansible.builtin.import_playbook: hyperledger.fabricx.committer.fetch_crypto
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.committer.fetch_crypto --extra-vars '{"target_hosts": "fabric_x_committer"}'
+```
 
 Properties:
 
@@ -281,20 +171,9 @@ Properties:
 
 [`fetch_logs.yaml`](./fetch_logs.yaml) fetches committer service and database logs from targeted hosts into the configured output directory.
 
-=== "Command line"
-
-    ```shell
-    ansible-playbook hyperledger.fabricx.committer.fetch_logs --extra-vars '{"target_hosts": "committer-validator"}'
-    ```
-
-=== "From a playbook"
-
-    ```yaml
-    - name: Run committer fetch-logs playbook
-      vars:
-        target_hosts: "committer-validator"
-      ansible.builtin.import_playbook: hyperledger.fabricx.committer.fetch_logs
-    ```
+```shell
+ansible-playbook hyperledger.fabricx.committer.fetch_logs --extra-vars '{"target_hosts": "committer-validator"}'
+```
 
 Properties:
 
