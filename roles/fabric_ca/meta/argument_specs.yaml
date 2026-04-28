@@ -869,7 +869,7 @@ argument_specs:
       fabric_ca_server_k8s_port_node_port: *fabric_ca_server_k8s_port_node_port
       fabric_ca_server_k8s_operations_node_port: *fabric_ca_server_k8s_operations_node_port
 
-  k8s/server/ping:
+  server/k8s/ping:
     short_description: Check Fabric CA node ports
     description:
       - "Checks that the Fabric CA API and operations NodePorts are reachable when Kubernetes NodePort exposure is enabled."

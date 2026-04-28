@@ -49,7 +49,7 @@
   - [server/container/fetch\_logs](#servercontainerfetch_logs)
   - [server/container/rm](#servercontainerrm)
   - [server/k8s/start](#serverk8sstart)
-  - [k8s/server/ping](#k8sserverping)
+  - [server/k8s/ping](#serverk8sping)
   - [server/k8s/fetch\_logs](#serverk8sfetch_logs)
   - [server/k8s/rm](#serverk8srm)
   - [server/k8s/config/transfer](#serverk8sconfigtransfer)
@@ -1124,7 +1124,7 @@ Creates Fabric CA Kubernetes runtime resources for the server. Uses the ConfigMa
     tasks_from: server/k8s/start
 ```
 
-### k8s/server/ping
+### server/k8s/ping
 
 > Check Fabric CA node ports
 
@@ -1141,7 +1141,7 @@ Checks that the Fabric CA API and operations NodePorts are reachable when Kubern
     fabric_ca_server_k8s_operations_node_port: 30943
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
-    tasks_from: k8s/server/ping
+    tasks_from: server/k8s/ping
 ```
 
 ### server/k8s/fetch_logs
