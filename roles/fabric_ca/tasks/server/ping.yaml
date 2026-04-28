@@ -23,5 +23,5 @@
 - name: Check that the node ports are open (k8s)
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
-    tasks_from: k8s/server/ping
+    tasks_from: server/k8s/ping
   when: fabric_ca_server_use_k8s
