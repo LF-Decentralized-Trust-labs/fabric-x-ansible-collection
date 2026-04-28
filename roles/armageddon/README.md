@@ -97,7 +97,7 @@ Install the Armageddon CLI through the shared binary helper for binary-mode depl
     # Go package that builds the Armageddon binary.
     armageddon_source_code_package: cmd/armageddon
     # Git ref used for Armageddon builds and installs.
-    armageddon_git_commit: v0.0.23
+    armageddon_git_commit: v1.0.0-alpha
     # Directory where the Armageddon binary is installed or executed. The binary helper roles use this as the local or remote binary directory. Example: `/usr/local/bin`.
     cli_bin_dir: "/usr/local/bin"
   ansible.builtin.include_role:
@@ -121,7 +121,7 @@ Build the Armageddon CLI from source through the shared Go helper for binary-mod
     # Armageddon source repository path.
     armageddon_git_repo: hyperledger/fabric-x-orderer
     # Git ref used for Armageddon builds and installs.
-    armageddon_git_commit: v0.0.23
+    armageddon_git_commit: v1.0.0-alpha
     # Go package that builds the Armageddon binary.
     armageddon_source_code_package: cmd/armageddon
     # Directory where the Armageddon binary is installed or executed. The binary helper roles use this as the local or remote binary directory. Example: `/usr/local/bin`.
@@ -173,7 +173,7 @@ Run the Armageddon container to generate `shared_config.binpb` for container-mod
     # Armageddon image name.
     armageddon_image_name: fabric-x-orderer
     # Armageddon image tag.
-    armageddon_image_tag: 0.0.21-1
+    armageddon_image_tag: 1.0.0-alpha
     # Fully qualified Armageddon image reference.
     armageddon_image: "{{ armageddon_registry_endpoint }}/{{ armageddon_image_name }}:{{ armageddon_image_tag }}"
     # Container directory for the rendered shared config file.

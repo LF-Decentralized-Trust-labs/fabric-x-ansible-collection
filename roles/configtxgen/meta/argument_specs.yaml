@@ -26,7 +26,7 @@ argument_specs:
       configtxgen_image_tag: &configtxgen_image_tag
         type: str
         required: false
-        default: "0.0.8"
+        default: "0.0.16"
         description:
           - Image tag for C(configtxgen_image).
       configtxgen_image: &configtxgen_image
@@ -56,7 +56,7 @@ argument_specs:
       configtxgen_git_commit: &configtxgen_git_commit
         type: str
         required: false
-        default: v0.0.8
+        default: v0.0.16
         description:
           - Git reference used by the binary build and install entry points.
       configtxgen_source_code_package: &configtxgen_source_code_package
@@ -182,6 +182,139 @@ argument_specs:
         description:
           - >-
             Directory used as the `configtxgen` binary destination or lookup path. Example: C(/opt/fabricx/bin).
+      configtxgen_orderer_org_policies_readers_operator:
+        &configtxgen_orderer_org_policies_readers_operator
+        type: str
+        required: false
+        description:
+          - Operator for the orderer organization Readers Signature policy.
+          - "Example: C(OR)"
+      configtxgen_orderer_org_policies_writers_operator:
+        &configtxgen_orderer_org_policies_writers_operator
+        type: str
+        required: false
+        description:
+          - Operator for the orderer organization Writers Signature policy.
+          - "Example: C(OR)"
+      configtxgen_orderer_org_policies_admins_operator:
+        &configtxgen_orderer_org_policies_admins_operator
+        type: str
+        required: false
+        description:
+          - Operator for the orderer organization Admins Signature policy.
+          - "Example: C(OR)"
+      configtxgen_orderer_org_policies_endorsement_operator:
+        &configtxgen_orderer_org_policies_endorsement_operator
+        type: str
+        required: false
+        description:
+          - Operator for the orderer organization Endorsement Signature policy.
+          - "Example: C(OR)"
+      configtxgen_peer_org_policies_readers_operator:
+        &configtxgen_peer_org_policies_readers_operator
+        type: str
+        required: false
+        description:
+          - Operator for the peer organization Readers Signature policy.
+          - "Example: C(OR)"
+      configtxgen_peer_org_policies_writers_operator:
+        &configtxgen_peer_org_policies_writers_operator
+        type: str
+        required: false
+        description:
+          - Operator for the peer organization Writers Signature policy.
+          - "Example: C(OR)"
+      configtxgen_peer_org_policies_admins_operator:
+        &configtxgen_peer_org_policies_admins_operator
+        type: str
+        required: false
+        description:
+          - Operator for the peer organization Admins Signature policy.
+          - "Example: C(OR)"
+      configtxgen_peer_org_policies_endorsement_operator:
+        &configtxgen_peer_org_policies_endorsement_operator
+        type: str
+        required: false
+        description:
+          - Operator for the peer organization Endorsement Signature policy.
+          - "Example: C(OR)"
+      configtxgen_application_policies_readers_operator:
+        &configtxgen_application_policies_readers_operator
+        type: str
+        required: false
+        description:
+          - ImplicitMeta operator for the Application Readers policy.
+          - "Example: C(ANY)"
+      configtxgen_application_policies_writers_operator:
+        &configtxgen_application_policies_writers_operator
+        type: str
+        required: false
+        description:
+          - ImplicitMeta operator for the Application Writers policy.
+          - "Example: C(ANY)"
+      configtxgen_application_policies_admins_operator:
+        &configtxgen_application_policies_admins_operator
+        type: str
+        required: false
+        description:
+          - ImplicitMeta operator for the Application Admins policy.
+          - "Example: C(MAJORITY)"
+      configtxgen_application_policies_endorsement_operator:
+        &configtxgen_application_policies_endorsement_operator
+        type: str
+        required: false
+        description:
+          - ImplicitMeta operator for the Application Endorsement policy.
+          - "Example: C(MAJORITY)"
+      configtxgen_orderer_policies_readers_operator:
+        &configtxgen_orderer_policies_readers_operator
+        type: str
+        required: false
+        description:
+          - ImplicitMeta operator for the Orderer Readers policy.
+          - "Example: C(ANY)"
+      configtxgen_orderer_policies_writers_operator:
+        &configtxgen_orderer_policies_writers_operator
+        type: str
+        required: false
+        description:
+          - ImplicitMeta operator for the Orderer Writers policy.
+          - "Example: C(ANY)"
+      configtxgen_orderer_policies_admins_operator:
+        &configtxgen_orderer_policies_admins_operator
+        type: str
+        required: false
+        description:
+          - ImplicitMeta operator for the Orderer Admins policy.
+          - "Example: C(MAJORITY)"
+      configtxgen_orderer_policies_block_validation_operator:
+        &configtxgen_orderer_policies_block_validation_operator
+        type: str
+        required: false
+        description:
+          - ImplicitMeta operator for the Orderer BlockValidation policy.
+          - "Example: C(MAJORITY)"
+      configtxgen_channel_policies_readers_operator:
+        &configtxgen_channel_policies_readers_operator
+        type: str
+        required: false
+        description:
+          - ImplicitMeta operator for the Channel Readers policy.
+          - "Example: C(ANY)"
+      configtxgen_channel_policies_writers_operator:
+        &configtxgen_channel_policies_writers_operator
+        type: str
+        required: false
+        description:
+          - ImplicitMeta operator for the Channel Writers policy.
+          - "Example: C(ANY)"
+      configtxgen_channel_policies_admins_operator:
+        &configtxgen_channel_policies_admins_operator
+        type: str
+        required: false
+        description:
+          - ImplicitMeta operator for the Channel Admins policy.
+          - "Example: C(MAJORITY)"
 
   config/build:
     short_description: Render the configtxgen configuration file
@@ -201,6 +334,25 @@ argument_specs:
       configtxgen_peers_by_org: *configtxgen_peers_by_org
       fetched_artifacts_dir: *fetched_artifacts_dir
       armageddon_artifacts_dir: *armageddon_artifacts_dir
+      configtxgen_orderer_org_policies_readers_operator: *configtxgen_orderer_org_policies_readers_operator
+      configtxgen_orderer_org_policies_writers_operator: *configtxgen_orderer_org_policies_writers_operator
+      configtxgen_orderer_org_policies_admins_operator: *configtxgen_orderer_org_policies_admins_operator
+      configtxgen_orderer_org_policies_endorsement_operator: *configtxgen_orderer_org_policies_endorsement_operator
+      configtxgen_peer_org_policies_readers_operator: *configtxgen_peer_org_policies_readers_operator
+      configtxgen_peer_org_policies_writers_operator: *configtxgen_peer_org_policies_writers_operator
+      configtxgen_peer_org_policies_admins_operator: *configtxgen_peer_org_policies_admins_operator
+      configtxgen_peer_org_policies_endorsement_operator: *configtxgen_peer_org_policies_endorsement_operator
+      configtxgen_application_policies_readers_operator: *configtxgen_application_policies_readers_operator
+      configtxgen_application_policies_writers_operator: *configtxgen_application_policies_writers_operator
+      configtxgen_application_policies_admins_operator: *configtxgen_application_policies_admins_operator
+      configtxgen_application_policies_endorsement_operator: *configtxgen_application_policies_endorsement_operator
+      configtxgen_orderer_policies_readers_operator: *configtxgen_orderer_policies_readers_operator
+      configtxgen_orderer_policies_writers_operator: *configtxgen_orderer_policies_writers_operator
+      configtxgen_orderer_policies_admins_operator: *configtxgen_orderer_policies_admins_operator
+      configtxgen_orderer_policies_block_validation_operator: *configtxgen_orderer_policies_block_validation_operator
+      configtxgen_channel_policies_readers_operator: *configtxgen_channel_policies_readers_operator
+      configtxgen_channel_policies_writers_operator: *configtxgen_channel_policies_writers_operator
+      configtxgen_channel_policies_admins_operator: *configtxgen_channel_policies_admins_operator
 
   bin/build:
     short_description: Build the configtxgen binary on the control node

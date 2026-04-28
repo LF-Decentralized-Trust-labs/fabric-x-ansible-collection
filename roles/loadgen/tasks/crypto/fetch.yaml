@@ -28,6 +28,42 @@
   when:
     - organization.users is defined
 
+- name: Fetch Hyperledger Fabric-X Loadgen peer sign certificate into organization knowncerts
+  vars:
+    cryptogen_signcert_file: "{{ organization.peer.name | default(inventory_hostname) }}.{{ organization.domain }}-cert.pem"
+    fabric_ca_signcert_file: "cert.pem"
+    signcert_file: >-
+      {{
+        cryptogen_signcert_file
+        if organization.fabric_ca_host is undefined
+        else fabric_ca_signcert_file
+      }}
+  ansible.builtin.fetch:
+    src: "{{ loadgen_remote_config_dir }}/msp/signcerts/{{ signcert_file }}"
+    dest: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/msp/knowncerts/{{ cryptogen_signcert_file }}"
+    flat: true
+
+- name: Fetch Hyperledger Fabric-X Loadgen user sign certificates into organization knowncerts
+  vars:
+    cryptogen_signcert_file: "{{ current_user.name }}@{{ organization.domain }}-cert.pem"
+    fabric_ca_signcert_file: "cert.pem"
+    signcert_file: >-
+      {{
+        cryptogen_signcert_file
+        if organization.fabric_ca_host is undefined
+        else fabric_ca_signcert_file
+      }}
+  ansible.builtin.fetch:
+    src: "{{ loadgen_remote_config_dir }}/users/{{ current_user.name }}@{{ organization.domain }}/msp/signcerts/{{ signcert_file }}"
+    dest: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/msp/knowncerts/{{ cryptogen_signcert_file }}"
+    flat: true
+  loop: "{{ organization.users }}"
+  loop_control:
+    loop_var: current_user
+    label: "{{ organization.domain }}:{{ current_user.name }}"
+  when:
+    - organization.users is defined
+
 # =========================
 # TLS certs
 # =========================

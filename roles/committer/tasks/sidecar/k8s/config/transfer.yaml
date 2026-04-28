@@ -13,11 +13,20 @@
     tasks_from: namespace/create
 
 # =========================
+# Config block
+# =========================
+- name: Slurp Fabric-X Committer sidecar config block
+  ansible.builtin.slurp:
+    src: "{{ committer_remote_config_dir }}/{{ committer_sidecar_config_block_file }}"
+  register: committer_slurp_config_block
+
+# =========================
 # Apply ConfigMap
 # =========================
 - name: Apply Fabric-X Committer sidecar ConfigMap
   vars:
     committer_k8s_coordinator_ca_path: "{{ committer_remote_config_dir }}/tls/coordinator/ca.crt"
+    committer_k8s_config_block_b64: "{{ committer_slurp_config_block.content }}"
   kubernetes.core.k8s:
     state: present
     template:

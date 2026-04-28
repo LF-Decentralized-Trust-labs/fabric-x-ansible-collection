@@ -33,7 +33,8 @@ spec:
         - name: {{ committer_component_type }}
           image: {{ committer_image }}
           args:
-            - "start-sidecar"
+            - "start"
+            - "sidecar"
             - "--config={{ committer_container_config_dir }}/{{ committer_config_file }}"
           ports:
             - name: rpc
@@ -71,20 +72,11 @@ spec:
               subPath: tls-coordinator-ca.crt
               readOnly: true
 {% endif %}
-{% for assembler in orderer_assemblers %}
-{% if hostvars[assembler].orderer_use_tls is defined and hostvars[assembler].orderer_use_tls %}
-            # TLS CA certificate of orderer assembler {{ assembler }}.
+            # Config block for orderer endpoint and TLS credential discovery.
             - name: config
-              mountPath: {{ committer_container_config_dir }}/tls/orderers/{{ assembler }}/ca.crt
-              subPath: tls-orderers-{{ assembler }}-ca.crt
+              mountPath: {{ committer_container_config_dir }}/{{ committer_sidecar_config_block_file }}
+              subPath: config-block.pb.bin
               readOnly: true
-            # TLS server certificate of orderer assembler {{ assembler }} (per-org ca-cert-paths).
-            - name: config
-              mountPath: {{ committer_container_config_dir }}/tls/orderers/{{ assembler }}/server.crt
-              subPath: tls-orderers-{{ assembler }}-server.crt
-              readOnly: true
-{% endif %}
-{% endfor %}
             # MSP signing certificate.
             - name: secret
               mountPath: {{ committer_container_config_dir }}/msp/signcerts/cert.pem

@@ -12,7 +12,7 @@ configtxgen_registry_endpoint: "{{ lookup('env', 'CONFIGTXGEN_REGISTRY_ENDPOINT'
 # Image repository name for C(configtxgen_image).
 configtxgen_image_name: fabric-x-tools
 # Image tag for C(configtxgen_image).
-configtxgen_image_tag: 0.0.8
+configtxgen_image_tag: 0.0.16
 # Full container image reference for `configtxgen`.
 configtxgen_image: "{{ configtxgen_registry_endpoint }}/{{ configtxgen_image_name }}:{{ configtxgen_image_tag }}"
 # Container name used by the container entry point.
@@ -22,7 +22,7 @@ configtxgen_git_hub_url: github.com
 # Repository path for C(configtxgen_bin_package).
 configtxgen_git_repo: hyperledger/fabric-x
 # Git reference used by the binary build and install entry points.
-configtxgen_git_commit: v0.0.8
+configtxgen_git_commit: v0.0.16
 # Go package path for the `configtxgen` source tree.
 configtxgen_source_code_package: tools/configtxgen
 # Go package reference used by `bin/install`.

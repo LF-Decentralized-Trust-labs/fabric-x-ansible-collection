@@ -18,7 +18,7 @@ cryptogen_registry_endpoint: "{{ lookup('env', 'CRYPTOGEN_REGISTRY_ENDPOINT') or
 # Sets the cryptogen image name.
 cryptogen_image_name: fabric-x-tools
 # Sets the cryptogen image tag.
-cryptogen_image_tag: 0.0.8
+cryptogen_image_tag: 0.0.16
 # Sets the full cryptogen image reference.
 cryptogen_image: "{{ cryptogen_registry_endpoint }}/{{ cryptogen_image_name }}:{{ cryptogen_image_tag }}"
 # Sets the container name used for the cryptogen run.
@@ -32,7 +32,7 @@ cryptogen_git_hub_url: github.com
 # Sets the cryptogen source repository path.
 cryptogen_git_repo: hyperledger/fabric-x
 # Pins the cryptogen source revision.
-cryptogen_git_commit: v0.0.8
+cryptogen_git_commit: v0.0.16
 # Sets the Go package path that contains the cryptogen source.
 cryptogen_source_code_package: tools/cryptogen
 # Sets the Go package path used to install cryptogen.

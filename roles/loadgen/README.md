@@ -193,6 +193,8 @@ Query the Loadgen Prometheus metrics endpoint over HTTP or HTTPS. In Kubernetes 
     loadgen_use_tls: false
     # Assert the latency metric when fetching metrics.
     loadgen_assert_metrics: false
+    # Optional override for the Loadgen metrics endpoint URL. Example: `http://loadgen1.example.com:9443/metrics`.
+    loadgen_metrics_endpoint: "http://loadgen1.example.com:9443/metrics"
     # Use Kubernetes resources.
     loadgen_use_k8s: false
     # Expose the Kubernetes Service via NodePort when `loadgen_use_k8s` is enabled. This drives the HTTP, metrics, and gRPC NodePort access paths.
@@ -219,6 +221,8 @@ Send a control-plane HTTP request that changes the active generated transaction 
     loadgen_k8s_web_node_port: 30080
     # Maximum generated transaction rate. Example: `2500`.
     loadgen_limit_rate: 2500
+    # Optional override for the Loadgen rate-limit endpoint URL. Example: `http://loadgen1.example.com:8080/setRateLimit`.
+    loadgen_limit_rate_endpoint: "http://loadgen1.example.com:8080/setRateLimit"
     # Use Kubernetes resources.
     loadgen_use_k8s: false
     # Expose the Kubernetes Service via NodePort when `loadgen_use_k8s` is enabled. This drives the HTTP, metrics, and gRPC NodePort access paths.
@@ -306,7 +310,7 @@ Render the Loadgen configuration file and transfer config-side support artifacts
     loadgen_metrics_port: 9443
     # gRPC control port exposed by Loadgen. Example: `7051`.
     loadgen_rpc_port: 7051
-    # Render the config transaction block section.
+    # Render the config transaction block section. Example: `false`.
     loadgen_generate_config_block: false
     # Render the namespace creation section. Example: `true` when the workload should create namespace records before sending load.
     loadgen_generate_namespace: false
@@ -342,6 +346,17 @@ Render the Loadgen configuration file and transfer config-side support artifacts
     loadgen_read_write_tx_val_size: 128
     # Signature scheme used for generated identities. Example: `ECDSA`.
     loadgen_key_scheme: "ECDSA"
+    # Optional query tuning block consumed by the load profile. Example: `{'size': 4, 'min_invalid_keys_portion': 0.1, 'shuffle': True}`.
+    loadgen_query_settings:
+      size: 4
+      min_invalid_keys_portion: 0.1
+      shuffle: True
+    # Optional conflict injection block consumed by the load profile. Example: `{'invalid_signatures': 1, 'dependencies': [{'source': 1, 'target': 2}]}`.
+    loadgen_conflicts_settings:
+      invalid_signatures: 1
+      dependencies:
+        - source: 1
+          target: 2
     # Monitoring endpoint rate limit in requests per second. Example: `50`.
     loadgen_monitoring_rate_limit_requests_per_second: 50
     # Monitoring endpoint rate limit burst size. Example: `100`.
@@ -377,16 +392,14 @@ Render the Loadgen configuration file and transfer config-side support artifacts
       peer:
         name: "loadgen1"
         secret: "loadgen1pw"
-    # Orderer router hosts targeted by the orderer client. Example: `['orderer-router1', 'orderer-router2']`.
-    orderer_router_hosts:
-      - "orderer-router1"
-      - "orderer-router2"
-    # Orderer assembler hosts targeted by the orderer client. Example: `['orderer-assembler1', 'orderer-assembler2']`.
-    orderer_assembler_hosts:
-      - "orderer-assembler1"
-      - "orderer-assembler2"
-    # Sidecar host targeted by the orderer and sidecar clients. Example: `committer-sidecar1`.
-    committer_sidecar_host: "committer-sidecar1"
+    # Filename of the genesis config block placed in the Loadgen config directory.
+    loadgen_config_block_file: config-block.pb.bin
+    # Local configtxgen output directory containing the genesis config block.
+    configtxgen_artifacts_dir: "string"
+    # Fault tolerance level of the ordering service rendered into the Loadgen config. Example: `BFT`.
+    loadgen_orderer_fault_tolerance_level: "BFT"
+    # Maximum number of TX entries held in memory for latency tracking. Example: `10000`.
+    loadgen_monitoring_latency_max_tracked_txs: 10000
     # Broadcast goroutine count used by the orderer client. Example: `8`.
     loadgen_broadcast_parallelism: 8
     # Optional stopping limit for generated blocks. Example: `100`.
@@ -603,7 +616,7 @@ Build the `loadgen` binary from the configured Fabric-X source repository. Uses 
     # Git repository that provides the Loadgen source.
     loadgen_git_repo: hyperledger/fabric-x-committer
     # Git revision used for binary builds and installs.
-    loadgen_git_commit: v0.1.9
+    loadgen_git_commit: v1.0.0-alpha
     # Go package path for the Loadgen binary.
     loadgen_source_code_package: cmd/loadgen
     # Go package used for binary installation.
@@ -631,7 +644,7 @@ Install the `loadgen` binary through the shared binary helper role. Consumes the
     # Git repository that provides the Loadgen source.
     loadgen_git_repo: hyperledger/fabric-x-committer
     # Git revision used for binary builds and installs.
-    loadgen_git_commit: v0.1.9
+    loadgen_git_commit: v1.0.0-alpha
     # Go package path for the Loadgen binary.
     loadgen_source_code_package: cmd/loadgen
   ansible.builtin.include_role:
@@ -739,7 +752,7 @@ Start Loadgen as a local container with the rendered config directory mounted re
     # Image name used by the Loadgen container.
     loadgen_image_name: fabric-x-loadgen
     # Image tag used by the Loadgen container.
-    loadgen_image_tag: 0.1.9
+    loadgen_image_tag: 1.0.0-alpha
     # Base remote config directory that feeds `loadgen_remote_config_dir`. Example: `/var/hyperledger/fabricx/loadgen/lg-1/config`.
     remote_config_dir: "/var/hyperledger/fabricx/loadgen/lg-1/config"
     # Remote config directory used by Loadgen.
@@ -838,7 +851,7 @@ Create or update Kubernetes resources for Loadgen. Ensures the namespace exists,
     # Image name used by the Loadgen container.
     loadgen_image_name: fabric-x-loadgen
     # Image tag used by the Loadgen container.
-    loadgen_image_tag: 0.1.9
+    loadgen_image_tag: 1.0.0-alpha
     # Config mount path inside a container or pod.
     loadgen_container_config_dir: /config
     # Rendered Loadgen config filename.
@@ -976,14 +989,8 @@ Publish the rendered Loadgen configuration and trusted CA bundles as a Kubernete
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Rendered Loadgen config filename.
     loadgen_config_file: config-loadgen.yaml
-    # Orderer router hosts targeted by the orderer client. Example: `['orderer-router1', 'orderer-router2']`.
-    orderer_router_hosts:
-      - "orderer-router1"
-      - "orderer-router2"
-    # Orderer assembler hosts targeted by the orderer client. Example: `['orderer-assembler1', 'orderer-assembler2']`.
-    orderer_assembler_hosts:
-      - "orderer-assembler1"
-      - "orderer-assembler2"
+    # Filename of the genesis config block placed in the Loadgen config directory.
+    loadgen_config_block_file: config-block.pb.bin
     # Sidecar host targeted by the orderer and sidecar clients. Example: `committer-sidecar1`.
     committer_sidecar_host: "committer-sidecar1"
     # Enable mTLS for the main endpoint.

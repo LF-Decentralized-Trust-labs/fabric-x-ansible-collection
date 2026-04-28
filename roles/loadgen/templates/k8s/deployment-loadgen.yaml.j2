@@ -152,36 +152,11 @@ spec:
 {% endif %}
 {% endfor %}
 {% endif %}
-{% for current_orderer_router in orderer_router_hosts %}
-{% if hostvars[current_orderer_router].orderer_use_tls is defined and hostvars[current_orderer_router].orderer_use_tls %}
-            # TLS CA certificate for orderer router {{ current_orderer_router }}.
+            # Config block for orderer endpoint and TLS credential discovery.
             - name: config
-              mountPath: {{ loadgen_container_config_dir }}/tls/orderers/{{ current_orderer_router }}/ca.crt
-              subPath: tls-orderers-{{ current_orderer_router }}-ca.crt
+              mountPath: {{ loadgen_container_config_dir }}/{{ loadgen_config_block_file }}
+              subPath: config-block.pb.bin
               readOnly: true
-            # TLS server certificate for orderer router {{ current_orderer_router }}.
-            - name: config
-              mountPath: {{ loadgen_container_config_dir }}/tls/orderers/{{ current_orderer_router }}/server.crt
-              subPath: tls-orderers-{{ current_orderer_router }}-server.crt
-              readOnly: true
-{% endif %}
-{% endfor %}
-{% if orderer_assembler_hosts is defined %}
-{% for current_orderer_assembler in orderer_assembler_hosts %}
-{% if hostvars[current_orderer_assembler].orderer_use_tls is defined and hostvars[current_orderer_assembler].orderer_use_tls %}
-            # TLS CA certificate for orderer assembler {{ current_orderer_assembler }}.
-            - name: config
-              mountPath: {{ loadgen_container_config_dir }}/tls/orderers/{{ current_orderer_assembler }}/ca.crt
-              subPath: tls-orderers-{{ current_orderer_assembler }}-ca.crt
-              readOnly: true
-            # TLS server certificate for orderer assembler {{ current_orderer_assembler }}.
-            - name: config
-              mountPath: {{ loadgen_container_config_dir }}/tls/orderers/{{ current_orderer_assembler }}/server.crt
-              subPath: tls-orderers-{{ current_orderer_assembler }}-server.crt
-              readOnly: true
-{% endif %}
-{% endfor %}
-{% endif %}
 {% if committer_sidecar_host is defined and hostvars[committer_sidecar_host].committer_use_tls is defined and hostvars[committer_sidecar_host].committer_use_tls %}
             # TLS CA certificate of the committer sidecar.
             - name: config

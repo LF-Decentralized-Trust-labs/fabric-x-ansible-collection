@@ -218,7 +218,7 @@ Builds the orderer binary through the shared bin role using the configured Git r
     # Repository path for the orderer source code.
     orderer_git_repo: hyperledger/fabric-x-orderer
     # Git ref or release tag used by the bin build and install branches.
-    orderer_git_commit: v0.0.23
+    orderer_git_commit: v1.0.0-alpha
     # Go package path that builds the orderer binary.
     orderer_source_code_package: cmd/arma
   ansible.builtin.include_role:
@@ -246,7 +246,7 @@ Installs the configured released orderer binary through the shared bin role. Use
     # Go package path that builds the orderer binary.
     orderer_source_code_package: cmd/arma
     # Git ref or release tag used by the bin build and install branches.
-    orderer_git_commit: v0.0.23
+    orderer_git_commit: v1.0.0-alpha
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: bin/install
@@ -373,7 +373,7 @@ Ensures the host data directory exists and starts the orderer container with the
     # Image name used for the orderer container.
     orderer_image_name: fabric-x-orderer
     # Image tag used for the orderer container.
-    orderer_image_tag: 0.0.23
+    orderer_image_tag: 1.0.0-alpha
     # Shared base directory for generated configuration. Example: `/var/hyperledger/fabric-x/config/orderer/assembler-1`.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
     # Shared base directory for persisted runtime data. Example: `/var/hyperledger/fabric-x/data/orderer/router-1`.
@@ -777,7 +777,7 @@ Creates the orderer Kubernetes Service, StatefulSet, and optional NodePort Servi
     # Image name used for the orderer container.
     orderer_image_name: fabric-x-orderer
     # Image tag used for the orderer container.
-    orderer_image_tag: 0.0.23
+    orderer_image_tag: 1.0.0-alpha
     # Container path where orderer configuration is mounted.
     orderer_container_config_dir: /config
     # Container path where orderer data is mounted.

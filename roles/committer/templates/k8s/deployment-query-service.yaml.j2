@@ -31,7 +31,8 @@ spec:
         - name: {{ committer_component_type }}
           image: {{ committer_image }}
           args:
-            - "start-query"
+            - "start"
+            - "query"
             - "--config={{ committer_container_config_dir }}/{{ committer_config_file }}"
           ports:
             - name: rpc
