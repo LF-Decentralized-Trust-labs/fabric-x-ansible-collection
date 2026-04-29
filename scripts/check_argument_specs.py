@@ -15,6 +15,8 @@ For every role under roles/:
   - Reports any mismatches:
       ghost       — declared in argument_specs but no matching task file found
       undocumented — task file exists but not declared in argument_specs
+      unused anchor — YAML anchor is defined but never aliased
+      uncataloged option — entrypoint option is missing from role-options
 
 Exits 0 if all roles are clean, 1 if any mismatch is found.
 
@@ -27,6 +29,7 @@ import sys
 from pathlib import Path
 
 import yaml
+from yaml.events import AliasEvent
 
 # ANSI color codes
 RED = "\033[0;31m"
@@ -99,6 +102,104 @@ def extract_file_tasks(tasks_dir):
     return task_paths, yml_violations
 
 
+def extract_unused_anchors(argument_specs_path):
+    """Return YAML anchors defined in argument_specs.yaml but never aliased.
+
+    Returns a list of tuples (anchor_name, line, column). Lines and columns are
+    one-based so they match what editors and terminal output normally show.
+
+    Raises SpecError for malformed YAML.
+    """
+    definitions = []
+    aliases = set()
+    try:
+        with argument_specs_path.open() as fh:
+            for event in yaml.parse(fh):
+                anchor = getattr(event, "anchor", None)
+                if not anchor:
+                    continue
+                if isinstance(event, AliasEvent):
+                    aliases.add(anchor)
+                else:
+                    definitions.append(
+                        (
+                            anchor,
+                            event.start_mark.line + 1,
+                            event.start_mark.column + 1,
+                        )
+                    )
+    except yaml.YAMLError as exc:
+        raise SpecError(f"invalid YAML: {exc}") from exc
+
+    return [
+        (anchor, line, column)
+        for anchor, line, column in definitions
+        if anchor not in aliases
+    ]
+
+
+def extract_uncataloged_options(argument_specs_path):
+    """Return entrypoint options that are not declared under role-options.
+
+    YAML merge keys are resolved by safe_load(), so a merged option is checked
+    by its final option name instead of by the raw ``<<`` merge key.
+
+    Returns a list of tuples (entrypoint, option_name).
+
+    Raises SpecError for malformed YAML or unexpected document shape.
+    """
+    try:
+        with argument_specs_path.open() as fh:
+            data = yaml.safe_load(fh)
+    except yaml.YAMLError as exc:
+        raise SpecError(f"invalid YAML: {exc}") from exc
+
+    if not isinstance(data, dict):
+        raise SpecError("argument_specs.yaml must be a YAML mapping at the top level")
+
+    specs = data.get("argument_specs")
+    if specs is None:
+        raise SpecError("missing top-level 'argument_specs' key")
+    if not isinstance(specs, dict):
+        raise SpecError("'argument_specs' must be a mapping")
+
+    role_options = specs.get("role-options")
+    if not isinstance(role_options, dict):
+        raise SpecError("'argument_specs.role-options' must be a mapping")
+
+    catalog_options = role_options.get("options")
+    if not isinstance(catalog_options, dict):
+        raise SpecError("'argument_specs.role-options.options' must be a mapping")
+
+    for option in catalog_options:
+        if not isinstance(option, str):
+            raise SpecError(f"non-string key in role-options.options: {option!r}")
+
+    uncataloged = []
+    for entrypoint, spec in specs.items():
+        if not isinstance(entrypoint, str):
+            raise SpecError(f"non-string key in argument_specs: {entrypoint!r}")
+        if entrypoint in NON_ENTRYPOINT_KEYS:
+            continue
+        if spec is None:
+            continue
+        if not isinstance(spec, dict):
+            raise SpecError(f"argument_specs.{entrypoint!r} must be a mapping")
+        options = spec.get("options", {})
+        if options is None:
+            continue
+        if not isinstance(options, dict):
+            raise SpecError(f"argument_specs.{entrypoint}.options must be a mapping")
+        for option in options:
+            if not isinstance(option, str):
+                raise SpecError(
+                    f"non-string key in argument_specs.{entrypoint}.options: {option!r}"
+                )
+            if option not in catalog_options:
+                uncataloged.append((entrypoint, option))
+    return uncataloged
+
+
 def check_role(role_dir):
     """Check a single role. Returns True if clean, False if any mismatch."""
     specs_file = role_dir / "meta" / "argument_specs.yaml"
@@ -109,6 +210,8 @@ def check_role(role_dir):
 
     try:
         spec_tasks = extract_spec_tasks(specs_file)
+        unused_anchors = extract_unused_anchors(specs_file)
+        uncataloged_options = extract_uncataloged_options(specs_file)
     except SpecError as exc:
         print(f"{RED}[FAIL]{NC}   {role_dir.name}: {exc}")
         return False
@@ -118,7 +221,13 @@ def check_role(role_dir):
     ghost = sorted(spec_tasks - file_tasks)
     undocumented = sorted(file_tasks - spec_tasks)
 
-    if not ghost and not undocumented and not yml_violations:
+    if (
+        not ghost
+        and not undocumented
+        and not yml_violations
+        and not unused_anchors
+        and not uncataloged_options
+    ):
         print(f"{GREEN}[OK]{NC}     {role_dir.name}")
         return True
 
@@ -135,6 +244,14 @@ def check_role(role_dir):
         print("  Task files with .yml extension (must use .yaml):")
         for path in sorted(yml_violations):
             print(f"    ! {path.relative_to(role_dir)}")
+    if unused_anchors:
+        print("  Unused YAML anchors in argument_specs.yaml:")
+        for anchor, line, column in sorted(unused_anchors):
+            print(f"    &{anchor} at meta/argument_specs.yaml:{line}:{column}")
+    if uncataloged_options:
+        print("  Entrypoint options missing from role-options:")
+        for entrypoint, option in sorted(uncataloged_options):
+            print(f"    + {entrypoint}: {option}")
     return False
 
 

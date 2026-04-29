@@ -342,6 +342,17 @@ Render the Loadgen configuration file and transfer config-side support artifacts
     loadgen_read_write_tx_val_size: 128
     # Signature scheme used for generated identities. Example: `ECDSA`.
     loadgen_key_scheme: "ECDSA"
+    # Optional query tuning block consumed by the load profile. Example: `{'size': 4, 'min_invalid_keys_portion': 0.1, 'shuffle': True}`.
+    loadgen_query_settings:
+      size: 4
+      min_invalid_keys_portion: 0.1
+      shuffle: True
+    # Optional conflict injection block consumed by the load profile. Example: `{'invalid_signatures': 1, 'dependencies': [{'source': 1, 'target': 2}]}`.
+    loadgen_conflicts_settings:
+      invalid_signatures: 1
+      dependencies:
+        - source: 1
+          target: 2
     # Monitoring endpoint rate limit in requests per second. Example: `50`.
     loadgen_monitoring_rate_limit_requests_per_second: 50
     # Monitoring endpoint rate limit burst size. Example: `100`.

@@ -687,6 +687,8 @@ argument_specs:
       loadgen_read_write_tx_keys: *loadgen_read_write_tx_keys
       loadgen_read_write_tx_val_size: *loadgen_read_write_tx_val_size
       loadgen_key_scheme: *loadgen_key_scheme
+      loadgen_query_settings: *loadgen_query_settings
+      loadgen_conflicts_settings: *loadgen_conflicts_settings
       loadgen_monitoring_rate_limit_requests_per_second: *loadgen_monitoring_rate_limit_requests_per_second
       loadgen_monitoring_rate_limit_burst: *loadgen_monitoring_rate_limit_burst
       loadgen_latency_sampler_prefix: *loadgen_latency_sampler_prefix
