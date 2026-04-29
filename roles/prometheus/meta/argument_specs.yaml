@@ -19,13 +19,13 @@ argument_specs:
           - "Example: C({'common_name': 'prometheus.observability.svc.cluster.local', 'organization_name': 'Hyperledger Fabric-X'})."
       remote_config_dir: &remote_config_dir
         type: path
-        required: true
+        required: false
         description:
           - Remote configuration directory consumed by C(prometheus_remote_config_dir).
           - "Example: C(/var/lib/prometheus/config)."
       remote_data_dir: &remote_data_dir
         type: path
-        required: true
+        required: false
         description:
           - Remote data directory consumed by C(prometheus_remote_data_dir).
           - "Example: C(/var/lib/prometheus/data)."

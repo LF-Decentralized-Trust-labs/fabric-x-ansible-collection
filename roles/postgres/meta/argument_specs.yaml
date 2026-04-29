@@ -14,14 +14,14 @@ argument_specs:
     options:
       remote_config_dir: &remote_config_dir
         type: path
-        required: true
+        required: false
         description:
           - Outer remote configuration directory consumed by C(postgres_remote_config_dir).
           - This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
           - "Example: C(/opt/fabricx/postgres/postgres0/config)."
       remote_data_dir: &remote_data_dir
         type: path
-        required: true
+        required: false
         description:
           - Outer remote data directory consumed by C(postgres_remote_data_dir).
           - This dependency is validated wherever PostgreSQL persistent data is used.

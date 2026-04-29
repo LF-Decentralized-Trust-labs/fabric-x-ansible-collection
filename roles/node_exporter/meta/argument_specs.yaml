@@ -11,7 +11,7 @@ argument_specs:
     options:
       remote_deploy_dir: &remote_deploy_dir
         type: path
-        required: true
+        required: false
         description:
           - Sets the base remote deployment directory used by C(node_exporter_remote_config_dir).
           - "Example: C(/opt/fabricx/node-exporter)."

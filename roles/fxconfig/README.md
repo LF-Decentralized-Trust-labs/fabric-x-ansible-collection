@@ -354,7 +354,7 @@ Creates the remote fxconfig configuration directory, renders the fxconfig file, 
     fxconfig_use_bin: false
     # Identifies the inventory host for the Orderer Router endpoint consumed by fxconfig. Example: `orderer-router-1`.
     orderer_router_host: "orderer-router-1"
-    # Provides organization metadata required by tasks that read `organization.*`, including names, users, domains, and namespace declarations. Example: `{'name': 'Org1', 'domain': 'org1.example.com'}`.
+    # Provides organization metadata when `fxconfig_msp_id` is not supplied directly. Example: `{'name': 'Org1', 'domain': 'org1.example.com'}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"

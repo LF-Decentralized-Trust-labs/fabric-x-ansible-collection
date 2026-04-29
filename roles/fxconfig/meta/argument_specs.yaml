@@ -13,46 +13,54 @@ argument_specs:
         type: str
         required: true
         description:
-          - "Defines the Fabric-X channel written into the rendered fxconfig file. Example: C(mychannel)."
+          - "Defines the Fabric-X channel written into the rendered fxconfig file."
+          - "Example: C(mychannel)."
       fxconfig_committer_query_service_connection_timeout:
         &fxconfig_committer_query_service_connection_timeout
         type: str
         required: false
         description:
-          - "Defines the Committer Query-Service connection timeout written into the rendered fxconfig file. Example: C(45s)."
+          - "Defines the Committer Query-Service connection timeout written into the rendered fxconfig file."
+          - "Example: C(45s)."
       committer_query_service_host: &committer_query_service_host
         type: str
         required: true
         description:
-          - "Identifies the inventory host for the Committer Query-Service endpoint consumed by fxconfig. Example: C(committer-query-service)."
+          - "Identifies the inventory host for the Committer Query-Service endpoint consumed by fxconfig."
+          - "Example: C(committer-query-service)."
       fxconfig_committer_sidecar_connection_timeout:
         &fxconfig_committer_sidecar_connection_timeout
         type: str
         required: false
         description:
-          - "Defines the Committer Sidecar notification connection timeout written into the rendered fxconfig file. Example: C(45s)."
+          - "Defines the Committer Sidecar notification connection timeout written into the rendered fxconfig file."
+          - "Example: C(45s)."
       committer_sidecar_host: &committer_sidecar_host
         type: str
         required: true
         description:
-          - "Identifies the inventory host for the Committer Sidecar notification endpoint consumed by fxconfig. Example: C(committer-sidecar)."
+          - "Identifies the inventory host for the Committer Sidecar notification endpoint consumed by fxconfig."
+          - "Example: C(committer-sidecar)."
       fxconfig_committer_sidecar_waiting_timeout:
         &fxconfig_committer_sidecar_waiting_timeout
         type: str
         required: false
         description:
-          - "Defines the Committer Sidecar notification waiting timeout written into the rendered fxconfig file. Example: C(2m)."
+          - "Defines the Committer Sidecar notification waiting timeout written into the rendered fxconfig file."
+          - "Example: C(2m)."
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         required: true
         description:
-          - "Defines the local directory that stores fetched crypto and TLS artifacts consumed by fxconfig. Example: C(/tmp/fabricx/config-build)."
+          - "Defines the local directory that stores fetched crypto and TLS artifacts consumed by fxconfig."
+          - "Example: C(/tmp/fabricx/config-build)."
       fxconfig_bin_name: &fxconfig_bin_name
         type: str
         required: false
         default: "fxconfig"
         description:
-          - "Defines the fxconfig binary name. Example: C(fxconfig)."
+          - "Defines the fxconfig binary name."
+          - "Example: C(fxconfig)."
       fxconfig_bin_package: &fxconfig_bin_package
         type: str
         required: false
@@ -64,48 +72,56 @@ argument_specs:
         required: false
         default: "fxconfig.yaml"
         description:
-          - "Defines the fxconfig configuration filename. Example: C(fxconfig.yaml)."
+          - "Defines the fxconfig configuration filename."
+          - "Example: C(fxconfig.yaml)."
       fxconfig_container_config_dir: &fxconfig_container_config_dir
         type: path
         required: false
         default: "/config"
         description:
-          - "Defines the configuration directory mounted inside the fxconfig container. Example: C(/config)."
+          - "Defines the configuration directory mounted inside the fxconfig container."
+          - "Example: C(/config)."
       fxconfig_container_name: &fxconfig_container_name
         type: str
         required: false
         default: "fxconfig"
         description:
-          - "Defines the base container name used by fxconfig workflows. Example: C(fxconfig)."
+          - "Defines the base container name used by fxconfig workflows."
+          - "Example: C(fxconfig)."
       fxconfig_endorsed_txs_dir: &fxconfig_endorsed_txs_dir
         type: path
         required: true
         description:
-          - "Defines the local directory containing endorsed namespace transaction JSON files to merge. Example: C(/tmp/fabricx/config-build/fxconfig-artifacts/mychannel/endorsed)."
+          - "Defines the local directory containing endorsed namespace transaction JSON files to merge."
+          - "Example: C(/tmp/fabricx/config-build/fxconfig-artifacts/mychannel/endorsed)."
       fxconfig_git_commit: &fxconfig_git_commit
         type: str
         required: false
         default: "v0.0.12"
         description:
-          - "Selects the Git ref used by build and install workflows. Example: C(v0.0.12)."
+          - "Selects the Git ref used by build and install workflows."
+          - "Example: C(v0.0.12)."
       fxconfig_git_hub_url: &fxconfig_git_hub_url
         type: str
         required: false
         default: "github.com"
         description:
-          - "Defines the Git host used to resolve the Fabric-X source repository. Example: C(github.com)."
+          - "Defines the Git host used to resolve the Fabric-X source repository."
+          - "Example: C(github.com)."
       fxconfig_git_repo: &fxconfig_git_repo
         type: str
         required: false
         default: "hyperledger/fabric-x"
         description:
-          - "Defines the Fabric-X source repository path. Example: C(hyperledger/fabric-x)."
+          - "Defines the Fabric-X source repository path."
+          - "Example: C(hyperledger/fabric-x)."
       fxconfig_hosts: &fxconfig_hosts
         type: list
         elements: str
         required: false
         description:
-          - "Limits namespace grouping to a subset of inventory hosts. If omitted, the task considers all hosts. Example: C(['committer-sidecar', 'committer-query-service'])."
+          - "Limits namespace grouping to a subset of inventory hosts. If omitted, the task considers all hosts."
+          - "Example: C(['committer-sidecar', 'committer-query-service'])."
           - "Selected hosts must expose the organization metadata expected by the namespace grouping helper."
       fxconfig_image: &fxconfig_image
         type: str
@@ -118,13 +134,15 @@ argument_specs:
         required: false
         default: "fabric-x-tools"
         description:
-          - "Defines the image name used by the fxconfig container image. Example: C(fabric-x-tools)."
+          - "Defines the image name used by the fxconfig container image."
+          - "Example: C(fabric-x-tools)."
       fxconfig_image_tag: &fxconfig_image_tag
         type: str
         required: false
         default: "0.0.12"
         description:
-          - "Defines the image tag used by the fxconfig container image. Example: C(0.0.12)."
+          - "Defines the image tag used by the fxconfig container image."
+          - "Example: C(0.0.12)."
       fxconfig_log_format: &fxconfig_log_format
         type: str
         required: false
@@ -136,12 +154,14 @@ argument_specs:
         required: false
         default: "info"
         description:
-          - "Defines the fxconfig log level. Example: C(info)."
+          - "Defines the fxconfig log level."
+          - "Example: C(info)."
       fxconfig_msp_config_path: &fxconfig_msp_config_path
         type: path
         required: true
         description:
-          - "Defines the source MSP directory copied into the fxconfig configuration directory. Example: C(/opt/hyperledger/fabricx/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp)."
+          - "Defines the source MSP directory copied into the fxconfig configuration directory."
+          - "Example: C(/opt/hyperledger/fabricx/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp)."
       fxconfig_msp_id: &fxconfig_msp_id
         type: str
         required: false
@@ -164,17 +184,20 @@ argument_specs:
         type: raw
         required: true
         description:
-          - "Defines the namespace identifier used when creating namespace transaction artifacts. Accepts either a string or an integer value. Example: C(payments)."
+          - "Defines the namespace identifier used when creating namespace transaction artifacts. Accepts either a string or an integer value."
+          - "Example: C(payments)."
       fxconfig_namespace_policy: &fxconfig_namespace_policy
         type: str
         required: true
         description:
-          - "Defines the namespace endorsement policy. Example: C(threshold:/tmp/fabricx/config-build/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem)."
+          - "Defines the namespace endorsement policy."
+          - "Example: C(threshold:/tmp/fabricx/config-build/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem)."
       fxconfig_orderer_connection_timeout: &fxconfig_orderer_connection_timeout
         type: str
         required: false
         description:
-          - "Defines the Orderer Router connection timeout written into the rendered fxconfig file. Example: C(45s)."
+          - "Defines the Orderer Router connection timeout written into the rendered fxconfig file."
+          - "Example: C(45s)."
       fxconfig_output: &fxconfig_output
         type: path
         required: false
@@ -186,7 +209,8 @@ argument_specs:
         required: false
         default: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
         description:
-          - "Defines the registry endpoint used by the fxconfig container image. Example: C(docker.io/hyperledger)."
+          - "Defines the registry endpoint used by the fxconfig container image."
+          - "Example: C(docker.io/hyperledger)."
       fxconfig_remote_config_dir: &fxconfig_remote_config_dir
         type: path
         required: false
@@ -198,17 +222,20 @@ argument_specs:
         required: false
         default: "tools/fxconfig"
         description:
-          - "Defines the Go package path containing the fxconfig source code. Example: C(tools/fxconfig)."
+          - "Defines the Go package path containing the fxconfig source code."
+          - "Example: C(tools/fxconfig)."
       fxconfig_tx_to_endorse: &fxconfig_tx_to_endorse
         type: path
         required: true
         description:
-          - "Supplies the local namespace transaction JSON file to endorse. Example: C(/tmp/fabricx/config-build/fxconfig-artifacts/payments/ns.json)."
+          - "Supplies the local namespace transaction JSON file to endorse."
+          - "Example: C(/tmp/fabricx/config-build/fxconfig-artifacts/payments/ns.json)."
       fxconfig_tx_to_submit_path: &fxconfig_tx_to_submit_path
         type: path
         required: true
         description:
-          - "Supplies the local merged namespace transaction JSON file to submit. Example: C(/tmp/fabricx/config-build/fxconfig-artifacts/payments/merged.json)."
+          - "Supplies the local merged namespace transaction JSON file to submit."
+          - "Example: C(/tmp/fabricx/config-build/fxconfig-artifacts/payments/merged.json)."
       fxconfig_use_bin: &fxconfig_use_bin
         type: bool
         required: false
@@ -219,17 +246,20 @@ argument_specs:
         type: dict
         required: true
         description:
-          - "Provides organization metadata required by tasks that read C(organization.*), including names, users, domains, and namespace declarations. Example: C({'name': 'Org1', 'domain': 'org1.example.com'})."
+          - "Provides organization metadata required by tasks that read C(organization.*), including names, users, domains, and namespace declarations."
+          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com'})."
       orderer_router_host: &orderer_router_host
         type: str
         required: true
         description:
-          - "Identifies the inventory host for the Orderer Router endpoint consumed by fxconfig. Example: C(orderer-router-1)."
+          - "Identifies the inventory host for the Orderer Router endpoint consumed by fxconfig."
+          - "Example: C(orderer-router-1)."
       remote_config_dir: &remote_config_dir
         type: path
-        required: true
+        required: false
         description:
-          - "Provides the base remote configuration directory used by the role. Example: C(/opt/hyperledger/fabricx/config)."
+          - "Provides the base remote configuration directory used by the role."
+          - "Example: C(/opt/hyperledger/fabricx/config)."
 
   bin/build:
     short_description: Build the fxconfig binary
@@ -377,7 +407,12 @@ argument_specs:
       fxconfig_remote_config_dir: *fxconfig_remote_config_dir
       fxconfig_use_bin: *fxconfig_use_bin
       orderer_router_host: *orderer_router_host
-      organization: *organization
+      organization:
+        type: dict
+        required: false
+        description:
+          - "Provides organization metadata when C(fxconfig_msp_id) is not supplied directly."
+          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com'})."
       remote_config_dir: *remote_config_dir
 
   container/endorse:

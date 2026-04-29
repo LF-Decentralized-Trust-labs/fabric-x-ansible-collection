@@ -103,7 +103,7 @@ argument_specs:
           - "Sets the client binary name."
       remote_config_dir: &remote_config_dir
         type: path
-        required: true
+        required: false
         description:
           - "Provides the shared remote configuration root used by this role."
           - "Example: C(/var/hyperledger/fabricx/fabric-ca/ca-org1/config)."
@@ -250,7 +250,7 @@ argument_specs:
           - "Example: C(tls)."
       actual_host: &actual_host
         type: str
-        required: true
+        required: false
         description:
           - "Provides the resolved host address used in client effective-address resolution."
           - "Example: C(ca-org1.example.com)."
