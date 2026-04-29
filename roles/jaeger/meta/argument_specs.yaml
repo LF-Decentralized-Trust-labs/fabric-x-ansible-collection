@@ -63,14 +63,12 @@ argument_specs:
         default: "{{ remote_config_dir }}"
         description:
           - "Sets the remote directory mounted into the Jaeger container for configuration and certificates."
-          - "Example: C(/var/lib/fabricx/jaeger/config) so the container and Kubernetes ConfigMap use the same path."
       jaeger_container_config_dir: &jaeger_container_config_dir
         type: path
         required: false
         default: "/var/config"
         description:
           - "Sets the in-container directory where Jaeger reads configuration and certificates."
-          - "Example: C(/var/config) for the all-in-one image mount point."
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         required: true
@@ -89,42 +87,36 @@ argument_specs:
         default: 16686
         description:
           - "Sets the Jaeger query UI port."
-          - "Example: C(16686) for the Jaeger query web interface endpoint."
       jaeger_admin_port: &jaeger_admin_port
         type: int
         required: false
         default: 14269
         description:
           - "Sets the Jaeger admin HTTP port."
-          - "Example: C(14269) for liveness and admin access on the Jaeger service."
       jaeger_http_server_port: &jaeger_http_server_port
         type: int
         required: false
         default: 14268
         description:
           - "Sets the Jaeger collector HTTP server port."
-          - "Example: C(14268) for the collector HTTP endpoint exposed by the service."
       jaeger_http_collector_port: &jaeger_http_collector_port
         type: int
         required: false
         default: 4318
         description:
           - "Sets the Jaeger OTLP HTTP collector port."
-          - "Example: C(4318) for OTLP/HTTP ingestion from agents and SDKs."
       jaeger_grpc_server_port: &jaeger_grpc_server_port
         type: int
         required: false
         default: 14250
         description:
           - "Sets the Jaeger gRPC server port."
-          - "Example: C(14250) for the collector gRPC endpoint used by tracing clients."
       jaeger_collector_port: &jaeger_collector_port
         type: int
         required: false
         default: 4317
         description:
           - "Sets the Jaeger OTLP gRPC collector port."
-          - "Example: C(4317) for OTLP/gRPC ingestion from Jaeger agents."
       jaeger_k8s_resource_name: &jaeger_k8s_resource_name
         type: str
         required: false

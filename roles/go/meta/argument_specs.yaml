@@ -55,7 +55,6 @@ argument_specs:
         default: ""
         description:
           - Appends a package subdirectory under C(go_source_code_path) before invoking C(go build).
-          - "Example: C(cmd/fxconfig)."
       go_output_name: &go_output_name
         type: path
         required: true

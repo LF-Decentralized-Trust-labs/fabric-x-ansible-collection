@@ -47,7 +47,7 @@ argument_specs:
         required: false
         default: "{{ inventory_hostname }}"
         description:
-          - "Sets the output binary name. Example: C(sample-go)."
+          - "Sets the output binary name."
       bin_control_source_code_dir: &bin_control_source_code_dir
         type: path
         required: false

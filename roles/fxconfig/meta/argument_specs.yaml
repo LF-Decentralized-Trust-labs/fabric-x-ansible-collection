@@ -60,7 +60,6 @@ argument_specs:
         default: "fxconfig"
         description:
           - "Defines the fxconfig binary name."
-          - "Example: C(fxconfig)."
       fxconfig_bin_package: &fxconfig_bin_package
         type: str
         required: false
@@ -73,21 +72,18 @@ argument_specs:
         default: "fxconfig.yaml"
         description:
           - "Defines the fxconfig configuration filename."
-          - "Example: C(fxconfig.yaml)."
       fxconfig_container_config_dir: &fxconfig_container_config_dir
         type: path
         required: false
         default: "/config"
         description:
           - "Defines the configuration directory mounted inside the fxconfig container."
-          - "Example: C(/config)."
       fxconfig_container_name: &fxconfig_container_name
         type: str
         required: false
         default: "fxconfig"
         description:
           - "Defines the base container name used by fxconfig workflows."
-          - "Example: C(fxconfig)."
       fxconfig_endorsed_txs_dir: &fxconfig_endorsed_txs_dir
         type: path
         required: true
@@ -100,21 +96,18 @@ argument_specs:
         default: "v0.0.12"
         description:
           - "Selects the Git ref used by build and install workflows."
-          - "Example: C(v0.0.12)."
       fxconfig_git_hub_url: &fxconfig_git_hub_url
         type: str
         required: false
         default: "github.com"
         description:
           - "Defines the Git host used to resolve the Fabric-X source repository."
-          - "Example: C(github.com)."
       fxconfig_git_repo: &fxconfig_git_repo
         type: str
         required: false
         default: "hyperledger/fabric-x"
         description:
           - "Defines the Fabric-X source repository path."
-          - "Example: C(hyperledger/fabric-x)."
       fxconfig_hosts: &fxconfig_hosts
         type: list
         elements: str
@@ -135,14 +128,12 @@ argument_specs:
         default: "fabric-x-tools"
         description:
           - "Defines the image name used by the fxconfig container image."
-          - "Example: C(fabric-x-tools)."
       fxconfig_image_tag: &fxconfig_image_tag
         type: str
         required: false
         default: "0.0.12"
         description:
           - "Defines the image tag used by the fxconfig container image."
-          - "Example: C(0.0.12)."
       fxconfig_log_format: &fxconfig_log_format
         type: str
         required: false
@@ -155,7 +146,6 @@ argument_specs:
         default: "info"
         description:
           - "Defines the fxconfig log level."
-          - "Example: C(info)."
       fxconfig_msp_config_path: &fxconfig_msp_config_path
         type: path
         required: true
@@ -210,7 +200,6 @@ argument_specs:
         default: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
         description:
           - "Defines the registry endpoint used by the fxconfig container image."
-          - "Example: C(docker.io/hyperledger)."
       fxconfig_remote_config_dir: &fxconfig_remote_config_dir
         type: path
         required: false
@@ -223,7 +212,6 @@ argument_specs:
         default: "tools/fxconfig"
         description:
           - "Defines the Go package path containing the fxconfig source code."
-          - "Example: C(tools/fxconfig)."
       fxconfig_tx_to_endorse: &fxconfig_tx_to_endorse
         type: path
         required: true

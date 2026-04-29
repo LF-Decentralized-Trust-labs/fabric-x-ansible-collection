@@ -200,7 +200,7 @@ Creates the PostgreSQL data directory, fixes TLS file permissions when TLS is en
 ```yaml
 - name: Start PostgreSQL in a container
   vars:
-    # Container name for the PostgreSQL instance. Example: `postgres0`.
+    # Container name for the PostgreSQL instance.
     postgres_container_name: "{{ inventory_hostname }}"
     # Container registry endpoint used to build `postgres_image`.
     postgres_registry_endpoint: "{{ lookup('env', 'POSTGRES_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
@@ -258,7 +258,7 @@ Stops the PostgreSQL container instance named by `postgres_container_name`. Uses
 ```yaml
 - name: Stop the PostgreSQL container
   vars:
-    # Container name for the PostgreSQL instance. Example: `postgres0`.
+    # Container name for the PostgreSQL instance.
     postgres_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
@@ -274,7 +274,7 @@ Removes the PostgreSQL container instance named by `postgres_container_name`. Co
 ```yaml
 - name: Remove the PostgreSQL container
   vars:
-    # Container name for the PostgreSQL instance. Example: `postgres0`.
+    # Container name for the PostgreSQL instance.
     postgres_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
@@ -290,7 +290,7 @@ Collects logs from the PostgreSQL container instance named by `postgres_containe
 ```yaml
 - name: Fetch PostgreSQL container logs
   vars:
-    # Container name for the PostgreSQL instance. Example: `postgres0`.
+    # Container name for the PostgreSQL instance.
     postgres_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
@@ -306,7 +306,7 @@ Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and S
 ```yaml
 - name: Start PostgreSQL on Kubernetes
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. Example: `postgres0`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
@@ -406,7 +406,7 @@ Deletes the PostgreSQL StatefulSet, headless Service, and optional NodePort Serv
 ```yaml
 - name: Remove PostgreSQL Kubernetes resources
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. Example: `postgres0`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
@@ -424,7 +424,7 @@ Collects logs from the PostgreSQL pod in `k8s_namespace`. Selects pods using `po
 ```yaml
 - name: Fetch PostgreSQL pod logs
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. Example: `postgres0`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
@@ -442,7 +442,7 @@ Applies the Kubernetes Secret named `postgres_k8s_resource_name`-secret. Stores 
 ```yaml
 - name: Apply the PostgreSQL Kubernetes Secret
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. Example: `postgres0`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
@@ -476,7 +476,7 @@ Deletes the Kubernetes Secret named `postgres_k8s_resource_name`-secret from `k8
 ```yaml
 - name: Remove the PostgreSQL Kubernetes Secret
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. Example: `postgres0`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
@@ -494,7 +494,7 @@ Applies the Kubernetes ConfigMap named `postgres_k8s_resource_name`-config. Stor
 ```yaml
 - name: Apply the PostgreSQL Kubernetes ConfigMap
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. Example: `postgres0`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
@@ -522,7 +522,7 @@ Deletes the Kubernetes ConfigMap named `postgres_k8s_resource_name`-config from 
 ```yaml
 - name: Remove the PostgreSQL Kubernetes ConfigMap
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. Example: `postgres0`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
@@ -540,7 +540,7 @@ Starts PostgreSQL on OpenShift by reusing the generic `k8s/start` resource flow.
 ```yaml
 - name: Start PostgreSQL on OpenShift
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. Example: `postgres0`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
@@ -618,7 +618,7 @@ Removes PostgreSQL OpenShift resources by reusing the generic `k8s/rm` resource 
 ```yaml
 - name: Remove PostgreSQL OpenShift resources
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. Example: `postgres0`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"

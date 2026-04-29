@@ -88,7 +88,6 @@ argument_specs:
         default: "{{ inventory_hostname }}"
         description:
           - Container name for the PostgreSQL instance.
-          - "Example: C(postgres0)."
       postgres_remote_config_dir: &postgres_remote_config_dir
         type: path
         required: false
@@ -149,7 +148,6 @@ argument_specs:
         default: "{{ inventory_hostname }}"
         description:
           - Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
-          - "Example: C(postgres0)."
       postgres_k8s_wait_timeout: &postgres_k8s_wait_timeout
         type: int
         required: false

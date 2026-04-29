@@ -147,7 +147,6 @@ argument_specs:
         default: node-exporter
         description:
           - Sets the container name used for the Node Exporter runtime.
-          - "Example: C(node-exporter)."
 
       node_exporter_remote_config_dir: &node_exporter_remote_config_dir
         type: path
@@ -155,7 +154,6 @@ argument_specs:
         default: "{{ remote_deploy_dir }}/node-exporter/config"
         description:
           - Sets the remote Node Exporter configuration directory.
-          - "Example: C(/opt/fabricx/node-exporter/config)."
 
       node_exporter_container_config_dir: &node_exporter_container_config_dir
         type: path
@@ -163,7 +161,6 @@ argument_specs:
         default: /var/config
         description:
           - Sets the configuration mount point inside the Node Exporter container.
-          - "Example: C(/var/config)."
 
       node_exporter_web_config_file: &node_exporter_web_config_file
         type: str
@@ -171,7 +168,6 @@ argument_specs:
         default: web-config.yaml
         description:
           - Sets the rendered Node Exporter web configuration filename.
-          - "Example: C(web-config.yaml)."
 
       node_exporter_root_fs_flags: &node_exporter_root_fs_flags
         type: str
@@ -179,7 +175,6 @@ argument_specs:
         default: ro,rslave
         description:
           - Sets the host root filesystem mount flags used by the container runtime path.
-          - "Example: C(ro,rslave)."
 
       node_exporter_use_tls: &node_exporter_use_tls
         type: bool
@@ -194,7 +189,6 @@ argument_specs:
         default: server.key
         description:
           - Sets the Node Exporter TLS private key filename.
-          - "Example: C(server.key)."
 
       node_exporter_tls_cert_file: &node_exporter_tls_cert_file
         type: str
@@ -202,7 +196,6 @@ argument_specs:
         default: server.crt
         description:
           - Sets the Node Exporter TLS certificate filename.
-          - "Example: C(server.crt)."
 
       node_exporter_use_k8s: &node_exporter_use_k8s
         type: bool
@@ -224,7 +217,6 @@ argument_specs:
         default: "{{ inventory_hostname }}"
         description:
           - Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
-          - "Example: C(node-exporter-worker-1)."
 
       node_exporter_k8s_wait_timeout: &node_exporter_k8s_wait_timeout
         type: int
@@ -232,7 +224,6 @@ argument_specs:
         default: 120
         description:
           - Sets how long to wait for the Node Exporter DaemonSet rollout.
-          - "Example: C(120)."
 
       node_exporter_k8s_use_node_port: &node_exporter_k8s_use_node_port
         type: bool
