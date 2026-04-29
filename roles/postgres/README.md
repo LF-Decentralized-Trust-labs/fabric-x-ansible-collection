@@ -28,6 +28,7 @@
   - [k8s/config/rm](#k8sconfigrm)
   - [openshift/start](#openshiftstart)
   - [openshift/rm](#openshiftrm)
+  - [openshift/ping](#openshiftping)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
   - [crypto/rm](#cryptorm)
@@ -56,7 +57,7 @@ ansible-doc -t role hyperledger.fabricx.postgres
 
 > Check PostgreSQL reachability
 
-Validates PostgreSQL reachability for the selected deployment mode. In container mode, waits for the target host to accept connections on `postgres_port`. In Kubernetes mode, delegates to `k8s/ping`, which checks the configured NodePort only when `postgres_k8s_use_node_port` is enabled and `postgres_k8s_port_node_port` is defined. Also checks `postgres_exporter_port` when the exporter is defined for the host.
+Validates PostgreSQL reachability for the selected deployment mode. In container mode, waits for the target host to accept connections on `postgres_port`. In Kubernetes mode, delegates to `k8s/ping`, which checks the configured NodePort only when `postgres_k8s_use_node_port` is enabled and `postgres_k8s_node_port` is defined. Also checks `postgres_exporter_port` when the exporter is defined for the host.
 
 ```yaml
 - name: Check PostgreSQL reachability
@@ -317,7 +318,7 @@ Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and S
     # Enable the Kubernetes NodePort Service for PostgreSQL when set to `true`.
     postgres_k8s_use_node_port: false
     # Kubernetes NodePort value used by the external PostgreSQL Service. When undefined, the NodePort is allocated automatically by Kubernetes. Example: `30432`.
-    postgres_k8s_port_node_port: 30432
+    postgres_k8s_node_port: 30432
     # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
     postgres_port: 5432
     # Container registry endpoint used to build `postgres_image`.
@@ -383,7 +384,7 @@ Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and S
 
 > Check PostgreSQL NodePort reachability on Kubernetes
 
-Probes the PostgreSQL NodePort Service when `postgres_k8s_use_node_port` is enabled and `postgres_k8s_port_node_port` is defined. This entry point is invoked internally by `ping` when PostgreSQL runs on Kubernetes.
+Probes the PostgreSQL NodePort Service when `postgres_k8s_use_node_port` is enabled and `postgres_k8s_node_port` is defined. This entry point is invoked internally by `ping` when PostgreSQL runs on Kubernetes.
 
 ```yaml
 - name: Check PostgreSQL NodePort reachability on Kubernetes
@@ -391,7 +392,7 @@ Probes the PostgreSQL NodePort Service when `postgres_k8s_use_node_port` is enab
     # Enable the Kubernetes NodePort Service for PostgreSQL when set to `true`.
     postgres_k8s_use_node_port: false
     # Kubernetes NodePort value used by the external PostgreSQL Service. When undefined, the NodePort is allocated automatically by Kubernetes. Example: `30432`.
-    postgres_k8s_port_node_port: 30432
+    postgres_k8s_node_port: 30432
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: k8s/ping
@@ -604,6 +605,10 @@ Starts PostgreSQL on OpenShift by reusing the generic `k8s/start` resource flow.
     k8s_liveness_probe_timeout_seconds: 5
     # Override for the liveness probe failure threshold. Example: `5`.
     k8s_liveness_probe_failure_threshold: 5
+    # Enable the OpenShift Route for PostgreSQL when set to `true`.
+    postgres_openshift_use_route: false
+    # OpenShift Route hostname used to expose PostgreSQL externally. When undefined, the hostname is allocated automatically by OpenShift. Example: `postgres.apps.example.com`.
+    postgres_openshift_route: "postgres.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: openshift/start
@@ -613,7 +618,7 @@ Starts PostgreSQL on OpenShift by reusing the generic `k8s/start` resource flow.
 
 > Remove PostgreSQL OpenShift resources
 
-Removes PostgreSQL OpenShift resources by reusing the generic `k8s/rm` resource flow. Deletes the StatefulSet, headless Service, and optional NodePort Service from `k8s_namespace`. The persistent volume claim is removed separately by the `data/rm` entry point.
+Removes PostgreSQL OpenShift resources by reusing the generic `k8s/rm` resource flow. Deletes the StatefulSet, headless Service, optional NodePort Service, and optional Route from `k8s_namespace`. The persistent volume claim is removed separately by the `data/rm` entry point.
 
 ```yaml
 - name: Remove PostgreSQL OpenShift resources
@@ -622,9 +627,33 @@ Removes PostgreSQL OpenShift resources by reusing the generic `k8s/rm` resource 
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
+    # Enable the OpenShift Route for PostgreSQL when set to `true`.
+    postgres_openshift_use_route: false
+    # OpenShift Route hostname used to expose PostgreSQL externally. When undefined, the hostname is allocated automatically by OpenShift. Example: `postgres.apps.example.com`.
+    postgres_openshift_route: "postgres.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: openshift/rm
+```
+
+### openshift/ping
+
+> Check PostgreSQL OpenShift Route reachability
+
+Probes the PostgreSQL OpenShift Route hostname when `postgres_openshift_use_route` is enabled and `postgres_openshift_route` is defined. This entry point is invoked internally by `ping` when PostgreSQL runs on OpenShift.
+
+```yaml
+- name: Check PostgreSQL OpenShift Route reachability
+  vars:
+    # Enable the OpenShift Route for PostgreSQL when set to `true`.
+    postgres_openshift_use_route: false
+    # OpenShift Route hostname used to expose PostgreSQL externally. When undefined, the hostname is allocated automatically by OpenShift. Example: `postgres.apps.example.com`.
+    postgres_openshift_route: "postgres.apps.example.com"
+    # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
+    postgres_port: 5432
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: openshift/ping
 ```
 
 ### crypto/setup

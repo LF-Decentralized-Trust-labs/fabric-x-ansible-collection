@@ -209,9 +209,8 @@ argument_specs:
         default: false
         description:
           - "Enables the optional NodePort Service used to expose Postgres Exporter externally from Kubernetes."
-          - "When set to C(true), C(postgres_exporter_k8s_port_node_port) is used to populate the Service's node port."
-      postgres_exporter_k8s_port_node_port:
-        &postgres_exporter_k8s_port_node_port
+          - "When set to C(true), C(postgres_exporter_k8s_node_port) is used to populate the Service's node port."
+      postgres_exporter_k8s_node_port: &postgres_exporter_k8s_node_port
         type: int
         required: false
         description:
@@ -430,7 +429,7 @@ argument_specs:
       postgres_exporter_k8s_wait_timeout: *postgres_exporter_k8s_wait_timeout
       postgres_exporter_k8s_fs_group: *postgres_exporter_k8s_fs_group
       postgres_exporter_k8s_use_node_port: *postgres_exporter_k8s_use_node_port
-      postgres_exporter_k8s_port_node_port: *postgres_exporter_k8s_port_node_port
+      postgres_exporter_k8s_node_port: *postgres_exporter_k8s_node_port
       postgres_exporter_port: *postgres_exporter_port
       postgres_exporter_container_config_dir: *postgres_exporter_container_config_dir
       postgres_exporter_config_file: *postgres_exporter_config_file
@@ -447,7 +446,7 @@ argument_specs:
     options:
       postgres_exporter_port: *postgres_exporter_port
       postgres_exporter_k8s_use_node_port: *postgres_exporter_k8s_use_node_port
-      postgres_exporter_k8s_port_node_port: *postgres_exporter_k8s_port_node_port
+      postgres_exporter_k8s_node_port: *postgres_exporter_k8s_node_port
 
   k8s/rm:
     short_description: Remove Postgres Exporter Kubernetes resources

@@ -22,12 +22,12 @@ spec:
 {% if committer_k8s_rpc_node_port is defined %}
     - name: rpc
       port: {{ committer_rpc_port }}
-      targetPort: {{ committer_rpc_port }}
+      targetPort: rpc
       nodePort: {{ committer_k8s_rpc_node_port }}
 {% endif %}
 {% if committer_k8s_metrics_node_port is defined %}
     - name: metrics
       port: {{ committer_metrics_port }}
-      targetPort: {{ committer_metrics_port }}
+      targetPort: metrics
       nodePort: {{ committer_k8s_metrics_node_port }}
 {% endif %}

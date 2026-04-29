@@ -198,7 +198,7 @@ argument_specs:
         description:
           - "Sets the Fabric CA operations port."
           - "Example: C(9443)."
-      fabric_ca_server_k8s_port_node_port: &fabric_ca_server_k8s_port_node_port
+      fabric_ca_server_k8s_node_port: &fabric_ca_server_k8s_node_port
         type: int
         description:
           - "Sets the Kubernetes NodePort for the API port and is used when NodePort exposure is enabled."
@@ -403,7 +403,7 @@ argument_specs:
     short_description: Resolve the Fabric CA connection address
     description:
       - "Resolves the effective Fabric CA host, port, and URL scheme used by client operations."
-      - "The referenced host must define C(actual_host) and the Fabric CA server port settings; when it enables NodePort, the client uses C(fabric_ca_server_k8s_port_node_port) instead of C(fabric_ca_port)."
+      - "The referenced host must define C(actual_host) and the Fabric CA server port settings; when it enables NodePort, the client uses C(fabric_ca_server_k8s_node_port) instead of C(fabric_ca_port)."
     options:
       fabric_ca_host: *fabric_ca_host
 
@@ -866,7 +866,7 @@ argument_specs:
       postgres_db_host: *postgres_db_host
       k8s_namespace: *k8s_namespace
       k8s_image_pull_secret: *k8s_image_pull_secret
-      fabric_ca_server_k8s_port_node_port: *fabric_ca_server_k8s_port_node_port
+      fabric_ca_server_k8s_node_port: *fabric_ca_server_k8s_node_port
       fabric_ca_server_k8s_operations_node_port: *fabric_ca_server_k8s_operations_node_port
 
   server/k8s/ping:
@@ -876,7 +876,7 @@ argument_specs:
       - "Validates external access to the Kubernetes Service without changing deployment, ConfigMap, or Secret resources."
     options:
       fabric_ca_server_k8s_use_node_port: *fabric_ca_server_k8s_use_node_port
-      fabric_ca_server_k8s_port_node_port: *fabric_ca_server_k8s_port_node_port
+      fabric_ca_server_k8s_node_port: *fabric_ca_server_k8s_node_port
       fabric_ca_server_k8s_operations_node_port: *fabric_ca_server_k8s_operations_node_port
 
   server/k8s/fetch_logs:

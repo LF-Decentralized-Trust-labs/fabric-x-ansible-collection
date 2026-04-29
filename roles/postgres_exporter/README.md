@@ -440,10 +440,10 @@ Applies the Service, optional NodePort Service, and Deployment for Postgres Expo
     postgres_exporter_k8s_wait_timeout: 120
     # Sets the pod filesystem group used by the Postgres Exporter Deployment.
     postgres_exporter_k8s_fs_group: 65534
-    # Enables the optional NodePort Service used to expose Postgres Exporter externally from Kubernetes. When set to `true`, `postgres_exporter_k8s_port_node_port` is used to populate the Service's node port.
+    # Enables the optional NodePort Service used to expose Postgres Exporter externally from Kubernetes. When set to `true`, `postgres_exporter_k8s_node_port` is used to populate the Service's node port.
     postgres_exporter_k8s_use_node_port: false
     # Sets the NodePort value exposed by the optional Postgres Exporter Kubernetes Service. Example: `30987`.
-    postgres_exporter_k8s_port_node_port: 30987
+    postgres_exporter_k8s_node_port: 30987
     # Sets the Postgres Exporter metrics port. Example: `9187`.
     postgres_exporter_port: 9187
     # Sets the configuration directory mounted inside the container or pod.
@@ -474,10 +474,10 @@ Checks whether the optional Postgres Exporter NodePort Service is reachable. Thi
   vars:
     # Sets the Postgres Exporter metrics port. Example: `9187`.
     postgres_exporter_port: 9187
-    # Enables the optional NodePort Service used to expose Postgres Exporter externally from Kubernetes. When set to `true`, `postgres_exporter_k8s_port_node_port` is used to populate the Service's node port.
+    # Enables the optional NodePort Service used to expose Postgres Exporter externally from Kubernetes. When set to `true`, `postgres_exporter_k8s_node_port` is used to populate the Service's node port.
     postgres_exporter_k8s_use_node_port: false
     # Sets the NodePort value exposed by the optional Postgres Exporter Kubernetes Service. Example: `30987`.
-    postgres_exporter_k8s_port_node_port: 30987
+    postgres_exporter_k8s_node_port: 30987
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: k8s/ping

@@ -21,7 +21,7 @@ spec:
     - name: postgres
       # Exposes PostgreSQL externally.
       port: {{ postgres_port }}
-      targetPort: {{ postgres_port }}
-{% if postgres_k8s_port_node_port is defined %}
-      nodePort: {{ postgres_k8s_port_node_port }}
+      targetPort: postgres
+{% if postgres_k8s_node_port is defined %}
+      nodePort: {{ postgres_k8s_node_port }}
 {% endif %}

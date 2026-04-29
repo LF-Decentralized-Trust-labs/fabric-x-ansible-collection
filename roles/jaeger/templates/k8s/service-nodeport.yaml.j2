@@ -21,36 +21,36 @@ spec:
 {% if jaeger_k8s_ui_node_port is defined %}
     - name: ui
       port: {{ jaeger_ui_port }}
-      targetPort: {{ jaeger_ui_port }}
+      targetPort: ui
       nodePort: {{ jaeger_k8s_ui_node_port }}
 {% endif %}
 {% if jaeger_k8s_admin_node_port is defined %}
     - name: admin
       port: {{ jaeger_admin_port }}
-      targetPort: {{ jaeger_admin_port }}
+      targetPort: admin
       nodePort: {{ jaeger_k8s_admin_node_port }}
 {% endif %}
 {% if jaeger_k8s_http_server_node_port is defined %}
     - name: http-server
       port: {{ jaeger_http_server_port }}
-      targetPort: {{ jaeger_http_server_port }}
+      targetPort: http-server
       nodePort: {{ jaeger_k8s_http_server_node_port }}
 {% endif %}
 {% if jaeger_k8s_http_collector_node_port is defined %}
     - name: http-collector
       port: {{ jaeger_http_collector_port }}
-      targetPort: {{ jaeger_http_collector_port }}
+      targetPort: http-collector
       nodePort: {{ jaeger_k8s_http_collector_node_port }}
 {% endif %}
 {% if jaeger_k8s_grpc_server_node_port is defined %}
     - name: grpc-server
       port: {{ jaeger_grpc_server_port }}
-      targetPort: {{ jaeger_grpc_server_port }}
+      targetPort: grpc-server
       nodePort: {{ jaeger_k8s_grpc_server_node_port }}
 {% endif %}
 {% if jaeger_k8s_collector_node_port is defined %}
     - name: collector
       port: {{ jaeger_collector_port }}
-      targetPort: {{ jaeger_collector_port }}
+      targetPort: collector
       nodePort: {{ jaeger_k8s_collector_node_port }}
 {% endif %}

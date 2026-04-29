@@ -43,6 +43,8 @@ postgres_k8s_wait_timeout: 120
 postgres_k8s_fs_group: 999
 # Enable the Kubernetes NodePort Service for PostgreSQL when set to C(true).
 postgres_k8s_use_node_port: false
+# Enable the OpenShift Route for PostgreSQL when set to C(true).
+postgres_openshift_use_route: false
 # Filename of the PostgreSQL TLS private key under the TLS config directory.
 postgres_tls_private_key_file: server.key
 # Filename of the PostgreSQL TLS certificate under the TLS config directory.

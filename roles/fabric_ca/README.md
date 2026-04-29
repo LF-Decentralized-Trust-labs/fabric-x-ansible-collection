@@ -178,7 +178,7 @@ Dispatches certificate revocation list generation to the binary or transient-con
 
 > Resolve the Fabric CA connection address
 
-Resolves the effective Fabric CA host, port, and URL scheme used by client operations. The referenced host must define `actual_host` and the Fabric CA server port settings; when it enables NodePort, the client uses `fabric_ca_server_k8s_port_node_port` instead of `fabric_ca_port`.
+Resolves the effective Fabric CA host, port, and URL scheme used by client operations. The referenced host must define `actual_host` and the Fabric CA server port settings; when it enables NodePort, the client uses `fabric_ca_server_k8s_node_port` instead of `fabric_ca_port`.
 
 ```yaml
 - name: Resolve the Fabric CA connection address
@@ -1116,7 +1116,7 @@ Creates Fabric CA Kubernetes runtime resources for the server. Uses the ConfigMa
     # Provides an optional Kubernetes image pull secret from shared inventory. Example: `registry-pull-secret`.
     k8s_image_pull_secret: "registry-pull-secret"
     # Sets the Kubernetes NodePort for the API port and is used when NodePort exposure is enabled. Example: `30054`.
-    fabric_ca_server_k8s_port_node_port: 30054
+    fabric_ca_server_k8s_node_port: 30054
     # Sets the Kubernetes NodePort for the operations port and is used when NodePort exposure is enabled. Example: `30943`.
     fabric_ca_server_k8s_operations_node_port: 30943
   ansible.builtin.include_role:
@@ -1136,7 +1136,7 @@ Checks that the Fabric CA API and operations NodePorts are reachable when Kubern
     # Enables the optional Kubernetes NodePort Service for the Fabric CA server; client address resolution uses the node-port mapping on the referenced server host.
     fabric_ca_server_k8s_use_node_port: false
     # Sets the Kubernetes NodePort for the API port and is used when NodePort exposure is enabled. Example: `30054`.
-    fabric_ca_server_k8s_port_node_port: 30054
+    fabric_ca_server_k8s_node_port: 30054
     # Sets the Kubernetes NodePort for the operations port and is used when NodePort exposure is enabled. Example: `30943`.
     fabric_ca_server_k8s_operations_node_port: 30943
   ansible.builtin.include_role:

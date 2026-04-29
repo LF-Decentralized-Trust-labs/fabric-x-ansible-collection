@@ -232,7 +232,7 @@ argument_specs:
         description:
           - Enables the optional NodePort Service and NodePort reachability check when true.
 
-      node_exporter_k8s_port_node_port: &node_exporter_k8s_port_node_port
+      node_exporter_k8s_node_port: &node_exporter_k8s_node_port
         type: int
         required: false
         description:
@@ -459,7 +459,7 @@ argument_specs:
       node_exporter_k8s_wait_timeout: *node_exporter_k8s_wait_timeout
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
       node_exporter_port: *node_exporter_port
-      node_exporter_k8s_port_node_port: *node_exporter_k8s_port_node_port
+      node_exporter_k8s_node_port: *node_exporter_k8s_node_port
       node_exporter_k8s_use_node_port: *node_exporter_k8s_use_node_port
       node_exporter_registry_endpoint: *node_exporter_registry_endpoint
       node_exporter_image_name: *node_exporter_image_name
@@ -491,7 +491,7 @@ argument_specs:
     options:
       node_exporter_port: *node_exporter_port
       node_exporter_k8s_use_node_port: *node_exporter_k8s_use_node_port
-      node_exporter_k8s_port_node_port: *node_exporter_k8s_port_node_port
+      node_exporter_k8s_node_port: *node_exporter_k8s_node_port
 
   k8s/rm:
     short_description: Remove Node Exporter Kubernetes resources
