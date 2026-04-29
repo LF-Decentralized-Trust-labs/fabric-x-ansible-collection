@@ -8,10 +8,3 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: k8s/start
-
-- name: Apply Postgres DB OpenShift Route
-  kubernetes.core.k8s:
-    state: present
-    template:
-      path: openshift/route.yaml.j2
-  when: postgres_openshift_use_route

@@ -48,8 +48,7 @@ argument_specs:
         type: str
         required: true
         description:
-          - Resolved host name used in the Fabric CA CSR SAN list.
-          - Required by the Fabric CA TLS enrollment path.
+          - Resolved host name used for external reachability checks and in the Fabric CA CSR SAN list.
           - "Example: C(postgres0.example.com)."
       postgres_exporter_port: &postgres_exporter_port
         type: int
@@ -166,26 +165,19 @@ argument_specs:
         default: false
         description:
           - Enable the Kubernetes NodePort Service for PostgreSQL when set to C(true).
+      postgres_k8s_use_load_balancer: &postgres_k8s_use_load_balancer
+        type: bool
+        required: false
+        default: false
+        description:
+          - Enable the Kubernetes LoadBalancer Service for PostgreSQL when set to C(true).
       postgres_k8s_node_port: &postgres_k8s_node_port
         type: int
         required: false
         description:
           - Kubernetes NodePort value used by the external PostgreSQL Service.
-          - When undefined, the NodePort is allocated automatically by Kubernetes.
+          - The PostgreSQL port is only exposed by the NodePort Service when this value is defined and C(postgres_k8s_use_node_port) is C(true).
           - "Example: C(30432)."
-      postgres_openshift_use_route: &postgres_openshift_use_route
-        type: bool
-        required: false
-        default: false
-        description:
-          - Enable the OpenShift Route for PostgreSQL when set to C(true).
-      postgres_openshift_route: &postgres_openshift_route
-        type: str
-        required: false
-        description:
-          - OpenShift Route hostname used to expose PostgreSQL externally.
-          - When undefined, the hostname is allocated automatically by OpenShift.
-          - "Example: C(postgres.apps.example.com)."
       postgres_tls_private_key_file: &postgres_tls_private_key_file
         type: path
         required: false
@@ -318,7 +310,7 @@ argument_specs:
     description:
       - Validates PostgreSQL reachability for the selected deployment mode.
       - In container mode, waits for the target host to accept connections on C(postgres_port).
-      - In Kubernetes mode, delegates to C(k8s/ping), which checks the configured NodePort only when C(postgres_k8s_use_node_port) is enabled and C(postgres_k8s_node_port) is defined.
+      - In Kubernetes mode, delegates to C(k8s/ping), which checks the configured NodePort when C(postgres_k8s_use_node_port) is enabled and checks C(actual_host):C(postgres_port) when C(postgres_k8s_use_load_balancer) is enabled.
       - Also checks C(postgres_exporter_port) when the exporter is defined for the host.
     options:
       postgres_use_k8s: *postgres_use_k8s
@@ -451,7 +443,8 @@ argument_specs:
     short_description: Start PostgreSQL on Kubernetes
     description:
       - Ensures C(k8s_namespace) exists and applies the PostgreSQL headless Service and StatefulSet named by C(postgres_k8s_resource_name).
-      - Applies C(postgres_k8s_resource_name)-nodeport when C(postgres_k8s_use_node_port) is enabled.
+      - Applies C(postgres_k8s_resource_name)-nodeport when C(postgres_k8s_use_node_port) is enabled; the PostgreSQL port is included only when C(postgres_k8s_node_port) is defined.
+      - Applies C(postgres_k8s_resource_name)-loadbalancer when C(postgres_k8s_use_load_balancer) is enabled.
       - Uses the role templates to configure credentials, PVC storage, TLS Secret mounts, optional mTLS ConfigMap mounts, image pull secrets, and readiness and liveness probes.
       - Waits up to C(postgres_k8s_wait_timeout) seconds for the StatefulSet rollout to complete.
     options:
@@ -462,6 +455,7 @@ argument_specs:
       postgres_k8s_wait_timeout: *postgres_k8s_wait_timeout
       postgres_k8s_fs_group: *postgres_k8s_fs_group
       postgres_k8s_use_node_port: *postgres_k8s_use_node_port
+      postgres_k8s_use_load_balancer: *postgres_k8s_use_load_balancer
       postgres_k8s_node_port: *postgres_k8s_node_port
       postgres_port: *postgres_port
       postgres_registry_endpoint: *postgres_registry_endpoint
@@ -492,18 +486,22 @@ argument_specs:
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
 
   k8s/ping:
-    short_description: Check PostgreSQL NodePort reachability on Kubernetes
+    short_description: Check PostgreSQL external Service reachability on Kubernetes
     description:
       - Probes the PostgreSQL NodePort Service when C(postgres_k8s_use_node_port) is enabled and C(postgres_k8s_node_port) is defined.
+      - Probes C(actual_host):C(postgres_port) when C(postgres_k8s_use_load_balancer) is enabled.
       - This entry point is invoked internally by C(ping) when PostgreSQL runs on Kubernetes.
     options:
+      actual_host: *actual_host
       postgres_k8s_use_node_port: *postgres_k8s_use_node_port
+      postgres_k8s_use_load_balancer: *postgres_k8s_use_load_balancer
       postgres_k8s_node_port: *postgres_k8s_node_port
+      postgres_port: *postgres_port
 
   k8s/rm:
     short_description: Remove PostgreSQL Kubernetes resources
     description:
-      - Deletes the PostgreSQL StatefulSet, headless Service, and optional NodePort Service resources from C(k8s_namespace).
+      - Deletes the PostgreSQL StatefulSet, headless Service, optional NodePort Service, and optional LoadBalancer Service resources from C(k8s_namespace).
       - The persistent volume claim is removed separately by the C(data/rm) entry point.
     options:
       postgres_k8s_resource_name: *postgres_k8s_resource_name
@@ -586,7 +584,7 @@ argument_specs:
     short_description: Start PostgreSQL on OpenShift
     description:
       - Starts PostgreSQL on OpenShift by reusing the generic C(k8s/start) resource flow.
-      - Creates or updates the namespace, headless Service, StatefulSet, PVC, credentials Secret, and optional mTLS ConfigMap.
+      - Creates or updates the namespace, headless Service, optional external Services, StatefulSet, PVC, credentials Secret, and optional mTLS ConfigMap.
       - Uses the same storage, probe, TLS, and image pull settings as Kubernetes mode.
     options:
       postgres_k8s_resource_name: *postgres_k8s_resource_name
@@ -595,6 +593,9 @@ argument_specs:
         required: true
       postgres_k8s_wait_timeout: *postgres_k8s_wait_timeout
       postgres_k8s_fs_group: *postgres_k8s_fs_group
+      postgres_k8s_use_node_port: *postgres_k8s_use_node_port
+      postgres_k8s_use_load_balancer: *postgres_k8s_use_load_balancer
+      postgres_k8s_node_port: *postgres_k8s_node_port
       postgres_port: *postgres_port
       postgres_registry_endpoint: *postgres_registry_endpoint
       postgres_image_name: *postgres_image_name
@@ -622,32 +623,18 @@ argument_specs:
       k8s_liveness_probe_period_seconds: *k8s_liveness_probe_period_seconds
       k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
-      postgres_openshift_use_route: *postgres_openshift_use_route
-      postgres_openshift_route: *postgres_openshift_route
 
   openshift/rm:
     short_description: Remove PostgreSQL OpenShift resources
     description:
       - Removes PostgreSQL OpenShift resources by reusing the generic C(k8s/rm) resource flow.
-      - Deletes the StatefulSet, headless Service, optional NodePort Service, and optional Route from C(k8s_namespace).
+      - Deletes the StatefulSet, headless Service, optional NodePort Service, and optional LoadBalancer Service from C(k8s_namespace).
       - The persistent volume claim is removed separately by the C(data/rm) entry point.
     options:
       postgres_k8s_resource_name: *postgres_k8s_resource_name
       k8s_namespace:
         <<: *k8s_namespace
         required: true
-      postgres_openshift_use_route: *postgres_openshift_use_route
-      postgres_openshift_route: *postgres_openshift_route
-
-  openshift/ping:
-    short_description: Check PostgreSQL OpenShift Route reachability
-    description:
-      - Probes the PostgreSQL OpenShift Route hostname when C(postgres_openshift_use_route) is enabled and C(postgres_openshift_route) is defined.
-      - This entry point is invoked internally by C(ping) when PostgreSQL runs on OpenShift.
-    options:
-      postgres_openshift_use_route: *postgres_openshift_use_route
-      postgres_openshift_route: *postgres_openshift_route
-      postgres_port: *postgres_port
 
   crypto/setup:
     short_description: Prepare PostgreSQL TLS materials

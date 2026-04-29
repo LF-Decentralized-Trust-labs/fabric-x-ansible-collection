@@ -55,8 +55,8 @@ Checks each port in `utils_ports_to_ping` against `actual_host` to verify whethe
     utils_ports_to_ping:
       - 7051
       - 9443
-    # Sets the inventory host address that the ping entry point probes for each port in `utils_ports_to_ping`. Example: `orderer-router-1.example.com`.
-    actual_host: "orderer-router-1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: ping

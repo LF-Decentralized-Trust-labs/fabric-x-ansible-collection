@@ -321,8 +321,8 @@ Enrolls an identity with the locally installed Fabric CA client binary. Writes X
     fabric_ca_idemix_enrollment_profile: idemix
     # Sets an optional enrollment profile such as `tls`. Example: `tls`.
     fabric_ca_enrollment_profile: "tls"
-    # Provides the resolved host address used in client effective-address resolution. Example: `ca-org1.example.com`.
-    actual_host: "ca-org1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Sets the CSR SAN host list.
     fabric_ca_csr_hosts:
       - "{{ ansible_host }}"
@@ -390,8 +390,8 @@ Reenrolls an existing identity with the locally installed Fabric CA client binar
     fabric_ca_name: "{{ inventory_hostname }}"
     # Sets an optional enrollment profile such as `tls`. Example: `tls`.
     fabric_ca_enrollment_profile: "tls"
-    # Provides the resolved host address used in client effective-address resolution. Example: `ca-org1.example.com`.
-    actual_host: "ca-org1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Sets the CSR SAN host list.
     fabric_ca_csr_hosts:
       - "{{ ansible_host }}"
@@ -529,8 +529,8 @@ Enrolls an identity with a transient Fabric CA client container. Mounts the loca
     fabric_ca_idemix_enrollment_profile: idemix
     # Sets an optional enrollment profile such as `tls`. Example: `tls`.
     fabric_ca_enrollment_profile: "tls"
-    # Provides the resolved host address used in client effective-address resolution. Example: `ca-org1.example.com`.
-    actual_host: "ca-org1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Sets the CSR SAN host list.
     fabric_ca_csr_hosts:
       - "{{ ansible_host }}"
@@ -618,8 +618,8 @@ Reenrolls an existing identity with a transient Fabric CA client container. Refr
     fabric_ca_name: "{{ inventory_hostname }}"
     # Sets an optional enrollment profile such as `tls`. Example: `tls`.
     fabric_ca_enrollment_profile: "tls"
-    # Provides the resolved host address used in client effective-address resolution. Example: `ca-org1.example.com`.
-    actual_host: "ca-org1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Sets the CSR SAN host list.
     fabric_ca_csr_hosts:
       - "{{ ansible_host }}"
@@ -1299,8 +1299,8 @@ Generates the Fabric CA root CA and TLS keypairs. Writes private keys and certif
     fabric_ca_server_remote_config_dir: "{{ remote_config_dir }}"
     # Provides the shared remote configuration root used by this role. Example: `/var/hyperledger/fabricx/fabric-ca/ca-org1/config`.
     remote_config_dir: "/var/hyperledger/fabricx/fabric-ca/ca-org1/config"
-    # Provides the resolved host address used in client effective-address resolution. Example: `ca-org1.example.com`.
-    actual_host: "ca-org1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Sets the server CA private key filename.
     fabric_ca_server_ca_private_key_file: ca-key.pem
     # Sets the server CA certificate filename.
@@ -1429,8 +1429,8 @@ Renders and transfers the Fabric CA server configuration. Includes bootstrap adm
       - "{{ ansible_host }}"
       - "{{ actual_host }}"
       - "{{ inventory_hostname }}"
-    # Provides the resolved host address used in client effective-address resolution. Example: `ca-org1.example.com`.
-    actual_host: "ca-org1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Sets the CSR expiry.
     fabric_ca_csr_expiry: 131400h
     # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `org1.example.com`.

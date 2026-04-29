@@ -28,7 +28,6 @@
   - [k8s/config/rm](#k8sconfigrm)
   - [openshift/start](#openshiftstart)
   - [openshift/rm](#openshiftrm)
-  - [openshift/ping](#openshiftping)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
   - [crypto/rm](#cryptorm)
@@ -57,7 +56,7 @@ ansible-doc -t role hyperledger.fabricx.postgres
 
 > Check PostgreSQL reachability
 
-Validates PostgreSQL reachability for the selected deployment mode. In container mode, waits for the target host to accept connections on `postgres_port`. In Kubernetes mode, delegates to `k8s/ping`, which checks the configured NodePort only when `postgres_k8s_use_node_port` is enabled and `postgres_k8s_node_port` is defined. Also checks `postgres_exporter_port` when the exporter is defined for the host.
+Validates PostgreSQL reachability for the selected deployment mode. In container mode, waits for the target host to accept connections on `postgres_port`. In Kubernetes mode, delegates to `k8s/ping`, which checks the configured NodePort when `postgres_k8s_use_node_port` is enabled and checks `actual_host`:`postgres_port` when `postgres_k8s_use_load_balancer` is enabled. Also checks `postgres_exporter_port` when the exporter is defined for the host.
 
 ```yaml
 - name: Check PostgreSQL reachability
@@ -302,7 +301,7 @@ Collects logs from the PostgreSQL container instance named by `postgres_containe
 
 > Start PostgreSQL on Kubernetes
 
-Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and StatefulSet named by `postgres_k8s_resource_name`. Applies `postgres_k8s_resource_name`-nodeport when `postgres_k8s_use_node_port` is enabled. Uses the role templates to configure credentials, PVC storage, TLS Secret mounts, optional mTLS ConfigMap mounts, image pull secrets, and readiness and liveness probes. Waits up to `postgres_k8s_wait_timeout` seconds for the StatefulSet rollout to complete.
+Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and StatefulSet named by `postgres_k8s_resource_name`. Applies `postgres_k8s_resource_name`-nodeport when `postgres_k8s_use_node_port` is enabled; the PostgreSQL port is included only when `postgres_k8s_node_port` is defined. Applies `postgres_k8s_resource_name`-loadbalancer when `postgres_k8s_use_load_balancer` is enabled. Uses the role templates to configure credentials, PVC storage, TLS Secret mounts, optional mTLS ConfigMap mounts, image pull secrets, and readiness and liveness probes. Waits up to `postgres_k8s_wait_timeout` seconds for the StatefulSet rollout to complete.
 
 ```yaml
 - name: Start PostgreSQL on Kubernetes
@@ -317,7 +316,9 @@ Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and S
     postgres_k8s_fs_group: 999
     # Enable the Kubernetes NodePort Service for PostgreSQL when set to `true`.
     postgres_k8s_use_node_port: false
-    # Kubernetes NodePort value used by the external PostgreSQL Service. When undefined, the NodePort is allocated automatically by Kubernetes. Example: `30432`.
+    # Enable the Kubernetes LoadBalancer Service for PostgreSQL when set to `true`.
+    postgres_k8s_use_load_balancer: false
+    # Kubernetes NodePort value used by the external PostgreSQL Service. The PostgreSQL port is only exposed by the NodePort Service when this value is defined and `postgres_k8s_use_node_port` is `true`. Example: `30432`.
     postgres_k8s_node_port: 30432
     # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
     postgres_port: 5432
@@ -382,17 +383,23 @@ Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and S
 
 ### k8s/ping
 
-> Check PostgreSQL NodePort reachability on Kubernetes
+> Check PostgreSQL external Service reachability on Kubernetes
 
-Probes the PostgreSQL NodePort Service when `postgres_k8s_use_node_port` is enabled and `postgres_k8s_node_port` is defined. This entry point is invoked internally by `ping` when PostgreSQL runs on Kubernetes.
+Probes the PostgreSQL NodePort Service when `postgres_k8s_use_node_port` is enabled and `postgres_k8s_node_port` is defined. Probes `actual_host`:`postgres_port` when `postgres_k8s_use_load_balancer` is enabled. This entry point is invoked internally by `ping` when PostgreSQL runs on Kubernetes.
 
 ```yaml
-- name: Check PostgreSQL NodePort reachability on Kubernetes
+- name: Check PostgreSQL external Service reachability on Kubernetes
   vars:
+    # Resolved host name used for external reachability checks and in the Fabric CA CSR SAN list. Example: `postgres0.example.com`.
+    actual_host: "postgres0.example.com"
     # Enable the Kubernetes NodePort Service for PostgreSQL when set to `true`.
     postgres_k8s_use_node_port: false
-    # Kubernetes NodePort value used by the external PostgreSQL Service. When undefined, the NodePort is allocated automatically by Kubernetes. Example: `30432`.
+    # Enable the Kubernetes LoadBalancer Service for PostgreSQL when set to `true`.
+    postgres_k8s_use_load_balancer: false
+    # Kubernetes NodePort value used by the external PostgreSQL Service. The PostgreSQL port is only exposed by the NodePort Service when this value is defined and `postgres_k8s_use_node_port` is `true`. Example: `30432`.
     postgres_k8s_node_port: 30432
+    # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
+    postgres_port: 5432
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: k8s/ping
@@ -402,7 +409,7 @@ Probes the PostgreSQL NodePort Service when `postgres_k8s_use_node_port` is enab
 
 > Remove PostgreSQL Kubernetes resources
 
-Deletes the PostgreSQL StatefulSet, headless Service, and optional NodePort Service resources from `k8s_namespace`. The persistent volume claim is removed separately by the `data/rm` entry point.
+Deletes the PostgreSQL StatefulSet, headless Service, optional NodePort Service, and optional LoadBalancer Service resources from `k8s_namespace`. The persistent volume claim is removed separately by the `data/rm` entry point.
 
 ```yaml
 - name: Remove PostgreSQL Kubernetes resources
@@ -536,7 +543,7 @@ Deletes the Kubernetes ConfigMap named `postgres_k8s_resource_name`-config from 
 
 > Start PostgreSQL on OpenShift
 
-Starts PostgreSQL on OpenShift by reusing the generic `k8s/start` resource flow. Creates or updates the namespace, headless Service, StatefulSet, PVC, credentials Secret, and optional mTLS ConfigMap. Uses the same storage, probe, TLS, and image pull settings as Kubernetes mode.
+Starts PostgreSQL on OpenShift by reusing the generic `k8s/start` resource flow. Creates or updates the namespace, headless Service, optional external Services, StatefulSet, PVC, credentials Secret, and optional mTLS ConfigMap. Uses the same storage, probe, TLS, and image pull settings as Kubernetes mode.
 
 ```yaml
 - name: Start PostgreSQL on OpenShift
@@ -549,6 +556,12 @@ Starts PostgreSQL on OpenShift by reusing the generic `k8s/start` resource flow.
     postgres_k8s_wait_timeout: 120
     # Kubernetes pod `fsGroup` applied so mounted files are readable by the postgres process.
     postgres_k8s_fs_group: 999
+    # Enable the Kubernetes NodePort Service for PostgreSQL when set to `true`.
+    postgres_k8s_use_node_port: false
+    # Enable the Kubernetes LoadBalancer Service for PostgreSQL when set to `true`.
+    postgres_k8s_use_load_balancer: false
+    # Kubernetes NodePort value used by the external PostgreSQL Service. The PostgreSQL port is only exposed by the NodePort Service when this value is defined and `postgres_k8s_use_node_port` is `true`. Example: `30432`.
+    postgres_k8s_node_port: 30432
     # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
     postgres_port: 5432
     # Container registry endpoint used to build `postgres_image`.
@@ -605,10 +618,6 @@ Starts PostgreSQL on OpenShift by reusing the generic `k8s/start` resource flow.
     k8s_liveness_probe_timeout_seconds: 5
     # Override for the liveness probe failure threshold. Example: `5`.
     k8s_liveness_probe_failure_threshold: 5
-    # Enable the OpenShift Route for PostgreSQL when set to `true`.
-    postgres_openshift_use_route: false
-    # OpenShift Route hostname used to expose PostgreSQL externally. When undefined, the hostname is allocated automatically by OpenShift. Example: `postgres.apps.example.com`.
-    postgres_openshift_route: "postgres.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: openshift/start
@@ -618,7 +627,7 @@ Starts PostgreSQL on OpenShift by reusing the generic `k8s/start` resource flow.
 
 > Remove PostgreSQL OpenShift resources
 
-Removes PostgreSQL OpenShift resources by reusing the generic `k8s/rm` resource flow. Deletes the StatefulSet, headless Service, optional NodePort Service, and optional Route from `k8s_namespace`. The persistent volume claim is removed separately by the `data/rm` entry point.
+Removes PostgreSQL OpenShift resources by reusing the generic `k8s/rm` resource flow. Deletes the StatefulSet, headless Service, optional NodePort Service, and optional LoadBalancer Service from `k8s_namespace`. The persistent volume claim is removed separately by the `data/rm` entry point.
 
 ```yaml
 - name: Remove PostgreSQL OpenShift resources
@@ -627,33 +636,9 @@ Removes PostgreSQL OpenShift resources by reusing the generic `k8s/rm` resource 
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
-    # Enable the OpenShift Route for PostgreSQL when set to `true`.
-    postgres_openshift_use_route: false
-    # OpenShift Route hostname used to expose PostgreSQL externally. When undefined, the hostname is allocated automatically by OpenShift. Example: `postgres.apps.example.com`.
-    postgres_openshift_route: "postgres.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: openshift/rm
-```
-
-### openshift/ping
-
-> Check PostgreSQL OpenShift Route reachability
-
-Probes the PostgreSQL OpenShift Route hostname when `postgres_openshift_use_route` is enabled and `postgres_openshift_route` is defined. This entry point is invoked internally by `ping` when PostgreSQL runs on OpenShift.
-
-```yaml
-- name: Check PostgreSQL OpenShift Route reachability
-  vars:
-    # Enable the OpenShift Route for PostgreSQL when set to `true`.
-    postgres_openshift_use_route: false
-    # OpenShift Route hostname used to expose PostgreSQL externally. When undefined, the hostname is allocated automatically by OpenShift. Example: `postgres.apps.example.com`.
-    postgres_openshift_route: "postgres.apps.example.com"
-    # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
-    postgres_port: 5432
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.postgres
-    tasks_from: openshift/ping
 ```
 
 ### crypto/setup
@@ -821,7 +806,7 @@ Enrolls PostgreSQL through Fabric CA to generate TLS materials under `postgres_r
         name: "postgres0"
         secret: "<fabric-ca-secret>"
       fabric_ca_host: "fabric-ca0"
-    # Resolved host name used in the Fabric CA CSR SAN list. Required by the Fabric CA TLS enrollment path. Example: `postgres0.example.com`.
+    # Resolved host name used for external reachability checks and in the Fabric CA CSR SAN list. Example: `postgres0.example.com`.
     actual_host: "postgres0.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres

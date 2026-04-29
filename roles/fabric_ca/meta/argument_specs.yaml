@@ -252,8 +252,8 @@ argument_specs:
         type: str
         required: false
         description:
-          - "Provides the resolved host address used in client effective-address resolution."
-          - "Example: C(ca-org1.example.com)."
+          - Real machine host.
+          - "Example: C(myvpc.cloud.ibm.com)."
       fabric_ca_csr_hosts: &fabric_ca_csr_hosts
         type: list
         elements: str

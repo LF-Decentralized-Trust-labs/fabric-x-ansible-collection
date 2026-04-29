@@ -179,8 +179,8 @@ Query the Loadgen Prometheus metrics endpoint over HTTP or HTTPS. In Kubernetes 
 ```yaml
 - name: Fetch exported metrics
   vars:
-    # Canonical host name used for metrics and Fabric CA enrollment. Example: `loadgen1.example.com`.
-    actual_host: "loadgen1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Prometheus metrics port exposed by Loadgen. Example: `9443`.
     loadgen_metrics_port: 9443
     # NodePort used for the metrics port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. Example: `30090`.
@@ -211,8 +211,8 @@ Send a control-plane HTTP request that changes the active generated transaction 
 ```yaml
 - name: Update the runtime rate limit
   vars:
-    # Canonical host name used for metrics and Fabric CA enrollment. Example: `loadgen1.example.com`.
-    actual_host: "loadgen1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # HTTP control port exposed by Loadgen. Example: `8080`.
     loadgen_web_port: 8080
     # NodePort used for the HTTP control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. Example: `30080`.
@@ -521,8 +521,8 @@ Enroll Loadgen peer, user, and optional TLS identities against Fabric CA. Writes
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Base remote config directory that feeds `loadgen_remote_config_dir`. Example: `/var/hyperledger/fabricx/loadgen/lg-1/config`.
     remote_config_dir: "/var/hyperledger/fabricx/loadgen/lg-1/config"
-    # Canonical host name used for metrics and Fabric CA enrollment. Example: `loadgen1.example.com`.
-    actual_host: "loadgen1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
     # Enable TLS for the monitoring endpoint.
@@ -1050,8 +1050,8 @@ Publish Loadgen MSP and TLS material as a Kubernetes Secret. The Secret is consu
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Local artifacts directory used for fetched TLS and MSP files. Example: `/tmp/fabricx-artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
-    # Canonical host name used for metrics and Fabric CA enrollment. Example: `loadgen1.example.com`.
-    actual_host: "loadgen1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Crypto identity name used for MSP and TLS file names.
     loadgen_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}"
     # Kubernetes namespace used for loadgen resources. Example: `fabricx-loadgen`.

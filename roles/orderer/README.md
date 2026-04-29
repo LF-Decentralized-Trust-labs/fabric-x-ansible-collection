@@ -191,8 +191,8 @@ Fetches Prometheus metrics from the configured orderer monitoring endpoint using
 ```yaml
 - name: Retrieve orderer Prometheus metrics
   vars:
-    # Host name or IP used by control-node HTTP requests. Example: `orderer-batcher-1.example.com` or `10.10.20.31`.
-    actual_host: "10.10.20.31"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Protocol used by the metrics fetch branch.
     orderer_http_protocol: http
     # Metrics port queried by the metrics fetch branch. Example: `9445`.
@@ -678,8 +678,8 @@ Copies the Fabric CA TLS certificate when needed and enrolls both MSP and TLS id
   vars:
     # Control-node directory containing fetched crypto artifacts. Example: `/tmp/fabric-x/artifacts/fetched`.
     fetched_artifacts_dir: "/tmp/fabric-x/artifacts/fetched"
-    # Host name or IP used by control-node HTTP requests. Example: `orderer-batcher-1.example.com` or `10.10.20.31`.
-    actual_host: "10.10.20.31"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Shared base directory for generated configuration. Example: `/var/hyperledger/fabric-x/config/orderer/assembler-1`.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
     # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.

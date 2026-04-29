@@ -412,8 +412,8 @@ argument_specs:
         type: str
         required: true
         description:
-          - Canonical host name used for metrics and Fabric CA enrollment.
-          - "Example: C(loadgen1.example.com)."
+          - Real machine host.
+          - "Example: C(myvpc.cloud.ibm.com)."
       organization: &organization
         type: dict
         required: true

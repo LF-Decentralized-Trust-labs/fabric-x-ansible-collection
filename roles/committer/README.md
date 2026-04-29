@@ -381,8 +381,8 @@ Query the component metrics endpoint and print the response body. Uses `actual_h
 ```yaml
 - name: Retrieve Prometheus metrics
   vars:
-    # Reachable host or IP address used by the metrics client and Fabric-CA CSR generation. Example: `committer-validator-1.example.com`.
-    actual_host: "committer-validator-1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # HTTP protocol used by the metrics client.
     committer_http_protocol: "{{ 'https' if committer_use_tls else 'http' }}"
     # Metrics port exposed by the selected committer component. Example: `9443`.
@@ -977,8 +977,8 @@ Enroll the selected committer component against its Fabric CA and write the resu
     fetched_artifacts_dir: "/tmp/fabricx/artifacts"
     # Enable TLS material for the selected component.
     committer_use_tls: false
-    # Reachable host or IP address used by the metrics client and Fabric-CA CSR generation. Example: `committer-validator-1.example.com`.
-    actual_host: "committer-validator-1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: crypto/fabric_ca/enroll

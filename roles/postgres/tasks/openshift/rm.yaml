@@ -8,11 +8,3 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: k8s/rm
-
-- name: Delete Postgres DB OpenShift Route
-  kubernetes.core.k8s:
-    state: absent
-    api_version: route.openshift.io/v1
-    kind: Route
-    name: "{{ postgres_k8s_resource_name }}-route"
-    namespace: "{{ k8s_namespace }}"

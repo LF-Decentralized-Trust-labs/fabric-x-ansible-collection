@@ -19,8 +19,8 @@ argument_specs:
         type: str
         required: false
         description:
-          - Inventory host address used in SAN defaults.
-          - "Example: C(peer0.org1.example.com)."
+          - Real machine host.
+          - "Example: C(myvpc.cloud.ibm.com)."
       ansible_host: &ansible_host
         type: str
         required: false

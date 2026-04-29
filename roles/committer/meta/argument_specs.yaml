@@ -275,8 +275,8 @@ argument_specs:
       actual_host: &actual_host
         type: str
         description:
-          - Reachable host or IP address used by the metrics client and Fabric-CA CSR generation.
-          - "Example: C(committer-validator-1.example.com)."
+          - Real machine host.
+          - "Example: C(myvpc.cloud.ibm.com)."
       organization: &organization
         type: dict
         required: true

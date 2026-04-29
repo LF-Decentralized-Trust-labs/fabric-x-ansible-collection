@@ -415,8 +415,8 @@ Copies the Fabric CA TLS root when needed and delegates YugabyteDB TLS enrollmen
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
     # Defines the control-node directory that stores fetched YugabyteDB artifacts. Required when TLS-enabled tasks need access to fetched CA or certificate artifacts, such as when `yugabyte_use_tls` or webserver TLS is enabled. Example: `/tmp/fabric-x/artifacts/yugabyte`.
     fetched_artifacts_dir: "/tmp/fabric-x/artifacts/yugabyte"
-    # Provides the externally reachable host name or address added to TLS SAN entries. Example: `yb-tserver-1.example.com`.
-    actual_host: "yb-tserver-1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Provides the organization metadata consumed by the crypto entry points that require it. The mapping is expected to expose `domain`, `role`, `peer.name`, `peer.secret`, and `fabric_ca_host` when relevant. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'yb-tserver-1', 'secret': 'yb-tserver-1pw'}, 'fabric_ca_host': 'ca-org1'}`.
     organization:
       domain: "org1.example.com"

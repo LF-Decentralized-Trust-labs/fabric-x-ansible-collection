@@ -305,8 +305,8 @@ argument_specs:
         type: str
         required: true
         description:
-          - "Provides the externally reachable host name or address added to TLS SAN entries."
-          - "Example: C(yb-tserver-1.example.com)."
+          - Real machine host.
+          - "Example: C(myvpc.cloud.ibm.com)."
       organization: &organization
         type: dict
         required: false
