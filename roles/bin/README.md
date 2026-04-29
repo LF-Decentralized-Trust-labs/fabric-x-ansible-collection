@@ -49,7 +49,7 @@ Clones the source repository, groups target hosts by platform, and builds one bi
     bin_target_os: "{{ ansible_facts.system }}"
     # Sets the target CPU architecture used when deriving platform-specific build output paths.
     bin_target_arch: "{{ ansible_facts.architecture }}"
-    # Sets the output binary name. Example: `sample-go`.
+    # Sets the output binary name.
     bin_name: "{{ inventory_hostname }}"
     # Defines the source code directory on the control node when builds run locally.
     bin_control_source_code_dir: "{{ control_node_dir }}/code"
@@ -138,7 +138,7 @@ Ensures the target binary directory exists on the managed host and copies the se
     bin_target_arch: "{{ ansible_facts.architecture }}"
     # Defines the platform-specific output directory on the control node for built or installed binaries.
     bin_control_dir: "{{ control_node_dir }}/bin/{{ bin_target_os }}/{{ bin_target_arch }}"
-    # Sets the output binary name. Example: `sample-go`.
+    # Sets the output binary name.
     bin_name: "{{ inventory_hostname }}"
     # Sets the directory where built binaries are written for each target platform.
     bin_dir: "{{ bin_control_dir if bin_build_on_control_node else bin_remote_dir }}"
@@ -176,7 +176,7 @@ Builds the runtime command, optionally redirects logs, and starts the binary eit
     bin_debug: "{{ lookup('env', 'DEBUG') | bool | default(false) }}"
     # Controls whether the binary is started in a tmux session instead of through a direct shell invocation.
     bin_run_with_tmux: true
-    # Sets the output binary name. Example: `sample-go`.
+    # Sets the output binary name.
     bin_name: "{{ inventory_hostname }}"
     # Sets the working directory used for tmux and direct shell execution when a specific directory is required.
     bin_chdir: "string"
@@ -210,7 +210,7 @@ Stops the tmux session associated with the binary when tmux-based execution is e
 ```yaml
 - name: Stop a tmux-managed binary process
   vars:
-    # Sets the output binary name. Example: `sample-go`.
+    # Sets the output binary name.
     bin_name: "{{ inventory_hostname }}"
     # Controls whether the binary is started in a tmux session instead of through a direct shell invocation.
     bin_run_with_tmux: true
@@ -230,7 +230,7 @@ Deletes the binary file from the managed host at `bin_remote_dir`/`bin_name`.
   vars:
     # Sets the directory that is prefixed to `bin_command` when constructing the executable path.
     bin_remote_dir: "{{ remote_node_dir }}/bin"
-    # Sets the output binary name. Example: `sample-go`.
+    # Sets the output binary name.
     bin_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
@@ -250,7 +250,7 @@ Copies the binary log file from the managed host to the control node without fai
     fetched_artifacts_dir: "/tmp/fabricx/artifacts"
     # Sets the base directory on the managed host for `bin_remote_source_code_dir`, `bin_remote_dir`, and `bin_remote_logs_dir`. Example: `/var/lib/fabricx`.
     remote_node_dir: "/var/lib/fabricx"
-    # Sets the output binary name. Example: `sample-go`.
+    # Sets the output binary name.
     bin_name: "{{ inventory_hostname }}"
     # Sets the directory used for redirected log output when `bin_collect_logs` is enabled.
     bin_remote_logs_dir: "{{ remote_node_dir }}/logs"

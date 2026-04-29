@@ -16,37 +16,28 @@ node_exporter_image_tag: latest
 # Sets the full Node Exporter image reference.
 node_exporter_image: "{{ node_exporter_registry_endpoint }}/{{ node_exporter_image_name }}:{{ node_exporter_image_tag }}"
 # Sets the container name used for the Node Exporter runtime.
-# Example: C(node-exporter).
 node_exporter_container_name: node-exporter
 # Sets the remote Node Exporter configuration directory.
-# Example: C(/opt/fabricx/node-exporter/config).
 node_exporter_remote_config_dir: '{{ remote_deploy_dir }}/node-exporter/config'
 # Sets the configuration mount point inside the Node Exporter container.
-# Example: C(/var/config).
 node_exporter_container_config_dir: /var/config
 # Sets the rendered Node Exporter web configuration filename.
-# Example: C(web-config.yaml).
 node_exporter_web_config_file: web-config.yaml
 # Sets the host root filesystem mount flags used by the container runtime path.
-# Example: C(ro,rslave).
 node_exporter_root_fs_flags: ro,rslave
 # Enables the TLS web configuration and certificate paths when true.
 node_exporter_use_tls: false
 # Sets the Node Exporter TLS private key filename.
-# Example: C(server.key).
 node_exporter_tls_private_key_file: server.key
 # Sets the Node Exporter TLS certificate filename.
-# Example: C(server.crt).
 node_exporter_tls_cert_file: server.crt
 # Enables the Kubernetes backend or cleanup path when true.
 node_exporter_use_k8s: false
 # Enables the container backend.
 node_exporter_use_container: '{{ not node_exporter_use_k8s }}'
 # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
-# Example: C(node-exporter-worker-1).
 node_exporter_k8s_resource_name: '{{ inventory_hostname }}'
 # Sets how long to wait for the Node Exporter DaemonSet rollout.
-# Example: C(120).
 node_exporter_k8s_wait_timeout: 120
 # Enables the optional NodePort Service and NodePort reachability check when true.
 node_exporter_k8s_use_node_port: false

@@ -57,7 +57,7 @@ Validates network reachability to the active Prometheus listener on the target h
 ```yaml
 - name: Check that the Prometheus listener is reachable
   vars:
-    # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services. Example: `9090`.
+    # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services.
     prometheus_port: 9090
     # Enables the Kubernetes deployment path when set to `true`.
     prometheus_use_k8s: false
@@ -121,7 +121,7 @@ Renders the remote configuration, creates the data directory, and starts Prometh
     prometheus_web_config_file: web-config.yaml
     # Filename of the promtool HTTP client configuration used for TLS health checks.
     prometheus_http_config_file: http-config.yaml
-    # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services. Example: `9090`.
+    # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services.
     prometheus_port: 9090
     # Enables HTTPS and TLS-aware health checks when set to `true`.
     prometheus_use_tls: false
@@ -147,7 +147,7 @@ Ensures the namespace exists, renders and transfers Prometheus configuration, an
     prometheus_image_tag: latest
     # Fully qualified Prometheus container image.
     prometheus_image: "{{ prometheus_registry_endpoint }}/{{ prometheus_image_name }}:{{ prometheus_image_tag }}"
-    # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services. Example: `9090`.
+    # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services.
     prometheus_port: 9090
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
@@ -207,7 +207,7 @@ Validates network reachability to the Kubernetes NodePort when the optional Node
 ```yaml
 - name: Check that the Prometheus NodePort is reachable
   vars:
-    # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services. Example: `9090`.
+    # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services.
     prometheus_port: 9090
     # Enables the optional Kubernetes NodePort Service when set to `true`.
     prometheus_k8s_use_node_port: false
@@ -508,7 +508,7 @@ Renders the main scrape configuration and supporting files on the remote host, i
     prometheus_web_config_file: web-config.yaml
     # Filename of the promtool HTTP client configuration used for TLS health checks.
     prometheus_http_config_file: http-config.yaml
-    # Global Prometheus scrape interval. Example: `2s`.
+    # Global Prometheus scrape interval.
     prometheus_scrape_interval: 2s
     # In-container or in-pod mount point for Prometheus configuration files.
     prometheus_container_config_dir: /etc/prometheus/config

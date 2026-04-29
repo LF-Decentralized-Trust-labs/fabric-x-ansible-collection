@@ -19,13 +19,13 @@ argument_specs:
           - "Example: C({'common_name': 'prometheus.observability.svc.cluster.local', 'organization_name': 'Hyperledger Fabric-X'})."
       remote_config_dir: &remote_config_dir
         type: path
-        required: true
+        required: false
         description:
           - Remote configuration directory consumed by C(prometheus_remote_config_dir).
           - "Example: C(/var/lib/prometheus/config)."
       remote_data_dir: &remote_data_dir
         type: path
-        required: true
+        required: false
         description:
           - Remote data directory consumed by C(prometheus_remote_data_dir).
           - "Example: C(/var/lib/prometheus/data)."
@@ -119,7 +119,6 @@ argument_specs:
         default: 2s
         description:
           - Global Prometheus scrape interval.
-          - "Example: C(2s)."
       prometheus_scrape_services: &prometheus_scrape_services
         type: list
         required: false
@@ -151,7 +150,6 @@ argument_specs:
         default: 9090
         description:
           - TCP port exposed by Prometheus and used by the container listener and Kubernetes Services.
-          - "Example: C(9090)."
       prometheus_use_k8s: &prometheus_use_k8s
         type: bool
         required: false

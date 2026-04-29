@@ -86,10 +86,10 @@ argument_specs:
           - When false, the container path is used.
       config_build_dir: &config_build_dir
         type: path
-        required: true
+        required: false
         description:
-          - >-
-            Base build directory for C(configtxgen_artifacts_dir). Example: C(/opt/fabricx/build/configtxgen).
+          - Base build directory for C(configtxgen_artifacts_dir).
+          - "Example: C(/opt/fabricx/build/configtxgen)."
       configtxgen_artifacts_dir: &configtxgen_artifacts_dir
         type: path
         required: false
@@ -136,10 +136,10 @@ argument_specs:
           - Generated configuration file name written by `config/build` and mounted by `container/start`.
       channel_id: &channel_id
         type: str
-        required: true
+        required: false
         description:
-          - >-
-            Channel identifier for C(configtxgen_channel_id). Example: C(fabricx-main-channel).
+          - Channel identifier for C(configtxgen_channel_id).
+          - "Example: C(fabricx-main-channel)."
       configtxgen_channel_id: &configtxgen_channel_id
         type: str
         required: false
@@ -168,20 +168,20 @@ argument_specs:
         type: path
         required: true
         description:
-          - >-
-            Directory containing fetched crypto artifacts used by the binary path and container mounts. Example: C(/opt/fabricx/artifacts/crypto).
+          - Directory containing fetched crypto artifacts used by the binary path and container mounts.
+          - "Example: C(/opt/fabricx/artifacts/crypto)."
       armageddon_artifacts_dir: &armageddon_artifacts_dir
         type: path
         required: true
         description:
-          - >-
-            Directory containing armageddon artifacts used by the binary path and container mounts. Example: C(/opt/fabricx/artifacts/armageddon).
+          - Directory containing armageddon artifacts used by the binary path and container mounts.
+          - "Example: C(/opt/fabricx/artifacts/armageddon)."
       cli_bin_dir: &cli_bin_dir
         type: path
         required: true
         description:
-          - >-
-            Directory used as the `configtxgen` binary destination or lookup path. Example: C(/opt/fabricx/bin).
+          - Directory used as the `configtxgen` binary destination or lookup path.
+          - "Example: C(/opt/fabricx/bin)."
 
   config/build:
     short_description: Render the configtxgen configuration file

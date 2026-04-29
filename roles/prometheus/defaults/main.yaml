@@ -32,7 +32,6 @@ prometheus_web_config_file: web-config.yaml
 # Filename of the promtool HTTP client configuration used for TLS health checks.
 prometheus_http_config_file: http-config.yaml
 # Global Prometheus scrape interval.
-# Example: C(2s).
 prometheus_scrape_interval: 2s
 # Enables HTTPS and TLS-aware health checks when set to C(true).
 prometheus_use_tls: false
@@ -41,7 +40,6 @@ prometheus_tls_private_key_file: server.key
 # Filename used for the Prometheus TLS certificate.
 prometheus_tls_cert_file: server.crt
 # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services.
-# Example: C(9090).
 prometheus_port: 9090
 # Enables the Kubernetes deployment path when set to C(true).
 prometheus_use_k8s: false

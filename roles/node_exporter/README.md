@@ -177,17 +177,17 @@ Creates the Node Exporter configuration directory and renders the web configurat
   vars:
     # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`. Example: `/opt/fabricx/node-exporter`.
     remote_deploy_dir: "/opt/fabricx/node-exporter"
-    # Sets the remote Node Exporter configuration directory. Example: `/opt/fabricx/node-exporter/config`.
+    # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
-    # Sets the configuration mount point inside the Node Exporter container. Example: `/var/config`.
+    # Sets the configuration mount point inside the Node Exporter container.
     node_exporter_container_config_dir: /var/config
-    # Sets the rendered Node Exporter web configuration filename. Example: `web-config.yaml`.
+    # Sets the rendered Node Exporter web configuration filename.
     node_exporter_web_config_file: web-config.yaml
     # Enables the TLS web configuration and certificate paths when true.
     node_exporter_use_tls: false
-    # Sets the Node Exporter TLS private key filename. Example: `server.key`.
+    # Sets the Node Exporter TLS private key filename.
     node_exporter_tls_private_key_file: server.key
-    # Sets the Node Exporter TLS certificate filename. Example: `server.crt`.
+    # Sets the Node Exporter TLS certificate filename.
     node_exporter_tls_cert_file: server.crt
     # Enables the Kubernetes backend or cleanup path when true.
     node_exporter_use_k8s: false
@@ -207,7 +207,7 @@ Removes transferred Node Exporter configuration files from the remote host. Kube
   vars:
     # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`. Example: `/opt/fabricx/node-exporter`.
     remote_deploy_dir: "/opt/fabricx/node-exporter"
-    # Sets the remote Node Exporter configuration directory. Example: `/opt/fabricx/node-exporter/config`.
+    # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
     # Enables the Kubernetes backend or cleanup path when true.
     node_exporter_use_k8s: false
@@ -260,7 +260,7 @@ Fetches the generated Node Exporter CA certificate and server certificate from t
     remote_deploy_dir: "/opt/fabricx/node-exporter"
     # Sets the local directory used to store fetched TLS artifacts. Example: `/tmp/fabricx-artifacts/node-exporter`.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts/node-exporter"
-    # Sets the remote Node Exporter configuration directory. Example: `/opt/fabricx/node-exporter/config`.
+    # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
     # Enables the TLS web configuration and certificate paths when true.
     node_exporter_use_tls: false
@@ -280,7 +280,7 @@ Removes generated TLS material for Node Exporter. Kubernetes mode also removes t
   vars:
     # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`. Example: `/opt/fabricx/node-exporter`.
     remote_deploy_dir: "/opt/fabricx/node-exporter"
-    # Sets the remote Node Exporter configuration directory. Example: `/opt/fabricx/node-exporter/config`.
+    # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
     # Enables the TLS web configuration and certificate paths when true.
     node_exporter_use_tls: false
@@ -302,11 +302,11 @@ Delegates to the OpenSSL role to generate a self-signed certificate and private 
   vars:
     # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`. Example: `/opt/fabricx/node-exporter`.
     remote_deploy_dir: "/opt/fabricx/node-exporter"
-    # Sets the remote Node Exporter configuration directory. Example: `/opt/fabricx/node-exporter/config`.
+    # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
-    # Sets the Node Exporter TLS private key filename. Example: `server.key`.
+    # Sets the Node Exporter TLS private key filename.
     node_exporter_tls_private_key_file: server.key
-    # Sets the Node Exporter TLS certificate filename. Example: `server.crt`.
+    # Sets the Node Exporter TLS certificate filename.
     node_exporter_tls_cert_file: server.crt
     # Provides organization data used to build the OpenSSL subject. When organization data does not define a domain value, the inventory hostname is used instead. Example: `domain=node-exporter.example.org, common_name=node-exporter, organization=Example Org`.
     organization:domain=node-exporter.example.org, common_name=node-exporter, organization=Example Org
@@ -324,7 +324,7 @@ Starts the Node Exporter container with the configured image, port, mounts, and 
 ```yaml
 - name: Start Node Exporter in a container
   vars:
-    # Sets the container name used for the Node Exporter runtime. Example: `node-exporter`.
+    # Sets the container name used for the Node Exporter runtime.
     node_exporter_container_name: node-exporter
     # Sets the registry endpoint used to build the default Node Exporter image reference.
     node_exporter_registry_endpoint: "{{ lookup('env', 'NODE_EXPORTER_REGISTRY_ENDPOINT') or 'docker.io/prom' }}"
@@ -338,13 +338,13 @@ Starts the Node Exporter container with the configured image, port, mounts, and 
     node_exporter_port: 9100
     # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`. Example: `/opt/fabricx/node-exporter`.
     remote_deploy_dir: "/opt/fabricx/node-exporter"
-    # Sets the remote Node Exporter configuration directory. Example: `/opt/fabricx/node-exporter/config`.
+    # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
-    # Sets the configuration mount point inside the Node Exporter container. Example: `/var/config`.
+    # Sets the configuration mount point inside the Node Exporter container.
     node_exporter_container_config_dir: /var/config
-    # Sets the rendered Node Exporter web configuration filename. Example: `web-config.yaml`.
+    # Sets the rendered Node Exporter web configuration filename.
     node_exporter_web_config_file: web-config.yaml
-    # Sets the host root filesystem mount flags used by the container runtime path. Example: `ro,rslave`.
+    # Sets the host root filesystem mount flags used by the container runtime path.
     node_exporter_root_fs_flags: ro,rslave
     # Enables the TLS web configuration and certificate paths when true.
     node_exporter_use_tls: false
@@ -362,7 +362,7 @@ Stops the Node Exporter container by delegating to the shared container role. Us
 ```yaml
 - name: Stop the Node Exporter container
   vars:
-    # Sets the container name used for the Node Exporter runtime. Example: `node-exporter`.
+    # Sets the container name used for the Node Exporter runtime.
     node_exporter_container_name: node-exporter
     # Sets the registry endpoint used to build the default Node Exporter image reference.
     node_exporter_registry_endpoint: "{{ lookup('env', 'NODE_EXPORTER_REGISTRY_ENDPOINT') or 'docker.io/prom' }}"
@@ -386,7 +386,7 @@ Removes the Node Exporter container by delegating to the shared container role. 
 ```yaml
 - name: Remove the Node Exporter container
   vars:
-    # Sets the container name used for the Node Exporter runtime. Example: `node-exporter`.
+    # Sets the container name used for the Node Exporter runtime.
     node_exporter_container_name: node-exporter
     # Sets the registry endpoint used to build the default Node Exporter image reference.
     node_exporter_registry_endpoint: "{{ lookup('env', 'NODE_EXPORTER_REGISTRY_ENDPOINT') or 'docker.io/prom' }}"
@@ -410,7 +410,7 @@ Collects logs from the Node Exporter container by delegating to the shared conta
 ```yaml
 - name: Fetch logs from the Node Exporter container
   vars:
-    # Sets the container name used for the Node Exporter runtime. Example: `node-exporter`.
+    # Sets the container name used for the Node Exporter runtime.
     node_exporter_container_name: node-exporter
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
@@ -426,9 +426,9 @@ Creates the Kubernetes Service, optional NodePort Service, and DaemonSet for Nod
 ```yaml
 - name: Start Node Exporter on Kubernetes
   vars:
-    # Sets how long to wait for the Node Exporter DaemonSet rollout. Example: `120`.
+    # Sets how long to wait for the Node Exporter DaemonSet rollout.
     node_exporter_k8s_wait_timeout: 120
-    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Example: `node-exporter-worker-1`.
+    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the TCP port exposed by Node Exporter and seeds the default Kubernetes NodePort value. Example: `9100`.
     node_exporter_port: 9100
@@ -446,13 +446,13 @@ Creates the Kubernetes Service, optional NodePort Service, and DaemonSet for Nod
     node_exporter_image: "{{ node_exporter_registry_endpoint }}/{{ node_exporter_image_name }}:{{ node_exporter_image_tag }}"
     # Enables the TLS web configuration and certificate paths when true.
     node_exporter_use_tls: false
-    # Sets the configuration mount point inside the Node Exporter container. Example: `/var/config`.
+    # Sets the configuration mount point inside the Node Exporter container.
     node_exporter_container_config_dir: /var/config
-    # Sets the rendered Node Exporter web configuration filename. Example: `web-config.yaml`.
+    # Sets the rendered Node Exporter web configuration filename.
     node_exporter_web_config_file: web-config.yaml
-    # Sets the Node Exporter TLS certificate filename. Example: `server.crt`.
+    # Sets the Node Exporter TLS certificate filename.
     node_exporter_tls_cert_file: server.crt
-    # Sets the Node Exporter TLS private key filename. Example: `server.key`.
+    # Sets the Node Exporter TLS private key filename.
     node_exporter_tls_private_key_file: server.key
     # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true. Example: `monitoring`.
     k8s_namespace: "monitoring"
@@ -508,7 +508,7 @@ Removes the Kubernetes DaemonSet and Services created for Node Exporter. Targets
 ```yaml
 - name: Remove Node Exporter Kubernetes resources
   vars:
-    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Example: `node-exporter-worker-1`.
+    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true. Example: `monitoring`.
     k8s_namespace: "monitoring"
@@ -526,7 +526,7 @@ Collects logs from Node Exporter pods by delegating to the shared Kubernetes rol
 ```yaml
 - name: Fetch logs from Node Exporter pods
   vars:
-    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Example: `node-exporter-worker-1`.
+    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
@@ -542,15 +542,15 @@ Ensures the target namespace exists and applies the ConfigMap used by the Node E
 ```yaml
 - name: Apply the Node Exporter Kubernetes ConfigMap
   vars:
-    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Example: `node-exporter-worker-1`.
+    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
     # Enables the TLS web configuration and certificate paths when true.
     node_exporter_use_tls: false
-    # Sets the rendered Node Exporter web configuration filename. Example: `web-config.yaml`.
+    # Sets the rendered Node Exporter web configuration filename.
     node_exporter_web_config_file: web-config.yaml
     # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`. Example: `/opt/fabricx/node-exporter`.
     remote_deploy_dir: "/opt/fabricx/node-exporter"
-    # Sets the remote Node Exporter configuration directory. Example: `/opt/fabricx/node-exporter/config`.
+    # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
     # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true. Example: `monitoring`.
     k8s_namespace: "monitoring"
@@ -568,7 +568,7 @@ Deletes the ConfigMap used by the Node Exporter Kubernetes deployment. Keeps the
 ```yaml
 - name: Remove the Node Exporter Kubernetes ConfigMap
   vars:
-    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Example: `node-exporter-worker-1`.
+    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true. Example: `monitoring`.
     k8s_namespace: "monitoring"
@@ -586,17 +586,17 @@ Ensures the target namespace exists and applies the Secret that stores Node Expo
 ```yaml
 - name: Apply the Node Exporter Kubernetes TLS Secret
   vars:
-    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Example: `node-exporter-worker-1`.
+    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
     # Enables the TLS web configuration and certificate paths when true.
     node_exporter_use_tls: false
     # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`. Example: `/opt/fabricx/node-exporter`.
     remote_deploy_dir: "/opt/fabricx/node-exporter"
-    # Sets the remote Node Exporter configuration directory. Example: `/opt/fabricx/node-exporter/config`.
+    # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
-    # Sets the Node Exporter TLS private key filename. Example: `server.key`.
+    # Sets the Node Exporter TLS private key filename.
     node_exporter_tls_private_key_file: server.key
-    # Sets the Node Exporter TLS certificate filename. Example: `server.crt`.
+    # Sets the Node Exporter TLS certificate filename.
     node_exporter_tls_cert_file: server.crt
     # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true. Example: `monitoring`.
     k8s_namespace: "monitoring"
@@ -614,7 +614,7 @@ Deletes the Secret that stores Node Exporter TLS material for Kubernetes deploym
 ```yaml
 - name: Remove the Node Exporter Kubernetes TLS Secret
   vars:
-    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Example: `node-exporter-worker-1`.
+    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true. Example: `monitoring`.
     k8s_namespace: "monitoring"

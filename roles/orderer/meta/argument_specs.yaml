@@ -11,13 +11,13 @@ argument_specs:
     options:
       remote_config_dir: &remote_config_dir
         type: path
-        required: true
+        required: false
         description:
           - "Shared base directory for generated configuration."
           - "Example: C(/var/hyperledger/fabric-x/config/orderer/assembler-1)."
       remote_data_dir: &remote_data_dir
         type: path
-        required: true
+        required: false
         description:
           - "Shared base directory for persisted runtime data."
           - "Example: C(/var/hyperledger/fabric-x/data/orderer/router-1)."
@@ -29,7 +29,7 @@ argument_specs:
           - "Example: C(orderer-batcher-1.example.com) or C(10.10.20.31)."
       channel_id: &channel_id
         type: str
-        required: true
+        required: false
         description:
           - "Channel identifier used to derive the genesis block filename."
           - "Example: C(fabricx-channel)."

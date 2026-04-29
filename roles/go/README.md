@@ -75,7 +75,7 @@ Runs `go build` for the selected source tree and output name. Uses `GOOS`, `GOAR
     go_output_name: "/opt/fabricx/bin/fxconfig"
     # Defines the base directory containing the Go source tree or module to build. Example: `/opt/fabricx/tools/fxconfig`.
     go_source_code_path: "/opt/fabricx/tools/fxconfig"
-    # Appends a package subdirectory under `go_source_code_path` before invoking `go build`. Example: `cmd/fxconfig`.
+    # Appends a package subdirectory under `go_source_code_path` before invoking `go build`.
     go_source_code_package: ""
     # Selects the host whose facts are mapped into `go_os` and `go_arch`.
     go_host_to_map: "{{ inventory_hostname }}"

@@ -22,28 +22,20 @@ jaeger_image: "{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_
 # Sets the Jaeger container name.
 jaeger_container_name: '{{ inventory_hostname }}'
 # Sets the remote directory mounted into the Jaeger container for configuration and certificates.
-# Example: C(/var/lib/fabricx/jaeger/config) so the container and Kubernetes ConfigMap use the same path.
 jaeger_remote_config_dir: '{{ remote_config_dir }}'
 # Sets the in-container directory where Jaeger reads configuration and certificates.
-# Example: C(/var/config) for the all-in-one image mount point.
 jaeger_container_config_dir: /var/config
 # Sets the Jaeger query UI port.
-# Example: C(16686) for the Jaeger query web interface endpoint.
 jaeger_ui_port: 16686
 # Sets the Jaeger admin HTTP port.
-# Example: C(14269) for liveness and admin access on the Jaeger service.
 jaeger_admin_port: 14269
 # Sets the Jaeger collector HTTP server port.
-# Example: C(14268) for the collector HTTP endpoint exposed by the service.
 jaeger_http_server_port: 14268
 # Sets the Jaeger OTLP HTTP collector port.
-# Example: C(4318) for OTLP/HTTP ingestion from agents and SDKs.
 jaeger_http_collector_port: 4318
 # Sets the Jaeger gRPC server port.
-# Example: C(14250) for the collector gRPC endpoint used by tracing clients.
 jaeger_grpc_server_port: 14250
 # Sets the Jaeger OTLP gRPC collector port.
-# Example: C(4317) for OTLP/gRPC ingestion from Jaeger agents.
 jaeger_collector_port: 4317
 # Sets the Kubernetes resource name used for Jaeger objects.
 jaeger_k8s_resource_name: '{{ inventory_hostname }}'

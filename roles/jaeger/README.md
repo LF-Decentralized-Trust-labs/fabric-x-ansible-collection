@@ -134,17 +134,17 @@ Checks the Jaeger query, admin, collector, and OTLP endpoints with the utils pin
   vars:
     # Runs the Kubernetes Jaeger path when set to `true`.
     jaeger_use_k8s: false
-    # Sets the Jaeger query UI port. Example: `16686` for the Jaeger query web interface endpoint.
+    # Sets the Jaeger query UI port.
     jaeger_ui_port: 16686
-    # Sets the Jaeger admin HTTP port. Example: `14269` for liveness and admin access on the Jaeger service.
+    # Sets the Jaeger admin HTTP port.
     jaeger_admin_port: 14269
-    # Sets the Jaeger collector HTTP server port. Example: `14268` for the collector HTTP endpoint exposed by the service.
+    # Sets the Jaeger collector HTTP server port.
     jaeger_http_server_port: 14268
-    # Sets the Jaeger OTLP HTTP collector port. Example: `4318` for OTLP/HTTP ingestion from agents and SDKs.
+    # Sets the Jaeger OTLP HTTP collector port.
     jaeger_http_collector_port: 4318
-    # Sets the Jaeger gRPC server port. Example: `14250` for the collector gRPC endpoint used by tracing clients.
+    # Sets the Jaeger gRPC server port.
     jaeger_grpc_server_port: 14250
-    # Sets the Jaeger OTLP gRPC collector port. Example: `4317` for OTLP/gRPC ingestion from Jaeger agents.
+    # Sets the Jaeger OTLP gRPC collector port.
     jaeger_collector_port: 4317
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
@@ -174,21 +174,21 @@ Builds the Jaeger container environment, publishes the query and collector ports
     jaeger_image: "{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_image_tag }}"
     # Sets the shared remote configuration base directory. Example: `/var/lib/fabricx/jaeger/config` on the control or remote host.
     remote_config_dir: "string"
-    # Sets the remote directory mounted into the Jaeger container for configuration and certificates. Example: `/var/lib/fabricx/jaeger/config` so the container and Kubernetes ConfigMap use the same path.
+    # Sets the remote directory mounted into the Jaeger container for configuration and certificates.
     jaeger_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the in-container directory where Jaeger reads configuration and certificates. Example: `/var/config` for the all-in-one image mount point.
+    # Sets the in-container directory where Jaeger reads configuration and certificates.
     jaeger_container_config_dir: /var/config
-    # Sets the Jaeger query UI port. Example: `16686` for the Jaeger query web interface endpoint.
+    # Sets the Jaeger query UI port.
     jaeger_ui_port: 16686
-    # Sets the Jaeger admin HTTP port. Example: `14269` for liveness and admin access on the Jaeger service.
+    # Sets the Jaeger admin HTTP port.
     jaeger_admin_port: 14269
-    # Sets the Jaeger collector HTTP server port. Example: `14268` for the collector HTTP endpoint exposed by the service.
+    # Sets the Jaeger collector HTTP server port.
     jaeger_http_server_port: 14268
-    # Sets the Jaeger OTLP HTTP collector port. Example: `4318` for OTLP/HTTP ingestion from agents and SDKs.
+    # Sets the Jaeger OTLP HTTP collector port.
     jaeger_http_collector_port: 4318
-    # Sets the Jaeger gRPC server port. Example: `14250` for the collector gRPC endpoint used by tracing clients.
+    # Sets the Jaeger gRPC server port.
     jaeger_grpc_server_port: 14250
-    # Sets the Jaeger OTLP gRPC collector port. Example: `4317` for OTLP/gRPC ingestion from Jaeger agents.
+    # Sets the Jaeger OTLP gRPC collector port.
     jaeger_collector_port: 4317
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
@@ -286,19 +286,19 @@ Applies the Jaeger Service, optional NodePort Service, and Deployment resources 
     jaeger_image_tag: latest
     # Sets the Jaeger container image.
     jaeger_image: "{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_image_tag }}"
-    # Sets the in-container directory where Jaeger reads configuration and certificates. Example: `/var/config` for the all-in-one image mount point.
+    # Sets the in-container directory where Jaeger reads configuration and certificates.
     jaeger_container_config_dir: /var/config
-    # Sets the Jaeger query UI port. Example: `16686` for the Jaeger query web interface endpoint.
+    # Sets the Jaeger query UI port.
     jaeger_ui_port: 16686
-    # Sets the Jaeger admin HTTP port. Example: `14269` for liveness and admin access on the Jaeger service.
+    # Sets the Jaeger admin HTTP port.
     jaeger_admin_port: 14269
-    # Sets the Jaeger collector HTTP server port. Example: `14268` for the collector HTTP endpoint exposed by the service.
+    # Sets the Jaeger collector HTTP server port.
     jaeger_http_server_port: 14268
-    # Sets the Jaeger OTLP HTTP collector port. Example: `4318` for OTLP/HTTP ingestion from agents and SDKs.
+    # Sets the Jaeger OTLP HTTP collector port.
     jaeger_http_collector_port: 4318
-    # Sets the Jaeger gRPC server port. Example: `14250` for the collector gRPC endpoint used by tracing clients.
+    # Sets the Jaeger gRPC server port.
     jaeger_grpc_server_port: 14250
-    # Sets the Jaeger OTLP gRPC collector port. Example: `4317` for OTLP/gRPC ingestion from Jaeger agents.
+    # Sets the Jaeger OTLP gRPC collector port.
     jaeger_collector_port: 4317
     # Sets the Kubernetes NodePort for the Jaeger UI service. Example: `30686`.
     jaeger_k8s_ui_node_port: 30686
@@ -382,17 +382,17 @@ Checks the Jaeger Kubernetes service ports and, when enabled, the NodePort value
   vars:
     # Exposes the Jaeger Kubernetes service through a NodePort service when set to `true`. The NodePort service uses the per-port node port values below.
     jaeger_k8s_use_node_port: false
-    # Sets the Jaeger query UI port. Example: `16686` for the Jaeger query web interface endpoint.
+    # Sets the Jaeger query UI port.
     jaeger_ui_port: 16686
-    # Sets the Jaeger admin HTTP port. Example: `14269` for liveness and admin access on the Jaeger service.
+    # Sets the Jaeger admin HTTP port.
     jaeger_admin_port: 14269
-    # Sets the Jaeger collector HTTP server port. Example: `14268` for the collector HTTP endpoint exposed by the service.
+    # Sets the Jaeger collector HTTP server port.
     jaeger_http_server_port: 14268
-    # Sets the Jaeger OTLP HTTP collector port. Example: `4318` for OTLP/HTTP ingestion from agents and SDKs.
+    # Sets the Jaeger OTLP HTTP collector port.
     jaeger_http_collector_port: 4318
-    # Sets the Jaeger gRPC server port. Example: `14250` for the collector gRPC endpoint used by tracing clients.
+    # Sets the Jaeger gRPC server port.
     jaeger_grpc_server_port: 14250
-    # Sets the Jaeger OTLP gRPC collector port. Example: `4317` for OTLP/gRPC ingestion from Jaeger agents.
+    # Sets the Jaeger OTLP gRPC collector port.
     jaeger_collector_port: 4317
     # Sets the Kubernetes NodePort for the Jaeger UI service. Example: `30686`.
     jaeger_k8s_ui_node_port: 30686
@@ -426,7 +426,7 @@ Creates the remote Jaeger config path, copies the ElasticSearch CA certificate w
     fetched_artifacts_dir: "string"
     # Sets the shared remote configuration base directory. Example: `/var/lib/fabricx/jaeger/config` on the control or remote host.
     remote_config_dir: "string"
-    # Sets the remote directory mounted into the Jaeger container for configuration and certificates. Example: `/var/lib/fabricx/jaeger/config` so the container and Kubernetes ConfigMap use the same path.
+    # Sets the remote directory mounted into the Jaeger container for configuration and certificates.
     jaeger_remote_config_dir: "{{ remote_config_dir }}"
     # Runs the Kubernetes Jaeger path when set to `true`.
     jaeger_use_k8s: false
@@ -446,7 +446,7 @@ Deletes the remote Jaeger configuration directory and any copied certificate mat
   vars:
     # Sets the shared remote configuration base directory. Example: `/var/lib/fabricx/jaeger/config` on the control or remote host.
     remote_config_dir: "string"
-    # Sets the remote directory mounted into the Jaeger container for configuration and certificates. Example: `/var/lib/fabricx/jaeger/config` so the container and Kubernetes ConfigMap use the same path.
+    # Sets the remote directory mounted into the Jaeger container for configuration and certificates.
     jaeger_remote_config_dir: "{{ remote_config_dir }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
@@ -468,7 +468,7 @@ Creates the ConfigMap that projects the Jaeger config path and ElasticSearch CA 
     jaeger_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the shared remote configuration base directory. Example: `/var/lib/fabricx/jaeger/config` on the control or remote host.
     remote_config_dir: "string"
-    # Sets the remote directory mounted into the Jaeger container for configuration and certificates. Example: `/var/lib/fabricx/jaeger/config` so the container and Kubernetes ConfigMap use the same path.
+    # Sets the remote directory mounted into the Jaeger container for configuration and certificates.
     jaeger_remote_config_dir: "{{ remote_config_dir }}"
     # Sets the Kubernetes namespace used for Jaeger resources. Example: `tracing` when Jaeger shares a namespace with other observability services.
     k8s_namespace: "string"
