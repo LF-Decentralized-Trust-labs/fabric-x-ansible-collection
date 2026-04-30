@@ -26,14 +26,14 @@
     state: present
     template:
       path: k8s/service-nodeport.yaml.j2
-  when: postgres_k8s_use_node_port
+  when: postgres_k8s_node_port is defined
 
 - name: Apply Postgres DB LoadBalancer Service
   kubernetes.core.k8s:
     state: present
     template:
       path: k8s/service-loadbalancer.yaml.j2
-  when: postgres_k8s_use_load_balancer
+  when: postgres_k8s_loadbalancer_expose_port
 
 - name: Apply Postgres DB StatefulSet
   kubernetes.core.k8s:

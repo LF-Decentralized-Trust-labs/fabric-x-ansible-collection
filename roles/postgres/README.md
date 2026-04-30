@@ -56,7 +56,7 @@ ansible-doc -t role hyperledger.fabricx.postgres
 
 > Check PostgreSQL reachability
 
-Validates PostgreSQL reachability for the selected deployment mode. In container mode, waits for the target host to accept connections on `postgres_port`. In Kubernetes mode, delegates to `k8s/ping`, which checks the configured NodePort when `postgres_k8s_use_node_port` is enabled and checks `actual_host`:`postgres_port` when `postgres_k8s_use_load_balancer` is enabled. Also checks `postgres_exporter_port` when the exporter is defined for the host.
+Validates PostgreSQL reachability for the selected deployment mode. In container mode, waits for the target host to accept connections on `postgres_port`. In Kubernetes mode, delegates to `k8s/ping`, which checks the configured NodePort when `postgres_k8s_node_port` is defined and checks `actual_host`:`postgres_port` when `postgres_k8s_loadbalancer_expose_port` is `true`. Also checks `postgres_exporter_port` when the exporter is defined for the host.
 
 ```yaml
 - name: Check PostgreSQL reachability
@@ -305,7 +305,7 @@ Collects logs from the PostgreSQL container instance named by `postgres_containe
 
 > Start PostgreSQL on Kubernetes
 
-Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and StatefulSet named by `postgres_k8s_resource_name`. Applies `postgres_k8s_resource_name`-nodeport when `postgres_k8s_use_node_port` is enabled; the PostgreSQL port is included only when `postgres_k8s_node_port` is defined. Applies `postgres_k8s_resource_name`-loadbalancer when `postgres_k8s_use_load_balancer` is enabled. Uses the role templates to configure credentials, PVC storage, TLS Secret mounts, optional mTLS ConfigMap mounts, image pull secrets, and readiness and liveness probes. Waits up to `postgres_k8s_wait_timeout` seconds for the StatefulSet rollout to complete.
+Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and StatefulSet named by `postgres_k8s_resource_name`. Applies `postgres_k8s_resource_name`-nodeport when `postgres_k8s_node_port` is defined. Applies `postgres_k8s_resource_name`-loadbalancer when `postgres_k8s_loadbalancer_expose_port` is `true`. Uses the role templates to configure credentials, PVC storage, TLS Secret mounts, optional mTLS ConfigMap mounts, image pull secrets, and readiness and liveness probes. Waits up to `postgres_k8s_wait_timeout` seconds for the StatefulSet rollout to complete.
 
 ```yaml
 - name: Start PostgreSQL on Kubernetes
@@ -318,11 +318,9 @@ Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and S
     postgres_k8s_wait_timeout: 120
     # Kubernetes pod `fsGroup` applied so mounted files are readable by the postgres process.
     postgres_k8s_fs_group: 999
-    # Enable the Kubernetes NodePort Service for PostgreSQL when set to `true`.
-    postgres_k8s_use_node_port: false
-    # Enable the Kubernetes LoadBalancer Service for PostgreSQL when set to `true`.
-    postgres_k8s_use_load_balancer: false
-    # Kubernetes NodePort value used by the external PostgreSQL Service. The PostgreSQL port is only exposed by the NodePort Service when this value is defined and `postgres_k8s_use_node_port` is `true`. Example: `30432`.
+    # Set to `true` to create a LoadBalancer Service and expose `postgres_port` externally. When undefined or `false`, no LoadBalancer Service is created.
+    postgres_k8s_loadbalancer_expose_port: false
+    # Kubernetes NodePort value used by the external PostgreSQL Service. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30432`.
     postgres_k8s_node_port: 30432
     # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
     postgres_port: 5432
@@ -389,18 +387,14 @@ Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and S
 
 > Check PostgreSQL external Service reachability on Kubernetes
 
-Probes the PostgreSQL NodePort Service when `postgres_k8s_use_node_port` is enabled and `postgres_k8s_node_port` is defined. Probes `actual_host`:`postgres_port` when `postgres_k8s_use_load_balancer` is enabled. This entry point is invoked internally by `ping` when PostgreSQL runs on Kubernetes.
+Probes the PostgreSQL NodePort Service when `postgres_k8s_node_port` is defined. Probes `actual_host`:`postgres_port` when `postgres_k8s_loadbalancer_expose_port` is `true`. This entry point is invoked internally by `ping` when PostgreSQL runs on Kubernetes.
 
 ```yaml
 - name: Check PostgreSQL external Service reachability on Kubernetes
   vars:
     # Resolved host name used for external reachability checks and in the Fabric CA CSR SAN list. Example: `postgres0.example.com`.
     actual_host: "postgres0.example.com"
-    # Enable the Kubernetes NodePort Service for PostgreSQL when set to `true`.
-    postgres_k8s_use_node_port: false
-    # Enable the Kubernetes LoadBalancer Service for PostgreSQL when set to `true`.
-    postgres_k8s_use_load_balancer: false
-    # Kubernetes NodePort value used by the external PostgreSQL Service. The PostgreSQL port is only exposed by the NodePort Service when this value is defined and `postgres_k8s_use_node_port` is `true`. Example: `30432`.
+    # Kubernetes NodePort value used by the external PostgreSQL Service. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30432`.
     postgres_k8s_node_port: 30432
     # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
     postgres_port: 5432
@@ -560,11 +554,9 @@ Starts PostgreSQL on OpenShift by reusing the generic `k8s/start` resource flow.
     postgres_k8s_wait_timeout: 120
     # Kubernetes pod `fsGroup` applied so mounted files are readable by the postgres process.
     postgres_k8s_fs_group: 999
-    # Enable the Kubernetes NodePort Service for PostgreSQL when set to `true`.
-    postgres_k8s_use_node_port: false
-    # Enable the Kubernetes LoadBalancer Service for PostgreSQL when set to `true`.
-    postgres_k8s_use_load_balancer: false
-    # Kubernetes NodePort value used by the external PostgreSQL Service. The PostgreSQL port is only exposed by the NodePort Service when this value is defined and `postgres_k8s_use_node_port` is `true`. Example: `30432`.
+    # Set to `true` to create a LoadBalancer Service and expose `postgres_port` externally. When undefined or `false`, no LoadBalancer Service is created.
+    postgres_k8s_loadbalancer_expose_port: false
+    # Kubernetes NodePort value used by the external PostgreSQL Service. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30432`.
     postgres_k8s_node_port: 30432
     # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
     postgres_port: 5432

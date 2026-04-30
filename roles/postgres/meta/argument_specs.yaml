@@ -159,25 +159,21 @@ argument_specs:
         default: 999
         description:
           - Kubernetes pod C(fsGroup) applied so mounted files are readable by the postgres process.
-      postgres_k8s_use_node_port: &postgres_k8s_use_node_port
-        type: bool
-        required: false
-        default: false
-        description:
-          - Enable the Kubernetes NodePort Service for PostgreSQL when set to C(true).
-      postgres_k8s_use_load_balancer: &postgres_k8s_use_load_balancer
-        type: bool
-        required: false
-        default: false
-        description:
-          - Enable the Kubernetes LoadBalancer Service for PostgreSQL when set to C(true).
       postgres_k8s_node_port: &postgres_k8s_node_port
         type: int
         required: false
         description:
           - Kubernetes NodePort value used by the external PostgreSQL Service.
-          - The PostgreSQL port is only exposed by the NodePort Service when this value is defined and C(postgres_k8s_use_node_port) is C(true).
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(30432)."
+      postgres_k8s_loadbalancer_expose_port:
+        &postgres_k8s_loadbalancer_expose_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service and expose C(postgres_port) externally.
+          - When undefined or C(false), no LoadBalancer Service is created.
       postgres_tls_private_key_file: &postgres_tls_private_key_file
         type: path
         required: false
@@ -310,7 +306,7 @@ argument_specs:
     description:
       - Validates PostgreSQL reachability for the selected deployment mode.
       - In container mode, waits for the target host to accept connections on C(postgres_port).
-      - In Kubernetes mode, delegates to C(k8s/ping), which checks the configured NodePort when C(postgres_k8s_use_node_port) is enabled and checks C(actual_host):C(postgres_port) when C(postgres_k8s_use_load_balancer) is enabled.
+      - In Kubernetes mode, delegates to C(k8s/ping), which checks the configured NodePort when C(postgres_k8s_node_port) is defined and checks C(actual_host):C(postgres_port) when C(postgres_k8s_loadbalancer_expose_port) is C(true).
       - Also checks C(postgres_exporter_port) when the exporter is defined for the host.
     options:
       postgres_use_k8s: *postgres_use_k8s
@@ -445,8 +441,8 @@ argument_specs:
     short_description: Start PostgreSQL on Kubernetes
     description:
       - Ensures C(k8s_namespace) exists and applies the PostgreSQL headless Service and StatefulSet named by C(postgres_k8s_resource_name).
-      - Applies C(postgres_k8s_resource_name)-nodeport when C(postgres_k8s_use_node_port) is enabled; the PostgreSQL port is included only when C(postgres_k8s_node_port) is defined.
-      - Applies C(postgres_k8s_resource_name)-loadbalancer when C(postgres_k8s_use_load_balancer) is enabled.
+      - Applies C(postgres_k8s_resource_name)-nodeport when C(postgres_k8s_node_port) is defined.
+      - Applies C(postgres_k8s_resource_name)-loadbalancer when C(postgres_k8s_loadbalancer_expose_port) is C(true).
       - Uses the role templates to configure credentials, PVC storage, TLS Secret mounts, optional mTLS ConfigMap mounts, image pull secrets, and readiness and liveness probes.
       - Waits up to C(postgres_k8s_wait_timeout) seconds for the StatefulSet rollout to complete.
     options:
@@ -456,8 +452,7 @@ argument_specs:
         required: true
       postgres_k8s_wait_timeout: *postgres_k8s_wait_timeout
       postgres_k8s_fs_group: *postgres_k8s_fs_group
-      postgres_k8s_use_node_port: *postgres_k8s_use_node_port
-      postgres_k8s_use_load_balancer: *postgres_k8s_use_load_balancer
+      postgres_k8s_loadbalancer_expose_port: *postgres_k8s_loadbalancer_expose_port
       postgres_k8s_node_port: *postgres_k8s_node_port
       postgres_port: *postgres_port
       postgres_registry_endpoint: *postgres_registry_endpoint
@@ -490,13 +485,11 @@ argument_specs:
   k8s/ping:
     short_description: Check PostgreSQL external Service reachability on Kubernetes
     description:
-      - Probes the PostgreSQL NodePort Service when C(postgres_k8s_use_node_port) is enabled and C(postgres_k8s_node_port) is defined.
-      - Probes C(actual_host):C(postgres_port) when C(postgres_k8s_use_load_balancer) is enabled.
+      - Probes the PostgreSQL NodePort Service when C(postgres_k8s_node_port) is defined.
+      - Probes C(actual_host):C(postgres_port) when C(postgres_k8s_loadbalancer_expose_port) is C(true).
       - This entry point is invoked internally by C(ping) when PostgreSQL runs on Kubernetes.
     options:
       actual_host: *actual_host
-      postgres_k8s_use_node_port: *postgres_k8s_use_node_port
-      postgres_k8s_use_load_balancer: *postgres_k8s_use_load_balancer
       postgres_k8s_node_port: *postgres_k8s_node_port
       postgres_port: *postgres_port
 
@@ -595,8 +588,7 @@ argument_specs:
         required: true
       postgres_k8s_wait_timeout: *postgres_k8s_wait_timeout
       postgres_k8s_fs_group: *postgres_k8s_fs_group
-      postgres_k8s_use_node_port: *postgres_k8s_use_node_port
-      postgres_k8s_use_load_balancer: *postgres_k8s_use_load_balancer
+      postgres_k8s_loadbalancer_expose_port: *postgres_k8s_loadbalancer_expose_port
       postgres_k8s_node_port: *postgres_k8s_node_port
       postgres_port: *postgres_port
       postgres_registry_endpoint: *postgres_registry_endpoint
