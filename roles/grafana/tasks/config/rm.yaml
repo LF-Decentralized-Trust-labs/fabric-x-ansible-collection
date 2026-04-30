@@ -4,13 +4,13 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Remove Grafana config directory
-  ansible.builtin.file:
-    path: "{{ grafana_remote_config_dir }}"
-    state: absent
-
 - name: Delete Grafana Kubernetes ConfigMap
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
     tasks_from: k8s/config/rm
   when: grafana_use_k8s
+
+- name: Remove Grafana config directory
+  ansible.builtin.file:
+    path: "{{ grafana_remote_config_dir }}"
+    state: absent

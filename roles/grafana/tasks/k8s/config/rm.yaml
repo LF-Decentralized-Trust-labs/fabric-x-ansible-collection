@@ -4,24 +4,27 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Delete Grafana ConfigMap
-  kubernetes.core.k8s:
-    state: absent
+- name: Get Grafana ConfigMaps
+  kubernetes.core.k8s_info:
     api_version: v1
     kind: ConfigMap
-    name: "{{ grafana_k8s_resource_name }}"
     namespace: "{{ k8s_namespace }}"
+    label_selectors:
+      - "app.kubernetes.io/name={{ grafana_k8s_resource_name }}"
+      - "app.kubernetes.io/component=grafana"
+      - "app.kubernetes.io/part-of=monitoring"
+  register: grafana_configmaps
 
-- name: Delete Grafana dashboard ConfigMap
-  vars:
-    grafana_dashboard_files: "{{ query('fileglob', grafana_remote_config_dir + '/dashboards/*.json') | sort }}"
+- name: Delete Grafana ConfigMaps
   kubernetes.core.k8s:
     state: absent
     api_version: v1
     kind: ConfigMap
-    name: "{{ grafana_k8s_resource_name }}-{{ current_grafana_dashboard | basename | replace('.json', '') | lower | replace('_', '-') }}"
+    name: "{{ current_grafana_configmap.metadata.name }}"
     namespace: "{{ k8s_namespace }}"
-  loop: "{{ grafana_dashboard_files }}"
+  loop: "{{ grafana_configmaps.resources }}"
   loop_control:
-    loop_var: current_grafana_dashboard
-    label: "{{ current_grafana_dashboard | basename }}"
+    loop_var: current_grafana_configmap
+    label: "{{ current_grafana_configmap.metadata.name }}"
+  when:
+    - grafana_configmaps is defined
