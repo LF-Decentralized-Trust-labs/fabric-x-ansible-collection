@@ -24,3 +24,15 @@
     kind: Service
     name: "{{ fabric_ca_server_k8s_resource_name }}-nodeport"
     namespace: "{{ k8s_namespace }}"
+  when: fabric_ca_server_k8s_node_port is defined or
+    fabric_ca_server_k8s_operations_node_port is defined
+
+- name: Delete Fabric CA LoadBalancer Service
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Service
+    name: "{{ fabric_ca_server_k8s_resource_name }}-loadbalancer"
+    namespace: "{{ k8s_namespace }}"
+  when: fabric_ca_server_k8s_loadbalancer_expose_port or
+    fabric_ca_server_k8s_loadbalancer_expose_operations_port

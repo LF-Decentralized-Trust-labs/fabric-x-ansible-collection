@@ -26,7 +26,18 @@
     state: present
     template:
       path: k8s/service-nodeport.yaml.j2
-  when: loadgen_k8s_use_node_port
+  when: loadgen_k8s_web_node_port is defined or
+    loadgen_k8s_metrics_node_port is defined or
+    loadgen_k8s_rpc_node_port is defined
+
+- name: Apply Fabric-X Loadgen LoadBalancer Service
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/service-loadbalancer.yaml.j2
+  when: loadgen_k8s_loadbalancer_expose_web_port or
+    loadgen_k8s_loadbalancer_expose_metrics_port or
+    loadgen_k8s_loadbalancer_expose_rpc_port
 
 - name: Apply Fabric-X Loadgen Deployment
   vars:

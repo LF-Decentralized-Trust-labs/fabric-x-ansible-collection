@@ -24,3 +24,13 @@
     kind: Service
     name: "{{ grafana_k8s_resource_name }}-nodeport"
     namespace: "{{ k8s_namespace }}"
+  when: grafana_k8s_web_node_port is defined
+
+- name: Delete Grafana LoadBalancer Service
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Service
+    name: "{{ grafana_k8s_resource_name }}-loadbalancer"
+    namespace: "{{ k8s_namespace }}"
+  when: grafana_k8s_loadbalancer_expose_web_port

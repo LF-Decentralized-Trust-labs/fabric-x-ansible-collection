@@ -221,19 +221,20 @@ argument_specs:
         default: 472
         description:
           - Sets the Grafana pod filesystem group.
-      grafana_k8s_use_node_port: &grafana_k8s_use_node_port
-        type: bool
-        required: false
-        default: false
-        description:
-          - Enables the optional Grafana NodePort Service.
       grafana_k8s_web_node_port: &grafana_k8s_web_node_port
         type: int
         required: false
         description:
-          - Sets the optional explicit Grafana NodePort value used by the NodePort Service and ping checks.
+          - Kubernetes NodePort value used by the external web Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(32000)."
-          - When omitted, Kubernetes can auto-assign the NodePort.
+      grafana_k8s_loadbalancer_expose_web_port: &grafana_k8s_loadbalancer_expose_web_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the web port externally.
+          - When undefined or C(false), the web port is not included in the LoadBalancer Service.
       grafana_username: &grafana_username
         type: str
         required: true
@@ -420,12 +421,11 @@ argument_specs:
   k8s/start:
     short_description: Start Grafana on Kubernetes
     description:
-      - Applies the Grafana Service, optional NodePort Service, Secret, ConfigMaps, and Deployment on Kubernetes.
+      - Applies the Grafana Service, optional NodePort and LoadBalancer Services, Secret, ConfigMaps, and Deployment on Kubernetes.
       - Generated datasource, dashboard, and TLS artifacts must already exist.
     options:
       grafana_k8s_resource_name: *grafana_k8s_resource_name
       grafana_web_port: *grafana_web_port
-      grafana_k8s_use_node_port: *grafana_k8s_use_node_port
       grafana_k8s_web_node_port: *grafana_k8s_web_node_port
       grafana_k8s_wait_timeout: *grafana_k8s_wait_timeout
       grafana_k8s_fs_group: *grafana_k8s_fs_group
@@ -452,15 +452,16 @@ argument_specs:
       k8s_liveness_probe_period_seconds: *k8s_liveness_probe_period_seconds
       k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
+      grafana_k8s_loadbalancer_expose_web_port: *grafana_k8s_loadbalancer_expose_web_port
 
   k8s/ping:
     short_description: Check that the Grafana NodePort is reachable
     description:
-      - Checks that the Grafana NodePort is reachable when NodePort mode is enabled.
+      - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
     options:
       grafana_web_port: *grafana_web_port
-      grafana_k8s_use_node_port: *grafana_k8s_use_node_port
       grafana_k8s_web_node_port: *grafana_k8s_web_node_port
+      grafana_k8s_loadbalancer_expose_web_port: *grafana_k8s_loadbalancer_expose_web_port
 
   k8s/rm:
     short_description: Remove Grafana Kubernetes resources
@@ -469,6 +470,8 @@ argument_specs:
     options:
       grafana_k8s_resource_name: *grafana_k8s_resource_name
       k8s_namespace: *k8s_namespace
+      grafana_k8s_web_node_port: *grafana_k8s_web_node_port
+      grafana_k8s_loadbalancer_expose_web_port: *grafana_k8s_loadbalancer_expose_web_port
 
   k8s/fetch_logs:
     short_description: Fetch logs from the Grafana pod

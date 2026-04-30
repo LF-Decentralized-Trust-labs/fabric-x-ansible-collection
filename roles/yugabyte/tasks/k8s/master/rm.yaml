@@ -27,3 +27,15 @@
     kind: Service
     name: "{{ yugabyte_k8s_resource_name }}-nodeport"
     namespace: "{{ k8s_namespace }}"
+  when: yugabyte_k8s_master_rpc_node_port is defined or
+    yugabyte_k8s_master_webserver_node_port is defined
+
+- name: Delete Yugabyte master LoadBalancer Service
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Service
+    name: "{{ yugabyte_k8s_resource_name }}-loadbalancer"
+    namespace: "{{ k8s_namespace }}"
+  when: yugabyte_k8s_loadbalancer_expose_master_rpc_port or
+    yugabyte_k8s_loadbalancer_expose_master_webserver_port

@@ -8,13 +8,14 @@
   ansible.builtin.set_fact:
     fabric_ca_client_effective_address: "{{ hostvars[fabric_ca_host].actual_host }}:{{ hostvars[fabric_ca_host].fabric_ca_server_k8s_node_port }}"
   when:
-    - hostvars[fabric_ca_host].fabric_ca_server_k8s_use_node_port is defined
-    - hostvars[fabric_ca_host].fabric_ca_server_k8s_use_node_port
     - hostvars[fabric_ca_host].fabric_ca_server_k8s_node_port is defined
+    - hostvars[fabric_ca_host].fabric_ca_server_k8s_loadbalancer_expose_port is not defined
+      or not hostvars[fabric_ca_host].fabric_ca_server_k8s_loadbalancer_expose_port
 
 - name: Set fabric_ca client effective connection address
   ansible.builtin.set_fact:
     fabric_ca_client_effective_address: "{{ hostvars[fabric_ca_host].actual_host }}:{{ hostvars[fabric_ca_host].fabric_ca_port }}"
   when:
-    - hostvars[fabric_ca_host].fabric_ca_server_k8s_use_node_port is not defined
-      or not hostvars[fabric_ca_host].fabric_ca_server_k8s_use_node_port
+    - hostvars[fabric_ca_host].fabric_ca_server_k8s_node_port is not defined
+      or hostvars[fabric_ca_host].fabric_ca_server_k8s_loadbalancer_expose_port is defined
+      and hostvars[fabric_ca_host].fabric_ca_server_k8s_loadbalancer_expose_port

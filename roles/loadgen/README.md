@@ -183,7 +183,7 @@ Query the Loadgen Prometheus metrics endpoint over HTTP or HTTPS. In Kubernetes 
     actual_host: "myvpc.cloud.ibm.com"
     # Prometheus metrics port exposed by Loadgen. Example: `9443`.
     loadgen_metrics_port: 9443
-    # NodePort used for the metrics port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. Example: `30090`.
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30090`.
     loadgen_k8s_metrics_node_port: 30090
     # Protocol used to reach the monitoring endpoint.
     loadgen_monitoring_http_protocol: "{{ 'https' if loadgen_monitoring_use_tls else 'http' }}"
@@ -195,8 +195,8 @@ Query the Loadgen Prometheus metrics endpoint over HTTP or HTTPS. In Kubernetes 
     loadgen_assert_metrics: false
     # Use Kubernetes resources.
     loadgen_use_k8s: false
-    # Expose the Kubernetes Service via NodePort when `loadgen_use_k8s` is enabled. This drives the HTTP, metrics, and gRPC NodePort access paths.
-    loadgen_k8s_use_node_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    loadgen_k8s_loadbalancer_expose_metrics_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: get_metrics
@@ -215,14 +215,14 @@ Send a control-plane HTTP request that changes the active generated transaction 
     actual_host: "myvpc.cloud.ibm.com"
     # HTTP control port exposed by Loadgen. Example: `8080`.
     loadgen_web_port: 8080
-    # NodePort used for the HTTP control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. Example: `30080`.
+    # Kubernetes NodePort value used by the external HTTP control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30080`.
     loadgen_k8s_web_node_port: 30080
     # Maximum generated transaction rate. Example: `2500`.
     loadgen_limit_rate: 2500
     # Use Kubernetes resources.
     loadgen_use_k8s: false
-    # Expose the Kubernetes Service via NodePort when `loadgen_use_k8s` is enabled. This drives the HTTP, metrics, and gRPC NodePort access paths.
-    loadgen_k8s_use_node_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP control port externally. When undefined or `false`, the HTTP control port is not included in the LoadBalancer Service.
+    loadgen_k8s_loadbalancer_expose_web_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: limit_rate
@@ -826,7 +826,7 @@ Collect logs from a containerized Loadgen runtime. Reads container logs for the 
 
 > Start the Kubernetes deployment
 
-Create or update Kubernetes resources for Loadgen. Ensures the namespace exists, applies the Service, optional NodePort Service, and Deployment, and mounts generated ConfigMap and Secret artifacts into the pod.
+Create or update Kubernetes resources for Loadgen. Ensures the namespace exists, applies the Service, optional NodePort and LoadBalancer Services, and Deployment, and mounts generated ConfigMap and Secret artifacts into the pod.
 
 ```yaml
 - name: Start the Kubernetes deployment
@@ -893,20 +893,24 @@ Create or update Kubernetes resources for Loadgen. Ensures the namespace exists,
     k8s_image_pull_secret: "fabricx-registry-pull"
     # Use Kubernetes resources.
     loadgen_use_k8s: false
-    # Expose the Kubernetes Service via NodePort when `loadgen_use_k8s` is enabled. This drives the HTTP, metrics, and gRPC NodePort access paths.
-    loadgen_k8s_use_node_port: false
     # HTTP control port exposed by Loadgen. Example: `8080`.
     loadgen_web_port: 8080
     # Prometheus metrics port exposed by Loadgen. Example: `9443`.
     loadgen_metrics_port: 9443
     # gRPC control port exposed by Loadgen. Example: `7051`.
     loadgen_rpc_port: 7051
-    # NodePort used for the HTTP control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. Example: `30080`.
+    # Kubernetes NodePort value used by the external HTTP control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30080`.
     loadgen_k8s_web_node_port: 30080
-    # NodePort used for the metrics port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. Example: `30090`.
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30090`.
     loadgen_k8s_metrics_node_port: 30090
-    # NodePort used for the gRPC control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. Example: `30051`.
+    # Kubernetes NodePort value used by the external gRPC control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30051`.
     loadgen_k8s_rpc_node_port: 30051
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP control port externally. When undefined or `false`, the HTTP control port is not included in the LoadBalancer Service.
+    loadgen_k8s_loadbalancer_expose_web_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    loadgen_k8s_loadbalancer_expose_metrics_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the gRPC control port externally. When undefined or `false`, the gRPC control port is not included in the LoadBalancer Service.
+    loadgen_k8s_loadbalancer_expose_rpc_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: k8s/start
@@ -916,25 +920,29 @@ Create or update Kubernetes resources for Loadgen. Ensures the namespace exists,
 
 > Check the Kubernetes node ports
 
-Verify that Kubernetes-exposed Loadgen endpoints are reachable. Checks configured HTTP, metrics, and gRPC NodePorts when NodePort access is enabled, otherwise uses the service ports.
+Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
 - name: Check the Kubernetes node ports
   vars:
-    # Expose the Kubernetes Service via NodePort when `loadgen_use_k8s` is enabled. This drives the HTTP, metrics, and gRPC NodePort access paths.
-    loadgen_k8s_use_node_port: false
     # HTTP control port exposed by Loadgen. Example: `8080`.
     loadgen_web_port: 8080
     # Prometheus metrics port exposed by Loadgen. Example: `9443`.
     loadgen_metrics_port: 9443
     # gRPC control port exposed by Loadgen. Example: `7051`.
     loadgen_rpc_port: 7051
-    # NodePort used for the HTTP control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. Example: `30080`.
+    # Kubernetes NodePort value used by the external HTTP control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30080`.
     loadgen_k8s_web_node_port: 30080
-    # NodePort used for the metrics port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. Example: `30090`.
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30090`.
     loadgen_k8s_metrics_node_port: 30090
-    # NodePort used for the gRPC control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. Example: `30051`.
+    # Kubernetes NodePort value used by the external gRPC control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30051`.
     loadgen_k8s_rpc_node_port: 30051
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP control port externally. When undefined or `false`, the HTTP control port is not included in the LoadBalancer Service.
+    loadgen_k8s_loadbalancer_expose_web_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    loadgen_k8s_loadbalancer_expose_metrics_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the gRPC control port externally. When undefined or `false`, the gRPC control port is not included in the LoadBalancer Service.
+    loadgen_k8s_loadbalancer_expose_rpc_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: k8s/ping
@@ -953,6 +961,18 @@ Remove the Kubernetes Deployment and Services created for Loadgen. Does not remo
     k8s_namespace: "fabricx-loadgen"
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
+    # Kubernetes NodePort value used by the external HTTP control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30080`.
+    loadgen_k8s_web_node_port: 30080
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP control port externally. When undefined or `false`, the HTTP control port is not included in the LoadBalancer Service.
+    loadgen_k8s_loadbalancer_expose_web_port: false
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30090`.
+    loadgen_k8s_metrics_node_port: 30090
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    loadgen_k8s_loadbalancer_expose_metrics_port: false
+    # Kubernetes NodePort value used by the external gRPC control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30051`.
+    loadgen_k8s_rpc_node_port: 30051
+    # Set to `true` to create a LoadBalancer Service entry that exposes the gRPC control port externally. When undefined or `false`, the gRPC control port is not included in the LoadBalancer Service.
+    loadgen_k8s_loadbalancer_expose_rpc_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: k8s/rm

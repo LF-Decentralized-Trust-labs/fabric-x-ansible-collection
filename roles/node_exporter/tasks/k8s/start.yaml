@@ -26,7 +26,14 @@
     state: present
     template:
       path: k8s/service-nodeport.yaml.j2
-  when: node_exporter_k8s_use_node_port
+  when: node_exporter_k8s_node_port is defined
+
+- name: Apply Node Exporter LoadBalancer Service
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/service-loadbalancer.yaml.j2
+  when: node_exporter_k8s_loadbalancer_expose_metrics_port
 
 - name: Apply Node Exporter DaemonSet
   kubernetes.core.k8s:

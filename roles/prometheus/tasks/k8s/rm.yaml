@@ -27,3 +27,13 @@
     kind: Service
     name: "{{ prometheus_k8s_resource_name }}-nodeport"
     namespace: "{{ k8s_namespace }}"
+  when: prometheus_k8s_node_port is defined
+
+- name: Delete Prometheus LoadBalancer Service
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Service
+    name: "{{ prometheus_k8s_resource_name }}-loadbalancer"
+    namespace: "{{ k8s_namespace }}"
+  when: prometheus_k8s_loadbalancer_expose_http_port

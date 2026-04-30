@@ -1,0 +1,51 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # LoadBalancer Service -- exposes Yugabyte tablet outside the cluster for external clients.
+  name: {{ yugabyte_k8s_resource_name }}-loadbalancer
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ yugabyte_k8s_resource_name }}
+    app.kubernetes.io/part-of: yugabyte
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: {{ yugabyte_k8s_resource_name }}
+  ports:
+{% if yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port %}
+    - name: pgsql
+      port: {{ yugabyte_tablet_pgsql_bind_port }}
+      targetPort: {{ yugabyte_tablet_pgsql_bind_port }}
+{% endif %}
+{% if yugabyte_k8s_loadbalancer_expose_tablet_rpc_port %}
+    - name: rpc
+      port: {{ yugabyte_tablet_rpc_bind_port }}
+      targetPort: {{ yugabyte_tablet_rpc_bind_port }}
+{% endif %}
+{% if yugabyte_k8s_loadbalancer_expose_tablet_webserver_port %}
+    - name: webserver
+      port: {{ yugabyte_tablet_webserver_port }}
+      targetPort: {{ yugabyte_tablet_webserver_port }}
+{% endif %}
+{% if yugabyte_k8s_loadbalancer_expose_tablet_pgsql_web_port %}
+    - name: pgsql-web
+      port: {{ yugabyte_tablet_pgsql_web_port }}
+      targetPort: {{ yugabyte_tablet_pgsql_web_port }}
+{% endif %}
+{% if yugabyte_k8s_loadbalancer_expose_tablet_cql_bind_port %}
+    - name: cql
+      port: {{ yugabyte_tablet_cql_bind_port }}
+      targetPort: {{ yugabyte_tablet_cql_bind_port }}
+{% endif %}
+{% if yugabyte_k8s_loadbalancer_expose_tablet_cql_web_port %}
+    - name: cql-web
+      port: {{ yugabyte_tablet_cql_web_port }}
+      targetPort: {{ yugabyte_tablet_cql_web_port }}
+{% endif %}

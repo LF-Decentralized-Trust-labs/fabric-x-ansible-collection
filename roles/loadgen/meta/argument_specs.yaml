@@ -51,13 +51,6 @@ argument_specs:
         default: false
         description:
           - Use Kubernetes resources.
-      loadgen_k8s_use_node_port: &loadgen_k8s_use_node_port
-        type: bool
-        required: false
-        default: false
-        description:
-          - Expose the Kubernetes Service via NodePort when C(loadgen_use_k8s) is enabled.
-          - This drives the HTTP, metrics, and gRPC NodePort access paths.
       loadgen_use_container: &loadgen_use_container
         type: bool
         required: false
@@ -500,20 +493,45 @@ argument_specs:
         type: int
         required: false
         description:
-          - NodePort used for the HTTP control port when C(loadgen_use_k8s) and C(loadgen_k8s_use_node_port) are true.
+          - Kubernetes NodePort value used by the external HTTP control Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(30080)."
+      loadgen_k8s_loadbalancer_expose_web_port: &loadgen_k8s_loadbalancer_expose_web_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the HTTP control port externally.
+          - When undefined or C(false), the HTTP control port is not included in the LoadBalancer Service.
       loadgen_k8s_metrics_node_port: &loadgen_k8s_metrics_node_port
         type: int
         required: false
         description:
-          - NodePort used for the metrics port when C(loadgen_use_k8s) and C(loadgen_k8s_use_node_port) are true.
+          - Kubernetes NodePort value used by the external metrics Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(30090)."
+      loadgen_k8s_loadbalancer_expose_metrics_port:
+        &loadgen_k8s_loadbalancer_expose_metrics_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the metrics port externally.
+          - When undefined or C(false), the metrics port is not included in the LoadBalancer Service.
       loadgen_k8s_rpc_node_port: &loadgen_k8s_rpc_node_port
         type: int
         required: false
         description:
-          - NodePort used for the gRPC control port when C(loadgen_use_k8s) and C(loadgen_k8s_use_node_port) are true.
+          - Kubernetes NodePort value used by the external gRPC control Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(30051)."
+      loadgen_k8s_loadbalancer_expose_rpc_port: &loadgen_k8s_loadbalancer_expose_rpc_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the gRPC control port externally.
+          - When undefined or C(false), the gRPC control port is not included in the LoadBalancer Service.
       k8s_image_pull_secret: &k8s_image_pull_secret
         type: str
         required: false
@@ -619,7 +637,7 @@ argument_specs:
       loadgen_use_tls: *loadgen_use_tls
       loadgen_assert_metrics: *loadgen_assert_metrics
       loadgen_use_k8s: *loadgen_use_k8s
-      loadgen_k8s_use_node_port: *loadgen_k8s_use_node_port
+      loadgen_k8s_loadbalancer_expose_metrics_port: *loadgen_k8s_loadbalancer_expose_metrics_port
 
   limit_rate:
     short_description: Update the runtime rate limit
@@ -632,7 +650,7 @@ argument_specs:
       loadgen_k8s_web_node_port: *loadgen_k8s_web_node_port
       loadgen_limit_rate: *loadgen_limit_rate
       loadgen_use_k8s: *loadgen_use_k8s
-      loadgen_k8s_use_node_port: *loadgen_k8s_use_node_port
+      loadgen_k8s_loadbalancer_expose_web_port: *loadgen_k8s_loadbalancer_expose_web_port
 
   prometheus/get_scrapers:
     short_description: Build Prometheus scrape targets
@@ -911,7 +929,7 @@ argument_specs:
     short_description: Start the Kubernetes deployment
     description:
       - Create or update Kubernetes resources for Loadgen.
-      - Ensures the namespace exists, applies the Service, optional NodePort Service, and Deployment, and mounts generated ConfigMap and Secret artifacts into the pod.
+      - Ensures the namespace exists, applies the Service, optional NodePort and LoadBalancer Services, and Deployment, and mounts generated ConfigMap and Secret artifacts into the pod.
     options:
       committer_hosts: *committer_hosts
       orderer_hosts: *orderer_hosts
@@ -936,27 +954,30 @@ argument_specs:
       loadgen_monitoring_mtls_orgs: *loadgen_monitoring_mtls_orgs
       k8s_image_pull_secret: *k8s_image_pull_secret
       loadgen_use_k8s: *loadgen_use_k8s
-      loadgen_k8s_use_node_port: *loadgen_k8s_use_node_port
       loadgen_web_port: *loadgen_web_port
       loadgen_metrics_port: *loadgen_metrics_port
       loadgen_rpc_port: *loadgen_rpc_port
       loadgen_k8s_web_node_port: *loadgen_k8s_web_node_port
       loadgen_k8s_metrics_node_port: *loadgen_k8s_metrics_node_port
       loadgen_k8s_rpc_node_port: *loadgen_k8s_rpc_node_port
+      loadgen_k8s_loadbalancer_expose_web_port: *loadgen_k8s_loadbalancer_expose_web_port
+      loadgen_k8s_loadbalancer_expose_metrics_port: *loadgen_k8s_loadbalancer_expose_metrics_port
+      loadgen_k8s_loadbalancer_expose_rpc_port: *loadgen_k8s_loadbalancer_expose_rpc_port
 
   k8s/ping:
     short_description: Check the Kubernetes node ports
     description:
-      - Verify that Kubernetes-exposed Loadgen endpoints are reachable.
-      - Checks configured HTTP, metrics, and gRPC NodePorts when NodePort access is enabled, otherwise uses the service ports.
+      - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
     options:
-      loadgen_k8s_use_node_port: *loadgen_k8s_use_node_port
       loadgen_web_port: *loadgen_web_port
       loadgen_metrics_port: *loadgen_metrics_port
       loadgen_rpc_port: *loadgen_rpc_port
       loadgen_k8s_web_node_port: *loadgen_k8s_web_node_port
       loadgen_k8s_metrics_node_port: *loadgen_k8s_metrics_node_port
       loadgen_k8s_rpc_node_port: *loadgen_k8s_rpc_node_port
+      loadgen_k8s_loadbalancer_expose_web_port: *loadgen_k8s_loadbalancer_expose_web_port
+      loadgen_k8s_loadbalancer_expose_metrics_port: *loadgen_k8s_loadbalancer_expose_metrics_port
+      loadgen_k8s_loadbalancer_expose_rpc_port: *loadgen_k8s_loadbalancer_expose_rpc_port
 
   k8s/rm:
     short_description: Remove Kubernetes resources
@@ -966,6 +987,12 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_web_node_port: *loadgen_k8s_web_node_port
+      loadgen_k8s_loadbalancer_expose_web_port: *loadgen_k8s_loadbalancer_expose_web_port
+      loadgen_k8s_metrics_node_port: *loadgen_k8s_metrics_node_port
+      loadgen_k8s_loadbalancer_expose_metrics_port: *loadgen_k8s_loadbalancer_expose_metrics_port
+      loadgen_k8s_rpc_node_port: *loadgen_k8s_rpc_node_port
+      loadgen_k8s_loadbalancer_expose_rpc_port: *loadgen_k8s_loadbalancer_expose_rpc_port
 
   k8s/fetch_logs:
     short_description: Fetch pod logs

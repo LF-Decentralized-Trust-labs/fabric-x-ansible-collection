@@ -35,9 +35,12 @@ orderer_k8s_resource_name: '{{ inventory_hostname }}'
 orderer_k8s_wait_timeout: 120
 # Filesystem group applied to mounted ConfigMap and Secret volumes.
 orderer_k8s_fs_group: 10001
-# Enables the optional NodePort Service for the orderer Kubernetes deployment.
-# The NodePort Service and Kubernetes ping branch use this toggle.
-orderer_k8s_use_node_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the RPC port externally.
+# When undefined or C(false), the RPC port is not included in the LoadBalancer Service.
+orderer_k8s_loadbalancer_expose_rpc_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the metrics port externally.
+# When undefined or C(false), the metrics port is not included in the LoadBalancer Service.
+orderer_k8s_loadbalancer_expose_metrics_port: false
 # Container path where orderer configuration is mounted.
 orderer_container_config_dir: /config
 # Container path where orderer data is mounted.

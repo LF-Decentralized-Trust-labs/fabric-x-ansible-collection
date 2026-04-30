@@ -26,7 +26,24 @@
     state: present
     template:
       path: k8s/tablet-service-nodeport.yaml.j2
-  when: yugabyte_k8s_use_node_port
+  when: yugabyte_k8s_tablet_pgsql_node_port is defined or
+    yugabyte_k8s_tablet_rpc_node_port is defined or
+    yugabyte_k8s_tablet_webserver_node_port is defined or
+    yugabyte_k8s_tablet_pgsql_web_node_port is defined or
+    yugabyte_k8s_tablet_cql_bind_node_port is defined or
+    yugabyte_k8s_tablet_cql_web_node_port is defined
+
+- name: Apply Yugabyte tablet LoadBalancer Service
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/tablet-service-loadbalancer.yaml.j2
+  when: yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port or
+    yugabyte_k8s_loadbalancer_expose_tablet_rpc_port or
+    yugabyte_k8s_loadbalancer_expose_tablet_webserver_port or
+    yugabyte_k8s_loadbalancer_expose_tablet_pgsql_web_port or
+    yugabyte_k8s_loadbalancer_expose_tablet_cql_bind_port or
+    yugabyte_k8s_loadbalancer_expose_tablet_cql_web_port
 
 - name: Apply Yugabyte tablet StatefulSet
   kubernetes.core.k8s:

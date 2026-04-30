@@ -203,19 +203,21 @@ argument_specs:
         default: 65534
         description:
           - "Sets the pod filesystem group used by the Postgres Exporter Deployment."
-      postgres_exporter_k8s_use_node_port: &postgres_exporter_k8s_use_node_port
-        type: bool
-        required: false
-        default: false
-        description:
-          - "Enables the optional NodePort Service used to expose Postgres Exporter externally from Kubernetes."
-          - "When set to C(true), C(postgres_exporter_k8s_node_port) is used to populate the Service's node port."
       postgres_exporter_k8s_node_port: &postgres_exporter_k8s_node_port
         type: int
         required: false
         description:
-          - "Sets the NodePort value exposed by the optional Postgres Exporter Kubernetes Service."
+          - Kubernetes NodePort value used by the external metrics Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(30987)."
+      postgres_exporter_k8s_loadbalancer_expose_metrics_port:
+        &postgres_exporter_k8s_loadbalancer_expose_metrics_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the metrics port externally.
+          - When undefined or C(false), the metrics port is not included in the LoadBalancer Service.
       postgres_exporter_port: &postgres_exporter_port
         type: int
         required: true
@@ -406,9 +408,8 @@ argument_specs:
   k8s/start:
     short_description: Start Postgres Exporter on Kubernetes
     description:
-      - "Applies the Service, optional NodePort Service, and Deployment for Postgres Exporter."
+      - "Applies the Service, optional NodePort and LoadBalancer Services, and Deployment for Postgres Exporter."
       - "The Deployment connects to the monitored PostgreSQL host using the same datasource facts used by the container path."
-      - "The NodePort Service is optional and only rendered when C(postgres_exporter_k8s_use_node_port) is true."
     options:
       k8s_namespace: *k8s_namespace
       k8s_image_pull_secret: *k8s_image_pull_secret
@@ -428,7 +429,6 @@ argument_specs:
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
       postgres_exporter_k8s_wait_timeout: *postgres_exporter_k8s_wait_timeout
       postgres_exporter_k8s_fs_group: *postgres_exporter_k8s_fs_group
-      postgres_exporter_k8s_use_node_port: *postgres_exporter_k8s_use_node_port
       postgres_exporter_k8s_node_port: *postgres_exporter_k8s_node_port
       postgres_exporter_port: *postgres_exporter_port
       postgres_exporter_container_config_dir: *postgres_exporter_container_config_dir
@@ -437,16 +437,16 @@ argument_specs:
       postgres_exporter_use_tls: *postgres_exporter_use_tls
       postgres_exporter_tls_private_key_file: *postgres_exporter_tls_private_key_file
       postgres_exporter_tls_cert_file: *postgres_exporter_tls_cert_file
+      postgres_exporter_k8s_loadbalancer_expose_metrics_port: *postgres_exporter_k8s_loadbalancer_expose_metrics_port
 
   k8s/ping:
     short_description: Check Postgres Exporter node port reachability
     description:
-      - "Checks whether the optional Postgres Exporter NodePort Service is reachable."
-      - "This verifies the exposed service port rather than the pod-local metrics listener."
+      - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
     options:
       postgres_exporter_port: *postgres_exporter_port
-      postgres_exporter_k8s_use_node_port: *postgres_exporter_k8s_use_node_port
       postgres_exporter_k8s_node_port: *postgres_exporter_k8s_node_port
+      postgres_exporter_k8s_loadbalancer_expose_metrics_port: *postgres_exporter_k8s_loadbalancer_expose_metrics_port
 
   k8s/rm:
     short_description: Remove Postgres Exporter Kubernetes resources
@@ -455,6 +455,8 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
+      postgres_exporter_k8s_node_port: *postgres_exporter_k8s_node_port
+      postgres_exporter_k8s_loadbalancer_expose_metrics_port: *postgres_exporter_k8s_loadbalancer_expose_metrics_port
 
   k8s/fetch_logs:
     short_description: Fetch Postgres Exporter pod logs

@@ -263,7 +263,7 @@ Collects the container logs for the Jaeger runtime from the named container.
 
 > Start Jaeger on Kubernetes
 
-Applies the Jaeger Service, optional NodePort Service, and Deployment resources to Kubernetes. The deployment template mounts the configuration path, wires the ElasticSearch CA certificate, and uses the provided probe and port settings. The NodePort service is created only when `jaeger_k8s_use_node_port` is set to `true`. This entry point requires the ElasticSearch host inventory to be available.
+Applies the Jaeger Service, optional NodePort and LoadBalancer Services, and Deployment resources to Kubernetes. The deployment template mounts the configuration path, wires the ElasticSearch CA certificate, and uses the provided probe and port settings. This entry point requires the ElasticSearch host inventory to be available.
 
 ```yaml
 - name: Start Jaeger on Kubernetes
@@ -276,8 +276,6 @@ Applies the Jaeger Service, optional NodePort Service, and Deployment resources 
     jaeger_k8s_wait_timeout: 120
     # Sets the pod filesystem group for the Jaeger Kubernetes workload.
     jaeger_k8s_fs_group: 0
-    # Exposes the Jaeger Kubernetes service through a NodePort service when set to `true`. The NodePort service uses the per-port node port values below.
-    jaeger_k8s_use_node_port: false
     # Sets the registry endpoint for the Jaeger image.
     jaeger_registry_endpoint: "{{ lookup('env', 'JAEGER_REGISTRY_ENDPOINT') or 'docker.io/jaegertracing' }}"
     # Sets the Jaeger image name.
@@ -300,17 +298,17 @@ Applies the Jaeger Service, optional NodePort Service, and Deployment resources 
     jaeger_grpc_server_port: 14250
     # Sets the Jaeger OTLP gRPC collector port.
     jaeger_collector_port: 4317
-    # Sets the Kubernetes NodePort for the Jaeger UI service. Example: `30686`.
+    # Kubernetes NodePort value used by the external UI Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30686`.
     jaeger_k8s_ui_node_port: 30686
-    # Sets the Kubernetes NodePort for the Jaeger admin service. Example: `30669`.
+    # Kubernetes NodePort value used by the external admin Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30669`.
     jaeger_k8s_admin_node_port: 30669
-    # Sets the Kubernetes NodePort for the Jaeger collector HTTP server. Example: `30668`.
+    # Kubernetes NodePort value used by the external HTTP server Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30668`.
     jaeger_k8s_http_server_node_port: 30668
-    # Sets the Kubernetes NodePort for the Jaeger OTLP HTTP collector. Example: `30418`.
+    # Kubernetes NodePort value used by the external HTTP collector Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30418`.
     jaeger_k8s_http_collector_node_port: 30418
-    # Sets the Kubernetes NodePort for the Jaeger gRPC server. Example: `31450`.
+    # Kubernetes NodePort value used by the external gRPC server Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31450`.
     jaeger_k8s_grpc_server_node_port: 31450
-    # Sets the Kubernetes NodePort for the Jaeger OTLP gRPC collector. Example: `30417`.
+    # Kubernetes NodePort value used by the external collector Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30417`.
     jaeger_k8s_collector_node_port: 30417
     # Sets the Kubernetes namespace used for Jaeger resources. Example: `tracing` when Jaeger shares a namespace with other observability services.
     k8s_namespace: "string"
@@ -332,6 +330,18 @@ Applies the Jaeger Service, optional NodePort Service, and Deployment resources 
     k8s_liveness_probe_timeout_seconds: 2
     # Sets the liveness probe failure threshold used by the Jaeger deployment template. Example: `3`.
     k8s_liveness_probe_failure_threshold: 3
+    # Set to `true` to create a LoadBalancer Service entry that exposes the UI port externally. When undefined or `false`, the UI port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_ui_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the admin port externally. When undefined or `false`, the admin port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_admin_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP server port externally. When undefined or `false`, the HTTP server port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_http_server_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP collector port externally. When undefined or `false`, the HTTP collector port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_http_collector_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the gRPC server port externally. When undefined or `false`, the gRPC server port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_grpc_server_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the collector port externally. When undefined or `false`, the collector port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_collector_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: k8s/start
@@ -350,6 +360,30 @@ Deletes the Jaeger Deployment, Service, and NodePort Service from the target nam
     jaeger_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the Kubernetes namespace used for Jaeger resources. Example: `tracing` when Jaeger shares a namespace with other observability services.
     k8s_namespace: "string"
+    # Kubernetes NodePort value used by the external UI Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30686`.
+    jaeger_k8s_ui_node_port: 30686
+    # Set to `true` to create a LoadBalancer Service entry that exposes the UI port externally. When undefined or `false`, the UI port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_ui_port: false
+    # Kubernetes NodePort value used by the external admin Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30669`.
+    jaeger_k8s_admin_node_port: 30669
+    # Set to `true` to create a LoadBalancer Service entry that exposes the admin port externally. When undefined or `false`, the admin port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_admin_port: false
+    # Kubernetes NodePort value used by the external HTTP server Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30668`.
+    jaeger_k8s_http_server_node_port: 30668
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP server port externally. When undefined or `false`, the HTTP server port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_http_server_port: false
+    # Kubernetes NodePort value used by the external HTTP collector Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30418`.
+    jaeger_k8s_http_collector_node_port: 30418
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP collector port externally. When undefined or `false`, the HTTP collector port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_http_collector_port: false
+    # Kubernetes NodePort value used by the external gRPC server Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31450`.
+    jaeger_k8s_grpc_server_node_port: 31450
+    # Set to `true` to create a LoadBalancer Service entry that exposes the gRPC server port externally. When undefined or `false`, the gRPC server port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_grpc_server_port: false
+    # Kubernetes NodePort value used by the external collector Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30417`.
+    jaeger_k8s_collector_node_port: 30417
+    # Set to `true` to create a LoadBalancer Service entry that exposes the collector port externally. When undefined or `false`, the collector port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_collector_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: k8s/rm
@@ -375,13 +409,11 @@ Collects logs from Jaeger pods using the resource label selector for the Kuberne
 
 > Check that Jaeger Kubernetes node ports are reachable
 
-Checks the Jaeger Kubernetes service ports and, when enabled, the NodePort values for the query, admin, and collector endpoints.
+Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
 - name: Check that Jaeger Kubernetes node ports are reachable
   vars:
-    # Exposes the Jaeger Kubernetes service through a NodePort service when set to `true`. The NodePort service uses the per-port node port values below.
-    jaeger_k8s_use_node_port: false
     # Sets the Jaeger query UI port.
     jaeger_ui_port: 16686
     # Sets the Jaeger admin HTTP port.
@@ -394,18 +426,30 @@ Checks the Jaeger Kubernetes service ports and, when enabled, the NodePort value
     jaeger_grpc_server_port: 14250
     # Sets the Jaeger OTLP gRPC collector port.
     jaeger_collector_port: 4317
-    # Sets the Kubernetes NodePort for the Jaeger UI service. Example: `30686`.
+    # Kubernetes NodePort value used by the external UI Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30686`.
     jaeger_k8s_ui_node_port: 30686
-    # Sets the Kubernetes NodePort for the Jaeger admin service. Example: `30669`.
+    # Kubernetes NodePort value used by the external admin Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30669`.
     jaeger_k8s_admin_node_port: 30669
-    # Sets the Kubernetes NodePort for the Jaeger collector HTTP server. Example: `30668`.
+    # Kubernetes NodePort value used by the external HTTP server Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30668`.
     jaeger_k8s_http_server_node_port: 30668
-    # Sets the Kubernetes NodePort for the Jaeger OTLP HTTP collector. Example: `30418`.
+    # Kubernetes NodePort value used by the external HTTP collector Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30418`.
     jaeger_k8s_http_collector_node_port: 30418
-    # Sets the Kubernetes NodePort for the Jaeger gRPC server. Example: `31450`.
+    # Kubernetes NodePort value used by the external gRPC server Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31450`.
     jaeger_k8s_grpc_server_node_port: 31450
-    # Sets the Kubernetes NodePort for the Jaeger OTLP gRPC collector. Example: `30417`.
+    # Kubernetes NodePort value used by the external collector Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30417`.
     jaeger_k8s_collector_node_port: 30417
+    # Set to `true` to create a LoadBalancer Service entry that exposes the UI port externally. When undefined or `false`, the UI port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_ui_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the admin port externally. When undefined or `false`, the admin port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_admin_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP server port externally. When undefined or `false`, the HTTP server port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_http_server_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP collector port externally. When undefined or `false`, the HTTP collector port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_http_collector_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the gRPC server port externally. When undefined or `false`, the gRPC server port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_grpc_server_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the collector port externally. When undefined or `false`, the collector port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_collector_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: k8s/ping

@@ -1085,8 +1085,6 @@ Creates Fabric CA Kubernetes runtime resources for the server. Uses the ConfigMa
     fabric_ca_server_k8s_wait_timeout: 120
     # Sets the Kubernetes resource name for the Fabric CA server and its Service resources.
     fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
-    # Enables the optional Kubernetes NodePort Service for the Fabric CA server; client address resolution uses the node-port mapping on the referenced server host.
-    fabric_ca_server_k8s_use_node_port: false
     # Sets the Fabric CA image.
     fabric_ca_image: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
     # Sets the registry endpoint used to resolve the Fabric CA image.
@@ -1119,10 +1117,14 @@ Creates Fabric CA Kubernetes runtime resources for the server. Uses the ConfigMa
     k8s_namespace: "fabricx"
     # Provides an optional Kubernetes image pull secret from shared inventory. Example: `registry-pull-secret`.
     k8s_image_pull_secret: "registry-pull-secret"
-    # Sets the Kubernetes NodePort for the API port and is used when NodePort exposure is enabled. Example: `30054`.
+    # Kubernetes NodePort value used by the external API Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30054`.
     fabric_ca_server_k8s_node_port: 30054
-    # Sets the Kubernetes NodePort for the operations port and is used when NodePort exposure is enabled. Example: `30943`.
+    # Kubernetes NodePort value used by the external operations Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30943`.
     fabric_ca_server_k8s_operations_node_port: 30943
+    # Set to `true` to create a LoadBalancer Service entry that exposes the API port externally. When undefined or `false`, the API port is not included in the LoadBalancer Service.
+    fabric_ca_server_k8s_loadbalancer_expose_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the operations port externally. When undefined or `false`, the operations port is not included in the LoadBalancer Service.
+    fabric_ca_server_k8s_loadbalancer_expose_operations_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/k8s/start
@@ -1132,17 +1134,23 @@ Creates Fabric CA Kubernetes runtime resources for the server. Uses the ConfigMa
 
 > Check Fabric CA node ports
 
-Checks that the Fabric CA API and operations NodePorts are reachable when Kubernetes NodePort exposure is enabled. Validates external access to the Kubernetes Service without changing deployment, ConfigMap, or Secret resources.
+Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
 - name: Check Fabric CA node ports
   vars:
-    # Enables the optional Kubernetes NodePort Service for the Fabric CA server; client address resolution uses the node-port mapping on the referenced server host.
-    fabric_ca_server_k8s_use_node_port: false
-    # Sets the Kubernetes NodePort for the API port and is used when NodePort exposure is enabled. Example: `30054`.
+    # Kubernetes NodePort value used by the external API Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30054`.
     fabric_ca_server_k8s_node_port: 30054
-    # Sets the Kubernetes NodePort for the operations port and is used when NodePort exposure is enabled. Example: `30943`.
+    # Kubernetes NodePort value used by the external operations Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30943`.
     fabric_ca_server_k8s_operations_node_port: 30943
+    # Set to `true` to create a LoadBalancer Service entry that exposes the API port externally. When undefined or `false`, the API port is not included in the LoadBalancer Service.
+    fabric_ca_server_k8s_loadbalancer_expose_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the operations port externally. When undefined or `false`, the operations port is not included in the LoadBalancer Service.
+    fabric_ca_server_k8s_loadbalancer_expose_operations_port: false
+    # Sets the Fabric CA API port. Example: `7054`.
+    fabric_ca_port: 7054
+    # Sets the Fabric CA operations port. Example: `9443`.
+    fabric_ca_operations_port: 9443
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/k8s/ping
@@ -1177,6 +1185,14 @@ Deletes the Fabric CA Kubernetes runtime resources. Removes Deployment and Servi
     fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
     # Provides the Kubernetes namespace from the shared inventory. Example: `fabricx`.
     k8s_namespace: "fabricx"
+    # Kubernetes NodePort value used by the external API Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30054`.
+    fabric_ca_server_k8s_node_port: 30054
+    # Set to `true` to create a LoadBalancer Service entry that exposes the API port externally. When undefined or `false`, the API port is not included in the LoadBalancer Service.
+    fabric_ca_server_k8s_loadbalancer_expose_port: false
+    # Kubernetes NodePort value used by the external operations Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30943`.
+    fabric_ca_server_k8s_operations_node_port: 30943
+    # Set to `true` to create a LoadBalancer Service entry that exposes the operations port externally. When undefined or `false`, the operations port is not included in the LoadBalancer Service.
+    fabric_ca_server_k8s_loadbalancer_expose_operations_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/k8s/rm

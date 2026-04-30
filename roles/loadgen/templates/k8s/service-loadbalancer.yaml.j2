@@ -1,0 +1,37 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # LoadBalancer Service -- exposes Fabric-X Loadgen outside the cluster for external clients.
+  name: {{ loadgen_k8s_resource_name }}-loadbalancer
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ loadgen_k8s_resource_name }}
+    app.kubernetes.io/component: loadgen
+    app.kubernetes.io/part-of: fabric-x-loadgen
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: {{ loadgen_k8s_resource_name }}
+  ports:
+{% if loadgen_k8s_loadbalancer_expose_web_port %}
+    - name: web
+      port: {{ loadgen_web_port }}
+      targetPort: web
+{% endif %}
+{% if loadgen_k8s_loadbalancer_expose_metrics_port %}
+    - name: metrics
+      port: {{ loadgen_metrics_port }}
+      targetPort: metrics
+{% endif %}
+{% if loadgen_k8s_loadbalancer_expose_rpc_port %}
+    - name: rpc
+      port: {{ loadgen_rpc_port }}
+      targetPort: rpc
+{% endif %}

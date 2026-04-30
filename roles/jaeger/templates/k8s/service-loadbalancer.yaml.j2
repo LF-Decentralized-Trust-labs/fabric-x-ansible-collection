@@ -1,0 +1,52 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # LoadBalancer Service -- exposes Jaeger outside the cluster for external clients.
+  name: {{ jaeger_k8s_resource_name }}-loadbalancer
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ jaeger_k8s_resource_name }}
+    app.kubernetes.io/component: jaeger
+    app.kubernetes.io/part-of: monitoring
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: {{ jaeger_k8s_resource_name }}
+  ports:
+{% if jaeger_k8s_loadbalancer_expose_ui_port %}
+    - name: ui
+      port: {{ jaeger_ui_port }}
+      targetPort: ui
+{% endif %}
+{% if jaeger_k8s_loadbalancer_expose_admin_port %}
+    - name: admin
+      port: {{ jaeger_admin_port }}
+      targetPort: admin
+{% endif %}
+{% if jaeger_k8s_loadbalancer_expose_http_server_port %}
+    - name: http-server
+      port: {{ jaeger_http_server_port }}
+      targetPort: http-server
+{% endif %}
+{% if jaeger_k8s_loadbalancer_expose_http_collector_port %}
+    - name: http-collector
+      port: {{ jaeger_http_collector_port }}
+      targetPort: http-collector
+{% endif %}
+{% if jaeger_k8s_loadbalancer_expose_grpc_server_port %}
+    - name: grpc-server
+      port: {{ jaeger_grpc_server_port }}
+      targetPort: grpc-server
+{% endif %}
+{% if jaeger_k8s_loadbalancer_expose_collector_port %}
+    - name: collector
+      port: {{ jaeger_collector_port }}
+      targetPort: collector
+{% endif %}

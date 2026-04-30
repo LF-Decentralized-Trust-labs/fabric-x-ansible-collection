@@ -398,6 +398,8 @@ Probes the PostgreSQL NodePort Service when `postgres_k8s_node_port` is defined.
     postgres_k8s_node_port: 30432
     # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
     postgres_port: 5432
+    # Set to `true` to create a LoadBalancer Service and expose `postgres_port` externally. When undefined or `false`, no LoadBalancer Service is created.
+    postgres_k8s_loadbalancer_expose_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: k8s/ping
@@ -416,6 +418,10 @@ Deletes the PostgreSQL StatefulSet, headless Service, optional NodePort Service,
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
+    # Kubernetes NodePort value used by the external PostgreSQL Service. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30432`.
+    postgres_k8s_node_port: 30432
+    # Set to `true` to create a LoadBalancer Service and expose `postgres_port` externally. When undefined or `false`, no LoadBalancer Service is created.
+    postgres_k8s_loadbalancer_expose_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: k8s/rm

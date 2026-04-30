@@ -1,0 +1,32 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # LoadBalancer Service -- exposes Fabric-X Orderer outside the cluster for external clients.
+  name: {{ orderer_k8s_resource_name }}-loadbalancer
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ orderer_k8s_resource_name }}
+    app.kubernetes.io/component: {{ orderer_component_type }}
+    app.kubernetes.io/part-of: fabric-x-orderer
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: {{ orderer_k8s_resource_name }}
+  ports:
+{% if orderer_k8s_loadbalancer_expose_rpc_port %}
+    - name: rpc
+      port: {{ orderer_rpc_port }}
+      targetPort: rpc
+{% endif %}
+{% if orderer_k8s_loadbalancer_expose_metrics_port %}
+    - name: metrics
+      port: {{ orderer_metrics_port }}
+      targetPort: metrics
+{% endif %}

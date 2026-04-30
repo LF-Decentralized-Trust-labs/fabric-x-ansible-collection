@@ -197,18 +197,21 @@ argument_specs:
         default: 120
         description:
           - Sets how long to wait for the Node Exporter DaemonSet rollout.
-      node_exporter_k8s_use_node_port: &node_exporter_k8s_use_node_port
-        type: bool
-        required: false
-        default: false
-        description:
-          - Enables the optional NodePort Service and NodePort reachability check when true.
       node_exporter_k8s_node_port: &node_exporter_k8s_node_port
         type: int
         required: false
         description:
-          - Sets the Kubernetes NodePort used for Node Exporter when C(node_exporter_k8s_use_node_port) is true.
+          - Kubernetes NodePort value used by the external metrics Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(31000)."
+      node_exporter_k8s_loadbalancer_expose_metrics_port:
+        &node_exporter_k8s_loadbalancer_expose_metrics_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the metrics port externally.
+          - When undefined or C(false), the metrics port is not included in the LoadBalancer Service.
       node_exporter_port: &node_exporter_port
         type: int
         required: true
@@ -418,7 +421,7 @@ argument_specs:
   k8s/start:
     short_description: Start Node Exporter on Kubernetes
     description:
-      - Creates the Kubernetes Service, optional NodePort Service, and DaemonSet for Node Exporter.
+      - Creates the Kubernetes Service, optional NodePort and LoadBalancer Services, and DaemonSet for Node Exporter.
       - Uses C(k8s_namespace), C(node_exporter_k8s_resource_name), and C(node_exporter_port) to shape the workload identity and service exposure.
       - Waits for the DaemonSet rollout before returning.
     options:
@@ -426,7 +429,6 @@ argument_specs:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
       node_exporter_port: *node_exporter_port
       node_exporter_k8s_node_port: *node_exporter_k8s_node_port
-      node_exporter_k8s_use_node_port: *node_exporter_k8s_use_node_port
       node_exporter_registry_endpoint: *node_exporter_registry_endpoint
       node_exporter_image_name: *node_exporter_image_name
       node_exporter_image_tag: *node_exporter_image_tag
@@ -448,16 +450,16 @@ argument_specs:
       k8s_liveness_probe_period_seconds: *k8s_liveness_probe_period_seconds
       k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
+      node_exporter_k8s_loadbalancer_expose_metrics_port: *node_exporter_k8s_loadbalancer_expose_metrics_port
 
   k8s/ping:
     short_description: Check Node Exporter reachability on Kubernetes
     description:
-      - Checks that the Kubernetes NodePort exposed by Node Exporter is reachable when the NodePort Service is enabled.
-      - Skips the NodePort check when C(node_exporter_k8s_use_node_port) is false.
+      - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
     options:
       node_exporter_port: *node_exporter_port
-      node_exporter_k8s_use_node_port: *node_exporter_k8s_use_node_port
       node_exporter_k8s_node_port: *node_exporter_k8s_node_port
+      node_exporter_k8s_loadbalancer_expose_metrics_port: *node_exporter_k8s_loadbalancer_expose_metrics_port
 
   k8s/rm:
     short_description: Remove Node Exporter Kubernetes resources
@@ -470,6 +472,8 @@ argument_specs:
         <<: *k8s_namespace
         required: true
 
+      node_exporter_k8s_node_port: *node_exporter_k8s_node_port
+      node_exporter_k8s_loadbalancer_expose_metrics_port: *node_exporter_k8s_loadbalancer_expose_metrics_port
   k8s/fetch_logs:
     short_description: Fetch logs from Node Exporter pods
     description:

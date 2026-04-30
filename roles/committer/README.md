@@ -120,17 +120,23 @@ Validate that the Fabric-X Committer RPC port is reachable. Uses `committer_rpc_
 
 > Check the committer Kubernetes NodePorts
 
-Validate that the optional Kubernetes NodePort Service exposes the RPC and metrics ports. Requires explicit RPC and metrics NodePort values when external Kubernetes access is enabled.
+Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
 - name: Check the committer Kubernetes NodePorts
   vars:
-    # Enable the optional Kubernetes NodePort Service for committer RPC and metrics access.
-    committer_k8s_use_node_port: false
-    # NodePort used for the RPC service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31051`.
+    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
     committer_k8s_rpc_node_port: 31051
-    # NodePort used for the metrics service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31052`.
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31052`.
     committer_k8s_metrics_node_port: 31052
+    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_rpc_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_metrics_port: false
+    # RPC port exposed by the selected committer component. Example: `7051`.
+    committer_rpc_port: 7051
+    # Metrics port exposed by the selected committer component. Example: `9443`.
+    committer_metrics_port: 9443
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: k8s/ping
@@ -1632,19 +1638,21 @@ Render query-service configuration, DB settings, mTLS assets, and optional Kuber
 
 > Start the validator on Kubernetes
 
-Ensure the namespace exists and apply the validator Service, NodePort Service, and Deployment. Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
+Ensure the namespace exists and apply the validator Service, NodePort and LoadBalancer Services, and Deployment. Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
 
 ```yaml
 - name: Start the validator on Kubernetes
   vars:
-    # Enable the optional Kubernetes NodePort Service for committer RPC and metrics access.
-    committer_k8s_use_node_port: false
-    # NodePort used for the RPC service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31051`.
+    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
     committer_k8s_rpc_node_port: 31051
-    # NodePort used for the metrics service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31052`.
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31052`.
     committer_k8s_metrics_node_port: 31052
     # Wait timeout in seconds for Kubernetes rollouts.
     committer_k8s_wait_timeout: 120
+    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_rpc_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_metrics_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: validator/k8s/start
@@ -1654,19 +1662,21 @@ Ensure the namespace exists and apply the validator Service, NodePort Service, a
 
 > Start the verifier on Kubernetes
 
-Ensure the namespace exists and apply the verifier Service, NodePort Service, and Deployment. Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
+Ensure the namespace exists and apply the verifier Service, NodePort and LoadBalancer Services, and Deployment. Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
 
 ```yaml
 - name: Start the verifier on Kubernetes
   vars:
-    # Enable the optional Kubernetes NodePort Service for committer RPC and metrics access.
-    committer_k8s_use_node_port: false
-    # NodePort used for the RPC service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31051`.
+    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
     committer_k8s_rpc_node_port: 31051
-    # NodePort used for the metrics service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31052`.
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31052`.
     committer_k8s_metrics_node_port: 31052
     # Wait timeout in seconds for Kubernetes rollouts.
     committer_k8s_wait_timeout: 120
+    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_rpc_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_metrics_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: verifier/k8s/start
@@ -1676,16 +1686,14 @@ Ensure the namespace exists and apply the verifier Service, NodePort Service, an
 
 > Start the coordinator on Kubernetes
 
-Ensure the namespace exists and apply the coordinator Service, NodePort Service, and Deployment. Uses validator and verifier host lists to prepare TLS mounts and startup dependencies.
+Ensure the namespace exists and apply the coordinator Service, NodePort and LoadBalancer Services, and Deployment. Uses validator and verifier host lists to prepare TLS mounts and startup dependencies.
 
 ```yaml
 - name: Start the coordinator on Kubernetes
   vars:
-    # Enable the optional Kubernetes NodePort Service for committer RPC and metrics access.
-    committer_k8s_use_node_port: false
-    # NodePort used for the RPC service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31051`.
+    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
     committer_k8s_rpc_node_port: 31051
-    # NodePort used for the metrics service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31052`.
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31052`.
     committer_k8s_metrics_node_port: 31052
     # Wait timeout in seconds for Kubernetes rollouts.
     committer_k8s_wait_timeout: 120
@@ -1697,6 +1705,10 @@ Ensure the namespace exists and apply the coordinator Service, NodePort Service,
     committer_verifiers:
       - "committer-verifier-1"
       - "committer-verifier-2"
+    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_rpc_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_metrics_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: coordinator/k8s/start
@@ -1706,19 +1718,21 @@ Ensure the namespace exists and apply the coordinator Service, NodePort Service,
 
 > Start the sidecar on Kubernetes
 
-Ensure the namespace exists and apply the sidecar Service, NodePort Service, and StatefulSet. Creates the persistent sidecar ledger volume from the configured storage settings.
+Ensure the namespace exists and apply the sidecar Service, NodePort and LoadBalancer Services, and StatefulSet. Creates the persistent sidecar ledger volume from the configured storage settings.
 
 ```yaml
 - name: Start the sidecar on Kubernetes
   vars:
-    # Enable the optional Kubernetes NodePort Service for committer RPC and metrics access.
-    committer_k8s_use_node_port: false
-    # NodePort used for the RPC service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31051`.
+    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
     committer_k8s_rpc_node_port: 31051
-    # NodePort used for the metrics service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31052`.
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31052`.
     committer_k8s_metrics_node_port: 31052
     # Wait timeout in seconds for Kubernetes rollouts.
     committer_k8s_wait_timeout: 120
+    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_rpc_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_metrics_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: sidecar/k8s/start
@@ -1728,19 +1742,21 @@ Ensure the namespace exists and apply the sidecar Service, NodePort Service, and
 
 > Start the query-service on Kubernetes
 
-Ensure the namespace exists and apply the query-service Service, NodePort Service, and Deployment. Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
+Ensure the namespace exists and apply the query-service Service, NodePort and LoadBalancer Services, and Deployment. Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
 
 ```yaml
 - name: Start the query-service on Kubernetes
   vars:
-    # Enable the optional Kubernetes NodePort Service for committer RPC and metrics access.
-    committer_k8s_use_node_port: false
-    # NodePort used for the RPC service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31051`.
+    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
     committer_k8s_rpc_node_port: 31051
-    # NodePort used for the metrics service when `committer_k8s_use_node_port` is enabled. Must be explicitly set to a valid Kubernetes NodePort value when needed. Example: `31052`.
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31052`.
     committer_k8s_metrics_node_port: 31052
     # Wait timeout in seconds for Kubernetes rollouts.
     committer_k8s_wait_timeout: 120
+    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_rpc_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_metrics_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: query_service/k8s/start
@@ -1759,6 +1775,14 @@ Delete the validator Deployment and Services. Uses `committer_k8s_resource_name`
     committer_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
+    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
+    committer_k8s_rpc_node_port: 31051
+    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_rpc_port: false
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31052`.
+    committer_k8s_metrics_node_port: 31052
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_metrics_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: validator/k8s/rm
@@ -1777,6 +1801,14 @@ Delete the verifier Deployment and Services. Uses `committer_k8s_resource_name` 
     committer_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
+    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
+    committer_k8s_rpc_node_port: 31051
+    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_rpc_port: false
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31052`.
+    committer_k8s_metrics_node_port: 31052
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_metrics_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: verifier/k8s/rm
@@ -1795,6 +1827,14 @@ Delete the coordinator Deployment and Services. Uses `committer_k8s_resource_nam
     committer_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
+    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
+    committer_k8s_rpc_node_port: 31051
+    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_rpc_port: false
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31052`.
+    committer_k8s_metrics_node_port: 31052
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_metrics_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: coordinator/k8s/rm
@@ -1813,6 +1853,14 @@ Delete the sidecar StatefulSet and Services. Uses `committer_k8s_resource_name` 
     committer_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
+    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
+    committer_k8s_rpc_node_port: 31051
+    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_rpc_port: false
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31052`.
+    committer_k8s_metrics_node_port: 31052
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_metrics_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: sidecar/k8s/rm
@@ -1831,6 +1879,14 @@ Delete the query-service Deployment and Services. Uses `committer_k8s_resource_n
     committer_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
+    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
+    committer_k8s_rpc_node_port: 31051
+    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_rpc_port: false
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31052`.
+    committer_k8s_metrics_node_port: 31052
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_metrics_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: query_service/k8s/rm

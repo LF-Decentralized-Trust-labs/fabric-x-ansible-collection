@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # LoadBalancer Service -- exposes Prometheus outside the cluster for external clients.
+  name: {{ prometheus_k8s_resource_name }}-loadbalancer
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ prometheus_k8s_resource_name }}
+    app.kubernetes.io/part-of: prometheus
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: {{ prometheus_k8s_resource_name }}
+  ports:
+{% if prometheus_k8s_loadbalancer_expose_http_port %}
+    - name: http
+      port: {{ prometheus_port }}
+      targetPort: http
+{% endif %}

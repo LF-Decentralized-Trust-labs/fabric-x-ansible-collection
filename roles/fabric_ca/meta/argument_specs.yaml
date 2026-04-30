@@ -69,8 +69,7 @@ argument_specs:
         default: v1.5.15
         description:
           - "Pins the Fabric CA source revision."
-      fabric_ca_server_source_code_package:
-        &fabric_ca_server_source_code_package
+      fabric_ca_server_source_code_package: &fabric_ca_server_source_code_package
         type: str
         default: cmd/fabric-ca-server
         description:
@@ -85,8 +84,7 @@ argument_specs:
         default: fabric-ca-server
         description:
           - "Sets the server binary name."
-      fabric_ca_client_source_code_package:
-        &fabric_ca_client_source_code_package
+      fabric_ca_client_source_code_package: &fabric_ca_client_source_code_package
         type: str
         default: cmd/fabric-ca-client
         description:
@@ -143,14 +141,12 @@ argument_specs:
         default: "{{ remote_config_dir }}"
         description:
           - "Sets the remote Fabric CA config root."
-      fabric_ca_server_container_config_dir:
-        &fabric_ca_server_container_config_dir
+      fabric_ca_server_container_config_dir: &fabric_ca_server_container_config_dir
         type: path
         default: /config
         description:
           - "Sets the in-container Fabric CA config root."
-      fabric_ca_client_container_config_dir:
-        &fabric_ca_client_container_config_dir
+      fabric_ca_client_container_config_dir: &fabric_ca_client_container_config_dir
         type: path
         default: /config
         description:
@@ -181,11 +177,6 @@ argument_specs:
         default: 0
         description:
           - "Sets the pod fsGroup for the Fabric CA deployment."
-      fabric_ca_server_k8s_use_node_port: &fabric_ca_server_k8s_use_node_port
-        type: bool
-        default: false
-        description:
-          - "Enables the optional Kubernetes NodePort Service for the Fabric CA server; client address resolution uses the node-port mapping on the referenced server host."
       fabric_ca_port: &fabric_ca_port
         type: int
         required: true
@@ -201,14 +192,29 @@ argument_specs:
       fabric_ca_server_k8s_node_port: &fabric_ca_server_k8s_node_port
         type: int
         description:
-          - "Sets the Kubernetes NodePort for the API port and is used when NodePort exposure is enabled."
-          - "Example: C(30054)."
-      fabric_ca_server_k8s_operations_node_port:
-        &fabric_ca_server_k8s_operations_node_port
+          - Kubernetes NodePort value used by the external API Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
+          - 'Example: C(30054).'
+      fabric_ca_server_k8s_loadbalancer_expose_port: &fabric_ca_server_k8s_loadbalancer_expose_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the API port externally.
+          - When undefined or C(false), the API port is not included in the LoadBalancer Service.
+      fabric_ca_server_k8s_operations_node_port: &fabric_ca_server_k8s_operations_node_port
         type: int
         description:
-          - "Sets the Kubernetes NodePort for the operations port and is used when NodePort exposure is enabled."
-          - "Example: C(30943)."
+          - Kubernetes NodePort value used by the external operations Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
+          - 'Example: C(30943).'
+      fabric_ca_server_k8s_loadbalancer_expose_operations_port: &fabric_ca_server_k8s_loadbalancer_expose_operations_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the operations port externally.
+          - When undefined or C(false), the operations port is not included in the LoadBalancer Service.
       fabric_ca_log_level: &fabric_ca_log_level
         type: str
         default: INFO
@@ -275,8 +281,7 @@ argument_specs:
         default: P-256
         description:
           - "Sets the curve used for Fabric CA server key generation."
-      fabric_ca_server_ca_private_key_file:
-        &fabric_ca_server_ca_private_key_file
+      fabric_ca_server_ca_private_key_file: &fabric_ca_server_ca_private_key_file
         type: str
         default: ca-key.pem
         description:
@@ -286,8 +291,7 @@ argument_specs:
         default: ca-cert.pem
         description:
           - "Sets the server CA certificate filename."
-      fabric_ca_server_tls_private_key_file:
-        &fabric_ca_server_tls_private_key_file
+      fabric_ca_server_tls_private_key_file: &fabric_ca_server_tls_private_key_file
         type: str
         default: tls-key.pem
         description:
@@ -297,8 +301,7 @@ argument_specs:
         default: tls-cert.pem
         description:
           - "Sets the server TLS certificate filename."
-      fabric_ca_server_idemixgen_output_dir:
-        &fabric_ca_server_idemixgen_output_dir
+      fabric_ca_server_idemixgen_output_dir: &fabric_ca_server_idemixgen_output_dir
         type: path
         default: "{{ fabric_ca_server_remote_config_dir }}/idemixgen-artifacts"
         description:
@@ -319,14 +322,12 @@ argument_specs:
         description:
           - "Sets the MSP directory used by Fabric CA client flows and MSP normalization."
           - "Example: C(/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp)."
-      fabric_ca_cryptogenize_tls_ca_cert_file:
-        &fabric_ca_cryptogenize_tls_ca_cert_file
+      fabric_ca_cryptogenize_tls_ca_cert_file: &fabric_ca_cryptogenize_tls_ca_cert_file
         type: str
         default: ca.crt
         description:
           - "Sets the normalized TLS CA certificate filename."
-      fabric_ca_cryptogenize_tls_cert_file:
-        &fabric_ca_cryptogenize_tls_cert_file
+      fabric_ca_cryptogenize_tls_cert_file: &fabric_ca_cryptogenize_tls_cert_file
         type: str
         default: server.crt
         description:
@@ -857,7 +858,6 @@ argument_specs:
     options:
       fabric_ca_server_k8s_wait_timeout: *fabric_ca_server_k8s_wait_timeout
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
-      fabric_ca_server_k8s_use_node_port: *fabric_ca_server_k8s_use_node_port
       fabric_ca_image: *fabric_ca_image
       fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
       fabric_ca_image_name: *fabric_ca_image_name
@@ -876,16 +876,20 @@ argument_specs:
       k8s_image_pull_secret: *k8s_image_pull_secret
       fabric_ca_server_k8s_node_port: *fabric_ca_server_k8s_node_port
       fabric_ca_server_k8s_operations_node_port: *fabric_ca_server_k8s_operations_node_port
+      fabric_ca_server_k8s_loadbalancer_expose_port: *fabric_ca_server_k8s_loadbalancer_expose_port
+      fabric_ca_server_k8s_loadbalancer_expose_operations_port: *fabric_ca_server_k8s_loadbalancer_expose_operations_port
 
   server/k8s/ping:
     short_description: Check Fabric CA node ports
     description:
-      - "Checks that the Fabric CA API and operations NodePorts are reachable when Kubernetes NodePort exposure is enabled."
-      - "Validates external access to the Kubernetes Service without changing deployment, ConfigMap, or Secret resources."
+      - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
     options:
-      fabric_ca_server_k8s_use_node_port: *fabric_ca_server_k8s_use_node_port
       fabric_ca_server_k8s_node_port: *fabric_ca_server_k8s_node_port
       fabric_ca_server_k8s_operations_node_port: *fabric_ca_server_k8s_operations_node_port
+      fabric_ca_server_k8s_loadbalancer_expose_port: *fabric_ca_server_k8s_loadbalancer_expose_port
+      fabric_ca_server_k8s_loadbalancer_expose_operations_port: *fabric_ca_server_k8s_loadbalancer_expose_operations_port
+      fabric_ca_port: *fabric_ca_port
+      fabric_ca_operations_port: *fabric_ca_operations_port
 
   server/k8s/fetch_logs:
     short_description: Fetch server pod logs
@@ -903,6 +907,10 @@ argument_specs:
     options:
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
       k8s_namespace: *k8s_namespace
+      fabric_ca_server_k8s_node_port: *fabric_ca_server_k8s_node_port
+      fabric_ca_server_k8s_loadbalancer_expose_port: *fabric_ca_server_k8s_loadbalancer_expose_port
+      fabric_ca_server_k8s_operations_node_port: *fabric_ca_server_k8s_operations_node_port
+      fabric_ca_server_k8s_loadbalancer_expose_operations_port: *fabric_ca_server_k8s_loadbalancer_expose_operations_port
 
   server/k8s/config/transfer:
     short_description: Transfer server config to a ConfigMap

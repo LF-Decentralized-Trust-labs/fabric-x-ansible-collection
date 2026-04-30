@@ -407,7 +407,7 @@ Generates the Grafana TLS key pair and certificate using OpenSSL for the staged 
 
 > Start Grafana on Kubernetes
 
-Applies the Grafana Service, optional NodePort Service, Secret, ConfigMaps, and Deployment on Kubernetes. Generated datasource, dashboard, and TLS artifacts must already exist.
+Applies the Grafana Service, optional NodePort and LoadBalancer Services, Secret, ConfigMaps, and Deployment on Kubernetes. Generated datasource, dashboard, and TLS artifacts must already exist.
 
 ```yaml
 - name: Start Grafana on Kubernetes
@@ -416,9 +416,7 @@ Applies the Grafana Service, optional NodePort Service, Secret, ConfigMaps, and 
     grafana_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the Grafana web port.
     grafana_web_port: 3000
-    # Enables the optional Grafana NodePort Service.
-    grafana_k8s_use_node_port: false
-    # Sets the optional explicit Grafana NodePort value used by the NodePort Service and ping checks. Example: `32000`. When omitted, Kubernetes can auto-assign the NodePort.
+    # Kubernetes NodePort value used by the external web Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32000`.
     grafana_k8s_web_node_port: 32000
     # Sets the Grafana Deployment wait timeout in seconds.
     grafana_k8s_wait_timeout: 120
@@ -470,6 +468,8 @@ Applies the Grafana Service, optional NodePort Service, Secret, ConfigMaps, and 
     k8s_liveness_probe_timeout_seconds: 5
     # Sets the Grafana liveness probe failure threshold. Example: `3`.
     k8s_liveness_probe_failure_threshold: 3
+    # Set to `true` to create a LoadBalancer Service entry that exposes the web port externally. When undefined or `false`, the web port is not included in the LoadBalancer Service.
+    grafana_k8s_loadbalancer_expose_web_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
     tasks_from: k8s/start
@@ -479,17 +479,17 @@ Applies the Grafana Service, optional NodePort Service, Secret, ConfigMaps, and 
 
 > Check that the Grafana NodePort is reachable
 
-Checks that the Grafana NodePort is reachable when NodePort mode is enabled.
+Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
 - name: Check that the Grafana NodePort is reachable
   vars:
     # Sets the Grafana web port.
     grafana_web_port: 3000
-    # Enables the optional Grafana NodePort Service.
-    grafana_k8s_use_node_port: false
-    # Sets the optional explicit Grafana NodePort value used by the NodePort Service and ping checks. Example: `32000`. When omitted, Kubernetes can auto-assign the NodePort.
+    # Kubernetes NodePort value used by the external web Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32000`.
     grafana_k8s_web_node_port: 32000
+    # Set to `true` to create a LoadBalancer Service entry that exposes the web port externally. When undefined or `false`, the web port is not included in the LoadBalancer Service.
+    grafana_k8s_loadbalancer_expose_web_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
     tasks_from: k8s/ping
@@ -508,6 +508,10 @@ Deletes the Grafana Deployment, Service, and NodePort Service from Kubernetes.
     grafana_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the Kubernetes namespace used for Grafana resources. Example: `fabricx-observability`.
     k8s_namespace: "fabricx-observability"
+    # Kubernetes NodePort value used by the external web Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32000`.
+    grafana_k8s_web_node_port: 32000
+    # Set to `true` to create a LoadBalancer Service entry that exposes the web port externally. When undefined or `false`, the web port is not included in the LoadBalancer Service.
+    grafana_k8s_loadbalancer_expose_web_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
     tasks_from: k8s/rm

@@ -26,7 +26,16 @@
     state: present
     template:
       path: k8s/master-service-nodeport.yaml.j2
-  when: yugabyte_k8s_use_node_port
+  when: yugabyte_k8s_master_rpc_node_port is defined or
+    yugabyte_k8s_master_webserver_node_port is defined
+
+- name: Apply Yugabyte master LoadBalancer Service
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/master-service-loadbalancer.yaml.j2
+  when: yugabyte_k8s_loadbalancer_expose_master_rpc_port or
+    yugabyte_k8s_loadbalancer_expose_master_webserver_port
 
 - name: Apply Yugabyte master StatefulSet
   kubernetes.core.k8s:

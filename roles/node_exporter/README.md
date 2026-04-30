@@ -421,7 +421,7 @@ Collects logs from the Node Exporter container by delegating to the shared conta
 
 > Start Node Exporter on Kubernetes
 
-Creates the Kubernetes Service, optional NodePort Service, and DaemonSet for Node Exporter. Uses `k8s_namespace`, `node_exporter_k8s_resource_name`, and `node_exporter_port` to shape the workload identity and service exposure. Waits for the DaemonSet rollout before returning.
+Creates the Kubernetes Service, optional NodePort and LoadBalancer Services, and DaemonSet for Node Exporter. Uses `k8s_namespace`, `node_exporter_k8s_resource_name`, and `node_exporter_port` to shape the workload identity and service exposure. Waits for the DaemonSet rollout before returning.
 
 ```yaml
 - name: Start Node Exporter on Kubernetes
@@ -432,10 +432,8 @@ Creates the Kubernetes Service, optional NodePort Service, and DaemonSet for Nod
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the TCP port exposed by Node Exporter and seeds the default Kubernetes NodePort value. Example: `9100`.
     node_exporter_port: 9100
-    # Sets the Kubernetes NodePort used for Node Exporter when `node_exporter_k8s_use_node_port` is true. Example: `31000`.
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31000`.
     node_exporter_k8s_node_port: 31000
-    # Enables the optional NodePort Service and NodePort reachability check when true.
-    node_exporter_k8s_use_node_port: false
     # Sets the registry endpoint used to build the default Node Exporter image reference.
     node_exporter_registry_endpoint: "{{ lookup('env', 'NODE_EXPORTER_REGISTRY_ENDPOINT') or 'docker.io/prom' }}"
     # Sets the Node Exporter image name used in the default image reference.
@@ -474,6 +472,8 @@ Creates the Kubernetes Service, optional NodePort Service, and DaemonSet for Nod
     k8s_liveness_probe_timeout_seconds: 5
     # Overrides the DaemonSet liveness probe failure threshold. The template defaults to 5 failures. Example: `5`.
     k8s_liveness_probe_failure_threshold: 5
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    node_exporter_k8s_loadbalancer_expose_metrics_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: k8s/start
@@ -483,17 +483,17 @@ Creates the Kubernetes Service, optional NodePort Service, and DaemonSet for Nod
 
 > Check Node Exporter reachability on Kubernetes
 
-Checks that the Kubernetes NodePort exposed by Node Exporter is reachable when the NodePort Service is enabled. Skips the NodePort check when `node_exporter_k8s_use_node_port` is false.
+Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
 - name: Check Node Exporter reachability on Kubernetes
   vars:
     # Sets the TCP port exposed by Node Exporter and seeds the default Kubernetes NodePort value. Example: `9100`.
     node_exporter_port: 9100
-    # Enables the optional NodePort Service and NodePort reachability check when true.
-    node_exporter_k8s_use_node_port: false
-    # Sets the Kubernetes NodePort used for Node Exporter when `node_exporter_k8s_use_node_port` is true. Example: `31000`.
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31000`.
     node_exporter_k8s_node_port: 31000
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    node_exporter_k8s_loadbalancer_expose_metrics_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: k8s/ping
@@ -512,6 +512,10 @@ Removes the Kubernetes DaemonSet and Services created for Node Exporter. Targets
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true. Example: `monitoring`.
     k8s_namespace: "monitoring"
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31000`.
+    node_exporter_k8s_node_port: 31000
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    node_exporter_k8s_loadbalancer_expose_metrics_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: k8s/rm

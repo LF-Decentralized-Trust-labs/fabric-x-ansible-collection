@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that the Prometheus node port is open
+- name: Check that the Prometheus HTTP node port is open
   vars:
     utils_ports_to_ping:
       - "{{ prometheus_k8s_node_port }}"
@@ -12,5 +12,14 @@
     name: hyperledger.fabricx.utils
     tasks_from: ping
   when:
-    - prometheus_k8s_use_node_port
     - prometheus_k8s_node_port is defined
+
+- name: Check that the Prometheus HTTP load balancer port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ prometheus_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - prometheus_k8s_loadbalancer_expose_http_port

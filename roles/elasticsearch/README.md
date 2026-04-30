@@ -376,7 +376,7 @@ Generates a self-signed TLS certificate and private key for ElasticSearch on the
 
 > Start ElasticSearch on Kubernetes
 
-Ensures the Kubernetes namespace exists and applies the ElasticSearch headless Service, optional NodePort Service, StatefulSet, and PVC. Uses the role templates to configure storage, TLS mounts, the configured image, and rollout waiting behavior.
+Ensures the Kubernetes namespace exists and applies the ElasticSearch headless Service, optional NodePort and LoadBalancer Services, StatefulSet, and PVC. Uses the role templates to configure storage, TLS mounts, the configured image, and rollout waiting behavior.
 
 ```yaml
 - name: Start ElasticSearch on Kubernetes
@@ -389,11 +389,9 @@ Ensures the Kubernetes namespace exists and applies the ElasticSearch headless S
     elasticsearch_k8s_wait_timeout: 120
     # Kubernetes pod `fsGroup` applied so mounted TLS files are readable by the ElasticSearch process.
     elasticsearch_k8s_fs_group: 1000
-    # Enables the optional Kubernetes NodePort Service for ElasticSearch when set to `true`. When `false`, no NodePort Service is created and the `k8s/ping` check is skipped.
-    elasticsearch_k8s_use_node_port: false
-    # Optional NodePort value used by the external ElasticSearch HTTP Service. Only relevant when `elasticsearch_k8s_use_node_port` is `true`. When undefined, Kubernetes allocates the NodePort automatically. Example: `30920`.
+    # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30920`.
     elasticsearch_k8s_http_node_port: 30920
-    # Optional NodePort value used by the external ElasticSearch transport Service. Only relevant when `elasticsearch_k8s_use_node_port` is `true`. When undefined, Kubernetes allocates the NodePort automatically. Example: `30930`.
+    # Kubernetes NodePort value used by the external transport Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30930`.
     elasticsearch_k8s_transport_node_port: 30930
     # ElasticSearch HTTP port used by the container, Kubernetes Service, and readiness checks. Example: `9200`.
     elasticsearch_http_port: 9200
@@ -439,6 +437,10 @@ Ensures the Kubernetes namespace exists and applies the ElasticSearch headless S
     k8s_liveness_probe_timeout_seconds: 2
     # Optionally overrides the liveness probe failure threshold. Example: `3`.
     k8s_liveness_probe_failure_threshold: 3
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP port externally. When undefined or `false`, the HTTP port is not included in the LoadBalancer Service.
+    elasticsearch_k8s_loadbalancer_expose_http_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the transport port externally. When undefined or `false`, the transport port is not included in the LoadBalancer Service.
+    elasticsearch_k8s_loadbalancer_expose_transport_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: k8s/start
@@ -448,17 +450,23 @@ Ensures the Kubernetes namespace exists and applies the ElasticSearch headless S
 
 > Check ElasticSearch NodePort reachability on Kubernetes
 
-Probes the ElasticSearch HTTP and transport NodePorts when `elasticsearch_k8s_use_node_port` is `true`. Each port is only checked when its matching NodePort value is defined, which lets the role verify only the exported service ports.
+Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
 - name: Check ElasticSearch NodePort reachability on Kubernetes
   vars:
-    # Enables the optional Kubernetes NodePort Service for ElasticSearch when set to `true`. When `false`, no NodePort Service is created and the `k8s/ping` check is skipped.
-    elasticsearch_k8s_use_node_port: false
-    # Optional NodePort value used by the external ElasticSearch HTTP Service. Only relevant when `elasticsearch_k8s_use_node_port` is `true`. When undefined, Kubernetes allocates the NodePort automatically. Example: `30920`.
+    # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30920`.
     elasticsearch_k8s_http_node_port: 30920
-    # Optional NodePort value used by the external ElasticSearch transport Service. Only relevant when `elasticsearch_k8s_use_node_port` is `true`. When undefined, Kubernetes allocates the NodePort automatically. Example: `30930`.
+    # Kubernetes NodePort value used by the external transport Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30930`.
     elasticsearch_k8s_transport_node_port: 30930
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP port externally. When undefined or `false`, the HTTP port is not included in the LoadBalancer Service.
+    elasticsearch_k8s_loadbalancer_expose_http_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the transport port externally. When undefined or `false`, the transport port is not included in the LoadBalancer Service.
+    elasticsearch_k8s_loadbalancer_expose_transport_port: false
+    # ElasticSearch HTTP port used by the container, Kubernetes Service, and readiness checks. Example: `9200`.
+    elasticsearch_http_port: 9200
+    # ElasticSearch transport port used by the container and Kubernetes Service. Example: `9300`.
+    elasticsearch_transport_port: 9300
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: k8s/ping
@@ -477,6 +485,14 @@ Deletes the ElasticSearch StatefulSet and Services from Kubernetes. The persiste
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
     k8s_namespace: "fabricx-elasticsearch"
+    # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30920`.
+    elasticsearch_k8s_http_node_port: 30920
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP port externally. When undefined or `false`, the HTTP port is not included in the LoadBalancer Service.
+    elasticsearch_k8s_loadbalancer_expose_http_port: false
+    # Kubernetes NodePort value used by the external transport Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30930`.
+    elasticsearch_k8s_transport_node_port: 30930
+    # Set to `true` to create a LoadBalancer Service entry that exposes the transport port externally. When undefined or `false`, the transport port is not included in the LoadBalancer Service.
+    elasticsearch_k8s_loadbalancer_expose_transport_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: k8s/rm

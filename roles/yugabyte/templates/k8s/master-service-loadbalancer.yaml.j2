@@ -1,0 +1,31 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # LoadBalancer Service -- exposes Yugabyte master outside the cluster for external clients.
+  name: {{ yugabyte_k8s_resource_name }}-loadbalancer
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ yugabyte_k8s_resource_name }}
+    app.kubernetes.io/part-of: yugabyte
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: {{ yugabyte_k8s_resource_name }}
+  ports:
+{% if yugabyte_k8s_loadbalancer_expose_master_rpc_port %}
+    - name: rpc
+      port: {{ yugabyte_master_rpc_bind_port }}
+      targetPort: {{ yugabyte_master_rpc_bind_port }}
+{% endif %}
+{% if yugabyte_k8s_loadbalancer_expose_master_webserver_port %}
+    - name: webserver
+      port: {{ yugabyte_master_webserver_port }}
+      targetPort: {{ yugabyte_master_webserver_port }}
+{% endif %}

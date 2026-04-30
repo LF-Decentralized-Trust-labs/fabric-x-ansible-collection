@@ -7,87 +7,183 @@
 # =======================
 # Master
 # =======================
-- name: Check that the Yugabyte master node ports are open
-  when:
-    - yugabyte_k8s_use_node_port
-    - yugabyte_component_type == 'master'
-  block:
-    - name: Check that the Yugabyte master RPC node port is open
-      vars:
-        utils_ports_to_ping:
-          - "{{ yugabyte_k8s_master_rpc_node_port }}"
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.utils
-        tasks_from: ping
-      when: yugabyte_k8s_master_rpc_node_port is defined
 
-    - name: Check that the Yugabyte master webserver node port is open
-      vars:
-        utils_ports_to_ping:
-          - "{{ yugabyte_k8s_master_webserver_node_port }}"
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.utils
-        tasks_from: ping
-      when: yugabyte_k8s_master_webserver_node_port is defined
+- name: Check that the Yugabyte master master RPC node port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ yugabyte_k8s_master_rpc_node_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - yugabyte_component_type == 'master'
+    - yugabyte_k8s_master_rpc_node_port is defined
+
+- name: Check that the Yugabyte master master RPC load balancer port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ yugabyte_master_rpc_bind_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - yugabyte_component_type == 'master'
+    - yugabyte_k8s_loadbalancer_expose_master_rpc_port
+
+- name: Check that the Yugabyte master master webserver node port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ yugabyte_k8s_master_webserver_node_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - yugabyte_component_type == 'master'
+    - yugabyte_k8s_master_webserver_node_port is defined
+
+- name: Check that the Yugabyte master master webserver load balancer port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ yugabyte_master_webserver_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - yugabyte_component_type == 'master'
+    - yugabyte_k8s_loadbalancer_expose_master_webserver_port
 
 # =======================
 # Tablet
 # =======================
-- name: Check that the Yugabyte tablet node ports are open
+
+- name: Check that the Yugabyte tablet tablet pgsql node port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ yugabyte_k8s_tablet_pgsql_node_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
   when:
-    - yugabyte_k8s_use_node_port
     - yugabyte_component_type == 'tablet'
-  block:
-    - name: Check that the Yugabyte tablet pgsql node port is open
-      vars:
-        utils_ports_to_ping:
-          - "{{ yugabyte_k8s_tablet_pgsql_node_port }}"
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.utils
-        tasks_from: ping
-      when: yugabyte_k8s_tablet_pgsql_node_port is defined
+    - yugabyte_k8s_tablet_pgsql_node_port is defined
 
-    - name: Check that the Yugabyte tablet RPC node port is open
-      vars:
-        utils_ports_to_ping:
-          - "{{ yugabyte_k8s_tablet_rpc_node_port }}"
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.utils
-        tasks_from: ping
-      when: yugabyte_k8s_tablet_rpc_node_port is defined
+- name: Check that the Yugabyte tablet tablet pgsql load balancer port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ yugabyte_tablet_pgsql_bind_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - yugabyte_component_type == 'tablet'
+    - yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port
 
-    - name: Check that the Yugabyte tablet webserver node port is open
-      vars:
-        utils_ports_to_ping:
-          - "{{ yugabyte_k8s_tablet_webserver_node_port }}"
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.utils
-        tasks_from: ping
-      when: yugabyte_k8s_tablet_webserver_node_port is defined
+- name: Check that the Yugabyte tablet tablet RPC node port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ yugabyte_k8s_tablet_rpc_node_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - yugabyte_component_type == 'tablet'
+    - yugabyte_k8s_tablet_rpc_node_port is defined
 
-    - name: Check that the Yugabyte tablet pgsql web node port is open
-      vars:
-        utils_ports_to_ping:
-          - "{{ yugabyte_k8s_tablet_pgsql_web_node_port }}"
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.utils
-        tasks_from: ping
-      when: yugabyte_k8s_tablet_pgsql_web_node_port is defined
+- name: Check that the Yugabyte tablet tablet RPC load balancer port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ yugabyte_tablet_rpc_bind_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - yugabyte_component_type == 'tablet'
+    - yugabyte_k8s_loadbalancer_expose_tablet_rpc_port
 
-    - name: Check that the Yugabyte tablet CQL bind node port is open
-      vars:
-        utils_ports_to_ping:
-          - "{{ yugabyte_k8s_tablet_cql_bind_node_port }}"
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.utils
-        tasks_from: ping
-      when: yugabyte_k8s_tablet_cql_bind_node_port is defined
+- name: Check that the Yugabyte tablet tablet webserver node port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ yugabyte_k8s_tablet_webserver_node_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - yugabyte_component_type == 'tablet'
+    - yugabyte_k8s_tablet_webserver_node_port is defined
 
-    - name: Check that the Yugabyte tablet CQL web node port is open
-      vars:
-        utils_ports_to_ping:
-          - "{{ yugabyte_k8s_tablet_cql_web_node_port }}"
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.utils
-        tasks_from: ping
-      when: yugabyte_k8s_tablet_cql_web_node_port is defined
+- name: Check that the Yugabyte tablet tablet webserver load balancer port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ yugabyte_tablet_webserver_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - yugabyte_component_type == 'tablet'
+    - yugabyte_k8s_loadbalancer_expose_tablet_webserver_port
+
+- name: Check that the Yugabyte tablet tablet pgsql web node port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ yugabyte_k8s_tablet_pgsql_web_node_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - yugabyte_component_type == 'tablet'
+    - yugabyte_k8s_tablet_pgsql_web_node_port is defined
+
+- name: Check that the Yugabyte tablet tablet pgsql web load balancer port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ yugabyte_tablet_pgsql_web_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - yugabyte_component_type == 'tablet'
+    - yugabyte_k8s_loadbalancer_expose_tablet_pgsql_web_port
+
+- name: Check that the Yugabyte tablet tablet CQL bind node port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ yugabyte_k8s_tablet_cql_bind_node_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - yugabyte_component_type == 'tablet'
+    - yugabyte_k8s_tablet_cql_bind_node_port is defined
+
+- name: Check that the Yugabyte tablet tablet CQL bind load balancer port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ yugabyte_tablet_cql_bind_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - yugabyte_component_type == 'tablet'
+    - yugabyte_k8s_loadbalancer_expose_tablet_cql_bind_port
+
+- name: Check that the Yugabyte tablet tablet CQL web node port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ yugabyte_k8s_tablet_cql_web_node_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - yugabyte_component_type == 'tablet'
+    - yugabyte_k8s_tablet_cql_web_node_port is defined
+
+- name: Check that the Yugabyte tablet tablet CQL web load balancer port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ yugabyte_tablet_cql_web_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - yugabyte_component_type == 'tablet'
+    - yugabyte_k8s_loadbalancer_expose_tablet_cql_web_port
