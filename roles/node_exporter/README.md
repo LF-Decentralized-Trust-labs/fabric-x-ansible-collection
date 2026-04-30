@@ -158,9 +158,6 @@ Adds one inventory host per unique `ansible_host` with a defined `node_exporter_
 
 ```yaml
 - name: Build the Node Exporter host group
-  vars:
-    # Sets the TCP port exposed by Node Exporter and seeds the default Kubernetes NodePort value. Example: `9100`.
-    node_exporter_port: 9100
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: get_host_set
