@@ -1,0 +1,42 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start Hyperledger Fabric-X Committer validator workload using generic k8s flow
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: validator/k8s/start
+
+- name: Apply Hyperledger Fabric-X Committer validator rpc OpenShift Route
+  vars:
+    openshift_route_name: "{{ committer_k8s_resource_name }}-rpc"
+    openshift_route_host: "{{ committer_openshift_route }}"
+    openshift_route_service_name: "{{ committer_k8s_resource_name }}"
+    openshift_route_service_port: rpc
+    openshift_route_use_tls: "{{ committer_use_tls }}"
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ committer_k8s_resource_name }}"
+      app.kubernetes.io/component: "{{ committer_component_type }}"
+      app.kubernetes.io/part-of: "fabric-x-committer"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: committer_openshift_route is defined
+
+- name: Apply Hyperledger Fabric-X Committer validator metrics OpenShift Route
+  vars:
+    openshift_route_name: "{{ committer_k8s_resource_name }}-metrics"
+    openshift_route_host: "{{ committer_openshift_metrics_route }}"
+    openshift_route_service_name: "{{ committer_k8s_resource_name }}"
+    openshift_route_service_port: metrics
+    openshift_route_use_tls: "{{ committer_monitoring_use_tls }}"
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ committer_k8s_resource_name }}"
+      app.kubernetes.io/component: "{{ committer_component_type }}"
+      app.kubernetes.io/part-of: "fabric-x-committer"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: committer_openshift_metrics_route is defined

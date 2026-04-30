@@ -1,0 +1,19 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the Postgres Exporter OpenShift route is reachable
+  vars:
+    openshift_route_host: "{{ postgres_exporter_openshift_route }}"
+    openshift_route_use_tls: "{{ postgres_exporter_use_tls }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/ping
+  when: postgres_exporter_openshift_route is defined
+
+- name: Check that the Postgres Exporter Kubernetes services are reachable
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres_exporter
+    tasks_from: k8s/ping

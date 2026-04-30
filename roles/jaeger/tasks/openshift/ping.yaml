@@ -1,0 +1,64 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the Jaeger OpenShift UI route is reachable
+  vars:
+    openshift_route_host: "{{ jaeger_openshift_ui_route }}"
+    openshift_route_use_tls: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/ping
+  when: jaeger_openshift_ui_route is defined
+
+- name: Check that the Jaeger OpenShift admin route is reachable
+  vars:
+    openshift_route_host: "{{ jaeger_openshift_admin_route }}"
+    openshift_route_use_tls: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/ping
+  when: jaeger_openshift_admin_route is defined
+
+- name: Check that the Jaeger OpenShift HTTP server route is reachable
+  vars:
+    openshift_route_host: "{{ jaeger_openshift_http_server_route }}"
+    openshift_route_use_tls: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/ping
+  when: jaeger_openshift_http_server_route is defined
+
+- name: Check that the Jaeger OpenShift HTTP collector route is reachable
+  vars:
+    openshift_route_host: "{{ jaeger_openshift_http_collector_route }}"
+    openshift_route_use_tls: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/ping
+  when: jaeger_openshift_http_collector_route is defined
+
+- name: Check that the Jaeger OpenShift gRPC server route is reachable
+  vars:
+    openshift_route_host: "{{ jaeger_openshift_grpc_server_route }}"
+    openshift_route_use_tls: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/ping
+  when: jaeger_openshift_grpc_server_route is defined
+
+- name: Check that the Jaeger OpenShift collector route is reachable
+  vars:
+    openshift_route_host: "{{ jaeger_openshift_collector_route }}"
+    openshift_route_use_tls: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/ping
+  when: jaeger_openshift_collector_route is defined
+
+- name: Check that the Jaeger Kubernetes services are reachable
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.jaeger
+    tasks_from: k8s/ping

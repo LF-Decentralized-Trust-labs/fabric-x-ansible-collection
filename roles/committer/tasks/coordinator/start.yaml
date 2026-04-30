@@ -10,6 +10,12 @@
     tasks_from: coordinator/k8s/start
   when: committer_use_k8s
 
+- name: Start Hyperledger Fabric-X Committer coordinator in OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: coordinator/openshift/start
+  when: committer_use_openshift
+
 - name: Start Hyperledger Fabric-X Committer coordinator as container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer

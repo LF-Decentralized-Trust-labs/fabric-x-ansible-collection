@@ -200,7 +200,7 @@ argument_specs:
       grafana_use_container: &grafana_use_container
         type: bool
         required: false
-        default: "{{ not grafana_use_k8s }}"
+        default: "{{ (not grafana_use_k8s) and (not grafana_use_openshift) }}"
         description:
           - Enables container mode.
       grafana_k8s_resource_name: &grafana_k8s_resource_name
@@ -250,6 +250,18 @@ argument_specs:
           - "Example: C(my_grafana_password)."
           - Store this value in Ansible Vault.
 
+      grafana_use_openshift: &grafana_use_openshift
+        type: bool
+        required: false
+        default: false
+        description:
+          - Selects the OpenShift deployment branch.
+      grafana_openshift_route: &grafana_openshift_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(grafana.apps.example.com)."
   start:
     short_description: Start Grafana in the selected deployment mode
     description:
@@ -258,6 +270,7 @@ argument_specs:
     options:
       grafana_use_container: *grafana_use_container
       grafana_use_k8s: *grafana_use_k8s
+      grafana_use_openshift: *grafana_use_openshift
 
   stop:
     short_description: Stop Grafana in container mode
@@ -266,6 +279,7 @@ argument_specs:
     options:
       grafana_use_container: *grafana_use_container
       grafana_use_k8s: *grafana_use_k8s
+      grafana_use_openshift: *grafana_use_openshift
 
   teardown:
     short_description: Remove Grafana in the selected deployment mode
@@ -275,6 +289,7 @@ argument_specs:
     options:
       grafana_use_container: *grafana_use_container
       grafana_use_k8s: *grafana_use_k8s
+      grafana_use_openshift: *grafana_use_openshift
 
   wipe:
     short_description: Remove all Grafana data
@@ -289,6 +304,7 @@ argument_specs:
     options:
       grafana_use_container: *grafana_use_container
       grafana_use_k8s: *grafana_use_k8s
+      grafana_use_openshift: *grafana_use_openshift
 
   ping:
     short_description: Check that the Grafana web port is reachable
@@ -297,6 +313,7 @@ argument_specs:
       - In Kubernetes mode, also validates the optional NodePort configuration when enabled.
     options:
       grafana_use_k8s: *grafana_use_k8s
+      grafana_use_openshift: *grafana_use_openshift
       grafana_web_port: *grafana_web_port
 
   container/start:
@@ -353,6 +370,7 @@ argument_specs:
       grafana_dashboards_file: *grafana_dashboards_file
       grafana_container_config_dir: *grafana_container_config_dir
       grafana_use_k8s: *grafana_use_k8s
+      grafana_use_openshift: *grafana_use_openshift
       prometheus_host: *prometheus_host
       fetched_artifacts_dir: *fetched_artifacts_dir
 
@@ -365,6 +383,7 @@ argument_specs:
       grafana_remote_config_dir: *grafana_remote_config_dir
       remote_config_dir: *remote_config_dir
       grafana_use_k8s: *grafana_use_k8s
+      grafana_use_openshift: *grafana_use_openshift
 
   config/copy_dashboard:
     short_description: Copy a Grafana dashboard JSON file
@@ -377,6 +396,7 @@ argument_specs:
       remote_config_dir: *remote_config_dir
       grafana_dashboard_file: *grafana_dashboard_file
       grafana_use_k8s: *grafana_use_k8s
+      grafana_use_openshift: *grafana_use_openshift
 
   crypto/setup:
     short_description: Prepare Grafana TLS material
@@ -386,6 +406,7 @@ argument_specs:
     options:
       grafana_use_tls: *grafana_use_tls
       grafana_use_k8s: *grafana_use_k8s
+      grafana_use_openshift: *grafana_use_openshift
 
   crypto/fetch:
     short_description: Fetch the Grafana TLS CA certificate
@@ -405,6 +426,7 @@ argument_specs:
     options:
       grafana_use_tls: *grafana_use_tls
       grafana_use_k8s: *grafana_use_k8s
+      grafana_use_openshift: *grafana_use_openshift
       grafana_remote_config_dir: *grafana_remote_config_dir
       remote_config_dir: *remote_config_dir
 
@@ -536,3 +558,30 @@ argument_specs:
     options:
       grafana_k8s_resource_name: *grafana_k8s_resource_name
       k8s_namespace: *k8s_namespace
+
+  openshift/start:
+    short_description: Start the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      grafana_k8s_resource_name: *grafana_k8s_resource_name
+      grafana_use_tls: *grafana_use_tls
+      k8s_namespace: *k8s_namespace
+      grafana_openshift_route: *grafana_openshift_route
+
+  openshift/ping:
+    short_description: Check the OpenShift deployment
+    description:
+      - Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+    options:
+      grafana_use_tls: *grafana_use_tls
+      grafana_openshift_route: *grafana_openshift_route
+
+  openshift/rm:
+    short_description: Remove the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      grafana_k8s_resource_name: *grafana_k8s_resource_name
+      k8s_namespace: *k8s_namespace
+      grafana_openshift_route: *grafana_openshift_route

@@ -1,0 +1,25 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start Yugabyte master workload using generic k8s flow
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: k8s/master/start
+
+- name: Apply Yugabyte master webserver OpenShift Route
+  vars:
+    openshift_route_name: "{{ yugabyte_k8s_resource_name }}-webserver"
+    openshift_route_host: "{{ yugabyte_openshift_master_webserver_route }}"
+    openshift_route_service_name: "{{ yugabyte_k8s_resource_name }}"
+    openshift_route_service_port: webserver
+    openshift_route_use_tls: "{{ yugabyte_webserver_use_tls }}"
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ yugabyte_k8s_resource_name }}"
+      app.kubernetes.io/part-of: "yugabyte"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: yugabyte_openshift_master_webserver_route is defined

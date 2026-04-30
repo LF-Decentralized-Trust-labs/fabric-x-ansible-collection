@@ -42,6 +42,13 @@
   - [k8s/crypto/transfer](#k8scryptotransfer)
   - [data/rm](#datarm)
   - [prometheus/get\_scrapers](#prometheusget_scrapers)
+  - [openshift/start](#openshiftstart)
+  - [openshift/rm](#openshiftrm)
+  - [openshift/ping](#openshiftping)
+  - [openshift/master/start](#openshiftmasterstart)
+  - [openshift/master/rm](#openshiftmasterrm)
+  - [openshift/tablet/start](#openshifttabletstart)
+  - [openshift/tablet/rm](#openshifttabletrm)
 
 ## Role Defaults
 
@@ -76,8 +83,10 @@ Builds master and tablet topology facts from `yugabyte_cluster`, derives the mas
       - "yb-tserver-3"
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
     # Enables container mode for the YugabyteDB role.
-    yugabyte_use_container: "{{ not yugabyte_use_k8s }}"
+    yugabyte_use_container: "{{ (not yugabyte_use_k8s) and (not yugabyte_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: start
@@ -94,8 +103,10 @@ Stops the YugabyteDB runtime for container deployments. Kubernetes mode is manag
   vars:
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
     # Enables container mode for the YugabyteDB role.
-    yugabyte_use_container: "{{ not yugabyte_use_k8s }}"
+    yugabyte_use_container: "{{ (not yugabyte_use_k8s) and (not yugabyte_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: stop
@@ -112,8 +123,10 @@ Removes the active YugabyteDB runtime in the selected deployment mode and then r
   vars:
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
     # Enables container mode for the YugabyteDB role.
-    yugabyte_use_container: "{{ not yugabyte_use_k8s }}"
+    yugabyte_use_container: "{{ (not yugabyte_use_k8s) and (not yugabyte_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: teardown
@@ -143,8 +156,10 @@ Collects YugabyteDB logs through the selected deployment mode. Container mode fe
   vars:
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
     # Enables container mode for the YugabyteDB role.
-    yugabyte_use_container: "{{ not yugabyte_use_k8s }}"
+    yugabyte_use_container: "{{ (not yugabyte_use_k8s) and (not yugabyte_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: fetch_logs
@@ -163,6 +178,8 @@ Selects the expected master or tablet service ports for the current host and del
     yugabyte_component_type: "tablet"
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
     # Sets the master webserver port.
     yugabyte_master_webserver_port: 7000
     # Sets the master RPC bind port.
@@ -261,6 +278,8 @@ Prepares TLS assets for YugabyteDB when TLS is enabled, using the configured cry
     yugabyte_use_tls: false
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
     # Provides the organization metadata consumed by the crypto entry points. The mapping is expected to expose `domain`, `role`, `peer.name`, `peer.secret`, and `fabric_ca_host` when relevant. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'yb-tserver-1', 'secret': 'yb-tserver-1pw'}, 'fabric_ca_host': 'ca-org1'}`.
     organization:
       domain: "org1.example.com"
@@ -311,6 +330,8 @@ Deletes the remote YugabyteDB TLS directory and, in Kubernetes mode, removes the
     yugabyte_use_tls: false
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
     # Sets the remote configuration directory used by YugabyteDB tasks.
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
     # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
@@ -483,6 +504,8 @@ Renders the YugabyteDB initialization SQL script that creates the configured dat
     yugabyte_password: "my_yugabyte_password"
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: config/transfer
@@ -503,6 +526,8 @@ Deletes the remote YugabyteDB configuration directory and, in Kubernetes mode, r
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
     # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
     # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.
@@ -1079,9 +1104,11 @@ Deletes persisted YugabyteDB data for the selected deployment mode. Container mo
     # Sets the shared remote data directory consumed by YugabyteDB. Example: `/var/hyperledger/fabric-x/yugabyte/data`.
     remote_data_dir: "/var/hyperledger/fabric-x/yugabyte/data"
     # Enables container mode for the YugabyteDB role.
-    yugabyte_use_container: "{{ not yugabyte_use_k8s }}"
+    yugabyte_use_container: "{{ (not yugabyte_use_k8s) and (not yugabyte_use_openshift) }}"
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
     # Sets the remote data directory used by YugabyteDB tasks.
     yugabyte_remote_data_dir: "{{ remote_data_dir }}"
     # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
@@ -1115,4 +1142,158 @@ Groups YugabyteDB hosts by cluster and assembles Prometheus scrape configuration
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: prometheus/get_scrapers
+```
+
+### openshift/start
+
+> Dispatch YugabyteDB OpenShift startup
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Dispatch YugabyteDB OpenShift startup
+  vars:
+    # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `tablet`.
+    yugabyte_component_type: "tablet"
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: openshift/start
+```
+
+### openshift/rm
+
+> Dispatch YugabyteDB OpenShift removal
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Dispatch YugabyteDB OpenShift removal
+  vars:
+    # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `tablet`.
+    yugabyte_component_type: "tablet"
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: openshift/rm
+```
+
+### openshift/ping
+
+> Check the YugabyteDB OpenShift deployment
+
+Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+
+```yaml
+- name: Check the YugabyteDB OpenShift deployment
+  vars:
+    # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `tablet`.
+    yugabyte_component_type: "tablet"
+    # Enables HTTPS for the YugabyteDB webserver.
+    yugabyte_webserver_use_tls: "{{ yugabyte_use_tls }}"
+    # Specifies the OpenShift Route host. Example: `yugabyte-master-web.apps.example.com`.
+    yugabyte_openshift_master_webserver_route: "yugabyte-master-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-web.apps.example.com`.
+    yugabyte_openshift_tablet_webserver_route: "yugabyte-tablet-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-pgsql-web.apps.example.com`.
+    yugabyte_openshift_tablet_pgsql_web_route: "yugabyte-tablet-pgsql-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-cql-web.apps.example.com`.
+    yugabyte_openshift_tablet_cql_web_route: "yugabyte-tablet-cql-web.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: openshift/ping
+```
+
+### openshift/master/start
+
+> Start the YugabyteDB master OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Start the YugabyteDB master OpenShift deployment
+  vars:
+    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
+    yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
+    # Enables HTTPS for the YugabyteDB webserver.
+    yugabyte_webserver_use_tls: "{{ yugabyte_use_tls }}"
+    # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.
+    k8s_namespace: "fabricx-yugabyte"
+    # Specifies the OpenShift Route host. Example: `yugabyte-master-web.apps.example.com`.
+    yugabyte_openshift_master_webserver_route: "yugabyte-master-web.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: openshift/master/start
+```
+
+### openshift/master/rm
+
+> Remove the YugabyteDB master OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Remove the YugabyteDB master OpenShift deployment
+  vars:
+    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
+    yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
+    # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.
+    k8s_namespace: "fabricx-yugabyte"
+    # Specifies the OpenShift Route host. Example: `yugabyte-master-web.apps.example.com`.
+    yugabyte_openshift_master_webserver_route: "yugabyte-master-web.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: openshift/master/rm
+```
+
+### openshift/tablet/start
+
+> Start the YugabyteDB tablet OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Start the YugabyteDB tablet OpenShift deployment
+  vars:
+    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
+    yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
+    # Enables HTTPS for the YugabyteDB webserver.
+    yugabyte_webserver_use_tls: "{{ yugabyte_use_tls }}"
+    # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.
+    k8s_namespace: "fabricx-yugabyte"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-web.apps.example.com`.
+    yugabyte_openshift_tablet_webserver_route: "yugabyte-tablet-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-pgsql-web.apps.example.com`.
+    yugabyte_openshift_tablet_pgsql_web_route: "yugabyte-tablet-pgsql-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-cql-web.apps.example.com`.
+    yugabyte_openshift_tablet_cql_web_route: "yugabyte-tablet-cql-web.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: openshift/tablet/start
+```
+
+### openshift/tablet/rm
+
+> Remove the YugabyteDB tablet OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Remove the YugabyteDB tablet OpenShift deployment
+  vars:
+    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
+    yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
+    # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.
+    k8s_namespace: "fabricx-yugabyte"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-web.apps.example.com`.
+    yugabyte_openshift_tablet_webserver_route: "yugabyte-tablet-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-pgsql-web.apps.example.com`.
+    yugabyte_openshift_tablet_pgsql_web_route: "yugabyte-tablet-pgsql-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-cql-web.apps.example.com`.
+    yugabyte_openshift_tablet_cql_web_route: "yugabyte-tablet-cql-web.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: openshift/tablet/rm
 ```

@@ -16,6 +16,12 @@
     tasks_from: k8s/rm
   when: prometheus_use_k8s
 
+- name: Teardown Prometheus on OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: openshift/rm
+  when: prometheus_use_openshift
+
 - name: Remove Prometheus data
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus

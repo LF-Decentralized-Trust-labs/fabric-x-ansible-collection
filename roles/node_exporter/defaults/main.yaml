@@ -34,7 +34,7 @@ node_exporter_tls_cert_file: server.crt
 # Enables the Kubernetes backend or cleanup path when true.
 node_exporter_use_k8s: false
 # Enables the container backend.
-node_exporter_use_container: '{{ not node_exporter_use_k8s }}'
+node_exporter_use_container: '{{ (not node_exporter_use_k8s) and (not node_exporter_use_openshift) }}'
 # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
 node_exporter_k8s_resource_name: '{{ inventory_hostname }}'
 # Sets how long to wait for the Node Exporter DaemonSet rollout.
@@ -42,3 +42,5 @@ node_exporter_k8s_wait_timeout: 120
 # Set to C(true) to create a LoadBalancer Service entry that exposes the metrics port externally.
 # When undefined or C(false), the metrics port is not included in the LoadBalancer Service.
 node_exporter_k8s_loadbalancer_expose_metrics_port: false
+# Selects the OpenShift deployment branch.
+node_exporter_use_openshift: false

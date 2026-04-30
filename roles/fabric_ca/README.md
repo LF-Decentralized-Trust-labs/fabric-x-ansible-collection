@@ -63,6 +63,9 @@
   - [server/crypto/rm](#servercryptorm)
   - [server/config/transfer](#serverconfigtransfer)
   - [server/config/rm](#serverconfigrm)
+  - [server/openshift/start](#serveropenshiftstart)
+  - [server/openshift/ping](#serveropenshiftping)
+  - [server/openshift/rm](#serveropenshiftrm)
 
 ## Role Defaults
 
@@ -758,11 +761,13 @@ Dispatches Fabric CA server startup to the binary, container, or Kubernetes runt
 - name: Dispatch server startup
   vars:
     # Uses the container server flow.
-    fabric_ca_server_use_container: "{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) }}"
+    fabric_ca_server_use_container: "{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) and (not fabric_ca_server_use_openshift) }}"
     # Uses the binary server flow instead of container or Kubernetes.
     fabric_ca_server_use_bin: false
     # Uses the Kubernetes server flow instead of the local runtimes.
     fabric_ca_server_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    fabric_ca_server_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/start
@@ -778,7 +783,7 @@ Dispatches Fabric CA server stop to the binary or container runtime. Stops local
 - name: Dispatch server stop
   vars:
     # Uses the container server flow.
-    fabric_ca_server_use_container: "{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) }}"
+    fabric_ca_server_use_container: "{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) and (not fabric_ca_server_use_openshift) }}"
     # Uses the binary server flow instead of container or Kubernetes.
     fabric_ca_server_use_bin: false
   ansible.builtin.include_role:
@@ -796,11 +801,13 @@ Dispatches Fabric CA server runtime removal across binary, container, or Kuberne
 - name: Dispatch server teardown
   vars:
     # Uses the container server flow.
-    fabric_ca_server_use_container: "{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) }}"
+    fabric_ca_server_use_container: "{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) and (not fabric_ca_server_use_openshift) }}"
     # Uses the binary server flow instead of container or Kubernetes.
     fabric_ca_server_use_bin: false
     # Uses the Kubernetes server flow instead of the local runtimes.
     fabric_ca_server_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    fabric_ca_server_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/teardown
@@ -833,6 +840,8 @@ Checks that the Fabric CA API and operations endpoints are reachable. Uses direc
   vars:
     # Uses the Kubernetes server flow instead of the local runtimes.
     fabric_ca_server_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    fabric_ca_server_use_openshift: false
     # Sets the Fabric CA API port. Example: `7054`.
     fabric_ca_port: 7054
     # Sets the Fabric CA operations port. Example: `9443`.
@@ -852,11 +861,13 @@ Dispatches Fabric CA server log collection for binary, container, or Kubernetes 
 - name: Dispatch server log collection
   vars:
     # Uses the container server flow.
-    fabric_ca_server_use_container: "{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) }}"
+    fabric_ca_server_use_container: "{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) and (not fabric_ca_server_use_openshift) }}"
     # Uses the binary server flow instead of container or Kubernetes.
     fabric_ca_server_use_bin: false
     # Uses the Kubernetes server flow instead of the local runtimes.
     fabric_ca_server_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    fabric_ca_server_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/fetch_logs
@@ -1301,6 +1312,8 @@ Generates X.509 and Idemix crypto material for the Fabric CA server. Coordinates
   vars:
     # Uses the Kubernetes server flow instead of the local runtimes.
     fabric_ca_server_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    fabric_ca_server_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/crypto/setup
@@ -1402,6 +1415,8 @@ Deletes Kubernetes crypto resources for the Fabric CA server when Kubernetes mod
   vars:
     # Uses the Kubernetes server flow instead of the local runtimes.
     fabric_ca_server_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    fabric_ca_server_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/crypto/rm
@@ -1465,6 +1480,8 @@ Renders and transfers the Fabric CA server configuration. Includes bootstrap adm
     fabric_ca_operations_port: 9443
     # Uses the Kubernetes server flow instead of the local runtimes.
     fabric_ca_server_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    fabric_ca_server_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/config/transfer
@@ -1485,7 +1502,75 @@ Deletes Fabric CA server configuration resources. Removes local or Kubernetes co
     remote_config_dir: "/var/hyperledger/fabricx/fabric-ca/ca-org1/config"
     # Uses the Kubernetes server flow instead of the local runtimes.
     fabric_ca_server_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    fabric_ca_server_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/config/rm
+```
+
+### server/openshift/start
+
+> Start the Fabric CA server OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Start the Fabric CA server OpenShift deployment
+  vars:
+    # Sets the Kubernetes resource name for the Fabric CA server and its Service resources.
+    fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
+    # Enables TLS for server and client connections.
+    fabric_ca_use_tls: false
+    # Provides the Kubernetes namespace from the shared inventory. Example: `fabricx`.
+    k8s_namespace: "fabricx"
+    # Specifies the OpenShift Route host. Example: `fabric-ca.apps.example.com`.
+    fabric_ca_server_openshift_route: "fabric-ca.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `fabric-ca-operations.apps.example.com`.
+    fabric_ca_server_openshift_operations_route: "fabric-ca-operations.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/openshift/start
+```
+
+### server/openshift/ping
+
+> Check the Fabric CA server OpenShift deployment
+
+Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+
+```yaml
+- name: Check the Fabric CA server OpenShift deployment
+  vars:
+    # Enables TLS for server and client connections.
+    fabric_ca_use_tls: false
+    # Specifies the OpenShift Route host. Example: `fabric-ca.apps.example.com`.
+    fabric_ca_server_openshift_route: "fabric-ca.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `fabric-ca-operations.apps.example.com`.
+    fabric_ca_server_openshift_operations_route: "fabric-ca-operations.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/openshift/ping
+```
+
+### server/openshift/rm
+
+> Remove the Fabric CA server OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Remove the Fabric CA server OpenShift deployment
+  vars:
+    # Sets the Kubernetes resource name for the Fabric CA server and its Service resources.
+    fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
+    # Provides the Kubernetes namespace from the shared inventory. Example: `fabricx`.
+    k8s_namespace: "fabricx"
+    # Specifies the OpenShift Route host. Example: `fabric-ca.apps.example.com`.
+    fabric_ca_server_openshift_route: "fabric-ca.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `fabric-ca-operations.apps.example.com`.
+    fabric_ca_server_openshift_operations_route: "fabric-ca-operations.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/openshift/rm
 ```

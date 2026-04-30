@@ -1,0 +1,106 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start Jaeger workload using generic k8s flow
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.jaeger
+    tasks_from: k8s/start
+
+- name: Apply Jaeger ui OpenShift Route
+  vars:
+    openshift_route_name: "{{ jaeger_k8s_resource_name }}-ui"
+    openshift_route_host: "{{ jaeger_openshift_ui_route }}"
+    openshift_route_service_name: "{{ jaeger_k8s_resource_name }}"
+    openshift_route_service_port: ui
+    openshift_route_use_tls: false
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ jaeger_k8s_resource_name }}"
+      app.kubernetes.io/component: "jaeger"
+      app.kubernetes.io/part-of: "monitoring"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: jaeger_openshift_ui_route is defined
+
+- name: Apply Jaeger admin OpenShift Route
+  vars:
+    openshift_route_name: "{{ jaeger_k8s_resource_name }}-admin"
+    openshift_route_host: "{{ jaeger_openshift_admin_route }}"
+    openshift_route_service_name: "{{ jaeger_k8s_resource_name }}"
+    openshift_route_service_port: admin
+    openshift_route_use_tls: false
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ jaeger_k8s_resource_name }}"
+      app.kubernetes.io/component: "jaeger"
+      app.kubernetes.io/part-of: "monitoring"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: jaeger_openshift_admin_route is defined
+
+- name: Apply Jaeger http-server OpenShift Route
+  vars:
+    openshift_route_name: "{{ jaeger_k8s_resource_name }}-http-server"
+    openshift_route_host: "{{ jaeger_openshift_http_server_route }}"
+    openshift_route_service_name: "{{ jaeger_k8s_resource_name }}"
+    openshift_route_service_port: http-server
+    openshift_route_use_tls: false
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ jaeger_k8s_resource_name }}"
+      app.kubernetes.io/component: "jaeger"
+      app.kubernetes.io/part-of: "monitoring"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: jaeger_openshift_http_server_route is defined
+
+- name: Apply Jaeger http-collector OpenShift Route
+  vars:
+    openshift_route_name: "{{ jaeger_k8s_resource_name }}-http-collector"
+    openshift_route_host: "{{ jaeger_openshift_http_collector_route }}"
+    openshift_route_service_name: "{{ jaeger_k8s_resource_name }}"
+    openshift_route_service_port: http-collector
+    openshift_route_use_tls: false
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ jaeger_k8s_resource_name }}"
+      app.kubernetes.io/component: "jaeger"
+      app.kubernetes.io/part-of: "monitoring"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: jaeger_openshift_http_collector_route is defined
+
+- name: Apply Jaeger grpc-server OpenShift Route
+  vars:
+    openshift_route_name: "{{ jaeger_k8s_resource_name }}-grpc-server"
+    openshift_route_host: "{{ jaeger_openshift_grpc_server_route }}"
+    openshift_route_service_name: "{{ jaeger_k8s_resource_name }}"
+    openshift_route_service_port: grpc-server
+    openshift_route_use_tls: false
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ jaeger_k8s_resource_name }}"
+      app.kubernetes.io/component: "jaeger"
+      app.kubernetes.io/part-of: "monitoring"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: jaeger_openshift_grpc_server_route is defined
+
+- name: Apply Jaeger collector OpenShift Route
+  vars:
+    openshift_route_name: "{{ jaeger_k8s_resource_name }}-collector"
+    openshift_route_host: "{{ jaeger_openshift_collector_route }}"
+    openshift_route_service_name: "{{ jaeger_k8s_resource_name }}"
+    openshift_route_service_port: collector
+    openshift_route_use_tls: false
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ jaeger_k8s_resource_name }}"
+      app.kubernetes.io/component: "jaeger"
+      app.kubernetes.io/part-of: "monitoring"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: jaeger_openshift_collector_route is defined

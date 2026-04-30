@@ -18,4 +18,4 @@
     kind: Secret
     name: "{{ yugabyte_k8s_resource_name }}-secret"
     namespace: "{{ k8s_namespace }}"
-  when: yugabyte_use_k8s
+  when: yugabyte_use_k8s or yugabyte_use_openshift

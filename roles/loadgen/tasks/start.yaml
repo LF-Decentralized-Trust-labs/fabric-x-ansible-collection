@@ -21,3 +21,9 @@
     name: hyperledger.fabricx.loadgen
     tasks_from: k8s/start
   when: loadgen_use_k8s
+
+- name: Start Loadgen on OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: openshift/start
+  when: loadgen_use_openshift

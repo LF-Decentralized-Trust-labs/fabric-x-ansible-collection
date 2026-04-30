@@ -621,6 +621,11 @@ argument_specs:
       k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
 
+  openshift/ping:
+    short_description: Check PostgreSQL OpenShift services
+    description:
+      - Reuses the Kubernetes service ping flow for PostgreSQL OpenShift deployments.
+
   openshift/rm:
     short_description: Remove PostgreSQL OpenShift resources
     description:

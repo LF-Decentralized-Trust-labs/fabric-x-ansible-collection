@@ -25,6 +25,9 @@
   - [config/rm](#configrm)
   - [k8s/config/transfer](#k8sconfigtransfer)
   - [k8s/config/rm](#k8sconfigrm)
+  - [openshift/start](#openshiftstart)
+  - [openshift/ping](#openshiftping)
+  - [openshift/rm](#openshiftrm)
 
 ## Role Defaults
 
@@ -50,9 +53,11 @@ Starts Jaeger in container mode or applies the Kubernetes Service and Deployment
 - name: Select the Jaeger deployment mode to start
   vars:
     # Runs the container-based Jaeger path when set to `true`.
-    jaeger_use_container: "{{ not jaeger_use_k8s }}"
+    jaeger_use_container: "{{ (not jaeger_use_k8s) and (not jaeger_use_openshift) }}"
     # Runs the Kubernetes Jaeger path when set to `true`.
     jaeger_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    jaeger_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: start
@@ -68,7 +73,7 @@ Stops the running Jaeger container without removing configuration assets.
 - name: Select the Jaeger deployment mode to stop
   vars:
     # Runs the container-based Jaeger path when set to `true`.
-    jaeger_use_container: "{{ not jaeger_use_k8s }}"
+    jaeger_use_container: "{{ (not jaeger_use_k8s) and (not jaeger_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: stop
@@ -84,9 +89,11 @@ Removes the container workload or Kubernetes resources for the active Jaeger dep
 - name: Select the Jaeger deployment mode to remove
   vars:
     # Runs the container-based Jaeger path when set to `true`.
-    jaeger_use_container: "{{ not jaeger_use_k8s }}"
+    jaeger_use_container: "{{ (not jaeger_use_k8s) and (not jaeger_use_openshift) }}"
     # Runs the Kubernetes Jaeger path when set to `true`.
     jaeger_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    jaeger_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: teardown
@@ -115,9 +122,11 @@ Collects logs from the running Jaeger container or from the Jaeger pods in Kuber
 - name: Select the Jaeger deployment mode to collect logs from
   vars:
     # Runs the container-based Jaeger path when set to `true`.
-    jaeger_use_container: "{{ not jaeger_use_k8s }}"
+    jaeger_use_container: "{{ (not jaeger_use_k8s) and (not jaeger_use_openshift) }}"
     # Runs the Kubernetes Jaeger path when set to `true`.
     jaeger_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    jaeger_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: fetch_logs
@@ -134,6 +143,8 @@ Checks the Jaeger query, admin, collector, and OTLP endpoints with the utils pin
   vars:
     # Runs the Kubernetes Jaeger path when set to `true`.
     jaeger_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    jaeger_use_openshift: false
     # Sets the Jaeger query UI port.
     jaeger_ui_port: 16686
     # Sets the Jaeger admin HTTP port.
@@ -474,6 +485,8 @@ Creates the remote Jaeger config path, copies the ElasticSearch CA certificate w
     jaeger_remote_config_dir: "{{ remote_config_dir }}"
     # Runs the Kubernetes Jaeger path when set to `true`.
     jaeger_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    jaeger_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: config/transfer
@@ -536,7 +549,95 @@ Deletes the Jaeger ConfigMap from Kubernetes when container config data is no lo
     k8s_namespace: "string"
     # Runs the Kubernetes Jaeger path when set to `true`.
     jaeger_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    jaeger_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: k8s/config/rm
+```
+
+### openshift/start
+
+> Start the OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Start the OpenShift deployment
+  vars:
+    # Sets the Kubernetes resource name used for Jaeger objects.
+    jaeger_k8s_resource_name: "{{ inventory_hostname }}"
+    # Sets the Kubernetes namespace used for Jaeger resources. Example: `tracing` when Jaeger shares a namespace with other observability services.
+    k8s_namespace: "string"
+    # Specifies the OpenShift Route host. Example: `jaeger-ui.apps.example.com`.
+    jaeger_openshift_ui_route: "jaeger-ui.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-admin.apps.example.com`.
+    jaeger_openshift_admin_route: "jaeger-admin.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-http-server.apps.example.com`.
+    jaeger_openshift_http_server_route: "jaeger-http-server.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-http-collector.apps.example.com`.
+    jaeger_openshift_http_collector_route: "jaeger-http-collector.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-grpc-server.apps.example.com`.
+    jaeger_openshift_grpc_server_route: "jaeger-grpc-server.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-collector.apps.example.com`.
+    jaeger_openshift_collector_route: "jaeger-collector.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.jaeger
+    tasks_from: openshift/start
+```
+
+### openshift/ping
+
+> Check the OpenShift deployment
+
+Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+
+```yaml
+- name: Check the OpenShift deployment
+  vars:
+    # Specifies the OpenShift Route host. Example: `jaeger-ui.apps.example.com`.
+    jaeger_openshift_ui_route: "jaeger-ui.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-admin.apps.example.com`.
+    jaeger_openshift_admin_route: "jaeger-admin.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-http-server.apps.example.com`.
+    jaeger_openshift_http_server_route: "jaeger-http-server.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-http-collector.apps.example.com`.
+    jaeger_openshift_http_collector_route: "jaeger-http-collector.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-grpc-server.apps.example.com`.
+    jaeger_openshift_grpc_server_route: "jaeger-grpc-server.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-collector.apps.example.com`.
+    jaeger_openshift_collector_route: "jaeger-collector.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.jaeger
+    tasks_from: openshift/ping
+```
+
+### openshift/rm
+
+> Remove the OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Remove the OpenShift deployment
+  vars:
+    # Sets the Kubernetes resource name used for Jaeger objects.
+    jaeger_k8s_resource_name: "{{ inventory_hostname }}"
+    # Sets the Kubernetes namespace used for Jaeger resources. Example: `tracing` when Jaeger shares a namespace with other observability services.
+    k8s_namespace: "string"
+    # Specifies the OpenShift Route host. Example: `jaeger-ui.apps.example.com`.
+    jaeger_openshift_ui_route: "jaeger-ui.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-admin.apps.example.com`.
+    jaeger_openshift_admin_route: "jaeger-admin.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-http-server.apps.example.com`.
+    jaeger_openshift_http_server_route: "jaeger-http-server.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-http-collector.apps.example.com`.
+    jaeger_openshift_http_collector_route: "jaeger-http-collector.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-grpc-server.apps.example.com`.
+    jaeger_openshift_grpc_server_route: "jaeger-grpc-server.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-collector.apps.example.com`.
+    jaeger_openshift_collector_route: "jaeger-collector.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.jaeger
+    tasks_from: openshift/rm
 ```

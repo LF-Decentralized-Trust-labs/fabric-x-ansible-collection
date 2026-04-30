@@ -20,4 +20,4 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/k8s/fetch_logs
-  when: fabric_ca_server_use_k8s
+  when: fabric_ca_server_use_k8s or fabric_ca_server_use_openshift

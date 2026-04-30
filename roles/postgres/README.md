@@ -27,6 +27,7 @@
   - [k8s/config/transfer](#k8sconfigtransfer)
   - [k8s/config/rm](#k8sconfigrm)
   - [openshift/start](#openshiftstart)
+  - [openshift/ping](#openshiftping)
   - [openshift/rm](#openshiftrm)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
@@ -623,6 +624,19 @@ Starts PostgreSQL on OpenShift by reusing the generic `k8s/start` resource flow.
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: openshift/start
+```
+
+### openshift/ping
+
+> Check PostgreSQL OpenShift services
+
+Reuses the Kubernetes service ping flow for PostgreSQL OpenShift deployments.
+
+```yaml
+- name: Check PostgreSQL OpenShift services
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: openshift/ping
 ```
 
 ### openshift/rm

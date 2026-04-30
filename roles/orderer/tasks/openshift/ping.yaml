@@ -1,0 +1,28 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the orderer OpenShift RPC route is reachable
+  vars:
+    openshift_route_host: "{{ orderer_openshift_route }}"
+    openshift_route_use_tls: "{{ orderer_use_tls }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/ping
+  when: orderer_openshift_route is defined
+
+- name: Check that the orderer OpenShift metrics route is reachable
+  vars:
+    openshift_route_host: "{{ orderer_openshift_metrics_route }}"
+    openshift_route_use_tls: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/ping
+  when: orderer_openshift_metrics_route is defined
+
+- name: Check that the orderer Kubernetes services are reachable
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: k8s/ping

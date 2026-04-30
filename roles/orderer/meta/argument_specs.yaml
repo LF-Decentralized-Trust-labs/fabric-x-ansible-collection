@@ -315,13 +315,13 @@ argument_specs:
       orderer_use_container: &orderer_use_container
         type: bool
         required: false
-        default: "{{ (not orderer_use_bin) and (not orderer_use_k8s) }}"
+        default: "{{ (not orderer_use_bin) and (not orderer_use_k8s) and (not orderer_use_openshift) }}"
         description:
           - "Selects the container deployment branch."
       orderer_deployment_mode: &orderer_deployment_mode
         type: str
         required: false
-        default: "{%- if orderer_use_bin -%}bin{%- elif orderer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
+        default: "{%- if orderer_use_bin -%}bin{%- elif orderer_use_openshift -%}openshift{%- elif orderer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
         choices:
           - bin
           - container
@@ -426,6 +426,24 @@ argument_specs:
           - "Optional liveness probe failure threshold override."
           - "Example: C(3)."
 
+      orderer_use_openshift: &orderer_use_openshift
+        type: bool
+        required: false
+        default: false
+        description:
+          - Selects the OpenShift deployment branch.
+      orderer_openshift_route: &orderer_openshift_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(orderer-rpc.apps.example.com)."
+      orderer_openshift_metrics_route: &orderer_openshift_metrics_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(orderer-metrics.apps.example.com)."
   start:
     short_description: Dispatch orderer startup by component and deployment mode
     description:
@@ -436,6 +454,7 @@ argument_specs:
       orderer_deployment_mode: *orderer_deployment_mode
       orderer_use_bin: *orderer_use_bin
       orderer_use_k8s: *orderer_use_k8s
+      orderer_use_openshift: *orderer_use_openshift
 
   stop:
     short_description: Dispatch orderer shutdown by component and deployment mode
@@ -447,6 +466,7 @@ argument_specs:
       orderer_deployment_mode: *orderer_deployment_mode
       orderer_use_bin: *orderer_use_bin
       orderer_use_k8s: *orderer_use_k8s
+      orderer_use_openshift: *orderer_use_openshift
 
   teardown:
     short_description: Dispatch orderer teardown by component and deployment mode
@@ -458,6 +478,7 @@ argument_specs:
       orderer_deployment_mode: *orderer_deployment_mode
       orderer_use_bin: *orderer_use_bin
       orderer_use_k8s: *orderer_use_k8s
+      orderer_use_openshift: *orderer_use_openshift
 
   wipe:
     short_description: Remove orderer runtime state, config, and optional binary
@@ -474,6 +495,7 @@ argument_specs:
       - "Collects runtime logs for any orderer component without modifying config, crypto, or data artifacts."
     options:
       orderer_use_k8s: *orderer_use_k8s
+      orderer_use_openshift: *orderer_use_openshift
       orderer_use_container: *orderer_use_container
       orderer_use_bin: *orderer_use_bin
 
@@ -485,6 +507,7 @@ argument_specs:
     options:
       orderer_rpc_port: *orderer_rpc_port
       orderer_use_k8s: *orderer_use_k8s
+      orderer_use_openshift: *orderer_use_openshift
 
   get_metrics:
     short_description: Retrieve orderer Prometheus metrics
@@ -635,6 +658,7 @@ argument_specs:
       orderer_remote_data_dir: *orderer_remote_data_dir
       remote_data_dir: *remote_data_dir
       orderer_use_k8s: *orderer_use_k8s
+      orderer_use_openshift: *orderer_use_openshift
       k8s_namespace:
         <<: *k8s_namespace
         required: false
@@ -662,6 +686,7 @@ argument_specs:
       orderer_use_tls: *orderer_use_tls
       orderer_use_mtls: *orderer_use_mtls
       orderer_use_k8s: *orderer_use_k8s
+      orderer_use_openshift: *orderer_use_openshift
       orderer_rpc_port: *orderer_rpc_port
       orderer_metrics_port: *orderer_metrics_port_config_transfer
       orderer_metrics_log_interval: *orderer_metrics_log_interval
@@ -692,6 +717,7 @@ argument_specs:
       remote_config_dir: *remote_config_dir
       orderer_remote_config_dir: *orderer_remote_config_dir
       orderer_use_k8s: *orderer_use_k8s
+      orderer_use_openshift: *orderer_use_openshift
 
   config/transfer_grafana_dashboard:
     short_description: Copy the orderer Grafana dashboard
@@ -710,6 +736,7 @@ argument_specs:
       orderer_use_mtls: *orderer_use_mtls
       organization: *organization
       orderer_use_k8s: *orderer_use_k8s
+      orderer_use_openshift: *orderer_use_openshift
 
   crypto/cryptogen/transfer:
     short_description: Transfer cryptogen-generated orderer crypto material
@@ -756,6 +783,7 @@ argument_specs:
       remote_config_dir: *remote_config_dir
       orderer_remote_config_dir: *orderer_remote_config_dir
       orderer_use_k8s: *orderer_use_k8s
+      orderer_use_openshift: *orderer_use_openshift
 
   k8s/start:
     short_description: Create the orderer Kubernetes workload
@@ -903,3 +931,39 @@ argument_specs:
       - "Produces scrape targets for consenter, batcher, assembler, and router metrics endpoints using each host's configured metrics port."
     options:
       orderer_hosts: *orderer_hosts
+
+  openshift/start:
+    short_description: Start the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      orderer_k8s_resource_name: *orderer_k8s_resource_name
+      orderer_component_type: *orderer_component_type
+      orderer_use_tls: *orderer_use_tls
+      k8s_namespace: *k8s_namespace
+      orderer_openshift_route: *orderer_openshift_route
+      orderer_openshift_metrics_route: *orderer_openshift_metrics_route
+
+  openshift/ping:
+    short_description: Check the OpenShift deployment
+    description:
+      - Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+    options:
+      orderer_use_tls: *orderer_use_tls
+      orderer_openshift_route: *orderer_openshift_route
+      orderer_openshift_metrics_route: *orderer_openshift_metrics_route
+
+  openshift/rm:
+    short_description: Remove the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      orderer_k8s_resource_name: *orderer_k8s_resource_name
+      k8s_namespace: *k8s_namespace
+      orderer_openshift_route: *orderer_openshift_route
+      orderer_openshift_metrics_route: *orderer_openshift_metrics_route
+
+  openshift/teardown:
+    short_description: Teardown the OpenShift deployment
+    description:
+      - Removes OpenShift and Kubernetes resources, then deletes orderer data artifacts.

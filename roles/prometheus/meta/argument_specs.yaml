@@ -159,7 +159,7 @@ argument_specs:
       prometheus_use_container: &prometheus_use_container
         type: bool
         required: false
-        default: "{{ not prometheus_use_k8s }}"
+        default: "{{ (not prometheus_use_k8s) and (not prometheus_use_openshift) }}"
         description:
           - Enables the container deployment path when set to C(true).
       prometheus_k8s_resource_name: &prometheus_k8s_resource_name
@@ -266,14 +266,26 @@ argument_specs:
           - Number of failed liveness probes before Kubernetes restarts the pod.
           - "Example: C(5)."
 
+      prometheus_use_openshift: &prometheus_use_openshift
+        type: bool
+        required: false
+        default: false
+        description:
+          - Selects the OpenShift deployment branch.
+      prometheus_openshift_route: &prometheus_openshift_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(prometheus.apps.example.com)."
   ping:
     short_description: Check that the Prometheus listener is reachable
     description:
       - Validates network reachability to the active Prometheus listener on the target host, or to the Kubernetes NodePort when that exposure path is enabled.
     options:
+      prometheus_use_openshift: *prometheus_use_openshift
       prometheus_port: *prometheus_port
       prometheus_use_k8s: *prometheus_use_k8s
-
   start:
     short_description: Start Prometheus in the selected deployment mode
     description:
@@ -281,6 +293,7 @@ argument_specs:
     options:
       prometheus_use_container: *prometheus_use_container
       prometheus_use_k8s: *prometheus_use_k8s
+      prometheus_use_openshift: *prometheus_use_openshift
 
   container/start:
     short_description: Start the Prometheus container
@@ -367,6 +380,7 @@ argument_specs:
     options:
       prometheus_use_container: *prometheus_use_container
       prometheus_use_k8s: *prometheus_use_k8s
+      prometheus_use_openshift: *prometheus_use_openshift
 
   container/rm:
     short_description: Remove the Prometheus container
@@ -394,6 +408,7 @@ argument_specs:
       prometheus_remote_data_dir: *prometheus_remote_data_dir
       prometheus_use_container: *prometheus_use_container
       prometheus_use_k8s: *prometheus_use_k8s
+      prometheus_use_openshift: *prometheus_use_openshift
 
   k8s/data/rm:
     short_description: Remove the Prometheus data PVC
@@ -416,6 +431,7 @@ argument_specs:
     options:
       prometheus_use_tls: *prometheus_use_tls
       prometheus_use_k8s: *prometheus_use_k8s
+      prometheus_use_openshift: *prometheus_use_openshift
 
   crypto/openssl/generate_cert:
     short_description: Generate a self-signed TLS certificate for Prometheus
@@ -460,6 +476,7 @@ argument_specs:
       prometheus_remote_config_dir: *prometheus_remote_config_dir
       prometheus_use_tls: *prometheus_use_tls
       prometheus_use_k8s: *prometheus_use_k8s
+      prometheus_use_openshift: *prometheus_use_openshift
 
   k8s/crypto/rm:
     short_description: Remove the Prometheus TLS Secret
@@ -487,6 +504,7 @@ argument_specs:
       prometheus_scrape_services: *prometheus_scrape_services
       prometheus_use_tls: *prometheus_use_tls
       prometheus_use_k8s: *prometheus_use_k8s
+      prometheus_use_openshift: *prometheus_use_openshift
 
   k8s/config/transfer:
     short_description: Apply the Prometheus ConfigMap on Kubernetes
@@ -511,6 +529,7 @@ argument_specs:
       remote_config_dir: *remote_config_dir
       prometheus_remote_config_dir: *prometheus_remote_config_dir
       prometheus_use_k8s: *prometheus_use_k8s
+      prometheus_use_openshift: *prometheus_use_openshift
 
   k8s/config/rm:
     short_description: Remove the Prometheus ConfigMap
@@ -527,6 +546,7 @@ argument_specs:
     options:
       prometheus_use_container: *prometheus_use_container
       prometheus_use_k8s: *prometheus_use_k8s
+      prometheus_use_openshift: *prometheus_use_openshift
 
   container/fetch_logs:
     short_description: Fetch Prometheus container logs
@@ -542,3 +562,30 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
+
+  openshift/start:
+    short_description: Start the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      prometheus_k8s_resource_name: *prometheus_k8s_resource_name
+      prometheus_use_tls: *prometheus_use_tls
+      k8s_namespace: *k8s_namespace
+      prometheus_openshift_route: *prometheus_openshift_route
+
+  openshift/ping:
+    short_description: Check the OpenShift deployment
+    description:
+      - Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+    options:
+      prometheus_use_tls: *prometheus_use_tls
+      prometheus_openshift_route: *prometheus_openshift_route
+
+  openshift/rm:
+    short_description: Remove the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      prometheus_k8s_resource_name: *prometheus_k8s_resource_name
+      k8s_namespace: *k8s_namespace
+      prometheus_openshift_route: *prometheus_openshift_route

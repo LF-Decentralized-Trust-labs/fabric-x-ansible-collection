@@ -19,4 +19,4 @@
     name: hyperledger.fabricx.grafana
     tasks_from: k8s/crypto/transfer
   when:
-    - grafana_use_k8s
+    - grafana_use_k8s or grafana_use_openshift

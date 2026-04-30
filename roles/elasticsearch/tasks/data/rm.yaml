@@ -19,4 +19,4 @@
     kind: PersistentVolumeClaim
     name: "data-{{ elasticsearch_k8s_resource_name }}-0"
     namespace: "{{ k8s_namespace }}"
-  when: elasticsearch_use_k8s
+  when: elasticsearch_use_k8s or elasticsearch_use_openshift

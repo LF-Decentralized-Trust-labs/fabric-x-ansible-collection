@@ -1,0 +1,28 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the Fabric CA OpenShift API route is reachable
+  vars:
+    openshift_route_host: "{{ fabric_ca_server_openshift_route }}"
+    openshift_route_use_tls: "{{ fabric_ca_use_tls }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/ping
+  when: fabric_ca_server_openshift_route is defined
+
+- name: Check that the Fabric CA OpenShift operations route is reachable
+  vars:
+    openshift_route_host: "{{ fabric_ca_server_openshift_operations_route }}"
+    openshift_route_use_tls: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/ping
+  when: fabric_ca_server_openshift_operations_route is defined
+
+- name: Check that the Fabric CA Kubernetes services are reachable
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/k8s/ping

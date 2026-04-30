@@ -12,7 +12,7 @@ argument_specs:
       jaeger_use_container: &jaeger_use_container
         type: bool
         required: false
-        default: "{{ not jaeger_use_k8s }}"
+        default: "{{ (not jaeger_use_k8s) and (not jaeger_use_openshift) }}"
         description:
           - "Runs the container-based Jaeger path when set to C(true)."
       jaeger_use_k8s: &jaeger_use_k8s
@@ -290,6 +290,48 @@ argument_specs:
           - "Sets the liveness probe failure threshold used by the Jaeger deployment template."
           - "Example: C(3)."
 
+      jaeger_use_openshift: &jaeger_use_openshift
+        type: bool
+        required: false
+        default: false
+        description:
+          - Selects the OpenShift deployment branch.
+      jaeger_openshift_ui_route: &jaeger_openshift_ui_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(jaeger-ui.apps.example.com)."
+      jaeger_openshift_admin_route: &jaeger_openshift_admin_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(jaeger-admin.apps.example.com)."
+      jaeger_openshift_http_server_route: &jaeger_openshift_http_server_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(jaeger-http-server.apps.example.com)."
+      jaeger_openshift_http_collector_route: &jaeger_openshift_http_collector_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(jaeger-http-collector.apps.example.com)."
+      jaeger_openshift_grpc_server_route: &jaeger_openshift_grpc_server_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(jaeger-grpc-server.apps.example.com)."
+      jaeger_openshift_collector_route: &jaeger_openshift_collector_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(jaeger-collector.apps.example.com)."
   start:
     short_description: Select the Jaeger deployment mode to start
     description:
@@ -299,6 +341,7 @@ argument_specs:
     options:
       jaeger_use_container: *jaeger_use_container
       jaeger_use_k8s: *jaeger_use_k8s
+      jaeger_use_openshift: *jaeger_use_openshift
 
   stop:
     short_description: Select the Jaeger deployment mode to stop
@@ -315,6 +358,7 @@ argument_specs:
     options:
       jaeger_use_container: *jaeger_use_container
       jaeger_use_k8s: *jaeger_use_k8s
+      jaeger_use_openshift: *jaeger_use_openshift
 
   wipe:
     short_description: Remove the Jaeger deployment and configuration
@@ -329,6 +373,7 @@ argument_specs:
     options:
       jaeger_use_container: *jaeger_use_container
       jaeger_use_k8s: *jaeger_use_k8s
+      jaeger_use_openshift: *jaeger_use_openshift
 
   ping:
     short_description: Check that Jaeger service ports are reachable
@@ -337,6 +382,7 @@ argument_specs:
       - "Container mode pings the published host ports, while Kubernetes mode checks the service ports and optional NodePort values."
     options:
       jaeger_use_k8s: *jaeger_use_k8s
+      jaeger_use_openshift: *jaeger_use_openshift
       jaeger_ui_port: *jaeger_ui_port
       jaeger_admin_port: *jaeger_admin_port
       jaeger_http_server_port: *jaeger_http_server_port
@@ -503,6 +549,7 @@ argument_specs:
       remote_config_dir: *remote_config_dir
       jaeger_remote_config_dir: *jaeger_remote_config_dir
       jaeger_use_k8s: *jaeger_use_k8s
+      jaeger_use_openshift: *jaeger_use_openshift
 
   config/rm:
     short_description: Remove Jaeger configuration assets
@@ -532,3 +579,44 @@ argument_specs:
       jaeger_k8s_resource_name: *jaeger_k8s_resource_name
       k8s_namespace: *k8s_namespace
       jaeger_use_k8s: *jaeger_use_k8s
+      jaeger_use_openshift: *jaeger_use_openshift
+
+  openshift/start:
+    short_description: Start the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      jaeger_k8s_resource_name: *jaeger_k8s_resource_name
+      k8s_namespace: *k8s_namespace
+      jaeger_openshift_ui_route: *jaeger_openshift_ui_route
+      jaeger_openshift_admin_route: *jaeger_openshift_admin_route
+      jaeger_openshift_http_server_route: *jaeger_openshift_http_server_route
+      jaeger_openshift_http_collector_route: *jaeger_openshift_http_collector_route
+      jaeger_openshift_grpc_server_route: *jaeger_openshift_grpc_server_route
+      jaeger_openshift_collector_route: *jaeger_openshift_collector_route
+
+  openshift/ping:
+    short_description: Check the OpenShift deployment
+    description:
+      - Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+    options:
+      jaeger_openshift_ui_route: *jaeger_openshift_ui_route
+      jaeger_openshift_admin_route: *jaeger_openshift_admin_route
+      jaeger_openshift_http_server_route: *jaeger_openshift_http_server_route
+      jaeger_openshift_http_collector_route: *jaeger_openshift_http_collector_route
+      jaeger_openshift_grpc_server_route: *jaeger_openshift_grpc_server_route
+      jaeger_openshift_collector_route: *jaeger_openshift_collector_route
+
+  openshift/rm:
+    short_description: Remove the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      jaeger_k8s_resource_name: *jaeger_k8s_resource_name
+      k8s_namespace: *k8s_namespace
+      jaeger_openshift_ui_route: *jaeger_openshift_ui_route
+      jaeger_openshift_admin_route: *jaeger_openshift_admin_route
+      jaeger_openshift_http_server_route: *jaeger_openshift_http_server_route
+      jaeger_openshift_http_collector_route: *jaeger_openshift_http_collector_route
+      jaeger_openshift_grpc_server_route: *jaeger_openshift_grpc_server_route
+      jaeger_openshift_collector_route: *jaeger_openshift_collector_route

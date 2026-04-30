@@ -92,13 +92,13 @@ argument_specs:
       committer_use_container: &committer_use_container
         type: bool
         required: false
-        default: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
+        default: "{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}"
         description:
           - Enable container deployment mode.
       committer_deployment_mode: &committer_deployment_mode
         type: str
         required: false
-        default: "{%- if committer_use_bin -%}bin{%- elif committer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
+        default: "{%- if committer_use_bin -%}bin{%- elif committer_use_openshift -%}openshift{%- elif committer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
         description:
           - Deployment mode selected by the role.
       committer_k8s_resource_name: &committer_k8s_resource_name
@@ -715,6 +715,24 @@ argument_specs:
           - Monitoring mTLS organizations trusted by the component.
           - "Example: C([{'domain': 'monitoring.example.com'}])."
 
+      committer_use_openshift: &committer_use_openshift
+        type: bool
+        required: false
+        default: false
+        description:
+          - Selects the OpenShift deployment branch.
+      committer_openshift_route: &committer_openshift_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(committer-rpc.apps.example.com)."
+      committer_openshift_metrics_route: &committer_openshift_metrics_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(committer-metrics.apps.example.com)."
   ping:
     short_description: Check the committer gRPC endpoint
     description:
@@ -723,6 +741,7 @@ argument_specs:
     options:
       committer_rpc_port: *committer_rpc_port
       committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
 
   k8s/ping:
     short_description: Check the committer Kubernetes services are reachable
@@ -736,6 +755,16 @@ argument_specs:
       committer_rpc_port: *committer_rpc_port
       committer_metrics_port: *committer_metrics_port
 
+  openshift/ping:
+    short_description: Check the committer OpenShift deployment
+    description:
+      - Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+    options:
+      committer_use_tls: *committer_use_tls
+      committer_monitoring_use_tls: *committer_monitoring_use_tls
+      committer_openshift_route: *committer_openshift_route
+      committer_openshift_metrics_route: *committer_openshift_metrics_route
+
   validator/start:
     short_description: Start a validator component
     description:
@@ -745,6 +774,7 @@ argument_specs:
     options:
       committer_use_bin: *committer_use_bin
       committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
       committer_use_container: *committer_use_container
 
   verifier/start:
@@ -756,6 +786,7 @@ argument_specs:
     options:
       committer_use_bin: *committer_use_bin
       committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
       committer_use_container: *committer_use_container
 
   coordinator/start:
@@ -767,6 +798,7 @@ argument_specs:
     options:
       committer_use_bin: *committer_use_bin
       committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
       committer_use_container: *committer_use_container
 
   sidecar/start:
@@ -778,6 +810,7 @@ argument_specs:
     options:
       committer_use_bin: *committer_use_bin
       committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
       committer_use_container: *committer_use_container
 
   query_service/start:
@@ -789,6 +822,7 @@ argument_specs:
     options:
       committer_use_bin: *committer_use_bin
       committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
       committer_use_container: *committer_use_container
 
   stop:
@@ -802,6 +836,7 @@ argument_specs:
       committer_deployment_mode: *committer_deployment_mode
       committer_use_bin: *committer_use_bin
       committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
 
   teardown:
     short_description: Teardown a selected component
@@ -820,6 +855,7 @@ argument_specs:
     options:
       committer_use_bin: *committer_use_bin
       committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
       committer_use_container: *committer_use_container
 
   sidecar/teardown:
@@ -830,6 +866,7 @@ argument_specs:
     options:
       committer_use_bin: *committer_use_bin
       committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
       committer_use_container: *committer_use_container
 
   coordinator/teardown:
@@ -840,6 +877,7 @@ argument_specs:
     options:
       committer_use_bin: *committer_use_bin
       committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
       committer_use_container: *committer_use_container
 
   wipe:
@@ -859,6 +897,7 @@ argument_specs:
     options:
       committer_use_bin: *committer_use_bin
       committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
       committer_use_container: *committer_use_container
 
   get_metrics:
@@ -872,7 +911,6 @@ argument_specs:
         required: false
       committer_http_protocol: *committer_http_protocol
       committer_metrics_port: *committer_metrics_port
-
   start:
     short_description: Start a committer component by type
     description:
@@ -890,6 +928,7 @@ argument_specs:
     options:
       organization: *organization
       committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
 
   crypto/fetch:
     short_description: Fetch TLS certificates
@@ -1072,6 +1111,7 @@ argument_specs:
     options:
       committer_remote_config_dir: *committer_remote_config_dir
       committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
 
   config/transfer_grafana_dashboard:
     short_description: Transfer the committer Grafana dashboard
@@ -1156,6 +1196,7 @@ argument_specs:
       committer_remote_config_dir: *committer_remote_config_dir
       committer_use_tls: *committer_use_tls
       committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
 
   crypto/cryptogen/transfer:
     short_description: Transfer committer crypto from cryptogen
@@ -1195,6 +1236,7 @@ argument_specs:
       committer_remote_data_dir: *committer_remote_data_dir
       committer_k8s_resource_name: *committer_k8s_resource_name
       committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
       k8s_namespace:
         <<: *k8s_namespace
         required: false
@@ -1356,6 +1398,7 @@ argument_specs:
         <<: *yugabyte_cluster_ref_id
         required: false
       committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
 
   verifier/config/transfer:
     short_description: Generate verifier config
@@ -1388,6 +1431,7 @@ argument_specs:
       committer_verifier_batch_time_cutoff: *committer_verifier_batch_time_cutoff
       committer_verifier_channel_buffer_size: *committer_verifier_channel_buffer_size
       committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
 
   coordinator/config/transfer:
     short_description: Generate coordinator config
@@ -1431,6 +1475,7 @@ argument_specs:
         <<: *fetched_artifacts_dir
         required: true
       committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
 
   sidecar/config/transfer:
     short_description: Generate sidecar config
@@ -1472,6 +1517,7 @@ argument_specs:
         <<: *fetched_artifacts_dir
         required: true
       committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
 
   query_service/config/transfer:
     short_description: Generate query-service config
@@ -1520,6 +1566,7 @@ argument_specs:
         <<: *yugabyte_cluster_ref_id
         required: false
       committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
 
   validator/k8s/start:
     short_description: Start the validator on Kubernetes
@@ -1706,6 +1753,7 @@ argument_specs:
       - Dispatches to Kubernetes, container, or host-binary cleanup based on deployment flags.
     options:
       committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
       committer_use_container: *committer_use_container
       committer_use_bin: *committer_use_bin
 
@@ -1716,5 +1764,121 @@ argument_specs:
       - Dispatches to Kubernetes, container, or host-binary cleanup based on deployment flags.
     options:
       committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
       committer_use_container: *committer_use_container
       committer_use_bin: *committer_use_bin
+
+  validator/openshift/start:
+    short_description: Start the committer validator OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      committer_k8s_resource_name: *committer_k8s_resource_name
+      committer_component_type: *committer_component_type
+      committer_use_tls: *committer_use_tls
+      committer_monitoring_use_tls: *committer_monitoring_use_tls
+      k8s_namespace: *k8s_namespace
+      committer_openshift_route: *committer_openshift_route
+      committer_openshift_metrics_route: *committer_openshift_metrics_route
+
+  validator/openshift/rm:
+    short_description: Rm the committer validator OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      committer_k8s_resource_name: *committer_k8s_resource_name
+      k8s_namespace: *k8s_namespace
+      committer_openshift_route: *committer_openshift_route
+      committer_openshift_metrics_route: *committer_openshift_metrics_route
+
+  verifier/openshift/start:
+    short_description: Start the committer verifier OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      committer_k8s_resource_name: *committer_k8s_resource_name
+      committer_component_type: *committer_component_type
+      committer_use_tls: *committer_use_tls
+      committer_monitoring_use_tls: *committer_monitoring_use_tls
+      k8s_namespace: *k8s_namespace
+      committer_openshift_route: *committer_openshift_route
+      committer_openshift_metrics_route: *committer_openshift_metrics_route
+
+  verifier/openshift/rm:
+    short_description: Rm the committer verifier OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      committer_k8s_resource_name: *committer_k8s_resource_name
+      k8s_namespace: *k8s_namespace
+      committer_openshift_route: *committer_openshift_route
+      committer_openshift_metrics_route: *committer_openshift_metrics_route
+
+  coordinator/openshift/start:
+    short_description: Start the committer coordinator OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      committer_k8s_resource_name: *committer_k8s_resource_name
+      committer_component_type: *committer_component_type
+      committer_use_tls: *committer_use_tls
+      committer_monitoring_use_tls: *committer_monitoring_use_tls
+      k8s_namespace: *k8s_namespace
+      committer_openshift_route: *committer_openshift_route
+      committer_openshift_metrics_route: *committer_openshift_metrics_route
+
+  coordinator/openshift/rm:
+    short_description: Rm the committer coordinator OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      committer_k8s_resource_name: *committer_k8s_resource_name
+      k8s_namespace: *k8s_namespace
+      committer_openshift_route: *committer_openshift_route
+      committer_openshift_metrics_route: *committer_openshift_metrics_route
+
+  sidecar/openshift/start:
+    short_description: Start the committer sidecar OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      committer_k8s_resource_name: *committer_k8s_resource_name
+      committer_component_type: *committer_component_type
+      committer_use_tls: *committer_use_tls
+      committer_monitoring_use_tls: *committer_monitoring_use_tls
+      k8s_namespace: *k8s_namespace
+      committer_openshift_route: *committer_openshift_route
+      committer_openshift_metrics_route: *committer_openshift_metrics_route
+
+  sidecar/openshift/rm:
+    short_description: Rm the committer sidecar OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      committer_k8s_resource_name: *committer_k8s_resource_name
+      k8s_namespace: *k8s_namespace
+      committer_openshift_route: *committer_openshift_route
+      committer_openshift_metrics_route: *committer_openshift_metrics_route
+
+  query_service/openshift/start:
+    short_description: Start the committer query_service OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      committer_k8s_resource_name: *committer_k8s_resource_name
+      committer_component_type: *committer_component_type
+      committer_use_tls: *committer_use_tls
+      committer_monitoring_use_tls: *committer_monitoring_use_tls
+      k8s_namespace: *k8s_namespace
+      committer_openshift_route: *committer_openshift_route
+      committer_openshift_metrics_route: *committer_openshift_metrics_route
+
+  query_service/openshift/rm:
+    short_description: Rm the committer query_service OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      committer_k8s_resource_name: *committer_k8s_resource_name
+      k8s_namespace: *k8s_namespace
+      committer_openshift_route: *committer_openshift_route
+      committer_openshift_metrics_route: *committer_openshift_metrics_route

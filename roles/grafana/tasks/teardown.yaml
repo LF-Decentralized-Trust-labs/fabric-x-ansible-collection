@@ -15,3 +15,9 @@
     name: hyperledger.fabricx.grafana
     tasks_from: k8s/rm
   when: grafana_use_k8s
+
+- name: Teardown Grafana on OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.grafana
+    tasks_from: openshift/rm
+  when: grafana_use_openshift

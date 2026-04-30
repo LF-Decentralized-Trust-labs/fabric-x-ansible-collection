@@ -66,10 +66,12 @@ orderer_use_bin: false
 # Selects the Kubernetes deployment branch.
 orderer_use_k8s: false
 # Selects the container deployment branch.
-orderer_use_container: '{{ (not orderer_use_bin) and (not orderer_use_k8s) }}'
+orderer_use_container: '{{ (not orderer_use_bin) and (not orderer_use_k8s) and (not orderer_use_openshift) }}'
 # Deployment backend selected by the top-level dispatcher.
-orderer_deployment_mode: '{%- if orderer_use_bin -%}bin{%- elif orderer_use_k8s -%}k8s{%- else -%}container{%- endif -%}'
+orderer_deployment_mode: '{%- if orderer_use_bin -%}bin{%- elif orderer_use_openshift -%}openshift{%- elif orderer_use_k8s -%}k8s{%- else -%}container{%- endif -%}'
 # Enables server-side TLS in the rendered config.
 orderer_use_tls: false
 # Enables client mutual TLS in the rendered config.
 orderer_use_mtls: false
+# Selects the OpenShift deployment branch.
+orderer_use_openshift: false

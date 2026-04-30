@@ -43,7 +43,7 @@ argument_specs:
       yugabyte_use_container: &yugabyte_use_container
         type: bool
         required: false
-        default: "{{ not yugabyte_use_k8s }}"
+        default: "{{ (not yugabyte_use_k8s) and (not yugabyte_use_openshift) }}"
         description:
           - "Enables container mode for the YugabyteDB role."
       yugabyte_use_tls: &yugabyte_use_tls
@@ -482,6 +482,36 @@ argument_specs:
           - "Overrides the liveness probe failure threshold used by Kubernetes templates when defined."
           - "Example: C(6)."
 
+      yugabyte_use_openshift: &yugabyte_use_openshift
+        type: bool
+        required: false
+        default: false
+        description:
+          - Selects the OpenShift deployment branch.
+      yugabyte_openshift_master_webserver_route: &yugabyte_openshift_master_webserver_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(yugabyte-master-web.apps.example.com)."
+      yugabyte_openshift_tablet_webserver_route: &yugabyte_openshift_tablet_webserver_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(yugabyte-tablet-web.apps.example.com)."
+      yugabyte_openshift_tablet_pgsql_web_route: &yugabyte_openshift_tablet_pgsql_web_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(yugabyte-tablet-pgsql-web.apps.example.com)."
+      yugabyte_openshift_tablet_cql_web_route: &yugabyte_openshift_tablet_cql_web_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(yugabyte-tablet-cql-web.apps.example.com)."
   start:
     short_description: Start a YugabyteDB cluster
     description:
@@ -490,6 +520,7 @@ argument_specs:
     options:
       yugabyte_cluster: *yugabyte_cluster
       yugabyte_use_k8s: *yugabyte_use_k8s
+      yugabyte_use_openshift: *yugabyte_use_openshift
       yugabyte_use_container: *yugabyte_use_container
 
   stop:
@@ -499,6 +530,7 @@ argument_specs:
       - "Kubernetes mode is managed through the removal entry points because StatefulSets and Services are reconciled resources."
     options:
       yugabyte_use_k8s: *yugabyte_use_k8s
+      yugabyte_use_openshift: *yugabyte_use_openshift
       yugabyte_use_container: *yugabyte_use_container
 
   teardown:
@@ -508,6 +540,7 @@ argument_specs:
       - "Container mode deletes the running container and host data directory; Kubernetes mode deletes StatefulSets, Services, optional NodePort Services, and PVCs."
     options:
       yugabyte_use_k8s: *yugabyte_use_k8s
+      yugabyte_use_openshift: *yugabyte_use_openshift
       yugabyte_use_container: *yugabyte_use_container
 
   wipe:
@@ -524,6 +557,7 @@ argument_specs:
       - "Container mode fetches logs from the named container; Kubernetes mode fetches pod logs selected by the resource labels."
     options:
       yugabyte_use_k8s: *yugabyte_use_k8s
+      yugabyte_use_openshift: *yugabyte_use_openshift
       yugabyte_use_container: *yugabyte_use_container
 
   ping:
@@ -534,6 +568,7 @@ argument_specs:
     options:
       yugabyte_component_type: *yugabyte_component_type
       yugabyte_use_k8s: *yugabyte_use_k8s
+      yugabyte_use_openshift: *yugabyte_use_openshift
       yugabyte_master_webserver_port: *yugabyte_master_webserver_port
       yugabyte_master_rpc_bind_port: *yugabyte_master_rpc_bind_port
       yugabyte_tablet_pgsql_bind_port: *yugabyte_tablet_pgsql_bind_port
@@ -582,6 +617,7 @@ argument_specs:
     options:
       yugabyte_use_tls: *yugabyte_use_tls
       yugabyte_use_k8s: *yugabyte_use_k8s
+      yugabyte_use_openshift: *yugabyte_use_openshift
       organization: *organization
 
   crypto/fetch:
@@ -604,6 +640,7 @@ argument_specs:
       remote_config_dir: *remote_config_dir
       yugabyte_use_tls: *yugabyte_use_tls
       yugabyte_use_k8s: *yugabyte_use_k8s
+      yugabyte_use_openshift: *yugabyte_use_openshift
       yugabyte_remote_config_dir: *yugabyte_remote_config_dir
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
       k8s_namespace:
@@ -680,6 +717,7 @@ argument_specs:
       yugabyte_user: *yugabyte_user
       yugabyte_password: *yugabyte_password
       yugabyte_use_k8s: *yugabyte_use_k8s
+      yugabyte_use_openshift: *yugabyte_use_openshift
 
   config/rm:
     short_description: Remove YugabyteDB configuration
@@ -690,6 +728,7 @@ argument_specs:
       remote_config_dir: *remote_config_dir
       yugabyte_remote_config_dir: *yugabyte_remote_config_dir
       yugabyte_use_k8s: *yugabyte_use_k8s
+      yugabyte_use_openshift: *yugabyte_use_openshift
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
       k8s_namespace:
         <<: *k8s_namespace
@@ -976,6 +1015,7 @@ argument_specs:
       remote_data_dir: *remote_data_dir
       yugabyte_use_container: *yugabyte_use_container
       yugabyte_use_k8s: *yugabyte_use_k8s
+      yugabyte_use_openshift: *yugabyte_use_openshift
       yugabyte_remote_data_dir: *yugabyte_remote_data_dir
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
       k8s_namespace:
@@ -990,3 +1030,73 @@ argument_specs:
     options:
       yugabyte_hosts: *yugabyte_hosts
       fetched_artifacts_dir: *fetched_artifacts_dir
+
+  openshift/start:
+    short_description: Dispatch YugabyteDB OpenShift startup
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      yugabyte_component_type: *yugabyte_component_type
+      yugabyte_use_openshift: *yugabyte_use_openshift
+
+  openshift/rm:
+    short_description: Dispatch YugabyteDB OpenShift removal
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      yugabyte_component_type: *yugabyte_component_type
+      yugabyte_use_openshift: *yugabyte_use_openshift
+
+  openshift/ping:
+    short_description: Check the YugabyteDB OpenShift deployment
+    description:
+      - Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+    options:
+      yugabyte_component_type: *yugabyte_component_type
+      yugabyte_webserver_use_tls: *yugabyte_webserver_use_tls
+      yugabyte_openshift_master_webserver_route: *yugabyte_openshift_master_webserver_route
+      yugabyte_openshift_tablet_webserver_route: *yugabyte_openshift_tablet_webserver_route
+      yugabyte_openshift_tablet_pgsql_web_route: *yugabyte_openshift_tablet_pgsql_web_route
+      yugabyte_openshift_tablet_cql_web_route: *yugabyte_openshift_tablet_cql_web_route
+
+  openshift/master/start:
+    short_description: Start the YugabyteDB master OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
+      yugabyte_webserver_use_tls: *yugabyte_webserver_use_tls
+      k8s_namespace: *k8s_namespace
+      yugabyte_openshift_master_webserver_route: *yugabyte_openshift_master_webserver_route
+
+  openshift/master/rm:
+    short_description: Remove the YugabyteDB master OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
+      k8s_namespace: *k8s_namespace
+      yugabyte_openshift_master_webserver_route: *yugabyte_openshift_master_webserver_route
+
+  openshift/tablet/start:
+    short_description: Start the YugabyteDB tablet OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
+      yugabyte_webserver_use_tls: *yugabyte_webserver_use_tls
+      k8s_namespace: *k8s_namespace
+      yugabyte_openshift_tablet_webserver_route: *yugabyte_openshift_tablet_webserver_route
+      yugabyte_openshift_tablet_pgsql_web_route: *yugabyte_openshift_tablet_pgsql_web_route
+      yugabyte_openshift_tablet_cql_web_route: *yugabyte_openshift_tablet_cql_web_route
+
+  openshift/tablet/rm:
+    short_description: Remove the YugabyteDB tablet OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
+      k8s_namespace: *k8s_namespace
+      yugabyte_openshift_tablet_webserver_route: *yugabyte_openshift_tablet_webserver_route
+      yugabyte_openshift_tablet_pgsql_web_route: *yugabyte_openshift_tablet_pgsql_web_route
+      yugabyte_openshift_tablet_cql_web_route: *yugabyte_openshift_tablet_cql_web_route

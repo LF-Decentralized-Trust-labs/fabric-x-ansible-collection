@@ -1,0 +1,54 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the Yugabyte master OpenShift webserver route is reachable
+  vars:
+    openshift_route_host: "{{ yugabyte_openshift_master_webserver_route }}"
+    openshift_route_use_tls: "{{ yugabyte_webserver_use_tls }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/ping
+  when:
+    - yugabyte_component_type == 'master'
+    - yugabyte_openshift_master_webserver_route is defined
+
+- name: Check that the Yugabyte tablet OpenShift webserver route is reachable
+  vars:
+    openshift_route_host: "{{ yugabyte_openshift_tablet_webserver_route }}"
+    openshift_route_use_tls: "{{ yugabyte_webserver_use_tls }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/ping
+  when:
+    - yugabyte_component_type == 'tablet'
+    - yugabyte_openshift_tablet_webserver_route is defined
+
+- name: Check that the Yugabyte tablet OpenShift PostgreSQL web route is reachable
+  vars:
+    openshift_route_host: "{{ yugabyte_openshift_tablet_pgsql_web_route }}"
+    openshift_route_use_tls: "{{ yugabyte_webserver_use_tls }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/ping
+  when:
+    - yugabyte_component_type == 'tablet'
+    - yugabyte_openshift_tablet_pgsql_web_route is defined
+
+- name: Check that the Yugabyte tablet OpenShift CQL web route is reachable
+  vars:
+    openshift_route_host: "{{ yugabyte_openshift_tablet_cql_web_route }}"
+    openshift_route_use_tls: "{{ yugabyte_webserver_use_tls }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/ping
+  when:
+    - yugabyte_component_type == 'tablet'
+    - yugabyte_openshift_tablet_cql_web_route is defined
+
+- name: Check that the Yugabyte Kubernetes services are reachable
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: k8s/ping

@@ -1,0 +1,37 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the loadgen OpenShift web route is reachable
+  vars:
+    openshift_route_host: "{{ loadgen_openshift_web_route }}"
+    openshift_route_use_tls: "{{ loadgen_use_tls }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/ping
+  when: loadgen_openshift_web_route is defined
+
+- name: Check that the loadgen OpenShift metrics route is reachable
+  vars:
+    openshift_route_host: "{{ loadgen_openshift_metrics_route }}"
+    openshift_route_use_tls: "{{ loadgen_monitoring_use_tls }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/ping
+  when: loadgen_openshift_metrics_route is defined
+
+- name: Check that the loadgen OpenShift RPC route is reachable
+  vars:
+    openshift_route_host: "{{ loadgen_openshift_rpc_route }}"
+    openshift_route_use_tls: "{{ loadgen_use_tls }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/ping
+  when: loadgen_openshift_rpc_route is defined
+
+- name: Check that the loadgen Kubernetes services are reachable
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: k8s/ping

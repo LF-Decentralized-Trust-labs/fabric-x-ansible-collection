@@ -10,7 +10,7 @@
 # Enables Kubernetes mode for the YugabyteDB role.
 yugabyte_use_k8s: false
 # Enables container mode for the YugabyteDB role.
-yugabyte_use_container: '{{ not yugabyte_use_k8s }}'
+yugabyte_use_container: '{{ (not yugabyte_use_k8s) and (not yugabyte_use_openshift) }}'
 # Enables TLS asset handling for YugabyteDB.
 yugabyte_use_tls: false
 # Enables HTTPS for the YugabyteDB webserver.
@@ -85,3 +85,5 @@ yugabyte_k8s_loadbalancer_expose_tablet_cql_bind_port: false
 # Set to C(true) to create a LoadBalancer Service entry that exposes the tablet YCQL web UI port externally.
 # When undefined or C(false), the tablet YCQL web UI port is not included in the LoadBalancer Service.
 yugabyte_k8s_loadbalancer_expose_tablet_cql_web_port: false
+# Selects the OpenShift deployment branch.
+yugabyte_use_openshift: false

@@ -44,7 +44,7 @@ prometheus_port: 9090
 # Enables the Kubernetes deployment path when set to C(true).
 prometheus_use_k8s: false
 # Enables the container deployment path when set to C(true).
-prometheus_use_container: '{{ not prometheus_use_k8s }}'
+prometheus_use_container: '{{ (not prometheus_use_k8s) and (not prometheus_use_openshift) }}'
 # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
 prometheus_k8s_resource_name: '{{ inventory_hostname }}'
 # Maximum number of seconds to wait for the StatefulSet rollout.
@@ -54,3 +54,5 @@ prometheus_k8s_fs_group: 65534
 # Set to C(true) to create a LoadBalancer Service entry that exposes the HTTP port externally.
 # When undefined or C(false), the HTTP port is not included in the LoadBalancer Service.
 prometheus_k8s_loadbalancer_expose_http_port: false
+# Selects the OpenShift deployment branch.
+prometheus_use_openshift: false

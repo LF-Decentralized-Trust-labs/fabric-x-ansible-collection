@@ -29,6 +29,9 @@
   - [k8s/fetch\_logs](#k8sfetch_logs)
   - [k8s/crypto/rm](#k8scryptorm)
   - [k8s/crypto/transfer](#k8scryptotransfer)
+  - [openshift/start](#openshiftstart)
+  - [openshift/ping](#openshiftping)
+  - [openshift/rm](#openshiftrm)
 
 ## Role Defaults
 
@@ -55,8 +58,10 @@ Starts ElasticSearch using the selected deployment mode. Container mode is the d
   vars:
     # Runs ElasticSearch on Kubernetes when set to `true`.
     elasticsearch_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    elasticsearch_use_openshift: false
     # Runs ElasticSearch as a container when set to `true`.
-    elasticsearch_use_container: "{{ not elasticsearch_use_k8s }}"
+    elasticsearch_use_container: "{{ (not elasticsearch_use_k8s) and (not elasticsearch_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: start
@@ -89,8 +94,10 @@ Removes ElasticSearch runtime resources for the selected deployment mode. Also r
   vars:
     # Runs ElasticSearch on Kubernetes when set to `true`.
     elasticsearch_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    elasticsearch_use_openshift: false
     # Runs ElasticSearch as a container when set to `true`.
-    elasticsearch_use_container: "{{ not elasticsearch_use_k8s }}"
+    elasticsearch_use_container: "{{ (not elasticsearch_use_k8s) and (not elasticsearch_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: teardown
@@ -120,8 +127,10 @@ Collects ElasticSearch logs from the selected deployment mode. Delegates to the 
   vars:
     # Runs ElasticSearch on Kubernetes when set to `true`.
     elasticsearch_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    elasticsearch_use_openshift: false
     # Runs ElasticSearch as a container when set to `true`.
-    elasticsearch_use_container: "{{ not elasticsearch_use_k8s }}"
+    elasticsearch_use_container: "{{ (not elasticsearch_use_k8s) and (not elasticsearch_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: fetch_logs
@@ -138,6 +147,8 @@ Probes the ElasticSearch HTTP and transport ports in container mode. Delegates t
   vars:
     # Runs ElasticSearch on Kubernetes when set to `true`.
     elasticsearch_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    elasticsearch_use_openshift: false
     # ElasticSearch HTTP port used by the container, Kubernetes Service, and readiness checks. Example: `9200`.
     elasticsearch_http_port: 9200
     # ElasticSearch transport port used by the container and Kubernetes Service. Example: `9300`.
@@ -270,8 +281,10 @@ Removes the ElasticSearch persistent data directory in container deployments. De
   vars:
     # Runs ElasticSearch on Kubernetes when set to `true`.
     elasticsearch_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    elasticsearch_use_openshift: false
     # Runs ElasticSearch as a container when set to `true`.
-    elasticsearch_use_container: "{{ not elasticsearch_use_k8s }}"
+    elasticsearch_use_container: "{{ (not elasticsearch_use_k8s) and (not elasticsearch_use_openshift) }}"
     # Remote directory used for ElasticSearch persistent data.
     elasticsearch_remote_data_dir: "{{ remote_data_dir }}"
     # Shared remote data directory consumed by `elasticsearch_remote_data_dir`. Example: `/opt/fabricx/elasticsearch/data`. Required when relying on the default of that option.
@@ -298,6 +311,8 @@ Generates TLS materials when TLS is enabled. Uploads the generated materials to 
     elasticsearch_use_tls: false
     # Runs ElasticSearch on Kubernetes when set to `true`.
     elasticsearch_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    elasticsearch_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: crypto/setup
@@ -342,6 +357,8 @@ Deletes local ElasticSearch TLS files from the remote host. Removes the Kubernet
     elasticsearch_tls_private_key_file: server.key
     # Runs ElasticSearch on Kubernetes when set to `true`.
     elasticsearch_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    elasticsearch_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: crypto/rm
@@ -560,4 +577,64 @@ Applies the Kubernetes Secret that stores ElasticSearch TLS materials. Ensures t
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: k8s/crypto/transfer
+```
+
+### openshift/start
+
+> Start the OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Start the OpenShift deployment
+  vars:
+    # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
+    elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
+    # Enables TLS material handling and HTTPS configuration for ElasticSearch.
+    elasticsearch_use_tls: false
+    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
+    k8s_namespace: "fabricx-elasticsearch"
+    # Specifies the OpenShift Route host. Example: `elasticsearch-http.apps.example.com`.
+    elasticsearch_openshift_http_route: "elasticsearch-http.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.elasticsearch
+    tasks_from: openshift/start
+```
+
+### openshift/ping
+
+> Check the OpenShift deployment
+
+Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+
+```yaml
+- name: Check the OpenShift deployment
+  vars:
+    # Enables TLS material handling and HTTPS configuration for ElasticSearch.
+    elasticsearch_use_tls: false
+    # Specifies the OpenShift Route host. Example: `elasticsearch-http.apps.example.com`.
+    elasticsearch_openshift_http_route: "elasticsearch-http.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.elasticsearch
+    tasks_from: openshift/ping
+```
+
+### openshift/rm
+
+> Remove the OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Remove the OpenShift deployment
+  vars:
+    # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
+    elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
+    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
+    k8s_namespace: "fabricx-elasticsearch"
+    # Specifies the OpenShift Route host. Example: `elasticsearch-http.apps.example.com`.
+    elasticsearch_openshift_http_route: "elasticsearch-http.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.elasticsearch
+    tasks_from: openshift/rm
 ```

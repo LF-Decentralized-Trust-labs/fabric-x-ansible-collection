@@ -14,7 +14,7 @@ fabric_ca_server_use_bin: false
 # Uses the Kubernetes server flow instead of the local runtimes.
 fabric_ca_server_use_k8s: false
 # Uses the container server flow.
-fabric_ca_server_use_container: '{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) }}'
+fabric_ca_server_use_container: '{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) and (not fabric_ca_server_use_openshift) }}'
 # Sets the registry endpoint used to resolve the Fabric CA image.
 fabric_ca_registry_endpoint: "{{ lookup('env', 'FABRIC_CA_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 # Sets the Fabric CA image name.
@@ -102,3 +102,5 @@ fabric_ca_cryptogenize_tls_ca_cert_file: ca.crt
 fabric_ca_cryptogenize_tls_cert_file: server.crt
 # Sets the normalized TLS private key filename.
 fabric_ca_cryptogenize_tls_key_file: server.key
+# Selects the OpenShift deployment branch.
+fabric_ca_server_use_openshift: false

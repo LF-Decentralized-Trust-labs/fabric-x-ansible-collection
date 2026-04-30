@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start Grafana workload using generic k8s flow
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.grafana
+    tasks_from: k8s/start
+
+- name: Apply Grafana web OpenShift Route
+  vars:
+    openshift_route_name: "{{ grafana_k8s_resource_name }}-web"
+    openshift_route_host: "{{ grafana_openshift_route }}"
+    openshift_route_service_name: "{{ grafana_k8s_resource_name }}"
+    openshift_route_service_port: web
+    openshift_route_use_tls: "{{ grafana_use_tls }}"
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ grafana_k8s_resource_name }}"
+      app.kubernetes.io/component: "grafana"
+      app.kubernetes.io/part-of: "monitoring"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: grafana_openshift_route is defined

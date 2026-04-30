@@ -34,9 +34,9 @@ committer_use_bin: false
 # Enable Kubernetes deployment mode.
 committer_use_k8s: false
 # Enable container deployment mode.
-committer_use_container: '{{ (not committer_use_bin) and (not committer_use_k8s) }}'
+committer_use_container: '{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}'
 # Deployment mode selected by the role.
-committer_deployment_mode: '{%- if committer_use_bin -%}bin{%- elif committer_use_k8s -%}k8s{%- else -%}container{%- endif -%}'
+committer_deployment_mode: '{%- if committer_use_bin -%}bin{%- elif committer_use_openshift -%}openshift{%- elif committer_use_k8s -%}k8s{%- else -%}container{%- endif -%}'
 # Base Kubernetes resource name for committer objects.
 # Used by the service, workload, secret, and optional NodePort resources.
 committer_k8s_resource_name: '{{ inventory_hostname }}'
@@ -80,3 +80,5 @@ committer_crypto_name: '{{ organization.peer.name | default(inventory_hostname) 
 committer_log_level: info
 # Log format emitted by the committer component.
 committer_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
+# Selects the OpenShift deployment branch.
+committer_use_openshift: false

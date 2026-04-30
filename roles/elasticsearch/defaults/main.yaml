@@ -34,7 +34,7 @@ elasticsearch_tls_cert_file: server.crt
 # Runs ElasticSearch on Kubernetes when set to C(true).
 elasticsearch_use_k8s: false
 # Runs ElasticSearch as a container when set to C(true).
-elasticsearch_use_container: '{{ not elasticsearch_use_k8s }}'
+elasticsearch_use_container: '{{ (not elasticsearch_use_k8s) and (not elasticsearch_use_openshift) }}'
 # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
 elasticsearch_k8s_resource_name: '{{ inventory_hostname }}'
 # Timeout in seconds while waiting for the ElasticSearch StatefulSet rollout to complete.
@@ -47,3 +47,5 @@ elasticsearch_k8s_loadbalancer_expose_http_port: false
 # Set to C(true) to create a LoadBalancer Service entry that exposes the transport port externally.
 # When undefined or C(false), the transport port is not included in the LoadBalancer Service.
 elasticsearch_k8s_loadbalancer_expose_transport_port: false
+# Selects the OpenShift deployment branch.
+elasticsearch_use_openshift: false

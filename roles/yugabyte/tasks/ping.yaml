@@ -16,7 +16,7 @@
     name: hyperledger.fabricx.utils
     tasks_from: ping
   when:
-    - not yugabyte_use_k8s
+    - not (yugabyte_use_k8s or yugabyte_use_openshift)
     - yugabyte_component_type == 'master'
 
 # =======================
@@ -35,7 +35,7 @@
     name: hyperledger.fabricx.utils
     tasks_from: ping
   when:
-    - not yugabyte_use_k8s
+    - not (yugabyte_use_k8s or yugabyte_use_openshift)
     - yugabyte_component_type == 'tablet'
 
 # =======================
@@ -46,3 +46,12 @@
     name: hyperledger.fabricx.yugabyte
     tasks_from: k8s/ping
   when: yugabyte_use_k8s
+
+# =======================
+# openshift
+# =======================
+- name: Check that the Yugabyte OpenShift routes and Kubernetes services are open
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: openshift/ping
+  when: yugabyte_use_openshift

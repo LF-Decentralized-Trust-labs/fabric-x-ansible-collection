@@ -34,7 +34,7 @@ postgres_exporter_tls_cert_file: server.crt
 # Enables the Kubernetes backend and Kubernetes cleanup path when set to C(true).
 postgres_exporter_use_k8s: false
 # Enables the container backend when set to C(true).
-postgres_exporter_use_container: '{{ not postgres_exporter_use_k8s }}'
+postgres_exporter_use_container: '{{ (not postgres_exporter_use_k8s) and (not postgres_exporter_use_openshift) }}'
 # Sets the Kubernetes resource base name used for ConfigMaps, Secrets, Services, and Deployments.
 postgres_exporter_k8s_resource_name: '{{ inventory_hostname }}'
 # Sets the Deployment wait timeout in seconds.
@@ -44,3 +44,5 @@ postgres_exporter_k8s_fs_group: 65534
 # Set to C(true) to create a LoadBalancer Service entry that exposes the metrics port externally.
 # When undefined or C(false), the metrics port is not included in the LoadBalancer Service.
 postgres_exporter_k8s_loadbalancer_expose_metrics_port: false
+# Selects the OpenShift deployment branch.
+postgres_exporter_use_openshift: false
