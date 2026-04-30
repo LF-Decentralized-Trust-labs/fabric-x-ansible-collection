@@ -216,30 +216,37 @@ argument_specs:
         default: 1000
         description:
           - Kubernetes pod C(fsGroup) applied so mounted TLS files are readable by the ElasticSearch process.
-      elasticsearch_k8s_use_node_port: &elasticsearch_k8s_use_node_port
-        type: bool
-        required: false
-        default: false
-        description:
-          - Enables the optional Kubernetes NodePort Service for ElasticSearch when set to C(true).
-          - When C(false), no NodePort Service is created and the C(k8s/ping) check is skipped.
       elasticsearch_k8s_http_node_port: &elasticsearch_k8s_http_node_port
         type: int
         required: false
         description:
-          - Optional NodePort value used by the external ElasticSearch HTTP Service.
-          - Only relevant when C(elasticsearch_k8s_use_node_port) is C(true).
-          - When undefined, Kubernetes allocates the NodePort automatically.
+          - Kubernetes NodePort value used by the external HTTP Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(30920)."
+      elasticsearch_k8s_loadbalancer_expose_http_port:
+        &elasticsearch_k8s_loadbalancer_expose_http_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the HTTP port externally.
+          - When undefined or C(false), the HTTP port is not included in the LoadBalancer Service.
       elasticsearch_k8s_transport_node_port:
         &elasticsearch_k8s_transport_node_port
         type: int
         required: false
         description:
-          - Optional NodePort value used by the external ElasticSearch transport Service.
-          - Only relevant when C(elasticsearch_k8s_use_node_port) is C(true).
-          - When undefined, Kubernetes allocates the NodePort automatically.
+          - Kubernetes NodePort value used by the external transport Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(30930)."
+      elasticsearch_k8s_loadbalancer_expose_transport_port:
+        &elasticsearch_k8s_loadbalancer_expose_transport_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the transport port externally.
+          - When undefined or C(false), the transport port is not included in the LoadBalancer Service.
       elasticsearch_http_port: &elasticsearch_http_port
         type: int
         required: true
@@ -422,7 +429,7 @@ argument_specs:
   k8s/start:
     short_description: Start ElasticSearch on Kubernetes
     description:
-      - Ensures the Kubernetes namespace exists and applies the ElasticSearch headless Service, optional NodePort Service, StatefulSet, and PVC.
+      - Ensures the Kubernetes namespace exists and applies the ElasticSearch headless Service, optional NodePort and LoadBalancer Services, StatefulSet, and PVC.
       - Uses the role templates to configure storage, TLS mounts, the configured image, and rollout waiting behavior.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
@@ -431,7 +438,6 @@ argument_specs:
         required: true
       elasticsearch_k8s_wait_timeout: *elasticsearch_k8s_wait_timeout
       elasticsearch_k8s_fs_group: *elasticsearch_k8s_fs_group
-      elasticsearch_k8s_use_node_port: *elasticsearch_k8s_use_node_port
       elasticsearch_k8s_http_node_port: *elasticsearch_k8s_http_node_port
       elasticsearch_k8s_transport_node_port: *elasticsearch_k8s_transport_node_port
       elasticsearch_http_port: *elasticsearch_http_port
@@ -456,16 +462,20 @@ argument_specs:
       k8s_liveness_probe_period_seconds: *k8s_liveness_probe_period_seconds
       k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
+      elasticsearch_k8s_loadbalancer_expose_http_port: *elasticsearch_k8s_loadbalancer_expose_http_port
+      elasticsearch_k8s_loadbalancer_expose_transport_port: *elasticsearch_k8s_loadbalancer_expose_transport_port
 
   k8s/ping:
-    short_description: Check ElasticSearch NodePort reachability on Kubernetes
+    short_description: Check ElasticSearch Kubernetes services is reachable
     description:
-      - Probes the ElasticSearch HTTP and transport NodePorts when C(elasticsearch_k8s_use_node_port) is C(true).
-      - Each port is only checked when its matching NodePort value is defined, which lets the role verify only the exported service ports.
+      - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
     options:
-      elasticsearch_k8s_use_node_port: *elasticsearch_k8s_use_node_port
       elasticsearch_k8s_http_node_port: *elasticsearch_k8s_http_node_port
       elasticsearch_k8s_transport_node_port: *elasticsearch_k8s_transport_node_port
+      elasticsearch_k8s_loadbalancer_expose_http_port: *elasticsearch_k8s_loadbalancer_expose_http_port
+      elasticsearch_k8s_loadbalancer_expose_transport_port: *elasticsearch_k8s_loadbalancer_expose_transport_port
+      elasticsearch_http_port: *elasticsearch_http_port
+      elasticsearch_transport_port: *elasticsearch_transport_port
 
   k8s/rm:
     short_description: Remove ElasticSearch Kubernetes resources
@@ -478,6 +488,10 @@ argument_specs:
         <<: *k8s_namespace
         required: true
 
+      elasticsearch_k8s_http_node_port: *elasticsearch_k8s_http_node_port
+      elasticsearch_k8s_loadbalancer_expose_http_port: *elasticsearch_k8s_loadbalancer_expose_http_port
+      elasticsearch_k8s_transport_node_port: *elasticsearch_k8s_transport_node_port
+      elasticsearch_k8s_loadbalancer_expose_transport_port: *elasticsearch_k8s_loadbalancer_expose_transport_port
   k8s/fetch_logs:
     short_description: Fetch ElasticSearch pod logs
     description:

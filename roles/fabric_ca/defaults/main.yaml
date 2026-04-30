@@ -57,8 +57,12 @@ fabric_ca_server_k8s_resource_name: '{{ inventory_hostname }}'
 fabric_ca_server_k8s_wait_timeout: 120
 # Sets the pod fsGroup for the Fabric CA deployment.
 fabric_ca_server_k8s_fs_group: 0
-# Enables the optional Kubernetes NodePort Service for the Fabric CA server; client address resolution uses the node-port mapping on the referenced server host.
-fabric_ca_server_k8s_use_node_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the API port externally.
+# When undefined or C(false), the API port is not included in the LoadBalancer Service.
+fabric_ca_server_k8s_loadbalancer_expose_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the operations port externally.
+# When undefined or C(false), the operations port is not included in the LoadBalancer Service.
+fabric_ca_server_k8s_loadbalancer_expose_operations_port: false
 # Sets the server log level.
 fabric_ca_log_level: INFO
 # Enables TLS for server and client connections.

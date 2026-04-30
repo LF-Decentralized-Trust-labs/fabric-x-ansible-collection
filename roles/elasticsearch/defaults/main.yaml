@@ -41,6 +41,9 @@ elasticsearch_k8s_resource_name: '{{ inventory_hostname }}'
 elasticsearch_k8s_wait_timeout: 120
 # Kubernetes pod C(fsGroup) applied so mounted TLS files are readable by the ElasticSearch process.
 elasticsearch_k8s_fs_group: 1000
-# Enables the optional Kubernetes NodePort Service for ElasticSearch when set to C(true).
-# When C(false), no NodePort Service is created and the C(k8s/ping) check is skipped.
-elasticsearch_k8s_use_node_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the HTTP port externally.
+# When undefined or C(false), the HTTP port is not included in the LoadBalancer Service.
+elasticsearch_k8s_loadbalancer_expose_http_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the transport port externally.
+# When undefined or C(false), the transport port is not included in the LoadBalancer Service.
+elasticsearch_k8s_loadbalancer_expose_transport_port: false

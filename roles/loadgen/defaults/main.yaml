@@ -19,9 +19,6 @@ loadgen_config_dir: '{{ loadgen_remote_config_dir if loadgen_use_bin else loadge
 loadgen_use_bin: false
 # Use Kubernetes resources.
 loadgen_use_k8s: false
-# Expose the Kubernetes Service via NodePort when C(loadgen_use_k8s) is enabled.
-# This drives the HTTP, metrics, and gRPC NodePort access paths.
-loadgen_k8s_use_node_port: false
 # Run the container runtime.
 loadgen_use_container: '{{ (not loadgen_use_bin) and (not loadgen_use_k8s) }}'
 # Image registry endpoint.
@@ -72,3 +69,12 @@ loadgen_k8s_resource_name: '{{ inventory_hostname }}'
 loadgen_k8s_wait_timeout: 120
 # Pod FSGroup used for mounted config and secrets.
 loadgen_k8s_fs_group: 10001
+# Set to C(true) to create a LoadBalancer Service entry that exposes the HTTP control port externally.
+# When undefined or C(false), the HTTP control port is not included in the LoadBalancer Service.
+loadgen_k8s_loadbalancer_expose_web_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the metrics port externally.
+# When undefined or C(false), the metrics port is not included in the LoadBalancer Service.
+loadgen_k8s_loadbalancer_expose_metrics_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the gRPC control port externally.
+# When undefined or C(false), the gRPC control port is not included in the LoadBalancer Service.
+loadgen_k8s_loadbalancer_expose_rpc_port: false

@@ -41,8 +41,9 @@ postgres_k8s_resource_name: '{{ inventory_hostname }}'
 postgres_k8s_wait_timeout: 120
 # Kubernetes pod C(fsGroup) applied so mounted files are readable by the postgres process.
 postgres_k8s_fs_group: 999
-# Enable the Kubernetes NodePort Service for PostgreSQL when set to C(true).
-postgres_k8s_use_node_port: false
+# Set to C(true) to create a LoadBalancer Service and expose C(postgres_port) externally.
+# When undefined or C(false), no LoadBalancer Service is created.
+postgres_k8s_loadbalancer_expose_port: false
 # Filename of the PostgreSQL TLS private key under the TLS config directory.
 postgres_tls_private_key_file: server.key
 # Filename of the PostgreSQL TLS certificate under the TLS config directory.

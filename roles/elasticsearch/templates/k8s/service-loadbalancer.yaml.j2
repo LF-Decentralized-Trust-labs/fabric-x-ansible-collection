@@ -1,0 +1,31 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # LoadBalancer Service -- exposes ElasticSearch outside the cluster for external clients.
+  name: {{ elasticsearch_k8s_resource_name }}-loadbalancer
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ elasticsearch_k8s_resource_name }}
+    app.kubernetes.io/part-of: elasticsearch
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: {{ elasticsearch_k8s_resource_name }}
+  ports:
+{% if elasticsearch_k8s_loadbalancer_expose_http_port %}
+    - name: http
+      port: {{ elasticsearch_http_port }}
+      targetPort: http
+{% endif %}
+{% if elasticsearch_k8s_loadbalancer_expose_transport_port %}
+    - name: transport
+      port: {{ elasticsearch_transport_port }}
+      targetPort: transport
+{% endif %}

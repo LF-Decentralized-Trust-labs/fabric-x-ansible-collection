@@ -399,7 +399,7 @@ Delegates self-signed certificate generation to the OpenSSL role using Postgres 
 
 > Start Postgres Exporter on Kubernetes
 
-Applies the Service, optional NodePort Service, and Deployment for Postgres Exporter. The Deployment connects to the monitored PostgreSQL host using the same datasource facts used by the container path. The NodePort Service is optional and only rendered when `postgres_exporter_k8s_use_node_port` is true.
+Applies the Service, optional NodePort and LoadBalancer Services, and Deployment for Postgres Exporter. The Deployment connects to the monitored PostgreSQL host using the same datasource facts used by the container path.
 
 ```yaml
 - name: Start Postgres Exporter on Kubernetes
@@ -440,10 +440,8 @@ Applies the Service, optional NodePort Service, and Deployment for Postgres Expo
     postgres_exporter_k8s_wait_timeout: 120
     # Sets the pod filesystem group used by the Postgres Exporter Deployment.
     postgres_exporter_k8s_fs_group: 65534
-    # Enables the optional NodePort Service used to expose Postgres Exporter externally from Kubernetes. When set to `true`, `postgres_exporter_k8s_port_node_port` is used to populate the Service's node port.
-    postgres_exporter_k8s_use_node_port: false
-    # Sets the NodePort value exposed by the optional Postgres Exporter Kubernetes Service. Example: `30987`.
-    postgres_exporter_k8s_port_node_port: 30987
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30987`.
+    postgres_exporter_k8s_node_port: 30987
     # Sets the Postgres Exporter metrics port. Example: `9187`.
     postgres_exporter_port: 9187
     # Sets the configuration directory mounted inside the container or pod.
@@ -458,6 +456,8 @@ Applies the Service, optional NodePort Service, and Deployment for Postgres Expo
     postgres_exporter_tls_private_key_file: server.key
     # Sets the TLS certificate file name used under `postgres_exporter_remote_config_dir`/tls.
     postgres_exporter_tls_cert_file: server.crt
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    postgres_exporter_k8s_loadbalancer_expose_metrics_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: k8s/start
@@ -465,19 +465,19 @@ Applies the Service, optional NodePort Service, and Deployment for Postgres Expo
 
 ### k8s/ping
 
-> Check Postgres Exporter node port reachability
+> Check that the Postgres Exporter Kubernetes service is reachable
 
-Checks whether the optional Postgres Exporter NodePort Service is reachable. This verifies the exposed service port rather than the pod-local metrics listener.
+Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
-- name: Check Postgres Exporter node port reachability
+- name: Check that the Postgres Exporter Kubernetes service is reachable
   vars:
     # Sets the Postgres Exporter metrics port. Example: `9187`.
     postgres_exporter_port: 9187
-    # Enables the optional NodePort Service used to expose Postgres Exporter externally from Kubernetes. When set to `true`, `postgres_exporter_k8s_port_node_port` is used to populate the Service's node port.
-    postgres_exporter_k8s_use_node_port: false
-    # Sets the NodePort value exposed by the optional Postgres Exporter Kubernetes Service. Example: `30987`.
-    postgres_exporter_k8s_port_node_port: 30987
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30987`.
+    postgres_exporter_k8s_node_port: 30987
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    postgres_exporter_k8s_loadbalancer_expose_metrics_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: k8s/ping
@@ -496,6 +496,10 @@ Removes the Postgres Exporter Deployment and Services from Kubernetes.
     k8s_namespace: "postgres-exporter"
     # Sets the Kubernetes resource base name used for ConfigMaps, Secrets, Services, and Deployments.
     postgres_exporter_k8s_resource_name: "{{ inventory_hostname }}"
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30987`.
+    postgres_exporter_k8s_node_port: 30987
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    postgres_exporter_k8s_loadbalancer_expose_metrics_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: k8s/rm

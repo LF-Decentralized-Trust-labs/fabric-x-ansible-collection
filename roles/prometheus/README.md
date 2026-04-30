@@ -70,7 +70,7 @@ Validates network reachability to the active Prometheus listener on the target h
 
 > Start Prometheus in the selected deployment mode
 
-Starts Prometheus as either a container or Kubernetes workload based on the deployment mode flags. Renders configuration, prepares storage, and applies Kubernetes resources needed for the selected mode. When Kubernetes mode is enabled, it can also expose Prometheus through the optional NodePort Service.
+Starts Prometheus as either a container or Kubernetes workload based on the deployment mode flags.
 
 ```yaml
 - name: Start Prometheus in the selected deployment mode
@@ -134,7 +134,7 @@ Renders the remote configuration, creates the data directory, and starts Prometh
 
 > Start Prometheus on Kubernetes
 
-Ensures the namespace exists, renders and transfers Prometheus configuration, and creates the headless Service, optional NodePort Service, and StatefulSet resources.
+Ensures the namespace exists, renders and transfers Prometheus configuration, and creates the headless Service, optional NodePort and LoadBalancer Services, and StatefulSet resources.
 
 ```yaml
 - name: Start Prometheus on Kubernetes
@@ -151,9 +151,7 @@ Ensures the namespace exists, renders and transfers Prometheus configuration, an
     prometheus_port: 9090
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
-    # Enables the optional Kubernetes NodePort Service when set to `true`.
-    prometheus_k8s_use_node_port: false
-    # NodePort value used to expose Prometheus outside the cluster when `prometheus_k8s_use_node_port` is enabled. Must be set to a valid Kubernetes NodePort value when `prometheus_k8s_use_node_port` is `true`. Example: `30990`.
+    # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30990`.
     prometheus_k8s_node_port: 30990
     # File system group assigned to the pod.
     prometheus_k8s_fs_group: 65534
@@ -193,6 +191,8 @@ Ensures the namespace exists, renders and transfers Prometheus configuration, an
     k8s_liveness_probe_timeout_seconds: 5
     # Number of failed liveness probes before Kubernetes restarts the pod. Example: `5`.
     k8s_liveness_probe_failure_threshold: 5
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP port externally. When undefined or `false`, the HTTP port is not included in the LoadBalancer Service.
+    prometheus_k8s_loadbalancer_expose_http_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/start
@@ -200,19 +200,19 @@ Ensures the namespace exists, renders and transfers Prometheus configuration, an
 
 ### k8s/ping
 
-> Check that the Prometheus NodePort is reachable
+> Check that the Prometheus Kubernetes service is reachable
 
-Validates network reachability to the Kubernetes NodePort when the optional NodePort Service is enabled.
+Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
-- name: Check that the Prometheus NodePort is reachable
+- name: Check that the Prometheus Kubernetes service is reachable
   vars:
     # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services.
     prometheus_port: 9090
-    # Enables the optional Kubernetes NodePort Service when set to `true`.
-    prometheus_k8s_use_node_port: false
-    # NodePort value used to expose Prometheus outside the cluster when `prometheus_k8s_use_node_port` is enabled. Must be set to a valid Kubernetes NodePort value when `prometheus_k8s_use_node_port` is `true`. Example: `30990`.
+    # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30990`.
     prometheus_k8s_node_port: 30990
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP port externally. When undefined or `false`, the HTTP port is not included in the LoadBalancer Service.
+    prometheus_k8s_loadbalancer_expose_http_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/ping
@@ -297,6 +297,10 @@ Deletes the Prometheus StatefulSet and both Services from Kubernetes.
     k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
+    # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30990`.
+    prometheus_k8s_node_port: 30990
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP port externally. When undefined or `false`, the HTTP port is not included in the LoadBalancer Service.
+    prometheus_k8s_loadbalancer_expose_http_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/rm

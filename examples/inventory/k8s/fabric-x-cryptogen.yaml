@@ -11,7 +11,7 @@
 # for production deployments.
 # Use this inventory for demo-purpose only and to quickly check whether a given deployment
 # is feasible or not. After such assessment, move to a Fabric-CA based deployment (e.g. fabric-x.yaml).
-# NodePort services are opt-in per component via <role>_k8s_use_node_port.
+# NodePort services are enabled automatically when a component defines at least one NodePort value.
 # Only externally-reachable components (orderer-routers, committer-sidecar,
 # committer-query-service, grafana) enable NodePort.
 # Internal components communicate via in-cluster ClusterIP services.
@@ -80,7 +80,6 @@ all:
                       orderer_component_type: router
                       orderer_rpc_port: 7050
                       orderer_metrics_port: 7060
-                      orderer_k8s_use_node_port: true
                       orderer_k8s_rpc_node_port: 30050
                     orderer-consenter-1:
                       orderer_component_type: consensus
@@ -108,7 +107,6 @@ all:
                       orderer_component_type: router
                       orderer_rpc_port: 7150
                       orderer_metrics_port: 7160
-                      orderer_k8s_use_node_port: true
                       orderer_k8s_rpc_node_port: 30150
                     orderer-consenter-2:
                       orderer_component_type: consensus
@@ -136,7 +134,6 @@ all:
                       orderer_component_type: router
                       orderer_rpc_port: 7250
                       orderer_metrics_port: 7260
-                      orderer_k8s_use_node_port: true
                       orderer_k8s_rpc_node_port: 30250
                     orderer-consenter-3:
                       orderer_component_type: consensus
@@ -164,7 +161,6 @@ all:
                       orderer_component_type: router
                       orderer_rpc_port: 7350
                       orderer_metrics_port: 7360
-                      orderer_k8s_use_node_port: true
                       orderer_k8s_rpc_node_port: 30350
                     orderer-consenter-4:
                       orderer_component_type: consensus
@@ -216,13 +212,11 @@ all:
                   committer_component_type: sidecar
                   committer_rpc_port: 5130
                   committer_metrics_port: 5230
-                  committer_k8s_use_node_port: true
                   committer_k8s_rpc_node_port: 30560
                 committer-query-service:
                   committer_component_type: query-service
                   committer_rpc_port: 5140
                   committer_metrics_port: 5240
-                  committer_k8s_use_node_port: true
                   committer_k8s_rpc_node_port: 30580
                   postgres_db_host: committer-db
 
@@ -245,7 +239,6 @@ all:
           loadgen_metrics_port: 12010
           loadgen_web_port: 12000
           loadgen_rpc_port: 12020
-          loadgen_k8s_use_node_port: true
           loadgen_k8s_web_node_port: 30610
           loadgen_k8s_metrics_node_port: 30600
 
@@ -274,5 +267,4 @@ all:
           prometheus_host: prometheus
           grafana_use_tls: true
           grafana_use_k8s: true
-          grafana_k8s_use_node_port: true
           grafana_k8s_web_node_port: 30300

@@ -4,13 +4,14 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Set effective loadgen metrics endpoint (NodePort)
+- name: Set effective loadgen metrics endpoint
   ansible.builtin.set_fact:
     loadgen_metrics_endpoint: "{{ loadgen_monitoring_http_protocol }}://{{ actual_host }}:{{ loadgen_k8s_metrics_node_port }}/metrics"
   when:
     - loadgen_use_k8s
-    - loadgen_k8s_use_node_port
     - loadgen_k8s_metrics_node_port is defined
+    - loadgen_k8s_loadbalancer_expose_metrics_port is not defined
+      or not loadgen_k8s_loadbalancer_expose_metrics_port
 
 - name: Get Fabric-X Loadgen metrics
   vars:

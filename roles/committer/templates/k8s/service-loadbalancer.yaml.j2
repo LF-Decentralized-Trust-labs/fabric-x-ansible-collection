@@ -1,0 +1,32 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # LoadBalancer Service -- exposes Fabric-X Committer outside the cluster for external clients.
+  name: {{ committer_k8s_resource_name }}-loadbalancer
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ committer_k8s_resource_name }}
+    app.kubernetes.io/component: {{ committer_component_type }}
+    app.kubernetes.io/part-of: fabric-x-committer
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: {{ committer_k8s_resource_name }}
+  ports:
+{% if committer_k8s_loadbalancer_expose_rpc_port %}
+    - name: rpc
+      port: {{ committer_rpc_port }}
+      targetPort: rpc
+{% endif %}
+{% if committer_k8s_loadbalancer_expose_metrics_port %}
+    - name: metrics
+      port: {{ committer_metrics_port }}
+      targetPort: metrics
+{% endif %}

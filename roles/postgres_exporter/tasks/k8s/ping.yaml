@@ -4,13 +4,22 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that the Postgres Exporter node port is open
+- name: Check that the Postgres Exporter metrics node port is open
   vars:
     utils_ports_to_ping:
-      - "{{ postgres_exporter_k8s_port_node_port }}"
+      - "{{ postgres_exporter_k8s_node_port }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: ping
   when:
-    - postgres_exporter_k8s_use_node_port
-    - postgres_exporter_k8s_port_node_port is defined
+    - postgres_exporter_k8s_node_port is defined
+
+- name: Check that the Postgres Exporter metrics load balancer port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ postgres_exporter_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - postgres_exporter_k8s_loadbalancer_expose_metrics_port

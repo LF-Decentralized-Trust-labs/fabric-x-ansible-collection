@@ -4,17 +4,14 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Set fabric_ca client effective connection address (NodePort)
+- name: Set fabric_ca client effective connection address as k8s NodePort
   ansible.builtin.set_fact:
-    fabric_ca_client_effective_address: "{{ hostvars[fabric_ca_host].actual_host }}:{{ hostvars[fabric_ca_host].fabric_ca_server_k8s_port_node_port }}"
+    fabric_ca_client_effective_address: "{{ hostvars[fabric_ca_host].actual_host }}:{{ hostvars[fabric_ca_host].fabric_ca_server_k8s_node_port }}"
   when:
-    - hostvars[fabric_ca_host].fabric_ca_server_k8s_use_node_port is defined
-    - hostvars[fabric_ca_host].fabric_ca_server_k8s_use_node_port
-    - hostvars[fabric_ca_host].fabric_ca_server_k8s_port_node_port is defined
+    - hostvars[fabric_ca_host].fabric_ca_server_k8s_node_port is defined
 
-- name: Set fabric_ca client effective connection address (default)
+- name: Set fabric_ca client effective connection address
   ansible.builtin.set_fact:
     fabric_ca_client_effective_address: "{{ hostvars[fabric_ca_host].actual_host }}:{{ hostvars[fabric_ca_host].fabric_ca_port }}"
   when:
-    - hostvars[fabric_ca_host].fabric_ca_server_k8s_use_node_port is not defined
-      or not hostvars[fabric_ca_host].fabric_ca_server_k8s_use_node_port
+    - hostvars[fabric_ca_host].fabric_ca_server_k8s_node_port is not defined

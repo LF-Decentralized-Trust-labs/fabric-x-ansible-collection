@@ -180,19 +180,21 @@ argument_specs:
         default: 65534
         description:
           - File system group assigned to the pod.
-      prometheus_k8s_use_node_port: &prometheus_k8s_use_node_port
-        type: bool
-        required: false
-        default: false
-        description:
-          - Enables the optional Kubernetes NodePort Service when set to C(true).
       prometheus_k8s_node_port: &prometheus_k8s_node_port
         type: int
         required: false
         description:
-          - NodePort value used to expose Prometheus outside the cluster when C(prometheus_k8s_use_node_port) is enabled.
-          - Must be set to a valid Kubernetes NodePort value when C(prometheus_k8s_use_node_port) is C(true).
+          - Kubernetes NodePort value used by the external HTTP Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(30990)."
+      prometheus_k8s_loadbalancer_expose_http_port:
+        &prometheus_k8s_loadbalancer_expose_http_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the HTTP port externally.
+          - When undefined or C(false), the HTTP port is not included in the LoadBalancer Service.
       k8s_storage_size: &k8s_storage_size
         type: str
         required: true
@@ -276,8 +278,6 @@ argument_specs:
     short_description: Start Prometheus in the selected deployment mode
     description:
       - Starts Prometheus as either a container or Kubernetes workload based on the deployment mode flags.
-      - Renders configuration, prepares storage, and applies Kubernetes resources needed for the selected mode.
-      - When Kubernetes mode is enabled, it can also expose Prometheus through the optional NodePort Service.
     options:
       prometheus_use_container: *prometheus_use_container
       prometheus_use_k8s: *prometheus_use_k8s
@@ -307,7 +307,7 @@ argument_specs:
   k8s/start:
     short_description: Start Prometheus on Kubernetes
     description:
-      - Ensures the namespace exists, renders and transfers Prometheus configuration, and creates the headless Service, optional NodePort Service, and StatefulSet resources.
+      - Ensures the namespace exists, renders and transfers Prometheus configuration, and creates the headless Service, optional NodePort and LoadBalancer Services, and StatefulSet resources.
     options:
       prometheus_registry_endpoint: *prometheus_registry_endpoint
       prometheus_image_name: *prometheus_image_name
@@ -315,7 +315,6 @@ argument_specs:
       prometheus_image: *prometheus_image
       prometheus_port: *prometheus_port
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
-      prometheus_k8s_use_node_port: *prometheus_k8s_use_node_port
       prometheus_k8s_node_port: *prometheus_k8s_node_port
       prometheus_k8s_fs_group: *prometheus_k8s_fs_group
       prometheus_container_config_dir: *prometheus_container_config_dir
@@ -336,15 +335,16 @@ argument_specs:
       k8s_liveness_probe_period_seconds: *k8s_liveness_probe_period_seconds
       k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
+      prometheus_k8s_loadbalancer_expose_http_port: *prometheus_k8s_loadbalancer_expose_http_port
 
   k8s/ping:
-    short_description: Check that the Prometheus NodePort is reachable
+    short_description: Check that the Prometheus Kubernetes service is reachable
     description:
-      - Validates network reachability to the Kubernetes NodePort when the optional NodePort Service is enabled.
+      - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
     options:
       prometheus_port: *prometheus_port
-      prometheus_k8s_use_node_port: *prometheus_k8s_use_node_port
       prometheus_k8s_node_port: *prometheus_k8s_node_port
+      prometheus_k8s_loadbalancer_expose_http_port: *prometheus_k8s_loadbalancer_expose_http_port
 
   stop:
     short_description: Stop the Prometheus container deployment
@@ -382,6 +382,8 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
+      prometheus_k8s_node_port: *prometheus_k8s_node_port
+      prometheus_k8s_loadbalancer_expose_http_port: *prometheus_k8s_loadbalancer_expose_http_port
 
   data/rm:
     short_description: Remove Prometheus data

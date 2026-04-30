@@ -228,66 +228,131 @@ argument_specs:
         default: 300
         description:
           - "Sets the Kubernetes readiness wait timeout in seconds."
-      yugabyte_k8s_use_node_port: &yugabyte_k8s_use_node_port
-        type: bool
-        required: false
-        default: false
-        description:
-          - "Enables creation of the master and tablet NodePort Services for YugabyteDB Kubernetes deployments."
-          - "The flag also enables the matching NodePort reachability checks in C(k8s/ping)."
       yugabyte_k8s_master_rpc_node_port: &yugabyte_k8s_master_rpc_node_port
         type: int
         required: false
         description:
-          - "Optionally sets the NodePort used to expose the master RPC service when C(yugabyte_k8s_use_node_port) is enabled."
+          - Kubernetes NodePort value used by the external master RPC Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(32100)."
+      yugabyte_k8s_loadbalancer_expose_master_rpc_port:
+        &yugabyte_k8s_loadbalancer_expose_master_rpc_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the master RPC port externally.
+          - When undefined or C(false), the master RPC port is not included in the LoadBalancer Service.
       yugabyte_k8s_master_webserver_node_port:
         &yugabyte_k8s_master_webserver_node_port
         type: int
         required: false
         description:
-          - "Optionally sets the NodePort used to expose the master webserver service when C(yugabyte_k8s_use_node_port) is enabled."
+          - Kubernetes NodePort value used by the external master webserver Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(32000)."
+      yugabyte_k8s_loadbalancer_expose_master_webserver_port:
+        &yugabyte_k8s_loadbalancer_expose_master_webserver_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the master webserver port externally.
+          - When undefined or C(false), the master webserver port is not included in the LoadBalancer Service.
       yugabyte_k8s_tablet_pgsql_node_port: &yugabyte_k8s_tablet_pgsql_node_port
         type: int
         required: false
         description:
-          - "Optionally sets the NodePort used to expose the tablet YSQL service when C(yugabyte_k8s_use_node_port) is enabled."
+          - Kubernetes NodePort value used by the external tablet YSQL Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(31433)."
+      yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port:
+        &yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the tablet YSQL port externally.
+          - When undefined or C(false), the tablet YSQL port is not included in the LoadBalancer Service.
       yugabyte_k8s_tablet_rpc_node_port: &yugabyte_k8s_tablet_rpc_node_port
         type: int
         required: false
         description:
-          - "Optionally sets the NodePort used to expose the tablet RPC service when C(yugabyte_k8s_use_node_port) is enabled."
+          - Kubernetes NodePort value used by the external tablet RPC Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(32101)."
+      yugabyte_k8s_loadbalancer_expose_tablet_rpc_port:
+        &yugabyte_k8s_loadbalancer_expose_tablet_rpc_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the tablet RPC port externally.
+          - When undefined or C(false), the tablet RPC port is not included in the LoadBalancer Service.
       yugabyte_k8s_tablet_webserver_node_port:
         &yugabyte_k8s_tablet_webserver_node_port
         type: int
         required: false
         description:
-          - "Optionally sets the NodePort used to expose the tablet webserver service when C(yugabyte_k8s_use_node_port) is enabled."
+          - Kubernetes NodePort value used by the external tablet webserver Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(32001)."
+      yugabyte_k8s_loadbalancer_expose_tablet_webserver_port:
+        &yugabyte_k8s_loadbalancer_expose_tablet_webserver_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the tablet webserver port externally.
+          - When undefined or C(false), the tablet webserver port is not included in the LoadBalancer Service.
       yugabyte_k8s_tablet_pgsql_web_node_port:
         &yugabyte_k8s_tablet_pgsql_web_node_port
         type: int
         required: false
         description:
-          - "Optionally sets the NodePort used to expose the tablet YSQL web UI service when C(yugabyte_k8s_use_node_port) is enabled."
+          - Kubernetes NodePort value used by the external tablet YSQL web UI Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(32300)."
+      yugabyte_k8s_loadbalancer_expose_tablet_pgsql_web_port:
+        &yugabyte_k8s_loadbalancer_expose_tablet_pgsql_web_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the tablet YSQL web UI port externally.
+          - When undefined or C(false), the tablet YSQL web UI port is not included in the LoadBalancer Service.
       yugabyte_k8s_tablet_cql_bind_node_port:
         &yugabyte_k8s_tablet_cql_bind_node_port
         type: int
         required: false
         description:
-          - "Optionally sets the NodePort used to expose the tablet YCQL bind service when C(yugabyte_k8s_use_node_port) is enabled."
+          - Kubernetes NodePort value used by the external tablet YCQL bind Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(32042)."
+      yugabyte_k8s_loadbalancer_expose_tablet_cql_bind_port:
+        &yugabyte_k8s_loadbalancer_expose_tablet_cql_bind_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the tablet YCQL bind port externally.
+          - When undefined or C(false), the tablet YCQL bind port is not included in the LoadBalancer Service.
       yugabyte_k8s_tablet_cql_web_node_port:
         &yugabyte_k8s_tablet_cql_web_node_port
         type: int
         required: false
         description:
-          - "Optionally sets the NodePort used to expose the tablet YCQL web UI service when C(yugabyte_k8s_use_node_port) is enabled."
+          - Kubernetes NodePort value used by the external tablet YCQL web UI Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(32200)."
+      yugabyte_k8s_loadbalancer_expose_tablet_cql_web_port:
+        &yugabyte_k8s_loadbalancer_expose_tablet_cql_web_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the tablet YCQL web UI port externally.
+          - When undefined or C(false), the tablet YCQL web UI port is not included in the LoadBalancer Service.
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         required: false
@@ -305,8 +370,8 @@ argument_specs:
         type: str
         required: true
         description:
-          - "Provides the externally reachable host name or address added to TLS SAN entries."
-          - "Example: C(yb-tserver-1.example.com)."
+          - Real machine host.
+          - "Example: C(myvpc.cloud.ibm.com)."
       organization: &organization
         type: dict
         required: false
@@ -479,13 +544,11 @@ argument_specs:
       yugabyte_tablet_cql_web_port: *yugabyte_tablet_cql_web_port
 
   k8s/ping:
-    short_description: Check YugabyteDB Kubernetes NodePorts
+    short_description: Check that the YugabyteDB Kubernetes service is reachable
     description:
-      - "Checks the configured YugabyteDB Kubernetes NodePort Services for the current master or tablet host when NodePort exposure is enabled."
-      - "The checked ports match the optional master and tablet NodePort values rendered into the Kubernetes Services."
+      - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
     options:
       yugabyte_component_type: *yugabyte_component_type
-      yugabyte_k8s_use_node_port: *yugabyte_k8s_use_node_port
       yugabyte_k8s_master_rpc_node_port: *yugabyte_k8s_master_rpc_node_port
       yugabyte_k8s_master_webserver_node_port: *yugabyte_k8s_master_webserver_node_port
       yugabyte_k8s_tablet_pgsql_node_port: *yugabyte_k8s_tablet_pgsql_node_port
@@ -494,6 +557,22 @@ argument_specs:
       yugabyte_k8s_tablet_pgsql_web_node_port: *yugabyte_k8s_tablet_pgsql_web_node_port
       yugabyte_k8s_tablet_cql_bind_node_port: *yugabyte_k8s_tablet_cql_bind_node_port
       yugabyte_k8s_tablet_cql_web_node_port: *yugabyte_k8s_tablet_cql_web_node_port
+      yugabyte_k8s_loadbalancer_expose_master_rpc_port: *yugabyte_k8s_loadbalancer_expose_master_rpc_port
+      yugabyte_k8s_loadbalancer_expose_master_webserver_port: *yugabyte_k8s_loadbalancer_expose_master_webserver_port
+      yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port: *yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port
+      yugabyte_k8s_loadbalancer_expose_tablet_rpc_port: *yugabyte_k8s_loadbalancer_expose_tablet_rpc_port
+      yugabyte_k8s_loadbalancer_expose_tablet_webserver_port: *yugabyte_k8s_loadbalancer_expose_tablet_webserver_port
+      yugabyte_k8s_loadbalancer_expose_tablet_pgsql_web_port: *yugabyte_k8s_loadbalancer_expose_tablet_pgsql_web_port
+      yugabyte_k8s_loadbalancer_expose_tablet_cql_bind_port: *yugabyte_k8s_loadbalancer_expose_tablet_cql_bind_port
+      yugabyte_k8s_loadbalancer_expose_tablet_cql_web_port: *yugabyte_k8s_loadbalancer_expose_tablet_cql_web_port
+      yugabyte_master_rpc_bind_port: *yugabyte_master_rpc_bind_port
+      yugabyte_master_webserver_port: *yugabyte_master_webserver_port
+      yugabyte_tablet_pgsql_bind_port: *yugabyte_tablet_pgsql_bind_port
+      yugabyte_tablet_rpc_bind_port: *yugabyte_tablet_rpc_bind_port
+      yugabyte_tablet_webserver_port: *yugabyte_tablet_webserver_port
+      yugabyte_tablet_pgsql_web_port: *yugabyte_tablet_pgsql_web_port
+      yugabyte_tablet_cql_bind_port: *yugabyte_tablet_cql_bind_port
+      yugabyte_tablet_cql_web_port: *yugabyte_tablet_cql_web_port
 
   crypto/setup:
     short_description: Prepare YugabyteDB TLS assets
@@ -752,11 +831,10 @@ argument_specs:
   k8s/master/start:
     short_description: Start a YugabyteDB master StatefulSet
     description:
-      - "Applies the master ClusterIP Service, optional NodePort Service, and StatefulSet for the current YugabyteDB master node."
+      - "Applies the master ClusterIP Service, optional NodePort and LoadBalancer Services, and StatefulSet for the current YugabyteDB master node."
       - "The StatefulSet runs C(yb-master), configures replication from the master host list, attaches persistent storage, mounts TLS Secrets when enabled, and waits for readiness when requested."
     options:
       k8s_namespace: *k8s_namespace
-      yugabyte_k8s_use_node_port: *yugabyte_k8s_use_node_port
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
       yugabyte_image: *yugabyte_image
       yugabyte_registry_endpoint: *yugabyte_registry_endpoint
@@ -787,6 +865,8 @@ argument_specs:
       k8s_liveness_probe_period_seconds: *k8s_liveness_probe_period_seconds
       k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
+      yugabyte_k8s_loadbalancer_expose_master_rpc_port: *yugabyte_k8s_loadbalancer_expose_master_rpc_port
+      yugabyte_k8s_loadbalancer_expose_master_webserver_port: *yugabyte_k8s_loadbalancer_expose_master_webserver_port
 
   k8s/master/rm:
     short_description: Remove a YugabyteDB master StatefulSet
@@ -796,15 +876,18 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
+      yugabyte_k8s_master_rpc_node_port: *yugabyte_k8s_master_rpc_node_port
+      yugabyte_k8s_loadbalancer_expose_master_rpc_port: *yugabyte_k8s_loadbalancer_expose_master_rpc_port
+      yugabyte_k8s_master_webserver_node_port: *yugabyte_k8s_master_webserver_node_port
+      yugabyte_k8s_loadbalancer_expose_master_webserver_port: *yugabyte_k8s_loadbalancer_expose_master_webserver_port
 
   k8s/tablet/start:
     short_description: Start a YugabyteDB tablet StatefulSet
     description:
-      - "Applies the tablet ClusterIP Service, optional NodePort Service, and StatefulSet for the current YugabyteDB tablet node, then initializes the database on the first tablet."
+      - "Applies the tablet ClusterIP Service, optional NodePort and LoadBalancer Services, and StatefulSet for the current YugabyteDB tablet node, then initializes the database on the first tablet."
       - "The StatefulSet runs C(yb-tserver), connects to the configured masters, attaches persistent storage, mounts the initialization ConfigMap and TLS Secret when enabled, and waits for readiness when requested."
     options:
       k8s_namespace: *k8s_namespace
-      yugabyte_k8s_use_node_port: *yugabyte_k8s_use_node_port
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
       yugabyte_image: *yugabyte_image
       yugabyte_registry_endpoint: *yugabyte_registry_endpoint
@@ -844,6 +927,12 @@ argument_specs:
       k8s_liveness_probe_period_seconds: *k8s_liveness_probe_period_seconds
       k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
+      yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port: *yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port
+      yugabyte_k8s_loadbalancer_expose_tablet_rpc_port: *yugabyte_k8s_loadbalancer_expose_tablet_rpc_port
+      yugabyte_k8s_loadbalancer_expose_tablet_webserver_port: *yugabyte_k8s_loadbalancer_expose_tablet_webserver_port
+      yugabyte_k8s_loadbalancer_expose_tablet_pgsql_web_port: *yugabyte_k8s_loadbalancer_expose_tablet_pgsql_web_port
+      yugabyte_k8s_loadbalancer_expose_tablet_cql_bind_port: *yugabyte_k8s_loadbalancer_expose_tablet_cql_bind_port
+      yugabyte_k8s_loadbalancer_expose_tablet_cql_web_port: *yugabyte_k8s_loadbalancer_expose_tablet_cql_web_port
 
   k8s/tablet/rm:
     short_description: Remove a YugabyteDB tablet StatefulSet
@@ -853,6 +942,18 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
+      yugabyte_k8s_tablet_pgsql_node_port: *yugabyte_k8s_tablet_pgsql_node_port
+      yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port: *yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port
+      yugabyte_k8s_tablet_rpc_node_port: *yugabyte_k8s_tablet_rpc_node_port
+      yugabyte_k8s_loadbalancer_expose_tablet_rpc_port: *yugabyte_k8s_loadbalancer_expose_tablet_rpc_port
+      yugabyte_k8s_tablet_webserver_node_port: *yugabyte_k8s_tablet_webserver_node_port
+      yugabyte_k8s_loadbalancer_expose_tablet_webserver_port: *yugabyte_k8s_loadbalancer_expose_tablet_webserver_port
+      yugabyte_k8s_tablet_pgsql_web_node_port: *yugabyte_k8s_tablet_pgsql_web_node_port
+      yugabyte_k8s_loadbalancer_expose_tablet_pgsql_web_port: *yugabyte_k8s_loadbalancer_expose_tablet_pgsql_web_port
+      yugabyte_k8s_tablet_cql_bind_node_port: *yugabyte_k8s_tablet_cql_bind_node_port
+      yugabyte_k8s_loadbalancer_expose_tablet_cql_bind_port: *yugabyte_k8s_loadbalancer_expose_tablet_cql_bind_port
+      yugabyte_k8s_tablet_cql_web_node_port: *yugabyte_k8s_tablet_cql_web_node_port
+      yugabyte_k8s_loadbalancer_expose_tablet_cql_web_port: *yugabyte_k8s_loadbalancer_expose_tablet_cql_web_port
 
   k8s/crypto/transfer:
     short_description: Create a YugabyteDB TLS Secret

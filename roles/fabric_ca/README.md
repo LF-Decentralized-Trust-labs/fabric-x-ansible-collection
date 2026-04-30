@@ -178,7 +178,7 @@ Dispatches certificate revocation list generation to the binary or transient-con
 
 > Resolve the Fabric CA connection address
 
-Resolves the effective Fabric CA host, port, and URL scheme used by client operations. The referenced host must define `actual_host` and the Fabric CA server port settings; when it enables NodePort, the client uses `fabric_ca_server_k8s_port_node_port` instead of `fabric_ca_port`.
+Resolves the effective Fabric CA host, port, and URL scheme used by client operations. The referenced host must define `actual_host` and the Fabric CA server port settings; when it enables NodePort, the client uses `fabric_ca_server_k8s_node_port` instead of `fabric_ca_port`.
 
 ```yaml
 - name: Resolve the Fabric CA connection address
@@ -249,6 +249,8 @@ Installs the Fabric CA client binary directly on the managed host with Go toolin
   vars:
     # Sets the client Go package path.
     fabric_ca_client_bin_package: "{{ fabric_ca_git_hub_url }}/{{ fabric_ca_git_repo }}/{{ fabric_ca_client_source_code_package }}"
+    # Sets the client binary name.
+    fabric_ca_client_bin_name: fabric-ca-client
     # Sets the Git host used for Fabric CA source lookups.
     fabric_ca_git_hub_url: github.com
     # Sets the Fabric CA source repository.
@@ -321,8 +323,8 @@ Enrolls an identity with the locally installed Fabric CA client binary. Writes X
     fabric_ca_idemix_enrollment_profile: idemix
     # Sets an optional enrollment profile such as `tls`. Example: `tls`.
     fabric_ca_enrollment_profile: "tls"
-    # Provides the resolved host address used in client effective-address resolution. Example: `ca-org1.example.com`.
-    actual_host: "ca-org1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Sets the CSR SAN host list.
     fabric_ca_csr_hosts:
       - "{{ ansible_host }}"
@@ -390,8 +392,8 @@ Reenrolls an existing identity with the locally installed Fabric CA client binar
     fabric_ca_name: "{{ inventory_hostname }}"
     # Sets an optional enrollment profile such as `tls`. Example: `tls`.
     fabric_ca_enrollment_profile: "tls"
-    # Provides the resolved host address used in client effective-address resolution. Example: `ca-org1.example.com`.
-    actual_host: "ca-org1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Sets the CSR SAN host list.
     fabric_ca_csr_hosts:
       - "{{ ansible_host }}"
@@ -529,8 +531,8 @@ Enrolls an identity with a transient Fabric CA client container. Mounts the loca
     fabric_ca_idemix_enrollment_profile: idemix
     # Sets an optional enrollment profile such as `tls`. Example: `tls`.
     fabric_ca_enrollment_profile: "tls"
-    # Provides the resolved host address used in client effective-address resolution. Example: `ca-org1.example.com`.
-    actual_host: "ca-org1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Sets the CSR SAN host list.
     fabric_ca_csr_hosts:
       - "{{ ansible_host }}"
@@ -618,8 +620,8 @@ Reenrolls an existing identity with a transient Fabric CA client container. Refr
     fabric_ca_name: "{{ inventory_hostname }}"
     # Sets an optional enrollment profile such as `tls`. Example: `tls`.
     fabric_ca_enrollment_profile: "tls"
-    # Provides the resolved host address used in client effective-address resolution. Example: `ca-org1.example.com`.
-    actual_host: "ca-org1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Sets the CSR SAN host list.
     fabric_ca_csr_hosts:
       - "{{ ansible_host }}"
@@ -895,6 +897,8 @@ Installs the Fabric CA server binary directly on the managed host with Go toolin
   vars:
     # Sets the server Go package path.
     fabric_ca_server_bin_package: "{{ fabric_ca_git_hub_url }}/{{ fabric_ca_git_repo }}/{{ fabric_ca_server_source_code_package }}"
+    # Sets the server binary name.
+    fabric_ca_server_bin_name: fabric-ca-server
     # Sets the Git host used for Fabric CA source lookups.
     fabric_ca_git_hub_url: github.com
     # Sets the Fabric CA source repository.
@@ -1081,8 +1085,6 @@ Creates Fabric CA Kubernetes runtime resources for the server. Uses the ConfigMa
     fabric_ca_server_k8s_wait_timeout: 120
     # Sets the Kubernetes resource name for the Fabric CA server and its Service resources.
     fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
-    # Enables the optional Kubernetes NodePort Service for the Fabric CA server; client address resolution uses the node-port mapping on the referenced server host.
-    fabric_ca_server_k8s_use_node_port: false
     # Sets the Fabric CA image.
     fabric_ca_image: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
     # Sets the registry endpoint used to resolve the Fabric CA image.
@@ -1115,10 +1117,14 @@ Creates Fabric CA Kubernetes runtime resources for the server. Uses the ConfigMa
     k8s_namespace: "fabricx"
     # Provides an optional Kubernetes image pull secret from shared inventory. Example: `registry-pull-secret`.
     k8s_image_pull_secret: "registry-pull-secret"
-    # Sets the Kubernetes NodePort for the API port and is used when NodePort exposure is enabled. Example: `30054`.
-    fabric_ca_server_k8s_port_node_port: 30054
-    # Sets the Kubernetes NodePort for the operations port and is used when NodePort exposure is enabled. Example: `30943`.
+    # Kubernetes NodePort value used by the external API Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30054`.
+    fabric_ca_server_k8s_node_port: 30054
+    # Kubernetes NodePort value used by the external operations Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30943`.
     fabric_ca_server_k8s_operations_node_port: 30943
+    # Set to `true` to create a LoadBalancer Service entry that exposes the API port externally. When undefined or `false`, the API port is not included in the LoadBalancer Service.
+    fabric_ca_server_k8s_loadbalancer_expose_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the operations port externally. When undefined or `false`, the operations port is not included in the LoadBalancer Service.
+    fabric_ca_server_k8s_loadbalancer_expose_operations_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/k8s/start
@@ -1126,19 +1132,25 @@ Creates Fabric CA Kubernetes runtime resources for the server. Uses the ConfigMa
 
 ### server/k8s/ping
 
-> Check Fabric CA node ports
+> Check that the Fabric CA Kubernetes service is reachable
 
-Checks that the Fabric CA API and operations NodePorts are reachable when Kubernetes NodePort exposure is enabled. Validates external access to the Kubernetes Service without changing deployment, ConfigMap, or Secret resources.
+Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
-- name: Check Fabric CA node ports
+- name: Check that the Fabric CA Kubernetes service is reachable
   vars:
-    # Enables the optional Kubernetes NodePort Service for the Fabric CA server; client address resolution uses the node-port mapping on the referenced server host.
-    fabric_ca_server_k8s_use_node_port: false
-    # Sets the Kubernetes NodePort for the API port and is used when NodePort exposure is enabled. Example: `30054`.
-    fabric_ca_server_k8s_port_node_port: 30054
-    # Sets the Kubernetes NodePort for the operations port and is used when NodePort exposure is enabled. Example: `30943`.
+    # Kubernetes NodePort value used by the external API Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30054`.
+    fabric_ca_server_k8s_node_port: 30054
+    # Kubernetes NodePort value used by the external operations Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30943`.
     fabric_ca_server_k8s_operations_node_port: 30943
+    # Set to `true` to create a LoadBalancer Service entry that exposes the API port externally. When undefined or `false`, the API port is not included in the LoadBalancer Service.
+    fabric_ca_server_k8s_loadbalancer_expose_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the operations port externally. When undefined or `false`, the operations port is not included in the LoadBalancer Service.
+    fabric_ca_server_k8s_loadbalancer_expose_operations_port: false
+    # Sets the Fabric CA API port. Example: `7054`.
+    fabric_ca_port: 7054
+    # Sets the Fabric CA operations port. Example: `9443`.
+    fabric_ca_operations_port: 9443
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/k8s/ping
@@ -1173,6 +1185,14 @@ Deletes the Fabric CA Kubernetes runtime resources. Removes Deployment and Servi
     fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
     # Provides the Kubernetes namespace from the shared inventory. Example: `fabricx`.
     k8s_namespace: "fabricx"
+    # Kubernetes NodePort value used by the external API Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30054`.
+    fabric_ca_server_k8s_node_port: 30054
+    # Set to `true` to create a LoadBalancer Service entry that exposes the API port externally. When undefined or `false`, the API port is not included in the LoadBalancer Service.
+    fabric_ca_server_k8s_loadbalancer_expose_port: false
+    # Kubernetes NodePort value used by the external operations Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30943`.
+    fabric_ca_server_k8s_operations_node_port: 30943
+    # Set to `true` to create a LoadBalancer Service entry that exposes the operations port externally. When undefined or `false`, the operations port is not included in the LoadBalancer Service.
+    fabric_ca_server_k8s_loadbalancer_expose_operations_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/k8s/rm
@@ -1299,8 +1319,8 @@ Generates the Fabric CA root CA and TLS keypairs. Writes private keys and certif
     fabric_ca_server_remote_config_dir: "{{ remote_config_dir }}"
     # Provides the shared remote configuration root used by this role. Example: `/var/hyperledger/fabricx/fabric-ca/ca-org1/config`.
     remote_config_dir: "/var/hyperledger/fabricx/fabric-ca/ca-org1/config"
-    # Provides the resolved host address used in client effective-address resolution. Example: `ca-org1.example.com`.
-    actual_host: "ca-org1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Sets the server CA private key filename.
     fabric_ca_server_ca_private_key_file: ca-key.pem
     # Sets the server CA certificate filename.
@@ -1318,6 +1338,8 @@ Generates the Fabric CA root CA and TLS keypairs. Writes private keys and certif
       - "{{ ansible_host }}"
       - "{{ actual_host }}"
       - "{{ inventory_hostname }}"
+    # Matches IPv4 SAN entries while splitting Fabric CA CSR hosts into IP and DNS names. Example: `^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$`
+    openssl_san_ipv4_regex: "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"
     # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `org1.example.com`.
     organization:org1.example.com
   ansible.builtin.include_role:
@@ -1429,8 +1451,8 @@ Renders and transfers the Fabric CA server configuration. Includes bootstrap adm
       - "{{ ansible_host }}"
       - "{{ actual_host }}"
       - "{{ inventory_hostname }}"
-    # Provides the resolved host address used in client effective-address resolution. Example: `ca-org1.example.com`.
-    actual_host: "ca-org1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Sets the CSR expiry.
     fabric_ca_csr_expiry: 131400h
     # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `org1.example.com`.

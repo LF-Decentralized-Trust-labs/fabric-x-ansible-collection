@@ -106,6 +106,8 @@ Installs the fxconfig Go package from the configured Fabric-X source package by 
 ```yaml
 - name: Install the fxconfig binary
   vars:
+    # Defines the fxconfig binary name.
+    fxconfig_bin_name: fxconfig
     # Defines the Go package path used to install fxconfig.
     fxconfig_bin_package: "{{ fxconfig_git_hub_url }}/{{ fxconfig_git_repo }}/{{ fxconfig_source_code_package }}"
     # Selects the Git ref used by build and install workflows.

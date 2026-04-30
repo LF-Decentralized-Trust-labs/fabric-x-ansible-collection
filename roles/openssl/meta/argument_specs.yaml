@@ -19,8 +19,8 @@ argument_specs:
         type: str
         required: false
         description:
-          - Inventory host address used in SAN defaults.
-          - "Example: C(peer0.org1.example.com)."
+          - Real machine host.
+          - "Example: C(myvpc.cloud.ibm.com)."
       ansible_host: &ansible_host
         type: str
         required: false
@@ -70,7 +70,6 @@ argument_specs:
         default: "{{ remote_node_dir }}/openssl"
         description:
           - Directory for the temporary OpenSSL config file.
-          - For example, C(/tmp/fabricx/openssl).
       openssl_ext_file_path: &openssl_ext_file_path
         type: path
         required: false
@@ -79,21 +78,25 @@ argument_specs:
           - "Example: C(/var/hyperledger/fabricx/openssl/server.ext)."
       openssl_clean_after_gen: &openssl_clean_after_gen
         type: bool
+        required: false
         default: false
         description:
           - Remove the rendered OpenSSL config directory after generation.
       openssl_ca_cert_file: &openssl_ca_cert_file
         type: str
+        required: false
         default: ca.crt
         description:
           - Filename used when copying the self-signed certificate as the CA certificate.
       openssl_key_alg: &openssl_key_alg
         type: str
+        required: false
         default: RSA
         description:
           - OpenSSL algorithm passed to C(openssl genpkey).
       openssl_key_type: &openssl_key_type
         type: str
+        required: false
         default: rsa:4096
         description:
           - Key type passed to C(openssl req -newkey).
@@ -105,21 +108,25 @@ argument_specs:
           - "Example: C(rsa_keygen_bits:4096)."
       openssl_cert_duration: &openssl_cert_duration
         type: int
+        required: false
         default: 365
         description:
           - Number of days the generated certificate remains valid.
       openssl_default_md: &openssl_default_md
         type: str
+        required: false
         default: sha256
         description:
           - Message digest written into the generated OpenSSL request config.
       openssl_country: &openssl_country
         type: str
+        required: false
         default: US
         description:
           - Country code written into the certificate subject.
       openssl_state: &openssl_state
         type: str
+        required: false
         default: California
         description:
           - State or province written into the certificate subject.
@@ -131,6 +138,7 @@ argument_specs:
           - "Example: C(Zurich)."
       openssl_organization: &openssl_organization
         type: str
+        required: false
         default: MyOrg Inc.
         description:
           - Organization name written into the certificate subject.
@@ -142,32 +150,38 @@ argument_specs:
           - "Example: C(Platform Engineering)."
       openssl_common_name: &openssl_common_name
         type: str
+        required: false
         default: example.com
         description:
           - Common Name written into the certificate subject.
       openssl_basic_constraints: &openssl_basic_constraints
         type: str
+        required: false
         default: CA:false
         description:
           - Basic constraints value written into the X.509 v3 extensions.
       openssl_key_usage: &openssl_key_usage
         type: str
+        required: false
         default: keyEncipherment, digitalSignature
         description:
           - Key usage written into the X.509 v3 extensions.
       openssl_extended_key_usage: &openssl_extended_key_usage
         type: str
+        required: false
         default: serverAuth, clientAuth
         description:
           - Extended key usage written into the X.509 v3 extensions.
       openssl_san_ipv4_regex: &openssl_san_ipv4_regex
         type: str
+        required: false
         default: '^[0-9]{1,3}(\.[0-9]{1,3}){3}$'
         description:
           - Regex used to split SAN hosts into DNS and IP entries.
       openssl_san_hosts: &openssl_san_hosts
         type: list
         elements: str
+        required: false
         default: >-
           {{
             [ansible_host, actual_host]
@@ -179,6 +193,7 @@ argument_specs:
       openssl_san_dns_entries: &openssl_san_dns_entries
         type: list
         elements: str
+        required: false
         default: >-
           {{
             openssl_san_hosts
@@ -191,6 +206,7 @@ argument_specs:
       openssl_san_ip_entries: &openssl_san_ip_entries
         type: list
         elements: str
+        required: false
         default: >-
           {{
             (
@@ -206,6 +222,7 @@ argument_specs:
       openssl_san_entries: &openssl_san_entries
         type: list
         elements: str
+        required: false
         default: "{{ openssl_san_dns_entries + openssl_san_ip_entries }}"
         description:
           - Final SAN list assembled from DNS and IP SAN entries.

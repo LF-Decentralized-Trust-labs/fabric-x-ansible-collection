@@ -17,7 +17,7 @@
   when:
     - fabric_ca_enrollment_type == 'bccsp'
 
-- name: Check if already enrolled (Idemix only)
+- name: Check if already enrolled
   ansible.builtin.stat:
     path: "{{ fabric_ca_msp_dir }}/msp/user/SignerConfig"
   register: fabric_ca_idemix_signer

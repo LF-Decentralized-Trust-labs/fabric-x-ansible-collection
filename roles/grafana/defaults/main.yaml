@@ -45,5 +45,6 @@ grafana_k8s_resource_name: '{{ inventory_hostname }}'
 grafana_k8s_wait_timeout: 120
 # Sets the Grafana pod filesystem group.
 grafana_k8s_fs_group: 472
-# Enables the optional Grafana NodePort Service.
-grafana_k8s_use_node_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the web port externally.
+# When undefined or C(false), the web port is not included in the LoadBalancer Service.
+grafana_k8s_loadbalancer_expose_web_port: false

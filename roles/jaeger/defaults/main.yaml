@@ -43,6 +43,21 @@ jaeger_k8s_resource_name: '{{ inventory_hostname }}'
 jaeger_k8s_wait_timeout: 120
 # Sets the pod filesystem group for the Jaeger Kubernetes workload.
 jaeger_k8s_fs_group: 0
-# Exposes the Jaeger Kubernetes service through a NodePort service when set to C(true).
-# The NodePort service uses the per-port node port values below.
-jaeger_k8s_use_node_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the UI port externally.
+# When undefined or C(false), the UI port is not included in the LoadBalancer Service.
+jaeger_k8s_loadbalancer_expose_ui_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the admin port externally.
+# When undefined or C(false), the admin port is not included in the LoadBalancer Service.
+jaeger_k8s_loadbalancer_expose_admin_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the HTTP server port externally.
+# When undefined or C(false), the HTTP server port is not included in the LoadBalancer Service.
+jaeger_k8s_loadbalancer_expose_http_server_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the HTTP collector port externally.
+# When undefined or C(false), the HTTP collector port is not included in the LoadBalancer Service.
+jaeger_k8s_loadbalancer_expose_http_collector_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the gRPC server port externally.
+# When undefined or C(false), the gRPC server port is not included in the LoadBalancer Service.
+jaeger_k8s_loadbalancer_expose_grpc_server_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the collector port externally.
+# When undefined or C(false), the collector port is not included in the LoadBalancer Service.
+jaeger_k8s_loadbalancer_expose_collector_port: false

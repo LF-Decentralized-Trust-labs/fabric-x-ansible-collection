@@ -1,0 +1,27 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # LoadBalancer Service -- exposes Node Exporter outside the cluster for external clients.
+  name: {{ node_exporter_k8s_resource_name }}-loadbalancer
+  namespace: {{ k8s_namespace }}
+  labels:
+    app.kubernetes.io/name: {{ node_exporter_k8s_resource_name }}
+    app.kubernetes.io/component: node-exporter
+    app.kubernetes.io/part-of: monitoring
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: {{ node_exporter_k8s_resource_name }}
+  ports:
+{% if node_exporter_k8s_loadbalancer_expose_metrics_port %}
+    - name: metrics
+      port: {{ node_exporter_port }}
+      targetPort: metrics
+{% endif %}

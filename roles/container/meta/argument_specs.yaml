@@ -16,8 +16,8 @@ argument_specs:
         type: str
         required: false
         description:
-          - "Provides the host used by readiness checks when C(container_wait_until_running) is true."
-          - "Example: C(orderer-assembler-1.example.com)."
+          - Real machine host.
+          - "Example: C(myvpc.cloud.ibm.com)."
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         required: false

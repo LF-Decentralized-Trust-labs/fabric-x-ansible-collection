@@ -13,17 +13,20 @@ argument_specs:
         type: str
         required: true
         description:
-          - "Sets the detached tmux session name used to look up, create, or stop the session. Example: C(fx-orderer-1)."
+          - Sets the detached tmux session name used to look up, create, or stop the session.
+          - "Example: C(fx-orderer-1)."
       tmux_cmd_to_run: &tmux_cmd_to_run
         type: str
         required: true
         description:
-          - "Sets the shell command started inside the detached tmux session. Example: C(./bin/orderer --label orderer-1 >> /var/log/fabricx/orderer-1.log 2>&1)."
+          - Sets the shell command started inside the detached tmux session.
+          - "Example: C(./bin/orderer --label orderer-1 >> /var/log/fabricx/orderer-1.log 2>&1)."
       tmux_chdir: &tmux_chdir
         type: path
         required: true
         description:
-          - "Sets the working directory used before running C(tmux_cmd_to_run) in the detached session. Example: C(/opt/fabricx/orderer)."
+          - Sets the working directory used before running C(tmux_cmd_to_run) in the detached session.
+          - "Example: C(/opt/fabricx/orderer)."
 
   install:
     short_description: Install tmux on the target host

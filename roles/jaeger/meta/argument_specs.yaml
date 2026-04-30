@@ -135,49 +135,96 @@ argument_specs:
         default: 0
         description:
           - "Sets the pod filesystem group for the Jaeger Kubernetes workload."
-      jaeger_k8s_use_node_port: &jaeger_k8s_use_node_port
-        type: bool
-        required: false
-        default: false
-        description:
-          - "Exposes the Jaeger Kubernetes service through a NodePort service when set to C(true)."
-          - "The NodePort service uses the per-port node port values below."
       jaeger_k8s_ui_node_port: &jaeger_k8s_ui_node_port
         type: int
         required: false
         description:
-          - "Sets the Kubernetes NodePort for the Jaeger UI service."
+          - Kubernetes NodePort value used by the external UI Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(30686)."
+      jaeger_k8s_loadbalancer_expose_ui_port:
+        &jaeger_k8s_loadbalancer_expose_ui_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the UI port externally.
+          - When undefined or C(false), the UI port is not included in the LoadBalancer Service.
       jaeger_k8s_admin_node_port: &jaeger_k8s_admin_node_port
         type: int
         required: false
         description:
-          - "Sets the Kubernetes NodePort for the Jaeger admin service."
+          - Kubernetes NodePort value used by the external admin Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(30669)."
+      jaeger_k8s_loadbalancer_expose_admin_port:
+        &jaeger_k8s_loadbalancer_expose_admin_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the admin port externally.
+          - When undefined or C(false), the admin port is not included in the LoadBalancer Service.
       jaeger_k8s_http_server_node_port: &jaeger_k8s_http_server_node_port
         type: int
         required: false
         description:
-          - "Sets the Kubernetes NodePort for the Jaeger collector HTTP server."
+          - Kubernetes NodePort value used by the external HTTP server Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(30668)."
+      jaeger_k8s_loadbalancer_expose_http_server_port:
+        &jaeger_k8s_loadbalancer_expose_http_server_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the HTTP server port externally.
+          - When undefined or C(false), the HTTP server port is not included in the LoadBalancer Service.
       jaeger_k8s_http_collector_node_port: &jaeger_k8s_http_collector_node_port
         type: int
         required: false
         description:
-          - "Sets the Kubernetes NodePort for the Jaeger OTLP HTTP collector."
+          - Kubernetes NodePort value used by the external HTTP collector Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(30418)."
+      jaeger_k8s_loadbalancer_expose_http_collector_port:
+        &jaeger_k8s_loadbalancer_expose_http_collector_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the HTTP collector port externally.
+          - When undefined or C(false), the HTTP collector port is not included in the LoadBalancer Service.
       jaeger_k8s_grpc_server_node_port: &jaeger_k8s_grpc_server_node_port
         type: int
         required: false
         description:
-          - "Sets the Kubernetes NodePort for the Jaeger gRPC server."
+          - Kubernetes NodePort value used by the external gRPC server Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(31450)."
+      jaeger_k8s_loadbalancer_expose_grpc_server_port:
+        &jaeger_k8s_loadbalancer_expose_grpc_server_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the gRPC server port externally.
+          - When undefined or C(false), the gRPC server port is not included in the LoadBalancer Service.
       jaeger_k8s_collector_node_port: &jaeger_k8s_collector_node_port
         type: int
         required: false
         description:
-          - "Sets the Kubernetes NodePort for the Jaeger OTLP gRPC collector."
+          - Kubernetes NodePort value used by the external collector Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(30417)."
+      jaeger_k8s_loadbalancer_expose_collector_port:
+        &jaeger_k8s_loadbalancer_expose_collector_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the collector port externally.
+          - When undefined or C(false), the collector port is not included in the LoadBalancer Service.
       k8s_namespace: &k8s_namespace
         type: str
         required: true
@@ -352,16 +399,14 @@ argument_specs:
   k8s/start:
     short_description: Start Jaeger on Kubernetes
     description:
-      - "Applies the Jaeger Service, optional NodePort Service, and Deployment resources to Kubernetes."
+      - "Applies the Jaeger Service, optional NodePort and LoadBalancer Services, and Deployment resources to Kubernetes."
       - "The deployment template mounts the configuration path, wires the ElasticSearch CA certificate, and uses the provided probe and port settings."
-      - "The NodePort service is created only when C(jaeger_k8s_use_node_port) is set to C(true)."
       - "This entry point requires the ElasticSearch host inventory to be available."
     options:
       elasticsearch_host: *elasticsearch_host
       jaeger_k8s_resource_name: *jaeger_k8s_resource_name
       jaeger_k8s_wait_timeout: *jaeger_k8s_wait_timeout
       jaeger_k8s_fs_group: *jaeger_k8s_fs_group
-      jaeger_k8s_use_node_port: *jaeger_k8s_use_node_port
       jaeger_registry_endpoint: *jaeger_registry_endpoint
       jaeger_image_name: *jaeger_image_name
       jaeger_image_tag: *jaeger_image_tag
@@ -389,6 +434,12 @@ argument_specs:
       k8s_liveness_probe_period_seconds: *k8s_liveness_probe_period_seconds
       k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
+      jaeger_k8s_loadbalancer_expose_ui_port: *jaeger_k8s_loadbalancer_expose_ui_port
+      jaeger_k8s_loadbalancer_expose_admin_port: *jaeger_k8s_loadbalancer_expose_admin_port
+      jaeger_k8s_loadbalancer_expose_http_server_port: *jaeger_k8s_loadbalancer_expose_http_server_port
+      jaeger_k8s_loadbalancer_expose_http_collector_port: *jaeger_k8s_loadbalancer_expose_http_collector_port
+      jaeger_k8s_loadbalancer_expose_grpc_server_port: *jaeger_k8s_loadbalancer_expose_grpc_server_port
+      jaeger_k8s_loadbalancer_expose_collector_port: *jaeger_k8s_loadbalancer_expose_collector_port
 
   k8s/rm:
     short_description: Remove Jaeger Kubernetes resources
@@ -397,6 +448,18 @@ argument_specs:
     options:
       jaeger_k8s_resource_name: *jaeger_k8s_resource_name
       k8s_namespace: *k8s_namespace
+      jaeger_k8s_ui_node_port: *jaeger_k8s_ui_node_port
+      jaeger_k8s_loadbalancer_expose_ui_port: *jaeger_k8s_loadbalancer_expose_ui_port
+      jaeger_k8s_admin_node_port: *jaeger_k8s_admin_node_port
+      jaeger_k8s_loadbalancer_expose_admin_port: *jaeger_k8s_loadbalancer_expose_admin_port
+      jaeger_k8s_http_server_node_port: *jaeger_k8s_http_server_node_port
+      jaeger_k8s_loadbalancer_expose_http_server_port: *jaeger_k8s_loadbalancer_expose_http_server_port
+      jaeger_k8s_http_collector_node_port: *jaeger_k8s_http_collector_node_port
+      jaeger_k8s_loadbalancer_expose_http_collector_port: *jaeger_k8s_loadbalancer_expose_http_collector_port
+      jaeger_k8s_grpc_server_node_port: *jaeger_k8s_grpc_server_node_port
+      jaeger_k8s_loadbalancer_expose_grpc_server_port: *jaeger_k8s_loadbalancer_expose_grpc_server_port
+      jaeger_k8s_collector_node_port: *jaeger_k8s_collector_node_port
+      jaeger_k8s_loadbalancer_expose_collector_port: *jaeger_k8s_loadbalancer_expose_collector_port
 
   k8s/fetch_logs:
     short_description: Fetch logs from Jaeger pods
@@ -406,11 +469,10 @@ argument_specs:
       jaeger_k8s_resource_name: *jaeger_k8s_resource_name
 
   k8s/ping:
-    short_description: Check that Jaeger Kubernetes node ports are reachable
+    short_description: Check that Jaeger Kubernetes service is reachable
     description:
-      - "Checks the Jaeger Kubernetes service ports and, when enabled, the NodePort values for the query, admin, and collector endpoints."
+      - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
     options:
-      jaeger_k8s_use_node_port: *jaeger_k8s_use_node_port
       jaeger_ui_port: *jaeger_ui_port
       jaeger_admin_port: *jaeger_admin_port
       jaeger_http_server_port: *jaeger_http_server_port
@@ -423,6 +485,12 @@ argument_specs:
       jaeger_k8s_http_collector_node_port: *jaeger_k8s_http_collector_node_port
       jaeger_k8s_grpc_server_node_port: *jaeger_k8s_grpc_server_node_port
       jaeger_k8s_collector_node_port: *jaeger_k8s_collector_node_port
+      jaeger_k8s_loadbalancer_expose_ui_port: *jaeger_k8s_loadbalancer_expose_ui_port
+      jaeger_k8s_loadbalancer_expose_admin_port: *jaeger_k8s_loadbalancer_expose_admin_port
+      jaeger_k8s_loadbalancer_expose_http_server_port: *jaeger_k8s_loadbalancer_expose_http_server_port
+      jaeger_k8s_loadbalancer_expose_http_collector_port: *jaeger_k8s_loadbalancer_expose_http_collector_port
+      jaeger_k8s_loadbalancer_expose_grpc_server_port: *jaeger_k8s_loadbalancer_expose_grpc_server_port
+      jaeger_k8s_loadbalancer_expose_collector_port: *jaeger_k8s_loadbalancer_expose_collector_port
 
   config/transfer:
     short_description: Transfer Jaeger configuration assets

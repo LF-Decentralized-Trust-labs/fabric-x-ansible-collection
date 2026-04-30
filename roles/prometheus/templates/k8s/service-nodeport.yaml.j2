@@ -20,6 +20,6 @@ spec:
 {% if prometheus_k8s_node_port is defined %}
     - name: http
       port: {{ prometheus_port }}
-      targetPort: {{ prometheus_port }}
+      targetPort: http
       nodePort: {{ prometheus_k8s_node_port }}
 {% endif %}

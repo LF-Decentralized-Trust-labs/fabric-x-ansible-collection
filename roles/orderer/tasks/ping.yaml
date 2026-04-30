@@ -19,7 +19,7 @@
 # =======================
 # k8s
 # =======================
-- name: Check that the node ports are open (k8s)
+- name: Check that the node ports are open
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: k8s/ping

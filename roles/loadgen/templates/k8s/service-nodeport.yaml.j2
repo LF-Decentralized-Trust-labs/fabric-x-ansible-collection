@@ -22,20 +22,20 @@ spec:
     # HTTP API port exposed externally via NodePort.
     - name: web
       port: {{ loadgen_web_port }}
-      targetPort: {{ loadgen_web_port }}
+      targetPort: web
       nodePort: {{ loadgen_k8s_web_node_port }}
 {% endif %}
 {% if loadgen_k8s_metrics_node_port is defined %}
     # Prometheus metrics port exposed externally via NodePort.
     - name: metrics
       port: {{ loadgen_metrics_port }}
-      targetPort: {{ loadgen_metrics_port }}
+      targetPort: metrics
       nodePort: {{ loadgen_k8s_metrics_node_port }}
 {% endif %}
 {% if loadgen_k8s_rpc_node_port is defined %}
     # gRPC API port exposed externally via NodePort.
     - name: rpc
       port: {{ loadgen_rpc_port }}
-      targetPort: {{ loadgen_rpc_port }}
+      targetPort: rpc
       nodePort: {{ loadgen_k8s_rpc_node_port }}
 {% endif %}

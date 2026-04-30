@@ -61,6 +61,27 @@ yugabyte_k8s_resource_name: '{{ inventory_hostname }}'
 yugabyte_k8s_wait: true
 # Sets the Kubernetes readiness wait timeout in seconds.
 yugabyte_k8s_wait_timeout: 300
-# Enables creation of the master and tablet NodePort Services for YugabyteDB Kubernetes deployments.
-# The flag also enables the matching NodePort reachability checks in C(k8s/ping).
-yugabyte_k8s_use_node_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the master RPC port externally.
+# When undefined or C(false), the master RPC port is not included in the LoadBalancer Service.
+yugabyte_k8s_loadbalancer_expose_master_rpc_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the master webserver port externally.
+# When undefined or C(false), the master webserver port is not included in the LoadBalancer Service.
+yugabyte_k8s_loadbalancer_expose_master_webserver_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the tablet YSQL port externally.
+# When undefined or C(false), the tablet YSQL port is not included in the LoadBalancer Service.
+yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the tablet RPC port externally.
+# When undefined or C(false), the tablet RPC port is not included in the LoadBalancer Service.
+yugabyte_k8s_loadbalancer_expose_tablet_rpc_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the tablet webserver port externally.
+# When undefined or C(false), the tablet webserver port is not included in the LoadBalancer Service.
+yugabyte_k8s_loadbalancer_expose_tablet_webserver_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the tablet YSQL web UI port externally.
+# When undefined or C(false), the tablet YSQL web UI port is not included in the LoadBalancer Service.
+yugabyte_k8s_loadbalancer_expose_tablet_pgsql_web_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the tablet YCQL bind port externally.
+# When undefined or C(false), the tablet YCQL bind port is not included in the LoadBalancer Service.
+yugabyte_k8s_loadbalancer_expose_tablet_cql_bind_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the tablet YCQL web UI port externally.
+# When undefined or C(false), the tablet YCQL web UI port is not included in the LoadBalancer Service.
+yugabyte_k8s_loadbalancer_expose_tablet_cql_web_port: false

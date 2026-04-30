@@ -120,26 +120,36 @@ argument_specs:
         default: 10001
         description:
           - Filesystem group assigned to committer pods.
-      committer_k8s_use_node_port: &committer_k8s_use_node_port
-        type: bool
-        required: false
-        default: false
-        description:
-          - Enable the optional Kubernetes NodePort Service for committer RPC and metrics access.
       committer_k8s_rpc_node_port: &committer_k8s_rpc_node_port
         type: int
         required: false
         description:
-          - NodePort used for the RPC service when C(committer_k8s_use_node_port) is enabled.
-          - Must be explicitly set to a valid Kubernetes NodePort value when needed.
+          - Kubernetes NodePort value used by the external RPC Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(31051)."
+      committer_k8s_loadbalancer_expose_rpc_port:
+        &committer_k8s_loadbalancer_expose_rpc_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the RPC port externally.
+          - When undefined or C(false), the RPC port is not included in the LoadBalancer Service.
       committer_k8s_metrics_node_port: &committer_k8s_metrics_node_port
         type: int
         required: false
         description:
-          - NodePort used for the metrics service when C(committer_k8s_use_node_port) is enabled.
-          - Must be explicitly set to a valid Kubernetes NodePort value when needed.
+          - Kubernetes NodePort value used by the external metrics Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(31052)."
+      committer_k8s_loadbalancer_expose_metrics_port:
+        &committer_k8s_loadbalancer_expose_metrics_port
+        type: bool
+        required: false
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the metrics port externally.
+          - When undefined or C(false), the metrics port is not included in the LoadBalancer Service.
       committer_remote_config_dir: &committer_remote_config_dir
         type: path
         required: false
@@ -275,8 +285,8 @@ argument_specs:
       actual_host: &actual_host
         type: str
         description:
-          - Reachable host or IP address used by the metrics client and Fabric-CA CSR generation.
-          - "Example: C(committer-validator-1.example.com)."
+          - Real machine host.
+          - "Example: C(myvpc.cloud.ibm.com)."
       organization: &organization
         type: dict
         required: true
@@ -715,14 +725,16 @@ argument_specs:
       committer_use_k8s: *committer_use_k8s
 
   k8s/ping:
-    short_description: Check the committer Kubernetes NodePorts
+    short_description: Check the committer Kubernetes services are reachable
     description:
-      - Validate that the optional Kubernetes NodePort Service exposes the RPC and metrics ports.
-      - Requires explicit RPC and metrics NodePort values when external Kubernetes access is enabled.
+      - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
     options:
-      committer_k8s_use_node_port: *committer_k8s_use_node_port
       committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
       committer_k8s_metrics_node_port: *committer_k8s_metrics_node_port
+      committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
+      committer_k8s_loadbalancer_expose_metrics_port: *committer_k8s_loadbalancer_expose_metrics_port
+      committer_rpc_port: *committer_rpc_port
+      committer_metrics_port: *committer_metrics_port
 
   validator/start:
     short_description: Start a validator component
@@ -1512,59 +1524,64 @@ argument_specs:
   validator/k8s/start:
     short_description: Start the validator on Kubernetes
     description:
-      - Ensure the namespace exists and apply the validator Service, NodePort Service, and Deployment.
+      - Ensure the namespace exists and apply the validator Service, NodePort and LoadBalancer Services, and Deployment.
       - Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
     options:
-      committer_k8s_use_node_port: *committer_k8s_use_node_port
       committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
       committer_k8s_metrics_node_port: *committer_k8s_metrics_node_port
       committer_k8s_wait_timeout: *committer_k8s_wait_timeout
+      committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
+      committer_k8s_loadbalancer_expose_metrics_port: *committer_k8s_loadbalancer_expose_metrics_port
 
   verifier/k8s/start:
     short_description: Start the verifier on Kubernetes
     description:
-      - Ensure the namespace exists and apply the verifier Service, NodePort Service, and Deployment.
+      - Ensure the namespace exists and apply the verifier Service, NodePort and LoadBalancer Services, and Deployment.
       - Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
     options:
-      committer_k8s_use_node_port: *committer_k8s_use_node_port
       committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
       committer_k8s_metrics_node_port: *committer_k8s_metrics_node_port
       committer_k8s_wait_timeout: *committer_k8s_wait_timeout
+      committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
+      committer_k8s_loadbalancer_expose_metrics_port: *committer_k8s_loadbalancer_expose_metrics_port
 
   coordinator/k8s/start:
     short_description: Start the coordinator on Kubernetes
     description:
-      - Ensure the namespace exists and apply the coordinator Service, NodePort Service, and Deployment.
+      - Ensure the namespace exists and apply the coordinator Service, NodePort and LoadBalancer Services, and Deployment.
       - Uses validator and verifier host lists to prepare TLS mounts and startup dependencies.
     options:
-      committer_k8s_use_node_port: *committer_k8s_use_node_port
       committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
       committer_k8s_metrics_node_port: *committer_k8s_metrics_node_port
       committer_k8s_wait_timeout: *committer_k8s_wait_timeout
       committer_validators: *committer_validators
       committer_verifiers: *committer_verifiers
+      committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
+      committer_k8s_loadbalancer_expose_metrics_port: *committer_k8s_loadbalancer_expose_metrics_port
 
   sidecar/k8s/start:
     short_description: Start the sidecar on Kubernetes
     description:
-      - Ensure the namespace exists and apply the sidecar Service, NodePort Service, and StatefulSet.
+      - Ensure the namespace exists and apply the sidecar Service, NodePort and LoadBalancer Services, and StatefulSet.
       - Creates the persistent sidecar ledger volume from the configured storage settings.
     options:
-      committer_k8s_use_node_port: *committer_k8s_use_node_port
       committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
       committer_k8s_metrics_node_port: *committer_k8s_metrics_node_port
       committer_k8s_wait_timeout: *committer_k8s_wait_timeout
+      committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
+      committer_k8s_loadbalancer_expose_metrics_port: *committer_k8s_loadbalancer_expose_metrics_port
 
   query_service/k8s/start:
     short_description: Start the query-service on Kubernetes
     description:
-      - Ensure the namespace exists and apply the query-service Service, NodePort Service, and Deployment.
+      - Ensure the namespace exists and apply the query-service Service, NodePort and LoadBalancer Services, and Deployment.
       - Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
     options:
-      committer_k8s_use_node_port: *committer_k8s_use_node_port
       committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
       committer_k8s_metrics_node_port: *committer_k8s_metrics_node_port
       committer_k8s_wait_timeout: *committer_k8s_wait_timeout
+      committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
+      committer_k8s_loadbalancer_expose_metrics_port: *committer_k8s_loadbalancer_expose_metrics_port
 
   validator/k8s/rm:
     short_description: Remove validator Kubernetes resources
@@ -1577,6 +1594,10 @@ argument_specs:
         <<: *k8s_namespace
         required: true
 
+      committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
+      committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
+      committer_k8s_metrics_node_port: *committer_k8s_metrics_node_port
+      committer_k8s_loadbalancer_expose_metrics_port: *committer_k8s_loadbalancer_expose_metrics_port
   verifier/k8s/rm:
     short_description: Remove verifier Kubernetes resources
     description:
@@ -1588,6 +1609,10 @@ argument_specs:
         <<: *k8s_namespace
         required: true
 
+      committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
+      committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
+      committer_k8s_metrics_node_port: *committer_k8s_metrics_node_port
+      committer_k8s_loadbalancer_expose_metrics_port: *committer_k8s_loadbalancer_expose_metrics_port
   coordinator/k8s/rm:
     short_description: Remove coordinator Kubernetes resources
     description:
@@ -1599,6 +1624,10 @@ argument_specs:
         <<: *k8s_namespace
         required: true
 
+      committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
+      committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
+      committer_k8s_metrics_node_port: *committer_k8s_metrics_node_port
+      committer_k8s_loadbalancer_expose_metrics_port: *committer_k8s_loadbalancer_expose_metrics_port
   sidecar/k8s/rm:
     short_description: Remove sidecar Kubernetes resources
     description:
@@ -1610,6 +1639,10 @@ argument_specs:
         <<: *k8s_namespace
         required: true
 
+      committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
+      committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
+      committer_k8s_metrics_node_port: *committer_k8s_metrics_node_port
+      committer_k8s_loadbalancer_expose_metrics_port: *committer_k8s_loadbalancer_expose_metrics_port
   query_service/k8s/rm:
     short_description: Remove query-service Kubernetes resources
     description:
@@ -1621,6 +1654,10 @@ argument_specs:
         <<: *k8s_namespace
         required: true
 
+      committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
+      committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
+      committer_k8s_metrics_node_port: *committer_k8s_metrics_node_port
+      committer_k8s_loadbalancer_expose_metrics_port: *committer_k8s_loadbalancer_expose_metrics_port
   validator/k8s/config/transfer:
     short_description: Create the validator ConfigMap
     description:

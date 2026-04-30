@@ -17,15 +17,15 @@ spec:
   selector:
     app.kubernetes.io/name: {{ fabric_ca_server_k8s_resource_name }}
   ports:
-{% if fabric_ca_server_k8s_port_node_port is defined %}
+{% if fabric_ca_server_k8s_node_port is defined %}
     - name: api
       port: {{ fabric_ca_port }}
-      targetPort: {{ fabric_ca_port }}
-      nodePort: {{ fabric_ca_server_k8s_port_node_port }}
+      targetPort: api
+      nodePort: {{ fabric_ca_server_k8s_node_port }}
 {% endif %}
 {% if fabric_ca_server_k8s_operations_node_port is defined %}
     - name: operations
       port: {{ fabric_ca_operations_port }}
-      targetPort: {{ fabric_ca_operations_port }}
+      targetPort: operations
       nodePort: {{ fabric_ca_server_k8s_operations_node_port }}
 {% endif %}

@@ -14,16 +14,17 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: ping
-  when: not postgres_use_k8s
+  when: postgres_use_container
 
 # =======================
-# k8s
+# k8s / openshift
 # =======================
-- name: Check that the node ports are open (k8s)
+- name: Check that the node ports are open
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: k8s/ping
-  when: postgres_use_k8s
+  when:
+    - postgres_use_k8s or postgres_use_openshift
 
 # =======================
 # Postgres Exporter

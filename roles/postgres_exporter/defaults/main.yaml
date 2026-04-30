@@ -41,6 +41,6 @@ postgres_exporter_k8s_resource_name: '{{ inventory_hostname }}'
 postgres_exporter_k8s_wait_timeout: 120
 # Sets the pod filesystem group used by the Postgres Exporter Deployment.
 postgres_exporter_k8s_fs_group: 65534
-# Enables the optional NodePort Service used to expose Postgres Exporter externally from Kubernetes.
-# When set to C(true), C(postgres_exporter_k8s_port_node_port) is used to populate the Service's node port.
-postgres_exporter_k8s_use_node_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the metrics port externally.
+# When undefined or C(false), the metrics port is not included in the LoadBalancer Service.
+postgres_exporter_k8s_loadbalancer_expose_metrics_port: false

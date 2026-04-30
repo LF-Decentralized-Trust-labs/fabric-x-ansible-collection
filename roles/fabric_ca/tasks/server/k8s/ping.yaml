@@ -4,23 +4,42 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that the Fabric CA server node ports are open
-  when: fabric_ca_server_k8s_use_node_port
-  block:
-    - name: Check that the Fabric CA web node port is open
-      vars:
-        utils_ports_to_ping:
-          - "{{ fabric_ca_server_k8s_port_node_port }}"
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.utils
-        tasks_from: ping
-      when: fabric_ca_server_k8s_port_node_port is defined
+- name: Check that the Fabric CA API node port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ fabric_ca_server_k8s_node_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - fabric_ca_server_k8s_node_port is defined
 
-    - name: Check that the Fabric CA operations node port is open
-      vars:
-        utils_ports_to_ping:
-          - "{{ fabric_ca_server_k8s_operations_node_port }}"
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.utils
-        tasks_from: ping
-      when: fabric_ca_server_k8s_operations_node_port is defined
+- name: Check that the Fabric CA API load balancer port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ fabric_ca_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - fabric_ca_server_k8s_loadbalancer_expose_port
+
+- name: Check that the Fabric CA operations node port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ fabric_ca_server_k8s_operations_node_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - fabric_ca_server_k8s_operations_node_port is defined
+
+- name: Check that the Fabric CA operations load balancer port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ fabric_ca_operations_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - fabric_ca_server_k8s_loadbalancer_expose_operations_port
