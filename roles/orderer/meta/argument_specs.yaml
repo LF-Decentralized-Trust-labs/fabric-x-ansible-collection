@@ -326,6 +326,7 @@ argument_specs:
           - bin
           - container
           - k8s
+          - openshift
         description:
           - "Deployment backend selected by the top-level dispatcher."
       orderer_use_tls: &orderer_use_tls

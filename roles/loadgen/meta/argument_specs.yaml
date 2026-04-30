@@ -664,6 +664,7 @@ argument_specs:
       loadgen_k8s_metrics_node_port: *loadgen_k8s_metrics_node_port
       loadgen_monitoring_http_protocol: *loadgen_monitoring_http_protocol
       loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
+      loadgen_openshift_metrics_route: *loadgen_openshift_metrics_route
       loadgen_use_tls: *loadgen_use_tls
       loadgen_assert_metrics: *loadgen_assert_metrics
       loadgen_use_k8s: *loadgen_use_k8s

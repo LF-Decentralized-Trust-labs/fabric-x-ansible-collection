@@ -1,0 +1,275 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# This inventory runs a full Hyperledger Fabric-X network (orderers + committer + postgres DB)
+# entirely on OpenShift by generating the crypto material on the control node using "cryptogen".
+# It later distributes the crypto material to all the nodes.
+# Since "cryptogen" is not a production tool, this inventory should not be used as baseline
+# for production deployments.
+# Use this inventory for demo-purpose only and to quickly check whether a given deployment
+# is feasible or not. After such assessment, move to a Fabric-CA based deployment (e.g. fabric-x.yaml).
+# OpenShift Routes are enabled when a component defines an openshift route host.
+# This sample does not define Kubernetes NodePort or LoadBalancer services.
+# Internal components communicate via in-cluster ClusterIP services.
+#
+# Prerequisites:
+#   - A running OpenShift cluster reachable from the control node
+#   - oc or kubectl configured and pointing at the target cluster
+#
+# Set OPENSHIFT_APPS_DOMAIN to the route wildcard domain for your cluster:
+#   export OPENSHIFT_APPS_DOMAIN=apps.example.com
+
+all:
+  vars:
+    # =========================
+    # OpenShift
+    # =========================
+    fxconfig_use_bin: true
+    openshift_apps_domain: "{{ lookup('env', 'OPENSHIFT_APPS_DOMAIN') or 'apps-crc.testing' }}"
+
+    # =========================
+    # Organizations
+    # =========================
+    organizations:
+      orderer_org_1: &OrdererOrg1
+        name: OrdererOrg1
+        domain: ordererorg1.example.com
+      orderer_org_2: &OrdererOrg2
+        name: OrdererOrg2
+        domain: ordererorg2.example.com
+      orderer_org_3: &OrdererOrg3
+        name: OrdererOrg3
+        domain: ordererorg3.example.com
+      orderer_org_4: &OrdererOrg4
+        name: OrdererOrg4
+        domain: ordererorg4.example.com
+      org1: &Org1
+        name: Org1
+        domain: org1.example.com
+  children:
+    # =========================
+    # Network (HLFX)
+    # =========================
+    network:
+      children:
+        # =========================
+        # Hyperledger Fabric-X
+        # =========================
+        fabric_x:
+          children:
+            # =========================
+            # HLFX Orderers (OpenShift)
+            # =========================
+            fabric_x_orderers:
+              vars:
+                # -------------------------------------------------------
+                # Orderer deployment mode
+                # -------------------------------------------------------
+                orderer_use_tls: true
+                orderer_use_mtls: true
+                orderer_use_openshift: true
+              children:
+                fabric_x_orderer_1:
+                  vars:
+                    organization:
+                      <<: *OrdererOrg1
+                      role: orderer
+                      orderer:
+                        name: "{{ inventory_hostname }}"
+                    orderer_group: 1
+                  hosts:
+                    orderer-router-1:
+                      orderer_component_type: router
+                      orderer_rpc_port: 7050
+                      orderer_metrics_port: 7060
+                      orderer_openshift_route: "orderer-router-1.{{ openshift_apps_domain }}"
+                    orderer-consenter-1:
+                      orderer_component_type: consensus
+                      orderer_rpc_port: 7051
+                      orderer_metrics_port: 7061
+                    orderer-assembler-1:
+                      orderer_component_type: assembler
+                      orderer_rpc_port: 7052
+                      orderer_metrics_port: 7062
+                    orderer-batcher-1:
+                      orderer_component_type: batcher
+                      orderer_shard_id: 1
+                      orderer_rpc_port: 7053
+                      orderer_metrics_port: 7063
+                fabric_x_orderer_2:
+                  vars:
+                    organization:
+                      <<: *OrdererOrg2
+                      role: orderer
+                      orderer:
+                        name: "{{ inventory_hostname }}"
+                    orderer_group: 2
+                  hosts:
+                    orderer-router-2:
+                      orderer_component_type: router
+                      orderer_rpc_port: 7150
+                      orderer_metrics_port: 7160
+                      orderer_openshift_route: "orderer-router-2.{{ openshift_apps_domain }}"
+                    orderer-consenter-2:
+                      orderer_component_type: consensus
+                      orderer_rpc_port: 7151
+                      orderer_metrics_port: 7161
+                    orderer-assembler-2:
+                      orderer_component_type: assembler
+                      orderer_rpc_port: 7152
+                      orderer_metrics_port: 7162
+                    orderer-batcher-2:
+                      orderer_component_type: batcher
+                      orderer_shard_id: 1
+                      orderer_rpc_port: 7153
+                      orderer_metrics_port: 7163
+                fabric_x_orderer_3:
+                  vars:
+                    organization:
+                      <<: *OrdererOrg3
+                      role: orderer
+                      orderer:
+                        name: "{{ inventory_hostname }}"
+                    orderer_group: 3
+                  hosts:
+                    orderer-router-3:
+                      orderer_component_type: router
+                      orderer_rpc_port: 7250
+                      orderer_metrics_port: 7260
+                      orderer_openshift_route: "orderer-router-3.{{ openshift_apps_domain }}"
+                    orderer-consenter-3:
+                      orderer_component_type: consensus
+                      orderer_rpc_port: 7251
+                      orderer_metrics_port: 7261
+                    orderer-assembler-3:
+                      orderer_component_type: assembler
+                      orderer_rpc_port: 7252
+                      orderer_metrics_port: 7262
+                    orderer-batcher-3:
+                      orderer_component_type: batcher
+                      orderer_shard_id: 1
+                      orderer_rpc_port: 7253
+                      orderer_metrics_port: 7263
+                fabric_x_orderer_4:
+                  vars:
+                    organization:
+                      <<: *OrdererOrg4
+                      role: orderer
+                      orderer:
+                        name: "{{ inventory_hostname }}"
+                    orderer_group: 4
+                  hosts:
+                    orderer-router-4:
+                      orderer_component_type: router
+                      orderer_rpc_port: 7350
+                      orderer_metrics_port: 7360
+                      orderer_openshift_route: "orderer-router-4.{{ openshift_apps_domain }}"
+                    orderer-consenter-4:
+                      orderer_component_type: consensus
+                      orderer_rpc_port: 7351
+                      orderer_metrics_port: 7361
+                    orderer-assembler-4:
+                      orderer_component_type: assembler
+                      orderer_rpc_port: 7352
+                      orderer_metrics_port: 7362
+                    orderer-batcher-4:
+                      orderer_component_type: batcher
+                      orderer_shard_id: 1
+                      orderer_rpc_port: 7353
+                      orderer_metrics_port: 7363
+
+            # =========================
+            # HLFX Committer (OpenShift)
+            # =========================
+            fabric_x_committer:
+              vars:
+                committer_use_openshift: true
+                committer_use_tls: true
+                committer_use_mtls: true
+                organization:
+                  <<: *Org1
+                  role: peer
+              hosts:
+                committer-db:
+                  postgres_user: sc_user
+                  postgres_password: sc_secret_pwd
+                  postgres_db: sc_db
+                  postgres_port: 5150
+                  postgres_use_openshift: true
+                  postgres_use_tls: true
+                committer-validator:
+                  committer_component_type: validator
+                  committer_rpc_port: 5100
+                  committer_metrics_port: 5200
+                  postgres_db_host: committer-db
+                committer-verifier:
+                  committer_component_type: verifier
+                  committer_rpc_port: 5110
+                  committer_metrics_port: 5210
+                committer-coordinator:
+                  committer_component_type: coordinator
+                  committer_rpc_port: 5120
+                  committer_metrics_port: 5220
+                committer-sidecar:
+                  committer_component_type: sidecar
+                  committer_rpc_port: 5130
+                  committer_metrics_port: 5230
+                  committer_openshift_route: "committer-sidecar.{{ openshift_apps_domain }}"
+                committer-query-service:
+                  committer_component_type: query-service
+                  committer_rpc_port: 5140
+                  committer_metrics_port: 5240
+                  committer_openshift_route: "committer-query-service.{{ openshift_apps_domain }}"
+                  postgres_db_host: committer-db
+
+    # =========================
+    # HLFX LoadGens
+    # =========================
+    load_generators:
+      hosts:
+        orderer-loadgen:
+          loadgen_use_openshift: true
+          organization:
+            <<: *Org1
+            role: peer
+            users:
+              - name: orderer-loadgen
+            namespaces:
+              - id: 0
+                policy: threshold
+          loadgen_use_tls: true
+          loadgen_metrics_port: 12010
+          loadgen_web_port: 12000
+          loadgen_rpc_port: 12020
+          loadgen_openshift_web_route: "orderer-loadgen.{{ openshift_apps_domain }}"
+          loadgen_openshift_metrics_route: "orderer-loadgen-metrics.{{ openshift_apps_domain }}"
+
+    # =========================
+    # Monitoring Infra
+    # =========================
+    monitoring:
+      hosts:
+        node-exporter:
+          node_exporter_port: 9111
+          node_exporter_use_tls: true
+          node_exporter_use_openshift: true
+        committer-db-exporter:
+          postgres_db_host: committer-db
+          postgres_exporter_port: 2110
+          postgres_exporter_use_tls: true
+          postgres_exporter_use_openshift: true
+        prometheus:
+          prometheus_port: 9090
+          prometheus_use_tls: true
+          prometheus_use_openshift: true
+        grafana:
+          grafana_username: admin
+          grafana_password: adminPWD
+          grafana_web_port: 3000
+          prometheus_host: prometheus
+          grafana_use_tls: true
+          grafana_use_openshift: true
+          grafana_openshift_route: "grafana.{{ openshift_apps_domain }}"

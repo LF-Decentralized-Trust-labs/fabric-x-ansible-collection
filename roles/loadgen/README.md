@@ -200,6 +200,8 @@ Query the Loadgen Prometheus metrics endpoint over HTTP or HTTPS. In Kubernetes 
     loadgen_monitoring_http_protocol: "{{ 'https' if loadgen_monitoring_use_tls else 'http' }}"
     # Enable TLS for the monitoring endpoint.
     loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
+    # Specifies the OpenShift Route host. Example: `loadgen-metrics.apps.example.com`.
+    loadgen_openshift_metrics_route: "loadgen-metrics.apps.example.com"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
     # Assert the latency metric when fetching metrics.
