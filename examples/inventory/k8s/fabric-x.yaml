@@ -61,7 +61,6 @@ all:
                 postgres_password: example
                 postgres_use_k8s: true
                 postgres_use_tls: true
-                postgres_k8s_use_load_balancer: true
               hosts:
                 fca-orderer-org1-db:
                   postgres_db: ordererOrg1DB
