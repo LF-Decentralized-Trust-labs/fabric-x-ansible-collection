@@ -38,8 +38,22 @@ jobs:
       - name: Read collection version
         id: collection_version
         run: |
+          NAMESPACE=$(yq -r .namespace galaxy.yml)
+          NAME=$(yq -r .name galaxy.yml)
           VERSION=$(yq -r .version galaxy.yml)
-          echo "tarball=hyperledger-fabricx-${VERSION}.tar.gz" >> "$GITHUB_OUTPUT"
+          echo "tarball=${NAMESPACE}-${NAME}-${VERSION}.tar.gz" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      # Guard: ensure the pushed tag matches the version in galaxy.yml
+      - name: Verify tag matches galaxy.yml version
+        run: |
+          TAG="${{ github.ref_name }}"
+          VERSION="${{ steps.collection_version.outputs.version }}"
+          if [ "${TAG}" != "${VERSION}" ]; then
+            echo "ERROR: git tag '${TAG}' does not match galaxy.yml version '${VERSION}'."
+            echo "Update galaxy.yml to match the tag before publishing."
+            exit 1
+          fi
 
       # Build the collection
       - name: Build collection
