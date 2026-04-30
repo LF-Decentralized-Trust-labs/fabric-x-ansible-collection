@@ -5,24 +5,25 @@
 #
 
 - name: Set fabric_ca client effective connection address as OpenShift Route
+  vars:
+    fabric_ca_client_openshift_route_port: "{{ 443 if hostvars[fabric_ca_host].fabric_ca_use_tls is defined and hostvars[fabric_ca_host].fabric_ca_use_tls else 80 }}"
   ansible.builtin.set_fact:
-    fabric_ca_client_effective_address: >-
-      {{
-        hostvars[fabric_ca_host].fabric_ca_server_openshift_route
-      }}:{{ 443 if hostvars[fabric_ca_host].fabric_ca_use_tls | default(false) | bool else 80 }}
+    fabric_ca_client_effective_address: "{{ hostvars[fabric_ca_host].fabric_ca_server_openshift_route }}:{{ fabric_ca_client_openshift_route_port }}"
   when:
-    - hostvars[fabric_ca_host].fabric_ca_server_use_openshift | default(false) | bool
+    - hostvars[fabric_ca_host].fabric_ca_server_use_openshift is defined
+    - hostvars[fabric_ca_host].fabric_ca_server_use_openshift
     - hostvars[fabric_ca_host].fabric_ca_server_openshift_route is defined
 
 - name: Set fabric_ca client effective connection address as k8s NodePort
   ansible.builtin.set_fact:
     fabric_ca_client_effective_address: "{{ hostvars[fabric_ca_host].actual_host }}:{{ hostvars[fabric_ca_host].fabric_ca_server_k8s_node_port }}"
   when:
-    - fabric_ca_client_effective_address is not defined
+    - hostvars[fabric_ca_host].fabric_ca_server_openshift_route is not defined
     - hostvars[fabric_ca_host].fabric_ca_server_k8s_node_port is defined
 
 - name: Set fabric_ca client effective connection address
   ansible.builtin.set_fact:
     fabric_ca_client_effective_address: "{{ hostvars[fabric_ca_host].actual_host }}:{{ hostvars[fabric_ca_host].fabric_ca_port }}"
   when:
-    - fabric_ca_client_effective_address is not defined
+    - hostvars[fabric_ca_host].fabric_ca_server_openshift_route is not defined
+    - hostvars[fabric_ca_host].fabric_ca_server_k8s_node_port is not defined
