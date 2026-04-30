@@ -81,7 +81,7 @@ Generate a private key and a self-signed X.509 certificate. The certificate is w
     openssl_private_key_path: "/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.key"
     # Path to the certificate file to create. Example: `/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.crt`.
     openssl_cert_path: "/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.crt"
-    # Directory for the temporary OpenSSL config file. For example, `/tmp/fabricx/openssl`.
+    # Directory for the temporary OpenSSL config file.
     openssl_remote_config_dir: "{{ remote_node_dir }}/openssl"
     # Remove the rendered OpenSSL config directory after generation.
     openssl_clean_after_gen: false
@@ -167,7 +167,7 @@ Generate a private key and certificate signing request using a rendered OpenSSL 
     openssl_private_key_path: "/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.key"
     # Path to the CSR file to create. Example: `/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.csr`.
     openssl_csr_path: "/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.csr"
-    # Directory for the temporary OpenSSL config file. For example, `/tmp/fabricx/openssl`.
+    # Directory for the temporary OpenSSL config file.
     openssl_remote_config_dir: "{{ remote_node_dir }}/openssl"
     # Optional extension file path passed to `openssl x509 -extfile`. Example: `/var/hyperledger/fabricx/openssl/server.ext`.
     openssl_ext_file_path: "/var/hyperledger/fabricx/openssl/server.ext"

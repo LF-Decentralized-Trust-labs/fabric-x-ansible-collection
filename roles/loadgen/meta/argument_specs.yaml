@@ -888,6 +888,7 @@ argument_specs:
       - Preserves the container definition, image reference, mounted configuration, crypto material, and logs for later cleanup or collection.
     options:
       loadgen_container_name: *loadgen_container_name
+      loadgen_image: *loadgen_image
 
   container/rm:
     short_description: Remove the container runtime
@@ -896,6 +897,7 @@ argument_specs:
       - Leaves host-side generated configuration and crypto material under the remote config directory.
     options:
       loadgen_container_name: *loadgen_container_name
+      loadgen_image: *loadgen_image
 
   container/fetch_logs:
     short_description: Fetch container logs

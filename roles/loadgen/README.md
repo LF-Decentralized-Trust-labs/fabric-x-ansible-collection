@@ -781,6 +781,8 @@ Stop the local Loadgen container. Preserves the container definition, image refe
   vars:
     # Container name used by the runtime.
     loadgen_container_name: "{{ inventory_hostname }}"
+    # Loadgen container image.
+    loadgen_image: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: container/stop
@@ -797,6 +799,8 @@ Remove the local Loadgen container runtime resources. Leaves host-side generated
   vars:
     # Container name used by the runtime.
     loadgen_container_name: "{{ inventory_hostname }}"
+    # Loadgen container image.
+    loadgen_image: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: container/rm

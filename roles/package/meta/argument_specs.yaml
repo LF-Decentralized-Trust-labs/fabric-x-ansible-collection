@@ -17,8 +17,7 @@ argument_specs:
         description:
           - Names the executable or package to install on the target host.
           - Set this to the package identifier used by the host package manager.
-          - "Example: C(postgresql-client) on a Debian/Ubuntu host or C(postgresql@16) with Homebrew on macOS."
-
+          - "Example: C(postgresql-client)."
       package_service_name: &package_service_name
         type: str
         required: false
@@ -31,10 +30,9 @@ argument_specs:
     description:
       - Shared entry point that dispatches to the Linux or macOS installer based on C(ansible_facts.system).
       - Use this entry point when the target host may be either Linux or macOS and you want the role to choose the correct package manager path.
-      - This entry point validates C(package_name) and C(package_service_name).
+      - This entry point validates C(package_name).
     options:
       package_name: *package_name
-      package_service_name: *package_service_name
 
   install_on_linux:
     short_description: Install a package on Linux

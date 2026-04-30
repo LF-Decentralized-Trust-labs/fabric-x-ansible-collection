@@ -26,7 +26,8 @@ argument_specs:
         type: str
         required: true
         description:
-          - "Defines the project root directory used by utility entry points that generate Makefile targets, which writes C(target_hosts.mk) to C(project_dir/target_hosts.mk). Example: C(/path/to/hyperledger/fabricx)."
+          - "Defines the project root directory used by utility entry points that generate Makefile targets, which writes C(target_hosts.mk) to C(project_dir/target_hosts.mk)."
+          - "Example: C(/path/to/hyperledger/fabricx)."
 
   generate_makefile_targets:
     short_description: Generate Makefile targets for inventory hosts

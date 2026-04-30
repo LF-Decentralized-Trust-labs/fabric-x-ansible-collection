@@ -314,6 +314,8 @@ argument_specs:
       - Also checks C(postgres_exporter_port) when the exporter is defined for the host.
     options:
       postgres_use_k8s: *postgres_use_k8s
+      postgres_use_openshift: *postgres_use_openshift
+      postgres_use_container: *postgres_use_container
       postgres_port: *postgres_port
       postgres_exporter_port: *postgres_exporter_port
 

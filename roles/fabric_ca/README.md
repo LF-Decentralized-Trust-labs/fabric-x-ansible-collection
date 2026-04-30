@@ -249,6 +249,8 @@ Installs the Fabric CA client binary directly on the managed host with Go toolin
   vars:
     # Sets the client Go package path.
     fabric_ca_client_bin_package: "{{ fabric_ca_git_hub_url }}/{{ fabric_ca_git_repo }}/{{ fabric_ca_client_source_code_package }}"
+    # Sets the client binary name.
+    fabric_ca_client_bin_name: fabric-ca-client
     # Sets the Git host used for Fabric CA source lookups.
     fabric_ca_git_hub_url: github.com
     # Sets the Fabric CA source repository.
@@ -895,6 +897,8 @@ Installs the Fabric CA server binary directly on the managed host with Go toolin
   vars:
     # Sets the server Go package path.
     fabric_ca_server_bin_package: "{{ fabric_ca_git_hub_url }}/{{ fabric_ca_git_repo }}/{{ fabric_ca_server_source_code_package }}"
+    # Sets the server binary name.
+    fabric_ca_server_bin_name: fabric-ca-server
     # Sets the Git host used for Fabric CA source lookups.
     fabric_ca_git_hub_url: github.com
     # Sets the Fabric CA source repository.
@@ -1318,6 +1322,8 @@ Generates the Fabric CA root CA and TLS keypairs. Writes private keys and certif
       - "{{ ansible_host }}"
       - "{{ actual_host }}"
       - "{{ inventory_hostname }}"
+    # Matches IPv4 SAN entries while splitting Fabric CA CSR hosts into IP and DNS names. Example: `^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$`
+    openssl_san_ipv4_regex: "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"
     # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `org1.example.com`.
     organization:org1.example.com
   ansible.builtin.include_role:

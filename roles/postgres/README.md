@@ -63,6 +63,10 @@ Validates PostgreSQL reachability for the selected deployment mode. In container
   vars:
     # Run PostgreSQL on Kubernetes when set to `true`.
     postgres_use_k8s: false
+    # Run PostgreSQL on OpenShift when set to `true`.
+    postgres_use_openshift: false
+    # Run PostgreSQL as a container when set to `true`.
+    postgres_use_container: "{{ (not postgres_use_k8s) and (not postgres_use_openshift) }}"
     # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
     postgres_port: 5432
     # Optional postgres_exporter port to probe after PostgreSQL itself. This entry point only runs when the variable is defined. Example: `9187`.

@@ -264,6 +264,12 @@ argument_specs:
           - "{{ inventory_hostname }}"
         description:
           - "Sets the CSR SAN host list."
+      openssl_san_ipv4_regex: &openssl_san_ipv4_regex
+        type: str
+        required: false
+        description:
+          - "Matches IPv4 SAN entries while splitting Fabric CA CSR hosts into IP and DNS names."
+          - "Example: C(^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$)"
       fabric_ca_server_openssl_curve: &fabric_ca_server_openssl_curve
         type: str
         default: P-256
@@ -438,6 +444,7 @@ argument_specs:
       - "Uses the configured repository, source package, and revision without changing client enrollment data."
     options:
       fabric_ca_client_bin_package: *fabric_ca_client_bin_package
+      fabric_ca_client_bin_name: *fabric_ca_client_bin_name
       fabric_ca_git_hub_url: *fabric_ca_git_hub_url
       fabric_ca_git_repo: *fabric_ca_git_repo
       fabric_ca_client_source_code_package: *fabric_ca_client_source_code_package
@@ -755,6 +762,7 @@ argument_specs:
       - "Uses the configured repository, source package, and revision without rendering server configuration."
     options:
       fabric_ca_server_bin_package: *fabric_ca_server_bin_package
+      fabric_ca_server_bin_name: *fabric_ca_server_bin_name
       fabric_ca_git_hub_url: *fabric_ca_git_hub_url
       fabric_ca_git_repo: *fabric_ca_git_repo
       fabric_ca_server_source_code_package: *fabric_ca_server_source_code_package
@@ -966,6 +974,7 @@ argument_specs:
       fabric_ca_server_openssl_curve: *fabric_ca_server_openssl_curve
       fabric_ca_csr_cn: *fabric_ca_csr_cn
       fabric_ca_csr_hosts: *fabric_ca_csr_hosts
+      openssl_san_ipv4_regex: *openssl_san_ipv4_regex
       organization: *organization
 
   server/crypto/idemix/setup:

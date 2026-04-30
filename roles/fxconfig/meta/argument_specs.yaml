@@ -277,6 +277,7 @@ argument_specs:
     description:
       - "Installs the fxconfig Go package from the configured Fabric-X source package by delegating to the shared bin role."
     options:
+      fxconfig_bin_name: *fxconfig_bin_name
       fxconfig_bin_package: *fxconfig_bin_package
       fxconfig_git_commit: *fxconfig_git_commit
       fxconfig_git_hub_url: *fxconfig_git_hub_url
