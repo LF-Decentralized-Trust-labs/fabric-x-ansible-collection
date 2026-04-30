@@ -27,8 +27,9 @@
     kind: Service
     name: "{{ orderer_k8s_resource_name }}-nodeport"
     namespace: "{{ k8s_namespace }}"
-  when: orderer_k8s_rpc_node_port is defined or
-    orderer_k8s_metrics_node_port is defined
+  when:
+    - orderer_k8s_rpc_node_port is defined or
+      orderer_k8s_metrics_node_port is defined
 
 - name: Delete Fabric-X Orderer LoadBalancer Service
   kubernetes.core.k8s:
@@ -37,5 +38,6 @@
     kind: Service
     name: "{{ orderer_k8s_resource_name }}-loadbalancer"
     namespace: "{{ k8s_namespace }}"
-  when: orderer_k8s_loadbalancer_expose_rpc_port or
-    orderer_k8s_loadbalancer_expose_metrics_port
+  when:
+    - orderer_k8s_loadbalancer_expose_rpc_port or
+      orderer_k8s_loadbalancer_expose_metrics_port

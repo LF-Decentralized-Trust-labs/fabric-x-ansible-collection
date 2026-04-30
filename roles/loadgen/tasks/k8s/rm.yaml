@@ -24,9 +24,10 @@
     kind: Service
     name: "{{ loadgen_k8s_resource_name }}-nodeport"
     namespace: "{{ k8s_namespace }}"
-  when: loadgen_k8s_web_node_port is defined or
-    loadgen_k8s_metrics_node_port is defined or
-    loadgen_k8s_rpc_node_port is defined
+  when:
+    - loadgen_k8s_web_node_port is defined or
+      loadgen_k8s_metrics_node_port is defined or
+      loadgen_k8s_rpc_node_port is defined
 
 - name: Delete Fabric-X Loadgen LoadBalancer Service
   kubernetes.core.k8s:
@@ -35,6 +36,7 @@
     kind: Service
     name: "{{ loadgen_k8s_resource_name }}-loadbalancer"
     namespace: "{{ k8s_namespace }}"
-  when: loadgen_k8s_loadbalancer_expose_web_port or
-    loadgen_k8s_loadbalancer_expose_metrics_port or
-    loadgen_k8s_loadbalancer_expose_rpc_port
+  when:
+    - loadgen_k8s_loadbalancer_expose_web_port or
+      loadgen_k8s_loadbalancer_expose_metrics_port or
+      loadgen_k8s_loadbalancer_expose_rpc_port

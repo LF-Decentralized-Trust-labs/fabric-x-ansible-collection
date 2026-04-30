@@ -26,16 +26,18 @@
     state: present
     template:
       path: k8s/service-nodeport.yaml.j2
-  when: fabric_ca_server_k8s_node_port is defined or
-    fabric_ca_server_k8s_operations_node_port is defined
+  when:
+    - fabric_ca_server_k8s_node_port is defined or
+      fabric_ca_server_k8s_operations_node_port is defined
 
 - name: Apply Fabric CA LoadBalancer Service
   kubernetes.core.k8s:
     state: present
     template:
       path: k8s/service-loadbalancer.yaml.j2
-  when: fabric_ca_server_k8s_loadbalancer_expose_port or
-    fabric_ca_server_k8s_loadbalancer_expose_operations_port
+  when:
+    - fabric_ca_server_k8s_loadbalancer_expose_port or
+      fabric_ca_server_k8s_loadbalancer_expose_operations_port
 
 - name: Apply Fabric CA Deployment
   kubernetes.core.k8s:

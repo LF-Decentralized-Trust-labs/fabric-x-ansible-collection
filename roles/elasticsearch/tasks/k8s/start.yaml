@@ -26,16 +26,18 @@
     state: present
     template:
       path: k8s/service-nodeport.yaml.j2
-  when: elasticsearch_k8s_http_node_port is defined or
-    elasticsearch_k8s_transport_node_port is defined
+  when:
+    - elasticsearch_k8s_http_node_port is defined or
+      elasticsearch_k8s_transport_node_port is defined
 
 - name: Apply ElasticSearch LoadBalancer Service
   kubernetes.core.k8s:
     state: present
     template:
       path: k8s/service-loadbalancer.yaml.j2
-  when: elasticsearch_k8s_loadbalancer_expose_http_port or
-    elasticsearch_k8s_loadbalancer_expose_transport_port
+  when:
+    - elasticsearch_k8s_loadbalancer_expose_http_port or
+      elasticsearch_k8s_loadbalancer_expose_transport_port
 
 - name: Apply ElasticSearch StatefulSet
   kubernetes.core.k8s:

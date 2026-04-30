@@ -23,7 +23,8 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: k8s/ping
-  when: postgres_use_k8s or postgres_use_openshift
+  when:
+    - postgres_use_k8s or postgres_use_openshift
 
 # =======================
 # Postgres Exporter
