@@ -30,7 +30,7 @@ argument_specs:
           - "Example: C(domain=node-exporter.example.org, common_name=node-exporter, organization=Example Org)."
       k8s_namespace: &k8s_namespace
         type: str
-        required: false
+        required: true
         description:
           - Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
           - Required when C(node_exporter_use_k8s) is true.
@@ -285,10 +285,7 @@ argument_specs:
     description:
       - Adds one inventory host per unique C(ansible_host) with a defined C(node_exporter_port) to the C(node_exporter_hosts) group.
       - Example hosts include C(worker-1), C(worker-2), and C(worker-3).
-    options:
-      node_exporter_port:
-        <<: *node_exporter_port
-        required: false
+    options: {}
 
   config/transfer:
     short_description: Transfer Node Exporter configuration
@@ -438,9 +435,7 @@ argument_specs:
       node_exporter_web_config_file: *node_exporter_web_config_file
       node_exporter_tls_cert_file: *node_exporter_tls_cert_file
       node_exporter_tls_private_key_file: *node_exporter_tls_private_key_file
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
       k8s_image_pull_secret: *k8s_image_pull_secret
       k8s_readiness_probe_initial_delay_seconds: *k8s_readiness_probe_initial_delay_seconds
       k8s_readiness_probe_period_seconds: *k8s_readiness_probe_period_seconds
@@ -468,12 +463,10 @@ argument_specs:
       - Targets the workload by C(k8s_namespace) and C(node_exporter_k8s_resource_name).
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
-
+      k8s_namespace: *k8s_namespace
       node_exporter_k8s_node_port: *node_exporter_k8s_node_port
       node_exporter_k8s_loadbalancer_expose_metrics_port: *node_exporter_k8s_loadbalancer_expose_metrics_port
+
   k8s/fetch_logs:
     short_description: Fetch logs from Node Exporter pods
     description:
@@ -493,9 +486,7 @@ argument_specs:
       node_exporter_web_config_file: *node_exporter_web_config_file
       remote_deploy_dir: *remote_deploy_dir
       node_exporter_remote_config_dir: *node_exporter_remote_config_dir
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
   k8s/config/rm:
     short_description: Remove the Node Exporter Kubernetes ConfigMap
@@ -504,9 +495,7 @@ argument_specs:
       - Keeps the namespace and runtime pods untouched so teardown can be handled separately.
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
   k8s/crypto/transfer:
     short_description: Apply the Node Exporter Kubernetes TLS Secret
@@ -520,9 +509,7 @@ argument_specs:
       node_exporter_remote_config_dir: *node_exporter_remote_config_dir
       node_exporter_tls_private_key_file: *node_exporter_tls_private_key_file
       node_exporter_tls_cert_file: *node_exporter_tls_cert_file
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
   k8s/crypto/rm:
     short_description: Remove the Node Exporter Kubernetes TLS Secret
@@ -531,9 +518,7 @@ argument_specs:
       - Targets the Secret named after C(node_exporter_k8s_resource_name).
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
   prometheus/get_scrapers:
     short_description: Build Prometheus scrape targets for Node Exporter
