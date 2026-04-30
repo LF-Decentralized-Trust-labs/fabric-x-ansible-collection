@@ -918,12 +918,12 @@ Create or update Kubernetes resources for Loadgen. Ensures the namespace exists,
 
 ### k8s/ping
 
-> Check the Kubernetes node ports
+> Check that the Loadgen Kubernetes service is reachable
 
 Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
-- name: Check the Kubernetes node ports
+- name: Check that the Loadgen Kubernetes service is reachable
   vars:
     # HTTP control port exposed by Loadgen. Example: `8080`.
     loadgen_web_port: 8080

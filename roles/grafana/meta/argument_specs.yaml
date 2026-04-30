@@ -228,7 +228,8 @@ argument_specs:
           - Kubernetes NodePort value used by the external web Service port.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(32000)."
-      grafana_k8s_loadbalancer_expose_web_port: &grafana_k8s_loadbalancer_expose_web_port
+      grafana_k8s_loadbalancer_expose_web_port:
+        &grafana_k8s_loadbalancer_expose_web_port
         type: bool
         required: false
         default: false
@@ -455,7 +456,7 @@ argument_specs:
       grafana_k8s_loadbalancer_expose_web_port: *grafana_k8s_loadbalancer_expose_web_port
 
   k8s/ping:
-    short_description: Check that the Grafana NodePort is reachable
+    short_description: Check that the Grafana Kubernetes service is reachable
     description:
       - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
     options:

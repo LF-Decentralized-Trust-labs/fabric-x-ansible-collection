@@ -477,12 +477,12 @@ Applies the Grafana Service, optional NodePort and LoadBalancer Services, Secret
 
 ### k8s/ping
 
-> Check that the Grafana NodePort is reachable
+> Check that the Grafana Kubernetes service is reachable
 
 Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
-- name: Check that the Grafana NodePort is reachable
+- name: Check that the Grafana Kubernetes service is reachable
   vars:
     # Sets the Grafana web port.
     grafana_web_port: 3000

@@ -453,7 +453,7 @@ argument_specs:
       node_exporter_k8s_loadbalancer_expose_metrics_port: *node_exporter_k8s_loadbalancer_expose_metrics_port
 
   k8s/ping:
-    short_description: Check Node Exporter reachability on Kubernetes
+    short_description: Check that Node Exporter Kubernetes service is reachable
     description:
       - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
     options:

@@ -186,12 +186,12 @@ Selects the expected master or tablet service ports for the current host and del
 
 ### k8s/ping
 
-> Check YugabyteDB Kubernetes NodePorts
+> Check that the YugabyteDB Kubernetes service is reachable
 
 Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
-- name: Check YugabyteDB Kubernetes NodePorts
+- name: Check that the YugabyteDB Kubernetes service is reachable
   vars:
     # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `tablet`.
     yugabyte_component_type: "tablet"

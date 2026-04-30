@@ -831,12 +831,12 @@ Creates the orderer Kubernetes Service, StatefulSet, and optional NodePort and L
 
 ### k8s/ping
 
-> Check the orderer Kubernetes Service ports
+> Check that the orderer Kubernetes services are reachable
 
 Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
-- name: Check the orderer Kubernetes Service ports
+- name: Check that the orderer Kubernetes services are reachable
   vars:
     # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31050`.
     orderer_k8s_rpc_node_port: 31050

@@ -440,7 +440,7 @@ argument_specs:
       postgres_exporter_k8s_loadbalancer_expose_metrics_port: *postgres_exporter_k8s_loadbalancer_expose_metrics_port
 
   k8s/ping:
-    short_description: Check Postgres Exporter node port reachability
+    short_description: Check that the Postgres Exporter Kubernetes service is reachable
     description:
       - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
     options:

@@ -1132,12 +1132,12 @@ Creates Fabric CA Kubernetes runtime resources for the server. Uses the ConfigMa
 
 ### server/k8s/ping
 
-> Check Fabric CA node ports
+> Check that the Fabric CA Kubernetes service is reachable
 
 Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
-- name: Check Fabric CA node ports
+- name: Check that the Fabric CA Kubernetes service is reachable
   vars:
     # Kubernetes NodePort value used by the external API Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30054`.
     fabric_ca_server_k8s_node_port: 30054

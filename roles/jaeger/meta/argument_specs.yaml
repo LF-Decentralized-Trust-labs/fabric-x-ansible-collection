@@ -142,7 +142,8 @@ argument_specs:
           - Kubernetes NodePort value used by the external UI Service port.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(30686)."
-      jaeger_k8s_loadbalancer_expose_ui_port: &jaeger_k8s_loadbalancer_expose_ui_port
+      jaeger_k8s_loadbalancer_expose_ui_port:
+        &jaeger_k8s_loadbalancer_expose_ui_port
         type: bool
         required: false
         default: false
@@ -468,7 +469,7 @@ argument_specs:
       jaeger_k8s_resource_name: *jaeger_k8s_resource_name
 
   k8s/ping:
-    short_description: Check that Jaeger Kubernetes node ports are reachable
+    short_description: Check that Jaeger Kubernetes service is reachable
     description:
       - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
     options:

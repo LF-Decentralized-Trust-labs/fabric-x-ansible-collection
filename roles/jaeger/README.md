@@ -407,12 +407,12 @@ Collects logs from Jaeger pods using the resource label selector for the Kuberne
 
 ### k8s/ping
 
-> Check that Jaeger Kubernetes node ports are reachable
+> Check that Jaeger Kubernetes service is reachable
 
 Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
-- name: Check that Jaeger Kubernetes node ports are reachable
+- name: Check that Jaeger Kubernetes service is reachable
   vars:
     # Sets the Jaeger query UI port.
     jaeger_ui_port: 16686

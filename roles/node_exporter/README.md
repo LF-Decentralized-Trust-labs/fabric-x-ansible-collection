@@ -481,12 +481,12 @@ Creates the Kubernetes Service, optional NodePort and LoadBalancer Services, and
 
 ### k8s/ping
 
-> Check Node Exporter reachability on Kubernetes
+> Check that Node Exporter Kubernetes service is reachable
 
 Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
-- name: Check Node Exporter reachability on Kubernetes
+- name: Check that Node Exporter Kubernetes service is reachable
   vars:
     # Sets the TCP port exposed by Node Exporter and seeds the default Kubernetes NodePort value. Example: `9100`.
     node_exporter_port: 9100

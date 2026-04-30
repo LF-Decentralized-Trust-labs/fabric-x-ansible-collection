@@ -70,7 +70,7 @@ Validates network reachability to the active Prometheus listener on the target h
 
 > Start Prometheus in the selected deployment mode
 
-Starts Prometheus as either a container or Kubernetes workload based on the deployment mode flags. Renders configuration, prepares storage, and applies Kubernetes resources needed for the selected mode. When Kubernetes mode is enabled, it can also expose Prometheus through the optional NodePort Service.
+Starts Prometheus as either a container or Kubernetes workload based on the deployment mode flags.
 
 ```yaml
 - name: Start Prometheus in the selected deployment mode
@@ -200,12 +200,12 @@ Ensures the namespace exists, renders and transfers Prometheus configuration, an
 
 ### k8s/ping
 
-> Check that the Prometheus NodePort is reachable
+> Check that the Prometheus Kubernetes service is reachable
 
 Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
-- name: Check that the Prometheus NodePort is reachable
+- name: Check that the Prometheus Kubernetes service is reachable
   vars:
     # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services.
     prometheus_port: 9090

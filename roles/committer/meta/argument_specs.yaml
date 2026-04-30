@@ -725,7 +725,7 @@ argument_specs:
       committer_use_k8s: *committer_use_k8s
 
   k8s/ping:
-    short_description: Check the committer Kubernetes NodePorts
+    short_description: Check the committer Kubernetes services are reachable
     description:
       - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
     options:

@@ -118,12 +118,12 @@ Validate that the Fabric-X Committer RPC port is reachable. Uses `committer_rpc_
 
 ### k8s/ping
 
-> Check the committer Kubernetes NodePorts
+> Check the committer Kubernetes services are reachable
 
 Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
-- name: Check the committer Kubernetes NodePorts
+- name: Check the committer Kubernetes services are reachable
   vars:
     # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
     committer_k8s_rpc_node_port: 31051

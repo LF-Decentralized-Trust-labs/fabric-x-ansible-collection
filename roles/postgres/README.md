@@ -385,12 +385,12 @@ Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and S
 
 ### k8s/ping
 
-> Check PostgreSQL external Service reachability on Kubernetes
+> Check that PostgreSQL Kubernetes service is reachable
 
 Probes the PostgreSQL NodePort Service when `postgres_k8s_node_port` is defined. Probes `actual_host`:`postgres_port` when `postgres_k8s_loadbalancer_expose_port` is `true`. This entry point is invoked internally by `ping` when PostgreSQL runs on Kubernetes.
 
 ```yaml
-- name: Check PostgreSQL external Service reachability on Kubernetes
+- name: Check that PostgreSQL Kubernetes service is reachable
   vars:
     # Resolved host name used for external reachability checks and in the Fabric CA CSR SAN list. Example: `postgres0.example.com`.
     actual_host: "postgres0.example.com"

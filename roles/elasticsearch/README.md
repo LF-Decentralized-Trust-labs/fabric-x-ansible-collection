@@ -448,12 +448,12 @@ Ensures the Kubernetes namespace exists and applies the ElasticSearch headless S
 
 ### k8s/ping
 
-> Check ElasticSearch NodePort reachability on Kubernetes
+> Check ElasticSearch Kubernetes services is reachable
 
 Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
-- name: Check ElasticSearch NodePort reachability on Kubernetes
+- name: Check ElasticSearch Kubernetes services is reachable
   vars:
     # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30920`.
     elasticsearch_k8s_http_node_port: 30920

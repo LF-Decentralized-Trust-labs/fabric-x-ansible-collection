@@ -465,12 +465,12 @@ Applies the Service, optional NodePort and LoadBalancer Services, and Deployment
 
 ### k8s/ping
 
-> Check Postgres Exporter node port reachability
+> Check that the Postgres Exporter Kubernetes service is reachable
 
 Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
-- name: Check Postgres Exporter node port reachability
+- name: Check that the Postgres Exporter Kubernetes service is reachable
   vars:
     # Sets the Postgres Exporter metrics port. Example: `9187`.
     postgres_exporter_port: 9187

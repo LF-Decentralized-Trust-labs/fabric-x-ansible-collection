@@ -466,7 +466,7 @@ argument_specs:
       elasticsearch_k8s_loadbalancer_expose_transport_port: *elasticsearch_k8s_loadbalancer_expose_transport_port
 
   k8s/ping:
-    short_description: Check ElasticSearch NodePort reachability on Kubernetes
+    short_description: Check ElasticSearch Kubernetes services is reachable
     description:
       - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
     options:

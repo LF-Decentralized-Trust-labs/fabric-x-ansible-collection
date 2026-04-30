@@ -544,7 +544,7 @@ argument_specs:
       yugabyte_tablet_cql_web_port: *yugabyte_tablet_cql_web_port
 
   k8s/ping:
-    short_description: Check YugabyteDB Kubernetes NodePorts
+    short_description: Check that the YugabyteDB Kubernetes service is reachable
     description:
       - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
     options:

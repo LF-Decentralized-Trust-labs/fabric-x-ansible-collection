@@ -166,7 +166,8 @@ argument_specs:
           - Kubernetes NodePort value used by the external PostgreSQL Service.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(30432)."
-      postgres_k8s_loadbalancer_expose_port: &postgres_k8s_loadbalancer_expose_port
+      postgres_k8s_loadbalancer_expose_port:
+        &postgres_k8s_loadbalancer_expose_port
         type: bool
         required: false
         default: false
@@ -241,7 +242,8 @@ argument_specs:
         description:
           - Existing Kubernetes C(imagePullSecret) name used when the PostgreSQL image is stored in a private registry.
           - "Example: C(postgres-registry-pull-secret)."
-      k8s_readiness_probe_initial_delay_seconds: &k8s_readiness_probe_initial_delay_seconds
+      k8s_readiness_probe_initial_delay_seconds:
+        &k8s_readiness_probe_initial_delay_seconds
         type: int
         required: false
         description:
@@ -259,13 +261,15 @@ argument_specs:
         description:
           - Override for the readiness probe timeout in seconds.
           - "Example: C(5)."
-      k8s_readiness_probe_failure_threshold: &k8s_readiness_probe_failure_threshold
+      k8s_readiness_probe_failure_threshold:
+        &k8s_readiness_probe_failure_threshold
         type: int
         required: false
         description:
           - Override for the readiness probe failure threshold.
           - "Example: C(3)."
-      k8s_liveness_probe_initial_delay_seconds: &k8s_liveness_probe_initial_delay_seconds
+      k8s_liveness_probe_initial_delay_seconds:
+        &k8s_liveness_probe_initial_delay_seconds
         type: int
         required: false
         description:
@@ -283,7 +287,8 @@ argument_specs:
         description:
           - Override for the liveness probe timeout in seconds.
           - "Example: C(5)."
-      k8s_liveness_probe_failure_threshold: &k8s_liveness_probe_failure_threshold
+      k8s_liveness_probe_failure_threshold:
+        &k8s_liveness_probe_failure_threshold
         type: int
         required: false
         description:
@@ -478,7 +483,7 @@ argument_specs:
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
 
   k8s/ping:
-    short_description: Check PostgreSQL external Service reachability on Kubernetes
+    short_description: Check that PostgreSQL Kubernetes service is reachable
     description:
       - Probes the PostgreSQL NodePort Service when C(postgres_k8s_node_port) is defined.
       - Probes C(actual_host):C(postgres_port) when C(postgres_k8s_loadbalancer_expose_port) is C(true).

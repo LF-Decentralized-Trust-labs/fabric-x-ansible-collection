@@ -278,8 +278,6 @@ argument_specs:
     short_description: Start Prometheus in the selected deployment mode
     description:
       - Starts Prometheus as either a container or Kubernetes workload based on the deployment mode flags.
-      - Renders configuration, prepares storage, and applies Kubernetes resources needed for the selected mode.
-      - When Kubernetes mode is enabled, it can also expose Prometheus through the optional NodePort Service.
     options:
       prometheus_use_container: *prometheus_use_container
       prometheus_use_k8s: *prometheus_use_k8s
@@ -340,7 +338,7 @@ argument_specs:
       prometheus_k8s_loadbalancer_expose_http_port: *prometheus_k8s_loadbalancer_expose_http_port
 
   k8s/ping:
-    short_description: Check that the Prometheus NodePort is reachable
+    short_description: Check that the Prometheus Kubernetes service is reachable
     description:
       - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
     options:
