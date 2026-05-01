@@ -409,6 +409,8 @@ Delegates self-signed certificate generation to the OpenSSL role using Postgres 
     postgres_exporter_tls_private_key_file: server.key
     # Sets the TLS certificate file name used under `postgres_exporter_remote_config_dir`/tls.
     postgres_exporter_tls_cert_file: server.crt
+    # Specifies the OpenShift Route host. Example: `postgres-exporter-metrics.apps.example.com`.
+    postgres_exporter_openshift_route: "postgres-exporter-metrics.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: crypto/openssl/generate_cert

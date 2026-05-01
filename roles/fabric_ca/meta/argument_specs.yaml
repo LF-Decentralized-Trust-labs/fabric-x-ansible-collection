@@ -382,7 +382,8 @@ argument_specs:
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(fabric-ca.apps.example.com)."
-      fabric_ca_server_openshift_operations_route: &fabric_ca_server_openshift_operations_route
+      fabric_ca_server_openshift_operations_route:
+        &fabric_ca_server_openshift_operations_route
         type: str
         required: false
         description:
@@ -1019,6 +1020,8 @@ argument_specs:
       fabric_ca_csr_hosts: *fabric_ca_csr_hosts
       openssl_san_ipv4_regex: *openssl_san_ipv4_regex
       organization: *organization
+      fabric_ca_server_openshift_route: *fabric_ca_server_openshift_route
+      fabric_ca_server_openshift_operations_route: *fabric_ca_server_openshift_operations_route
 
   server/crypto/idemix/setup:
     short_description: Generate server Idemix crypto

@@ -488,25 +488,29 @@ argument_specs:
         default: false
         description:
           - Selects the OpenShift deployment branch.
-      yugabyte_openshift_master_webserver_route: &yugabyte_openshift_master_webserver_route
+      yugabyte_openshift_master_webserver_route:
+        &yugabyte_openshift_master_webserver_route
         type: str
         required: false
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(yugabyte-master-web.apps.example.com)."
-      yugabyte_openshift_tablet_webserver_route: &yugabyte_openshift_tablet_webserver_route
+      yugabyte_openshift_tablet_webserver_route:
+        &yugabyte_openshift_tablet_webserver_route
         type: str
         required: false
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(yugabyte-tablet-web.apps.example.com)."
-      yugabyte_openshift_tablet_pgsql_web_route: &yugabyte_openshift_tablet_pgsql_web_route
+      yugabyte_openshift_tablet_pgsql_web_route:
+        &yugabyte_openshift_tablet_pgsql_web_route
         type: str
         required: false
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(yugabyte-tablet-pgsql-web.apps.example.com)."
-      yugabyte_openshift_tablet_cql_web_route: &yugabyte_openshift_tablet_cql_web_route
+      yugabyte_openshift_tablet_cql_web_route:
+        &yugabyte_openshift_tablet_cql_web_route
         type: str
         required: false
         description:
@@ -657,6 +661,11 @@ argument_specs:
       yugabyte_use_tls: *yugabyte_use_tls
       yugabyte_remote_config_dir: *yugabyte_remote_config_dir
       organization: *organization_required
+      yugabyte_component_type: *yugabyte_component_type
+      yugabyte_openshift_master_webserver_route: *yugabyte_openshift_master_webserver_route
+      yugabyte_openshift_tablet_webserver_route: *yugabyte_openshift_tablet_webserver_route
+      yugabyte_openshift_tablet_pgsql_web_route: *yugabyte_openshift_tablet_pgsql_web_route
+      yugabyte_openshift_tablet_cql_web_route: *yugabyte_openshift_tablet_cql_web_route
 
   crypto/openssl/fetch_csr:
     short_description: Fetch a YugabyteDB TLS CSR
@@ -703,6 +712,11 @@ argument_specs:
       fetched_artifacts_dir: *fetched_artifacts_dir
       actual_host: *actual_host
       organization: *organization_required
+      yugabyte_component_type: *yugabyte_component_type
+      yugabyte_openshift_master_webserver_route: *yugabyte_openshift_master_webserver_route
+      yugabyte_openshift_tablet_webserver_route: *yugabyte_openshift_tablet_webserver_route
+      yugabyte_openshift_tablet_pgsql_web_route: *yugabyte_openshift_tablet_pgsql_web_route
+      yugabyte_openshift_tablet_cql_web_route: *yugabyte_openshift_tablet_cql_web_route
 
   config/transfer:
     short_description: Transfer YugabyteDB initialization config

@@ -326,6 +326,8 @@ Delegates to the OpenSSL role to generate a self-signed certificate and private 
     node_exporter_tls_cert_file: server.crt
     # Provides organization data used to build the OpenSSL subject. When organization data does not define a domain value, the inventory hostname is used instead. Example: `domain=node-exporter.example.org, common_name=node-exporter, organization=Example Org`.
     organization:domain=node-exporter.example.org, common_name=node-exporter, organization=Example Org
+    # Specifies the OpenShift Route host. Example: `node-exporter-metrics.apps.example.com`.
+    node_exporter_openshift_route: "node-exporter-metrics.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: crypto/openssl/generate_cert

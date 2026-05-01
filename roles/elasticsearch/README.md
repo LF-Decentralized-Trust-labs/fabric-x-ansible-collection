@@ -384,6 +384,8 @@ Generates a self-signed TLS certificate and private key for ElasticSearch on the
     # Optionally provides organization metadata used to derive the TLS certificate organization name. Example: `{'common_name': 'elasticsearch.fabricx.example'}`.
     organization:
       common_name: "elasticsearch.fabricx.example"
+    # Specifies the OpenShift Route host. Example: `elasticsearch-http.apps.example.com`.
+    elasticsearch_openshift_http_route: "elasticsearch-http.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: crypto/openssl/generate_cert

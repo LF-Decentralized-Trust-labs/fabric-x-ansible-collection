@@ -1355,6 +1355,10 @@ Generates the Fabric CA root CA and TLS keypairs. Writes private keys and certif
     openssl_san_ipv4_regex: "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"
     # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `org1.example.com`.
     organization:org1.example.com
+    # Specifies the OpenShift Route host. Example: `fabric-ca.apps.example.com`.
+    fabric_ca_server_openshift_route: "fabric-ca.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `fabric-ca-operations.apps.example.com`.
+    fabric_ca_server_openshift_operations_route: "fabric-ca-operations.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/crypto/x509/setup

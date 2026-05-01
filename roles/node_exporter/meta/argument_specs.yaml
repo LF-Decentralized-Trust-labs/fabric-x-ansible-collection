@@ -382,6 +382,7 @@ argument_specs:
       node_exporter_tls_private_key_file: *node_exporter_tls_private_key_file
       node_exporter_tls_cert_file: *node_exporter_tls_cert_file
       organization: *organization
+      node_exporter_openshift_route: *node_exporter_openshift_route
 
   container/start:
     short_description: Start Node Exporter in a container

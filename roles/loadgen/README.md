@@ -561,6 +561,12 @@ Enroll Loadgen peer, user, and optional TLS identities against Fabric CA. Writes
     loadgen_use_tls: false
     # Enable TLS for the monitoring endpoint.
     loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
+    # Specifies the OpenShift Route host. Example: `loadgen-web.apps.example.com`.
+    loadgen_openshift_web_route: "loadgen-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `loadgen-metrics.apps.example.com`.
+    loadgen_openshift_metrics_route: "loadgen-metrics.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `loadgen-rpc.apps.example.com`.
+    loadgen_openshift_rpc_route: "loadgen-rpc.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: crypto/fabric_ca/enroll

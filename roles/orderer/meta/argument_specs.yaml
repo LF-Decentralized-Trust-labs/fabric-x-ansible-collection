@@ -762,6 +762,8 @@ argument_specs:
       remote_config_dir: *remote_config_dir
       organization: *organization
       orderer_remote_config_dir: *orderer_remote_config_dir
+      orderer_openshift_route: *orderer_openshift_route
+      orderer_openshift_metrics_route: *orderer_openshift_metrics_route
 
   crypto/fetch:
     short_description: Fetch orderer certificates to the control node

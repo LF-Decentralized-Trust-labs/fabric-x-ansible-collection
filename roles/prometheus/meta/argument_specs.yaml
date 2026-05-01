@@ -443,6 +443,7 @@ argument_specs:
       prometheus_remote_config_dir: *prometheus_remote_config_dir
       prometheus_tls_private_key_file: *prometheus_tls_private_key_file
       prometheus_tls_cert_file: *prometheus_tls_cert_file
+      prometheus_openshift_route: *prometheus_openshift_route
 
   k8s/crypto/transfer:
     short_description: Apply the Prometheus TLS Secret on Kubernetes

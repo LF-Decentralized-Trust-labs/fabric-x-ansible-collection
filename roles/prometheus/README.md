@@ -411,6 +411,8 @@ Delegates certificate creation to the shared OpenSSL role using Prometheus-speci
     prometheus_tls_private_key_file: server.key
     # Filename used for the Prometheus TLS certificate.
     prometheus_tls_cert_file: server.crt
+    # Specifies the OpenShift Route host. Example: `prometheus.apps.example.com`.
+    prometheus_openshift_route: "prometheus.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: crypto/openssl/generate_cert

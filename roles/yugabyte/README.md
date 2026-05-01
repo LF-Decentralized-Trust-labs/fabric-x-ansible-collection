@@ -366,6 +366,16 @@ Builds the YugabyteDB TLS SAN list from host addresses and organization metadata
         name: "yb-tserver-1"
         secret: "yb-tserver-1pw"
       fabric_ca_host: "ca-org1"
+    # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `tablet`.
+    yugabyte_component_type: "tablet"
+    # Specifies the OpenShift Route host. Example: `yugabyte-master-web.apps.example.com`.
+    yugabyte_openshift_master_webserver_route: "yugabyte-master-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-web.apps.example.com`.
+    yugabyte_openshift_tablet_webserver_route: "yugabyte-tablet-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-pgsql-web.apps.example.com`.
+    yugabyte_openshift_tablet_pgsql_web_route: "yugabyte-tablet-pgsql-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-cql-web.apps.example.com`.
+    yugabyte_openshift_tablet_cql_web_route: "yugabyte-tablet-cql-web.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: crypto/openssl/generate_csr
@@ -476,6 +486,16 @@ Copies the Fabric CA TLS root when needed and delegates YugabyteDB TLS enrollmen
         name: "yb-tserver-1"
         secret: "yb-tserver-1pw"
       fabric_ca_host: "ca-org1"
+    # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `tablet`.
+    yugabyte_component_type: "tablet"
+    # Specifies the OpenShift Route host. Example: `yugabyte-master-web.apps.example.com`.
+    yugabyte_openshift_master_webserver_route: "yugabyte-master-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-web.apps.example.com`.
+    yugabyte_openshift_tablet_webserver_route: "yugabyte-tablet-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-pgsql-web.apps.example.com`.
+    yugabyte_openshift_tablet_pgsql_web_route: "yugabyte-tablet-pgsql-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-cql-web.apps.example.com`.
+    yugabyte_openshift_tablet_cql_web_route: "yugabyte-tablet-cql-web.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: crypto/fabric_ca/enroll

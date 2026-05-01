@@ -712,6 +712,10 @@ Copies the Fabric CA TLS certificate when needed and enrolls both MSP and TLS id
       fabric_ca_host: "ca-orderer"
     # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
+    # Specifies the OpenShift Route host. Example: `orderer-rpc.apps.example.com`.
+    orderer_openshift_route: "orderer-rpc.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `orderer-metrics.apps.example.com`.
+    orderer_openshift_metrics_route: "orderer-metrics.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: crypto/fabric_ca/enroll

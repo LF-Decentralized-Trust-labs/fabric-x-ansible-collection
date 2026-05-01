@@ -421,6 +421,8 @@ Generates the Grafana TLS key pair and certificate using OpenSSL for the staged 
     grafana_tls_private_key_file: server.key
     # Sets the Grafana TLS certificate filename.
     grafana_tls_cert_file: server.crt
+    # Specifies the OpenShift Route host. Example: `grafana.apps.example.com`.
+    grafana_openshift_route: "grafana.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
     tasks_from: crypto/openssl/generate_cert

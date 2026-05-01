@@ -440,6 +440,7 @@ argument_specs:
       remote_config_dir: *remote_config_dir
       grafana_tls_private_key_file: *grafana_tls_private_key_file
       grafana_tls_cert_file: *grafana_tls_cert_file
+      grafana_openshift_route: *grafana_openshift_route
 
   k8s/start:
     short_description: Start Grafana on Kubernetes

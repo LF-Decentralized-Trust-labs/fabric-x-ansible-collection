@@ -25,12 +25,6 @@
 all:
   vars:
     # =========================
-    # OpenShift
-    # =========================
-    fxconfig_use_bin: true
-    openshift_apps_domain: "{{ lookup('env', 'OPENSHIFT_APPS_DOMAIN') or 'apps-crc.testing' }}"
-
-    # =========================
     # Organizations
     # =========================
     organizations:
@@ -86,6 +80,13 @@ all:
                       orderer_rpc_port: 7050
                       orderer_metrics_port: 7060
                       orderer_openshift_route: "orderer-router-1.{{ openshift_apps_domain }}"
+                      organization:
+                        <<: *OrdererOrg1
+                        role: orderer
+                        orderer:
+                          name: "{{ inventory_hostname }}"
+                          additional_sans:
+                            - "orderer-router-1.{{ openshift_apps_domain }}"
                     orderer-consenter-1:
                       orderer_component_type: consensus
                       orderer_rpc_port: 7051
@@ -113,6 +114,13 @@ all:
                       orderer_rpc_port: 7150
                       orderer_metrics_port: 7160
                       orderer_openshift_route: "orderer-router-2.{{ openshift_apps_domain }}"
+                      organization:
+                        <<: *OrdererOrg2
+                        role: orderer
+                        orderer:
+                          name: "{{ inventory_hostname }}"
+                          additional_sans:
+                            - "orderer-router-2.{{ openshift_apps_domain }}"
                     orderer-consenter-2:
                       orderer_component_type: consensus
                       orderer_rpc_port: 7151
@@ -140,6 +148,13 @@ all:
                       orderer_rpc_port: 7250
                       orderer_metrics_port: 7260
                       orderer_openshift_route: "orderer-router-3.{{ openshift_apps_domain }}"
+                      organization:
+                        <<: *OrdererOrg3
+                        role: orderer
+                        orderer:
+                          name: "{{ inventory_hostname }}"
+                          additional_sans:
+                            - "orderer-router-3.{{ openshift_apps_domain }}"
                     orderer-consenter-3:
                       orderer_component_type: consensus
                       orderer_rpc_port: 7251
@@ -167,6 +182,13 @@ all:
                       orderer_rpc_port: 7350
                       orderer_metrics_port: 7360
                       orderer_openshift_route: "orderer-router-4.{{ openshift_apps_domain }}"
+                      organization:
+                        <<: *OrdererOrg4
+                        role: orderer
+                        orderer:
+                          name: "{{ inventory_hostname }}"
+                          additional_sans:
+                            - "orderer-router-4.{{ openshift_apps_domain }}"
                     orderer-consenter-4:
                       orderer_component_type: consensus
                       orderer_rpc_port: 7351
@@ -218,12 +240,24 @@ all:
                   committer_rpc_port: 5130
                   committer_metrics_port: 5230
                   committer_openshift_route: "committer-sidecar.{{ openshift_apps_domain }}"
+                  organization:
+                    <<: *Org1
+                    role: peer
+                    peer:
+                      additional_sans:
+                        - "committer-sidecar.{{ openshift_apps_domain }}"
                 committer-query-service:
                   committer_component_type: query-service
                   committer_rpc_port: 5140
                   committer_metrics_port: 5240
                   committer_openshift_route: "committer-query-service.{{ openshift_apps_domain }}"
                   postgres_db_host: committer-db
+                  organization:
+                    <<: *Org1
+                    role: peer
+                    peer:
+                      additional_sans:
+                        - "committer-query-service.{{ openshift_apps_domain }}"
 
     # =========================
     # HLFX LoadGens
@@ -240,6 +274,10 @@ all:
             namespaces:
               - id: 0
                 policy: threshold
+            peer:
+              additional_sans:
+                - "orderer-loadgen.{{ openshift_apps_domain }}"
+                - "orderer-loadgen-metrics.{{ openshift_apps_domain }}"
           loadgen_use_tls: true
           loadgen_metrics_port: 12010
           loadgen_web_port: 12000

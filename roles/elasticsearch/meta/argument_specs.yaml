@@ -444,6 +444,7 @@ argument_specs:
       elasticsearch_tls_private_key_file: *elasticsearch_tls_private_key_file
       elasticsearch_tls_cert_file: *elasticsearch_tls_cert_file
       organization: *organization
+      elasticsearch_openshift_http_route: *elasticsearch_openshift_http_route
 
   k8s/start:
     short_description: Start ElasticSearch on Kubernetes

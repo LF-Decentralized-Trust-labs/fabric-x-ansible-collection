@@ -822,6 +822,9 @@ argument_specs:
       actual_host: *actual_host
       loadgen_use_tls: *loadgen_use_tls
       loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
+      loadgen_openshift_web_route: *loadgen_openshift_web_route
+      loadgen_openshift_metrics_route: *loadgen_openshift_metrics_route
+      loadgen_openshift_rpc_route: *loadgen_openshift_rpc_route
 
   crypto/fetch:
     short_description: Fetch generated certificates

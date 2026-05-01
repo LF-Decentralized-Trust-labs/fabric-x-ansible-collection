@@ -49,6 +49,34 @@
     - ansible_all_ipv4_addresses
       | length > 0
 
+- name: Add Yugabyte OpenShift master webserver route to SAN entries
+  ansible.builtin.set_fact:
+    yugabyte_openssl_san_entries: "{{ yugabyte_openssl_san_entries + ['DNS:' + yugabyte_openshift_master_webserver_route] }}"
+  when:
+    - yugabyte_component_type == 'master'
+    - yugabyte_openshift_master_webserver_route is defined
+
+- name: Add Yugabyte OpenShift tablet webserver route to SAN entries
+  ansible.builtin.set_fact:
+    yugabyte_openssl_san_entries: "{{ yugabyte_openssl_san_entries + ['DNS:' + yugabyte_openshift_tablet_webserver_route] }}"
+  when:
+    - yugabyte_component_type == 'tablet'
+    - yugabyte_openshift_tablet_webserver_route is defined
+
+- name: Add Yugabyte OpenShift tablet pgsql web route to SAN entries
+  ansible.builtin.set_fact:
+    yugabyte_openssl_san_entries: "{{ yugabyte_openssl_san_entries + ['DNS:' + yugabyte_openshift_tablet_pgsql_web_route] }}"
+  when:
+    - yugabyte_component_type == 'tablet'
+    - yugabyte_openshift_tablet_pgsql_web_route is defined
+
+- name: Add Yugabyte OpenShift tablet cql web route to SAN entries
+  ansible.builtin.set_fact:
+    yugabyte_openssl_san_entries: "{{ yugabyte_openssl_san_entries + ['DNS:' + yugabyte_openshift_tablet_cql_web_route] }}"
+  when:
+    - yugabyte_component_type == 'tablet'
+    - yugabyte_openshift_tablet_cql_web_route is defined
+
 - name: Generate CSR for TLS cert
   vars:
     openssl_common_name: "{{ inventory_hostname }}"

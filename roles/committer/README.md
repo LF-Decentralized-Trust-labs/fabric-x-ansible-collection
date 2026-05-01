@@ -1046,6 +1046,10 @@ Enroll the selected committer component against its Fabric CA and write the resu
     committer_use_tls: false
     # Real machine host. Example: `myvpc.cloud.ibm.com`.
     actual_host: "myvpc.cloud.ibm.com"
+    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
+    committer_openshift_route: "committer-rpc.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
+    committer_openshift_metrics_route: "committer-metrics.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: crypto/fabric_ca/enroll

@@ -1226,6 +1226,8 @@ argument_specs:
       actual_host:
         <<: *actual_host
         required: true
+      committer_openshift_route: *committer_openshift_route
+      committer_openshift_metrics_route: *committer_openshift_metrics_route
 
   data/rm:
     short_description: Remove sidecar data

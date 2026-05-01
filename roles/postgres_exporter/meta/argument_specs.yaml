@@ -424,6 +424,7 @@ argument_specs:
       postgres_exporter_remote_config_dir: *postgres_exporter_remote_config_dir
       postgres_exporter_tls_private_key_file: *postgres_exporter_tls_private_key_file
       postgres_exporter_tls_cert_file: *postgres_exporter_tls_cert_file
+      postgres_exporter_openshift_route: *postgres_exporter_openshift_route
 
   k8s/start:
     short_description: Start Postgres Exporter on Kubernetes
