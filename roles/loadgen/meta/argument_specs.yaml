@@ -480,7 +480,7 @@ argument_specs:
       loadgen_k8s_part_of: &loadgen_k8s_part_of
         type: str
         required: false
-        default: "fabric-x-loadgen-{{ organization.name }}"
+        default: "{{ organization.name }}"
         description:
           - Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Loadgen resources.
       loadgen_k8s_wait_timeout: &loadgen_k8s_wait_timeout

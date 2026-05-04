@@ -218,6 +218,12 @@ argument_specs:
         description:
           - Set to C(true) to create a LoadBalancer Service entry that exposes the metrics port externally.
           - When undefined or C(false), the metrics port is not included in the LoadBalancer Service.
+      node_exporter_k8s_run_as_user: &node_exporter_k8s_run_as_user
+        type: int
+        required: false
+        default: 0
+        description:
+          - UID the Node Exporter container runs as.
       node_exporter_port: &node_exporter_port
         type: int
         required: true
@@ -474,6 +480,7 @@ argument_specs:
       k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
       node_exporter_k8s_loadbalancer_expose_metrics_port: *node_exporter_k8s_loadbalancer_expose_metrics_port
+      node_exporter_k8s_run_as_user: *node_exporter_k8s_run_as_user
 
   k8s/ping:
     short_description: Check that Node Exporter Kubernetes service is reachable

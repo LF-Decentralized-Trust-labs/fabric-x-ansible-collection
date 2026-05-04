@@ -44,5 +44,7 @@ node_exporter_k8s_wait_timeout: 120
 # Set to C(true) to create a LoadBalancer Service entry that exposes the metrics port externally.
 # When undefined or C(false), the metrics port is not included in the LoadBalancer Service.
 node_exporter_k8s_loadbalancer_expose_metrics_port: false
+# UID the Node Exporter container runs as.
+node_exporter_k8s_run_as_user: 0
 # Selects the OpenShift deployment branch.
 node_exporter_use_openshift: false

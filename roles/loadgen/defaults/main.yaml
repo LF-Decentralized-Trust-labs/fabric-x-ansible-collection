@@ -66,7 +66,7 @@ loadgen_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{s
 # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
 loadgen_k8s_resource_name: '{{ inventory_hostname }}'
 # Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Loadgen resources.
-loadgen_k8s_part_of: fabric-x-loadgen-{{ organization.name }}
+loadgen_k8s_part_of: '{{ organization.name }}'
 # Deployment rollout wait timeout in seconds.
 loadgen_k8s_wait_timeout: 120
 # Pod FSGroup used for mounted config and secrets.

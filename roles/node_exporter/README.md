@@ -494,6 +494,8 @@ Creates the Kubernetes Service, optional NodePort and LoadBalancer Services, and
     k8s_liveness_probe_failure_threshold: 5
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
     node_exporter_k8s_loadbalancer_expose_metrics_port: false
+    # UID the Node Exporter container runs as.
+    node_exporter_k8s_run_as_user: 0
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: k8s/start
