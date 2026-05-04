@@ -10,6 +10,8 @@
   - [route/apply](#routeapply)
   - [route/rm](#routerm)
   - [route/ping](#routeping)
+  - [cluster/login](#clusterlogin)
+  - [cluster/service\_account\_login](#clusterservice_account_login)
 
 ## Role Defaults
 
@@ -89,4 +91,44 @@ Checks the external OpenShift Route host on port 80 or 443, depending on `opensh
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openshift
     tasks_from: route/ping
+```
+
+### cluster/login
+
+> Login to a managed OpenShift cluster with a personal token
+
+Logs in to a managed OpenShift cluster using a personal user token.
+
+```yaml
+- name: Login to a managed OpenShift cluster with a personal token
+  vars:
+    # OpenShift cluster API server URL for login Required for managed OpenShift cluster login Example: `https://api.cluster.example.com:6443`
+    openshift_cluster_login_server: "https://api.cluster.example.com:6443"
+    # Personal user token for interactive OpenShift login Can be set via OPENSHIFT_PERSONAL_TOKEN environment variable
+    openshift_cluster_personal_token: "{{ lookup('env', 'OPENSHIFT_PERSONAL_TOKEN') | trim }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: cluster/login
+```
+
+### cluster/service_account_login
+
+> Login to a managed OpenShift cluster with a service account
+
+Mints a service-account token and logs in to a managed OpenShift cluster. Selects the configured OpenShift project after login.
+
+```yaml
+- name: Login to a managed OpenShift cluster with a service account
+  vars:
+    # OpenShift cluster API server URL for login Required for managed OpenShift cluster login Example: `https://api.cluster.example.com:6443`
+    openshift_cluster_login_server: "https://api.cluster.example.com:6443"
+    # OpenShift namespace/project to use
+    openshift_cluster_namespace: "{{ k8s_namespace }}"
+    # Service account name to be used by automation after login Example: `ansible-deployer`
+    openshift_cluster_service_account_name: "ansible-deployer"
+    # Duration for the service account token
+    openshift_cluster_service_account_token_duration: 12h
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: cluster/service_account_login
 ```

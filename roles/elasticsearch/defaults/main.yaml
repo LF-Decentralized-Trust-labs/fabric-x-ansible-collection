@@ -37,6 +37,8 @@ elasticsearch_use_k8s: false
 elasticsearch_use_container: '{{ (not elasticsearch_use_k8s) and (not elasticsearch_use_openshift) }}'
 # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
 elasticsearch_k8s_resource_name: '{{ inventory_hostname }}'
+# Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to ElasticSearch resources.
+elasticsearch_k8s_part_of: monitoring
 # Timeout in seconds while waiting for the ElasticSearch StatefulSet rollout to complete.
 elasticsearch_k8s_wait_timeout: 120
 # Kubernetes pod C(fsGroup) applied so mounted TLS files are readable by the ElasticSearch process.

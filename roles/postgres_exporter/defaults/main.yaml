@@ -37,6 +37,8 @@ postgres_exporter_use_k8s: false
 postgres_exporter_use_container: '{{ (not postgres_exporter_use_k8s) and (not postgres_exporter_use_openshift) }}'
 # Sets the Kubernetes resource base name used for ConfigMaps, Secrets, Services, and Deployments.
 postgres_exporter_k8s_resource_name: '{{ inventory_hostname }}'
+# Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Postgres Exporter resources.
+postgres_exporter_k8s_part_of: monitoring
 # Sets the Deployment wait timeout in seconds.
 postgres_exporter_k8s_wait_timeout: 120
 # Sets the pod filesystem group used by the Postgres Exporter Deployment.

@@ -19,7 +19,7 @@
     openshift_route_labels:
       app.kubernetes.io/name: "{{ jaeger_k8s_resource_name }}"
       app.kubernetes.io/component: "jaeger"
-      app.kubernetes.io/part-of: "monitoring"
+      app.kubernetes.io/part-of: "{{ jaeger_k8s_part_of }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openshift
     tasks_from: route/apply
@@ -35,7 +35,7 @@
     openshift_route_labels:
       app.kubernetes.io/name: "{{ jaeger_k8s_resource_name }}"
       app.kubernetes.io/component: "jaeger"
-      app.kubernetes.io/part-of: "monitoring"
+      app.kubernetes.io/part-of: "{{ jaeger_k8s_part_of }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openshift
     tasks_from: route/apply
@@ -51,7 +51,7 @@
     openshift_route_labels:
       app.kubernetes.io/name: "{{ jaeger_k8s_resource_name }}"
       app.kubernetes.io/component: "jaeger"
-      app.kubernetes.io/part-of: "monitoring"
+      app.kubernetes.io/part-of: "{{ jaeger_k8s_part_of }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openshift
     tasks_from: route/apply
@@ -67,7 +67,7 @@
     openshift_route_labels:
       app.kubernetes.io/name: "{{ jaeger_k8s_resource_name }}"
       app.kubernetes.io/component: "jaeger"
-      app.kubernetes.io/part-of: "monitoring"
+      app.kubernetes.io/part-of: "{{ jaeger_k8s_part_of }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openshift
     tasks_from: route/apply
@@ -83,7 +83,7 @@
     openshift_route_labels:
       app.kubernetes.io/name: "{{ jaeger_k8s_resource_name }}"
       app.kubernetes.io/component: "jaeger"
-      app.kubernetes.io/part-of: "monitoring"
+      app.kubernetes.io/part-of: "{{ jaeger_k8s_part_of }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openshift
     tasks_from: route/apply
@@ -99,7 +99,7 @@
     openshift_route_labels:
       app.kubernetes.io/name: "{{ jaeger_k8s_resource_name }}"
       app.kubernetes.io/component: "jaeger"
-      app.kubernetes.io/part-of: "monitoring"
+      app.kubernetes.io/part-of: "{{ jaeger_k8s_part_of }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openshift
     tasks_from: route/apply

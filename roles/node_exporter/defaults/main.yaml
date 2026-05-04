@@ -37,6 +37,8 @@ node_exporter_use_k8s: false
 node_exporter_use_container: '{{ (not node_exporter_use_k8s) and (not node_exporter_use_openshift) }}'
 # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
 node_exporter_k8s_resource_name: '{{ inventory_hostname }}'
+# Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Node Exporter resources.
+node_exporter_k8s_part_of: monitoring
 # Sets how long to wait for the Node Exporter DaemonSet rollout.
 node_exporter_k8s_wait_timeout: 120
 # Set to C(true) to create a LoadBalancer Service entry that exposes the metrics port externally.

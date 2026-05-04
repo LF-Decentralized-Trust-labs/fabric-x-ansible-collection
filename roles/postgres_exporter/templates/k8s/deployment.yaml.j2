@@ -12,7 +12,7 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ postgres_exporter_k8s_resource_name }}
     app.kubernetes.io/component: postgres-exporter
-    app.kubernetes.io/part-of: monitoring
+    app.kubernetes.io/part-of: {{ postgres_exporter_k8s_part_of }}
 spec:
   replicas: 1
   selector:
@@ -23,7 +23,7 @@ spec:
       labels:
         app.kubernetes.io/name: {{ postgres_exporter_k8s_resource_name }}
         app.kubernetes.io/component: postgres-exporter
-        app.kubernetes.io/part-of: monitoring
+        app.kubernetes.io/part-of: {{ postgres_exporter_k8s_part_of }}
     spec:
       securityContext:
         fsGroup: {{ postgres_exporter_k8s_fs_group }}

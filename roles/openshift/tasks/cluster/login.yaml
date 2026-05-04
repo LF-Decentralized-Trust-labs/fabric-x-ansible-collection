@@ -1,0 +1,25 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check if oc is available in PATH
+  ansible.builtin.command: which oc
+  register: openshift_cluster_oc_in_path
+  changed_when: false
+  failed_when: false
+
+- name: Fail if oc CLI is not available
+  ansible.builtin.fail:
+    msg: "oc CLI is required for managed OpenShift login. Install oc and retry."
+  when: openshift_cluster_oc_in_path.rc != 0
+
+- name: Login to managed OpenShift cluster with personal token
+  ansible.builtin.command:
+    cmd: >-
+      oc login
+      --token={{ openshift_cluster_personal_token }}
+      --server={{ openshift_cluster_login_server }}
+  no_log: true
+  changed_when: false

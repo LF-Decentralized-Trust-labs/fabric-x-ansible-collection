@@ -37,6 +37,8 @@ postgres_use_openshift: false
 postgres_use_container: '{{ (not postgres_use_k8s) and (not postgres_use_openshift) }}'
 # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
 postgres_k8s_resource_name: '{{ inventory_hostname }}'
+# Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to PostgreSQL resources.
+postgres_k8s_part_of: "{{ (organization | default({})).name | default('postgres') }}"
 # Timeout in seconds while waiting for the StatefulSet rollout to complete.
 postgres_k8s_wait_timeout: 120
 # Kubernetes pod C(fsGroup) applied so mounted files are readable by the postgres process.

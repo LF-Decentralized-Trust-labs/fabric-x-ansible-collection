@@ -12,7 +12,7 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ loadgen_k8s_resource_name }}
     app.kubernetes.io/component: loadgen
-    app.kubernetes.io/part-of: fabric-x-loadgen
+    app.kubernetes.io/part-of: {{ loadgen_k8s_part_of }}
 spec:
   replicas: 1
   selector:
@@ -23,7 +23,7 @@ spec:
       labels:
         app.kubernetes.io/name: {{ loadgen_k8s_resource_name }}
         app.kubernetes.io/component: loadgen
-        app.kubernetes.io/part-of: fabric-x-loadgen
+        app.kubernetes.io/part-of: {{ loadgen_k8s_part_of }}
     spec:
       securityContext:
         fsGroup: {{ loadgen_k8s_fs_group }}

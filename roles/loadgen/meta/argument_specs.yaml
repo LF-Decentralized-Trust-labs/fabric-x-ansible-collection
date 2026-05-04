@@ -477,6 +477,12 @@ argument_specs:
         default: "{{ inventory_hostname }}"
         description:
           - Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
+      loadgen_k8s_part_of: &loadgen_k8s_part_of
+        type: str
+        required: false
+        default: "fabric-x-loadgen-{{ organization.name }}"
+        description:
+          - Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Loadgen resources.
       loadgen_k8s_wait_timeout: &loadgen_k8s_wait_timeout
         type: int
         required: false
@@ -984,6 +990,7 @@ argument_specs:
       loadgen_k8s_fs_group: *loadgen_k8s_fs_group
       k8s_namespace: *k8s_namespace
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_part_of: *loadgen_k8s_part_of
       loadgen_use_tls: *loadgen_use_tls
       loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
       loadgen_use_mtls: *loadgen_use_mtls
@@ -1028,6 +1035,7 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_part_of: *loadgen_k8s_part_of
       loadgen_k8s_web_node_port: *loadgen_k8s_web_node_port
       loadgen_k8s_loadbalancer_expose_web_port: *loadgen_k8s_loadbalancer_expose_web_port
       loadgen_k8s_metrics_node_port: *loadgen_k8s_metrics_node_port
@@ -1042,6 +1050,7 @@ argument_specs:
       - Uses the configured Kubernetes resource name to fetch pod output without changing workload state.
     options:
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_part_of: *loadgen_k8s_part_of
 
   k8s/config/transfer:
     short_description: Publish the Kubernetes ConfigMap
@@ -1051,6 +1060,7 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_part_of: *loadgen_k8s_part_of
       loadgen_remote_config_dir: *loadgen_remote_config_dir
       loadgen_config_file: *loadgen_config_file
       orderer_router_hosts: *orderer_router_hosts
@@ -1071,6 +1081,7 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_part_of: *loadgen_k8s_part_of
 
   k8s/crypto/transfer:
     short_description: Publish the Kubernetes Secret
@@ -1086,6 +1097,7 @@ argument_specs:
       loadgen_crypto_name: *loadgen_crypto_name
       k8s_namespace: *k8s_namespace
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_part_of: *loadgen_k8s_part_of
       loadgen_use_tls: *loadgen_use_tls
       loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
 
@@ -1097,6 +1109,7 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_part_of: *loadgen_k8s_part_of
       loadgen_use_tls: *loadgen_use_tls
 
   openshift/start:
@@ -1105,6 +1118,7 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_part_of: *loadgen_k8s_part_of
       loadgen_use_tls: *loadgen_use_tls
       loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
       k8s_namespace: *k8s_namespace
@@ -1129,6 +1143,7 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_part_of: *loadgen_k8s_part_of
       k8s_namespace: *k8s_namespace
       loadgen_openshift_web_route: *loadgen_openshift_web_route
       loadgen_openshift_metrics_route: *loadgen_openshift_metrics_route

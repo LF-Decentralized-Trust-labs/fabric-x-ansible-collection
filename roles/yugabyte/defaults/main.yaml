@@ -57,6 +57,8 @@ yugabyte_tablet_cql_bind_port: 9042
 yugabyte_tablet_cql_web_port: 12000
 # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
 yugabyte_k8s_resource_name: '{{ inventory_hostname }}'
+# Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to YugabyteDB resources.
+yugabyte_k8s_part_of: "{{ (organization | default({})).name | default('yugabyte') }}"
 # Waits for YugabyteDB Kubernetes resources to become ready.
 yugabyte_k8s_wait: true
 # Sets the Kubernetes readiness wait timeout in seconds.

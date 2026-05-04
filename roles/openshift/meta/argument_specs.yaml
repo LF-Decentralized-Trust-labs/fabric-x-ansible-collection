@@ -60,6 +60,40 @@ argument_specs:
         default: passthrough
         description:
           - Specifies the TLS termination type to render on the OpenShift Route.
+      openshift_cluster_login_server: &openshift_cluster_login_server
+        type: str
+        required: true
+        description:
+          - "OpenShift cluster API server URL for login"
+          - "Required for managed OpenShift cluster login"
+          - "Example: C(https://api.cluster.example.com:6443)"
+      openshift_cluster_personal_token: &openshift_cluster_personal_token
+        type: str
+        required: false
+        default: "{{ lookup('env', 'OPENSHIFT_PERSONAL_TOKEN') | trim }}"
+        description:
+          - "Personal user token for interactive OpenShift login"
+          - "Can be set via OPENSHIFT_PERSONAL_TOKEN environment variable"
+      openshift_cluster_namespace: &openshift_cluster_namespace
+        type: str
+        required: false
+        default: "{{ k8s_namespace }}"
+        description:
+          - "OpenShift namespace/project to use"
+      openshift_cluster_service_account_name:
+        &openshift_cluster_service_account_name
+        type: str
+        required: true
+        description:
+          - "Service account name to be used by automation after login"
+          - "Example: C(ansible-deployer)"
+      openshift_cluster_service_account_token_duration:
+        &openshift_cluster_service_account_token_duration
+        type: str
+        required: false
+        default: "12h"
+        description:
+          - "Duration for the service account token"
 
   route/apply:
     short_description: Apply an OpenShift Route
@@ -91,3 +125,22 @@ argument_specs:
     options:
       openshift_route_host: *openshift_route_host
       openshift_route_use_tls: *openshift_route_use_tls
+
+  cluster/login:
+    short_description: Login to a managed OpenShift cluster with a personal token
+    description:
+      - Logs in to a managed OpenShift cluster using a personal user token.
+    options:
+      openshift_cluster_login_server: *openshift_cluster_login_server
+      openshift_cluster_personal_token: *openshift_cluster_personal_token
+
+  cluster/service_account_login:
+    short_description: Login to a managed OpenShift cluster with a service account
+    description:
+      - Mints a service-account token and logs in to a managed OpenShift cluster.
+      - Selects the configured OpenShift project after login.
+    options:
+      openshift_cluster_login_server: *openshift_cluster_login_server
+      openshift_cluster_namespace: *openshift_cluster_namespace
+      openshift_cluster_service_account_name: *openshift_cluster_service_account_name
+      openshift_cluster_service_account_token_duration: *openshift_cluster_service_account_token_duration

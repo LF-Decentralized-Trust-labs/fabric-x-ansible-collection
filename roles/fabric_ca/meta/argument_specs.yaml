@@ -171,6 +171,12 @@ argument_specs:
         default: "{{ inventory_hostname }}"
         description:
           - "Sets the Kubernetes resource name for the Fabric CA server and its Service resources."
+      fabric_ca_server_k8s_part_of: &fabric_ca_server_k8s_part_of
+        type: str
+        required: false
+        default: "{{ organization.name }}"
+        description:
+          - "Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Fabric CA server resources."
       fabric_ca_server_k8s_wait_timeout: &fabric_ca_server_k8s_wait_timeout
         type: int
         default: 120
@@ -893,6 +899,7 @@ argument_specs:
     options:
       fabric_ca_server_k8s_wait_timeout: *fabric_ca_server_k8s_wait_timeout
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+      fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
       fabric_ca_image: *fabric_ca_image
       fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
       fabric_ca_image_name: *fabric_ca_image_name
@@ -933,6 +940,7 @@ argument_specs:
       - "Fetches runtime output from the server pod in C(k8s_namespace) without changing cluster resources."
     options:
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+      fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
 
   server/k8s/rm:
     short_description: Remove server Kubernetes runtime resources
@@ -941,6 +949,7 @@ argument_specs:
       - "Removes Deployment and Service objects while leaving ConfigMap and Secret cleanup to their dedicated tasks."
     options:
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+      fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
       k8s_namespace: *k8s_namespace
       fabric_ca_server_k8s_node_port: *fabric_ca_server_k8s_node_port
       fabric_ca_server_k8s_loadbalancer_expose_port: *fabric_ca_server_k8s_loadbalancer_expose_port
@@ -956,6 +965,7 @@ argument_specs:
       fabric_ca_server_remote_config_dir: *fabric_ca_server_remote_config_dir
       remote_config_dir: *remote_config_dir
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+      fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
       postgres_db_host: *postgres_db_host
       k8s_namespace: *k8s_namespace
 
@@ -966,6 +976,7 @@ argument_specs:
       - "Removes Kubernetes config resources while leaving runtime and crypto Secret cleanup to separate tasks."
     options:
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+      fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
       k8s_namespace: *k8s_namespace
 
   server/k8s/crypto/transfer:
@@ -977,6 +988,7 @@ argument_specs:
       fabric_ca_server_remote_config_dir: *fabric_ca_server_remote_config_dir
       remote_config_dir: *remote_config_dir
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+      fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
       fabric_ca_server_ca_private_key_file: *fabric_ca_server_ca_private_key_file
       fabric_ca_server_ca_cert_file: *fabric_ca_server_ca_cert_file
       fabric_ca_server_tls_private_key_file: *fabric_ca_server_tls_private_key_file
@@ -991,6 +1003,7 @@ argument_specs:
       - "Removes server CA and TLS key material from Kubernetes while leaving local files untouched."
     options:
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+      fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
       k8s_namespace: *k8s_namespace
 
   server/crypto/setup:
@@ -1102,6 +1115,7 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+      fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
       fabric_ca_use_tls: *fabric_ca_use_tls
       k8s_namespace: *k8s_namespace
       fabric_ca_server_openshift_route: *fabric_ca_server_openshift_route
@@ -1122,6 +1136,7 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+      fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
       k8s_namespace: *k8s_namespace
       fabric_ca_server_openshift_route: *fabric_ca_server_openshift_route
       fabric_ca_server_openshift_operations_route: *fabric_ca_server_openshift_operations_route

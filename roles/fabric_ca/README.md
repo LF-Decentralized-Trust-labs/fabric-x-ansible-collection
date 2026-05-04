@@ -1096,6 +1096,8 @@ Creates Fabric CA Kubernetes runtime resources for the server. Uses the ConfigMa
     fabric_ca_server_k8s_wait_timeout: 120
     # Sets the Kubernetes resource name for the Fabric CA server and its Service resources.
     fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Fabric CA server resources.
+    fabric_ca_server_k8s_part_of: "{{ organization.name }}"
     # Sets the Fabric CA image.
     fabric_ca_image: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
     # Sets the registry endpoint used to resolve the Fabric CA image.
@@ -1178,6 +1180,8 @@ Collects pod logs for the Fabric CA Kubernetes deployment. Fetches runtime outpu
   vars:
     # Sets the Kubernetes resource name for the Fabric CA server and its Service resources.
     fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Fabric CA server resources.
+    fabric_ca_server_k8s_part_of: "{{ organization.name }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/k8s/fetch_logs
@@ -1194,6 +1198,8 @@ Deletes the Fabric CA Kubernetes runtime resources. Removes Deployment and Servi
   vars:
     # Sets the Kubernetes resource name for the Fabric CA server and its Service resources.
     fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Fabric CA server resources.
+    fabric_ca_server_k8s_part_of: "{{ organization.name }}"
     # Provides the Kubernetes namespace from the shared inventory. Example: `fabricx`.
     k8s_namespace: "fabricx"
     # Kubernetes NodePort value used by the external API Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30054`.
@@ -1224,6 +1230,8 @@ Creates or updates the Fabric CA Kubernetes ConfigMap from rendered server confi
     remote_config_dir: "/var/hyperledger/fabricx/fabric-ca/ca-org1/config"
     # Sets the Kubernetes resource name for the Fabric CA server and its Service resources.
     fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Fabric CA server resources.
+    fabric_ca_server_k8s_part_of: "{{ organization.name }}"
     # Names the PostgreSQL host defined elsewhere in inventory. Example: `postgres0.example.com`.
     postgres_db_host: "postgres0.example.com"
     # Provides the Kubernetes namespace from the shared inventory. Example: `fabricx`.
@@ -1244,6 +1252,8 @@ Deletes the Fabric CA Kubernetes ConfigMap. Removes Kubernetes config resources 
   vars:
     # Sets the Kubernetes resource name for the Fabric CA server and its Service resources.
     fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Fabric CA server resources.
+    fabric_ca_server_k8s_part_of: "{{ organization.name }}"
     # Provides the Kubernetes namespace from the shared inventory. Example: `fabricx`.
     k8s_namespace: "fabricx"
   ansible.builtin.include_role:
@@ -1266,6 +1276,8 @@ Creates or updates the Fabric CA Kubernetes Secret containing server crypto mate
     remote_config_dir: "/var/hyperledger/fabricx/fabric-ca/ca-org1/config"
     # Sets the Kubernetes resource name for the Fabric CA server and its Service resources.
     fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Fabric CA server resources.
+    fabric_ca_server_k8s_part_of: "{{ organization.name }}"
     # Sets the server CA private key filename.
     fabric_ca_server_ca_private_key_file: ca-key.pem
     # Sets the server CA certificate filename.
@@ -1294,6 +1306,8 @@ Deletes the Fabric CA Kubernetes Secret. Removes server CA and TLS key material 
   vars:
     # Sets the Kubernetes resource name for the Fabric CA server and its Service resources.
     fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Fabric CA server resources.
+    fabric_ca_server_k8s_part_of: "{{ organization.name }}"
     # Provides the Kubernetes namespace from the shared inventory. Example: `fabricx`.
     k8s_namespace: "fabricx"
   ansible.builtin.include_role:
@@ -1524,6 +1538,8 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Sets the Kubernetes resource name for the Fabric CA server and its Service resources.
     fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Fabric CA server resources.
+    fabric_ca_server_k8s_part_of: "{{ organization.name }}"
     # Enables TLS for server and client connections.
     fabric_ca_use_tls: false
     # Provides the Kubernetes namespace from the shared inventory. Example: `fabricx`.
@@ -1568,6 +1584,8 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Sets the Kubernetes resource name for the Fabric CA server and its Service resources.
     fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Fabric CA server resources.
+    fabric_ca_server_k8s_part_of: "{{ organization.name }}"
     # Provides the Kubernetes namespace from the shared inventory. Example: `fabricx`.
     k8s_namespace: "fabricx"
     # Specifies the OpenShift Route host. Example: `fabric-ca.apps.example.com`.

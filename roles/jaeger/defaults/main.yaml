@@ -39,6 +39,8 @@ jaeger_grpc_server_port: 14250
 jaeger_collector_port: 4317
 # Sets the Kubernetes resource name used for Jaeger objects.
 jaeger_k8s_resource_name: '{{ inventory_hostname }}'
+# Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Jaeger resources.
+jaeger_k8s_part_of: monitoring
 # Sets the rollout wait timeout for the Jaeger Kubernetes deployment.
 jaeger_k8s_wait_timeout: 120
 # Sets the pod filesystem group for the Jaeger Kubernetes workload.

@@ -191,6 +191,12 @@ argument_specs:
         default: "{{ inventory_hostname }}"
         description:
           - "Sets the Kubernetes resource base name used for ConfigMaps, Secrets, Services, and Deployments."
+      postgres_exporter_k8s_part_of: &postgres_exporter_k8s_part_of
+        type: str
+        required: false
+        default: monitoring
+        description:
+          - "Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Postgres Exporter resources."
       postgres_exporter_k8s_wait_timeout: &postgres_exporter_k8s_wait_timeout
         type: int
         required: false
@@ -448,6 +454,7 @@ argument_specs:
       postgres_exporter_image_tag: *postgres_exporter_image_tag
       postgres_exporter_image: *postgres_exporter_image
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
+      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
       postgres_exporter_k8s_wait_timeout: *postgres_exporter_k8s_wait_timeout
       postgres_exporter_k8s_fs_group: *postgres_exporter_k8s_fs_group
       postgres_exporter_k8s_node_port: *postgres_exporter_k8s_node_port
@@ -476,6 +483,7 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
+      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
       postgres_exporter_k8s_node_port: *postgres_exporter_k8s_node_port
       postgres_exporter_k8s_loadbalancer_expose_metrics_port: *postgres_exporter_k8s_loadbalancer_expose_metrics_port
 
@@ -485,6 +493,7 @@ argument_specs:
       - "Delegates Postgres Exporter pod log collection to the shared Kubernetes role."
     options:
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
+      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
 
   k8s/config/transfer:
     short_description: Apply the Postgres Exporter ConfigMap
@@ -496,6 +505,7 @@ argument_specs:
       postgres_db_host: *postgres_db_host
       remote_config_dir: *remote_config_dir
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
+      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
       postgres_exporter_remote_config_dir: *postgres_exporter_remote_config_dir
       postgres_exporter_config_file: *postgres_exporter_config_file
       postgres_exporter_web_config_file: *postgres_exporter_web_config_file
@@ -508,6 +518,7 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
+      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
 
   k8s/crypto/transfer:
     short_description: Apply the Postgres Exporter Secret
@@ -518,6 +529,7 @@ argument_specs:
       postgres_db_host: *postgres_db_host
       remote_config_dir: *remote_config_dir
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
+      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
       postgres_exporter_remote_config_dir: *postgres_exporter_remote_config_dir
       postgres_exporter_container_config_dir: *postgres_exporter_container_config_dir
       postgres_exporter_tls_private_key_file: *postgres_exporter_tls_private_key_file
@@ -531,6 +543,7 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
+      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
 
   prometheus/get_scrapers:
     short_description: Build Prometheus scrape definitions for Postgres Exporter
@@ -547,6 +560,7 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
+      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
       postgres_exporter_use_tls: *postgres_exporter_use_tls
       k8s_namespace: *k8s_namespace
       postgres_exporter_openshift_route: *postgres_exporter_openshift_route
@@ -565,5 +579,6 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
+      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
       k8s_namespace: *k8s_namespace
       postgres_exporter_openshift_route: *postgres_exporter_openshift_route

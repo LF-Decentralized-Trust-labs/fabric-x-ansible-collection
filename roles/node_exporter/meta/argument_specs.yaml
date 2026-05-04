@@ -191,6 +191,12 @@ argument_specs:
         default: "{{ inventory_hostname }}"
         description:
           - Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
+      node_exporter_k8s_part_of: &node_exporter_k8s_part_of
+        type: str
+        required: false
+        default: monitoring
+        description:
+          - Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Node Exporter resources.
       node_exporter_k8s_wait_timeout: &node_exporter_k8s_wait_timeout
         type: int
         required: false
@@ -445,6 +451,7 @@ argument_specs:
     options:
       node_exporter_k8s_wait_timeout: *node_exporter_k8s_wait_timeout
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
       node_exporter_port: *node_exporter_port
       node_exporter_k8s_node_port: *node_exporter_k8s_node_port
       node_exporter_registry_endpoint: *node_exporter_registry_endpoint
@@ -484,6 +491,7 @@ argument_specs:
       - Targets the workload by C(k8s_namespace) and C(node_exporter_k8s_resource_name).
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
       k8s_namespace: *k8s_namespace
       node_exporter_k8s_node_port: *node_exporter_k8s_node_port
       node_exporter_k8s_loadbalancer_expose_metrics_port: *node_exporter_k8s_loadbalancer_expose_metrics_port
@@ -495,6 +503,7 @@ argument_specs:
       - This is the Kubernetes-mode log path used by the top-level fetch_logs entry point.
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
 
   k8s/config/transfer:
     short_description: Apply the Node Exporter Kubernetes ConfigMap
@@ -503,6 +512,7 @@ argument_specs:
       - The ConfigMap points at C(node_exporter_remote_config_dir) content and the rendered web config when TLS is enabled.
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
       node_exporter_use_tls: *node_exporter_use_tls
       node_exporter_web_config_file: *node_exporter_web_config_file
       remote_deploy_dir: *remote_deploy_dir
@@ -516,6 +526,7 @@ argument_specs:
       - Keeps the namespace and runtime pods untouched so teardown can be handled separately.
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
       k8s_namespace: *k8s_namespace
 
   k8s/crypto/transfer:
@@ -525,6 +536,7 @@ argument_specs:
       - The Secret name matches C(node_exporter_k8s_resource_name).
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
       node_exporter_use_tls: *node_exporter_use_tls
       remote_deploy_dir: *remote_deploy_dir
       node_exporter_remote_config_dir: *node_exporter_remote_config_dir
@@ -539,6 +551,7 @@ argument_specs:
       - Targets the Secret named after C(node_exporter_k8s_resource_name).
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
       k8s_namespace: *k8s_namespace
 
   prometheus/get_scrapers:
@@ -556,6 +569,7 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
       node_exporter_use_tls: *node_exporter_use_tls
       k8s_namespace: *k8s_namespace
       node_exporter_openshift_route: *node_exporter_openshift_route
@@ -574,5 +588,6 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
       k8s_namespace: *k8s_namespace
       node_exporter_openshift_route: *node_exporter_openshift_route

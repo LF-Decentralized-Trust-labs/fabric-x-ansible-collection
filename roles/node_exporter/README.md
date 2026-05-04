@@ -448,6 +448,8 @@ Creates the Kubernetes Service, optional NodePort and LoadBalancer Services, and
     node_exporter_k8s_wait_timeout: 120
     # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Node Exporter resources.
+    node_exporter_k8s_part_of: monitoring
     # Sets the TCP port exposed by Node Exporter and seeds the default Kubernetes NodePort value. Example: `9100`.
     node_exporter_port: 9100
     # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31000`.
@@ -528,6 +530,8 @@ Removes the Kubernetes DaemonSet and Services created for Node Exporter. Targets
   vars:
     # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Node Exporter resources.
+    node_exporter_k8s_part_of: monitoring
     # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true. Example: `monitoring`.
     k8s_namespace: "monitoring"
     # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31000`.
@@ -550,6 +554,8 @@ Collects logs from Node Exporter pods by delegating to the shared Kubernetes rol
   vars:
     # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Node Exporter resources.
+    node_exporter_k8s_part_of: monitoring
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: k8s/fetch_logs
@@ -566,6 +572,8 @@ Ensures the target namespace exists and applies the ConfigMap used by the Node E
   vars:
     # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Node Exporter resources.
+    node_exporter_k8s_part_of: monitoring
     # Enables the TLS web configuration and certificate paths when true.
     node_exporter_use_tls: false
     # Sets the rendered Node Exporter web configuration filename.
@@ -592,6 +600,8 @@ Deletes the ConfigMap used by the Node Exporter Kubernetes deployment. Keeps the
   vars:
     # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Node Exporter resources.
+    node_exporter_k8s_part_of: monitoring
     # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true. Example: `monitoring`.
     k8s_namespace: "monitoring"
   ansible.builtin.include_role:
@@ -610,6 +620,8 @@ Ensures the target namespace exists and applies the Secret that stores Node Expo
   vars:
     # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Node Exporter resources.
+    node_exporter_k8s_part_of: monitoring
     # Enables the TLS web configuration and certificate paths when true.
     node_exporter_use_tls: false
     # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`. Example: `/opt/fabricx/node-exporter`.
@@ -638,6 +650,8 @@ Deletes the Secret that stores Node Exporter TLS material for Kubernetes deploym
   vars:
     # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Node Exporter resources.
+    node_exporter_k8s_part_of: monitoring
     # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true. Example: `monitoring`.
     k8s_namespace: "monitoring"
   ansible.builtin.include_role:
@@ -677,6 +691,8 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Node Exporter resources.
+    node_exporter_k8s_part_of: monitoring
     # Enables the TLS web configuration and certificate paths when true.
     node_exporter_use_tls: false
     # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true. Example: `monitoring`.
@@ -717,6 +733,8 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Node Exporter resources.
+    node_exporter_k8s_part_of: monitoring
     # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true. Example: `monitoring`.
     k8s_namespace: "monitoring"
     # Specifies the OpenShift Route host. Example: `node-exporter-metrics.apps.example.com`.

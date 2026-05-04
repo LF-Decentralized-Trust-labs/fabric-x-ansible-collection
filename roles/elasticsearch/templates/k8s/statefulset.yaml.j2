@@ -12,7 +12,7 @@ metadata:
   namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ elasticsearch_k8s_resource_name }}
-    app.kubernetes.io/part-of: elasticsearch
+    app.kubernetes.io/part-of: {{ elasticsearch_k8s_part_of }}
 spec:
   # Must match the headless Service name so DNS-based pod addressing works.
   serviceName: {{ elasticsearch_k8s_resource_name }}
@@ -26,7 +26,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: {{ elasticsearch_k8s_resource_name }}
-        app.kubernetes.io/part-of: elasticsearch
+        app.kubernetes.io/part-of: {{ elasticsearch_k8s_part_of }}
     spec:
       securityContext:
         # Ensures files mounted from Secrets are readable by the elasticsearch

@@ -12,7 +12,7 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ committer_k8s_resource_name }}
     app.kubernetes.io/component: {{ committer_component_type }}
-    app.kubernetes.io/part-of: fabric-x-committer
+    app.kubernetes.io/part-of: {{ committer_k8s_part_of }}
 spec:
   # Must match the headless Service name so DNS-based pod addressing works.
   serviceName: {{ committer_k8s_resource_name }}
@@ -25,7 +25,7 @@ spec:
       labels:
         app.kubernetes.io/name: {{ committer_k8s_resource_name }}
         app.kubernetes.io/component: {{ committer_component_type }}
-        app.kubernetes.io/part-of: fabric-x-committer
+        app.kubernetes.io/part-of: {{ committer_k8s_part_of }}
     spec:
       securityContext:
         fsGroup: {{ committer_k8s_fs_group }}
@@ -95,9 +95,11 @@ spec:
               mountPath: {{ committer_container_config_dir }}/msp/keystore/priv_sk
               subPath: msp-keystore-priv-sk
               readOnly: true
-            # MSP CA certificate.
+            # MSP CA certificate. The filename must match the
+            # Certificate reference inside msp/config.yaml so that Fabric's
+            # NodeOUs resolution can locate it at runtime.
             - name: secret
-              mountPath: {{ committer_container_config_dir }}/msp/cacerts/ca.pem
+              mountPath: {{ committer_container_config_dir }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem
               subPath: msp-cacerts-ca.pem
               readOnly: true
             # NodeOUs configuration: tells Fabric to classify identities by OU.

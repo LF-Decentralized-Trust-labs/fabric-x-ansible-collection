@@ -168,6 +168,12 @@ argument_specs:
         default: "{{ inventory_hostname }}"
         description:
           - Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
+      prometheus_k8s_part_of: &prometheus_k8s_part_of
+        type: str
+        required: false
+        default: monitoring
+        description:
+          - Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Prometheus resources.
       prometheus_k8s_wait_timeout: &prometheus_k8s_wait_timeout
         type: int
         required: false
@@ -328,6 +334,7 @@ argument_specs:
       prometheus_image: *prometheus_image
       prometheus_port: *prometheus_port
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
+      prometheus_k8s_part_of: *prometheus_k8s_part_of
       prometheus_k8s_node_port: *prometheus_k8s_node_port
       prometheus_k8s_fs_group: *prometheus_k8s_fs_group
       prometheus_container_config_dir: *prometheus_container_config_dir
@@ -396,6 +403,7 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
+      prometheus_k8s_part_of: *prometheus_k8s_part_of
       prometheus_k8s_node_port: *prometheus_k8s_node_port
       prometheus_k8s_loadbalancer_expose_http_port: *prometheus_k8s_loadbalancer_expose_http_port
 
@@ -417,6 +425,7 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
+      prometheus_k8s_part_of: *prometheus_k8s_part_of
 
   wipe:
     short_description: Remove all Prometheus data and configuration
@@ -456,6 +465,7 @@ argument_specs:
       prometheus_tls_private_key_file: *prometheus_tls_private_key_file
       prometheus_tls_cert_file: *prometheus_tls_cert_file
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
+      prometheus_k8s_part_of: *prometheus_k8s_part_of
       prometheus_use_tls: *prometheus_use_tls
 
   crypto/fetch:
@@ -486,6 +496,7 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
+      prometheus_k8s_part_of: *prometheus_k8s_part_of
 
   config/transfer:
     short_description: Transfer Prometheus configuration files
@@ -519,6 +530,7 @@ argument_specs:
       prometheus_web_config_file: *prometheus_web_config_file
       prometheus_http_config_file: *prometheus_http_config_file
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
+      prometheus_k8s_part_of: *prometheus_k8s_part_of
       prometheus_scrape_services: *prometheus_scrape_services
       prometheus_use_tls: *prometheus_use_tls
 
@@ -539,6 +551,7 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
+      prometheus_k8s_part_of: *prometheus_k8s_part_of
 
   fetch_logs:
     short_description: Fetch Prometheus logs from the active deployment mode
@@ -563,6 +576,7 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
+      prometheus_k8s_part_of: *prometheus_k8s_part_of
 
   openshift/start:
     short_description: Start the OpenShift deployment
@@ -570,6 +584,7 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
+      prometheus_k8s_part_of: *prometheus_k8s_part_of
       prometheus_use_tls: *prometheus_use_tls
       k8s_namespace: *k8s_namespace
       prometheus_openshift_route: *prometheus_openshift_route
@@ -588,5 +603,6 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
+      prometheus_k8s_part_of: *prometheus_k8s_part_of
       k8s_namespace: *k8s_namespace
       prometheus_openshift_route: *prometheus_openshift_route

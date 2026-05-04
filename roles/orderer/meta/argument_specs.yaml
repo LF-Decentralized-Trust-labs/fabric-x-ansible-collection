@@ -141,6 +141,12 @@ argument_specs:
         default: "{{ inventory_hostname }}"
         description:
           - "Base name used for the orderer Kubernetes objects, including the optional NodePort Service."
+      orderer_k8s_part_of: &orderer_k8s_part_of
+        type: str
+        required: false
+        default: "{{ organization.name }}"
+        description:
+          - "Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to orderer resources."
       orderer_k8s_wait_timeout: &orderer_k8s_wait_timeout
         type: int
         required: false
@@ -796,6 +802,7 @@ argument_specs:
     options:
       orderer_component_type: *orderer_component_type
       orderer_k8s_resource_name: *orderer_k8s_resource_name
+      orderer_k8s_part_of: *orderer_k8s_part_of
       orderer_k8s_wait_timeout: *orderer_k8s_wait_timeout
       orderer_rpc_port: *orderer_rpc_port
       orderer_metrics_port: *orderer_metrics_port
@@ -848,6 +855,7 @@ argument_specs:
       - "Leaves ConfigMap, Secret, and PVC artifacts for explicit config, crypto, or data cleanup entrypoints."
     options:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
+      orderer_k8s_part_of: *orderer_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -870,6 +878,7 @@ argument_specs:
       - "Works for consenter, batcher, assembler, and router workloads by using the generated resource name labels."
     options:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
+      orderer_k8s_part_of: *orderer_k8s_part_of
 
   k8s/config/transfer:
     short_description: Create the orderer Kubernetes ConfigMap
@@ -880,6 +889,7 @@ argument_specs:
       remote_config_dir: *remote_config_dir
       orderer_remote_config_dir: *orderer_remote_config_dir
       orderer_k8s_resource_name: *orderer_k8s_resource_name
+      orderer_k8s_part_of: *orderer_k8s_part_of
       orderer_component_type: *orderer_component_type
       orderer_config_file: *orderer_config_file
       orderer_use_mtls: *orderer_use_mtls
@@ -896,6 +906,7 @@ argument_specs:
       - "Does not remove the local generated config directory."
     options:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
+      orderer_k8s_part_of: *orderer_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -911,6 +922,7 @@ argument_specs:
       organization: *organization
       orderer_crypto_name: *orderer_crypto_name
       orderer_k8s_resource_name: *orderer_k8s_resource_name
+      orderer_k8s_part_of: *orderer_k8s_part_of
       orderer_component_type: *orderer_component_type
       k8s_namespace:
         <<: *k8s_namespace
@@ -923,6 +935,7 @@ argument_specs:
       - "Does not remove the local MSP and TLS directories under the orderer config path."
     options:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
+      orderer_k8s_part_of: *orderer_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -941,6 +954,7 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
+      orderer_k8s_part_of: *orderer_k8s_part_of
       orderer_component_type: *orderer_component_type
       orderer_use_tls: *orderer_use_tls
       k8s_namespace: *k8s_namespace
@@ -962,6 +976,7 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
+      orderer_k8s_part_of: *orderer_k8s_part_of
       k8s_namespace: *k8s_namespace
       orderer_openshift_route: *orderer_openshift_route
       orderer_openshift_metrics_route: *orderer_openshift_metrics_route

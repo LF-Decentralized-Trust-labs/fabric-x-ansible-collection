@@ -158,6 +158,8 @@ Ensures the namespace exists, renders and transfers Prometheus configuration, an
     prometheus_port: 9090
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
+    prometheus_k8s_part_of: monitoring
     # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30990`.
     prometheus_k8s_node_port: 30990
     # File system group assigned to the pod.
@@ -306,6 +308,8 @@ Deletes the Prometheus StatefulSet and both Services from Kubernetes.
     k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
+    prometheus_k8s_part_of: monitoring
     # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30990`.
     prometheus_k8s_node_port: 30990
     # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP port externally. When undefined or `false`, the HTTP port is not included in the LoadBalancer Service.
@@ -352,6 +356,8 @@ Deletes the PersistentVolumeClaim created for the Prometheus StatefulSet.
     k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
+    prometheus_k8s_part_of: monitoring
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/data/rm
@@ -439,6 +445,8 @@ Creates or updates the Kubernetes Secret that stores the Prometheus TLS server k
     prometheus_tls_cert_file: server.crt
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
+    prometheus_k8s_part_of: monitoring
     # Enables HTTPS and TLS-aware health checks when set to `true`.
     prometheus_use_tls: false
   ansible.builtin.include_role:
@@ -505,6 +513,8 @@ Deletes the Kubernetes Secret that stores the Prometheus TLS server keypair.
     k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
+    prometheus_k8s_part_of: monitoring
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/crypto/rm
@@ -573,6 +583,8 @@ Creates or updates the ConfigMap that carries the rendered Prometheus configurat
     prometheus_http_config_file: http-config.yaml
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
+    prometheus_k8s_part_of: monitoring
     # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }]`.
     prometheus_scrape_services:[{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }]
     # Enables HTTPS and TLS-aware health checks when set to `true`.
@@ -617,6 +629,8 @@ Deletes the Kubernetes ConfigMap that stores Prometheus configuration.
     k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
+    prometheus_k8s_part_of: monitoring
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/config/rm
@@ -671,6 +685,8 @@ Collects logs for the Prometheus pod through the shared Kubernetes role.
     k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
+    prometheus_k8s_part_of: monitoring
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/fetch_logs
@@ -687,6 +703,8 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
+    prometheus_k8s_part_of: monitoring
     # Enables HTTPS and TLS-aware health checks when set to `true`.
     prometheus_use_tls: false
     # Kubernetes namespace used for Prometheus resources. Example: `observability`.
@@ -727,6 +745,8 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
+    prometheus_k8s_part_of: monitoring
     # Kubernetes namespace used for Prometheus resources. Example: `observability`.
     k8s_namespace: "observability"
     # Specifies the OpenShift Route host. Example: `prometheus.apps.example.com`.

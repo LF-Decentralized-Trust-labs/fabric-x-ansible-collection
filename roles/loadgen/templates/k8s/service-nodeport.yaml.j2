@@ -12,7 +12,7 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ loadgen_k8s_resource_name }}
     app.kubernetes.io/component: loadgen
-    app.kubernetes.io/part-of: fabric-x-loadgen
+    app.kubernetes.io/part-of: {{ loadgen_k8s_part_of }}
 spec:
   type: NodePort
   selector:

@@ -204,6 +204,12 @@ argument_specs:
         default: "{{ inventory_hostname }}"
         description:
           - Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
+      elasticsearch_k8s_part_of: &elasticsearch_k8s_part_of
+        type: str
+        required: false
+        default: monitoring
+        description:
+          - Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to ElasticSearch resources.
       elasticsearch_k8s_wait_timeout: &elasticsearch_k8s_wait_timeout
         type: int
         required: false
@@ -396,6 +402,7 @@ argument_specs:
       elasticsearch_remote_data_dir: *elasticsearch_remote_data_dir
       remote_data_dir: *remote_data_dir
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: false
@@ -453,6 +460,7 @@ argument_specs:
       - Uses the role templates to configure storage, TLS mounts, the configured image, and rollout waiting behavior.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -504,6 +512,7 @@ argument_specs:
       - The persistent volume claim is removed separately by the C(data/rm) entry point so data cleanup stays explicit.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -519,6 +528,7 @@ argument_specs:
       - Selects pods using the ElasticSearch application label.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -530,6 +540,7 @@ argument_specs:
       - This entry point is typically invoked from the ElasticSearch crypto cleanup workflow after the remote certs are removed.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -541,6 +552,7 @@ argument_specs:
       - Ensures the Kubernetes namespace exists before applying the Secret and keeps the pod-mounted certificate paths aligned with the remote files.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -556,6 +568,7 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       elasticsearch_use_tls: *elasticsearch_use_tls
       k8s_namespace: *k8s_namespace
       elasticsearch_openshift_http_route: *elasticsearch_openshift_http_route
@@ -574,5 +587,6 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace: *k8s_namespace
       elasticsearch_openshift_http_route: *elasticsearch_openshift_http_route

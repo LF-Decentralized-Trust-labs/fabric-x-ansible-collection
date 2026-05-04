@@ -18,7 +18,7 @@
     openshift_route_use_tls: "{{ yugabyte_webserver_use_tls }}"
     openshift_route_labels:
       app.kubernetes.io/name: "{{ yugabyte_k8s_resource_name }}"
-      app.kubernetes.io/part-of: "yugabyte"
+      app.kubernetes.io/part-of: "{{ yugabyte_k8s_part_of }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openshift
     tasks_from: route/apply
@@ -33,7 +33,7 @@
     openshift_route_use_tls: "{{ yugabyte_webserver_use_tls }}"
     openshift_route_labels:
       app.kubernetes.io/name: "{{ yugabyte_k8s_resource_name }}"
-      app.kubernetes.io/part-of: "yugabyte"
+      app.kubernetes.io/part-of: "{{ yugabyte_k8s_part_of }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openshift
     tasks_from: route/apply
@@ -48,7 +48,7 @@
     openshift_route_use_tls: "{{ yugabyte_webserver_use_tls }}"
     openshift_route_labels:
       app.kubernetes.io/name: "{{ yugabyte_k8s_resource_name }}"
-      app.kubernetes.io/part-of: "yugabyte"
+      app.kubernetes.io/part-of: "{{ yugabyte_k8s_part_of }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openshift
     tasks_from: route/apply

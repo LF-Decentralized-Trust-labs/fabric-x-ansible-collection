@@ -19,7 +19,7 @@
     openshift_route_labels:
       app.kubernetes.io/name: "{{ loadgen_k8s_resource_name }}"
       app.kubernetes.io/component: "loadgen"
-      app.kubernetes.io/part-of: "fabric-x-loadgen"
+      app.kubernetes.io/part-of: "{{ loadgen_k8s_part_of }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openshift
     tasks_from: route/apply
@@ -35,7 +35,7 @@
     openshift_route_labels:
       app.kubernetes.io/name: "{{ loadgen_k8s_resource_name }}"
       app.kubernetes.io/component: "loadgen"
-      app.kubernetes.io/part-of: "fabric-x-loadgen"
+      app.kubernetes.io/part-of: "{{ loadgen_k8s_part_of }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openshift
     tasks_from: route/apply
@@ -51,7 +51,7 @@
     openshift_route_labels:
       app.kubernetes.io/name: "{{ loadgen_k8s_resource_name }}"
       app.kubernetes.io/component: "loadgen"
-      app.kubernetes.io/part-of: "fabric-x-loadgen"
+      app.kubernetes.io/part-of: "{{ loadgen_k8s_part_of }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openshift
     tasks_from: route/apply

@@ -53,6 +53,8 @@ fabric_ca_client_container_config_dir: /config
 fabric_ca_server_config_dir: '{{ fabric_ca_server_remote_config_dir if fabric_ca_server_use_bin else fabric_ca_server_container_config_dir }}'
 # Sets the Kubernetes resource name for the Fabric CA server and its Service resources.
 fabric_ca_server_k8s_resource_name: '{{ inventory_hostname }}'
+# Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Fabric CA server resources.
+fabric_ca_server_k8s_part_of: '{{ organization.name }}'
 # Sets the Kubernetes deployment wait timeout.
 fabric_ca_server_k8s_wait_timeout: 120
 # Sets the pod fsGroup for the Fabric CA deployment.

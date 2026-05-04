@@ -31,6 +31,8 @@ orderer_bin_package: '{{ orderer_git_hub_url }}/{{ orderer_git_repo }}/{{ ordere
 orderer_bin_name: arma
 # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
 orderer_k8s_resource_name: '{{ inventory_hostname }}'
+# Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to orderer resources.
+orderer_k8s_part_of: '{{ organization.name }}'
 # Seconds to wait for the orderer StatefulSet rollout.
 orderer_k8s_wait_timeout: 120
 # Filesystem group applied to mounted ConfigMap and Secret volumes.

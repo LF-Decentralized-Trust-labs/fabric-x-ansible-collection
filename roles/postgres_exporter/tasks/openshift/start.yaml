@@ -19,7 +19,7 @@
     openshift_route_labels:
       app.kubernetes.io/name: "{{ postgres_exporter_k8s_resource_name }}"
       app.kubernetes.io/component: "postgres-exporter"
-      app.kubernetes.io/part-of: "monitoring"
+      app.kubernetes.io/part-of: "{{ postgres_exporter_k8s_part_of }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openshift
     tasks_from: route/apply

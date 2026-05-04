@@ -19,7 +19,7 @@
     openshift_route_labels:
       app.kubernetes.io/name: "{{ committer_k8s_resource_name }}"
       app.kubernetes.io/component: "{{ committer_component_type }}"
-      app.kubernetes.io/part-of: "fabric-x-committer"
+      app.kubernetes.io/part-of: "{{ committer_k8s_part_of }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openshift
     tasks_from: route/apply
@@ -35,7 +35,7 @@
     openshift_route_labels:
       app.kubernetes.io/name: "{{ committer_k8s_resource_name }}"
       app.kubernetes.io/component: "{{ committer_component_type }}"
-      app.kubernetes.io/part-of: "fabric-x-committer"
+      app.kubernetes.io/part-of: "{{ committer_k8s_part_of }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openshift
     tasks_from: route/apply

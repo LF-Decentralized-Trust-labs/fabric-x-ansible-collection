@@ -40,6 +40,8 @@ committer_deployment_mode: '{%- if committer_use_bin -%}bin{%- elif committer_us
 # Base Kubernetes resource name for committer objects.
 # Used by the service, workload, secret, and optional NodePort resources.
 committer_k8s_resource_name: '{{ inventory_hostname }}'
+# Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to committer resources.
+committer_k8s_part_of: '{{ organization.name }}'
 # Wait timeout in seconds for Kubernetes rollouts.
 committer_k8s_wait_timeout: 120
 # Filesystem group assigned to committer pods.

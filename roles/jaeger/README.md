@@ -283,6 +283,8 @@ Applies the Jaeger Service, optional NodePort and LoadBalancer Services, and Dep
     elasticsearch_host: "string"
     # Sets the Kubernetes resource name used for Jaeger objects.
     jaeger_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Jaeger resources.
+    jaeger_k8s_part_of: monitoring
     # Sets the rollout wait timeout for the Jaeger Kubernetes deployment.
     jaeger_k8s_wait_timeout: 120
     # Sets the pod filesystem group for the Jaeger Kubernetes workload.
@@ -369,6 +371,8 @@ Deletes the Jaeger Deployment, Service, and NodePort Service from the target nam
   vars:
     # Sets the Kubernetes resource name used for Jaeger objects.
     jaeger_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Jaeger resources.
+    jaeger_k8s_part_of: monitoring
     # Sets the Kubernetes namespace used for Jaeger resources. Example: `tracing` when Jaeger shares a namespace with other observability services.
     k8s_namespace: "string"
     # Kubernetes NodePort value used by the external UI Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30686`.
@@ -411,6 +415,8 @@ Collects logs from Jaeger pods using the resource label selector for the Kuberne
   vars:
     # Sets the Kubernetes resource name used for Jaeger objects.
     jaeger_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Jaeger resources.
+    jaeger_k8s_part_of: monitoring
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: k8s/fetch_logs
@@ -523,6 +529,8 @@ Creates the ConfigMap that projects the Jaeger config path and ElasticSearch CA 
     elasticsearch_host: "string"
     # Sets the Kubernetes resource name used for Jaeger objects.
     jaeger_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Jaeger resources.
+    jaeger_k8s_part_of: monitoring
     # Sets the shared remote configuration base directory. Example: `/var/lib/fabricx/jaeger/config` on the control or remote host.
     remote_config_dir: "string"
     # Sets the remote directory mounted into the Jaeger container for configuration and certificates.
@@ -545,6 +553,8 @@ Deletes the Jaeger ConfigMap from Kubernetes when container config data is no lo
   vars:
     # Sets the Kubernetes resource name used for Jaeger objects.
     jaeger_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Jaeger resources.
+    jaeger_k8s_part_of: monitoring
     # Sets the Kubernetes namespace used for Jaeger resources. Example: `tracing` when Jaeger shares a namespace with other observability services.
     k8s_namespace: "string"
     # Runs the Kubernetes Jaeger path when set to `true`.
@@ -567,6 +577,8 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Sets the Kubernetes resource name used for Jaeger objects.
     jaeger_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Jaeger resources.
+    jaeger_k8s_part_of: monitoring
     # Sets the Kubernetes namespace used for Jaeger resources. Example: `tracing` when Jaeger shares a namespace with other observability services.
     k8s_namespace: "string"
     # Specifies the OpenShift Route host. Example: `jaeger-ui.apps.example.com`.
@@ -623,6 +635,8 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Sets the Kubernetes resource name used for Jaeger objects.
     jaeger_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Jaeger resources.
+    jaeger_k8s_part_of: monitoring
     # Sets the Kubernetes namespace used for Jaeger resources. Example: `tracing` when Jaeger shares a namespace with other observability services.
     k8s_namespace: "string"
     # Specifies the OpenShift Route host. Example: `jaeger-ui.apps.example.com`.

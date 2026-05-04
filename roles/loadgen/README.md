@@ -897,6 +897,8 @@ Create or update Kubernetes resources for Loadgen. Ensures the namespace exists,
     k8s_namespace: "fabricx-loadgen"
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Loadgen resources.
+    loadgen_k8s_part_of: "fabric-x-loadgen-{{ organization.name }}"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
     # Enable TLS for the monitoring endpoint.
@@ -994,6 +996,8 @@ Remove the Kubernetes Deployment and Services created for Loadgen. Does not remo
     k8s_namespace: "fabricx-loadgen"
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Loadgen resources.
+    loadgen_k8s_part_of: "fabric-x-loadgen-{{ organization.name }}"
     # Kubernetes NodePort value used by the external HTTP control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30080`.
     loadgen_k8s_web_node_port: 30080
     # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP control port externally. When undefined or `false`, the HTTP control port is not included in the LoadBalancer Service.
@@ -1022,6 +1026,8 @@ Collect logs from the Kubernetes pod running Loadgen. Uses the configured Kubern
   vars:
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Loadgen resources.
+    loadgen_k8s_part_of: "fabric-x-loadgen-{{ organization.name }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: k8s/fetch_logs
@@ -1040,6 +1046,8 @@ Publish the rendered Loadgen configuration and trusted CA bundles as a Kubernete
     k8s_namespace: "fabricx-loadgen"
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Loadgen resources.
+    loadgen_k8s_part_of: "fabric-x-loadgen-{{ organization.name }}"
     # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Rendered Loadgen config filename.
@@ -1091,6 +1099,8 @@ Remove the Kubernetes ConfigMap created for Loadgen configuration. Leaves host-s
     k8s_namespace: "fabricx-loadgen"
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Loadgen resources.
+    loadgen_k8s_part_of: "fabric-x-loadgen-{{ organization.name }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: k8s/config/rm
@@ -1126,6 +1136,8 @@ Publish Loadgen MSP and TLS material as a Kubernetes Secret. The Secret is consu
     k8s_namespace: "fabricx-loadgen"
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Loadgen resources.
+    loadgen_k8s_part_of: "fabric-x-loadgen-{{ organization.name }}"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
     # Enable TLS for the monitoring endpoint.
@@ -1148,6 +1160,8 @@ Remove the Kubernetes Secret created for Loadgen MSP and TLS material. Leaves ho
     k8s_namespace: "fabricx-loadgen"
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Loadgen resources.
+    loadgen_k8s_part_of: "fabric-x-loadgen-{{ organization.name }}"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
   ansible.builtin.include_role:
@@ -1166,6 +1180,8 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Loadgen resources.
+    loadgen_k8s_part_of: "fabric-x-loadgen-{{ organization.name }}"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
     # Enable TLS for the monitoring endpoint.
@@ -1218,6 +1234,8 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Loadgen resources.
+    loadgen_k8s_part_of: "fabric-x-loadgen-{{ organization.name }}"
     # Kubernetes namespace used for loadgen resources. Example: `fabricx-loadgen`.
     k8s_namespace: "fabricx-loadgen"
     # Specifies the OpenShift Route host. Example: `loadgen-web.apps.example.com`.

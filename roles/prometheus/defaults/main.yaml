@@ -47,6 +47,8 @@ prometheus_use_k8s: false
 prometheus_use_container: '{{ (not prometheus_use_k8s) and (not prometheus_use_openshift) }}'
 # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
 prometheus_k8s_resource_name: '{{ inventory_hostname }}'
+# Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Prometheus resources.
+prometheus_k8s_part_of: monitoring
 # Maximum number of seconds to wait for the StatefulSet rollout.
 prometheus_k8s_wait_timeout: 120
 # File system group assigned to the pod.

@@ -123,6 +123,12 @@ argument_specs:
         default: "{{ inventory_hostname }}"
         description:
           - "Sets the Kubernetes resource name used for Jaeger objects."
+      jaeger_k8s_part_of: &jaeger_k8s_part_of
+        type: str
+        required: false
+        default: monitoring
+        description:
+          - "Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Jaeger resources."
       jaeger_k8s_wait_timeout: &jaeger_k8s_wait_timeout
         type: int
         required: false
@@ -451,6 +457,7 @@ argument_specs:
     options:
       elasticsearch_host: *elasticsearch_host
       jaeger_k8s_resource_name: *jaeger_k8s_resource_name
+      jaeger_k8s_part_of: *jaeger_k8s_part_of
       jaeger_k8s_wait_timeout: *jaeger_k8s_wait_timeout
       jaeger_k8s_fs_group: *jaeger_k8s_fs_group
       jaeger_registry_endpoint: *jaeger_registry_endpoint
@@ -493,6 +500,7 @@ argument_specs:
       - "Deletes the Jaeger Deployment, Service, and NodePort Service from the target namespace."
     options:
       jaeger_k8s_resource_name: *jaeger_k8s_resource_name
+      jaeger_k8s_part_of: *jaeger_k8s_part_of
       k8s_namespace: *k8s_namespace
       jaeger_k8s_ui_node_port: *jaeger_k8s_ui_node_port
       jaeger_k8s_loadbalancer_expose_ui_port: *jaeger_k8s_loadbalancer_expose_ui_port
@@ -513,6 +521,7 @@ argument_specs:
       - "Collects logs from Jaeger pods using the resource label selector for the Kubernetes deployment."
     options:
       jaeger_k8s_resource_name: *jaeger_k8s_resource_name
+      jaeger_k8s_part_of: *jaeger_k8s_part_of
 
   k8s/ping:
     short_description: Check that Jaeger Kubernetes service is reachable
@@ -567,6 +576,7 @@ argument_specs:
     options:
       elasticsearch_host: *elasticsearch_host
       jaeger_k8s_resource_name: *jaeger_k8s_resource_name
+      jaeger_k8s_part_of: *jaeger_k8s_part_of
       remote_config_dir: *remote_config_dir
       jaeger_remote_config_dir: *jaeger_remote_config_dir
       k8s_namespace: *k8s_namespace
@@ -577,6 +587,7 @@ argument_specs:
       - "Deletes the Jaeger ConfigMap from Kubernetes when container config data is no longer needed."
     options:
       jaeger_k8s_resource_name: *jaeger_k8s_resource_name
+      jaeger_k8s_part_of: *jaeger_k8s_part_of
       k8s_namespace: *k8s_namespace
       jaeger_use_k8s: *jaeger_use_k8s
       jaeger_use_openshift: *jaeger_use_openshift
@@ -587,6 +598,7 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       jaeger_k8s_resource_name: *jaeger_k8s_resource_name
+      jaeger_k8s_part_of: *jaeger_k8s_part_of
       k8s_namespace: *k8s_namespace
       jaeger_openshift_ui_route: *jaeger_openshift_ui_route
       jaeger_openshift_admin_route: *jaeger_openshift_admin_route
@@ -613,6 +625,7 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       jaeger_k8s_resource_name: *jaeger_k8s_resource_name
+      jaeger_k8s_part_of: *jaeger_k8s_part_of
       k8s_namespace: *k8s_namespace
       jaeger_openshift_ui_route: *jaeger_openshift_ui_route
       jaeger_openshift_admin_route: *jaeger_openshift_admin_route
