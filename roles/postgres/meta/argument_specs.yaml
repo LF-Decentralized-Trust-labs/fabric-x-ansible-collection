@@ -150,7 +150,7 @@ argument_specs:
       postgres_k8s_part_of: &postgres_k8s_part_of
         type: str
         required: false
-        default: "{{ (organization | default({})).name | default('postgres') }}"
+        default: postgres
         description:
           - Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to PostgreSQL resources.
       postgres_k8s_wait_timeout: &postgres_k8s_wait_timeout

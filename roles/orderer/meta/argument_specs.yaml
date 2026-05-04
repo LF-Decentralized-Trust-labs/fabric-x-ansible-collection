@@ -144,7 +144,7 @@ argument_specs:
       orderer_k8s_part_of: &orderer_k8s_part_of
         type: str
         required: false
-        default: "{{ organization.name }}"
+        default: "fabric-x-orderer-{{ organization.name }}"
         description:
           - "Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to orderer resources."
       orderer_k8s_wait_timeout: &orderer_k8s_wait_timeout
