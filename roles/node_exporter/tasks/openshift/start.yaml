@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start Node Exporter workload using generic k8s flow
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.node_exporter
+    tasks_from: k8s/start
+
+- name: Apply Node Exporter metrics OpenShift Route
+  vars:
+    openshift_route_name: "{{ node_exporter_k8s_resource_name }}-metrics"
+    openshift_route_host: "{{ node_exporter_openshift_route }}"
+    openshift_route_service_name: "{{ node_exporter_k8s_resource_name }}"
+    openshift_route_service_port: metrics
+    openshift_route_use_tls: "{{ node_exporter_use_tls }}"
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ node_exporter_k8s_resource_name }}"
+      app.kubernetes.io/component: "node-exporter"
+      app.kubernetes.io/part-of: "{{ node_exporter_k8s_part_of }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: node_exporter_openshift_route is defined

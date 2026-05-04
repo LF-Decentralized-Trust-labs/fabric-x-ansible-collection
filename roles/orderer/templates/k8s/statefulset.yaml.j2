@@ -13,7 +13,7 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ orderer_k8s_resource_name }}
     app.kubernetes.io/component: {{ orderer_component_type }}
-    app.kubernetes.io/part-of: fabric-x-orderer
+    app.kubernetes.io/part-of: {{ orderer_k8s_part_of }}
 spec:
   # Must match the headless Service name so DNS-based pod addressing works.
   serviceName: {{ orderer_k8s_resource_name }}
@@ -28,7 +28,7 @@ spec:
       labels:
         app.kubernetes.io/name: {{ orderer_k8s_resource_name }}
         app.kubernetes.io/component: {{ orderer_component_type }}
-        app.kubernetes.io/part-of: fabric-x-orderer
+        app.kubernetes.io/part-of: {{ orderer_k8s_part_of }}
     spec:
       securityContext:
         # Ensures files mounted from Secrets and ConfigMaps are readable by

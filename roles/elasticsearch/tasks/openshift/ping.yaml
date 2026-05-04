@@ -1,0 +1,19 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the ElasticSearch OpenShift HTTP route is reachable
+  vars:
+    openshift_route_host: "{{ elasticsearch_openshift_http_route }}"
+    openshift_route_use_tls: "{{ elasticsearch_use_tls }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/ping
+  when: elasticsearch_openshift_http_route is defined
+
+- name: Check that the ElasticSearch Kubernetes services are reachable
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.elasticsearch
+    tasks_from: k8s/ping

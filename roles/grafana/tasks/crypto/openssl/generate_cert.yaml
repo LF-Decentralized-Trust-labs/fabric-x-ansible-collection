@@ -4,12 +4,25 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Initialize Grafana TLS SAN hosts
+  ansible.builtin.set_fact:
+    grafana_tls_san_hosts:
+      - "{{ ansible_host }}"
+      - "{{ actual_host }}"
+
+- name: Append Grafana OpenShift route to TLS SAN hosts
+  ansible.builtin.set_fact:
+    grafana_tls_san_hosts: "{{ grafana_tls_san_hosts + [grafana_openshift_route] }}"
+  when:
+    - grafana_openshift_route is defined
+
 - name: Generate the Grafana TLS crypto material with OpenSSL
   vars:
     openssl_common_name: "{{ inventory_hostname }}"
     openssl_organization: "{{ organization.domain | default(inventory_hostname) }}"
     openssl_private_key_path: "{{ grafana_remote_config_dir }}/tls/{{ grafana_tls_private_key_file }}"
     openssl_cert_path: "{{ grafana_remote_config_dir }}/tls/{{ grafana_tls_cert_file }}"
+    openssl_san_hosts: "{{ grafana_tls_san_hosts | unique }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openssl
     tasks_from: generate_self_signed_cert

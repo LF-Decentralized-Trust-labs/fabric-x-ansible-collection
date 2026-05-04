@@ -13,7 +13,7 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ orderer_k8s_resource_name }}
     app.kubernetes.io/component: {{ orderer_component_type }}
-    app.kubernetes.io/part-of: fabric-x-orderer
+    app.kubernetes.io/part-of: {{ orderer_k8s_part_of }}
 spec:
   # clusterIP: None makes this a headless Service — no virtual IP is assigned,
   # DNS resolves directly to the pod IP, which is needed by the StatefulSet.

@@ -15,3 +15,9 @@
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/start
   when: prometheus_use_k8s
+
+- name: Start Prometheus on OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: openshift/start
+  when: prometheus_use_openshift

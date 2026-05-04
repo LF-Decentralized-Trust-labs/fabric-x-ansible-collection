@@ -10,7 +10,7 @@
 # Enables Kubernetes mode for the YugabyteDB role.
 yugabyte_use_k8s: false
 # Enables container mode for the YugabyteDB role.
-yugabyte_use_container: '{{ not yugabyte_use_k8s }}'
+yugabyte_use_container: '{{ (not yugabyte_use_k8s) and (not yugabyte_use_openshift) }}'
 # Enables TLS asset handling for YugabyteDB.
 yugabyte_use_tls: false
 # Enables HTTPS for the YugabyteDB webserver.
@@ -57,6 +57,8 @@ yugabyte_tablet_cql_bind_port: 9042
 yugabyte_tablet_cql_web_port: 12000
 # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
 yugabyte_k8s_resource_name: '{{ inventory_hostname }}'
+# Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to YugabyteDB resources.
+yugabyte_k8s_part_of: "{{ (organization | default({})).name | default('yugabyte') }}"
 # Waits for YugabyteDB Kubernetes resources to become ready.
 yugabyte_k8s_wait: true
 # Sets the Kubernetes readiness wait timeout in seconds.
@@ -85,3 +87,5 @@ yugabyte_k8s_loadbalancer_expose_tablet_cql_bind_port: false
 # Set to C(true) to create a LoadBalancer Service entry that exposes the tablet YCQL web UI port externally.
 # When undefined or C(false), the tablet YCQL web UI port is not included in the LoadBalancer Service.
 yugabyte_k8s_loadbalancer_expose_tablet_cql_web_port: false
+# Selects the OpenShift deployment branch.
+yugabyte_use_openshift: false

@@ -208,6 +208,22 @@ For remote clusters, set the externally reachable node address used by NodePort 
 export K8S_NODE_IP=<node-ip>
 ```
 
+### OpenShift
+
+OpenShift inventories deploy Kubernetes-compatible workloads and services, then expose selected HTTP or HTTP2-capable ports with OpenShift Routes instead of Kubernetes NodePort or LoadBalancer services.
+
+[`openshift/group_vars/all/env.yaml`](./openshift/group_vars/all/env.yaml) uses local Ansible execution against OpenShift services and stores generated deployment state below `out_dir`.
+
+| Inventory                                                                     | Description                                                                                 |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [`openshift/fabric-x-cryptogen.yaml`](./docs/openshift/fabric-x-cryptogen.md) | OpenShift deployment using centrally generated `cryptogen` material and route-based access. |
+
+Set the OpenShift wildcard route domain before running the inventory:
+
+```shell
+export OPENSHIFT_APPS_DOMAIN=apps.example.com
+```
+
 ### Distributed
 
 The distributed inventory is a performance-oriented SSH topology. It uses containers, `cryptogen`, mTLS, YugabyteDB, multiple load generators, and multiple validator, verifier, batcher, and database instances.

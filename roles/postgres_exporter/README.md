@@ -33,6 +33,9 @@
   - [k8s/crypto/transfer](#k8scryptotransfer)
   - [k8s/crypto/rm](#k8scryptorm)
   - [prometheus/get\_scrapers](#prometheusget_scrapers)
+  - [openshift/start](#openshiftstart)
+  - [openshift/ping](#openshiftping)
+  - [openshift/rm](#openshiftrm)
 
 ## Role Defaults
 
@@ -58,9 +61,11 @@ Dispatches to the container or Kubernetes startup path for Postgres Exporter. In
 - name: Start Postgres Exporter
   vars:
     # Enables the container backend when set to `true`.
-    postgres_exporter_use_container: "{{ not postgres_exporter_use_k8s }}"
+    postgres_exporter_use_container: "{{ (not postgres_exporter_use_k8s) and (not postgres_exporter_use_openshift) }}"
     # Enables the Kubernetes backend and Kubernetes cleanup path when set to `true`.
     postgres_exporter_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    postgres_exporter_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: start
@@ -76,7 +81,7 @@ Stops a container-based Postgres Exporter deployment without removing generated 
 - name: Stop Postgres Exporter
   vars:
     # Enables the container backend when set to `true`.
-    postgres_exporter_use_container: "{{ not postgres_exporter_use_k8s }}"
+    postgres_exporter_use_container: "{{ (not postgres_exporter_use_k8s) and (not postgres_exporter_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: stop
@@ -92,9 +97,11 @@ Removes the active Postgres Exporter runtime resources for the enabled backend. 
 - name: Remove Postgres Exporter runtime resources
   vars:
     # Enables the container backend when set to `true`.
-    postgres_exporter_use_container: "{{ not postgres_exporter_use_k8s }}"
+    postgres_exporter_use_container: "{{ (not postgres_exporter_use_k8s) and (not postgres_exporter_use_openshift) }}"
     # Enables the Kubernetes backend and Kubernetes cleanup path when set to `true`.
     postgres_exporter_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    postgres_exporter_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: teardown
@@ -123,9 +130,11 @@ Collects logs from the Postgres Exporter container or Kubernetes pod for the act
 - name: Fetch Postgres Exporter logs
   vars:
     # Enables the container backend when set to `true`.
-    postgres_exporter_use_container: "{{ not postgres_exporter_use_k8s }}"
+    postgres_exporter_use_container: "{{ (not postgres_exporter_use_k8s) and (not postgres_exporter_use_openshift) }}"
     # Enables the Kubernetes backend and Kubernetes cleanup path when set to `true`.
     postgres_exporter_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    postgres_exporter_use_openshift: false
     # Sets the Postgres Exporter container name.
     postgres_exporter_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
@@ -146,6 +155,8 @@ Checks whether the Postgres Exporter metrics port is reachable on the current ho
     postgres_exporter_port: 9187
     # Enables the Kubernetes backend and Kubernetes cleanup path when set to `true`.
     postgres_exporter_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    postgres_exporter_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: ping
@@ -270,6 +281,8 @@ Generates the Postgres Exporter configuration files and copies the PostgreSQL CA
     postgres_exporter_tls_cert_file: server.crt
     # Enables the Kubernetes backend and Kubernetes cleanup path when set to `true`.
     postgres_exporter_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    postgres_exporter_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: config/transfer
@@ -290,6 +303,8 @@ Removes generated Postgres Exporter configuration files from the remote host. Fo
     postgres_exporter_remote_config_dir: "{{ remote_config_dir }}"
     # Enables the Kubernetes backend and Kubernetes cleanup path when set to `true`.
     postgres_exporter_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    postgres_exporter_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: config/rm
@@ -321,6 +336,8 @@ Generates the Postgres Exporter TLS files when `postgres_exporter_use_tls` is tr
     postgres_exporter_use_tls: false
     # Enables the Kubernetes backend and Kubernetes cleanup path when set to `true`.
     postgres_exporter_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    postgres_exporter_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: crypto/setup
@@ -365,6 +382,8 @@ Removes generated Postgres Exporter TLS files from the remote host. For Kubernet
     postgres_exporter_use_tls: false
     # Enables the Kubernetes backend and Kubernetes cleanup path when set to `true`.
     postgres_exporter_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    postgres_exporter_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: crypto/rm
@@ -390,6 +409,8 @@ Delegates self-signed certificate generation to the OpenSSL role using Postgres 
     postgres_exporter_tls_private_key_file: server.key
     # Sets the TLS certificate file name used under `postgres_exporter_remote_config_dir`/tls.
     postgres_exporter_tls_cert_file: server.crt
+    # Specifies the OpenShift Route host. Example: `postgres-exporter-metrics.apps.example.com`.
+    postgres_exporter_openshift_route: "postgres-exporter-metrics.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: crypto/openssl/generate_cert
@@ -436,6 +457,8 @@ Applies the Service, optional NodePort and LoadBalancer Services, and Deployment
     postgres_exporter_image: "{{ postgres_exporter_registry_endpoint }}/{{ postgres_exporter_image_name }}:{{ postgres_exporter_image_tag }}"
     # Sets the Kubernetes resource base name used for ConfigMaps, Secrets, Services, and Deployments.
     postgres_exporter_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Postgres Exporter resources.
+    postgres_exporter_k8s_part_of: monitoring
     # Sets the Deployment wait timeout in seconds.
     postgres_exporter_k8s_wait_timeout: 120
     # Sets the pod filesystem group used by the Postgres Exporter Deployment.
@@ -496,6 +519,8 @@ Removes the Postgres Exporter Deployment and Services from Kubernetes.
     k8s_namespace: "postgres-exporter"
     # Sets the Kubernetes resource base name used for ConfigMaps, Secrets, Services, and Deployments.
     postgres_exporter_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Postgres Exporter resources.
+    postgres_exporter_k8s_part_of: monitoring
     # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30987`.
     postgres_exporter_k8s_node_port: 30987
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
@@ -516,6 +541,8 @@ Delegates Postgres Exporter pod log collection to the shared Kubernetes role.
   vars:
     # Sets the Kubernetes resource base name used for ConfigMaps, Secrets, Services, and Deployments.
     postgres_exporter_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Postgres Exporter resources.
+    postgres_exporter_k8s_part_of: monitoring
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: k8s/fetch_logs
@@ -538,6 +565,8 @@ Ensures the Kubernetes namespace exists and applies the ConfigMap rendered from 
     remote_config_dir: "/opt/fabricx/postgres-exporter/config"
     # Sets the Kubernetes resource base name used for ConfigMaps, Secrets, Services, and Deployments.
     postgres_exporter_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Postgres Exporter resources.
+    postgres_exporter_k8s_part_of: monitoring
     # Sets the remote directory that stores Postgres Exporter configuration and TLS files.
     postgres_exporter_remote_config_dir: "{{ remote_config_dir }}"
     # Sets the main Postgres Exporter configuration file name.
@@ -564,6 +593,8 @@ Deletes the Postgres Exporter ConfigMap from Kubernetes.
     k8s_namespace: "postgres-exporter"
     # Sets the Kubernetes resource base name used for ConfigMaps, Secrets, Services, and Deployments.
     postgres_exporter_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Postgres Exporter resources.
+    postgres_exporter_k8s_part_of: monitoring
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: k8s/config/rm
@@ -586,6 +617,8 @@ Builds the exporter PostgreSQL datasource for Kubernetes from the monitored host
     remote_config_dir: "/opt/fabricx/postgres-exporter/config"
     # Sets the Kubernetes resource base name used for ConfigMaps, Secrets, Services, and Deployments.
     postgres_exporter_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Postgres Exporter resources.
+    postgres_exporter_k8s_part_of: monitoring
     # Sets the remote directory that stores Postgres Exporter configuration and TLS files.
     postgres_exporter_remote_config_dir: "{{ remote_config_dir }}"
     # Sets the configuration directory mounted inside the container or pod.
@@ -614,6 +647,8 @@ Deletes the Postgres Exporter Secret from Kubernetes.
     k8s_namespace: "postgres-exporter"
     # Sets the Kubernetes resource base name used for ConfigMaps, Secrets, Services, and Deployments.
     postgres_exporter_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Postgres Exporter resources.
+    postgres_exporter_k8s_part_of: monitoring
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: k8s/crypto/rm
@@ -637,4 +672,68 @@ Builds the `postgres_exporter_prometheus_scrape_services` fact for the Postgres 
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: prometheus/get_scrapers
+```
+
+### openshift/start
+
+> Start the OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Start the OpenShift deployment
+  vars:
+    # Sets the Kubernetes resource base name used for ConfigMaps, Secrets, Services, and Deployments.
+    postgres_exporter_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Postgres Exporter resources.
+    postgres_exporter_k8s_part_of: monitoring
+    # Enables Postgres Exporter TLS assets and HTTPS listener configuration when set to `true`.
+    postgres_exporter_use_tls: false
+    # Sets the Kubernetes namespace used for Postgres Exporter resources. Example: `postgres-exporter`.
+    k8s_namespace: "postgres-exporter"
+    # Specifies the OpenShift Route host. Example: `postgres-exporter-metrics.apps.example.com`.
+    postgres_exporter_openshift_route: "postgres-exporter-metrics.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres_exporter
+    tasks_from: openshift/start
+```
+
+### openshift/ping
+
+> Check the OpenShift deployment
+
+Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+
+```yaml
+- name: Check the OpenShift deployment
+  vars:
+    # Enables Postgres Exporter TLS assets and HTTPS listener configuration when set to `true`.
+    postgres_exporter_use_tls: false
+    # Specifies the OpenShift Route host. Example: `postgres-exporter-metrics.apps.example.com`.
+    postgres_exporter_openshift_route: "postgres-exporter-metrics.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres_exporter
+    tasks_from: openshift/ping
+```
+
+### openshift/rm
+
+> Remove the OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Remove the OpenShift deployment
+  vars:
+    # Sets the Kubernetes resource base name used for ConfigMaps, Secrets, Services, and Deployments.
+    postgres_exporter_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Postgres Exporter resources.
+    postgres_exporter_k8s_part_of: monitoring
+    # Sets the Kubernetes namespace used for Postgres Exporter resources. Example: `postgres-exporter`.
+    k8s_namespace: "postgres-exporter"
+    # Specifies the OpenShift Route host. Example: `postgres-exporter-metrics.apps.example.com`.
+    postgres_exporter_openshift_route: "postgres-exporter-metrics.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres_exporter
+    tasks_from: openshift/rm
 ```

@@ -16,6 +16,12 @@
     tasks_from: k8s/rm
   when: elasticsearch_use_k8s
 
+- name: Teardown Elasticsearch on OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.elasticsearch
+    tasks_from: openshift/rm
+  when: elasticsearch_use_openshift
+
 - name: Remove ElasticSearch data
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch

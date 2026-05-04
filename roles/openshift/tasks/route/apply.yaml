@@ -1,0 +1,11 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Apply OpenShift Route "{{ openshift_route_name }}"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: route.yaml.j2

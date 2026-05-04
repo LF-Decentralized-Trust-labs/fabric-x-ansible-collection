@@ -54,7 +54,7 @@ argument_specs:
       loadgen_use_container: &loadgen_use_container
         type: bool
         required: false
-        default: "{{ (not loadgen_use_bin) and (not loadgen_use_k8s) }}"
+        default: "{{ (not loadgen_use_bin) and (not loadgen_use_k8s) and (not loadgen_use_openshift) }}"
         description:
           - Run the container runtime.
       loadgen_registry_endpoint: &loadgen_registry_endpoint
@@ -477,6 +477,12 @@ argument_specs:
         default: "{{ inventory_hostname }}"
         description:
           - Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
+      loadgen_k8s_part_of: &loadgen_k8s_part_of
+        type: str
+        required: false
+        default: "{{ organization.name }}"
+        description:
+          - Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Loadgen resources.
       loadgen_k8s_wait_timeout: &loadgen_k8s_wait_timeout
         type: int
         required: false
@@ -568,6 +574,31 @@ argument_specs:
         description:
           - Additional mTLS organizations trusted by the monitoring endpoint.
           - "Example: C([{'domain': 'monitoring.example.com'}])."
+
+      loadgen_use_openshift: &loadgen_use_openshift
+        type: bool
+        required: false
+        default: false
+        description:
+          - Selects the OpenShift deployment branch.
+      loadgen_openshift_web_route: &loadgen_openshift_web_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(loadgen-web.apps.example.com)."
+      loadgen_openshift_metrics_route: &loadgen_openshift_metrics_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(loadgen-metrics.apps.example.com)."
+      loadgen_openshift_rpc_route: &loadgen_openshift_rpc_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(loadgen-rpc.apps.example.com)."
   start:
     short_description: Start the load generator
     description:
@@ -575,10 +606,10 @@ argument_specs:
       - Container mode is the default, binary mode starts the installed C(loadgen) process, and Kubernetes mode applies Services and a Deployment.
       - The runtime consumes the rendered Loadgen configuration and crypto material prepared by the config and crypto entry points.
     options:
+      loadgen_use_openshift: *loadgen_use_openshift
       loadgen_use_container: *loadgen_use_container
       loadgen_use_bin: *loadgen_use_bin
       loadgen_use_k8s: *loadgen_use_k8s
-
   stop:
     short_description: Stop the load generator
     description:
@@ -597,6 +628,7 @@ argument_specs:
       loadgen_use_container: *loadgen_use_container
       loadgen_use_bin: *loadgen_use_bin
       loadgen_use_k8s: *loadgen_use_k8s
+      loadgen_use_openshift: *loadgen_use_openshift
 
   wipe:
     short_description: Remove all load generator data
@@ -615,6 +647,7 @@ argument_specs:
       loadgen_use_container: *loadgen_use_container
       loadgen_use_bin: *loadgen_use_bin
       loadgen_use_k8s: *loadgen_use_k8s
+      loadgen_use_openshift: *loadgen_use_openshift
 
   ping:
     short_description: Check the HTTP endpoint
@@ -624,6 +657,7 @@ argument_specs:
     options:
       loadgen_web_port: *loadgen_web_port
       loadgen_use_k8s: *loadgen_use_k8s
+      loadgen_use_openshift: *loadgen_use_openshift
 
   get_metrics:
     short_description: Fetch exported metrics
@@ -636,9 +670,11 @@ argument_specs:
       loadgen_k8s_metrics_node_port: *loadgen_k8s_metrics_node_port
       loadgen_monitoring_http_protocol: *loadgen_monitoring_http_protocol
       loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
+      loadgen_openshift_metrics_route: *loadgen_openshift_metrics_route
       loadgen_use_tls: *loadgen_use_tls
       loadgen_assert_metrics: *loadgen_assert_metrics
       loadgen_use_k8s: *loadgen_use_k8s
+      loadgen_use_openshift: *loadgen_use_openshift
       loadgen_k8s_loadbalancer_expose_metrics_port: *loadgen_k8s_loadbalancer_expose_metrics_port
 
   limit_rate:
@@ -652,6 +688,7 @@ argument_specs:
       loadgen_k8s_web_node_port: *loadgen_k8s_web_node_port
       loadgen_limit_rate: *loadgen_limit_rate
       loadgen_use_k8s: *loadgen_use_k8s
+      loadgen_use_openshift: *loadgen_use_openshift
       loadgen_k8s_loadbalancer_expose_web_port: *loadgen_k8s_loadbalancer_expose_web_port
 
   prometheus/get_scrapers:
@@ -677,6 +714,7 @@ argument_specs:
       loadgen_config_file: *loadgen_config_file
       loadgen_use_bin: *loadgen_use_bin
       loadgen_use_k8s: *loadgen_use_k8s
+      loadgen_use_openshift: *loadgen_use_openshift
       loadgen_use_tls: *loadgen_use_tls
       loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
       loadgen_use_mtls: *loadgen_use_mtls
@@ -752,6 +790,7 @@ argument_specs:
       loadgen_remote_config_dir: *loadgen_remote_config_dir
       remote_config_dir: *remote_config_dir
       loadgen_use_k8s: *loadgen_use_k8s
+      loadgen_use_openshift: *loadgen_use_openshift
 
   crypto/setup:
     short_description: Prepare crypto material
@@ -761,6 +800,7 @@ argument_specs:
     options:
       organization: *organization
       loadgen_use_k8s: *loadgen_use_k8s
+      loadgen_use_openshift: *loadgen_use_openshift
 
   crypto/cryptogen/transfer:
     short_description: Transfer cryptogen artifacts
@@ -788,6 +828,9 @@ argument_specs:
       actual_host: *actual_host
       loadgen_use_tls: *loadgen_use_tls
       loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
+      loadgen_openshift_web_route: *loadgen_openshift_web_route
+      loadgen_openshift_metrics_route: *loadgen_openshift_metrics_route
+      loadgen_openshift_rpc_route: *loadgen_openshift_rpc_route
 
   crypto/fetch:
     short_description: Fetch generated certificates
@@ -813,6 +856,7 @@ argument_specs:
       loadgen_use_tls: *loadgen_use_tls
       loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
       loadgen_use_k8s: *loadgen_use_k8s
+      loadgen_use_openshift: *loadgen_use_openshift
 
   bin/build:
     short_description: Build the load generator binary
@@ -946,6 +990,7 @@ argument_specs:
       loadgen_k8s_fs_group: *loadgen_k8s_fs_group
       k8s_namespace: *k8s_namespace
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_part_of: *loadgen_k8s_part_of
       loadgen_use_tls: *loadgen_use_tls
       loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
       loadgen_use_mtls: *loadgen_use_mtls
@@ -956,6 +1001,7 @@ argument_specs:
       loadgen_monitoring_mtls_orgs: *loadgen_monitoring_mtls_orgs
       k8s_image_pull_secret: *k8s_image_pull_secret
       loadgen_use_k8s: *loadgen_use_k8s
+      loadgen_use_openshift: *loadgen_use_openshift
       loadgen_web_port: *loadgen_web_port
       loadgen_metrics_port: *loadgen_metrics_port
       loadgen_rpc_port: *loadgen_rpc_port
@@ -989,6 +1035,7 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_part_of: *loadgen_k8s_part_of
       loadgen_k8s_web_node_port: *loadgen_k8s_web_node_port
       loadgen_k8s_loadbalancer_expose_web_port: *loadgen_k8s_loadbalancer_expose_web_port
       loadgen_k8s_metrics_node_port: *loadgen_k8s_metrics_node_port
@@ -1003,6 +1050,7 @@ argument_specs:
       - Uses the configured Kubernetes resource name to fetch pod output without changing workload state.
     options:
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_part_of: *loadgen_k8s_part_of
 
   k8s/config/transfer:
     short_description: Publish the Kubernetes ConfigMap
@@ -1012,6 +1060,7 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_part_of: *loadgen_k8s_part_of
       loadgen_remote_config_dir: *loadgen_remote_config_dir
       loadgen_config_file: *loadgen_config_file
       orderer_router_hosts: *orderer_router_hosts
@@ -1032,6 +1081,7 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_part_of: *loadgen_k8s_part_of
 
   k8s/crypto/transfer:
     short_description: Publish the Kubernetes Secret
@@ -1047,6 +1097,7 @@ argument_specs:
       loadgen_crypto_name: *loadgen_crypto_name
       k8s_namespace: *k8s_namespace
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_part_of: *loadgen_k8s_part_of
       loadgen_use_tls: *loadgen_use_tls
       loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
 
@@ -1058,4 +1109,42 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_part_of: *loadgen_k8s_part_of
       loadgen_use_tls: *loadgen_use_tls
+
+  openshift/start:
+    short_description: Start the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_part_of: *loadgen_k8s_part_of
+      loadgen_use_tls: *loadgen_use_tls
+      loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
+      k8s_namespace: *k8s_namespace
+      loadgen_openshift_web_route: *loadgen_openshift_web_route
+      loadgen_openshift_metrics_route: *loadgen_openshift_metrics_route
+      loadgen_openshift_rpc_route: *loadgen_openshift_rpc_route
+
+  openshift/ping:
+    short_description: Check the OpenShift deployment
+    description:
+      - Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+    options:
+      loadgen_use_tls: *loadgen_use_tls
+      loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
+      loadgen_openshift_web_route: *loadgen_openshift_web_route
+      loadgen_openshift_metrics_route: *loadgen_openshift_metrics_route
+      loadgen_openshift_rpc_route: *loadgen_openshift_rpc_route
+
+  openshift/rm:
+    short_description: Remove the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_part_of: *loadgen_k8s_part_of
+      k8s_namespace: *k8s_namespace
+      loadgen_openshift_web_route: *loadgen_openshift_web_route
+      loadgen_openshift_metrics_route: *loadgen_openshift_metrics_route
+      loadgen_openshift_rpc_route: *loadgen_openshift_rpc_route

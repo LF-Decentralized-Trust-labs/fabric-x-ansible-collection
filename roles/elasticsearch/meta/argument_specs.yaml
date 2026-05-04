@@ -195,7 +195,7 @@ argument_specs:
       elasticsearch_use_container: &elasticsearch_use_container
         type: bool
         required: false
-        default: "{{ not elasticsearch_use_k8s }}"
+        default: "{{ (not elasticsearch_use_k8s) and (not elasticsearch_use_openshift) }}"
         description:
           - Runs ElasticSearch as a container when set to C(true).
       elasticsearch_k8s_resource_name: &elasticsearch_k8s_resource_name
@@ -204,6 +204,12 @@ argument_specs:
         default: "{{ inventory_hostname }}"
         description:
           - Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
+      elasticsearch_k8s_part_of: &elasticsearch_k8s_part_of
+        type: str
+        required: false
+        default: monitoring
+        description:
+          - Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to ElasticSearch resources.
       elasticsearch_k8s_wait_timeout: &elasticsearch_k8s_wait_timeout
         type: int
         required: false
@@ -260,6 +266,18 @@ argument_specs:
           - ElasticSearch transport port used by the container and Kubernetes Service.
           - "Example: C(9300)."
 
+      elasticsearch_use_openshift: &elasticsearch_use_openshift
+        type: bool
+        required: false
+        default: false
+        description:
+          - Selects the OpenShift deployment branch.
+      elasticsearch_openshift_http_route: &elasticsearch_openshift_http_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(elasticsearch-http.apps.example.com)."
   start:
     short_description: Start ElasticSearch
     description:
@@ -267,6 +285,7 @@ argument_specs:
       - Container mode is the default unless C(elasticsearch_use_k8s) is enabled, in which case the Kubernetes StatefulSet, Services, and optional TLS Secret are managed instead.
     options:
       elasticsearch_use_k8s: *elasticsearch_use_k8s
+      elasticsearch_use_openshift: *elasticsearch_use_openshift
       elasticsearch_use_container: *elasticsearch_use_container
 
   stop:
@@ -284,6 +303,7 @@ argument_specs:
       - Also removes the container data directory or Kubernetes PVC through the C(data/rm) entry point, leaving TLS and config cleanup to C(wipe).
     options:
       elasticsearch_use_k8s: *elasticsearch_use_k8s
+      elasticsearch_use_openshift: *elasticsearch_use_openshift
       elasticsearch_use_container: *elasticsearch_use_container
 
   wipe:
@@ -300,6 +320,7 @@ argument_specs:
       - Delegates to the container or Kubernetes log collection entry point and writes the results to the control node fetch directory.
     options:
       elasticsearch_use_k8s: *elasticsearch_use_k8s
+      elasticsearch_use_openshift: *elasticsearch_use_openshift
       elasticsearch_use_container: *elasticsearch_use_container
 
   ping:
@@ -309,6 +330,7 @@ argument_specs:
       - Delegates to C(k8s/ping) when ElasticSearch runs on Kubernetes and checks the optional NodePort Service instead.
     options:
       elasticsearch_use_k8s: *elasticsearch_use_k8s
+      elasticsearch_use_openshift: *elasticsearch_use_openshift
       elasticsearch_http_port: *elasticsearch_http_port
       elasticsearch_transport_port: *elasticsearch_transport_port
 
@@ -375,10 +397,12 @@ argument_specs:
       - Deletes the ElasticSearch PVC in Kubernetes deployments so the data artifact is gone regardless of deployment mode.
     options:
       elasticsearch_use_k8s: *elasticsearch_use_k8s
+      elasticsearch_use_openshift: *elasticsearch_use_openshift
       elasticsearch_use_container: *elasticsearch_use_container
       elasticsearch_remote_data_dir: *elasticsearch_remote_data_dir
       remote_data_dir: *remote_data_dir
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: false
@@ -391,6 +415,7 @@ argument_specs:
     options:
       elasticsearch_use_tls: *elasticsearch_use_tls
       elasticsearch_use_k8s: *elasticsearch_use_k8s
+      elasticsearch_use_openshift: *elasticsearch_use_openshift
 
   crypto/fetch:
     short_description: Fetch ElasticSearch TLS certificates
@@ -413,6 +438,7 @@ argument_specs:
       remote_config_dir: *remote_config_dir
       elasticsearch_tls_private_key_file: *elasticsearch_tls_private_key_file
       elasticsearch_use_k8s: *elasticsearch_use_k8s
+      elasticsearch_use_openshift: *elasticsearch_use_openshift
 
   crypto/openssl/generate_cert:
     short_description: Generate ElasticSearch TLS materials with OpenSSL
@@ -425,6 +451,7 @@ argument_specs:
       elasticsearch_tls_private_key_file: *elasticsearch_tls_private_key_file
       elasticsearch_tls_cert_file: *elasticsearch_tls_cert_file
       organization: *organization
+      elasticsearch_openshift_http_route: *elasticsearch_openshift_http_route
 
   k8s/start:
     short_description: Start ElasticSearch on Kubernetes
@@ -433,6 +460,7 @@ argument_specs:
       - Uses the role templates to configure storage, TLS mounts, the configured image, and rollout waiting behavior.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -484,6 +512,7 @@ argument_specs:
       - The persistent volume claim is removed separately by the C(data/rm) entry point so data cleanup stays explicit.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -499,6 +528,7 @@ argument_specs:
       - Selects pods using the ElasticSearch application label.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -510,6 +540,7 @@ argument_specs:
       - This entry point is typically invoked from the ElasticSearch crypto cleanup workflow after the remote certs are removed.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -521,6 +552,7 @@ argument_specs:
       - Ensures the Kubernetes namespace exists before applying the Secret and keeps the pod-mounted certificate paths aligned with the remote files.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -529,3 +561,32 @@ argument_specs:
       remote_config_dir: *remote_config_dir
       elasticsearch_tls_private_key_file: *elasticsearch_tls_private_key_file
       elasticsearch_tls_cert_file: *elasticsearch_tls_cert_file
+
+  openshift/start:
+    short_description: Start the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
+      elasticsearch_use_tls: *elasticsearch_use_tls
+      k8s_namespace: *k8s_namespace
+      elasticsearch_openshift_http_route: *elasticsearch_openshift_http_route
+
+  openshift/ping:
+    short_description: Check the OpenShift deployment
+    description:
+      - Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+    options:
+      elasticsearch_use_tls: *elasticsearch_use_tls
+      elasticsearch_openshift_http_route: *elasticsearch_openshift_http_route
+
+  openshift/rm:
+    short_description: Remove the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
+      k8s_namespace: *k8s_namespace
+      elasticsearch_openshift_http_route: *elasticsearch_openshift_http_route

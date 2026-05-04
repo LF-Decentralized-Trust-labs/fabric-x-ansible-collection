@@ -14,7 +14,7 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: ping
-  when: not grafana_use_k8s
+  when: not (grafana_use_k8s or grafana_use_openshift)
 
 # =======================
 # k8s
@@ -24,3 +24,12 @@
     name: hyperledger.fabricx.grafana
     tasks_from: k8s/ping
   when: grafana_use_k8s
+
+# =======================
+# openshift
+# =======================
+- name: Check that the OpenShift routes and Kubernetes services are open
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.grafana
+    tasks_from: openshift/ping
+  when: grafana_use_openshift

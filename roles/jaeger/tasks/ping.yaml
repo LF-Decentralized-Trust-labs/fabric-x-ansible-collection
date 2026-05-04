@@ -19,7 +19,7 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: ping
-  when: not jaeger_use_k8s
+  when: not (jaeger_use_k8s or jaeger_use_openshift)
 
 # =======================
 # k8s
@@ -29,3 +29,12 @@
     name: hyperledger.fabricx.jaeger
     tasks_from: k8s/ping
   when: jaeger_use_k8s
+
+# =======================
+# openshift
+# =======================
+- name: Check that the OpenShift routes and Kubernetes services are open
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.jaeger
+    tasks_from: openshift/ping
+  when: jaeger_use_openshift

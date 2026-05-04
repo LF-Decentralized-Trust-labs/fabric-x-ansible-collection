@@ -1,0 +1,146 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+argument_specs:
+  role-options:
+    short_description: Shared OpenShift route options
+    description:
+      - Shared option definitions reused by OpenShift helper entry points.
+    options:
+      k8s_namespace: &k8s_namespace
+        type: str
+        required: true
+        description:
+          - Specifies the namespace targeted by the OpenShift resource.
+          - "Example: C(fabric-x)."
+      openshift_route_name: &openshift_route_name
+        type: str
+        required: true
+        description:
+          - Specifies the OpenShift Route resource name.
+          - "Example: C(orderer-router-1-rpc)."
+      openshift_route_host: &openshift_route_host
+        type: str
+        required: true
+        description:
+          - Specifies the external host assigned to the OpenShift Route.
+          - "Example: C(orderer.apps.example.com)."
+      openshift_route_service_name: &openshift_route_service_name
+        type: str
+        required: true
+        description:
+          - Specifies the Service targeted by the OpenShift Route.
+          - "Example: C(orderer-router-1)."
+      openshift_route_service_port: &openshift_route_service_port
+        type: str
+        required: true
+        description:
+          - Specifies the named Service port targeted by the OpenShift Route.
+          - "Example: C(rpc)."
+      openshift_route_labels: &openshift_route_labels
+        type: dict
+        required: false
+        default: {}
+        description:
+          - Specifies labels to render on the OpenShift Route.
+      openshift_route_use_tls: &openshift_route_use_tls
+        type: bool
+        required: false
+        default: false
+        description:
+          - Controls whether the Route uses passthrough TLS termination.
+      openshift_route_tls_termination: &openshift_route_tls_termination
+        type: str
+        choices: ["passthrough", "edge", "reencrypt"]
+        required: false
+        default: passthrough
+        description:
+          - Specifies the TLS termination type to render on the OpenShift Route.
+      openshift_cluster_login_server: &openshift_cluster_login_server
+        type: str
+        required: true
+        description:
+          - "OpenShift cluster API server URL for login"
+          - "Required for managed OpenShift cluster login"
+          - "Example: C(https://api.cluster.example.com:6443)"
+      openshift_cluster_personal_token: &openshift_cluster_personal_token
+        type: str
+        required: false
+        default: "{{ lookup('env', 'OPENSHIFT_PERSONAL_TOKEN') | trim }}"
+        description:
+          - "Personal user token for interactive OpenShift login"
+          - "Can be set via OPENSHIFT_PERSONAL_TOKEN environment variable"
+      openshift_cluster_namespace: &openshift_cluster_namespace
+        type: str
+        required: false
+        default: "{{ k8s_namespace }}"
+        description:
+          - "OpenShift namespace/project to use"
+      openshift_cluster_service_account_name:
+        &openshift_cluster_service_account_name
+        type: str
+        required: true
+        description:
+          - "Service account name to be used by automation after login"
+          - "Example: C(ansible-deployer)"
+      openshift_cluster_service_account_token_duration:
+        &openshift_cluster_service_account_token_duration
+        type: str
+        required: false
+        default: "12h"
+        description:
+          - "Duration for the service account token"
+
+  route/apply:
+    short_description: Apply an OpenShift Route
+    description:
+      - Creates or updates an OpenShift Route targeting a named Service port.
+      - Renders passthrough TLS termination when C(openshift_route_use_tls) is true.
+    options:
+      k8s_namespace: *k8s_namespace
+      openshift_route_name: *openshift_route_name
+      openshift_route_host: *openshift_route_host
+      openshift_route_service_name: *openshift_route_service_name
+      openshift_route_service_port: *openshift_route_service_port
+      openshift_route_labels: *openshift_route_labels
+      openshift_route_use_tls: *openshift_route_use_tls
+      openshift_route_tls_termination: *openshift_route_tls_termination
+
+  route/rm:
+    short_description: Remove an OpenShift Route
+    description:
+      - Deletes the named OpenShift Route from C(k8s_namespace).
+    options:
+      k8s_namespace: *k8s_namespace
+      openshift_route_name: *openshift_route_name
+
+  route/ping:
+    short_description: Check an OpenShift Route host
+    description:
+      - Checks the external OpenShift Route host on port 80 or 443, depending on C(openshift_route_use_tls).
+    options:
+      openshift_route_host: *openshift_route_host
+      openshift_route_use_tls: *openshift_route_use_tls
+
+  cluster/login:
+    short_description: Login to a managed OpenShift cluster with a personal token
+    description:
+      - Logs in to a managed OpenShift cluster using a personal user token.
+    options:
+      openshift_cluster_login_server: *openshift_cluster_login_server
+      openshift_cluster_personal_token: *openshift_cluster_personal_token
+
+  cluster/service_account_login:
+    short_description: Login to a managed OpenShift cluster with a service account
+    description:
+      - Mints a service-account token and logs in to a managed OpenShift cluster.
+      - Selects the configured OpenShift project after login.
+    options:
+      openshift_cluster_login_server: *openshift_cluster_login_server
+      openshift_cluster_namespace: *openshift_cluster_namespace
+      openshift_cluster_service_account_name: *openshift_cluster_service_account_name
+      openshift_cluster_service_account_token_duration: *openshift_cluster_service_account_token_duration

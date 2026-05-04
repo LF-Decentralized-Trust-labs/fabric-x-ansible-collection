@@ -1,0 +1,34 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Delete Loadgen web OpenShift Route
+  vars:
+    openshift_route_name: "{{ loadgen_k8s_resource_name }}-web"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/rm
+  when: loadgen_openshift_web_route is defined
+
+- name: Delete Loadgen metrics OpenShift Route
+  vars:
+    openshift_route_name: "{{ loadgen_k8s_resource_name }}-metrics"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/rm
+  when: loadgen_openshift_metrics_route is defined
+
+- name: Delete Loadgen rpc OpenShift Route
+  vars:
+    openshift_route_name: "{{ loadgen_k8s_resource_name }}-rpc"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/rm
+  when: loadgen_openshift_rpc_route is defined
+
+- name: Remove Loadgen workload using generic k8s flow
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: k8s/rm

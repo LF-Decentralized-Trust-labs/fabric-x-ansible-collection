@@ -15,4 +15,4 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: k8s/crypto/rm
-  when: node_exporter_use_k8s
+  when: node_exporter_use_k8s or node_exporter_use_openshift

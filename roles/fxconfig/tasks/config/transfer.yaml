@@ -13,22 +13,55 @@
     state: directory
     mode: "0o755"
 
+- name: Set fxconfig effective orderer address to OpenShift Route
+  vars:
+    fxconfig_orderer_openshift_route_port: "{{ 443 if hostvars[orderer_router_host].orderer_use_tls is defined and hostvars[orderer_router_host].orderer_use_tls else 80 }}"
+  ansible.builtin.set_fact:
+    fxconfig_orderer_address: "{{ hostvars[orderer_router_host].orderer_openshift_route }}:{{ fxconfig_orderer_openshift_route_port }}"
+  when:
+    - hostvars[orderer_router_host].orderer_use_openshift is defined
+    - hostvars[orderer_router_host].orderer_use_openshift
+    - hostvars[orderer_router_host].orderer_openshift_route is defined
+
+- name: Set fxconfig effective committer sidecar address to OpenShift Route
+  vars:
+    fxconfig_committer_sidecar_openshift_route_port: "{{ 443 if hostvars[committer_sidecar_host].committer_use_tls is defined and hostvars[committer_sidecar_host].committer_use_tls else 80 }}"
+  ansible.builtin.set_fact:
+    fxconfig_committer_sidecar_address: "{{ hostvars[committer_sidecar_host].committer_openshift_route }}:{{ fxconfig_committer_sidecar_openshift_route_port }}"
+  when:
+    - hostvars[committer_sidecar_host].committer_use_openshift is defined
+    - hostvars[committer_sidecar_host].committer_use_openshift
+    - hostvars[committer_sidecar_host].committer_openshift_route is defined
+
+- name: Set fxconfig effective committer query-service address to OpenShift Route
+  vars:
+    fxconfig_committer_query_service_openshift_route_port: "{{ 443 if hostvars[committer_query_service_host].committer_use_tls is defined and hostvars[committer_query_service_host].committer_use_tls else 80 }}"
+  ansible.builtin.set_fact:
+    fxconfig_committer_query_service_address: "{{ hostvars[committer_query_service_host].committer_openshift_route }}:{{ fxconfig_committer_query_service_openshift_route_port }}"
+  when:
+    - hostvars[committer_query_service_host].committer_use_openshift is defined
+    - hostvars[committer_query_service_host].committer_use_openshift
+    - hostvars[committer_query_service_host].committer_openshift_route is defined
+
 - name: Set fxconfig effective orderer address to k8s NodePort
   ansible.builtin.set_fact:
     fxconfig_orderer_address: "{{ hostvars[orderer_router_host].actual_host }}:{{ hostvars[orderer_router_host].orderer_k8s_rpc_node_port }}"
   when:
+    - hostvars[orderer_router_host].orderer_openshift_route is not defined
     - hostvars[orderer_router_host].orderer_k8s_rpc_node_port is defined
 
 - name: Set fxconfig effective committer sidecar address to k8s NodePort
   ansible.builtin.set_fact:
     fxconfig_committer_sidecar_address: "{{ hostvars[committer_sidecar_host].actual_host }}:{{ hostvars[committer_sidecar_host].committer_k8s_rpc_node_port }}"
   when:
+    - hostvars[committer_sidecar_host].committer_openshift_route is not defined
     - hostvars[committer_sidecar_host].committer_k8s_rpc_node_port is defined
 
 - name: Set fxconfig effective committer query-service address to k8s NodePort
   ansible.builtin.set_fact:
     fxconfig_committer_query_service_address: "{{ hostvars[committer_query_service_host].actual_host }}:{{ hostvars[committer_query_service_host].committer_k8s_rpc_node_port }}"
   when:
+    - hostvars[committer_query_service_host].committer_openshift_route is not defined
     - hostvars[committer_query_service_host].committer_k8s_rpc_node_port is defined
 
 - name: Setup the fxconfig configuration file

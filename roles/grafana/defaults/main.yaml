@@ -38,9 +38,11 @@ grafana_web_port: 3000
 # Enables Kubernetes mode.
 grafana_use_k8s: false
 # Enables container mode.
-grafana_use_container: '{{ not grafana_use_k8s }}'
+grafana_use_container: '{{ (not grafana_use_k8s) and (not grafana_use_openshift) }}'
 # Sets the base Kubernetes resource name for Grafana.
 grafana_k8s_resource_name: '{{ inventory_hostname }}'
+# Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Grafana resources.
+grafana_k8s_part_of: monitoring
 # Sets the Grafana Deployment wait timeout in seconds.
 grafana_k8s_wait_timeout: 120
 # Sets the Grafana pod filesystem group.
@@ -48,3 +50,5 @@ grafana_k8s_fs_group: 472
 # Set to C(true) to create a LoadBalancer Service entry that exposes the web port externally.
 # When undefined or C(false), the web port is not included in the LoadBalancer Service.
 grafana_k8s_loadbalancer_expose_web_port: false
+# Selects the OpenShift deployment branch.
+grafana_use_openshift: false

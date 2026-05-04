@@ -43,7 +43,7 @@ argument_specs:
       yugabyte_use_container: &yugabyte_use_container
         type: bool
         required: false
-        default: "{{ not yugabyte_use_k8s }}"
+        default: "{{ (not yugabyte_use_k8s) and (not yugabyte_use_openshift) }}"
         description:
           - "Enables container mode for the YugabyteDB role."
       yugabyte_use_tls: &yugabyte_use_tls
@@ -216,6 +216,12 @@ argument_specs:
         default: "{{ inventory_hostname }}"
         description:
           - "Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled."
+      yugabyte_k8s_part_of: &yugabyte_k8s_part_of
+        type: str
+        required: false
+        default: "{{ (organization | default({})).name | default('yugabyte') }}"
+        description:
+          - "Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to YugabyteDB resources."
       yugabyte_k8s_wait: &yugabyte_k8s_wait
         type: bool
         required: false
@@ -407,7 +413,6 @@ argument_specs:
           - "Example: C(my_yugabyte_password)."
       k8s_namespace: &k8s_namespace
         type: str
-        required: true
         description:
           - "Sets the Kubernetes namespace used by YugabyteDB resources."
           - "Example: C(fabricx-yugabyte)."
@@ -482,6 +487,40 @@ argument_specs:
           - "Overrides the liveness probe failure threshold used by Kubernetes templates when defined."
           - "Example: C(6)."
 
+      yugabyte_use_openshift: &yugabyte_use_openshift
+        type: bool
+        required: false
+        default: false
+        description:
+          - Selects the OpenShift deployment branch.
+      yugabyte_openshift_master_webserver_route:
+        &yugabyte_openshift_master_webserver_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(yugabyte-master-web.apps.example.com)."
+      yugabyte_openshift_tablet_webserver_route:
+        &yugabyte_openshift_tablet_webserver_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(yugabyte-tablet-web.apps.example.com)."
+      yugabyte_openshift_tablet_pgsql_web_route:
+        &yugabyte_openshift_tablet_pgsql_web_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(yugabyte-tablet-pgsql-web.apps.example.com)."
+      yugabyte_openshift_tablet_cql_web_route:
+        &yugabyte_openshift_tablet_cql_web_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(yugabyte-tablet-cql-web.apps.example.com)."
   start:
     short_description: Start a YugabyteDB cluster
     description:
@@ -490,6 +529,7 @@ argument_specs:
     options:
       yugabyte_cluster: *yugabyte_cluster
       yugabyte_use_k8s: *yugabyte_use_k8s
+      yugabyte_use_openshift: *yugabyte_use_openshift
       yugabyte_use_container: *yugabyte_use_container
 
   stop:
@@ -499,6 +539,7 @@ argument_specs:
       - "Kubernetes mode is managed through the removal entry points because StatefulSets and Services are reconciled resources."
     options:
       yugabyte_use_k8s: *yugabyte_use_k8s
+      yugabyte_use_openshift: *yugabyte_use_openshift
       yugabyte_use_container: *yugabyte_use_container
 
   teardown:
@@ -508,6 +549,7 @@ argument_specs:
       - "Container mode deletes the running container and host data directory; Kubernetes mode deletes StatefulSets, Services, optional NodePort Services, and PVCs."
     options:
       yugabyte_use_k8s: *yugabyte_use_k8s
+      yugabyte_use_openshift: *yugabyte_use_openshift
       yugabyte_use_container: *yugabyte_use_container
 
   wipe:
@@ -524,6 +566,7 @@ argument_specs:
       - "Container mode fetches logs from the named container; Kubernetes mode fetches pod logs selected by the resource labels."
     options:
       yugabyte_use_k8s: *yugabyte_use_k8s
+      yugabyte_use_openshift: *yugabyte_use_openshift
       yugabyte_use_container: *yugabyte_use_container
 
   ping:
@@ -534,6 +577,7 @@ argument_specs:
     options:
       yugabyte_component_type: *yugabyte_component_type
       yugabyte_use_k8s: *yugabyte_use_k8s
+      yugabyte_use_openshift: *yugabyte_use_openshift
       yugabyte_master_webserver_port: *yugabyte_master_webserver_port
       yugabyte_master_rpc_bind_port: *yugabyte_master_rpc_bind_port
       yugabyte_tablet_pgsql_bind_port: *yugabyte_tablet_pgsql_bind_port
@@ -582,6 +626,7 @@ argument_specs:
     options:
       yugabyte_use_tls: *yugabyte_use_tls
       yugabyte_use_k8s: *yugabyte_use_k8s
+      yugabyte_use_openshift: *yugabyte_use_openshift
       organization: *organization
 
   crypto/fetch:
@@ -604,8 +649,10 @@ argument_specs:
       remote_config_dir: *remote_config_dir
       yugabyte_use_tls: *yugabyte_use_tls
       yugabyte_use_k8s: *yugabyte_use_k8s
+      yugabyte_use_openshift: *yugabyte_use_openshift
       yugabyte_remote_config_dir: *yugabyte_remote_config_dir
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
+      yugabyte_k8s_part_of: *yugabyte_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: false
@@ -620,6 +667,11 @@ argument_specs:
       yugabyte_use_tls: *yugabyte_use_tls
       yugabyte_remote_config_dir: *yugabyte_remote_config_dir
       organization: *organization_required
+      yugabyte_component_type: *yugabyte_component_type
+      yugabyte_openshift_master_webserver_route: *yugabyte_openshift_master_webserver_route
+      yugabyte_openshift_tablet_webserver_route: *yugabyte_openshift_tablet_webserver_route
+      yugabyte_openshift_tablet_pgsql_web_route: *yugabyte_openshift_tablet_pgsql_web_route
+      yugabyte_openshift_tablet_cql_web_route: *yugabyte_openshift_tablet_cql_web_route
 
   crypto/openssl/fetch_csr:
     short_description: Fetch a YugabyteDB TLS CSR
@@ -666,6 +718,11 @@ argument_specs:
       fetched_artifacts_dir: *fetched_artifacts_dir
       actual_host: *actual_host
       organization: *organization_required
+      yugabyte_component_type: *yugabyte_component_type
+      yugabyte_openshift_master_webserver_route: *yugabyte_openshift_master_webserver_route
+      yugabyte_openshift_tablet_webserver_route: *yugabyte_openshift_tablet_webserver_route
+      yugabyte_openshift_tablet_pgsql_web_route: *yugabyte_openshift_tablet_pgsql_web_route
+      yugabyte_openshift_tablet_cql_web_route: *yugabyte_openshift_tablet_cql_web_route
 
   config/transfer:
     short_description: Transfer YugabyteDB initialization config
@@ -680,6 +737,7 @@ argument_specs:
       yugabyte_user: *yugabyte_user
       yugabyte_password: *yugabyte_password
       yugabyte_use_k8s: *yugabyte_use_k8s
+      yugabyte_use_openshift: *yugabyte_use_openshift
 
   config/rm:
     short_description: Remove YugabyteDB configuration
@@ -690,7 +748,9 @@ argument_specs:
       remote_config_dir: *remote_config_dir
       yugabyte_remote_config_dir: *yugabyte_remote_config_dir
       yugabyte_use_k8s: *yugabyte_use_k8s
+      yugabyte_use_openshift: *yugabyte_use_openshift
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
+      yugabyte_k8s_part_of: *yugabyte_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: false
@@ -814,6 +874,7 @@ argument_specs:
       - "Pods are selected by the role-managed Kubernetes resource label for the master or tablet StatefulSet."
     options:
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
+      yugabyte_k8s_part_of: *yugabyte_k8s_part_of
 
   k8s/config/transfer:
     short_description: Create a YugabyteDB ConfigMap
@@ -822,11 +883,14 @@ argument_specs:
       - "The ConfigMap is only populated for tablet components because tablets run the YSQL initialization command."
     options:
       yugabyte_component_type: *yugabyte_component_type
-      k8s_namespace: *k8s_namespace
+      k8s_namespace:
+        <<: *k8s_namespace
+        required: true
       remote_config_dir: *remote_config_dir
       yugabyte_remote_config_dir: *yugabyte_remote_config_dir
       yugabyte_init_script_file: *yugabyte_init_script_file
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
+      yugabyte_k8s_part_of: *yugabyte_k8s_part_of
 
   k8s/master/start:
     short_description: Start a YugabyteDB master StatefulSet
@@ -834,8 +898,11 @@ argument_specs:
       - "Applies the master ClusterIP Service, optional NodePort and LoadBalancer Services, and StatefulSet for the current YugabyteDB master node."
       - "The StatefulSet runs C(yb-master), configures replication from the master host list, attaches persistent storage, mounts TLS Secrets when enabled, and waits for readiness when requested."
     options:
-      k8s_namespace: *k8s_namespace
+      k8s_namespace:
+        <<: *k8s_namespace
+        required: true
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
+      yugabyte_k8s_part_of: *yugabyte_k8s_part_of
       yugabyte_image: *yugabyte_image
       yugabyte_registry_endpoint: *yugabyte_registry_endpoint
       yugabyte_image_name: *yugabyte_image_name
@@ -874,8 +941,11 @@ argument_specs:
       - "Deletes the master StatefulSet and its Services for the current YugabyteDB master node."
       - "PersistentVolumeClaims are left for C(data/rm) so runtime removal and data removal stay separate."
     options:
-      k8s_namespace: *k8s_namespace
+      k8s_namespace:
+        <<: *k8s_namespace
+        required: true
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
+      yugabyte_k8s_part_of: *yugabyte_k8s_part_of
       yugabyte_k8s_master_rpc_node_port: *yugabyte_k8s_master_rpc_node_port
       yugabyte_k8s_loadbalancer_expose_master_rpc_port: *yugabyte_k8s_loadbalancer_expose_master_rpc_port
       yugabyte_k8s_master_webserver_node_port: *yugabyte_k8s_master_webserver_node_port
@@ -887,8 +957,11 @@ argument_specs:
       - "Applies the tablet ClusterIP Service, optional NodePort and LoadBalancer Services, and StatefulSet for the current YugabyteDB tablet node, then initializes the database on the first tablet."
       - "The StatefulSet runs C(yb-tserver), connects to the configured masters, attaches persistent storage, mounts the initialization ConfigMap and TLS Secret when enabled, and waits for readiness when requested."
     options:
-      k8s_namespace: *k8s_namespace
+      k8s_namespace:
+        <<: *k8s_namespace
+        required: true
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
+      yugabyte_k8s_part_of: *yugabyte_k8s_part_of
       yugabyte_image: *yugabyte_image
       yugabyte_registry_endpoint: *yugabyte_registry_endpoint
       yugabyte_image_name: *yugabyte_image_name
@@ -940,8 +1013,11 @@ argument_specs:
       - "Deletes the tablet StatefulSet and its Services for the current YugabyteDB tablet node."
       - "PersistentVolumeClaims are left for C(data/rm) so runtime removal and data removal stay separate."
     options:
-      k8s_namespace: *k8s_namespace
+      k8s_namespace:
+        <<: *k8s_namespace
+        required: true
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
+      yugabyte_k8s_part_of: *yugabyte_k8s_part_of
       yugabyte_k8s_tablet_pgsql_node_port: *yugabyte_k8s_tablet_pgsql_node_port
       yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port: *yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port
       yugabyte_k8s_tablet_rpc_node_port: *yugabyte_k8s_tablet_rpc_node_port
@@ -961,9 +1037,12 @@ argument_specs:
       - "Creates the Kubernetes Secret that exposes the YugabyteDB TLS key pair and CA certificate to pods."
       - "The Secret is mounted by master and tablet StatefulSets when YugabyteDB TLS is enabled."
     options:
-      k8s_namespace: *k8s_namespace
+      k8s_namespace:
+        <<: *k8s_namespace
+        required: true
       remote_config_dir: *remote_config_dir
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
+      yugabyte_k8s_part_of: *yugabyte_k8s_part_of
       yugabyte_remote_config_dir: *yugabyte_remote_config_dir
       yugabyte_use_tls: *yugabyte_use_tls
 
@@ -976,8 +1055,10 @@ argument_specs:
       remote_data_dir: *remote_data_dir
       yugabyte_use_container: *yugabyte_use_container
       yugabyte_use_k8s: *yugabyte_use_k8s
+      yugabyte_use_openshift: *yugabyte_use_openshift
       yugabyte_remote_data_dir: *yugabyte_remote_data_dir
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
+      yugabyte_k8s_part_of: *yugabyte_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: false
@@ -990,3 +1071,85 @@ argument_specs:
     options:
       yugabyte_hosts: *yugabyte_hosts
       fetched_artifacts_dir: *fetched_artifacts_dir
+
+  openshift/start:
+    short_description: Dispatch YugabyteDB OpenShift startup
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      yugabyte_component_type: *yugabyte_component_type
+      yugabyte_use_openshift: *yugabyte_use_openshift
+
+  openshift/rm:
+    short_description: Dispatch YugabyteDB OpenShift removal
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      yugabyte_component_type: *yugabyte_component_type
+      yugabyte_use_openshift: *yugabyte_use_openshift
+
+  openshift/ping:
+    short_description: Check the YugabyteDB OpenShift deployment
+    description:
+      - Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+    options:
+      yugabyte_component_type: *yugabyte_component_type
+      yugabyte_webserver_use_tls: *yugabyte_webserver_use_tls
+      yugabyte_openshift_master_webserver_route: *yugabyte_openshift_master_webserver_route
+      yugabyte_openshift_tablet_webserver_route: *yugabyte_openshift_tablet_webserver_route
+      yugabyte_openshift_tablet_pgsql_web_route: *yugabyte_openshift_tablet_pgsql_web_route
+      yugabyte_openshift_tablet_cql_web_route: *yugabyte_openshift_tablet_cql_web_route
+
+  openshift/master/start:
+    short_description: Start the YugabyteDB master OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
+      yugabyte_k8s_part_of: *yugabyte_k8s_part_of
+      yugabyte_webserver_use_tls: *yugabyte_webserver_use_tls
+      k8s_namespace:
+        <<: *k8s_namespace
+        required: true
+      yugabyte_openshift_master_webserver_route: *yugabyte_openshift_master_webserver_route
+
+  openshift/master/rm:
+    short_description: Remove the YugabyteDB master OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
+      yugabyte_k8s_part_of: *yugabyte_k8s_part_of
+      k8s_namespace:
+        <<: *k8s_namespace
+        required: true
+      yugabyte_openshift_master_webserver_route: *yugabyte_openshift_master_webserver_route
+
+  openshift/tablet/start:
+    short_description: Start the YugabyteDB tablet OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
+      yugabyte_k8s_part_of: *yugabyte_k8s_part_of
+      yugabyte_webserver_use_tls: *yugabyte_webserver_use_tls
+      k8s_namespace:
+        <<: *k8s_namespace
+        required: true
+      yugabyte_openshift_tablet_webserver_route: *yugabyte_openshift_tablet_webserver_route
+      yugabyte_openshift_tablet_pgsql_web_route: *yugabyte_openshift_tablet_pgsql_web_route
+      yugabyte_openshift_tablet_cql_web_route: *yugabyte_openshift_tablet_cql_web_route
+
+  openshift/tablet/rm:
+    short_description: Remove the YugabyteDB tablet OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
+      yugabyte_k8s_part_of: *yugabyte_k8s_part_of
+      k8s_namespace:
+        <<: *k8s_namespace
+        required: true
+      yugabyte_openshift_tablet_webserver_route: *yugabyte_openshift_tablet_webserver_route
+      yugabyte_openshift_tablet_pgsql_web_route: *yugabyte_openshift_tablet_pgsql_web_route
+      yugabyte_openshift_tablet_cql_web_route: *yugabyte_openshift_tablet_cql_web_route

@@ -1,0 +1,28 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ openshift_route_name }}
+  namespace: {{ k8s_namespace }}
+{% if openshift_route_labels is defined and openshift_route_labels | length > 0 %}
+  labels:
+{% for openshift_route_label in openshift_route_labels | dict2items %}
+    {{ openshift_route_label.key }}: "{{ openshift_route_label.value }}"
+{% endfor %}
+{% endif %}
+spec:
+  host: {{ openshift_route_host }}
+  to:
+    kind: Service
+    name: {{ openshift_route_service_name }}
+  port:
+    targetPort: {{ openshift_route_service_port }}
+{% if openshift_route_use_tls %}
+  tls:
+    termination: {{ openshift_route_tls_termination }}
+{% endif %}

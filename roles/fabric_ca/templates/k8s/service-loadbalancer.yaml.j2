@@ -14,6 +14,7 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ fabric_ca_server_k8s_resource_name }}
     app.kubernetes.io/component: fabric-ca
+    app.kubernetes.io/part-of: {{ fabric_ca_server_k8s_part_of }}
 spec:
   type: LoadBalancer
   selector:

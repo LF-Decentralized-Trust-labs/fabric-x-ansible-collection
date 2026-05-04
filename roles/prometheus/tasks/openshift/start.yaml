@@ -1,0 +1,25 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start Prometheus workload using generic k8s flow
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: k8s/start
+
+- name: Apply Prometheus http OpenShift Route
+  vars:
+    openshift_route_name: "{{ prometheus_k8s_resource_name }}-http"
+    openshift_route_host: "{{ prometheus_openshift_route }}"
+    openshift_route_service_name: "{{ prometheus_k8s_resource_name }}"
+    openshift_route_service_port: http
+    openshift_route_use_tls: "{{ prometheus_use_tls }}"
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ prometheus_k8s_resource_name }}"
+      app.kubernetes.io/part-of: "{{ prometheus_k8s_part_of }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: prometheus_openshift_route is defined

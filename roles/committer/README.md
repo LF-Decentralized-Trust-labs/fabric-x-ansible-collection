@@ -9,6 +9,7 @@
 - [Tasks](#tasks)
   - [ping](#ping)
   - [k8s/ping](#k8sping)
+  - [openshift/ping](#openshiftping)
   - [validator/start](#validatorstart)
   - [verifier/start](#verifierstart)
   - [coordinator/start](#coordinatorstart)
@@ -83,6 +84,16 @@
   - [query\_service/k8s/config/transfer](#query_servicek8sconfigtransfer)
   - [validator/teardown](#validatorteardown)
   - [verifier/teardown](#verifierteardown)
+  - [validator/openshift/start](#validatoropenshiftstart)
+  - [validator/openshift/rm](#validatoropenshiftrm)
+  - [verifier/openshift/start](#verifieropenshiftstart)
+  - [verifier/openshift/rm](#verifieropenshiftrm)
+  - [coordinator/openshift/start](#coordinatoropenshiftstart)
+  - [coordinator/openshift/rm](#coordinatoropenshiftrm)
+  - [sidecar/openshift/start](#sidecaropenshiftstart)
+  - [sidecar/openshift/rm](#sidecaropenshiftrm)
+  - [query\_service/openshift/start](#query_serviceopenshiftstart)
+  - [query\_service/openshift/rm](#query_serviceopenshiftrm)
 
 ## Role Defaults
 
@@ -111,6 +122,8 @@ Validate that the Fabric-X Committer RPC port is reachable. Uses `committer_rpc_
     committer_rpc_port: 7051
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: ping
@@ -142,6 +155,28 @@ Probes configured Kubernetes NodePort values and LoadBalancer-exposed service po
     tasks_from: k8s/ping
 ```
 
+### openshift/ping
+
+> Check the committer OpenShift deployment
+
+Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+
+```yaml
+- name: Check the committer OpenShift deployment
+  vars:
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
+    # Enable TLS for the monitoring endpoint.
+    committer_monitoring_use_tls: "{{ committer_use_tls }}"
+    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
+    committer_openshift_route: "committer-rpc.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
+    committer_openshift_metrics_route: "committer-metrics.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: openshift/ping
+```
+
 ### validator/start
 
 > Start a validator component
@@ -155,8 +190,10 @@ Start a validator in bin, container, or Kubernetes mode. The selected runtime pa
     committer_use_bin: false
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
     # Enable container deployment mode.
-    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
+    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: validator/start
@@ -175,8 +212,10 @@ Start a verifier in bin, container, or Kubernetes mode. The selected runtime pat
     committer_use_bin: false
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
     # Enable container deployment mode.
-    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
+    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: verifier/start
@@ -195,8 +234,10 @@ Start a coordinator in bin, container, or Kubernetes mode. Coordinators connect 
     committer_use_bin: false
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
     # Enable container deployment mode.
-    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
+    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: coordinator/start
@@ -215,8 +256,10 @@ Start a sidecar in bin, container, or Kubernetes mode. Sidecars require persiste
     committer_use_bin: false
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
     # Enable container deployment mode.
-    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
+    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: sidecar/start
@@ -235,8 +278,10 @@ Start a query-service in bin, container, or Kubernetes mode. The selected runtim
     committer_use_bin: false
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
     # Enable container deployment mode.
-    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
+    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: query_service/start
@@ -254,11 +299,13 @@ Stop the selected component in bin or container mode. Kubernetes teardown is han
     # Committer component handled by the entry point. Example: `coordinator`.
     committer_component_type: "coordinator"
     # Deployment mode selected by the role.
-    committer_deployment_mode: "{%- if committer_use_bin -%}bin{%- elif committer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
+    committer_deployment_mode: "{%- if committer_use_bin -%}bin{%- elif committer_use_openshift -%}openshift{%- elif committer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
     # Enable host-binary deployment mode.
     committer_use_bin: false
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: stop
@@ -293,8 +340,10 @@ Remove the query-service according to its deployment mode. Deletes the runtime p
     committer_use_bin: false
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
     # Enable container deployment mode.
-    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
+    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: query_service/teardown
@@ -313,8 +362,10 @@ Remove the sidecar according to its deployment mode and delete sidecar data. Del
     committer_use_bin: false
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
     # Enable container deployment mode.
-    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
+    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: sidecar/teardown
@@ -333,8 +384,10 @@ Remove the coordinator according to its deployment mode. Deletes the runtime pro
     committer_use_bin: false
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
     # Enable container deployment mode.
-    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
+    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: coordinator/teardown
@@ -371,8 +424,10 @@ Fetch logs from the selected deployment mode. Dispatches to binary, container, o
     committer_use_bin: false
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
     # Enable container deployment mode.
-    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
+    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: fetch_logs
@@ -431,6 +486,8 @@ Transfer cryptogen artifacts or enroll with Fabric CA for the selected component
         name: "committer-sidecar-1"
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: crypto/setup
@@ -787,6 +844,8 @@ Remove the component config directory and the Kubernetes ConfigMap when enabled.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: config/rm
@@ -927,6 +986,8 @@ Remove local TLS assets and the Kubernetes Secret when enabled. Cleans TLS mater
     committer_use_tls: false
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: crypto/rm
@@ -985,6 +1046,10 @@ Enroll the selected committer component against its Fabric CA and write the resu
     committer_use_tls: false
     # Real machine host. Example: `myvpc.cloud.ibm.com`.
     actual_host: "myvpc.cloud.ibm.com"
+    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
+    committer_openshift_route: "committer-rpc.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
+    committer_openshift_metrics_route: "committer-metrics.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: crypto/fabric_ca/enroll
@@ -1003,8 +1068,12 @@ Remove the sidecar data directory and sidecar PVC when Kubernetes mode is enable
     committer_remote_data_dir: "{{ remote_data_dir }}"
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "{{ organization.name }}"
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
   ansible.builtin.include_role:
@@ -1023,6 +1092,8 @@ Delete the committer Kubernetes ConfigMap. Uses `committer_k8s_resource_name` an
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "{{ organization.name }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
   ansible.builtin.include_role:
@@ -1041,6 +1112,8 @@ Delete the committer Kubernetes Secret. Uses `committer_k8s_resource_name` and `
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "{{ organization.name }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
   ansible.builtin.include_role:
@@ -1063,6 +1136,8 @@ Create the committer Kubernetes Secret from the generated TLS materials. Include
     committer_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}"
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "{{ organization.name }}"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
@@ -1089,6 +1164,8 @@ Collect logs from committer pods through the shared Kubernetes helper role. Uses
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "{{ organization.name }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: k8s/fetch_logs
@@ -1307,6 +1384,8 @@ Render validator configuration, DB settings, mTLS assets, and optional Kubernete
     yugabyte_cluster_ref_id: "yb-committer-ledger"
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: validator/config/transfer
@@ -1371,6 +1450,8 @@ Render verifier configuration, mTLS assets, and optional Kubernetes ConfigMap. I
     committer_verifier_channel_buffer_size: 1000
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: verifier/config/transfer
@@ -1457,6 +1538,8 @@ Render coordinator configuration, validator and verifier CA bundles, and optiona
     fetched_artifacts_dir: "/tmp/fabricx/artifacts"
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: coordinator/config/transfer
@@ -1541,6 +1624,8 @@ Render sidecar configuration, upstream TLS bundles, and optional Kubernetes Conf
     fetched_artifacts_dir: "/tmp/fabricx/artifacts"
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: sidecar/config/transfer
@@ -1629,6 +1714,8 @@ Render query-service configuration, DB settings, mTLS assets, and optional Kuber
     yugabyte_cluster_ref_id: "yb-committer-ledger"
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: query_service/config/transfer
@@ -1773,6 +1860,8 @@ Delete the validator Deployment and Services. Uses `committer_k8s_resource_name`
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "{{ organization.name }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
     # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
@@ -1799,6 +1888,8 @@ Delete the verifier Deployment and Services. Uses `committer_k8s_resource_name` 
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "{{ organization.name }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
     # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
@@ -1825,6 +1916,8 @@ Delete the coordinator Deployment and Services. Uses `committer_k8s_resource_nam
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "{{ organization.name }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
     # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
@@ -1851,6 +1944,8 @@ Delete the sidecar StatefulSet and Services. Uses `committer_k8s_resource_name` 
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "{{ organization.name }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
     # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
@@ -1877,6 +1972,8 @@ Delete the query-service Deployment and Services. Uses `committer_k8s_resource_n
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "{{ organization.name }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
     # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
@@ -1988,8 +2085,10 @@ Remove validator runtime resources for the active deployment mode. Dispatches to
   vars:
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
     # Enable container deployment mode.
-    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
+    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}"
     # Enable host-binary deployment mode.
     committer_use_bin: false
   ansible.builtin.include_role:
@@ -2008,11 +2107,283 @@ Remove verifier runtime resources for the active deployment mode. Dispatches to 
   vars:
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
     # Enable container deployment mode.
-    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) }}"
+    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}"
     # Enable host-binary deployment mode.
     committer_use_bin: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: verifier/teardown
+```
+
+### validator/openshift/start
+
+> Start the committer validator OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Start the committer validator OpenShift deployment
+  vars:
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "{{ organization.name }}"
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
+    # Enable TLS for the monitoring endpoint.
+    committer_monitoring_use_tls: "{{ committer_use_tls }}"
+    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
+    k8s_namespace: "fabricx-committer"
+    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
+    committer_openshift_route: "committer-rpc.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
+    committer_openshift_metrics_route: "committer-metrics.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: validator/openshift/start
+```
+
+### validator/openshift/rm
+
+> Rm the committer validator OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Rm the committer validator OpenShift deployment
+  vars:
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "{{ organization.name }}"
+    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
+    k8s_namespace: "fabricx-committer"
+    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
+    committer_openshift_route: "committer-rpc.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
+    committer_openshift_metrics_route: "committer-metrics.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: validator/openshift/rm
+```
+
+### verifier/openshift/start
+
+> Start the committer verifier OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Start the committer verifier OpenShift deployment
+  vars:
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "{{ organization.name }}"
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
+    # Enable TLS for the monitoring endpoint.
+    committer_monitoring_use_tls: "{{ committer_use_tls }}"
+    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
+    k8s_namespace: "fabricx-committer"
+    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
+    committer_openshift_route: "committer-rpc.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
+    committer_openshift_metrics_route: "committer-metrics.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: verifier/openshift/start
+```
+
+### verifier/openshift/rm
+
+> Rm the committer verifier OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Rm the committer verifier OpenShift deployment
+  vars:
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "{{ organization.name }}"
+    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
+    k8s_namespace: "fabricx-committer"
+    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
+    committer_openshift_route: "committer-rpc.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
+    committer_openshift_metrics_route: "committer-metrics.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: verifier/openshift/rm
+```
+
+### coordinator/openshift/start
+
+> Start the committer coordinator OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Start the committer coordinator OpenShift deployment
+  vars:
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "{{ organization.name }}"
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
+    # Enable TLS for the monitoring endpoint.
+    committer_monitoring_use_tls: "{{ committer_use_tls }}"
+    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
+    k8s_namespace: "fabricx-committer"
+    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
+    committer_openshift_route: "committer-rpc.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
+    committer_openshift_metrics_route: "committer-metrics.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: coordinator/openshift/start
+```
+
+### coordinator/openshift/rm
+
+> Rm the committer coordinator OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Rm the committer coordinator OpenShift deployment
+  vars:
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "{{ organization.name }}"
+    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
+    k8s_namespace: "fabricx-committer"
+    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
+    committer_openshift_route: "committer-rpc.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
+    committer_openshift_metrics_route: "committer-metrics.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: coordinator/openshift/rm
+```
+
+### sidecar/openshift/start
+
+> Start the committer sidecar OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Start the committer sidecar OpenShift deployment
+  vars:
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "{{ organization.name }}"
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
+    # Enable TLS for the monitoring endpoint.
+    committer_monitoring_use_tls: "{{ committer_use_tls }}"
+    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
+    k8s_namespace: "fabricx-committer"
+    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
+    committer_openshift_route: "committer-rpc.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
+    committer_openshift_metrics_route: "committer-metrics.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: sidecar/openshift/start
+```
+
+### sidecar/openshift/rm
+
+> Rm the committer sidecar OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Rm the committer sidecar OpenShift deployment
+  vars:
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "{{ organization.name }}"
+    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
+    k8s_namespace: "fabricx-committer"
+    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
+    committer_openshift_route: "committer-rpc.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
+    committer_openshift_metrics_route: "committer-metrics.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: sidecar/openshift/rm
+```
+
+### query_service/openshift/start
+
+> Start the committer query_service OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Start the committer query_service OpenShift deployment
+  vars:
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "{{ organization.name }}"
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
+    # Enable TLS for the monitoring endpoint.
+    committer_monitoring_use_tls: "{{ committer_use_tls }}"
+    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
+    k8s_namespace: "fabricx-committer"
+    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
+    committer_openshift_route: "committer-rpc.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
+    committer_openshift_metrics_route: "committer-metrics.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: query_service/openshift/start
+```
+
+### query_service/openshift/rm
+
+> Rm the committer query_service OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Rm the committer query_service OpenShift deployment
+  vars:
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "{{ organization.name }}"
+    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
+    k8s_namespace: "fabricx-committer"
+    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
+    committer_openshift_route: "committer-rpc.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
+    committer_openshift_metrics_route: "committer-metrics.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: query_service/openshift/rm
 ```

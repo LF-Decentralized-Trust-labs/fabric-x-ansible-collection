@@ -1,0 +1,34 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Delete Yugabyte tablet webserver OpenShift Route
+  vars:
+    openshift_route_name: "{{ yugabyte_k8s_resource_name }}-webserver"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/rm
+  when: yugabyte_openshift_tablet_webserver_route is defined
+
+- name: Delete Yugabyte tablet pgsql-web OpenShift Route
+  vars:
+    openshift_route_name: "{{ yugabyte_k8s_resource_name }}-pgsql-web"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/rm
+  when: yugabyte_openshift_tablet_pgsql_web_route is defined
+
+- name: Delete Yugabyte tablet cql-web OpenShift Route
+  vars:
+    openshift_route_name: "{{ yugabyte_k8s_resource_name }}-cql-web"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/rm
+  when: yugabyte_openshift_tablet_cql_web_route is defined
+
+- name: Remove Yugabyte tablet workload using generic k8s flow
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: k8s/tablet/rm

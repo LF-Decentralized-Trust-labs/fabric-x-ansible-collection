@@ -10,6 +10,12 @@
     tasks_from: query_service/k8s/rm
   when: committer_use_k8s
 
+- name: Teardown Hyperledger Fabric-X Committer QueryService in OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: query_service/openshift/rm
+  when: committer_use_openshift
+
 - name: Teardown Fabric-X Committer QueryService container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer

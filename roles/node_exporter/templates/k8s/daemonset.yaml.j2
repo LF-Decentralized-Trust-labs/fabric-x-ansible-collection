@@ -12,7 +12,7 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ node_exporter_k8s_resource_name }}
     app.kubernetes.io/component: node-exporter
-    app.kubernetes.io/part-of: monitoring
+    app.kubernetes.io/part-of: {{ node_exporter_k8s_part_of }}
 spec:
   selector:
     matchLabels:
@@ -22,7 +22,7 @@ spec:
       labels:
         app.kubernetes.io/name: {{ node_exporter_k8s_resource_name }}
         app.kubernetes.io/component: node-exporter
-        app.kubernetes.io/part-of: monitoring
+        app.kubernetes.io/part-of: {{ node_exporter_k8s_part_of }}
     spec:
       # Tolerate all taints so node-exporter runs on every node in the cluster,
       # including control-plane and tainted worker nodes.
@@ -31,12 +31,13 @@ spec:
       containers:
         - name: node-exporter
           image: {{ node_exporter_image }}
-          # Must run as root so node-exporter can read all host paths
-          # (e.g. /var/lib/kubelet/pods/*/volumes). Running as non-root
-          # results in permission denied errors and missing metrics.
+          # Default runAsUser is 0 (root) to allow reading all host paths.
+          # On OpenShift, set node_exporter_k8s_run_as_user to the namespace
+          # UID range value; /proc and /sys are world-readable so core metrics
+          # (CPU, memory, network, disk I/O) still work as non-root.
           securityContext:
-            runAsUser: 0
-            runAsNonRoot: false
+            runAsUser: {{ node_exporter_k8s_run_as_user }}
+            runAsNonRoot: {{ (node_exporter_k8s_run_as_user != 0) | lower }}
           args:
             - --web.listen-address=:{{ node_exporter_port }}
             # Point node-exporter at the host filesystem mounts so it reports

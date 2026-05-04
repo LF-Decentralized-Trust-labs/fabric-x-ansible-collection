@@ -47,6 +47,10 @@
   - [k8s/crypto/transfer](#k8scryptotransfer)
   - [k8s/crypto/rm](#k8scryptorm)
   - [prometheus/get\_scrapers](#prometheusget_scrapers)
+  - [openshift/start](#openshiftstart)
+  - [openshift/ping](#openshiftping)
+  - [openshift/rm](#openshiftrm)
+  - [openshift/teardown](#openshiftteardown)
 
 ## Role Defaults
 
@@ -74,11 +78,13 @@ Dispatches `consensus`, `batcher`, `assembler`, or `router` startup to the selec
     # Orderer component to manage; use `consensus` for the consenter process. Example: `consensus`, `batcher`, `assembler`, or `router`.
     orderer_component_type: "router"
     # Deployment backend selected by the top-level dispatcher.
-    orderer_deployment_mode: "{%- if orderer_use_bin -%}bin{%- elif orderer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
+    orderer_deployment_mode: "{%- if orderer_use_bin -%}bin{%- elif orderer_use_openshift -%}openshift{%- elif orderer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
     # Selects the binary deployment branch.
     orderer_use_bin: false
     # Selects the Kubernetes deployment branch.
     orderer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    orderer_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: start
@@ -96,11 +102,13 @@ Dispatches component shutdown to the active binary, container, or Kubernetes lif
     # Orderer component to manage; use `consensus` for the consenter process. Example: `consensus`, `batcher`, `assembler`, or `router`.
     orderer_component_type: "router"
     # Deployment backend selected by the top-level dispatcher.
-    orderer_deployment_mode: "{%- if orderer_use_bin -%}bin{%- elif orderer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
+    orderer_deployment_mode: "{%- if orderer_use_bin -%}bin{%- elif orderer_use_openshift -%}openshift{%- elif orderer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
     # Selects the binary deployment branch.
     orderer_use_bin: false
     # Selects the Kubernetes deployment branch.
     orderer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    orderer_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: stop
@@ -118,11 +126,13 @@ Dispatches component teardown to the selected deployment backend. Removes runtim
     # Orderer component to manage; use `consensus` for the consenter process. Example: `consensus`, `batcher`, `assembler`, or `router`.
     orderer_component_type: "router"
     # Deployment backend selected by the top-level dispatcher.
-    orderer_deployment_mode: "{%- if orderer_use_bin -%}bin{%- elif orderer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
+    orderer_deployment_mode: "{%- if orderer_use_bin -%}bin{%- elif orderer_use_openshift -%}openshift{%- elif orderer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
     # Selects the binary deployment branch.
     orderer_use_bin: false
     # Selects the Kubernetes deployment branch.
     orderer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    orderer_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: teardown
@@ -155,8 +165,10 @@ Delegates log collection to the Kubernetes pod selector, container name, or bina
   vars:
     # Selects the Kubernetes deployment branch.
     orderer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    orderer_use_openshift: false
     # Selects the container deployment branch.
-    orderer_use_container: "{{ (not orderer_use_bin) and (not orderer_use_k8s) }}"
+    orderer_use_container: "{{ (not orderer_use_bin) and (not orderer_use_k8s) and (not orderer_use_openshift) }}"
     # Selects the binary deployment branch.
     orderer_use_bin: false
   ansible.builtin.include_role:
@@ -177,6 +189,8 @@ Checks the configured orderer gRPC listener for binary and container deployments
     orderer_rpc_port: 7050
     # Selects the Kubernetes deployment branch.
     orderer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    orderer_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: ping
@@ -473,6 +487,8 @@ Deletes the orderer data directory for binary and container deployments. In Kube
     remote_data_dir: "/var/hyperledger/fabric-x/data/orderer/router-1"
     # Selects the Kubernetes deployment branch.
     orderer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    orderer_use_openshift: false
     # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
     k8s_namespace: "fabricx-orderer"
   ansible.builtin.include_role:
@@ -523,6 +539,8 @@ Renders the component-specific orderer config for `consensus`, `batcher`, `assem
     orderer_use_mtls: false
     # Selects the Kubernetes deployment branch.
     orderer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    orderer_use_openshift: false
     # gRPC port exposed by the orderer. Example: `7050`.
     orderer_rpc_port: 7050
     # Metrics port written into the rendered config when enabled. Example: `9444`.
@@ -595,6 +613,8 @@ Deletes the orderer configuration directory, including rendered config, genesis 
     orderer_remote_config_dir: "{{ remote_config_dir }}"
     # Selects the Kubernetes deployment branch.
     orderer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    orderer_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: config/rm
@@ -634,6 +654,8 @@ Validates TLS and mTLS prerequisites, provisions orderer MSP and TLS material th
       fabric_ca_host: "ca-orderer"
     # Selects the Kubernetes deployment branch.
     orderer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    orderer_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: crypto/setup
@@ -690,6 +712,10 @@ Copies the Fabric CA TLS certificate when needed and enrolls both MSP and TLS id
       fabric_ca_host: "ca-orderer"
     # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
+    # Specifies the OpenShift Route host. Example: `orderer-rpc.apps.example.com`.
+    orderer_openshift_route: "orderer-rpc.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `orderer-metrics.apps.example.com`.
+    orderer_openshift_metrics_route: "orderer-metrics.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: crypto/fabric_ca/enroll
@@ -738,6 +764,8 @@ Deletes the orderer MSP and TLS directories from the config path. In Kubernetes 
     orderer_remote_config_dir: "{{ remote_config_dir }}"
     # Selects the Kubernetes deployment branch.
     orderer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    orderer_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: crypto/rm
@@ -756,6 +784,8 @@ Creates the orderer Kubernetes Service, StatefulSet, and optional NodePort and L
     orderer_component_type: "router"
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
+    orderer_k8s_part_of: "{{ organization.name }}"
     # Seconds to wait for the orderer StatefulSet rollout.
     orderer_k8s_wait_timeout: 120
     # gRPC port exposed by the orderer. Example: `7050`.
@@ -866,6 +896,8 @@ Deletes the orderer StatefulSet and Services from the configured namespace. Leav
   vars:
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
+    orderer_k8s_part_of: "{{ organization.name }}"
     # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
     k8s_namespace: "fabricx-orderer"
     # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31050`.
@@ -905,6 +937,8 @@ Collects logs from pods selected by the orderer Kubernetes app label. Works for 
   vars:
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
+    orderer_k8s_part_of: "{{ organization.name }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: k8s/fetch_logs
@@ -925,6 +959,8 @@ Slurps the generated genesis block and renders the orderer ConfigMap. Includes t
     orderer_remote_config_dir: "{{ remote_config_dir }}"
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
+    orderer_k8s_part_of: "{{ organization.name }}"
     # Orderer component to manage; use `consensus` for the consenter process. Example: `consensus`, `batcher`, `assembler`, or `router`.
     orderer_component_type: "router"
     # Rendered orderer configuration filename.
@@ -957,6 +993,8 @@ Deletes the ConfigMap that holds orderer configuration, genesis material, and op
   vars:
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
+    orderer_k8s_part_of: "{{ organization.name }}"
     # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
     k8s_namespace: "fabricx-orderer"
   ansible.builtin.include_role:
@@ -987,6 +1025,8 @@ Resolves orderer MSP and TLS file locations and renders the Kubernetes Secret. T
     orderer_crypto_name: "{{ organization.orderer.name | default(inventory_hostname) }}"
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
+    orderer_k8s_part_of: "{{ organization.name }}"
     # Orderer component to manage; use `consensus` for the consenter process. Example: `consensus`, `batcher`, `assembler`, or `router`.
     orderer_component_type: "router"
     # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
@@ -1007,6 +1047,8 @@ Deletes the Secret that stores orderer MSP and TLS material. Does not remove the
   vars:
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
+    orderer_k8s_part_of: "{{ organization.name }}"
     # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
     k8s_namespace: "fabricx-orderer"
   ansible.builtin.include_role:
@@ -1032,4 +1074,89 @@ Groups orderer hosts by component type and exposes Prometheus scrape service def
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: prometheus/get_scrapers
+```
+
+### openshift/start
+
+> Start the OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Start the OpenShift deployment
+  vars:
+    # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
+    orderer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
+    orderer_k8s_part_of: "{{ organization.name }}"
+    # Orderer component to manage; use `consensus` for the consenter process. Example: `consensus`, `batcher`, `assembler`, or `router`.
+    orderer_component_type: "router"
+    # Enables server-side TLS in the rendered config.
+    orderer_use_tls: false
+    # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
+    k8s_namespace: "fabricx-orderer"
+    # Specifies the OpenShift Route host. Example: `orderer-rpc.apps.example.com`.
+    orderer_openshift_route: "orderer-rpc.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `orderer-metrics.apps.example.com`.
+    orderer_openshift_metrics_route: "orderer-metrics.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: openshift/start
+```
+
+### openshift/ping
+
+> Check the OpenShift deployment
+
+Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+
+```yaml
+- name: Check the OpenShift deployment
+  vars:
+    # Enables server-side TLS in the rendered config.
+    orderer_use_tls: false
+    # Specifies the OpenShift Route host. Example: `orderer-rpc.apps.example.com`.
+    orderer_openshift_route: "orderer-rpc.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `orderer-metrics.apps.example.com`.
+    orderer_openshift_metrics_route: "orderer-metrics.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: openshift/ping
+```
+
+### openshift/rm
+
+> Remove the OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Remove the OpenShift deployment
+  vars:
+    # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
+    orderer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
+    orderer_k8s_part_of: "{{ organization.name }}"
+    # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
+    k8s_namespace: "fabricx-orderer"
+    # Specifies the OpenShift Route host. Example: `orderer-rpc.apps.example.com`.
+    orderer_openshift_route: "orderer-rpc.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `orderer-metrics.apps.example.com`.
+    orderer_openshift_metrics_route: "orderer-metrics.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: openshift/rm
+```
+
+### openshift/teardown
+
+> Teardown the OpenShift deployment
+
+Removes OpenShift and Kubernetes resources, then deletes orderer data artifacts.
+
+```yaml
+- name: Teardown the OpenShift deployment
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: openshift/teardown
 ```

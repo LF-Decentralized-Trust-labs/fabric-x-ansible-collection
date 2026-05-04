@@ -182,7 +182,7 @@ argument_specs:
       node_exporter_use_container: &node_exporter_use_container
         type: bool
         required: false
-        default: "{{ not node_exporter_use_k8s }}"
+        default: "{{ (not node_exporter_use_k8s) and (not node_exporter_use_openshift) }}"
         description:
           - Enables the container backend.
       node_exporter_k8s_resource_name: &node_exporter_k8s_resource_name
@@ -191,6 +191,12 @@ argument_specs:
         default: "{{ inventory_hostname }}"
         description:
           - Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
+      node_exporter_k8s_part_of: &node_exporter_k8s_part_of
+        type: str
+        required: false
+        default: monitoring
+        description:
+          - Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Node Exporter resources.
       node_exporter_k8s_wait_timeout: &node_exporter_k8s_wait_timeout
         type: int
         required: false
@@ -212,6 +218,12 @@ argument_specs:
         description:
           - Set to C(true) to create a LoadBalancer Service entry that exposes the metrics port externally.
           - When undefined or C(false), the metrics port is not included in the LoadBalancer Service.
+      node_exporter_k8s_run_as_user: &node_exporter_k8s_run_as_user
+        type: int
+        required: false
+        default: 0
+        description:
+          - UID the Node Exporter container runs as.
       node_exporter_port: &node_exporter_port
         type: int
         required: true
@@ -226,6 +238,18 @@ argument_specs:
           - Lists the inventory hosts exposed as Prometheus scrape targets.
           - "Example: C(['worker-1', 'worker-2', 'worker-3'])."
 
+      node_exporter_use_openshift: &node_exporter_use_openshift
+        type: bool
+        required: false
+        default: false
+        description:
+          - Selects the OpenShift deployment branch.
+      node_exporter_openshift_route: &node_exporter_openshift_route
+        type: str
+        required: false
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(node-exporter-metrics.apps.example.com)."
   start:
     short_description: Start Node Exporter
     description:
@@ -235,6 +259,7 @@ argument_specs:
     options:
       node_exporter_use_container: *node_exporter_use_container
       node_exporter_use_k8s: *node_exporter_use_k8s
+      node_exporter_use_openshift: *node_exporter_use_openshift
 
   stop:
     short_description: Stop Node Exporter
@@ -253,6 +278,7 @@ argument_specs:
     options:
       node_exporter_use_container: *node_exporter_use_container
       node_exporter_use_k8s: *node_exporter_use_k8s
+      node_exporter_use_openshift: *node_exporter_use_openshift
 
   wipe:
     short_description: Remove Node Exporter data and runtime resources
@@ -270,6 +296,7 @@ argument_specs:
     options:
       node_exporter_use_container: *node_exporter_use_container
       node_exporter_use_k8s: *node_exporter_use_k8s
+      node_exporter_use_openshift: *node_exporter_use_openshift
 
   ping:
     short_description: Check Node Exporter reachability
@@ -279,6 +306,7 @@ argument_specs:
     options:
       node_exporter_port: *node_exporter_port
       node_exporter_use_k8s: *node_exporter_use_k8s
+      node_exporter_use_openshift: *node_exporter_use_openshift
 
   get_host_set:
     short_description: Build the Node Exporter host group
@@ -302,6 +330,7 @@ argument_specs:
       node_exporter_tls_private_key_file: *node_exporter_tls_private_key_file
       node_exporter_tls_cert_file: *node_exporter_tls_cert_file
       node_exporter_use_k8s: *node_exporter_use_k8s
+      node_exporter_use_openshift: *node_exporter_use_openshift
 
   config/rm:
     short_description: Remove Node Exporter configuration
@@ -312,6 +341,7 @@ argument_specs:
       remote_deploy_dir: *remote_deploy_dir
       node_exporter_remote_config_dir: *node_exporter_remote_config_dir
       node_exporter_use_k8s: *node_exporter_use_k8s
+      node_exporter_use_openshift: *node_exporter_use_openshift
 
   config/transfer_grafana_dashboard:
     short_description: Transfer the Grafana dashboard for Node Exporter
@@ -328,6 +358,7 @@ argument_specs:
     options:
       node_exporter_use_tls: *node_exporter_use_tls
       node_exporter_use_k8s: *node_exporter_use_k8s
+      node_exporter_use_openshift: *node_exporter_use_openshift
 
   crypto/fetch:
     short_description: Fetch Node Exporter TLS certificates
@@ -350,6 +381,7 @@ argument_specs:
       node_exporter_remote_config_dir: *node_exporter_remote_config_dir
       node_exporter_use_tls: *node_exporter_use_tls
       node_exporter_use_k8s: *node_exporter_use_k8s
+      node_exporter_use_openshift: *node_exporter_use_openshift
 
   crypto/openssl/generate_cert:
     short_description: Generate a self-signed TLS certificate for Node Exporter
@@ -362,6 +394,7 @@ argument_specs:
       node_exporter_tls_private_key_file: *node_exporter_tls_private_key_file
       node_exporter_tls_cert_file: *node_exporter_tls_cert_file
       organization: *organization
+      node_exporter_openshift_route: *node_exporter_openshift_route
 
   container/start:
     short_description: Start Node Exporter in a container
@@ -424,6 +457,7 @@ argument_specs:
     options:
       node_exporter_k8s_wait_timeout: *node_exporter_k8s_wait_timeout
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
       node_exporter_port: *node_exporter_port
       node_exporter_k8s_node_port: *node_exporter_k8s_node_port
       node_exporter_registry_endpoint: *node_exporter_registry_endpoint
@@ -446,6 +480,7 @@ argument_specs:
       k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
       node_exporter_k8s_loadbalancer_expose_metrics_port: *node_exporter_k8s_loadbalancer_expose_metrics_port
+      node_exporter_k8s_run_as_user: *node_exporter_k8s_run_as_user
 
   k8s/ping:
     short_description: Check that Node Exporter Kubernetes service is reachable
@@ -463,6 +498,7 @@ argument_specs:
       - Targets the workload by C(k8s_namespace) and C(node_exporter_k8s_resource_name).
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
       k8s_namespace: *k8s_namespace
       node_exporter_k8s_node_port: *node_exporter_k8s_node_port
       node_exporter_k8s_loadbalancer_expose_metrics_port: *node_exporter_k8s_loadbalancer_expose_metrics_port
@@ -474,6 +510,7 @@ argument_specs:
       - This is the Kubernetes-mode log path used by the top-level fetch_logs entry point.
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
 
   k8s/config/transfer:
     short_description: Apply the Node Exporter Kubernetes ConfigMap
@@ -482,6 +519,7 @@ argument_specs:
       - The ConfigMap points at C(node_exporter_remote_config_dir) content and the rendered web config when TLS is enabled.
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
       node_exporter_use_tls: *node_exporter_use_tls
       node_exporter_web_config_file: *node_exporter_web_config_file
       remote_deploy_dir: *remote_deploy_dir
@@ -495,6 +533,7 @@ argument_specs:
       - Keeps the namespace and runtime pods untouched so teardown can be handled separately.
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
       k8s_namespace: *k8s_namespace
 
   k8s/crypto/transfer:
@@ -504,6 +543,7 @@ argument_specs:
       - The Secret name matches C(node_exporter_k8s_resource_name).
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
       node_exporter_use_tls: *node_exporter_use_tls
       remote_deploy_dir: *remote_deploy_dir
       node_exporter_remote_config_dir: *node_exporter_remote_config_dir
@@ -518,6 +558,7 @@ argument_specs:
       - Targets the Secret named after C(node_exporter_k8s_resource_name).
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
       k8s_namespace: *k8s_namespace
 
   prometheus/get_scrapers:
@@ -528,3 +569,32 @@ argument_specs:
     options:
       node_exporter_hosts: *node_exporter_hosts
       fetched_artifacts_dir: *fetched_artifacts_dir
+
+  openshift/start:
+    short_description: Start the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
+      node_exporter_use_tls: *node_exporter_use_tls
+      k8s_namespace: *k8s_namespace
+      node_exporter_openshift_route: *node_exporter_openshift_route
+
+  openshift/ping:
+    short_description: Check the OpenShift deployment
+    description:
+      - Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+    options:
+      node_exporter_use_tls: *node_exporter_use_tls
+      node_exporter_openshift_route: *node_exporter_openshift_route
+
+  openshift/rm:
+    short_description: Remove the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
+      k8s_namespace: *k8s_namespace
+      node_exporter_openshift_route: *node_exporter_openshift_route

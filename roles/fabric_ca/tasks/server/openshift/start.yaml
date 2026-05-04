@@ -1,0 +1,42 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start Fabric CA server workload using generic k8s flow
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/k8s/start
+
+- name: Apply Fabric Ca api OpenShift Route
+  vars:
+    openshift_route_name: "{{ fabric_ca_server_k8s_resource_name }}-api"
+    openshift_route_host: "{{ fabric_ca_server_openshift_route }}"
+    openshift_route_service_name: "{{ fabric_ca_server_k8s_resource_name }}"
+    openshift_route_service_port: api
+    openshift_route_use_tls: "{{ fabric_ca_use_tls }}"
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ fabric_ca_server_k8s_resource_name }}"
+      app.kubernetes.io/component: "fabric-ca"
+      app.kubernetes.io/part-of: "{{ fabric_ca_server_k8s_part_of }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: fabric_ca_server_openshift_route is defined
+
+- name: Apply Fabric Ca operations OpenShift Route
+  vars:
+    openshift_route_name: "{{ fabric_ca_server_k8s_resource_name }}-operations"
+    openshift_route_host: "{{ fabric_ca_server_openshift_operations_route }}"
+    openshift_route_service_name: "{{ fabric_ca_server_k8s_resource_name }}"
+    openshift_route_service_port: operations
+    openshift_route_use_tls: false
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ fabric_ca_server_k8s_resource_name }}"
+      app.kubernetes.io/component: "fabric-ca"
+      app.kubernetes.io/part-of: "{{ fabric_ca_server_k8s_part_of }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: fabric_ca_server_openshift_operations_route is defined

@@ -27,6 +27,7 @@
   - [k8s/config/transfer](#k8sconfigtransfer)
   - [k8s/config/rm](#k8sconfigrm)
   - [openshift/start](#openshiftstart)
+  - [openshift/ping](#openshiftping)
   - [openshift/rm](#openshiftrm)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
@@ -312,6 +313,8 @@ Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and S
   vars:
     # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
+    postgres_k8s_part_of: "{{ (organization | default({})).name | default('postgres') }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
     # Timeout in seconds while waiting for the StatefulSet rollout to complete.
@@ -416,6 +419,8 @@ Deletes the PostgreSQL StatefulSet, headless Service, optional NodePort Service,
   vars:
     # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
+    postgres_k8s_part_of: "{{ (organization | default({})).name | default('postgres') }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
     # Kubernetes NodePort value used by the external PostgreSQL Service. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30432`.
@@ -438,6 +443,8 @@ Collects logs from the PostgreSQL pod in `k8s_namespace`. Selects pods using `po
   vars:
     # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
+    postgres_k8s_part_of: "{{ (organization | default({})).name | default('postgres') }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
   ansible.builtin.include_role:
@@ -456,6 +463,8 @@ Applies the Kubernetes Secret named `postgres_k8s_resource_name`-secret. Stores 
   vars:
     # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
+    postgres_k8s_part_of: "{{ (organization | default({})).name | default('postgres') }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
     # Remote directory used for PostgreSQL configuration and TLS files.
@@ -490,6 +499,8 @@ Deletes the Kubernetes Secret named `postgres_k8s_resource_name`-secret from `k8
   vars:
     # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
+    postgres_k8s_part_of: "{{ (organization | default({})).name | default('postgres') }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
   ansible.builtin.include_role:
@@ -508,6 +519,8 @@ Applies the Kubernetes ConfigMap named `postgres_k8s_resource_name`-config. Stor
   vars:
     # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
+    postgres_k8s_part_of: "{{ (organization | default({})).name | default('postgres') }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
     # Remote directory used for PostgreSQL configuration and TLS files.
@@ -536,6 +549,8 @@ Deletes the Kubernetes ConfigMap named `postgres_k8s_resource_name`-config from 
   vars:
     # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
+    postgres_k8s_part_of: "{{ (organization | default({})).name | default('postgres') }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
   ansible.builtin.include_role:
@@ -554,6 +569,8 @@ Starts PostgreSQL on OpenShift by reusing the generic `k8s/start` resource flow.
   vars:
     # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
+    postgres_k8s_part_of: "{{ (organization | default({})).name | default('postgres') }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
     # Timeout in seconds while waiting for the StatefulSet rollout to complete.
@@ -625,6 +642,19 @@ Starts PostgreSQL on OpenShift by reusing the generic `k8s/start` resource flow.
     tasks_from: openshift/start
 ```
 
+### openshift/ping
+
+> Check PostgreSQL OpenShift services
+
+Reuses the Kubernetes service ping flow for PostgreSQL OpenShift deployments.
+
+```yaml
+- name: Check PostgreSQL OpenShift services
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: openshift/ping
+```
+
 ### openshift/rm
 
 > Remove PostgreSQL OpenShift resources
@@ -636,6 +666,8 @@ Removes PostgreSQL OpenShift resources by reusing the generic `k8s/rm` resource 
   vars:
     # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
+    postgres_k8s_part_of: "{{ (organization | default({})).name | default('postgres') }}"
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
   ansible.builtin.include_role:

@@ -12,7 +12,7 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ jaeger_k8s_resource_name }}
     app.kubernetes.io/component: jaeger
-    app.kubernetes.io/part-of: monitoring
+    app.kubernetes.io/part-of: {{ jaeger_k8s_part_of }}
 spec:
   type: NodePort
   selector:
