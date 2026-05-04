@@ -14,25 +14,21 @@ argument_specs:
     options:
       actual_host: &actual_host
         type: str
-        required: false
         description:
           - Real machine host.
           - "Example: C(myvpc.cloud.ibm.com)."
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
-        required: false
         description:
           - "Provides the base local artifact directory for fetched logs."
           - "Example: C(/tmp/fabricx/fetched-logs)."
       remote_node_dir: &remote_node_dir
         type: path
-        required: false
         description:
           - "Provides the base remote artifact directory for collected logs."
           - "Example: C(/var/hyperledger/fabricx/orderer-assembler-1)."
       container_client: &container_client
         type: str
-        required: false
         default: "{{ lookup('env', 'CONTAINER_CLIENT') or '' }}"
         description:
           - "Selects the container client to verify or use."
@@ -50,7 +46,6 @@ argument_specs:
           - "Example: C(ghcr.io/hyperledger/fabric-x/orderer:latest)."
       container_entrypoint: &container_entrypoint
         type: raw
-        required: false
         description:
           - "Overrides the image entrypoint."
           - "Example: C(['/bin/sh', '-c'])."
@@ -61,49 +56,41 @@ argument_specs:
           - "Example: C(orderer --config /etc/fabricx/orderer.yaml)."
       container_hostname: &container_hostname
         type: str
-        required: false
         default: "{{ container_name | default(inventory_hostname) }}"
         description:
           - "Sets the hostname inside the container."
       container_host_uid: &container_host_uid
         type: int
-        required: false
         default: "{{ ansible_facts.user_uid }}"
         description:
           - "Provides the host uid used to build C(container_host_user)."
       container_host_gid: &container_host_gid
         type: int
-        required: false
         default: "{{ ansible_facts.user_gid }}"
         description:
           - "Provides the host gid used to build C(container_host_user)."
       container_host_user: &container_host_user
         type: str
-        required: false
         default: "{{ container_host_uid }}:{{ container_host_gid }}"
         description:
           - "Builds the host uid:gid pair used for rootless container execution."
       container_host_user_is_root: &container_host_user_is_root
         type: bool
-        required: false
         default: "{{ container_host_user == '0:0' }}"
         description:
           - "Reports whether C(container_host_user) resolves to C(0:0)."
       container_run_as_host_user: &container_run_as_host_user
         type: bool
-        required: false
         default: false
         description:
           - "Runs the container as the detected host user when set to C(true)."
       container_on_mac: &container_on_mac
         type: bool
-        required: false
         default: "{{ ansible_facts.os_family == 'Darwin' }}"
         description:
           - "Marks whether the target host is macOS."
       container_network_mode: &container_network_mode
         type: str
-        required: false
         default: "{{ 'bridge' if (container_on_mac or (container_network is defined)) else 'host' }}"
         description:
           - "Controls the container network mode."
@@ -115,135 +102,113 @@ argument_specs:
       container_ports: &container_ports
         type: list
         elements: raw
-        required: false
         description:
           - "Publishes container ports when bridge networking is used."
           - "Example: C([7050:7050, 9443:9443])."
       container_memory: &container_memory
         type: str
-        required: false
         description:
           - "Limits container memory using runtime syntax such as C(2g)."
           - "Example: C(2g)."
       container_cpus: &container_cpus
         type: str
-        required: false
         description:
           - "Limits CPU allocation for the container."
           - "Example: C(2.0)."
       container_volumes: &container_volumes
         type: list
         elements: raw
-        required: false
         description:
           - "Mounts host paths or named volumes into the container."
           - "Example: C(['/opt/fabricx/orderer/config:/etc/fabricx:ro'])."
       container_ulimits: &container_ulimits
         type: list
         elements: raw
-        required: false
         description:
           - "Applies runtime ulimit settings to the container."
           - "Example: C(['nofile=65536:65536'])."
       container_env: &container_env
         type: dict
-        required: false
         description:
           - "Defines environment variables passed to the container process."
           - "Example: C({'FABRIC_LOGGING_SPEC': 'INFO', 'ORDERER_GENERAL_LISTENPORT': '7050'})."
       container_log_driver: &container_log_driver
         type: str
-        required: false
         default: "json-file"
         description:
           - "Selects the runtime log driver."
       container_log_max_size: &container_log_max_size
         type: str
-        required: false
         default: "1g"
         description:
           - "Sets the maximum log file size."
       container_log_lines: &container_log_lines
         type: int
-        required: false
         default: 0
         description:
           - "Limits the number of log lines shown in debug output."
       container_debug: &container_debug
         type: bool
-        required: false
         default: "{{ lookup('env', 'DEBUG') | bool | default(false) }}"
         description:
           - "Enables debug output."
       container_healthcheck_test: &container_healthcheck_test
         type: raw
-        required: false
         description:
           - "Defines the container healthcheck command."
           - "Example: C(['CMD', 'curl', '-f', 'http://localhost:9443/healthz'])."
       container_healthcheck_interval: &container_healthcheck_interval
         type: str
-        required: false
         default: "30s"
         description:
           - "Sets the interval between healthcheck runs."
       container_autoremove: &container_autoremove
         type: bool
-        required: false
         default: false
         description:
           - "Removes the container automatically when it exits."
       container_ignore_errors: &container_ignore_errors
         type: bool
-        required: false
         default: false
         description:
           - "Ignores runtime errors from container start operations."
       container_run_detach_mode: &container_run_detach_mode
         type: bool
-        required: false
         default: true
         description:
           - "Runs the container in detached mode when set to C(true)."
       container_run_until: &container_run_until
         type: raw
-        required: false
         default: null
         description:
           - "Provides an optional until condition for container start retries."
       container_run_delay: &container_run_delay
         type: int
-        required: false
         default: 0
         description:
           - "Sets the delay between container start retries."
       container_run_retries: &container_run_retries
         type: int
-        required: false
         default: 0
         description:
           - "Sets the number of container start retries."
       container_wait_until_running: &container_wait_until_running
         type: bool
-        required: false
         default: false
         description:
           - "Waits for readiness checks after container start when set to C(true)."
       container_wait_delay: &container_wait_delay
         type: int
-        required: false
         default: 1
         description:
           - "Delays readiness checks after container start."
       container_wait_timeout: &container_wait_timeout
         type: int
-        required: false
         default: 60
         description:
           - "Sets the readiness check timeout."
       container_wait_port: &container_wait_port
         type: int
-        required: false
         description:
           - "Provides the port probed by readiness checks."
           - "Example: C(7050)."
@@ -267,20 +232,17 @@ argument_specs:
           - "Example: C(my_cr_password)."
       container_network_driver: &container_network_driver
         type: str
-        required: false
         default: bridge
         description:
           - "Selects the network driver used when creating a container network."
       container_network_attachable: &container_network_attachable
         type: bool
-        required: false
         default: true
         description:
           - "Marks Docker networks as attachable."
           - "Podman networks are always attachable."
       container_network_internal: &container_network_internal
         type: bool
-        required: false
         default: false
         description:
           - "Marks the container network as internal when set to C(true)."
@@ -304,43 +266,36 @@ argument_specs:
           - "Example: C(bind)."
       container_volume_uid: &container_volume_uid
         type: raw
-        required: false
         description:
           - "Provides the uid applied to a container volume path."
           - "Example: C(1000)."
       container_volume_gid: &container_volume_gid
         type: raw
-        required: false
         description:
           - "Provides the gid applied to a container volume path."
           - "Example: C(1000)."
       recurse: &recurse
         type: bool
-        required: false
         description:
           - "Applies recursive permission changes when set to C(true)."
           - "Example: C(true)."
       container_fetched_logs_dir: &container_fetched_logs_dir
         type: path
-        required: false
         default: "{{ fetched_artifacts_dir }}/{{ container_name }}"
         description:
           - "Sets the local destination for fetched container logs."
       container_fetched_logs_file: &container_fetched_logs_file
         type: str
-        required: false
         default: "logs.txt"
         description:
           - "Sets the filename used for fetched container logs."
       container_remote_logs_dir: &container_remote_logs_dir
         type: path
-        required: false
         default: "{{ remote_node_dir }}/logs"
         description:
           - "Sets the remote directory used to stage collected container logs."
       container_remote_logs_file: &container_remote_logs_file
         type: str
-        required: false
         default: "logs.txt"
         description:
           - "Sets the filename used for collected container logs."
@@ -376,7 +331,6 @@ argument_specs:
       container_entrypoint: *container_entrypoint
       container_command:
         <<: *container_command
-        required: false
       container_hostname: *container_hostname
       container_host_uid: *container_host_uid
       container_host_gid: *container_host_gid
@@ -387,7 +341,6 @@ argument_specs:
       container_network_mode: *container_network_mode
       container_network:
         <<: *container_network
-        required: false
       container_ports: *container_ports
       container_memory: *container_memory
       container_cpus: *container_cpus
@@ -511,7 +464,6 @@ argument_specs:
       container_client: *container_client
       container_name:
         <<: *container_name
-        required: false
       container_host_uid: *container_host_uid
       container_host_gid: *container_host_gid
       container_host_user: *container_host_user
@@ -558,7 +510,6 @@ argument_specs:
       container_entrypoint: *container_entrypoint
       container_command:
         <<: *container_command
-        required: false
       container_hostname: *container_hostname
       container_host_uid: *container_host_uid
       container_host_gid: *container_host_gid
@@ -568,7 +519,6 @@ argument_specs:
       container_network_mode: *container_network_mode
       container_network:
         <<: *container_network
-        required: false
       container_ports: *container_ports
       container_memory: *container_memory
       container_cpus: *container_cpus
@@ -668,7 +618,6 @@ argument_specs:
     options:
       container_name:
         <<: *container_name
-        required: false
       container_host_uid: *container_host_uid
       container_host_gid: *container_host_gid
       container_host_user: *container_host_user
@@ -714,7 +663,6 @@ argument_specs:
       container_entrypoint: *container_entrypoint
       container_command:
         <<: *container_command
-        required: false
       container_hostname: *container_hostname
       container_host_uid: *container_host_uid
       container_host_gid: *container_host_gid
@@ -725,7 +673,6 @@ argument_specs:
       container_network_mode: *container_network_mode
       container_network:
         <<: *container_network
-        required: false
       container_ports: *container_ports
       container_memory: *container_memory
       container_cpus: *container_cpus
@@ -824,7 +771,6 @@ argument_specs:
     options:
       container_name:
         <<: *container_name
-        required: false
       container_host_uid: *container_host_uid
       container_host_gid: *container_host_gid
       container_host_user: *container_host_user

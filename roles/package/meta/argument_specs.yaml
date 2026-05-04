@@ -20,7 +20,6 @@ argument_specs:
           - "Example: C(postgresql-client)."
       package_service_name: &package_service_name
         type: str
-        required: false
         description:
           - Names the Linux service to enable and start after installation.
           - "Example: C(postgresql)."

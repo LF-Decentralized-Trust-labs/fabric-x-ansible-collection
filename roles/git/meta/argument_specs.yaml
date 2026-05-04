@@ -25,38 +25,32 @@ argument_specs:
           - "Example: C(/opt/fabricx/source)."
       git_commit: &git_commit
         type: str
-        required: false
         default: "main"
         description:
           - Git branch, tag, or commit to check out.
           - The value is appended to the derived checkout directory name and passed to C(ansible.builtin.git) as the revision.
       git_hub_url: &git_hub_url
         type: str
-        required: false
         default: "github.com"
         description:
           - Hostname inserted into the default HTTPS and SSH repository URI templates.
       git_use_ssh: &git_use_ssh
         type: bool
-        required: false
         default: false
         description:
           - Selects the SSH-derived default repository URI when true; otherwise HTTPS is used.
       git_https_uri: &git_https_uri
         type: str
-        required: false
         default: "https://{{ git_hub_url }}/{{ git_repo }}.git"
         description:
           - Default HTTPS repository URI built from C(git_hub_url) and C(git_repo).
       git_ssh_uri: &git_ssh_uri
         type: str
-        required: false
         default: "git@{{ git_hub_url }}:{{ git_repo }}.git"
         description:
           - Default SSH repository URI built from C(git_hub_url) and C(git_repo).
       git_uri: &git_uri
         type: str
-        required: false
         default: "{{ git_ssh_uri if git_use_ssh else git_https_uri }}"
         description:
           - Effective repository URI passed to C(ansible.builtin.git).

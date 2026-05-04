@@ -11,13 +11,11 @@ argument_specs:
     options:
       remote_config_dir: &remote_config_dir
         type: path
-        required: false
         description:
           - "Shared base directory for generated configuration."
           - "Example: C(/var/hyperledger/fabric-x/config/orderer/assembler-1)."
       remote_data_dir: &remote_data_dir
         type: path
-        required: false
         description:
           - "Shared base directory for persisted runtime data."
           - "Example: C(/var/hyperledger/fabric-x/data/orderer/router-1)."
@@ -29,7 +27,6 @@ argument_specs:
           - "Example: C(myvpc.cloud.ibm.com)."
       channel_id: &channel_id
         type: str
-        required: false
         description:
           - "Channel identifier used to derive the genesis block filename."
           - "Example: C(fabricx-channel)."
@@ -71,97 +68,81 @@ argument_specs:
           - "Example: C(['orderer-consenter-1', 'orderer-batcher-1', 'orderer-assembler-1', 'orderer-router-1'])."
       orderer_registry_endpoint: &orderer_registry_endpoint
         type: str
-        required: false
         default: "{{ lookup('env', 'ORDERER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
         description:
           - "Registry prefix used to build the orderer image reference."
       orderer_image_name: &orderer_image_name
         type: str
-        required: false
         default: fabric-x-orderer
         description:
           - "Image name used for the orderer container."
       orderer_image_tag: &orderer_image_tag
         type: str
-        required: false
         default: "0.0.23"
         description:
           - "Image tag used for the orderer container."
       orderer_image: &orderer_image
         type: str
-        required: false
         default: "{{ orderer_registry_endpoint }}/{{ orderer_image_name }}:{{ orderer_image_tag }}"
         description:
           - "Full image reference used by the container and Kubernetes branches."
       orderer_container_name: &orderer_container_name
         type: str
-        required: false
         default: "{{ inventory_hostname }}"
         description:
           - "Container name used by the container lifecycle branch."
       orderer_git_hub_url: &orderer_git_hub_url
         type: str
-        required: false
         default: github.com
         description:
           - "Git host used to resolve the orderer source repository."
       orderer_git_repo: &orderer_git_repo
         type: str
-        required: false
         default: hyperledger/fabric-x-orderer
         description:
           - "Repository path for the orderer source code."
       orderer_git_commit: &orderer_git_commit
         type: str
-        required: false
         default: v0.0.23
         description:
           - "Git ref or release tag used by the bin build and install branches."
       orderer_source_code_package: &orderer_source_code_package
         type: str
-        required: false
         default: cmd/arma
         description:
           - "Go package path that builds the orderer binary."
       orderer_bin_package: &orderer_bin_package
         type: str
-        required: false
         default: "{{ orderer_git_hub_url }}/{{ orderer_git_repo }}/{{ orderer_source_code_package }}"
         description:
           - "Go package path used by the install branch."
       orderer_bin_name: &orderer_bin_name
         type: str
-        required: false
         default: arma
         description:
           - "Binary name used by the bin branches."
       orderer_k8s_resource_name: &orderer_k8s_resource_name
         type: str
-        required: false
         default: "{{ inventory_hostname }}"
         description:
           - "Base name used for the orderer Kubernetes objects, including the optional NodePort Service."
       orderer_k8s_part_of: &orderer_k8s_part_of
         type: str
-        required: false
         default: "{{ organization.name }}"
         description:
           - "Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to orderer resources."
       orderer_k8s_wait_timeout: &orderer_k8s_wait_timeout
         type: int
-        required: false
         default: 120
         description:
           - "Seconds to wait for the orderer StatefulSet rollout."
       orderer_k8s_fs_group: &orderer_k8s_fs_group
         type: int
-        required: false
         default: 10001
         description:
           - "Filesystem group applied to mounted ConfigMap and Secret volumes."
       orderer_k8s_rpc_node_port: &orderer_k8s_rpc_node_port
         type: int
-        required: false
         description:
           - Kubernetes NodePort value used by the external RPC Service port.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
@@ -169,14 +150,12 @@ argument_specs:
       orderer_k8s_loadbalancer_expose_rpc_port:
         &orderer_k8s_loadbalancer_expose_rpc_port
         type: bool
-        required: false
         default: false
         description:
           - Set to C(true) to create a LoadBalancer Service entry that exposes the RPC port externally.
           - When undefined or C(false), the RPC port is not included in the LoadBalancer Service.
       orderer_k8s_metrics_node_port: &orderer_k8s_metrics_node_port
         type: int
-        required: false
         description:
           - Kubernetes NodePort value used by the external metrics Service port.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
@@ -184,62 +163,52 @@ argument_specs:
       orderer_k8s_loadbalancer_expose_metrics_port:
         &orderer_k8s_loadbalancer_expose_metrics_port
         type: bool
-        required: false
         default: false
         description:
           - Set to C(true) to create a LoadBalancer Service entry that exposes the metrics port externally.
           - When undefined or C(false), the metrics port is not included in the LoadBalancer Service.
       orderer_container_config_dir: &orderer_container_config_dir
         type: path
-        required: false
         default: /config
         description:
           - "Container path where orderer configuration is mounted."
       orderer_container_data_dir: &orderer_container_data_dir
         type: path
-        required: false
         default: /data
         description:
           - "Container path where orderer data is mounted."
       orderer_remote_config_dir: &orderer_remote_config_dir
         type: path
-        required: false
         default: "{{ remote_config_dir }}"
         description:
           - "Remote directory where orderer configuration is written."
       orderer_remote_data_dir: &orderer_remote_data_dir
         type: path
-        required: false
         default: "{{ remote_data_dir }}"
         description:
           - "Remote directory where orderer data is stored."
       orderer_config_file: &orderer_config_file
         type: str
-        required: false
         default: node_config.yaml
         description:
           - "Rendered orderer configuration filename."
       orderer_genesis_block_file: &orderer_genesis_block_file
         type: str
-        required: false
         default: "{{ channel_id }}_block.pb"
         description:
           - "Genesis block filename copied into the config directory."
       orderer_crypto_name: &orderer_crypto_name
         type: str
-        required: false
         default: "{{ organization.orderer.name | default(inventory_hostname) }}"
         description:
           - "Orderer identity name used to derive crypto artifact paths."
       orderer_config_dir: &orderer_config_dir
         type: path
-        required: false
         default: "{{ orderer_remote_config_dir if orderer_use_bin else orderer_container_config_dir }}"
         description:
           - "Configuration path embedded into rendered orderer files."
       orderer_data_dir: &orderer_data_dir
         type: path
-        required: false
         default: "{{ orderer_remote_data_dir if orderer_use_bin else orderer_container_data_dir }}"
         description:
           - "Data path embedded into rendered orderer files."
@@ -262,7 +231,6 @@ argument_specs:
           - "Example: C(consensus), C(batcher), C(assembler), or C(router)."
       orderer_shard_id: &orderer_shard_id
         type: int
-        required: false
         description:
           - "Batcher shard identifier written only by the batcher template."
           - "Example: C(0)."
@@ -281,25 +249,21 @@ argument_specs:
       orderer_metrics_port_config_transfer:
         &orderer_metrics_port_config_transfer
         type: int
-        required: false
         description:
           - "Metrics port written into the rendered config when enabled."
           - "Example: C(9444)."
       orderer_metrics_port_get_metrics: &orderer_metrics_port_get_metrics
         type: int
-        required: false
         description:
           - "Metrics port queried by the metrics fetch branch."
           - "Example: C(9445)."
       orderer_metrics_log_interval: &orderer_metrics_log_interval
         type: str
-        required: false
         description:
           - "Optional metrics logging interval written into the rendered config."
           - "Example: C(10s)."
       orderer_http_protocol: &orderer_http_protocol
         type: str
-        required: false
         default: http
         choices:
           - http
@@ -308,25 +272,21 @@ argument_specs:
           - "Protocol used by the metrics fetch branch."
       orderer_use_bin: &orderer_use_bin
         type: bool
-        required: false
         default: false
         description:
           - "Selects the binary deployment branch."
       orderer_use_k8s: &orderer_use_k8s
         type: bool
-        required: false
         default: false
         description:
           - "Selects the Kubernetes deployment branch."
       orderer_use_container: &orderer_use_container
         type: bool
-        required: false
         default: "{{ (not orderer_use_bin) and (not orderer_use_k8s) and (not orderer_use_openshift) }}"
         description:
           - "Selects the container deployment branch."
       orderer_deployment_mode: &orderer_deployment_mode
         type: str
-        required: false
         default: "{%- if orderer_use_bin -%}bin{%- elif orderer_use_openshift -%}openshift{%- elif orderer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
         choices:
           - bin
@@ -337,20 +297,17 @@ argument_specs:
           - "Deployment backend selected by the top-level dispatcher."
       orderer_use_tls: &orderer_use_tls
         type: bool
-        required: false
         default: false
         description:
           - "Enables server-side TLS in the rendered config."
       orderer_use_mtls: &orderer_use_mtls
         type: bool
-        required: false
         default: false
         description:
           - "Enables client mutual TLS in the rendered config."
       orderer_mtls_clients: &orderer_mtls_clients
         type: list
         elements: str
-        required: false
         description:
           - "Client identifiers whose mTLS CA certificates are mounted or transferred."
           - "Trusts fetched C(tls/ca.crt) files under those artifact directories."
@@ -358,7 +315,6 @@ argument_specs:
       orderer_mtls_orgs: &orderer_mtls_orgs
         type: list
         elements: dict
-        required: false
         description:
           - "Organization dictionaries whose mTLS CA certificates are mounted or transferred."
           - "Example: C([{'domain': 'org1.example.com'}, {'domain': 'org2.example.com'}])."
@@ -370,84 +326,71 @@ argument_specs:
           - "Example: C({'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'})."
       k8s_storage_class: &k8s_storage_class
         type: str
-        required: false
         description:
           - "Optional storage class used by the StatefulSet PVC."
           - "Example: C(fast-ssd)."
       k8s_image_pull_secret: &k8s_image_pull_secret
         type: str
-        required: false
         description:
           - "Optional image pull secret used by the StatefulSet."
           - "Example: C(regcred-orderer)."
       k8s_readiness_probe_initial_delay_seconds:
         &k8s_readiness_probe_initial_delay_seconds
         type: int
-        required: false
         description:
           - "Optional readiness probe initial delay override."
           - "Example: C(15)."
       k8s_readiness_probe_period_seconds: &k8s_readiness_probe_period_seconds
         type: int
-        required: false
         description:
           - "Optional readiness probe period override."
           - "Example: C(10)."
       k8s_readiness_probe_timeout_seconds: &k8s_readiness_probe_timeout_seconds
         type: int
-        required: false
         description:
           - "Optional readiness probe timeout override."
           - "Example: C(3)."
       k8s_readiness_probe_failure_threshold:
         &k8s_readiness_probe_failure_threshold
         type: int
-        required: false
         description:
           - "Optional readiness probe failure threshold override."
           - "Example: C(6)."
       k8s_liveness_probe_initial_delay_seconds:
         &k8s_liveness_probe_initial_delay_seconds
         type: int
-        required: false
         description:
           - "Optional liveness probe initial delay override."
           - "Example: C(30)."
       k8s_liveness_probe_period_seconds: &k8s_liveness_probe_period_seconds
         type: int
-        required: false
         description:
           - "Optional liveness probe period override."
           - "Example: C(20)."
       k8s_liveness_probe_timeout_seconds: &k8s_liveness_probe_timeout_seconds
         type: int
-        required: false
         description:
           - "Optional liveness probe timeout override."
           - "Example: C(5)."
       k8s_liveness_probe_failure_threshold:
         &k8s_liveness_probe_failure_threshold
         type: int
-        required: false
         description:
           - "Optional liveness probe failure threshold override."
           - "Example: C(3)."
 
       orderer_use_openshift: &orderer_use_openshift
         type: bool
-        required: false
         default: false
         description:
           - Selects the OpenShift deployment branch.
       orderer_openshift_route: &orderer_openshift_route
         type: str
-        required: false
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(orderer-rpc.apps.example.com)."
       orderer_openshift_metrics_route: &orderer_openshift_metrics_route
         type: str
-        required: false
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(orderer-metrics.apps.example.com)."
@@ -668,7 +611,6 @@ argument_specs:
       orderer_use_openshift: *orderer_use_openshift
       k8s_namespace:
         <<: *k8s_namespace
-        required: false
 
   config/transfer:
     short_description: Render and transfer orderer configuration

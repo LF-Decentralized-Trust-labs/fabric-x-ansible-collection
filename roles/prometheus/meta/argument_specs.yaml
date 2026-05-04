@@ -13,19 +13,16 @@ argument_specs:
     options:
       organization: &organization
         type: dict
-        required: false
         description:
           - Optional certificate organization data forwarded to OpenSSL.
           - "Example: C({'common_name': 'prometheus.observability.svc.cluster.local', 'organization_name': 'Hyperledger Fabric-X'})."
       remote_config_dir: &remote_config_dir
         type: path
-        required: false
         description:
           - Remote configuration directory consumed by C(prometheus_remote_config_dir).
           - "Example: C(/var/lib/prometheus/config)."
       remote_data_dir: &remote_data_dir
         type: path
-        required: false
         description:
           - Remote data directory consumed by C(prometheus_remote_data_dir).
           - "Example: C(/var/lib/prometheus/data)."
@@ -43,152 +40,127 @@ argument_specs:
           - "Example: C(observability)."
       prometheus_registry_endpoint: &prometheus_registry_endpoint
         type: str
-        required: false
         default: "{{ lookup('env', 'PROMETHEUS_REGISTRY_ENDPOINT') or 'docker.io/prom' }}"
         description:
           - Container registry endpoint for Prometheus images.
       prometheus_image_name: &prometheus_image_name
         type: str
-        required: false
         default: prometheus
         description:
           - Image name used when composing C(prometheus_image).
       prometheus_image_tag: &prometheus_image_tag
         type: str
-        required: false
         default: latest
         description:
           - Image tag used when composing C(prometheus_image).
       prometheus_image: &prometheus_image
         type: str
-        required: false
         default: "{{ prometheus_registry_endpoint }}/{{ prometheus_image_name }}:{{ prometheus_image_tag }}"
         description:
           - Fully qualified Prometheus container image.
       prometheus_container_name: &prometheus_container_name
         type: str
-        required: false
         default: "{{ inventory_hostname }}"
         description:
           - Container name used for the Prometheus workload.
       prometheus_remote_config_dir: &prometheus_remote_config_dir
         type: path
-        required: false
         default: "{{ remote_config_dir }}"
         description:
           - Remote directory where Prometheus configuration files are written.
       prometheus_remote_data_dir: &prometheus_remote_data_dir
         type: path
-        required: false
         default: "{{ remote_data_dir }}"
         description:
           - Remote directory where Prometheus TSDB data is stored.
       prometheus_container_config_dir: &prometheus_container_config_dir
         type: path
-        required: false
         default: /etc/prometheus/config
         description:
           - In-container or in-pod mount point for Prometheus configuration files.
       prometheus_container_data_dir: &prometheus_container_data_dir
         type: path
-        required: false
         default: /data
         description:
           - In-container or in-pod path for Prometheus TSDB data.
       prometheus_config_file: &prometheus_config_file
         type: str
-        required: false
         default: prometheus.yaml
         description:
           - Filename of the main Prometheus scrape configuration.
       prometheus_web_config_file: &prometheus_web_config_file
         type: str
-        required: false
         default: web-config.yaml
         description:
           - Filename of the Prometheus web TLS configuration file.
       prometheus_http_config_file: &prometheus_http_config_file
         type: str
-        required: false
         default: http-config.yaml
         description:
           - Filename of the promtool HTTP client configuration used for TLS health checks.
       prometheus_scrape_interval: &prometheus_scrape_interval
         type: str
-        required: false
         default: 2s
         description:
           - Global Prometheus scrape interval.
       prometheus_scrape_services: &prometheus_scrape_services
         type: list
-        required: false
         elements: dict
         description:
           - Optional scrape job definitions rendered into C(prometheus.yaml) and the Kubernetes ConfigMap.
           - "Example: C([{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }])."
       prometheus_use_tls: &prometheus_use_tls
         type: bool
-        required: false
         default: false
         description:
           - Enables HTTPS and TLS-aware health checks when set to C(true).
       prometheus_tls_private_key_file: &prometheus_tls_private_key_file
         type: str
-        required: false
         default: server.key
         description:
           - Filename used for the Prometheus TLS private key.
       prometheus_tls_cert_file: &prometheus_tls_cert_file
         type: str
-        required: false
         default: server.crt
         description:
           - Filename used for the Prometheus TLS certificate.
       prometheus_port: &prometheus_port
         type: int
-        required: false
         default: 9090
         description:
           - TCP port exposed by Prometheus and used by the container listener and Kubernetes Services.
       prometheus_use_k8s: &prometheus_use_k8s
         type: bool
-        required: false
         default: false
         description:
           - Enables the Kubernetes deployment path when set to C(true).
       prometheus_use_container: &prometheus_use_container
         type: bool
-        required: false
         default: "{{ (not prometheus_use_k8s) and (not prometheus_use_openshift) }}"
         description:
           - Enables the container deployment path when set to C(true).
       prometheus_k8s_resource_name: &prometheus_k8s_resource_name
         type: str
-        required: false
         default: "{{ inventory_hostname }}"
         description:
           - Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
       prometheus_k8s_part_of: &prometheus_k8s_part_of
         type: str
-        required: false
         default: monitoring
         description:
           - Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Prometheus resources.
       prometheus_k8s_wait_timeout: &prometheus_k8s_wait_timeout
         type: int
-        required: false
         default: 120
         description:
           - Maximum number of seconds to wait for the StatefulSet rollout.
       prometheus_k8s_fs_group: &prometheus_k8s_fs_group
         type: int
-        required: false
         default: 65534
         description:
           - File system group assigned to the pod.
       prometheus_k8s_node_port: &prometheus_k8s_node_port
         type: int
-        required: false
         description:
           - Kubernetes NodePort value used by the external HTTP Service port.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
@@ -196,7 +168,6 @@ argument_specs:
       prometheus_k8s_loadbalancer_expose_http_port:
         &prometheus_k8s_loadbalancer_expose_http_port
         type: bool
-        required: false
         default: false
         description:
           - Set to C(true) to create a LoadBalancer Service entry that exposes the HTTP port externally.
@@ -209,78 +180,66 @@ argument_specs:
           - "Example: C(20Gi)."
       k8s_image_pull_secret: &k8s_image_pull_secret
         type: str
-        required: false
         description:
           - Optional image pull secret name for private registries.
           - "Example: C(prometheus-registry-creds)."
       k8s_storage_class: &k8s_storage_class
         type: str
-        required: false
         description:
           - Optional Kubernetes storage class name for the Prometheus PVC.
           - "Example: C(fast-ssd)."
       k8s_readiness_probe_initial_delay_seconds:
         &k8s_readiness_probe_initial_delay_seconds
         type: int
-        required: false
         description:
           - Initial delay before the readiness probe starts.
           - "Example: C(10)."
       k8s_readiness_probe_period_seconds: &k8s_readiness_probe_period_seconds
         type: int
-        required: false
         description:
           - Interval between readiness probe attempts.
           - "Example: C(5)."
       k8s_readiness_probe_timeout_seconds: &k8s_readiness_probe_timeout_seconds
         type: int
-        required: false
         description:
           - Timeout for each readiness probe request.
           - "Example: C(3)."
       k8s_readiness_probe_failure_threshold:
         &k8s_readiness_probe_failure_threshold
         type: int
-        required: false
         description:
           - Number of failed readiness probes before the pod is marked unready.
           - "Example: C(3)."
       k8s_liveness_probe_initial_delay_seconds:
         &k8s_liveness_probe_initial_delay_seconds
         type: int
-        required: false
         description:
           - Initial delay before the liveness probe starts.
           - "Example: C(30)."
       k8s_liveness_probe_period_seconds: &k8s_liveness_probe_period_seconds
         type: int
-        required: false
         description:
           - Interval between liveness probe attempts.
           - "Example: C(10)."
       k8s_liveness_probe_timeout_seconds: &k8s_liveness_probe_timeout_seconds
         type: int
-        required: false
         description:
           - Timeout for each liveness probe request.
           - "Example: C(5)."
       k8s_liveness_probe_failure_threshold:
         &k8s_liveness_probe_failure_threshold
         type: int
-        required: false
         description:
           - Number of failed liveness probes before Kubernetes restarts the pod.
           - "Example: C(5)."
 
       prometheus_use_openshift: &prometheus_use_openshift
         type: bool
-        required: false
         default: false
         description:
           - Selects the OpenShift deployment branch.
       prometheus_openshift_route: &prometheus_openshift_route
         type: str
-        required: false
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(prometheus.apps.example.com)."
