@@ -103,7 +103,6 @@ argument_specs:
           - "Sets the client binary name."
       remote_config_dir: &remote_config_dir
         type: path
-        required: false
         description:
           - "Provides the shared remote configuration root used by this role."
           - "Example: C(/var/hyperledger/fabricx/fabric-ca/ca-org1/config)."
@@ -121,7 +120,6 @@ argument_specs:
           - "Example: C(fabricx)."
       k8s_image_pull_secret: &k8s_image_pull_secret
         type: str
-        required: false
         description:
           - "Provides an optional Kubernetes image pull secret from shared inventory."
           - "Example: C(registry-pull-secret)."
@@ -139,7 +137,6 @@ argument_specs:
           - "Example: C(org1.example.com)."
       fabric_ca_server_remote_config_dir: &fabric_ca_server_remote_config_dir
         type: path
-        required: false
         default: "{{ remote_config_dir }}"
         description:
           - "Sets the remote Fabric CA config root."
@@ -173,7 +170,6 @@ argument_specs:
           - "Sets the Kubernetes resource name for the Fabric CA server and its Service resources."
       fabric_ca_server_k8s_part_of: &fabric_ca_server_k8s_part_of
         type: str
-        required: false
         default: "{{ organization.name }}"
         description:
           - "Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Fabric CA server resources."
@@ -208,7 +204,6 @@ argument_specs:
       fabric_ca_server_k8s_loadbalancer_expose_port:
         &fabric_ca_server_k8s_loadbalancer_expose_port
         type: bool
-        required: false
         default: false
         description:
           - Set to C(true) to create a LoadBalancer Service entry that exposes the API port externally.
@@ -223,7 +218,6 @@ argument_specs:
       fabric_ca_server_k8s_loadbalancer_expose_operations_port:
         &fabric_ca_server_k8s_loadbalancer_expose_operations_port
         type: bool
-        required: false
         default: false
         description:
           - Set to C(true) to create a LoadBalancer Service entry that exposes the operations port externally.
@@ -263,20 +257,17 @@ argument_specs:
           - "Sets the Idemix enrollment profile."
       fabric_ca_enrollment_profile: &fabric_ca_enrollment_profile
         type: str
-        required: false
         description:
           - "Sets an optional enrollment profile such as C(tls)."
           - "Example: C(tls)."
       actual_host: &actual_host
         type: str
-        required: false
         description:
           - Real machine host.
           - "Example: C(myvpc.cloud.ibm.com)."
       fabric_ca_csr_hosts: &fabric_ca_csr_hosts
         type: list
         elements: str
-        required: false
         default:
           - "{{ ansible_host }}"
           - "{{ actual_host }}"
@@ -285,7 +276,6 @@ argument_specs:
           - "Sets the CSR SAN host list."
       openssl_san_ipv4_regex: &openssl_san_ipv4_regex
         type: str
-        required: false
         description:
           - "Matches IPv4 SAN entries while splitting Fabric CA CSR hosts into IP and DNS names."
           - "Example: C(^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$)"
@@ -371,27 +361,23 @@ argument_specs:
           - "Example: C(admin)."
       fabric_ca_tls_certfile: &fabric_ca_tls_certfile
         type: path
-        required: false
         description:
           - "Sets the TLS root certificate file used by Fabric CA client flows when TLS is enabled."
           - "Example: C(/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem)."
 
       fabric_ca_server_use_openshift: &fabric_ca_server_use_openshift
         type: bool
-        required: false
         default: false
         description:
           - Selects the OpenShift deployment branch.
       fabric_ca_server_openshift_route: &fabric_ca_server_openshift_route
         type: str
-        required: false
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(fabric-ca.apps.example.com)."
       fabric_ca_server_openshift_operations_route:
         &fabric_ca_server_openshift_operations_route
         type: str
-        required: false
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(fabric-ca-operations.apps.example.com)."

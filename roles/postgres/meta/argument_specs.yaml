@@ -14,14 +14,12 @@ argument_specs:
     options:
       remote_config_dir: &remote_config_dir
         type: path
-        required: false
         description:
           - Outer remote configuration directory consumed by C(postgres_remote_config_dir).
           - This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
           - "Example: C(/opt/fabricx/postgres/postgres0/config)."
       remote_data_dir: &remote_data_dir
         type: path
-        required: false
         description:
           - Outer remote data directory consumed by C(postgres_remote_data_dir).
           - This dependency is validated wherever PostgreSQL persistent data is used.
@@ -52,122 +50,102 @@ argument_specs:
           - "Example: C(postgres0.example.com)."
       postgres_exporter_port: &postgres_exporter_port
         type: int
-        required: false
         description:
           - Optional postgres_exporter port to probe after PostgreSQL itself.
           - This entry point only runs when the variable is defined.
           - "Example: C(9187)."
       postgres_registry_endpoint: &postgres_registry_endpoint
         type: str
-        required: false
         default: "{{ lookup('env', 'POSTGRES_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
         description:
           - Container registry endpoint used to build C(postgres_image).
       postgres_image_name: &postgres_image_name
         type: str
-        required: false
         default: postgres
         description:
           - PostgreSQL image repository name.
       postgres_image_tag: &postgres_image_tag
         type: str
-        required: false
         default: "16.4"
         description:
           - PostgreSQL image tag.
       postgres_image: &postgres_image
         type: str
-        required: false
         default: "{{ postgres_registry_endpoint }}/{{ postgres_image_name }}:{{ postgres_image_tag }}"
         description:
           - Full container image reference for PostgreSQL.
       postgres_container_name: &postgres_container_name
         type: str
-        required: false
         default: "{{ inventory_hostname }}"
         description:
           - Container name for the PostgreSQL instance.
       postgres_remote_config_dir: &postgres_remote_config_dir
         type: path
-        required: false
         default: "{{ remote_config_dir }}"
         description:
           - Remote directory used for PostgreSQL configuration and TLS files.
       postgres_remote_data_dir: &postgres_remote_data_dir
         type: path
-        required: false
         default: "{{ remote_data_dir }}"
         description:
           - Remote directory used for PostgreSQL persistent data.
       postgres_container_config_dir: &postgres_container_config_dir
         type: path
-        required: false
         default: /var/lib/postgresql/config
         description:
           - Configuration directory path inside the PostgreSQL container.
       postgres_container_data_dir: &postgres_container_data_dir
         type: path
-        required: false
         default: /var/lib/postgresql/data
         description:
           - Data directory path inside the PostgreSQL container.
       postgres_use_tls: &postgres_use_tls
         type: bool
-        required: false
         default: false
         description:
           - Enable server-side TLS for PostgreSQL.
       postgres_use_mtls: &postgres_use_mtls
         type: bool
-        required: false
         default: false
         description:
           - Enable mutual TLS for PostgreSQL clients.
       postgres_use_k8s: &postgres_use_k8s
         type: bool
-        required: false
         default: false
         description:
           - Run PostgreSQL on Kubernetes when set to C(true).
       postgres_use_openshift: &postgres_use_openshift
         type: bool
-        required: false
         default: false
         description:
           - Run PostgreSQL on OpenShift when set to C(true).
       postgres_use_container: &postgres_use_container
         type: bool
-        required: false
         default: "{{ (not postgres_use_k8s) and (not postgres_use_openshift) }}"
         description:
           - Run PostgreSQL as a container when set to C(true).
       postgres_k8s_resource_name: &postgres_k8s_resource_name
         type: str
-        required: false
         default: "{{ inventory_hostname }}"
         description:
           - Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
       postgres_k8s_part_of: &postgres_k8s_part_of
         type: str
-        required: false
         default: "{{ (organization | default({})).name | default('postgres') }}"
         description:
           - Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to PostgreSQL resources.
       postgres_k8s_wait_timeout: &postgres_k8s_wait_timeout
         type: int
-        required: false
         default: 120
         description:
           - Timeout in seconds while waiting for the StatefulSet rollout to complete.
       postgres_k8s_fs_group: &postgres_k8s_fs_group
         type: int
-        required: false
         default: 999
         description:
           - Kubernetes pod C(fsGroup) applied so mounted files are readable by the postgres process.
       postgres_k8s_node_port: &postgres_k8s_node_port
         type: int
-        required: false
         description:
           - Kubernetes NodePort value used by the external PostgreSQL Service.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
@@ -175,20 +153,17 @@ argument_specs:
       postgres_k8s_loadbalancer_expose_port:
         &postgres_k8s_loadbalancer_expose_port
         type: bool
-        required: false
         default: false
         description:
           - Set to C(true) to create a LoadBalancer Service and expose C(postgres_port) externally.
           - When undefined or C(false), no LoadBalancer Service is created.
       postgres_tls_private_key_file: &postgres_tls_private_key_file
         type: path
-        required: false
         default: server.key
         description:
           - Filename of the PostgreSQL TLS private key under the TLS config directory.
       postgres_tls_cert_file: &postgres_tls_cert_file
         type: path
-        required: false
         default: server.crt
         description:
           - Filename of the PostgreSQL TLS certificate under the TLS config directory.
@@ -219,7 +194,6 @@ argument_specs:
           - "Example: C(my_postgres_password)."
       postgres_extra_cmd_opts: &postgres_extra_cmd_opts
         type: str
-        required: false
         description:
           - Additional PostgreSQL command-line options appended to the start command.
           - "Example: C(-c max_connections=200 -c log_directory=/var/lib/postgresql/data/pg_log)."
@@ -238,65 +212,55 @@ argument_specs:
           - "Example: C(500Mi)."
       k8s_storage_class: &k8s_storage_class
         type: str
-        required: false
         description:
           - Kubernetes storage class name for the PostgreSQL PVC when a non-default class is required.
           - "Example: C(fast-ssd)."
       k8s_image_pull_secret: &k8s_image_pull_secret
         type: str
-        required: false
         description:
           - Existing Kubernetes C(imagePullSecret) name used when the PostgreSQL image is stored in a private registry.
           - "Example: C(postgres-registry-pull-secret)."
       k8s_readiness_probe_initial_delay_seconds:
         &k8s_readiness_probe_initial_delay_seconds
         type: int
-        required: false
         description:
           - Override for the readiness probe initial delay in seconds.
           - "Example: C(10)."
       k8s_readiness_probe_period_seconds: &k8s_readiness_probe_period_seconds
         type: int
-        required: false
         description:
           - Override for the readiness probe period in seconds.
           - "Example: C(10)."
       k8s_readiness_probe_timeout_seconds: &k8s_readiness_probe_timeout_seconds
         type: int
-        required: false
         description:
           - Override for the readiness probe timeout in seconds.
           - "Example: C(5)."
       k8s_readiness_probe_failure_threshold:
         &k8s_readiness_probe_failure_threshold
         type: int
-        required: false
         description:
           - Override for the readiness probe failure threshold.
           - "Example: C(3)."
       k8s_liveness_probe_initial_delay_seconds:
         &k8s_liveness_probe_initial_delay_seconds
         type: int
-        required: false
         description:
           - Override for the liveness probe initial delay in seconds.
           - "Example: C(30)."
       k8s_liveness_probe_period_seconds: &k8s_liveness_probe_period_seconds
         type: int
-        required: false
         description:
           - Override for the liveness probe period in seconds.
           - "Example: C(15)."
       k8s_liveness_probe_timeout_seconds: &k8s_liveness_probe_timeout_seconds
         type: int
-        required: false
         description:
           - Override for the liveness probe timeout in seconds.
           - "Example: C(5)."
       k8s_liveness_probe_failure_threshold:
         &k8s_liveness_probe_failure_threshold
         type: int
-        required: false
         description:
           - Override for the liveness probe failure threshold.
           - "Example: C(5)."
@@ -387,7 +351,6 @@ argument_specs:
       remote_data_dir: *remote_data_dir
       k8s_namespace:
         <<: *k8s_namespace
-        required: false
 
   container/start:
     short_description: Start PostgreSQL in a container
@@ -664,7 +627,6 @@ argument_specs:
       postgres_use_openshift: *postgres_use_openshift
       organization:
         <<: *organization
-        required: false
 
   crypto/fetch:
     short_description: Fetch PostgreSQL TLS certificates
@@ -702,7 +664,6 @@ argument_specs:
       postgres_tls_cert_file: *postgres_tls_cert_file
       organization:
         <<: *organization
-        required: false
 
   crypto/cryptogen/transfer:
     short_description: Transfer PostgreSQL TLS materials from cryptogen

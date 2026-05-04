@@ -11,84 +11,70 @@ argument_specs:
     options:
       control_node_dir: &control_node_dir
         type: path
-        required: false
         description:
           - "Sets the base directory on the control node for C(bin_control_source_code_dir) and C(bin_control_dir). Example: C(/opt/fabricx/control)."
       remote_node_dir: &remote_node_dir
         type: path
-        required: false
         description:
           - "Sets the base directory on the managed host for C(bin_remote_source_code_dir), C(bin_remote_dir), and C(bin_remote_logs_dir). Example: C(/var/lib/fabricx)."
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
-        required: false
         description:
           - "Sets the local directory for C(bin_fetched_logs_dir). Example: C(/tmp/fabricx/artifacts)."
       bin_build_on_control_node: &bin_build_on_control_node
         type: bool
-        required: false
         default: false
         description:
           - "Controls whether source code is cloned and binaries are built on the control node instead of on the managed host."
       bin_target_os: &bin_target_os
         type: str
-        required: false
         default: "{{ ansible_facts.system }}"
         description:
           - "Sets the target operating system used when deriving platform-specific build output paths."
       bin_target_arch: &bin_target_arch
         type: str
-        required: false
         default: "{{ ansible_facts.architecture }}"
         description:
           - "Sets the target CPU architecture used when deriving platform-specific build output paths."
       bin_name: &bin_name
         type: str
-        required: false
         default: "{{ inventory_hostname }}"
         description:
           - "Sets the output binary name."
       bin_control_source_code_dir: &bin_control_source_code_dir
         type: path
-        required: false
         default: "{{ control_node_dir }}/code"
         description:
           - "Defines the source code directory on the control node when builds run locally."
       bin_control_dir: &bin_control_dir
         type: path
-        required: false
         default: "{{ control_node_dir }}/bin/{{ bin_target_os }}/{{ bin_target_arch }}"
         description:
           - "Defines the platform-specific output directory on the control node for built or installed binaries."
       bin_source_code_dir: &bin_source_code_dir
         type: path
-        required: false
         default: "{{ bin_control_source_code_dir if bin_build_on_control_node else bin_remote_source_code_dir }}"
         description:
           - "Defines the source code directory used when invoking the go build role after cloning."
       bin_remote_source_code_dir: &bin_remote_source_code_dir
         type: path
-        required: false
         default: "{{ remote_node_dir }}/code"
         description:
           - "Defines the source code directory on the managed host when builds do not run on the control node."
       bin_dir: &bin_dir
         type: path
-        required: false
         default: "{{ bin_control_dir if bin_build_on_control_node else bin_remote_dir }}"
         description:
           - "Sets the directory where built binaries are written for each target platform."
       bin_hosts: &bin_hosts
         type: list
         elements: str
-        required: false
         default:
           - "{{ inventory_hostname }}"
         description:
           - "Lists the hosts whose facts are used to determine the operating system and architecture combinations that must be built."
       bin_remote_dir: &bin_remote_dir
         type: path
-        required: false
         default: "{{ remote_node_dir }}/bin"
         description:
           - "Sets the directory that is prefixed to C(bin_command) when constructing the executable path."
@@ -99,102 +85,85 @@ argument_specs:
           - "Defines the command to execute, relative to C(bin_remote_dir) when that directory is set. Example: C(orderer --config /etc/fabricx/orderer.yaml)."
       bin_env: &bin_env
         type: dict
-        required: false
         default: {}
         description:
           - "Provides environment variables prefixed onto the command line before the binary is started."
       bin_collect_logs: &bin_collect_logs
         type: bool
-        required: false
         default: true
         description:
           - "Controls whether stdout and stderr are redirected to a log file on the managed host."
       bin_remote_logs_dir: &bin_remote_logs_dir
         type: path
-        required: false
         default: "{{ remote_node_dir }}/logs"
         description:
           - "Sets the directory used for redirected log output when C(bin_collect_logs) is enabled."
       bin_remote_logs_file: &bin_remote_logs_file
         type: str
-        required: false
         default: "logs.txt"
         description:
           - "Sets the log file name used when C(bin_collect_logs) is enabled."
       bin_debug: &bin_debug
         type: bool
-        required: false
         default: "{{ lookup('env', 'DEBUG') | bool | default(false) }}"
         description:
           - "Controls whether the assembled command and direct-run output are printed for debugging."
       bin_run_with_tmux: &bin_run_with_tmux
         type: bool
-        required: false
         default: true
         description:
           - "Controls whether the binary is started in a tmux session instead of through a direct shell invocation."
       bin_chdir: &bin_chdir
         type: path
-        required: false
         default: null
         description:
           - "Sets the working directory used for tmux and direct shell execution when a specific directory is required."
       bin_run_until: &bin_run_until
         type: str
-        required: false
         default: null
         description:
           - "Defines the until expression used for retrying direct shell execution when C(bin_run_with_tmux) is false."
       bin_run_retries: &bin_run_retries
         type: int
-        required: false
         default: 0
         description:
           - "Sets how many times direct shell execution is retried when C(bin_run_until) is defined."
       bin_run_delay: &bin_run_delay
         type: int
-        required: false
         default: 0
         description:
           - "Sets the delay in seconds between retries for direct shell execution."
       bin_ignore_errors: &bin_ignore_errors
         type: bool
-        required: false
         default: false
         description:
           - "Controls whether failures from direct shell execution are ignored when C(bin_run_with_tmux) is false."
       bin_wait_until_running: &bin_wait_until_running
         type: bool
-        required: false
         default: false
         description:
           - "Controls whether the role waits for a TCP port to become reachable after the process starts."
       bin_wait_port: &bin_wait_port
         type: int
-        required: false
         description:
           - "Sets the TCP port checked by the wait step when C(bin_wait_until_running) is true. Example: C(7050)."
       bin_wait_delay: &bin_wait_delay
         type: int
-        required: false
         default: 1
         description:
           - "Sets the initial delay in seconds before checking C(bin_wait_port)."
       bin_wait_timeout: &bin_wait_timeout
         type: int
-        required: false
         default: 60
         description:
           - "Sets the maximum wait time in seconds for C(bin_wait_port) to become reachable."
       bin_fetched_logs_dir: &bin_fetched_logs_dir
         type: path
-        required: false
         default: "{{ fetched_artifacts_dir }}/{{ bin_name }}"
         description:
           - "Sets the destination directory on the control node where the fetched log file is stored."
       bin_fetched_logs_file: &bin_fetched_logs_file
         type: str
-        required: false
         default: "logs.txt"
         description:
           - "Sets the destination file name used for the fetched log output."

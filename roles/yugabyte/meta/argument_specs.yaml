@@ -36,109 +36,91 @@ argument_specs:
           - "Example: C(tablet)."
       yugabyte_use_k8s: &yugabyte_use_k8s
         type: bool
-        required: false
         default: false
         description:
           - "Enables Kubernetes mode for the YugabyteDB role."
       yugabyte_use_container: &yugabyte_use_container
         type: bool
-        required: false
         default: "{{ (not yugabyte_use_k8s) and (not yugabyte_use_openshift) }}"
         description:
           - "Enables container mode for the YugabyteDB role."
       yugabyte_use_tls: &yugabyte_use_tls
         type: bool
-        required: false
         default: false
         description:
           - "Enables TLS asset handling for YugabyteDB."
       yugabyte_webserver_use_tls: &yugabyte_webserver_use_tls
         type: bool
-        required: false
         default: "{{ yugabyte_use_tls }}"
         description:
           - "Enables HTTPS for the YugabyteDB webserver."
       yugabyte_client_to_server_use_tls: &yugabyte_client_to_server_use_tls
         type: bool
-        required: false
         default: "{{ yugabyte_use_tls }}"
         description:
           - "Enables client-to-server TLS for YugabyteDB RPC and SQL access."
       yugabyte_node_to_node_use_tls: &yugabyte_node_to_node_use_tls
         type: bool
-        required: false
         default: "{{ yugabyte_use_tls }}"
         description:
           - "Enables node-to-node TLS for YugabyteDB."
       yugabyte_registry_endpoint: &yugabyte_registry_endpoint
         type: str
-        required: false
         default: "{{ lookup('env', 'YUGABYTE_REGISTRY_ENDPOINT') or 'docker.io/yugabytedb' }}"
         description:
           - "Sets the registry endpoint used to resolve the YugabyteDB image."
       yugabyte_image_name: &yugabyte_image_name
         type: str
-        required: false
         default: "yugabyte"
         description:
           - "Sets the YugabyteDB image name."
       yugabyte_image_tag: &yugabyte_image_tag
         type: str
-        required: false
         default: "2025.2.1.0-b141"
         description:
           - "Sets the YugabyteDB image tag."
       yugabyte_image: &yugabyte_image
         type: str
-        required: false
         default: "{{ yugabyte_registry_endpoint }}/{{ yugabyte_image_name }}:{{ yugabyte_image_tag }}"
         description:
           - "Sets the YugabyteDB container image."
       yugabyte_container_name: &yugabyte_container_name
         type: str
-        required: false
         default: "{{ inventory_hostname }}"
         description:
           - "Names the YugabyteDB container associated with the current host."
       yugabyte_remote_config_dir: &yugabyte_remote_config_dir
         type: path
-        required: false
         default: "{{ remote_config_dir }}"
         description:
           - "Sets the remote configuration directory used by YugabyteDB tasks."
       remote_config_dir: &remote_config_dir
         type: path
-        required: false
         description:
           - "Sets the shared remote configuration directory consumed by YugabyteDB."
           - "Example: C(/opt/hyperledger/fabric-x/yugabyte/config)."
       yugabyte_remote_data_dir: &yugabyte_remote_data_dir
         type: path
-        required: false
         default: "{{ remote_data_dir }}"
         description:
           - "Sets the remote data directory used by YugabyteDB tasks."
       remote_data_dir: &remote_data_dir
         type: path
-        required: false
         description:
           - "Sets the shared remote data directory consumed by YugabyteDB."
           - "Example: C(/var/hyperledger/fabric-x/yugabyte/data)."
       yugabyte_container_data_dir: &yugabyte_container_data_dir
         type: path
-        required: false
         default: "/var/data"
         description:
           - "Sets the in-container data directory used by YugabyteDB."
       yugabyte_init_script_file: &yugabyte_init_script_file
         type: str
-        required: false
         default: "01-yb-init.sql"
         description:
           - "Names the SQL initialization script used by tablet pods."
       yugabyte_logs_level: &yugabyte_logs_level
         type: int
-        required: false
         default: 3
         description:
           - "Sets the YugabyteDB log verbosity threshold."
@@ -164,79 +146,66 @@ argument_specs:
           - "Example: C(['yb-tserver-1', 'yb-tserver-2', 'yb-tserver-3'])."
       yugabyte_master_rpc_bind_port: &yugabyte_master_rpc_bind_port
         type: int
-        required: false
         default: 7100
         description:
           - "Sets the master RPC bind port."
       yugabyte_master_webserver_port: &yugabyte_master_webserver_port
         type: int
-        required: false
         default: 7000
         description:
           - "Sets the master webserver port."
       yugabyte_tablet_pgsql_bind_port: &yugabyte_tablet_pgsql_bind_port
         type: int
-        required: false
         default: 5433
         description:
           - "Sets the tablet YSQL bind port."
       yugabyte_tablet_rpc_bind_port: &yugabyte_tablet_rpc_bind_port
         type: int
-        required: false
         default: 9100
         description:
           - "Sets the tablet RPC bind port."
       yugabyte_tablet_webserver_port: &yugabyte_tablet_webserver_port
         type: int
-        required: false
         default: 9000
         description:
           - "Sets the tablet webserver port."
       yugabyte_tablet_pgsql_web_port: &yugabyte_tablet_pgsql_web_port
         type: int
-        required: false
         default: 13000
         description:
           - "Sets the tablet YSQL web UI port."
       yugabyte_tablet_cql_bind_port: &yugabyte_tablet_cql_bind_port
         type: int
-        required: false
         default: 9042
         description:
           - "Sets the tablet YCQL bind port."
       yugabyte_tablet_cql_web_port: &yugabyte_tablet_cql_web_port
         type: int
-        required: false
         default: 12000
         description:
           - "Sets the tablet YCQL web UI port."
       yugabyte_k8s_resource_name: &yugabyte_k8s_resource_name
         type: str
-        required: false
         default: "{{ inventory_hostname }}"
         description:
           - "Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled."
       yugabyte_k8s_part_of: &yugabyte_k8s_part_of
         type: str
-        required: false
         default: "{{ (organization | default({})).name | default('yugabyte') }}"
         description:
           - "Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to YugabyteDB resources."
       yugabyte_k8s_wait: &yugabyte_k8s_wait
         type: bool
-        required: false
         default: true
         description:
           - "Waits for YugabyteDB Kubernetes resources to become ready."
       yugabyte_k8s_wait_timeout: &yugabyte_k8s_wait_timeout
         type: int
-        required: false
         default: 300
         description:
           - "Sets the Kubernetes readiness wait timeout in seconds."
       yugabyte_k8s_master_rpc_node_port: &yugabyte_k8s_master_rpc_node_port
         type: int
-        required: false
         description:
           - Kubernetes NodePort value used by the external master RPC Service port.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
@@ -244,7 +213,6 @@ argument_specs:
       yugabyte_k8s_loadbalancer_expose_master_rpc_port:
         &yugabyte_k8s_loadbalancer_expose_master_rpc_port
         type: bool
-        required: false
         default: false
         description:
           - Set to C(true) to create a LoadBalancer Service entry that exposes the master RPC port externally.
@@ -252,7 +220,6 @@ argument_specs:
       yugabyte_k8s_master_webserver_node_port:
         &yugabyte_k8s_master_webserver_node_port
         type: int
-        required: false
         description:
           - Kubernetes NodePort value used by the external master webserver Service port.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
@@ -260,14 +227,12 @@ argument_specs:
       yugabyte_k8s_loadbalancer_expose_master_webserver_port:
         &yugabyte_k8s_loadbalancer_expose_master_webserver_port
         type: bool
-        required: false
         default: false
         description:
           - Set to C(true) to create a LoadBalancer Service entry that exposes the master webserver port externally.
           - When undefined or C(false), the master webserver port is not included in the LoadBalancer Service.
       yugabyte_k8s_tablet_pgsql_node_port: &yugabyte_k8s_tablet_pgsql_node_port
         type: int
-        required: false
         description:
           - Kubernetes NodePort value used by the external tablet YSQL Service port.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
@@ -275,14 +240,12 @@ argument_specs:
       yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port:
         &yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port
         type: bool
-        required: false
         default: false
         description:
           - Set to C(true) to create a LoadBalancer Service entry that exposes the tablet YSQL port externally.
           - When undefined or C(false), the tablet YSQL port is not included in the LoadBalancer Service.
       yugabyte_k8s_tablet_rpc_node_port: &yugabyte_k8s_tablet_rpc_node_port
         type: int
-        required: false
         description:
           - Kubernetes NodePort value used by the external tablet RPC Service port.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
@@ -290,7 +253,6 @@ argument_specs:
       yugabyte_k8s_loadbalancer_expose_tablet_rpc_port:
         &yugabyte_k8s_loadbalancer_expose_tablet_rpc_port
         type: bool
-        required: false
         default: false
         description:
           - Set to C(true) to create a LoadBalancer Service entry that exposes the tablet RPC port externally.
@@ -298,7 +260,6 @@ argument_specs:
       yugabyte_k8s_tablet_webserver_node_port:
         &yugabyte_k8s_tablet_webserver_node_port
         type: int
-        required: false
         description:
           - Kubernetes NodePort value used by the external tablet webserver Service port.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
@@ -306,7 +267,6 @@ argument_specs:
       yugabyte_k8s_loadbalancer_expose_tablet_webserver_port:
         &yugabyte_k8s_loadbalancer_expose_tablet_webserver_port
         type: bool
-        required: false
         default: false
         description:
           - Set to C(true) to create a LoadBalancer Service entry that exposes the tablet webserver port externally.
@@ -314,7 +274,6 @@ argument_specs:
       yugabyte_k8s_tablet_pgsql_web_node_port:
         &yugabyte_k8s_tablet_pgsql_web_node_port
         type: int
-        required: false
         description:
           - Kubernetes NodePort value used by the external tablet YSQL web UI Service port.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
@@ -322,7 +281,6 @@ argument_specs:
       yugabyte_k8s_loadbalancer_expose_tablet_pgsql_web_port:
         &yugabyte_k8s_loadbalancer_expose_tablet_pgsql_web_port
         type: bool
-        required: false
         default: false
         description:
           - Set to C(true) to create a LoadBalancer Service entry that exposes the tablet YSQL web UI port externally.
@@ -330,7 +288,6 @@ argument_specs:
       yugabyte_k8s_tablet_cql_bind_node_port:
         &yugabyte_k8s_tablet_cql_bind_node_port
         type: int
-        required: false
         description:
           - Kubernetes NodePort value used by the external tablet YCQL bind Service port.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
@@ -338,7 +295,6 @@ argument_specs:
       yugabyte_k8s_loadbalancer_expose_tablet_cql_bind_port:
         &yugabyte_k8s_loadbalancer_expose_tablet_cql_bind_port
         type: bool
-        required: false
         default: false
         description:
           - Set to C(true) to create a LoadBalancer Service entry that exposes the tablet YCQL bind port externally.
@@ -346,7 +302,6 @@ argument_specs:
       yugabyte_k8s_tablet_cql_web_node_port:
         &yugabyte_k8s_tablet_cql_web_node_port
         type: int
-        required: false
         description:
           - Kubernetes NodePort value used by the external tablet YCQL web UI Service port.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
@@ -354,14 +309,12 @@ argument_specs:
       yugabyte_k8s_loadbalancer_expose_tablet_cql_web_port:
         &yugabyte_k8s_loadbalancer_expose_tablet_cql_web_port
         type: bool
-        required: false
         default: false
         description:
           - Set to C(true) to create a LoadBalancer Service entry that exposes the tablet YCQL web UI port externally.
           - When undefined or C(false), the tablet YCQL web UI port is not included in the LoadBalancer Service.
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
-        required: false
         description:
           - "Defines the control-node directory that stores fetched YugabyteDB artifacts."
           - "Required when TLS-enabled tasks need access to fetched CA or certificate artifacts, such as when C(yugabyte_use_tls) or webserver TLS is enabled."
@@ -380,7 +333,6 @@ argument_specs:
           - "Example: C(myvpc.cloud.ibm.com)."
       organization: &organization
         type: dict
-        required: false
         description:
           - "Provides the organization metadata consumed by the crypto entry points."
           - "The mapping is expected to expose C(domain), C(role), C(peer.name), C(peer.secret), and C(fabric_ca_host) when relevant."
@@ -424,100 +376,85 @@ argument_specs:
           - "Example: C(20Gi)."
       k8s_storage_class: &k8s_storage_class
         type: str
-        required: false
         description:
           - "Sets the storage class used by Kubernetes PersistentVolumeClaims when defined."
           - "Example: C(fast-ssd)."
       k8s_image_pull_secret: &k8s_image_pull_secret
         type: str
-        required: false
         description:
           - "Sets the image pull secret used by Kubernetes deployments when defined."
           - "Example: C(registry-pull-secret)."
       k8s_readiness_probe_initial_delay_seconds:
         &k8s_readiness_probe_initial_delay_seconds
         type: int
-        required: false
         description:
           - "Overrides the readiness probe initial delay used by Kubernetes templates when defined."
           - "Example: C(30)."
       k8s_readiness_probe_period_seconds: &k8s_readiness_probe_period_seconds
         type: int
-        required: false
         description:
           - "Overrides the readiness probe period used by Kubernetes templates when defined."
           - "Example: C(10)."
       k8s_readiness_probe_timeout_seconds: &k8s_readiness_probe_timeout_seconds
         type: int
-        required: false
         description:
           - "Overrides the readiness probe timeout used by Kubernetes templates when defined."
           - "Example: C(5)."
       k8s_readiness_probe_failure_threshold:
         &k8s_readiness_probe_failure_threshold
         type: int
-        required: false
         description:
           - "Overrides the readiness probe failure threshold used by Kubernetes templates when defined."
           - "Example: C(12)."
       k8s_liveness_probe_initial_delay_seconds:
         &k8s_liveness_probe_initial_delay_seconds
         type: int
-        required: false
         description:
           - "Overrides the liveness probe initial delay used by Kubernetes templates when defined."
           - "Example: C(60)."
       k8s_liveness_probe_period_seconds: &k8s_liveness_probe_period_seconds
         type: int
-        required: false
         description:
           - "Overrides the liveness probe period used by Kubernetes templates when defined."
           - "Example: C(20)."
       k8s_liveness_probe_timeout_seconds: &k8s_liveness_probe_timeout_seconds
         type: int
-        required: false
         description:
           - "Overrides the liveness probe timeout used by Kubernetes templates when defined."
           - "Example: C(5)."
       k8s_liveness_probe_failure_threshold:
         &k8s_liveness_probe_failure_threshold
         type: int
-        required: false
         description:
           - "Overrides the liveness probe failure threshold used by Kubernetes templates when defined."
           - "Example: C(6)."
 
       yugabyte_use_openshift: &yugabyte_use_openshift
         type: bool
-        required: false
         default: false
         description:
           - Selects the OpenShift deployment branch.
       yugabyte_openshift_master_webserver_route:
         &yugabyte_openshift_master_webserver_route
         type: str
-        required: false
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(yugabyte-master-web.apps.example.com)."
       yugabyte_openshift_tablet_webserver_route:
         &yugabyte_openshift_tablet_webserver_route
         type: str
-        required: false
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(yugabyte-tablet-web.apps.example.com)."
       yugabyte_openshift_tablet_pgsql_web_route:
         &yugabyte_openshift_tablet_pgsql_web_route
         type: str
-        required: false
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(yugabyte-tablet-pgsql-web.apps.example.com)."
       yugabyte_openshift_tablet_cql_web_route:
         &yugabyte_openshift_tablet_cql_web_route
         type: str
-        required: false
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(yugabyte-tablet-cql-web.apps.example.com)."
@@ -655,7 +592,6 @@ argument_specs:
       yugabyte_k8s_part_of: *yugabyte_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
-        required: false
 
   crypto/openssl/generate_csr:
     short_description: Generate a YugabyteDB TLS CSR
@@ -753,7 +689,6 @@ argument_specs:
       yugabyte_k8s_part_of: *yugabyte_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
-        required: false
 
   config/transfer_grafana_dashboard:
     short_description: Transfer the YugabyteDB Grafana dashboard
@@ -1061,7 +996,6 @@ argument_specs:
       yugabyte_k8s_part_of: *yugabyte_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
-        required: false
 
   prometheus/get_scrapers:
     short_description: Build Prometheus scrapers for YugabyteDB

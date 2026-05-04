@@ -43,20 +43,17 @@ argument_specs:
           - "Example: C(rpc)."
       openshift_route_labels: &openshift_route_labels
         type: dict
-        required: false
         default: {}
         description:
           - Specifies labels to render on the OpenShift Route.
       openshift_route_use_tls: &openshift_route_use_tls
         type: bool
-        required: false
         default: false
         description:
           - Controls whether the Route uses passthrough TLS termination.
       openshift_route_tls_termination: &openshift_route_tls_termination
         type: str
         choices: ["passthrough", "edge", "reencrypt"]
-        required: false
         default: passthrough
         description:
           - Specifies the TLS termination type to render on the OpenShift Route.
@@ -69,14 +66,12 @@ argument_specs:
           - "Example: C(https://api.cluster.example.com:6443)"
       openshift_cluster_personal_token: &openshift_cluster_personal_token
         type: str
-        required: false
         default: "{{ lookup('env', 'OPENSHIFT_PERSONAL_TOKEN') | trim }}"
         description:
           - "Personal user token for interactive OpenShift login"
           - "Can be set via OPENSHIFT_PERSONAL_TOKEN environment variable"
       openshift_cluster_namespace: &openshift_cluster_namespace
         type: str
-        required: false
         default: "{{ k8s_namespace }}"
         description:
           - "OpenShift namespace/project to use"
@@ -90,7 +85,6 @@ argument_specs:
       openshift_cluster_service_account_token_duration:
         &openshift_cluster_service_account_token_duration
         type: str
-        required: false
         default: "12h"
         description:
           - "Duration for the service account token"
