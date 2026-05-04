@@ -174,7 +174,7 @@ argument_specs:
       fabric_ca_server_k8s_part_of: &fabric_ca_server_k8s_part_of
         type: str
         required: false
-        default: "{{ organization.name }}"
+        default: "fabric-ca-{{ organization.name }}"
         description:
           - "Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Fabric CA server resources."
       fabric_ca_server_k8s_wait_timeout: &fabric_ca_server_k8s_wait_timeout

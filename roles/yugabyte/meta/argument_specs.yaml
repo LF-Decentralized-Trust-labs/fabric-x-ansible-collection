@@ -219,7 +219,7 @@ argument_specs:
       yugabyte_k8s_part_of: &yugabyte_k8s_part_of
         type: str
         required: false
-        default: "{{ (organization | default({})).name | default('yugabyte') }}"
+        default: yugabyte
         description:
           - "Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to YugabyteDB resources."
       yugabyte_k8s_wait: &yugabyte_k8s_wait
