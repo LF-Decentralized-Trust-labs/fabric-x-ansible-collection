@@ -123,6 +123,11 @@ argument_specs:
         description:
           - "Provides an optional Kubernetes image pull secret from shared inventory."
           - "Example: C(registry-pull-secret)."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
       postgres_db_host: &postgres_db_host
         type: str
         required: true
@@ -134,7 +139,7 @@ argument_specs:
         required: true
         description:
           - "Provides the organization metadata defined elsewhere in inventory; C(domain) is required."
-          - "Example: C(org1.example.com)."
+          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com'})."
       fabric_ca_server_remote_config_dir: &fabric_ca_server_remote_config_dir
         type: path
         default: "{{ remote_config_dir }}"
@@ -906,6 +911,7 @@ argument_specs:
       fabric_ca_server_k8s_operations_node_port: *fabric_ca_server_k8s_operations_node_port
       fabric_ca_server_k8s_loadbalancer_expose_port: *fabric_ca_server_k8s_loadbalancer_expose_port
       fabric_ca_server_k8s_loadbalancer_expose_operations_port: *fabric_ca_server_k8s_loadbalancer_expose_operations_port
+      k8s_resources: *k8s_resources
 
   server/k8s/ping:
     short_description: Check that the Fabric CA Kubernetes service is reachable

@@ -1138,6 +1138,14 @@ Creates Fabric CA Kubernetes runtime resources for the server. Uses the ConfigMa
     fabric_ca_server_k8s_loadbalancer_expose_port: false
     # Set to `true` to create a LoadBalancer Service entry that exposes the operations port externally. When undefined or `false`, the operations port is not included in the LoadBalancer Service.
     fabric_ca_server_k8s_loadbalancer_expose_operations_port: false
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/k8s/start
@@ -1367,8 +1375,10 @@ Generates the Fabric CA root CA and TLS keypairs. Writes private keys and certif
       - "{{ inventory_hostname }}"
     # Matches IPv4 SAN entries while splitting Fabric CA CSR hosts into IP and DNS names. Example: `^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$`
     openssl_san_ipv4_regex: "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"
-    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `org1.example.com`.
-    organization:org1.example.com
+    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `{'name': 'Org1', 'domain': 'org1.example.com'}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
     # Specifies the OpenShift Route host. Example: `fabric-ca.apps.example.com`.
     fabric_ca_server_openshift_route: "fabric-ca.apps.example.com"
     # Specifies the OpenShift Route host. Example: `fabric-ca-operations.apps.example.com`.
@@ -1407,8 +1417,10 @@ Fetches the Fabric CA server certificate material. Copies CA certificates from t
 ```yaml
 - name: Fetch server certificates
   vars:
-    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `org1.example.com`.
-    organization:org1.example.com
+    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `{'name': 'Org1', 'domain': 'org1.example.com'}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
     # Provides the shared local artifacts root used by this role. Example: `/tmp/fabricx/fetched-artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx/fetched-artifacts"
     # Sets the remote Fabric CA config root.
@@ -1488,8 +1500,10 @@ Renders and transfers the Fabric CA server configuration. Includes bootstrap adm
     actual_host: "myvpc.cloud.ibm.com"
     # Sets the CSR expiry.
     fabric_ca_csr_expiry: 131400h
-    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `org1.example.com`.
-    organization:org1.example.com
+    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `{'name': 'Org1', 'domain': 'org1.example.com'}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
     # Names the PostgreSQL host defined elsewhere in inventory. Example: `postgres0.example.com`.
     postgres_db_host: "postgres0.example.com"
     # Provides the shared local artifacts root used by this role. Example: `/tmp/fabricx/fetched-artifacts`.

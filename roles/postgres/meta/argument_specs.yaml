@@ -264,6 +264,11 @@ argument_specs:
         description:
           - Override for the liveness probe failure threshold.
           - "Example: C(5)."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
       organization: &organization
         type: dict
         description:
@@ -451,6 +456,7 @@ argument_specs:
       k8s_liveness_probe_period_seconds: *k8s_liveness_probe_period_seconds
       k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
+      k8s_resources: *k8s_resources
 
   k8s/ping:
     short_description: Check that PostgreSQL Kubernetes service is reachable

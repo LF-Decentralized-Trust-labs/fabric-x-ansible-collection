@@ -381,6 +381,14 @@ Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and S
     k8s_liveness_probe_timeout_seconds: 5
     # Override for the liveness probe failure threshold. Example: `5`.
     k8s_liveness_probe_failure_threshold: 5
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: k8s/start

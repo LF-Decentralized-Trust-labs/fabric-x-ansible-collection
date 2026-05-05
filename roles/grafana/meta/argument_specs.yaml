@@ -89,6 +89,11 @@ argument_specs:
         description:
           - Sets the Grafana liveness probe failure threshold.
           - "Example: C(3)."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
       grafana_registry_endpoint: &grafana_registry_endpoint
         type: str
         default: "{{ lookup('env', 'GRAFANA_REGISTRY_ENDPOINT') or 'docker.io/grafana' }}"
@@ -448,6 +453,7 @@ argument_specs:
       k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
       grafana_k8s_loadbalancer_expose_web_port: *grafana_k8s_loadbalancer_expose_web_port
+      k8s_resources: *k8s_resources
 
   k8s/ping:
     short_description: Check that the Grafana Kubernetes service is reachable

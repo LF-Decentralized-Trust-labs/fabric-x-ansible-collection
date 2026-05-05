@@ -30,6 +30,10 @@ spec:
       containers:
         - name: yugabyte
           image: {{ yugabyte_image }}
+{% if k8s_resources is defined and k8s_resources %}
+          resources:
+{{ k8s_resources | to_nice_yaml(indent=2) | indent(12, true) }}
+{% endif %}
           command:
             - bin/yb-master
             - --master_addresses={{ yugabyte_master_endpoints }}

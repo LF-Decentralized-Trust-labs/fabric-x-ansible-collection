@@ -30,6 +30,10 @@ spec:
       containers:
         - name: grafana
           image: {{ grafana_image }}
+{% if k8s_resources is defined and k8s_resources %}
+          resources:
+{{ k8s_resources | to_nice_yaml(indent=2) | indent(12, true) }}
+{% endif %}
           env:
             - name: GF_SECURITY_ADMIN_USER
               valueFrom:

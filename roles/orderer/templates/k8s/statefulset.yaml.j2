@@ -38,6 +38,10 @@ spec:
         - name: {{ orderer_component_type }}
           # Fabric-X orderer image containing all component binaries.
           image: {{ orderer_image }}
+{% if k8s_resources is defined and k8s_resources %}
+          resources:
+{{ k8s_resources | to_nice_yaml(indent=2) | indent(12, true) }}
+{% endif %}
           args:
             - "{{ orderer_component_type }}"
             - --config={{ orderer_container_config_dir }}/node_config.yaml
