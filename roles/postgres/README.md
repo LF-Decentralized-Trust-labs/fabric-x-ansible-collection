@@ -212,7 +212,7 @@ Creates the PostgreSQL data directory, fixes TLS file permissions when TLS is en
     # PostgreSQL image repository name.
     postgres_image_name: postgres
     # PostgreSQL image tag.
-    postgres_image_tag: 16.4
+    postgres_image_tag: 17.9
     # Full container image reference for PostgreSQL.
     postgres_image: "{{ postgres_registry_endpoint }}/{{ postgres_image_name }}:{{ postgres_image_tag }}"
     # Remote directory used for PostgreSQL configuration and TLS files.
@@ -332,7 +332,7 @@ Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and S
     # PostgreSQL image repository name.
     postgres_image_name: postgres
     # PostgreSQL image tag.
-    postgres_image_tag: 16.4
+    postgres_image_tag: 17.9
     # Full container image reference for PostgreSQL.
     postgres_image: "{{ postgres_registry_endpoint }}/{{ postgres_image_name }}:{{ postgres_image_tag }}"
     # Configuration directory path inside the PostgreSQL container.
@@ -588,7 +588,7 @@ Starts PostgreSQL on OpenShift by reusing the generic `k8s/start` resource flow.
     # PostgreSQL image repository name.
     postgres_image_name: postgres
     # PostgreSQL image tag.
-    postgres_image_tag: 16.4
+    postgres_image_tag: 17.9
     # Full container image reference for PostgreSQL.
     postgres_image: "{{ postgres_registry_endpoint }}/{{ postgres_image_name }}:{{ postgres_image_tag }}"
     # Configuration directory path inside the PostgreSQL container.
