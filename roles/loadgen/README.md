@@ -204,7 +204,7 @@ Query the Loadgen Prometheus metrics endpoint over HTTP or HTTPS. In Kubernetes 
     loadgen_openshift_metrics_route: "loadgen-metrics.apps.example.com"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
-    # Assert the latency metric when fetching metrics.
+    # Assert the committed transaction metric and report aborted transactions when fetching metrics.
     loadgen_assert_metrics: false
     # Use Kubernetes resources.
     loadgen_use_k8s: false

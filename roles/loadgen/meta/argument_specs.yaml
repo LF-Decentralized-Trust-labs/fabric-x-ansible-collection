@@ -151,7 +151,7 @@ argument_specs:
         type: bool
         default: false
         description:
-          - Assert the latency metric when fetching metrics.
+          - Assert the committed transaction metric and report aborted transactions when fetching metrics.
       loadgen_generate_config_block: &loadgen_generate_config_block
         type: bool
         default: false
