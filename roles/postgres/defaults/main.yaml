@@ -12,7 +12,7 @@ postgres_registry_endpoint: "{{ lookup('env', 'POSTGRES_REGISTRY_ENDPOINT') or '
 # PostgreSQL image repository name.
 postgres_image_name: postgres
 # PostgreSQL image tag.
-postgres_image_tag: '16.4'
+postgres_image_tag: '17.9'
 # Full container image reference for PostgreSQL.
 postgres_image: "{{ postgres_registry_endpoint }}/{{ postgres_image_name }}:{{ postgres_image_tag }}"
 # Container name for the PostgreSQL instance.
