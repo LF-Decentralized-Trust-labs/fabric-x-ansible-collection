@@ -14,14 +14,12 @@ argument_specs:
     options:
       remote_config_dir: &remote_config_dir
         type: path
-        required: false
         description:
           - Shared remote configuration directory consumed by C(elasticsearch_remote_config_dir).
           - "Example: C(/opt/fabricx/elasticsearch/config)."
           - Required when relying on the default of that option.
       remote_data_dir: &remote_data_dir
         type: path
-        required: false
         description:
           - Shared remote data directory consumed by C(elasticsearch_remote_data_dir).
           - "Example: C(/opt/fabricx/elasticsearch/data)."
@@ -40,13 +38,11 @@ argument_specs:
           - Set C(required) explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
       k8s_image_pull_secret: &k8s_image_pull_secret
         type: str
-        required: false
         description:
           - Existing Kubernetes C(imagePullSecret) name used for private registries.
           - "Example: C(elasticsearch-regcred)."
       k8s_storage_class: &k8s_storage_class
         type: str
-        required: false
         description:
           - Kubernetes storage class name for the ElasticSearch PVC when a non-default class is required.
           - "Example: C(fast-ssd)."
@@ -59,172 +55,144 @@ argument_specs:
       k8s_readiness_probe_initial_delay_seconds:
         &k8s_readiness_probe_initial_delay_seconds
         type: int
-        required: false
         description:
           - Optionally overrides the readiness probe initial delay in seconds.
           - "Example: C(10)."
       k8s_readiness_probe_period_seconds: &k8s_readiness_probe_period_seconds
         type: int
-        required: false
         description:
           - Optionally overrides the readiness probe interval in seconds.
           - "Example: C(5)."
       k8s_readiness_probe_timeout_seconds: &k8s_readiness_probe_timeout_seconds
         type: int
-        required: false
         description:
           - Optionally overrides the readiness probe timeout in seconds.
           - "Example: C(2)."
       k8s_readiness_probe_failure_threshold:
         &k8s_readiness_probe_failure_threshold
         type: int
-        required: false
         description:
           - Optionally overrides the readiness probe failure threshold.
           - "Example: C(3)."
       k8s_liveness_probe_initial_delay_seconds:
         &k8s_liveness_probe_initial_delay_seconds
         type: int
-        required: false
         description:
           - Optionally overrides the liveness probe initial delay in seconds.
           - "Example: C(30)."
       k8s_liveness_probe_period_seconds: &k8s_liveness_probe_period_seconds
         type: int
-        required: false
         description:
           - Optionally overrides the liveness probe interval in seconds.
           - "Example: C(10)."
       k8s_liveness_probe_timeout_seconds: &k8s_liveness_probe_timeout_seconds
         type: int
-        required: false
         description:
           - Optionally overrides the liveness probe timeout in seconds.
           - "Example: C(2)."
       k8s_liveness_probe_failure_threshold:
         &k8s_liveness_probe_failure_threshold
         type: int
-        required: false
         description:
           - Optionally overrides the liveness probe failure threshold.
           - "Example: C(3)."
       organization: &organization
         type: dict
-        required: false
         description:
           - Optionally provides organization metadata used to derive the TLS certificate organization name.
           - "Example: C({'common_name': 'elasticsearch.fabricx.example'})."
       elasticsearch_registry_endpoint: &elasticsearch_registry_endpoint
         type: str
-        required: false
         default: "{{ lookup('env', 'ELASTICSEARCH_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
         description:
           - Container registry endpoint used to build C(elasticsearch_image).
       elasticsearch_image_name: &elasticsearch_image_name
         type: str
-        required: false
         default: elasticsearch
         description:
           - ElasticSearch image repository name.
       elasticsearch_image_tag: &elasticsearch_image_tag
         type: str
-        required: false
         default: 8.19.6
         description:
           - ElasticSearch image tag.
       elasticsearch_image: &elasticsearch_image
         type: str
-        required: false
         default: "{{ elasticsearch_registry_endpoint }}/{{ elasticsearch_image_name }}:{{ elasticsearch_image_tag }}"
         description:
           - Full container image reference for ElasticSearch.
       elasticsearch_container_name: &elasticsearch_container_name
         type: str
-        required: false
         default: "{{ inventory_hostname }}"
         description:
           - Container name for the ElasticSearch instance.
       elasticsearch_remote_config_dir: &elasticsearch_remote_config_dir
         type: path
-        required: false
         default: "{{ remote_config_dir }}"
         description:
           - Remote directory used for ElasticSearch configuration and TLS files.
       elasticsearch_remote_data_dir: &elasticsearch_remote_data_dir
         type: path
-        required: false
         default: "{{ remote_data_dir }}"
         description:
           - Remote directory used for ElasticSearch persistent data.
       elasticsearch_container_config_dir: &elasticsearch_container_config_dir
         type: path
-        required: false
         default: /usr/share/elasticsearch
         description:
           - Base configuration directory path inside the ElasticSearch container.
       elasticsearch_container_data_dir: &elasticsearch_container_data_dir
         type: path
-        required: false
         default: /usr/share/elasticsearch/data
         description:
           - Data directory path inside the ElasticSearch container.
       elasticsearch_use_tls: &elasticsearch_use_tls
         type: bool
-        required: false
         default: false
         description:
           - Enables TLS material handling and HTTPS configuration for ElasticSearch.
       elasticsearch_tls_private_key_file: &elasticsearch_tls_private_key_file
         type: str
-        required: false
         default: server.key
         description:
           - Filename of the ElasticSearch TLS private key under the TLS directory.
       elasticsearch_tls_cert_file: &elasticsearch_tls_cert_file
         type: str
-        required: false
         default: server.crt
         description:
           - Filename of the ElasticSearch TLS certificate under the TLS directory.
       elasticsearch_use_k8s: &elasticsearch_use_k8s
         type: bool
-        required: false
         default: false
         description:
           - Runs ElasticSearch on Kubernetes when set to C(true).
       elasticsearch_use_container: &elasticsearch_use_container
         type: bool
-        required: false
         default: "{{ (not elasticsearch_use_k8s) and (not elasticsearch_use_openshift) }}"
         description:
           - Runs ElasticSearch as a container when set to C(true).
       elasticsearch_k8s_resource_name: &elasticsearch_k8s_resource_name
         type: str
-        required: false
         default: "{{ inventory_hostname }}"
         description:
           - Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
       elasticsearch_k8s_part_of: &elasticsearch_k8s_part_of
         type: str
-        required: false
         default: monitoring
         description:
           - Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to ElasticSearch resources.
       elasticsearch_k8s_wait_timeout: &elasticsearch_k8s_wait_timeout
         type: int
-        required: false
         default: 120
         description:
           - Timeout in seconds while waiting for the ElasticSearch StatefulSet rollout to complete.
       elasticsearch_k8s_fs_group: &elasticsearch_k8s_fs_group
         type: int
-        required: false
         default: 1000
         description:
           - Kubernetes pod C(fsGroup) applied so mounted TLS files are readable by the ElasticSearch process.
       elasticsearch_k8s_http_node_port: &elasticsearch_k8s_http_node_port
         type: int
-        required: false
         description:
           - Kubernetes NodePort value used by the external HTTP Service port.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
@@ -232,7 +200,6 @@ argument_specs:
       elasticsearch_k8s_loadbalancer_expose_http_port:
         &elasticsearch_k8s_loadbalancer_expose_http_port
         type: bool
-        required: false
         default: false
         description:
           - Set to C(true) to create a LoadBalancer Service entry that exposes the HTTP port externally.
@@ -240,7 +207,6 @@ argument_specs:
       elasticsearch_k8s_transport_node_port:
         &elasticsearch_k8s_transport_node_port
         type: int
-        required: false
         description:
           - Kubernetes NodePort value used by the external transport Service port.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
@@ -248,7 +214,6 @@ argument_specs:
       elasticsearch_k8s_loadbalancer_expose_transport_port:
         &elasticsearch_k8s_loadbalancer_expose_transport_port
         type: bool
-        required: false
         default: false
         description:
           - Set to C(true) to create a LoadBalancer Service entry that exposes the transport port externally.
@@ -268,13 +233,11 @@ argument_specs:
 
       elasticsearch_use_openshift: &elasticsearch_use_openshift
         type: bool
-        required: false
         default: false
         description:
           - Selects the OpenShift deployment branch.
       elasticsearch_openshift_http_route: &elasticsearch_openshift_http_route
         type: str
-        required: false
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(elasticsearch-http.apps.example.com)."
@@ -405,7 +368,6 @@ argument_specs:
       elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
-        required: false
 
   crypto/setup:
     short_description: Prepare ElasticSearch TLS materials

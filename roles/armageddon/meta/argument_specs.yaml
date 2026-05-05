@@ -13,116 +13,97 @@ argument_specs:
     options:
       armageddon_registry_endpoint: &armageddon_registry_endpoint
         type: str
-        required: false
         default: "{{ lookup('env', 'ARMAGEDDON_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
         description:
           - Registry endpoint for the Armageddon image.
       armageddon_image_name: &armageddon_image_name
         type: str
-        required: false
         default: "fabric-x-orderer"
         description:
           - Armageddon image name.
       armageddon_image_tag: &armageddon_image_tag
         type: str
-        required: false
         default: "0.0.21-1"
         description:
           - Armageddon image tag.
       armageddon_image: &armageddon_image
         type: str
-        required: false
         default: "{{ armageddon_registry_endpoint }}/{{ armageddon_image_name }}:{{ armageddon_image_tag }}"
         description:
           - Fully qualified Armageddon image reference.
       armageddon_container_name: &armageddon_container_name
         type: str
-        required: false
         default: "armageddon"
         description:
           - Armageddon container name.
       armageddon_git_hub_url: &armageddon_git_hub_url
         type: str
-        required: false
         default: "github.com"
         description:
           - Git host used for the Armageddon source repository.
       armageddon_git_repo: &armageddon_git_repo
         type: str
-        required: false
         default: "hyperledger/fabric-x-orderer"
         description:
           - Armageddon source repository path.
       armageddon_git_commit: &armageddon_git_commit
         type: str
-        required: false
         default: "v0.0.23"
         description:
           - Git ref used for Armageddon builds and installs.
       armageddon_source_code_package: &armageddon_source_code_package
         type: str
-        required: false
         default: "cmd/armageddon"
         description:
           - Go package that builds the Armageddon binary.
       armageddon_bin_package: &armageddon_bin_package
         type: str
-        required: false
         default: "{{ armageddon_git_hub_url }}/{{ armageddon_git_repo }}/{{ armageddon_source_code_package }}"
         description:
           - Go module path used to install Armageddon.
       armageddon_bin_name: &armageddon_bin_name
         type: str
-        required: false
         default: "armageddon"
         description:
           - Armageddon executable name.
       armageddon_use_bin: &armageddon_use_bin
         type: bool
-        required: false
         default: false
         description:
           - Run Armageddon as a local binary instead of a container.
       config_build_dir: &config_build_dir
         type: path
-        required: false
         description:
           - Base directory for C(armageddon_artifacts_dir).
           - "Example: C(/opt/fabricx/build/armageddon)."
       armageddon_artifacts_dir: &armageddon_artifacts_dir
         type: path
-        required: false
         default: "{{ config_build_dir }}/armageddon-artifacts"
         description:
           - Directory for rendered Armageddon config and generated protobuf output.
       armageddon_container_output_dir: &armageddon_container_output_dir
         type: path
-        required: false
         default: "/tmp/out"
         description:
           - Container directory for generated protobuf output.
       armageddon_container_config_dir: &armageddon_container_config_dir
         type: path
-        required: false
         default: "/tmp/config"
         description:
           - Container directory for the rendered shared config file.
       armageddon_container_crypto_artifacts_dir:
         &armageddon_container_crypto_artifacts_dir
         type: path
-        required: false
         default: "/tmp/crypto"
         description:
           - Container directory for mounted crypto artifacts.
       armageddon_config_file: &armageddon_config_file
         type: str
-        required: false
         default: armageddon.yaml
         description:
           - Armageddon config filename.
       armageddon_shared_config_file: &armageddon_shared_config_file
         type: str
-        required: false
         default: shared_config.yaml
         description:
           - Shared-config filename.

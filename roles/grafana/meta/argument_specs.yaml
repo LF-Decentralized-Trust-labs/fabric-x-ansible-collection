@@ -11,14 +11,12 @@ argument_specs:
     options:
       remote_config_dir: &remote_config_dir
         type: path
-        required: false
         description:
           - Sets the shared remote config root used by Grafana.
           - "Example: C(/var/hyperledger/fabricx/grafana)."
           - Required when using it for C(grafana_remote_config_dir).
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
-        required: false
         description:
           - Sets the shared fetched-artifacts root used by Grafana.
           - "Example: C(/tmp/fabricx-artifacts)."
@@ -32,7 +30,6 @@ argument_specs:
           - The referenced host must expose the Prometheus inventory vars used by the templates.
       organization: &organization
         type: dict
-        required: false
         description:
           - Sets the optional organization mapping used for TLS certificate generation.
           - "Example: C({'name': 'Grafana', 'domain': 'grafana.fabricx.example'})."
@@ -45,119 +42,100 @@ argument_specs:
           - "Example: C(fabricx-observability)."
       k8s_image_pull_secret: &k8s_image_pull_secret
         type: str
-        required: false
         description:
           - Sets the optional image pull secret used by the Grafana Deployment.
           - "Example: C(grafana-registry-secret)."
       k8s_readiness_probe_initial_delay_seconds:
         &k8s_readiness_probe_initial_delay_seconds
         type: int
-        required: false
         description:
           - Sets the Grafana readiness probe initial delay.
           - "Example: C(10)."
       k8s_readiness_probe_period_seconds: &k8s_readiness_probe_period_seconds
         type: int
-        required: false
         description:
           - Sets the Grafana readiness probe period.
           - "Example: C(5)."
       k8s_readiness_probe_timeout_seconds: &k8s_readiness_probe_timeout_seconds
         type: int
-        required: false
         description:
           - Sets the Grafana readiness probe timeout.
           - "Example: C(3)."
       k8s_readiness_probe_failure_threshold:
         &k8s_readiness_probe_failure_threshold
         type: int
-        required: false
         description:
           - Sets the Grafana readiness probe failure threshold.
           - "Example: C(3)."
       k8s_liveness_probe_initial_delay_seconds:
         &k8s_liveness_probe_initial_delay_seconds
         type: int
-        required: false
         description:
           - Sets the Grafana liveness probe initial delay.
           - "Example: C(20)."
       k8s_liveness_probe_period_seconds: &k8s_liveness_probe_period_seconds
         type: int
-        required: false
         description:
           - Sets the Grafana liveness probe period.
           - "Example: C(10)."
       k8s_liveness_probe_timeout_seconds: &k8s_liveness_probe_timeout_seconds
         type: int
-        required: false
         description:
           - Sets the Grafana liveness probe timeout.
           - "Example: C(5)."
       k8s_liveness_probe_failure_threshold:
         &k8s_liveness_probe_failure_threshold
         type: int
-        required: false
         description:
           - Sets the Grafana liveness probe failure threshold.
           - "Example: C(3)."
       grafana_registry_endpoint: &grafana_registry_endpoint
         type: str
-        required: false
         default: "{{ lookup('env', 'GRAFANA_REGISTRY_ENDPOINT') or 'docker.io/grafana' }}"
         description:
           - Sets the Grafana image registry endpoint.
       grafana_image_name: &grafana_image_name
         type: str
-        required: false
         default: grafana-oss
         description:
           - Sets the Grafana image name.
       grafana_image_tag: &grafana_image_tag
         type: str
-        required: false
         default: latest
         description:
           - Sets the Grafana image tag.
       grafana_image: &grafana_image
         type: str
-        required: false
         default: "{{ grafana_registry_endpoint }}/{{ grafana_image_name }}:{{ grafana_image_tag }}"
         description:
           - Sets the Grafana image reference.
       grafana_container_name: &grafana_container_name
         type: str
-        required: false
         default: "{{ inventory_hostname }}"
         description:
           - Sets the Grafana container name.
       grafana_remote_config_dir: &grafana_remote_config_dir
         type: path
-        required: false
         default: "{{ remote_config_dir }}"
         description:
           - Sets the remote directory that stores Grafana provisioning files and TLS material.
       grafana_container_config_dir: &grafana_container_config_dir
         type: path
-        required: false
         default: /etc/grafana/provisioning
         description:
           - Sets the provisioning path inside the Grafana container.
       grafana_datasource_file: &grafana_datasource_file
         type: str
-        required: false
         default: datasources.yaml
         description:
           - Sets the Grafana datasource provisioning filename.
       grafana_dashboards_file: &grafana_dashboards_file
         type: str
-        required: false
         default: dashboards.yaml
         description:
           - Sets the Grafana dashboard provider filename.
       grafana_dashboard_file: &grafana_dashboard_file
         type: str
-        required: false
         default: dashboard.json
         description:
           - Sets the Grafana dashboard filename.
@@ -169,67 +147,56 @@ argument_specs:
           - "Example: C(/opt/fabricx/grafana/dashboards/main.json)."
       grafana_use_tls: &grafana_use_tls
         type: bool
-        required: false
         default: false
         description:
           - Enables Grafana TLS handling.
       grafana_tls_private_key_file: &grafana_tls_private_key_file
         type: str
-        required: false
         default: server.key
         description:
           - Sets the Grafana TLS private key filename.
       grafana_tls_cert_file: &grafana_tls_cert_file
         type: str
-        required: false
         default: server.crt
         description:
           - Sets the Grafana TLS certificate filename.
       grafana_web_port: &grafana_web_port
         type: int
-        required: false
         default: 3000
         description:
           - Sets the Grafana web port.
       grafana_use_k8s: &grafana_use_k8s
         type: bool
-        required: false
         default: false
         description:
           - Enables Kubernetes mode.
       grafana_use_container: &grafana_use_container
         type: bool
-        required: false
         default: "{{ (not grafana_use_k8s) and (not grafana_use_openshift) }}"
         description:
           - Enables container mode.
       grafana_k8s_resource_name: &grafana_k8s_resource_name
         type: str
-        required: false
         default: "{{ inventory_hostname }}"
         description:
           - Sets the base Kubernetes resource name for Grafana.
       grafana_k8s_part_of: &grafana_k8s_part_of
         type: str
-        required: false
         default: monitoring
         description:
           - Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Grafana resources.
       grafana_k8s_wait_timeout: &grafana_k8s_wait_timeout
         type: int
-        required: false
         default: 120
         description:
           - Sets the Grafana Deployment wait timeout in seconds.
       grafana_k8s_fs_group: &grafana_k8s_fs_group
         type: int
-        required: false
         default: 472
         description:
           - Sets the Grafana pod filesystem group.
       grafana_k8s_web_node_port: &grafana_k8s_web_node_port
         type: int
-        required: false
         description:
           - Kubernetes NodePort value used by the external web Service port.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
@@ -237,7 +204,6 @@ argument_specs:
       grafana_k8s_loadbalancer_expose_web_port:
         &grafana_k8s_loadbalancer_expose_web_port
         type: bool
-        required: false
         default: false
         description:
           - Set to C(true) to create a LoadBalancer Service entry that exposes the web port externally.
@@ -258,13 +224,11 @@ argument_specs:
 
       grafana_use_openshift: &grafana_use_openshift
         type: bool
-        required: false
         default: false
         description:
           - Selects the OpenShift deployment branch.
       grafana_openshift_route: &grafana_openshift_route
         type: str
-        required: false
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(grafana.apps.example.com)."
