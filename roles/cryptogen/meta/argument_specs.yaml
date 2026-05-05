@@ -11,114 +11,95 @@ argument_specs:
     options:
       config_build_dir: &config_build_dir
         type: path
-        required: false
         description:
           - "Sets the base directory for generated configuration artifacts. Example: C(/opt/hyperledger/fabricx/build)."
       cryptogen_use_bin: &cryptogen_use_bin
         type: bool
-        required: false
         default: false
         description:
           - "Selects binary mode when true; otherwise container mode is used."
       cryptogen_artifacts_dir: &cryptogen_artifacts_dir
         type: path
-        required: false
         default: "{{ config_build_dir }}/cryptogen-artifacts"
         description:
           - "Sets the directory that stores cryptogen inputs and generated files."
       cryptogen_output_dir: &cryptogen_output_dir
         type: path
-        required: false
         default: "{{ cryptogen_artifacts_dir }}/crypto"
         description:
           - "Sets the directory where cryptogen writes generated crypto material."
       cryptogen_registry_endpoint: &cryptogen_registry_endpoint
         type: str
-        required: false
         default: "{{ lookup('env', 'CRYPTOGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
         description:
           - "Sets the registry used for the cryptogen container image."
       cryptogen_image_name: &cryptogen_image_name
         type: str
-        required: false
         default: "fabric-x-tools"
         description:
           - "Sets the cryptogen image name."
       cryptogen_image_tag: &cryptogen_image_tag
         type: str
-        required: false
         default: "0.0.8"
         description:
           - "Sets the cryptogen image tag."
       cryptogen_image: &cryptogen_image
         type: str
-        required: false
         default: "{{ cryptogen_registry_endpoint }}/{{ cryptogen_image_name }}:{{ cryptogen_image_tag }}"
         description:
           - "Sets the full cryptogen image reference."
       cryptogen_container_name: &cryptogen_container_name
         type: str
-        required: false
         default: "cryptogen"
         description:
           - "Sets the container name used for the cryptogen run."
       cryptogen_container_artifacts_dir: &cryptogen_container_artifacts_dir
         type: path
-        required: false
         default: "/tmp/cryptogen-artifacts"
         description:
           - "Sets the container directory that receives the mounted cryptogen inputs."
       cryptogen_container_output_dir: &cryptogen_container_output_dir
         type: path
-        required: false
         default: "{{ cryptogen_container_artifacts_dir }}/crypto"
         description:
           - "Sets the container directory where cryptogen writes generated crypto material."
       cryptogen_git_hub_url: &cryptogen_git_hub_url
         type: str
-        required: false
         default: "github.com"
         description:
           - "Sets the Git host used for the cryptogen source repository."
       cryptogen_git_repo: &cryptogen_git_repo
         type: str
-        required: false
         default: "hyperledger/fabric-x"
         description:
           - "Sets the cryptogen source repository path."
       cryptogen_git_commit: &cryptogen_git_commit
         type: str
-        required: false
         default: "v0.0.8"
         description:
           - "Pins the cryptogen source revision."
       cryptogen_source_code_package: &cryptogen_source_code_package
         type: str
-        required: false
         default: "tools/cryptogen"
         description:
           - "Sets the Go package path that contains the cryptogen source."
       cryptogen_bin_package: &cryptogen_bin_package
         type: str
-        required: false
         default: "{{ cryptogen_git_hub_url }}/{{ cryptogen_git_repo }}/{{ cryptogen_source_code_package }}"
         description:
           - "Sets the Go package path used to install cryptogen."
       cryptogen_bin_name: &cryptogen_bin_name
         type: str
-        required: false
         default: "cryptogen"
         description:
           - "Sets the cryptogen executable name."
       cryptogen_orderers_by_org: &cryptogen_orderers_by_org
         type: dict
-        required: false
         default: {}
         description:
           - "Maps orderer organization domains to their organization definitions."
       cryptogen_peers_by_org: &cryptogen_peers_by_org
         type: dict
-        required: false
         default: {}
         description:
           - "Maps peer organization domains to their organization definitions."
@@ -134,7 +115,6 @@ argument_specs:
           - "Sets the directory that receives the cryptogen binary. Example: C(/opt/hyperledger/fabricx/bin)."
       cryptogen_config_file: &cryptogen_config_file
         type: str
-        required: false
         default: "crypto-config.yaml"
         description:
           - "Sets the cryptogen configuration filename."

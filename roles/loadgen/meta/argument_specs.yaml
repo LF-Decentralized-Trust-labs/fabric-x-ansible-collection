@@ -11,115 +11,96 @@ argument_specs:
     options:
       remote_config_dir: &remote_config_dir
         type: path
-        required: false
         description:
           - Base remote config directory that feeds C(loadgen_remote_config_dir).
           - "Example: C(/var/hyperledger/fabricx/loadgen/lg-1/config)."
       loadgen_remote_config_dir: &loadgen_remote_config_dir
         type: path
-        required: false
         default: "{{ remote_config_dir }}"
         description:
           - Remote config directory used by Loadgen.
       loadgen_container_config_dir: &loadgen_container_config_dir
         type: path
-        required: false
         default: "/config"
         description:
           - Config mount path inside a container or pod.
       loadgen_config_file: &loadgen_config_file
         type: str
-        required: false
         default: "config-loadgen.yaml"
         description:
           - Rendered Loadgen config filename.
       loadgen_config_dir: &loadgen_config_dir
         type: path
-        required: false
         default: "{{ loadgen_remote_config_dir if loadgen_use_bin else loadgen_container_config_dir }}"
         description:
           - Effective config directory used inside rendered Loadgen configuration.
       loadgen_use_bin: &loadgen_use_bin
         type: bool
-        required: false
         default: false
         description:
           - Run the binary runtime.
       loadgen_use_k8s: &loadgen_use_k8s
         type: bool
-        required: false
         default: false
         description:
           - Use Kubernetes resources.
       loadgen_use_container: &loadgen_use_container
         type: bool
-        required: false
         default: "{{ (not loadgen_use_bin) and (not loadgen_use_k8s) and (not loadgen_use_openshift) }}"
         description:
           - Run the container runtime.
       loadgen_registry_endpoint: &loadgen_registry_endpoint
         type: str
-        required: false
         default: "{{ lookup('env', 'LOADGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
         description:
           - Image registry endpoint.
       loadgen_image_name: &loadgen_image_name
         type: str
-        required: false
         default: "fabric-x-loadgen"
         description:
           - Image name used by the Loadgen container.
       loadgen_image_tag: &loadgen_image_tag
         type: str
-        required: false
         default: "0.1.9"
         description:
           - Image tag used by the Loadgen container.
       loadgen_image: &loadgen_image
         type: str
-        required: false
         default: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
         description:
           - Loadgen container image.
       loadgen_container_name: &loadgen_container_name
         type: str
-        required: false
         default: "{{ inventory_hostname }}"
         description:
           - Container name used by the runtime.
       loadgen_git_hub_url: &loadgen_git_hub_url
         type: str
-        required: false
         default: "github.com"
         description:
           - Git host used for binary builds.
       loadgen_git_repo: &loadgen_git_repo
         type: str
-        required: false
         default: "hyperledger/fabric-x-committer"
         description:
           - Git repository that provides the Loadgen source.
       loadgen_git_commit: &loadgen_git_commit
         type: str
-        required: false
         default: "v0.1.9"
         description:
           - Git revision used for binary builds and installs.
       loadgen_source_code_package: &loadgen_source_code_package
         type: str
-        required: false
         default: "cmd/loadgen"
         description:
           - Go package path for the Loadgen binary.
       loadgen_bin_package: &loadgen_bin_package
         type: str
-        required: false
         default: "{{ loadgen_git_hub_url }}/{{ loadgen_git_repo }}/{{ loadgen_source_code_package }}"
         description:
           - Go package used for binary installation.
       loadgen_bin_name: &loadgen_bin_name
         type: str
-        required: false
         default: "loadgen"
         description:
           - Binary name used by the shared bin role.
@@ -143,254 +124,212 @@ argument_specs:
           - "Example: C(7051)."
       loadgen_use_tls: &loadgen_use_tls
         type: bool
-        required: false
         default: false
         description:
           - Enable TLS for the main endpoint.
       loadgen_use_mtls: &loadgen_use_mtls
         type: bool
-        required: false
         default: false
         description:
           - Enable mTLS for the main endpoint.
       loadgen_monitoring_use_tls: &loadgen_monitoring_use_tls
         type: bool
-        required: false
         default: "{{ loadgen_use_tls }}"
         description:
           - Enable TLS for the monitoring endpoint.
       loadgen_monitoring_use_mtls: &loadgen_monitoring_use_mtls
         type: bool
-        required: false
         default: "{{ loadgen_use_mtls }}"
         description:
           - Enable mTLS for the monitoring endpoint.
       loadgen_monitoring_http_protocol: &loadgen_monitoring_http_protocol
         type: str
-        required: false
         default: "{{ 'https' if loadgen_monitoring_use_tls else 'http' }}"
         description:
           - Protocol used to reach the monitoring endpoint.
       loadgen_assert_metrics: &loadgen_assert_metrics
         type: bool
-        required: false
         default: false
         description:
           - Assert the latency metric when fetching metrics.
       loadgen_generate_config_block: &loadgen_generate_config_block
         type: bool
-        required: false
         default: false
         description:
           - Render the config transaction block section.
       loadgen_generate_namespace: &loadgen_generate_namespace
         type: bool
-        required: false
         description:
           - Render the namespace creation section.
           - "Example: C(true) when the workload should create namespace records before sending load."
       loadgen_generate_load: &loadgen_generate_load
         type: bool
-        required: false
         description:
           - Render the transaction load section.
           - "Example: C(true) for a normal benchmark workload."
       loadgen_crypto_name: &loadgen_crypto_name
         type: str
-        required: false
         default: "{{ organization.peer.name | default(inventory_hostname) }}"
         description:
           - Crypto identity name used for MSP and TLS file names.
       loadgen_log_level: &loadgen_log_level
         type: str
-        required: false
         default: "info"
         description:
           - Log level specification.
       loadgen_log_format: &loadgen_log_format
         type: str
-        required: false
         default: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
         description:
           - Log message format template.
       loadgen_broadcast_parallelism: &loadgen_broadcast_parallelism
         type: int
-        required: false
         description:
           - Broadcast goroutine count used by the orderer client.
           - "Example: C(8)."
       loadgen_key_size: &loadgen_key_size
         type: int
-        required: false
         description:
           - Generated key size in bytes.
           - "Example: C(32)."
       loadgen_tx_seed: &loadgen_tx_seed
         type: int
-        required: false
         description:
           - Random seed used to build repeatable transaction streams.
           - "Example: C(12345)."
       loadgen_workers: &loadgen_workers
         type: int
-        required: false
         description:
           - Worker goroutine count used by the load profile.
           - "Example: C(16)."
       loadgen_block_max_size: &loadgen_block_max_size
         type: int
-        required: false
         description:
           - Maximum generated block size.
           - "Example: C(500)."
       loadgen_block_min_size: &loadgen_block_min_size
         type: int
-        required: false
         description:
           - Minimum generated block size.
           - "Example: C(1)."
       loadgen_block_preferred_rate: &loadgen_block_preferred_rate
         type: str
-        required: false
         description:
           - Preferred block flush interval.
           - "Example: C(1s)."
       loadgen_generate_read_only_tx: &loadgen_generate_read_only_tx
         type: bool
-        required: false
         description:
           - Enable read-only transactions in the load profile.
           - "Example: C(true) to include read-only query traffic."
       loadgen_read_only_tx_keys: &loadgen_read_only_tx_keys
         type: int
-        required: false
         description:
           - Read-only key count per transaction.
           - "Example: C(2)."
       loadgen_generate_write_only_tx: &loadgen_generate_write_only_tx
         type: bool
-        required: false
         description:
           - Enable write-only transactions in the load profile.
           - "Example: C(true) to include blind-write traffic."
       loadgen_write_only_tx_keys: &loadgen_write_only_tx_keys
         type: int
-        required: false
         description:
           - Write-only key count per transaction.
           - "Example: C(4)."
       loadgen_write_only_tx_val_size: &loadgen_write_only_tx_val_size
         type: int
-        required: false
         description:
           - Write-only value size in bytes.
           - "Example: C(256)."
       loadgen_generate_read_write_tx: &loadgen_generate_read_write_tx
         type: bool
-        required: false
         description:
           - Enable read-write transactions in the load profile.
           - "Example: C(true) to include endorsement-style read-write traffic."
       loadgen_read_write_tx_keys: &loadgen_read_write_tx_keys
         type: int
-        required: false
         description:
           - Read-write key count per transaction.
           - "Example: C(2)."
       loadgen_read_write_tx_val_size: &loadgen_read_write_tx_val_size
         type: int
-        required: false
         description:
           - Read-write value size in bytes.
           - "Example: C(128)."
       loadgen_key_scheme: &loadgen_key_scheme
         type: str
-        required: false
         description:
           - Signature scheme used for generated identities.
           - "Example: C(ECDSA)."
       loadgen_query_settings: &loadgen_query_settings
         type: dict
-        required: false
         description:
           - Optional query tuning block consumed by the load profile.
           - "Example: C({'size': 4, 'min_invalid_keys_portion': 0.1, 'shuffle': True})."
       loadgen_conflicts_settings: &loadgen_conflicts_settings
         type: dict
-        required: false
         description:
           - Optional conflict injection block consumed by the load profile.
           - "Example: C({'invalid_signatures': 1, 'dependencies': [{'source': 1, 'target': 2}]})."
       loadgen_monitoring_rate_limit_requests_per_second:
         &loadgen_monitoring_rate_limit_requests_per_second
         type: int
-        required: false
         description:
           - Monitoring endpoint rate limit in requests per second.
           - "Example: C(50)."
       loadgen_monitoring_rate_limit_burst: &loadgen_monitoring_rate_limit_burst
         type: int
-        required: false
         description:
           - Monitoring endpoint rate limit burst size.
           - "Example: C(100)."
       loadgen_latency_sampler_prefix: &loadgen_latency_sampler_prefix
         type: str
-        required: false
         description:
           - Prefix used by the latency sampler.
           - "Example: C(loadgen_lg_1)."
       loadgen_latency_sampler_portion: &loadgen_latency_sampler_portion
         type: float
-        required: false
         description:
           - Portion of transactions sampled for latency tracking.
           - "Example: C(0.01)."
       loadgen_latency_distribution: &loadgen_latency_distribution
         type: str
-        required: false
         description:
           - Histogram distribution used for latency buckets.
           - "Example: C(uniform)."
       loadgen_max_latency: &loadgen_max_latency
         type: str
-        required: false
         description:
           - Upper latency bound tracked by the histogram.
           - "Example: C(5s)."
       loadgen_latency_buckets: &loadgen_latency_buckets
         type: int
-        required: false
         description:
           - Number of latency histogram buckets.
           - "Example: C(1000)."
       loadgen_limit_rate: &loadgen_limit_rate
         type: int
-        required: false
         description:
           - Maximum generated transaction rate.
           - "Example: C(2500)."
       loadgen_limit_blocks: &loadgen_limit_blocks
         type: int
-        required: false
         description:
           - Optional stopping limit for generated blocks.
           - "Example: C(100)."
       loadgen_limit_transactions: &loadgen_limit_transactions
         type: int
-        required: false
         description:
           - Optional stopping limit for generated transactions.
           - "Example: C(100000)."
       loadgen_stream_batches: &loadgen_stream_batches
         type: int
-        required: false
         description:
           - Batch size used by the stream pipeline.
           - "Example: C(10)."
       loadgen_stream_buffers_size: &loadgen_stream_buffers_size
         type: int
-        required: false
         description:
           - Channel buffer size used by the stream pipeline.
           - "Example: C(64)."
@@ -447,21 +386,18 @@ argument_specs:
           - "Example: C(['orderer-router1', 'orderer-assembler1'])."
       committer_sidecar_host: &committer_sidecar_host
         type: str
-        required: false
         description:
           - Sidecar host targeted by the orderer and sidecar clients.
           - "Example: C(committer-sidecar1)."
       orderer_router_hosts: &orderer_router_hosts
         type: list
         elements: str
-        required: false
         description:
           - Orderer router hosts targeted by the orderer client.
           - "Example: C(['orderer-router1', 'orderer-router2'])."
       orderer_assembler_hosts: &orderer_assembler_hosts
         type: list
         elements: str
-        required: false
         description:
           - Orderer assembler hosts targeted by the orderer client.
           - "Example: C(['orderer-assembler1', 'orderer-assembler2'])."
@@ -473,31 +409,26 @@ argument_specs:
           - "Example: C(fabricx-loadgen)."
       loadgen_k8s_resource_name: &loadgen_k8s_resource_name
         type: str
-        required: false
         default: "{{ inventory_hostname }}"
         description:
           - Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
       loadgen_k8s_part_of: &loadgen_k8s_part_of
         type: str
-        required: false
         default: "{{ organization.name }}"
         description:
           - Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Loadgen resources.
       loadgen_k8s_wait_timeout: &loadgen_k8s_wait_timeout
         type: int
-        required: false
         default: 120
         description:
           - Deployment rollout wait timeout in seconds.
       loadgen_k8s_fs_group: &loadgen_k8s_fs_group
         type: int
-        required: false
         default: 10001
         description:
           - Pod FSGroup used for mounted config and secrets.
       loadgen_k8s_web_node_port: &loadgen_k8s_web_node_port
         type: int
-        required: false
         description:
           - Kubernetes NodePort value used by the external HTTP control Service port.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
@@ -505,14 +436,12 @@ argument_specs:
       loadgen_k8s_loadbalancer_expose_web_port:
         &loadgen_k8s_loadbalancer_expose_web_port
         type: bool
-        required: false
         default: false
         description:
           - Set to C(true) to create a LoadBalancer Service entry that exposes the HTTP control port externally.
           - When undefined or C(false), the HTTP control port is not included in the LoadBalancer Service.
       loadgen_k8s_metrics_node_port: &loadgen_k8s_metrics_node_port
         type: int
-        required: false
         description:
           - Kubernetes NodePort value used by the external metrics Service port.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
@@ -520,14 +449,12 @@ argument_specs:
       loadgen_k8s_loadbalancer_expose_metrics_port:
         &loadgen_k8s_loadbalancer_expose_metrics_port
         type: bool
-        required: false
         default: false
         description:
           - Set to C(true) to create a LoadBalancer Service entry that exposes the metrics port externally.
           - When undefined or C(false), the metrics port is not included in the LoadBalancer Service.
       loadgen_k8s_rpc_node_port: &loadgen_k8s_rpc_node_port
         type: int
-        required: false
         description:
           - Kubernetes NodePort value used by the external gRPC control Service port.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
@@ -535,67 +462,57 @@ argument_specs:
       loadgen_k8s_loadbalancer_expose_rpc_port:
         &loadgen_k8s_loadbalancer_expose_rpc_port
         type: bool
-        required: false
         default: false
         description:
           - Set to C(true) to create a LoadBalancer Service entry that exposes the gRPC control port externally.
           - When undefined or C(false), the gRPC control port is not included in the LoadBalancer Service.
       k8s_image_pull_secret: &k8s_image_pull_secret
         type: str
-        required: false
         description:
           - Optional image pull secret used by Kubernetes workloads.
           - "Example: C(fabricx-registry-pull)."
       loadgen_mtls_clients: &loadgen_mtls_clients
         type: list
         elements: str
-        required: false
         description:
           - Additional mTLS client identities trusted by the main endpoint.
           - "Example: C(['orderer-router1', 'committer-sidecar1'])."
       loadgen_mtls_orgs: &loadgen_mtls_orgs
         type: list
         elements: dict
-        required: false
         description:
           - Additional mTLS organizations trusted by the main endpoint.
           - "Example: C([{'domain': 'org1.example.com'}, {'domain': 'org2.example.com'}])."
       loadgen_monitoring_mtls_clients: &loadgen_monitoring_mtls_clients
         type: list
         elements: str
-        required: false
         description:
           - Additional mTLS client identities trusted by the monitoring endpoint.
           - "Example: C(['prometheus1', 'node-exporter1'])."
       loadgen_monitoring_mtls_orgs: &loadgen_monitoring_mtls_orgs
         type: list
         elements: dict
-        required: false
         description:
           - Additional mTLS organizations trusted by the monitoring endpoint.
           - "Example: C([{'domain': 'monitoring.example.com'}])."
 
       loadgen_use_openshift: &loadgen_use_openshift
         type: bool
-        required: false
         default: false
         description:
           - Selects the OpenShift deployment branch.
       loadgen_openshift_web_route: &loadgen_openshift_web_route
         type: str
-        required: false
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(loadgen-web.apps.example.com)."
       loadgen_openshift_metrics_route: &loadgen_openshift_metrics_route
         type: str
-        required: false
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(loadgen-metrics.apps.example.com)."
       loadgen_openshift_rpc_route: &loadgen_openshift_rpc_route
         type: str
-        required: false
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(loadgen-rpc.apps.example.com)."

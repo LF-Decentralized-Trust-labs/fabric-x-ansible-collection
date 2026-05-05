@@ -13,122 +13,102 @@ argument_specs:
     options:
       committer_registry_endpoint:
         type: str
-        required: false
         default: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
         description:
           - Container registry endpoint for the committer image.
       committer_image_name:
         type: str
-        required: false
         default: fabric-x-committer
         description:
           - Image name for the committer container.
       committer_image_tag:
         type: str
-        required: false
         default: "0.1.9"
         description:
           - Image tag for the committer container.
       committer_image: &committer_image
         type: str
-        required: false
         default: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
         description:
           - Fully qualified committer image.
       committer_container_name: &committer_container_name
         type: str
-        required: false
         default: "{{ inventory_hostname }}"
         description:
           - Container name used by the committer container helper.
       committer_git_hub_url: &committer_git_hub_url
         type: str
-        required: false
         default: github.com
         description:
           - Git host used for the committer source repository.
       committer_git_repo: &committer_git_repo
         type: str
-        required: false
         default: hyperledger/fabric-x-committer
         description:
           - Git repository that contains the committer sources.
       committer_git_commit: &committer_git_commit
         type: str
-        required: false
         default: v0.1.9
         description:
           - Git ref used for building or installing the binary.
       committer_source_code_package: &committer_source_code_package
         type: str
-        required: false
         default: cmd/committer
         description:
           - Go package path used as the build or install target.
       committer_bin_package: &committer_bin_package
         type: str
-        required: false
         default: "{{ committer_git_hub_url }}/{{ committer_git_repo }}/{{ committer_source_code_package }}"
         description:
           - Go package path used by the shared binary installer.
       committer_bin_name: &committer_bin_name
         type: str
-        required: false
         default: committer
         description:
           - Binary name managed by the committer role.
       committer_use_bin: &committer_use_bin
         type: bool
-        required: false
         default: false
         description:
           - Enable host-binary deployment mode.
       committer_use_k8s: &committer_use_k8s
         type: bool
-        required: false
         default: false
         description:
           - Enable Kubernetes deployment mode.
       committer_use_container: &committer_use_container
         type: bool
-        required: false
         default: "{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}"
         description:
           - Enable container deployment mode.
       committer_deployment_mode: &committer_deployment_mode
         type: str
-        required: false
         default: "{%- if committer_use_bin -%}bin{%- elif committer_use_openshift -%}openshift{%- elif committer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
         description:
           - Deployment mode selected by the role.
       committer_k8s_resource_name: &committer_k8s_resource_name
         type: str
-        required: false
         default: "{{ inventory_hostname }}"
         description:
           - Base Kubernetes resource name for committer objects.
           - Used by the service, workload, secret, and optional NodePort resources.
       committer_k8s_part_of: &committer_k8s_part_of
         type: str
-        required: false
         default: "{{ organization.name }}"
         description:
           - Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to committer resources.
       committer_k8s_wait_timeout: &committer_k8s_wait_timeout
         type: int
-        required: false
         default: 120
         description:
           - Wait timeout in seconds for Kubernetes rollouts.
       committer_k8s_fs_group:
         type: int
-        required: false
         default: 10001
         description:
           - Filesystem group assigned to committer pods.
       committer_k8s_rpc_node_port: &committer_k8s_rpc_node_port
         type: int
-        required: false
         description:
           - Kubernetes NodePort value used by the external RPC Service port.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
@@ -136,14 +116,12 @@ argument_specs:
       committer_k8s_loadbalancer_expose_rpc_port:
         &committer_k8s_loadbalancer_expose_rpc_port
         type: bool
-        required: false
         default: false
         description:
           - Set to C(true) to create a LoadBalancer Service entry that exposes the RPC port externally.
           - When undefined or C(false), the RPC port is not included in the LoadBalancer Service.
       committer_k8s_metrics_node_port: &committer_k8s_metrics_node_port
         type: int
-        required: false
         description:
           - Kubernetes NodePort value used by the external metrics Service port.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
@@ -151,86 +129,72 @@ argument_specs:
       committer_k8s_loadbalancer_expose_metrics_port:
         &committer_k8s_loadbalancer_expose_metrics_port
         type: bool
-        required: false
         default: false
         description:
           - Set to C(true) to create a LoadBalancer Service entry that exposes the metrics port externally.
           - When undefined or C(false), the metrics port is not included in the LoadBalancer Service.
       committer_remote_config_dir: &committer_remote_config_dir
         type: path
-        required: false
         default: "{{ remote_config_dir }}"
         description:
           - Remote config directory managed by the role.
       committer_remote_data_dir: &committer_remote_data_dir
         type: path
-        required: false
         default: "{{ remote_data_dir }}"
         description:
           - Remote data directory managed by the role.
       committer_container_config_dir: &committer_container_config_dir
         type: path
-        required: false
         default: /config
         description:
           - Config directory inside the committer container.
       committer_container_data_dir: &committer_container_data_dir
         type: path
-        required: false
         default: /data
         description:
           - Data directory inside the committer container.
       committer_config_dir: &committer_config_dir
         type: path
-        required: false
         default: "{{ committer_remote_config_dir if committer_use_bin else committer_container_config_dir }}"
         description:
           - Active config directory used by the committer runtime.
       committer_data_dir: &committer_data_dir
         type: path
-        required: false
         default: "{{ committer_remote_data_dir if committer_use_bin else committer_container_data_dir }}"
         description:
           - Active data directory used by the committer runtime.
       committer_config_file: &committer_config_file
         type: str
-        required: false
         default: "config-{{ committer_component_type }}.yml"
         description:
           - Generated config file name used by the selected component.
       committer_use_tls: &committer_use_tls
         type: bool
-        required: false
         default: false
         description:
           - Enable TLS material for the selected component.
       committer_monitoring_use_tls: &committer_monitoring_use_tls
         type: bool
-        required: false
         default: "{{ committer_use_tls }}"
         description:
           - Enable TLS for the monitoring endpoint.
       committer_use_mtls: &committer_use_mtls
         type: bool
-        required: false
         default: false
         description:
           - Enable mTLS for the selected component.
       committer_monitoring_use_mtls: &committer_monitoring_use_mtls
         type: bool
-        required: false
         default: "{{ committer_use_mtls }}"
         description:
           - Enable mTLS for the monitoring endpoint.
       committer_http_protocol: &committer_http_protocol
         type: str
-        required: false
         default: "{{ 'https' if committer_use_tls else 'http' }}"
         description:
           - HTTP protocol used by the metrics client.
       committer_crypto_name: &committer_crypto_name
         type: str
-        required: false
         default: "{{ organization.peer.name | default(inventory_hostname) }}"
         description:
           - Crypto material base name for the committer.
@@ -248,13 +212,11 @@ argument_specs:
           - "Example: C(9443)."
       committer_log_level: &committer_log_level
         type: str
-        required: false
         default: info
         description:
           - Log level emitted by the committer component.
       committer_log_format: &committer_log_format
         type: str
-        required: false
         default: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
         description:
           - Log format emitted by the committer component.
@@ -267,13 +229,11 @@ argument_specs:
         choices: [validator, verifier, coordinator, sidecar, query-service]
       remote_config_dir: &remote_config_dir
         type: path
-        required: false
         description:
           - Remote config directory used by delegated crypto tasks.
           - "Example: C(/opt/fabricx/committer/config)."
       remote_data_dir:
         type: path
-        required: false
         description:
           - Remote data directory used by delegated sidecar tasks.
           - "Example: C(/var/lib/fabricx/committer/sidecar)."
@@ -301,7 +261,6 @@ argument_specs:
           - "Example: C({'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}})."
       channel_id: &channel_id
         type: str
-        required: false
         description:
           - Fabric channel identifier consumed by sidecar configuration.
           - "Example: C(mychannel)."
@@ -321,7 +280,6 @@ argument_specs:
           - "Example: C(['committer-verifier-1', 'committer-verifier-2'])."
       committer_coordinator: &committer_coordinator
         type: str
-        required: false
         description:
           - Inventory host name of the coordinator component.
           - "Example: C(committer-coordinator-1)."
@@ -356,386 +314,328 @@ argument_specs:
           - "Example: C(fabricx-committer)."
       k8s_storage_size:
         type: str
-        required: false
         description:
           - Persistent volume size requested by the sidecar StatefulSet.
           - "Example: C(20Gi)."
       k8s_storage_class:
         type: str
-        required: false
         description:
           - Storage class requested by the sidecar StatefulSet.
           - "Example: C(fast-ssd)."
       k8s_image_pull_secret:
         type: str
-        required: false
         description:
           - Optional image pull secret referenced by Kubernetes workloads.
           - "Example: C(fabricx-registry-secret)."
       k8s_readiness_probe_initial_delay_seconds:
         type: int
-        required: false
         description:
           - Readiness probe initial delay for Kubernetes workloads.
           - "Example: C(10)."
       k8s_readiness_probe_period_seconds:
         type: int
-        required: false
         description:
           - Readiness probe period for Kubernetes workloads.
           - "Example: C(10)."
       k8s_readiness_probe_timeout_seconds:
         type: int
-        required: false
         description:
           - Readiness probe timeout for Kubernetes workloads.
           - "Example: C(5)."
       k8s_readiness_probe_failure_threshold:
         type: int
-        required: false
         description:
           - Readiness probe failure threshold for Kubernetes workloads.
           - "Example: C(3)."
       k8s_liveness_probe_initial_delay_seconds:
         type: int
-        required: false
         description:
           - Liveness probe initial delay for Kubernetes workloads.
           - "Example: C(30)."
       k8s_liveness_probe_period_seconds:
         type: int
-        required: false
         description:
           - Liveness probe period for Kubernetes workloads.
           - "Example: C(15)."
       k8s_liveness_probe_timeout_seconds:
         type: int
-        required: false
         description:
           - Liveness probe timeout for Kubernetes workloads.
           - "Example: C(5)."
       k8s_liveness_probe_failure_threshold:
         type: int
-        required: false
         description:
           - Liveness probe failure threshold for Kubernetes workloads.
           - "Example: C(5)."
       committer_monitoring_rate_limit_requests_per_second:
         &committer_monitoring_rate_limit_requests_per_second
         type: int
-        required: false
         description:
           - Monitoring rate-limit requests per second.
           - "Example: C(1000)."
       committer_monitoring_rate_limit_burst:
         &committer_monitoring_rate_limit_burst
         type: int
-        required: false
         description:
           - Monitoring rate-limit burst.
           - "Example: C(100)."
       committer_server_rate_limit_requests_per_second:
         &committer_server_rate_limit_requests_per_second
         type: int
-        required: false
         description:
           - Server rate-limit requests per second.
           - "Example: C(2000)."
       committer_server_rate_limit_burst: &committer_server_rate_limit_burst
         type: int
-        required: false
         description:
           - Server rate-limit burst.
           - "Example: C(200)."
       committer_server_keep_alive_time: &committer_server_keep_alive_time
         type: str
-        required: false
         description:
           - Server keepalive ping interval.
           - "Example: C(300s)."
       committer_server_keep_alive_timeout: &committer_server_keep_alive_timeout
         type: str
-        required: false
         description:
           - Server keepalive acknowledgment timeout.
           - "Example: C(600s)."
       committer_server_keep_alive_min_time:
         &committer_server_keep_alive_min_time
         type: str
-        required: false
         description:
           - Minimum client keepalive interval enforced by the server.
           - "Example: C(60s)."
       committer_server_keep_alive_permit_without_stream:
         &committer_server_keep_alive_permit_without_stream
         type: bool
-        required: false
         description:
           - Allow keepalive pings without active streams.
           - "Example: C(false)."
       committer_server_max_concurrent_streams:
         &committer_server_max_concurrent_streams
         type: int
-        required: false
         description:
           - Maximum concurrent streaming RPCs allowed per client connection.
           - "Example: C(128)."
       committer_database_max_connections: &committer_database_max_connections
         type: int
-        required: false
         description:
           - Maximum size of the committer database connection pool.
           - "Example: C(32)."
       committer_database_min_connections: &committer_database_min_connections
         type: int
-        required: false
         description:
           - Minimum size of the committer database connection pool.
           - "Example: C(8)."
       committer_database_retry_initial_interval:
         &committer_database_retry_initial_interval
         type: str
-        required: false
         description:
           - Initial backoff interval for database retries.
           - "Example: C(500ms)."
       committer_database_retry_randomization_factor:
         &committer_database_retry_randomization_factor
         type: float
-        required: false
         description:
           - Jitter factor applied to database retry intervals.
           - "Example: C(0.5)."
       committer_database_retry_multiplier: &committer_database_retry_multiplier
         type: float
-        required: false
         description:
           - Exponential multiplier applied to database retry intervals.
           - "Example: C(1.5)."
       committer_database_retry_max_interval:
         &committer_database_retry_max_interval
         type: str
-        required: false
         description:
           - Maximum interval allowed between database retry attempts.
           - "Example: C(60s)."
       committer_database_retry_max_elapsed_time:
         &committer_database_retry_max_elapsed_time
         type: str
-        required: false
         description:
           - Maximum total elapsed time allowed for database retries.
           - "Example: C(15m)."
       committer_resource_limits_max_workers_for_preparer:
         &committer_resource_limits_max_workers_for_preparer
         type: int
-        required: false
         description:
           - Worker count for validator transaction preparation.
           - "Example: C(4)."
       committer_resource_limits_max_workers_for_validator:
         &committer_resource_limits_max_workers_for_validator
         type: int
-        required: false
         description:
           - Worker count for validator MVCC checks.
           - "Example: C(8)."
       committer_resource_limits_max_workers_for_committer:
         &committer_resource_limits_max_workers_for_committer
         type: int
-        required: false
         description:
           - Worker count for validator commit processing.
           - "Example: C(20)."
       committer_resource_limits_min_transaction_batch_size:
         &committer_resource_limits_min_transaction_batch_size
         type: int
-        required: false
         description:
           - Minimum validator transaction batch size.
           - "Example: C(100)."
       committer_resource_limits_timeout_for_min_transaction_batch_size:
         &committer_resource_limits_timeout_for_min_transaction_batch_size
         type: str
-        required: false
         description:
           - Timeout for the minimum validator transaction batch size.
           - "Example: C(2s)."
       committer_verifier_parallelism: &committer_verifier_parallelism
         type: int
-        required: false
         description:
           - Parallel signature verification workers.
           - "Example: C(16)."
       committer_verifier_batch_size_cutoff:
         &committer_verifier_batch_size_cutoff
         type: int
-        required: false
         description:
           - Signature verification batch size cutoff.
           - "Example: C(500)."
       committer_verifier_batch_time_cutoff:
         &committer_verifier_batch_time_cutoff
         type: str
-        required: false
         description:
           - Signature verification batch timeout.
           - "Example: C(2ms)."
       committer_verifier_channel_buffer_size:
         &committer_verifier_channel_buffer_size
         type: int
-        required: false
         description:
           - Channel buffer size for the verifier pipeline.
           - "Example: C(1000)."
       committer_coordinator_dep_graph_constructors:
         &committer_coordinator_dep_graph_constructors
         type: int
-        required: false
         description:
           - Dependency-graph constructor count for the coordinator.
           - "Example: C(4)."
       committer_coordinator_dep_graph_wait_tx_limit:
         &committer_coordinator_dep_graph_wait_tx_limit
         type: int
-        required: false
         description:
           - Dependency-graph waiting transaction limit for the coordinator.
           - "Example: C(20000000)."
       committer_coordinator_per_channel_buffer_size_per_goroutine:
         &committer_coordinator_per_channel_buffer_size_per_goroutine
         type: int
-        required: false
         description:
           - Per-goroutine channel buffer size for the coordinator.
           - "Example: C(10)."
       committer_sidecar_last_committed_block_set_interval:
         &committer_sidecar_last_committed_block_set_interval
         type: str
-        required: false
         description:
           - Interval between sidecar committed-block updates.
           - "Example: C(5s)."
       committer_sidecar_waiting_txs_limit: &committer_sidecar_waiting_txs_limit
         type: int
-        required: false
         description:
           - Sidecar waiting transaction limit.
           - "Example: C(20000000)."
       committer_sidecar_channel_buffer_size:
         &committer_sidecar_channel_buffer_size
         type: int
-        required: false
         description:
           - Sidecar internal channel buffer size.
           - "Example: C(100)."
       committer_sidecar_ledger_sync_interval:
         &committer_sidecar_ledger_sync_interval
         type: int
-        required: false
         description:
           - Sidecar ledger sync interval.
           - "Example: C(100)."
       committer_sidecar_notification_max_timeout:
         &committer_sidecar_notification_max_timeout
         type: str
-        required: false
         description:
           - Sidecar notification timeout.
           - "Example: C(10m)."
       committer_query_service_min_batch_keys:
         &committer_query_service_min_batch_keys
         type: int
-        required: false
         description:
           - Query-service minimum batch key count.
           - "Example: C(1024)."
       committer_query_service_max_batch_wait:
         &committer_query_service_max_batch_wait
         type: str
-        required: false
         description:
           - Query-service maximum batch wait time.
           - "Example: C(100ms)."
       committer_query_service_view_aggregation_window:
         &committer_query_service_view_aggregation_window
         type: str
-        required: false
         description:
           - Query-service view aggregation window.
           - "Example: C(100ms)."
       committer_query_service_max_aggregated_views:
         &committer_query_service_max_aggregated_views
         type: int
-        required: false
         description:
           - Query-service maximum aggregated views.
           - "Example: C(1024)."
       committer_query_service_max_active_views:
         &committer_query_service_max_active_views
         type: int
-        required: false
         description:
           - Query-service maximum active views.
           - "Example: C(4096)."
       committer_query_service_max_view_timeout:
         &committer_query_service_max_view_timeout
         type: str
-        required: false
         description:
           - Query-service view timeout.
           - "Example: C(10s)."
       committer_query_service_max_request_keys:
         &committer_query_service_max_request_keys
         type: int
-        required: false
         description:
           - Query-service maximum request key count.
           - "Example: C(10000)."
       committer_mtls_clients: &committer_mtls_clients
         type: list
         elements: str
-        required: false
         description:
           - mTLS client identifiers trusted by the component.
           - "Example: C(['committer-sidecar-1', 'loadgen-1'])."
       committer_mtls_orgs: &committer_mtls_orgs
         type: list
         elements: dict
-        required: false
         description:
           - mTLS organizations trusted by the component.
           - "Example: C([{'domain': 'org2.example.com'}])."
       committer_monitoring_mtls_clients: &committer_monitoring_mtls_clients
         type: list
         elements: str
-        required: false
         description:
           - Monitoring mTLS client identifiers trusted by the component.
           - "Example: C(['prometheus-1'])."
       committer_monitoring_mtls_orgs: &committer_monitoring_mtls_orgs
         type: list
         elements: dict
-        required: false
         description:
           - Monitoring mTLS organizations trusted by the component.
           - "Example: C([{'domain': 'monitoring.example.com'}])."
 
       committer_use_openshift: &committer_use_openshift
         type: bool
-        required: false
         default: false
         description:
           - Selects the OpenShift deployment branch.
       committer_openshift_route: &committer_openshift_route
         type: str
-        required: false
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(committer-rpc.apps.example.com)."
       committer_openshift_metrics_route: &committer_openshift_metrics_route
         type: str
-        required: false
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(committer-metrics.apps.example.com)."
@@ -914,7 +814,6 @@ argument_specs:
     options:
       actual_host:
         <<: *actual_host
-        required: false
       committer_http_protocol: *committer_http_protocol
       committer_metrics_port: *committer_metrics_port
   start:
@@ -947,7 +846,6 @@ argument_specs:
       committer_remote_config_dir: *committer_remote_config_dir
       fetched_artifacts_dir:
         <<: *fetched_artifacts_dir
-        required: false
       committer_use_tls: *committer_use_tls
 
   bin/install:
@@ -1134,10 +1032,8 @@ argument_specs:
     options:
       postgres_db_host:
         <<: *postgres_db_host
-        required: false
       yugabyte_cluster_ref_id:
         <<: *yugabyte_cluster_ref_id
-        required: false
 
   config/db/postgres/transfer:
     short_description: Transfer PostgreSQL DB config
@@ -1248,7 +1144,6 @@ argument_specs:
       committer_use_openshift: *committer_use_openshift
       k8s_namespace:
         <<: *k8s_namespace
-        required: false
 
   k8s/config/rm:
     short_description: Remove the committer ConfigMap
@@ -1406,10 +1301,8 @@ argument_specs:
       committer_resource_limits_timeout_for_min_transaction_batch_size: *committer_resource_limits_timeout_for_min_transaction_batch_size
       postgres_db_host:
         <<: *postgres_db_host
-        required: false
       yugabyte_cluster_ref_id:
         <<: *yugabyte_cluster_ref_id
-        required: false
       committer_use_k8s: *committer_use_k8s
       committer_use_openshift: *committer_use_openshift
 
@@ -1574,10 +1467,8 @@ argument_specs:
       committer_query_service_max_request_keys: *committer_query_service_max_request_keys
       postgres_db_host:
         <<: *postgres_db_host
-        required: false
       yugabyte_cluster_ref_id:
         <<: *yugabyte_cluster_ref_id
-        required: false
       committer_use_k8s: *committer_use_k8s
       committer_use_openshift: *committer_use_openshift
 
