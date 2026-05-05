@@ -785,7 +785,7 @@ Creates the orderer Kubernetes Service, StatefulSet, and optional NodePort and L
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
-    orderer_k8s_part_of: "{{ organization.name }}"
+    orderer_k8s_part_of: "fabric-x-orderer-{{ organization.name }}"
     # Seconds to wait for the orderer StatefulSet rollout.
     orderer_k8s_wait_timeout: 120
     # gRPC port exposed by the orderer. Example: `7050`.
@@ -897,7 +897,7 @@ Deletes the orderer StatefulSet and Services from the configured namespace. Leav
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
-    orderer_k8s_part_of: "{{ organization.name }}"
+    orderer_k8s_part_of: "fabric-x-orderer-{{ organization.name }}"
     # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
     k8s_namespace: "fabricx-orderer"
     # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31050`.
@@ -938,7 +938,7 @@ Collects logs from pods selected by the orderer Kubernetes app label. Works for 
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
-    orderer_k8s_part_of: "{{ organization.name }}"
+    orderer_k8s_part_of: "fabric-x-orderer-{{ organization.name }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: k8s/fetch_logs
@@ -960,7 +960,7 @@ Slurps the generated genesis block and renders the orderer ConfigMap. Includes t
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
-    orderer_k8s_part_of: "{{ organization.name }}"
+    orderer_k8s_part_of: "fabric-x-orderer-{{ organization.name }}"
     # Orderer component to manage; use `consensus` for the consenter process. Example: `consensus`, `batcher`, `assembler`, or `router`.
     orderer_component_type: "router"
     # Rendered orderer configuration filename.
@@ -994,7 +994,7 @@ Deletes the ConfigMap that holds orderer configuration, genesis material, and op
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
-    orderer_k8s_part_of: "{{ organization.name }}"
+    orderer_k8s_part_of: "fabric-x-orderer-{{ organization.name }}"
     # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
     k8s_namespace: "fabricx-orderer"
   ansible.builtin.include_role:
@@ -1026,7 +1026,7 @@ Resolves orderer MSP and TLS file locations and renders the Kubernetes Secret. T
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
-    orderer_k8s_part_of: "{{ organization.name }}"
+    orderer_k8s_part_of: "fabric-x-orderer-{{ organization.name }}"
     # Orderer component to manage; use `consensus` for the consenter process. Example: `consensus`, `batcher`, `assembler`, or `router`.
     orderer_component_type: "router"
     # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
@@ -1048,7 +1048,7 @@ Deletes the Secret that stores orderer MSP and TLS material. Does not remove the
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
-    orderer_k8s_part_of: "{{ organization.name }}"
+    orderer_k8s_part_of: "fabric-x-orderer-{{ organization.name }}"
     # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
     k8s_namespace: "fabricx-orderer"
   ansible.builtin.include_role:
@@ -1088,7 +1088,7 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
-    orderer_k8s_part_of: "{{ organization.name }}"
+    orderer_k8s_part_of: "fabric-x-orderer-{{ organization.name }}"
     # Orderer component to manage; use `consensus` for the consenter process. Example: `consensus`, `batcher`, `assembler`, or `router`.
     orderer_component_type: "router"
     # Enables server-side TLS in the rendered config.
@@ -1136,7 +1136,7 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
-    orderer_k8s_part_of: "{{ organization.name }}"
+    orderer_k8s_part_of: "fabric-x-orderer-{{ organization.name }}"
     # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
     k8s_namespace: "fabricx-orderer"
     # Specifies the OpenShift Route host. Example: `orderer-rpc.apps.example.com`.

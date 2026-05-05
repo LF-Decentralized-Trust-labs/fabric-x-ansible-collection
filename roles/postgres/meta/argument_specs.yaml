@@ -131,7 +131,7 @@ argument_specs:
           - Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
       postgres_k8s_part_of: &postgres_k8s_part_of
         type: str
-        default: "{{ (organization | default({})).name | default('postgres') }}"
+        default: postgres
         description:
           - Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to PostgreSQL resources.
       postgres_k8s_wait_timeout: &postgres_k8s_wait_timeout
