@@ -916,6 +916,14 @@ Applies the master ClusterIP Service, optional NodePort and LoadBalancer Service
     yugabyte_k8s_loadbalancer_expose_master_rpc_port: false
     # Set to `true` to create a LoadBalancer Service entry that exposes the master webserver port externally. When undefined or `false`, the master webserver port is not included in the LoadBalancer Service.
     yugabyte_k8s_loadbalancer_expose_master_webserver_port: false
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: k8s/master/start
@@ -1045,6 +1053,14 @@ Applies the tablet ClusterIP Service, optional NodePort and LoadBalancer Service
     k8s_liveness_probe_failure_threshold: 6
     # Set to `true` to create a LoadBalancer Service entry that exposes the tablet YSQL port externally. When undefined or `false`, the tablet YSQL port is not included in the LoadBalancer Service.
     yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port: false
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
     # Set to `true` to create a LoadBalancer Service entry that exposes the tablet RPC port externally. When undefined or `false`, the tablet RPC port is not included in the LoadBalancer Service.
     yugabyte_k8s_loadbalancer_expose_tablet_rpc_port: false
     # Set to `true` to create a LoadBalancer Service entry that exposes the tablet webserver port externally. When undefined or `false`, the tablet webserver port is not included in the LoadBalancer Service.

@@ -496,6 +496,14 @@ Creates the Kubernetes Service, optional NodePort and LoadBalancer Services, and
     node_exporter_k8s_loadbalancer_expose_metrics_port: false
     # UID the Node Exporter container runs as.
     node_exporter_k8s_run_as_user: 0
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: k8s/start

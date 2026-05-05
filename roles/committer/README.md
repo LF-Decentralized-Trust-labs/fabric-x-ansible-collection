@@ -1740,6 +1740,14 @@ Ensure the namespace exists and apply the validator Service, NodePort and LoadBa
     committer_k8s_loadbalancer_expose_rpc_port: false
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
     committer_k8s_loadbalancer_expose_metrics_port: false
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: validator/k8s/start
@@ -1764,6 +1772,14 @@ Ensure the namespace exists and apply the verifier Service, NodePort and LoadBal
     committer_k8s_loadbalancer_expose_rpc_port: false
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
     committer_k8s_loadbalancer_expose_metrics_port: false
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: verifier/k8s/start
@@ -1796,6 +1812,14 @@ Ensure the namespace exists and apply the coordinator Service, NodePort and Load
     committer_k8s_loadbalancer_expose_rpc_port: false
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
     committer_k8s_loadbalancer_expose_metrics_port: false
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: coordinator/k8s/start
@@ -1820,6 +1844,14 @@ Ensure the namespace exists and apply the sidecar Service, NodePort and LoadBala
     committer_k8s_loadbalancer_expose_rpc_port: false
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
     committer_k8s_loadbalancer_expose_metrics_port: false
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: sidecar/k8s/start

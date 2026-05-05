@@ -96,6 +96,11 @@ argument_specs:
         description:
           - Optionally overrides the liveness probe failure threshold.
           - "Example: C(3)."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
       organization: &organization
         type: dict
         description:
@@ -454,6 +459,7 @@ argument_specs:
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
       elasticsearch_k8s_loadbalancer_expose_http_port: *elasticsearch_k8s_loadbalancer_expose_http_port
       elasticsearch_k8s_loadbalancer_expose_transport_port: *elasticsearch_k8s_loadbalancer_expose_transport_port
+      k8s_resources: *k8s_resources
 
   k8s/ping:
     short_description: Check ElasticSearch Kubernetes services is reachable

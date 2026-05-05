@@ -367,6 +367,11 @@ argument_specs:
         description:
           - Liveness probe failure threshold for Kubernetes workloads.
           - "Example: C(5)."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
       committer_monitoring_rate_limit_requests_per_second:
         &committer_monitoring_rate_limit_requests_per_second
         type: int
@@ -1483,6 +1488,7 @@ argument_specs:
       committer_k8s_wait_timeout: *committer_k8s_wait_timeout
       committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
       committer_k8s_loadbalancer_expose_metrics_port: *committer_k8s_loadbalancer_expose_metrics_port
+      k8s_resources: *k8s_resources
 
   verifier/k8s/start:
     short_description: Start the verifier on Kubernetes
@@ -1495,6 +1501,7 @@ argument_specs:
       committer_k8s_wait_timeout: *committer_k8s_wait_timeout
       committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
       committer_k8s_loadbalancer_expose_metrics_port: *committer_k8s_loadbalancer_expose_metrics_port
+      k8s_resources: *k8s_resources
 
   coordinator/k8s/start:
     short_description: Start the coordinator on Kubernetes
@@ -1509,6 +1516,7 @@ argument_specs:
       committer_verifiers: *committer_verifiers
       committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
       committer_k8s_loadbalancer_expose_metrics_port: *committer_k8s_loadbalancer_expose_metrics_port
+      k8s_resources: *k8s_resources
 
   sidecar/k8s/start:
     short_description: Start the sidecar on Kubernetes
@@ -1521,6 +1529,7 @@ argument_specs:
       committer_k8s_wait_timeout: *committer_k8s_wait_timeout
       committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
       committer_k8s_loadbalancer_expose_metrics_port: *committer_k8s_loadbalancer_expose_metrics_port
+      k8s_resources: *k8s_resources
 
   query_service/k8s/start:
     short_description: Start the query-service on Kubernetes

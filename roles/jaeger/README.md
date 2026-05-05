@@ -345,6 +345,14 @@ Applies the Jaeger Service, optional NodePort and LoadBalancer Services, and Dep
     k8s_liveness_probe_failure_threshold: 3
     # Set to `true` to create a LoadBalancer Service entry that exposes the UI port externally. When undefined or `false`, the UI port is not included in the LoadBalancer Service.
     jaeger_k8s_loadbalancer_expose_ui_port: false
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
     # Set to `true` to create a LoadBalancer Service entry that exposes the admin port externally. When undefined or `false`, the admin port is not included in the LoadBalancer Service.
     jaeger_k8s_loadbalancer_expose_admin_port: false
     # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP server port externally. When undefined or `false`, the HTTP server port is not included in the LoadBalancer Service.

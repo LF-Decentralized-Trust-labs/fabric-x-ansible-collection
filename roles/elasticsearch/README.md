@@ -464,6 +464,14 @@ Ensures the Kubernetes namespace exists and applies the ElasticSearch headless S
     elasticsearch_k8s_loadbalancer_expose_http_port: false
     # Set to `true` to create a LoadBalancer Service entry that exposes the transport port externally. When undefined or `false`, the transport port is not included in the LoadBalancer Service.
     elasticsearch_k8s_loadbalancer_expose_transport_port: false
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: k8s/start

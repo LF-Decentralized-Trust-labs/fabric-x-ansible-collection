@@ -428,6 +428,11 @@ argument_specs:
         description:
           - "Overrides the liveness probe failure threshold used by Kubernetes templates when defined."
           - "Example: C(6)."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
 
       yugabyte_use_openshift: &yugabyte_use_openshift
         type: bool
@@ -869,6 +874,7 @@ argument_specs:
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
       yugabyte_k8s_loadbalancer_expose_master_rpc_port: *yugabyte_k8s_loadbalancer_expose_master_rpc_port
       yugabyte_k8s_loadbalancer_expose_master_webserver_port: *yugabyte_k8s_loadbalancer_expose_master_webserver_port
+      k8s_resources: *k8s_resources
 
   k8s/master/rm:
     short_description: Remove a YugabyteDB master StatefulSet
@@ -936,6 +942,7 @@ argument_specs:
       k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
       yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port: *yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port
+      k8s_resources: *k8s_resources
       yugabyte_k8s_loadbalancer_expose_tablet_rpc_port: *yugabyte_k8s_loadbalancer_expose_tablet_rpc_port
       yugabyte_k8s_loadbalancer_expose_tablet_webserver_port: *yugabyte_k8s_loadbalancer_expose_tablet_webserver_port
       yugabyte_k8s_loadbalancer_expose_tablet_pgsql_web_port: *yugabyte_k8s_loadbalancer_expose_tablet_pgsql_web_port
