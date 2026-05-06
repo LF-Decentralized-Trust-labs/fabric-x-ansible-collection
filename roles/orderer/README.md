@@ -209,8 +209,8 @@ Fetches Prometheus metrics from the configured orderer monitoring endpoint using
     actual_host: "myvpc.cloud.ibm.com"
     # Protocol used by the metrics fetch branch.
     orderer_http_protocol: http
-    # Metrics port queried by the metrics fetch branch. Example: `9445`.
-    orderer_metrics_port: 9445
+    # Metrics port exposed by the orderer. Example: `7060`.
+    orderer_metrics_port: 7060
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: get_metrics
@@ -543,8 +543,8 @@ Renders the component-specific orderer config for `consensus`, `batcher`, `assem
     orderer_use_openshift: false
     # gRPC port exposed by the orderer. Example: `7050`.
     orderer_rpc_port: 7050
-    # Metrics port written into the rendered config when enabled. Example: `9444`.
-    orderer_metrics_port: 9444
+    # Metrics port exposed by the orderer. Example: `7060`.
+    orderer_metrics_port: 7060
     # Optional metrics logging interval written into the rendered config. Example: `10s`.
     orderer_metrics_log_interval: "10s"
     # Client identifiers whose mTLS CA certificates are mounted or transferred. Trusts fetched `tls/ca.crt` files under those artifact directories. Example: `['loadgen-1', 'gateway-1']`.
