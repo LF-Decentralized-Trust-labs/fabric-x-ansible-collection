@@ -206,9 +206,8 @@ argument_specs:
           - "Selects the host-binary workflow instead of the container workflow."
       organization: &organization
         type: dict
-        required: true
         description:
-          - "Provides organization metadata required by tasks that read C(organization.*), including names, users, domains, and namespace declarations."
+          - "Provides organization metadata used by tasks that read C(organization.*), including names, users, domains, and namespace declarations."
           - "Example: C({'name': 'Org1', 'domain': 'org1.example.com'})."
       orderer_router_host: &orderer_router_host
         type: str
@@ -366,11 +365,7 @@ argument_specs:
       fxconfig_remote_config_dir: *fxconfig_remote_config_dir
       fxconfig_use_bin: *fxconfig_use_bin
       orderer_router_host: *orderer_router_host
-      organization:
-        type: dict
-        description:
-          - "Provides organization metadata when C(fxconfig_msp_id) is not supplied directly."
-          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com'})."
+      organization: *organization
       remote_config_dir: *remote_config_dir
 
   container/endorse:
@@ -478,7 +473,9 @@ argument_specs:
     description:
       - "Selects the preferred endorser from C(organization.users) for namespace transaction endorsement and stores it in C(fxconfig_endorser_user)."
     options:
-      organization: *organization
+      organization:
+        <<: *organization
+        required: true
 
   merge:
     short_description: Merge endorsed namespace transactions

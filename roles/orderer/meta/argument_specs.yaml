@@ -246,17 +246,6 @@ argument_specs:
         description:
           - "Metrics port exposed by the orderer."
           - "Example: C(7060)."
-      orderer_metrics_port_config_transfer:
-        &orderer_metrics_port_config_transfer
-        type: int
-        description:
-          - "Metrics port written into the rendered config when enabled."
-          - "Example: C(9444)."
-      orderer_metrics_port_get_metrics: &orderer_metrics_port_get_metrics
-        type: int
-        description:
-          - "Metrics port queried by the metrics fetch branch."
-          - "Example: C(9445)."
       orderer_metrics_log_interval: &orderer_metrics_log_interval
         type: str
         description:
@@ -472,7 +461,9 @@ argument_specs:
     options:
       actual_host: *actual_host
       orderer_http_protocol: *orderer_http_protocol
-      orderer_metrics_port: *orderer_metrics_port_get_metrics
+      orderer_metrics_port:
+        <<: *orderer_metrics_port
+        required: false
 
   bin/build:
     short_description: Build the orderer binary from source
@@ -641,7 +632,9 @@ argument_specs:
       orderer_use_k8s: *orderer_use_k8s
       orderer_use_openshift: *orderer_use_openshift
       orderer_rpc_port: *orderer_rpc_port
-      orderer_metrics_port: *orderer_metrics_port_config_transfer
+      orderer_metrics_port:
+        <<: *orderer_metrics_port
+        required: false
       orderer_metrics_log_interval: *orderer_metrics_log_interval
       orderer_mtls_clients: *orderer_mtls_clients
       orderer_mtls_orgs: *orderer_mtls_orgs

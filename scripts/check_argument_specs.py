@@ -33,6 +33,7 @@ import yaml
 from jinja2 import Environment, TemplateAssertionError, TemplateSyntaxError, meta
 from jinja2.visitor import NodeVisitor
 from yaml.events import AliasEvent
+from yaml.nodes import MappingNode, ScalarNode, SequenceNode
 
 # ANSI color codes
 RED = "\033[0;31m"
@@ -798,6 +799,94 @@ def extract_uncataloged_options(specs, spec_options):
     return uncataloged
 
 
+def iter_mapping_items(node):
+    """Yield string-keyed mapping items from a composed YAML node."""
+    if not isinstance(node, MappingNode):
+        return
+    for key_node, value_node in node.value:
+        if isinstance(key_node, ScalarNode):
+            yield key_node.value, key_node, value_node
+
+
+def get_mapping_value_node(node, key):
+    """Return a composed YAML mapping value by scalar key."""
+    for item_key, _key_node, value_node in iter_mapping_items(node):
+        if item_key == key:
+            return value_node
+    return None
+
+
+def mapping_merges_node(mapping_node, expected_node):
+    """Return True when a YAML mapping merges the expected node."""
+    if not isinstance(mapping_node, MappingNode):
+        return False
+    merge_node = get_mapping_value_node(mapping_node, "<<")
+    if merge_node is None:
+        return False
+    if merge_node is expected_node:
+        return True
+    if not isinstance(merge_node, SequenceNode):
+        return False
+    return any(merged_node is expected_node for merged_node in merge_node.value)
+
+
+def option_uses_catalog_definition(option_node, catalog_node):
+    """Return True when an entrypoint option reuses its catalog definition."""
+    return option_node is catalog_node or mapping_merges_node(option_node, catalog_node)
+
+
+def extract_non_aliased_entrypoint_options(argument_specs_path):
+    """Return entrypoint options that do not directly alias role-options."""
+    try:
+        with argument_specs_path.open() as fh:
+            root = yaml.compose(fh)
+    except yaml.YAMLError as exc:
+        raise SpecError(f"invalid YAML: {exc}") from exc
+
+    if not isinstance(root, MappingNode):
+        raise SpecError("argument_specs.yaml must be a YAML mapping at the top level")
+
+    specs_node = get_mapping_value_node(root, "argument_specs")
+    if specs_node is None:
+        raise SpecError("missing top-level 'argument_specs' key")
+    if not isinstance(specs_node, MappingNode):
+        raise SpecError("'argument_specs' must be a mapping")
+
+    role_options_node = get_mapping_value_node(specs_node, "role-options")
+    if not isinstance(role_options_node, MappingNode):
+        raise SpecError("'argument_specs.role-options' must be a mapping")
+    catalog_options_node = get_mapping_value_node(role_options_node, "options")
+    if not isinstance(catalog_options_node, MappingNode):
+        raise SpecError("'argument_specs.role-options.options' must be a mapping")
+
+    catalog_options = {}
+    for option, key_node, value_node in iter_mapping_items(catalog_options_node):
+        if not isinstance(key_node, ScalarNode):
+            raise SpecError(f"non-string key in role-options.options: {option!r}")
+        catalog_options[option] = value_node
+
+    non_aliased = []
+    for entrypoint, _entrypoint_key_node, spec_node in iter_mapping_items(specs_node):
+        if entrypoint in NON_ENTRYPOINT_KEYS:
+            continue
+        if not isinstance(spec_node, MappingNode):
+            continue
+        options_node = get_mapping_value_node(spec_node, "options")
+        if options_node is None:
+            continue
+        if not isinstance(options_node, MappingNode):
+            raise SpecError(f"argument_specs.{entrypoint}.options must be a mapping")
+        for option, key_node, value_node in iter_mapping_items(options_node):
+            if option not in catalog_options:
+                continue
+            if not option_uses_catalog_definition(value_node, catalog_options[option]):
+                non_aliased.append(
+                    (entrypoint, option, key_node.start_mark.line + 1)
+                )
+
+    return sorted(non_aliased)
+
+
 def extract_invalid_default_options(specs, role_name):
     """Return defaulted options that violate default-option safety rules."""
     invalid = set()
@@ -861,6 +950,7 @@ def check_role(role_dir, collection_local_vars=None):
         option_default_vars = extract_role_option_default_vars(specs)
         unused_anchors = extract_unused_anchors(specs_file)
         uncataloged_options = extract_uncataloged_options(specs, spec_options)
+        non_aliased_options = extract_non_aliased_entrypoint_options(specs_file)
         invalid_default_options = extract_invalid_default_options(specs, role_dir.name)
     except SpecError as exc:
         print(f"{RED}[FAIL]{NC}   {role_dir.name}: {exc}")
@@ -893,6 +983,7 @@ def check_role(role_dir, collection_local_vars=None):
         and not yml_violations
         and not unused_anchors
         and not uncataloged_options
+        and not non_aliased_options
         and not invalid_default_options
         and not missing_task_options
         and not extra_task_options
@@ -921,6 +1012,13 @@ def check_role(role_dir, collection_local_vars=None):
         print("  Entrypoint options missing from role-options:")
         for entrypoint, option in sorted(uncataloged_options):
             print(f"    + {entrypoint}: {option}")
+    if non_aliased_options:
+        print("  Entrypoint options must alias role-options directly:")
+        for entrypoint, option, line in sorted(non_aliased_options):
+            print(
+                f"    - {format_argument_specs_path(role_dir)}:{line}: "
+                f"{entrypoint}: {option}"
+            )
     if invalid_default_options:
         print("  Invalid defaulted argument_specs options:")
         for option, reason in sorted(invalid_default_options):
