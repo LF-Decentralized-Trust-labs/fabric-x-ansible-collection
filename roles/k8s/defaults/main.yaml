@@ -18,3 +18,5 @@ k8s_remote_logs_file: logs.txt
 k8s_fetched_logs_dir: '{{ fetched_artifacts_dir }}/{{ inventory_hostname }}'
 # Specifies the filename used for the fetched log artifact on the control node.
 k8s_fetched_logs_file: logs.txt
+# Base name used for RBAC resources (ServiceAccount, ClusterRole, ClusterRoleBinding).
+k8s_rbac_resource_name: '{{ inventory_hostname }}'

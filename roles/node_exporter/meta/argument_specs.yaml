@@ -532,7 +532,8 @@ argument_specs:
     short_description: Build Prometheus scrape targets for Node Exporter
     description:
       - Builds the scrape service definitions Prometheus uses to collect metrics from the selected Node Exporter hosts.
-      - Uses the host list from C(node_exporter_hosts) together with C(node_exporter_port) to create scrape targets.
+      - When any host has C(node_exporter_use_k8s) set to C(true), produces a single scrape job with C(kubernetes_sd_configs) that discovers Node Exporter pods via the Kubernetes API using the pod role.
+      - Container-mode hosts produce per-host C(static_configs) scrape jobs as before.
     options:
       node_exporter_hosts: *node_exporter_hosts
       fetched_artifacts_dir: *fetched_artifacts_dir

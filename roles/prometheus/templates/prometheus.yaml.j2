@@ -13,7 +13,7 @@ global:
 scrape_configs:
 {% if prometheus_scrape_services is defined %}
 {% for current_service_to_scrape in prometheus_scrape_services %}
-{% if (current_service_to_scrape.targets | map(attribute='hosts') | sum(start=[]) | length) > 0 %}
+{% if (current_service_to_scrape.targets | default([]) | map(attribute='hosts') | sum(start=[]) | length) > 0 or current_service_to_scrape.kubernetes_sd_configs is defined %}
   # Identifier for the scrape job
   - job_name: {{ current_service_to_scrape.job_name }}
 {% if current_service_to_scrape.prometheus_metrics_path is defined %}
@@ -33,8 +33,19 @@ scrape_configs:
 {% if current_service_to_scrape.relabel_configs is defined %}
     relabel_configs:
 {% for relabel_config in current_service_to_scrape.relabel_configs %}
-      - target_label: {{ relabel_config.target_label }}
+      - source_labels: {{ relabel_config.source_labels | default([]) }}
+{% if relabel_config.action is defined %}
+        action: {{ relabel_config.action }}
+{% endif %}
+{% if relabel_config.regex is defined %}
+        regex: {{ relabel_config.regex }}
+{% endif %}
+{% if relabel_config.target_label is defined %}
+        target_label: {{ relabel_config.target_label }}
+{% endif %}
+{% if relabel_config.replacement is defined %}
         replacement: {{ relabel_config.replacement }}
+{% endif %}
 {% endfor %}
 {% endif %}
 {% if current_service_to_scrape.metric_relabel_configs is defined %}
@@ -46,6 +57,22 @@ scrape_configs:
         replacement: {{ metrics_relabel_config.replacement | quote }}
 {% endfor %}
 {% endif %}
+{% if current_service_to_scrape.kubernetes_sd_configs is defined %}
+    # Kubernetes service discovery configuration
+    kubernetes_sd_configs:
+{% for sd_config in current_service_to_scrape.kubernetes_sd_configs %}
+      - role: {{ sd_config.role }}
+{% if sd_config.namespaces is defined %}
+        namespaces:
+{% if sd_config.namespaces.names is defined %}
+          names:
+{% for ns in sd_config.namespaces.names %}
+            - {{ ns }}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% else %}
     # Static list of targets for this job
     static_configs:
 {% for targets in current_service_to_scrape.targets %}
@@ -66,6 +93,7 @@ scrape_configs:
 {% endif %}
 {% endif %}
 {% endfor %}
+{% endif %}
 {% endif %}
 {% endfor %}
 {% endif %}

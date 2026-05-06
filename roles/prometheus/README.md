@@ -36,6 +36,7 @@
   - [openshift/start](#openshiftstart)
   - [openshift/ping](#openshiftping)
   - [openshift/rm](#openshiftrm)
+  - [detect\_k8s\_sd](#detect_k8s_sd)
 
 ## Role Defaults
 
@@ -547,8 +548,17 @@ Renders the main scrape configuration and supporting files on the remote host, i
     prometheus_tls_private_key_file: server.key
     # Filename used for the Prometheus TLS certificate.
     prometheus_tls_cert_file: server.crt
-    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }]`.
-    prometheus_scrape_services:[{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }]
+    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{ 'job_name': 'fabric-orderer', 'static_configs': [{ 'targets': ['orderer1.example.com:9443', 'orderer2.example.com:9443'] }] }, { 'job_name': 'node_exporter', 'static_configs': [{ 'targets': ['worker1.example.com:9100'] }] }]`.
+    prometheus_scrape_services:
+      - job_name: "fabric-orderer"
+        static_configs:
+          - targets:
+              - "orderer1.example.com:9443"
+              - "orderer2.example.com:9443"
+      - job_name: "node_exporter"
+        static_configs:
+          - targets:
+              - "worker1.example.com:9100"
     # Enables HTTPS and TLS-aware health checks when set to `true`.
     prometheus_use_tls: false
     # Enables the Kubernetes deployment path when set to `true`.
@@ -585,8 +595,17 @@ Creates or updates the ConfigMap that carries the rendered Prometheus configurat
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
     prometheus_k8s_part_of: monitoring
-    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }]`.
-    prometheus_scrape_services:[{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }]
+    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{ 'job_name': 'fabric-orderer', 'static_configs': [{ 'targets': ['orderer1.example.com:9443', 'orderer2.example.com:9443'] }] }, { 'job_name': 'node_exporter', 'static_configs': [{ 'targets': ['worker1.example.com:9100'] }] }]`.
+    prometheus_scrape_services:
+      - job_name: "fabric-orderer"
+        static_configs:
+          - targets:
+              - "orderer1.example.com:9443"
+              - "orderer2.example.com:9443"
+      - job_name: "node_exporter"
+        static_configs:
+          - targets:
+              - "worker1.example.com:9100"
     # Enables HTTPS and TLS-aware health checks when set to `true`.
     prometheus_use_tls: false
   ansible.builtin.include_role:
@@ -754,4 +773,29 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: openshift/rm
+```
+
+### detect_k8s_sd
+
+> Detect whether any scrape service uses kubernetes_sd_configs
+
+Sets the `prometheus_has_k8s_sd_scrapers` fact to `true` when at least one entry in `prometheus_scrape_services` defines `kubernetes_sd_configs`. Used by other tasks to conditionally create RBAC resources and configure the StatefulSet ServiceAccount.
+
+```yaml
+- name: Detect whether any scrape service uses kubernetes_sd_configs
+  vars:
+    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{ 'job_name': 'fabric-orderer', 'static_configs': [{ 'targets': ['orderer1.example.com:9443', 'orderer2.example.com:9443'] }] }, { 'job_name': 'node_exporter', 'static_configs': [{ 'targets': ['worker1.example.com:9100'] }] }]`.
+    prometheus_scrape_services:
+      - job_name: "fabric-orderer"
+        static_configs:
+          - targets:
+              - "orderer1.example.com:9443"
+              - "orderer2.example.com:9443"
+      - job_name: "node_exporter"
+        static_configs:
+          - targets:
+              - "worker1.example.com:9100"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: detect_k8s_sd
 ```
