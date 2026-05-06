@@ -158,8 +158,7 @@ def extract_file_tasks(tasks_dir):
             yml_violations.append(f)
         elif f.suffix == ".yaml":
             slash_path = f.relative_to(tasks_dir).with_suffix("").as_posix()
-            if slash_path != "main":
-                task_paths.add(slash_path)
+            task_paths.add(slash_path)
     return task_paths, yml_violations
 
 
@@ -799,9 +798,52 @@ def extract_uncataloged_options(specs, spec_options):
     return uncataloged
 
 
+def extract_invalid_default_options(specs, role_name):
+    """Return defaulted options that violate default-option safety rules."""
+    invalid = set()
+    expected_prefix = f"{role_name}_"
+
+    for section, spec in specs.items():
+        if not isinstance(section, str):
+            raise SpecError(f"non-string key in argument_specs: {section!r}")
+        if spec is None:
+            continue
+        if not isinstance(spec, dict):
+            raise SpecError(f"argument_specs.{section!r} must be a mapping")
+        options = spec.get("options", {})
+        if options is None:
+            continue
+        if not isinstance(options, dict):
+            raise SpecError(f"argument_specs.{section}.options must be a mapping")
+
+        for option, option_spec in options.items():
+            if not isinstance(option, str):
+                raise SpecError(
+                    f"non-string key in argument_specs.{section}.options: {option!r}"
+                )
+            if not isinstance(option_spec, dict) or "default" not in option_spec:
+                continue
+            if not option.startswith(expected_prefix):
+                invalid.add(
+                    (
+                        option,
+                        f"has a default but is not prefixed with {expected_prefix}",
+                    )
+                )
+            if option_spec.get("required") is True:
+                invalid.add((option, "has both default and required: true"))
+
+    return sorted(invalid)
+
+
 def format_task_path(role_dir, entrypoint):
     """Return the repo-relative path for a task entrypoint."""
     return (Path("roles") / role_dir.name / "tasks" / f"{entrypoint}.yaml").as_posix()
+
+
+def format_argument_specs_path(role_dir):
+    """Return the repo-relative path for a role argument_specs file."""
+    return (Path("roles") / role_dir.name / "meta" / "argument_specs.yaml").as_posix()
 
 
 def check_role(role_dir, collection_local_vars=None):
@@ -819,6 +861,7 @@ def check_role(role_dir, collection_local_vars=None):
         option_default_vars = extract_role_option_default_vars(specs)
         unused_anchors = extract_unused_anchors(specs_file)
         uncataloged_options = extract_uncataloged_options(specs, spec_options)
+        invalid_default_options = extract_invalid_default_options(specs, role_dir.name)
     except SpecError as exc:
         print(f"{RED}[FAIL]{NC}   {role_dir.name}: {exc}")
         return False
@@ -850,6 +893,7 @@ def check_role(role_dir, collection_local_vars=None):
         and not yml_violations
         and not unused_anchors
         and not uncataloged_options
+        and not invalid_default_options
         and not missing_task_options
         and not extra_task_options
     ):
@@ -877,6 +921,10 @@ def check_role(role_dir, collection_local_vars=None):
         print("  Entrypoint options missing from role-options:")
         for entrypoint, option in sorted(uncataloged_options):
             print(f"    + {entrypoint}: {option}")
+    if invalid_default_options:
+        print("  Invalid defaulted argument_specs options:")
+        for option, reason in sorted(invalid_default_options):
+            print(f"    - {format_argument_specs_path(role_dir)}: {option} {reason}")
     if missing_task_options:
         print("  Task variables missing from argument_specs options:")
         for entrypoint, option in sorted(missing_task_options):
