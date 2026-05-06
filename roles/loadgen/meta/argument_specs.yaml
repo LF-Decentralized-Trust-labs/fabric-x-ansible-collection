@@ -151,7 +151,7 @@ argument_specs:
         type: bool
         default: false
         description:
-          - Assert the latency metric when fetching metrics.
+          - Assert the committed transaction metric and report aborted transactions when fetching metrics.
       loadgen_generate_config_block: &loadgen_generate_config_block
         type: bool
         default: false
@@ -407,6 +407,11 @@ argument_specs:
         description:
           - Kubernetes namespace used for loadgen resources.
           - "Example: C(fabricx-loadgen)."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
       loadgen_k8s_resource_name: &loadgen_k8s_resource_name
         type: str
         default: "{{ inventory_hostname }}"
@@ -937,6 +942,7 @@ argument_specs:
       loadgen_k8s_loadbalancer_expose_web_port: *loadgen_k8s_loadbalancer_expose_web_port
       loadgen_k8s_loadbalancer_expose_metrics_port: *loadgen_k8s_loadbalancer_expose_metrics_port
       loadgen_k8s_loadbalancer_expose_rpc_port: *loadgen_k8s_loadbalancer_expose_rpc_port
+      k8s_resources: *k8s_resources
 
   k8s/ping:
     short_description: Check that the Loadgen Kubernetes service is reachable

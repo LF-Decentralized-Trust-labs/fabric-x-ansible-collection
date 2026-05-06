@@ -254,6 +254,11 @@ argument_specs:
         description:
           - "Sets the liveness probe failure threshold used by the Jaeger deployment template."
           - "Example: C(3)."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
 
       jaeger_use_openshift: &jaeger_use_openshift
         type: bool
@@ -275,7 +280,8 @@ argument_specs:
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(jaeger-http-server.apps.example.com)."
-      jaeger_openshift_http_collector_route: &jaeger_openshift_http_collector_route
+      jaeger_openshift_http_collector_route:
+        &jaeger_openshift_http_collector_route
         type: str
         description:
           - Specifies the OpenShift Route host.
@@ -442,6 +448,7 @@ argument_specs:
       k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
       jaeger_k8s_loadbalancer_expose_ui_port: *jaeger_k8s_loadbalancer_expose_ui_port
+      k8s_resources: *k8s_resources
       jaeger_k8s_loadbalancer_expose_admin_port: *jaeger_k8s_loadbalancer_expose_admin_port
       jaeger_k8s_loadbalancer_expose_http_server_port: *jaeger_k8s_loadbalancer_expose_http_server_port
       jaeger_k8s_loadbalancer_expose_http_collector_port: *jaeger_k8s_loadbalancer_expose_http_collector_port

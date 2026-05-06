@@ -90,6 +90,11 @@ argument_specs:
           - Overrides the DaemonSet liveness probe failure threshold.
           - The template defaults to 5 failures.
           - "Example: C(5)."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
       node_exporter_registry_endpoint: &node_exporter_registry_endpoint
         type: str
         default: "{{ lookup('env', 'NODE_EXPORTER_REGISTRY_ENDPOINT') or 'docker.io/prom' }}"
@@ -450,6 +455,7 @@ argument_specs:
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
       node_exporter_k8s_loadbalancer_expose_metrics_port: *node_exporter_k8s_loadbalancer_expose_metrics_port
       node_exporter_k8s_run_as_user: *node_exporter_k8s_run_as_user
+      k8s_resources: *k8s_resources
 
   k8s/ping:
     short_description: Check that Node Exporter Kubernetes service is reachable

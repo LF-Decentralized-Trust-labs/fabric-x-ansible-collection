@@ -208,7 +208,7 @@ Query the Loadgen Prometheus metrics endpoint over HTTP or HTTPS. In Kubernetes 
     loadgen_openshift_metrics_route: "loadgen-metrics.apps.example.com"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
-    # Assert the latency metric when fetching metrics.
+    # Assert the committed transaction metric and report aborted transactions when fetching metrics.
     loadgen_assert_metrics: false
     # Use Kubernetes resources.
     loadgen_use_k8s: false
@@ -964,6 +964,14 @@ Create or update Kubernetes resources for Loadgen. Ensures the namespace exists,
     loadgen_k8s_loadbalancer_expose_metrics_port: false
     # Set to `true` to create a LoadBalancer Service entry that exposes the gRPC control port externally. When undefined or `false`, the gRPC control port is not included in the LoadBalancer Service.
     loadgen_k8s_loadbalancer_expose_rpc_port: false
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: k8s/start

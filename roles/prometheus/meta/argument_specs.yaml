@@ -232,6 +232,11 @@ argument_specs:
         description:
           - Number of failed liveness probes before Kubernetes restarts the pod.
           - "Example: C(5)."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
 
       prometheus_use_openshift: &prometheus_use_openshift
         type: bool
@@ -315,6 +320,7 @@ argument_specs:
       k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
       prometheus_k8s_loadbalancer_expose_http_port: *prometheus_k8s_loadbalancer_expose_http_port
+      k8s_resources: *k8s_resources
 
   k8s/ping:
     short_description: Check that the Prometheus Kubernetes service is reachable

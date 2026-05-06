@@ -497,6 +497,14 @@ Applies the Grafana Service, optional NodePort and LoadBalancer Services, Secret
     k8s_liveness_probe_failure_threshold: 3
     # Set to `true` to create a LoadBalancer Service entry that exposes the web port externally. When undefined or `false`, the web port is not included in the LoadBalancer Service.
     grafana_k8s_loadbalancer_expose_web_port: false
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
     tasks_from: k8s/start

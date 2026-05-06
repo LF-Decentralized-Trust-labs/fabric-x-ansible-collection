@@ -31,6 +31,10 @@ spec:
       containers:
         - name: node-exporter
           image: {{ node_exporter_image }}
+{% if k8s_resources is defined and k8s_resources %}
+          resources:
+{{ k8s_resources | to_nice_yaml(indent=2) | indent(12, true) }}
+{% endif %}
           # Default runAsUser is 0 (root) to allow reading all host paths.
           # On OpenShift, set node_exporter_k8s_run_as_user to the namespace
           # UID range value; /proc and /sys are world-readable so core metrics

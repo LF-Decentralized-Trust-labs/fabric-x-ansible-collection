@@ -378,6 +378,11 @@ argument_specs:
         description:
           - "Optional liveness probe failure threshold override."
           - "Example: C(3)."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
 
       orderer_use_openshift: &orderer_use_openshift
         type: bool
@@ -777,6 +782,7 @@ argument_specs:
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
       orderer_k8s_loadbalancer_expose_rpc_port: *orderer_k8s_loadbalancer_expose_rpc_port
       orderer_k8s_loadbalancer_expose_metrics_port: *orderer_k8s_loadbalancer_expose_metrics_port
+      k8s_resources: *k8s_resources
 
   k8s/ping:
     short_description: Check that the orderer Kubernetes services are reachable

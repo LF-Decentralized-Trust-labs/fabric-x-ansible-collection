@@ -202,6 +202,14 @@ Ensures the namespace exists, renders and transfers Prometheus configuration, an
     k8s_liveness_probe_failure_threshold: 5
     # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP port externally. When undefined or `false`, the HTTP port is not included in the LoadBalancer Service.
     prometheus_k8s_loadbalancer_expose_http_port: false
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/start
