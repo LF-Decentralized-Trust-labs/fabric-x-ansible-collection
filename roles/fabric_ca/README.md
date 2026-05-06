@@ -1142,6 +1142,14 @@ Creates Fabric CA Kubernetes runtime resources for the server. Uses the ConfigMa
     fabric_ca_server_k8s_loadbalancer_expose_port: false
     # Set to `true` to create a LoadBalancer Service entry that exposes the operations port externally. When undefined or `false`, the operations port is not included in the LoadBalancer Service.
     fabric_ca_server_k8s_loadbalancer_expose_operations_port: false
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
     # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `org1.example.com`.
     organization:org1.example.com
   ansible.builtin.include_role:

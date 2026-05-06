@@ -2016,6 +2016,14 @@ Ensure the namespace exists and apply the validator Service, NodePort and LoadBa
     k8s_readiness_probe_period_seconds: 10
     # Readiness probe timeout for Kubernetes workloads. Example: `5`.
     k8s_readiness_probe_timeout_seconds: 5
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
     # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
     organization:
       name: "Org1"
@@ -2113,6 +2121,14 @@ Ensure the namespace exists and apply the verifier Service, NodePort and LoadBal
     k8s_readiness_probe_period_seconds: 10
     # Readiness probe timeout for Kubernetes workloads. Example: `5`.
     k8s_readiness_probe_timeout_seconds: 5
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
     # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
     organization:
       name: "Org1"
@@ -2214,6 +2230,14 @@ Ensure the namespace exists and apply the coordinator Service, NodePort and Load
     k8s_readiness_probe_period_seconds: 10
     # Readiness probe timeout for Kubernetes workloads. Example: `5`.
     k8s_readiness_probe_timeout_seconds: 5
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
     # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
     organization:
       name: "Org1"
@@ -2311,6 +2335,14 @@ Ensure the namespace exists and apply the sidecar Service, NodePort and LoadBala
     k8s_readiness_probe_period_seconds: 10
     # Readiness probe timeout for Kubernetes workloads. Example: `5`.
     k8s_readiness_probe_timeout_seconds: 5
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
     # Storage class requested by the sidecar StatefulSet. Example: `fast-ssd`.
     k8s_storage_class: "fast-ssd"
     # Persistent volume size requested by the sidecar StatefulSet. Example: `20Gi`.
@@ -2412,6 +2444,14 @@ Ensure the namespace exists and apply the query-service Service, NodePort and Lo
     k8s_readiness_probe_period_seconds: 10
     # Readiness probe timeout for Kubernetes workloads. Example: `5`.
     k8s_readiness_probe_timeout_seconds: 5
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
     # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
     organization:
       name: "Org1"

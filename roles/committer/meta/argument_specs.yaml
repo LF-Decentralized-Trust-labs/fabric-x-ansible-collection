@@ -376,6 +376,11 @@ argument_specs:
         description:
           - Liveness probe failure threshold for Kubernetes workloads.
           - "Example: C(5)."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
       committer_monitoring_rate_limit_requests_per_second:
         &committer_monitoring_rate_limit_requests_per_second
         type: int
@@ -1615,6 +1620,7 @@ argument_specs:
       k8s_readiness_probe_initial_delay_seconds: *k8s_readiness_probe_initial_delay_seconds
       k8s_readiness_probe_period_seconds: *k8s_readiness_probe_period_seconds
       k8s_readiness_probe_timeout_seconds: *k8s_readiness_probe_timeout_seconds
+      k8s_resources: *k8s_resources
       organization: *organization
       postgres_db_host:
         <<: *postgres_db_host
@@ -1661,6 +1667,7 @@ argument_specs:
       k8s_readiness_probe_initial_delay_seconds: *k8s_readiness_probe_initial_delay_seconds
       k8s_readiness_probe_period_seconds: *k8s_readiness_probe_period_seconds
       k8s_readiness_probe_timeout_seconds: *k8s_readiness_probe_timeout_seconds
+      k8s_resources: *k8s_resources
       organization: *organization
 
   coordinator/k8s/start:
@@ -1705,6 +1712,7 @@ argument_specs:
       k8s_readiness_probe_initial_delay_seconds: *k8s_readiness_probe_initial_delay_seconds
       k8s_readiness_probe_period_seconds: *k8s_readiness_probe_period_seconds
       k8s_readiness_probe_timeout_seconds: *k8s_readiness_probe_timeout_seconds
+      k8s_resources: *k8s_resources
       organization: *organization
 
   sidecar/k8s/start:
@@ -1749,6 +1757,7 @@ argument_specs:
       k8s_readiness_probe_initial_delay_seconds: *k8s_readiness_probe_initial_delay_seconds
       k8s_readiness_probe_period_seconds: *k8s_readiness_probe_period_seconds
       k8s_readiness_probe_timeout_seconds: *k8s_readiness_probe_timeout_seconds
+      k8s_resources: *k8s_resources
       k8s_storage_class: *k8s_storage_class
       k8s_storage_size: *k8s_storage_size
       orderer_assemblers: *orderer_assemblers
@@ -1794,6 +1803,7 @@ argument_specs:
       k8s_readiness_probe_initial_delay_seconds: *k8s_readiness_probe_initial_delay_seconds
       k8s_readiness_probe_period_seconds: *k8s_readiness_probe_period_seconds
       k8s_readiness_probe_timeout_seconds: *k8s_readiness_probe_timeout_seconds
+      k8s_resources: *k8s_resources
       organization: *organization
       postgres_db_host:
         <<: *postgres_db_host
