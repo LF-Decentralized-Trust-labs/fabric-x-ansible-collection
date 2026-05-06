@@ -31,6 +31,7 @@ from pathlib import Path
 
 import yaml
 from jinja2 import Environment, TemplateAssertionError, TemplateSyntaxError, meta
+from jinja2.visitor import NodeVisitor
 from yaml.events import AliasEvent
 
 # ANSI color codes
@@ -120,6 +121,20 @@ def passthrough_test(value, *args, **kwargs):
 
 class SpecError(Exception):
     """Raised when argument_specs.yaml cannot be parsed or has an unexpected shape."""
+
+
+class AssignedTemplateNameVisitor(NodeVisitor):
+    """Collect names assigned inside a Jinja template."""
+
+    def __init__(self):
+        self.names = set()
+
+    def visit_Name(self, node):
+        if node.ctx == "store":
+            self.names.add(node.name)
+
+    def visit_NSRef(self, node):
+        self.names.add(node.name)
 
 
 def extract_file_tasks(tasks_dir):
@@ -236,7 +251,9 @@ def find_undeclared_jinja_variables(ast, source):
     """Return undeclared variables from a Jinja AST."""
     while True:
         try:
-            return meta.find_undeclared_variables(ast)
+            assigned_names = AssignedTemplateNameVisitor()
+            assigned_names.visit(ast)
+            return meta.find_undeclared_variables(ast) - assigned_names.names
         except TemplateAssertionError as exc:
             if register_unknown_jinja_extension(exc):
                 continue
