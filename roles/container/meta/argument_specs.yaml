@@ -324,46 +324,9 @@ argument_specs:
       - "Stores runtime module output in C(container_output) and can print captured process output when debug mode is enabled for foreground containers."
     options:
       container_client: *container_client
-      container_name:
-        <<: *container_name
-        required: true
-      container_image: *container_image
-      container_entrypoint: *container_entrypoint
       container_command:
         <<: *container_command
-      container_hostname: *container_hostname
-      container_host_uid: *container_host_uid
-      container_host_gid: *container_host_gid
-      container_host_user: *container_host_user
-      container_host_user_is_root: *container_host_user_is_root
-      container_run_as_host_user: *container_run_as_host_user
-      container_on_mac: *container_on_mac
-      container_network_mode: *container_network_mode
-      container_network:
-        <<: *container_network
-      container_ports: *container_ports
-      container_memory: *container_memory
-      container_cpus: *container_cpus
-      container_volumes: *container_volumes
-      container_ulimits: *container_ulimits
-      container_env: *container_env
-      container_log_driver: *container_log_driver
-      container_log_max_size: *container_log_max_size
-      container_log_lines: *container_log_lines
       container_debug: *container_debug
-      container_healthcheck_test: *container_healthcheck_test
-      container_healthcheck_interval: *container_healthcheck_interval
-      container_autoremove: *container_autoremove
-      container_ignore_errors: *container_ignore_errors
-      container_run_detach_mode: *container_run_detach_mode
-      container_run_until: *container_run_until
-      container_run_delay: *container_run_delay
-      container_run_retries: *container_run_retries
-      container_wait_until_running: *container_wait_until_running
-      actual_host: *actual_host
-      container_wait_port: *container_wait_port
-      container_wait_delay: *container_wait_delay
-      container_wait_timeout: *container_wait_timeout
 
   stop:
     short_description: Stop a container with the selected client
@@ -372,9 +335,6 @@ argument_specs:
       - "Uses C(container_name) as the lifecycle target and resolves C(container_client) before dispatching."
     options:
       container_client: *container_client
-      container_name:
-        <<: *container_name
-        required: true
 
   rm:
     short_description: Remove a container with the selected client
@@ -383,9 +343,6 @@ argument_specs:
       - "Uses C(container_name) as the lifecycle target and removes associated container volumes where the backend supports it."
     options:
       container_client: *container_client
-      container_name:
-        <<: *container_name
-        required: true
 
   exec:
     short_description: Execute a command in a container
@@ -394,13 +351,6 @@ argument_specs:
       - "Passes C(container_env) to the command when provided and registers the backend execution result."
     options:
       container_client: *container_client
-      container_name:
-        <<: *container_name
-        required: true
-      container_command:
-        <<: *container_command
-        required: true
-      container_env: *container_env
 
   fetch_logs:
     short_description: Fetch container logs from the remote host
@@ -426,9 +376,6 @@ argument_specs:
       - "Uses the supplied username and password placeholders without changing registry credentials elsewhere."
     options:
       container_client: *container_client
-      container_registry: *container_registry
-      container_registry_username: *container_registry_username
-      container_registry_password: *container_registry_password
 
   network/create:
     short_description: Create a container network
@@ -437,12 +384,6 @@ argument_specs:
       - "Uses driver, attachable, and internal-network inputs where the selected runtime supports them."
     options:
       container_client: *container_client
-      container_network:
-        <<: *container_network
-        required: true
-      container_network_driver: *container_network_driver
-      container_network_attachable: *container_network_attachable
-      container_network_internal: *container_network_internal
 
   network/rm:
     short_description: Remove a container network
@@ -451,9 +392,6 @@ argument_specs:
       - "Uses C(container_network) as the lifecycle target after resolving C(container_client)."
     options:
       container_client: *container_client
-      container_network:
-        <<: *container_network
-        required: true
 
   volume/create:
     short_description: Create a container volume
@@ -462,19 +400,6 @@ argument_specs:
       - "Applies path state, mode, ownership, and optional recursive permission inputs, using runtime-specific helpers when rootless ownership changes are needed."
     options:
       container_client: *container_client
-      container_name:
-        <<: *container_name
-      container_host_uid: *container_host_uid
-      container_host_gid: *container_host_gid
-      container_host_user: *container_host_user
-      container_host_user_is_root: *container_host_user_is_root
-      container_on_mac: *container_on_mac
-      container_volume_path: *container_volume_path
-      container_volume_mode: *container_volume_mode
-      container_volume_type: *container_volume_type
-      container_volume_uid: *container_volume_uid
-      container_volume_gid: *container_volume_gid
-      recurse: *recurse
 
   volume/rm:
     short_description: Remove a container volume
@@ -483,12 +408,6 @@ argument_specs:
       - "Uses C(container_volume_path) as the lifecycle target after resolving C(container_client)."
     options:
       container_client: *container_client
-      container_host_uid: *container_host_uid
-      container_host_gid: *container_host_gid
-      container_host_user: *container_host_user
-      container_host_user_is_root: *container_host_user_is_root
-      container_on_mac: *container_on_mac
-      container_volume_path: *container_volume_path
 
   docker/install:
     short_description: Install Docker on the target host
@@ -677,7 +596,6 @@ argument_specs:
       container_memory: *container_memory
       container_cpus: *container_cpus
       container_volumes: *container_volumes
-      container_ulimits: *container_ulimits
       container_env: *container_env
       container_log_driver: *container_log_driver
       container_log_max_size: *container_log_max_size

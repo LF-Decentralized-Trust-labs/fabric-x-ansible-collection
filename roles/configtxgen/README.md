@@ -189,8 +189,6 @@ Run `configtxgen` in a container to generate the channel genesis block. The cont
     configtxgen_armageddon_container_artifacts_dir: /tmp/armageddon-artifacts
     # Container mount path for fetched crypto artifacts.
     configtxgen_container_crypto_artifacts_dir: /tmp/crypto-artifacts
-    # Shared config binary file name consumed by the config template.
-    configtxgen_armageddon_binpb_file: shared_config.binpb
     # Directory containing armageddon artifacts used by the binary path and container mounts. Example: `/opt/fabricx/artifacts/armageddon`.
     armageddon_artifacts_dir: "/opt/fabricx/artifacts/armageddon"
     # Directory containing fetched crypto artifacts used by the binary path and container mounts. Example: `/opt/fabricx/artifacts/crypto`.

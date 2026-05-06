@@ -23,8 +23,6 @@ node_exporter_remote_config_dir: '{{ remote_deploy_dir }}/node-exporter/config'
 node_exporter_container_config_dir: /var/config
 # Sets the rendered Node Exporter web configuration filename.
 node_exporter_web_config_file: web-config.yaml
-# Sets the host root filesystem mount flags used by the container runtime path.
-node_exporter_root_fs_flags: ro,rslave
 # Enables the TLS web configuration and certificate paths when true.
 node_exporter_use_tls: false
 # Sets the Node Exporter TLS private key filename.

@@ -323,6 +323,45 @@ def collect_task_local_vars(value):
     return locals_
 
 
+def collect_current_task_local_vars(value):
+    """Return variables local to the current task while it runs."""
+    locals_ = set()
+    if not isinstance(value, dict):
+        return locals_
+
+    loop_control = value.get("loop_control")
+    if isinstance(loop_control, dict):
+        loop_var = loop_control.get("loop_var")
+        if isinstance(loop_var, str):
+            locals_.add(loop_var)
+        index_var = loop_control.get("index_var")
+        if isinstance(index_var, str):
+            locals_.add(index_var)
+
+    task_vars = value.get("vars")
+    if isinstance(task_vars, dict):
+        locals_.update(key for key in task_vars if isinstance(key, str))
+
+    return locals_
+
+
+def collect_produced_task_vars(value):
+    """Return variables produced by a task after its expressions are evaluated."""
+    locals_ = set()
+    if not isinstance(value, dict):
+        return locals_
+
+    register = value.get("register")
+    if isinstance(register, str):
+        locals_.add(register)
+
+    set_fact = value.get("ansible.builtin.set_fact")
+    if isinstance(set_fact, dict):
+        locals_.update(key for key in set_fact if isinstance(key, str))
+
+    return locals_
+
+
 def is_builtin_var(variable):
     """Return True for variables provided by Ansible rather than role callers."""
     return variable in BUILTIN_VARS or variable.startswith("ansible_")
@@ -456,6 +495,51 @@ def collect_template_vars(data, role_dir):
     return variables
 
 
+def collect_task_list_vars_ordered(tasks, source, role_dir=None, local_vars=None):
+    """Return task variables, treating produced vars as local only after production."""
+    if local_vars is None:
+        local_vars = set()
+    variables = set()
+
+    for task in tasks:
+        if not isinstance(task, dict):
+            continue
+
+        current_locals = local_vars | collect_current_task_local_vars(task)
+        task_vars = collect_vars_from_value(task, source)
+        variables.update(task_vars - current_locals)
+
+        block = task.get("block")
+        if isinstance(block, list):
+            variables.update(
+                collect_task_list_vars_ordered(
+                    block,
+                    source,
+                    role_dir,
+                    current_locals,
+                )
+            )
+
+        for nested_key in ("rescue", "always"):
+            nested_tasks = task.get(nested_key)
+            if isinstance(nested_tasks, list):
+                variables.update(
+                    collect_task_list_vars_ordered(
+                        nested_tasks,
+                        source,
+                        role_dir,
+                        current_locals,
+                    )
+                )
+
+        local_vars.update(collect_produced_task_vars(task))
+
+    if role_dir is not None:
+        variables.update(collect_template_vars(tasks, role_dir))
+
+    return {variable for variable in variables if not is_builtin_var(variable)}
+
+
 def extract_task_vars(task_file, role_dir=None):
     """Return role argument variables referenced by a task file."""
     try:
@@ -478,6 +562,22 @@ def extract_task_vars(task_file, role_dir=None):
         for variable in variables - local_vars
         if not is_builtin_var(variable)
     }
+
+
+def extract_task_vars_ordered(task_file, role_dir=None):
+    """Return task variables with ordered local-var scoping."""
+    try:
+        with task_file.open() as fh:
+            data = yaml.safe_load(fh)
+    except yaml.YAMLError as exc:
+        raise SpecError(f"invalid YAML in {task_file}: {exc}") from exc
+
+    if data is None:
+        return set()
+    if not isinstance(data, list):
+        raise SpecError(f"{task_file} must contain a YAML task list")
+
+    return collect_task_list_vars_ordered(data, task_file.as_posix(), role_dir)
 
 
 def extract_role_option_default_vars(specs):
@@ -554,6 +654,41 @@ def extract_collection_local_vars(roles_dir):
     return local_vars
 
 
+def extract_expected_task_options(
+    role_dir,
+    spec_options,
+    collection_local_vars=None,
+    option_default_vars=None,
+    exclude_global_local_vars=True,
+    ordered_local_vars=False,
+):
+    """Return variables statically required by each documented task entrypoint."""
+    tasks_dir = role_dir / "tasks"
+    expected = {}
+    if not tasks_dir.is_dir():
+        return expected
+    local_vars = set()
+    if exclude_global_local_vars:
+        local_vars = extract_role_local_vars(tasks_dir)
+        if collection_local_vars is None:
+            collection_local_vars = extract_collection_local_vars(role_dir.parent)
+        local_vars.update(collection_local_vars)
+
+    for task_file in sorted(tasks_dir.rglob("*.yaml")):
+        entrypoint = task_file.relative_to(tasks_dir).with_suffix("").as_posix()
+        if entrypoint == "main" or entrypoint not in spec_options:
+            continue
+        if ordered_local_vars:
+            task_vars = extract_task_vars_ordered(task_file, role_dir)
+        else:
+            task_vars = extract_task_vars(task_file, role_dir)
+        task_vars = task_vars - local_vars
+        if option_default_vars is not None:
+            task_vars = expand_default_dependencies(task_vars, option_default_vars) - local_vars
+        expected[entrypoint] = task_vars
+    return expected
+
+
 def extract_missing_task_options(
     role_dir,
     spec_options,
@@ -561,25 +696,41 @@ def extract_missing_task_options(
     option_default_vars=None,
 ):
     """Return task variables missing from the matching argument_specs options."""
-    tasks_dir = role_dir / "tasks"
     missing = []
-    if not tasks_dir.is_dir():
-        return missing
-    local_vars = extract_role_local_vars(tasks_dir)
-    if collection_local_vars is None:
-        collection_local_vars = extract_collection_local_vars(role_dir.parent)
-    local_vars.update(collection_local_vars)
-
-    for task_file in sorted(tasks_dir.rglob("*.yaml")):
-        entrypoint = task_file.relative_to(tasks_dir).with_suffix("").as_posix()
-        if entrypoint == "main" or entrypoint not in spec_options:
-            continue
-        task_vars = extract_task_vars(task_file, role_dir) - local_vars
-        if option_default_vars is not None:
-            task_vars = expand_default_dependencies(task_vars, option_default_vars) - local_vars
+    expected_options = extract_expected_task_options(
+        role_dir,
+        spec_options,
+        collection_local_vars,
+        option_default_vars,
+        exclude_global_local_vars=True,
+        ordered_local_vars=False,
+    )
+    for entrypoint, task_vars in expected_options.items():
         for variable in sorted(task_vars - spec_options[entrypoint]):
             missing.append((entrypoint, variable))
     return missing
+
+
+def extract_extra_task_options(
+    role_dir,
+    spec_options,
+    collection_local_vars=None,
+    option_default_vars=None,
+):
+    """Return argument_specs options not required by the matching task."""
+    extra = []
+    expected_options = extract_expected_task_options(
+        role_dir,
+        spec_options,
+        collection_local_vars,
+        option_default_vars,
+        exclude_global_local_vars=False,
+        ordered_local_vars=True,
+    )
+    for entrypoint, task_vars in expected_options.items():
+        for variable in sorted(spec_options[entrypoint] - task_vars):
+            extra.append((entrypoint, variable))
+    return extra
 
 
 def extract_unused_anchors(argument_specs_path):
@@ -648,6 +799,11 @@ def extract_uncataloged_options(specs, spec_options):
     return uncataloged
 
 
+def format_task_path(role_dir, entrypoint):
+    """Return the repo-relative path for a task entrypoint."""
+    return (Path("roles") / role_dir.name / "tasks" / f"{entrypoint}.yaml").as_posix()
+
+
 def check_role(role_dir, collection_local_vars=None):
     """Check a single role. Returns True if clean, False if any mismatch."""
     specs_file = role_dir / "meta" / "argument_specs.yaml"
@@ -678,6 +834,12 @@ def check_role(role_dir, collection_local_vars=None):
             collection_local_vars,
             option_default_vars,
         )
+        extra_task_options = extract_extra_task_options(
+            role_dir,
+            spec_options,
+            collection_local_vars,
+            option_default_vars,
+        )
     except SpecError as exc:
         print(f"{RED}[FAIL]{NC}   {role_dir.name}: {exc}")
         return False
@@ -689,6 +851,7 @@ def check_role(role_dir, collection_local_vars=None):
         and not unused_anchors
         and not uncataloged_options
         and not missing_task_options
+        and not extra_task_options
     ):
         print(f"{GREEN}[OK]{NC}     {role_dir.name}")
         return True
@@ -697,11 +860,11 @@ def check_role(role_dir, collection_local_vars=None):
     if ghost:
         print("  In argument_specs but no task file found (ghost entries):")
         for entry in ghost:
-            print(f"    - {entry}")
+            print(f"    - {format_task_path(role_dir, entry)}")
     if undocumented:
         print("  Task file exists but not declared in argument_specs (undocumented):")
         for entry in undocumented:
-            print(f"    + {entry}")
+            print(f"    + {format_task_path(role_dir, entry)}")
     if yml_violations:
         print("  Task files with .yml extension (must use .yaml):")
         for path in sorted(yml_violations):
@@ -717,7 +880,11 @@ def check_role(role_dir, collection_local_vars=None):
     if missing_task_options:
         print("  Task variables missing from argument_specs options:")
         for entrypoint, option in sorted(missing_task_options):
-            print(f"    + {entrypoint}: {option}")
+            print(f"    + {format_task_path(role_dir, entrypoint)}: {option}")
+    if extra_task_options:
+        print("  argument_specs options not used by matching task:")
+        for entrypoint, option in sorted(extra_task_options):
+            print(f"    - {format_task_path(role_dir, entrypoint)}: {option}")
     return False
 
 

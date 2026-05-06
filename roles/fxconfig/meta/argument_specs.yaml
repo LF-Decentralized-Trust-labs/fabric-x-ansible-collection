@@ -356,15 +356,12 @@ argument_specs:
       fxconfig_committer_sidecar_connection_timeout: *fxconfig_committer_sidecar_connection_timeout
       committer_sidecar_host: *committer_sidecar_host
       fxconfig_committer_sidecar_waiting_timeout: *fxconfig_committer_sidecar_waiting_timeout
-      fetched_artifacts_dir: *fetched_artifacts_dir
       fxconfig_config_file: *fxconfig_config_file
       fxconfig_container_config_dir: *fxconfig_container_config_dir
       fxconfig_log_format: *fxconfig_log_format
       fxconfig_log_level: *fxconfig_log_level
       fxconfig_msp_config_path: *fxconfig_msp_config_path
       fxconfig_msp_id: *fxconfig_msp_id
-      fxconfig_mtls_client_cert_path: *fxconfig_mtls_client_cert_path
-      fxconfig_mtls_client_key_path: *fxconfig_mtls_client_key_path
       fxconfig_orderer_connection_timeout: *fxconfig_orderer_connection_timeout
       fxconfig_remote_config_dir: *fxconfig_remote_config_dir
       fxconfig_use_bin: *fxconfig_use_bin
@@ -474,19 +471,7 @@ argument_specs:
       - "Dispatches namespace transaction endorsement to either the host binary or a transient container based on C(fxconfig_use_bin)."
       - "Consumes a namespace transaction JSON artifact and the rendered fxconfig configuration, then fetches the endorsed artifact."
     options:
-      fxconfig_bin_name: *fxconfig_bin_name
-      fxconfig_config_file: *fxconfig_config_file
-      fxconfig_container_config_dir: *fxconfig_container_config_dir
-      fxconfig_container_name: *fxconfig_container_name
-      fxconfig_image: *fxconfig_image
-      fxconfig_image_name: *fxconfig_image_name
-      fxconfig_image_tag: *fxconfig_image_tag
-      fxconfig_output: *fxconfig_output
-      fxconfig_registry_endpoint: *fxconfig_registry_endpoint
-      fxconfig_remote_config_dir: *fxconfig_remote_config_dir
-      fxconfig_tx_to_endorse: *fxconfig_tx_to_endorse
       fxconfig_use_bin: *fxconfig_use_bin
-      remote_config_dir: *remote_config_dir
 
   get_endorser:
     short_description: Resolve the namespace endorser user
@@ -501,20 +486,7 @@ argument_specs:
       - "Dispatches endorsed namespace transaction merging to either the host binary or a transient container based on C(fxconfig_use_bin)."
       - "Consumes endorsed JSON artifacts and writes the merged transaction artifact used by submission."
     options:
-      fxconfig_bin_name: *fxconfig_bin_name
-      fxconfig_container_config_dir: *fxconfig_container_config_dir
-      fxconfig_container_name: *fxconfig_container_name
-      fxconfig_endorsed_txs_dir: *fxconfig_endorsed_txs_dir
-      fxconfig_image: *fxconfig_image
-      fxconfig_image_name: *fxconfig_image_name
-      fxconfig_image_tag: *fxconfig_image_tag
-      fxconfig_log_format: *fxconfig_log_format
-      fxconfig_log_level: *fxconfig_log_level
-      fxconfig_output: *fxconfig_output
-      fxconfig_registry_endpoint: *fxconfig_registry_endpoint
-      fxconfig_remote_config_dir: *fxconfig_remote_config_dir
       fxconfig_use_bin: *fxconfig_use_bin
-      remote_config_dir: *remote_config_dir
 
   namespace/create:
     short_description: Create a namespace transaction
@@ -522,20 +494,7 @@ argument_specs:
       - "Dispatches namespace transaction creation to either the host binary or a transient container based on C(fxconfig_use_bin)."
       - "Writes a namespace transaction JSON artifact for the configured namespace identifier and endorsement policy."
     options:
-      fxconfig_bin_name: *fxconfig_bin_name
-      fxconfig_container_name: *fxconfig_container_name
-      fxconfig_image: *fxconfig_image
-      fxconfig_image_name: *fxconfig_image_name
-      fxconfig_image_tag: *fxconfig_image_tag
-      fxconfig_log_format: *fxconfig_log_format
-      fxconfig_log_level: *fxconfig_log_level
-      fxconfig_namespace_id: *fxconfig_namespace_id
-      fxconfig_namespace_policy: *fxconfig_namespace_policy
-      fxconfig_output: *fxconfig_output
-      fxconfig_registry_endpoint: *fxconfig_registry_endpoint
-      fxconfig_remote_config_dir: *fxconfig_remote_config_dir
       fxconfig_use_bin: *fxconfig_use_bin
-      remote_config_dir: *remote_config_dir
 
   namespace/group:
     short_description: Group hosts by declared namespaces
@@ -553,19 +512,7 @@ argument_specs:
       - "Dispatches namespace listing to either the host binary or a transient container based on C(fxconfig_use_bin)."
       - "Consumes the rendered fxconfig configuration that points at the Orderer Router and Committer services."
     options:
-      fxconfig_bin_name: *fxconfig_bin_name
-      fxconfig_config_file: *fxconfig_config_file
-      fxconfig_container_config_dir: *fxconfig_container_config_dir
-      fxconfig_container_name: *fxconfig_container_name
-      fxconfig_image: *fxconfig_image
-      fxconfig_image_name: *fxconfig_image_name
-      fxconfig_image_tag: *fxconfig_image_tag
-      fxconfig_log_format: *fxconfig_log_format
-      fxconfig_log_level: *fxconfig_log_level
-      fxconfig_remote_config_dir: *fxconfig_remote_config_dir
-      fxconfig_registry_endpoint: *fxconfig_registry_endpoint
       fxconfig_use_bin: *fxconfig_use_bin
-      remote_config_dir: *remote_config_dir
 
   submit:
     short_description: Submit a namespace transaction
@@ -573,23 +520,11 @@ argument_specs:
       - "Dispatches merged namespace transaction submission to either the host binary or a transient container based on C(fxconfig_use_bin)."
       - "Consumes the merged JSON artifact and rendered fxconfig configuration, then waits for submission completion."
     options:
-      fxconfig_bin_name: *fxconfig_bin_name
-      fxconfig_config_file: *fxconfig_config_file
-      fxconfig_container_config_dir: *fxconfig_container_config_dir
-      fxconfig_container_name: *fxconfig_container_name
-      fxconfig_image: *fxconfig_image
-      fxconfig_image_name: *fxconfig_image_name
-      fxconfig_image_tag: *fxconfig_image_tag
-      fxconfig_registry_endpoint: *fxconfig_registry_endpoint
-      fxconfig_remote_config_dir: *fxconfig_remote_config_dir
-      fxconfig_tx_to_submit_path: *fxconfig_tx_to_submit_path
       fxconfig_use_bin: *fxconfig_use_bin
-      remote_config_dir: *remote_config_dir
 
   wipe:
     short_description: Remove fxconfig binaries when enabled
     description:
       - "Removes the fxconfig binary from the managed host when the binary workflow is enabled; container workflows have no role-local binary to remove."
     options:
-      fxconfig_bin_name: *fxconfig_bin_name
       fxconfig_use_bin: *fxconfig_use_bin

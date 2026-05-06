@@ -597,9 +597,7 @@ argument_specs:
       loadgen_openshift_metrics_route: *loadgen_openshift_metrics_route
       loadgen_use_tls: *loadgen_use_tls
       loadgen_assert_metrics: *loadgen_assert_metrics
-      loadgen_use_k8s: *loadgen_use_k8s
       loadgen_use_openshift: *loadgen_use_openshift
-      loadgen_k8s_loadbalancer_expose_metrics_port: *loadgen_k8s_loadbalancer_expose_metrics_port
 
   limit_rate:
     short_description: Update the runtime rate limit
@@ -794,7 +792,6 @@ argument_specs:
       loadgen_git_repo: *loadgen_git_repo
       loadgen_git_commit: *loadgen_git_commit
       loadgen_source_code_package: *loadgen_source_code_package
-      loadgen_bin_package: *loadgen_bin_package
 
   bin/install:
     short_description: Install the load generator binary
@@ -931,8 +928,6 @@ argument_specs:
       loadgen_monitoring_mtls_clients: *loadgen_monitoring_mtls_clients
       loadgen_monitoring_mtls_orgs: *loadgen_monitoring_mtls_orgs
       k8s_image_pull_secret: *k8s_image_pull_secret
-      loadgen_use_k8s: *loadgen_use_k8s
-      loadgen_use_openshift: *loadgen_use_openshift
       loadgen_web_port: *loadgen_web_port
       loadgen_metrics_port: *loadgen_metrics_port
       loadgen_rpc_port: *loadgen_rpc_port
@@ -967,7 +962,6 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
-      loadgen_k8s_part_of: *loadgen_k8s_part_of
       loadgen_k8s_web_node_port: *loadgen_k8s_web_node_port
       loadgen_k8s_loadbalancer_expose_web_port: *loadgen_k8s_loadbalancer_expose_web_port
       loadgen_k8s_metrics_node_port: *loadgen_k8s_metrics_node_port
@@ -982,7 +976,6 @@ argument_specs:
       - Uses the configured Kubernetes resource name to fetch pod output without changing workload state.
     options:
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
-      loadgen_k8s_part_of: *loadgen_k8s_part_of
 
   k8s/config/transfer:
     short_description: Publish the Kubernetes ConfigMap
@@ -1015,7 +1008,6 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
-      loadgen_k8s_part_of: *loadgen_k8s_part_of
 
   k8s/crypto/transfer:
     short_description: Publish the Kubernetes Secret
@@ -1026,8 +1018,6 @@ argument_specs:
       organization: *organization
       remote_config_dir: *remote_config_dir
       loadgen_remote_config_dir: *loadgen_remote_config_dir
-      fetched_artifacts_dir: *fetched_artifacts_dir
-      actual_host: *actual_host
       loadgen_crypto_name: *loadgen_crypto_name
       k8s_namespace: *k8s_namespace
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
@@ -1043,7 +1033,6 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
-      loadgen_k8s_part_of: *loadgen_k8s_part_of
       loadgen_use_tls: *loadgen_use_tls
 
   openshift/start:
@@ -1056,7 +1045,6 @@ argument_specs:
       organization: *organization
       loadgen_use_tls: *loadgen_use_tls
       loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
-      k8s_namespace: *k8s_namespace
       loadgen_openshift_web_route: *loadgen_openshift_web_route
       loadgen_openshift_metrics_route: *loadgen_openshift_metrics_route
       loadgen_openshift_rpc_route: *loadgen_openshift_rpc_route
@@ -1078,8 +1066,6 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
-      loadgen_k8s_part_of: *loadgen_k8s_part_of
-      k8s_namespace: *k8s_namespace
       loadgen_openshift_web_route: *loadgen_openshift_web_route
       loadgen_openshift_metrics_route: *loadgen_openshift_metrics_route
       loadgen_openshift_rpc_route: *loadgen_openshift_rpc_route

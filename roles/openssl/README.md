@@ -75,8 +75,6 @@ Generate a private key and a self-signed X.509 certificate. The certificate is w
     remote_node_dir: "/tmp/fabricx/openssl"
     # Real machine host. Example: `myvpc.cloud.ibm.com`.
     actual_host: "myvpc.cloud.ibm.com"
-    # Inventory host address used in SAN defaults. Example: `192.0.2.15`.
-    ansible_host: "192.0.2.15"
     # Path to the private key file to create. Example: `/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.key`.
     openssl_private_key_path: "/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.key"
     # Path to the certificate file to create. Example: `/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.crt`.
@@ -161,8 +159,6 @@ Generate a private key and certificate signing request using a rendered OpenSSL 
     remote_node_dir: "/tmp/fabricx/openssl"
     # Real machine host. Example: `myvpc.cloud.ibm.com`.
     actual_host: "myvpc.cloud.ibm.com"
-    # Inventory host address used in SAN defaults. Example: `192.0.2.15`.
-    ansible_host: "192.0.2.15"
     # Path to the private key file to create. Example: `/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.key`.
     openssl_private_key_path: "/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.key"
     # Path to the CSR file to create. Example: `/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.csr`.

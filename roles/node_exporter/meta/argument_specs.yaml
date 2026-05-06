@@ -135,11 +135,6 @@ argument_specs:
         default: web-config.yaml
         description:
           - Sets the rendered Node Exporter web configuration filename.
-      node_exporter_root_fs_flags: &node_exporter_root_fs_flags
-        type: str
-        default: ro,rslave
-        description:
-          - Sets the host root filesystem mount flags used by the container runtime path.
       node_exporter_use_tls: &node_exporter_use_tls
         type: bool
         default: false
@@ -387,7 +382,6 @@ argument_specs:
       node_exporter_remote_config_dir: *node_exporter_remote_config_dir
       node_exporter_container_config_dir: *node_exporter_container_config_dir
       node_exporter_web_config_file: *node_exporter_web_config_file
-      node_exporter_root_fs_flags: *node_exporter_root_fs_flags
       node_exporter_use_tls: *node_exporter_use_tls
 
   container/stop:
@@ -473,7 +467,6 @@ argument_specs:
       - Targets the workload by C(k8s_namespace) and C(node_exporter_k8s_resource_name).
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
-      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
       k8s_namespace: *k8s_namespace
       node_exporter_k8s_node_port: *node_exporter_k8s_node_port
       node_exporter_k8s_loadbalancer_expose_metrics_port: *node_exporter_k8s_loadbalancer_expose_metrics_port
@@ -485,7 +478,6 @@ argument_specs:
       - This is the Kubernetes-mode log path used by the top-level fetch_logs entry point.
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
-      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
 
   k8s/config/transfer:
     short_description: Apply the Node Exporter Kubernetes ConfigMap
@@ -508,7 +500,6 @@ argument_specs:
       - Keeps the namespace and runtime pods untouched so teardown can be handled separately.
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
-      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
       k8s_namespace: *k8s_namespace
 
   k8s/crypto/transfer:
@@ -533,7 +524,6 @@ argument_specs:
       - Targets the Secret named after C(node_exporter_k8s_resource_name).
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
-      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
       k8s_namespace: *k8s_namespace
 
   prometheus/get_scrapers:
@@ -553,7 +543,6 @@ argument_specs:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
       node_exporter_k8s_part_of: *node_exporter_k8s_part_of
       node_exporter_use_tls: *node_exporter_use_tls
-      k8s_namespace: *k8s_namespace
       node_exporter_openshift_route: *node_exporter_openshift_route
 
   openshift/ping:
@@ -570,6 +559,4 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
-      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
-      k8s_namespace: *k8s_namespace
       node_exporter_openshift_route: *node_exporter_openshift_route

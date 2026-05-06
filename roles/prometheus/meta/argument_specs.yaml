@@ -370,7 +370,6 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
-      prometheus_k8s_part_of: *prometheus_k8s_part_of
       prometheus_k8s_node_port: *prometheus_k8s_node_port
       prometheus_k8s_loadbalancer_expose_http_port: *prometheus_k8s_loadbalancer_expose_http_port
 
@@ -392,7 +391,6 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
-      prometheus_k8s_part_of: *prometheus_k8s_part_of
 
   wipe:
     short_description: Remove all Prometheus data and configuration
@@ -463,7 +461,6 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
-      prometheus_k8s_part_of: *prometheus_k8s_part_of
 
   config/transfer:
     short_description: Transfer Prometheus configuration files
@@ -518,7 +515,6 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
-      prometheus_k8s_part_of: *prometheus_k8s_part_of
 
   fetch_logs:
     short_description: Fetch Prometheus logs from the active deployment mode
@@ -541,9 +537,7 @@ argument_specs:
     description:
       - Collects logs for the Prometheus pod through the shared Kubernetes role.
     options:
-      k8s_namespace: *k8s_namespace
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
-      prometheus_k8s_part_of: *prometheus_k8s_part_of
 
   openshift/start:
     short_description: Start the OpenShift deployment
@@ -553,7 +547,6 @@ argument_specs:
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
       prometheus_k8s_part_of: *prometheus_k8s_part_of
       prometheus_use_tls: *prometheus_use_tls
-      k8s_namespace: *k8s_namespace
       prometheus_openshift_route: *prometheus_openshift_route
 
   openshift/ping:
@@ -570,6 +563,4 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
-      prometheus_k8s_part_of: *prometheus_k8s_part_of
-      k8s_namespace: *k8s_namespace
       prometheus_openshift_route: *prometheus_openshift_route

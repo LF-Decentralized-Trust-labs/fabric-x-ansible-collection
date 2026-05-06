@@ -336,8 +336,6 @@ Deletes the remote YugabyteDB TLS directory and, in Kubernetes mode, removes the
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
     # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
-    yugabyte_k8s_part_of: yugabyte
     # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.
     k8s_namespace: "fabricx-yugabyte"
   ansible.builtin.include_role:
@@ -552,8 +550,6 @@ Deletes the remote YugabyteDB configuration directory and, in Kubernetes mode, r
     yugabyte_use_openshift: false
     # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
-    yugabyte_k8s_part_of: yugabyte
     # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.
     k8s_namespace: "fabricx-yugabyte"
   ansible.builtin.include_role:
@@ -801,8 +797,6 @@ Delegates pod log collection for the Kubernetes resource associated with the cur
   vars:
     # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
-    yugabyte_k8s_part_of: yugabyte
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: k8s/fetch_logs
@@ -942,8 +936,6 @@ Deletes the master StatefulSet and its Services for the current YugabyteDB maste
     k8s_namespace: "fabricx-yugabyte"
     # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
-    yugabyte_k8s_part_of: yugabyte
     # Kubernetes NodePort value used by the external master RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32100`.
     yugabyte_k8s_master_rpc_node_port: 32100
     # Set to `true` to create a LoadBalancer Service entry that exposes the master RPC port externally. When undefined or `false`, the master RPC port is not included in the LoadBalancer Service.
@@ -1089,8 +1081,6 @@ Deletes the tablet StatefulSet and its Services for the current YugabyteDB table
     k8s_namespace: "fabricx-yugabyte"
     # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
-    yugabyte_k8s_part_of: yugabyte
     # Kubernetes NodePort value used by the external tablet YSQL Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31433`.
     yugabyte_k8s_tablet_pgsql_node_port: 31433
     # Set to `true` to create a LoadBalancer Service entry that exposes the tablet YSQL port externally. When undefined or `false`, the tablet YSQL port is not included in the LoadBalancer Service.
@@ -1167,8 +1157,6 @@ Deletes persisted YugabyteDB data for the selected deployment mode. Container mo
     yugabyte_remote_data_dir: "{{ remote_data_dir }}"
     # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
-    yugabyte_k8s_part_of: yugabyte
     # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.
     k8s_namespace: "fabricx-yugabyte"
   ansible.builtin.include_role:
@@ -1211,8 +1199,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `tablet`.
     yugabyte_component_type: "tablet"
-    # Selects the OpenShift deployment branch.
-    yugabyte_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: openshift/start
@@ -1229,8 +1215,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `tablet`.
     yugabyte_component_type: "tablet"
-    # Selects the OpenShift deployment branch.
-    yugabyte_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: openshift/rm
@@ -1281,8 +1265,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     yugabyte_use_tls: false
     # Enables HTTPS for the YugabyteDB webserver.
     yugabyte_webserver_use_tls: "{{ yugabyte_use_tls }}"
-    # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.
-    k8s_namespace: "fabricx-yugabyte"
     # Specifies the OpenShift Route host. Example: `yugabyte-master-web.apps.example.com`.
     yugabyte_openshift_master_webserver_route: "yugabyte-master-web.apps.example.com"
   ansible.builtin.include_role:
@@ -1301,10 +1283,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
-    yugabyte_k8s_part_of: yugabyte
-    # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.
-    k8s_namespace: "fabricx-yugabyte"
     # Specifies the OpenShift Route host. Example: `yugabyte-master-web.apps.example.com`.
     yugabyte_openshift_master_webserver_route: "yugabyte-master-web.apps.example.com"
   ansible.builtin.include_role:
@@ -1329,8 +1307,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     yugabyte_use_tls: false
     # Enables HTTPS for the YugabyteDB webserver.
     yugabyte_webserver_use_tls: "{{ yugabyte_use_tls }}"
-    # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.
-    k8s_namespace: "fabricx-yugabyte"
     # Specifies the OpenShift Route host. Example: `yugabyte-tablet-web.apps.example.com`.
     yugabyte_openshift_tablet_webserver_route: "yugabyte-tablet-web.apps.example.com"
     # Specifies the OpenShift Route host. Example: `yugabyte-tablet-pgsql-web.apps.example.com`.
@@ -1353,10 +1329,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
-    yugabyte_k8s_part_of: yugabyte
-    # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.
-    k8s_namespace: "fabricx-yugabyte"
     # Specifies the OpenShift Route host. Example: `yugabyte-tablet-web.apps.example.com`.
     yugabyte_openshift_tablet_webserver_route: "yugabyte-tablet-web.apps.example.com"
     # Specifies the OpenShift Route host. Example: `yugabyte-tablet-pgsql-web.apps.example.com`.

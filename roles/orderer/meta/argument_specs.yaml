@@ -803,7 +803,6 @@ argument_specs:
       - "Leaves ConfigMap, Secret, and PVC artifacts for explicit config, crypto, or data cleanup entrypoints."
     options:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
-      orderer_k8s_part_of: *orderer_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -826,7 +825,6 @@ argument_specs:
       - "Works for consenter, batcher, assembler, and router workloads by using the generated resource name labels."
     options:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
-      orderer_k8s_part_of: *orderer_k8s_part_of
 
   k8s/config/transfer:
     short_description: Create the orderer Kubernetes ConfigMap
@@ -855,7 +853,6 @@ argument_specs:
       - "Does not remove the local generated config directory."
     options:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
-      orderer_k8s_part_of: *orderer_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -884,7 +881,6 @@ argument_specs:
       - "Does not remove the local MSP and TLS directories under the orderer config path."
     options:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
-      orderer_k8s_part_of: *orderer_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -907,7 +903,6 @@ argument_specs:
       orderer_component_type: *orderer_component_type
       orderer_use_tls: *orderer_use_tls
       organization: *organization
-      k8s_namespace: *k8s_namespace
       orderer_openshift_route: *orderer_openshift_route
       orderer_openshift_metrics_route: *orderer_openshift_metrics_route
 
@@ -926,8 +921,6 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
-      orderer_k8s_part_of: *orderer_k8s_part_of
-      k8s_namespace: *k8s_namespace
       orderer_openshift_route: *orderer_openshift_route
       orderer_openshift_metrics_route: *orderer_openshift_metrics_route
 

@@ -402,8 +402,6 @@ Tear down the selected component and remove binary, config, and crypto assets. I
 ```yaml
 - name: Remove all committer artifacts
   vars:
-    # Committer component handled by the entry point. Example: `coordinator`.
-    committer_component_type: "coordinator"
     # Enable host-binary deployment mode.
     committer_use_bin: false
   ansible.builtin.include_role:
@@ -975,8 +973,6 @@ Generate the Yugabyte connection settings consumed by the committer component. C
     fetched_artifacts_dir: "/tmp/fabricx/artifacts"
     # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
     remote_config_dir: "/opt/fabricx/committer/config"
-    # Yugabyte cluster identifier used by validator or query-service configuration. Example: `yb-committer-ledger`.
-    yugabyte_cluster_ref_id: "yb-committer-ledger"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: config/db/yugabyte/transfer
@@ -1134,8 +1130,6 @@ Remove the sidecar data directory and sidecar PVC when Kubernetes mode is enable
 ```yaml
 - name: Remove sidecar data
   vars:
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
     # Remote data directory managed by the role.
@@ -1164,8 +1158,6 @@ Delete the committer Kubernetes ConfigMap. Uses `committer_k8s_resource_name` an
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
   ansible.builtin.include_role:
@@ -1184,8 +1176,6 @@ Delete the committer Kubernetes Secret. Uses `committer_k8s_resource_name` and `
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
   ansible.builtin.include_role:
@@ -1240,8 +1230,6 @@ Collect logs from committer pods through the shared Kubernetes helper role. Uses
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: k8s/fetch_logs
@@ -1503,8 +1491,6 @@ Render validator configuration, DB settings, mTLS assets, and optional Kubernete
     postgres_db_host: "postgres-committer-1"
     # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
     remote_config_dir: "/opt/fabricx/committer/config"
-    # Computed list of Yugabyte cluster hosts derived from `yugabyte_cluster_ref_id`.
-    yugabyte_cluster: ["entry1", "entry2"]
     # Yugabyte cluster identifier used by validator or query-service configuration. Example: `yb-committer-ledger`.
     yugabyte_cluster_ref_id: "yb-committer-ledger"
   ansible.builtin.include_role:
@@ -1622,20 +1608,6 @@ Render coordinator configuration, validator and verifier CA bundles, and optiona
     committer_coordinator_dep_graph_wait_tx_limit: 20000000
     # Per-goroutine channel buffer size for the coordinator. Example: `10`.
     committer_coordinator_per_channel_buffer_size_per_goroutine: 10
-    # Maximum size of the committer database connection pool. Example: `32`.
-    committer_database_max_connections: 32
-    # Minimum size of the committer database connection pool. Example: `8`.
-    committer_database_min_connections: 8
-    # Initial backoff interval for database retries. Example: `500ms`.
-    committer_database_retry_initial_interval: "500ms"
-    # Maximum total elapsed time allowed for database retries. Example: `15m`.
-    committer_database_retry_max_elapsed_time: "15m"
-    # Maximum interval allowed between database retry attempts. Example: `60s`.
-    committer_database_retry_max_interval: "60s"
-    # Exponential multiplier applied to database retry intervals. Example: `1.5`.
-    committer_database_retry_multiplier: 1.5
-    # Jitter factor applied to database retry intervals. Example: `0.5`.
-    committer_database_retry_randomization_factor: 0.5
     # Log format emitted by the committer component.
     committer_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
     # Log level emitted by the committer component.
@@ -1925,8 +1897,6 @@ Render query-service configuration, DB settings, mTLS assets, and optional Kuber
     postgres_db_host: "postgres-committer-1"
     # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
     remote_config_dir: "/opt/fabricx/committer/config"
-    # Computed list of Yugabyte cluster hosts derived from `yugabyte_cluster_ref_id`.
-    yugabyte_cluster: ["entry1", "entry2"]
     # Yugabyte cluster identifier used by validator or query-service configuration. Example: `yb-committer-ledger`.
     yugabyte_cluster_ref_id: "yb-committer-ledger"
   ansible.builtin.include_role:
@@ -2478,8 +2448,6 @@ Delete the validator Deployment and Services. Uses `committer_k8s_resource_name`
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
     # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
@@ -2506,8 +2474,6 @@ Delete the verifier Deployment and Services. Uses `committer_k8s_resource_name` 
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
     # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
@@ -2534,8 +2500,6 @@ Delete the coordinator Deployment and Services. Uses `committer_k8s_resource_nam
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
     # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
@@ -2562,8 +2526,6 @@ Delete the sidecar StatefulSet and Services. Uses `committer_k8s_resource_name` 
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
     # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
@@ -2590,8 +2552,6 @@ Delete the query-service Deployment and Services. Uses `committer_k8s_resource_n
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
     # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
@@ -2951,8 +2911,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     committer_openshift_route: "committer-rpc.apps.example.com"
     # Enable TLS material for the selected component.
     committer_use_tls: false
-    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
-    k8s_namespace: "fabricx-committer"
     # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
     organization:
       name: "Org1"
@@ -2975,10 +2933,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
-    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
-    k8s_namespace: "fabricx-committer"
     # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
     committer_openshift_route: "committer-rpc.apps.example.com"
     # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
@@ -3011,8 +2965,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     committer_openshift_route: "committer-rpc.apps.example.com"
     # Enable TLS material for the selected component.
     committer_use_tls: false
-    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
-    k8s_namespace: "fabricx-committer"
     # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
     organization:
       name: "Org1"
@@ -3035,10 +2987,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
-    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
-    k8s_namespace: "fabricx-committer"
     # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
     committer_openshift_route: "committer-rpc.apps.example.com"
     # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
@@ -3071,8 +3019,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     committer_openshift_route: "committer-rpc.apps.example.com"
     # Enable TLS material for the selected component.
     committer_use_tls: false
-    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
-    k8s_namespace: "fabricx-committer"
     # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
     organization:
       name: "Org1"
@@ -3095,10 +3041,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
-    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
-    k8s_namespace: "fabricx-committer"
     # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
     committer_openshift_route: "committer-rpc.apps.example.com"
     # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
@@ -3131,8 +3073,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     committer_openshift_route: "committer-rpc.apps.example.com"
     # Enable TLS material for the selected component.
     committer_use_tls: false
-    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
-    k8s_namespace: "fabricx-committer"
     # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
     organization:
       name: "Org1"
@@ -3155,10 +3095,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
-    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
-    k8s_namespace: "fabricx-committer"
     # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
     committer_openshift_route: "committer-rpc.apps.example.com"
     # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
@@ -3191,8 +3127,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     committer_openshift_route: "committer-rpc.apps.example.com"
     # Enable TLS material for the selected component.
     committer_use_tls: false
-    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
-    k8s_namespace: "fabricx-committer"
     # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
     organization:
       name: "Org1"
@@ -3215,10 +3149,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
-    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
-    k8s_namespace: "fabricx-committer"
     # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
     committer_openshift_route: "committer-rpc.apps.example.com"
     # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.

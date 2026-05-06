@@ -300,11 +300,6 @@ argument_specs:
         description:
           - Yugabyte cluster identifier used by validator or query-service configuration.
           - "Example: C(yb-committer-ledger)."
-      yugabyte_cluster: &yugabyte_cluster
-        type: list
-        elements: str
-        description:
-          - Computed list of Yugabyte cluster hosts derived from C(yugabyte_cluster_ref_id).
       committer_hosts: &committer_hosts
         type: list
         required: true
@@ -806,7 +801,6 @@ argument_specs:
       - Tear down the selected component and remove binary, config, and crypto assets.
       - Intended for full cleanup of role-managed host artifacts after stopping the component.
     options:
-      committer_component_type: *committer_component_type
       committer_use_bin: *committer_use_bin
 
   fetch_logs:
@@ -1103,9 +1097,6 @@ argument_specs:
         <<: *fetched_artifacts_dir
         required: true
       remote_config_dir: *remote_config_dir
-      yugabyte_cluster_ref_id:
-        <<: *yugabyte_cluster_ref_id
-        required: true
 
   config/mtls/transfer:
     short_description: Transfer committer mTLS certificates
@@ -1186,7 +1177,6 @@ argument_specs:
       - Remove the sidecar data directory and sidecar PVC when Kubernetes mode is enabled.
       - Applies only to sidecar ledger data stored under C(committer_remote_data_dir).
     options:
-      committer_k8s_part_of: *committer_k8s_part_of
       committer_k8s_resource_name: *committer_k8s_resource_name
       committer_remote_data_dir: *committer_remote_data_dir
       committer_use_k8s: *committer_use_k8s
@@ -1202,7 +1192,6 @@ argument_specs:
       - Uses C(committer_k8s_resource_name) and C(k8s_namespace) to identify the ConfigMap.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
-      committer_k8s_part_of: *committer_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -1214,7 +1203,6 @@ argument_specs:
       - Uses C(committer_k8s_resource_name) and C(k8s_namespace) to identify the Secret.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
-      committer_k8s_part_of: *committer_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -1244,7 +1232,6 @@ argument_specs:
       - Uses C(committer_k8s_resource_name) to select the component workload.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
-      committer_k8s_part_of: *committer_k8s_part_of
 
   prometheus/get_scrapers:
     short_description: Build Prometheus scrape targets for committer
@@ -1374,7 +1361,6 @@ argument_specs:
       postgres_db_host:
         <<: *postgres_db_host
       remote_config_dir: *remote_config_dir
-      yugabyte_cluster: *yugabyte_cluster
       yugabyte_cluster_ref_id:
         <<: *yugabyte_cluster_ref_id
 
@@ -1432,13 +1418,6 @@ argument_specs:
       committer_coordinator_dep_graph_constructors: *committer_coordinator_dep_graph_constructors
       committer_coordinator_dep_graph_wait_tx_limit: *committer_coordinator_dep_graph_wait_tx_limit
       committer_coordinator_per_channel_buffer_size_per_goroutine: *committer_coordinator_per_channel_buffer_size_per_goroutine
-      committer_database_max_connections: *committer_database_max_connections
-      committer_database_min_connections: *committer_database_min_connections
-      committer_database_retry_initial_interval: *committer_database_retry_initial_interval
-      committer_database_retry_max_elapsed_time: *committer_database_retry_max_elapsed_time
-      committer_database_retry_max_interval: *committer_database_retry_max_interval
-      committer_database_retry_multiplier: *committer_database_retry_multiplier
-      committer_database_retry_randomization_factor: *committer_database_retry_randomization_factor
       committer_log_format: *committer_log_format
       committer_log_level: *committer_log_level
       committer_metrics_port: *committer_metrics_port
@@ -1576,7 +1555,6 @@ argument_specs:
       postgres_db_host:
         <<: *postgres_db_host
       remote_config_dir: *remote_config_dir
-      yugabyte_cluster: *yugabyte_cluster
       yugabyte_cluster_ref_id:
         <<: *yugabyte_cluster_ref_id
 
@@ -1817,7 +1795,6 @@ argument_specs:
       - Uses C(committer_k8s_resource_name) in C(k8s_namespace) to select resources.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
-      committer_k8s_part_of: *committer_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -1833,7 +1810,6 @@ argument_specs:
       - Uses C(committer_k8s_resource_name) in C(k8s_namespace) to select resources.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
-      committer_k8s_part_of: *committer_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -1849,7 +1825,6 @@ argument_specs:
       - Uses C(committer_k8s_resource_name) in C(k8s_namespace) to select resources.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
-      committer_k8s_part_of: *committer_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -1865,7 +1840,6 @@ argument_specs:
       - Uses C(committer_k8s_resource_name) in C(k8s_namespace) to select resources.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
-      committer_k8s_part_of: *committer_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -1881,7 +1855,6 @@ argument_specs:
       - Uses C(committer_k8s_resource_name) in C(k8s_namespace) to select resources.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
-      committer_k8s_part_of: *committer_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -2041,7 +2014,6 @@ argument_specs:
       committer_openshift_metrics_route: *committer_openshift_metrics_route
       committer_openshift_route: *committer_openshift_route
       committer_use_tls: *committer_use_tls
-      k8s_namespace: *k8s_namespace
       organization: *organization
 
   validator/openshift/rm:
@@ -2050,8 +2022,6 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
-      committer_k8s_part_of: *committer_k8s_part_of
-      k8s_namespace: *k8s_namespace
       committer_openshift_route: *committer_openshift_route
       committer_openshift_metrics_route: *committer_openshift_metrics_route
 
@@ -2067,7 +2037,6 @@ argument_specs:
       committer_openshift_metrics_route: *committer_openshift_metrics_route
       committer_openshift_route: *committer_openshift_route
       committer_use_tls: *committer_use_tls
-      k8s_namespace: *k8s_namespace
       organization: *organization
 
   verifier/openshift/rm:
@@ -2076,8 +2045,6 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
-      committer_k8s_part_of: *committer_k8s_part_of
-      k8s_namespace: *k8s_namespace
       committer_openshift_route: *committer_openshift_route
       committer_openshift_metrics_route: *committer_openshift_metrics_route
 
@@ -2093,7 +2060,6 @@ argument_specs:
       committer_openshift_metrics_route: *committer_openshift_metrics_route
       committer_openshift_route: *committer_openshift_route
       committer_use_tls: *committer_use_tls
-      k8s_namespace: *k8s_namespace
       organization: *organization
 
   coordinator/openshift/rm:
@@ -2102,8 +2068,6 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
-      committer_k8s_part_of: *committer_k8s_part_of
-      k8s_namespace: *k8s_namespace
       committer_openshift_route: *committer_openshift_route
       committer_openshift_metrics_route: *committer_openshift_metrics_route
 
@@ -2119,7 +2083,6 @@ argument_specs:
       committer_openshift_metrics_route: *committer_openshift_metrics_route
       committer_openshift_route: *committer_openshift_route
       committer_use_tls: *committer_use_tls
-      k8s_namespace: *k8s_namespace
       organization: *organization
 
   sidecar/openshift/rm:
@@ -2128,8 +2091,6 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
-      committer_k8s_part_of: *committer_k8s_part_of
-      k8s_namespace: *k8s_namespace
       committer_openshift_route: *committer_openshift_route
       committer_openshift_metrics_route: *committer_openshift_metrics_route
 
@@ -2145,7 +2106,6 @@ argument_specs:
       committer_openshift_metrics_route: *committer_openshift_metrics_route
       committer_openshift_route: *committer_openshift_route
       committer_use_tls: *committer_use_tls
-      k8s_namespace: *k8s_namespace
       organization: *organization
 
   query_service/openshift/rm:
@@ -2154,7 +2114,5 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
-      committer_k8s_part_of: *committer_k8s_part_of
-      k8s_namespace: *k8s_namespace
       committer_openshift_route: *committer_openshift_route
       committer_openshift_metrics_route: *committer_openshift_metrics_route
