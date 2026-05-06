@@ -4,16 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# We need to remove the `rslave` flag from the macOS container
-# to prevent issues with Docker Desktop and VirtioFS.
-# Indeed, it doesn't support `rslave` flag on macOS, causing
-# the error: "path / is mounted on / but it is not a shared or slave mount".
-- name: Set Node Exporter container volume flags for macOS
-  ansible.builtin.set_fact:
-    node_exporter_root_fs_flags: "ro"
-  when:
-    - ansible_facts.system == 'Darwin'
-
 - name: Start Node Exporter container
   vars:
     container_name: "{{ node_exporter_container_name }}"

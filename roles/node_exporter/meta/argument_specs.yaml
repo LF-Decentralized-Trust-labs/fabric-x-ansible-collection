@@ -206,12 +206,18 @@ argument_specs:
         description:
           - Lists the inventory hosts exposed as Prometheus scrape targets.
           - "Example: C(['worker-1', 'worker-2', 'worker-3'])."
-
       node_exporter_use_openshift: &node_exporter_use_openshift
         type: bool
         default: false
         description:
           - Selects the OpenShift deployment branch.
+      node_exporter_root_fs_flags: &node_exporter_root_fs_flags
+        type: str
+        default: "{{ 'ro' if ansible_facts.system == 'Darwin' else 'rslave,ro' }}"
+        description:
+          - Sets the bind-mount propagation flags for the host root filesystem volume (C(/:/host:<flags>)).
+          - On Linux the default is C(rslave,ro), required for Docker bind-mount propagation.
+          - On macOS, Docker Desktop with VirtioFS does not support C(rslave), so C(ro) is used instead.
       node_exporter_openshift_route: &node_exporter_openshift_route
         type: str
         description:
@@ -383,6 +389,7 @@ argument_specs:
       node_exporter_container_config_dir: *node_exporter_container_config_dir
       node_exporter_web_config_file: *node_exporter_web_config_file
       node_exporter_use_tls: *node_exporter_use_tls
+      node_exporter_root_fs_flags: *node_exporter_root_fs_flags
 
   container/stop:
     short_description: Stop the Node Exporter container
