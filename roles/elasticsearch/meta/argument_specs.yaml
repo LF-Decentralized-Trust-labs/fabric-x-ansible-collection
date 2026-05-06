@@ -369,8 +369,7 @@ argument_specs:
       elasticsearch_remote_data_dir: *elasticsearch_remote_data_dir
       remote_data_dir: *remote_data_dir
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
-      k8s_namespace:
-        <<: *k8s_namespace
+      k8s_namespace: *k8s_namespace
 
   crypto/setup:
     short_description: Prepare ElasticSearch TLS materials

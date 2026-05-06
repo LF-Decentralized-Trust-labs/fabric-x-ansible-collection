@@ -820,8 +820,7 @@ argument_specs:
       - Query the component metrics endpoint and print the response body.
       - Uses C(actual_host), C(committer_http_protocol), and C(committer_metrics_port).
     options:
-      actual_host:
-        <<: *actual_host
+      actual_host: *actual_host
       committer_http_protocol: *committer_http_protocol
       committer_metrics_port: *committer_metrics_port
       committer_use_tls: *committer_use_tls
@@ -853,8 +852,7 @@ argument_specs:
     options:
       remote_config_dir: *remote_config_dir
       committer_remote_config_dir: *committer_remote_config_dir
-      fetched_artifacts_dir:
-        <<: *fetched_artifacts_dir
+      fetched_artifacts_dir: *fetched_artifacts_dir
       committer_use_tls: *committer_use_tls
 
   bin/install:
@@ -1066,10 +1064,8 @@ argument_specs:
       - Dispatch database configuration generation to the selected backend.
       - Selects PostgreSQL via C(postgres_db_host) or YugabyteDB via C(yugabyte_cluster_ref_id).
     options:
-      postgres_db_host:
-        <<: *postgres_db_host
-      yugabyte_cluster_ref_id:
-        <<: *yugabyte_cluster_ref_id
+      postgres_db_host: *postgres_db_host
+      yugabyte_cluster_ref_id: *yugabyte_cluster_ref_id
 
   config/db/postgres/transfer:
     short_description: Transfer PostgreSQL DB config
@@ -1181,8 +1177,7 @@ argument_specs:
       committer_remote_data_dir: *committer_remote_data_dir
       committer_use_k8s: *committer_use_k8s
       committer_use_openshift: *committer_use_openshift
-      k8s_namespace:
-        <<: *k8s_namespace
+      k8s_namespace: *k8s_namespace
       remote_data_dir: *remote_data_dir
 
   k8s/config/rm:
@@ -1358,11 +1353,9 @@ argument_specs:
       committer_use_mtls: *committer_use_mtls
       committer_use_openshift: *committer_use_openshift
       committer_use_tls: *committer_use_tls
-      postgres_db_host:
-        <<: *postgres_db_host
+      postgres_db_host: *postgres_db_host
       remote_config_dir: *remote_config_dir
-      yugabyte_cluster_ref_id:
-        <<: *yugabyte_cluster_ref_id
+      yugabyte_cluster_ref_id: *yugabyte_cluster_ref_id
 
   verifier/config/transfer:
     short_description: Generate verifier config
@@ -1552,11 +1545,9 @@ argument_specs:
       committer_use_mtls: *committer_use_mtls
       committer_use_openshift: *committer_use_openshift
       committer_use_tls: *committer_use_tls
-      postgres_db_host:
-        <<: *postgres_db_host
+      postgres_db_host: *postgres_db_host
       remote_config_dir: *remote_config_dir
-      yugabyte_cluster_ref_id:
-        <<: *yugabyte_cluster_ref_id
+      yugabyte_cluster_ref_id: *yugabyte_cluster_ref_id
 
   validator/k8s/start:
     short_description: Start the validator on Kubernetes
@@ -1600,10 +1591,8 @@ argument_specs:
       k8s_readiness_probe_timeout_seconds: *k8s_readiness_probe_timeout_seconds
       k8s_resources: *k8s_resources
       organization: *organization
-      postgres_db_host:
-        <<: *postgres_db_host
-      yugabyte_cluster_ref_id:
-        <<: *yugabyte_cluster_ref_id
+      postgres_db_host: *postgres_db_host
+      yugabyte_cluster_ref_id: *yugabyte_cluster_ref_id
 
   verifier/k8s/start:
     short_description: Start the verifier on Kubernetes
@@ -1783,10 +1772,8 @@ argument_specs:
       k8s_readiness_probe_timeout_seconds: *k8s_readiness_probe_timeout_seconds
       k8s_resources: *k8s_resources
       organization: *organization
-      postgres_db_host:
-        <<: *postgres_db_host
-      yugabyte_cluster_ref_id:
-        <<: *yugabyte_cluster_ref_id
+      postgres_db_host: *postgres_db_host
+      yugabyte_cluster_ref_id: *yugabyte_cluster_ref_id
 
   validator/k8s/rm:
     short_description: Remove validator Kubernetes resources
@@ -1882,11 +1869,9 @@ argument_specs:
       committer_use_mtls: *committer_use_mtls
       k8s_namespace: *k8s_namespace
       organization: *organization
-      postgres_db_host:
-        <<: *postgres_db_host
+      postgres_db_host: *postgres_db_host
       remote_config_dir: *remote_config_dir
-      yugabyte_cluster_ref_id:
-        <<: *yugabyte_cluster_ref_id
+      yugabyte_cluster_ref_id: *yugabyte_cluster_ref_id
 
   verifier/k8s/config/transfer:
     short_description: Create the verifier ConfigMap
@@ -1974,11 +1959,9 @@ argument_specs:
       committer_use_mtls: *committer_use_mtls
       k8s_namespace: *k8s_namespace
       organization: *organization
-      postgres_db_host:
-        <<: *postgres_db_host
+      postgres_db_host: *postgres_db_host
       remote_config_dir: *remote_config_dir
-      yugabyte_cluster_ref_id:
-        <<: *yugabyte_cluster_ref_id
+      yugabyte_cluster_ref_id: *yugabyte_cluster_ref_id
 
   validator/teardown:
     short_description: Teardown the validator

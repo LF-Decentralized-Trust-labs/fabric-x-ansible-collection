@@ -324,8 +324,7 @@ argument_specs:
       - "Stores runtime module output in C(container_output) and can print captured process output when debug mode is enabled for foreground containers."
     options:
       container_client: *container_client
-      container_command:
-        <<: *container_command
+      container_command: *container_command
       container_debug: *container_debug
 
   stop:
@@ -427,8 +426,7 @@ argument_specs:
         required: true
       container_image: *container_image
       container_entrypoint: *container_entrypoint
-      container_command:
-        <<: *container_command
+      container_command: *container_command
       container_hostname: *container_hostname
       container_host_uid: *container_host_uid
       container_host_gid: *container_host_gid
@@ -436,8 +434,7 @@ argument_specs:
       container_run_as_host_user: *container_run_as_host_user
       container_on_mac: *container_on_mac
       container_network_mode: *container_network_mode
-      container_network:
-        <<: *container_network
+      container_network: *container_network
       container_ports: *container_ports
       container_memory: *container_memory
       container_cpus: *container_cpus
@@ -535,8 +532,7 @@ argument_specs:
       - "Creates or updates a host path used as a Docker volume."
       - "Applies state, mode, ownership, and recursive permission inputs, using a short-lived helper container for rootless ownership or mode changes when needed."
     options:
-      container_name:
-        <<: *container_name
+      container_name: *container_name
       container_host_uid: *container_host_uid
       container_host_gid: *container_host_gid
       container_host_user: *container_host_user
@@ -580,8 +576,7 @@ argument_specs:
         required: true
       container_image: *container_image
       container_entrypoint: *container_entrypoint
-      container_command:
-        <<: *container_command
+      container_command: *container_command
       container_hostname: *container_hostname
       container_host_uid: *container_host_uid
       container_host_gid: *container_host_gid
@@ -590,8 +585,7 @@ argument_specs:
       container_run_as_host_user: *container_run_as_host_user
       container_on_mac: *container_on_mac
       container_network_mode: *container_network_mode
-      container_network:
-        <<: *container_network
+      container_network: *container_network
       container_ports: *container_ports
       container_memory: *container_memory
       container_cpus: *container_cpus
@@ -687,8 +681,7 @@ argument_specs:
       - "Creates or updates a host path used as a Podman volume."
       - "Applies state, mode, ownership, and recursive permission inputs, using C(podman unshare) for rootless ownership or mode changes when needed."
     options:
-      container_name:
-        <<: *container_name
+      container_name: *container_name
       container_host_uid: *container_host_uid
       container_host_gid: *container_host_gid
       container_host_user: *container_host_user

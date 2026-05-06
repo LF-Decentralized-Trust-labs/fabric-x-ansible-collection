@@ -614,8 +614,7 @@ argument_specs:
       remote_data_dir: *remote_data_dir
       orderer_use_k8s: *orderer_use_k8s
       orderer_use_openshift: *orderer_use_openshift
-      k8s_namespace:
-        <<: *k8s_namespace
+      k8s_namespace: *k8s_namespace
 
   config/transfer:
     short_description: Render and transfer orderer configuration

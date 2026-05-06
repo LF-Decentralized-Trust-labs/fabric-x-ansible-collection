@@ -594,8 +594,7 @@ argument_specs:
       yugabyte_use_openshift: *yugabyte_use_openshift
       yugabyte_remote_config_dir: *yugabyte_remote_config_dir
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
-      k8s_namespace:
-        <<: *k8s_namespace
+      k8s_namespace: *k8s_namespace
 
   crypto/openssl/generate_csr:
     short_description: Generate a YugabyteDB TLS CSR
@@ -690,8 +689,7 @@ argument_specs:
       yugabyte_use_k8s: *yugabyte_use_k8s
       yugabyte_use_openshift: *yugabyte_use_openshift
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
-      k8s_namespace:
-        <<: *k8s_namespace
+      k8s_namespace: *k8s_namespace
 
   config/transfer_grafana_dashboard:
     short_description: Transfer the YugabyteDB Grafana dashboard
@@ -995,8 +993,7 @@ argument_specs:
       yugabyte_use_openshift: *yugabyte_use_openshift
       yugabyte_remote_data_dir: *yugabyte_remote_data_dir
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
-      k8s_namespace:
-        <<: *k8s_namespace
+      k8s_namespace: *k8s_namespace
 
   prometheus/get_scrapers:
     short_description: Build Prometheus scrapers for YugabyteDB

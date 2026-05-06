@@ -354,8 +354,7 @@ argument_specs:
       postgres_use_container: *postgres_use_container
       postgres_remote_data_dir: *postgres_remote_data_dir
       remote_data_dir: *remote_data_dir
-      k8s_namespace:
-        <<: *k8s_namespace
+      k8s_namespace: *k8s_namespace
 
   container/start:
     short_description: Start PostgreSQL in a container
@@ -581,8 +580,7 @@ argument_specs:
       postgres_use_tls: *postgres_use_tls
       postgres_use_k8s: *postgres_use_k8s
       postgres_use_openshift: *postgres_use_openshift
-      organization:
-        <<: *organization
+      organization: *organization
 
   crypto/fetch:
     short_description: Fetch PostgreSQL TLS certificates
@@ -618,8 +616,7 @@ argument_specs:
       remote_config_dir: *remote_config_dir
       postgres_tls_private_key_file: *postgres_tls_private_key_file
       postgres_tls_cert_file: *postgres_tls_cert_file
-      organization:
-        <<: *organization
+      organization: *organization
 
   crypto/cryptogen/transfer:
     short_description: Transfer PostgreSQL TLS materials from cryptogen
