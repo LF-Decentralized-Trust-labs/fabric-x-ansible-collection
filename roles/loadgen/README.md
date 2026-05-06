@@ -96,6 +96,10 @@ Stop the active Loadgen runtime selected by the deployment mode flags. Stops the
     loadgen_use_container: "{{ (not loadgen_use_bin) and (not loadgen_use_k8s) and (not loadgen_use_openshift) }}"
     # Run the binary runtime.
     loadgen_use_bin: false
+    # Use Kubernetes resources.
+    loadgen_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    loadgen_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: stop
@@ -439,6 +443,8 @@ Transfer CA bundles trusted by the Loadgen monitoring endpoint. Copies client an
 ```yaml
 - name: Transfer monitoring mTLS CA bundles
   vars:
+    # Base remote config directory that feeds `loadgen_remote_config_dir`. Example: `/var/hyperledger/fabricx/loadgen/lg-1/config`.
+    remote_config_dir: "/var/hyperledger/fabricx/loadgen/lg-1/config"
     # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Local artifacts directory used for fetched TLS and MSP files. Example: `/tmp/fabricx-artifacts`.
@@ -814,6 +820,12 @@ Stop the local Loadgen container. Preserves the container definition, image refe
     loadgen_container_name: "{{ inventory_hostname }}"
     # Loadgen container image.
     loadgen_image: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
+    # Image name used by the Loadgen container.
+    loadgen_image_name: fabric-x-loadgen
+    # Image tag used by the Loadgen container.
+    loadgen_image_tag: 0.1.9
+    # Image registry endpoint.
+    loadgen_registry_endpoint: "{{ lookup('env', 'LOADGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: container/stop
@@ -832,6 +844,12 @@ Remove the local Loadgen container runtime resources. Leaves host-side generated
     loadgen_container_name: "{{ inventory_hostname }}"
     # Loadgen container image.
     loadgen_image: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
+    # Image name used by the Loadgen container.
+    loadgen_image_name: fabric-x-loadgen
+    # Image tag used by the Loadgen container.
+    loadgen_image_tag: 0.1.9
+    # Image registry endpoint.
+    loadgen_registry_endpoint: "{{ lookup('env', 'LOADGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: container/rm
@@ -1048,6 +1066,15 @@ Publish the rendered Loadgen configuration and trusted CA bundles as a Kubernete
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Loadgen resources.
     loadgen_k8s_part_of: "fabric-x-loadgen-{{ organization.name }}"
+    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'loadgen1', 'secret': 'loadgen1pw'}}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      peer:
+        name: "loadgen1"
+        secret: "loadgen1pw"
+    # Base remote config directory that feeds `loadgen_remote_config_dir`. Example: `/var/hyperledger/fabricx/loadgen/lg-1/config`.
+    remote_config_dir: "/var/hyperledger/fabricx/loadgen/lg-1/config"
     # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Rendered Loadgen config filename.
@@ -1182,6 +1209,13 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Loadgen resources.
     loadgen_k8s_part_of: "fabric-x-loadgen-{{ organization.name }}"
+    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'loadgen1', 'secret': 'loadgen1pw'}}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      peer:
+        name: "loadgen1"
+        secret: "loadgen1pw"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
     # Enable TLS for the monitoring endpoint.

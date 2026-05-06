@@ -82,6 +82,10 @@ Stops a container-based Postgres Exporter deployment without removing generated 
   vars:
     # Enables the container backend when set to `true`.
     postgres_exporter_use_container: "{{ (not postgres_exporter_use_k8s) and (not postgres_exporter_use_openshift) }}"
+    # Enables the Kubernetes backend and Kubernetes cleanup path when set to `true`.
+    postgres_exporter_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    postgres_exporter_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: stop

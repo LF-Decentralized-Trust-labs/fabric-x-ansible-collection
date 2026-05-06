@@ -535,6 +535,8 @@ argument_specs:
     options:
       loadgen_use_container: *loadgen_use_container
       loadgen_use_bin: *loadgen_use_bin
+      loadgen_use_k8s: *loadgen_use_k8s
+      loadgen_use_openshift: *loadgen_use_openshift
 
   teardown:
     short_description: Remove runtime artifacts
@@ -693,6 +695,7 @@ argument_specs:
       - Transfer CA bundles trusted by the Loadgen monitoring endpoint.
       - Copies client and organization CA files into the config tree so the metrics listener can verify Prometheus or other monitoring clients when mTLS is enabled.
     options:
+      remote_config_dir: *remote_config_dir
       loadgen_remote_config_dir: *loadgen_remote_config_dir
       fetched_artifacts_dir: *fetched_artifacts_dir
       loadgen_monitoring_mtls_clients: *loadgen_monitoring_mtls_clients
@@ -870,6 +873,9 @@ argument_specs:
     options:
       loadgen_container_name: *loadgen_container_name
       loadgen_image: *loadgen_image
+      loadgen_image_name: *loadgen_image_name
+      loadgen_image_tag: *loadgen_image_tag
+      loadgen_registry_endpoint: *loadgen_registry_endpoint
 
   container/rm:
     short_description: Remove the container runtime
@@ -879,6 +885,9 @@ argument_specs:
     options:
       loadgen_container_name: *loadgen_container_name
       loadgen_image: *loadgen_image
+      loadgen_image_name: *loadgen_image_name
+      loadgen_image_tag: *loadgen_image_tag
+      loadgen_registry_endpoint: *loadgen_registry_endpoint
 
   container/fetch_logs:
     short_description: Fetch container logs
@@ -978,6 +987,8 @@ argument_specs:
       k8s_namespace: *k8s_namespace
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
       loadgen_k8s_part_of: *loadgen_k8s_part_of
+      organization: *organization
+      remote_config_dir: *remote_config_dir
       loadgen_remote_config_dir: *loadgen_remote_config_dir
       loadgen_config_file: *loadgen_config_file
       orderer_router_hosts: *orderer_router_hosts
@@ -1036,6 +1047,7 @@ argument_specs:
     options:
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
       loadgen_k8s_part_of: *loadgen_k8s_part_of
+      organization: *organization
       loadgen_use_tls: *loadgen_use_tls
       loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
       k8s_namespace: *k8s_namespace

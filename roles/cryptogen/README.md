@@ -56,6 +56,8 @@ Copy generated MSP directories for orderer and peer organizations into the fetch
   vars:
     # Sets the base directory for generated configuration artifacts. Example: `/opt/hyperledger/fabricx/build`.
     config_build_dir: "/opt/hyperledger/fabricx/build"
+    # Sets the directory that stores cryptogen inputs and generated files.
+    cryptogen_artifacts_dir: "{{ config_build_dir }}/cryptogen-artifacts"
     # Sets the destination directory for fetched MSP folders. Example: `/opt/hyperledger/fabricx/build/fetched-artifacts`.
     fetched_artifacts_dir: "/opt/hyperledger/fabricx/build/fetched-artifacts"
     # Sets the directory where cryptogen writes generated crypto material.

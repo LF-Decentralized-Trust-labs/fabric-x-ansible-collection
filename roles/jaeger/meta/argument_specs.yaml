@@ -307,6 +307,8 @@ argument_specs:
       - "Stops the running Jaeger container without removing configuration assets."
     options:
       jaeger_use_container: *jaeger_use_container
+      jaeger_use_k8s: *jaeger_use_k8s
+      jaeger_use_openshift: *jaeger_use_openshift
 
   teardown:
     short_description: Select the Jaeger deployment mode to remove

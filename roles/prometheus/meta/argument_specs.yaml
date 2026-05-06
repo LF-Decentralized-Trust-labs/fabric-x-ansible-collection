@@ -331,6 +331,8 @@ argument_specs:
       - Stops Prometheus when the container deployment path is enabled.
     options:
       prometheus_use_container: *prometheus_use_container
+      prometheus_use_k8s: *prometheus_use_k8s
+      prometheus_use_openshift: *prometheus_use_openshift
 
   container/stop:
     short_description: Stop the Prometheus container

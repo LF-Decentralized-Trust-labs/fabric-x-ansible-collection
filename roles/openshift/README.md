@@ -120,6 +120,8 @@ Mints a service-account token and logs in to a managed OpenShift cluster. Select
 ```yaml
 - name: Login to a managed OpenShift cluster with a service account
   vars:
+    # Specifies the namespace targeted by the OpenShift resource. Example: `fabric-x`.
+    k8s_namespace: "fabric-x"
     # OpenShift cluster API server URL for login Required for managed OpenShift cluster login Example: `https://api.cluster.example.com:6443`
     openshift_cluster_login_server: "https://api.cluster.example.com:6443"
     # OpenShift namespace/project to use

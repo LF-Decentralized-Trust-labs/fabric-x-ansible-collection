@@ -1231,6 +1231,8 @@ Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
   vars:
     # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `tablet`.
     yugabyte_component_type: "tablet"
+    # Enables TLS asset handling for YugabyteDB.
+    yugabyte_use_tls: false
     # Enables HTTPS for the YugabyteDB webserver.
     yugabyte_webserver_use_tls: "{{ yugabyte_use_tls }}"
     # Specifies the OpenShift Route host. Example: `yugabyte-master-web.apps.example.com`.
@@ -1259,6 +1261,8 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
     yugabyte_k8s_part_of: yugabyte
+    # Enables TLS asset handling for YugabyteDB.
+    yugabyte_use_tls: false
     # Enables HTTPS for the YugabyteDB webserver.
     yugabyte_webserver_use_tls: "{{ yugabyte_use_tls }}"
     # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.
@@ -1305,6 +1309,8 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
     yugabyte_k8s_part_of: yugabyte
+    # Enables TLS asset handling for YugabyteDB.
+    yugabyte_use_tls: false
     # Enables HTTPS for the YugabyteDB webserver.
     yugabyte_webserver_use_tls: "{{ yugabyte_use_tls }}"
     # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.

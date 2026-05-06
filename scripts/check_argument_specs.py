@@ -105,6 +105,7 @@ BUILTIN_VARS = {
 JINJA_ENV = Environment()
 UNKNOWN_FILTER_RE = re.compile(r"No filter named '([^']+)'")
 UNKNOWN_TEST_RE = re.compile(r"No test named '([^']+)'")
+JINJA_SEGMENT_RE = re.compile(r"({[{%#].*?[}%#]})")
 
 
 def passthrough_filter(value, *args, **kwargs):
@@ -199,12 +200,11 @@ def extract_spec_options(specs):
     return result
 
 
-def parse_jinja_variables(value, source):
-    """Return undeclared variables referenced by one Jinja template string."""
+def parse_jinja_ast(value, source):
+    """Return a parsed Jinja AST, registering placeholder Ansible filters/tests."""
     while True:
         try:
-            ast = JINJA_ENV.parse(value)
-            return meta.find_undeclared_variables(ast)
+            return JINJA_ENV.parse(value)
         except TemplateAssertionError as exc:
             filter_match = UNKNOWN_FILTER_RE.search(str(exc))
             if filter_match:
@@ -217,6 +217,36 @@ def parse_jinja_variables(value, source):
             raise SpecError(f"invalid Jinja in {source}: {exc}") from exc
         except TemplateSyntaxError as exc:
             raise SpecError(f"invalid Jinja in {source}: {exc}") from exc
+
+
+def register_unknown_jinja_extension(exc):
+    """Register a placeholder filter/test from a Jinja assertion, if possible."""
+    filter_match = UNKNOWN_FILTER_RE.search(str(exc))
+    if filter_match:
+        JINJA_ENV.filters[filter_match.group(1)] = passthrough_filter
+        return True
+    test_match = UNKNOWN_TEST_RE.search(str(exc))
+    if test_match:
+        JINJA_ENV.tests[test_match.group(1)] = passthrough_test
+        return True
+    return False
+
+
+def find_undeclared_jinja_variables(ast, source):
+    """Return undeclared variables from a Jinja AST."""
+    while True:
+        try:
+            return meta.find_undeclared_variables(ast)
+        except TemplateAssertionError as exc:
+            if register_unknown_jinja_extension(exc):
+                continue
+            raise SpecError(f"invalid Jinja in {source}: {exc}") from exc
+
+
+def parse_jinja_variables(value, source):
+    """Return undeclared variables referenced by one Jinja template string."""
+    ast = parse_jinja_ast(value, source)
+    return find_undeclared_jinja_variables(ast, source)
 
 
 def is_jinja_template(value):
@@ -302,7 +332,114 @@ def collect_vars_from_value(value, source, parent_key=None):
     return variables
 
 
-def extract_task_vars(task_file):
+def resolve_template_candidates(templates_dir, current_dir, template_ref):
+    """Return matching template files for a static or simply dynamic reference.
+
+    Static references resolve to one file. Dynamic references are conservatively
+    globbed by replacing Jinja segments with ``*``; unresolved patterns are
+    ignored because this checker is static and inventory-free.
+    """
+    if not isinstance(template_ref, str):
+        return []
+
+    if is_jinja_template(template_ref):
+        pattern = JINJA_SEGMENT_RE.sub("*", template_ref)
+        base_dir = templates_dir if current_dir is None else current_dir
+        return sorted(path for path in base_dir.glob(pattern) if path.is_file())
+
+    path = Path(template_ref)
+    if path.is_absolute():
+        candidate = path
+    else:
+        candidate = templates_dir / path
+
+    if candidate.is_file():
+        return [candidate]
+    return []
+
+
+def extract_template_file_vars(template_file, templates_dir, seen=None):
+    """Return variables referenced by one template and its constant includes."""
+    if seen is None:
+        seen = set()
+    template_file = template_file.resolve()
+    if template_file in seen:
+        return set()
+    seen.add(template_file)
+
+    try:
+        value = template_file.read_text()
+    except OSError as exc:
+        raise SpecError(f"cannot read template {template_file}: {exc}") from exc
+
+    ast = parse_jinja_ast(value, template_file.as_posix())
+    variables = set(find_undeclared_jinja_variables(ast, template_file.as_posix()))
+    for referenced_template in meta.find_referenced_templates(ast):
+        if referenced_template is None:
+            continue
+        for include_file in resolve_template_candidates(
+            templates_dir,
+            template_file.parent,
+            referenced_template,
+        ):
+            variables.update(
+                extract_template_file_vars(include_file, templates_dir, seen)
+            )
+    return variables
+
+
+def collect_template_refs_from_task(value):
+    """Return template source/path references used directly by a task list."""
+    refs = []
+    if isinstance(value, list):
+        for item in value:
+            refs.extend(collect_template_refs_from_task(item))
+        return refs
+    if not isinstance(value, dict):
+        return refs
+
+    template_task = value.get("ansible.builtin.template")
+    if isinstance(template_task, dict):
+        src = template_task.get("src")
+        if isinstance(src, str):
+            refs.append(src)
+
+    k8s_task = value.get("kubernetes.core.k8s")
+    if isinstance(k8s_task, dict):
+        template = k8s_task.get("template")
+        if isinstance(template, dict):
+            path = template.get("path")
+            if isinstance(path, str):
+                refs.append(path)
+        elif isinstance(template, str):
+            refs.append(template)
+
+    for nested_key in ("block", "rescue", "always"):
+        nested_tasks = value.get(nested_key)
+        if isinstance(nested_tasks, list):
+            refs.extend(collect_template_refs_from_task(nested_tasks))
+
+    return refs
+
+
+def collect_template_vars(data, role_dir):
+    """Return variables referenced by templates used directly by task data."""
+    templates_dir = role_dir / "templates"
+    if not templates_dir.is_dir():
+        return set()
+
+    variables = set()
+    for template_ref in collect_template_refs_from_task(data):
+        for template_file in resolve_template_candidates(
+            templates_dir,
+            None,
+            template_ref,
+        ):
+            variables.update(extract_template_file_vars(template_file, templates_dir))
+    return variables
+
+
+def extract_task_vars(task_file, role_dir=None):
     """Return role argument variables referenced by a task file."""
     try:
         with task_file.open() as fh:
@@ -317,11 +454,57 @@ def extract_task_vars(task_file):
 
     local_vars = collect_task_local_vars(data)
     variables = collect_vars_from_value(data, task_file.as_posix())
+    if role_dir is not None:
+        variables.update(collect_template_vars(data, role_dir))
     return {
         variable
         for variable in variables - local_vars
         if not is_builtin_var(variable)
     }
+
+
+def extract_role_option_default_vars(specs):
+    """Return variables referenced by defaults in role-options."""
+    role_options = specs.get("role-options")
+    if not isinstance(role_options, dict):
+        raise SpecError("'argument_specs.role-options' must be a mapping")
+
+    catalog_options = role_options.get("options")
+    if not isinstance(catalog_options, dict):
+        raise SpecError("'argument_specs.role-options.options' must be a mapping")
+
+    default_vars = {}
+    for option, option_spec in catalog_options.items():
+        if not isinstance(option, str):
+            raise SpecError(f"non-string key in role-options.options: {option!r}")
+        if not isinstance(option_spec, dict):
+            continue
+        default = option_spec.get("default")
+        if isinstance(default, str):
+            default_vars[option] = {
+                variable
+                for variable in extract_string_vars(
+                    default,
+                    f"argument_specs.role-options.options.{option}.default",
+                )
+                if not is_builtin_var(variable)
+            }
+        else:
+            default_vars[option] = set()
+    return default_vars
+
+
+def expand_default_dependencies(variables, option_default_vars):
+    """Return variables plus recursive dependencies of their argument defaults."""
+    expanded = set(variables)
+    pending = list(variables)
+    while pending:
+        variable = pending.pop()
+        for dependency in option_default_vars.get(variable, set()):
+            if dependency not in expanded:
+                expanded.add(dependency)
+                pending.append(dependency)
+    return expanded
 
 
 def extract_role_local_vars(tasks_dir):
@@ -354,7 +537,12 @@ def extract_collection_local_vars(roles_dir):
     return local_vars
 
 
-def extract_missing_task_options(role_dir, spec_options, collection_local_vars=None):
+def extract_missing_task_options(
+    role_dir,
+    spec_options,
+    collection_local_vars=None,
+    option_default_vars=None,
+):
     """Return task variables missing from the matching argument_specs options."""
     tasks_dir = role_dir / "tasks"
     missing = []
@@ -369,7 +557,9 @@ def extract_missing_task_options(role_dir, spec_options, collection_local_vars=N
         entrypoint = task_file.relative_to(tasks_dir).with_suffix("").as_posix()
         if entrypoint == "main" or entrypoint not in spec_options:
             continue
-        task_vars = extract_task_vars(task_file) - local_vars
+        task_vars = extract_task_vars(task_file, role_dir) - local_vars
+        if option_default_vars is not None:
+            task_vars = expand_default_dependencies(task_vars, option_default_vars) - local_vars
         for variable in sorted(task_vars - spec_options[entrypoint]):
             missing.append((entrypoint, variable))
     return missing
@@ -453,6 +643,7 @@ def check_role(role_dir, collection_local_vars=None):
         specs = load_argument_specs(specs_file)
         spec_options = extract_spec_options(specs)
         spec_tasks = set(spec_options)
+        option_default_vars = extract_role_option_default_vars(specs)
         unused_anchors = extract_unused_anchors(specs_file)
         uncataloged_options = extract_uncataloged_options(specs, spec_options)
     except SpecError as exc:
@@ -468,6 +659,7 @@ def check_role(role_dir, collection_local_vars=None):
             role_dir,
             spec_options,
             collection_local_vars,
+            option_default_vars,
         )
     except SpecError as exc:
         print(f"{RED}[FAIL]{NC}   {role_dir.name}: {exc}")

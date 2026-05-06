@@ -235,6 +235,8 @@ argument_specs:
       - Kubernetes deployments use C(teardown) instead of this entry point.
     options:
       node_exporter_use_container: *node_exporter_use_container
+      node_exporter_use_k8s: *node_exporter_use_k8s
+      node_exporter_use_openshift: *node_exporter_use_openshift
 
   teardown:
     short_description: Remove Node Exporter runtime resources

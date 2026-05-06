@@ -74,6 +74,10 @@ Stops the running Jaeger container without removing configuration assets.
   vars:
     # Runs the container-based Jaeger path when set to `true`.
     jaeger_use_container: "{{ (not jaeger_use_k8s) and (not jaeger_use_openshift) }}"
+    # Runs the Kubernetes Jaeger path when set to `true`.
+    jaeger_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    jaeger_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: stop

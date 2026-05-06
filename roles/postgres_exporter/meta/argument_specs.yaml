@@ -236,6 +236,8 @@ argument_specs:
       - "This entry point only dispatches when C(postgres_exporter_use_container) resolves to C(true)."
     options:
       postgres_exporter_use_container: *postgres_exporter_use_container
+      postgres_exporter_use_k8s: *postgres_exporter_use_k8s
+      postgres_exporter_use_openshift: *postgres_exporter_use_openshift
 
   teardown:
     short_description: Remove Postgres Exporter runtime resources

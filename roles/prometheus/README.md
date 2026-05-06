@@ -238,6 +238,10 @@ Stops Prometheus when the container deployment path is enabled.
   vars:
     # Enables the container deployment path when set to `true`.
     prometheus_use_container: "{{ (not prometheus_use_k8s) and (not prometheus_use_openshift) }}"
+    # Enables the Kubernetes deployment path when set to `true`.
+    prometheus_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    prometheus_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: stop

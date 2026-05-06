@@ -1028,6 +1028,7 @@ argument_specs:
       - Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
     options:
       yugabyte_component_type: *yugabyte_component_type
+      yugabyte_use_tls: *yugabyte_use_tls
       yugabyte_webserver_use_tls: *yugabyte_webserver_use_tls
       yugabyte_openshift_master_webserver_route: *yugabyte_openshift_master_webserver_route
       yugabyte_openshift_tablet_webserver_route: *yugabyte_openshift_tablet_webserver_route
@@ -1041,6 +1042,7 @@ argument_specs:
     options:
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
       yugabyte_k8s_part_of: *yugabyte_k8s_part_of
+      yugabyte_use_tls: *yugabyte_use_tls
       yugabyte_webserver_use_tls: *yugabyte_webserver_use_tls
       k8s_namespace:
         <<: *k8s_namespace
@@ -1066,6 +1068,7 @@ argument_specs:
     options:
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
       yugabyte_k8s_part_of: *yugabyte_k8s_part_of
+      yugabyte_use_tls: *yugabyte_use_tls
       yugabyte_webserver_use_tls: *yugabyte_webserver_use_tls
       k8s_namespace:
         <<: *k8s_namespace

@@ -555,9 +555,10 @@ Renders the component-specific orderer config for `consensus`, `batcher`, `assem
     orderer_mtls_orgs:
       - domain: "org1.example.com"
       - domain: "org2.example.com"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'ordererorg.example.com', 'name': 'ordererOrg', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
     organization:
-      domain: "orderer.example.com"
+      domain: "ordererorg.example.com"
+      name: "ordererOrg"
       orderer:
         name: "orderer-consenter-1"
       fabric_ca_host: "ca-orderer"
@@ -646,9 +647,10 @@ Validates TLS and mTLS prerequisites, provisions orderer MSP and TLS material th
     orderer_use_tls: false
     # Enables client mutual TLS in the rendered config.
     orderer_use_mtls: false
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'ordererorg.example.com', 'name': 'ordererOrg', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
     organization:
-      domain: "orderer.example.com"
+      domain: "ordererorg.example.com"
+      name: "ordererOrg"
       orderer:
         name: "orderer-consenter-1"
       fabric_ca_host: "ca-orderer"
@@ -674,9 +676,10 @@ Copies cryptogen-generated MSP and TLS artifacts for the orderer identity into t
     cryptogen_artifacts_dir: "/tmp/fabric-x/artifacts/cryptogen"
     # Shared base directory for generated configuration. Example: `/var/hyperledger/fabric-x/config/orderer/assembler-1`.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'ordererorg.example.com', 'name': 'ordererOrg', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
     organization:
-      domain: "orderer.example.com"
+      domain: "ordererorg.example.com"
+      name: "ordererOrg"
       orderer:
         name: "orderer-consenter-1"
       fabric_ca_host: "ca-orderer"
@@ -704,9 +707,10 @@ Copies the Fabric CA TLS certificate when needed and enrolls both MSP and TLS id
     actual_host: "myvpc.cloud.ibm.com"
     # Shared base directory for generated configuration. Example: `/var/hyperledger/fabric-x/config/orderer/assembler-1`.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'ordererorg.example.com', 'name': 'ordererOrg', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
     organization:
-      domain: "orderer.example.com"
+      domain: "ordererorg.example.com"
+      name: "ordererOrg"
       orderer:
         name: "orderer-consenter-1"
       fabric_ca_host: "ca-orderer"
@@ -734,9 +738,10 @@ Fetches the orderer sign certificate, TLS server certificate, and TLS CA certifi
     fetched_artifacts_dir: "/tmp/fabric-x/artifacts/fetched"
     # Shared base directory for generated configuration. Example: `/var/hyperledger/fabric-x/config/orderer/assembler-1`.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'ordererorg.example.com', 'name': 'ordererOrg', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
     organization:
-      domain: "orderer.example.com"
+      domain: "ordererorg.example.com"
+      name: "ordererOrg"
       orderer:
         name: "orderer-consenter-1"
       fabric_ca_host: "ca-orderer"
@@ -820,9 +825,10 @@ Creates the orderer Kubernetes Service, StatefulSet, and optional NodePort and L
     orderer_mtls_orgs:
       - domain: "org1.example.com"
       - domain: "org2.example.com"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'ordererorg.example.com', 'name': 'ordererOrg', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
     organization:
-      domain: "orderer.example.com"
+      domain: "ordererorg.example.com"
+      name: "ordererOrg"
       orderer:
         name: "orderer-consenter-1"
       fabric_ca_host: "ca-orderer"
@@ -975,6 +981,13 @@ Slurps the generated genesis block and renders the orderer ConfigMap. Includes t
     orderer_mtls_orgs:
       - domain: "org1.example.com"
       - domain: "org2.example.com"
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'ordererorg.example.com', 'name': 'ordererOrg', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
+    organization:
+      domain: "ordererorg.example.com"
+      name: "ordererOrg"
+      orderer:
+        name: "orderer-consenter-1"
+      fabric_ca_host: "ca-orderer"
     # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
     k8s_namespace: "fabricx-orderer"
   ansible.builtin.include_role:
@@ -1015,9 +1028,10 @@ Resolves orderer MSP and TLS file locations and renders the Kubernetes Secret. T
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
     # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'ordererorg.example.com', 'name': 'ordererOrg', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
     organization:
-      domain: "orderer.example.com"
+      domain: "ordererorg.example.com"
+      name: "ordererOrg"
       orderer:
         name: "orderer-consenter-1"
       fabric_ca_host: "ca-orderer"
@@ -1093,6 +1107,13 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     orderer_component_type: "router"
     # Enables server-side TLS in the rendered config.
     orderer_use_tls: false
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'ordererorg.example.com', 'name': 'ordererOrg', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
+    organization:
+      domain: "ordererorg.example.com"
+      name: "ordererOrg"
+      orderer:
+        name: "orderer-consenter-1"
+      fabric_ca_host: "ca-orderer"
     # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
     k8s_namespace: "fabricx-orderer"
     # Specifies the OpenShift Route host. Example: `orderer-rpc.apps.example.com`.

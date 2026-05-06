@@ -83,6 +83,10 @@ Stops the container-backed Node Exporter workload for the host. Kubernetes deplo
   vars:
     # Enables the container backend.
     node_exporter_use_container: "{{ (not node_exporter_use_k8s) and (not node_exporter_use_openshift) }}"
+    # Enables the Kubernetes backend or cleanup path when true.
+    node_exporter_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    node_exporter_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: stop

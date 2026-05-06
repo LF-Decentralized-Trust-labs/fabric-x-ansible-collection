@@ -786,6 +786,10 @@ Dispatches Fabric CA server stop to the binary or container runtime. Stops local
     fabric_ca_server_use_container: "{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) and (not fabric_ca_server_use_openshift) }}"
     # Uses the binary server flow instead of container or Kubernetes.
     fabric_ca_server_use_bin: false
+    # Uses the Kubernetes server flow instead of the local runtimes.
+    fabric_ca_server_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    fabric_ca_server_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/stop
@@ -1138,6 +1142,8 @@ Creates Fabric CA Kubernetes runtime resources for the server. Uses the ConfigMa
     fabric_ca_server_k8s_loadbalancer_expose_port: false
     # Set to `true` to create a LoadBalancer Service entry that exposes the operations port externally. When undefined or `false`, the operations port is not included in the LoadBalancer Service.
     fabric_ca_server_k8s_loadbalancer_expose_operations_port: false
+    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `org1.example.com`.
+    organization:org1.example.com
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/k8s/start
@@ -1236,6 +1242,8 @@ Creates or updates the Fabric CA Kubernetes ConfigMap from rendered server confi
     postgres_db_host: "postgres0.example.com"
     # Provides the Kubernetes namespace from the shared inventory. Example: `fabricx`.
     k8s_namespace: "fabricx"
+    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `org1.example.com`.
+    organization:org1.example.com
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/k8s/config/transfer
@@ -1290,6 +1298,8 @@ Creates or updates the Fabric CA Kubernetes Secret containing server crypto mate
     fabric_ca_use_tls: false
     # Provides the Kubernetes namespace from the shared inventory. Example: `fabricx`.
     k8s_namespace: "fabricx"
+    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `org1.example.com`.
+    organization:org1.example.com
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/k8s/crypto/transfer
@@ -1360,6 +1370,8 @@ Generates the Fabric CA root CA and TLS keypairs. Writes private keys and certif
     fabric_ca_server_openssl_curve: P-256
     # Sets the CSR common name.
     fabric_ca_csr_cn: "{{ fabric_ca_name }}"
+    # Sets the CA name.
+    fabric_ca_name: "{{ inventory_hostname }}"
     # Sets the CSR SAN host list.
     fabric_ca_csr_hosts:
       - "{{ ansible_host }}"
@@ -1544,6 +1556,8 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     fabric_ca_use_tls: false
     # Provides the Kubernetes namespace from the shared inventory. Example: `fabricx`.
     k8s_namespace: "fabricx"
+    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `org1.example.com`.
+    organization:org1.example.com
     # Specifies the OpenShift Route host. Example: `fabric-ca.apps.example.com`.
     fabric_ca_server_openshift_route: "fabric-ca.apps.example.com"
     # Specifies the OpenShift Route host. Example: `fabric-ca-operations.apps.example.com`.
