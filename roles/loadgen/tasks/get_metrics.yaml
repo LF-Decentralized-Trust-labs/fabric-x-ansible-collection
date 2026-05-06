@@ -37,12 +37,12 @@
   when:
     - not loadgen_assert_metrics
 
-- name: Set the transaction latency from the Fabric-X Loadgen metrics
+- name: Set the committed transaction count from Fabric-X Loadgen metrics
   ansible.builtin.set_fact:
-    loadgen_tx_latency: >-
+    loadgen_tx_committed: >-
       {{
         loadgen_metrics.content
-        | regex_findall('loadgen_valid_transaction_latency_seconds_count\s+([0-9]+)')
+        | regex_findall('loadgen_transaction_committed_total\s+([0-9]+)')
         | default(['0'])
         | first
         | int
@@ -50,16 +50,31 @@
   when:
     - loadgen_assert_metrics
 
-- name: Assert the Fabric-X Loadgen latency metric
-  ansible.builtin.debug:
-    msg: "The transaction latency is valid (>0): {{ loadgen_tx_latency }}"
+- name: Set the aborted transaction count from Fabric-X Loadgen metrics
+  ansible.builtin.set_fact:
+    loadgen_tx_aborted: >-
+      {{
+        loadgen_metrics.content
+        | regex_findall('loadgen_transaction_aborted_total\s+([0-9]+)')
+        | default(['0'])
+        | first
+        | int
+      }}
   when:
     - loadgen_assert_metrics
-    - loadgen_tx_latency != 0
 
-- name: Assert the Fabric-X Loadgen latency metric
-  ansible.builtin.fail:
-    msg: "The transaction latency is invalid: {{ loadgen_tx_latency }}"
+- name: Assert the Fabric-X Loadgen committed transaction metric
+  ansible.builtin.debug:
+    msg:
+      - "Transactions committed (>0): {{ loadgen_tx_committed }}"
+      - "Transactions aborted: {{ loadgen_tx_aborted }}"
   when:
     - loadgen_assert_metrics
-    - loadgen_tx_latency == 0
+    - loadgen_tx_committed != 0
+
+- name: Fail if no transactions committed
+  ansible.builtin.fail:
+    msg: "No transactions committed: {{ loadgen_tx_committed }}; transactions aborted: {{ loadgen_tx_aborted }}"
+  when:
+    - loadgen_assert_metrics
+    - loadgen_tx_committed == 0
