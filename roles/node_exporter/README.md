@@ -368,6 +368,8 @@ Starts the Node Exporter container with the configured image, port, mounts, and 
     node_exporter_web_config_file: web-config.yaml
     # Enables the TLS web configuration and certificate paths when true.
     node_exporter_use_tls: false
+    # Sets the bind-mount propagation flags for the host root filesystem volume (`/:/host:<flags>`). On Linux the default is `rslave,ro`, required for Docker bind-mount propagation. On macOS, Docker Desktop with VirtioFS does not support `rslave`, so `ro` is used instead.
+    node_exporter_root_fs_flags: "{{ 'ro' if ansible_facts.system == 'Darwin' else 'rslave,ro' }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: container/start
