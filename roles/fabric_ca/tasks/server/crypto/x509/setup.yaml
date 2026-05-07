@@ -4,15 +4,15 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure Fabric CA config directory exists
+- name: Ensure Fabric CA keystore directory exists
   ansible.builtin.file:
-    path: "{{ fabric_ca_server_remote_config_dir }}"
+    path: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore"
     state: directory
     mode: "0750"
 
 - name: Check if Fabric CA root key already exists
   ansible.builtin.stat:
-    path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_private_key_file }}"
+    path: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore/{{ fabric_ca_server_ca_private_key_file }}"
   register: fabric_ca_server_ca_key_stat
 
 - name: Check if Fabric CA root certificate already exists
@@ -22,7 +22,7 @@
 
 - name: Generate Fabric CA root x509 keypair and certificate
   vars:
-    openssl_private_key_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_private_key_file }}"
+    openssl_private_key_path: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore/{{ fabric_ca_server_ca_private_key_file }}"
     openssl_cert_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_cert_file }}"
     openssl_key_type: ec
     openssl_key_opt: "ec_paramgen_curve:{{ fabric_ca_server_openssl_curve }}"
@@ -97,7 +97,7 @@
         tasks_from: generate_csr
     - name: Generate Fabric CA TLS certificate from CSR
       vars:
-        openssl_ca_private_key_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_private_key_file }}"
+        openssl_ca_private_key_path: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore/{{ fabric_ca_server_ca_private_key_file }}"
         openssl_ca_cert_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_cert_file }}"
         openssl_csr_path: "{{ fabric_ca_server_remote_config_dir }}/tls.csr"
         openssl_cert_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_tls_cert_file }}"
