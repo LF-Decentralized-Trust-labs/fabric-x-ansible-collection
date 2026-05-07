@@ -114,7 +114,6 @@ argument_specs:
           - "Example: C(/tmp/fabricx/fetched-artifacts)."
       k8s_namespace: &k8s_namespace
         type: str
-        required: true
         description:
           - "Provides the Kubernetes namespace from the shared inventory."
           - "Example: C(fabricx)."

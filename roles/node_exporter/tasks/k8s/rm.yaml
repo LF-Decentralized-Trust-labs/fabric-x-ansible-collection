@@ -9,21 +9,21 @@
     state: absent
     kind: DaemonSet
     name: "{{ node_exporter_k8s_resource_name }}"
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default(omit) }}"
 
 - name: Remove Node Exporter Service
   kubernetes.core.k8s:
     state: absent
     kind: Service
     name: "{{ node_exporter_k8s_resource_name }}"
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default(omit) }}"
 
 - name: Remove Node Exporter NodePort Service
   kubernetes.core.k8s:
     state: absent
     kind: Service
     name: "{{ node_exporter_k8s_resource_name }}-nodeport"
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default(omit) }}"
   when: node_exporter_k8s_node_port is defined
 
 - name: Delete Node Exporter LoadBalancer Service
@@ -32,5 +32,5 @@
     api_version: v1
     kind: Service
     name: "{{ node_exporter_k8s_resource_name }}-loadbalancer"
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default(omit) }}"
   when: node_exporter_k8s_loadbalancer_expose_metrics_port

@@ -35,5 +35,6 @@
     fabric_ca_server_k8s_idemix_revocation_private_key_path: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore/IssuerRevocationPrivateKey"
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default(omit) }}"
     template:
       path: k8s/secret.yaml.j2

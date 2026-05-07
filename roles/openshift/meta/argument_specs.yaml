@@ -13,7 +13,6 @@ argument_specs:
     options:
       k8s_namespace: &k8s_namespace
         type: str
-        required: true
         description:
           - Specifies the namespace targeted by the OpenShift resource.
           - "Example: C(fabric-x)."

@@ -10,7 +10,7 @@
     api_version: apps/v1
     kind: Deployment
     name: "{{ committer_k8s_resource_name }}"
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default(omit) }}"
 
 - name: Delete Fabric-X Committer validator Service
   kubernetes.core.k8s:
@@ -18,7 +18,7 @@
     api_version: v1
     kind: Service
     name: "{{ committer_k8s_resource_name }}"
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default(omit) }}"
 
 - name: Delete Fabric-X Committer validator NodePort Service
   kubernetes.core.k8s:
@@ -26,7 +26,7 @@
     api_version: v1
     kind: Service
     name: "{{ committer_k8s_resource_name }}-nodeport"
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default(omit) }}"
   when:
     - committer_k8s_rpc_node_port is defined or
       committer_k8s_metrics_node_port is defined
@@ -37,7 +37,7 @@
     api_version: v1
     kind: Service
     name: "{{ committer_k8s_resource_name }}-loadbalancer"
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default(omit) }}"
   when:
     - committer_k8s_loadbalancer_expose_rpc_port or
       committer_k8s_loadbalancer_expose_metrics_port

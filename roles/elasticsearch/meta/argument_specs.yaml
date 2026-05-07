@@ -35,7 +35,6 @@ argument_specs:
         description:
           - Kubernetes namespace used for ElasticSearch resources.
           - "Example: C(fabricx-elasticsearch)."
-          - Set C(required) explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
       k8s_image_pull_secret: &k8s_image_pull_secret
         type: str
         description:
@@ -427,7 +426,6 @@ argument_specs:
       elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
       elasticsearch_k8s_wait_timeout: *elasticsearch_k8s_wait_timeout
       elasticsearch_k8s_fs_group: *elasticsearch_k8s_fs_group
       elasticsearch_k8s_http_node_port: *elasticsearch_k8s_http_node_port
@@ -479,7 +477,6 @@ argument_specs:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
 
       elasticsearch_k8s_http_node_port: *elasticsearch_k8s_http_node_port
       elasticsearch_k8s_loadbalancer_expose_http_port: *elasticsearch_k8s_loadbalancer_expose_http_port
@@ -502,7 +499,6 @@ argument_specs:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
 
   k8s/crypto/transfer:
     short_description: Apply the ElasticSearch Kubernetes TLS Secret
@@ -514,7 +510,6 @@ argument_specs:
       elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
       elasticsearch_use_tls: *elasticsearch_use_tls
       elasticsearch_remote_config_dir: *elasticsearch_remote_config_dir
       remote_config_dir: *remote_config_dir

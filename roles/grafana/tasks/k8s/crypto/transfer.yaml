@@ -21,5 +21,6 @@
     grafana_k8s_tls_cert_path: "{{ grafana_remote_config_dir }}/tls/{{ grafana_tls_cert_file }}"
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default(omit) }}"
     template:
       path: k8s/secret.yaml.j2

@@ -10,4 +10,4 @@
     api_version: v1
     kind: Namespace
     name: "{{ k8s_namespace }}"
-  when: k8s_create_namespace
+  when: k8s_create_namespace and k8s_namespace is defined

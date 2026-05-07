@@ -15,5 +15,5 @@
     api_version: v1
     kind: PersistentVolumeClaim
     name: "data-{{ committer_k8s_resource_name }}-0"
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default(omit) }}"
   when: committer_use_k8s or committer_use_openshift

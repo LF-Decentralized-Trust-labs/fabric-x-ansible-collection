@@ -28,7 +28,6 @@ argument_specs:
           - "Example: C({'domain': 'node-exporter.example.org', 'common_name': 'node-exporter.example.org', 'organization_name': 'Example Org'})."
       k8s_namespace: &k8s_namespace
         type: str
-        required: true
         description:
           - Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
           - Required when C(node_exporter_use_k8s) is true.

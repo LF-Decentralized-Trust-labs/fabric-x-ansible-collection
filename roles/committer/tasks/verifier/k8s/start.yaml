@@ -18,12 +18,14 @@
 - name: Apply Fabric-X Committer verifier Service
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default(omit) }}"
     template:
       path: k8s/service.yaml.j2
 
 - name: Apply Fabric-X Committer verifier NodePort Service
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default(omit) }}"
     template:
       path: k8s/service-nodeport.yaml.j2
   when:
@@ -33,6 +35,7 @@
 - name: Apply Fabric-X Committer LoadBalancer Service
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default(omit) }}"
     template:
       path: k8s/service-loadbalancer.yaml.j2
   when:
@@ -42,6 +45,7 @@
 - name: Apply Fabric-X Committer verifier Deployment
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default(omit) }}"
     template:
       path: k8s/deployment-verifier.yaml.j2
     wait: true

@@ -760,7 +760,6 @@ argument_specs:
       organization: *organization
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
       k8s_storage_size: *k8s_storage_size
       k8s_storage_class: *k8s_storage_class
       k8s_image_pull_secret: *k8s_image_pull_secret
@@ -797,7 +796,6 @@ argument_specs:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
 
       orderer_k8s_rpc_node_port: *orderer_k8s_rpc_node_port
       orderer_k8s_loadbalancer_expose_rpc_port: *orderer_k8s_loadbalancer_expose_rpc_port
@@ -836,7 +834,6 @@ argument_specs:
       organization: *organization
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
 
   k8s/config/rm:
     short_description: Remove the orderer Kubernetes ConfigMap
@@ -847,7 +844,6 @@ argument_specs:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
 
   k8s/crypto/transfer:
     short_description: Create the orderer Kubernetes Secret
@@ -864,7 +860,6 @@ argument_specs:
       orderer_component_type: *orderer_component_type
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
 
   k8s/crypto/rm:
     short_description: Remove the orderer Kubernetes Secret
@@ -875,7 +870,6 @@ argument_specs:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
 
   prometheus/get_scrapers:
     short_description: Build Prometheus scrape targets for orderer hosts

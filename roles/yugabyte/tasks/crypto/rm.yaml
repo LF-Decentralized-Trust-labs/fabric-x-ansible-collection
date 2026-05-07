@@ -17,5 +17,5 @@
     api_version: v1
     kind: Secret
     name: "{{ yugabyte_k8s_resource_name }}-secret"
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default(omit) }}"
   when: yugabyte_use_k8s or yugabyte_use_openshift

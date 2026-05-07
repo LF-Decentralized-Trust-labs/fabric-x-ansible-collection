@@ -821,7 +821,6 @@ argument_specs:
       yugabyte_component_type: *yugabyte_component_type
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
       remote_config_dir: *remote_config_dir
       yugabyte_remote_config_dir: *yugabyte_remote_config_dir
       yugabyte_init_script_file: *yugabyte_init_script_file
@@ -836,7 +835,6 @@ argument_specs:
     options:
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
       yugabyte_k8s_part_of: *yugabyte_k8s_part_of
       yugabyte_image: *yugabyte_image
@@ -880,7 +878,6 @@ argument_specs:
     options:
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
       yugabyte_k8s_master_rpc_node_port: *yugabyte_k8s_master_rpc_node_port
       yugabyte_k8s_loadbalancer_expose_master_rpc_port: *yugabyte_k8s_loadbalancer_expose_master_rpc_port
@@ -895,7 +892,6 @@ argument_specs:
     options:
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
       yugabyte_k8s_part_of: *yugabyte_k8s_part_of
       yugabyte_image: *yugabyte_image
@@ -952,7 +948,6 @@ argument_specs:
     options:
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
       yugabyte_k8s_tablet_pgsql_node_port: *yugabyte_k8s_tablet_pgsql_node_port
       yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port: *yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port
@@ -975,7 +970,6 @@ argument_specs:
     options:
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
       remote_config_dir: *remote_config_dir
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
       yugabyte_k8s_part_of: *yugabyte_k8s_part_of

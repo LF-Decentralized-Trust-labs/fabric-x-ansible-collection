@@ -12,7 +12,7 @@
 
 - name: Fetch pod logs
   kubernetes.core.k8s_log:
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default(omit) }}"
     label_selectors: "{{ k8s_pod_label_selectors }}"
     container: "{{ k8s_pod_container | default(omit) }}"
   register: k8s_fetched_pod_logs

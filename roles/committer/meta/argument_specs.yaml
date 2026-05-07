@@ -1189,7 +1189,6 @@ argument_specs:
       committer_k8s_resource_name: *committer_k8s_resource_name
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
 
   k8s/crypto/rm:
     short_description: Remove the committer Secret
@@ -1200,7 +1199,6 @@ argument_specs:
       committer_k8s_resource_name: *committer_k8s_resource_name
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
 
   k8s/crypto/transfer:
     short_description: Create the committer Secret
@@ -1216,7 +1214,6 @@ argument_specs:
       committer_use_tls: *committer_use_tls
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
       organization: *organization
       remote_config_dir: *remote_config_dir
 
@@ -1784,7 +1781,6 @@ argument_specs:
       committer_k8s_resource_name: *committer_k8s_resource_name
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
 
       committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
       committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
@@ -1799,7 +1795,6 @@ argument_specs:
       committer_k8s_resource_name: *committer_k8s_resource_name
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
 
       committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
       committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
@@ -1814,7 +1809,6 @@ argument_specs:
       committer_k8s_resource_name: *committer_k8s_resource_name
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
 
       committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
       committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
@@ -1829,7 +1823,6 @@ argument_specs:
       committer_k8s_resource_name: *committer_k8s_resource_name
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
 
       committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
       committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
@@ -1844,7 +1837,6 @@ argument_specs:
       committer_k8s_resource_name: *committer_k8s_resource_name
       k8s_namespace:
         <<: *k8s_namespace
-        required: true
 
       committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
       committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port

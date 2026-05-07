@@ -22,5 +22,6 @@
     prometheus_k8s_http_config_path: "{{ prometheus_remote_config_dir }}/{{ prometheus_http_config_file }}"
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default(omit) }}"
     template:
       path: k8s/configmap.yaml.j2
