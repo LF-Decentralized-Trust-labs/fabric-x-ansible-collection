@@ -10,7 +10,6 @@ kind: Service
 metadata:
   # LoadBalancer Service -- exposes Grafana outside the cluster for external clients.
   name: {{ grafana_k8s_resource_name }}-loadbalancer
-  namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ grafana_k8s_resource_name }}
     app.kubernetes.io/component: grafana

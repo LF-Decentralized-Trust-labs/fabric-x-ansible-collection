@@ -20,5 +20,6 @@
     committer_k8s_coordinator_ca_path: "{{ committer_remote_config_dir }}/tls/coordinator/ca.crt"
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/configmap-sidecar.yaml.j2

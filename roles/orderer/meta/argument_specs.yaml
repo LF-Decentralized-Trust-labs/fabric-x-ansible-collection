@@ -461,9 +461,7 @@ argument_specs:
     options:
       actual_host: *actual_host
       orderer_http_protocol: *orderer_http_protocol
-      orderer_metrics_port:
-        <<: *orderer_metrics_port
-        required: false
+      orderer_metrics_port: *orderer_metrics_port
 
   bin/build:
     short_description: Build the orderer binary from source
@@ -632,9 +630,7 @@ argument_specs:
       orderer_use_k8s: *orderer_use_k8s
       orderer_use_openshift: *orderer_use_openshift
       orderer_rpc_port: *orderer_rpc_port
-      orderer_metrics_port:
-        <<: *orderer_metrics_port
-        required: false
+      orderer_metrics_port: *orderer_metrics_port
       orderer_metrics_log_interval: *orderer_metrics_log_interval
       orderer_mtls_clients: *orderer_mtls_clients
       orderer_mtls_orgs: *orderer_mtls_orgs
@@ -758,9 +754,7 @@ argument_specs:
       orderer_mtls_clients: *orderer_mtls_clients
       orderer_mtls_orgs: *orderer_mtls_orgs
       organization: *organization
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
       k8s_storage_size: *k8s_storage_size
       k8s_storage_class: *k8s_storage_class
       k8s_image_pull_secret: *k8s_image_pull_secret
@@ -795,9 +789,7 @@ argument_specs:
       - "Leaves ConfigMap, Secret, and PVC artifacts for explicit config, crypto, or data cleanup entrypoints."
     options:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
       orderer_k8s_rpc_node_port: *orderer_k8s_rpc_node_port
       orderer_k8s_loadbalancer_expose_rpc_port: *orderer_k8s_loadbalancer_expose_rpc_port
@@ -834,9 +826,7 @@ argument_specs:
       orderer_mtls_clients: *orderer_mtls_clients
       orderer_mtls_orgs: *orderer_mtls_orgs
       organization: *organization
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
   k8s/config/rm:
     short_description: Remove the orderer Kubernetes ConfigMap
@@ -845,9 +835,7 @@ argument_specs:
       - "Does not remove the local generated config directory."
     options:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
   k8s/crypto/transfer:
     short_description: Create the orderer Kubernetes Secret
@@ -862,9 +850,7 @@ argument_specs:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
       orderer_k8s_part_of: *orderer_k8s_part_of
       orderer_component_type: *orderer_component_type
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
   k8s/crypto/rm:
     short_description: Remove the orderer Kubernetes Secret
@@ -873,9 +859,7 @@ argument_specs:
       - "Does not remove the local MSP and TLS directories under the orderer config path."
     options:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
   prometheus/get_scrapers:
     short_description: Build Prometheus scrape targets for orderer hosts

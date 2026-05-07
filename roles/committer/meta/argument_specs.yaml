@@ -1187,9 +1187,7 @@ argument_specs:
       - Uses C(committer_k8s_resource_name) and C(k8s_namespace) to identify the ConfigMap.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
   k8s/crypto/rm:
     short_description: Remove the committer Secret
@@ -1198,9 +1196,7 @@ argument_specs:
       - Uses C(committer_k8s_resource_name) and C(k8s_namespace) to identify the Secret.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
   k8s/crypto/transfer:
     short_description: Create the committer Secret
@@ -1214,9 +1210,7 @@ argument_specs:
       committer_k8s_resource_name: *committer_k8s_resource_name
       committer_remote_config_dir: *committer_remote_config_dir
       committer_use_tls: *committer_use_tls
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
       organization: *organization
       remote_config_dir: *remote_config_dir
 
@@ -1782,9 +1776,7 @@ argument_specs:
       - Uses C(committer_k8s_resource_name) in C(k8s_namespace) to select resources.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
       committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
       committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
@@ -1797,9 +1789,7 @@ argument_specs:
       - Uses C(committer_k8s_resource_name) in C(k8s_namespace) to select resources.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
       committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
       committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
@@ -1812,9 +1802,7 @@ argument_specs:
       - Uses C(committer_k8s_resource_name) in C(k8s_namespace) to select resources.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
       committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
       committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
@@ -1827,9 +1815,7 @@ argument_specs:
       - Uses C(committer_k8s_resource_name) in C(k8s_namespace) to select resources.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
       committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
       committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
@@ -1842,9 +1828,7 @@ argument_specs:
       - Uses C(committer_k8s_resource_name) in C(k8s_namespace) to select resources.
     options:
       committer_k8s_resource_name: *committer_k8s_resource_name
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
       committer_k8s_rpc_node_port: *committer_k8s_rpc_node_port
       committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port

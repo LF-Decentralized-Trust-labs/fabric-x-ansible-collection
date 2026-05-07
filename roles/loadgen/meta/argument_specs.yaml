@@ -403,7 +403,6 @@ argument_specs:
           - "Example: C(['orderer-assembler1', 'orderer-assembler2'])."
       k8s_namespace: &k8s_namespace
         type: str
-        required: true
         description:
           - Kubernetes namespace used for loadgen resources.
           - "Example: C(fabricx-loadgen)."

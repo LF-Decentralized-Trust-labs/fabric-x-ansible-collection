@@ -20,6 +20,7 @@
     yugabyte_k8s_init_script_path: "{{ yugabyte_remote_config_dir }}/init/{{ yugabyte_init_script_file }}"
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/configmap.yaml.j2
   when: yugabyte_component_type == 'tablet'

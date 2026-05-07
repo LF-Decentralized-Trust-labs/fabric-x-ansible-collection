@@ -8,7 +8,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ fabric_ca_server_k8s_resource_name }}
-  namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ fabric_ca_server_k8s_resource_name }}
     app.kubernetes.io/component: fabric-ca

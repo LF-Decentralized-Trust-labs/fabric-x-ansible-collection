@@ -10,7 +10,6 @@ kind: Service
 metadata:
   # LoadBalancer Service -- exposes Yugabyte master outside the cluster for external clients.
   name: {{ yugabyte_k8s_resource_name }}-loadbalancer
-  namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ yugabyte_k8s_resource_name }}
     app.kubernetes.io/part-of: {{ yugabyte_k8s_part_of }}

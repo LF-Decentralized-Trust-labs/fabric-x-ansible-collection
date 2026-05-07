@@ -10,7 +10,6 @@ kind: Service
 metadata:
   # LoadBalancer Service -- exposes ElasticSearch outside the cluster for external clients.
   name: {{ elasticsearch_k8s_resource_name }}-loadbalancer
-  namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ elasticsearch_k8s_resource_name }}
     app.kubernetes.io/part-of: {{ elasticsearch_k8s_part_of }}
