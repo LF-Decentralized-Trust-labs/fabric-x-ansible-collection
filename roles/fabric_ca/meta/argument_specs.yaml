@@ -291,14 +291,14 @@ argument_specs:
       fabric_ca_server_ca_private_key_file:
         &fabric_ca_server_ca_private_key_file
         type: str
-        default: ca-key.pem
+        default: priv_sk
         description:
-          - "Sets the server CA private key filename."
+          - "Sets the server CA private key path, relative to the Fabric CA config root."
       fabric_ca_server_ca_cert_file: &fabric_ca_server_ca_cert_file
         type: str
         default: ca-cert.pem
         description:
-          - "Sets the server CA certificate filename."
+          - "Sets the server CA certificate path, relative to the Fabric CA config root."
       fabric_ca_server_tls_private_key_file:
         &fabric_ca_server_tls_private_key_file
         type: str
@@ -1073,7 +1073,6 @@ argument_specs:
       fabric_ca_operations_port: *fabric_ca_operations_port
       fabric_ca_server_use_k8s: *fabric_ca_server_use_k8s
       fabric_ca_server_use_openshift: *fabric_ca_server_use_openshift
-      fabric_ca_image_tag: *fabric_ca_image_tag
 
   server/config/rm:
     short_description: Remove server config resources

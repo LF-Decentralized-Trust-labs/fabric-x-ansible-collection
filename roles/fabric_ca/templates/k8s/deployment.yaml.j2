@@ -52,12 +52,12 @@ spec:
               subPath: fabric-ca-server-config.yaml
               readOnly: true
             - name: secret
-              mountPath: {{ fabric_ca_server_container_config_dir }}/{{ fabric_ca_server_ca_private_key_file }}
-              subPath: {{ fabric_ca_server_ca_private_key_file }}
+              mountPath: {{ fabric_ca_server_container_config_dir }}/msp/keystore/{{ fabric_ca_server_ca_private_key_file }}
+              subPath: ca-private-key
               readOnly: true
             - name: secret
               mountPath: {{ fabric_ca_server_container_config_dir }}/{{ fabric_ca_server_ca_cert_file }}
-              subPath: {{ fabric_ca_server_ca_cert_file }}
+              subPath: ca-certificate
               readOnly: true
 {% if fabric_ca_use_tls %}
             - name: secret

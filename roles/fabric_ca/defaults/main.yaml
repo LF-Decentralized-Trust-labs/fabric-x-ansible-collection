@@ -84,9 +84,9 @@ fabric_ca_csr_hosts:
   - '{{ inventory_hostname }}'
 # Sets the curve used for Fabric CA server key generation.
 fabric_ca_server_openssl_curve: P-256
-# Sets the server CA private key filename.
-fabric_ca_server_ca_private_key_file: ca-key.pem
-# Sets the server CA certificate filename.
+# Sets the server CA private key path, relative to the Fabric CA config root.
+fabric_ca_server_ca_private_key_file: priv_sk
+# Sets the server CA certificate path, relative to the Fabric CA config root.
 fabric_ca_server_ca_cert_file: ca-cert.pem
 # Sets the server TLS private key filename.
 fabric_ca_server_tls_private_key_file: tls-key.pem

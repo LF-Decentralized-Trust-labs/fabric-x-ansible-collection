@@ -1134,9 +1134,9 @@ Creates Fabric CA Kubernetes runtime resources for the server. Uses the ConfigMa
     fabric_ca_operations_port: 9443
     # Sets the pod fsGroup for the Fabric CA deployment.
     fabric_ca_server_k8s_fs_group: 0
-    # Sets the server CA private key filename.
-    fabric_ca_server_ca_private_key_file: ca-key.pem
-    # Sets the server CA certificate filename.
+    # Sets the server CA private key path, relative to the Fabric CA config root.
+    fabric_ca_server_ca_private_key_file: priv_sk
+    # Sets the server CA certificate path, relative to the Fabric CA config root.
     fabric_ca_server_ca_cert_file: ca-cert.pem
     # Enables TLS for server and client connections.
     fabric_ca_use_tls: false
@@ -1318,9 +1318,9 @@ Creates or updates the Fabric CA Kubernetes Secret containing server crypto mate
     fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Fabric CA server resources.
     fabric_ca_server_k8s_part_of: "fabric-ca-{{ organization.name }}"
-    # Sets the server CA private key filename.
-    fabric_ca_server_ca_private_key_file: ca-key.pem
-    # Sets the server CA certificate filename.
+    # Sets the server CA private key path, relative to the Fabric CA config root.
+    fabric_ca_server_ca_private_key_file: priv_sk
+    # Sets the server CA certificate path, relative to the Fabric CA config root.
     fabric_ca_server_ca_cert_file: ca-cert.pem
     # Sets the server TLS private key filename.
     fabric_ca_server_tls_private_key_file: tls-key.pem
@@ -1395,9 +1395,9 @@ Generates the Fabric CA root CA and TLS keypairs. Writes private keys and certif
     remote_config_dir: "/var/hyperledger/fabricx/fabric-ca/ca-org1/config"
     # Real machine host. Example: `myvpc.cloud.ibm.com`.
     actual_host: "myvpc.cloud.ibm.com"
-    # Sets the server CA private key filename.
-    fabric_ca_server_ca_private_key_file: ca-key.pem
-    # Sets the server CA certificate filename.
+    # Sets the server CA private key path, relative to the Fabric CA config root.
+    fabric_ca_server_ca_private_key_file: priv_sk
+    # Sets the server CA certificate path, relative to the Fabric CA config root.
     fabric_ca_server_ca_cert_file: ca-cert.pem
     # Sets the server TLS private key filename.
     fabric_ca_server_tls_private_key_file: tls-key.pem
@@ -1478,7 +1478,7 @@ Fetches the Fabric CA server certificate material. Copies CA certificates from t
     fabric_ca_server_remote_config_dir: "{{ remote_config_dir }}"
     # Provides the shared remote configuration root used by this role. Example: `/var/hyperledger/fabricx/fabric-ca/ca-org1/config`.
     remote_config_dir: "/var/hyperledger/fabricx/fabric-ca/ca-org1/config"
-    # Sets the server CA certificate filename.
+    # Sets the server CA certificate path, relative to the Fabric CA config root.
     fabric_ca_server_ca_cert_file: ca-cert.pem
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
@@ -1534,9 +1534,9 @@ Renders and transfers the Fabric CA server configuration. Includes bootstrap adm
     fabric_ca_server_tls_private_key_file: tls-key.pem
     # Sets the CA name.
     fabric_ca_name: "{{ inventory_hostname }}"
-    # Sets the server CA private key filename.
-    fabric_ca_server_ca_private_key_file: ca-key.pem
-    # Sets the server CA certificate filename.
+    # Sets the server CA private key path, relative to the Fabric CA config root.
+    fabric_ca_server_ca_private_key_file: priv_sk
+    # Sets the server CA certificate path, relative to the Fabric CA config root.
     fabric_ca_server_ca_cert_file: ca-cert.pem
     # Supplies the bootstrap administrator rendered into the server registry section; `name` and `secret` are required. Store the secret in Ansible Vault. Example: `{'name': 'admin', 'secret': 'adminPWD', 'attrs': {'hf.Registrar.Roles': '*', 'hf.Registrar.Attributes': '*'}}`.
     fabric_ca_admin:
@@ -1573,8 +1573,6 @@ Renders and transfers the Fabric CA server configuration. Includes bootstrap adm
     fabric_ca_server_use_k8s: false
     # Selects the OpenShift deployment branch.
     fabric_ca_server_use_openshift: false
-    # Sets the Fabric CA image tag.
-    fabric_ca_image_tag: 1.5.19
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/config/transfer
