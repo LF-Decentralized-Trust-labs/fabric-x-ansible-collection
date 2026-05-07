@@ -27,6 +27,7 @@
   - [k8s/config/transfer](#k8sconfigtransfer)
   - [k8s/config/rm](#k8sconfigrm)
   - [openshift/start](#openshiftstart)
+  - [openshift/ping](#openshiftping)
   - [openshift/rm](#openshiftrm)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
@@ -56,13 +57,17 @@ ansible-doc -t role hyperledger.fabricx.postgres
 
 > Check PostgreSQL reachability
 
-Validates PostgreSQL reachability for the selected deployment mode. In container mode, waits for the target host to accept connections on `postgres_port`. In Kubernetes mode, delegates to `k8s/ping`, which checks the configured NodePort only when `postgres_k8s_use_node_port` is enabled and `postgres_k8s_port_node_port` is defined. Also checks `postgres_exporter_port` when the exporter is defined for the host.
+Validates PostgreSQL reachability for the selected deployment mode. In container mode, waits for the target host to accept connections on `postgres_port`. In Kubernetes mode, delegates to `k8s/ping`, which checks the configured NodePort when `postgres_k8s_node_port` is defined and checks `actual_host`:`postgres_port` when `postgres_k8s_loadbalancer_expose_port` is `true`. Also checks `postgres_exporter_port` when the exporter is defined for the host.
 
 ```yaml
 - name: Check PostgreSQL reachability
   vars:
     # Run PostgreSQL on Kubernetes when set to `true`.
     postgres_use_k8s: false
+    # Run PostgreSQL on OpenShift when set to `true`.
+    postgres_use_openshift: false
+    # Run PostgreSQL as a container when set to `true`.
+    postgres_use_container: "{{ (not postgres_use_k8s) and (not postgres_use_openshift) }}"
     # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
     postgres_port: 5432
     # Optional postgres_exporter port to probe after PostgreSQL itself. This entry point only runs when the variable is defined. Example: `9187`.
@@ -200,14 +205,14 @@ Creates the PostgreSQL data directory, fixes TLS file permissions when TLS is en
 ```yaml
 - name: Start PostgreSQL in a container
   vars:
-    # Container name for the PostgreSQL instance. Example: `postgres0`.
+    # Container name for the PostgreSQL instance.
     postgres_container_name: "{{ inventory_hostname }}"
     # Container registry endpoint used to build `postgres_image`.
     postgres_registry_endpoint: "{{ lookup('env', 'POSTGRES_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
     # PostgreSQL image repository name.
     postgres_image_name: postgres
     # PostgreSQL image tag.
-    postgres_image_tag: 16.4
+    postgres_image_tag: 17.9
     # Full container image reference for PostgreSQL.
     postgres_image: "{{ postgres_registry_endpoint }}/{{ postgres_image_name }}:{{ postgres_image_tag }}"
     # Remote directory used for PostgreSQL configuration and TLS files.
@@ -258,7 +263,7 @@ Stops the PostgreSQL container instance named by `postgres_container_name`. Uses
 ```yaml
 - name: Stop the PostgreSQL container
   vars:
-    # Container name for the PostgreSQL instance. Example: `postgres0`.
+    # Container name for the PostgreSQL instance.
     postgres_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
@@ -274,7 +279,7 @@ Removes the PostgreSQL container instance named by `postgres_container_name`. Co
 ```yaml
 - name: Remove the PostgreSQL container
   vars:
-    # Container name for the PostgreSQL instance. Example: `postgres0`.
+    # Container name for the PostgreSQL instance.
     postgres_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
@@ -290,7 +295,7 @@ Collects logs from the PostgreSQL container instance named by `postgres_containe
 ```yaml
 - name: Fetch PostgreSQL container logs
   vars:
-    # Container name for the PostgreSQL instance. Example: `postgres0`.
+    # Container name for the PostgreSQL instance.
     postgres_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
@@ -301,23 +306,25 @@ Collects logs from the PostgreSQL container instance named by `postgres_containe
 
 > Start PostgreSQL on Kubernetes
 
-Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and StatefulSet named by `postgres_k8s_resource_name`. Applies `postgres_k8s_resource_name`-nodeport when `postgres_k8s_use_node_port` is enabled. Uses the role templates to configure credentials, PVC storage, TLS Secret mounts, optional mTLS ConfigMap mounts, image pull secrets, and readiness and liveness probes. Waits up to `postgres_k8s_wait_timeout` seconds for the StatefulSet rollout to complete.
+Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and StatefulSet named by `postgres_k8s_resource_name`. Applies `postgres_k8s_resource_name`-nodeport when `postgres_k8s_node_port` is defined. Applies `postgres_k8s_resource_name`-loadbalancer when `postgres_k8s_loadbalancer_expose_port` is `true`. Uses the role templates to configure credentials, PVC storage, TLS Secret mounts, optional mTLS ConfigMap mounts, image pull secrets, and readiness and liveness probes. Waits up to `postgres_k8s_wait_timeout` seconds for the StatefulSet rollout to complete.
 
 ```yaml
 - name: Start PostgreSQL on Kubernetes
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. Example: `postgres0`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
+    postgres_k8s_part_of: postgres
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
     # Timeout in seconds while waiting for the StatefulSet rollout to complete.
     postgres_k8s_wait_timeout: 120
     # Kubernetes pod `fsGroup` applied so mounted files are readable by the postgres process.
     postgres_k8s_fs_group: 999
-    # Enable the Kubernetes NodePort Service for PostgreSQL when set to `true`.
-    postgres_k8s_use_node_port: false
-    # Kubernetes NodePort value used by the external PostgreSQL Service. When undefined, the NodePort is allocated automatically by Kubernetes. Example: `30432`.
-    postgres_k8s_port_node_port: 30432
+    # Set to `true` to create a LoadBalancer Service and expose `postgres_port` externally. When undefined or `false`, no LoadBalancer Service is created.
+    postgres_k8s_loadbalancer_expose_port: false
+    # Kubernetes NodePort value used by the external PostgreSQL Service. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30432`.
+    postgres_k8s_node_port: 30432
     # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
     postgres_port: 5432
     # Container registry endpoint used to build `postgres_image`.
@@ -325,7 +332,7 @@ Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and S
     # PostgreSQL image repository name.
     postgres_image_name: postgres
     # PostgreSQL image tag.
-    postgres_image_tag: 16.4
+    postgres_image_tag: 17.9
     # Full container image reference for PostgreSQL.
     postgres_image: "{{ postgres_registry_endpoint }}/{{ postgres_image_name }}:{{ postgres_image_tag }}"
     # Configuration directory path inside the PostgreSQL container.
@@ -374,6 +381,14 @@ Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and S
     k8s_liveness_probe_timeout_seconds: 5
     # Override for the liveness probe failure threshold. Example: `5`.
     k8s_liveness_probe_failure_threshold: 5
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: k8s/start
@@ -381,17 +396,21 @@ Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and S
 
 ### k8s/ping
 
-> Check PostgreSQL NodePort reachability on Kubernetes
+> Check that PostgreSQL Kubernetes service is reachable
 
-Probes the PostgreSQL NodePort Service when `postgres_k8s_use_node_port` is enabled and `postgres_k8s_port_node_port` is defined. This entry point is invoked internally by `ping` when PostgreSQL runs on Kubernetes.
+Probes the PostgreSQL NodePort Service when `postgres_k8s_node_port` is defined. Probes `actual_host`:`postgres_port` when `postgres_k8s_loadbalancer_expose_port` is `true`. This entry point is invoked internally by `ping` when PostgreSQL runs on Kubernetes.
 
 ```yaml
-- name: Check PostgreSQL NodePort reachability on Kubernetes
+- name: Check that PostgreSQL Kubernetes service is reachable
   vars:
-    # Enable the Kubernetes NodePort Service for PostgreSQL when set to `true`.
-    postgres_k8s_use_node_port: false
-    # Kubernetes NodePort value used by the external PostgreSQL Service. When undefined, the NodePort is allocated automatically by Kubernetes. Example: `30432`.
-    postgres_k8s_port_node_port: 30432
+    # Resolved host name used for external reachability checks and in the Fabric CA CSR SAN list. Example: `postgres0.example.com`.
+    actual_host: "postgres0.example.com"
+    # Kubernetes NodePort value used by the external PostgreSQL Service. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30432`.
+    postgres_k8s_node_port: 30432
+    # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
+    postgres_port: 5432
+    # Set to `true` to create a LoadBalancer Service and expose `postgres_port` externally. When undefined or `false`, no LoadBalancer Service is created.
+    postgres_k8s_loadbalancer_expose_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: k8s/ping
@@ -401,15 +420,21 @@ Probes the PostgreSQL NodePort Service when `postgres_k8s_use_node_port` is enab
 
 > Remove PostgreSQL Kubernetes resources
 
-Deletes the PostgreSQL StatefulSet, headless Service, and optional NodePort Service resources from `k8s_namespace`. The persistent volume claim is removed separately by the `data/rm` entry point.
+Deletes the PostgreSQL StatefulSet, headless Service, optional NodePort Service, and optional LoadBalancer Service resources from `k8s_namespace`. The persistent volume claim is removed separately by the `data/rm` entry point.
 
 ```yaml
 - name: Remove PostgreSQL Kubernetes resources
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. Example: `postgres0`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
+    postgres_k8s_part_of: postgres
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
+    # Kubernetes NodePort value used by the external PostgreSQL Service. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30432`.
+    postgres_k8s_node_port: 30432
+    # Set to `true` to create a LoadBalancer Service and expose `postgres_port` externally. When undefined or `false`, no LoadBalancer Service is created.
+    postgres_k8s_loadbalancer_expose_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: k8s/rm
@@ -424,8 +449,10 @@ Collects logs from the PostgreSQL pod in `k8s_namespace`. Selects pods using `po
 ```yaml
 - name: Fetch PostgreSQL pod logs
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. Example: `postgres0`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
+    postgres_k8s_part_of: postgres
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
   ansible.builtin.include_role:
@@ -442,8 +469,10 @@ Applies the Kubernetes Secret named `postgres_k8s_resource_name`-secret. Stores 
 ```yaml
 - name: Apply the PostgreSQL Kubernetes Secret
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. Example: `postgres0`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
+    postgres_k8s_part_of: postgres
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
     # Remote directory used for PostgreSQL configuration and TLS files.
@@ -476,8 +505,10 @@ Deletes the Kubernetes Secret named `postgres_k8s_resource_name`-secret from `k8
 ```yaml
 - name: Remove the PostgreSQL Kubernetes Secret
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. Example: `postgres0`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
+    postgres_k8s_part_of: postgres
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
   ansible.builtin.include_role:
@@ -494,8 +525,10 @@ Applies the Kubernetes ConfigMap named `postgres_k8s_resource_name`-config. Stor
 ```yaml
 - name: Apply the PostgreSQL Kubernetes ConfigMap
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. Example: `postgres0`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
+    postgres_k8s_part_of: postgres
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
     # Remote directory used for PostgreSQL configuration and TLS files.
@@ -522,8 +555,10 @@ Deletes the Kubernetes ConfigMap named `postgres_k8s_resource_name`-config from 
 ```yaml
 - name: Remove the PostgreSQL Kubernetes ConfigMap
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. Example: `postgres0`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
+    postgres_k8s_part_of: postgres
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
   ansible.builtin.include_role:
@@ -535,19 +570,25 @@ Deletes the Kubernetes ConfigMap named `postgres_k8s_resource_name`-config from 
 
 > Start PostgreSQL on OpenShift
 
-Starts PostgreSQL on OpenShift by reusing the generic `k8s/start` resource flow. Creates or updates the namespace, headless Service, StatefulSet, PVC, credentials Secret, and optional mTLS ConfigMap. Uses the same storage, probe, TLS, and image pull settings as Kubernetes mode.
+Starts PostgreSQL on OpenShift by reusing the generic `k8s/start` resource flow. Creates or updates the namespace, headless Service, optional external Services, StatefulSet, PVC, credentials Secret, and optional mTLS ConfigMap. Uses the same storage, probe, TLS, and image pull settings as Kubernetes mode.
 
 ```yaml
 - name: Start PostgreSQL on OpenShift
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. Example: `postgres0`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
+    postgres_k8s_part_of: postgres
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
     # Timeout in seconds while waiting for the StatefulSet rollout to complete.
     postgres_k8s_wait_timeout: 120
     # Kubernetes pod `fsGroup` applied so mounted files are readable by the postgres process.
     postgres_k8s_fs_group: 999
+    # Set to `true` to create a LoadBalancer Service and expose `postgres_port` externally. When undefined or `false`, no LoadBalancer Service is created.
+    postgres_k8s_loadbalancer_expose_port: false
+    # Kubernetes NodePort value used by the external PostgreSQL Service. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30432`.
+    postgres_k8s_node_port: 30432
     # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
     postgres_port: 5432
     # Container registry endpoint used to build `postgres_image`.
@@ -555,7 +596,7 @@ Starts PostgreSQL on OpenShift by reusing the generic `k8s/start` resource flow.
     # PostgreSQL image repository name.
     postgres_image_name: postgres
     # PostgreSQL image tag.
-    postgres_image_tag: 16.4
+    postgres_image_tag: 17.9
     # Full container image reference for PostgreSQL.
     postgres_image: "{{ postgres_registry_endpoint }}/{{ postgres_image_name }}:{{ postgres_image_tag }}"
     # Configuration directory path inside the PostgreSQL container.
@@ -609,17 +650,32 @@ Starts PostgreSQL on OpenShift by reusing the generic `k8s/start` resource flow.
     tasks_from: openshift/start
 ```
 
+### openshift/ping
+
+> Check PostgreSQL OpenShift services
+
+Reuses the Kubernetes service ping flow for PostgreSQL OpenShift deployments.
+
+```yaml
+- name: Check PostgreSQL OpenShift services
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres
+    tasks_from: openshift/ping
+```
+
 ### openshift/rm
 
 > Remove PostgreSQL OpenShift resources
 
-Removes PostgreSQL OpenShift resources by reusing the generic `k8s/rm` resource flow. Deletes the StatefulSet, headless Service, and optional NodePort Service from `k8s_namespace`. The persistent volume claim is removed separately by the `data/rm` entry point.
+Removes PostgreSQL OpenShift resources by reusing the generic `k8s/rm` resource flow. Deletes the StatefulSet, headless Service, optional NodePort Service, and optional LoadBalancer Service from `k8s_namespace`. The persistent volume claim is removed separately by the `data/rm` entry point.
 
 ```yaml
 - name: Remove PostgreSQL OpenShift resources
   vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services. Example: `postgres0`.
+    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
+    postgres_k8s_part_of: postgres
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
   ansible.builtin.include_role:
@@ -792,7 +848,7 @@ Enrolls PostgreSQL through Fabric CA to generate TLS materials under `postgres_r
         name: "postgres0"
         secret: "<fabric-ca-secret>"
       fabric_ca_host: "fabric-ca0"
-    # Resolved host name used in the Fabric CA CSR SAN list. Required by the Fabric CA TLS enrollment path. Example: `postgres0.example.com`.
+    # Resolved host name used for external reachability checks and in the Fabric CA CSR SAN list. Example: `postgres0.example.com`.
     actual_host: "postgres0.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres

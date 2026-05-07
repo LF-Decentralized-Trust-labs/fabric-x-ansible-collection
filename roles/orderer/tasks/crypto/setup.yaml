@@ -40,4 +40,4 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: k8s/crypto/transfer
-  when: orderer_use_k8s
+  when: orderer_use_k8s or orderer_use_openshift

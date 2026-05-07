@@ -45,6 +45,22 @@
     - committer_component_type is defined
     - committer_component_type == 'sidecar'
 
+- name: Initialize Committer TLS SAN hosts
+  ansible.builtin.set_fact:
+    committer_tls_san_hosts: "{{ ansible_all_ipv4_addresses + [ansible_host, actual_host] }}"
+
+- name: Append Committer OpenShift route to TLS SAN hosts
+  ansible.builtin.set_fact:
+    committer_tls_san_hosts: "{{ committer_tls_san_hosts + [committer_openshift_route] }}"
+  when:
+    - committer_openshift_route is defined
+
+- name: Append Committer OpenShift metrics route to TLS SAN hosts
+  ansible.builtin.set_fact:
+    committer_tls_san_hosts: "{{ committer_tls_san_hosts + [committer_openshift_metrics_route] }}"
+  when:
+    - committer_openshift_metrics_route is defined
+
 - name: Generate Hyperledger Fabric-X Committer TLS crypto material
   vars:
     fabric_ca_host: "{{ organization.fabric_ca_host }}"
@@ -53,7 +69,7 @@
     fabric_ca_msp_dir: "{{ committer_remote_config_dir }}/tls"
     fabric_ca_tls_certfile: "{{ committer_remote_config_dir }}/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
     fabric_ca_enrollment_profile: tls
-    fabric_ca_csr_hosts: "{{ ansible_all_ipv4_addresses + [ansible_host, actual_host] }}"
+    fabric_ca_csr_hosts: "{{ committer_tls_san_hosts | unique }}"
     fabric_ca_identity:
       name: "{{ organization.peer.name | default(inventory_hostname) }}"
       secret: "{{ organization.peer.secret }}"

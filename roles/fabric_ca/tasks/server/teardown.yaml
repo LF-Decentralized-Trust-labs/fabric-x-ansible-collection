@@ -21,3 +21,9 @@
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/k8s/rm
   when: fabric_ca_server_use_k8s
+
+- name: Teardown Fabric CA server on OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/openshift/rm
+  when: fabric_ca_server_use_openshift

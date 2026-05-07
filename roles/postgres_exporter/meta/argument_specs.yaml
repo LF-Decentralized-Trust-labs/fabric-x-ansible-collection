@@ -11,7 +11,6 @@ argument_specs:
     options:
       remote_config_dir: &remote_config_dir
         type: path
-        required: false
         description:
           - "Provides the shared remote configuration directory used by Postgres Exporter."
           - "Example: C(/opt/fabricx/postgres-exporter/config)."
@@ -23,7 +22,6 @@ argument_specs:
           - "Example: C(/tmp/postgres-exporter-artifacts)."
       organization: &organization
         type: dict
-        required: false
         description:
           - "Provides organization metadata forwarded to the OpenSSL role."
           - "Example: C({'domain': 'org1.example.com'})."
@@ -35,62 +33,58 @@ argument_specs:
           - "Example: C(postgres-exporter)."
       k8s_image_pull_secret: &k8s_image_pull_secret
         type: str
-        required: false
         description:
           - "Sets the optional Kubernetes image pull secret used by the Postgres Exporter Deployment."
           - "Example: C(registry-credentials)."
       k8s_readiness_probe_initial_delay_seconds:
         &k8s_readiness_probe_initial_delay_seconds
         type: int
-        required: false
         description:
           - "Overrides the Deployment readiness probe initial delay."
           - "Example: C(5)."
       k8s_readiness_probe_period_seconds: &k8s_readiness_probe_period_seconds
         type: int
-        required: false
         description:
           - "Overrides the Deployment readiness probe period."
           - "Example: C(10)."
       k8s_readiness_probe_timeout_seconds: &k8s_readiness_probe_timeout_seconds
         type: int
-        required: false
         description:
           - "Overrides the Deployment readiness probe timeout."
           - "Example: C(2)."
       k8s_readiness_probe_failure_threshold:
         &k8s_readiness_probe_failure_threshold
         type: int
-        required: false
         description:
           - "Overrides the Deployment readiness probe failure threshold."
           - "Example: C(3)."
       k8s_liveness_probe_initial_delay_seconds:
         &k8s_liveness_probe_initial_delay_seconds
         type: int
-        required: false
         description:
           - "Overrides the Deployment liveness probe initial delay."
           - "Example: C(15)."
       k8s_liveness_probe_period_seconds: &k8s_liveness_probe_period_seconds
         type: int
-        required: false
         description:
           - "Overrides the Deployment liveness probe period."
           - "Example: C(20)."
       k8s_liveness_probe_timeout_seconds: &k8s_liveness_probe_timeout_seconds
         type: int
-        required: false
         description:
           - "Overrides the Deployment liveness probe timeout."
           - "Example: C(2)."
       k8s_liveness_probe_failure_threshold:
         &k8s_liveness_probe_failure_threshold
         type: int
-        required: false
         description:
           - "Overrides the Deployment liveness probe failure threshold."
           - "Example: C(3)."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
       postgres_db_host: &postgres_db_host
         type: str
         required: true
@@ -101,122 +95,109 @@ argument_specs:
           - "The referenced host must expose the Postgres role facts consumed through C(hostvars[postgres_db_host])."
       postgres_exporter_registry_endpoint: &postgres_exporter_registry_endpoint
         type: str
-        required: false
         default: "{{ lookup('env', 'POSTGRES_EXPORTER_REGISTRY_ENDPOINT') or 'docker.io/prometheuscommunity' }}"
         description:
           - "Sets the registry endpoint used to build the Postgres Exporter image reference."
       postgres_exporter_image_name: &postgres_exporter_image_name
         type: str
-        required: false
         default: postgres-exporter
         description:
           - "Sets the image name used to build C(postgres_exporter_image)."
       postgres_exporter_image_tag: &postgres_exporter_image_tag
         type: str
-        required: false
         default: latest
         description:
           - "Sets the image tag used to build C(postgres_exporter_image)."
       postgres_exporter_image: &postgres_exporter_image
         type: str
-        required: false
         default: "{{ postgres_exporter_registry_endpoint }}/{{ postgres_exporter_image_name }}:{{ postgres_exporter_image_tag }}"
         description:
           - "Sets the full Postgres Exporter image reference."
       postgres_exporter_container_name: &postgres_exporter_container_name
         type: str
-        required: false
         default: "{{ inventory_hostname }}"
         description:
           - "Sets the Postgres Exporter container name."
       postgres_exporter_remote_config_dir: &postgres_exporter_remote_config_dir
         type: path
-        required: false
         default: "{{ remote_config_dir }}"
         description:
           - "Sets the remote directory that stores Postgres Exporter configuration and TLS files."
       postgres_exporter_container_config_dir:
         &postgres_exporter_container_config_dir
         type: path
-        required: false
         default: /var/config
         description:
           - "Sets the configuration directory mounted inside the container or pod."
       postgres_exporter_config_file: &postgres_exporter_config_file
         type: str
-        required: false
         default: postgres_exporter.yaml
         description:
           - "Sets the main Postgres Exporter configuration file name."
       postgres_exporter_web_config_file: &postgres_exporter_web_config_file
         type: str
-        required: false
         default: web-config.yaml
         description:
           - "Sets the HTTPS web configuration file name used when C(postgres_exporter_use_tls) is true."
       postgres_exporter_use_tls: &postgres_exporter_use_tls
         type: bool
-        required: false
         default: false
         description:
           - "Enables Postgres Exporter TLS assets and HTTPS listener configuration when set to C(true)."
       postgres_exporter_tls_private_key_file:
         &postgres_exporter_tls_private_key_file
         type: str
-        required: false
         default: server.key
         description:
           - "Sets the TLS private key file name used under C(postgres_exporter_remote_config_dir)/tls."
       postgres_exporter_tls_cert_file: &postgres_exporter_tls_cert_file
         type: str
-        required: false
         default: server.crt
         description:
           - "Sets the TLS certificate file name used under C(postgres_exporter_remote_config_dir)/tls."
       postgres_exporter_use_k8s: &postgres_exporter_use_k8s
         type: bool
-        required: false
         default: false
         description:
           - "Enables the Kubernetes backend and Kubernetes cleanup path when set to C(true)."
       postgres_exporter_use_container: &postgres_exporter_use_container
         type: bool
-        required: false
-        default: "{{ not postgres_exporter_use_k8s }}"
+        default: "{{ (not postgres_exporter_use_k8s) and (not postgres_exporter_use_openshift) }}"
         description:
           - "Enables the container backend when set to C(true)."
       postgres_exporter_k8s_resource_name: &postgres_exporter_k8s_resource_name
         type: str
-        required: false
         default: "{{ inventory_hostname }}"
         description:
           - "Sets the Kubernetes resource base name used for ConfigMaps, Secrets, Services, and Deployments."
+      postgres_exporter_k8s_part_of: &postgres_exporter_k8s_part_of
+        type: str
+        default: monitoring
+        description:
+          - "Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Postgres Exporter resources."
       postgres_exporter_k8s_wait_timeout: &postgres_exporter_k8s_wait_timeout
         type: int
-        required: false
         default: 120
         description:
           - "Sets the Deployment wait timeout in seconds."
       postgres_exporter_k8s_fs_group: &postgres_exporter_k8s_fs_group
         type: int
-        required: false
         default: 65534
         description:
           - "Sets the pod filesystem group used by the Postgres Exporter Deployment."
-      postgres_exporter_k8s_use_node_port: &postgres_exporter_k8s_use_node_port
+      postgres_exporter_k8s_node_port: &postgres_exporter_k8s_node_port
+        type: int
+        description:
+          - Kubernetes NodePort value used by the external metrics Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
+          - "Example: C(30987)."
+      postgres_exporter_k8s_loadbalancer_expose_metrics_port:
+        &postgres_exporter_k8s_loadbalancer_expose_metrics_port
         type: bool
-        required: false
         default: false
         description:
-          - "Enables the optional NodePort Service used to expose Postgres Exporter externally from Kubernetes."
-          - "When set to C(true), C(postgres_exporter_k8s_port_node_port) is used to populate the Service's node port."
-      postgres_exporter_k8s_port_node_port:
-        &postgres_exporter_k8s_port_node_port
-        type: int
-        required: false
-        description:
-          - "Sets the NodePort value exposed by the optional Postgres Exporter Kubernetes Service."
-          - "Example: C(30987)."
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the metrics port externally.
+          - When undefined or C(false), the metrics port is not included in the LoadBalancer Service.
       postgres_exporter_port: &postgres_exporter_port
         type: int
         required: true
@@ -231,6 +212,16 @@ argument_specs:
           - "Lists the inventory hosts that run Postgres Exporter and should be exposed to Prometheus."
           - "Example: C(['postgres-exporter-a', 'postgres-exporter-b'])."
 
+      postgres_exporter_use_openshift: &postgres_exporter_use_openshift
+        type: bool
+        default: false
+        description:
+          - Selects the OpenShift deployment branch.
+      postgres_exporter_openshift_route: &postgres_exporter_openshift_route
+        type: str
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(postgres-exporter-metrics.apps.example.com)."
   start:
     short_description: Start Postgres Exporter
     description:
@@ -241,6 +232,7 @@ argument_specs:
     options:
       postgres_exporter_use_container: *postgres_exporter_use_container
       postgres_exporter_use_k8s: *postgres_exporter_use_k8s
+      postgres_exporter_use_openshift: *postgres_exporter_use_openshift
 
   stop:
     short_description: Stop Postgres Exporter
@@ -258,6 +250,7 @@ argument_specs:
     options:
       postgres_exporter_use_container: *postgres_exporter_use_container
       postgres_exporter_use_k8s: *postgres_exporter_use_k8s
+      postgres_exporter_use_openshift: *postgres_exporter_use_openshift
 
   wipe:
     short_description: Remove all Postgres Exporter artifacts
@@ -274,6 +267,7 @@ argument_specs:
     options:
       postgres_exporter_use_container: *postgres_exporter_use_container
       postgres_exporter_use_k8s: *postgres_exporter_use_k8s
+      postgres_exporter_use_openshift: *postgres_exporter_use_openshift
       postgres_exporter_container_name: *postgres_exporter_container_name
 
   ping:
@@ -284,6 +278,7 @@ argument_specs:
     options:
       postgres_exporter_port: *postgres_exporter_port
       postgres_exporter_use_k8s: *postgres_exporter_use_k8s
+      postgres_exporter_use_openshift: *postgres_exporter_use_openshift
 
   container/start:
     short_description: Start the Postgres Exporter container
@@ -344,6 +339,7 @@ argument_specs:
       postgres_exporter_tls_private_key_file: *postgres_exporter_tls_private_key_file
       postgres_exporter_tls_cert_file: *postgres_exporter_tls_cert_file
       postgres_exporter_use_k8s: *postgres_exporter_use_k8s
+      postgres_exporter_use_openshift: *postgres_exporter_use_openshift
 
   config/rm:
     short_description: Remove Postgres Exporter configuration
@@ -354,6 +350,7 @@ argument_specs:
       remote_config_dir: *remote_config_dir
       postgres_exporter_remote_config_dir: *postgres_exporter_remote_config_dir
       postgres_exporter_use_k8s: *postgres_exporter_use_k8s
+      postgres_exporter_use_openshift: *postgres_exporter_use_openshift
 
   config/transfer_grafana_dashboard:
     short_description: Transfer the packaged Grafana dashboard
@@ -370,6 +367,7 @@ argument_specs:
     options:
       postgres_exporter_use_tls: *postgres_exporter_use_tls
       postgres_exporter_use_k8s: *postgres_exporter_use_k8s
+      postgres_exporter_use_openshift: *postgres_exporter_use_openshift
 
   crypto/fetch:
     short_description: Fetch Postgres Exporter TLS artifacts
@@ -392,6 +390,7 @@ argument_specs:
       postgres_exporter_remote_config_dir: *postgres_exporter_remote_config_dir
       postgres_exporter_use_tls: *postgres_exporter_use_tls
       postgres_exporter_use_k8s: *postgres_exporter_use_k8s
+      postgres_exporter_use_openshift: *postgres_exporter_use_openshift
 
   crypto/openssl/generate_cert:
     short_description: Generate Postgres Exporter TLS files with OpenSSL
@@ -403,13 +402,13 @@ argument_specs:
       postgres_exporter_remote_config_dir: *postgres_exporter_remote_config_dir
       postgres_exporter_tls_private_key_file: *postgres_exporter_tls_private_key_file
       postgres_exporter_tls_cert_file: *postgres_exporter_tls_cert_file
+      postgres_exporter_openshift_route: *postgres_exporter_openshift_route
 
   k8s/start:
     short_description: Start Postgres Exporter on Kubernetes
     description:
-      - "Applies the Service, optional NodePort Service, and Deployment for Postgres Exporter."
+      - "Applies the Service, optional NodePort and LoadBalancer Services, and Deployment for Postgres Exporter."
       - "The Deployment connects to the monitored PostgreSQL host using the same datasource facts used by the container path."
-      - "The NodePort Service is optional and only rendered when C(postgres_exporter_k8s_use_node_port) is true."
     options:
       k8s_namespace: *k8s_namespace
       k8s_image_pull_secret: *k8s_image_pull_secret
@@ -427,10 +426,10 @@ argument_specs:
       postgres_exporter_image_tag: *postgres_exporter_image_tag
       postgres_exporter_image: *postgres_exporter_image
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
+      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
       postgres_exporter_k8s_wait_timeout: *postgres_exporter_k8s_wait_timeout
       postgres_exporter_k8s_fs_group: *postgres_exporter_k8s_fs_group
-      postgres_exporter_k8s_use_node_port: *postgres_exporter_k8s_use_node_port
-      postgres_exporter_k8s_port_node_port: *postgres_exporter_k8s_port_node_port
+      postgres_exporter_k8s_node_port: *postgres_exporter_k8s_node_port
       postgres_exporter_port: *postgres_exporter_port
       postgres_exporter_container_config_dir: *postgres_exporter_container_config_dir
       postgres_exporter_config_file: *postgres_exporter_config_file
@@ -438,16 +437,17 @@ argument_specs:
       postgres_exporter_use_tls: *postgres_exporter_use_tls
       postgres_exporter_tls_private_key_file: *postgres_exporter_tls_private_key_file
       postgres_exporter_tls_cert_file: *postgres_exporter_tls_cert_file
+      postgres_exporter_k8s_loadbalancer_expose_metrics_port: *postgres_exporter_k8s_loadbalancer_expose_metrics_port
+      k8s_resources: *k8s_resources
 
   k8s/ping:
-    short_description: Check Postgres Exporter node port reachability
+    short_description: Check that the Postgres Exporter Kubernetes service is reachable
     description:
-      - "Checks whether the optional Postgres Exporter NodePort Service is reachable."
-      - "This verifies the exposed service port rather than the pod-local metrics listener."
+      - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
     options:
       postgres_exporter_port: *postgres_exporter_port
-      postgres_exporter_k8s_use_node_port: *postgres_exporter_k8s_use_node_port
-      postgres_exporter_k8s_port_node_port: *postgres_exporter_k8s_port_node_port
+      postgres_exporter_k8s_node_port: *postgres_exporter_k8s_node_port
+      postgres_exporter_k8s_loadbalancer_expose_metrics_port: *postgres_exporter_k8s_loadbalancer_expose_metrics_port
 
   k8s/rm:
     short_description: Remove Postgres Exporter Kubernetes resources
@@ -456,6 +456,9 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
+      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
+      postgres_exporter_k8s_node_port: *postgres_exporter_k8s_node_port
+      postgres_exporter_k8s_loadbalancer_expose_metrics_port: *postgres_exporter_k8s_loadbalancer_expose_metrics_port
 
   k8s/fetch_logs:
     short_description: Fetch Postgres Exporter pod logs
@@ -463,6 +466,7 @@ argument_specs:
       - "Delegates Postgres Exporter pod log collection to the shared Kubernetes role."
     options:
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
+      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
 
   k8s/config/transfer:
     short_description: Apply the Postgres Exporter ConfigMap
@@ -474,6 +478,7 @@ argument_specs:
       postgres_db_host: *postgres_db_host
       remote_config_dir: *remote_config_dir
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
+      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
       postgres_exporter_remote_config_dir: *postgres_exporter_remote_config_dir
       postgres_exporter_config_file: *postgres_exporter_config_file
       postgres_exporter_web_config_file: *postgres_exporter_web_config_file
@@ -486,6 +491,7 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
+      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
 
   k8s/crypto/transfer:
     short_description: Apply the Postgres Exporter Secret
@@ -496,6 +502,7 @@ argument_specs:
       postgres_db_host: *postgres_db_host
       remote_config_dir: *remote_config_dir
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
+      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
       postgres_exporter_remote_config_dir: *postgres_exporter_remote_config_dir
       postgres_exporter_container_config_dir: *postgres_exporter_container_config_dir
       postgres_exporter_tls_private_key_file: *postgres_exporter_tls_private_key_file
@@ -509,6 +516,7 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
+      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
 
   prometheus/get_scrapers:
     short_description: Build Prometheus scrape definitions for Postgres Exporter
@@ -518,3 +526,32 @@ argument_specs:
     options:
       fetched_artifacts_dir: *fetched_artifacts_dir
       postgres_exporter_hosts: *postgres_exporter_hosts
+
+  openshift/start:
+    short_description: Start the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
+      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
+      postgres_exporter_use_tls: *postgres_exporter_use_tls
+      k8s_namespace: *k8s_namespace
+      postgres_exporter_openshift_route: *postgres_exporter_openshift_route
+
+  openshift/ping:
+    short_description: Check the OpenShift deployment
+    description:
+      - Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+    options:
+      postgres_exporter_use_tls: *postgres_exporter_use_tls
+      postgres_exporter_openshift_route: *postgres_exporter_openshift_route
+
+  openshift/rm:
+    short_description: Remove the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
+      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
+      k8s_namespace: *k8s_namespace
+      postgres_exporter_openshift_route: *postgres_exporter_openshift_route

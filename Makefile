@@ -203,6 +203,12 @@ login-cr:
 	@printf "$(COLOR_CYAN)🚩 Logging into container registry [$(COLOR_GREEN)$(CONTAINER_REGISTRY)$(COLOR_CYAN)] for hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
 	$(ANSIBLE_PLAYBOOK) hyperledger.fabricx.log_in_container_registry --extra-vars '{"target_hosts": "$(TARGET_HOSTS)", "container_registry": "$(CONTAINER_REGISTRY)", "container_registry_username": "$(CONTAINER_REGISTRY_USERNAME)", "container_registry_password": "$(CONTAINER_REGISTRY_PASSWORD)"}'
 
+# Login to managed OpenShift using personal token.
+.PHONY: login-oc
+login-oc:
+	@printf "$(COLOR_CYAN)🚩 Logging in to OpenShift cluster...$(COLOR_RESET)\n"
+	$(ANSIBLE_PLAYBOOK) hyperledger.fabricx.openshift.login
+
 # Build all the artifacts, the binaries and configuration files (e.g. make setup).
 .PHONY: setup
 setup: binaries artifacts configs

@@ -43,6 +43,26 @@
   when:
     - organization.fabric_ca_host is defined
 
+- name: Initialize Orderer TLS SAN hosts
+  ansible.builtin.set_fact:
+    orderer_tls_san_hosts:
+      - "{{ inventory_hostname }}"
+      - "{{ ansible_host }}"
+      - "{{ actual_host }}"
+      - "{{ organization.orderer.name }}"
+
+- name: Append Orderer OpenShift route to TLS SAN hosts
+  ansible.builtin.set_fact:
+    orderer_tls_san_hosts: "{{ orderer_tls_san_hosts + [orderer_openshift_route] }}"
+  when:
+    - orderer_openshift_route is defined
+
+- name: Append Orderer OpenShift metrics route to TLS SAN hosts
+  ansible.builtin.set_fact:
+    orderer_tls_san_hosts: "{{ orderer_tls_san_hosts + [orderer_openshift_metrics_route] }}"
+  when:
+    - orderer_openshift_metrics_route is defined
+
 - name: Generate Hyperledger Fabric-X Orderer TLS crypto material
   vars:
     fabric_ca_host: "{{ organization.fabric_ca_host }}"
@@ -51,11 +71,7 @@
     fabric_ca_msp_dir: "{{ orderer_remote_config_dir }}/tls"
     fabric_ca_tls_certfile: "{{ orderer_remote_config_dir }}/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
     fabric_ca_enrollment_profile: tls
-    fabric_ca_csr_hosts:
-      - "{{ inventory_hostname }}"
-      - "{{ ansible_host }}"
-      - "{{ actual_host }}"
-      - "{{ organization.orderer.name }}"
+    fabric_ca_csr_hosts: "{{ orderer_tls_san_hosts | unique }}"
     fabric_ca_identity:
       name: "{{ organization.orderer.name }}"
       secret: "{{ organization.orderer.secret }}"

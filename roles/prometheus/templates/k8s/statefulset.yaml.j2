@@ -12,7 +12,7 @@ metadata:
   namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ prometheus_k8s_resource_name }}
-    app.kubernetes.io/part-of: prometheus
+    app.kubernetes.io/part-of: {{ prometheus_k8s_part_of }}
 spec:
   # Must match the headless Service name so DNS-based pod addressing works.
   serviceName: {{ prometheus_k8s_resource_name }}
@@ -25,7 +25,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: {{ prometheus_k8s_resource_name }}
-        app.kubernetes.io/part-of: prometheus
+        app.kubernetes.io/part-of: {{ prometheus_k8s_part_of }}
     spec:
       securityContext:
         # prom/prometheus runs as nobody (UID 65534), so fsGroup keeps mounted files readable.
@@ -33,6 +33,10 @@ spec:
       containers:
         - name: prometheus
           image: {{ prometheus_image }}
+{% if k8s_resources is defined and k8s_resources %}
+          resources:
+{{ k8s_resources | to_nice_yaml(indent=2) | indent(12, true) }}
+{% endif %}
           args:
             - --web.listen-address=:{{ prometheus_port }}
             - --config.file={{ prometheus_container_config_dir }}/{{ prometheus_config_file }}

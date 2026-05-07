@@ -14,14 +14,12 @@ argument_specs:
     options:
       remote_config_dir: &remote_config_dir
         type: path
-        required: false
         description:
           - Shared remote configuration directory consumed by C(elasticsearch_remote_config_dir).
           - "Example: C(/opt/fabricx/elasticsearch/config)."
           - Required when relying on the default of that option.
       remote_data_dir: &remote_data_dir
         type: path
-        required: false
         description:
           - Shared remote data directory consumed by C(elasticsearch_remote_data_dir).
           - "Example: C(/opt/fabricx/elasticsearch/data)."
@@ -40,13 +38,11 @@ argument_specs:
           - Set C(required) explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
       k8s_image_pull_secret: &k8s_image_pull_secret
         type: str
-        required: false
         description:
           - Existing Kubernetes C(imagePullSecret) name used for private registries.
           - "Example: C(elasticsearch-regcred)."
       k8s_storage_class: &k8s_storage_class
         type: str
-        required: false
         description:
           - Kubernetes storage class name for the ElasticSearch PVC when a non-default class is required.
           - "Example: C(fast-ssd)."
@@ -59,187 +55,174 @@ argument_specs:
       k8s_readiness_probe_initial_delay_seconds:
         &k8s_readiness_probe_initial_delay_seconds
         type: int
-        required: false
         description:
           - Optionally overrides the readiness probe initial delay in seconds.
           - "Example: C(10)."
       k8s_readiness_probe_period_seconds: &k8s_readiness_probe_period_seconds
         type: int
-        required: false
         description:
           - Optionally overrides the readiness probe interval in seconds.
           - "Example: C(5)."
       k8s_readiness_probe_timeout_seconds: &k8s_readiness_probe_timeout_seconds
         type: int
-        required: false
         description:
           - Optionally overrides the readiness probe timeout in seconds.
           - "Example: C(2)."
       k8s_readiness_probe_failure_threshold:
         &k8s_readiness_probe_failure_threshold
         type: int
-        required: false
         description:
           - Optionally overrides the readiness probe failure threshold.
           - "Example: C(3)."
       k8s_liveness_probe_initial_delay_seconds:
         &k8s_liveness_probe_initial_delay_seconds
         type: int
-        required: false
         description:
           - Optionally overrides the liveness probe initial delay in seconds.
           - "Example: C(30)."
       k8s_liveness_probe_period_seconds: &k8s_liveness_probe_period_seconds
         type: int
-        required: false
         description:
           - Optionally overrides the liveness probe interval in seconds.
           - "Example: C(10)."
       k8s_liveness_probe_timeout_seconds: &k8s_liveness_probe_timeout_seconds
         type: int
-        required: false
         description:
           - Optionally overrides the liveness probe timeout in seconds.
           - "Example: C(2)."
       k8s_liveness_probe_failure_threshold:
         &k8s_liveness_probe_failure_threshold
         type: int
-        required: false
         description:
           - Optionally overrides the liveness probe failure threshold.
           - "Example: C(3)."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
       organization: &organization
         type: dict
-        required: false
         description:
           - Optionally provides organization metadata used to derive the TLS certificate organization name.
           - "Example: C({'common_name': 'elasticsearch.fabricx.example'})."
       elasticsearch_registry_endpoint: &elasticsearch_registry_endpoint
         type: str
-        required: false
         default: "{{ lookup('env', 'ELASTICSEARCH_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
         description:
           - Container registry endpoint used to build C(elasticsearch_image).
       elasticsearch_image_name: &elasticsearch_image_name
         type: str
-        required: false
         default: elasticsearch
         description:
           - ElasticSearch image repository name.
       elasticsearch_image_tag: &elasticsearch_image_tag
         type: str
-        required: false
         default: 8.19.6
         description:
           - ElasticSearch image tag.
       elasticsearch_image: &elasticsearch_image
         type: str
-        required: false
         default: "{{ elasticsearch_registry_endpoint }}/{{ elasticsearch_image_name }}:{{ elasticsearch_image_tag }}"
         description:
           - Full container image reference for ElasticSearch.
       elasticsearch_container_name: &elasticsearch_container_name
         type: str
-        required: false
         default: "{{ inventory_hostname }}"
         description:
           - Container name for the ElasticSearch instance.
       elasticsearch_remote_config_dir: &elasticsearch_remote_config_dir
         type: path
-        required: false
         default: "{{ remote_config_dir }}"
         description:
           - Remote directory used for ElasticSearch configuration and TLS files.
       elasticsearch_remote_data_dir: &elasticsearch_remote_data_dir
         type: path
-        required: false
         default: "{{ remote_data_dir }}"
         description:
           - Remote directory used for ElasticSearch persistent data.
       elasticsearch_container_config_dir: &elasticsearch_container_config_dir
         type: path
-        required: false
         default: /usr/share/elasticsearch
         description:
           - Base configuration directory path inside the ElasticSearch container.
       elasticsearch_container_data_dir: &elasticsearch_container_data_dir
         type: path
-        required: false
         default: /usr/share/elasticsearch/data
         description:
           - Data directory path inside the ElasticSearch container.
       elasticsearch_use_tls: &elasticsearch_use_tls
         type: bool
-        required: false
         default: false
         description:
           - Enables TLS material handling and HTTPS configuration for ElasticSearch.
       elasticsearch_tls_private_key_file: &elasticsearch_tls_private_key_file
         type: str
-        required: false
         default: server.key
         description:
           - Filename of the ElasticSearch TLS private key under the TLS directory.
       elasticsearch_tls_cert_file: &elasticsearch_tls_cert_file
         type: str
-        required: false
         default: server.crt
         description:
           - Filename of the ElasticSearch TLS certificate under the TLS directory.
       elasticsearch_use_k8s: &elasticsearch_use_k8s
         type: bool
-        required: false
         default: false
         description:
           - Runs ElasticSearch on Kubernetes when set to C(true).
       elasticsearch_use_container: &elasticsearch_use_container
         type: bool
-        required: false
-        default: "{{ not elasticsearch_use_k8s }}"
+        default: "{{ (not elasticsearch_use_k8s) and (not elasticsearch_use_openshift) }}"
         description:
           - Runs ElasticSearch as a container when set to C(true).
       elasticsearch_k8s_resource_name: &elasticsearch_k8s_resource_name
         type: str
-        required: false
         default: "{{ inventory_hostname }}"
         description:
           - Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
+      elasticsearch_k8s_part_of: &elasticsearch_k8s_part_of
+        type: str
+        default: monitoring
+        description:
+          - Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to ElasticSearch resources.
       elasticsearch_k8s_wait_timeout: &elasticsearch_k8s_wait_timeout
         type: int
-        required: false
         default: 120
         description:
           - Timeout in seconds while waiting for the ElasticSearch StatefulSet rollout to complete.
       elasticsearch_k8s_fs_group: &elasticsearch_k8s_fs_group
         type: int
-        required: false
         default: 1000
         description:
           - Kubernetes pod C(fsGroup) applied so mounted TLS files are readable by the ElasticSearch process.
-      elasticsearch_k8s_use_node_port: &elasticsearch_k8s_use_node_port
-        type: bool
-        required: false
-        default: false
-        description:
-          - Enables the optional Kubernetes NodePort Service for ElasticSearch when set to C(true).
-          - When C(false), no NodePort Service is created and the C(k8s/ping) check is skipped.
       elasticsearch_k8s_http_node_port: &elasticsearch_k8s_http_node_port
         type: int
-        required: false
         description:
-          - Optional NodePort value used by the external ElasticSearch HTTP Service.
-          - Only relevant when C(elasticsearch_k8s_use_node_port) is C(true).
-          - When undefined, Kubernetes allocates the NodePort automatically.
+          - Kubernetes NodePort value used by the external HTTP Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(30920)."
+      elasticsearch_k8s_loadbalancer_expose_http_port:
+        &elasticsearch_k8s_loadbalancer_expose_http_port
+        type: bool
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the HTTP port externally.
+          - When undefined or C(false), the HTTP port is not included in the LoadBalancer Service.
       elasticsearch_k8s_transport_node_port:
         &elasticsearch_k8s_transport_node_port
         type: int
-        required: false
         description:
-          - Optional NodePort value used by the external ElasticSearch transport Service.
-          - Only relevant when C(elasticsearch_k8s_use_node_port) is C(true).
-          - When undefined, Kubernetes allocates the NodePort automatically.
+          - Kubernetes NodePort value used by the external transport Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(30930)."
+      elasticsearch_k8s_loadbalancer_expose_transport_port:
+        &elasticsearch_k8s_loadbalancer_expose_transport_port
+        type: bool
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the transport port externally.
+          - When undefined or C(false), the transport port is not included in the LoadBalancer Service.
       elasticsearch_http_port: &elasticsearch_http_port
         type: int
         required: true
@@ -253,6 +236,16 @@ argument_specs:
           - ElasticSearch transport port used by the container and Kubernetes Service.
           - "Example: C(9300)."
 
+      elasticsearch_use_openshift: &elasticsearch_use_openshift
+        type: bool
+        default: false
+        description:
+          - Selects the OpenShift deployment branch.
+      elasticsearch_openshift_http_route: &elasticsearch_openshift_http_route
+        type: str
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(elasticsearch-http.apps.example.com)."
   start:
     short_description: Start ElasticSearch
     description:
@@ -260,6 +253,7 @@ argument_specs:
       - Container mode is the default unless C(elasticsearch_use_k8s) is enabled, in which case the Kubernetes StatefulSet, Services, and optional TLS Secret are managed instead.
     options:
       elasticsearch_use_k8s: *elasticsearch_use_k8s
+      elasticsearch_use_openshift: *elasticsearch_use_openshift
       elasticsearch_use_container: *elasticsearch_use_container
 
   stop:
@@ -277,6 +271,7 @@ argument_specs:
       - Also removes the container data directory or Kubernetes PVC through the C(data/rm) entry point, leaving TLS and config cleanup to C(wipe).
     options:
       elasticsearch_use_k8s: *elasticsearch_use_k8s
+      elasticsearch_use_openshift: *elasticsearch_use_openshift
       elasticsearch_use_container: *elasticsearch_use_container
 
   wipe:
@@ -293,6 +288,7 @@ argument_specs:
       - Delegates to the container or Kubernetes log collection entry point and writes the results to the control node fetch directory.
     options:
       elasticsearch_use_k8s: *elasticsearch_use_k8s
+      elasticsearch_use_openshift: *elasticsearch_use_openshift
       elasticsearch_use_container: *elasticsearch_use_container
 
   ping:
@@ -302,6 +298,7 @@ argument_specs:
       - Delegates to C(k8s/ping) when ElasticSearch runs on Kubernetes and checks the optional NodePort Service instead.
     options:
       elasticsearch_use_k8s: *elasticsearch_use_k8s
+      elasticsearch_use_openshift: *elasticsearch_use_openshift
       elasticsearch_http_port: *elasticsearch_http_port
       elasticsearch_transport_port: *elasticsearch_transport_port
 
@@ -368,13 +365,14 @@ argument_specs:
       - Deletes the ElasticSearch PVC in Kubernetes deployments so the data artifact is gone regardless of deployment mode.
     options:
       elasticsearch_use_k8s: *elasticsearch_use_k8s
+      elasticsearch_use_openshift: *elasticsearch_use_openshift
       elasticsearch_use_container: *elasticsearch_use_container
       elasticsearch_remote_data_dir: *elasticsearch_remote_data_dir
       remote_data_dir: *remote_data_dir
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
-        required: false
 
   crypto/setup:
     short_description: Prepare ElasticSearch TLS materials
@@ -384,6 +382,7 @@ argument_specs:
     options:
       elasticsearch_use_tls: *elasticsearch_use_tls
       elasticsearch_use_k8s: *elasticsearch_use_k8s
+      elasticsearch_use_openshift: *elasticsearch_use_openshift
 
   crypto/fetch:
     short_description: Fetch ElasticSearch TLS certificates
@@ -406,6 +405,7 @@ argument_specs:
       remote_config_dir: *remote_config_dir
       elasticsearch_tls_private_key_file: *elasticsearch_tls_private_key_file
       elasticsearch_use_k8s: *elasticsearch_use_k8s
+      elasticsearch_use_openshift: *elasticsearch_use_openshift
 
   crypto/openssl/generate_cert:
     short_description: Generate ElasticSearch TLS materials with OpenSSL
@@ -418,20 +418,21 @@ argument_specs:
       elasticsearch_tls_private_key_file: *elasticsearch_tls_private_key_file
       elasticsearch_tls_cert_file: *elasticsearch_tls_cert_file
       organization: *organization
+      elasticsearch_openshift_http_route: *elasticsearch_openshift_http_route
 
   k8s/start:
     short_description: Start ElasticSearch on Kubernetes
     description:
-      - Ensures the Kubernetes namespace exists and applies the ElasticSearch headless Service, optional NodePort Service, StatefulSet, and PVC.
+      - Ensures the Kubernetes namespace exists and applies the ElasticSearch headless Service, optional NodePort and LoadBalancer Services, StatefulSet, and PVC.
       - Uses the role templates to configure storage, TLS mounts, the configured image, and rollout waiting behavior.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
       elasticsearch_k8s_wait_timeout: *elasticsearch_k8s_wait_timeout
       elasticsearch_k8s_fs_group: *elasticsearch_k8s_fs_group
-      elasticsearch_k8s_use_node_port: *elasticsearch_k8s_use_node_port
       elasticsearch_k8s_http_node_port: *elasticsearch_k8s_http_node_port
       elasticsearch_k8s_transport_node_port: *elasticsearch_k8s_transport_node_port
       elasticsearch_http_port: *elasticsearch_http_port
@@ -456,16 +457,21 @@ argument_specs:
       k8s_liveness_probe_period_seconds: *k8s_liveness_probe_period_seconds
       k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
+      elasticsearch_k8s_loadbalancer_expose_http_port: *elasticsearch_k8s_loadbalancer_expose_http_port
+      elasticsearch_k8s_loadbalancer_expose_transport_port: *elasticsearch_k8s_loadbalancer_expose_transport_port
+      k8s_resources: *k8s_resources
 
   k8s/ping:
-    short_description: Check ElasticSearch NodePort reachability on Kubernetes
+    short_description: Check ElasticSearch Kubernetes services is reachable
     description:
-      - Probes the ElasticSearch HTTP and transport NodePorts when C(elasticsearch_k8s_use_node_port) is C(true).
-      - Each port is only checked when its matching NodePort value is defined, which lets the role verify only the exported service ports.
+      - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
     options:
-      elasticsearch_k8s_use_node_port: *elasticsearch_k8s_use_node_port
       elasticsearch_k8s_http_node_port: *elasticsearch_k8s_http_node_port
       elasticsearch_k8s_transport_node_port: *elasticsearch_k8s_transport_node_port
+      elasticsearch_k8s_loadbalancer_expose_http_port: *elasticsearch_k8s_loadbalancer_expose_http_port
+      elasticsearch_k8s_loadbalancer_expose_transport_port: *elasticsearch_k8s_loadbalancer_expose_transport_port
+      elasticsearch_http_port: *elasticsearch_http_port
+      elasticsearch_transport_port: *elasticsearch_transport_port
 
   k8s/rm:
     short_description: Remove ElasticSearch Kubernetes resources
@@ -474,10 +480,15 @@ argument_specs:
       - The persistent volume claim is removed separately by the C(data/rm) entry point so data cleanup stays explicit.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
 
+      elasticsearch_k8s_http_node_port: *elasticsearch_k8s_http_node_port
+      elasticsearch_k8s_loadbalancer_expose_http_port: *elasticsearch_k8s_loadbalancer_expose_http_port
+      elasticsearch_k8s_transport_node_port: *elasticsearch_k8s_transport_node_port
+      elasticsearch_k8s_loadbalancer_expose_transport_port: *elasticsearch_k8s_loadbalancer_expose_transport_port
   k8s/fetch_logs:
     short_description: Fetch ElasticSearch pod logs
     description:
@@ -485,6 +496,7 @@ argument_specs:
       - Selects pods using the ElasticSearch application label.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -496,6 +508,7 @@ argument_specs:
       - This entry point is typically invoked from the ElasticSearch crypto cleanup workflow after the remote certs are removed.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -507,6 +520,7 @@ argument_specs:
       - Ensures the Kubernetes namespace exists before applying the Secret and keeps the pod-mounted certificate paths aligned with the remote files.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -515,3 +529,32 @@ argument_specs:
       remote_config_dir: *remote_config_dir
       elasticsearch_tls_private_key_file: *elasticsearch_tls_private_key_file
       elasticsearch_tls_cert_file: *elasticsearch_tls_cert_file
+
+  openshift/start:
+    short_description: Start the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
+      elasticsearch_use_tls: *elasticsearch_use_tls
+      k8s_namespace: *k8s_namespace
+      elasticsearch_openshift_http_route: *elasticsearch_openshift_http_route
+
+  openshift/ping:
+    short_description: Check the OpenShift deployment
+    description:
+      - Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+    options:
+      elasticsearch_use_tls: *elasticsearch_use_tls
+      elasticsearch_openshift_http_route: *elasticsearch_openshift_http_route
+
+  openshift/rm:
+    short_description: Remove the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
+      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
+      k8s_namespace: *k8s_namespace
+      elasticsearch_openshift_http_route: *elasticsearch_openshift_http_route

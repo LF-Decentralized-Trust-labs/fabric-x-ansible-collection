@@ -27,3 +27,13 @@
     kind: Service
     name: "{{ postgres_k8s_resource_name }}-nodeport"
     namespace: "{{ k8s_namespace }}"
+  when: postgres_k8s_node_port is defined
+
+- name: Delete Postgres DB LoadBalancer Service
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Service
+    name: "{{ postgres_k8s_resource_name }}-loadbalancer"
+    namespace: "{{ k8s_namespace }}"
+  when: postgres_k8s_loadbalancer_expose_port

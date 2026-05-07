@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Delete Hyperledger Fabric-X Committer verifier rpc OpenShift Route
+  vars:
+    openshift_route_name: "{{ committer_k8s_resource_name }}-rpc"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/rm
+  when: committer_openshift_route is defined
+
+- name: Delete Hyperledger Fabric-X Committer verifier metrics OpenShift Route
+  vars:
+    openshift_route_name: "{{ committer_k8s_resource_name }}-metrics"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/rm
+  when: committer_openshift_metrics_route is defined
+
+- name: Remove Hyperledger Fabric-X Committer verifier workload using generic k8s flow
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: verifier/k8s/rm

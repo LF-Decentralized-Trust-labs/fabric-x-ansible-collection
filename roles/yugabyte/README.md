@@ -42,6 +42,13 @@
   - [k8s/crypto/transfer](#k8scryptotransfer)
   - [data/rm](#datarm)
   - [prometheus/get\_scrapers](#prometheusget_scrapers)
+  - [openshift/start](#openshiftstart)
+  - [openshift/rm](#openshiftrm)
+  - [openshift/ping](#openshiftping)
+  - [openshift/master/start](#openshiftmasterstart)
+  - [openshift/master/rm](#openshiftmasterrm)
+  - [openshift/tablet/start](#openshifttabletstart)
+  - [openshift/tablet/rm](#openshifttabletrm)
 
 ## Role Defaults
 
@@ -76,8 +83,10 @@ Builds master and tablet topology facts from `yugabyte_cluster`, derives the mas
       - "yb-tserver-3"
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
     # Enables container mode for the YugabyteDB role.
-    yugabyte_use_container: "{{ not yugabyte_use_k8s }}"
+    yugabyte_use_container: "{{ (not yugabyte_use_k8s) and (not yugabyte_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: start
@@ -94,8 +103,10 @@ Stops the YugabyteDB runtime for container deployments. Kubernetes mode is manag
   vars:
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
     # Enables container mode for the YugabyteDB role.
-    yugabyte_use_container: "{{ not yugabyte_use_k8s }}"
+    yugabyte_use_container: "{{ (not yugabyte_use_k8s) and (not yugabyte_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: stop
@@ -112,8 +123,10 @@ Removes the active YugabyteDB runtime in the selected deployment mode and then r
   vars:
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
     # Enables container mode for the YugabyteDB role.
-    yugabyte_use_container: "{{ not yugabyte_use_k8s }}"
+    yugabyte_use_container: "{{ (not yugabyte_use_k8s) and (not yugabyte_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: teardown
@@ -143,8 +156,10 @@ Collects YugabyteDB logs through the selected deployment mode. Container mode fe
   vars:
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
     # Enables container mode for the YugabyteDB role.
-    yugabyte_use_container: "{{ not yugabyte_use_k8s }}"
+    yugabyte_use_container: "{{ (not yugabyte_use_k8s) and (not yugabyte_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: fetch_logs
@@ -163,6 +178,8 @@ Selects the expected master or tablet service ports for the current host and del
     yugabyte_component_type: "tablet"
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
     # Sets the master webserver port.
     yugabyte_master_webserver_port: 7000
     # Sets the master RPC bind port.
@@ -186,33 +203,63 @@ Selects the expected master or tablet service ports for the current host and del
 
 ### k8s/ping
 
-> Check YugabyteDB Kubernetes NodePorts
+> Check that the YugabyteDB Kubernetes service is reachable
 
-Checks the configured YugabyteDB Kubernetes NodePort Services for the current master or tablet host when NodePort exposure is enabled. The checked ports match the optional master and tablet NodePort values rendered into the Kubernetes Services.
+Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
-- name: Check YugabyteDB Kubernetes NodePorts
+- name: Check that the YugabyteDB Kubernetes service is reachable
   vars:
     # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `tablet`.
     yugabyte_component_type: "tablet"
-    # Enables creation of the master and tablet NodePort Services for YugabyteDB Kubernetes deployments. The flag also enables the matching NodePort reachability checks in `k8s/ping`.
-    yugabyte_k8s_use_node_port: false
-    # Optionally sets the NodePort used to expose the master RPC service when `yugabyte_k8s_use_node_port` is enabled. Example: `32100`.
+    # Kubernetes NodePort value used by the external master RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32100`.
     yugabyte_k8s_master_rpc_node_port: 32100
-    # Optionally sets the NodePort used to expose the master webserver service when `yugabyte_k8s_use_node_port` is enabled. Example: `32000`.
+    # Kubernetes NodePort value used by the external master webserver Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32000`.
     yugabyte_k8s_master_webserver_node_port: 32000
-    # Optionally sets the NodePort used to expose the tablet YSQL service when `yugabyte_k8s_use_node_port` is enabled. Example: `31433`.
+    # Kubernetes NodePort value used by the external tablet YSQL Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31433`.
     yugabyte_k8s_tablet_pgsql_node_port: 31433
-    # Optionally sets the NodePort used to expose the tablet RPC service when `yugabyte_k8s_use_node_port` is enabled. Example: `32101`.
+    # Kubernetes NodePort value used by the external tablet RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32101`.
     yugabyte_k8s_tablet_rpc_node_port: 32101
-    # Optionally sets the NodePort used to expose the tablet webserver service when `yugabyte_k8s_use_node_port` is enabled. Example: `32001`.
+    # Kubernetes NodePort value used by the external tablet webserver Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32001`.
     yugabyte_k8s_tablet_webserver_node_port: 32001
-    # Optionally sets the NodePort used to expose the tablet YSQL web UI service when `yugabyte_k8s_use_node_port` is enabled. Example: `32300`.
+    # Kubernetes NodePort value used by the external tablet YSQL web UI Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32300`.
     yugabyte_k8s_tablet_pgsql_web_node_port: 32300
-    # Optionally sets the NodePort used to expose the tablet YCQL bind service when `yugabyte_k8s_use_node_port` is enabled. Example: `32042`.
+    # Kubernetes NodePort value used by the external tablet YCQL bind Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32042`.
     yugabyte_k8s_tablet_cql_bind_node_port: 32042
-    # Optionally sets the NodePort used to expose the tablet YCQL web UI service when `yugabyte_k8s_use_node_port` is enabled. Example: `32200`.
+    # Kubernetes NodePort value used by the external tablet YCQL web UI Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32200`.
     yugabyte_k8s_tablet_cql_web_node_port: 32200
+    # Set to `true` to create a LoadBalancer Service entry that exposes the master RPC port externally. When undefined or `false`, the master RPC port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_master_rpc_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the master webserver port externally. When undefined or `false`, the master webserver port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_master_webserver_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the tablet YSQL port externally. When undefined or `false`, the tablet YSQL port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the tablet RPC port externally. When undefined or `false`, the tablet RPC port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_tablet_rpc_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the tablet webserver port externally. When undefined or `false`, the tablet webserver port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_tablet_webserver_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the tablet YSQL web UI port externally. When undefined or `false`, the tablet YSQL web UI port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_tablet_pgsql_web_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the tablet YCQL bind port externally. When undefined or `false`, the tablet YCQL bind port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_tablet_cql_bind_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the tablet YCQL web UI port externally. When undefined or `false`, the tablet YCQL web UI port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_tablet_cql_web_port: false
+    # Sets the master RPC bind port.
+    yugabyte_master_rpc_bind_port: 7100
+    # Sets the master webserver port.
+    yugabyte_master_webserver_port: 7000
+    # Sets the tablet YSQL bind port.
+    yugabyte_tablet_pgsql_bind_port: 5433
+    # Sets the tablet RPC bind port.
+    yugabyte_tablet_rpc_bind_port: 9100
+    # Sets the tablet webserver port.
+    yugabyte_tablet_webserver_port: 9000
+    # Sets the tablet YSQL web UI port.
+    yugabyte_tablet_pgsql_web_port: 13000
+    # Sets the tablet YCQL bind port.
+    yugabyte_tablet_cql_bind_port: 9042
+    # Sets the tablet YCQL web UI port.
+    yugabyte_tablet_cql_web_port: 12000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: k8s/ping
@@ -231,6 +278,8 @@ Prepares TLS assets for YugabyteDB when TLS is enabled, using the configured cry
     yugabyte_use_tls: false
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
     # Provides the organization metadata consumed by the crypto entry points. The mapping is expected to expose `domain`, `role`, `peer.name`, `peer.secret`, and `fabric_ca_host` when relevant. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'yb-tserver-1', 'secret': 'yb-tserver-1pw'}, 'fabric_ca_host': 'ca-org1'}`.
     organization:
       domain: "org1.example.com"
@@ -281,10 +330,14 @@ Deletes the remote YugabyteDB TLS directory and, in Kubernetes mode, removes the
     yugabyte_use_tls: false
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
     # Sets the remote configuration directory used by YugabyteDB tasks.
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
     # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
+    yugabyte_k8s_part_of: yugabyte
     # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.
     k8s_namespace: "fabricx-yugabyte"
   ansible.builtin.include_role:
@@ -315,6 +368,16 @@ Builds the YugabyteDB TLS SAN list from host addresses and organization metadata
         name: "yb-tserver-1"
         secret: "yb-tserver-1pw"
       fabric_ca_host: "ca-org1"
+    # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `tablet`.
+    yugabyte_component_type: "tablet"
+    # Specifies the OpenShift Route host. Example: `yugabyte-master-web.apps.example.com`.
+    yugabyte_openshift_master_webserver_route: "yugabyte-master-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-web.apps.example.com`.
+    yugabyte_openshift_tablet_webserver_route: "yugabyte-tablet-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-pgsql-web.apps.example.com`.
+    yugabyte_openshift_tablet_pgsql_web_route: "yugabyte-tablet-pgsql-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-cql-web.apps.example.com`.
+    yugabyte_openshift_tablet_cql_web_route: "yugabyte-tablet-cql-web.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: crypto/openssl/generate_csr
@@ -415,8 +478,8 @@ Copies the Fabric CA TLS root when needed and delegates YugabyteDB TLS enrollmen
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
     # Defines the control-node directory that stores fetched YugabyteDB artifacts. Required when TLS-enabled tasks need access to fetched CA or certificate artifacts, such as when `yugabyte_use_tls` or webserver TLS is enabled. Example: `/tmp/fabric-x/artifacts/yugabyte`.
     fetched_artifacts_dir: "/tmp/fabric-x/artifacts/yugabyte"
-    # Provides the externally reachable host name or address added to TLS SAN entries. Example: `yb-tserver-1.example.com`.
-    actual_host: "yb-tserver-1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Provides the organization metadata consumed by the crypto entry points that require it. The mapping is expected to expose `domain`, `role`, `peer.name`, `peer.secret`, and `fabric_ca_host` when relevant. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'yb-tserver-1', 'secret': 'yb-tserver-1pw'}, 'fabric_ca_host': 'ca-org1'}`.
     organization:
       domain: "org1.example.com"
@@ -425,6 +488,16 @@ Copies the Fabric CA TLS root when needed and delegates YugabyteDB TLS enrollmen
         name: "yb-tserver-1"
         secret: "yb-tserver-1pw"
       fabric_ca_host: "ca-org1"
+    # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `tablet`.
+    yugabyte_component_type: "tablet"
+    # Specifies the OpenShift Route host. Example: `yugabyte-master-web.apps.example.com`.
+    yugabyte_openshift_master_webserver_route: "yugabyte-master-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-web.apps.example.com`.
+    yugabyte_openshift_tablet_webserver_route: "yugabyte-tablet-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-pgsql-web.apps.example.com`.
+    yugabyte_openshift_tablet_pgsql_web_route: "yugabyte-tablet-pgsql-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-cql-web.apps.example.com`.
+    yugabyte_openshift_tablet_cql_web_route: "yugabyte-tablet-cql-web.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: crypto/fabric_ca/enroll
@@ -453,6 +526,8 @@ Renders the YugabyteDB initialization SQL script that creates the configured dat
     yugabyte_password: "my_yugabyte_password"
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: config/transfer
@@ -473,8 +548,12 @@ Deletes the remote YugabyteDB configuration directory and, in Kubernetes mode, r
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
     # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
+    yugabyte_k8s_part_of: yugabyte
     # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.
     k8s_namespace: "fabricx-yugabyte"
   ansible.builtin.include_role:
@@ -722,6 +801,8 @@ Delegates pod log collection for the Kubernetes resource associated with the cur
   vars:
     # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
+    yugabyte_k8s_part_of: yugabyte
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: k8s/fetch_logs
@@ -748,6 +829,8 @@ Creates the ConfigMap that exposes the initialization SQL script to tablet pods.
     yugabyte_init_script_file: 01-yb-init.sql
     # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
+    yugabyte_k8s_part_of: yugabyte
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: k8s/config/transfer
@@ -757,17 +840,17 @@ Creates the ConfigMap that exposes the initialization SQL script to tablet pods.
 
 > Start a YugabyteDB master StatefulSet
 
-Applies the master ClusterIP Service, optional NodePort Service, and StatefulSet for the current YugabyteDB master node. The StatefulSet runs `yb-master`, configures replication from the master host list, attaches persistent storage, mounts TLS Secrets when enabled, and waits for readiness when requested.
+Applies the master ClusterIP Service, optional NodePort and LoadBalancer Services, and StatefulSet for the current YugabyteDB master node. The StatefulSet runs `yb-master`, configures replication from the master host list, attaches persistent storage, mounts TLS Secrets when enabled, and waits for readiness when requested.
 
 ```yaml
 - name: Start a YugabyteDB master StatefulSet
   vars:
     # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.
     k8s_namespace: "fabricx-yugabyte"
-    # Enables creation of the master and tablet NodePort Services for YugabyteDB Kubernetes deployments. The flag also enables the matching NodePort reachability checks in `k8s/ping`.
-    yugabyte_k8s_use_node_port: false
     # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
+    yugabyte_k8s_part_of: yugabyte
     # Sets the YugabyteDB container image.
     yugabyte_image: "{{ yugabyte_registry_endpoint }}/{{ yugabyte_image_name }}:{{ yugabyte_image_tag }}"
     # Sets the registry endpoint used to resolve the YugabyteDB image.
@@ -803,9 +886,9 @@ Applies the master ClusterIP Service, optional NodePort Service, and StatefulSet
     yugabyte_client_to_server_use_tls: "{{ yugabyte_use_tls }}"
     # Enables HTTPS for the YugabyteDB webserver.
     yugabyte_webserver_use_tls: "{{ yugabyte_use_tls }}"
-    # Optionally sets the NodePort used to expose the master RPC service when `yugabyte_k8s_use_node_port` is enabled. Example: `32100`.
+    # Kubernetes NodePort value used by the external master RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32100`.
     yugabyte_k8s_master_rpc_node_port: 32100
-    # Optionally sets the NodePort used to expose the master webserver service when `yugabyte_k8s_use_node_port` is enabled. Example: `32000`.
+    # Kubernetes NodePort value used by the external master webserver Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32000`.
     yugabyte_k8s_master_webserver_node_port: 32000
     # Sets the image pull secret used by Kubernetes deployments when defined. Example: `registry-pull-secret`.
     k8s_image_pull_secret: "registry-pull-secret"
@@ -829,6 +912,18 @@ Applies the master ClusterIP Service, optional NodePort Service, and StatefulSet
     k8s_liveness_probe_timeout_seconds: 5
     # Overrides the liveness probe failure threshold used by Kubernetes templates when defined. Example: `6`.
     k8s_liveness_probe_failure_threshold: 6
+    # Set to `true` to create a LoadBalancer Service entry that exposes the master RPC port externally. When undefined or `false`, the master RPC port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_master_rpc_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the master webserver port externally. When undefined or `false`, the master webserver port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_master_webserver_port: false
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: k8s/master/start
@@ -847,6 +942,16 @@ Deletes the master StatefulSet and its Services for the current YugabyteDB maste
     k8s_namespace: "fabricx-yugabyte"
     # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
+    yugabyte_k8s_part_of: yugabyte
+    # Kubernetes NodePort value used by the external master RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32100`.
+    yugabyte_k8s_master_rpc_node_port: 32100
+    # Set to `true` to create a LoadBalancer Service entry that exposes the master RPC port externally. When undefined or `false`, the master RPC port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_master_rpc_port: false
+    # Kubernetes NodePort value used by the external master webserver Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32000`.
+    yugabyte_k8s_master_webserver_node_port: 32000
+    # Set to `true` to create a LoadBalancer Service entry that exposes the master webserver port externally. When undefined or `false`, the master webserver port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_master_webserver_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: k8s/master/rm
@@ -856,17 +961,17 @@ Deletes the master StatefulSet and its Services for the current YugabyteDB maste
 
 > Start a YugabyteDB tablet StatefulSet
 
-Applies the tablet ClusterIP Service, optional NodePort Service, and StatefulSet for the current YugabyteDB tablet node, then initializes the database on the first tablet. The StatefulSet runs `yb-tserver`, connects to the configured masters, attaches persistent storage, mounts the initialization ConfigMap and TLS Secret when enabled, and waits for readiness when requested.
+Applies the tablet ClusterIP Service, optional NodePort and LoadBalancer Services, and StatefulSet for the current YugabyteDB tablet node, then initializes the database on the first tablet. The StatefulSet runs `yb-tserver`, connects to the configured masters, attaches persistent storage, mounts the initialization ConfigMap and TLS Secret when enabled, and waits for readiness when requested.
 
 ```yaml
 - name: Start a YugabyteDB tablet StatefulSet
   vars:
     # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.
     k8s_namespace: "fabricx-yugabyte"
-    # Enables creation of the master and tablet NodePort Services for YugabyteDB Kubernetes deployments. The flag also enables the matching NodePort reachability checks in `k8s/ping`.
-    yugabyte_k8s_use_node_port: false
     # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
+    yugabyte_k8s_part_of: yugabyte
     # Sets the YugabyteDB container image.
     yugabyte_image: "{{ yugabyte_registry_endpoint }}/{{ yugabyte_image_name }}:{{ yugabyte_image_tag }}"
     # Sets the registry endpoint used to resolve the YugabyteDB image.
@@ -905,17 +1010,17 @@ Applies the tablet ClusterIP Service, optional NodePort Service, and StatefulSet
     yugabyte_client_to_server_use_tls: "{{ yugabyte_use_tls }}"
     # Enables HTTPS for the YugabyteDB webserver.
     yugabyte_webserver_use_tls: "{{ yugabyte_use_tls }}"
-    # Optionally sets the NodePort used to expose the tablet YSQL service when `yugabyte_k8s_use_node_port` is enabled. Example: `31433`.
+    # Kubernetes NodePort value used by the external tablet YSQL Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31433`.
     yugabyte_k8s_tablet_pgsql_node_port: 31433
-    # Optionally sets the NodePort used to expose the tablet RPC service when `yugabyte_k8s_use_node_port` is enabled. Example: `32101`.
+    # Kubernetes NodePort value used by the external tablet RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32101`.
     yugabyte_k8s_tablet_rpc_node_port: 32101
-    # Optionally sets the NodePort used to expose the tablet webserver service when `yugabyte_k8s_use_node_port` is enabled. Example: `32001`.
+    # Kubernetes NodePort value used by the external tablet webserver Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32001`.
     yugabyte_k8s_tablet_webserver_node_port: 32001
-    # Optionally sets the NodePort used to expose the tablet YSQL web UI service when `yugabyte_k8s_use_node_port` is enabled. Example: `32300`.
+    # Kubernetes NodePort value used by the external tablet YSQL web UI Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32300`.
     yugabyte_k8s_tablet_pgsql_web_node_port: 32300
-    # Optionally sets the NodePort used to expose the tablet YCQL bind service when `yugabyte_k8s_use_node_port` is enabled. Example: `32042`.
+    # Kubernetes NodePort value used by the external tablet YCQL bind Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32042`.
     yugabyte_k8s_tablet_cql_bind_node_port: 32042
-    # Optionally sets the NodePort used to expose the tablet YCQL web UI service when `yugabyte_k8s_use_node_port` is enabled. Example: `32200`.
+    # Kubernetes NodePort value used by the external tablet YCQL web UI Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32200`.
     yugabyte_k8s_tablet_cql_web_node_port: 32200
     # Names the SQL initialization script used by tablet pods.
     yugabyte_init_script_file: 01-yb-init.sql
@@ -946,6 +1051,26 @@ Applies the tablet ClusterIP Service, optional NodePort Service, and StatefulSet
     k8s_liveness_probe_timeout_seconds: 5
     # Overrides the liveness probe failure threshold used by Kubernetes templates when defined. Example: `6`.
     k8s_liveness_probe_failure_threshold: 6
+    # Set to `true` to create a LoadBalancer Service entry that exposes the tablet YSQL port externally. When undefined or `false`, the tablet YSQL port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port: false
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
+    # Set to `true` to create a LoadBalancer Service entry that exposes the tablet RPC port externally. When undefined or `false`, the tablet RPC port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_tablet_rpc_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the tablet webserver port externally. When undefined or `false`, the tablet webserver port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_tablet_webserver_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the tablet YSQL web UI port externally. When undefined or `false`, the tablet YSQL web UI port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_tablet_pgsql_web_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the tablet YCQL bind port externally. When undefined or `false`, the tablet YCQL bind port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_tablet_cql_bind_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the tablet YCQL web UI port externally. When undefined or `false`, the tablet YCQL web UI port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_tablet_cql_web_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: k8s/tablet/start
@@ -964,6 +1089,32 @@ Deletes the tablet StatefulSet and its Services for the current YugabyteDB table
     k8s_namespace: "fabricx-yugabyte"
     # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
+    yugabyte_k8s_part_of: yugabyte
+    # Kubernetes NodePort value used by the external tablet YSQL Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31433`.
+    yugabyte_k8s_tablet_pgsql_node_port: 31433
+    # Set to `true` to create a LoadBalancer Service entry that exposes the tablet YSQL port externally. When undefined or `false`, the tablet YSQL port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port: false
+    # Kubernetes NodePort value used by the external tablet RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32101`.
+    yugabyte_k8s_tablet_rpc_node_port: 32101
+    # Set to `true` to create a LoadBalancer Service entry that exposes the tablet RPC port externally. When undefined or `false`, the tablet RPC port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_tablet_rpc_port: false
+    # Kubernetes NodePort value used by the external tablet webserver Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32001`.
+    yugabyte_k8s_tablet_webserver_node_port: 32001
+    # Set to `true` to create a LoadBalancer Service entry that exposes the tablet webserver port externally. When undefined or `false`, the tablet webserver port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_tablet_webserver_port: false
+    # Kubernetes NodePort value used by the external tablet YSQL web UI Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32300`.
+    yugabyte_k8s_tablet_pgsql_web_node_port: 32300
+    # Set to `true` to create a LoadBalancer Service entry that exposes the tablet YSQL web UI port externally. When undefined or `false`, the tablet YSQL web UI port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_tablet_pgsql_web_port: false
+    # Kubernetes NodePort value used by the external tablet YCQL bind Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32042`.
+    yugabyte_k8s_tablet_cql_bind_node_port: 32042
+    # Set to `true` to create a LoadBalancer Service entry that exposes the tablet YCQL bind port externally. When undefined or `false`, the tablet YCQL bind port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_tablet_cql_bind_port: false
+    # Kubernetes NodePort value used by the external tablet YCQL web UI Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32200`.
+    yugabyte_k8s_tablet_cql_web_node_port: 32200
+    # Set to `true` to create a LoadBalancer Service entry that exposes the tablet YCQL web UI port externally. When undefined or `false`, the tablet YCQL web UI port is not included in the LoadBalancer Service.
+    yugabyte_k8s_loadbalancer_expose_tablet_cql_web_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: k8s/tablet/rm
@@ -984,6 +1135,8 @@ Creates the Kubernetes Secret that exposes the YugabyteDB TLS key pair and CA ce
     remote_config_dir: "/opt/hyperledger/fabric-x/yugabyte/config"
     # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
+    yugabyte_k8s_part_of: yugabyte
     # Sets the remote configuration directory used by YugabyteDB tasks.
     yugabyte_remote_config_dir: "{{ remote_config_dir }}"
     # Enables TLS asset handling for YugabyteDB.
@@ -1005,13 +1158,17 @@ Deletes persisted YugabyteDB data for the selected deployment mode. Container mo
     # Sets the shared remote data directory consumed by YugabyteDB. Example: `/var/hyperledger/fabric-x/yugabyte/data`.
     remote_data_dir: "/var/hyperledger/fabric-x/yugabyte/data"
     # Enables container mode for the YugabyteDB role.
-    yugabyte_use_container: "{{ not yugabyte_use_k8s }}"
+    yugabyte_use_container: "{{ (not yugabyte_use_k8s) and (not yugabyte_use_openshift) }}"
     # Enables Kubernetes mode for the YugabyteDB role.
     yugabyte_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
     # Sets the remote data directory used by YugabyteDB tasks.
     yugabyte_remote_data_dir: "{{ remote_data_dir }}"
     # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
     yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
+    yugabyte_k8s_part_of: yugabyte
     # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.
     k8s_namespace: "fabricx-yugabyte"
   ansible.builtin.include_role:
@@ -1041,4 +1198,166 @@ Groups YugabyteDB hosts by cluster and assembles Prometheus scrape configuration
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: prometheus/get_scrapers
+```
+
+### openshift/start
+
+> Dispatch YugabyteDB OpenShift startup
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Dispatch YugabyteDB OpenShift startup
+  vars:
+    # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `tablet`.
+    yugabyte_component_type: "tablet"
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: openshift/start
+```
+
+### openshift/rm
+
+> Dispatch YugabyteDB OpenShift removal
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Dispatch YugabyteDB OpenShift removal
+  vars:
+    # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `tablet`.
+    yugabyte_component_type: "tablet"
+    # Selects the OpenShift deployment branch.
+    yugabyte_use_openshift: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: openshift/rm
+```
+
+### openshift/ping
+
+> Check the YugabyteDB OpenShift deployment
+
+Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+
+```yaml
+- name: Check the YugabyteDB OpenShift deployment
+  vars:
+    # Selects whether the current host is handled as a YugabyteDB master or tablet node. Example: `tablet`.
+    yugabyte_component_type: "tablet"
+    # Enables HTTPS for the YugabyteDB webserver.
+    yugabyte_webserver_use_tls: "{{ yugabyte_use_tls }}"
+    # Specifies the OpenShift Route host. Example: `yugabyte-master-web.apps.example.com`.
+    yugabyte_openshift_master_webserver_route: "yugabyte-master-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-web.apps.example.com`.
+    yugabyte_openshift_tablet_webserver_route: "yugabyte-tablet-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-pgsql-web.apps.example.com`.
+    yugabyte_openshift_tablet_pgsql_web_route: "yugabyte-tablet-pgsql-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-cql-web.apps.example.com`.
+    yugabyte_openshift_tablet_cql_web_route: "yugabyte-tablet-cql-web.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: openshift/ping
+```
+
+### openshift/master/start
+
+> Start the YugabyteDB master OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Start the YugabyteDB master OpenShift deployment
+  vars:
+    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
+    yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
+    yugabyte_k8s_part_of: yugabyte
+    # Enables HTTPS for the YugabyteDB webserver.
+    yugabyte_webserver_use_tls: "{{ yugabyte_use_tls }}"
+    # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.
+    k8s_namespace: "fabricx-yugabyte"
+    # Specifies the OpenShift Route host. Example: `yugabyte-master-web.apps.example.com`.
+    yugabyte_openshift_master_webserver_route: "yugabyte-master-web.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: openshift/master/start
+```
+
+### openshift/master/rm
+
+> Remove the YugabyteDB master OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Remove the YugabyteDB master OpenShift deployment
+  vars:
+    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
+    yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
+    yugabyte_k8s_part_of: yugabyte
+    # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.
+    k8s_namespace: "fabricx-yugabyte"
+    # Specifies the OpenShift Route host. Example: `yugabyte-master-web.apps.example.com`.
+    yugabyte_openshift_master_webserver_route: "yugabyte-master-web.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: openshift/master/rm
+```
+
+### openshift/tablet/start
+
+> Start the YugabyteDB tablet OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Start the YugabyteDB tablet OpenShift deployment
+  vars:
+    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
+    yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
+    yugabyte_k8s_part_of: yugabyte
+    # Enables HTTPS for the YugabyteDB webserver.
+    yugabyte_webserver_use_tls: "{{ yugabyte_use_tls }}"
+    # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.
+    k8s_namespace: "fabricx-yugabyte"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-web.apps.example.com`.
+    yugabyte_openshift_tablet_webserver_route: "yugabyte-tablet-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-pgsql-web.apps.example.com`.
+    yugabyte_openshift_tablet_pgsql_web_route: "yugabyte-tablet-pgsql-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-cql-web.apps.example.com`.
+    yugabyte_openshift_tablet_cql_web_route: "yugabyte-tablet-cql-web.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: openshift/tablet/start
+```
+
+### openshift/tablet/rm
+
+> Remove the YugabyteDB tablet OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Remove the YugabyteDB tablet OpenShift deployment
+  vars:
+    # Names the Kubernetes resources associated with the current host, including the derived NodePort Service when enabled.
+    yugabyte_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to YugabyteDB resources.
+    yugabyte_k8s_part_of: yugabyte
+    # Sets the Kubernetes namespace used by YugabyteDB resources. Example: `fabricx-yugabyte`.
+    k8s_namespace: "fabricx-yugabyte"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-web.apps.example.com`.
+    yugabyte_openshift_tablet_webserver_route: "yugabyte-tablet-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-pgsql-web.apps.example.com`.
+    yugabyte_openshift_tablet_pgsql_web_route: "yugabyte-tablet-pgsql-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `yugabyte-tablet-cql-web.apps.example.com`.
+    yugabyte_openshift_tablet_cql_web_route: "yugabyte-tablet-cql-web.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: openshift/tablet/rm
 ```

@@ -12,7 +12,7 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ committer_k8s_resource_name }}
     app.kubernetes.io/component: {{ committer_component_type }}
-    app.kubernetes.io/part-of: fabric-x-committer
+    app.kubernetes.io/part-of: {{ committer_k8s_part_of }}
 spec:
   replicas: 1
   selector:
@@ -23,13 +23,17 @@ spec:
       labels:
         app.kubernetes.io/name: {{ committer_k8s_resource_name }}
         app.kubernetes.io/component: {{ committer_component_type }}
-        app.kubernetes.io/part-of: fabric-x-committer
+        app.kubernetes.io/part-of: {{ committer_k8s_part_of }}
     spec:
       securityContext:
         fsGroup: {{ committer_k8s_fs_group }}
       containers:
         - name: {{ committer_component_type }}
           image: {{ committer_image }}
+{% if k8s_resources is defined and k8s_resources %}
+          resources:
+{{ k8s_resources | to_nice_yaml(indent=2) | indent(12, true) }}
+{% endif %}
           args:
             - "start"
             - "query"

@@ -43,6 +43,9 @@
   - [k8s/config/rm](#k8sconfigrm)
   - [k8s/crypto/transfer](#k8scryptotransfer)
   - [k8s/crypto/rm](#k8scryptorm)
+  - [openshift/start](#openshiftstart)
+  - [openshift/ping](#openshiftping)
+  - [openshift/rm](#openshiftrm)
 
 ## Role Defaults
 
@@ -67,8 +70,10 @@ Start the Loadgen runtime selected by the deployment mode flags. Container mode 
 ```yaml
 - name: Start the load generator
   vars:
+    # Selects the OpenShift deployment branch.
+    loadgen_use_openshift: false
     # Run the container runtime.
-    loadgen_use_container: "{{ (not loadgen_use_bin) and (not loadgen_use_k8s) }}"
+    loadgen_use_container: "{{ (not loadgen_use_bin) and (not loadgen_use_k8s) and (not loadgen_use_openshift) }}"
     # Run the binary runtime.
     loadgen_use_bin: false
     # Use Kubernetes resources.
@@ -88,7 +93,7 @@ Stop the active Loadgen runtime selected by the deployment mode flags. Stops the
 - name: Stop the load generator
   vars:
     # Run the container runtime.
-    loadgen_use_container: "{{ (not loadgen_use_bin) and (not loadgen_use_k8s) }}"
+    loadgen_use_container: "{{ (not loadgen_use_bin) and (not loadgen_use_k8s) and (not loadgen_use_openshift) }}"
     # Run the binary runtime.
     loadgen_use_bin: false
   ansible.builtin.include_role:
@@ -106,11 +111,13 @@ Remove runtime resources for the selected Loadgen deployment mode. Deletes the l
 - name: Remove runtime artifacts
   vars:
     # Run the container runtime.
-    loadgen_use_container: "{{ (not loadgen_use_bin) and (not loadgen_use_k8s) }}"
+    loadgen_use_container: "{{ (not loadgen_use_bin) and (not loadgen_use_k8s) and (not loadgen_use_openshift) }}"
     # Run the binary runtime.
     loadgen_use_bin: false
     # Use Kubernetes resources.
     loadgen_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    loadgen_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: teardown
@@ -142,11 +149,13 @@ Collect Loadgen logs for the selected deployment mode. Binary, container, and Ku
 - name: Collect runtime logs
   vars:
     # Run the container runtime.
-    loadgen_use_container: "{{ (not loadgen_use_bin) and (not loadgen_use_k8s) }}"
+    loadgen_use_container: "{{ (not loadgen_use_bin) and (not loadgen_use_k8s) and (not loadgen_use_openshift) }}"
     # Run the binary runtime.
     loadgen_use_bin: false
     # Use Kubernetes resources.
     loadgen_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    loadgen_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: fetch_logs
@@ -165,6 +174,8 @@ Verify that the Loadgen HTTP control endpoint is reachable. Uses direct host acc
     loadgen_web_port: 8080
     # Use Kubernetes resources.
     loadgen_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    loadgen_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: ping
@@ -179,26 +190,30 @@ Query the Loadgen Prometheus metrics endpoint over HTTP or HTTPS. In Kubernetes 
 ```yaml
 - name: Fetch exported metrics
   vars:
-    # Canonical host name used for metrics and Fabric CA enrollment. Example: `loadgen1.example.com`.
-    actual_host: "loadgen1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Prometheus metrics port exposed by Loadgen. Example: `9443`.
     loadgen_metrics_port: 9443
-    # NodePort used for the metrics port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. Example: `30090`.
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30090`.
     loadgen_k8s_metrics_node_port: 30090
     # Protocol used to reach the monitoring endpoint.
     loadgen_monitoring_http_protocol: "{{ 'https' if loadgen_monitoring_use_tls else 'http' }}"
     # Enable TLS for the monitoring endpoint.
     loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
+    # Specifies the OpenShift Route host. Example: `loadgen-metrics.apps.example.com`.
+    loadgen_openshift_metrics_route: "loadgen-metrics.apps.example.com"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
-    # Assert the latency metric when fetching metrics.
+    # Assert the committed transaction metric and report aborted transactions when fetching metrics.
     loadgen_assert_metrics: false
     # Optional override for the Loadgen metrics endpoint URL. Example: `http://loadgen1.example.com:9443/metrics`.
     loadgen_metrics_endpoint: "http://loadgen1.example.com:9443/metrics"
     # Use Kubernetes resources.
     loadgen_use_k8s: false
-    # Expose the Kubernetes Service via NodePort when `loadgen_use_k8s` is enabled. This drives the HTTP, metrics, and gRPC NodePort access paths.
-    loadgen_k8s_use_node_port: false
+    # Selects the OpenShift deployment branch.
+    loadgen_use_openshift: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    loadgen_k8s_loadbalancer_expose_metrics_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: get_metrics
@@ -213,11 +228,11 @@ Send a control-plane HTTP request that changes the active generated transaction 
 ```yaml
 - name: Update the runtime rate limit
   vars:
-    # Canonical host name used for metrics and Fabric CA enrollment. Example: `loadgen1.example.com`.
-    actual_host: "loadgen1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # HTTP control port exposed by Loadgen. Example: `8080`.
     loadgen_web_port: 8080
-    # NodePort used for the HTTP control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. Example: `30080`.
+    # Kubernetes NodePort value used by the external HTTP control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30080`.
     loadgen_k8s_web_node_port: 30080
     # Maximum generated transaction rate. Example: `2500`.
     loadgen_limit_rate: 2500
@@ -225,8 +240,10 @@ Send a control-plane HTTP request that changes the active generated transaction 
     loadgen_limit_rate_endpoint: "http://loadgen1.example.com:8080/setRateLimit"
     # Use Kubernetes resources.
     loadgen_use_k8s: false
-    # Expose the Kubernetes Service via NodePort when `loadgen_use_k8s` is enabled. This drives the HTTP, metrics, and gRPC NodePort access paths.
-    loadgen_k8s_use_node_port: false
+    # Selects the OpenShift deployment branch.
+    loadgen_use_openshift: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP control port externally. When undefined or `false`, the HTTP control port is not included in the LoadBalancer Service.
+    loadgen_k8s_loadbalancer_expose_web_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: limit_rate
@@ -275,6 +292,8 @@ Render the Loadgen configuration file and transfer config-side support artifacts
     loadgen_use_bin: false
     # Use Kubernetes resources.
     loadgen_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    loadgen_use_openshift: false
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
     # Enable TLS for the monitoring endpoint.
@@ -453,6 +472,8 @@ Remove host-side rendered Loadgen configuration. Also removes the Kubernetes Con
     remote_config_dir: "/var/hyperledger/fabricx/loadgen/lg-1/config"
     # Use Kubernetes resources.
     loadgen_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    loadgen_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: config/rm
@@ -476,6 +497,8 @@ Prepare Loadgen MSP, user, and TLS material through the configured crypto source
         secret: "loadgen1pw"
     # Use Kubernetes resources.
     loadgen_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    loadgen_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: crypto/setup
@@ -534,12 +557,18 @@ Enroll Loadgen peer, user, and optional TLS identities against Fabric CA. Writes
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Base remote config directory that feeds `loadgen_remote_config_dir`. Example: `/var/hyperledger/fabricx/loadgen/lg-1/config`.
     remote_config_dir: "/var/hyperledger/fabricx/loadgen/lg-1/config"
-    # Canonical host name used for metrics and Fabric CA enrollment. Example: `loadgen1.example.com`.
-    actual_host: "loadgen1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
     # Enable TLS for the monitoring endpoint.
     loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
+    # Specifies the OpenShift Route host. Example: `loadgen-web.apps.example.com`.
+    loadgen_openshift_web_route: "loadgen-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `loadgen-metrics.apps.example.com`.
+    loadgen_openshift_metrics_route: "loadgen-metrics.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `loadgen-rpc.apps.example.com`.
+    loadgen_openshift_rpc_route: "loadgen-rpc.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: crypto/fabric_ca/enroll
@@ -595,6 +624,8 @@ Remove Loadgen MSP, user, and TLS artifacts from the host config directory. Also
     loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
     # Use Kubernetes resources.
     loadgen_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    loadgen_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: crypto/rm
@@ -783,6 +814,8 @@ Stop the local Loadgen container. Preserves the container definition, image refe
   vars:
     # Container name used by the runtime.
     loadgen_container_name: "{{ inventory_hostname }}"
+    # Loadgen container image.
+    loadgen_image: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: container/stop
@@ -799,6 +832,8 @@ Remove the local Loadgen container runtime resources. Leaves host-side generated
   vars:
     # Container name used by the runtime.
     loadgen_container_name: "{{ inventory_hostname }}"
+    # Loadgen container image.
+    loadgen_image: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: container/rm
@@ -824,7 +859,7 @@ Collect logs from a containerized Loadgen runtime. Reads container logs for the 
 
 > Start the Kubernetes deployment
 
-Create or update Kubernetes resources for Loadgen. Ensures the namespace exists, applies the Service, optional NodePort Service, and Deployment, and mounts generated ConfigMap and Secret artifacts into the pod.
+Create or update Kubernetes resources for Loadgen. Ensures the namespace exists, applies the Service, optional NodePort and LoadBalancer Services, and Deployment, and mounts generated ConfigMap and Secret artifacts into the pod.
 
 ```yaml
 - name: Start the Kubernetes deployment
@@ -864,6 +899,8 @@ Create or update Kubernetes resources for Loadgen. Ensures the namespace exists,
     k8s_namespace: "fabricx-loadgen"
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Loadgen resources.
+    loadgen_k8s_part_of: "fabric-x-loadgen-{{ organization.name }}"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
     # Enable TLS for the monitoring endpoint.
@@ -891,20 +928,34 @@ Create or update Kubernetes resources for Loadgen. Ensures the namespace exists,
     k8s_image_pull_secret: "fabricx-registry-pull"
     # Use Kubernetes resources.
     loadgen_use_k8s: false
-    # Expose the Kubernetes Service via NodePort when `loadgen_use_k8s` is enabled. This drives the HTTP, metrics, and gRPC NodePort access paths.
-    loadgen_k8s_use_node_port: false
+    # Selects the OpenShift deployment branch.
+    loadgen_use_openshift: false
     # HTTP control port exposed by Loadgen. Example: `8080`.
     loadgen_web_port: 8080
     # Prometheus metrics port exposed by Loadgen. Example: `9443`.
     loadgen_metrics_port: 9443
     # gRPC control port exposed by Loadgen. Example: `7051`.
     loadgen_rpc_port: 7051
-    # NodePort used for the HTTP control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. Example: `30080`.
+    # Kubernetes NodePort value used by the external HTTP control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30080`.
     loadgen_k8s_web_node_port: 30080
-    # NodePort used for the metrics port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. Example: `30090`.
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30090`.
     loadgen_k8s_metrics_node_port: 30090
-    # NodePort used for the gRPC control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. Example: `30051`.
+    # Kubernetes NodePort value used by the external gRPC control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30051`.
     loadgen_k8s_rpc_node_port: 30051
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP control port externally. When undefined or `false`, the HTTP control port is not included in the LoadBalancer Service.
+    loadgen_k8s_loadbalancer_expose_web_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    loadgen_k8s_loadbalancer_expose_metrics_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the gRPC control port externally. When undefined or `false`, the gRPC control port is not included in the LoadBalancer Service.
+    loadgen_k8s_loadbalancer_expose_rpc_port: false
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: k8s/start
@@ -912,27 +963,31 @@ Create or update Kubernetes resources for Loadgen. Ensures the namespace exists,
 
 ### k8s/ping
 
-> Check the Kubernetes node ports
+> Check that the Loadgen Kubernetes service is reachable
 
-Verify that Kubernetes-exposed Loadgen endpoints are reachable. Checks configured HTTP, metrics, and gRPC NodePorts when NodePort access is enabled, otherwise uses the service ports.
+Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
-- name: Check the Kubernetes node ports
+- name: Check that the Loadgen Kubernetes service is reachable
   vars:
-    # Expose the Kubernetes Service via NodePort when `loadgen_use_k8s` is enabled. This drives the HTTP, metrics, and gRPC NodePort access paths.
-    loadgen_k8s_use_node_port: false
     # HTTP control port exposed by Loadgen. Example: `8080`.
     loadgen_web_port: 8080
     # Prometheus metrics port exposed by Loadgen. Example: `9443`.
     loadgen_metrics_port: 9443
     # gRPC control port exposed by Loadgen. Example: `7051`.
     loadgen_rpc_port: 7051
-    # NodePort used for the HTTP control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. Example: `30080`.
+    # Kubernetes NodePort value used by the external HTTP control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30080`.
     loadgen_k8s_web_node_port: 30080
-    # NodePort used for the metrics port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. Example: `30090`.
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30090`.
     loadgen_k8s_metrics_node_port: 30090
-    # NodePort used for the gRPC control port when `loadgen_use_k8s` and `loadgen_k8s_use_node_port` are true. Example: `30051`.
+    # Kubernetes NodePort value used by the external gRPC control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30051`.
     loadgen_k8s_rpc_node_port: 30051
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP control port externally. When undefined or `false`, the HTTP control port is not included in the LoadBalancer Service.
+    loadgen_k8s_loadbalancer_expose_web_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    loadgen_k8s_loadbalancer_expose_metrics_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the gRPC control port externally. When undefined or `false`, the gRPC control port is not included in the LoadBalancer Service.
+    loadgen_k8s_loadbalancer_expose_rpc_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: k8s/ping
@@ -951,6 +1006,20 @@ Remove the Kubernetes Deployment and Services created for Loadgen. Does not remo
     k8s_namespace: "fabricx-loadgen"
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Loadgen resources.
+    loadgen_k8s_part_of: "fabric-x-loadgen-{{ organization.name }}"
+    # Kubernetes NodePort value used by the external HTTP control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30080`.
+    loadgen_k8s_web_node_port: 30080
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP control port externally. When undefined or `false`, the HTTP control port is not included in the LoadBalancer Service.
+    loadgen_k8s_loadbalancer_expose_web_port: false
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30090`.
+    loadgen_k8s_metrics_node_port: 30090
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    loadgen_k8s_loadbalancer_expose_metrics_port: false
+    # Kubernetes NodePort value used by the external gRPC control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30051`.
+    loadgen_k8s_rpc_node_port: 30051
+    # Set to `true` to create a LoadBalancer Service entry that exposes the gRPC control port externally. When undefined or `false`, the gRPC control port is not included in the LoadBalancer Service.
+    loadgen_k8s_loadbalancer_expose_rpc_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: k8s/rm
@@ -967,6 +1036,8 @@ Collect logs from the Kubernetes pod running Loadgen. Uses the configured Kubern
   vars:
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Loadgen resources.
+    loadgen_k8s_part_of: "fabric-x-loadgen-{{ organization.name }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: k8s/fetch_logs
@@ -985,6 +1056,8 @@ Publish the rendered Loadgen configuration and trusted CA bundles as a Kubernete
     k8s_namespace: "fabricx-loadgen"
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Loadgen resources.
+    loadgen_k8s_part_of: "fabric-x-loadgen-{{ organization.name }}"
     # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Rendered Loadgen config filename.
@@ -1030,6 +1103,8 @@ Remove the Kubernetes ConfigMap created for Loadgen configuration. Leaves host-s
     k8s_namespace: "fabricx-loadgen"
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Loadgen resources.
+    loadgen_k8s_part_of: "fabric-x-loadgen-{{ organization.name }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: k8s/config/rm
@@ -1057,14 +1132,16 @@ Publish Loadgen MSP and TLS material as a Kubernetes Secret. The Secret is consu
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Local artifacts directory used for fetched TLS and MSP files. Example: `/tmp/fabricx-artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
-    # Canonical host name used for metrics and Fabric CA enrollment. Example: `loadgen1.example.com`.
-    actual_host: "loadgen1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Crypto identity name used for MSP and TLS file names.
     loadgen_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}"
     # Kubernetes namespace used for loadgen resources. Example: `fabricx-loadgen`.
     k8s_namespace: "fabricx-loadgen"
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Loadgen resources.
+    loadgen_k8s_part_of: "fabric-x-loadgen-{{ organization.name }}"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
     # Enable TLS for the monitoring endpoint.
@@ -1087,9 +1164,91 @@ Remove the Kubernetes Secret created for Loadgen MSP and TLS material. Leaves ho
     k8s_namespace: "fabricx-loadgen"
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Loadgen resources.
+    loadgen_k8s_part_of: "fabric-x-loadgen-{{ organization.name }}"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: k8s/crypto/rm
+```
+
+### openshift/start
+
+> Start the OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Start the OpenShift deployment
+  vars:
+    # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
+    loadgen_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Loadgen resources.
+    loadgen_k8s_part_of: "fabric-x-loadgen-{{ organization.name }}"
+    # Enable TLS for the main endpoint.
+    loadgen_use_tls: false
+    # Enable TLS for the monitoring endpoint.
+    loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
+    # Kubernetes namespace used for loadgen resources. Example: `fabricx-loadgen`.
+    k8s_namespace: "fabricx-loadgen"
+    # Specifies the OpenShift Route host. Example: `loadgen-web.apps.example.com`.
+    loadgen_openshift_web_route: "loadgen-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `loadgen-metrics.apps.example.com`.
+    loadgen_openshift_metrics_route: "loadgen-metrics.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `loadgen-rpc.apps.example.com`.
+    loadgen_openshift_rpc_route: "loadgen-rpc.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: openshift/start
+```
+
+### openshift/ping
+
+> Check the OpenShift deployment
+
+Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+
+```yaml
+- name: Check the OpenShift deployment
+  vars:
+    # Enable TLS for the main endpoint.
+    loadgen_use_tls: false
+    # Enable TLS for the monitoring endpoint.
+    loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
+    # Specifies the OpenShift Route host. Example: `loadgen-web.apps.example.com`.
+    loadgen_openshift_web_route: "loadgen-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `loadgen-metrics.apps.example.com`.
+    loadgen_openshift_metrics_route: "loadgen-metrics.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `loadgen-rpc.apps.example.com`.
+    loadgen_openshift_rpc_route: "loadgen-rpc.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: openshift/ping
+```
+
+### openshift/rm
+
+> Remove the OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Remove the OpenShift deployment
+  vars:
+    # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
+    loadgen_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Loadgen resources.
+    loadgen_k8s_part_of: "fabric-x-loadgen-{{ organization.name }}"
+    # Kubernetes namespace used for loadgen resources. Example: `fabricx-loadgen`.
+    k8s_namespace: "fabricx-loadgen"
+    # Specifies the OpenShift Route host. Example: `loadgen-web.apps.example.com`.
+    loadgen_openshift_web_route: "loadgen-web.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `loadgen-metrics.apps.example.com`.
+    loadgen_openshift_metrics_route: "loadgen-metrics.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `loadgen-rpc.apps.example.com`.
+    loadgen_openshift_rpc_route: "loadgen-rpc.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: openshift/rm
 ```

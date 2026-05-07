@@ -118,6 +118,8 @@ nav:
           - fabric-x-cryptogen: examples/inventory/docs/k8s/fabric-x-cryptogen.md
           - fabric-x-no-mtls: examples/inventory/docs/k8s/fabric-x-no-mtls.md
           - fabric-x-no-tls: examples/inventory/docs/k8s/fabric-x-no-tls.md
+      - OpenShift:
+          - fabric-x-cryptogen: examples/inventory/docs/openshift/fabric-x-cryptogen.md
       - Distributed:
           - fabric-x: examples/inventory/docs/distributed/fabric-x.md
   - Playbooks:
@@ -150,6 +152,7 @@ nav:
       - k8s: roles/k8s/index.md
       - loadgen: roles/loadgen/index.md
       - node_exporter: roles/node_exporter/index.md
+      - openshift: roles/openshift/index.md
       - openssl: roles/openssl/index.md
       - orderer: roles/orderer/index.md
       - package: roles/package/index.md

@@ -26,7 +26,7 @@ argument_specs:
           - "Uses the Kubernetes server flow instead of the local runtimes."
       fabric_ca_server_use_container: &fabric_ca_server_use_container
         type: bool
-        default: "{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) }}"
+        default: "{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) and (not fabric_ca_server_use_openshift) }}"
         description:
           - "Uses the container server flow."
       fabric_ca_registry_endpoint: &fabric_ca_registry_endpoint
@@ -103,7 +103,6 @@ argument_specs:
           - "Sets the client binary name."
       remote_config_dir: &remote_config_dir
         type: path
-        required: true
         description:
           - "Provides the shared remote configuration root used by this role."
           - "Example: C(/var/hyperledger/fabricx/fabric-ca/ca-org1/config)."
@@ -121,10 +120,14 @@ argument_specs:
           - "Example: C(fabricx)."
       k8s_image_pull_secret: &k8s_image_pull_secret
         type: str
-        required: false
         description:
           - "Provides an optional Kubernetes image pull secret from shared inventory."
           - "Example: C(registry-pull-secret)."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
       postgres_db_host: &postgres_db_host
         type: str
         required: true
@@ -136,10 +139,9 @@ argument_specs:
         required: true
         description:
           - "Provides the organization metadata defined elsewhere in inventory; C(domain) is required."
-          - "Example: C(org1.example.com)."
+          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com'})."
       fabric_ca_server_remote_config_dir: &fabric_ca_server_remote_config_dir
         type: path
-        required: false
         default: "{{ remote_config_dir }}"
         description:
           - "Sets the remote Fabric CA config root."
@@ -171,6 +173,11 @@ argument_specs:
         default: "{{ inventory_hostname }}"
         description:
           - "Sets the Kubernetes resource name for the Fabric CA server and its Service resources."
+      fabric_ca_server_k8s_part_of: &fabric_ca_server_k8s_part_of
+        type: str
+        default: "fabric-ca-{{ organization.name }}"
+        description:
+          - "Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Fabric CA server resources."
       fabric_ca_server_k8s_wait_timeout: &fabric_ca_server_k8s_wait_timeout
         type: int
         default: 120
@@ -181,11 +188,6 @@ argument_specs:
         default: 0
         description:
           - "Sets the pod fsGroup for the Fabric CA deployment."
-      fabric_ca_server_k8s_use_node_port: &fabric_ca_server_k8s_use_node_port
-        type: bool
-        default: false
-        description:
-          - "Enables the optional Kubernetes NodePort Service for the Fabric CA server; client address resolution uses the node-port mapping on the referenced server host."
       fabric_ca_port: &fabric_ca_port
         type: int
         required: true
@@ -198,17 +200,33 @@ argument_specs:
         description:
           - "Sets the Fabric CA operations port."
           - "Example: C(9443)."
-      fabric_ca_server_k8s_port_node_port: &fabric_ca_server_k8s_port_node_port
+      fabric_ca_server_k8s_node_port: &fabric_ca_server_k8s_node_port
         type: int
         description:
-          - "Sets the Kubernetes NodePort for the API port and is used when NodePort exposure is enabled."
+          - Kubernetes NodePort value used by the external API Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(30054)."
+      fabric_ca_server_k8s_loadbalancer_expose_port:
+        &fabric_ca_server_k8s_loadbalancer_expose_port
+        type: bool
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the API port externally.
+          - When undefined or C(false), the API port is not included in the LoadBalancer Service.
       fabric_ca_server_k8s_operations_node_port:
         &fabric_ca_server_k8s_operations_node_port
         type: int
         description:
-          - "Sets the Kubernetes NodePort for the operations port and is used when NodePort exposure is enabled."
+          - Kubernetes NodePort value used by the external operations Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(30943)."
+      fabric_ca_server_k8s_loadbalancer_expose_operations_port:
+        &fabric_ca_server_k8s_loadbalancer_expose_operations_port
+        type: bool
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the operations port externally.
+          - When undefined or C(false), the operations port is not included in the LoadBalancer Service.
       fabric_ca_log_level: &fabric_ca_log_level
         type: str
         default: INFO
@@ -244,26 +262,28 @@ argument_specs:
           - "Sets the Idemix enrollment profile."
       fabric_ca_enrollment_profile: &fabric_ca_enrollment_profile
         type: str
-        required: false
         description:
           - "Sets an optional enrollment profile such as C(tls)."
           - "Example: C(tls)."
       actual_host: &actual_host
         type: str
-        required: true
         description:
-          - "Provides the resolved host address used in client effective-address resolution."
-          - "Example: C(ca-org1.example.com)."
+          - Real machine host.
+          - "Example: C(myvpc.cloud.ibm.com)."
       fabric_ca_csr_hosts: &fabric_ca_csr_hosts
         type: list
         elements: str
-        required: false
         default:
           - "{{ ansible_host }}"
           - "{{ actual_host }}"
           - "{{ inventory_hostname }}"
         description:
           - "Sets the CSR SAN host list."
+      openssl_san_ipv4_regex: &openssl_san_ipv4_regex
+        type: str
+        description:
+          - "Matches IPv4 SAN entries while splitting Fabric CA CSR hosts into IP and DNS names."
+          - "Example: C(^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$)"
       fabric_ca_server_openssl_curve: &fabric_ca_server_openssl_curve
         type: str
         default: P-256
@@ -346,11 +366,26 @@ argument_specs:
           - "Example: C(admin)."
       fabric_ca_tls_certfile: &fabric_ca_tls_certfile
         type: path
-        required: false
         description:
           - "Sets the TLS root certificate file used by Fabric CA client flows when TLS is enabled."
           - "Example: C(/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem)."
 
+      fabric_ca_server_use_openshift: &fabric_ca_server_use_openshift
+        type: bool
+        default: false
+        description:
+          - Selects the OpenShift deployment branch.
+      fabric_ca_server_openshift_route: &fabric_ca_server_openshift_route
+        type: str
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(fabric-ca.apps.example.com)."
+      fabric_ca_server_openshift_operations_route:
+        &fabric_ca_server_openshift_operations_route
+        type: str
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(fabric-ca-operations.apps.example.com)."
   client/enroll:
     short_description: Dispatch client enrollment
     description:
@@ -403,7 +438,7 @@ argument_specs:
     short_description: Resolve the Fabric CA connection address
     description:
       - "Resolves the effective Fabric CA host, port, and URL scheme used by client operations."
-      - "The referenced host must define C(actual_host) and the Fabric CA server port settings; when it enables NodePort, the client uses C(fabric_ca_server_k8s_port_node_port) instead of C(fabric_ca_port)."
+      - "The referenced host must define C(actual_host) and the Fabric CA server port settings; when it enables NodePort, the client uses C(fabric_ca_server_k8s_node_port) instead of C(fabric_ca_port)."
     options:
       fabric_ca_host: *fabric_ca_host
 
@@ -438,6 +473,7 @@ argument_specs:
       - "Uses the configured repository, source package, and revision without changing client enrollment data."
     options:
       fabric_ca_client_bin_package: *fabric_ca_client_bin_package
+      fabric_ca_client_bin_name: *fabric_ca_client_bin_name
       fabric_ca_git_hub_url: *fabric_ca_git_hub_url
       fabric_ca_git_repo: *fabric_ca_git_repo
       fabric_ca_client_source_code_package: *fabric_ca_client_source_code_package
@@ -688,6 +724,7 @@ argument_specs:
       fabric_ca_server_use_container: *fabric_ca_server_use_container
       fabric_ca_server_use_bin: *fabric_ca_server_use_bin
       fabric_ca_server_use_k8s: *fabric_ca_server_use_k8s
+      fabric_ca_server_use_openshift: *fabric_ca_server_use_openshift
 
   server/stop:
     short_description: Dispatch server stop
@@ -707,6 +744,7 @@ argument_specs:
       fabric_ca_server_use_container: *fabric_ca_server_use_container
       fabric_ca_server_use_bin: *fabric_ca_server_use_bin
       fabric_ca_server_use_k8s: *fabric_ca_server_use_k8s
+      fabric_ca_server_use_openshift: *fabric_ca_server_use_openshift
 
   server/wipe:
     short_description: Wipe all server assets
@@ -723,6 +761,7 @@ argument_specs:
       - "Uses direct host ports for local runtimes and delegates to the NodePort ping task for Kubernetes NodePort exposure."
     options:
       fabric_ca_server_use_k8s: *fabric_ca_server_use_k8s
+      fabric_ca_server_use_openshift: *fabric_ca_server_use_openshift
       fabric_ca_port: *fabric_ca_port
       fabric_ca_operations_port: *fabric_ca_operations_port
 
@@ -735,6 +774,7 @@ argument_specs:
       fabric_ca_server_use_container: *fabric_ca_server_use_container
       fabric_ca_server_use_bin: *fabric_ca_server_use_bin
       fabric_ca_server_use_k8s: *fabric_ca_server_use_k8s
+      fabric_ca_server_use_openshift: *fabric_ca_server_use_openshift
 
   server/bin/build:
     short_description: Build the Fabric CA server binary
@@ -755,6 +795,7 @@ argument_specs:
       - "Uses the configured repository, source package, and revision without rendering server configuration."
     options:
       fabric_ca_server_bin_package: *fabric_ca_server_bin_package
+      fabric_ca_server_bin_name: *fabric_ca_server_bin_name
       fabric_ca_git_hub_url: *fabric_ca_git_hub_url
       fabric_ca_git_repo: *fabric_ca_git_repo
       fabric_ca_server_source_code_package: *fabric_ca_server_source_code_package
@@ -849,7 +890,7 @@ argument_specs:
     options:
       fabric_ca_server_k8s_wait_timeout: *fabric_ca_server_k8s_wait_timeout
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
-      fabric_ca_server_k8s_use_node_port: *fabric_ca_server_k8s_use_node_port
+      fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
       fabric_ca_image: *fabric_ca_image
       fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
       fabric_ca_image_name: *fabric_ca_image_name
@@ -866,18 +907,23 @@ argument_specs:
       postgres_db_host: *postgres_db_host
       k8s_namespace: *k8s_namespace
       k8s_image_pull_secret: *k8s_image_pull_secret
-      fabric_ca_server_k8s_port_node_port: *fabric_ca_server_k8s_port_node_port
+      fabric_ca_server_k8s_node_port: *fabric_ca_server_k8s_node_port
       fabric_ca_server_k8s_operations_node_port: *fabric_ca_server_k8s_operations_node_port
+      fabric_ca_server_k8s_loadbalancer_expose_port: *fabric_ca_server_k8s_loadbalancer_expose_port
+      fabric_ca_server_k8s_loadbalancer_expose_operations_port: *fabric_ca_server_k8s_loadbalancer_expose_operations_port
+      k8s_resources: *k8s_resources
 
   server/k8s/ping:
-    short_description: Check Fabric CA node ports
+    short_description: Check that the Fabric CA Kubernetes service is reachable
     description:
-      - "Checks that the Fabric CA API and operations NodePorts are reachable when Kubernetes NodePort exposure is enabled."
-      - "Validates external access to the Kubernetes Service without changing deployment, ConfigMap, or Secret resources."
+      - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
     options:
-      fabric_ca_server_k8s_use_node_port: *fabric_ca_server_k8s_use_node_port
-      fabric_ca_server_k8s_port_node_port: *fabric_ca_server_k8s_port_node_port
+      fabric_ca_server_k8s_node_port: *fabric_ca_server_k8s_node_port
       fabric_ca_server_k8s_operations_node_port: *fabric_ca_server_k8s_operations_node_port
+      fabric_ca_server_k8s_loadbalancer_expose_port: *fabric_ca_server_k8s_loadbalancer_expose_port
+      fabric_ca_server_k8s_loadbalancer_expose_operations_port: *fabric_ca_server_k8s_loadbalancer_expose_operations_port
+      fabric_ca_port: *fabric_ca_port
+      fabric_ca_operations_port: *fabric_ca_operations_port
 
   server/k8s/fetch_logs:
     short_description: Fetch server pod logs
@@ -886,6 +932,7 @@ argument_specs:
       - "Fetches runtime output from the server pod in C(k8s_namespace) without changing cluster resources."
     options:
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+      fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
 
   server/k8s/rm:
     short_description: Remove server Kubernetes runtime resources
@@ -894,7 +941,12 @@ argument_specs:
       - "Removes Deployment and Service objects while leaving ConfigMap and Secret cleanup to their dedicated tasks."
     options:
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+      fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
       k8s_namespace: *k8s_namespace
+      fabric_ca_server_k8s_node_port: *fabric_ca_server_k8s_node_port
+      fabric_ca_server_k8s_loadbalancer_expose_port: *fabric_ca_server_k8s_loadbalancer_expose_port
+      fabric_ca_server_k8s_operations_node_port: *fabric_ca_server_k8s_operations_node_port
+      fabric_ca_server_k8s_loadbalancer_expose_operations_port: *fabric_ca_server_k8s_loadbalancer_expose_operations_port
 
   server/k8s/config/transfer:
     short_description: Transfer server config to a ConfigMap
@@ -905,6 +957,7 @@ argument_specs:
       fabric_ca_server_remote_config_dir: *fabric_ca_server_remote_config_dir
       remote_config_dir: *remote_config_dir
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+      fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
       postgres_db_host: *postgres_db_host
       k8s_namespace: *k8s_namespace
 
@@ -915,6 +968,7 @@ argument_specs:
       - "Removes Kubernetes config resources while leaving runtime and crypto Secret cleanup to separate tasks."
     options:
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+      fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
       k8s_namespace: *k8s_namespace
 
   server/k8s/crypto/transfer:
@@ -926,6 +980,7 @@ argument_specs:
       fabric_ca_server_remote_config_dir: *fabric_ca_server_remote_config_dir
       remote_config_dir: *remote_config_dir
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+      fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
       fabric_ca_server_ca_private_key_file: *fabric_ca_server_ca_private_key_file
       fabric_ca_server_ca_cert_file: *fabric_ca_server_ca_cert_file
       fabric_ca_server_tls_private_key_file: *fabric_ca_server_tls_private_key_file
@@ -940,6 +995,7 @@ argument_specs:
       - "Removes server CA and TLS key material from Kubernetes while leaving local files untouched."
     options:
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+      fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
       k8s_namespace: *k8s_namespace
 
   server/crypto/setup:
@@ -949,6 +1005,7 @@ argument_specs:
       - "Coordinates the role's root CA, TLS, and Idemix issuer artifact generation before runtime start or Kubernetes transfer."
     options:
       fabric_ca_server_use_k8s: *fabric_ca_server_use_k8s
+      fabric_ca_server_use_openshift: *fabric_ca_server_use_openshift
 
   server/crypto/x509/setup:
     short_description: Generate server x509 crypto
@@ -966,7 +1023,10 @@ argument_specs:
       fabric_ca_server_openssl_curve: *fabric_ca_server_openssl_curve
       fabric_ca_csr_cn: *fabric_ca_csr_cn
       fabric_ca_csr_hosts: *fabric_ca_csr_hosts
+      openssl_san_ipv4_regex: *openssl_san_ipv4_regex
       organization: *organization
+      fabric_ca_server_openshift_route: *fabric_ca_server_openshift_route
+      fabric_ca_server_openshift_operations_route: *fabric_ca_server_openshift_operations_route
 
   server/crypto/idemix/setup:
     short_description: Generate server Idemix crypto
@@ -997,6 +1057,7 @@ argument_specs:
       - "Leaves local X.509 and Idemix files to the config cleanup path unless the broader wipe flow is used."
     options:
       fabric_ca_server_use_k8s: *fabric_ca_server_use_k8s
+      fabric_ca_server_use_openshift: *fabric_ca_server_use_openshift
 
   server/config/transfer:
     short_description: Render and transfer server config
@@ -1027,6 +1088,7 @@ argument_specs:
       fetched_artifacts_dir: *fetched_artifacts_dir
       fabric_ca_operations_port: *fabric_ca_operations_port
       fabric_ca_server_use_k8s: *fabric_ca_server_use_k8s
+      fabric_ca_server_use_openshift: *fabric_ca_server_use_openshift
 
   server/config/rm:
     short_description: Remove server config resources
@@ -1037,3 +1099,36 @@ argument_specs:
       fabric_ca_server_remote_config_dir: *fabric_ca_server_remote_config_dir
       remote_config_dir: *remote_config_dir
       fabric_ca_server_use_k8s: *fabric_ca_server_use_k8s
+      fabric_ca_server_use_openshift: *fabric_ca_server_use_openshift
+
+  server/openshift/start:
+    short_description: Start the Fabric CA server OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+      fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
+      fabric_ca_use_tls: *fabric_ca_use_tls
+      k8s_namespace: *k8s_namespace
+      fabric_ca_server_openshift_route: *fabric_ca_server_openshift_route
+      fabric_ca_server_openshift_operations_route: *fabric_ca_server_openshift_operations_route
+
+  server/openshift/ping:
+    short_description: Check the Fabric CA server OpenShift deployment
+    description:
+      - Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+    options:
+      fabric_ca_use_tls: *fabric_ca_use_tls
+      fabric_ca_server_openshift_route: *fabric_ca_server_openshift_route
+      fabric_ca_server_openshift_operations_route: *fabric_ca_server_openshift_operations_route
+
+  server/openshift/rm:
+    short_description: Remove the Fabric CA server OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
+      fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
+      k8s_namespace: *k8s_namespace
+      fabric_ca_server_openshift_route: *fabric_ca_server_openshift_route
+      fabric_ca_server_openshift_operations_route: *fabric_ca_server_openshift_operations_route

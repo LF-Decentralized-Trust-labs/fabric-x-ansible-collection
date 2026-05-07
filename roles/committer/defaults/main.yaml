@@ -34,18 +34,24 @@ committer_use_bin: false
 # Enable Kubernetes deployment mode.
 committer_use_k8s: false
 # Enable container deployment mode.
-committer_use_container: '{{ (not committer_use_bin) and (not committer_use_k8s) }}'
+committer_use_container: '{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}'
 # Deployment mode selected by the role.
-committer_deployment_mode: '{%- if committer_use_bin -%}bin{%- elif committer_use_k8s -%}k8s{%- else -%}container{%- endif -%}'
+committer_deployment_mode: '{%- if committer_use_bin -%}bin{%- elif committer_use_openshift -%}openshift{%- elif committer_use_k8s -%}k8s{%- else -%}container{%- endif -%}'
 # Base Kubernetes resource name for committer objects.
 # Used by the service, workload, secret, and optional NodePort resources.
 committer_k8s_resource_name: '{{ inventory_hostname }}'
+# Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to committer resources.
+committer_k8s_part_of: fabric-x-committer-{{ organization.name }}
 # Wait timeout in seconds for Kubernetes rollouts.
 committer_k8s_wait_timeout: 120
 # Filesystem group assigned to committer pods.
 committer_k8s_fs_group: 10001
-# Enable the optional Kubernetes NodePort Service for committer RPC and metrics access.
-committer_k8s_use_node_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the RPC port externally.
+# When undefined or C(false), the RPC port is not included in the LoadBalancer Service.
+committer_k8s_loadbalancer_expose_rpc_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the metrics port externally.
+# When undefined or C(false), the metrics port is not included in the LoadBalancer Service.
+committer_k8s_loadbalancer_expose_metrics_port: false
 # Remote config directory managed by the role.
 committer_remote_config_dir: '{{ remote_config_dir }}'
 # Remote data directory managed by the role.
@@ -78,3 +84,5 @@ committer_crypto_name: '{{ organization.peer.name | default(inventory_hostname) 
 committer_log_level: info
 # Log format emitted by the committer component.
 committer_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
+# Selects the OpenShift deployment branch.
+committer_use_openshift: false

@@ -1,0 +1,55 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start Yugabyte tablet workload using generic k8s flow
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: k8s/tablet/start
+
+- name: Apply Yugabyte tablet webserver OpenShift Route
+  vars:
+    openshift_route_name: "{{ yugabyte_k8s_resource_name }}-webserver"
+    openshift_route_host: "{{ yugabyte_openshift_tablet_webserver_route }}"
+    openshift_route_service_name: "{{ yugabyte_k8s_resource_name }}"
+    openshift_route_service_port: webserver
+    openshift_route_use_tls: "{{ yugabyte_webserver_use_tls }}"
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ yugabyte_k8s_resource_name }}"
+      app.kubernetes.io/part-of: "{{ yugabyte_k8s_part_of }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: yugabyte_openshift_tablet_webserver_route is defined
+
+- name: Apply Yugabyte tablet pgsql-web OpenShift Route
+  vars:
+    openshift_route_name: "{{ yugabyte_k8s_resource_name }}-pgsql-web"
+    openshift_route_host: "{{ yugabyte_openshift_tablet_pgsql_web_route }}"
+    openshift_route_service_name: "{{ yugabyte_k8s_resource_name }}"
+    openshift_route_service_port: pgsql-web
+    openshift_route_use_tls: "{{ yugabyte_webserver_use_tls }}"
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ yugabyte_k8s_resource_name }}"
+      app.kubernetes.io/part-of: "{{ yugabyte_k8s_part_of }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: yugabyte_openshift_tablet_pgsql_web_route is defined
+
+- name: Apply Yugabyte tablet cql-web OpenShift Route
+  vars:
+    openshift_route_name: "{{ yugabyte_k8s_resource_name }}-cql-web"
+    openshift_route_host: "{{ yugabyte_openshift_tablet_cql_web_route }}"
+    openshift_route_service_name: "{{ yugabyte_k8s_resource_name }}"
+    openshift_route_service_port: cql-web
+    openshift_route_use_tls: "{{ yugabyte_webserver_use_tls }}"
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ yugabyte_k8s_resource_name }}"
+      app.kubernetes.io/part-of: "{{ yugabyte_k8s_part_of }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: yugabyte_openshift_tablet_cql_web_route is defined

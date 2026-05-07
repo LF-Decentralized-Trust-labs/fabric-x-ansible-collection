@@ -26,7 +26,26 @@
     state: present
     template:
       path: k8s/service-nodeport.yaml.j2
-  when: jaeger_k8s_use_node_port
+  when:
+    - jaeger_k8s_ui_node_port is defined or
+      jaeger_k8s_admin_node_port is defined or
+      jaeger_k8s_http_server_node_port is defined or
+      jaeger_k8s_http_collector_node_port is defined or
+      jaeger_k8s_grpc_server_node_port is defined or
+      jaeger_k8s_collector_node_port is defined
+
+- name: Apply Jaeger LoadBalancer Service
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/service-loadbalancer.yaml.j2
+  when:
+    - jaeger_k8s_loadbalancer_expose_ui_port or
+      jaeger_k8s_loadbalancer_expose_admin_port or
+      jaeger_k8s_loadbalancer_expose_http_server_port or
+      jaeger_k8s_loadbalancer_expose_http_collector_port or
+      jaeger_k8s_loadbalancer_expose_grpc_server_port or
+      jaeger_k8s_loadbalancer_expose_collector_port
 
 - name: Apply Jaeger Deployment
   kubernetes.core.k8s:

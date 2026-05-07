@@ -29,15 +29,13 @@ ansible-doc -t role hyperledger.fabricx.package
 
 > Dispatch package installation for the current operating system
 
-Shared entry point that dispatches to the Linux or macOS installer based on `ansible_facts.system`. Use this entry point when the target host may be either Linux or macOS and you want the role to choose the correct package manager path. This entry point validates `package_name` and `package_service_name`.
+Shared entry point that dispatches to the Linux or macOS installer based on `ansible_facts.system`. Use this entry point when the target host may be either Linux or macOS and you want the role to choose the correct package manager path. This entry point validates `package_name`.
 
 ```yaml
 - name: Dispatch package installation for the current operating system
   vars:
-    # Names the executable or package to install on the target host. Set this to the package identifier used by the host package manager. Example: `postgresql-client` on a Debian/Ubuntu host or `postgresql@16` with Homebrew on macOS.
-    package_name: "string"
-    # Names the Linux service to enable and start after installation. Example: `postgresql`.
-    package_service_name: "postgresql"
+    # Names the executable or package to install on the target host. Set this to the package identifier used by the host package manager. Example: `postgresql-client`.
+    package_name: "postgresql-client"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.package
     tasks_from: install
@@ -52,8 +50,8 @@ Installs a package on Linux hosts after confirming the command is not already pr
 ```yaml
 - name: Install a package on Linux
   vars:
-    # Names the executable or package to install on the target host. Set this to the package identifier used by the host package manager. Example: `postgresql-client` on a Debian/Ubuntu host or `postgresql@16` with Homebrew on macOS.
-    package_name: "string"
+    # Names the executable or package to install on the target host. Set this to the package identifier used by the host package manager. Example: `postgresql-client`.
+    package_name: "postgresql-client"
     # Names the Linux service to enable and start after installation. Example: `postgresql`.
     package_service_name: "postgresql"
   ansible.builtin.include_role:
@@ -70,8 +68,8 @@ Installs a package on macOS hosts with Homebrew after confirming the command is 
 ```yaml
 - name: Install a package on macOS
   vars:
-    # Names the executable or package to install on the target host. Set this to the package identifier used by the host package manager. Example: `postgresql-client` on a Debian/Ubuntu host or `postgresql@16` with Homebrew on macOS.
-    package_name: "string"
+    # Names the executable or package to install on the target host. Set this to the package identifier used by the host package manager. Example: `postgresql-client`.
+    package_name: "postgresql-client"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.package
     tasks_from: install_on_macos

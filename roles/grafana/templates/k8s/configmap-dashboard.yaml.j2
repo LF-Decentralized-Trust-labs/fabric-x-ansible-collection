@@ -12,7 +12,7 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ grafana_k8s_resource_name }}
     app.kubernetes.io/component: grafana
-    app.kubernetes.io/part-of: monitoring
+    app.kubernetes.io/part-of: {{ grafana_k8s_part_of }}
 data:
   {{ grafana_dashboard_file }}: |
     {{ lookup('file', grafana_dashboard_path) | from_json | to_json }}

@@ -8,7 +8,8 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: k8s/fetch_logs
-  when: postgres_use_k8s or postgres_use_openshift
+  when:
+    - postgres_use_k8s or postgres_use_openshift
 
 - name: Fetch Postgres DB logs from container
   ansible.builtin.include_role:

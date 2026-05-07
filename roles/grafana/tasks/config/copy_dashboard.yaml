@@ -20,4 +20,4 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
     tasks_from: k8s/config/copy_dashboard
-  when: grafana_use_k8s
+  when: grafana_use_k8s or grafana_use_openshift

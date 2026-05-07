@@ -12,7 +12,7 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ jaeger_k8s_resource_name }}
     app.kubernetes.io/component: jaeger
-    app.kubernetes.io/part-of: monitoring
+    app.kubernetes.io/part-of: {{ jaeger_k8s_part_of }}
 spec:
   replicas: 1
   selector:
@@ -23,13 +23,17 @@ spec:
       labels:
         app.kubernetes.io/name: {{ jaeger_k8s_resource_name }}
         app.kubernetes.io/component: jaeger
-        app.kubernetes.io/part-of: monitoring
+        app.kubernetes.io/part-of: {{ jaeger_k8s_part_of }}
     spec:
       securityContext:
         fsGroup: {{ jaeger_k8s_fs_group }}
       containers:
         - name: jaeger
           image: {{ jaeger_image }}
+{% if k8s_resources is defined and k8s_resources %}
+          resources:
+{{ k8s_resources | to_nice_yaml(indent=2) | indent(12, true) }}
+{% endif %}
           args:
             - "--query.http-server.host-port=0.0.0.0:{{ jaeger_ui_port }}"
             - "--admin.http.host-port=0.0.0.0:{{ jaeger_admin_port }}"

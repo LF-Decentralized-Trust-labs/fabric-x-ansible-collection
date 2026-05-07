@@ -1,0 +1,58 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start Loadgen workload using generic k8s flow
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: k8s/start
+
+- name: Apply Loadgen web OpenShift Route
+  vars:
+    openshift_route_name: "{{ loadgen_k8s_resource_name }}-web"
+    openshift_route_host: "{{ loadgen_openshift_web_route }}"
+    openshift_route_service_name: "{{ loadgen_k8s_resource_name }}"
+    openshift_route_service_port: web
+    openshift_route_use_tls: "{{ loadgen_use_tls }}"
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ loadgen_k8s_resource_name }}"
+      app.kubernetes.io/component: "loadgen"
+      app.kubernetes.io/part-of: "{{ loadgen_k8s_part_of }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: loadgen_openshift_web_route is defined
+
+- name: Apply Loadgen metrics OpenShift Route
+  vars:
+    openshift_route_name: "{{ loadgen_k8s_resource_name }}-metrics"
+    openshift_route_host: "{{ loadgen_openshift_metrics_route }}"
+    openshift_route_service_name: "{{ loadgen_k8s_resource_name }}"
+    openshift_route_service_port: metrics
+    openshift_route_use_tls: "{{ loadgen_monitoring_use_tls }}"
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ loadgen_k8s_resource_name }}"
+      app.kubernetes.io/component: "loadgen"
+      app.kubernetes.io/part-of: "{{ loadgen_k8s_part_of }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: loadgen_openshift_metrics_route is defined
+
+- name: Apply Loadgen rpc OpenShift Route
+  vars:
+    openshift_route_name: "{{ loadgen_k8s_resource_name }}-rpc"
+    openshift_route_host: "{{ loadgen_openshift_rpc_route }}"
+    openshift_route_service_name: "{{ loadgen_k8s_resource_name }}"
+    openshift_route_service_port: rpc
+    openshift_route_use_tls: "{{ loadgen_use_tls }}"
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ loadgen_k8s_resource_name }}"
+      app.kubernetes.io/component: "loadgen"
+      app.kubernetes.io/part-of: "{{ loadgen_k8s_part_of }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: loadgen_openshift_rpc_route is defined

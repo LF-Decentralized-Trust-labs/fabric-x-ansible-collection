@@ -19,5 +19,4 @@ go_cgo_enabled: false
 # Sets the directory exported as C(GOBIN) for installed binaries.
 go_output_dir: "{{ lookup('env', 'GOBIN') | default(lookup('env', 'GOPATH') + '/bin', true) }}"
 # Appends a package subdirectory under C(go_source_code_path) before invoking C(go build).
-# Example: C(cmd/fxconfig).
 go_source_code_package: ""

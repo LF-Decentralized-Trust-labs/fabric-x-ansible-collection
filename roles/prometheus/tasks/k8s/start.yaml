@@ -26,7 +26,14 @@
     state: present
     template:
       path: k8s/service-nodeport.yaml.j2
-  when: prometheus_k8s_use_node_port
+  when: prometheus_k8s_node_port is defined
+
+- name: Apply Prometheus LoadBalancer Service
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/service-loadbalancer.yaml.j2
+  when: prometheus_k8s_loadbalancer_expose_http_port
 
 - name: Apply Prometheus StatefulSet
   kubernetes.core.k8s:

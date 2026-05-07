@@ -25,6 +25,9 @@
   - [config/rm](#configrm)
   - [k8s/config/transfer](#k8sconfigtransfer)
   - [k8s/config/rm](#k8sconfigrm)
+  - [openshift/start](#openshiftstart)
+  - [openshift/ping](#openshiftping)
+  - [openshift/rm](#openshiftrm)
 
 ## Role Defaults
 
@@ -50,9 +53,11 @@ Starts Jaeger in container mode or applies the Kubernetes Service and Deployment
 - name: Select the Jaeger deployment mode to start
   vars:
     # Runs the container-based Jaeger path when set to `true`.
-    jaeger_use_container: "{{ not jaeger_use_k8s }}"
+    jaeger_use_container: "{{ (not jaeger_use_k8s) and (not jaeger_use_openshift) }}"
     # Runs the Kubernetes Jaeger path when set to `true`.
     jaeger_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    jaeger_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: start
@@ -68,7 +73,7 @@ Stops the running Jaeger container without removing configuration assets.
 - name: Select the Jaeger deployment mode to stop
   vars:
     # Runs the container-based Jaeger path when set to `true`.
-    jaeger_use_container: "{{ not jaeger_use_k8s }}"
+    jaeger_use_container: "{{ (not jaeger_use_k8s) and (not jaeger_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: stop
@@ -84,9 +89,11 @@ Removes the container workload or Kubernetes resources for the active Jaeger dep
 - name: Select the Jaeger deployment mode to remove
   vars:
     # Runs the container-based Jaeger path when set to `true`.
-    jaeger_use_container: "{{ not jaeger_use_k8s }}"
+    jaeger_use_container: "{{ (not jaeger_use_k8s) and (not jaeger_use_openshift) }}"
     # Runs the Kubernetes Jaeger path when set to `true`.
     jaeger_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    jaeger_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: teardown
@@ -115,9 +122,11 @@ Collects logs from the running Jaeger container or from the Jaeger pods in Kuber
 - name: Select the Jaeger deployment mode to collect logs from
   vars:
     # Runs the container-based Jaeger path when set to `true`.
-    jaeger_use_container: "{{ not jaeger_use_k8s }}"
+    jaeger_use_container: "{{ (not jaeger_use_k8s) and (not jaeger_use_openshift) }}"
     # Runs the Kubernetes Jaeger path when set to `true`.
     jaeger_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    jaeger_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: fetch_logs
@@ -134,17 +143,19 @@ Checks the Jaeger query, admin, collector, and OTLP endpoints with the utils pin
   vars:
     # Runs the Kubernetes Jaeger path when set to `true`.
     jaeger_use_k8s: false
-    # Sets the Jaeger query UI port. Example: `16686` for the Jaeger query web interface endpoint.
+    # Selects the OpenShift deployment branch.
+    jaeger_use_openshift: false
+    # Sets the Jaeger query UI port.
     jaeger_ui_port: 16686
-    # Sets the Jaeger admin HTTP port. Example: `14269` for liveness and admin access on the Jaeger service.
+    # Sets the Jaeger admin HTTP port.
     jaeger_admin_port: 14269
-    # Sets the Jaeger collector HTTP server port. Example: `14268` for the collector HTTP endpoint exposed by the service.
+    # Sets the Jaeger collector HTTP server port.
     jaeger_http_server_port: 14268
-    # Sets the Jaeger OTLP HTTP collector port. Example: `4318` for OTLP/HTTP ingestion from agents and SDKs.
+    # Sets the Jaeger OTLP HTTP collector port.
     jaeger_http_collector_port: 4318
-    # Sets the Jaeger gRPC server port. Example: `14250` for the collector gRPC endpoint used by tracing clients.
+    # Sets the Jaeger gRPC server port.
     jaeger_grpc_server_port: 14250
-    # Sets the Jaeger OTLP gRPC collector port. Example: `4317` for OTLP/gRPC ingestion from Jaeger agents.
+    # Sets the Jaeger OTLP gRPC collector port.
     jaeger_collector_port: 4317
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
@@ -174,21 +185,21 @@ Builds the Jaeger container environment, publishes the query and collector ports
     jaeger_image: "{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_image_tag }}"
     # Sets the shared remote configuration base directory. Example: `/var/lib/fabricx/jaeger/config` on the control or remote host.
     remote_config_dir: "string"
-    # Sets the remote directory mounted into the Jaeger container for configuration and certificates. Example: `/var/lib/fabricx/jaeger/config` so the container and Kubernetes ConfigMap use the same path.
+    # Sets the remote directory mounted into the Jaeger container for configuration and certificates.
     jaeger_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the in-container directory where Jaeger reads configuration and certificates. Example: `/var/config` for the all-in-one image mount point.
+    # Sets the in-container directory where Jaeger reads configuration and certificates.
     jaeger_container_config_dir: /var/config
-    # Sets the Jaeger query UI port. Example: `16686` for the Jaeger query web interface endpoint.
+    # Sets the Jaeger query UI port.
     jaeger_ui_port: 16686
-    # Sets the Jaeger admin HTTP port. Example: `14269` for liveness and admin access on the Jaeger service.
+    # Sets the Jaeger admin HTTP port.
     jaeger_admin_port: 14269
-    # Sets the Jaeger collector HTTP server port. Example: `14268` for the collector HTTP endpoint exposed by the service.
+    # Sets the Jaeger collector HTTP server port.
     jaeger_http_server_port: 14268
-    # Sets the Jaeger OTLP HTTP collector port. Example: `4318` for OTLP/HTTP ingestion from agents and SDKs.
+    # Sets the Jaeger OTLP HTTP collector port.
     jaeger_http_collector_port: 4318
-    # Sets the Jaeger gRPC server port. Example: `14250` for the collector gRPC endpoint used by tracing clients.
+    # Sets the Jaeger gRPC server port.
     jaeger_grpc_server_port: 14250
-    # Sets the Jaeger OTLP gRPC collector port. Example: `4317` for OTLP/gRPC ingestion from Jaeger agents.
+    # Sets the Jaeger OTLP gRPC collector port.
     jaeger_collector_port: 4317
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
@@ -263,7 +274,7 @@ Collects the container logs for the Jaeger runtime from the named container.
 
 > Start Jaeger on Kubernetes
 
-Applies the Jaeger Service, optional NodePort Service, and Deployment resources to Kubernetes. The deployment template mounts the configuration path, wires the ElasticSearch CA certificate, and uses the provided probe and port settings. The NodePort service is created only when `jaeger_k8s_use_node_port` is set to `true`. This entry point requires the ElasticSearch host inventory to be available.
+Applies the Jaeger Service, optional NodePort and LoadBalancer Services, and Deployment resources to Kubernetes. The deployment template mounts the configuration path, wires the ElasticSearch CA certificate, and uses the provided probe and port settings. This entry point requires the ElasticSearch host inventory to be available.
 
 ```yaml
 - name: Start Jaeger on Kubernetes
@@ -272,12 +283,12 @@ Applies the Jaeger Service, optional NodePort Service, and Deployment resources 
     elasticsearch_host: "string"
     # Sets the Kubernetes resource name used for Jaeger objects.
     jaeger_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Jaeger resources.
+    jaeger_k8s_part_of: monitoring
     # Sets the rollout wait timeout for the Jaeger Kubernetes deployment.
     jaeger_k8s_wait_timeout: 120
     # Sets the pod filesystem group for the Jaeger Kubernetes workload.
     jaeger_k8s_fs_group: 0
-    # Exposes the Jaeger Kubernetes service through a NodePort service when set to `true`. The NodePort service uses the per-port node port values below.
-    jaeger_k8s_use_node_port: false
     # Sets the registry endpoint for the Jaeger image.
     jaeger_registry_endpoint: "{{ lookup('env', 'JAEGER_REGISTRY_ENDPOINT') or 'docker.io/jaegertracing' }}"
     # Sets the Jaeger image name.
@@ -286,31 +297,31 @@ Applies the Jaeger Service, optional NodePort Service, and Deployment resources 
     jaeger_image_tag: latest
     # Sets the Jaeger container image.
     jaeger_image: "{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_image_tag }}"
-    # Sets the in-container directory where Jaeger reads configuration and certificates. Example: `/var/config` for the all-in-one image mount point.
+    # Sets the in-container directory where Jaeger reads configuration and certificates.
     jaeger_container_config_dir: /var/config
-    # Sets the Jaeger query UI port. Example: `16686` for the Jaeger query web interface endpoint.
+    # Sets the Jaeger query UI port.
     jaeger_ui_port: 16686
-    # Sets the Jaeger admin HTTP port. Example: `14269` for liveness and admin access on the Jaeger service.
+    # Sets the Jaeger admin HTTP port.
     jaeger_admin_port: 14269
-    # Sets the Jaeger collector HTTP server port. Example: `14268` for the collector HTTP endpoint exposed by the service.
+    # Sets the Jaeger collector HTTP server port.
     jaeger_http_server_port: 14268
-    # Sets the Jaeger OTLP HTTP collector port. Example: `4318` for OTLP/HTTP ingestion from agents and SDKs.
+    # Sets the Jaeger OTLP HTTP collector port.
     jaeger_http_collector_port: 4318
-    # Sets the Jaeger gRPC server port. Example: `14250` for the collector gRPC endpoint used by tracing clients.
+    # Sets the Jaeger gRPC server port.
     jaeger_grpc_server_port: 14250
-    # Sets the Jaeger OTLP gRPC collector port. Example: `4317` for OTLP/gRPC ingestion from Jaeger agents.
+    # Sets the Jaeger OTLP gRPC collector port.
     jaeger_collector_port: 4317
-    # Sets the Kubernetes NodePort for the Jaeger UI service. Example: `30686`.
+    # Kubernetes NodePort value used by the external UI Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30686`.
     jaeger_k8s_ui_node_port: 30686
-    # Sets the Kubernetes NodePort for the Jaeger admin service. Example: `30669`.
+    # Kubernetes NodePort value used by the external admin Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30669`.
     jaeger_k8s_admin_node_port: 30669
-    # Sets the Kubernetes NodePort for the Jaeger collector HTTP server. Example: `30668`.
+    # Kubernetes NodePort value used by the external HTTP server Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30668`.
     jaeger_k8s_http_server_node_port: 30668
-    # Sets the Kubernetes NodePort for the Jaeger OTLP HTTP collector. Example: `30418`.
+    # Kubernetes NodePort value used by the external HTTP collector Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30418`.
     jaeger_k8s_http_collector_node_port: 30418
-    # Sets the Kubernetes NodePort for the Jaeger gRPC server. Example: `31450`.
+    # Kubernetes NodePort value used by the external gRPC server Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31450`.
     jaeger_k8s_grpc_server_node_port: 31450
-    # Sets the Kubernetes NodePort for the Jaeger OTLP gRPC collector. Example: `30417`.
+    # Kubernetes NodePort value used by the external collector Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30417`.
     jaeger_k8s_collector_node_port: 30417
     # Sets the Kubernetes namespace used for Jaeger resources. Example: `tracing` when Jaeger shares a namespace with other observability services.
     k8s_namespace: "string"
@@ -332,6 +343,26 @@ Applies the Jaeger Service, optional NodePort Service, and Deployment resources 
     k8s_liveness_probe_timeout_seconds: 2
     # Sets the liveness probe failure threshold used by the Jaeger deployment template. Example: `3`.
     k8s_liveness_probe_failure_threshold: 3
+    # Set to `true` to create a LoadBalancer Service entry that exposes the UI port externally. When undefined or `false`, the UI port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_ui_port: false
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
+    # Set to `true` to create a LoadBalancer Service entry that exposes the admin port externally. When undefined or `false`, the admin port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_admin_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP server port externally. When undefined or `false`, the HTTP server port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_http_server_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP collector port externally. When undefined or `false`, the HTTP collector port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_http_collector_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the gRPC server port externally. When undefined or `false`, the gRPC server port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_grpc_server_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the collector port externally. When undefined or `false`, the collector port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_collector_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: k8s/start
@@ -348,8 +379,34 @@ Deletes the Jaeger Deployment, Service, and NodePort Service from the target nam
   vars:
     # Sets the Kubernetes resource name used for Jaeger objects.
     jaeger_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Jaeger resources.
+    jaeger_k8s_part_of: monitoring
     # Sets the Kubernetes namespace used for Jaeger resources. Example: `tracing` when Jaeger shares a namespace with other observability services.
     k8s_namespace: "string"
+    # Kubernetes NodePort value used by the external UI Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30686`.
+    jaeger_k8s_ui_node_port: 30686
+    # Set to `true` to create a LoadBalancer Service entry that exposes the UI port externally. When undefined or `false`, the UI port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_ui_port: false
+    # Kubernetes NodePort value used by the external admin Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30669`.
+    jaeger_k8s_admin_node_port: 30669
+    # Set to `true` to create a LoadBalancer Service entry that exposes the admin port externally. When undefined or `false`, the admin port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_admin_port: false
+    # Kubernetes NodePort value used by the external HTTP server Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30668`.
+    jaeger_k8s_http_server_node_port: 30668
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP server port externally. When undefined or `false`, the HTTP server port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_http_server_port: false
+    # Kubernetes NodePort value used by the external HTTP collector Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30418`.
+    jaeger_k8s_http_collector_node_port: 30418
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP collector port externally. When undefined or `false`, the HTTP collector port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_http_collector_port: false
+    # Kubernetes NodePort value used by the external gRPC server Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31450`.
+    jaeger_k8s_grpc_server_node_port: 31450
+    # Set to `true` to create a LoadBalancer Service entry that exposes the gRPC server port externally. When undefined or `false`, the gRPC server port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_grpc_server_port: false
+    # Kubernetes NodePort value used by the external collector Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30417`.
+    jaeger_k8s_collector_node_port: 30417
+    # Set to `true` to create a LoadBalancer Service entry that exposes the collector port externally. When undefined or `false`, the collector port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_collector_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: k8s/rm
@@ -366,6 +423,8 @@ Collects logs from Jaeger pods using the resource label selector for the Kuberne
   vars:
     # Sets the Kubernetes resource name used for Jaeger objects.
     jaeger_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Jaeger resources.
+    jaeger_k8s_part_of: monitoring
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: k8s/fetch_logs
@@ -373,39 +432,49 @@ Collects logs from Jaeger pods using the resource label selector for the Kuberne
 
 ### k8s/ping
 
-> Check that Jaeger Kubernetes node ports are reachable
+> Check that Jaeger Kubernetes service is reachable
 
-Checks the Jaeger Kubernetes service ports and, when enabled, the NodePort values for the query, admin, and collector endpoints.
+Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
-- name: Check that Jaeger Kubernetes node ports are reachable
+- name: Check that Jaeger Kubernetes service is reachable
   vars:
-    # Exposes the Jaeger Kubernetes service through a NodePort service when set to `true`. The NodePort service uses the per-port node port values below.
-    jaeger_k8s_use_node_port: false
-    # Sets the Jaeger query UI port. Example: `16686` for the Jaeger query web interface endpoint.
+    # Sets the Jaeger query UI port.
     jaeger_ui_port: 16686
-    # Sets the Jaeger admin HTTP port. Example: `14269` for liveness and admin access on the Jaeger service.
+    # Sets the Jaeger admin HTTP port.
     jaeger_admin_port: 14269
-    # Sets the Jaeger collector HTTP server port. Example: `14268` for the collector HTTP endpoint exposed by the service.
+    # Sets the Jaeger collector HTTP server port.
     jaeger_http_server_port: 14268
-    # Sets the Jaeger OTLP HTTP collector port. Example: `4318` for OTLP/HTTP ingestion from agents and SDKs.
+    # Sets the Jaeger OTLP HTTP collector port.
     jaeger_http_collector_port: 4318
-    # Sets the Jaeger gRPC server port. Example: `14250` for the collector gRPC endpoint used by tracing clients.
+    # Sets the Jaeger gRPC server port.
     jaeger_grpc_server_port: 14250
-    # Sets the Jaeger OTLP gRPC collector port. Example: `4317` for OTLP/gRPC ingestion from Jaeger agents.
+    # Sets the Jaeger OTLP gRPC collector port.
     jaeger_collector_port: 4317
-    # Sets the Kubernetes NodePort for the Jaeger UI service. Example: `30686`.
+    # Kubernetes NodePort value used by the external UI Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30686`.
     jaeger_k8s_ui_node_port: 30686
-    # Sets the Kubernetes NodePort for the Jaeger admin service. Example: `30669`.
+    # Kubernetes NodePort value used by the external admin Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30669`.
     jaeger_k8s_admin_node_port: 30669
-    # Sets the Kubernetes NodePort for the Jaeger collector HTTP server. Example: `30668`.
+    # Kubernetes NodePort value used by the external HTTP server Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30668`.
     jaeger_k8s_http_server_node_port: 30668
-    # Sets the Kubernetes NodePort for the Jaeger OTLP HTTP collector. Example: `30418`.
+    # Kubernetes NodePort value used by the external HTTP collector Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30418`.
     jaeger_k8s_http_collector_node_port: 30418
-    # Sets the Kubernetes NodePort for the Jaeger gRPC server. Example: `31450`.
+    # Kubernetes NodePort value used by the external gRPC server Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31450`.
     jaeger_k8s_grpc_server_node_port: 31450
-    # Sets the Kubernetes NodePort for the Jaeger OTLP gRPC collector. Example: `30417`.
+    # Kubernetes NodePort value used by the external collector Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30417`.
     jaeger_k8s_collector_node_port: 30417
+    # Set to `true` to create a LoadBalancer Service entry that exposes the UI port externally. When undefined or `false`, the UI port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_ui_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the admin port externally. When undefined or `false`, the admin port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_admin_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP server port externally. When undefined or `false`, the HTTP server port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_http_server_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP collector port externally. When undefined or `false`, the HTTP collector port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_http_collector_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the gRPC server port externally. When undefined or `false`, the gRPC server port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_grpc_server_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the collector port externally. When undefined or `false`, the collector port is not included in the LoadBalancer Service.
+    jaeger_k8s_loadbalancer_expose_collector_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: k8s/ping
@@ -426,10 +495,12 @@ Creates the remote Jaeger config path, copies the ElasticSearch CA certificate w
     fetched_artifacts_dir: "string"
     # Sets the shared remote configuration base directory. Example: `/var/lib/fabricx/jaeger/config` on the control or remote host.
     remote_config_dir: "string"
-    # Sets the remote directory mounted into the Jaeger container for configuration and certificates. Example: `/var/lib/fabricx/jaeger/config` so the container and Kubernetes ConfigMap use the same path.
+    # Sets the remote directory mounted into the Jaeger container for configuration and certificates.
     jaeger_remote_config_dir: "{{ remote_config_dir }}"
     # Runs the Kubernetes Jaeger path when set to `true`.
     jaeger_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    jaeger_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: config/transfer
@@ -446,7 +517,7 @@ Deletes the remote Jaeger configuration directory and any copied certificate mat
   vars:
     # Sets the shared remote configuration base directory. Example: `/var/lib/fabricx/jaeger/config` on the control or remote host.
     remote_config_dir: "string"
-    # Sets the remote directory mounted into the Jaeger container for configuration and certificates. Example: `/var/lib/fabricx/jaeger/config` so the container and Kubernetes ConfigMap use the same path.
+    # Sets the remote directory mounted into the Jaeger container for configuration and certificates.
     jaeger_remote_config_dir: "{{ remote_config_dir }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
@@ -466,9 +537,11 @@ Creates the ConfigMap that projects the Jaeger config path and ElasticSearch CA 
     elasticsearch_host: "string"
     # Sets the Kubernetes resource name used for Jaeger objects.
     jaeger_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Jaeger resources.
+    jaeger_k8s_part_of: monitoring
     # Sets the shared remote configuration base directory. Example: `/var/lib/fabricx/jaeger/config` on the control or remote host.
     remote_config_dir: "string"
-    # Sets the remote directory mounted into the Jaeger container for configuration and certificates. Example: `/var/lib/fabricx/jaeger/config` so the container and Kubernetes ConfigMap use the same path.
+    # Sets the remote directory mounted into the Jaeger container for configuration and certificates.
     jaeger_remote_config_dir: "{{ remote_config_dir }}"
     # Sets the Kubernetes namespace used for Jaeger resources. Example: `tracing` when Jaeger shares a namespace with other observability services.
     k8s_namespace: "string"
@@ -488,11 +561,105 @@ Deletes the Jaeger ConfigMap from Kubernetes when container config data is no lo
   vars:
     # Sets the Kubernetes resource name used for Jaeger objects.
     jaeger_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Jaeger resources.
+    jaeger_k8s_part_of: monitoring
     # Sets the Kubernetes namespace used for Jaeger resources. Example: `tracing` when Jaeger shares a namespace with other observability services.
     k8s_namespace: "string"
     # Runs the Kubernetes Jaeger path when set to `true`.
     jaeger_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    jaeger_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: k8s/config/rm
+```
+
+### openshift/start
+
+> Start the OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Start the OpenShift deployment
+  vars:
+    # Sets the Kubernetes resource name used for Jaeger objects.
+    jaeger_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Jaeger resources.
+    jaeger_k8s_part_of: monitoring
+    # Sets the Kubernetes namespace used for Jaeger resources. Example: `tracing` when Jaeger shares a namespace with other observability services.
+    k8s_namespace: "string"
+    # Specifies the OpenShift Route host. Example: `jaeger-ui.apps.example.com`.
+    jaeger_openshift_ui_route: "jaeger-ui.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-admin.apps.example.com`.
+    jaeger_openshift_admin_route: "jaeger-admin.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-http-server.apps.example.com`.
+    jaeger_openshift_http_server_route: "jaeger-http-server.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-http-collector.apps.example.com`.
+    jaeger_openshift_http_collector_route: "jaeger-http-collector.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-grpc-server.apps.example.com`.
+    jaeger_openshift_grpc_server_route: "jaeger-grpc-server.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-collector.apps.example.com`.
+    jaeger_openshift_collector_route: "jaeger-collector.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.jaeger
+    tasks_from: openshift/start
+```
+
+### openshift/ping
+
+> Check the OpenShift deployment
+
+Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+
+```yaml
+- name: Check the OpenShift deployment
+  vars:
+    # Specifies the OpenShift Route host. Example: `jaeger-ui.apps.example.com`.
+    jaeger_openshift_ui_route: "jaeger-ui.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-admin.apps.example.com`.
+    jaeger_openshift_admin_route: "jaeger-admin.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-http-server.apps.example.com`.
+    jaeger_openshift_http_server_route: "jaeger-http-server.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-http-collector.apps.example.com`.
+    jaeger_openshift_http_collector_route: "jaeger-http-collector.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-grpc-server.apps.example.com`.
+    jaeger_openshift_grpc_server_route: "jaeger-grpc-server.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-collector.apps.example.com`.
+    jaeger_openshift_collector_route: "jaeger-collector.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.jaeger
+    tasks_from: openshift/ping
+```
+
+### openshift/rm
+
+> Remove the OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Remove the OpenShift deployment
+  vars:
+    # Sets the Kubernetes resource name used for Jaeger objects.
+    jaeger_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Jaeger resources.
+    jaeger_k8s_part_of: monitoring
+    # Sets the Kubernetes namespace used for Jaeger resources. Example: `tracing` when Jaeger shares a namespace with other observability services.
+    k8s_namespace: "string"
+    # Specifies the OpenShift Route host. Example: `jaeger-ui.apps.example.com`.
+    jaeger_openshift_ui_route: "jaeger-ui.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-admin.apps.example.com`.
+    jaeger_openshift_admin_route: "jaeger-admin.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-http-server.apps.example.com`.
+    jaeger_openshift_http_server_route: "jaeger-http-server.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-http-collector.apps.example.com`.
+    jaeger_openshift_http_collector_route: "jaeger-http-collector.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-grpc-server.apps.example.com`.
+    jaeger_openshift_grpc_server_route: "jaeger-grpc-server.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `jaeger-collector.apps.example.com`.
+    jaeger_openshift_collector_route: "jaeger-collector.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.jaeger
+    tasks_from: openshift/rm
 ```

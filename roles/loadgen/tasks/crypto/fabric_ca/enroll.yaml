@@ -71,6 +71,28 @@
 # =========================
 # TLS
 # =========================
+- name: Initialize Loadgen TLS SAN hosts
+  ansible.builtin.set_fact:
+    loadgen_tls_san_hosts: "{{ ansible_all_ipv4_addresses + [ansible_host, actual_host] }}"
+
+- name: Append Loadgen OpenShift web route to TLS SAN hosts
+  ansible.builtin.set_fact:
+    loadgen_tls_san_hosts: "{{ loadgen_tls_san_hosts + [loadgen_openshift_web_route] }}"
+  when:
+    - loadgen_openshift_web_route is defined
+
+- name: Append Loadgen OpenShift metrics route to TLS SAN hosts
+  ansible.builtin.set_fact:
+    loadgen_tls_san_hosts: "{{ loadgen_tls_san_hosts + [loadgen_openshift_metrics_route] }}"
+  when:
+    - loadgen_openshift_metrics_route is defined
+
+- name: Append Loadgen OpenShift RPC route to TLS SAN hosts
+  ansible.builtin.set_fact:
+    loadgen_tls_san_hosts: "{{ loadgen_tls_san_hosts + [loadgen_openshift_rpc_route] }}"
+  when:
+    - loadgen_openshift_rpc_route is defined
+
 - name: Generate Hyperledger Fabric-X Loadgen TLS crypto material
   vars:
     fabric_ca_host: "{{ organization.fabric_ca_host }}"
@@ -79,7 +101,7 @@
     fabric_ca_msp_dir: "{{ loadgen_remote_config_dir }}/tls"
     fabric_ca_tls_certfile: "{{ loadgen_remote_config_dir }}/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
     fabric_ca_enrollment_profile: tls
-    fabric_ca_csr_hosts: "{{ ansible_all_ipv4_addresses + [ansible_host, actual_host] }}"
+    fabric_ca_csr_hosts: "{{ loadgen_tls_san_hosts | unique }}"
     fabric_ca_identity:
       name: "{{ organization.peer.name | default(inventory_hostname) }}"
       secret: "{{ organization.peer.secret }}"

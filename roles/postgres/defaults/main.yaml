@@ -12,11 +12,10 @@ postgres_registry_endpoint: "{{ lookup('env', 'POSTGRES_REGISTRY_ENDPOINT') or '
 # PostgreSQL image repository name.
 postgres_image_name: postgres
 # PostgreSQL image tag.
-postgres_image_tag: '16.4'
+postgres_image_tag: '17.9'
 # Full container image reference for PostgreSQL.
 postgres_image: "{{ postgres_registry_endpoint }}/{{ postgres_image_name }}:{{ postgres_image_tag }}"
 # Container name for the PostgreSQL instance.
-# Example: C(postgres0).
 postgres_container_name: '{{ inventory_hostname }}'
 # Remote directory used for PostgreSQL configuration and TLS files.
 postgres_remote_config_dir: '{{ remote_config_dir }}'
@@ -37,14 +36,16 @@ postgres_use_openshift: false
 # Run PostgreSQL as a container when set to C(true).
 postgres_use_container: '{{ (not postgres_use_k8s) and (not postgres_use_openshift) }}'
 # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
-# Example: C(postgres0).
 postgres_k8s_resource_name: '{{ inventory_hostname }}'
+# Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to PostgreSQL resources.
+postgres_k8s_part_of: postgres
 # Timeout in seconds while waiting for the StatefulSet rollout to complete.
 postgres_k8s_wait_timeout: 120
 # Kubernetes pod C(fsGroup) applied so mounted files are readable by the postgres process.
 postgres_k8s_fs_group: 999
-# Enable the Kubernetes NodePort Service for PostgreSQL when set to C(true).
-postgres_k8s_use_node_port: false
+# Set to C(true) to create a LoadBalancer Service and expose C(postgres_port) externally.
+# When undefined or C(false), no LoadBalancer Service is created.
+postgres_k8s_loadbalancer_expose_port: false
 # Filename of the PostgreSQL TLS private key under the TLS config directory.
 postgres_tls_private_key_file: server.key
 # Filename of the PostgreSQL TLS certificate under the TLS config directory.

@@ -26,7 +26,14 @@
     state: present
     template:
       path: k8s/service-nodeport.yaml.j2
-  when: grafana_k8s_use_node_port
+  when: grafana_k8s_web_node_port is defined
+
+- name: Apply Grafana LoadBalancer Service
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: k8s/service-loadbalancer.yaml.j2
+  when: grafana_k8s_loadbalancer_expose_web_port
 
 - name: Apply Grafana Deployment
   vars:

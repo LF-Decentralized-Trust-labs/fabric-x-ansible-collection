@@ -14,7 +14,7 @@ fabric_ca_server_use_bin: false
 # Uses the Kubernetes server flow instead of the local runtimes.
 fabric_ca_server_use_k8s: false
 # Uses the container server flow.
-fabric_ca_server_use_container: '{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) }}'
+fabric_ca_server_use_container: '{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) and (not fabric_ca_server_use_openshift) }}'
 # Sets the registry endpoint used to resolve the Fabric CA image.
 fabric_ca_registry_endpoint: "{{ lookup('env', 'FABRIC_CA_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 # Sets the Fabric CA image name.
@@ -53,12 +53,18 @@ fabric_ca_client_container_config_dir: /config
 fabric_ca_server_config_dir: '{{ fabric_ca_server_remote_config_dir if fabric_ca_server_use_bin else fabric_ca_server_container_config_dir }}'
 # Sets the Kubernetes resource name for the Fabric CA server and its Service resources.
 fabric_ca_server_k8s_resource_name: '{{ inventory_hostname }}'
+# Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Fabric CA server resources.
+fabric_ca_server_k8s_part_of: fabric-ca-{{ organization.name }}
 # Sets the Kubernetes deployment wait timeout.
 fabric_ca_server_k8s_wait_timeout: 120
 # Sets the pod fsGroup for the Fabric CA deployment.
 fabric_ca_server_k8s_fs_group: 0
-# Enables the optional Kubernetes NodePort Service for the Fabric CA server; client address resolution uses the node-port mapping on the referenced server host.
-fabric_ca_server_k8s_use_node_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the API port externally.
+# When undefined or C(false), the API port is not included in the LoadBalancer Service.
+fabric_ca_server_k8s_loadbalancer_expose_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the operations port externally.
+# When undefined or C(false), the operations port is not included in the LoadBalancer Service.
+fabric_ca_server_k8s_loadbalancer_expose_operations_port: false
 # Sets the server log level.
 fabric_ca_log_level: INFO
 # Enables TLS for server and client connections.
@@ -98,3 +104,5 @@ fabric_ca_cryptogenize_tls_ca_cert_file: ca.crt
 fabric_ca_cryptogenize_tls_cert_file: server.crt
 # Sets the normalized TLS private key filename.
 fabric_ca_cryptogenize_tls_key_file: server.key
+# Selects the OpenShift deployment branch.
+fabric_ca_server_use_openshift: false

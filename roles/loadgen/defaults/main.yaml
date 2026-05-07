@@ -21,11 +21,8 @@ loadgen_config_dir: '{{ loadgen_remote_config_dir if loadgen_use_bin else loadge
 loadgen_use_bin: false
 # Use Kubernetes resources.
 loadgen_use_k8s: false
-# Expose the Kubernetes Service via NodePort when C(loadgen_use_k8s) is enabled.
-# This drives the HTTP, metrics, and gRPC NodePort access paths.
-loadgen_k8s_use_node_port: false
 # Run the container runtime.
-loadgen_use_container: '{{ (not loadgen_use_bin) and (not loadgen_use_k8s) }}'
+loadgen_use_container: '{{ (not loadgen_use_bin) and (not loadgen_use_k8s) and (not loadgen_use_openshift) }}'
 # Image registry endpoint.
 loadgen_registry_endpoint: "{{ lookup('env', 'LOADGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 # Image name used by the Loadgen container.
@@ -58,7 +55,7 @@ loadgen_monitoring_use_tls: '{{ loadgen_use_tls }}'
 loadgen_monitoring_use_mtls: '{{ loadgen_use_mtls }}'
 # Protocol used to reach the monitoring endpoint.
 loadgen_monitoring_http_protocol: "{{ 'https' if loadgen_monitoring_use_tls else 'http' }}"
-# Assert the latency metric when fetching metrics.
+# Assert the committed transaction metric and report aborted transactions when fetching metrics.
 loadgen_assert_metrics: false
 # Render the config transaction block section.
 # Example: C(false).
@@ -71,7 +68,20 @@ loadgen_log_level: info
 loadgen_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
 # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
 loadgen_k8s_resource_name: '{{ inventory_hostname }}'
+# Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Loadgen resources.
+loadgen_k8s_part_of: fabric-x-loadgen-{{ organization.name }}
 # Deployment rollout wait timeout in seconds.
 loadgen_k8s_wait_timeout: 120
 # Pod FSGroup used for mounted config and secrets.
 loadgen_k8s_fs_group: 10001
+# Set to C(true) to create a LoadBalancer Service entry that exposes the HTTP control port externally.
+# When undefined or C(false), the HTTP control port is not included in the LoadBalancer Service.
+loadgen_k8s_loadbalancer_expose_web_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the metrics port externally.
+# When undefined or C(false), the metrics port is not included in the LoadBalancer Service.
+loadgen_k8s_loadbalancer_expose_metrics_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the gRPC control port externally.
+# When undefined or C(false), the gRPC control port is not included in the LoadBalancer Service.
+loadgen_k8s_loadbalancer_expose_rpc_port: false
+# Selects the OpenShift deployment branch.
+loadgen_use_openshift: false

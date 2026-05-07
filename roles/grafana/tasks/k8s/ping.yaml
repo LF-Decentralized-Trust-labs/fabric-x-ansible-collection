@@ -12,5 +12,14 @@
     name: hyperledger.fabricx.utils
     tasks_from: ping
   when:
-    - grafana_k8s_use_node_port
     - grafana_k8s_web_node_port is defined
+
+- name: Check that the Grafana web load balancer port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ grafana_web_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - grafana_k8s_loadbalancer_expose_web_port

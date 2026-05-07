@@ -32,7 +32,6 @@ prometheus_web_config_file: web-config.yaml
 # Filename of the promtool HTTP client configuration used for TLS health checks.
 prometheus_http_config_file: http-config.yaml
 # Global Prometheus scrape interval.
-# Example: C(2s).
 prometheus_scrape_interval: 2s
 # Enables HTTPS and TLS-aware health checks when set to C(true).
 prometheus_use_tls: false
@@ -41,17 +40,21 @@ prometheus_tls_private_key_file: server.key
 # Filename used for the Prometheus TLS certificate.
 prometheus_tls_cert_file: server.crt
 # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services.
-# Example: C(9090).
 prometheus_port: 9090
 # Enables the Kubernetes deployment path when set to C(true).
 prometheus_use_k8s: false
 # Enables the container deployment path when set to C(true).
-prometheus_use_container: '{{ not prometheus_use_k8s }}'
+prometheus_use_container: '{{ (not prometheus_use_k8s) and (not prometheus_use_openshift) }}'
 # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
 prometheus_k8s_resource_name: '{{ inventory_hostname }}'
+# Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Prometheus resources.
+prometheus_k8s_part_of: monitoring
 # Maximum number of seconds to wait for the StatefulSet rollout.
 prometheus_k8s_wait_timeout: 120
 # File system group assigned to the pod.
 prometheus_k8s_fs_group: 65534
-# Enables the optional Kubernetes NodePort Service when set to C(true).
-prometheus_k8s_use_node_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the HTTP port externally.
+# When undefined or C(false), the HTTP port is not included in the LoadBalancer Service.
+prometheus_k8s_loadbalancer_expose_http_port: false
+# Selects the OpenShift deployment branch.
+prometheus_use_openshift: false

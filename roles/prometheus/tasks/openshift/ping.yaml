@@ -1,0 +1,19 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the Prometheus OpenShift route is reachable
+  vars:
+    openshift_route_host: "{{ prometheus_openshift_route }}"
+    openshift_route_use_tls: "{{ prometheus_use_tls }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/ping
+  when: prometheus_openshift_route is defined
+
+- name: Check that the Prometheus Kubernetes services are reachable
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: k8s/ping

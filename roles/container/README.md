@@ -165,8 +165,8 @@ Starts or updates a container through the selected Docker or Podman backend. Acc
     container_run_retries: 0
     # Waits for readiness checks after container start when set to `true`.
     container_wait_until_running: false
-    # Provides the host used by readiness checks when `container_wait_until_running` is true. Example: `orderer-assembler-1.example.com`.
-    actual_host: "orderer-assembler-1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Provides the port probed by readiness checks. Example: `7050`.
     container_wait_port: 7050
     # Delays readiness checks after container start.
@@ -488,8 +488,8 @@ Starts or updates a Docker container with the requested image, command, environm
     container_run_retries: 0
     # Waits for readiness checks after container start when set to `true`.
     container_wait_until_running: false
-    # Provides the host used by readiness checks when `container_wait_until_running` is true. Example: `orderer-assembler-1.example.com`.
-    actual_host: "orderer-assembler-1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Provides the port probed by readiness checks. Example: `7050`.
     container_wait_port: 7050
     # Delays readiness checks after container start.
@@ -767,8 +767,8 @@ Starts or updates a Podman container with the requested image, command, environm
     container_run_retries: 0
     # Waits for readiness checks after container start when set to `true`.
     container_wait_until_running: false
-    # Provides the host used by readiness checks when `container_wait_until_running` is true. Example: `orderer-assembler-1.example.com`.
-    actual_host: "orderer-assembler-1.example.com"
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
     # Provides the port probed by readiness checks. Example: `7050`.
     container_wait_port: 7050
     # Delays readiness checks after container start.

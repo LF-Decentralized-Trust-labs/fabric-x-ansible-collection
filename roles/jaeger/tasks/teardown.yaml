@@ -15,3 +15,9 @@
     name: hyperledger.fabricx.jaeger
     tasks_from: k8s/rm
   when: jaeger_use_k8s
+
+- name: Teardown Jaeger on OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.jaeger
+    tasks_from: openshift/rm
+  when: jaeger_use_openshift

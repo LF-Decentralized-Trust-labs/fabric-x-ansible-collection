@@ -20,13 +20,14 @@ argument_specs:
         type: str
         required: true
         description:
-          - "Sets the inventory host address that the ping entry point probes for each port in C(utils_ports_to_ping)."
-          - "Example: C(orderer-router-1.example.com)."
+          - Real machine host.
+          - "Example: C(myvpc.cloud.ibm.com)."
       project_dir: &project_dir
         type: str
         required: true
         description:
-          - "Defines the project root directory used by utility entry points that generate Makefile targets, which writes C(target_hosts.mk) to C(project_dir/target_hosts.mk). Example: C(/path/to/hyperledger/fabricx)."
+          - "Defines the project root directory used by utility entry points that generate Makefile targets, which writes C(target_hosts.mk) to C(project_dir/target_hosts.mk)."
+          - "Example: C(/path/to/hyperledger/fabricx)."
 
   generate_makefile_targets:
     short_description: Generate Makefile targets for inventory hosts

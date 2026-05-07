@@ -11,19 +11,16 @@ argument_specs:
     options:
       remote_node_dir: &remote_node_dir
         type: path
-        required: false
         description:
           - Base directory for remote role state and temporary OpenSSL config files.
           - "Example: C(/tmp/fabricx/openssl)."
       actual_host: &actual_host
         type: str
-        required: false
         description:
-          - Inventory host address used in SAN defaults.
-          - "Example: C(peer0.org1.example.com)."
+          - Real machine host.
+          - "Example: C(myvpc.cloud.ibm.com)."
       ansible_host: &ansible_host
         type: str
-        required: false
         description:
           - Inventory host address used in SAN defaults.
           - "Example: C(192.0.2.15)."
@@ -66,14 +63,11 @@ argument_specs:
           - "Example: C(/var/hyperledger/fabricx/crypto/org1.example.com/ca/ca.crt)."
       openssl_remote_config_dir: &openssl_remote_config_dir
         type: path
-        required: false
         default: "{{ remote_node_dir }}/openssl"
         description:
           - Directory for the temporary OpenSSL config file.
-          - For example, C(/tmp/fabricx/openssl).
       openssl_ext_file_path: &openssl_ext_file_path
         type: path
-        required: false
         description:
           - Optional extension file path passed to C(openssl x509 -extfile).
           - "Example: C(/var/hyperledger/fabricx/openssl/server.ext)."
@@ -99,7 +93,6 @@ argument_specs:
           - Key type passed to C(openssl req -newkey).
       openssl_key_opt: &openssl_key_opt
         type: str
-        required: false
         description:
           - Optional key-generation option passed with C(-pkeyopt).
           - "Example: C(rsa_keygen_bits:4096)."
@@ -125,7 +118,6 @@ argument_specs:
           - State or province written into the certificate subject.
       openssl_locality: &openssl_locality
         type: str
-        required: false
         description:
           - Optional locality or city written into the certificate subject.
           - "Example: C(Zurich)."
@@ -136,7 +128,6 @@ argument_specs:
           - Organization name written into the certificate subject.
       openssl_organizational_unit: &openssl_organizational_unit
         type: str
-        required: false
         description:
           - Optional organizational unit written into the certificate subject.
           - "Example: C(Platform Engineering)."

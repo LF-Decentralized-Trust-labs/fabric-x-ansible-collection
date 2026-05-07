@@ -10,6 +10,12 @@
     tasks_from: validator/k8s/start
   when: committer_use_k8s
 
+- name: Start Hyperledger Fabric-X Committer validator in OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: validator/openshift/start
+  when: committer_use_openshift
+
 - name: Start Hyperledger Fabric-X Committer validator as container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer

@@ -4,59 +4,122 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that the Jaeger node ports are open
-  when: jaeger_k8s_use_node_port
-  block:
-    - name: Check that the Jaeger UI node port is open
-      vars:
-        utils_ports_to_ping:
-          - "{{ jaeger_k8s_ui_node_port }}"
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.utils
-        tasks_from: ping
-      when: jaeger_k8s_ui_node_port is defined
+- name: Check that the Jaeger UI node port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ jaeger_k8s_ui_node_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - jaeger_k8s_ui_node_port is defined
 
-    - name: Check that the Jaeger admin node port is open
-      vars:
-        utils_ports_to_ping:
-          - "{{ jaeger_k8s_admin_node_port }}"
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.utils
-        tasks_from: ping
-      when: jaeger_k8s_admin_node_port is defined
+- name: Check that the Jaeger UI load balancer port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ jaeger_ui_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - jaeger_k8s_loadbalancer_expose_ui_port
 
-    - name: Check that the Jaeger HTTP server node port is open
-      vars:
-        utils_ports_to_ping:
-          - "{{ jaeger_k8s_http_server_node_port }}"
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.utils
-        tasks_from: ping
-      when: jaeger_k8s_http_server_node_port is defined
+- name: Check that the Jaeger admin node port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ jaeger_k8s_admin_node_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - jaeger_k8s_admin_node_port is defined
 
-    - name: Check that the Jaeger HTTP collector node port is open
-      vars:
-        utils_ports_to_ping:
-          - "{{ jaeger_k8s_http_collector_node_port }}"
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.utils
-        tasks_from: ping
-      when: jaeger_k8s_http_collector_node_port is defined
+- name: Check that the Jaeger admin load balancer port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ jaeger_admin_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - jaeger_k8s_loadbalancer_expose_admin_port
 
-    - name: Check that the Jaeger gRPC server node port is open
-      vars:
-        utils_ports_to_ping:
-          - "{{ jaeger_k8s_grpc_server_node_port }}"
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.utils
-        tasks_from: ping
-      when: jaeger_k8s_grpc_server_node_port is defined
+- name: Check that the Jaeger HTTP server node port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ jaeger_k8s_http_server_node_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - jaeger_k8s_http_server_node_port is defined
 
-    - name: Check that the Jaeger collector node port is open
-      vars:
-        utils_ports_to_ping:
-          - "{{ jaeger_k8s_collector_node_port }}"
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.utils
-        tasks_from: ping
-      when: jaeger_k8s_collector_node_port is defined
+- name: Check that the Jaeger HTTP server load balancer port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ jaeger_http_server_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - jaeger_k8s_loadbalancer_expose_http_server_port
+
+- name: Check that the Jaeger HTTP collector node port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ jaeger_k8s_http_collector_node_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - jaeger_k8s_http_collector_node_port is defined
+
+- name: Check that the Jaeger HTTP collector load balancer port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ jaeger_http_collector_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - jaeger_k8s_loadbalancer_expose_http_collector_port
+
+- name: Check that the Jaeger gRPC server node port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ jaeger_k8s_grpc_server_node_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - jaeger_k8s_grpc_server_node_port is defined
+
+- name: Check that the Jaeger gRPC server load balancer port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ jaeger_grpc_server_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - jaeger_k8s_loadbalancer_expose_grpc_server_port
+
+- name: Check that the Jaeger collector node port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ jaeger_k8s_collector_node_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - jaeger_k8s_collector_node_port is defined
+
+- name: Check that the Jaeger collector load balancer port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ jaeger_collector_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - jaeger_k8s_loadbalancer_expose_collector_port

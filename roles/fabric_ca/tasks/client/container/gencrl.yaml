@@ -23,7 +23,7 @@
     - fabric_ca_use_tls
     - fabric_ca_tls_certfile is defined
 
-- name: Generate Certificate Revocation List (CRL) with Fabric CA client container
+- name: Generate Certificate Revocation List with Fabric CA client container
   vars:
     container_name: "{{ fabric_ca_name }}-gencrl"
     container_image: "{{ fabric_ca_image }}"

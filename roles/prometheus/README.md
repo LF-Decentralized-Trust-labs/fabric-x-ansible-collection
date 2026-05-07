@@ -33,6 +33,9 @@
   - [fetch\_logs](#fetch_logs)
   - [container/fetch\_logs](#containerfetch_logs)
   - [k8s/fetch\_logs](#k8sfetch_logs)
+  - [openshift/start](#openshiftstart)
+  - [openshift/ping](#openshiftping)
+  - [openshift/rm](#openshiftrm)
 
 ## Role Defaults
 
@@ -57,7 +60,9 @@ Validates network reachability to the active Prometheus listener on the target h
 ```yaml
 - name: Check that the Prometheus listener is reachable
   vars:
-    # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services. Example: `9090`.
+    # Selects the OpenShift deployment branch.
+    prometheus_use_openshift: false
+    # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services.
     prometheus_port: 9090
     # Enables the Kubernetes deployment path when set to `true`.
     prometheus_use_k8s: false
@@ -70,15 +75,17 @@ Validates network reachability to the active Prometheus listener on the target h
 
 > Start Prometheus in the selected deployment mode
 
-Starts Prometheus as either a container or Kubernetes workload based on the deployment mode flags. Renders configuration, prepares storage, and applies Kubernetes resources needed for the selected mode. When Kubernetes mode is enabled, it can also expose Prometheus through the optional NodePort Service.
+Starts Prometheus as either a container or Kubernetes workload based on the deployment mode flags.
 
 ```yaml
 - name: Start Prometheus in the selected deployment mode
   vars:
     # Enables the container deployment path when set to `true`.
-    prometheus_use_container: "{{ not prometheus_use_k8s }}"
+    prometheus_use_container: "{{ (not prometheus_use_k8s) and (not prometheus_use_openshift) }}"
     # Enables the Kubernetes deployment path when set to `true`.
     prometheus_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    prometheus_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: start
@@ -121,7 +128,7 @@ Renders the remote configuration, creates the data directory, and starts Prometh
     prometheus_web_config_file: web-config.yaml
     # Filename of the promtool HTTP client configuration used for TLS health checks.
     prometheus_http_config_file: http-config.yaml
-    # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services. Example: `9090`.
+    # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services.
     prometheus_port: 9090
     # Enables HTTPS and TLS-aware health checks when set to `true`.
     prometheus_use_tls: false
@@ -134,7 +141,7 @@ Renders the remote configuration, creates the data directory, and starts Prometh
 
 > Start Prometheus on Kubernetes
 
-Ensures the namespace exists, renders and transfers Prometheus configuration, and creates the headless Service, optional NodePort Service, and StatefulSet resources.
+Ensures the namespace exists, renders and transfers Prometheus configuration, and creates the headless Service, optional NodePort and LoadBalancer Services, and StatefulSet resources.
 
 ```yaml
 - name: Start Prometheus on Kubernetes
@@ -147,13 +154,13 @@ Ensures the namespace exists, renders and transfers Prometheus configuration, an
     prometheus_image_tag: latest
     # Fully qualified Prometheus container image.
     prometheus_image: "{{ prometheus_registry_endpoint }}/{{ prometheus_image_name }}:{{ prometheus_image_tag }}"
-    # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services. Example: `9090`.
+    # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services.
     prometheus_port: 9090
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
-    # Enables the optional Kubernetes NodePort Service when set to `true`.
-    prometheus_k8s_use_node_port: false
-    # NodePort value used to expose Prometheus outside the cluster when `prometheus_k8s_use_node_port` is enabled. Must be set to a valid Kubernetes NodePort value when `prometheus_k8s_use_node_port` is `true`. Example: `30990`.
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
+    prometheus_k8s_part_of: monitoring
+    # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30990`.
     prometheus_k8s_node_port: 30990
     # File system group assigned to the pod.
     prometheus_k8s_fs_group: 65534
@@ -193,6 +200,16 @@ Ensures the namespace exists, renders and transfers Prometheus configuration, an
     k8s_liveness_probe_timeout_seconds: 5
     # Number of failed liveness probes before Kubernetes restarts the pod. Example: `5`.
     k8s_liveness_probe_failure_threshold: 5
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP port externally. When undefined or `false`, the HTTP port is not included in the LoadBalancer Service.
+    prometheus_k8s_loadbalancer_expose_http_port: false
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/start
@@ -200,19 +217,19 @@ Ensures the namespace exists, renders and transfers Prometheus configuration, an
 
 ### k8s/ping
 
-> Check that the Prometheus NodePort is reachable
+> Check that the Prometheus Kubernetes service is reachable
 
-Validates network reachability to the Kubernetes NodePort when the optional NodePort Service is enabled.
+Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
 
 ```yaml
-- name: Check that the Prometheus NodePort is reachable
+- name: Check that the Prometheus Kubernetes service is reachable
   vars:
-    # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services. Example: `9090`.
+    # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services.
     prometheus_port: 9090
-    # Enables the optional Kubernetes NodePort Service when set to `true`.
-    prometheus_k8s_use_node_port: false
-    # NodePort value used to expose Prometheus outside the cluster when `prometheus_k8s_use_node_port` is enabled. Must be set to a valid Kubernetes NodePort value when `prometheus_k8s_use_node_port` is `true`. Example: `30990`.
+    # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30990`.
     prometheus_k8s_node_port: 30990
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP port externally. When undefined or `false`, the HTTP port is not included in the LoadBalancer Service.
+    prometheus_k8s_loadbalancer_expose_http_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/ping
@@ -228,7 +245,7 @@ Stops Prometheus when the container deployment path is enabled.
 - name: Stop the Prometheus container deployment
   vars:
     # Enables the container deployment path when set to `true`.
-    prometheus_use_container: "{{ not prometheus_use_k8s }}"
+    prometheus_use_container: "{{ (not prometheus_use_k8s) and (not prometheus_use_openshift) }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: stop
@@ -260,9 +277,11 @@ Removes the active Prometheus container or Kubernetes workload and then deletes 
 - name: Remove the Prometheus deployment
   vars:
     # Enables the container deployment path when set to `true`.
-    prometheus_use_container: "{{ not prometheus_use_k8s }}"
+    prometheus_use_container: "{{ (not prometheus_use_k8s) and (not prometheus_use_openshift) }}"
     # Enables the Kubernetes deployment path when set to `true`.
     prometheus_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    prometheus_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: teardown
@@ -297,6 +316,12 @@ Deletes the Prometheus StatefulSet and both Services from Kubernetes.
     k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
+    prometheus_k8s_part_of: monitoring
+    # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30990`.
+    prometheus_k8s_node_port: 30990
+    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP port externally. When undefined or `false`, the HTTP port is not included in the LoadBalancer Service.
+    prometheus_k8s_loadbalancer_expose_http_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/rm
@@ -316,9 +341,11 @@ Deletes Prometheus data from the active deployment mode.
     # Remote directory where Prometheus TSDB data is stored.
     prometheus_remote_data_dir: "{{ remote_data_dir }}"
     # Enables the container deployment path when set to `true`.
-    prometheus_use_container: "{{ not prometheus_use_k8s }}"
+    prometheus_use_container: "{{ (not prometheus_use_k8s) and (not prometheus_use_openshift) }}"
     # Enables the Kubernetes deployment path when set to `true`.
     prometheus_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    prometheus_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: data/rm
@@ -337,6 +364,8 @@ Deletes the PersistentVolumeClaim created for the Prometheus StatefulSet.
     k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
+    prometheus_k8s_part_of: monitoring
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/data/rm
@@ -368,6 +397,8 @@ Generates TLS assets for Prometheus and applies the Kubernetes Secret when Kuber
     prometheus_use_tls: false
     # Enables the Kubernetes deployment path when set to `true`.
     prometheus_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    prometheus_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: crypto/setup
@@ -394,6 +425,8 @@ Delegates certificate creation to the shared OpenSSL role using Prometheus-speci
     prometheus_tls_private_key_file: server.key
     # Filename used for the Prometheus TLS certificate.
     prometheus_tls_cert_file: server.crt
+    # Specifies the OpenShift Route host. Example: `prometheus.apps.example.com`.
+    prometheus_openshift_route: "prometheus.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: crypto/openssl/generate_cert
@@ -420,6 +453,8 @@ Creates or updates the Kubernetes Secret that stores the Prometheus TLS server k
     prometheus_tls_cert_file: server.crt
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
+    prometheus_k8s_part_of: monitoring
     # Enables HTTPS and TLS-aware health checks when set to `true`.
     prometheus_use_tls: false
   ansible.builtin.include_role:
@@ -466,6 +501,8 @@ Deletes the Prometheus TLS directory and removes the Kubernetes Secret when Kube
     prometheus_use_tls: false
     # Enables the Kubernetes deployment path when set to `true`.
     prometheus_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    prometheus_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: crypto/rm
@@ -484,6 +521,8 @@ Deletes the Kubernetes Secret that stores the Prometheus TLS server keypair.
     k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
+    prometheus_k8s_part_of: monitoring
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/crypto/rm
@@ -508,7 +547,7 @@ Renders the main scrape configuration and supporting files on the remote host, i
     prometheus_web_config_file: web-config.yaml
     # Filename of the promtool HTTP client configuration used for TLS health checks.
     prometheus_http_config_file: http-config.yaml
-    # Global Prometheus scrape interval. Example: `2s`.
+    # Global Prometheus scrape interval.
     prometheus_scrape_interval: 2s
     # In-container or in-pod mount point for Prometheus configuration files.
     prometheus_container_config_dir: /etc/prometheus/config
@@ -522,6 +561,8 @@ Renders the main scrape configuration and supporting files on the remote host, i
     prometheus_use_tls: false
     # Enables the Kubernetes deployment path when set to `true`.
     prometheus_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    prometheus_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: config/transfer
@@ -550,6 +591,8 @@ Creates or updates the ConfigMap that carries the rendered Prometheus configurat
     prometheus_http_config_file: http-config.yaml
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
+    prometheus_k8s_part_of: monitoring
     # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }]`.
     prometheus_scrape_services:[{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }]
     # Enables HTTPS and TLS-aware health checks when set to `true`.
@@ -574,6 +617,8 @@ Deletes the remote Prometheus configuration directory and optionally removes the
     prometheus_remote_config_dir: "{{ remote_config_dir }}"
     # Enables the Kubernetes deployment path when set to `true`.
     prometheus_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    prometheus_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: config/rm
@@ -592,6 +637,8 @@ Deletes the Kubernetes ConfigMap that stores Prometheus configuration.
     k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
+    prometheus_k8s_part_of: monitoring
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/config/rm
@@ -607,9 +654,11 @@ Collects Prometheus logs from either the container deployment or the Kubernetes 
 - name: Fetch Prometheus logs from the active deployment mode
   vars:
     # Enables the container deployment path when set to `true`.
-    prometheus_use_container: "{{ not prometheus_use_k8s }}"
+    prometheus_use_container: "{{ (not prometheus_use_k8s) and (not prometheus_use_openshift) }}"
     # Enables the Kubernetes deployment path when set to `true`.
     prometheus_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    prometheus_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: fetch_logs
@@ -644,7 +693,73 @@ Collects logs for the Prometheus pod through the shared Kubernetes role.
     k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
+    prometheus_k8s_part_of: monitoring
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/fetch_logs
+```
+
+### openshift/start
+
+> Start the OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Start the OpenShift deployment
+  vars:
+    # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
+    prometheus_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
+    prometheus_k8s_part_of: monitoring
+    # Enables HTTPS and TLS-aware health checks when set to `true`.
+    prometheus_use_tls: false
+    # Kubernetes namespace used for Prometheus resources. Example: `observability`.
+    k8s_namespace: "observability"
+    # Specifies the OpenShift Route host. Example: `prometheus.apps.example.com`.
+    prometheus_openshift_route: "prometheus.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: openshift/start
+```
+
+### openshift/ping
+
+> Check the OpenShift deployment
+
+Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+
+```yaml
+- name: Check the OpenShift deployment
+  vars:
+    # Enables HTTPS and TLS-aware health checks when set to `true`.
+    prometheus_use_tls: false
+    # Specifies the OpenShift Route host. Example: `prometheus.apps.example.com`.
+    prometheus_openshift_route: "prometheus.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: openshift/ping
+```
+
+### openshift/rm
+
+> Remove the OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Remove the OpenShift deployment
+  vars:
+    # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
+    prometheus_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
+    prometheus_k8s_part_of: monitoring
+    # Kubernetes namespace used for Prometheus resources. Example: `observability`.
+    k8s_namespace: "observability"
+    # Specifies the OpenShift Route host. Example: `prometheus.apps.example.com`.
+    prometheus_openshift_route: "prometheus.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: openshift/rm
 ```
