@@ -402,9 +402,11 @@ Delegates self-signed certificate generation to the OpenSSL role using Postgres 
 ```yaml
 - name: Generate Postgres Exporter TLS files with OpenSSL
   vars:
-    # Provides organization metadata forwarded to the OpenSSL role. Example: `{'domain': 'org1.example.com'}`.
+    # Provides organization metadata forwarded to the OpenSSL role. Example: `{'domain': 'org1.example.com', 'common_name': 'postgres-exporter.org1.example.com', 'organization_name': 'Org1'}`.
     organization:
       domain: "org1.example.com"
+      common_name: "postgres-exporter.org1.example.com"
+      organization_name: "Org1"
     # Provides the shared remote configuration directory used by Postgres Exporter. Example: `/opt/fabricx/postgres-exporter/config`.
     remote_config_dir: "/opt/fabricx/postgres-exporter/config"
     # Sets the remote directory that stores Postgres Exporter configuration and TLS files.

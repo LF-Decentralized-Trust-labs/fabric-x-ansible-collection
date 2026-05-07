@@ -134,7 +134,7 @@ argument_specs:
         required: true
         description:
           - "Provides the organization metadata defined elsewhere in inventory; C(domain) is required."
-          - "Example: C(org1.example.com)."
+          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com', 'fabric_ca_host': 'fca-org1', 'role': 'peer', 'peer': {'name': 'peer0', 'secret': 'peer0PWD'}})."
       fabric_ca_server_remote_config_dir: &fabric_ca_server_remote_config_dir
         type: path
         default: "{{ remote_config_dir }}"
@@ -356,14 +356,14 @@ argument_specs:
         description:
           - "Supplies the identity used by Fabric CA client operations."
           - "Store secrets in Ansible Vault."
-          - "Example: C(peer0.org1.example.com)."
+          - "Example: C({'name': 'peer0', 'secret': 'peer0PWD', 'type': 'peer', 'affiliation': 'org1.department1', 'attrs': {'hf.Revoker': 'true'}})."
       fabric_ca_admin: &fabric_ca_admin
         type: dict
         required: true
         description:
           - "Supplies the bootstrap administrator rendered into the server registry section; C(name) and C(secret) are required."
           - "Store the secret in Ansible Vault."
-          - "Example: C(admin)."
+          - "Example: C({'name': 'admin', 'secret': 'adminPWD', 'attrs': {'hf.Registrar.Roles': '*', 'hf.Registrar.Attributes': '*'}})."
       fabric_ca_tls_certfile: &fabric_ca_tls_certfile
         type: path
         description:

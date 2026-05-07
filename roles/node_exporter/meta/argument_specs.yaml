@@ -25,7 +25,7 @@ argument_specs:
         description:
           - Provides organization data used to build the OpenSSL subject.
           - When organization data does not define a domain value, the inventory hostname is used instead.
-          - "Example: C(domain=node-exporter.example.org, common_name=node-exporter, organization=Example Org)."
+          - "Example: C({'domain': 'node-exporter.example.org', 'common_name': 'node-exporter.example.org', 'organization_name': 'Example Org'})."
       k8s_namespace: &k8s_namespace
         type: str
         required: true

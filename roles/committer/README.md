@@ -478,12 +478,18 @@ Transfer cryptogen artifacts or enroll with Fabric CA for the selected component
 ```yaml
 - name: Prepare crypto material
   vars:
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
       peer:
-        name: "committer-sidecar-1"
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
     # Selects the OpenShift deployment branch.
@@ -991,9 +997,12 @@ Copy mTLS certificates for the committer service-to-service connections. Builds 
     committer_mtls_clients:
       - "committer-sidecar-1"
       - "loadgen-1"
-    # mTLS organizations trusted by the component. Example: `[{'domain': 'org2.example.com'}]`.
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
     committer_mtls_orgs:
-      - domain: "org2.example.com"
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
@@ -1017,9 +1026,10 @@ Copy monitoring mTLS certificates for Prometheus scraping. Builds monitoring tru
     # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
     committer_monitoring_mtls_clients:
       - "prometheus-1"
-    # Monitoring mTLS organizations trusted by the component. Example: `[{'domain': 'monitoring.example.com'}]`.
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
     committer_monitoring_mtls_orgs:
-      - domain: "monitoring.example.com"
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
@@ -1072,12 +1082,18 @@ Copy cryptogen-generated TLS assets for the selected committer component. Sideca
     committer_use_tls: false
     # Control-node directory that stores cryptogen output. Example: `/tmp/fabricx/crypto-material`.
     cryptogen_artifacts_dir: "/tmp/fabricx/crypto-material"
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
       peer:
-        name: "committer-sidecar-1"
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
     # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
     remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
@@ -1108,12 +1124,18 @@ Enroll the selected committer component against its Fabric CA and write the resu
     committer_use_tls: false
     # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx/artifacts"
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
       peer:
-        name: "committer-sidecar-1"
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
     # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
     remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
@@ -1206,12 +1228,18 @@ Create the committer Kubernetes Secret from the generated TLS materials. Include
     committer_use_tls: false
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
       peer:
-        name: "committer-sidecar-1"
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
     # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
     remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
@@ -1431,9 +1459,10 @@ Render validator configuration, DB settings, mTLS assets, and optional Kubernete
     # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
     committer_monitoring_mtls_clients:
       - "prometheus-1"
-    # Monitoring mTLS organizations trusted by the component. Example: `[{'domain': 'monitoring.example.com'}]`.
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
     committer_monitoring_mtls_orgs:
-      - domain: "monitoring.example.com"
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
     # Monitoring rate-limit burst. Example: `100`.
     committer_monitoring_rate_limit_burst: 100
     # Monitoring rate-limit requests per second. Example: `1000`.
@@ -1446,9 +1475,12 @@ Render validator configuration, DB settings, mTLS assets, and optional Kubernete
     committer_mtls_clients:
       - "committer-sidecar-1"
       - "loadgen-1"
-    # mTLS organizations trusted by the component. Example: `[{'domain': 'org2.example.com'}]`.
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
     committer_mtls_orgs:
-      - domain: "org2.example.com"
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Worker count for validator commit processing. Example: `20`.
@@ -1524,9 +1556,10 @@ Render verifier configuration, mTLS assets, and optional Kubernetes ConfigMap. I
     # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
     committer_monitoring_mtls_clients:
       - "prometheus-1"
-    # Monitoring mTLS organizations trusted by the component. Example: `[{'domain': 'monitoring.example.com'}]`.
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
     committer_monitoring_mtls_orgs:
-      - domain: "monitoring.example.com"
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
     # Monitoring rate-limit burst. Example: `100`.
     committer_monitoring_rate_limit_burst: 100
     # Monitoring rate-limit requests per second. Example: `1000`.
@@ -1539,9 +1572,12 @@ Render verifier configuration, mTLS assets, and optional Kubernetes ConfigMap. I
     committer_mtls_clients:
       - "committer-sidecar-1"
       - "loadgen-1"
-    # mTLS organizations trusted by the component. Example: `[{'domain': 'org2.example.com'}]`.
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
     committer_mtls_orgs:
-      - domain: "org2.example.com"
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # RPC port exposed by the selected committer component. Example: `7051`.
@@ -1617,9 +1653,10 @@ Render coordinator configuration, validator and verifier CA bundles, and optiona
     # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
     committer_monitoring_mtls_clients:
       - "prometheus-1"
-    # Monitoring mTLS organizations trusted by the component. Example: `[{'domain': 'monitoring.example.com'}]`.
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
     committer_monitoring_mtls_orgs:
-      - domain: "monitoring.example.com"
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
     # Monitoring rate-limit burst. Example: `100`.
     committer_monitoring_rate_limit_burst: 100
     # Monitoring rate-limit requests per second. Example: `1000`.
@@ -1632,9 +1669,12 @@ Render coordinator configuration, validator and verifier CA bundles, and optiona
     committer_mtls_clients:
       - "committer-sidecar-1"
       - "loadgen-1"
-    # mTLS organizations trusted by the component. Example: `[{'domain': 'org2.example.com'}]`.
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
     committer_mtls_orgs:
-      - domain: "org2.example.com"
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # RPC port exposed by the selected committer component. Example: `7051`.
@@ -1714,9 +1754,10 @@ Render sidecar configuration, upstream TLS bundles, and optional Kubernetes Conf
     # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
     committer_monitoring_mtls_clients:
       - "prometheus-1"
-    # Monitoring mTLS organizations trusted by the component. Example: `[{'domain': 'monitoring.example.com'}]`.
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
     committer_monitoring_mtls_orgs:
-      - domain: "monitoring.example.com"
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
     # Monitoring rate-limit burst. Example: `100`.
     committer_monitoring_rate_limit_burst: 100
     # Monitoring rate-limit requests per second. Example: `1000`.
@@ -1729,9 +1770,12 @@ Render sidecar configuration, upstream TLS bundles, and optional Kubernetes Conf
     committer_mtls_clients:
       - "committer-sidecar-1"
       - "loadgen-1"
-    # mTLS organizations trusted by the component. Example: `[{'domain': 'org2.example.com'}]`.
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
     committer_mtls_orgs:
-      - domain: "org2.example.com"
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Remote data directory managed by the role.
@@ -1778,12 +1822,18 @@ Render sidecar configuration, upstream TLS bundles, and optional Kubernetes Conf
     orderer_assemblers:
       - "orderer-assembler-1"
       - "orderer-assembler-2"
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
       peer:
-        name: "committer-sidecar-1"
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
     # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
     remote_config_dir: "/opt/fabricx/committer/config"
     # Remote data directory used by delegated sidecar tasks. Example: `/var/lib/fabricx/committer/sidecar`.
@@ -1833,9 +1883,10 @@ Render query-service configuration, DB settings, mTLS assets, and optional Kuber
     # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
     committer_monitoring_mtls_clients:
       - "prometheus-1"
-    # Monitoring mTLS organizations trusted by the component. Example: `[{'domain': 'monitoring.example.com'}]`.
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
     committer_monitoring_mtls_orgs:
-      - domain: "monitoring.example.com"
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
     # Monitoring rate-limit burst. Example: `100`.
     committer_monitoring_rate_limit_burst: 100
     # Monitoring rate-limit requests per second. Example: `1000`.
@@ -1848,9 +1899,12 @@ Render query-service configuration, DB settings, mTLS assets, and optional Kuber
     committer_mtls_clients:
       - "committer-sidecar-1"
       - "loadgen-1"
-    # mTLS organizations trusted by the component. Example: `[{'domain': 'org2.example.com'}]`.
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
     committer_mtls_orgs:
-      - domain: "org2.example.com"
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
     # Query-service maximum active views. Example: `4096`.
     committer_query_service_max_active_views: 4096
     # Query-service maximum aggregated views. Example: `1024`.
@@ -1946,18 +2000,22 @@ Ensure the namespace exists and apply the validator Service, NodePort and LoadBa
     # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
     committer_monitoring_mtls_clients:
       - "prometheus-1"
-    # Monitoring mTLS organizations trusted by the component. Example: `[{'domain': 'monitoring.example.com'}]`.
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
     committer_monitoring_mtls_orgs:
-      - domain: "monitoring.example.com"
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
     # Enable mTLS for the monitoring endpoint.
     committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
     # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
     committer_mtls_clients:
       - "committer-sidecar-1"
       - "loadgen-1"
-    # mTLS organizations trusted by the component. Example: `[{'domain': 'org2.example.com'}]`.
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
     committer_mtls_orgs:
-      - domain: "org2.example.com"
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
     # Container registry endpoint for the committer image.
     committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # RPC port exposed by the selected committer component. Example: `7051`.
@@ -1994,12 +2052,18 @@ Ensure the namespace exists and apply the validator Service, NodePort and LoadBa
       limits:
         memory: "2Gi"
         cpu: "1000m"
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
       peer:
-        name: "committer-sidecar-1"
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
     # Inventory host name of the Postgres backend used by validator or query-service configuration. Example: `postgres-committer-1`.
     postgres_db_host: "postgres-committer-1"
     # Yugabyte cluster identifier used by validator or query-service configuration. Example: `yb-committer-ledger`.
@@ -2051,18 +2115,22 @@ Ensure the namespace exists and apply the verifier Service, NodePort and LoadBal
     # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
     committer_monitoring_mtls_clients:
       - "prometheus-1"
-    # Monitoring mTLS organizations trusted by the component. Example: `[{'domain': 'monitoring.example.com'}]`.
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
     committer_monitoring_mtls_orgs:
-      - domain: "monitoring.example.com"
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
     # Enable mTLS for the monitoring endpoint.
     committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
     # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
     committer_mtls_clients:
       - "committer-sidecar-1"
       - "loadgen-1"
-    # mTLS organizations trusted by the component. Example: `[{'domain': 'org2.example.com'}]`.
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
     committer_mtls_orgs:
-      - domain: "org2.example.com"
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
     # Container registry endpoint for the committer image.
     committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # RPC port exposed by the selected committer component. Example: `7051`.
@@ -2099,12 +2167,18 @@ Ensure the namespace exists and apply the verifier Service, NodePort and LoadBal
       limits:
         memory: "2Gi"
         cpu: "1000m"
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
       peer:
-        name: "committer-sidecar-1"
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: verifier/k8s/start
@@ -2152,18 +2226,22 @@ Ensure the namespace exists and apply the coordinator Service, NodePort and Load
     # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
     committer_monitoring_mtls_clients:
       - "prometheus-1"
-    # Monitoring mTLS organizations trusted by the component. Example: `[{'domain': 'monitoring.example.com'}]`.
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
     committer_monitoring_mtls_orgs:
-      - domain: "monitoring.example.com"
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
     # Enable mTLS for the monitoring endpoint.
     committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
     # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
     committer_mtls_clients:
       - "committer-sidecar-1"
       - "loadgen-1"
-    # mTLS organizations trusted by the component. Example: `[{'domain': 'org2.example.com'}]`.
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
     committer_mtls_orgs:
-      - domain: "org2.example.com"
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
     # Container registry endpoint for the committer image.
     committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # RPC port exposed by the selected committer component. Example: `7051`.
@@ -2208,12 +2286,18 @@ Ensure the namespace exists and apply the coordinator Service, NodePort and Load
       limits:
         memory: "2Gi"
         cpu: "1000m"
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
       peer:
-        name: "committer-sidecar-1"
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: coordinator/k8s/start
@@ -2265,18 +2349,22 @@ Ensure the namespace exists and apply the sidecar Service, NodePort and LoadBala
     # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
     committer_monitoring_mtls_clients:
       - "prometheus-1"
-    # Monitoring mTLS organizations trusted by the component. Example: `[{'domain': 'monitoring.example.com'}]`.
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
     committer_monitoring_mtls_orgs:
-      - domain: "monitoring.example.com"
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
     # Enable mTLS for the monitoring endpoint.
     committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
     # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
     committer_mtls_clients:
       - "committer-sidecar-1"
       - "loadgen-1"
-    # mTLS organizations trusted by the component. Example: `[{'domain': 'org2.example.com'}]`.
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
     committer_mtls_orgs:
-      - domain: "org2.example.com"
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
     # Container registry endpoint for the committer image.
     committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # RPC port exposed by the selected committer component. Example: `7051`.
@@ -2321,12 +2409,18 @@ Ensure the namespace exists and apply the sidecar Service, NodePort and LoadBala
     orderer_assemblers:
       - "orderer-assembler-1"
       - "orderer-assembler-2"
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
       peer:
-        name: "committer-sidecar-1"
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: sidecar/k8s/start
@@ -2374,18 +2468,22 @@ Ensure the namespace exists and apply the query-service Service, NodePort and Lo
     # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
     committer_monitoring_mtls_clients:
       - "prometheus-1"
-    # Monitoring mTLS organizations trusted by the component. Example: `[{'domain': 'monitoring.example.com'}]`.
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
     committer_monitoring_mtls_orgs:
-      - domain: "monitoring.example.com"
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
     # Enable mTLS for the monitoring endpoint.
     committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
     # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
     committer_mtls_clients:
       - "committer-sidecar-1"
       - "loadgen-1"
-    # mTLS organizations trusted by the component. Example: `[{'domain': 'org2.example.com'}]`.
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
     committer_mtls_orgs:
-      - domain: "org2.example.com"
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
     # Container registry endpoint for the committer image.
     committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # RPC port exposed by the selected committer component. Example: `7051`.
@@ -2422,12 +2520,18 @@ Ensure the namespace exists and apply the query-service Service, NodePort and Lo
       limits:
         memory: "2Gi"
         cpu: "1000m"
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
       peer:
-        name: "committer-sidecar-1"
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
     # Inventory host name of the Postgres backend used by validator or query-service configuration. Example: `postgres-committer-1`.
     postgres_db_host: "postgres-committer-1"
     # Yugabyte cluster identifier used by validator or query-service configuration. Example: `yb-committer-ledger`.
@@ -2587,30 +2691,40 @@ Ensure the namespace exists and create the validator Kubernetes ConfigMap. Publi
     # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
     committer_monitoring_mtls_clients:
       - "prometheus-1"
-    # Monitoring mTLS organizations trusted by the component. Example: `[{'domain': 'monitoring.example.com'}]`.
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
     committer_monitoring_mtls_orgs:
-      - domain: "monitoring.example.com"
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
     # Enable mTLS for the monitoring endpoint.
     committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
     # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
     committer_mtls_clients:
       - "committer-sidecar-1"
       - "loadgen-1"
-    # mTLS organizations trusted by the component. Example: `[{'domain': 'org2.example.com'}]`.
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
     committer_mtls_orgs:
-      - domain: "org2.example.com"
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Enable mTLS for the selected component.
     committer_use_mtls: false
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
       peer:
-        name: "committer-sidecar-1"
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
     # Inventory host name of the Postgres backend used by validator or query-service configuration. Example: `postgres-committer-1`.
     postgres_db_host: "postgres-committer-1"
     # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
@@ -2642,30 +2756,40 @@ Ensure the namespace exists and create the verifier Kubernetes ConfigMap. Publis
     # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
     committer_monitoring_mtls_clients:
       - "prometheus-1"
-    # Monitoring mTLS organizations trusted by the component. Example: `[{'domain': 'monitoring.example.com'}]`.
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
     committer_monitoring_mtls_orgs:
-      - domain: "monitoring.example.com"
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
     # Enable mTLS for the monitoring endpoint.
     committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
     # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
     committer_mtls_clients:
       - "committer-sidecar-1"
       - "loadgen-1"
-    # mTLS organizations trusted by the component. Example: `[{'domain': 'org2.example.com'}]`.
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
     committer_mtls_orgs:
-      - domain: "org2.example.com"
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Enable mTLS for the selected component.
     committer_use_mtls: false
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
       peer:
-        name: "committer-sidecar-1"
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
     # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
     remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
@@ -2693,18 +2817,22 @@ Ensure the namespace exists and create the coordinator Kubernetes ConfigMap. Pub
     # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
     committer_monitoring_mtls_clients:
       - "prometheus-1"
-    # Monitoring mTLS organizations trusted by the component. Example: `[{'domain': 'monitoring.example.com'}]`.
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
     committer_monitoring_mtls_orgs:
-      - domain: "monitoring.example.com"
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
     # Enable mTLS for the monitoring endpoint.
     committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
     # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
     committer_mtls_clients:
       - "committer-sidecar-1"
       - "loadgen-1"
-    # mTLS organizations trusted by the component. Example: `[{'domain': 'org2.example.com'}]`.
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
     committer_mtls_orgs:
-      - domain: "org2.example.com"
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Enable mTLS for the selected component.
@@ -2719,12 +2847,18 @@ Ensure the namespace exists and create the coordinator Kubernetes ConfigMap. Pub
       - "committer-verifier-2"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
       peer:
-        name: "committer-sidecar-1"
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
     # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
     remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
@@ -2754,18 +2888,22 @@ Ensure the namespace exists and create the sidecar Kubernetes ConfigMap. Publish
     # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
     committer_monitoring_mtls_clients:
       - "prometheus-1"
-    # Monitoring mTLS organizations trusted by the component. Example: `[{'domain': 'monitoring.example.com'}]`.
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
     committer_monitoring_mtls_orgs:
-      - domain: "monitoring.example.com"
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
     # Enable mTLS for the monitoring endpoint.
     committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
     # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
     committer_mtls_clients:
       - "committer-sidecar-1"
       - "loadgen-1"
-    # mTLS organizations trusted by the component. Example: `[{'domain': 'org2.example.com'}]`.
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
     committer_mtls_orgs:
-      - domain: "org2.example.com"
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Enable mTLS for the selected component.
@@ -2776,12 +2914,18 @@ Ensure the namespace exists and create the sidecar Kubernetes ConfigMap. Publish
     orderer_assemblers:
       - "orderer-assembler-1"
       - "orderer-assembler-2"
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
       peer:
-        name: "committer-sidecar-1"
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
     # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
     remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
@@ -2809,30 +2953,40 @@ Ensure the namespace exists and create the query-service Kubernetes ConfigMap. P
     # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
     committer_monitoring_mtls_clients:
       - "prometheus-1"
-    # Monitoring mTLS organizations trusted by the component. Example: `[{'domain': 'monitoring.example.com'}]`.
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
     committer_monitoring_mtls_orgs:
-      - domain: "monitoring.example.com"
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
     # Enable mTLS for the monitoring endpoint.
     committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
     # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
     committer_mtls_clients:
       - "committer-sidecar-1"
       - "loadgen-1"
-    # mTLS organizations trusted by the component. Example: `[{'domain': 'org2.example.com'}]`.
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
     committer_mtls_orgs:
-      - domain: "org2.example.com"
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Enable mTLS for the selected component.
     committer_use_mtls: false
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
       peer:
-        name: "committer-sidecar-1"
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
     # Inventory host name of the Postgres backend used by validator or query-service configuration. Example: `postgres-committer-1`.
     postgres_db_host: "postgres-committer-1"
     # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
@@ -2911,12 +3065,18 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     committer_openshift_route: "committer-rpc.apps.example.com"
     # Enable TLS material for the selected component.
     committer_use_tls: false
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
       peer:
-        name: "committer-sidecar-1"
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: validator/openshift/start
@@ -2965,12 +3125,18 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     committer_openshift_route: "committer-rpc.apps.example.com"
     # Enable TLS material for the selected component.
     committer_use_tls: false
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
       peer:
-        name: "committer-sidecar-1"
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: verifier/openshift/start
@@ -3019,12 +3185,18 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     committer_openshift_route: "committer-rpc.apps.example.com"
     # Enable TLS material for the selected component.
     committer_use_tls: false
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
       peer:
-        name: "committer-sidecar-1"
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: coordinator/openshift/start
@@ -3073,12 +3245,18 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     committer_openshift_route: "committer-rpc.apps.example.com"
     # Enable TLS material for the selected component.
     committer_use_tls: false
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
       peer:
-        name: "committer-sidecar-1"
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: sidecar/openshift/start
@@ -3127,12 +3305,18 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     committer_openshift_route: "committer-rpc.apps.example.com"
     # Enable TLS material for the selected component.
     committer_use_tls: false
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
       peer:
-        name: "committer-sidecar-1"
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: query_service/openshift/start

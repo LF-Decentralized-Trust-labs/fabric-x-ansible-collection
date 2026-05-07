@@ -274,7 +274,7 @@ argument_specs:
         description:
           - Fabric organization inputs used by PostgreSQL TLS generation paths.
           - The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA.
-          - "Example: C({'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'postgres0', 'secret': '<fabric-ca-secret>'}, 'fabric_ca_host': 'fabric-ca0'})."
+          - "Example: C({'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'postgres0', 'secret': 'postgres0PWD'}, 'fabric_ca_host': 'fca-org1'})."
 
   ping:
     short_description: Check PostgreSQL reachability

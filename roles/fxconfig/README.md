@@ -350,10 +350,17 @@ Creates the remote fxconfig configuration directory, renders the fxconfig file, 
     fxconfig_use_bin: false
     # Identifies the inventory host for the Orderer Router endpoint consumed by fxconfig. Example: `orderer-router-1`.
     orderer_router_host: "orderer-router-1"
-    # Provides organization metadata used by tasks that read `organization.*`, including names, users, domains, and namespace declarations. Example: `{'name': 'Org1', 'domain': 'org1.example.com'}`.
+    # Provides organization metadata used by tasks that read `organization.*`, including names, users, domains, and namespace declarations. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'users': [{'name': 'endorser', 'cert': '/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem'}], 'namespaces': [{'id': 'payments', 'policy': 'threshold'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      users:
+        - name: "endorser"
+          cert: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem"
+      namespaces:
+        - id: "payments"
+          policy: "threshold"
     # Provides the base remote configuration directory used by the role. Example: `/opt/hyperledger/fabricx/config`.
     remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
@@ -578,10 +585,17 @@ Selects the preferred endorser from `organization.users` for namespace transacti
 ```yaml
 - name: Resolve the namespace endorser user
   vars:
-    # Provides organization metadata used by tasks that read `organization.*`, including names, users, domains, and namespace declarations. Example: `{'name': 'Org1', 'domain': 'org1.example.com'}`.
+    # Provides organization metadata used by tasks that read `organization.*`, including names, users, domains, and namespace declarations. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'users': [{'name': 'endorser', 'cert': '/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem'}], 'namespaces': [{'id': 'payments', 'policy': 'threshold'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      users:
+        - name: "endorser"
+          cert: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem"
+      namespaces:
+        - id: "payments"
+          policy: "threshold"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
     tasks_from: get_endorser

@@ -413,8 +413,9 @@ Delegates certificate creation to the shared OpenSSL role using Prometheus-speci
 ```yaml
 - name: Generate a self-signed TLS certificate for Prometheus
   vars:
-    # Optional certificate organization data forwarded to OpenSSL. Example: `{'common_name': 'prometheus.observability.svc.cluster.local', 'organization_name': 'Hyperledger Fabric-X'}`.
+    # Optional certificate organization data forwarded to OpenSSL. Example: `{'domain': 'observability.example.com', 'common_name': 'prometheus.observability.svc.cluster.local', 'organization_name': 'Hyperledger Fabric-X'}`.
     organization:
+      domain: "observability.example.com"
       common_name: "prometheus.observability.svc.cluster.local"
       organization_name: "Hyperledger Fabric-X"
     # Remote configuration directory consumed by `prometheus_remote_config_dir`. Example: `/var/lib/prometheus/config`.
@@ -553,8 +554,25 @@ Renders the main scrape configuration and supporting files on the remote host, i
     prometheus_tls_private_key_file: server.key
     # Filename used for the Prometheus TLS certificate.
     prometheus_tls_cert_file: server.crt
-    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }]`.
-    prometheus_scrape_services:[{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }]
+    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{'job_name': 'fabric-orderer', 'use_tls': True, 'targets': [{'hosts': ['orderer-router-1', 'orderer-router-2'], 'port_to_scrape': 'orderer_metrics_port', 'label': {'group': 'orderers'}}]}, {'job_name': 'node-exporter', 'targets': [{'hosts': ['worker-1'], 'port_to_scrape': 'node_exporter_port', 'label': {'group': 'workers', 'export_type': 'node'}}]}]`.
+    prometheus_scrape_services:
+      - job_name: "fabric-orderer"
+        use_tls: True
+        targets:
+          - hosts:
+              - "orderer-router-1"
+              - "orderer-router-2"
+            port_to_scrape: "orderer_metrics_port"
+            label:
+              group: "orderers"
+      - job_name: "node-exporter"
+        targets:
+          - hosts:
+              - "worker-1"
+            port_to_scrape: "node_exporter_port"
+            label:
+              group: "workers"
+              export_type: "node"
     # Enables HTTPS and TLS-aware health checks when set to `true`.
     prometheus_use_tls: false
     # Enables the Kubernetes deployment path when set to `true`.
@@ -591,8 +609,25 @@ Creates or updates the ConfigMap that carries the rendered Prometheus configurat
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
     prometheus_k8s_part_of: monitoring
-    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }]`.
-    prometheus_scrape_services:[{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }]
+    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{'job_name': 'fabric-orderer', 'use_tls': True, 'targets': [{'hosts': ['orderer-router-1', 'orderer-router-2'], 'port_to_scrape': 'orderer_metrics_port', 'label': {'group': 'orderers'}}]}, {'job_name': 'node-exporter', 'targets': [{'hosts': ['worker-1'], 'port_to_scrape': 'node_exporter_port', 'label': {'group': 'workers', 'export_type': 'node'}}]}]`.
+    prometheus_scrape_services:
+      - job_name: "fabric-orderer"
+        use_tls: True
+        targets:
+          - hosts:
+              - "orderer-router-1"
+              - "orderer-router-2"
+            port_to_scrape: "orderer_metrics_port"
+            label:
+              group: "orderers"
+      - job_name: "node-exporter"
+        targets:
+          - hosts:
+              - "worker-1"
+            port_to_scrape: "node_exporter_port"
+            label:
+              group: "workers"
+              export_type: "node"
     # Enables HTTPS and TLS-aware health checks when set to `true`.
     prometheus_use_tls: false
   ansible.builtin.include_role:

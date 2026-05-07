@@ -266,7 +266,7 @@ argument_specs:
         type: dict
         description:
           - Optional query tuning block consumed by the load profile.
-          - "Example: C({'size': 4, 'min_invalid_keys_portion': 0.1, 'shuffle': True})."
+          - "Example: C({'size': 4, 'min_invalid_keys_portion': 0.1, 'shuffle': true})."
       loadgen_conflicts_settings: &loadgen_conflicts_settings
         type: dict
         description:
@@ -351,7 +351,7 @@ argument_specs:
         required: true
         description:
           - Organization definition consumed by crypto, config, and Kubernetes templates.
-          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'loadgen1', 'secret': 'loadgen1pw'}})."
+          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}, 'users': [{'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}], 'namespaces': [{'id': 0, 'policy': 'threshold'}]})."
       channel_id: &channel_id
         type: str
         required: true
@@ -487,7 +487,7 @@ argument_specs:
         elements: dict
         description:
           - Additional mTLS organizations trusted by the main endpoint.
-          - "Example: C([{'domain': 'org1.example.com'}, {'domain': 'org2.example.com'}])."
+          - "Example: C([{'name': 'Org1', 'domain': 'org1.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}])."
       loadgen_monitoring_mtls_clients: &loadgen_monitoring_mtls_clients
         type: list
         elements: str
@@ -499,7 +499,7 @@ argument_specs:
         elements: dict
         description:
           - Additional mTLS organizations trusted by the monitoring endpoint.
-          - "Example: C([{'domain': 'monitoring.example.com'}])."
+          - "Example: C([{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}])."
 
       loadgen_use_openshift: &loadgen_use_openshift
         type: bool

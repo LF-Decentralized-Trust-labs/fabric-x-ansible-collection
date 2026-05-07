@@ -208,7 +208,7 @@ argument_specs:
         type: dict
         description:
           - "Provides organization metadata used by tasks that read C(organization.*), including names, users, domains, and namespace declarations."
-          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com'})."
+          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'users': [{'name': 'endorser', 'cert': '/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem'}], 'namespaces': [{'id': 'payments', 'policy': 'threshold'}]})."
       orderer_router_host: &orderer_router_host
         type: str
         required: true

@@ -306,13 +306,13 @@ argument_specs:
         elements: dict
         description:
           - "Organization dictionaries whose mTLS CA certificates are mounted or transferred."
-          - "Example: C([{'domain': 'org1.example.com'}, {'domain': 'org2.example.com'}])."
+          - "Example: C([{'name': 'Org1', 'domain': 'org1.example.com'}, {'name': 'Org2', 'domain': 'org2.example.com'}])."
       organization: &organization
         type: dict
         required: true
         description:
           - "Organization metadata shared by the orderer crypto and config branches."
-          - "Example: C({'domain': 'ordererorg.example.com', 'name': 'ordererOrg', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'})."
+          - "Example: C({'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com', 'role': 'orderer', 'fabric_ca_host': 'fca-orderer-org1', 'orderer': {'name': 'orderer-router-1', 'secret': 'orderer-router-1PWD'}})."
       k8s_storage_class: &k8s_storage_class
         type: str
         description:

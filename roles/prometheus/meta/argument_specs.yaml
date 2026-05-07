@@ -15,7 +15,7 @@ argument_specs:
         type: dict
         description:
           - Optional certificate organization data forwarded to OpenSSL.
-          - "Example: C({'common_name': 'prometheus.observability.svc.cluster.local', 'organization_name': 'Hyperledger Fabric-X'})."
+          - "Example: C({'domain': 'observability.example.com', 'common_name': 'prometheus.observability.svc.cluster.local', 'organization_name': 'Hyperledger Fabric-X'})."
       remote_config_dir: &remote_config_dir
         type: path
         description:
@@ -108,7 +108,7 @@ argument_specs:
         elements: dict
         description:
           - Optional scrape job definitions rendered into C(prometheus.yaml) and the Kubernetes ConfigMap.
-          - "Example: C([{ job_name: fabric-orderer, static_configs: [{ targets: [orderer1.example.com:9443, orderer2.example.com:9443] }] }, { job_name: node_exporter, static_configs: [{ targets: [worker1.example.com:9100] }] }])."
+          - "Example: C([{'job_name': 'fabric-orderer', 'use_tls': True, 'targets': [{'hosts': ['orderer-router-1', 'orderer-router-2'], 'port_to_scrape': 'orderer_metrics_port', 'label': {'group': 'orderers'}}]}, {'job_name': 'node-exporter', 'targets': [{'hosts': ['worker-1'], 'port_to_scrape': 'node_exporter_port', 'label': {'group': 'workers', 'export_type': 'node'}}]}])."
       prometheus_use_tls: &prometheus_use_tls
         type: bool
         default: false

@@ -32,7 +32,7 @@ argument_specs:
         type: dict
         description:
           - Sets the optional organization mapping used for TLS certificate generation.
-          - "Example: C({'name': 'Grafana', 'domain': 'grafana.fabricx.example'})."
+          - "Example: C({'name': 'Grafana', 'domain': 'grafana.fabricx.example', 'common_name': 'grafana.fabricx.example'})."
           - When set, C(organization.domain) is used as the OpenSSL organization name.
       k8s_namespace: &k8s_namespace
         type: str

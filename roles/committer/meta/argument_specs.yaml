@@ -258,7 +258,7 @@ argument_specs:
         required: true
         description:
           - Organization definition consumed by crypto and sidecar configuration tasks.
-          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}})."
+          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]})."
       channel_id: &channel_id
         type: str
         description:
@@ -619,7 +619,7 @@ argument_specs:
         elements: dict
         description:
           - mTLS organizations trusted by the component.
-          - "Example: C([{'domain': 'org2.example.com'}])."
+          - "Example: C([{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}])."
       committer_monitoring_mtls_clients: &committer_monitoring_mtls_clients
         type: list
         elements: str
@@ -631,7 +631,7 @@ argument_specs:
         elements: dict
         description:
           - Monitoring mTLS organizations trusted by the component.
-          - "Example: C([{'domain': 'monitoring.example.com'}])."
+          - "Example: C([{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}])."
 
       committer_use_openshift: &committer_use_openshift
         type: bool

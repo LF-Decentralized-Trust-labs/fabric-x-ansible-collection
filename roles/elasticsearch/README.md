@@ -378,9 +378,11 @@ Generates a self-signed TLS certificate and private key for ElasticSearch on the
     elasticsearch_tls_private_key_file: server.key
     # Filename of the ElasticSearch TLS certificate under the TLS directory.
     elasticsearch_tls_cert_file: server.crt
-    # Optionally provides organization metadata used to derive the TLS certificate organization name. Example: `{'common_name': 'elasticsearch.fabricx.example'}`.
+    # Optionally provides organization metadata used to derive the TLS certificate organization name. Example: `{'domain': 'observability.example.com', 'common_name': 'elasticsearch-0.observability.example.com', 'organization_name': 'Hyperledger Fabric-X'}`.
     organization:
-      common_name: "elasticsearch.fabricx.example"
+      domain: "observability.example.com"
+      common_name: "elasticsearch-0.observability.example.com"
+      organization_name: "Hyperledger Fabric-X"
     # Specifies the OpenShift Route host. Example: `elasticsearch-http.apps.example.com`.
     elasticsearch_openshift_http_route: "elasticsearch-http.apps.example.com"
   ansible.builtin.include_role:

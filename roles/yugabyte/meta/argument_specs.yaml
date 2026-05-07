@@ -336,7 +336,7 @@ argument_specs:
         description:
           - "Provides the organization metadata consumed by the crypto entry points."
           - "The mapping is expected to expose C(domain), C(role), C(peer.name), C(peer.secret), and C(fabric_ca_host) when relevant."
-          - "Example: C({'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'yb-tserver-1', 'secret': 'yb-tserver-1pw'}, 'fabric_ca_host': 'ca-org1'})."
+          - "Example: C({'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'yb-tserver-1', 'secret': 'yb-tserver-1PWD'}, 'fabric_ca_host': 'fca-org1'})."
       yugabyte_db: &yugabyte_db
         type: str
         required: true

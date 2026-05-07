@@ -105,7 +105,7 @@ argument_specs:
         type: dict
         description:
           - Optionally provides organization metadata used to derive the TLS certificate organization name.
-          - "Example: C({'common_name': 'elasticsearch.fabricx.example'})."
+          - "Example: C({'domain': 'observability.example.com', 'common_name': 'elasticsearch-0.observability.example.com', 'organization_name': 'Hyperledger Fabric-X'})."
       elasticsearch_registry_endpoint: &elasticsearch_registry_endpoint
         type: str
         default: "{{ lookup('env', 'ELASTICSEARCH_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
