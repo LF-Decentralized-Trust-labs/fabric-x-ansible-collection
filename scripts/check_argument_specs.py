@@ -597,17 +597,14 @@ def extract_role_option_default_vars(specs):
         if not isinstance(option_spec, dict):
             continue
         default = option_spec.get("default")
-        if isinstance(default, str):
-            default_vars[option] = {
-                variable
-                for variable in extract_string_vars(
-                    default,
-                    f"argument_specs.role-options.options.{option}.default",
-                )
-                if not is_builtin_var(variable)
-            }
-        else:
-            default_vars[option] = set()
+        default_vars[option] = {
+            variable
+            for variable in collect_vars_from_value(
+                default,
+                f"argument_specs.role-options.options.{option}.default",
+            )
+            if not is_builtin_var(variable)
+        }
     return default_vars
 
 
