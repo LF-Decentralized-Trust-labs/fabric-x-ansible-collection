@@ -28,6 +28,6 @@
     orderer_k8s_genesis_block_b64: "{{ orderer_slurp_genesis.content }}"
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/configmap.yaml.j2

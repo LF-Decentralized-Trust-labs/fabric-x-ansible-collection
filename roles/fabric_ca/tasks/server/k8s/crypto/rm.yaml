@@ -9,4 +9,4 @@
     state: absent
     kind: Secret
     name: "{{ fabric_ca_server_k8s_resource_name }}"
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"

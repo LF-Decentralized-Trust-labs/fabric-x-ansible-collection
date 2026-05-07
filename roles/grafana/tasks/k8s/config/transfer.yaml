@@ -22,6 +22,6 @@
     grafana_k8s_prometheus_ca_path: "{{ grafana_remote_config_dir }}/tls/{{ prometheus_host }}/ca.crt"
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/configmap.yaml.j2

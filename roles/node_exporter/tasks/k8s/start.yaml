@@ -18,14 +18,14 @@
 - name: Apply Node Exporter Service
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service.yaml.j2
 
 - name: Apply Node Exporter NodePort Service
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service-nodeport.yaml.j2
   when: node_exporter_k8s_node_port is defined
@@ -33,7 +33,7 @@
 - name: Apply Node Exporter LoadBalancer Service
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service-loadbalancer.yaml.j2
   when: node_exporter_k8s_loadbalancer_expose_metrics_port
@@ -41,7 +41,7 @@
 - name: Apply Node Exporter DaemonSet
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/daemonset.yaml.j2
     wait: true

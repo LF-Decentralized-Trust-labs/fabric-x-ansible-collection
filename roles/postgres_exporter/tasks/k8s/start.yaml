@@ -12,14 +12,14 @@
 - name: Apply Postgres Exporter Service
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service.yaml.j2
 
 - name: Apply Postgres Exporter NodePort Service
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service-nodeport.yaml.j2
   when: postgres_exporter_k8s_node_port is defined
@@ -27,7 +27,7 @@
 - name: Apply Postgres Exporter LoadBalancer Service
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service-loadbalancer.yaml.j2
   when: postgres_exporter_k8s_loadbalancer_expose_metrics_port
@@ -35,7 +35,7 @@
 - name: Apply Postgres Exporter Deployment
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/deployment.yaml.j2
     wait: true

@@ -18,14 +18,14 @@
 - name: Apply Jaeger Service
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service.yaml.j2
 
 - name: Apply Jaeger NodePort Service
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service-nodeport.yaml.j2
   when:
@@ -39,7 +39,7 @@
 - name: Apply Jaeger LoadBalancer Service
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service-loadbalancer.yaml.j2
   when:
@@ -53,7 +53,7 @@
 - name: Apply Jaeger Deployment
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/deployment.yaml.j2
     wait: true

@@ -10,4 +10,4 @@
     api_version: route.openshift.io/v1
     kind: Route
     name: "{{ openshift_route_name }}"
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"

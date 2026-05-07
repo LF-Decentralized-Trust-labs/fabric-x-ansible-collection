@@ -18,14 +18,14 @@
 - name: Apply ElasticSearch Service
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service.yaml.j2
 
 - name: Apply ElasticSearch NodePort Service
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service-nodeport.yaml.j2
   when:
@@ -35,7 +35,7 @@
 - name: Apply ElasticSearch LoadBalancer Service
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service-loadbalancer.yaml.j2
   when:
@@ -45,7 +45,7 @@
 - name: Apply ElasticSearch StatefulSet
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/statefulset.yaml.j2
     wait: true

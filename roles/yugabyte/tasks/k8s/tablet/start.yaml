@@ -18,14 +18,14 @@
 - name: Apply Yugabyte tablet Service
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/tablet-service.yaml.j2
 
 - name: Apply Yugabyte tablet NodePort Service
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/tablet-service-nodeport.yaml.j2
   when:
@@ -39,7 +39,7 @@
 - name: Apply Yugabyte tablet LoadBalancer Service
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/tablet-service-loadbalancer.yaml.j2
   when:
@@ -53,7 +53,7 @@
 - name: Apply Yugabyte tablet StatefulSet
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/tablet-statefulset.yaml.j2
     wait: "{{ yugabyte_k8s_wait }}"

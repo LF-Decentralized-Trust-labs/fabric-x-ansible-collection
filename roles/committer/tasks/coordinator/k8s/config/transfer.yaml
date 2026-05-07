@@ -23,6 +23,6 @@
     committer_k8s_verifiers_ca_path: "{{ committer_remote_config_dir }}/tls/verifiers/ca.crt"
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/configmap-coordinator.yaml.j2

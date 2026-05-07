@@ -55,6 +55,6 @@
     committer_k8s_msp_config_path: "{{ committer_remote_config_dir }}/msp/config.yaml"
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace | default(omit) }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/secret.yaml.j2
