@@ -313,6 +313,8 @@ argument_specs:
       - "Stops the running Jaeger container without removing configuration assets."
     options:
       jaeger_use_container: *jaeger_use_container
+      jaeger_use_k8s: *jaeger_use_k8s
+      jaeger_use_openshift: *jaeger_use_openshift
 
   teardown:
     short_description: Select the Jaeger deployment mode to remove
@@ -459,7 +461,6 @@ argument_specs:
       - "Deletes the Jaeger Deployment, Service, and NodePort Service from the target namespace."
     options:
       jaeger_k8s_resource_name: *jaeger_k8s_resource_name
-      jaeger_k8s_part_of: *jaeger_k8s_part_of
       k8s_namespace: *k8s_namespace
       jaeger_k8s_ui_node_port: *jaeger_k8s_ui_node_port
       jaeger_k8s_loadbalancer_expose_ui_port: *jaeger_k8s_loadbalancer_expose_ui_port
@@ -480,7 +481,6 @@ argument_specs:
       - "Collects logs from Jaeger pods using the resource label selector for the Kubernetes deployment."
     options:
       jaeger_k8s_resource_name: *jaeger_k8s_resource_name
-      jaeger_k8s_part_of: *jaeger_k8s_part_of
 
   k8s/ping:
     short_description: Check that Jaeger Kubernetes service is reachable
@@ -546,10 +546,7 @@ argument_specs:
       - "Deletes the Jaeger ConfigMap from Kubernetes when container config data is no longer needed."
     options:
       jaeger_k8s_resource_name: *jaeger_k8s_resource_name
-      jaeger_k8s_part_of: *jaeger_k8s_part_of
       k8s_namespace: *k8s_namespace
-      jaeger_use_k8s: *jaeger_use_k8s
-      jaeger_use_openshift: *jaeger_use_openshift
 
   openshift/start:
     short_description: Start the OpenShift deployment
@@ -558,7 +555,6 @@ argument_specs:
     options:
       jaeger_k8s_resource_name: *jaeger_k8s_resource_name
       jaeger_k8s_part_of: *jaeger_k8s_part_of
-      k8s_namespace: *k8s_namespace
       jaeger_openshift_ui_route: *jaeger_openshift_ui_route
       jaeger_openshift_admin_route: *jaeger_openshift_admin_route
       jaeger_openshift_http_server_route: *jaeger_openshift_http_server_route
@@ -584,8 +580,6 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       jaeger_k8s_resource_name: *jaeger_k8s_resource_name
-      jaeger_k8s_part_of: *jaeger_k8s_part_of
-      k8s_namespace: *k8s_namespace
       jaeger_openshift_ui_route: *jaeger_openshift_ui_route
       jaeger_openshift_admin_route: *jaeger_openshift_admin_route
       jaeger_openshift_http_server_route: *jaeger_openshift_http_server_route

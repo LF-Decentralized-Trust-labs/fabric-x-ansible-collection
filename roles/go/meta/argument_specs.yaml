@@ -79,7 +79,6 @@ argument_specs:
     options:
       go_version: *go_version
       go_install_dir: *go_install_dir
-      go_host_to_map: *go_host_to_map
 
   map_platform:
     short_description: Map Ansible host facts to GOOS and GOARCH values

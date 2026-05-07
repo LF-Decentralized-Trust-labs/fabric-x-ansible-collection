@@ -105,7 +105,7 @@ argument_specs:
         type: dict
         description:
           - Optionally provides organization metadata used to derive the TLS certificate organization name.
-          - "Example: C({'common_name': 'elasticsearch.fabricx.example'})."
+          - "Example: C({'domain': 'observability.example.com', 'common_name': 'elasticsearch-0.observability.example.com', 'organization_name': 'Hyperledger Fabric-X'})."
       elasticsearch_registry_endpoint: &elasticsearch_registry_endpoint
         type: str
         default: "{{ lookup('env', 'ELASTICSEARCH_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
@@ -261,8 +261,7 @@ argument_specs:
     description:
       - Stops the ElasticSearch container instance without removing its data volume or configuration files.
       - Uses the container helper role internally and only applies in container mode.
-    options:
-      elasticsearch_container_name: *elasticsearch_container_name
+    options: {}
 
   teardown:
     short_description: Remove ElasticSearch runtime resources and data
@@ -370,9 +369,7 @@ argument_specs:
       elasticsearch_remote_data_dir: *elasticsearch_remote_data_dir
       remote_data_dir: *remote_data_dir
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
-      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
-      k8s_namespace:
-        <<: *k8s_namespace
+      k8s_namespace: *k8s_namespace
 
   crypto/setup:
     short_description: Prepare ElasticSearch TLS materials
@@ -480,7 +477,6 @@ argument_specs:
       - The persistent volume claim is removed separately by the C(data/rm) entry point so data cleanup stays explicit.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
-      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -496,10 +492,6 @@ argument_specs:
       - Selects pods using the ElasticSearch application label.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
-      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
 
   k8s/crypto/rm:
     short_description: Remove the ElasticSearch Kubernetes TLS Secret
@@ -508,7 +500,6 @@ argument_specs:
       - This entry point is typically invoked from the ElasticSearch crypto cleanup workflow after the remote certs are removed.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
-      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -538,7 +529,6 @@ argument_specs:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
       elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       elasticsearch_use_tls: *elasticsearch_use_tls
-      k8s_namespace: *k8s_namespace
       elasticsearch_openshift_http_route: *elasticsearch_openshift_http_route
 
   openshift/ping:
@@ -555,6 +545,4 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
-      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
-      k8s_namespace: *k8s_namespace
       elasticsearch_openshift_http_route: *elasticsearch_openshift_http_route

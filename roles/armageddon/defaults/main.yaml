@@ -39,7 +39,5 @@ armageddon_container_output_dir: /tmp/out
 armageddon_container_config_dir: /tmp/config
 # Container directory for mounted crypto artifacts.
 armageddon_container_crypto_artifacts_dir: /tmp/crypto
-# Armageddon config filename.
-armageddon_config_file: armageddon.yaml
 # Shared-config filename.
 armageddon_shared_config_file: shared_config.yaml

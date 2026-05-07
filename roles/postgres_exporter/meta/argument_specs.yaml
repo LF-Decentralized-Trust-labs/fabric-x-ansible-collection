@@ -24,7 +24,7 @@ argument_specs:
         type: dict
         description:
           - "Provides organization metadata forwarded to the OpenSSL role."
-          - "Example: C({'domain': 'org1.example.com'})."
+          - "Example: C({'domain': 'org1.example.com', 'common_name': 'postgres-exporter.org1.example.com', 'organization_name': 'Org1'})."
       k8s_namespace: &k8s_namespace
         type: str
         required: true
@@ -241,6 +241,8 @@ argument_specs:
       - "This entry point only dispatches when C(postgres_exporter_use_container) resolves to C(true)."
     options:
       postgres_exporter_use_container: *postgres_exporter_use_container
+      postgres_exporter_use_k8s: *postgres_exporter_use_k8s
+      postgres_exporter_use_openshift: *postgres_exporter_use_openshift
 
   teardown:
     short_description: Remove Postgres Exporter runtime resources
@@ -456,7 +458,6 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
-      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
       postgres_exporter_k8s_node_port: *postgres_exporter_k8s_node_port
       postgres_exporter_k8s_loadbalancer_expose_metrics_port: *postgres_exporter_k8s_loadbalancer_expose_metrics_port
 
@@ -466,7 +467,6 @@ argument_specs:
       - "Delegates Postgres Exporter pod log collection to the shared Kubernetes role."
     options:
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
-      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
 
   k8s/config/transfer:
     short_description: Apply the Postgres Exporter ConfigMap
@@ -491,7 +491,6 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
-      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
 
   k8s/crypto/transfer:
     short_description: Apply the Postgres Exporter Secret
@@ -516,7 +515,6 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
-      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
 
   prometheus/get_scrapers:
     short_description: Build Prometheus scrape definitions for Postgres Exporter
@@ -535,7 +533,6 @@ argument_specs:
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
       postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
       postgres_exporter_use_tls: *postgres_exporter_use_tls
-      k8s_namespace: *k8s_namespace
       postgres_exporter_openshift_route: *postgres_exporter_openshift_route
 
   openshift/ping:
@@ -552,6 +549,4 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
-      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
-      k8s_namespace: *k8s_namespace
       postgres_exporter_openshift_route: *postgres_exporter_openshift_route

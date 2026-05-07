@@ -52,8 +52,6 @@ Render `shared_config.yaml` for the Fabric-X orderer topology. This entry point 
     fetched_artifacts_dir: "/opt/fabricx/fetched-artifacts"
     # Container directory for mounted crypto artifacts.
     armageddon_container_crypto_artifacts_dir: /tmp/crypto
-    # Armageddon config filename.
-    armageddon_config_file: armageddon.yaml
     # Shared-config filename.
     armageddon_shared_config_file: shared_config.yaml
   ansible.builtin.include_role:
@@ -146,8 +144,6 @@ Run the installed Armageddon binary to generate `shared_config.binpb`. This bina
     config_build_dir: "/opt/fabricx/build/armageddon"
     # Directory for rendered Armageddon config and generated protobuf output.
     armageddon_artifacts_dir: "{{ config_build_dir }}/armageddon-artifacts"
-    # Armageddon config filename.
-    armageddon_config_file: armageddon.yaml
     # Shared-config filename.
     armageddon_shared_config_file: shared_config.yaml
     # Directory where the Armageddon binary is installed or executed. The binary helper roles use this as the local or remote binary directory. Example: `/usr/local/bin`.
@@ -178,8 +174,6 @@ Run the Armageddon container to generate `shared_config.binpb` for container-mod
     armageddon_image: "{{ armageddon_registry_endpoint }}/{{ armageddon_image_name }}:{{ armageddon_image_tag }}"
     # Container directory for the rendered shared config file.
     armageddon_container_config_dir: /tmp/config
-    # Armageddon config filename.
-    armageddon_config_file: armageddon.yaml
     # Shared-config filename.
     armageddon_shared_config_file: shared_config.yaml
     # Container directory for generated protobuf output.

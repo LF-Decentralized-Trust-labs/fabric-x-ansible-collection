@@ -39,8 +39,6 @@ Installs the Go runtime when it is not already present on the target host. Maps 
     go_version: 1.25.8
     # Sets the base directory where the Go distribution is extracted.
     go_install_dir: /usr/local
-    # Selects the host whose facts are mapped into `go_os` and `go_arch`.
-    go_host_to_map: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.go
     tasks_from: install_go

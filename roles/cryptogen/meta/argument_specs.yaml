@@ -137,6 +137,7 @@ argument_specs:
       - "Run this after crypto material has already been generated so downstream roles can consume the fetched artifacts."
     options:
       config_build_dir: *config_build_dir
+      cryptogen_artifacts_dir: *cryptogen_artifacts_dir
       fetched_artifacts_dir: *fetched_artifacts_dir
       cryptogen_output_dir: *cryptogen_output_dir
       cryptogen_orderers_by_org: *cryptogen_orderers_by_org

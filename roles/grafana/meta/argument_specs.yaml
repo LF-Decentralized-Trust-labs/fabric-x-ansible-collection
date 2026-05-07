@@ -32,7 +32,7 @@ argument_specs:
         type: dict
         description:
           - Sets the optional organization mapping used for TLS certificate generation.
-          - "Example: C({'name': 'Grafana', 'domain': 'grafana.fabricx.example'})."
+          - "Example: C({'name': 'Grafana', 'domain': 'grafana.fabricx.example', 'common_name': 'grafana.fabricx.example'})."
           - When set, C(organization.domain) is used as the OpenSSL organization name.
       k8s_namespace: &k8s_namespace
         type: str
@@ -470,7 +470,6 @@ argument_specs:
       - Deletes the Grafana Deployment, Service, and NodePort Service from Kubernetes.
     options:
       grafana_k8s_resource_name: *grafana_k8s_resource_name
-      grafana_k8s_part_of: *grafana_k8s_part_of
       k8s_namespace: *k8s_namespace
       grafana_k8s_web_node_port: *grafana_k8s_web_node_port
       grafana_k8s_loadbalancer_expose_web_port: *grafana_k8s_loadbalancer_expose_web_port
@@ -481,7 +480,6 @@ argument_specs:
       - Collects logs from the Grafana pod selected by the Grafana application label.
     options:
       grafana_k8s_resource_name: *grafana_k8s_resource_name
-      grafana_k8s_part_of: *grafana_k8s_part_of
 
   k8s/config/transfer:
     short_description: Apply the Grafana Kubernetes ConfigMap
@@ -504,8 +502,6 @@ argument_specs:
     options:
       grafana_k8s_resource_name: *grafana_k8s_resource_name
       grafana_k8s_part_of: *grafana_k8s_part_of
-      grafana_remote_config_dir: *grafana_remote_config_dir
-      remote_config_dir: *remote_config_dir
       k8s_namespace: *k8s_namespace
 
   k8s/config/copy_dashboard:
@@ -541,7 +537,6 @@ argument_specs:
       - Deletes the Grafana Kubernetes Secret from the namespace.
     options:
       grafana_k8s_resource_name: *grafana_k8s_resource_name
-      grafana_k8s_part_of: *grafana_k8s_part_of
       k8s_namespace: *k8s_namespace
 
   openshift/start:
@@ -552,7 +547,6 @@ argument_specs:
       grafana_k8s_resource_name: *grafana_k8s_resource_name
       grafana_k8s_part_of: *grafana_k8s_part_of
       grafana_use_tls: *grafana_use_tls
-      k8s_namespace: *k8s_namespace
       grafana_openshift_route: *grafana_openshift_route
 
   openshift/ping:
@@ -569,6 +563,4 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       grafana_k8s_resource_name: *grafana_k8s_resource_name
-      grafana_k8s_part_of: *grafana_k8s_part_of
-      k8s_namespace: *k8s_namespace
       grafana_openshift_route: *grafana_openshift_route
