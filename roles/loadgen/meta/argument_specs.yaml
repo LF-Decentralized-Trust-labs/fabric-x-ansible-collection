@@ -418,7 +418,6 @@ argument_specs:
           - "Example: C(committer-sidecar1)."
       k8s_namespace: &k8s_namespace
         type: str
-        required: true
         description:
           - Kubernetes namespace used for loadgen resources.
           - "Example: C(fabricx-loadgen)."

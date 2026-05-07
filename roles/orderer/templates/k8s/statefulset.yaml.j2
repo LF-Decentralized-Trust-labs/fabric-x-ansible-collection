@@ -9,7 +9,6 @@ kind: StatefulSet
 metadata:
   # One StatefulSet per orderer node instance.
   name: {{ orderer_k8s_resource_name }}
-  namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ orderer_k8s_resource_name }}
     app.kubernetes.io/component: {{ orderer_component_type }}

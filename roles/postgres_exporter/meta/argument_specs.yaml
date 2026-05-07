@@ -27,7 +27,6 @@ argument_specs:
           - "Example: C({'domain': 'org1.example.com', 'common_name': 'postgres-exporter.org1.example.com', 'organization_name': 'Org1'})."
       k8s_namespace: &k8s_namespace
         type: str
-        required: true
         description:
           - "Sets the Kubernetes namespace used for Postgres Exporter resources."
           - "Example: C(postgres-exporter)."

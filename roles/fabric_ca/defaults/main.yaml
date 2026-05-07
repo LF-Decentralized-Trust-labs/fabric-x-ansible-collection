@@ -20,7 +20,7 @@ fabric_ca_registry_endpoint: "{{ lookup('env', 'FABRIC_CA_REGISTRY_ENDPOINT') or
 # Sets the Fabric CA image name.
 fabric_ca_image_name: fabric-ca
 # Sets the Fabric CA image tag.
-fabric_ca_image_tag: 1.5.15
+fabric_ca_image_tag: 1.5.19
 # Sets the Fabric CA image.
 fabric_ca_image: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
 # Sets the container name used for the Fabric CA server runtime.
@@ -30,7 +30,7 @@ fabric_ca_git_hub_url: github.com
 # Sets the Fabric CA source repository.
 fabric_ca_git_repo: hyperledger/fabric-ca
 # Pins the Fabric CA source revision.
-fabric_ca_git_commit: v1.5.15
+fabric_ca_git_commit: v1.5.19
 # Sets the Go package path used to build the server binary.
 fabric_ca_server_source_code_package: cmd/fabric-ca-server
 # Sets the server Go package path.
@@ -84,9 +84,9 @@ fabric_ca_csr_hosts:
   - '{{ inventory_hostname }}'
 # Sets the curve used for Fabric CA server key generation.
 fabric_ca_server_openssl_curve: P-256
-# Sets the server CA private key filename.
-fabric_ca_server_ca_private_key_file: ca-key.pem
-# Sets the server CA certificate filename.
+# Sets the server CA private key path, relative to the Fabric CA config root.
+fabric_ca_server_ca_private_key_file: priv_sk
+# Sets the server CA certificate path, relative to the Fabric CA config root.
 fabric_ca_server_ca_cert_file: ca-cert.pem
 # Sets the server TLS private key filename.
 fabric_ca_server_tls_private_key_file: tls-key.pem

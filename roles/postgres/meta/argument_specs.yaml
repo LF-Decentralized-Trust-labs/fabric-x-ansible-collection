@@ -421,9 +421,7 @@ argument_specs:
     options:
       postgres_k8s_resource_name: *postgres_k8s_resource_name
       postgres_k8s_part_of: *postgres_k8s_part_of
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
       postgres_k8s_wait_timeout: *postgres_k8s_wait_timeout
       postgres_k8s_fs_group: *postgres_k8s_fs_group
       postgres_k8s_loadbalancer_expose_port: *postgres_k8s_loadbalancer_expose_port
@@ -474,9 +472,7 @@ argument_specs:
       - The persistent volume claim is removed separately by the C(data/rm) entry point.
     options:
       postgres_k8s_resource_name: *postgres_k8s_resource_name
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
       postgres_k8s_node_port: *postgres_k8s_node_port
       postgres_k8s_loadbalancer_expose_port: *postgres_k8s_loadbalancer_expose_port
@@ -497,9 +493,7 @@ argument_specs:
     options:
       postgres_k8s_resource_name: *postgres_k8s_resource_name
       postgres_k8s_part_of: *postgres_k8s_part_of
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
       postgres_remote_config_dir: *postgres_remote_config_dir
       remote_config_dir: *remote_config_dir
       postgres_tls_private_key_file: *postgres_tls_private_key_file
@@ -517,9 +511,7 @@ argument_specs:
       - This entry point is typically invoked from the PostgreSQL crypto cleanup workflow.
     options:
       postgres_k8s_resource_name: *postgres_k8s_resource_name
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
   k8s/config/transfer:
     short_description: Apply the PostgreSQL Kubernetes ConfigMap
@@ -530,9 +522,7 @@ argument_specs:
     options:
       postgres_k8s_resource_name: *postgres_k8s_resource_name
       postgres_k8s_part_of: *postgres_k8s_part_of
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
       postgres_remote_config_dir: *postgres_remote_config_dir
       remote_config_dir: *remote_config_dir
       postgres_use_mtls: *postgres_use_mtls
@@ -546,9 +536,7 @@ argument_specs:
       - This entry point is typically invoked from the PostgreSQL config cleanup workflow.
     options:
       postgres_k8s_resource_name: *postgres_k8s_resource_name
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
   openshift/start:
     short_description: Start PostgreSQL on OpenShift

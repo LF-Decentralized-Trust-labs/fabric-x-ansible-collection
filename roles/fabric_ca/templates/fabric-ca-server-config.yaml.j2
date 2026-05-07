@@ -43,7 +43,7 @@
 #############################################################################
 
 # Version of config file
-version: 1.5.15
+version: 1.5.16
 
 # Server's listening port (default: 7054)
 port: {{ fabric_ca_port }}
@@ -59,6 +59,7 @@ cors:
 
 {% include './sections/tls.yaml.j2' +%}
 {% include './sections/ca.yaml.j2' +%}
+{% include './sections/bccsp.yaml.j2' +%}
 {% include './sections/idemix.yaml.j2' +%}
 {% include './sections/crl.yaml.j2' +%}
 {% include './sections/operations.yaml.j2' +%}

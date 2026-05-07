@@ -21,5 +21,6 @@
     node_exporter_k8s_tls_cert_path: "{{ node_exporter_remote_config_dir }}/tls/{{ node_exporter_tls_cert_file }}"
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/secret.yaml.j2

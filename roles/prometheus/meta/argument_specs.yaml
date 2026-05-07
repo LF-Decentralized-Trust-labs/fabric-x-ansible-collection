@@ -34,7 +34,6 @@ argument_specs:
           - "Example: C(/tmp/prometheus-artifacts)."
       k8s_namespace: &k8s_namespace
         type: str
-        required: true
         description:
           - Kubernetes namespace used for Prometheus resources.
           - "Example: C(observability)."

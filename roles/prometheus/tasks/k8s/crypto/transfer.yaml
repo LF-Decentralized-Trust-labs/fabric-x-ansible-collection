@@ -21,6 +21,7 @@
     prometheus_k8s_tls_server_cert_path: "{{ prometheus_remote_config_dir }}/tls/{{ prometheus_tls_cert_file }}"
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/secret.yaml.j2
   when: prometheus_use_tls

@@ -201,7 +201,6 @@ argument_specs:
           - When undefined or C(false), the collector port is not included in the LoadBalancer Service.
       k8s_namespace: &k8s_namespace
         type: str
-        required: true
         description:
           - "Sets the Kubernetes namespace used for Jaeger resources."
           - "Example: C(tracing) when Jaeger shares a namespace with other observability services."

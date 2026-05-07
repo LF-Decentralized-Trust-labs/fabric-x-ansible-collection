@@ -10,7 +10,6 @@ kind: Service
 metadata:
   # LoadBalancer Service -- exposes Fabric-X Loadgen outside the cluster for external clients.
   name: {{ loadgen_k8s_resource_name }}-loadbalancer
-  namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ loadgen_k8s_resource_name }}
     app.kubernetes.io/component: loadgen
