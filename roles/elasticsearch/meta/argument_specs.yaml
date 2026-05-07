@@ -424,8 +424,7 @@ argument_specs:
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
       elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
-      k8s_namespace:
-        <<: *k8s_namespace
+      k8s_namespace: *k8s_namespace
       elasticsearch_k8s_wait_timeout: *elasticsearch_k8s_wait_timeout
       elasticsearch_k8s_fs_group: *elasticsearch_k8s_fs_group
       elasticsearch_k8s_http_node_port: *elasticsearch_k8s_http_node_port
@@ -475,8 +474,7 @@ argument_specs:
       - The persistent volume claim is removed separately by the C(data/rm) entry point so data cleanup stays explicit.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
-      k8s_namespace:
-        <<: *k8s_namespace
+      k8s_namespace: *k8s_namespace
 
       elasticsearch_k8s_http_node_port: *elasticsearch_k8s_http_node_port
       elasticsearch_k8s_loadbalancer_expose_http_port: *elasticsearch_k8s_loadbalancer_expose_http_port
@@ -497,8 +495,7 @@ argument_specs:
       - This entry point is typically invoked from the ElasticSearch crypto cleanup workflow after the remote certs are removed.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
-      k8s_namespace:
-        <<: *k8s_namespace
+      k8s_namespace: *k8s_namespace
 
   k8s/crypto/transfer:
     short_description: Apply the ElasticSearch Kubernetes TLS Secret
@@ -508,8 +505,7 @@ argument_specs:
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
       elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
-      k8s_namespace:
-        <<: *k8s_namespace
+      k8s_namespace: *k8s_namespace
       elasticsearch_use_tls: *elasticsearch_use_tls
       elasticsearch_remote_config_dir: *elasticsearch_remote_config_dir
       remote_config_dir: *remote_config_dir

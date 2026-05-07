@@ -819,8 +819,7 @@ argument_specs:
       - "The ConfigMap is only populated for tablet components because tablets run the YSQL initialization command."
     options:
       yugabyte_component_type: *yugabyte_component_type
-      k8s_namespace:
-        <<: *k8s_namespace
+      k8s_namespace: *k8s_namespace
       remote_config_dir: *remote_config_dir
       yugabyte_remote_config_dir: *yugabyte_remote_config_dir
       yugabyte_init_script_file: *yugabyte_init_script_file
@@ -833,8 +832,7 @@ argument_specs:
       - "Applies the master ClusterIP Service, optional NodePort and LoadBalancer Services, and StatefulSet for the current YugabyteDB master node."
       - "The StatefulSet runs C(yb-master), configures replication from the master host list, attaches persistent storage, mounts TLS Secrets when enabled, and waits for readiness when requested."
     options:
-      k8s_namespace:
-        <<: *k8s_namespace
+      k8s_namespace: *k8s_namespace
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
       yugabyte_k8s_part_of: *yugabyte_k8s_part_of
       yugabyte_image: *yugabyte_image
@@ -876,8 +874,7 @@ argument_specs:
       - "Deletes the master StatefulSet and its Services for the current YugabyteDB master node."
       - "PersistentVolumeClaims are left for C(data/rm) so runtime removal and data removal stay separate."
     options:
-      k8s_namespace:
-        <<: *k8s_namespace
+      k8s_namespace: *k8s_namespace
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
       yugabyte_k8s_master_rpc_node_port: *yugabyte_k8s_master_rpc_node_port
       yugabyte_k8s_loadbalancer_expose_master_rpc_port: *yugabyte_k8s_loadbalancer_expose_master_rpc_port
@@ -890,8 +887,7 @@ argument_specs:
       - "Applies the tablet ClusterIP Service, optional NodePort and LoadBalancer Services, and StatefulSet for the current YugabyteDB tablet node, then initializes the database on the first tablet."
       - "The StatefulSet runs C(yb-tserver), connects to the configured masters, attaches persistent storage, mounts the initialization ConfigMap and TLS Secret when enabled, and waits for readiness when requested."
     options:
-      k8s_namespace:
-        <<: *k8s_namespace
+      k8s_namespace: *k8s_namespace
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
       yugabyte_k8s_part_of: *yugabyte_k8s_part_of
       yugabyte_image: *yugabyte_image
@@ -946,8 +942,7 @@ argument_specs:
       - "Deletes the tablet StatefulSet and its Services for the current YugabyteDB tablet node."
       - "PersistentVolumeClaims are left for C(data/rm) so runtime removal and data removal stay separate."
     options:
-      k8s_namespace:
-        <<: *k8s_namespace
+      k8s_namespace: *k8s_namespace
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
       yugabyte_k8s_tablet_pgsql_node_port: *yugabyte_k8s_tablet_pgsql_node_port
       yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port: *yugabyte_k8s_loadbalancer_expose_tablet_pgsql_port
@@ -968,8 +963,7 @@ argument_specs:
       - "Creates the Kubernetes Secret that exposes the YugabyteDB TLS key pair and CA certificate to pods."
       - "The Secret is mounted by master and tablet StatefulSets when YugabyteDB TLS is enabled."
     options:
-      k8s_namespace:
-        <<: *k8s_namespace
+      k8s_namespace: *k8s_namespace
       remote_config_dir: *remote_config_dir
       yugabyte_k8s_resource_name: *yugabyte_k8s_resource_name
       yugabyte_k8s_part_of: *yugabyte_k8s_part_of
