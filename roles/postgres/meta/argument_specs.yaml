@@ -274,7 +274,7 @@ argument_specs:
         description:
           - Fabric organization inputs used by PostgreSQL TLS generation paths.
           - The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA.
-          - "Example: C({'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'postgres0', 'secret': '<fabric-ca-secret>'}, 'fabric_ca_host': 'fabric-ca0'})."
+          - "Example: C({'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'postgres0', 'secret': 'postgres0PWD'}, 'fabric_ca_host': 'fca-org1'})."
 
   ping:
     short_description: Check PostgreSQL reachability
@@ -354,8 +354,7 @@ argument_specs:
       postgres_use_container: *postgres_use_container
       postgres_remote_data_dir: *postgres_remote_data_dir
       remote_data_dir: *remote_data_dir
-      k8s_namespace:
-        <<: *k8s_namespace
+      k8s_namespace: *k8s_namespace
 
   container/start:
     short_description: Start PostgreSQL in a container
@@ -438,7 +437,6 @@ argument_specs:
       postgres_container_data_dir: *postgres_container_data_dir
       postgres_db: *postgres_db
       postgres_user: *postgres_user
-      postgres_password: *postgres_password
       postgres_use_tls: *postgres_use_tls
       postgres_use_mtls: *postgres_use_mtls
       postgres_tls_private_key_file: *postgres_tls_private_key_file
@@ -465,7 +463,6 @@ argument_specs:
       - Probes C(actual_host):C(postgres_port) when C(postgres_k8s_loadbalancer_expose_port) is C(true).
       - This entry point is invoked internally by C(ping) when PostgreSQL runs on Kubernetes.
     options:
-      actual_host: *actual_host
       postgres_k8s_node_port: *postgres_k8s_node_port
       postgres_port: *postgres_port
       postgres_k8s_loadbalancer_expose_port: *postgres_k8s_loadbalancer_expose_port
@@ -477,7 +474,6 @@ argument_specs:
       - The persistent volume claim is removed separately by the C(data/rm) entry point.
     options:
       postgres_k8s_resource_name: *postgres_k8s_resource_name
-      postgres_k8s_part_of: *postgres_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -491,10 +487,6 @@ argument_specs:
       - Selects pods using C(postgres_k8s_resource_name) as the PostgreSQL application label.
     options:
       postgres_k8s_resource_name: *postgres_k8s_resource_name
-      postgres_k8s_part_of: *postgres_k8s_part_of
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
 
   k8s/crypto/transfer:
     short_description: Apply the PostgreSQL Kubernetes Secret
@@ -525,7 +517,6 @@ argument_specs:
       - This entry point is typically invoked from the PostgreSQL crypto cleanup workflow.
     options:
       postgres_k8s_resource_name: *postgres_k8s_resource_name
-      postgres_k8s_part_of: *postgres_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -555,7 +546,6 @@ argument_specs:
       - This entry point is typically invoked from the PostgreSQL config cleanup workflow.
     options:
       postgres_k8s_resource_name: *postgres_k8s_resource_name
-      postgres_k8s_part_of: *postgres_k8s_part_of
       k8s_namespace:
         <<: *k8s_namespace
         required: true
@@ -566,43 +556,7 @@ argument_specs:
       - Starts PostgreSQL on OpenShift by reusing the generic C(k8s/start) resource flow.
       - Creates or updates the namespace, headless Service, optional external Services, StatefulSet, PVC, credentials Secret, and optional mTLS ConfigMap.
       - Uses the same storage, probe, TLS, and image pull settings as Kubernetes mode.
-    options:
-      postgres_k8s_resource_name: *postgres_k8s_resource_name
-      postgres_k8s_part_of: *postgres_k8s_part_of
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
-      postgres_k8s_wait_timeout: *postgres_k8s_wait_timeout
-      postgres_k8s_fs_group: *postgres_k8s_fs_group
-      postgres_k8s_loadbalancer_expose_port: *postgres_k8s_loadbalancer_expose_port
-      postgres_k8s_node_port: *postgres_k8s_node_port
-      postgres_port: *postgres_port
-      postgres_registry_endpoint: *postgres_registry_endpoint
-      postgres_image_name: *postgres_image_name
-      postgres_image_tag: *postgres_image_tag
-      postgres_image: *postgres_image
-      postgres_container_config_dir: *postgres_container_config_dir
-      postgres_container_data_dir: *postgres_container_data_dir
-      postgres_db: *postgres_db
-      postgres_user: *postgres_user
-      postgres_password: *postgres_password
-      postgres_use_tls: *postgres_use_tls
-      postgres_use_mtls: *postgres_use_mtls
-      postgres_tls_private_key_file: *postgres_tls_private_key_file
-      postgres_tls_cert_file: *postgres_tls_cert_file
-      postgres_mtls_clients: *postgres_mtls_clients
-      postgres_extra_cmd_opts: *postgres_extra_cmd_opts
-      k8s_storage_size: *k8s_storage_size
-      k8s_storage_class: *k8s_storage_class
-      k8s_image_pull_secret: *k8s_image_pull_secret
-      k8s_readiness_probe_initial_delay_seconds: *k8s_readiness_probe_initial_delay_seconds
-      k8s_readiness_probe_period_seconds: *k8s_readiness_probe_period_seconds
-      k8s_readiness_probe_timeout_seconds: *k8s_readiness_probe_timeout_seconds
-      k8s_readiness_probe_failure_threshold: *k8s_readiness_probe_failure_threshold
-      k8s_liveness_probe_initial_delay_seconds: *k8s_liveness_probe_initial_delay_seconds
-      k8s_liveness_probe_period_seconds: *k8s_liveness_probe_period_seconds
-      k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
-      k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
+    options: {}
 
   openshift/ping:
     short_description: Check PostgreSQL OpenShift services
@@ -615,12 +569,7 @@ argument_specs:
       - Removes PostgreSQL OpenShift resources by reusing the generic C(k8s/rm) resource flow.
       - Deletes the StatefulSet, headless Service, optional NodePort Service, and optional LoadBalancer Service from C(k8s_namespace).
       - The persistent volume claim is removed separately by the C(data/rm) entry point.
-    options:
-      postgres_k8s_resource_name: *postgres_k8s_resource_name
-      postgres_k8s_part_of: *postgres_k8s_part_of
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+    options: {}
 
   crypto/setup:
     short_description: Prepare PostgreSQL TLS materials
@@ -631,8 +580,7 @@ argument_specs:
       postgres_use_tls: *postgres_use_tls
       postgres_use_k8s: *postgres_use_k8s
       postgres_use_openshift: *postgres_use_openshift
-      organization:
-        <<: *organization
+      organization: *organization
 
   crypto/fetch:
     short_description: Fetch PostgreSQL TLS certificates
@@ -668,8 +616,7 @@ argument_specs:
       remote_config_dir: *remote_config_dir
       postgres_tls_private_key_file: *postgres_tls_private_key_file
       postgres_tls_cert_file: *postgres_tls_cert_file
-      organization:
-        <<: *organization
+      organization: *organization
 
   crypto/cryptogen/transfer:
     short_description: Transfer PostgreSQL TLS materials from cryptogen

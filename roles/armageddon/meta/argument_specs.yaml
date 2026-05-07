@@ -97,11 +97,6 @@ argument_specs:
         default: "/tmp/crypto"
         description:
           - Container directory for mounted crypto artifacts.
-      armageddon_config_file: &armageddon_config_file
-        type: str
-        default: armageddon.yaml
-        description:
-          - Armageddon config filename.
       armageddon_shared_config_file: &armageddon_shared_config_file
         type: str
         default: shared_config.yaml
@@ -143,7 +138,6 @@ argument_specs:
       armageddon_artifacts_dir: *armageddon_artifacts_dir
       fetched_artifacts_dir: *fetched_artifacts_dir
       armageddon_container_crypto_artifacts_dir: *armageddon_container_crypto_artifacts_dir
-      armageddon_config_file: *armageddon_config_file
       armageddon_shared_config_file: *armageddon_shared_config_file
 
   create_shared_config:
@@ -191,7 +185,6 @@ argument_specs:
       armageddon_bin_name: *armageddon_bin_name
       config_build_dir: *config_build_dir
       armageddon_artifacts_dir: *armageddon_artifacts_dir
-      armageddon_config_file: *armageddon_config_file
       armageddon_shared_config_file: *armageddon_shared_config_file
       cli_bin_dir: *cli_bin_dir
 
@@ -207,7 +200,6 @@ argument_specs:
       armageddon_image_tag: *armageddon_image_tag
       armageddon_image: *armageddon_image
       armageddon_container_config_dir: *armageddon_container_config_dir
-      armageddon_config_file: *armageddon_config_file
       armageddon_shared_config_file: *armageddon_shared_config_file
       armageddon_container_output_dir: *armageddon_container_output_dir
       config_build_dir: *config_build_dir

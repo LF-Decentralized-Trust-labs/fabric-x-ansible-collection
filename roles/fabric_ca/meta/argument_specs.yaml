@@ -123,11 +123,6 @@ argument_specs:
         description:
           - "Provides an optional Kubernetes image pull secret from shared inventory."
           - "Example: C(registry-pull-secret)."
-      k8s_resources: &k8s_resources
-        type: dict
-        description:
-          - Optional Kubernetes container resource requests and limits.
-          - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
       postgres_db_host: &postgres_db_host
         type: str
         required: true
@@ -139,7 +134,7 @@ argument_specs:
         required: true
         description:
           - "Provides the organization metadata defined elsewhere in inventory; C(domain) is required."
-          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com'})."
+          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com', 'fabric_ca_host': 'fca-org1', 'role': 'peer', 'peer': {'name': 'peer0', 'secret': 'peer0PWD'}})."
       fabric_ca_server_remote_config_dir: &fabric_ca_server_remote_config_dir
         type: path
         default: "{{ remote_config_dir }}"
@@ -188,6 +183,11 @@ argument_specs:
         default: 0
         description:
           - "Sets the pod fsGroup for the Fabric CA deployment."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
       fabric_ca_port: &fabric_ca_port
         type: int
         required: true
@@ -356,14 +356,14 @@ argument_specs:
         description:
           - "Supplies the identity used by Fabric CA client operations."
           - "Store secrets in Ansible Vault."
-          - "Example: C(peer0.org1.example.com)."
+          - "Example: C({'name': 'peer0', 'secret': 'peer0PWD', 'type': 'peer', 'affiliation': 'org1.department1', 'attrs': {'hf.Revoker': 'true'}})."
       fabric_ca_admin: &fabric_ca_admin
         type: dict
         required: true
         description:
           - "Supplies the bootstrap administrator rendered into the server registry section; C(name) and C(secret) are required."
           - "Store the secret in Ansible Vault."
-          - "Example: C(admin)."
+          - "Example: C({'name': 'admin', 'secret': 'adminPWD', 'attrs': {'hf.Registrar.Roles': '*', 'hf.Registrar.Attributes': '*'}})."
       fabric_ca_tls_certfile: &fabric_ca_tls_certfile
         type: path
         description:
@@ -504,13 +504,11 @@ argument_specs:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
       fabric_ca_identity: *fabric_ca_identity
       fabric_ca_enrollment_type: *fabric_ca_enrollment_type
-      fabric_ca_host: *fabric_ca_host
       fabric_ca_client_bin_name: *fabric_ca_client_bin_name
       fabric_ca_scheme: *fabric_ca_scheme
       fabric_ca_name: *fabric_ca_name
       fabric_ca_idemix_enrollment_profile: *fabric_ca_idemix_enrollment_profile
       fabric_ca_enrollment_profile: *fabric_ca_enrollment_profile
-      actual_host: *actual_host
       fabric_ca_csr_hosts: *fabric_ca_csr_hosts
       fabric_ca_use_tls: *fabric_ca_use_tls
       fabric_ca_tls_certfile: *fabric_ca_tls_certfile
@@ -523,7 +521,6 @@ argument_specs:
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
       fabric_ca_identity: *fabric_ca_identity
-      fabric_ca_host: *fabric_ca_host
       fabric_ca_client_bin_name: *fabric_ca_client_bin_name
       fabric_ca_scheme: *fabric_ca_scheme
       fabric_ca_name: *fabric_ca_name
@@ -538,12 +535,10 @@ argument_specs:
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
       fabric_ca_identity: *fabric_ca_identity
-      fabric_ca_host: *fabric_ca_host
       fabric_ca_client_bin_name: *fabric_ca_client_bin_name
       fabric_ca_scheme: *fabric_ca_scheme
       fabric_ca_name: *fabric_ca_name
       fabric_ca_enrollment_profile: *fabric_ca_enrollment_profile
-      actual_host: *actual_host
       fabric_ca_csr_hosts: *fabric_ca_csr_hosts
       fabric_ca_use_tls: *fabric_ca_use_tls
       fabric_ca_tls_certfile: *fabric_ca_tls_certfile
@@ -555,7 +550,6 @@ argument_specs:
       - "Uses the enrolled registrar MSP and effective server address to report identities without changing server state."
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
-      fabric_ca_host: *fabric_ca_host
       fabric_ca_client_bin_name: *fabric_ca_client_bin_name
       fabric_ca_scheme: *fabric_ca_scheme
       fabric_ca_name: *fabric_ca_name
@@ -570,7 +564,6 @@ argument_specs:
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
       fabric_ca_identity: *fabric_ca_identity
-      fabric_ca_host: *fabric_ca_host
       fabric_ca_client_bin_name: *fabric_ca_client_bin_name
       fabric_ca_scheme: *fabric_ca_scheme
       fabric_ca_name: *fabric_ca_name
@@ -584,7 +577,6 @@ argument_specs:
       - "Uses the registrar MSP and effective address to retrieve current revocation data without changing runtime resources."
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
-      fabric_ca_host: *fabric_ca_host
       fabric_ca_client_bin_name: *fabric_ca_client_bin_name
       fabric_ca_scheme: *fabric_ca_scheme
       fabric_ca_name: *fabric_ca_name
@@ -600,7 +592,6 @@ argument_specs:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
       fabric_ca_identity: *fabric_ca_identity
       fabric_ca_enrollment_type: *fabric_ca_enrollment_type
-      fabric_ca_host: *fabric_ca_host
       fabric_ca_image: *fabric_ca_image
       fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
       fabric_ca_image_name: *fabric_ca_image_name
@@ -611,7 +602,6 @@ argument_specs:
       fabric_ca_name: *fabric_ca_name
       fabric_ca_idemix_enrollment_profile: *fabric_ca_idemix_enrollment_profile
       fabric_ca_enrollment_profile: *fabric_ca_enrollment_profile
-      actual_host: *actual_host
       fabric_ca_csr_hosts: *fabric_ca_csr_hosts
       fabric_ca_use_tls: *fabric_ca_use_tls
       fabric_ca_tls_certfile: *fabric_ca_tls_certfile
@@ -624,7 +614,6 @@ argument_specs:
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
       fabric_ca_identity: *fabric_ca_identity
-      fabric_ca_host: *fabric_ca_host
       fabric_ca_image: *fabric_ca_image
       fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
       fabric_ca_image_name: *fabric_ca_image_name
@@ -644,7 +633,6 @@ argument_specs:
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
       fabric_ca_identity: *fabric_ca_identity
-      fabric_ca_host: *fabric_ca_host
       fabric_ca_image: *fabric_ca_image
       fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
       fabric_ca_image_name: *fabric_ca_image_name
@@ -654,7 +642,6 @@ argument_specs:
       fabric_ca_scheme: *fabric_ca_scheme
       fabric_ca_name: *fabric_ca_name
       fabric_ca_enrollment_profile: *fabric_ca_enrollment_profile
-      actual_host: *actual_host
       fabric_ca_csr_hosts: *fabric_ca_csr_hosts
       fabric_ca_use_tls: *fabric_ca_use_tls
       fabric_ca_tls_certfile: *fabric_ca_tls_certfile
@@ -666,7 +653,6 @@ argument_specs:
       - "Mounts the registrar MSP read-only for query-style behavior and does not change server runtime resources."
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
-      fabric_ca_host: *fabric_ca_host
       fabric_ca_image: *fabric_ca_image
       fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
       fabric_ca_image_name: *fabric_ca_image_name
@@ -686,7 +672,6 @@ argument_specs:
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
       fabric_ca_identity: *fabric_ca_identity
-      fabric_ca_host: *fabric_ca_host
       fabric_ca_image: *fabric_ca_image
       fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
       fabric_ca_image_name: *fabric_ca_image_name
@@ -704,7 +689,6 @@ argument_specs:
       - "Mounts the registrar MSP and retrieves revocation data without installing client binaries on the host."
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
-      fabric_ca_host: *fabric_ca_host
       fabric_ca_image: *fabric_ca_image
       fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
       fabric_ca_image_name: *fabric_ca_image_name
@@ -734,6 +718,8 @@ argument_specs:
     options:
       fabric_ca_server_use_container: *fabric_ca_server_use_container
       fabric_ca_server_use_bin: *fabric_ca_server_use_bin
+      fabric_ca_server_use_k8s: *fabric_ca_server_use_k8s
+      fabric_ca_server_use_openshift: *fabric_ca_server_use_openshift
 
   server/teardown:
     short_description: Dispatch server teardown
@@ -912,6 +898,7 @@ argument_specs:
       fabric_ca_server_k8s_loadbalancer_expose_port: *fabric_ca_server_k8s_loadbalancer_expose_port
       fabric_ca_server_k8s_loadbalancer_expose_operations_port: *fabric_ca_server_k8s_loadbalancer_expose_operations_port
       k8s_resources: *k8s_resources
+      organization: *organization
 
   server/k8s/ping:
     short_description: Check that the Fabric CA Kubernetes service is reachable
@@ -932,7 +919,6 @@ argument_specs:
       - "Fetches runtime output from the server pod in C(k8s_namespace) without changing cluster resources."
     options:
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
-      fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
 
   server/k8s/rm:
     short_description: Remove server Kubernetes runtime resources
@@ -941,7 +927,6 @@ argument_specs:
       - "Removes Deployment and Service objects while leaving ConfigMap and Secret cleanup to their dedicated tasks."
     options:
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
-      fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
       k8s_namespace: *k8s_namespace
       fabric_ca_server_k8s_node_port: *fabric_ca_server_k8s_node_port
       fabric_ca_server_k8s_loadbalancer_expose_port: *fabric_ca_server_k8s_loadbalancer_expose_port
@@ -960,6 +945,7 @@ argument_specs:
       fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
       postgres_db_host: *postgres_db_host
       k8s_namespace: *k8s_namespace
+      organization: *organization
 
   server/k8s/config/rm:
     short_description: Remove the server ConfigMap
@@ -968,7 +954,6 @@ argument_specs:
       - "Removes Kubernetes config resources while leaving runtime and crypto Secret cleanup to separate tasks."
     options:
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
-      fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
       k8s_namespace: *k8s_namespace
 
   server/k8s/crypto/transfer:
@@ -987,6 +972,7 @@ argument_specs:
       fabric_ca_server_tls_cert_file: *fabric_ca_server_tls_cert_file
       fabric_ca_use_tls: *fabric_ca_use_tls
       k8s_namespace: *k8s_namespace
+      organization: *organization
 
   server/k8s/crypto/rm:
     short_description: Remove the server Secret
@@ -995,7 +981,6 @@ argument_specs:
       - "Removes server CA and TLS key material from Kubernetes while leaving local files untouched."
     options:
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
-      fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
       k8s_namespace: *k8s_namespace
 
   server/crypto/setup:
@@ -1022,6 +1007,7 @@ argument_specs:
       fabric_ca_server_tls_cert_file: *fabric_ca_server_tls_cert_file
       fabric_ca_server_openssl_curve: *fabric_ca_server_openssl_curve
       fabric_ca_csr_cn: *fabric_ca_csr_cn
+      fabric_ca_name: *fabric_ca_name
       fabric_ca_csr_hosts: *fabric_ca_csr_hosts
       openssl_san_ipv4_regex: *openssl_san_ipv4_regex
       organization: *organization
@@ -1081,7 +1067,6 @@ argument_specs:
       fabric_ca_admin: *fabric_ca_admin
       fabric_ca_csr_cn: *fabric_ca_csr_cn
       fabric_ca_csr_hosts: *fabric_ca_csr_hosts
-      actual_host: *actual_host
       fabric_ca_csr_expiry: *fabric_ca_csr_expiry
       organization: *organization
       postgres_db_host: *postgres_db_host
@@ -1109,7 +1094,7 @@ argument_specs:
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
       fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
       fabric_ca_use_tls: *fabric_ca_use_tls
-      k8s_namespace: *k8s_namespace
+      organization: *organization
       fabric_ca_server_openshift_route: *fabric_ca_server_openshift_route
       fabric_ca_server_openshift_operations_route: *fabric_ca_server_openshift_operations_route
 
@@ -1128,7 +1113,5 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       fabric_ca_server_k8s_resource_name: *fabric_ca_server_k8s_resource_name
-      fabric_ca_server_k8s_part_of: *fabric_ca_server_k8s_part_of
-      k8s_namespace: *k8s_namespace
       fabric_ca_server_openshift_route: *fabric_ca_server_openshift_route
       fabric_ca_server_openshift_operations_route: *fabric_ca_server_openshift_operations_route

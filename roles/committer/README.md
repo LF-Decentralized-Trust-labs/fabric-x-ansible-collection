@@ -402,8 +402,6 @@ Tear down the selected component and remove binary, config, and crypto assets. I
 ```yaml
 - name: Remove all committer artifacts
   vars:
-    # Committer component handled by the entry point. Example: `coordinator`.
-    committer_component_type: "coordinator"
     # Enable host-binary deployment mode.
     committer_use_bin: false
   ansible.builtin.include_role:
@@ -448,6 +446,8 @@ Query the component metrics endpoint and print the response body. Uses `actual_h
     committer_http_protocol: "{{ 'https' if committer_use_tls else 'http' }}"
     # Metrics port exposed by the selected committer component. Example: `9443`.
     committer_metrics_port: 9443
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: get_metrics
@@ -478,12 +478,18 @@ Transfer cryptogen artifacts or enroll with Fabric CA for the selected component
 ```yaml
 - name: Prepare crypto material
   vars:
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
       peer:
-        name: "committer-sidecar-1"
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
     # Selects the OpenShift deployment branch.
@@ -632,20 +638,30 @@ Run the validator container with its generated configuration directory mounted r
 ```yaml
 - name: Start the validator container
   vars:
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
+    # Generated config file name used by the selected component.
+    committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Config directory inside the committer container.
+    committer_container_config_dir: /config
     # Container name used by the committer container helper.
     committer_container_name: "{{ inventory_hostname }}"
     # Fully qualified committer image.
     committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
-    # Config directory inside the committer container.
-    committer_container_config_dir: /config
-    # Remote config directory managed by the role.
-    committer_remote_config_dir: "{{ remote_config_dir }}"
-    # Generated config file name used by the selected component.
-    committer_config_file: "config-{{ committer_component_type }}.yml"
-    # RPC port exposed by the selected committer component. Example: `7051`.
-    committer_rpc_port: 7051
+    # Image name for the committer container.
+    committer_image_name: fabric-x-committer
+    # Image tag for the committer container.
+    committer_image_tag: 0.1.9
     # Metrics port exposed by the selected committer component. Example: `9443`.
     committer_metrics_port: 9443
+    # Container registry endpoint for the committer image.
+    committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+    # Remote config directory managed by the role.
+    committer_remote_config_dir: "{{ remote_config_dir }}"
+    # RPC port exposed by the selected committer component. Example: `7051`.
+    committer_rpc_port: 7051
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: validator/container/start
@@ -660,20 +676,30 @@ Run the verifier container with its generated configuration directory mounted re
 ```yaml
 - name: Start the verifier container
   vars:
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
+    # Generated config file name used by the selected component.
+    committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Config directory inside the committer container.
+    committer_container_config_dir: /config
     # Container name used by the committer container helper.
     committer_container_name: "{{ inventory_hostname }}"
     # Fully qualified committer image.
     committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
-    # Config directory inside the committer container.
-    committer_container_config_dir: /config
-    # Remote config directory managed by the role.
-    committer_remote_config_dir: "{{ remote_config_dir }}"
-    # Generated config file name used by the selected component.
-    committer_config_file: "config-{{ committer_component_type }}.yml"
-    # RPC port exposed by the selected committer component. Example: `7051`.
-    committer_rpc_port: 7051
+    # Image name for the committer container.
+    committer_image_name: fabric-x-committer
+    # Image tag for the committer container.
+    committer_image_tag: 0.1.9
     # Metrics port exposed by the selected committer component. Example: `9443`.
     committer_metrics_port: 9443
+    # Container registry endpoint for the committer image.
+    committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+    # Remote config directory managed by the role.
+    committer_remote_config_dir: "{{ remote_config_dir }}"
+    # RPC port exposed by the selected committer component. Example: `7051`.
+    committer_rpc_port: 7051
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: verifier/container/start
@@ -688,20 +714,30 @@ Run the coordinator container with its generated configuration directory mounted
 ```yaml
 - name: Start the coordinator container
   vars:
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
+    # Generated config file name used by the selected component.
+    committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Config directory inside the committer container.
+    committer_container_config_dir: /config
     # Container name used by the committer container helper.
     committer_container_name: "{{ inventory_hostname }}"
     # Fully qualified committer image.
     committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
-    # Config directory inside the committer container.
-    committer_container_config_dir: /config
-    # Remote config directory managed by the role.
-    committer_remote_config_dir: "{{ remote_config_dir }}"
-    # Generated config file name used by the selected component.
-    committer_config_file: "config-{{ committer_component_type }}.yml"
-    # RPC port exposed by the selected committer component. Example: `7051`.
-    committer_rpc_port: 7051
+    # Image name for the committer container.
+    committer_image_name: fabric-x-committer
+    # Image tag for the committer container.
+    committer_image_tag: 0.1.9
     # Metrics port exposed by the selected committer component. Example: `9443`.
     committer_metrics_port: 9443
+    # Container registry endpoint for the committer image.
+    committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+    # Remote config directory managed by the role.
+    committer_remote_config_dir: "{{ remote_config_dir }}"
+    # RPC port exposed by the selected committer component. Example: `7051`.
+    committer_rpc_port: 7051
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: coordinator/container/start
@@ -716,24 +752,36 @@ Ensure the sidecar data directory exists and run the sidecar container with conf
 ```yaml
 - name: Start the sidecar container
   vars:
-    # Container name used by the committer container helper.
-    committer_container_name: "{{ inventory_hostname }}"
-    # Fully qualified committer image.
-    committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
+    # Generated config file name used by the selected component.
+    committer_config_file: "config-{{ committer_component_type }}.yml"
     # Config directory inside the committer container.
     committer_container_config_dir: /config
     # Data directory inside the committer container.
     committer_container_data_dir: /data
+    # Container name used by the committer container helper.
+    committer_container_name: "{{ inventory_hostname }}"
+    # Fully qualified committer image.
+    committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
+    # Image name for the committer container.
+    committer_image_name: fabric-x-committer
+    # Image tag for the committer container.
+    committer_image_tag: 0.1.9
+    # Metrics port exposed by the selected committer component. Example: `9443`.
+    committer_metrics_port: 9443
+    # Container registry endpoint for the committer image.
+    committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Remote data directory managed by the role.
     committer_remote_data_dir: "{{ remote_data_dir }}"
-    # Generated config file name used by the selected component.
-    committer_config_file: "config-{{ committer_component_type }}.yml"
     # RPC port exposed by the selected committer component. Example: `7051`.
     committer_rpc_port: 7051
-    # Metrics port exposed by the selected committer component. Example: `9443`.
-    committer_metrics_port: 9443
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
+    # Remote data directory used by delegated sidecar tasks. Example: `/var/lib/fabricx/committer/sidecar`.
+    remote_data_dir: "/var/lib/fabricx/committer/sidecar"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: sidecar/container/start
@@ -748,20 +796,30 @@ Run the query-service container with its generated configuration directory mount
 ```yaml
 - name: Start the query-service container
   vars:
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
+    # Generated config file name used by the selected component.
+    committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Config directory inside the committer container.
+    committer_container_config_dir: /config
     # Container name used by the committer container helper.
     committer_container_name: "{{ inventory_hostname }}"
     # Fully qualified committer image.
     committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
-    # Config directory inside the committer container.
-    committer_container_config_dir: /config
-    # Remote config directory managed by the role.
-    committer_remote_config_dir: "{{ remote_config_dir }}"
-    # Generated config file name used by the selected component.
-    committer_config_file: "config-{{ committer_component_type }}.yml"
-    # RPC port exposed by the selected committer component. Example: `7051`.
-    committer_rpc_port: 7051
+    # Image name for the committer container.
+    committer_image_name: fabric-x-committer
+    # Image tag for the committer container.
+    committer_image_tag: 0.1.9
     # Metrics port exposed by the selected committer component. Example: `9443`.
     committer_metrics_port: 9443
+    # Container registry endpoint for the committer image.
+    committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+    # Remote config directory managed by the role.
+    committer_remote_config_dir: "{{ remote_config_dir }}"
+    # RPC port exposed by the selected committer component. Example: `7051`.
+    committer_rpc_port: 7051
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: query_service/container/start
@@ -846,6 +904,8 @@ Remove the component config directory and the Kubernetes ConfigMap when enabled.
     committer_use_k8s: false
     # Selects the OpenShift deployment branch.
     committer_use_openshift: false
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: config/rm
@@ -891,12 +951,14 @@ Generate the PostgreSQL connection settings consumed by the committer component.
 ```yaml
 - name: Transfer PostgreSQL DB config
   vars:
-    # Inventory host name of the Postgres backend used by validator or query-service configuration. Example: `postgres-committer-1`.
-    postgres_db_host: "postgres-committer-1"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx/artifacts"
+    # Inventory host name of the Postgres backend used by validator or query-service configuration. Example: `postgres-committer-1`.
+    postgres_db_host: "postgres-committer-1"
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: config/db/postgres/transfer
@@ -911,12 +973,12 @@ Generate the Yugabyte connection settings consumed by the committer component. C
 ```yaml
 - name: Transfer Yugabyte DB config
   vars:
-    # Yugabyte cluster identifier used by validator or query-service configuration. Example: `yb-committer-ledger`.
-    yugabyte_cluster_ref_id: "yb-committer-ledger"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx/artifacts"
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: config/db/yugabyte/transfer
@@ -935,13 +997,18 @@ Copy mTLS certificates for the committer service-to-service connections. Builds 
     committer_mtls_clients:
       - "committer-sidecar-1"
       - "loadgen-1"
-    # mTLS organizations trusted by the component. Example: `[{'domain': 'org2.example.com'}]`.
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
     committer_mtls_orgs:
-      - domain: "org2.example.com"
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx/artifacts"
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: config/mtls/transfer
@@ -959,13 +1026,16 @@ Copy monitoring mTLS certificates for Prometheus scraping. Builds monitoring tru
     # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
     committer_monitoring_mtls_clients:
       - "prometheus-1"
-    # Monitoring mTLS organizations trusted by the component. Example: `[{'domain': 'monitoring.example.com'}]`.
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
     committer_monitoring_mtls_orgs:
-      - domain: "monitoring.example.com"
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx/artifacts"
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: config/mtls/monitoring/transfer
@@ -982,12 +1052,14 @@ Remove local TLS assets and the Kubernetes Secret when enabled. Cleans TLS mater
   vars:
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
-    # Enable TLS material for the selected component.
-    committer_use_tls: false
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
     # Selects the OpenShift deployment branch.
     committer_use_openshift: false
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: crypto/rm
@@ -1002,20 +1074,28 @@ Copy cryptogen-generated TLS assets for the selected committer component. Sideca
 ```yaml
 - name: Transfer committer crypto from cryptogen
   vars:
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
-    organization:
-      name: "Org1"
-      domain: "org1.example.com"
-      peer:
-        name: "committer-sidecar-1"
     # Committer component handled by the entry point. Example: `coordinator`.
     committer_component_type: "coordinator"
-    # Control-node directory that stores cryptogen output. Example: `/tmp/fabricx/crypto-material`.
-    cryptogen_artifacts_dir: "/tmp/fabricx/crypto-material"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Enable TLS material for the selected component.
     committer_use_tls: false
+    # Control-node directory that stores cryptogen output. Example: `/tmp/fabricx/crypto-material`.
+    cryptogen_artifacts_dir: "/tmp/fabricx/crypto-material"
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
+      peer:
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: crypto/cryptogen/transfer
@@ -1030,26 +1110,34 @@ Enroll the selected committer component against its Fabric CA and write the resu
 ```yaml
 - name: Enroll committer crypto with Fabric CA
   vars:
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
+    # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
+    committer_openshift_metrics_route: "committer-metrics.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
+    committer_openshift_route: "committer-rpc.apps.example.com"
+    # Remote config directory managed by the role.
+    committer_remote_config_dir: "{{ remote_config_dir }}"
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
+    # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
+    fetched_artifacts_dir: "/tmp/fabricx/artifacts"
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
       peer:
-        name: "committer-sidecar-1"
-    # Committer component handled by the entry point. Example: `coordinator`.
-    committer_component_type: "coordinator"
-    # Remote config directory managed by the role.
-    committer_remote_config_dir: "{{ remote_config_dir }}"
-    # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
-    fetched_artifacts_dir: "/tmp/fabricx/artifacts"
-    # Enable TLS material for the selected component.
-    committer_use_tls: false
-    # Real machine host. Example: `myvpc.cloud.ibm.com`.
-    actual_host: "myvpc.cloud.ibm.com"
-    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
-    committer_openshift_route: "committer-rpc.apps.example.com"
-    # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
-    committer_openshift_metrics_route: "committer-metrics.apps.example.com"
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: crypto/fabric_ca/enroll
@@ -1064,18 +1152,18 @@ Remove the sidecar data directory and sidecar PVC when Kubernetes mode is enable
 ```yaml
 - name: Remove sidecar data
   vars:
-    # Remote data directory managed by the role.
-    committer_remote_data_dir: "{{ remote_data_dir }}"
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
+    # Remote data directory managed by the role.
+    committer_remote_data_dir: "{{ remote_data_dir }}"
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
     # Selects the OpenShift deployment branch.
     committer_use_openshift: false
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
+    # Remote data directory used by delegated sidecar tasks. Example: `/var/lib/fabricx/committer/sidecar`.
+    remote_data_dir: "/var/lib/fabricx/committer/sidecar"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: data/rm
@@ -1092,8 +1180,6 @@ Delete the committer Kubernetes ConfigMap. Uses `committer_k8s_resource_name` an
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
   ansible.builtin.include_role:
@@ -1112,8 +1198,6 @@ Delete the committer Kubernetes Secret. Uses `committer_k8s_resource_name` and `
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
   ansible.builtin.include_role:
@@ -1134,20 +1218,30 @@ Create the committer Kubernetes Secret from the generated TLS materials. Include
     committer_component_type: "coordinator"
     # Crypto material base name for the committer.
     committer_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}"
-    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
-    committer_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
     committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
       peer:
-        name: "committer-sidecar-1"
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: k8s/crypto/transfer
@@ -1164,8 +1258,6 @@ Collect logs from committer pods through the shared Kubernetes helper role. Uses
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: k8s/fetch_logs
@@ -1204,12 +1296,16 @@ Run the validator binary with its generated configuration file. Waits for the va
   vars:
     # Binary name managed by the committer role.
     committer_bin_name: committer
-    # Remote config directory managed by the role.
-    committer_remote_config_dir: "{{ remote_config_dir }}"
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
     # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Remote config directory managed by the role.
+    committer_remote_config_dir: "{{ remote_config_dir }}"
     # RPC port exposed by the selected committer component. Example: `7051`.
     committer_rpc_port: 7051
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: validator/bin/start
@@ -1226,12 +1322,16 @@ Run the verifier binary with its generated configuration file. Waits for the ver
   vars:
     # Binary name managed by the committer role.
     committer_bin_name: committer
-    # Remote config directory managed by the role.
-    committer_remote_config_dir: "{{ remote_config_dir }}"
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
     # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Remote config directory managed by the role.
+    committer_remote_config_dir: "{{ remote_config_dir }}"
     # RPC port exposed by the selected committer component. Example: `7051`.
     committer_rpc_port: 7051
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: verifier/bin/start
@@ -1248,12 +1348,16 @@ Run the coordinator binary with its generated configuration file. Waits for the 
   vars:
     # Binary name managed by the committer role.
     committer_bin_name: committer
-    # Remote config directory managed by the role.
-    committer_remote_config_dir: "{{ remote_config_dir }}"
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
     # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Remote config directory managed by the role.
+    committer_remote_config_dir: "{{ remote_config_dir }}"
     # RPC port exposed by the selected committer component. Example: `7051`.
     committer_rpc_port: 7051
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: coordinator/bin/start
@@ -1270,14 +1374,20 @@ Ensure the sidecar data directory exists and run the sidecar binary. Waits for t
   vars:
     # Binary name managed by the committer role.
     committer_bin_name: committer
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
+    # Generated config file name used by the selected component.
+    committer_config_file: "config-{{ committer_component_type }}.yml"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Remote data directory managed by the role.
     committer_remote_data_dir: "{{ remote_data_dir }}"
-    # Generated config file name used by the selected component.
-    committer_config_file: "config-{{ committer_component_type }}.yml"
     # RPC port exposed by the selected committer component. Example: `7051`.
     committer_rpc_port: 7051
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
+    # Remote data directory used by delegated sidecar tasks. Example: `/var/lib/fabricx/committer/sidecar`.
+    remote_data_dir: "/var/lib/fabricx/committer/sidecar"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: sidecar/bin/start
@@ -1294,12 +1404,16 @@ Run the query-service binary with its generated configuration file. Waits for th
   vars:
     # Binary name managed by the committer role.
     committer_bin_name: committer
-    # Remote config directory managed by the role.
-    committer_remote_config_dir: "{{ remote_config_dir }}"
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
     # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Remote config directory managed by the role.
+    committer_remote_config_dir: "{{ remote_config_dir }}"
     # RPC port exposed by the selected committer component. Example: `7051`.
     committer_rpc_port: 7051
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: query_service/bin/start
@@ -1314,8 +1428,14 @@ Render validator configuration, DB settings, mTLS assets, and optional Kubernete
 ```yaml
 - name: Generate validator config
   vars:
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
     # Active config directory used by the committer runtime.
     committer_config_dir: "{{ committer_remote_config_dir if committer_use_bin else committer_container_config_dir }}"
+    # Generated config file name used by the selected component.
+    committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Config directory inside the committer container.
+    committer_container_config_dir: /config
     # Maximum size of the committer database connection pool. Example: `32`.
     committer_database_max_connections: 32
     # Minimum size of the committer database connection pool. Example: `8`.
@@ -1330,62 +1450,81 @@ Render validator configuration, DB settings, mTLS assets, and optional Kubernete
     committer_database_retry_multiplier: 1.5
     # Jitter factor applied to database retry intervals. Example: `0.5`.
     committer_database_retry_randomization_factor: 0.5
-    # Remote config directory managed by the role.
-    committer_remote_config_dir: "{{ remote_config_dir }}"
-    # Generated config file name used by the selected component.
-    committer_config_file: "config-{{ committer_component_type }}.yml"
-    # Metrics port exposed by the selected committer component. Example: `9443`.
-    committer_metrics_port: 9443
-    # RPC port exposed by the selected committer component. Example: `7051`.
-    committer_rpc_port: 7051
-    # Enable TLS material for the selected component.
-    committer_use_tls: false
-    # Enable TLS for the monitoring endpoint.
-    committer_monitoring_use_tls: "{{ committer_use_tls }}"
-    # Enable mTLS for the selected component.
-    committer_use_mtls: false
-    # Enable mTLS for the monitoring endpoint.
-    committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
-    # Server rate-limit requests per second. Example: `2000`.
-    committer_server_rate_limit_requests_per_second: 2000
-    # Server rate-limit burst. Example: `200`.
-    committer_server_rate_limit_burst: 200
-    # Server keepalive ping interval. Example: `300s`.
-    committer_server_keep_alive_time: "300s"
-    # Server keepalive acknowledgment timeout. Example: `600s`.
-    committer_server_keep_alive_timeout: "600s"
-    # Minimum client keepalive interval enforced by the server. Example: `60s`.
-    committer_server_keep_alive_min_time: "60s"
-    # Allow keepalive pings without active streams. Example: `false`.
-    committer_server_keep_alive_permit_without_stream: false
-    # Maximum concurrent streaming RPCs allowed per client connection. Example: `128`.
-    committer_server_max_concurrent_streams: 128
-    # Monitoring rate-limit requests per second. Example: `1000`.
-    committer_monitoring_rate_limit_requests_per_second: 1000
-    # Monitoring rate-limit burst. Example: `100`.
-    committer_monitoring_rate_limit_burst: 100
-    # Log level emitted by the committer component.
-    committer_log_level: info
     # Log format emitted by the committer component.
     committer_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
+    # Log level emitted by the committer component.
+    committer_log_level: info
+    # Metrics port exposed by the selected committer component. Example: `9443`.
+    committer_metrics_port: 9443
+    # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
+    committer_monitoring_mtls_clients:
+      - "prometheus-1"
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
+    committer_monitoring_mtls_orgs:
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
+    # Monitoring rate-limit burst. Example: `100`.
+    committer_monitoring_rate_limit_burst: 100
+    # Monitoring rate-limit requests per second. Example: `1000`.
+    committer_monitoring_rate_limit_requests_per_second: 1000
+    # Enable mTLS for the monitoring endpoint.
+    committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
+    # Enable TLS for the monitoring endpoint.
+    committer_monitoring_use_tls: "{{ committer_use_tls }}"
+    # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
+    committer_mtls_clients:
+      - "committer-sidecar-1"
+      - "loadgen-1"
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
+    committer_mtls_orgs:
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
+    # Remote config directory managed by the role.
+    committer_remote_config_dir: "{{ remote_config_dir }}"
+    # Worker count for validator commit processing. Example: `20`.
+    committer_resource_limits_max_workers_for_committer: 20
     # Worker count for validator transaction preparation. Example: `4`.
     committer_resource_limits_max_workers_for_preparer: 4
     # Worker count for validator MVCC checks. Example: `8`.
     committer_resource_limits_max_workers_for_validator: 8
-    # Worker count for validator commit processing. Example: `20`.
-    committer_resource_limits_max_workers_for_committer: 20
     # Minimum validator transaction batch size. Example: `100`.
     committer_resource_limits_min_transaction_batch_size: 100
     # Timeout for the minimum validator transaction batch size. Example: `2s`.
     committer_resource_limits_timeout_for_min_transaction_batch_size: "2s"
-    # Inventory host name of the Postgres backend used by validator or query-service configuration. Example: `postgres-committer-1`.
-    postgres_db_host: "postgres-committer-1"
-    # Yugabyte cluster identifier used by validator or query-service configuration. Example: `yb-committer-ledger`.
-    yugabyte_cluster_ref_id: "yb-committer-ledger"
+    # RPC port exposed by the selected committer component. Example: `7051`.
+    committer_rpc_port: 7051
+    # Minimum client keepalive interval enforced by the server. Example: `60s`.
+    committer_server_keep_alive_min_time: "60s"
+    # Allow keepalive pings without active streams. Example: `false`.
+    committer_server_keep_alive_permit_without_stream: false
+    # Server keepalive ping interval. Example: `300s`.
+    committer_server_keep_alive_time: "300s"
+    # Server keepalive acknowledgment timeout. Example: `600s`.
+    committer_server_keep_alive_timeout: "600s"
+    # Maximum concurrent streaming RPCs allowed per client connection. Example: `128`.
+    committer_server_max_concurrent_streams: 128
+    # Server rate-limit burst. Example: `200`.
+    committer_server_rate_limit_burst: 200
+    # Server rate-limit requests per second. Example: `2000`.
+    committer_server_rate_limit_requests_per_second: 2000
+    # Enable host-binary deployment mode.
+    committer_use_bin: false
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Enable mTLS for the selected component.
+    committer_use_mtls: false
     # Selects the OpenShift deployment branch.
     committer_use_openshift: false
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
+    # Inventory host name of the Postgres backend used by validator or query-service configuration. Example: `postgres-committer-1`.
+    postgres_db_host: "postgres-committer-1"
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
+    # Yugabyte cluster identifier used by validator or query-service configuration. Example: `yb-committer-ledger`.
+    yugabyte_cluster_ref_id: "yb-committer-ledger"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: validator/config/transfer
@@ -1400,58 +1539,83 @@ Render verifier configuration, mTLS assets, and optional Kubernetes ConfigMap. I
 ```yaml
 - name: Generate verifier config
   vars:
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
     # Active config directory used by the committer runtime.
     committer_config_dir: "{{ committer_remote_config_dir if committer_use_bin else committer_container_config_dir }}"
-    # Remote config directory managed by the role.
-    committer_remote_config_dir: "{{ remote_config_dir }}"
     # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Config directory inside the committer container.
+    committer_container_config_dir: /config
+    # Log format emitted by the committer component.
+    committer_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
+    # Log level emitted by the committer component.
+    committer_log_level: info
     # Metrics port exposed by the selected committer component. Example: `9443`.
     committer_metrics_port: 9443
-    # RPC port exposed by the selected committer component. Example: `7051`.
-    committer_rpc_port: 7051
-    # Enable TLS material for the selected component.
-    committer_use_tls: false
-    # Enable TLS for the monitoring endpoint.
-    committer_monitoring_use_tls: "{{ committer_use_tls }}"
-    # Enable mTLS for the selected component.
-    committer_use_mtls: false
+    # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
+    committer_monitoring_mtls_clients:
+      - "prometheus-1"
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
+    committer_monitoring_mtls_orgs:
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
+    # Monitoring rate-limit burst. Example: `100`.
+    committer_monitoring_rate_limit_burst: 100
+    # Monitoring rate-limit requests per second. Example: `1000`.
+    committer_monitoring_rate_limit_requests_per_second: 1000
     # Enable mTLS for the monitoring endpoint.
     committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
-    # Server rate-limit requests per second. Example: `2000`.
-    committer_server_rate_limit_requests_per_second: 2000
-    # Server rate-limit burst. Example: `200`.
-    committer_server_rate_limit_burst: 200
-    # Server keepalive ping interval. Example: `300s`.
-    committer_server_keep_alive_time: "300s"
-    # Server keepalive acknowledgment timeout. Example: `600s`.
-    committer_server_keep_alive_timeout: "600s"
+    # Enable TLS for the monitoring endpoint.
+    committer_monitoring_use_tls: "{{ committer_use_tls }}"
+    # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
+    committer_mtls_clients:
+      - "committer-sidecar-1"
+      - "loadgen-1"
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
+    committer_mtls_orgs:
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
+    # Remote config directory managed by the role.
+    committer_remote_config_dir: "{{ remote_config_dir }}"
+    # RPC port exposed by the selected committer component. Example: `7051`.
+    committer_rpc_port: 7051
     # Minimum client keepalive interval enforced by the server. Example: `60s`.
     committer_server_keep_alive_min_time: "60s"
     # Allow keepalive pings without active streams. Example: `false`.
     committer_server_keep_alive_permit_without_stream: false
+    # Server keepalive ping interval. Example: `300s`.
+    committer_server_keep_alive_time: "300s"
+    # Server keepalive acknowledgment timeout. Example: `600s`.
+    committer_server_keep_alive_timeout: "600s"
     # Maximum concurrent streaming RPCs allowed per client connection. Example: `128`.
     committer_server_max_concurrent_streams: 128
-    # Monitoring rate-limit requests per second. Example: `1000`.
-    committer_monitoring_rate_limit_requests_per_second: 1000
-    # Monitoring rate-limit burst. Example: `100`.
-    committer_monitoring_rate_limit_burst: 100
-    # Log level emitted by the committer component.
-    committer_log_level: info
-    # Log format emitted by the committer component.
-    committer_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
-    # Parallel signature verification workers. Example: `16`.
-    committer_verifier_parallelism: 16
+    # Server rate-limit burst. Example: `200`.
+    committer_server_rate_limit_burst: 200
+    # Server rate-limit requests per second. Example: `2000`.
+    committer_server_rate_limit_requests_per_second: 2000
+    # Enable host-binary deployment mode.
+    committer_use_bin: false
+    # Enable Kubernetes deployment mode.
+    committer_use_k8s: false
+    # Enable mTLS for the selected component.
+    committer_use_mtls: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
     # Signature verification batch size cutoff. Example: `500`.
     committer_verifier_batch_size_cutoff: 500
     # Signature verification batch timeout. Example: `2ms`.
     committer_verifier_batch_time_cutoff: "2ms"
     # Channel buffer size for the verifier pipeline. Example: `1000`.
     committer_verifier_channel_buffer_size: 1000
-    # Enable Kubernetes deployment mode.
-    committer_use_k8s: false
-    # Selects the OpenShift deployment branch.
-    committer_use_openshift: false
+    # Parallel signature verification workers. Example: `16`.
+    committer_verifier_parallelism: 16
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: verifier/config/transfer
@@ -1466,66 +1630,79 @@ Render coordinator configuration, validator and verifier CA bundles, and optiona
 ```yaml
 - name: Generate coordinator config
   vars:
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
     # Active config directory used by the committer runtime.
     committer_config_dir: "{{ committer_remote_config_dir if committer_use_bin else committer_container_config_dir }}"
-    # Maximum size of the committer database connection pool. Example: `32`.
-    committer_database_max_connections: 32
-    # Minimum size of the committer database connection pool. Example: `8`.
-    committer_database_min_connections: 8
-    # Initial backoff interval for database retries. Example: `500ms`.
-    committer_database_retry_initial_interval: "500ms"
-    # Maximum total elapsed time allowed for database retries. Example: `15m`.
-    committer_database_retry_max_elapsed_time: "15m"
-    # Maximum interval allowed between database retry attempts. Example: `60s`.
-    committer_database_retry_max_interval: "60s"
-    # Exponential multiplier applied to database retry intervals. Example: `1.5`.
-    committer_database_retry_multiplier: 1.5
-    # Jitter factor applied to database retry intervals. Example: `0.5`.
-    committer_database_retry_randomization_factor: 0.5
-    # Remote config directory managed by the role.
-    committer_remote_config_dir: "{{ remote_config_dir }}"
     # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
-    # Metrics port exposed by the selected committer component. Example: `9443`.
-    committer_metrics_port: 9443
-    # RPC port exposed by the selected committer component. Example: `7051`.
-    committer_rpc_port: 7051
-    # Enable TLS material for the selected component.
-    committer_use_tls: false
-    # Enable TLS for the monitoring endpoint.
-    committer_monitoring_use_tls: "{{ committer_use_tls }}"
-    # Enable mTLS for the selected component.
-    committer_use_mtls: false
-    # Enable mTLS for the monitoring endpoint.
-    committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
-    # Server rate-limit requests per second. Example: `2000`.
-    committer_server_rate_limit_requests_per_second: 2000
-    # Server rate-limit burst. Example: `200`.
-    committer_server_rate_limit_burst: 200
-    # Server keepalive ping interval. Example: `300s`.
-    committer_server_keep_alive_time: "300s"
-    # Server keepalive acknowledgment timeout. Example: `600s`.
-    committer_server_keep_alive_timeout: "600s"
-    # Minimum client keepalive interval enforced by the server. Example: `60s`.
-    committer_server_keep_alive_min_time: "60s"
-    # Allow keepalive pings without active streams. Example: `false`.
-    committer_server_keep_alive_permit_without_stream: false
-    # Maximum concurrent streaming RPCs allowed per client connection. Example: `128`.
-    committer_server_max_concurrent_streams: 128
-    # Monitoring rate-limit requests per second. Example: `1000`.
-    committer_monitoring_rate_limit_requests_per_second: 1000
-    # Monitoring rate-limit burst. Example: `100`.
-    committer_monitoring_rate_limit_burst: 100
-    # Log level emitted by the committer component.
-    committer_log_level: info
-    # Log format emitted by the committer component.
-    committer_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
+    # Config directory inside the committer container.
+    committer_container_config_dir: /config
     # Dependency-graph constructor count for the coordinator. Example: `4`.
     committer_coordinator_dep_graph_constructors: 4
     # Dependency-graph waiting transaction limit for the coordinator. Example: `20000000`.
     committer_coordinator_dep_graph_wait_tx_limit: 20000000
     # Per-goroutine channel buffer size for the coordinator. Example: `10`.
     committer_coordinator_per_channel_buffer_size_per_goroutine: 10
+    # Log format emitted by the committer component.
+    committer_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
+    # Log level emitted by the committer component.
+    committer_log_level: info
+    # Metrics port exposed by the selected committer component. Example: `9443`.
+    committer_metrics_port: 9443
+    # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
+    committer_monitoring_mtls_clients:
+      - "prometheus-1"
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
+    committer_monitoring_mtls_orgs:
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
+    # Monitoring rate-limit burst. Example: `100`.
+    committer_monitoring_rate_limit_burst: 100
+    # Monitoring rate-limit requests per second. Example: `1000`.
+    committer_monitoring_rate_limit_requests_per_second: 1000
+    # Enable mTLS for the monitoring endpoint.
+    committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
+    # Enable TLS for the monitoring endpoint.
+    committer_monitoring_use_tls: "{{ committer_use_tls }}"
+    # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
+    committer_mtls_clients:
+      - "committer-sidecar-1"
+      - "loadgen-1"
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
+    committer_mtls_orgs:
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
+    # Remote config directory managed by the role.
+    committer_remote_config_dir: "{{ remote_config_dir }}"
+    # RPC port exposed by the selected committer component. Example: `7051`.
+    committer_rpc_port: 7051
+    # Minimum client keepalive interval enforced by the server. Example: `60s`.
+    committer_server_keep_alive_min_time: "60s"
+    # Allow keepalive pings without active streams. Example: `false`.
+    committer_server_keep_alive_permit_without_stream: false
+    # Server keepalive ping interval. Example: `300s`.
+    committer_server_keep_alive_time: "300s"
+    # Server keepalive acknowledgment timeout. Example: `600s`.
+    committer_server_keep_alive_timeout: "600s"
+    # Maximum concurrent streaming RPCs allowed per client connection. Example: `128`.
+    committer_server_max_concurrent_streams: 128
+    # Server rate-limit burst. Example: `200`.
+    committer_server_rate_limit_burst: 200
+    # Server rate-limit requests per second. Example: `2000`.
+    committer_server_rate_limit_requests_per_second: 2000
+    # Enable host-binary deployment mode.
+    committer_use_bin: false
+    # Enable Kubernetes deployment mode.
+    committer_use_k8s: false
+    # Enable mTLS for the selected component.
+    committer_use_mtls: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
     # Inventory hosts for validator components. Example: `['committer-validator-1', 'committer-validator-2']`.
     committer_validators:
       - "committer-validator-1"
@@ -1536,10 +1713,8 @@ Render coordinator configuration, validator and verifier CA bundles, and optiona
       - "committer-verifier-2"
     # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx/artifacts"
-    # Enable Kubernetes deployment mode.
-    committer_use_k8s: false
-    # Selects the OpenShift deployment branch.
-    committer_use_openshift: false
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: coordinator/config/transfer
@@ -1554,78 +1729,115 @@ Render sidecar configuration, upstream TLS bundles, and optional Kubernetes Conf
 ```yaml
 - name: Generate sidecar config
   vars:
+    # Fabric channel identifier consumed by sidecar configuration. Example: `mychannel`.
+    channel_id: "mychannel"
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
     # Active config directory used by the committer runtime.
     committer_config_dir: "{{ committer_remote_config_dir if committer_use_bin else committer_container_config_dir }}"
-    # Active data directory used by the committer runtime.
-    committer_data_dir: "{{ committer_remote_data_dir if committer_use_bin else committer_container_data_dir }}"
-    # Remote config directory managed by the role.
-    committer_remote_config_dir: "{{ remote_config_dir }}"
     # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Config directory inside the committer container.
+    committer_container_config_dir: /config
+    # Data directory inside the committer container.
+    committer_container_data_dir: /data
+    # Inventory host name of the coordinator component. Example: `committer-coordinator-1`.
+    committer_coordinator: "committer-coordinator-1"
+    # Active data directory used by the committer runtime.
+    committer_data_dir: "{{ committer_remote_data_dir if committer_use_bin else committer_container_data_dir }}"
+    # Log format emitted by the committer component.
+    committer_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
+    # Log level emitted by the committer component.
+    committer_log_level: info
     # Metrics port exposed by the selected committer component. Example: `9443`.
     committer_metrics_port: 9443
-    # RPC port exposed by the selected committer component. Example: `7051`.
-    committer_rpc_port: 7051
-    # Enable TLS material for the selected component.
-    committer_use_tls: false
-    # Enable TLS for the monitoring endpoint.
-    committer_monitoring_use_tls: "{{ committer_use_tls }}"
-    # Enable mTLS for the selected component.
-    committer_use_mtls: false
+    # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
+    committer_monitoring_mtls_clients:
+      - "prometheus-1"
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
+    committer_monitoring_mtls_orgs:
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
+    # Monitoring rate-limit burst. Example: `100`.
+    committer_monitoring_rate_limit_burst: 100
+    # Monitoring rate-limit requests per second. Example: `1000`.
+    committer_monitoring_rate_limit_requests_per_second: 1000
     # Enable mTLS for the monitoring endpoint.
     committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
-    # Server rate-limit requests per second. Example: `2000`.
-    committer_server_rate_limit_requests_per_second: 2000
-    # Server rate-limit burst. Example: `200`.
-    committer_server_rate_limit_burst: 200
-    # Server keepalive ping interval. Example: `300s`.
-    committer_server_keep_alive_time: "300s"
-    # Server keepalive acknowledgment timeout. Example: `600s`.
-    committer_server_keep_alive_timeout: "600s"
+    # Enable TLS for the monitoring endpoint.
+    committer_monitoring_use_tls: "{{ committer_use_tls }}"
+    # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
+    committer_mtls_clients:
+      - "committer-sidecar-1"
+      - "loadgen-1"
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
+    committer_mtls_orgs:
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
+    # Remote config directory managed by the role.
+    committer_remote_config_dir: "{{ remote_config_dir }}"
+    # Remote data directory managed by the role.
+    committer_remote_data_dir: "{{ remote_data_dir }}"
+    # RPC port exposed by the selected committer component. Example: `7051`.
+    committer_rpc_port: 7051
     # Minimum client keepalive interval enforced by the server. Example: `60s`.
     committer_server_keep_alive_min_time: "60s"
     # Allow keepalive pings without active streams. Example: `false`.
     committer_server_keep_alive_permit_without_stream: false
+    # Server keepalive ping interval. Example: `300s`.
+    committer_server_keep_alive_time: "300s"
+    # Server keepalive acknowledgment timeout. Example: `600s`.
+    committer_server_keep_alive_timeout: "600s"
     # Maximum concurrent streaming RPCs allowed per client connection. Example: `128`.
     committer_server_max_concurrent_streams: 128
-    # Monitoring rate-limit requests per second. Example: `1000`.
-    committer_monitoring_rate_limit_requests_per_second: 1000
-    # Monitoring rate-limit burst. Example: `100`.
-    committer_monitoring_rate_limit_burst: 100
-    # Log level emitted by the committer component.
-    committer_log_level: info
-    # Log format emitted by the committer component.
-    committer_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
-    # Fabric channel identifier consumed by sidecar configuration. Example: `mychannel`.
-    channel_id: "mychannel"
-    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'peer': {'name': 'committer-sidecar-1'}}`.
-    organization:
-      name: "Org1"
-      domain: "org1.example.com"
-      peer:
-        name: "committer-sidecar-1"
-    # Inventory host name of the coordinator component. Example: `committer-coordinator-1`.
-    committer_coordinator: "committer-coordinator-1"
-    # Interval between sidecar committed-block updates. Example: `5s`.
-    committer_sidecar_last_committed_block_set_interval: "5s"
-    # Sidecar waiting transaction limit. Example: `20000000`.
-    committer_sidecar_waiting_txs_limit: 20000000
+    # Server rate-limit burst. Example: `200`.
+    committer_server_rate_limit_burst: 200
+    # Server rate-limit requests per second. Example: `2000`.
+    committer_server_rate_limit_requests_per_second: 2000
     # Sidecar internal channel buffer size. Example: `100`.
     committer_sidecar_channel_buffer_size: 100
+    # Interval between sidecar committed-block updates. Example: `5s`.
+    committer_sidecar_last_committed_block_set_interval: "5s"
     # Sidecar ledger sync interval. Example: `100`.
     committer_sidecar_ledger_sync_interval: 100
     # Sidecar notification timeout. Example: `10m`.
     committer_sidecar_notification_max_timeout: "10m"
+    # Sidecar waiting transaction limit. Example: `20000000`.
+    committer_sidecar_waiting_txs_limit: 20000000
+    # Enable host-binary deployment mode.
+    committer_use_bin: false
+    # Enable Kubernetes deployment mode.
+    committer_use_k8s: false
+    # Enable mTLS for the selected component.
+    committer_use_mtls: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
+    # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
+    fetched_artifacts_dir: "/tmp/fabricx/artifacts"
     # Inventory hosts for orderer assembler components. Example: `['orderer-assembler-1', 'orderer-assembler-2']`.
     orderer_assemblers:
       - "orderer-assembler-1"
       - "orderer-assembler-2"
-    # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
-    fetched_artifacts_dir: "/tmp/fabricx/artifacts"
-    # Enable Kubernetes deployment mode.
-    committer_use_k8s: false
-    # Selects the OpenShift deployment branch.
-    committer_use_openshift: false
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
+      peer:
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
+    # Remote data directory used by delegated sidecar tasks. Example: `/var/lib/fabricx/committer/sidecar`.
+    remote_data_dir: "/var/lib/fabricx/committer/sidecar"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: sidecar/config/transfer
@@ -1640,8 +1852,14 @@ Render query-service configuration, DB settings, mTLS assets, and optional Kuber
 ```yaml
 - name: Generate query-service config
   vars:
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
     # Active config directory used by the committer runtime.
     committer_config_dir: "{{ committer_remote_config_dir if committer_use_bin else committer_container_config_dir }}"
+    # Generated config file name used by the selected component.
+    committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Config directory inside the committer container.
+    committer_container_config_dir: /config
     # Maximum size of the committer database connection pool. Example: `32`.
     committer_database_max_connections: 32
     # Minimum size of the committer database connection pool. Example: `8`.
@@ -1656,66 +1874,85 @@ Render query-service configuration, DB settings, mTLS assets, and optional Kuber
     committer_database_retry_multiplier: 1.5
     # Jitter factor applied to database retry intervals. Example: `0.5`.
     committer_database_retry_randomization_factor: 0.5
-    # Remote config directory managed by the role.
-    committer_remote_config_dir: "{{ remote_config_dir }}"
-    # Generated config file name used by the selected component.
-    committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Log format emitted by the committer component.
+    committer_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
+    # Log level emitted by the committer component.
+    committer_log_level: info
     # Metrics port exposed by the selected committer component. Example: `9443`.
     committer_metrics_port: 9443
-    # RPC port exposed by the selected committer component. Example: `7051`.
-    committer_rpc_port: 7051
-    # Enable TLS material for the selected component.
-    committer_use_tls: false
-    # Enable TLS for the monitoring endpoint.
-    committer_monitoring_use_tls: "{{ committer_use_tls }}"
-    # Enable mTLS for the selected component.
-    committer_use_mtls: false
+    # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
+    committer_monitoring_mtls_clients:
+      - "prometheus-1"
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
+    committer_monitoring_mtls_orgs:
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
+    # Monitoring rate-limit burst. Example: `100`.
+    committer_monitoring_rate_limit_burst: 100
+    # Monitoring rate-limit requests per second. Example: `1000`.
+    committer_monitoring_rate_limit_requests_per_second: 1000
     # Enable mTLS for the monitoring endpoint.
     committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
-    # Server rate-limit requests per second. Example: `2000`.
-    committer_server_rate_limit_requests_per_second: 2000
-    # Server rate-limit burst. Example: `200`.
-    committer_server_rate_limit_burst: 200
-    # Server keepalive ping interval. Example: `300s`.
-    committer_server_keep_alive_time: "300s"
-    # Server keepalive acknowledgment timeout. Example: `600s`.
-    committer_server_keep_alive_timeout: "600s"
+    # Enable TLS for the monitoring endpoint.
+    committer_monitoring_use_tls: "{{ committer_use_tls }}"
+    # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
+    committer_mtls_clients:
+      - "committer-sidecar-1"
+      - "loadgen-1"
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
+    committer_mtls_orgs:
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
+    # Query-service maximum active views. Example: `4096`.
+    committer_query_service_max_active_views: 4096
+    # Query-service maximum aggregated views. Example: `1024`.
+    committer_query_service_max_aggregated_views: 1024
+    # Query-service maximum batch wait time. Example: `100ms`.
+    committer_query_service_max_batch_wait: "100ms"
+    # Query-service maximum request key count. Example: `10000`.
+    committer_query_service_max_request_keys: 10000
+    # Query-service view timeout. Example: `10s`.
+    committer_query_service_max_view_timeout: "10s"
+    # Query-service minimum batch key count. Example: `1024`.
+    committer_query_service_min_batch_keys: 1024
+    # Query-service view aggregation window. Example: `100ms`.
+    committer_query_service_view_aggregation_window: "100ms"
+    # Remote config directory managed by the role.
+    committer_remote_config_dir: "{{ remote_config_dir }}"
+    # RPC port exposed by the selected committer component. Example: `7051`.
+    committer_rpc_port: 7051
     # Minimum client keepalive interval enforced by the server. Example: `60s`.
     committer_server_keep_alive_min_time: "60s"
     # Allow keepalive pings without active streams. Example: `false`.
     committer_server_keep_alive_permit_without_stream: false
+    # Server keepalive ping interval. Example: `300s`.
+    committer_server_keep_alive_time: "300s"
+    # Server keepalive acknowledgment timeout. Example: `600s`.
+    committer_server_keep_alive_timeout: "600s"
     # Maximum concurrent streaming RPCs allowed per client connection. Example: `128`.
     committer_server_max_concurrent_streams: 128
-    # Monitoring rate-limit requests per second. Example: `1000`.
-    committer_monitoring_rate_limit_requests_per_second: 1000
-    # Monitoring rate-limit burst. Example: `100`.
-    committer_monitoring_rate_limit_burst: 100
-    # Log level emitted by the committer component.
-    committer_log_level: info
-    # Log format emitted by the committer component.
-    committer_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
-    # Query-service minimum batch key count. Example: `1024`.
-    committer_query_service_min_batch_keys: 1024
-    # Query-service maximum batch wait time. Example: `100ms`.
-    committer_query_service_max_batch_wait: "100ms"
-    # Query-service view aggregation window. Example: `100ms`.
-    committer_query_service_view_aggregation_window: "100ms"
-    # Query-service maximum aggregated views. Example: `1024`.
-    committer_query_service_max_aggregated_views: 1024
-    # Query-service maximum active views. Example: `4096`.
-    committer_query_service_max_active_views: 4096
-    # Query-service view timeout. Example: `10s`.
-    committer_query_service_max_view_timeout: "10s"
-    # Query-service maximum request key count. Example: `10000`.
-    committer_query_service_max_request_keys: 10000
-    # Inventory host name of the Postgres backend used by validator or query-service configuration. Example: `postgres-committer-1`.
-    postgres_db_host: "postgres-committer-1"
-    # Yugabyte cluster identifier used by validator or query-service configuration. Example: `yb-committer-ledger`.
-    yugabyte_cluster_ref_id: "yb-committer-ledger"
+    # Server rate-limit burst. Example: `200`.
+    committer_server_rate_limit_burst: 200
+    # Server rate-limit requests per second. Example: `2000`.
+    committer_server_rate_limit_requests_per_second: 2000
+    # Enable host-binary deployment mode.
+    committer_use_bin: false
     # Enable Kubernetes deployment mode.
     committer_use_k8s: false
+    # Enable mTLS for the selected component.
+    committer_use_mtls: false
     # Selects the OpenShift deployment branch.
     committer_use_openshift: false
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
+    # Inventory host name of the Postgres backend used by validator or query-service configuration. Example: `postgres-committer-1`.
+    postgres_db_host: "postgres-committer-1"
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
+    # Yugabyte cluster identifier used by validator or query-service configuration. Example: `yb-committer-ledger`.
+    yugabyte_cluster_ref_id: "yb-committer-ledger"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: query_service/config/transfer
@@ -1730,16 +1967,83 @@ Ensure the namespace exists and apply the validator Service, NodePort and LoadBa
 ```yaml
 - name: Start the validator on Kubernetes
   vars:
-    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
-    committer_k8s_rpc_node_port: 31051
-    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31052`.
-    committer_k8s_metrics_node_port: 31052
-    # Wait timeout in seconds for Kubernetes rollouts.
-    committer_k8s_wait_timeout: 120
-    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
-    committer_k8s_loadbalancer_expose_rpc_port: false
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
+    # Generated config file name used by the selected component.
+    committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Config directory inside the committer container.
+    committer_container_config_dir: /config
+    # Fully qualified committer image.
+    committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
+    # Image name for the committer container.
+    committer_image_name: fabric-x-committer
+    # Image tag for the committer container.
+    committer_image_tag: 0.1.9
+    # Filesystem group assigned to committer pods.
+    committer_k8s_fs_group: 10001
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
     committer_k8s_loadbalancer_expose_metrics_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_rpc_port: false
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31052`.
+    committer_k8s_metrics_node_port: 31052
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
+    committer_k8s_rpc_node_port: 31051
+    # Wait timeout in seconds for Kubernetes rollouts.
+    committer_k8s_wait_timeout: 120
+    # Metrics port exposed by the selected committer component. Example: `9443`.
+    committer_metrics_port: 9443
+    # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
+    committer_monitoring_mtls_clients:
+      - "prometheus-1"
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
+    committer_monitoring_mtls_orgs:
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
+    # Enable mTLS for the monitoring endpoint.
+    committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
+    # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
+    committer_mtls_clients:
+      - "committer-sidecar-1"
+      - "loadgen-1"
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
+    committer_mtls_orgs:
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
+    # Container registry endpoint for the committer image.
+    committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+    # RPC port exposed by the selected committer component. Example: `7051`.
+    committer_rpc_port: 7051
+    # Enable mTLS for the selected component.
+    committer_use_mtls: false
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
+    # Optional image pull secret referenced by Kubernetes workloads. Example: `fabricx-registry-secret`.
+    k8s_image_pull_secret: "fabricx-registry-secret"
+    # Liveness probe failure threshold for Kubernetes workloads. Example: `5`.
+    k8s_liveness_probe_failure_threshold: 5
+    # Liveness probe initial delay for Kubernetes workloads. Example: `30`.
+    k8s_liveness_probe_initial_delay_seconds: 30
+    # Liveness probe period for Kubernetes workloads. Example: `15`.
+    k8s_liveness_probe_period_seconds: 15
+    # Liveness probe timeout for Kubernetes workloads. Example: `5`.
+    k8s_liveness_probe_timeout_seconds: 5
+    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
+    k8s_namespace: "fabricx-committer"
+    # Readiness probe failure threshold for Kubernetes workloads. Example: `3`.
+    k8s_readiness_probe_failure_threshold: 3
+    # Readiness probe initial delay for Kubernetes workloads. Example: `10`.
+    k8s_readiness_probe_initial_delay_seconds: 10
+    # Readiness probe period for Kubernetes workloads. Example: `10`.
+    k8s_readiness_probe_period_seconds: 10
+    # Readiness probe timeout for Kubernetes workloads. Example: `5`.
+    k8s_readiness_probe_timeout_seconds: 5
     # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
     k8s_resources:
       requests:
@@ -1748,6 +2052,22 @@ Ensure the namespace exists and apply the validator Service, NodePort and LoadBa
       limits:
         memory: "2Gi"
         cpu: "1000m"
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
+      peer:
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
+    # Inventory host name of the Postgres backend used by validator or query-service configuration. Example: `postgres-committer-1`.
+    postgres_db_host: "postgres-committer-1"
+    # Yugabyte cluster identifier used by validator or query-service configuration. Example: `yb-committer-ledger`.
+    yugabyte_cluster_ref_id: "yb-committer-ledger"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: validator/k8s/start
@@ -1762,16 +2082,83 @@ Ensure the namespace exists and apply the verifier Service, NodePort and LoadBal
 ```yaml
 - name: Start the verifier on Kubernetes
   vars:
-    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
-    committer_k8s_rpc_node_port: 31051
-    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31052`.
-    committer_k8s_metrics_node_port: 31052
-    # Wait timeout in seconds for Kubernetes rollouts.
-    committer_k8s_wait_timeout: 120
-    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
-    committer_k8s_loadbalancer_expose_rpc_port: false
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
+    # Generated config file name used by the selected component.
+    committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Config directory inside the committer container.
+    committer_container_config_dir: /config
+    # Fully qualified committer image.
+    committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
+    # Image name for the committer container.
+    committer_image_name: fabric-x-committer
+    # Image tag for the committer container.
+    committer_image_tag: 0.1.9
+    # Filesystem group assigned to committer pods.
+    committer_k8s_fs_group: 10001
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
     committer_k8s_loadbalancer_expose_metrics_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_rpc_port: false
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31052`.
+    committer_k8s_metrics_node_port: 31052
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
+    committer_k8s_rpc_node_port: 31051
+    # Wait timeout in seconds for Kubernetes rollouts.
+    committer_k8s_wait_timeout: 120
+    # Metrics port exposed by the selected committer component. Example: `9443`.
+    committer_metrics_port: 9443
+    # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
+    committer_monitoring_mtls_clients:
+      - "prometheus-1"
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
+    committer_monitoring_mtls_orgs:
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
+    # Enable mTLS for the monitoring endpoint.
+    committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
+    # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
+    committer_mtls_clients:
+      - "committer-sidecar-1"
+      - "loadgen-1"
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
+    committer_mtls_orgs:
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
+    # Container registry endpoint for the committer image.
+    committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+    # RPC port exposed by the selected committer component. Example: `7051`.
+    committer_rpc_port: 7051
+    # Enable mTLS for the selected component.
+    committer_use_mtls: false
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
+    # Optional image pull secret referenced by Kubernetes workloads. Example: `fabricx-registry-secret`.
+    k8s_image_pull_secret: "fabricx-registry-secret"
+    # Liveness probe failure threshold for Kubernetes workloads. Example: `5`.
+    k8s_liveness_probe_failure_threshold: 5
+    # Liveness probe initial delay for Kubernetes workloads. Example: `30`.
+    k8s_liveness_probe_initial_delay_seconds: 30
+    # Liveness probe period for Kubernetes workloads. Example: `15`.
+    k8s_liveness_probe_period_seconds: 15
+    # Liveness probe timeout for Kubernetes workloads. Example: `5`.
+    k8s_liveness_probe_timeout_seconds: 5
+    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
+    k8s_namespace: "fabricx-committer"
+    # Readiness probe failure threshold for Kubernetes workloads. Example: `3`.
+    k8s_readiness_probe_failure_threshold: 3
+    # Readiness probe initial delay for Kubernetes workloads. Example: `10`.
+    k8s_readiness_probe_initial_delay_seconds: 10
+    # Readiness probe period for Kubernetes workloads. Example: `10`.
+    k8s_readiness_probe_period_seconds: 10
+    # Readiness probe timeout for Kubernetes workloads. Example: `5`.
+    k8s_readiness_probe_timeout_seconds: 5
     # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
     k8s_resources:
       requests:
@@ -1780,6 +2167,18 @@ Ensure the namespace exists and apply the verifier Service, NodePort and LoadBal
       limits:
         memory: "2Gi"
         cpu: "1000m"
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
+      peer:
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: verifier/k8s/start
@@ -1794,12 +2193,63 @@ Ensure the namespace exists and apply the coordinator Service, NodePort and Load
 ```yaml
 - name: Start the coordinator on Kubernetes
   vars:
-    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
-    committer_k8s_rpc_node_port: 31051
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
+    # Generated config file name used by the selected component.
+    committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Config directory inside the committer container.
+    committer_container_config_dir: /config
+    # Fully qualified committer image.
+    committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
+    # Image name for the committer container.
+    committer_image_name: fabric-x-committer
+    # Image tag for the committer container.
+    committer_image_tag: 0.1.9
+    # Filesystem group assigned to committer pods.
+    committer_k8s_fs_group: 10001
+    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_metrics_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_rpc_port: false
     # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31052`.
     committer_k8s_metrics_node_port: 31052
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
+    committer_k8s_rpc_node_port: 31051
     # Wait timeout in seconds for Kubernetes rollouts.
     committer_k8s_wait_timeout: 120
+    # Metrics port exposed by the selected committer component. Example: `9443`.
+    committer_metrics_port: 9443
+    # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
+    committer_monitoring_mtls_clients:
+      - "prometheus-1"
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
+    committer_monitoring_mtls_orgs:
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
+    # Enable mTLS for the monitoring endpoint.
+    committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
+    # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
+    committer_mtls_clients:
+      - "committer-sidecar-1"
+      - "loadgen-1"
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
+    committer_mtls_orgs:
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
+    # Container registry endpoint for the committer image.
+    committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+    # RPC port exposed by the selected committer component. Example: `7051`.
+    committer_rpc_port: 7051
+    # Enable mTLS for the selected component.
+    committer_use_mtls: false
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
     # Inventory hosts for validator components. Example: `['committer-validator-1', 'committer-validator-2']`.
     committer_validators:
       - "committer-validator-1"
@@ -1808,10 +2258,26 @@ Ensure the namespace exists and apply the coordinator Service, NodePort and Load
     committer_verifiers:
       - "committer-verifier-1"
       - "committer-verifier-2"
-    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
-    committer_k8s_loadbalancer_expose_rpc_port: false
-    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
-    committer_k8s_loadbalancer_expose_metrics_port: false
+    # Optional image pull secret referenced by Kubernetes workloads. Example: `fabricx-registry-secret`.
+    k8s_image_pull_secret: "fabricx-registry-secret"
+    # Liveness probe failure threshold for Kubernetes workloads. Example: `5`.
+    k8s_liveness_probe_failure_threshold: 5
+    # Liveness probe initial delay for Kubernetes workloads. Example: `30`.
+    k8s_liveness_probe_initial_delay_seconds: 30
+    # Liveness probe period for Kubernetes workloads. Example: `15`.
+    k8s_liveness_probe_period_seconds: 15
+    # Liveness probe timeout for Kubernetes workloads. Example: `5`.
+    k8s_liveness_probe_timeout_seconds: 5
+    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
+    k8s_namespace: "fabricx-committer"
+    # Readiness probe failure threshold for Kubernetes workloads. Example: `3`.
+    k8s_readiness_probe_failure_threshold: 3
+    # Readiness probe initial delay for Kubernetes workloads. Example: `10`.
+    k8s_readiness_probe_initial_delay_seconds: 10
+    # Readiness probe period for Kubernetes workloads. Example: `10`.
+    k8s_readiness_probe_period_seconds: 10
+    # Readiness probe timeout for Kubernetes workloads. Example: `5`.
+    k8s_readiness_probe_timeout_seconds: 5
     # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
     k8s_resources:
       requests:
@@ -1820,6 +2286,18 @@ Ensure the namespace exists and apply the coordinator Service, NodePort and Load
       limits:
         memory: "2Gi"
         cpu: "1000m"
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
+      peer:
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: coordinator/k8s/start
@@ -1834,16 +2312,87 @@ Ensure the namespace exists and apply the sidecar Service, NodePort and LoadBala
 ```yaml
 - name: Start the sidecar on Kubernetes
   vars:
-    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
-    committer_k8s_rpc_node_port: 31051
-    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31052`.
-    committer_k8s_metrics_node_port: 31052
-    # Wait timeout in seconds for Kubernetes rollouts.
-    committer_k8s_wait_timeout: 120
-    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
-    committer_k8s_loadbalancer_expose_rpc_port: false
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
+    # Generated config file name used by the selected component.
+    committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Config directory inside the committer container.
+    committer_container_config_dir: /config
+    # Data directory inside the committer container.
+    committer_container_data_dir: /data
+    # Inventory host name of the coordinator component. Example: `committer-coordinator-1`.
+    committer_coordinator: "committer-coordinator-1"
+    # Fully qualified committer image.
+    committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
+    # Image name for the committer container.
+    committer_image_name: fabric-x-committer
+    # Image tag for the committer container.
+    committer_image_tag: 0.1.9
+    # Filesystem group assigned to committer pods.
+    committer_k8s_fs_group: 10001
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
     committer_k8s_loadbalancer_expose_metrics_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_rpc_port: false
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31052`.
+    committer_k8s_metrics_node_port: 31052
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
+    committer_k8s_rpc_node_port: 31051
+    # Wait timeout in seconds for Kubernetes rollouts.
+    committer_k8s_wait_timeout: 120
+    # Metrics port exposed by the selected committer component. Example: `9443`.
+    committer_metrics_port: 9443
+    # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
+    committer_monitoring_mtls_clients:
+      - "prometheus-1"
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
+    committer_monitoring_mtls_orgs:
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
+    # Enable mTLS for the monitoring endpoint.
+    committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
+    # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
+    committer_mtls_clients:
+      - "committer-sidecar-1"
+      - "loadgen-1"
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
+    committer_mtls_orgs:
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
+    # Container registry endpoint for the committer image.
+    committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+    # RPC port exposed by the selected committer component. Example: `7051`.
+    committer_rpc_port: 7051
+    # Enable mTLS for the selected component.
+    committer_use_mtls: false
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
+    # Optional image pull secret referenced by Kubernetes workloads. Example: `fabricx-registry-secret`.
+    k8s_image_pull_secret: "fabricx-registry-secret"
+    # Liveness probe failure threshold for Kubernetes workloads. Example: `5`.
+    k8s_liveness_probe_failure_threshold: 5
+    # Liveness probe initial delay for Kubernetes workloads. Example: `30`.
+    k8s_liveness_probe_initial_delay_seconds: 30
+    # Liveness probe period for Kubernetes workloads. Example: `15`.
+    k8s_liveness_probe_period_seconds: 15
+    # Liveness probe timeout for Kubernetes workloads. Example: `5`.
+    k8s_liveness_probe_timeout_seconds: 5
+    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
+    k8s_namespace: "fabricx-committer"
+    # Readiness probe failure threshold for Kubernetes workloads. Example: `3`.
+    k8s_readiness_probe_failure_threshold: 3
+    # Readiness probe initial delay for Kubernetes workloads. Example: `10`.
+    k8s_readiness_probe_initial_delay_seconds: 10
+    # Readiness probe period for Kubernetes workloads. Example: `10`.
+    k8s_readiness_probe_period_seconds: 10
+    # Readiness probe timeout for Kubernetes workloads. Example: `5`.
+    k8s_readiness_probe_timeout_seconds: 5
     # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
     k8s_resources:
       requests:
@@ -1852,6 +2401,26 @@ Ensure the namespace exists and apply the sidecar Service, NodePort and LoadBala
       limits:
         memory: "2Gi"
         cpu: "1000m"
+    # Storage class requested by the sidecar StatefulSet. Example: `fast-ssd`.
+    k8s_storage_class: "fast-ssd"
+    # Persistent volume size requested by the sidecar StatefulSet. Example: `20Gi`.
+    k8s_storage_size: "20Gi"
+    # Inventory hosts for orderer assembler components. Example: `['orderer-assembler-1', 'orderer-assembler-2']`.
+    orderer_assemblers:
+      - "orderer-assembler-1"
+      - "orderer-assembler-2"
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
+      peer:
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: sidecar/k8s/start
@@ -1866,16 +2435,107 @@ Ensure the namespace exists and apply the query-service Service, NodePort and Lo
 ```yaml
 - name: Start the query-service on Kubernetes
   vars:
-    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
-    committer_k8s_rpc_node_port: 31051
-    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31052`.
-    committer_k8s_metrics_node_port: 31052
-    # Wait timeout in seconds for Kubernetes rollouts.
-    committer_k8s_wait_timeout: 120
-    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
-    committer_k8s_loadbalancer_expose_rpc_port: false
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
+    # Generated config file name used by the selected component.
+    committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Config directory inside the committer container.
+    committer_container_config_dir: /config
+    # Fully qualified committer image.
+    committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
+    # Image name for the committer container.
+    committer_image_name: fabric-x-committer
+    # Image tag for the committer container.
+    committer_image_tag: 0.1.9
+    # Filesystem group assigned to committer pods.
+    committer_k8s_fs_group: 10001
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
     committer_k8s_loadbalancer_expose_metrics_port: false
+    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
+    committer_k8s_loadbalancer_expose_rpc_port: false
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31052`.
+    committer_k8s_metrics_node_port: 31052
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
+    committer_k8s_rpc_node_port: 31051
+    # Wait timeout in seconds for Kubernetes rollouts.
+    committer_k8s_wait_timeout: 120
+    # Metrics port exposed by the selected committer component. Example: `9443`.
+    committer_metrics_port: 9443
+    # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
+    committer_monitoring_mtls_clients:
+      - "prometheus-1"
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
+    committer_monitoring_mtls_orgs:
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
+    # Enable mTLS for the monitoring endpoint.
+    committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
+    # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
+    committer_mtls_clients:
+      - "committer-sidecar-1"
+      - "loadgen-1"
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
+    committer_mtls_orgs:
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
+    # Container registry endpoint for the committer image.
+    committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+    # RPC port exposed by the selected committer component. Example: `7051`.
+    committer_rpc_port: 7051
+    # Enable mTLS for the selected component.
+    committer_use_mtls: false
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
+    # Optional image pull secret referenced by Kubernetes workloads. Example: `fabricx-registry-secret`.
+    k8s_image_pull_secret: "fabricx-registry-secret"
+    # Liveness probe failure threshold for Kubernetes workloads. Example: `5`.
+    k8s_liveness_probe_failure_threshold: 5
+    # Liveness probe initial delay for Kubernetes workloads. Example: `30`.
+    k8s_liveness_probe_initial_delay_seconds: 30
+    # Liveness probe period for Kubernetes workloads. Example: `15`.
+    k8s_liveness_probe_period_seconds: 15
+    # Liveness probe timeout for Kubernetes workloads. Example: `5`.
+    k8s_liveness_probe_timeout_seconds: 5
+    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
+    k8s_namespace: "fabricx-committer"
+    # Readiness probe failure threshold for Kubernetes workloads. Example: `3`.
+    k8s_readiness_probe_failure_threshold: 3
+    # Readiness probe initial delay for Kubernetes workloads. Example: `10`.
+    k8s_readiness_probe_initial_delay_seconds: 10
+    # Readiness probe period for Kubernetes workloads. Example: `10`.
+    k8s_readiness_probe_period_seconds: 10
+    # Readiness probe timeout for Kubernetes workloads. Example: `5`.
+    k8s_readiness_probe_timeout_seconds: 5
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
+      peer:
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
+    # Inventory host name of the Postgres backend used by validator or query-service configuration. Example: `postgres-committer-1`.
+    postgres_db_host: "postgres-committer-1"
+    # Yugabyte cluster identifier used by validator or query-service configuration. Example: `yb-committer-ledger`.
+    yugabyte_cluster_ref_id: "yb-committer-ledger"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: query_service/k8s/start
@@ -1892,8 +2552,6 @@ Delete the validator Deployment and Services. Uses `committer_k8s_resource_name`
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
     # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
@@ -1920,8 +2578,6 @@ Delete the verifier Deployment and Services. Uses `committer_k8s_resource_name` 
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
     # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
@@ -1948,8 +2604,6 @@ Delete the coordinator Deployment and Services. Uses `committer_k8s_resource_nam
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
     # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
@@ -1976,8 +2630,6 @@ Delete the sidecar StatefulSet and Services. Uses `committer_k8s_resource_name` 
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
     # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
@@ -2004,8 +2656,6 @@ Delete the query-service Deployment and Services. Uses `committer_k8s_resource_n
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
     # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
@@ -2030,8 +2680,57 @@ Ensure the namespace exists and create the validator Kubernetes ConfigMap. Publi
 ```yaml
 - name: Create the validator ConfigMap
   vars:
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
+    # Generated config file name used by the selected component.
+    committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
+    committer_monitoring_mtls_clients:
+      - "prometheus-1"
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
+    committer_monitoring_mtls_orgs:
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
+    # Enable mTLS for the monitoring endpoint.
+    committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
+    # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
+    committer_mtls_clients:
+      - "committer-sidecar-1"
+      - "loadgen-1"
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
+    committer_mtls_orgs:
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
+    # Enable mTLS for the selected component.
+    committer_use_mtls: false
+    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
+    k8s_namespace: "fabricx-committer"
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
+      peer:
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
+    # Inventory host name of the Postgres backend used by validator or query-service configuration. Example: `postgres-committer-1`.
+    postgres_db_host: "postgres-committer-1"
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
+    # Yugabyte cluster identifier used by validator or query-service configuration. Example: `yb-committer-ledger`.
+    yugabyte_cluster_ref_id: "yb-committer-ledger"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: validator/k8s/config/transfer
@@ -2045,6 +2744,54 @@ Ensure the namespace exists and create the verifier Kubernetes ConfigMap. Publis
 
 ```yaml
 - name: Create the verifier ConfigMap
+  vars:
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
+    # Generated config file name used by the selected component.
+    committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
+    committer_monitoring_mtls_clients:
+      - "prometheus-1"
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
+    committer_monitoring_mtls_orgs:
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
+    # Enable mTLS for the monitoring endpoint.
+    committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
+    # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
+    committer_mtls_clients:
+      - "committer-sidecar-1"
+      - "loadgen-1"
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
+    committer_mtls_orgs:
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
+    # Remote config directory managed by the role.
+    committer_remote_config_dir: "{{ remote_config_dir }}"
+    # Enable mTLS for the selected component.
+    committer_use_mtls: false
+    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
+    k8s_namespace: "fabricx-committer"
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
+      peer:
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: verifier/k8s/config/transfer
@@ -2059,8 +2806,37 @@ Ensure the namespace exists and create the coordinator Kubernetes ConfigMap. Pub
 ```yaml
 - name: Create the coordinator ConfigMap
   vars:
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
+    # Generated config file name used by the selected component.
+    committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
+    committer_monitoring_mtls_clients:
+      - "prometheus-1"
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
+    committer_monitoring_mtls_orgs:
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
+    # Enable mTLS for the monitoring endpoint.
+    committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
+    # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
+    committer_mtls_clients:
+      - "committer-sidecar-1"
+      - "loadgen-1"
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
+    committer_mtls_orgs:
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
+    # Enable mTLS for the selected component.
+    committer_use_mtls: false
     # Inventory hosts for validator components. Example: `['committer-validator-1', 'committer-validator-2']`.
     committer_validators:
       - "committer-validator-1"
@@ -2069,6 +2845,22 @@ Ensure the namespace exists and create the coordinator Kubernetes ConfigMap. Pub
     committer_verifiers:
       - "committer-verifier-1"
       - "committer-verifier-2"
+    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
+    k8s_namespace: "fabricx-committer"
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
+      peer:
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: coordinator/k8s/config/transfer
@@ -2083,8 +2875,59 @@ Ensure the namespace exists and create the sidecar Kubernetes ConfigMap. Publish
 ```yaml
 - name: Create the sidecar ConfigMap
   vars:
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
+    # Generated config file name used by the selected component.
+    committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Inventory host name of the coordinator component. Example: `committer-coordinator-1`.
+    committer_coordinator: "committer-coordinator-1"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
+    committer_monitoring_mtls_clients:
+      - "prometheus-1"
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
+    committer_monitoring_mtls_orgs:
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
+    # Enable mTLS for the monitoring endpoint.
+    committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
+    # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
+    committer_mtls_clients:
+      - "committer-sidecar-1"
+      - "loadgen-1"
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
+    committer_mtls_orgs:
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
+    # Enable mTLS for the selected component.
+    committer_use_mtls: false
+    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
+    k8s_namespace: "fabricx-committer"
+    # Inventory hosts for orderer assembler components. Example: `['orderer-assembler-1', 'orderer-assembler-2']`.
+    orderer_assemblers:
+      - "orderer-assembler-1"
+      - "orderer-assembler-2"
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
+      peer:
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: sidecar/k8s/config/transfer
@@ -2099,8 +2942,57 @@ Ensure the namespace exists and create the query-service Kubernetes ConfigMap. P
 ```yaml
 - name: Create the query-service ConfigMap
   vars:
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
+    # Generated config file name used by the selected component.
+    committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Monitoring mTLS client identifiers trusted by the component. Example: `['prometheus-1']`.
+    committer_monitoring_mtls_clients:
+      - "prometheus-1"
+    # Monitoring mTLS organizations trusted by the component. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
+    committer_monitoring_mtls_orgs:
+      - name: "MonitoringOrg"
+        domain: "monitoring.example.com"
+    # Enable mTLS for the monitoring endpoint.
+    committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
+    # mTLS client identifiers trusted by the component. Example: `['committer-sidecar-1', 'loadgen-1']`.
+    committer_mtls_clients:
+      - "committer-sidecar-1"
+      - "loadgen-1"
+    # mTLS organizations trusted by the component. Example: `[{'name': 'Org2', 'domain': 'org2.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
+    committer_mtls_orgs:
+      - name: "Org2"
+        domain: "org2.example.com"
+      - name: "OrdererOrg1"
+        domain: "ordererorg1.example.com"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
+    # Enable mTLS for the selected component.
+    committer_use_mtls: false
+    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
+    k8s_namespace: "fabricx-committer"
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
+      peer:
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
+    # Inventory host name of the Postgres backend used by validator or query-service configuration. Example: `postgres-committer-1`.
+    postgres_db_host: "postgres-committer-1"
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
+    # Yugabyte cluster identifier used by validator or query-service configuration. Example: `yb-committer-ledger`.
+    yugabyte_cluster_ref_id: "yb-committer-ledger"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: query_service/k8s/config/transfer
@@ -2159,22 +3051,32 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
 ```yaml
 - name: Start the committer validator OpenShift deployment
   vars:
-    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
-    committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
     # Committer component handled by the entry point. Example: `coordinator`.
     committer_component_type: "coordinator"
-    # Enable TLS material for the selected component.
-    committer_use_tls: false
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
     # Enable TLS for the monitoring endpoint.
     committer_monitoring_use_tls: "{{ committer_use_tls }}"
-    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
-    k8s_namespace: "fabricx-committer"
-    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
-    committer_openshift_route: "committer-rpc.apps.example.com"
     # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
     committer_openshift_metrics_route: "committer-metrics.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
+    committer_openshift_route: "committer-rpc.apps.example.com"
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
+      peer:
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: validator/openshift/start
@@ -2191,10 +3093,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
-    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
-    k8s_namespace: "fabricx-committer"
     # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
     committer_openshift_route: "committer-rpc.apps.example.com"
     # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
@@ -2213,22 +3111,32 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
 ```yaml
 - name: Start the committer verifier OpenShift deployment
   vars:
-    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
-    committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
     # Committer component handled by the entry point. Example: `coordinator`.
     committer_component_type: "coordinator"
-    # Enable TLS material for the selected component.
-    committer_use_tls: false
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
     # Enable TLS for the monitoring endpoint.
     committer_monitoring_use_tls: "{{ committer_use_tls }}"
-    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
-    k8s_namespace: "fabricx-committer"
-    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
-    committer_openshift_route: "committer-rpc.apps.example.com"
     # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
     committer_openshift_metrics_route: "committer-metrics.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
+    committer_openshift_route: "committer-rpc.apps.example.com"
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
+      peer:
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: verifier/openshift/start
@@ -2245,10 +3153,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
-    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
-    k8s_namespace: "fabricx-committer"
     # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
     committer_openshift_route: "committer-rpc.apps.example.com"
     # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
@@ -2267,22 +3171,32 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
 ```yaml
 - name: Start the committer coordinator OpenShift deployment
   vars:
-    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
-    committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
     # Committer component handled by the entry point. Example: `coordinator`.
     committer_component_type: "coordinator"
-    # Enable TLS material for the selected component.
-    committer_use_tls: false
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
     # Enable TLS for the monitoring endpoint.
     committer_monitoring_use_tls: "{{ committer_use_tls }}"
-    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
-    k8s_namespace: "fabricx-committer"
-    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
-    committer_openshift_route: "committer-rpc.apps.example.com"
     # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
     committer_openshift_metrics_route: "committer-metrics.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
+    committer_openshift_route: "committer-rpc.apps.example.com"
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
+      peer:
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: coordinator/openshift/start
@@ -2299,10 +3213,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
-    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
-    k8s_namespace: "fabricx-committer"
     # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
     committer_openshift_route: "committer-rpc.apps.example.com"
     # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
@@ -2321,22 +3231,32 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
 ```yaml
 - name: Start the committer sidecar OpenShift deployment
   vars:
-    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
-    committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
     # Committer component handled by the entry point. Example: `coordinator`.
     committer_component_type: "coordinator"
-    # Enable TLS material for the selected component.
-    committer_use_tls: false
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
     # Enable TLS for the monitoring endpoint.
     committer_monitoring_use_tls: "{{ committer_use_tls }}"
-    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
-    k8s_namespace: "fabricx-committer"
-    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
-    committer_openshift_route: "committer-rpc.apps.example.com"
     # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
     committer_openshift_metrics_route: "committer-metrics.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
+    committer_openshift_route: "committer-rpc.apps.example.com"
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
+      peer:
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: sidecar/openshift/start
@@ -2353,10 +3273,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
-    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
-    k8s_namespace: "fabricx-committer"
     # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
     committer_openshift_route: "committer-rpc.apps.example.com"
     # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
@@ -2375,22 +3291,32 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
 ```yaml
 - name: Start the committer query_service OpenShift deployment
   vars:
-    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
-    committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
     # Committer component handled by the entry point. Example: `coordinator`.
     committer_component_type: "coordinator"
-    # Enable TLS material for the selected component.
-    committer_use_tls: false
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
     # Enable TLS for the monitoring endpoint.
     committer_monitoring_use_tls: "{{ committer_use_tls }}"
-    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
-    k8s_namespace: "fabricx-committer"
-    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
-    committer_openshift_route: "committer-rpc.apps.example.com"
     # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
     committer_openshift_metrics_route: "committer-metrics.apps.example.com"
+    # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
+    committer_openshift_route: "committer-rpc.apps.example.com"
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
+      peer:
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: query_service/openshift/start
@@ -2407,10 +3333,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
-    # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
-    k8s_namespace: "fabricx-committer"
     # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
     committer_openshift_route: "committer-rpc.apps.example.com"
     # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.

@@ -330,8 +330,6 @@ Creates the remote fxconfig configuration directory, renders the fxconfig file, 
     committer_sidecar_host: "committer-sidecar"
     # Defines the Committer Sidecar notification waiting timeout written into the rendered fxconfig file. Example: `2m`.
     fxconfig_committer_sidecar_waiting_timeout: "2m"
-    # Defines the local directory that stores fetched crypto and TLS artifacts consumed by fxconfig. Example: `/tmp/fabricx/config-build`.
-    fetched_artifacts_dir: "/tmp/fabricx/config-build"
     # Defines the fxconfig configuration filename.
     fxconfig_config_file: fxconfig.yaml
     # Defines the configuration directory mounted inside the fxconfig container.
@@ -344,10 +342,6 @@ Creates the remote fxconfig configuration directory, renders the fxconfig file, 
     fxconfig_msp_config_path: "/opt/hyperledger/fabricx/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp"
     # Defines the MSP identifier written into the rendered configuration.
     fxconfig_msp_id: "{{ organization.name }}MSP"
-    # Defines the source certificate path used for fxconfig mTLS.
-    fxconfig_mtls_client_cert_path: "{{ remote_config_dir }}/tls/server.crt"
-    # Defines the source private key path used for fxconfig mTLS.
-    fxconfig_mtls_client_key_path: "{{ remote_config_dir }}/tls/server.key"
     # Defines the Orderer Router connection timeout written into the rendered fxconfig file. Example: `45s`.
     fxconfig_orderer_connection_timeout: "45s"
     # Defines the fxconfig remote configuration directory.
@@ -356,10 +350,17 @@ Creates the remote fxconfig configuration directory, renders the fxconfig file, 
     fxconfig_use_bin: false
     # Identifies the inventory host for the Orderer Router endpoint consumed by fxconfig. Example: `orderer-router-1`.
     orderer_router_host: "orderer-router-1"
-    # Provides organization metadata when `fxconfig_msp_id` is not supplied directly. Example: `{'name': 'Org1', 'domain': 'org1.example.com'}`.
+    # Provides organization metadata used by tasks that read `organization.*`, including names, users, domains, and namespace declarations. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'users': [{'name': 'endorser', 'cert': '/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem'}], 'namespaces': [{'id': 'payments', 'policy': 'threshold'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      users:
+        - name: "endorser"
+          cert: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem"
+      namespaces:
+        - id: "payments"
+          policy: "threshold"
     # Provides the base remote configuration directory used by the role. Example: `/opt/hyperledger/fabricx/config`.
     remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
@@ -568,32 +569,8 @@ Dispatches namespace transaction endorsement to either the host binary or a tran
 ```yaml
 - name: Endorse a namespace transaction
   vars:
-    # Defines the fxconfig binary name.
-    fxconfig_bin_name: fxconfig
-    # Defines the fxconfig configuration filename.
-    fxconfig_config_file: fxconfig.yaml
-    # Defines the configuration directory mounted inside the fxconfig container.
-    fxconfig_container_config_dir: /config
-    # Defines the base container name used by fxconfig workflows.
-    fxconfig_container_name: fxconfig
-    # Defines the fxconfig container image.
-    fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
-    # Defines the image name used by the fxconfig container image.
-    fxconfig_image_name: fabric-x-tools
-    # Defines the image tag used by the fxconfig container image.
-    fxconfig_image_tag: 0.0.12
-    # Defines the transaction artifact path on the managed host.
-    fxconfig_output: "{{ fxconfig_remote_config_dir }}/tx.json"
-    # Defines the registry endpoint used by the fxconfig container image.
-    fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # Defines the fxconfig remote configuration directory.
-    fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
-    # Supplies the local namespace transaction JSON file to endorse. Example: `/tmp/fabricx/config-build/fxconfig-artifacts/payments/ns.json`.
-    fxconfig_tx_to_endorse: "/tmp/fabricx/config-build/fxconfig-artifacts/payments/ns.json"
     # Selects the host-binary workflow instead of the container workflow.
     fxconfig_use_bin: false
-    # Provides the base remote configuration directory used by the role. Example: `/opt/hyperledger/fabricx/config`.
-    remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
     tasks_from: endorse
@@ -608,10 +585,17 @@ Selects the preferred endorser from `organization.users` for namespace transacti
 ```yaml
 - name: Resolve the namespace endorser user
   vars:
-    # Provides organization metadata required by tasks that read `organization.*`, including names, users, domains, and namespace declarations. Example: `{'name': 'Org1', 'domain': 'org1.example.com'}`.
+    # Provides organization metadata used by tasks that read `organization.*`, including names, users, domains, and namespace declarations. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'users': [{'name': 'endorser', 'cert': '/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem'}], 'namespaces': [{'id': 'payments', 'policy': 'threshold'}]}`.
     organization:
       name: "Org1"
       domain: "org1.example.com"
+      role: "peer"
+      users:
+        - name: "endorser"
+          cert: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem"
+      namespaces:
+        - id: "payments"
+          policy: "threshold"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
     tasks_from: get_endorser
@@ -626,34 +610,8 @@ Dispatches endorsed namespace transaction merging to either the host binary or a
 ```yaml
 - name: Merge endorsed namespace transactions
   vars:
-    # Defines the fxconfig binary name.
-    fxconfig_bin_name: fxconfig
-    # Defines the configuration directory mounted inside the fxconfig container.
-    fxconfig_container_config_dir: /config
-    # Defines the base container name used by fxconfig workflows.
-    fxconfig_container_name: fxconfig
-    # Defines the local directory containing endorsed namespace transaction JSON files to merge. Example: `/tmp/fabricx/config-build/fxconfig-artifacts/mychannel/endorsed`.
-    fxconfig_endorsed_txs_dir: "/tmp/fabricx/config-build/fxconfig-artifacts/mychannel/endorsed"
-    # Defines the fxconfig container image.
-    fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
-    # Defines the image name used by the fxconfig container image.
-    fxconfig_image_name: fabric-x-tools
-    # Defines the image tag used by the fxconfig container image.
-    fxconfig_image_tag: 0.0.12
-    # Defines the fxconfig log format.
-    fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
-    # Defines the fxconfig log level.
-    fxconfig_log_level: info
-    # Defines the transaction artifact path on the managed host.
-    fxconfig_output: "{{ fxconfig_remote_config_dir }}/tx.json"
-    # Defines the registry endpoint used by the fxconfig container image.
-    fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # Defines the fxconfig remote configuration directory.
-    fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
     # Selects the host-binary workflow instead of the container workflow.
     fxconfig_use_bin: false
-    # Provides the base remote configuration directory used by the role. Example: `/opt/hyperledger/fabricx/config`.
-    remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
     tasks_from: merge
@@ -668,34 +626,8 @@ Dispatches namespace transaction creation to either the host binary or a transie
 ```yaml
 - name: Create a namespace transaction
   vars:
-    # Defines the fxconfig binary name.
-    fxconfig_bin_name: fxconfig
-    # Defines the base container name used by fxconfig workflows.
-    fxconfig_container_name: fxconfig
-    # Defines the fxconfig container image.
-    fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
-    # Defines the image name used by the fxconfig container image.
-    fxconfig_image_name: fabric-x-tools
-    # Defines the image tag used by the fxconfig container image.
-    fxconfig_image_tag: 0.0.12
-    # Defines the fxconfig log format.
-    fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
-    # Defines the fxconfig log level.
-    fxconfig_log_level: info
-    # Defines the namespace identifier used when creating namespace transaction artifacts. Accepts either a string or an integer value. Example: `payments`.
-    fxconfig_namespace_id: payments
-    # Defines the namespace endorsement policy. Example: `threshold:/tmp/fabricx/config-build/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem`.
-    fxconfig_namespace_policy: "threshold:/tmp/fabricx/config-build/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem"
-    # Defines the transaction artifact path on the managed host.
-    fxconfig_output: "{{ fxconfig_remote_config_dir }}/tx.json"
-    # Defines the registry endpoint used by the fxconfig container image.
-    fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # Defines the fxconfig remote configuration directory.
-    fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
     # Selects the host-binary workflow instead of the container workflow.
     fxconfig_use_bin: false
-    # Provides the base remote configuration directory used by the role. Example: `/opt/hyperledger/fabricx/config`.
-    remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
     tasks_from: namespace/create
@@ -730,32 +662,8 @@ Dispatches namespace listing to either the host binary or a transient container 
 ```yaml
 - name: List namespaces
   vars:
-    # Defines the fxconfig binary name.
-    fxconfig_bin_name: fxconfig
-    # Defines the fxconfig configuration filename.
-    fxconfig_config_file: fxconfig.yaml
-    # Defines the configuration directory mounted inside the fxconfig container.
-    fxconfig_container_config_dir: /config
-    # Defines the base container name used by fxconfig workflows.
-    fxconfig_container_name: fxconfig
-    # Defines the fxconfig container image.
-    fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
-    # Defines the image name used by the fxconfig container image.
-    fxconfig_image_name: fabric-x-tools
-    # Defines the image tag used by the fxconfig container image.
-    fxconfig_image_tag: 0.0.12
-    # Defines the fxconfig log format.
-    fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
-    # Defines the fxconfig log level.
-    fxconfig_log_level: info
-    # Defines the fxconfig remote configuration directory.
-    fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
-    # Defines the registry endpoint used by the fxconfig container image.
-    fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # Selects the host-binary workflow instead of the container workflow.
     fxconfig_use_bin: false
-    # Provides the base remote configuration directory used by the role. Example: `/opt/hyperledger/fabricx/config`.
-    remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
     tasks_from: namespace/list
@@ -770,30 +678,8 @@ Dispatches merged namespace transaction submission to either the host binary or 
 ```yaml
 - name: Submit a namespace transaction
   vars:
-    # Defines the fxconfig binary name.
-    fxconfig_bin_name: fxconfig
-    # Defines the fxconfig configuration filename.
-    fxconfig_config_file: fxconfig.yaml
-    # Defines the configuration directory mounted inside the fxconfig container.
-    fxconfig_container_config_dir: /config
-    # Defines the base container name used by fxconfig workflows.
-    fxconfig_container_name: fxconfig
-    # Defines the fxconfig container image.
-    fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
-    # Defines the image name used by the fxconfig container image.
-    fxconfig_image_name: fabric-x-tools
-    # Defines the image tag used by the fxconfig container image.
-    fxconfig_image_tag: 0.0.12
-    # Defines the registry endpoint used by the fxconfig container image.
-    fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # Defines the fxconfig remote configuration directory.
-    fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
-    # Supplies the local merged namespace transaction JSON file to submit. Example: `/tmp/fabricx/config-build/fxconfig-artifacts/payments/merged.json`.
-    fxconfig_tx_to_submit_path: "/tmp/fabricx/config-build/fxconfig-artifacts/payments/merged.json"
     # Selects the host-binary workflow instead of the container workflow.
     fxconfig_use_bin: false
-    # Provides the base remote configuration directory used by the role. Example: `/opt/hyperledger/fabricx/config`.
-    remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
     tasks_from: submit
@@ -808,8 +694,6 @@ Removes the fxconfig binary from the managed host when the binary workflow is en
 ```yaml
 - name: Remove fxconfig binaries when enabled
   vars:
-    # Defines the fxconfig binary name.
-    fxconfig_bin_name: fxconfig
     # Selects the host-binary workflow instead of the container workflow.
     fxconfig_use_bin: false
   ansible.builtin.include_role:

@@ -409,10 +409,11 @@ Generates the Grafana TLS key pair and certificate using OpenSSL for the staged 
 ```yaml
 - name: Generate a self-signed certificate for Grafana
   vars:
-    # Sets the optional organization mapping used for TLS certificate generation. Example: `{'name': 'Grafana', 'domain': 'grafana.fabricx.example'}`. When set, `organization.domain` is used as the OpenSSL organization name.
+    # Sets the optional organization mapping used for TLS certificate generation. Example: `{'name': 'Grafana', 'domain': 'grafana.fabricx.example', 'common_name': 'grafana.fabricx.example'}`. When set, `organization.domain` is used as the OpenSSL organization name.
     organization:
       name: "Grafana"
       domain: "grafana.fabricx.example"
+      common_name: "grafana.fabricx.example"
     # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
     # Sets the shared remote config root used by Grafana. Example: `/var/hyperledger/fabricx/grafana`. Required when using it for `grafana_remote_config_dir`.
@@ -541,8 +542,6 @@ Deletes the Grafana Deployment, Service, and NodePort Service from Kubernetes.
   vars:
     # Sets the base Kubernetes resource name for Grafana.
     grafana_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Grafana resources.
-    grafana_k8s_part_of: monitoring
     # Sets the Kubernetes namespace used for Grafana resources. Example: `fabricx-observability`.
     k8s_namespace: "fabricx-observability"
     # Kubernetes NodePort value used by the external web Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32000`.
@@ -565,8 +564,6 @@ Collects logs from the Grafana pod selected by the Grafana application label.
   vars:
     # Sets the base Kubernetes resource name for Grafana.
     grafana_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Grafana resources.
-    grafana_k8s_part_of: monitoring
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
     tasks_from: k8s/fetch_logs
@@ -615,10 +612,6 @@ Deletes the Grafana provisioning ConfigMap and dashboard ConfigMaps from the nam
     grafana_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Grafana resources.
     grafana_k8s_part_of: monitoring
-    # Sets the remote directory that stores Grafana provisioning files and TLS material.
-    grafana_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the shared remote config root used by Grafana. Example: `/var/hyperledger/fabricx/grafana`. Required when using it for `grafana_remote_config_dir`.
-    remote_config_dir: "/var/hyperledger/fabricx/grafana"
     # Sets the Kubernetes namespace used for Grafana resources. Example: `fabricx-observability`.
     k8s_namespace: "fabricx-observability"
   ansible.builtin.include_role:
@@ -695,8 +688,6 @@ Deletes the Grafana Kubernetes Secret from the namespace.
   vars:
     # Sets the base Kubernetes resource name for Grafana.
     grafana_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Grafana resources.
-    grafana_k8s_part_of: monitoring
     # Sets the Kubernetes namespace used for Grafana resources. Example: `fabricx-observability`.
     k8s_namespace: "fabricx-observability"
   ansible.builtin.include_role:
@@ -719,8 +710,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     grafana_k8s_part_of: monitoring
     # Enables Grafana TLS handling.
     grafana_use_tls: false
-    # Sets the Kubernetes namespace used for Grafana resources. Example: `fabricx-observability`.
-    k8s_namespace: "fabricx-observability"
     # Specifies the OpenShift Route host. Example: `grafana.apps.example.com`.
     grafana_openshift_route: "grafana.apps.example.com"
   ansible.builtin.include_role:
@@ -757,10 +746,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Sets the base Kubernetes resource name for Grafana.
     grafana_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Grafana resources.
-    grafana_k8s_part_of: monitoring
-    # Sets the Kubernetes namespace used for Grafana resources. Example: `fabricx-observability`.
-    k8s_namespace: "fabricx-observability"
     # Specifies the OpenShift Route host. Example: `grafana.apps.example.com`.
     grafana_openshift_route: "grafana.apps.example.com"
   ansible.builtin.include_role:

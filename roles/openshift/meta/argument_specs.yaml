@@ -134,6 +134,7 @@ argument_specs:
       - Mints a service-account token and logs in to a managed OpenShift cluster.
       - Selects the configured OpenShift project after login.
     options:
+      k8s_namespace: *k8s_namespace
       openshift_cluster_login_server: *openshift_cluster_login_server
       openshift_cluster_namespace: *openshift_cluster_namespace
       openshift_cluster_service_account_name: *openshift_cluster_service_account_name

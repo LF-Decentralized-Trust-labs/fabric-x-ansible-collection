@@ -343,8 +343,6 @@ Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and S
     postgres_db: "fabricx"
     # PostgreSQL user name used during initialization and in the readiness checks. Example: `postgres`.
     postgres_user: "postgres"
-    # Password for `postgres_user` used during initialization. Store this value in an Ansible Vault. Example: `my_postgres_password`.
-    postgres_password: "my_postgres_password"
     # Enable server-side TLS for PostgreSQL.
     postgres_use_tls: false
     # Enable mutual TLS for PostgreSQL clients.
@@ -403,8 +401,6 @@ Probes the PostgreSQL NodePort Service when `postgres_k8s_node_port` is defined.
 ```yaml
 - name: Check that PostgreSQL Kubernetes service is reachable
   vars:
-    # Resolved host name used for external reachability checks and in the Fabric CA CSR SAN list. Example: `postgres0.example.com`.
-    actual_host: "postgres0.example.com"
     # Kubernetes NodePort value used by the external PostgreSQL Service. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30432`.
     postgres_k8s_node_port: 30432
     # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
@@ -427,8 +423,6 @@ Deletes the PostgreSQL StatefulSet, headless Service, optional NodePort Service,
   vars:
     # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
-    postgres_k8s_part_of: postgres
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
     # Kubernetes NodePort value used by the external PostgreSQL Service. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30432`.
@@ -451,10 +445,6 @@ Collects logs from the PostgreSQL pod in `k8s_namespace`. Selects pods using `po
   vars:
     # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
-    postgres_k8s_part_of: postgres
-    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
-    k8s_namespace: "fabricx-postgres"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: k8s/fetch_logs
@@ -507,8 +497,6 @@ Deletes the Kubernetes Secret named `postgres_k8s_resource_name`-secret from `k8
   vars:
     # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
-    postgres_k8s_part_of: postgres
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
   ansible.builtin.include_role:
@@ -557,8 +545,6 @@ Deletes the Kubernetes ConfigMap named `postgres_k8s_resource_name`-config from 
   vars:
     # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
-    postgres_k8s_part_of: postgres
     # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
     k8s_namespace: "fabricx-postgres"
   ansible.builtin.include_role:
@@ -574,77 +560,6 @@ Starts PostgreSQL on OpenShift by reusing the generic `k8s/start` resource flow.
 
 ```yaml
 - name: Start PostgreSQL on OpenShift
-  vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
-    postgres_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
-    postgres_k8s_part_of: postgres
-    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
-    k8s_namespace: "fabricx-postgres"
-    # Timeout in seconds while waiting for the StatefulSet rollout to complete.
-    postgres_k8s_wait_timeout: 120
-    # Kubernetes pod `fsGroup` applied so mounted files are readable by the postgres process.
-    postgres_k8s_fs_group: 999
-    # Set to `true` to create a LoadBalancer Service and expose `postgres_port` externally. When undefined or `false`, no LoadBalancer Service is created.
-    postgres_k8s_loadbalancer_expose_port: false
-    # Kubernetes NodePort value used by the external PostgreSQL Service. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30432`.
-    postgres_k8s_node_port: 30432
-    # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
-    postgres_port: 5432
-    # Container registry endpoint used to build `postgres_image`.
-    postgres_registry_endpoint: "{{ lookup('env', 'POSTGRES_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
-    # PostgreSQL image repository name.
-    postgres_image_name: postgres
-    # PostgreSQL image tag.
-    postgres_image_tag: 17.9
-    # Full container image reference for PostgreSQL.
-    postgres_image: "{{ postgres_registry_endpoint }}/{{ postgres_image_name }}:{{ postgres_image_tag }}"
-    # Configuration directory path inside the PostgreSQL container.
-    postgres_container_config_dir: /var/lib/postgresql/config
-    # Data directory path inside the PostgreSQL container.
-    postgres_container_data_dir: /var/lib/postgresql/data
-    # PostgreSQL database name used during initialization and in the readiness checks. Example: `fabricx`.
-    postgres_db: "fabricx"
-    # PostgreSQL user name used during initialization and in the readiness checks. Example: `postgres`.
-    postgres_user: "postgres"
-    # Password for `postgres_user` used during initialization. Store this value in an Ansible Vault. Example: `my_postgres_password`.
-    postgres_password: "my_postgres_password"
-    # Enable server-side TLS for PostgreSQL.
-    postgres_use_tls: false
-    # Enable mutual TLS for PostgreSQL clients.
-    postgres_use_mtls: false
-    # Filename of the PostgreSQL TLS private key under the TLS config directory.
-    postgres_tls_private_key_file: server.key
-    # Filename of the PostgreSQL TLS certificate under the TLS config directory.
-    postgres_tls_cert_file: server.crt
-    # List of client artifact names whose certificates are assembled into the PostgreSQL mTLS bundle. This value is only required when PostgreSQL mTLS is enabled. Example: `['committer0', 'orderer0']`.
-    postgres_mtls_clients:
-      - "committer0"
-      - "orderer0"
-    # Additional PostgreSQL command-line options appended to the start command. Example: `-c max_connections=200 -c log_directory=/var/lib/postgresql/data/pg_log`.
-    postgres_extra_cmd_opts: "-c max_connections=200 -c log_directory=/var/lib/postgresql/data/pg_log"
-    # Requested persistent storage size for the PostgreSQL PVC. Example: `500Mi`.
-    k8s_storage_size: "500Mi"
-    # Kubernetes storage class name for the PostgreSQL PVC when a non-default class is required. Example: `fast-ssd`.
-    k8s_storage_class: "fast-ssd"
-    # Existing Kubernetes `imagePullSecret` name used when the PostgreSQL image is stored in a private registry. Example: `postgres-registry-pull-secret`.
-    k8s_image_pull_secret: "postgres-registry-pull-secret"
-    # Override for the readiness probe initial delay in seconds. Example: `10`.
-    k8s_readiness_probe_initial_delay_seconds: 10
-    # Override for the readiness probe period in seconds. Example: `10`.
-    k8s_readiness_probe_period_seconds: 10
-    # Override for the readiness probe timeout in seconds. Example: `5`.
-    k8s_readiness_probe_timeout_seconds: 5
-    # Override for the readiness probe failure threshold. Example: `3`.
-    k8s_readiness_probe_failure_threshold: 3
-    # Override for the liveness probe initial delay in seconds. Example: `30`.
-    k8s_liveness_probe_initial_delay_seconds: 30
-    # Override for the liveness probe period in seconds. Example: `15`.
-    k8s_liveness_probe_period_seconds: 15
-    # Override for the liveness probe timeout in seconds. Example: `5`.
-    k8s_liveness_probe_timeout_seconds: 5
-    # Override for the liveness probe failure threshold. Example: `5`.
-    k8s_liveness_probe_failure_threshold: 5
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: openshift/start
@@ -671,13 +586,6 @@ Removes PostgreSQL OpenShift resources by reusing the generic `k8s/rm` resource 
 
 ```yaml
 - name: Remove PostgreSQL OpenShift resources
-  vars:
-    # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
-    postgres_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
-    postgres_k8s_part_of: postgres
-    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
-    k8s_namespace: "fabricx-postgres"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: openshift/rm
@@ -698,14 +606,14 @@ Selects the PostgreSQL TLS generation path for OpenSSL, cryptogen, or Fabric CA 
     postgres_use_k8s: false
     # Run PostgreSQL on OpenShift when set to `true`.
     postgres_use_openshift: false
-    # Fabric organization inputs used by PostgreSQL TLS generation paths. The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'postgres0', 'secret': '<fabric-ca-secret>'}, 'fabric_ca_host': 'fabric-ca0'}`.
+    # Fabric organization inputs used by PostgreSQL TLS generation paths. The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'postgres0', 'secret': 'postgres0PWD'}, 'fabric_ca_host': 'fca-org1'}`.
     organization:
       domain: "org1.example.com"
       role: "peer"
       peer:
         name: "postgres0"
-        secret: "<fabric-ca-secret>"
-      fabric_ca_host: "fabric-ca0"
+        secret: "postgres0PWD"
+      fabric_ca_host: "fca-org1"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: crypto/setup
@@ -776,14 +684,14 @@ Generates a self-signed TLS keypair for PostgreSQL under `postgres_remote_config
     postgres_tls_private_key_file: server.key
     # Filename of the PostgreSQL TLS certificate under the TLS config directory.
     postgres_tls_cert_file: server.crt
-    # Fabric organization inputs used by PostgreSQL TLS generation paths. The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'postgres0', 'secret': '<fabric-ca-secret>'}, 'fabric_ca_host': 'fabric-ca0'}`.
+    # Fabric organization inputs used by PostgreSQL TLS generation paths. The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'postgres0', 'secret': 'postgres0PWD'}, 'fabric_ca_host': 'fca-org1'}`.
     organization:
       domain: "org1.example.com"
       role: "peer"
       peer:
         name: "postgres0"
-        secret: "<fabric-ca-secret>"
-      fabric_ca_host: "fabric-ca0"
+        secret: "postgres0PWD"
+      fabric_ca_host: "fca-org1"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: crypto/openssl/generate_cert
@@ -808,14 +716,14 @@ Copies PostgreSQL TLS files generated by cryptogen from `cryptogen_artifacts_dir
     postgres_tls_cert_file: server.crt
     # Control-node directory containing cryptogen output for PostgreSQL. Example: `/tmp/fabricx/cryptogen-artifacts`.
     cryptogen_artifacts_dir: "/tmp/fabricx/cryptogen-artifacts"
-    # Fabric organization inputs used by PostgreSQL TLS generation paths. The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'postgres0', 'secret': '<fabric-ca-secret>'}, 'fabric_ca_host': 'fabric-ca0'}`.
+    # Fabric organization inputs used by PostgreSQL TLS generation paths. The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'postgres0', 'secret': 'postgres0PWD'}, 'fabric_ca_host': 'fca-org1'}`.
     organization:
       domain: "org1.example.com"
       role: "peer"
       peer:
         name: "postgres0"
-        secret: "<fabric-ca-secret>"
-      fabric_ca_host: "fabric-ca0"
+        secret: "postgres0PWD"
+      fabric_ca_host: "fca-org1"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
     tasks_from: crypto/cryptogen/transfer
@@ -840,14 +748,14 @@ Enrolls PostgreSQL through Fabric CA to generate TLS materials under `postgres_r
     postgres_tls_cert_file: server.crt
     # Control-node directory where fetched PostgreSQL artifacts are written. Example: `/tmp/fabricx/fetched-artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx/fetched-artifacts"
-    # Fabric organization inputs used by PostgreSQL TLS generation paths. The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'postgres0', 'secret': '<fabric-ca-secret>'}, 'fabric_ca_host': 'fabric-ca0'}`.
+    # Fabric organization inputs used by PostgreSQL TLS generation paths. The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'postgres0', 'secret': 'postgres0PWD'}, 'fabric_ca_host': 'fca-org1'}`.
     organization:
       domain: "org1.example.com"
       role: "peer"
       peer:
         name: "postgres0"
-        secret: "<fabric-ca-secret>"
-      fabric_ca_host: "fabric-ca0"
+        secret: "postgres0PWD"
+      fabric_ca_host: "fca-org1"
     # Resolved host name used for external reachability checks and in the Fabric CA CSR SAN list. Example: `postgres0.example.com`.
     actual_host: "postgres0.example.com"
   ansible.builtin.include_role:

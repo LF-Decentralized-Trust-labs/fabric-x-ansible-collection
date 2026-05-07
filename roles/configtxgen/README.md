@@ -55,6 +55,8 @@ Generate `configtx.yaml` for Fabric-X genesis block creation. Render the config 
     configtxgen_orderers_by_org: {}
     # Peer organization map rendered into `configtx.yaml`.
     configtxgen_peers_by_org: {}
+    # Config profile passed to `configtxgen`.
+    configtxgen_profile_id: OrgsChannel
     # Directory containing fetched crypto artifacts used by the binary path and container mounts. Example: `/opt/fabricx/artifacts/crypto`.
     fetched_artifacts_dir: "/opt/fabricx/artifacts/crypto"
     # Directory containing armageddon artifacts used by the binary path and container mounts. Example: `/opt/fabricx/artifacts/armageddon`.
@@ -187,8 +189,6 @@ Run `configtxgen` in a container to generate the channel genesis block. The cont
     configtxgen_armageddon_container_artifacts_dir: /tmp/armageddon-artifacts
     # Container mount path for fetched crypto artifacts.
     configtxgen_container_crypto_artifacts_dir: /tmp/crypto-artifacts
-    # Shared config binary file name consumed by the config template.
-    configtxgen_armageddon_binpb_file: shared_config.binpb
     # Directory containing armageddon artifacts used by the binary path and container mounts. Example: `/opt/fabricx/artifacts/armageddon`.
     armageddon_artifacts_dir: "/opt/fabricx/artifacts/armageddon"
     # Directory containing fetched crypto artifacts used by the binary path and container mounts. Example: `/opt/fabricx/artifacts/crypto`.

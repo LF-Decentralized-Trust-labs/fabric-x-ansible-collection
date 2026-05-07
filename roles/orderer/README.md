@@ -209,8 +209,8 @@ Fetches Prometheus metrics from the configured orderer monitoring endpoint using
     actual_host: "myvpc.cloud.ibm.com"
     # Protocol used by the metrics fetch branch.
     orderer_http_protocol: http
-    # Metrics port queried by the metrics fetch branch. Example: `9445`.
-    orderer_metrics_port: 9445
+    # Metrics port exposed by the orderer. Example: `7060`.
+    orderer_metrics_port: 7060
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: get_metrics
@@ -543,24 +543,29 @@ Renders the component-specific orderer config for `consensus`, `batcher`, `assem
     orderer_use_openshift: false
     # gRPC port exposed by the orderer. Example: `7050`.
     orderer_rpc_port: 7050
-    # Metrics port written into the rendered config when enabled. Example: `9444`.
-    orderer_metrics_port: 9444
+    # Metrics port exposed by the orderer. Example: `7060`.
+    orderer_metrics_port: 7060
     # Optional metrics logging interval written into the rendered config. Example: `10s`.
     orderer_metrics_log_interval: "10s"
     # Client identifiers whose mTLS CA certificates are mounted or transferred. Trusts fetched `tls/ca.crt` files under those artifact directories. Example: `['loadgen-1', 'gateway-1']`.
     orderer_mtls_clients:
       - "loadgen-1"
       - "gateway-1"
-    # Organization dictionaries whose mTLS CA certificates are mounted or transferred. Example: `[{'domain': 'org1.example.com'}, {'domain': 'org2.example.com'}]`.
+    # Organization dictionaries whose mTLS CA certificates are mounted or transferred. Example: `[{'name': 'Org1', 'domain': 'org1.example.com'}, {'name': 'Org2', 'domain': 'org2.example.com'}]`.
     orderer_mtls_orgs:
-      - domain: "org1.example.com"
-      - domain: "org2.example.com"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
+      - name: "Org1"
+        domain: "org1.example.com"
+      - name: "Org2"
+        domain: "org2.example.com"
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com', 'role': 'orderer', 'fabric_ca_host': 'fca-orderer-org1', 'orderer': {'name': 'orderer-router-1', 'secret': 'orderer-router-1PWD'}}`.
     organization:
-      domain: "orderer.example.com"
+      name: "OrdererOrg1"
+      domain: "ordererorg1.example.com"
+      role: "orderer"
+      fabric_ca_host: "fca-orderer-org1"
       orderer:
-        name: "orderer-consenter-1"
-      fabric_ca_host: "ca-orderer"
+        name: "orderer-router-1"
+        secret: "orderer-router-1PWD"
     # Party identifier written into the orderer configuration. Example: `consenter-1`, `batcher-1`, `assembler-1`, or `router-1`.
     orderer_group: "router-1"
     # Batcher shard identifier written only by the batcher template. Example: `0`.
@@ -589,10 +594,12 @@ Copies trusted client and organization TLS CA certificates into the orderer mTLS
     orderer_mtls_clients:
       - "loadgen-1"
       - "gateway-1"
-    # Organization dictionaries whose mTLS CA certificates are mounted or transferred. Example: `[{'domain': 'org1.example.com'}, {'domain': 'org2.example.com'}]`.
+    # Organization dictionaries whose mTLS CA certificates are mounted or transferred. Example: `[{'name': 'Org1', 'domain': 'org1.example.com'}, {'name': 'Org2', 'domain': 'org2.example.com'}]`.
     orderer_mtls_orgs:
-      - domain: "org1.example.com"
-      - domain: "org2.example.com"
+      - name: "Org1"
+        domain: "org1.example.com"
+      - name: "Org2"
+        domain: "org2.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: config/mtls/transfer
@@ -646,12 +653,15 @@ Validates TLS and mTLS prerequisites, provisions orderer MSP and TLS material th
     orderer_use_tls: false
     # Enables client mutual TLS in the rendered config.
     orderer_use_mtls: false
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com', 'role': 'orderer', 'fabric_ca_host': 'fca-orderer-org1', 'orderer': {'name': 'orderer-router-1', 'secret': 'orderer-router-1PWD'}}`.
     organization:
-      domain: "orderer.example.com"
+      name: "OrdererOrg1"
+      domain: "ordererorg1.example.com"
+      role: "orderer"
+      fabric_ca_host: "fca-orderer-org1"
       orderer:
-        name: "orderer-consenter-1"
-      fabric_ca_host: "ca-orderer"
+        name: "orderer-router-1"
+        secret: "orderer-router-1PWD"
     # Selects the Kubernetes deployment branch.
     orderer_use_k8s: false
     # Selects the OpenShift deployment branch.
@@ -674,12 +684,15 @@ Copies cryptogen-generated MSP and TLS artifacts for the orderer identity into t
     cryptogen_artifacts_dir: "/tmp/fabric-x/artifacts/cryptogen"
     # Shared base directory for generated configuration. Example: `/var/hyperledger/fabric-x/config/orderer/assembler-1`.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com', 'role': 'orderer', 'fabric_ca_host': 'fca-orderer-org1', 'orderer': {'name': 'orderer-router-1', 'secret': 'orderer-router-1PWD'}}`.
     organization:
-      domain: "orderer.example.com"
+      name: "OrdererOrg1"
+      domain: "ordererorg1.example.com"
+      role: "orderer"
+      fabric_ca_host: "fca-orderer-org1"
       orderer:
-        name: "orderer-consenter-1"
-      fabric_ca_host: "ca-orderer"
+        name: "orderer-router-1"
+        secret: "orderer-router-1PWD"
     # Orderer identity name used to derive crypto artifact paths.
     orderer_crypto_name: "{{ organization.orderer.name | default(inventory_hostname) }}"
     # Remote directory where orderer configuration is written.
@@ -704,12 +717,15 @@ Copies the Fabric CA TLS certificate when needed and enrolls both MSP and TLS id
     actual_host: "myvpc.cloud.ibm.com"
     # Shared base directory for generated configuration. Example: `/var/hyperledger/fabric-x/config/orderer/assembler-1`.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com', 'role': 'orderer', 'fabric_ca_host': 'fca-orderer-org1', 'orderer': {'name': 'orderer-router-1', 'secret': 'orderer-router-1PWD'}}`.
     organization:
-      domain: "orderer.example.com"
+      name: "OrdererOrg1"
+      domain: "ordererorg1.example.com"
+      role: "orderer"
+      fabric_ca_host: "fca-orderer-org1"
       orderer:
-        name: "orderer-consenter-1"
-      fabric_ca_host: "ca-orderer"
+        name: "orderer-router-1"
+        secret: "orderer-router-1PWD"
     # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
     # Specifies the OpenShift Route host. Example: `orderer-rpc.apps.example.com`.
@@ -734,12 +750,15 @@ Fetches the orderer sign certificate, TLS server certificate, and TLS CA certifi
     fetched_artifacts_dir: "/tmp/fabric-x/artifacts/fetched"
     # Shared base directory for generated configuration. Example: `/var/hyperledger/fabric-x/config/orderer/assembler-1`.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com', 'role': 'orderer', 'fabric_ca_host': 'fca-orderer-org1', 'orderer': {'name': 'orderer-router-1', 'secret': 'orderer-router-1PWD'}}`.
     organization:
-      domain: "orderer.example.com"
+      name: "OrdererOrg1"
+      domain: "ordererorg1.example.com"
+      role: "orderer"
+      fabric_ca_host: "fca-orderer-org1"
       orderer:
-        name: "orderer-consenter-1"
-      fabric_ca_host: "ca-orderer"
+        name: "orderer-router-1"
+        secret: "orderer-router-1PWD"
     # Orderer identity name used to derive crypto artifact paths.
     orderer_crypto_name: "{{ organization.orderer.name | default(inventory_hostname) }}"
     # Remote directory where orderer configuration is written.
@@ -816,16 +835,21 @@ Creates the orderer Kubernetes Service, StatefulSet, and optional NodePort and L
     orderer_mtls_clients:
       - "loadgen-1"
       - "gateway-1"
-    # Organization dictionaries whose mTLS CA certificates are mounted or transferred. Example: `[{'domain': 'org1.example.com'}, {'domain': 'org2.example.com'}]`.
+    # Organization dictionaries whose mTLS CA certificates are mounted or transferred. Example: `[{'name': 'Org1', 'domain': 'org1.example.com'}, {'name': 'Org2', 'domain': 'org2.example.com'}]`.
     orderer_mtls_orgs:
-      - domain: "org1.example.com"
-      - domain: "org2.example.com"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
+      - name: "Org1"
+        domain: "org1.example.com"
+      - name: "Org2"
+        domain: "org2.example.com"
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com', 'role': 'orderer', 'fabric_ca_host': 'fca-orderer-org1', 'orderer': {'name': 'orderer-router-1', 'secret': 'orderer-router-1PWD'}}`.
     organization:
-      domain: "orderer.example.com"
+      name: "OrdererOrg1"
+      domain: "ordererorg1.example.com"
+      role: "orderer"
+      fabric_ca_host: "fca-orderer-org1"
       orderer:
-        name: "orderer-consenter-1"
-      fabric_ca_host: "ca-orderer"
+        name: "orderer-router-1"
+        secret: "orderer-router-1PWD"
     # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
     k8s_namespace: "fabricx-orderer"
     # PVC storage request used by the orderer StatefulSet. Example: `20Gi`.
@@ -904,8 +928,6 @@ Deletes the orderer StatefulSet and Services from the configured namespace. Leav
   vars:
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
-    orderer_k8s_part_of: "fabric-x-orderer-{{ organization.name }}"
     # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
     k8s_namespace: "fabricx-orderer"
     # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31050`.
@@ -945,8 +967,6 @@ Collects logs from pods selected by the orderer Kubernetes app label. Works for 
   vars:
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
-    orderer_k8s_part_of: "fabric-x-orderer-{{ organization.name }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: k8s/fetch_logs
@@ -979,10 +999,21 @@ Slurps the generated genesis block and renders the orderer ConfigMap. Includes t
     orderer_mtls_clients:
       - "loadgen-1"
       - "gateway-1"
-    # Organization dictionaries whose mTLS CA certificates are mounted or transferred. Example: `[{'domain': 'org1.example.com'}, {'domain': 'org2.example.com'}]`.
+    # Organization dictionaries whose mTLS CA certificates are mounted or transferred. Example: `[{'name': 'Org1', 'domain': 'org1.example.com'}, {'name': 'Org2', 'domain': 'org2.example.com'}]`.
     orderer_mtls_orgs:
-      - domain: "org1.example.com"
-      - domain: "org2.example.com"
+      - name: "Org1"
+        domain: "org1.example.com"
+      - name: "Org2"
+        domain: "org2.example.com"
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com', 'role': 'orderer', 'fabric_ca_host': 'fca-orderer-org1', 'orderer': {'name': 'orderer-router-1', 'secret': 'orderer-router-1PWD'}}`.
+    organization:
+      name: "OrdererOrg1"
+      domain: "ordererorg1.example.com"
+      role: "orderer"
+      fabric_ca_host: "fca-orderer-org1"
+      orderer:
+        name: "orderer-router-1"
+        secret: "orderer-router-1PWD"
     # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
     k8s_namespace: "fabricx-orderer"
   ansible.builtin.include_role:
@@ -1001,8 +1032,6 @@ Deletes the ConfigMap that holds orderer configuration, genesis material, and op
   vars:
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
-    orderer_k8s_part_of: "fabric-x-orderer-{{ organization.name }}"
     # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
     k8s_namespace: "fabricx-orderer"
   ansible.builtin.include_role:
@@ -1023,12 +1052,15 @@ Resolves orderer MSP and TLS file locations and renders the Kubernetes Secret. T
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
     # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'}`.
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com', 'role': 'orderer', 'fabric_ca_host': 'fca-orderer-org1', 'orderer': {'name': 'orderer-router-1', 'secret': 'orderer-router-1PWD'}}`.
     organization:
-      domain: "orderer.example.com"
+      name: "OrdererOrg1"
+      domain: "ordererorg1.example.com"
+      role: "orderer"
+      fabric_ca_host: "fca-orderer-org1"
       orderer:
-        name: "orderer-consenter-1"
-      fabric_ca_host: "ca-orderer"
+        name: "orderer-router-1"
+        secret: "orderer-router-1PWD"
     # Orderer identity name used to derive crypto artifact paths.
     orderer_crypto_name: "{{ organization.orderer.name | default(inventory_hostname) }}"
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
@@ -1055,8 +1087,6 @@ Deletes the Secret that stores orderer MSP and TLS material. Does not remove the
   vars:
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
-    orderer_k8s_part_of: "fabric-x-orderer-{{ organization.name }}"
     # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
     k8s_namespace: "fabricx-orderer"
   ansible.builtin.include_role:
@@ -1101,8 +1131,15 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     orderer_component_type: "router"
     # Enables server-side TLS in the rendered config.
     orderer_use_tls: false
-    # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
-    k8s_namespace: "fabricx-orderer"
+    # Organization metadata shared by the orderer crypto and config branches. Example: `{'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com', 'role': 'orderer', 'fabric_ca_host': 'fca-orderer-org1', 'orderer': {'name': 'orderer-router-1', 'secret': 'orderer-router-1PWD'}}`.
+    organization:
+      name: "OrdererOrg1"
+      domain: "ordererorg1.example.com"
+      role: "orderer"
+      fabric_ca_host: "fca-orderer-org1"
+      orderer:
+        name: "orderer-router-1"
+        secret: "orderer-router-1PWD"
     # Specifies the OpenShift Route host. Example: `orderer-rpc.apps.example.com`.
     orderer_openshift_route: "orderer-rpc.apps.example.com"
     # Specifies the OpenShift Route host. Example: `orderer-metrics.apps.example.com`.
@@ -1143,10 +1180,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
-    orderer_k8s_part_of: "fabric-x-orderer-{{ organization.name }}"
-    # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
-    k8s_namespace: "fabricx-orderer"
     # Specifies the OpenShift Route host. Example: `orderer-rpc.apps.example.com`.
     orderer_openshift_route: "orderer-rpc.apps.example.com"
     # Specifies the OpenShift Route host. Example: `orderer-metrics.apps.example.com`.
