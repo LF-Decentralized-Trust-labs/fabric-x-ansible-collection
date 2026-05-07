@@ -27,12 +27,12 @@
 
 - name: Apply Fabric CA Secret
   vars:
-    fabric_ca_server_k8s_ca_key_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_private_key_file }}"
+    fabric_ca_server_k8s_ca_key_path: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore/{{ fabric_ca_server_ca_private_key_file }}"
     fabric_ca_server_k8s_ca_cert_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_cert_file }}"
     fabric_ca_server_k8s_tls_key_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_tls_private_key_file }}"
     fabric_ca_server_k8s_tls_cert_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_tls_cert_file }}"
-    fabric_ca_server_k8s_idemix_revocation_public_key_path: "{{ fabric_ca_server_remote_config_dir }}/IssuerRevocationPublicKey"
     fabric_ca_server_k8s_idemix_revocation_private_key_path: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore/IssuerRevocationPrivateKey"
+    fabric_ca_server_k8s_idemix_revocation_public_key_path: "{{ fabric_ca_server_remote_config_dir }}/IssuerRevocationPublicKey"
   kubernetes.core.k8s:
     state: present
     namespace: "{{ k8s_namespace | default('default') }}"
