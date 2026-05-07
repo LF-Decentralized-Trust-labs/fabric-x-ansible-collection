@@ -553,7 +553,7 @@ Install the committer binary through the shared `bin` role Go installer entry po
     # Git repository that contains the committer sources.
     committer_git_repo: hyperledger/fabric-x-committer
     # Git ref used for building or installing the binary.
-    committer_git_commit: v1.0.0-alpha
+    committer_git_commit: v1.0.0-alpha.1
     # Go package path used as the build or install target.
     committer_source_code_package: cmd/committer
   ansible.builtin.include_role:
@@ -577,7 +577,7 @@ Build the committer binary through the shared `bin` role Go build entry point. P
     # Git repository that contains the committer sources.
     committer_git_repo: hyperledger/fabric-x-committer
     # Git ref used for building or installing the binary.
-    committer_git_commit: v1.0.0-alpha
+    committer_git_commit: v1.0.0-alpha.1
     # Go package path used as the build or install target.
     committer_source_code_package: cmd/committer
   ansible.builtin.include_role:
@@ -665,7 +665,7 @@ Run the validator container with its generated configuration directory mounted r
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 1.0.0-alpha
+    committer_image_tag: 1.0.0-alpha.1
     # Metrics port exposed by the selected committer component. Example: `9443`.
     committer_metrics_port: 9443
     # Container registry endpoint for the committer image.
@@ -703,7 +703,7 @@ Run the verifier container with its generated configuration directory mounted re
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 1.0.0-alpha
+    committer_image_tag: 1.0.0-alpha.1
     # Metrics port exposed by the selected committer component. Example: `9443`.
     committer_metrics_port: 9443
     # Container registry endpoint for the committer image.
@@ -741,7 +741,7 @@ Run the coordinator container with its generated configuration directory mounted
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 1.0.0-alpha
+    committer_image_tag: 1.0.0-alpha.1
     # Metrics port exposed by the selected committer component. Example: `9443`.
     committer_metrics_port: 9443
     # Container registry endpoint for the committer image.
@@ -781,7 +781,7 @@ Ensure the sidecar data directory exists and run the sidecar container with conf
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 1.0.0-alpha
+    committer_image_tag: 1.0.0-alpha.1
     # Metrics port exposed by the selected committer component. Example: `9443`.
     committer_metrics_port: 9443
     # Container registry endpoint for the committer image.
@@ -823,7 +823,7 @@ Run the query-service container with its generated configuration directory mount
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 1.0.0-alpha
+    committer_image_tag: 1.0.0-alpha.1
     # Metrics port exposed by the selected committer component. Example: `9443`.
     committer_metrics_port: 9443
     # Container registry endpoint for the committer image.
@@ -2004,7 +2004,7 @@ Ensure the namespace exists and apply the validator Service, NodePort and LoadBa
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 1.0.0-alpha
+    committer_image_tag: 1.0.0-alpha.1
     # Filesystem group assigned to committer pods.
     committer_k8s_fs_group: 10001
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
@@ -2119,7 +2119,7 @@ Ensure the namespace exists and apply the verifier Service, NodePort and LoadBal
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 1.0.0-alpha
+    committer_image_tag: 1.0.0-alpha.1
     # Filesystem group assigned to committer pods.
     committer_k8s_fs_group: 10001
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
@@ -2230,7 +2230,7 @@ Ensure the namespace exists and apply the coordinator Service, NodePort and Load
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 1.0.0-alpha
+    committer_image_tag: 1.0.0-alpha.1
     # Filesystem group assigned to committer pods.
     committer_k8s_fs_group: 10001
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
@@ -2355,7 +2355,7 @@ Ensure the namespace exists and apply the sidecar Service, NodePort and LoadBala
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 1.0.0-alpha
+    committer_image_tag: 1.0.0-alpha.1
     # Filesystem group assigned to committer pods.
     committer_k8s_fs_group: 10001
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
@@ -2470,7 +2470,7 @@ Ensure the namespace exists and apply the query-service Service, NodePort and Lo
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 1.0.0-alpha
+    committer_image_tag: 1.0.0-alpha.1
     # Filesystem group assigned to committer pods.
     committer_k8s_fs_group: 10001
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.

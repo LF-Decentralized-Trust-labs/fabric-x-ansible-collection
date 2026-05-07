@@ -28,7 +28,7 @@ loadgen_registry_endpoint: "{{ lookup('env', 'LOADGEN_REGISTRY_ENDPOINT') or 'do
 # Image name used by the Loadgen container.
 loadgen_image_name: fabric-x-loadgen
 # Image tag used by the Loadgen container.
-loadgen_image_tag: 1.0.0-alpha
+loadgen_image_tag: 1.0.0-alpha.1
 # Loadgen container image.
 loadgen_image: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
 # Container name used by the runtime.
@@ -38,7 +38,7 @@ loadgen_git_hub_url: github.com
 # Git repository that provides the Loadgen source.
 loadgen_git_repo: hyperledger/fabric-x-committer
 # Git revision used for binary builds and installs.
-loadgen_git_commit: v1.0.0-alpha
+loadgen_git_commit: v1.0.0-alpha.1
 # Go package path for the Loadgen binary.
 loadgen_source_code_package: cmd/loadgen
 # Go package used for binary installation.
