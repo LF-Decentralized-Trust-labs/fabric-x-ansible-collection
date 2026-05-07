@@ -7,7 +7,7 @@
 - name: Set Fabric CA server container volumes
   ansible.builtin.set_fact:
     fabric_ca_volumes:
-      - "{{ fabric_ca_server_remote_config_dir }}:{{ fabric_ca_server_container_config_dir }}:z"
+      - "{{ fabric_ca_server_remote_config_dir }}:{{ fabric_ca_server_container_config_dir }}:ro,z"
 
 - name: Start Fabric CA server container
   vars:

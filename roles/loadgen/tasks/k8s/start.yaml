@@ -18,12 +18,14 @@
 - name: Apply Fabric-X Loadgen Service
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service.yaml.j2
 
 - name: Apply Fabric-X Loadgen NodePort Service
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service-nodeport.yaml.j2
   when:
@@ -34,6 +36,7 @@
 - name: Apply Fabric-X Loadgen LoadBalancer Service
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service-loadbalancer.yaml.j2
   when:
@@ -71,6 +74,7 @@
       }}
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: "k8s/deployment-loadgen.yaml.j2"
     wait: true

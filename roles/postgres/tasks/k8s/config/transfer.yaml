@@ -21,5 +21,6 @@
     postgres_k8s_mtls_ca_bundle_path: "{{ postgres_remote_config_dir }}/mtls/ca-certs.pem"
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/configmap.yaml.j2

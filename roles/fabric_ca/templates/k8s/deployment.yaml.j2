@@ -8,7 +8,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ fabric_ca_server_k8s_resource_name }}
-  namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ fabric_ca_server_k8s_resource_name }}
     app.kubernetes.io/component: fabric-ca
@@ -53,12 +52,12 @@ spec:
               subPath: fabric-ca-server-config.yaml
               readOnly: true
             - name: secret
-              mountPath: {{ fabric_ca_server_container_config_dir }}/{{ fabric_ca_server_ca_private_key_file }}
-              subPath: {{ fabric_ca_server_ca_private_key_file }}
+              mountPath: {{ fabric_ca_server_container_config_dir }}/msp/keystore/{{ fabric_ca_server_ca_private_key_file }}
+              subPath: ca-private-key
               readOnly: true
             - name: secret
               mountPath: {{ fabric_ca_server_container_config_dir }}/{{ fabric_ca_server_ca_cert_file }}
-              subPath: {{ fabric_ca_server_ca_cert_file }}
+              subPath: ca-certificate
               readOnly: true
 {% if fabric_ca_use_tls %}
             - name: secret

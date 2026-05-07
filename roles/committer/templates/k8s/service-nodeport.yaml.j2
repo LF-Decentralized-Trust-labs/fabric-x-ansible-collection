@@ -9,7 +9,6 @@ kind: Service
 metadata:
   # NodePort Service — exposes the committer component outside the cluster.
   name: {{ committer_k8s_resource_name }}-nodeport
-  namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ committer_k8s_resource_name }}
     app.kubernetes.io/component: {{ committer_component_type }}

@@ -18,12 +18,14 @@
 - name: Apply Grafana Service
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service.yaml.j2
 
 - name: Apply Grafana NodePort Service
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service-nodeport.yaml.j2
   when: grafana_k8s_web_node_port is defined
@@ -31,6 +33,7 @@
 - name: Apply Grafana LoadBalancer Service
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service-loadbalancer.yaml.j2
   when: grafana_k8s_loadbalancer_expose_web_port
@@ -40,6 +43,7 @@
     grafana_dashboard_files: "{{ query('fileglob', grafana_remote_config_dir + '/dashboards/*.json') | sort }}"
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/deployment.yaml.j2
     wait: true

@@ -29,5 +29,6 @@
     committer_k8s_config_block_b64: "{{ committer_slurp_config_block.content }}"
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/configmap-sidecar.yaml.j2

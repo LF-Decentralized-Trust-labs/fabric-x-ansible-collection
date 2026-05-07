@@ -9,7 +9,6 @@ kind: StatefulSet
 metadata:
   # One StatefulSet per PostgreSQL instance.
   name: {{ postgres_k8s_resource_name }}
-  namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ postgres_k8s_resource_name }}
     app.kubernetes.io/part-of: {{ postgres_k8s_part_of }}

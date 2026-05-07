@@ -36,7 +36,6 @@ argument_specs:
           - When set, C(organization.domain) is used as the OpenSSL organization name.
       k8s_namespace: &k8s_namespace
         type: str
-        required: true
         description:
           - Sets the Kubernetes namespace used for Grafana resources.
           - "Example: C(fabricx-observability)."

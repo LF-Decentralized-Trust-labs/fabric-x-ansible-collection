@@ -41,7 +41,7 @@ argument_specs:
           - "Sets the Fabric CA image name."
       fabric_ca_image_tag: &fabric_ca_image_tag
         type: str
-        default: 1.5.15
+        default: 1.5.19
         description:
           - "Sets the Fabric CA image tag."
       fabric_ca_image: &fabric_ca_image
@@ -66,7 +66,7 @@ argument_specs:
           - "Sets the Fabric CA source repository."
       fabric_ca_git_commit: &fabric_ca_git_commit
         type: str
-        default: v1.5.15
+        default: v1.5.19
         description:
           - "Pins the Fabric CA source revision."
       fabric_ca_server_source_code_package:
@@ -114,7 +114,6 @@ argument_specs:
           - "Example: C(/tmp/fabricx/fetched-artifacts)."
       k8s_namespace: &k8s_namespace
         type: str
-        required: true
         description:
           - "Provides the Kubernetes namespace from the shared inventory."
           - "Example: C(fabricx)."
@@ -292,14 +291,14 @@ argument_specs:
       fabric_ca_server_ca_private_key_file:
         &fabric_ca_server_ca_private_key_file
         type: str
-        default: ca-key.pem
+        default: priv_sk
         description:
-          - "Sets the server CA private key filename."
+          - "Sets the server CA private key path, relative to the Fabric CA config root."
       fabric_ca_server_ca_cert_file: &fabric_ca_server_ca_cert_file
         type: str
         default: ca-cert.pem
         description:
-          - "Sets the server CA certificate filename."
+          - "Sets the server CA certificate path, relative to the Fabric CA config root."
       fabric_ca_server_tls_private_key_file:
         &fabric_ca_server_tls_private_key_file
         type: str
