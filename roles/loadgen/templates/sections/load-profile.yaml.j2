@@ -86,13 +86,8 @@ load-profile:
 {% set namespace_user = (organization.users | first) %}
             # Path to the signing key.
             signing-key: {{ loadgen_config_dir }}/users/{{ namespace_user.name }}@{{ organization.domain }}/msp/keystore/priv_sk
-{% if organization.fabric_ca_host is defined %}
-            # Path to the signing certificate.
-            sign-certificate: {{ loadgen_config_dir }}/users/{{ namespace_user.name }}@{{ organization.domain }}/msp/signcerts/cert.pem
-{% else %}
             # Path to the signing certificate.
             sign-certificate: {{ loadgen_config_dir }}/users/{{ namespace_user.name }}@{{ organization.domain }}/msp/signcerts/{{ namespace_user.name }}@{{ organization.domain }}-cert.pem
-{% endif %}
 {% endfor %}
 {% endif %}
 {% if loadgen_generate_config_block %}

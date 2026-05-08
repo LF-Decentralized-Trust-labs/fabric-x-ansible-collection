@@ -586,6 +586,8 @@ Enroll Loadgen peer, user, and optional TLS identities against Fabric CA. Writes
           policy: "threshold"
     # Local artifacts directory used for fetched TLS and MSP files. Example: `/tmp/fabricx-artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
+    # Crypto identity name used for MSP and TLS file names.
+    loadgen_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}"
     # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Base remote config directory that feeds `loadgen_remote_config_dir`. Example: `/var/hyperledger/fabricx/loadgen/lg-1/config`.
@@ -938,6 +940,8 @@ Create or update Kubernetes resources for Loadgen. Ensures the namespace exists,
       namespaces:
         - id: 0
           policy: "threshold"
+    # Crypto identity name used for MSP and TLS file names.
+    loadgen_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}"
     # Loadgen container image.
     loadgen_image: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
     # Image registry endpoint.

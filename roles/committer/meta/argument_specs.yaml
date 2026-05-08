@@ -1157,6 +1157,7 @@ argument_specs:
         <<: *actual_host
         required: true
       committer_component_type: *committer_component_type
+      committer_crypto_name: *committer_crypto_name
       committer_openshift_metrics_route: *committer_openshift_metrics_route
       committer_openshift_route: *committer_openshift_route
       committer_remote_config_dir: *committer_remote_config_dir
@@ -1687,6 +1688,7 @@ argument_specs:
       committer_container_config_dir: *committer_container_config_dir
       committer_container_data_dir: *committer_container_data_dir
       committer_coordinator: *committer_coordinator
+      committer_crypto_name: *committer_crypto_name
       committer_image: *committer_image
       committer_image_name: *committer_image_name
       committer_image_tag: *committer_image_tag

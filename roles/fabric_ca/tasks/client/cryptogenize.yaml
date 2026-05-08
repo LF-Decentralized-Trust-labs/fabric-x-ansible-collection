@@ -24,6 +24,17 @@
     - fabric_ca_msp_privkey_files is defined
     - fabric_ca_msp_privkey_files.matched > 0
 
+- name: Copy MSP sign certificate as cryptogen-alike location
+  ansible.builtin.copy:
+    src: "{{ fabric_ca_msp_dir }}/signcerts/cert.pem"
+    dest: "{{ fabric_ca_msp_dir }}/signcerts/{{ fabric_ca_cryptogenize_msp_signcert_file }}"
+    remote_src: true
+    mode: "preserve"
+  when:
+    - fabric_ca_enrollment_profile is undefined
+    - fabric_ca_cryptogenize_msp_signcert_file is defined
+    - fabric_ca_cryptogenize_msp_signcert_file != 'cert.pem'
+
 - name: Find the TLS CA .pem file
   ansible.builtin.find:
     paths: "{{ fabric_ca_msp_dir }}/tlscacerts"

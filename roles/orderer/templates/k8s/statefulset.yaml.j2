@@ -61,7 +61,7 @@ spec:
               readOnly: true
             # Node signing certificate issued by the organisation CA.
             - name: secret
-              mountPath: {{ orderer_container_config_dir }}/msp/signcerts/cert.pem
+              mountPath: {{ orderer_container_config_dir }}/msp/signcerts/{{ orderer_crypto_name }}.{{ organization.domain }}-cert.pem
               subPath: msp-signcert.pem
               readOnly: true
             # Organisation CA certificate. The filename must match the

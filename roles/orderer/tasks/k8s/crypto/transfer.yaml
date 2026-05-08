@@ -36,15 +36,7 @@
 # =========================
 - name: Apply Fabric-X Orderer Secret
   vars:
-    cryptogen_signcert_file: "{{ orderer_crypto_name }}.{{ organization.domain }}-cert.pem"
-    fabric_ca_signcert_file: "cert.pem"
-    signcert_file: >-
-      {{
-        cryptogen_signcert_file
-        if organization.fabric_ca_host is undefined
-        else fabric_ca_signcert_file
-      }}
-    orderer_k8s_msp_signcert_path: "{{ orderer_remote_config_dir }}/msp/signcerts/{{ signcert_file }}"
+    orderer_k8s_msp_signcert_path: "{{ orderer_remote_config_dir }}/msp/signcerts/{{ orderer_crypto_name }}.{{ organization.domain }}-cert.pem"
     orderer_k8s_msp_config_path: "{{ orderer_remote_config_dir }}/msp/config.yaml"
     orderer_k8s_msp_keystore_path: "{{ orderer_remote_config_dir }}/msp/keystore/priv_sk"
     orderer_k8s_tls_server_key_path: "{{ orderer_remote_config_dir }}/tls/server.key"

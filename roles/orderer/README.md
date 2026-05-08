@@ -726,6 +726,8 @@ Copies the Fabric CA TLS certificate when needed and enrolls both MSP and TLS id
       orderer:
         name: "orderer-router-1"
         secret: "orderer-router-1PWD"
+    # Orderer identity name used to derive crypto artifact paths.
+    orderer_crypto_name: "{{ organization.orderer.name | default(inventory_hostname) }}"
     # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
     # Specifies the OpenShift Route host. Example: `orderer-rpc.apps.example.com`.
@@ -801,6 +803,8 @@ Creates the orderer Kubernetes Service, StatefulSet, and optional NodePort and L
   vars:
     # Orderer component to manage; use `consensus` for the consenter process. Example: `consensus`, `batcher`, `assembler`, or `router`.
     orderer_component_type: "router"
+    # Orderer identity name used to derive crypto artifact paths.
+    orderer_crypto_name: "{{ organization.orderer.name | default(inventory_hostname) }}"
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
