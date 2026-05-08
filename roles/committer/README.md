@@ -1114,6 +1114,8 @@ Enroll the selected committer component against its Fabric CA and write the resu
     actual_host: "myvpc.cloud.ibm.com"
     # Committer component handled by the entry point. Example: `coordinator`.
     committer_component_type: "coordinator"
+    # Crypto material base name for the committer.
+    committer_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}"
     # Specifies the OpenShift Route host. Example: `committer-metrics.apps.example.com`.
     committer_openshift_metrics_route: "committer-metrics.apps.example.com"
     # Specifies the OpenShift Route host. Example: `committer-rpc.apps.example.com`.
@@ -2322,6 +2324,8 @@ Ensure the namespace exists and apply the sidecar Service, NodePort and LoadBala
     committer_container_data_dir: /data
     # Inventory host name of the coordinator component. Example: `committer-coordinator-1`.
     committer_coordinator: "committer-coordinator-1"
+    # Crypto material base name for the committer.
+    committer_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}"
     # Fully qualified committer image.
     committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
     # Image name for the committer container.

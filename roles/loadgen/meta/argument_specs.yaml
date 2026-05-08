@@ -745,6 +745,7 @@ argument_specs:
     options:
       organization: *organization
       fetched_artifacts_dir: *fetched_artifacts_dir
+      loadgen_crypto_name: *loadgen_crypto_name
       loadgen_remote_config_dir: *loadgen_remote_config_dir
       remote_config_dir: *remote_config_dir
       actual_host: *actual_host
@@ -907,6 +908,7 @@ argument_specs:
       committer_hosts: *committer_hosts
       orderer_hosts: *orderer_hosts
       organization: *organization
+      loadgen_crypto_name: *loadgen_crypto_name
       loadgen_image: *loadgen_image
       loadgen_registry_endpoint: *loadgen_registry_endpoint
       loadgen_image_name: *loadgen_image_name

@@ -90,7 +90,7 @@ spec:
 {% endfor %}
             # MSP signing certificate.
             - name: secret
-              mountPath: {{ committer_container_config_dir }}/msp/signcerts/cert.pem
+              mountPath: {{ committer_container_config_dir }}/msp/signcerts/{{ committer_crypto_name }}.{{ organization.domain }}-cert.pem
               subPath: msp-signcerts-cert.pem
               readOnly: true
             # MSP private key.
