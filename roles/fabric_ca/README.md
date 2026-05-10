@@ -9,6 +9,7 @@
 - [Tasks](#tasks)
   - [client/enroll](#clientenroll)
   - [client/register](#clientregister)
+  - [client/gather\_identities](#clientgather_identities)
   - [client/reenroll](#clientreenroll)
   - [client/identity\_list](#clientidentity_list)
   - [client/revoke](#clientrevoke)
@@ -111,6 +112,29 @@ Dispatches identity registration to the binary or transient-container implementa
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/register
+```
+
+### client/gather_identities
+
+> Gather organization identities from inventory
+
+Derives orderer, peer, and user identities for the current Fabric CA organization from inventory. Stores de-duplicated identities in the `fabric_ca_gathered_identities` host fact.
+
+```yaml
+- name: Gather organization identities from inventory
+  vars:
+    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'fabric_ca_host': 'fca-org1', 'role': 'peer', 'peer': {'name': 'peer0', 'secret': 'peer0PWD'}}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      fabric_ca_host: "fca-org1"
+      role: "peer"
+      peer:
+        name: "peer0"
+        secret: "peer0PWD"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/gather_identities
 ```
 
 ### client/reenroll
@@ -1549,6 +1573,9 @@ Renders and transfers the Fabric CA server configuration. Includes bootstrap adm
       attrs:
         hf.Registrar.Roles: "*"
         hf.Registrar.Attributes: "*"
+    # Lists additional identities rendered into the server registry section for startup registration. Each identity uses `name`, `secret`, `type`, optional `affiliation`, and optional `attrs`.
+    fabric_ca_registry_identities:
+
     # Sets the CSR common name.
     fabric_ca_csr_cn: "{{ fabric_ca_name }}"
     # Sets the CSR SAN host list.

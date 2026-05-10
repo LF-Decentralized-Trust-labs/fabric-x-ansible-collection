@@ -19,7 +19,15 @@
     # =========================
     # Fabric CA Server
     # =========================
+    - name: Gather Fabric CA registry identities
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: client/gather_identities
+      when:
+        - fabric_ca_port is defined
     - name: Transfer Fabric CA server config files
+      vars:
+        fabric_ca_registry_identities: "{{ fabric_ca_gathered_identities }}"
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fabric_ca
         tasks_from: server/config/transfer
