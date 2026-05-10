@@ -21,7 +21,7 @@
   loop: "{{ groups['all'] }}"
   loop_control:
     loop_var: orderer_host
-    label: "org:{{ current_orderer.organization.orderer.name | default(orderer_host) }}"
+    label: "{{ organization.domain }}:{{ current_orderer.organization.orderer.name | default(orderer_host) }}"
   when:
     - current_orderer.organization is defined
     - current_orderer.organization.domain == organization.domain
@@ -44,7 +44,7 @@
   loop: "{{ groups['all'] }}"
   loop_control:
     loop_var: peer_host
-    label: "org:{{ current_peer.organization.peer.name | default(peer_host) }}"
+    label: "{{ organization.domain }}:{{ current_peer.organization.peer.name | default(peer_host) }}"
   when:
     - current_peer.organization is defined
     - current_peer.organization.domain == organization.domain
@@ -79,7 +79,7 @@
     }}
   loop_control:
     loop_var: current_user
-    label: "org:{{ current_user.name | default('unknown') }}"
+    label: "{{ organization.domain }}:{{ current_user.name | default('unknown') }}"
   when:
     - current_user.name is defined
     - current_user.secret is defined
