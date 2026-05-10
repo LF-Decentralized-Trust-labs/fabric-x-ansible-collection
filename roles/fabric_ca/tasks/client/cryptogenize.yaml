@@ -4,99 +4,101 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Find the MSP private key file
-  ansible.builtin.find:
-    paths: "{{ fabric_ca_msp_dir }}/keystore"
-    patterns: "*_sk"
-    file_type: file
-  register: fabric_ca_msp_privkey_files
+- name: Normalize MSP enrollment output
   when:
     - fabric_ca_enrollment_profile is undefined
+  block:
+    - name: Find the MSP private key file
+      ansible.builtin.find:
+        paths: "{{ fabric_ca_msp_dir }}/keystore"
+        patterns: "*_sk"
+        file_type: file
+      register: fabric_ca_msp_privkey_files
+    - name: Copy MSP private key as cryptogen-alike location
+      ansible.builtin.copy:
+        src: "{{ fabric_ca_msp_privkey_files.files[0].path }}"
+        dest: "{{ fabric_ca_msp_dir }}/keystore/priv_sk"
+        remote_src: true
+        mode: "preserve"
+      when:
+        - fabric_ca_msp_privkey_files is defined
+        - fabric_ca_msp_privkey_files.matched > 0
+    - name: Find the MSP CA certificate file
+      ansible.builtin.find:
+        paths: "{{ fabric_ca_msp_dir }}/cacerts"
+        patterns: "*.pem"
+        excludes: "{{ fabric_ca_cryptogenize_msp_ca_cert_file }}"
+        file_type: file
+      register: fabric_ca_msp_cacert_files
+      when:
+        - fabric_ca_cryptogenize_msp_ca_cert_file is defined
+    - name: Copy MSP CA certificate as cryptogen-alike location
+      ansible.builtin.copy:
+        src: "{{ fabric_ca_msp_cacert_files.files[0].path }}"
+        dest: "{{ fabric_ca_msp_dir }}/cacerts/{{ fabric_ca_cryptogenize_msp_ca_cert_file }}"
+        remote_src: true
+        mode: "preserve"
+      when:
+        - fabric_ca_cryptogenize_msp_ca_cert_file is defined
+        - fabric_ca_msp_cacert_files is defined
+        - fabric_ca_msp_cacert_files.matched > 0
+    - name: Copy MSP sign certificate as cryptogen-alike location
+      ansible.builtin.copy:
+        src: "{{ fabric_ca_msp_dir }}/signcerts/cert.pem"
+        dest: "{{ fabric_ca_msp_dir }}/signcerts/{{ fabric_ca_cryptogenize_msp_signcert_file }}"
+        remote_src: true
+        mode: "preserve"
+      when:
+        - fabric_ca_cryptogenize_msp_signcert_file is defined
+        - fabric_ca_cryptogenize_msp_signcert_file != 'cert.pem'
 
-- name: Copy MSP private key as cryptogen-alike location
-  ansible.builtin.copy:
-    src: "{{ fabric_ca_msp_privkey_files.files[0].path }}"
-    dest: "{{ fabric_ca_msp_dir }}/keystore/priv_sk"
-    remote_src: true
-    mode: "preserve"
-  when:
-    - fabric_ca_enrollment_profile is undefined
-    - fabric_ca_msp_privkey_files is defined
-    - fabric_ca_msp_privkey_files.matched > 0
-
-- name: Copy MSP sign certificate as cryptogen-alike location
-  ansible.builtin.copy:
-    src: "{{ fabric_ca_msp_dir }}/signcerts/cert.pem"
-    dest: "{{ fabric_ca_msp_dir }}/signcerts/{{ fabric_ca_cryptogenize_msp_signcert_file }}"
-    remote_src: true
-    mode: "preserve"
-  when:
-    - fabric_ca_enrollment_profile is undefined
-    - fabric_ca_cryptogenize_msp_signcert_file is defined
-    - fabric_ca_cryptogenize_msp_signcert_file != 'cert.pem'
-
-- name: Find the TLS CA .pem file
-  ansible.builtin.find:
-    paths: "{{ fabric_ca_msp_dir }}/tlscacerts"
-    patterns: "*.pem"
-    file_type: file
-  register: fabric_ca_tlsca_pem_files
-  when:
-    - fabric_ca_enrollment_profile is defined
-    - fabric_ca_enrollment_profile == 'tls'
-
-- name: Copy TLS CA certificate as cryptogen-alike location
-  ansible.builtin.copy:
-    src: "{{ fabric_ca_tlsca_pem_files.files[0].path }}"
-    dest: "{{ fabric_ca_msp_dir }}/{{ fabric_ca_cryptogenize_tls_ca_cert_file }}"
-    remote_src: true
-    mode: "preserve"
-  when:
-    - fabric_ca_enrollment_profile is defined
-    - fabric_ca_enrollment_profile == 'tls'
-    - fabric_ca_tlsca_pem_files is defined
-    - fabric_ca_tlsca_pem_files.matched > 0
-
-- name: Find the TLS cert .pem file
-  ansible.builtin.find:
-    paths: "{{ fabric_ca_msp_dir }}/signcerts"
-    patterns: "*.pem"
-    file_type: file
-  register: fabric_ca_signcert_pem_files
+- name: Normalize TLS enrollment output
   when:
     - fabric_ca_enrollment_profile is defined
     - fabric_ca_enrollment_profile == 'tls'
-
-- name: Copy TLS cert as cryptogen-alike location
-  ansible.builtin.copy:
-    src: "{{ fabric_ca_signcert_pem_files.files[0].path }}"
-    dest: "{{ fabric_ca_msp_dir }}/{{ fabric_ca_cryptogenize_tls_cert_file }}"
-    remote_src: true
-    mode: "preserve"
-  when:
-    - fabric_ca_enrollment_profile is defined
-    - fabric_ca_enrollment_profile == 'tls'
-    - fabric_ca_signcert_pem_files is defined
-    - fabric_ca_signcert_pem_files.matched > 0
-
-- name: Find the TLS private key file
-  ansible.builtin.find:
-    paths: "{{ fabric_ca_msp_dir }}/keystore"
-    patterns: "*_sk"
-    file_type: file
-  register: fabric_ca_tls_privkey_files
-  when:
-    - fabric_ca_enrollment_profile is defined
-    - fabric_ca_enrollment_profile == 'tls'
-
-- name: Copy TLS private key as cryptogen-alike location
-  ansible.builtin.copy:
-    src: "{{ fabric_ca_tls_privkey_files.files[0].path }}"
-    dest: "{{ fabric_ca_msp_dir }}/{{ fabric_ca_cryptogenize_tls_key_file }}"
-    remote_src: true
-    mode: "preserve"
-  when:
-    - fabric_ca_enrollment_profile is defined
-    - fabric_ca_enrollment_profile == 'tls'
-    - fabric_ca_tls_privkey_files is defined
-    - fabric_ca_tls_privkey_files.matched > 0
+  block:
+    - name: Find the TLS CA .pem file
+      ansible.builtin.find:
+        paths: "{{ fabric_ca_msp_dir }}/tlscacerts"
+        patterns: "*.pem"
+        file_type: file
+      register: fabric_ca_tlsca_pem_files
+    - name: Copy TLS CA certificate as cryptogen-alike location
+      ansible.builtin.copy:
+        src: "{{ fabric_ca_tlsca_pem_files.files[0].path }}"
+        dest: "{{ fabric_ca_msp_dir }}/{{ fabric_ca_cryptogenize_tls_ca_cert_file }}"
+        remote_src: true
+        mode: "preserve"
+      when:
+        - fabric_ca_tlsca_pem_files is defined
+        - fabric_ca_tlsca_pem_files.matched > 0
+    - name: Find the TLS cert .pem file
+      ansible.builtin.find:
+        paths: "{{ fabric_ca_msp_dir }}/signcerts"
+        patterns: "*.pem"
+        file_type: file
+      register: fabric_ca_signcert_pem_files
+    - name: Copy TLS cert as cryptogen-alike location
+      ansible.builtin.copy:
+        src: "{{ fabric_ca_signcert_pem_files.files[0].path }}"
+        dest: "{{ fabric_ca_msp_dir }}/{{ fabric_ca_cryptogenize_tls_cert_file }}"
+        remote_src: true
+        mode: "preserve"
+      when:
+        - fabric_ca_signcert_pem_files is defined
+        - fabric_ca_signcert_pem_files.matched > 0
+    - name: Find the TLS private key file
+      ansible.builtin.find:
+        paths: "{{ fabric_ca_msp_dir }}/keystore"
+        patterns: "*_sk"
+        file_type: file
+      register: fabric_ca_tls_privkey_files
+    - name: Copy TLS private key as cryptogen-alike location
+      ansible.builtin.copy:
+        src: "{{ fabric_ca_tls_privkey_files.files[0].path }}"
+        dest: "{{ fabric_ca_msp_dir }}/{{ fabric_ca_cryptogenize_tls_key_file }}"
+        remote_src: true
+        mode: "preserve"
+      when:
+        - fabric_ca_tls_privkey_files is defined
+        - fabric_ca_tls_privkey_files.matched > 0
