@@ -206,8 +206,10 @@ Copies enrolled client MSP and TLS material into cryptogen-compatible filenames.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
     # Sets an optional enrollment profile such as `tls`. Example: `tls`.
     fabric_ca_enrollment_profile: "tls"
-    # Sets the normalized MSP sign certificate filename. Only applies to MSP enrollment; TLS enrollment uses the TLS certificate filename options.
-    fabric_ca_cryptogenize_msp_signcert_file: "string"
+    # Sets the normalized MSP CA certificate filename. Example: `ca.org1.example.com-cert.pem`.
+    fabric_ca_cryptogenize_msp_ca_cert_file: "ca.org1.example.com-cert.pem"
+    # Sets the normalized MSP sign certificate filename. Example: `cert.pem`
+    fabric_ca_cryptogenize_msp_signcert_file: "cert.pem"
     # Sets the normalized TLS CA certificate filename.
     fabric_ca_cryptogenize_tls_ca_cert_file: ca.crt
     # Sets the normalized TLS certificate filename.
