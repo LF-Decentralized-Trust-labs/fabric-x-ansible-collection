@@ -375,6 +375,13 @@ argument_specs:
           - "Supplies the bootstrap administrator rendered into the server registry section; C(name) and C(secret) are required."
           - "Store the secret in Ansible Vault."
           - "Example: C({'name': 'admin', 'secret': 'adminPWD', 'attrs': {'hf.Registrar.Roles': '*', 'hf.Registrar.Attributes': '*'}})."
+      fabric_ca_registry_identities: &fabric_ca_registry_identities
+        type: list
+        elements: dict
+        default: []
+        description:
+          - "Lists additional identities rendered into the server registry section for startup registration."
+          - "Each identity uses C(name), C(secret), C(type), optional C(affiliation), and optional C(attrs)."
       fabric_ca_tls_certfile: &fabric_ca_tls_certfile
         type: path
         description:
@@ -412,6 +419,14 @@ argument_specs:
       - "Registers a new Fabric CA identity such as a peer, orderer, admin, or client using an already enrolled registrar MSP."
     options:
       fabric_ca_client_use_bin: *fabric_ca_client_use_bin
+
+  client/gather_identities:
+    short_description: Gather organization identities from inventory
+    description:
+      - "Derives orderer, peer, and user identities for the current Fabric CA organization from inventory."
+      - "Stores de-duplicated identities in the C(fabric_ca_gathered_identities) host fact."
+    options:
+      organization: *organization
 
   client/reenroll:
     short_description: Dispatch client reenrollment
@@ -1078,6 +1093,7 @@ argument_specs:
       fabric_ca_server_ca_private_key_file: *fabric_ca_server_ca_private_key_file
       fabric_ca_server_ca_cert_file: *fabric_ca_server_ca_cert_file
       fabric_ca_admin: *fabric_ca_admin
+      fabric_ca_registry_identities: *fabric_ca_registry_identities
       fabric_ca_csr_cn: *fabric_ca_csr_cn
       fabric_ca_csr_hosts: *fabric_ca_csr_hosts
       fabric_ca_csr_expiry: *fabric_ca_csr_expiry

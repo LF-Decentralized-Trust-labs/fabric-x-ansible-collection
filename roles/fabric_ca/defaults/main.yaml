@@ -104,5 +104,8 @@ fabric_ca_cryptogenize_tls_ca_cert_file: ca.crt
 fabric_ca_cryptogenize_tls_cert_file: server.crt
 # Sets the normalized TLS private key filename.
 fabric_ca_cryptogenize_tls_key_file: server.key
+# Lists additional identities rendered into the server registry section for startup registration.
+# Each identity uses C(name), C(secret), C(type), optional C(affiliation), and optional C(attrs).
+fabric_ca_registry_identities: []
 # Selects the OpenShift deployment branch.
 fabric_ca_server_use_openshift: false
