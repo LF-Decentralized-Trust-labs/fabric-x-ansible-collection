@@ -13,6 +13,7 @@
   - [wipe](#wipe)
   - [fetch\_logs](#fetch_logs)
   - [ping](#ping)
+  - [effective\_address](#effective_address)
   - [get\_metrics](#get_metrics)
   - [limit\_rate](#limit_rate)
   - [prometheus/get\_scrapers](#prometheusget_scrapers)
@@ -185,33 +186,33 @@ Verify that the Loadgen HTTP control endpoint is reachable. Uses direct host acc
     tasks_from: ping
 ```
 
+### effective_address
+
+> Resolve the effective connection addresses
+
+Compute the host-and-port values used to reach the Loadgen instance from outside its own host. Sets `loadgen_effective_metrics_address` and `loadgen_effective_web_address` as Ansible facts on the calling host. Resolution priority for each address is OpenShift Route, then Kubernetes NodePort, then the plain host port. Accepts a `loadgen_host` variable so the task can be called from any host in the inventory, not just the Loadgen host itself. All Loadgen-specific variables are read from `hostvars[loadgen_host]` rather than from the calling host's scope.
+
+```yaml
+- name: Resolve the effective connection addresses
+  vars:
+    # Names the inventory host that provides the target Loadgen instance. Example: `loadgen1`.
+    loadgen_host: "loadgen1"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: effective_address
+```
+
 ### get_metrics
 
 > Fetch exported metrics
 
-Query the Loadgen Prometheus metrics endpoint over HTTP or HTTPS. In Kubernetes NodePort mode, targets the configured metrics NodePort; otherwise, it uses the host metrics port and selected monitoring protocol.
+Query the Loadgen Prometheus metrics endpoint over HTTP or HTTPS. Delegates address resolution to the `effective_address` entry point.
 
 ```yaml
 - name: Fetch exported metrics
   vars:
-    # Real machine host. Example: `myvpc.cloud.ibm.com`.
-    actual_host: "myvpc.cloud.ibm.com"
-    # Prometheus metrics port exposed by Loadgen. Example: `9443`.
-    loadgen_metrics_port: 9443
-    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30090`.
-    loadgen_k8s_metrics_node_port: 30090
-    # Protocol used to reach the monitoring endpoint.
-    loadgen_monitoring_http_protocol: "{{ 'https' if loadgen_monitoring_use_tls else 'http' }}"
-    # Enable TLS for the monitoring endpoint.
-    loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
-    # Specifies the OpenShift Route host. Example: `loadgen-metrics.apps.example.com`.
-    loadgen_openshift_metrics_route: "loadgen-metrics.apps.example.com"
-    # Enable TLS for the main endpoint.
-    loadgen_use_tls: false
     # Assert the committed transaction metric and report aborted transactions when fetching metrics.
     loadgen_assert_metrics: false
-    # Selects the OpenShift deployment branch.
-    loadgen_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: get_metrics
@@ -221,25 +222,13 @@ Query the Loadgen Prometheus metrics endpoint over HTTP or HTTPS. In Kubernetes 
 
 > Update the runtime rate limit
 
-Send a control-plane HTTP request that changes the active generated transaction rate. Supports host ports for binary and container deployments and the configured HTTP NodePort for Kubernetes access.
+Send a control-plane HTTP request that changes the active generated transaction rate. Delegates address resolution to the `effective_address` entry point.
 
 ```yaml
 - name: Update the runtime rate limit
   vars:
-    # Real machine host. Example: `myvpc.cloud.ibm.com`.
-    actual_host: "myvpc.cloud.ibm.com"
-    # HTTP control port exposed by Loadgen. Example: `8080`.
-    loadgen_web_port: 8080
-    # Kubernetes NodePort value used by the external HTTP control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30080`.
-    loadgen_k8s_web_node_port: 30080
     # Maximum generated transaction rate. Example: `2500`.
     loadgen_limit_rate: 2500
-    # Use Kubernetes resources.
-    loadgen_use_k8s: false
-    # Selects the OpenShift deployment branch.
-    loadgen_use_openshift: false
-    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP control port externally. When undefined or `false`, the HTTP control port is not included in the LoadBalancer Service.
-    loadgen_k8s_loadbalancer_expose_web_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: limit_rate
