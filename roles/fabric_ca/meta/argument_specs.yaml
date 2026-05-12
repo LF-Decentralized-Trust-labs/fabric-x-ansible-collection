@@ -460,11 +460,11 @@ argument_specs:
     options:
       fabric_ca_client_use_bin: *fabric_ca_client_use_bin
 
-  client/effective_address:
-    short_description: Resolve the Fabric CA connection address
+  server/effective_address:
+    short_description: Resolve the Fabric CA server connection address
     description:
-      - "Resolves the effective Fabric CA host, port, and URL scheme used by client operations."
-      - "The referenced host must define C(actual_host) and the Fabric CA server port settings; when it enables NodePort, the client uses C(fabric_ca_server_k8s_node_port) instead of C(fabric_ca_port)."
+      - "Resolves the effective Fabric CA server host and port used by client operations."
+      - "The referenced host must define C(actual_host) and the Fabric CA server port settings; when it enables NodePort, the resolved address uses C(fabric_ca_server_k8s_node_port) instead of C(fabric_ca_port)."
     options:
       fabric_ca_host: *fabric_ca_host
 
