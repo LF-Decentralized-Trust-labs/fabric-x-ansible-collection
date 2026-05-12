@@ -27,7 +27,7 @@
         - hostvars[loadgen_host].loadgen_k8s_metrics_node_port is defined
     - name: Set effective loadgen metrics address
       ansible.builtin.set_fact:
-        loadgen_effective_metrics_address: "{{ hostvars[loadgen_host].actual_host }}:{{ hostvars[loadgen_host].loadgen_metrics_port }}"
+        loadgen_effective_metrics_address: "{{ loadgen_host_http_protocol }}://{{ hostvars[loadgen_host].actual_host }}:{{ hostvars[loadgen_host].loadgen_metrics_port }}"
       when:
         - hostvars[loadgen_host].loadgen_openshift_metrics_route is not defined
         - hostvars[loadgen_host].loadgen_k8s_metrics_node_port is not defined
