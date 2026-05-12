@@ -39,14 +39,14 @@ flowchart TD
   all --> load_generators
   all --> monitoring
   fabric_cas --> fabric_ca_servers
-  fabric_cas --> fabric_ca_dbs["Fabric CA PostgreSQL DBs"]
+  fabric_cas --> fabric_ca_dbs
   fabric_x --> fabric_x_orderers
   fabric_x --> fabric_x_committer
-  fabric_x_orderers --> orderer_groups["fabric_x_orderer_1..4"]
-  fabric_x_committer --> committer_services["validator, verifier, coordinator, sidecar, query service"]
+  fabric_x_orderers --> fabric_x_orderer_1
+  fabric_x_orderers --> fabric_x_orderer_2
+  fabric_x_orderers --> fabric_x_orderer_3
+  fabric_x_orderers --> fabric_x_orderer_4
   fabric_x_committer --> committer_dbs
-  committer_dbs --> yugabyte_master["YugabyteDB master"]
-  committer_dbs --> yugabyte_tablet["YugabyteDB tablet"]
 ```
 
 The validator and query service both reference `yugabyte_cluster_ref_id: 1`, which points them at the YugabyteDB hosts under `committer_dbs`.

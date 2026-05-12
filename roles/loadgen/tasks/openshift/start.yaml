@@ -15,7 +15,7 @@
     openshift_route_host: "{{ loadgen_openshift_web_route }}"
     openshift_route_service_name: "{{ loadgen_k8s_resource_name }}"
     openshift_route_service_port: web
-    openshift_route_use_tls: "{{ loadgen_use_tls }}"
+    openshift_route_use_tls: false
     openshift_route_labels:
       app.kubernetes.io/name: "{{ loadgen_k8s_resource_name }}"
       app.kubernetes.io/component: "loadgen"

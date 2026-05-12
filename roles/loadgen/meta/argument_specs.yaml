@@ -150,7 +150,7 @@ argument_specs:
         default: "{{ loadgen_use_mtls }}"
         description:
           - Enable mTLS for the monitoring endpoint.
-      loadgen_monitoring_http_protocol: &loadgen_monitoring_http_protocol
+      loadgen_monitoring_http_protocol:
         type: str
         default: "{{ 'https' if loadgen_monitoring_use_tls else 'http' }}"
         description:
@@ -355,6 +355,12 @@ argument_specs:
         description:
           - Channel buffer size used by the stream pipeline.
           - "Example: C(64)."
+      loadgen_host: &loadgen_host
+        type: str
+        required: true
+        description:
+          - Names the inventory host that provides the target Loadgen instance.
+          - "Example: C(loadgen1)."
       loadgen_hosts: &loadgen_hosts
         type: list
         elements: str
@@ -597,35 +603,32 @@ argument_specs:
       loadgen_use_k8s: *loadgen_use_k8s
       loadgen_use_openshift: *loadgen_use_openshift
 
+  effective_address:
+    short_description: Resolve the effective connection addresses
+    description:
+      - Compute the host-and-port values used to reach the Loadgen instance from outside its own host.
+      - Sets C(loadgen_effective_metrics_address) and C(loadgen_effective_web_address) as Ansible facts on the calling host.
+      - Resolution priority for each address is OpenShift Route, then Kubernetes NodePort, then the plain host port.
+      - Accepts a C(loadgen_host) variable so the task can be called from any host in the inventory, not just the Loadgen host itself.
+      - All Loadgen-specific variables are read from C(hostvars[loadgen_host]) rather than from the calling host's scope.
+    options:
+      loadgen_host: *loadgen_host
+
   get_metrics:
     short_description: Fetch exported metrics
     description:
       - Query the Loadgen Prometheus metrics endpoint over HTTP or HTTPS.
-      - In Kubernetes NodePort mode, targets the configured metrics NodePort; otherwise, it uses the host metrics port and selected monitoring protocol.
+      - Delegates address resolution to the C(effective_address) entry point.
     options:
-      actual_host: *actual_host
-      loadgen_metrics_port: *loadgen_metrics_port
-      loadgen_k8s_metrics_node_port: *loadgen_k8s_metrics_node_port
-      loadgen_monitoring_http_protocol: *loadgen_monitoring_http_protocol
-      loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
-      loadgen_openshift_metrics_route: *loadgen_openshift_metrics_route
-      loadgen_use_tls: *loadgen_use_tls
       loadgen_assert_metrics: *loadgen_assert_metrics
-      loadgen_use_openshift: *loadgen_use_openshift
 
   limit_rate:
     short_description: Update the runtime rate limit
     description:
       - Send a control-plane HTTP request that changes the active generated transaction rate.
-      - Supports host ports for binary and container deployments and the configured HTTP NodePort for Kubernetes access.
+      - Delegates address resolution to the C(effective_address) entry point.
     options:
-      actual_host: *actual_host
-      loadgen_web_port: *loadgen_web_port
-      loadgen_k8s_web_node_port: *loadgen_k8s_web_node_port
       loadgen_limit_rate: *loadgen_limit_rate
-      loadgen_use_k8s: *loadgen_use_k8s
-      loadgen_use_openshift: *loadgen_use_openshift
-      loadgen_k8s_loadbalancer_expose_web_port: *loadgen_k8s_loadbalancer_expose_web_port
 
   prometheus/get_scrapers:
     short_description: Build Prometheus scrape targets

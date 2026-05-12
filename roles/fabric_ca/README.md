@@ -14,7 +14,7 @@
   - [client/identity\_list](#clientidentity_list)
   - [client/revoke](#clientrevoke)
   - [client/gencrl](#clientgencrl)
-  - [client/effective\_address](#clienteffective_address)
+  - [server/effective\_address](#servereffective_address)
   - [client/cryptogenize](#clientcryptogenize)
   - [client/bin/build](#clientbinbuild)
   - [client/bin/install](#clientbininstall)
@@ -201,20 +201,20 @@ Dispatches certificate revocation list generation to the binary or transient-con
     tasks_from: client/gencrl
 ```
 
-### client/effective_address
+### server/effective_address
 
-> Resolve the Fabric CA connection address
+> Resolve the Fabric CA server connection address
 
-Resolves the effective Fabric CA host, port, and URL scheme used by client operations. The referenced host must define `actual_host` and the Fabric CA server port settings; when it enables NodePort, the client uses `fabric_ca_server_k8s_node_port` instead of `fabric_ca_port`.
+Resolves the effective Fabric CA server host and port used by client operations. The referenced host must define `actual_host` and the Fabric CA server port settings; when it enables NodePort, the resolved address uses `fabric_ca_server_k8s_node_port` instead of `fabric_ca_port`.
 
 ```yaml
-- name: Resolve the Fabric CA connection address
+- name: Resolve the Fabric CA server connection address
   vars:
     # Names the inventory host that provides the target Fabric CA server. Example: `ca-org1`.
     fabric_ca_host: "ca-org1"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
-    tasks_from: client/effective_address
+    tasks_from: server/effective_address
 ```
 
 ### client/cryptogenize

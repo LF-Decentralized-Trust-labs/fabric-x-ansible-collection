@@ -87,6 +87,11 @@ argument_specs:
         default: "12h"
         description:
           - "Duration for the service account token"
+      openshift_hosts_file_path: &openshift_hosts_file_path
+        type: path
+        default: /etc/hosts
+        description:
+          - "Path to the hosts file updated by the macOS OpenShift Route helper."
 
   route/apply:
     short_description: Apply an OpenShift Route
@@ -118,6 +123,15 @@ argument_specs:
     options:
       openshift_route_host: *openshift_route_host
       openshift_route_use_tls: *openshift_route_use_tls
+
+  route/setup_on_macos:
+    short_description: Configure macOS hosts entries for OpenShift routes
+    description:
+      - Discovers OpenShift Route hostnames from the current inventory and maps them to the control node's default IPv4 address in C(/etc/hosts).
+      - Intended for local CRC deployments on macOS where route DNS resolves to C(127.0.0.1) but containerized clients need a non-loopback host address.
+      - Requires privilege escalation because C(/etc/hosts) is owned by root.
+    options:
+      openshift_hosts_file_path: *openshift_hosts_file_path
 
   cluster/login:
     short_description: Login to a managed OpenShift cluster with a personal token
