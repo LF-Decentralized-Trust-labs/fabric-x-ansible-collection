@@ -1,11 +1,8 @@
-# openshift/fabric-x-cryptogen.yaml
+# openshift/fabric-x.yaml
 
-[`fabric-x-cryptogen.yaml`](../../openshift/fabric-x-cryptogen.yaml) deploys the OpenShift sample without Fabric CA services. Crypto material is generated on the control node with `cryptogen`.
+[`fabric-x.yaml`](../../openshift/fabric-x.yaml) is the default OpenShift sample. It deploys a complete Fabric-X network with Fabric CA, PostgreSQL, TLS, mTLS, and OpenShift Route exposure.
 
-Use it for repeatable OpenShift tests that should not exercise Fabric CA enrollment or Kubernetes NodePort exposure.
-
-> [!WARNING]
-> This inventory is intended for debugging and repeatable test runs. For production-style deployments, start from a Fabric CA based inventory instead.
+Use it as the baseline when validating OpenShift workloads, services, storage, and externally reachable endpoints. Fabric CA servers are exposed via OpenShift Routes instead of Kubernetes NodePorts.
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -16,15 +13,15 @@ Use it for repeatable OpenShift tests that should not exercise Fabric CA enrollm
 
 The diagram below summarizes this inventory's Fabric-X services and how they fit together.
 
-![OpenShift Fabric-X cryptogen inventory](../../../images/fabric-x-openshift-cryptogen.drawio.png)
+![OpenShift Fabric-X inventory](../../../images/fabric-x-openshift.drawio.png)
 
 ## Inventory Details
 
-Orderer, committer, PostgreSQL, load generator, node exporter, Prometheus, and Grafana use OpenShift task paths. `cryptogen` runs on the control node and writes artifacts below `cryptogen_artifacts_dir`.
+Fabric CA, CA databases, orderer, committer, PostgreSQL, load generator, node exporter, Prometheus, and Grafana use OpenShift task paths. Ansible still runs from the control node, but inventory hosts represent OpenShift resources rather than SSH machines.
 
 This inventory deploys these logical services as OpenShift workloads, services, and routes:
 
-- No Fabric CA servers or Fabric CA databases.
+- 5 Fabric CA servers and 5 PostgreSQL databases for Fabric CA state.
 - 4 orderer groups. Each group has 1 router, 1 consenter, 1 assembler, and 1 batcher.
 - 1 committer with validator, verifier, coordinator, sidecar, query service, and PostgreSQL storage.
 - 1 load generator.
@@ -36,9 +33,12 @@ This inventory deploys these logical services as OpenShift workloads, services, 
 ```mermaid
 flowchart TD
   all --> network
+  network --> fabric_cas
   network --> fabric_x
   all --> load_generators
   all --> monitoring
+  fabric_cas --> fabric_ca_servers
+  fabric_cas --> fabric_ca_dbs
   fabric_x --> fabric_x_orderers
   fabric_x --> fabric_x_committer
   fabric_x_orderers --> fabric_x_orderer_1
@@ -47,4 +47,4 @@ flowchart TD
   fabric_x_orderers --> fabric_x_orderer_4
 ```
 
-Fabric CA is omitted entirely. Certificates and keys are generated centrally before OpenShift-backed component configuration consumes them.
+This is the OpenShift equivalent of the default Kubernetes inventory. External-facing services use OpenShift Routes, while internal services stay behind ClusterIP services.

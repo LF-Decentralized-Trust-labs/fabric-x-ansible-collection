@@ -41,10 +41,10 @@ flowchart TD
   fabric_cas --> fabric_ca_dbs
   fabric_x --> fabric_x_orderers
   fabric_x --> fabric_x_committer
-  fabric_x_orderers --> orderer_groups["fabric_x_orderer_1..4"]
-  fabric_x_committer --> committer_services["validator, verifier, coordinator, sidecar, query service"]
-  fabric_x_committer --> committer_db["committer-db PostgreSQL"]
-  fabric_x --> mtls["mTLS disabled"]
+  fabric_x_orderers --> fabric_x_orderer_1
+  fabric_x_orderers --> fabric_x_orderer_2
+  fabric_x_orderers --> fabric_x_orderer_3
+  fabric_x_orderers --> fabric_x_orderer_4
 ```
 
 TLS remains enabled for Fabric CA, PostgreSQL, orderer, committer, load generator, and monitoring components that declare TLS variables. The `orderer_use_mtls` and `committer_use_mtls` variables are omitted, so Fabric-X services do not require client certificates from each other.

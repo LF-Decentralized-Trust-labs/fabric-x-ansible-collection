@@ -32,18 +32,16 @@ This inventory deploys these logical services on the local machine:
 
 ```mermaid
 flowchart TD
-  all --> control_node_crypto["cryptogen artifacts"]
   all --> network
   network --> fabric_x
   all --> load_generators
   all --> monitoring
   fabric_x --> fabric_x_orderers
   fabric_x --> fabric_x_committer
-  fabric_x_orderers --> orderer_groups["fabric_x_orderer_1..4"]
-  fabric_x_committer --> committer_services["validator, verifier, coordinator, sidecar, query service"]
-  fabric_x_committer --> committer_db["committer-db PostgreSQL"]
-  control_node_crypto -.-> fabric_x_orderers
-  control_node_crypto -.-> fabric_x_committer
+  fabric_x_orderers --> fabric_x_orderer_1
+  fabric_x_orderers --> fabric_x_orderer_2
+  fabric_x_orderers --> fabric_x_orderer_3
+  fabric_x_orderers --> fabric_x_orderer_4
 ```
 
 Fabric CA is omitted entirely. Certificates and keys are generated centrally before the local container services consume them.

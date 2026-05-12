@@ -119,6 +119,7 @@ nav:
           - fabric-x-no-mtls: examples/inventory/docs/k8s/fabric-x-no-mtls.md
           - fabric-x-no-tls: examples/inventory/docs/k8s/fabric-x-no-tls.md
       - OpenShift:
+          - fabric-x: examples/inventory/docs/openshift/fabric-x.md
           - fabric-x-cryptogen: examples/inventory/docs/openshift/fabric-x-cryptogen.md
       - Distributed:
           - fabric-x: examples/inventory/docs/distributed/fabric-x.md

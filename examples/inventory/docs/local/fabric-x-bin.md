@@ -47,12 +47,14 @@ flowchart TD
   network --> fabric_x
   all --> load_generators
   all --> monitoring
-  fabric_cas --> fabric_ca_servers["Fabric CA binaries"]
-  fabric_cas --> fabric_ca_dbs["PostgreSQL containers"]
-  fabric_x --> fabric_x_orderers["Orderer binaries"]
-  fabric_x --> fabric_x_committer["Committer binaries"]
-  fabric_x_committer --> committer_db["PostgreSQL container"]
-  network --> tmux["tmux-managed processes"]
+  fabric_cas --> fabric_ca_servers
+  fabric_cas --> fabric_ca_dbs
+  fabric_x --> fabric_x_orderers
+  fabric_x --> fabric_x_committer
+  fabric_x_orderers --> fabric_x_orderer_1
+  fabric_x_orderers --> fabric_x_orderer_2
+  fabric_x_orderers --> fabric_x_orderer_3
+  fabric_x_orderers --> fabric_x_orderer_4
 ```
 
 The variables `orderer_use_bin`, `committer_use_bin`, `fabric_ca_server_use_bin`, and `loadgen_use_bin` select binary task paths. `cryptogen_use_bin` and `fabric_ca_client_use_bin` exercise the local helper binaries too.
