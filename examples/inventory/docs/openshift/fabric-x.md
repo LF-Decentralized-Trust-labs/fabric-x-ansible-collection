@@ -1,11 +1,8 @@
-# local/fabric-x-no-tls.yaml
+# openshift/fabric-x.yaml
 
-[`fabric-x-no-tls.yaml`](../../local/fabric-x-no-tls.yaml) is the local container sample with TLS and mTLS disabled.
+[`fabric-x.yaml`](../../openshift/fabric-x.yaml) is the default OpenShift sample. It deploys a complete Fabric-X network with Fabric CA, PostgreSQL, TLS, mTLS, and OpenShift Route exposure.
 
-Use it only when plaintext endpoints are deliberate, such as local protocol, connectivity, or compatibility debugging.
-
-> [!WARNING]
-> This inventory is meant for debugging only. It disables both TLS encryption and mTLS client authentication.
+Use it as the baseline when validating OpenShift workloads, services, storage, and externally reachable endpoints. Fabric CA servers are exposed via OpenShift Routes instead of Kubernetes NodePorts.
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -16,13 +13,13 @@ Use it only when plaintext endpoints are deliberate, such as local protocol, con
 
 The diagram below summarizes this inventory's Fabric-X services and how they fit together.
 
-![local Fabric-X no TLS inventory](../../../images/fabric-x.drawio.png)
+![OpenShift Fabric-X inventory](../../../images/fabric-x-openshift.drawio.png)
 
 ## Inventory Details
 
-All long-running services run as local containers. Ansible connects locally and uses the same container runtime paths as [`fabric-x.yaml`](./fabric-x.md).
+Fabric CA, CA databases, orderer, committer, PostgreSQL, load generator, node exporter, Prometheus, and Grafana use OpenShift task paths. Ansible still runs from the control node, but inventory hosts represent OpenShift resources rather than SSH machines.
 
-This inventory deploys the same service layout as the default local sample:
+This inventory deploys these logical services as OpenShift workloads, services, and routes:
 
 - 5 Fabric CA servers and 5 PostgreSQL databases for Fabric CA state.
 - 4 orderer groups. Each group has 1 router, 1 consenter, 1 assembler, and 1 batcher.
@@ -47,4 +44,4 @@ flowchart TD
   fabric_x_orderers --> fabric_x_orderer_4
 ```
 
-TLS-related variables are intentionally omitted for Fabric-X, Fabric CA, PostgreSQL, load generator, and monitoring services. Because TLS is disabled, mTLS is disabled as well.
+This is the OpenShift equivalent of the default Kubernetes inventory. External-facing services use OpenShift Routes, while internal services stay behind ClusterIP services.
