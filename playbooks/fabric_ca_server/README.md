@@ -68,7 +68,7 @@ Properties:
 
 ## configs.yaml
 
-[`configs.yaml`](./configs.yaml) transfers the PostgreSQL and Fabric CA server configuration needed before the CA stack starts. It configures CA database access as well as the Fabric CA server runtime settings.
+[`configs.yaml`](./configs.yaml) transfers the PostgreSQL and Fabric CA server configuration needed before the CA stack starts. It configures CA database access, Fabric CA server runtime settings, and the per-organization identities that Fabric CA should register from `registry.identities` when a fresh CA database starts.
 
 ```shell
 ansible-playbook hyperledger.fabricx.fabric_ca_server.configs --extra-vars '{"target_hosts": "fabric_cas"}'
@@ -77,7 +77,7 @@ ansible-playbook hyperledger.fabricx.fabric_ca_server.configs --extra-vars '{"ta
 Properties:
 
 - Target hosts: `fabric_cas` by default.
-- Nuance: transfers both CA server configuration and PostgreSQL database configuration where present.
+- Nuance: transfers both CA server configuration and PostgreSQL database configuration where present. For fresh CA databases, inventory-derived orderer, peer, and user identities are preloaded through the Fabric CA server config before startup.
 
 ## start.yaml
 
@@ -107,7 +107,7 @@ Properties:
 
 ## register_identities.yaml
 
-[`register_identities.yaml`](./register_identities.yaml) derives Fabric-X component users from the inventory and registers them on the correct Fabric CA servers. It covers orderer, committer, and load generator identities as well as organization-level metadata.
+[`register_identities.yaml`](./register_identities.yaml) derives Fabric-X component users from the inventory and registers only missing identities on the correct Fabric CA servers. Fresh CA deployments normally get these identities from the server config rendered by `configs.yaml`; this playbook is the incremental path for identities added after the CA database already exists.
 
 ```shell
 ansible-playbook hyperledger.fabricx.fabric_ca_server.register_identities --extra-vars '{"target_hosts": "fabric_ca_servers"}'
@@ -116,7 +116,7 @@ ansible-playbook hyperledger.fabricx.fabric_ca_server.register_identities --extr
 Properties:
 
 - Target hosts: `fabric_ca_servers` by default.
-- Nuance: derives registration requests from orderer, committer, load generator, and organization metadata. Each identity is registered on the Fabric CA referenced by the host or organization, so this must run after `init.yaml` and before component crypto generation.
+- Nuance: derives registration requests from orderer, committer, load generator, and organization metadata. The playbook lists registered identities once per CA host, filters out existing names, and registers only missing identities, so it must run after `init.yaml` and before component crypto generation when used for incremental updates.
 
 ## stop.yaml
 

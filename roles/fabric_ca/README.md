@@ -9,6 +9,7 @@
 - [Tasks](#tasks)
   - [client/enroll](#clientenroll)
   - [client/register](#clientregister)
+  - [client/gather\_identities](#clientgather_identities)
   - [client/reenroll](#clientreenroll)
   - [client/identity\_list](#clientidentity_list)
   - [client/revoke](#clientrevoke)
@@ -113,6 +114,29 @@ Dispatches identity registration to the binary or transient-container implementa
     tasks_from: client/register
 ```
 
+### client/gather_identities
+
+> Gather organization identities from inventory
+
+Derives orderer, peer, and user identities for the current Fabric CA organization from inventory. Stores de-duplicated identities in the `fabric_ca_gathered_identities` host fact.
+
+```yaml
+- name: Gather organization identities from inventory
+  vars:
+    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'fabric_ca_host': 'fca-org1', 'role': 'peer', 'peer': {'name': 'peer0', 'secret': 'peer0PWD'}}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      fabric_ca_host: "fca-org1"
+      role: "peer"
+      peer:
+        name: "peer0"
+        secret: "peer0PWD"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/gather_identities
+```
+
 ### client/reenroll
 
 > Dispatch client reenrollment
@@ -206,6 +230,10 @@ Copies enrolled client MSP and TLS material into cryptogen-compatible filenames.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
     # Sets an optional enrollment profile such as `tls`. Example: `tls`.
     fabric_ca_enrollment_profile: "tls"
+    # Sets the normalized MSP CA certificate filename. Example: `ca.org1.example.com-cert.pem`.
+    fabric_ca_cryptogenize_msp_ca_cert_file: "ca.org1.example.com-cert.pem"
+    # Sets the normalized MSP sign certificate filename. Example: `cert.pem`
+    fabric_ca_cryptogenize_msp_signcert_file: "cert.pem"
     # Sets the normalized TLS CA certificate filename.
     fabric_ca_cryptogenize_tls_ca_cert_file: ca.crt
     # Sets the normalized TLS certificate filename.
@@ -1545,6 +1573,9 @@ Renders and transfers the Fabric CA server configuration. Includes bootstrap adm
       attrs:
         hf.Registrar.Roles: "*"
         hf.Registrar.Attributes: "*"
+    # Lists additional identities rendered into the server registry section for startup registration. Each identity uses `name`, `secret`, `type`, optional `affiliation`, and optional `attrs`.
+    fabric_ca_registry_identities:
+
     # Sets the CSR common name.
     fabric_ca_csr_cn: "{{ fabric_ca_name }}"
     # Sets the CSR SAN host list.
