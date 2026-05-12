@@ -4,26 +4,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Set effective loadgen metrics endpoint as OpenShift Route
+- name: Resolve effective loadgen address
   vars:
-    loadgen_openshift_metrics_route_port: "{{ 443 if loadgen_monitoring_use_tls else 80 }}"
-  ansible.builtin.set_fact:
-    loadgen_metrics_endpoint: "{{ loadgen_monitoring_http_protocol }}://{{ loadgen_openshift_metrics_route }}:{{ loadgen_openshift_metrics_route_port }}/metrics"
-  when:
-    - loadgen_use_openshift
-    - loadgen_openshift_metrics_route is defined
-
-- name: Set effective loadgen metrics endpoint as k8s NodePort
-  ansible.builtin.set_fact:
-    loadgen_metrics_endpoint: "{{ loadgen_monitoring_http_protocol }}://{{ actual_host }}:{{ loadgen_k8s_metrics_node_port }}/metrics"
-  when:
-    - loadgen_openshift_metrics_route is not defined
-    - loadgen_k8s_metrics_node_port is defined
+    loadgen_host: "{{ inventory_hostname }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: effective_address
 
 - name: Get Fabric-X Loadgen metrics
   vars:
-    loadgen_default_metrics_endpoint: "{{ loadgen_monitoring_http_protocol }}://{{ actual_host }}:{{ loadgen_metrics_port }}/metrics"
-    loadgen_effective_metrics_endpoint: "{{ loadgen_metrics_endpoint | default(loadgen_default_metrics_endpoint) }}"
+    loadgen_effective_metrics_endpoint: "{{ loadgen_effective_metrics_address }}/metrics"
   ansible.builtin.uri:
     url: "{{ loadgen_effective_metrics_endpoint }}"
     validate_certs: false

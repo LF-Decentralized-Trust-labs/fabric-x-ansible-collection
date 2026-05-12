@@ -10,6 +10,7 @@
   - [route/apply](#routeapply)
   - [route/rm](#routerm)
   - [route/ping](#routeping)
+  - [route/setup\_on\_macos](#routesetup_on_macos)
   - [cluster/login](#clusterlogin)
   - [cluster/service\_account\_login](#clusterservice_account_login)
 
@@ -91,6 +92,22 @@ Checks the external OpenShift Route host on port 80 or 443, depending on `opensh
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openshift
     tasks_from: route/ping
+```
+
+### route/setup_on_macos
+
+> Configure macOS hosts entries for OpenShift routes
+
+Discovers OpenShift Route hostnames from the current inventory and maps them to the control node's default IPv4 address in `/etc/hosts`. Intended for local CRC deployments on macOS where route DNS resolves to `127.0.0.1` but containerized clients need a non-loopback host address. Requires privilege escalation because `/etc/hosts` is owned by root.
+
+```yaml
+- name: Configure macOS hosts entries for OpenShift routes
+  vars:
+    # Path to the hosts file updated by the macOS OpenShift Route helper.
+    openshift_hosts_file_path: /etc/hosts
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/setup_on_macos
 ```
 
 ### cluster/login

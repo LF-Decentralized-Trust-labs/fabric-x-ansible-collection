@@ -1,0 +1,60 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Verify OpenShift route hosts can be configured on macOS
+  ansible.builtin.fail:
+    msg: "OpenShift route host configuration is supported only on macOS."
+  when: ansible_facts.system != "Darwin"
+
+- name: Verify macOS default interface and address are available
+  ansible.builtin.fail:
+    msg: "Could not determine the macOS default network IP address."
+  when:
+    - ansible_facts.default_ipv4 is not defined
+    - ansible_facts.default_ipv4.address is not defined
+
+- name: Initialize OpenShift route host list
+  ansible.builtin.set_fact:
+    openshift_hosts_route_hosts: []
+
+- name: Collect OpenShift route hosts from inventory
+  ansible.builtin.set_fact:
+    openshift_hosts_route_hosts: >-
+      {{
+        (
+          openshift_hosts_route_hosts
+          + (
+            hostvars[current_openshift_host]
+            | dict2items
+            | selectattr('key', 'search', '_openshift(_.*)?_route$')
+            | selectattr('value', 'string')
+            | map(attribute='value')
+            | list
+          )
+        )
+        | unique
+        | sort
+      }}
+  loop: "{{ groups['all'] }}"
+  loop_control:
+    loop_var: current_openshift_host
+    label: "{{ current_openshift_host }}"
+
+- name: Verify OpenShift route hosts were found
+  ansible.builtin.fail:
+    msg: "No OpenShift route host variables were found in the current inventory."
+  when: openshift_hosts_route_hosts | length == 0
+
+- name: Configure macOS hosts entries for OpenShift routes
+  become: "{{ openshift_hosts_file_path == '/etc/hosts' }}"
+  ansible.builtin.blockinfile:
+    path: "{{ openshift_hosts_file_path }}"
+    marker: "# {mark} hyperledger.fabricx openshift routes"
+    block: |-
+      {% for openshift_route_host in openshift_hosts_route_hosts %}
+      {{ ansible_facts.default_ipv4.address }} {{ openshift_route_host }}
+      {% endfor %}
+    append_newline: true

@@ -209,6 +209,12 @@ login-oc:
 	@printf "$(COLOR_CYAN)🚩 Logging in to OpenShift cluster...$(COLOR_RESET)\n"
 	$(ANSIBLE_PLAYBOOK) hyperledger.fabricx.openshift.login
 
+# Configure macOS /etc/hosts entries for OpenShift routes (e.g. CRC apps-crc.testing).
+.PHONY: oc-config-hosts-on-macos
+oc-config-hosts-on-macos:
+	@printf "$(COLOR_CYAN)🚩 Configuring macOS /etc/hosts entries for OpenShift routes...$(COLOR_RESET)\n"
+	$(ANSIBLE_PLAYBOOK) hyperledger.fabricx.openshift.config_hosts_on_macos --ask-become-pass
+
 # Build all the artifacts, the binaries and configuration files (e.g. make setup).
 .PHONY: setup
 setup: binaries artifacts configs
