@@ -335,9 +335,7 @@ all:
                 policy: threshold
           loadgen_use_tls: true
           loadgen_metrics_port: 12010
-          loadgen_web_port: 12000
           loadgen_rpc_port: 12020
-          loadgen_openshift_web_route: "orderer-loadgen.{{ openshift_apps_domain }}"
           loadgen_openshift_metrics_route: "orderer-loadgen-metrics.{{ openshift_apps_domain }}"
 
     # =========================

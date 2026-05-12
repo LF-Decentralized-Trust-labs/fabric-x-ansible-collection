@@ -317,7 +317,6 @@ all:
     load_generators:
       vars:
         loadgen_metrics_port: 12010
-        loadgen_web_port: 12000
         loadgen_rpc_port: 12020
         loadgen_use_tls: true
         organization:

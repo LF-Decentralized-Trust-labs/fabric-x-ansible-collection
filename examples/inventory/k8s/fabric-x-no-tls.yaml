@@ -320,9 +320,7 @@ all:
               - id: 0
                 policy: threshold
           loadgen_metrics_port: 12010
-          loadgen_web_port: 12000
           loadgen_rpc_port: 12020
-          loadgen_k8s_web_node_port: 30610
           loadgen_k8s_metrics_node_port: 30600
 
     # =========================

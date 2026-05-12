@@ -37,9 +37,6 @@ spec:
             - "start"
             - "--config={{ loadgen_container_config_dir }}/{{ loadgen_config_file }}"
           ports:
-            - name: web
-              containerPort: {{ loadgen_web_port }}
-              protocol: TCP
             - name: metrics
               containerPort: {{ loadgen_metrics_port }}
               protocol: TCP

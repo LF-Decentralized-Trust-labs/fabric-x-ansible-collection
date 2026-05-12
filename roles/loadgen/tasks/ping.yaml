@@ -7,10 +7,10 @@
 # =======================
 # bin / container
 # =======================
-- name: Check that the HTTP port is open
+- name: Check that the monitoring port is open
   vars:
     utils_ports_to_ping:
-      - "{{ loadgen_web_port }}"
+      - "{{ loadgen_metrics_port }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: ping

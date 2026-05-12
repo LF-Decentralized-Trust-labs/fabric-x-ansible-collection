@@ -168,15 +168,15 @@ Collect Loadgen logs for the selected deployment mode. Binary, container, and Ku
 
 ### ping
 
-> Check the HTTP endpoint
+> Check the monitoring endpoint
 
-Verify that the Loadgen HTTP control endpoint is reachable. Uses direct host access for binary and container deployments and delegates to the Kubernetes ping task when `loadgen_use_k8s` is enabled.
+Verify that the Loadgen monitoring endpoint is reachable. Uses direct host access for binary and container deployments and delegates to the Kubernetes ping task when `loadgen_use_k8s` is enabled.
 
 ```yaml
-- name: Check the HTTP endpoint
+- name: Check the monitoring endpoint
   vars:
-    # HTTP control port exposed by Loadgen. Example: `8080`.
-    loadgen_web_port: 8080
+    # Prometheus metrics port exposed by Loadgen. Example: `9443`.
+    loadgen_metrics_port: 9443
     # Use Kubernetes resources.
     loadgen_use_k8s: false
     # Selects the OpenShift deployment branch.
@@ -190,7 +190,7 @@ Verify that the Loadgen HTTP control endpoint is reachable. Uses direct host acc
 
 > Resolve the effective connection addresses
 
-Compute the host-and-port values used to reach the Loadgen instance from outside its own host. Sets `loadgen_effective_metrics_address` and `loadgen_effective_web_address` as Ansible facts on the calling host. Resolution priority for each address is OpenShift Route, then Kubernetes NodePort, then the plain host port. Accepts a `loadgen_host` variable so the task can be called from any host in the inventory, not just the Loadgen host itself. All Loadgen-specific variables are read from `hostvars[loadgen_host]` rather than from the calling host's scope.
+Compute the host-and-port values used to reach the Loadgen instance from outside its own host. Sets `loadgen_effective_metrics_address` as an Ansible fact on the calling host. Resolution priority is OpenShift Route, then Kubernetes NodePort, then the plain host port. Accepts a `loadgen_host` variable so the task can be called from any host in the inventory, not just the Loadgen host itself. All Loadgen-specific variables are read from `hostvars[loadgen_host]` rather than from the calling host's scope.
 
 ```yaml
 - name: Resolve the effective connection addresses
@@ -311,8 +311,6 @@ Render the Loadgen configuration file and transfer config-side support artifacts
     loadgen_monitoring_mtls_orgs:
       - name: "MonitoringOrg"
         domain: "monitoring.example.com"
-    # HTTP control port exposed by Loadgen. Example: `8080`.
-    loadgen_web_port: 8080
     # Prometheus metrics port exposed by Loadgen. Example: `9443`.
     loadgen_metrics_port: 9443
     # gRPC control port exposed by Loadgen. Example: `7051`.
@@ -585,8 +583,6 @@ Enroll Loadgen peer, user, and optional TLS identities against Fabric CA. Writes
     loadgen_use_tls: false
     # Enable TLS for the monitoring endpoint.
     loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
-    # Specifies the OpenShift Route host. Example: `loadgen-web.apps.example.com`.
-    loadgen_openshift_web_route: "loadgen-web.apps.example.com"
     # Specifies the OpenShift Route host. Example: `loadgen-metrics.apps.example.com`.
     loadgen_openshift_metrics_route: "loadgen-metrics.apps.example.com"
     # Specifies the OpenShift Route host. Example: `loadgen-rpc.apps.example.com`.
@@ -731,7 +727,7 @@ Remove the installed `loadgen` binary managed by the shared binary helper role. 
 
 > Start the binary runtime
 
-Start Loadgen as a local binary process using the rendered config file. Waits on the HTTP control port after invoking `loadgen start --config=...`.
+Start Loadgen as a local binary process using the rendered config file. Waits on the monitoring port after invoking `loadgen start --config=...`.
 
 ```yaml
 - name: Start the binary runtime
@@ -744,8 +740,8 @@ Start Loadgen as a local binary process using the rendered config file. Waits on
     remote_config_dir: "/var/hyperledger/fabricx/loadgen/lg-1/config"
     # Rendered Loadgen config filename.
     loadgen_config_file: config-loadgen.yaml
-    # HTTP control port exposed by Loadgen. Example: `8080`.
-    loadgen_web_port: 8080
+    # Prometheus metrics port exposed by Loadgen. Example: `9443`.
+    loadgen_metrics_port: 9443
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
     tasks_from: bin/start
@@ -797,7 +793,7 @@ Collect logs emitted by a binary-based Loadgen runtime. Fetches process logs wit
 
 > Start the container runtime
 
-Start Loadgen as a local container with the rendered config directory mounted read-only. Exposes the HTTP, Prometheus metrics, and gRPC ports and waits for the HTTP control port to become reachable.
+Start Loadgen as a local container with the rendered config directory mounted read-only. Exposes the Prometheus metrics and gRPC ports and waits for the monitoring port to become reachable.
 
 ```yaml
 - name: Start the container runtime
@@ -820,8 +816,6 @@ Start Loadgen as a local container with the rendered config directory mounted re
     loadgen_container_config_dir: /config
     # Rendered Loadgen config filename.
     loadgen_config_file: config-loadgen.yaml
-    # HTTP control port exposed by Loadgen. Example: `8080`.
-    loadgen_web_port: 8080
     # Prometheus metrics port exposed by Loadgen. Example: `9443`.
     loadgen_metrics_port: 9443
     # gRPC control port exposed by Loadgen. Example: `7051`.
@@ -979,22 +973,16 @@ Create or update Kubernetes resources for Loadgen. Ensures the namespace exists,
         domain: "monitoring.example.com"
     # Optional image pull secret used by Kubernetes workloads. Example: `fabricx-registry-pull`.
     k8s_image_pull_secret: "fabricx-registry-pull"
-    # HTTP control port exposed by Loadgen. Example: `8080`.
-    loadgen_web_port: 8080
     # Prometheus metrics port exposed by Loadgen. Example: `9443`.
     loadgen_metrics_port: 9443
     # gRPC control port exposed by Loadgen. Example: `7051`.
     loadgen_rpc_port: 7051
     # Filename of the genesis config block placed in the Loadgen config directory.
     loadgen_config_block_file: config-block.pb.bin
-    # Kubernetes NodePort value used by the external HTTP control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30080`.
-    loadgen_k8s_web_node_port: 30080
     # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30090`.
     loadgen_k8s_metrics_node_port: 30090
     # Kubernetes NodePort value used by the external gRPC control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30051`.
     loadgen_k8s_rpc_node_port: 30051
-    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP control port externally. When undefined or `false`, the HTTP control port is not included in the LoadBalancer Service.
-    loadgen_k8s_loadbalancer_expose_web_port: false
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
     loadgen_k8s_loadbalancer_expose_metrics_port: false
     # Set to `true` to create a LoadBalancer Service entry that exposes the gRPC control port externally. When undefined or `false`, the gRPC control port is not included in the LoadBalancer Service.
@@ -1021,20 +1009,14 @@ Probes configured Kubernetes NodePort values and LoadBalancer-exposed service po
 ```yaml
 - name: Check that the Loadgen Kubernetes service is reachable
   vars:
-    # HTTP control port exposed by Loadgen. Example: `8080`.
-    loadgen_web_port: 8080
     # Prometheus metrics port exposed by Loadgen. Example: `9443`.
     loadgen_metrics_port: 9443
     # gRPC control port exposed by Loadgen. Example: `7051`.
     loadgen_rpc_port: 7051
-    # Kubernetes NodePort value used by the external HTTP control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30080`.
-    loadgen_k8s_web_node_port: 30080
     # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30090`.
     loadgen_k8s_metrics_node_port: 30090
     # Kubernetes NodePort value used by the external gRPC control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30051`.
     loadgen_k8s_rpc_node_port: 30051
-    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP control port externally. When undefined or `false`, the HTTP control port is not included in the LoadBalancer Service.
-    loadgen_k8s_loadbalancer_expose_web_port: false
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
     loadgen_k8s_loadbalancer_expose_metrics_port: false
     # Set to `true` to create a LoadBalancer Service entry that exposes the gRPC control port externally. When undefined or `false`, the gRPC control port is not included in the LoadBalancer Service.
@@ -1057,10 +1039,6 @@ Remove the Kubernetes Deployment and Services created for Loadgen. Does not remo
     k8s_namespace: "fabricx-loadgen"
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes NodePort value used by the external HTTP control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30080`.
-    loadgen_k8s_web_node_port: 30080
-    # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP control port externally. When undefined or `false`, the HTTP control port is not included in the LoadBalancer Service.
-    loadgen_k8s_loadbalancer_expose_web_port: false
     # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30090`.
     loadgen_k8s_metrics_node_port: 30090
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
@@ -1272,8 +1250,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     loadgen_use_tls: false
     # Enable TLS for the monitoring endpoint.
     loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
-    # Specifies the OpenShift Route host. Example: `loadgen-web.apps.example.com`.
-    loadgen_openshift_web_route: "loadgen-web.apps.example.com"
     # Specifies the OpenShift Route host. Example: `loadgen-metrics.apps.example.com`.
     loadgen_openshift_metrics_route: "loadgen-metrics.apps.example.com"
     # Specifies the OpenShift Route host. Example: `loadgen-rpc.apps.example.com`.
@@ -1296,8 +1272,6 @@ Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
     loadgen_use_tls: false
     # Enable TLS for the monitoring endpoint.
     loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
-    # Specifies the OpenShift Route host. Example: `loadgen-web.apps.example.com`.
-    loadgen_openshift_web_route: "loadgen-web.apps.example.com"
     # Specifies the OpenShift Route host. Example: `loadgen-metrics.apps.example.com`.
     loadgen_openshift_metrics_route: "loadgen-metrics.apps.example.com"
     # Specifies the OpenShift Route host. Example: `loadgen-rpc.apps.example.com`.
@@ -1318,8 +1292,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
-    # Specifies the OpenShift Route host. Example: `loadgen-web.apps.example.com`.
-    loadgen_openshift_web_route: "loadgen-web.apps.example.com"
     # Specifies the OpenShift Route host. Example: `loadgen-metrics.apps.example.com`.
     loadgen_openshift_metrics_route: "loadgen-metrics.apps.example.com"
     # Specifies the OpenShift Route host. Example: `loadgen-rpc.apps.example.com`.
