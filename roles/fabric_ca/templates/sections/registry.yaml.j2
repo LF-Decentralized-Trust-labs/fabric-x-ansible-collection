@@ -28,3 +28,19 @@ registry:
         {{ attribute_name }}: "{{ attribute_value }}"
 {% endfor %}
 {% endif %}
+{% if fabric_ca_registry_identities is defined and fabric_ca_registry_identities | length > 0 %}
+{% for fabric_ca_registry_identity in fabric_ca_registry_identities %}
+    - name: "{{ fabric_ca_registry_identity.name }}"
+      pass: "{{ fabric_ca_registry_identity.secret }}"
+      type: "{{ fabric_ca_registry_identity.type }}"
+{% if fabric_ca_registry_identity.affiliation is defined %}
+      affiliation: "{{ fabric_ca_registry_identity.affiliation }}"
+{% endif %}
+      attrs:
+{% if fabric_ca_registry_identity.attrs is defined %}
+{% for attribute_name, attribute_value in fabric_ca_registry_identity.attrs.items() %}
+        {{ attribute_name }}: "{{ attribute_value }}"
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}
