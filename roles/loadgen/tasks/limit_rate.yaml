@@ -13,7 +13,7 @@
 
 - name: Send HTTP POST request to set the new limit
   vars:
-    loadgen_effective_limit_rate_endpoint: "{{ loadgen_effective_web_address }}/setRateLimit"
+    loadgen_effective_limit_rate_endpoint: "{{ loadgen_effective_metrics_address }}/setRateLimit"
   ansible.builtin.uri:
     url: "{{ loadgen_effective_limit_rate_endpoint }}"
     validate_certs: false

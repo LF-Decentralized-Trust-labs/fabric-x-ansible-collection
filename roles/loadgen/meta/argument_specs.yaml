@@ -68,7 +68,7 @@ argument_specs:
       loadgen_image_tag: &loadgen_image_tag
         type: str
         required: false
-        default: "1.0.0-alpha"
+        default: "1.0.0-alpha.1"
         description:
           - Image tag used by the Loadgen container.
       loadgen_image: &loadgen_image
@@ -94,7 +94,7 @@ argument_specs:
       loadgen_git_commit: &loadgen_git_commit
         type: str
         required: false
-        default: "v1.0.0-alpha"
+        default: "v1.0.0-alpha.1"
         description:
           - Git revision used for binary builds and installs.
       loadgen_source_code_package: &loadgen_source_code_package
@@ -112,12 +112,6 @@ argument_specs:
         default: "loadgen"
         description:
           - Binary name used by the shared bin role.
-      loadgen_web_port: &loadgen_web_port
-        type: int
-        required: true
-        description:
-          - HTTP control port exposed by Loadgen.
-          - "Example: C(8080)."
       loadgen_metrics_port: &loadgen_metrics_port
         type: int
         required: true
@@ -452,19 +446,6 @@ argument_specs:
         default: 10001
         description:
           - Pod FSGroup used for mounted config and secrets.
-      loadgen_k8s_web_node_port: &loadgen_k8s_web_node_port
-        type: int
-        description:
-          - Kubernetes NodePort value used by the external HTTP control Service port.
-          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
-          - "Example: C(30080)."
-      loadgen_k8s_loadbalancer_expose_web_port:
-        &loadgen_k8s_loadbalancer_expose_web_port
-        type: bool
-        default: false
-        description:
-          - Set to C(true) to create a LoadBalancer Service entry that exposes the HTTP control port externally.
-          - When undefined or C(false), the HTTP control port is not included in the LoadBalancer Service.
       loadgen_k8s_metrics_node_port: &loadgen_k8s_metrics_node_port
         type: int
         description:
@@ -526,11 +507,6 @@ argument_specs:
         default: false
         description:
           - Selects the OpenShift deployment branch.
-      loadgen_openshift_web_route: &loadgen_openshift_web_route
-        type: str
-        description:
-          - Specifies the OpenShift Route host.
-          - "Example: C(loadgen-web.apps.example.com)."
       loadgen_openshift_metrics_route: &loadgen_openshift_metrics_route
         type: str
         description:
@@ -594,12 +570,12 @@ argument_specs:
       loadgen_use_openshift: *loadgen_use_openshift
 
   ping:
-    short_description: Check the HTTP endpoint
+    short_description: Check the monitoring endpoint
     description:
-      - Verify that the Loadgen HTTP control endpoint is reachable.
+      - Verify that the Loadgen monitoring endpoint is reachable.
       - Uses direct host access for binary and container deployments and delegates to the Kubernetes ping task when C(loadgen_use_k8s) is enabled.
     options:
-      loadgen_web_port: *loadgen_web_port
+      loadgen_metrics_port: *loadgen_metrics_port
       loadgen_use_k8s: *loadgen_use_k8s
       loadgen_use_openshift: *loadgen_use_openshift
 
@@ -607,8 +583,8 @@ argument_specs:
     short_description: Resolve the effective connection addresses
     description:
       - Compute the host-and-port values used to reach the Loadgen instance from outside its own host.
-      - Sets C(loadgen_effective_metrics_address) and C(loadgen_effective_web_address) as Ansible facts on the calling host.
-      - Resolution priority for each address is OpenShift Route, then Kubernetes NodePort, then the plain host port.
+      - Sets C(loadgen_effective_metrics_address) as an Ansible fact on the calling host.
+      - Resolution priority is OpenShift Route, then Kubernetes NodePort, then the plain host port.
       - Accepts a C(loadgen_host) variable so the task can be called from any host in the inventory, not just the Loadgen host itself.
       - All Loadgen-specific variables are read from C(hostvars[loadgen_host]) rather than from the calling host's scope.
     options:
@@ -663,7 +639,6 @@ argument_specs:
       loadgen_mtls_orgs: *loadgen_mtls_orgs
       loadgen_monitoring_mtls_clients: *loadgen_monitoring_mtls_clients
       loadgen_monitoring_mtls_orgs: *loadgen_monitoring_mtls_orgs
-      loadgen_web_port: *loadgen_web_port
       loadgen_metrics_port: *loadgen_metrics_port
       loadgen_rpc_port: *loadgen_rpc_port
       loadgen_generate_config_block: *loadgen_generate_config_block
@@ -770,7 +745,6 @@ argument_specs:
       actual_host: *actual_host
       loadgen_use_tls: *loadgen_use_tls
       loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
-      loadgen_openshift_web_route: *loadgen_openshift_web_route
       loadgen_openshift_metrics_route: *loadgen_openshift_metrics_route
       loadgen_openshift_rpc_route: *loadgen_openshift_rpc_route
 
@@ -837,13 +811,13 @@ argument_specs:
     short_description: Start the binary runtime
     description:
       - Start Loadgen as a local binary process using the rendered config file.
-      - Waits on the HTTP control port after invoking C(loadgen start --config=...).
+      - Waits on the monitoring port after invoking C(loadgen start --config=...).
     options:
       loadgen_bin_name: *loadgen_bin_name
       loadgen_remote_config_dir: *loadgen_remote_config_dir
       remote_config_dir: *remote_config_dir
       loadgen_config_file: *loadgen_config_file
-      loadgen_web_port: *loadgen_web_port
+      loadgen_metrics_port: *loadgen_metrics_port
 
   bin/stop:
     short_description: Stop the binary runtime
@@ -871,7 +845,7 @@ argument_specs:
     short_description: Start the container runtime
     description:
       - Start Loadgen as a local container with the rendered config directory mounted read-only.
-      - Exposes the HTTP, Prometheus metrics, and gRPC ports and waits for the HTTP control port to become reachable.
+      - Exposes the Prometheus metrics and gRPC ports and waits for the monitoring port to become reachable.
     options:
       loadgen_container_name: *loadgen_container_name
       loadgen_image: *loadgen_image
@@ -882,7 +856,6 @@ argument_specs:
       loadgen_remote_config_dir: *loadgen_remote_config_dir
       loadgen_container_config_dir: *loadgen_container_config_dir
       loadgen_config_file: *loadgen_config_file
-      loadgen_web_port: *loadgen_web_port
       loadgen_metrics_port: *loadgen_metrics_port
       loadgen_rpc_port: *loadgen_rpc_port
 
@@ -948,14 +921,11 @@ argument_specs:
       loadgen_monitoring_mtls_clients: *loadgen_monitoring_mtls_clients
       loadgen_monitoring_mtls_orgs: *loadgen_monitoring_mtls_orgs
       k8s_image_pull_secret: *k8s_image_pull_secret
-      loadgen_web_port: *loadgen_web_port
       loadgen_metrics_port: *loadgen_metrics_port
       loadgen_rpc_port: *loadgen_rpc_port
       loadgen_config_block_file: *loadgen_config_block_file
-      loadgen_k8s_web_node_port: *loadgen_k8s_web_node_port
       loadgen_k8s_metrics_node_port: *loadgen_k8s_metrics_node_port
       loadgen_k8s_rpc_node_port: *loadgen_k8s_rpc_node_port
-      loadgen_k8s_loadbalancer_expose_web_port: *loadgen_k8s_loadbalancer_expose_web_port
       loadgen_k8s_loadbalancer_expose_metrics_port: *loadgen_k8s_loadbalancer_expose_metrics_port
       loadgen_k8s_loadbalancer_expose_rpc_port: *loadgen_k8s_loadbalancer_expose_rpc_port
       k8s_resources: *k8s_resources
@@ -965,13 +935,10 @@ argument_specs:
     description:
       - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
     options:
-      loadgen_web_port: *loadgen_web_port
       loadgen_metrics_port: *loadgen_metrics_port
       loadgen_rpc_port: *loadgen_rpc_port
-      loadgen_k8s_web_node_port: *loadgen_k8s_web_node_port
       loadgen_k8s_metrics_node_port: *loadgen_k8s_metrics_node_port
       loadgen_k8s_rpc_node_port: *loadgen_k8s_rpc_node_port
-      loadgen_k8s_loadbalancer_expose_web_port: *loadgen_k8s_loadbalancer_expose_web_port
       loadgen_k8s_loadbalancer_expose_metrics_port: *loadgen_k8s_loadbalancer_expose_metrics_port
       loadgen_k8s_loadbalancer_expose_rpc_port: *loadgen_k8s_loadbalancer_expose_rpc_port
 
@@ -983,8 +950,6 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
-      loadgen_k8s_web_node_port: *loadgen_k8s_web_node_port
-      loadgen_k8s_loadbalancer_expose_web_port: *loadgen_k8s_loadbalancer_expose_web_port
       loadgen_k8s_metrics_node_port: *loadgen_k8s_metrics_node_port
       loadgen_k8s_loadbalancer_expose_metrics_port: *loadgen_k8s_loadbalancer_expose_metrics_port
       loadgen_k8s_rpc_node_port: *loadgen_k8s_rpc_node_port
@@ -1065,7 +1030,6 @@ argument_specs:
       organization: *organization
       loadgen_use_tls: *loadgen_use_tls
       loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
-      loadgen_openshift_web_route: *loadgen_openshift_web_route
       loadgen_openshift_metrics_route: *loadgen_openshift_metrics_route
       loadgen_openshift_rpc_route: *loadgen_openshift_rpc_route
 
@@ -1076,7 +1040,6 @@ argument_specs:
     options:
       loadgen_use_tls: *loadgen_use_tls
       loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
-      loadgen_openshift_web_route: *loadgen_openshift_web_route
       loadgen_openshift_metrics_route: *loadgen_openshift_metrics_route
       loadgen_openshift_rpc_route: *loadgen_openshift_rpc_route
 
@@ -1086,6 +1049,5 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       loadgen_k8s_resource_name: *loadgen_k8s_resource_name
-      loadgen_openshift_web_route: *loadgen_openshift_web_route
       loadgen_openshift_metrics_route: *loadgen_openshift_metrics_route
       loadgen_openshift_rpc_route: *loadgen_openshift_rpc_route

@@ -10,6 +10,10 @@
 
 {% include './sections/filestore.yaml.j2' +%}
 
+{% include './sections/operations.yaml.j2' +%}
+
+{% include './sections/metrics.yaml.j2' +%}
+
 # ---------------------------------------------------------------------------
 # Hyperledger Fabric-X Batcher settings
 # ---------------------------------------------------------------------------
@@ -20,8 +24,8 @@ Batcher:
   # The secondaries send acknowledgments over each batch to the primary, the primary collects these acknowledgments
   # and waits until at least a threshold of secondaries is not too far behind (batch sequence distance is less than a gap)
   # before the primary continues on to the next batch.
-  BatchSequenceGap: 10
+  BatchSequenceGap: {{ orderer_batcher_batch_sequence_gap | default(10) }}
   # The maximal number of requests permitted in the requests pool.
-  MemPoolMaxSize: 1000000
+  MemPoolMaxSize: {{ orderer_batcher_mem_pool_max_size | default(1000000) }}
   # The time a client can wait for the submission of a single request into the request pool.
-  SubmitTimeout: 500ms
+  SubmitTimeout: {{ orderer_batcher_submit_timeout | default('500ms') }}

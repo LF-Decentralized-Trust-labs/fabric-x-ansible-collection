@@ -79,12 +79,6 @@
   ansible.builtin.set_fact:
     loadgen_tls_san_hosts: "{{ ansible_all_ipv4_addresses + [ansible_host, actual_host] }}"
 
-- name: Append Loadgen OpenShift web route to TLS SAN hosts
-  ansible.builtin.set_fact:
-    loadgen_tls_san_hosts: "{{ loadgen_tls_san_hosts + [loadgen_openshift_web_route] }}"
-  when:
-    - loadgen_openshift_web_route is defined
-
 - name: Append Loadgen OpenShift metrics route to TLS SAN hosts
   ansible.builtin.set_fact:
     loadgen_tls_san_hosts: "{{ loadgen_tls_san_hosts + [loadgen_openshift_metrics_route] }}"

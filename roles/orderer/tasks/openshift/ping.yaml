@@ -16,7 +16,7 @@
 - name: Check that the orderer OpenShift metrics route is reachable
   vars:
     openshift_route_host: "{{ orderer_openshift_metrics_route }}"
-    openshift_route_use_tls: false
+    openshift_route_use_tls: "{{ orderer_operations_use_tls }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openshift
     tasks_from: route/ping

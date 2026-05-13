@@ -1,0 +1,35 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =======================
+# Metrics Address
+# =======================
+- name: Set effective committer metrics address
+  vars:
+    committer_host_monitoring_use_tls: "{{ hostvars[committer_host].committer_monitoring_use_tls | default(hostvars[committer_host].committer_use_tls) | default(false) }}"
+    committer_host_http_protocol: "{{ 'https' if committer_host_monitoring_use_tls else 'http' }}"
+  block:
+    - name: Set effective committer metrics address as OpenShift Route
+      ansible.builtin.set_fact:
+        committer_effective_metrics_address: "{{ committer_host_http_protocol }}://{{ hostvars[committer_host].committer_openshift_metrics_route }}"
+      when:
+        - hostvars[committer_host].committer_use_openshift is defined
+        - hostvars[committer_host].committer_use_openshift
+        - hostvars[committer_host].committer_openshift_metrics_route is defined
+
+    - name: Set effective committer metrics address as k8s NodePort
+      ansible.builtin.set_fact:
+        committer_effective_metrics_address: "{{ committer_host_http_protocol }}://{{ hostvars[committer_host].actual_host }}:{{ hostvars[committer_host].committer_k8s_metrics_node_port }}"
+      when:
+        - hostvars[committer_host].committer_openshift_metrics_route is not defined
+        - hostvars[committer_host].committer_k8s_metrics_node_port is defined
+
+    - name: Set effective committer metrics address
+      ansible.builtin.set_fact:
+        committer_effective_metrics_address: "{{ committer_host_http_protocol }}://{{ hostvars[committer_host].actual_host }}:{{ hostvars[committer_host].committer_metrics_port }}"
+      when:
+        - hostvars[committer_host].committer_openshift_metrics_route is not defined
+        - hostvars[committer_host].committer_k8s_metrics_node_port is not defined
