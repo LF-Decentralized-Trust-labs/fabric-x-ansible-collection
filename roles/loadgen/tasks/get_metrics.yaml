@@ -12,10 +12,8 @@
     tasks_from: effective_address
 
 - name: Get Fabric-X Loadgen metrics
-  vars:
-    loadgen_effective_metrics_endpoint: "{{ loadgen_effective_metrics_address }}/metrics"
   ansible.builtin.uri:
-    url: "{{ loadgen_effective_metrics_endpoint }}"
+    url: "{{ loadgen_effective_metrics_address }}/metrics"
     validate_certs: false
     method: GET
     return_content: true

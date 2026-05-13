@@ -4,9 +4,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Resolve effective orderer metrics address
+  vars:
+    orderer_host: "{{ inventory_hostname }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: effective_address
+
 - name: Get Fabric-X Orderer metrics
   ansible.builtin.uri:
-    url: "{{ orderer_http_protocol }}://{{ actual_host }}:{{ orderer_metrics_port }}/metrics"
+    url: "{{ orderer_effective_metrics_address }}/metrics"
     validate_certs: false
     method: GET
     return_content: true

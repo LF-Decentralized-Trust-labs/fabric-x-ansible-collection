@@ -76,8 +76,6 @@ committer_monitoring_use_tls: '{{ committer_use_tls }}'
 committer_use_mtls: false
 # Enable mTLS for the monitoring endpoint.
 committer_monitoring_use_mtls: '{{ committer_use_mtls }}'
-# HTTP protocol used by the metrics client.
-committer_http_protocol: "{{ 'https' if committer_use_tls else 'http' }}"
 # Crypto material base name for the committer.
 committer_crypto_name: '{{ organization.peer.name | default(inventory_hostname) }}'
 # Log level emitted by the committer component.

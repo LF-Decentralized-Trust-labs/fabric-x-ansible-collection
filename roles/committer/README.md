@@ -22,6 +22,7 @@
   - [coordinator/teardown](#coordinatorteardown)
   - [wipe](#wipe)
   - [fetch\_logs](#fetch_logs)
+  - [effective\_address](#effective_address)
   - [get\_metrics](#get_metrics)
   - [start](#start)
   - [crypto/setup](#cryptosetup)
@@ -431,23 +432,33 @@ Fetch logs from the selected deployment mode. Dispatches to binary, container, o
     tasks_from: fetch_logs
 ```
 
+### effective_address
+
+> Resolve the effective committer metrics address
+
+Compute the address used to reach a committer metrics endpoint from outside its own host. Sets `committer_effective_metrics_address` as an Ansible fact on the calling host. Resolution priority is OpenShift Route, then Kubernetes NodePort, then the plain host port. Accepts a `committer_host` variable so the task can be called from any host in the inventory. All committer-specific variables are read from `hostvars[committer_host]`.
+
+```yaml
+- name: Resolve the effective committer metrics address
+  vars:
+    # Inventory host whose committer metrics endpoint should be resolved. Example: `committer-validator-1`.
+    committer_host: "committer-validator-1"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: effective_address
+```
+
 ### get_metrics
 
 > Retrieve Prometheus metrics
 
-Query the component metrics endpoint and print the response body. Uses `actual_host`, `committer_http_protocol`, and `committer_metrics_port`.
+Query the component metrics endpoint and print the response body. Delegates address resolution to the `effective_address` entry point.
 
 ```yaml
 - name: Retrieve Prometheus metrics
   vars:
-    # Real machine host. Example: `myvpc.cloud.ibm.com`.
-    actual_host: "myvpc.cloud.ibm.com"
-    # HTTP protocol used by the metrics client.
-    committer_http_protocol: "{{ 'https' if committer_use_tls else 'http' }}"
     # Metrics port exposed by the selected committer component. Example: `9443`.
     committer_metrics_port: 9443
-    # Enable TLS material for the selected component.
-    committer_use_tls: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: get_metrics

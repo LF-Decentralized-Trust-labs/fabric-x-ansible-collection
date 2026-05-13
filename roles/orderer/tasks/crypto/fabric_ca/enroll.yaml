@@ -64,6 +64,7 @@
     orderer_tls_san_hosts: "{{ orderer_tls_san_hosts + [orderer_openshift_metrics_route] }}"
   when:
     - orderer_openshift_metrics_route is defined
+    - orderer_operations_use_tls
 
 - name: Generate Hyperledger Fabric-X Orderer TLS crypto material
   vars:

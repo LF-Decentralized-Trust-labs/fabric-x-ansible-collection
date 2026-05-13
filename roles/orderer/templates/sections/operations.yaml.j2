@@ -1,0 +1,36 @@
+# ---------------------------------------------------------------------------
+# Operations Configuration
+# This configures the operations server endpoint for metrics and operations APIs.
+# ---------------------------------------------------------------------------
+Operations:
+  # Host for the operations server.
+  ListenAddress: {{ orderer_operations_listen_address | default('0.0.0.0') }}
+  # Port for the operations server.
+  ListenPort: {{ orderer_operations_port }}
+  # TLS configuration for the operations endpoint.
+  TLS:
+    # TLS enabled.
+    Enabled: {{ orderer_operations_use_tls | bool | lower }}
+{% if orderer_operations_use_tls %}
+    # Certificate is the location of the PEM encoded TLS certificate.
+    Certificate: {{ orderer_config_dir }}/tls/server.crt
+    # PrivateKey points to the location of the PEM-encoded key.
+    PrivateKey: {{ orderer_config_dir }}/tls/server.key
+    # ClientAuthRequired requires client certificate authentication at the TLS layer.
+    ClientAuthRequired: {{ orderer_operations_use_mtls | bool | lower }}
+{% if orderer_operations_use_mtls %}
+    # Paths to PEM encoded CA certificates to trust for client authentication.
+    ClientRootCAs:
+      - {{ orderer_config_dir }}/tls/ca.crt
+{% if orderer_operations_mtls_clients is defined %}
+{% for orderer_operations_mtls_client in orderer_operations_mtls_clients %}
+      - {{ orderer_config_dir }}/mtls/{{ orderer_operations_mtls_client }}/ca.crt
+{% endfor %}
+{% endif %}
+{% if orderer_operations_mtls_orgs is defined %}
+{% for orderer_operations_mtls_org in orderer_operations_mtls_orgs %}
+      - {{ orderer_config_dir }}/mtls/{{ orderer_operations_mtls_org.domain }}/ca.crt
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endif %}

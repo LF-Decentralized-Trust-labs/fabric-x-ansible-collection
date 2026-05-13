@@ -196,11 +196,6 @@ argument_specs:
         default: "{{ committer_use_mtls }}"
         description:
           - Enable mTLS for the monitoring endpoint.
-      committer_http_protocol: &committer_http_protocol
-        type: str
-        default: "{{ 'https' if committer_use_tls else 'http' }}"
-        description:
-          - HTTP protocol used by the metrics client.
       committer_crypto_name: &committer_crypto_name
         type: str
         default: "{{ organization.peer.name | default(inventory_hostname) }}"
@@ -267,6 +262,11 @@ argument_specs:
         description:
           - Real machine host.
           - "Example: C(myvpc.cloud.ibm.com)."
+      committer_host: &committer_host
+        type: str
+        description:
+          - Inventory host whose committer metrics endpoint should be resolved.
+          - "Example: C(committer-validator-1)."
       organization: &organization
         type: dict
         required: true
@@ -857,16 +857,25 @@ argument_specs:
       committer_use_openshift: *committer_use_openshift
       committer_use_container: *committer_use_container
 
+  effective_address:
+    short_description: Resolve the effective committer metrics address
+    description:
+      - Compute the address used to reach a committer metrics endpoint from outside its own host.
+      - Sets C(committer_effective_metrics_address) as an Ansible fact on the calling host.
+      - Resolution priority is OpenShift Route, then Kubernetes NodePort, then the plain host port.
+      - Accepts a C(committer_host) variable so the task can be called from any host in the inventory.
+      - All committer-specific variables are read from C(hostvars[committer_host]).
+    options:
+      committer_host: *committer_host
+
   get_metrics:
     short_description: Retrieve Prometheus metrics
     description:
       - Query the component metrics endpoint and print the response body.
-      - Uses C(actual_host), C(committer_http_protocol), and C(committer_metrics_port).
+      - Delegates address resolution to the C(effective_address) entry point.
     options:
-      actual_host: *actual_host
-      committer_http_protocol: *committer_http_protocol
       committer_metrics_port: *committer_metrics_port
-      committer_use_tls: *committer_use_tls
+
   start:
     short_description: Start a committer component by type
     description:

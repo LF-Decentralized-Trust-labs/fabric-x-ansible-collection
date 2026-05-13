@@ -50,8 +50,8 @@ spec:
               containerPort: {{ orderer_rpc_port }}
               protocol: TCP
             - name: metrics
-              # Prometheus metrics scrape endpoint.
-              containerPort: {{ orderer_metrics_port }}
+              # Operations endpoint, including Prometheus metrics.
+              containerPort: {{ orderer_operations_port }}
               protocol: TCP
           volumeMounts:
             # Private signing key for this orderer node's MSP identity.
@@ -113,6 +113,26 @@ spec:
             - name: config
               mountPath: {{ orderer_container_config_dir }}/mtls/{{ org.domain }}/ca.crt
               subPath: mtls-org-{{ org.domain }}-ca.crt
+{% endfor %}
+{% endif %}
+{% if orderer_operations_use_mtls and orderer_operations_mtls_clients is defined %}
+{% for client in orderer_operations_mtls_clients %}
+{% if client not in (orderer_mtls_clients | default([])) %}
+            # Operations mTLS CA cert for client {{ client }}.
+            - name: config
+              mountPath: {{ orderer_container_config_dir }}/mtls/{{ client }}/ca.crt
+              subPath: mtls-client-{{ client }}-ca.crt
+{% endif %}
+{% endfor %}
+{% endif %}
+{% if orderer_operations_use_mtls and orderer_operations_mtls_orgs is defined %}
+{% for org in orderer_operations_mtls_orgs %}
+{% if org.domain not in ((orderer_mtls_orgs | default([])) | map(attribute='domain') | list) %}
+            # Operations mTLS CA cert for org {{ org.domain }}.
+            - name: config
+              mountPath: {{ orderer_container_config_dir }}/mtls/{{ org.domain }}/ca.crt
+              subPath: mtls-org-{{ org.domain }}-ca.crt
+{% endif %}
 {% endfor %}
 {% endif %}
             # Persistent volume for ledger data and orderer state.

@@ -38,6 +38,13 @@
   when:
     - orderer_use_mtls
 
+- name: Transfer Operations mTLS certificates
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.orderer
+    tasks_from: config/mtls/operations/transfer
+  when:
+    - orderer_operations_use_mtls
+
 # =========================
 # Config (Kubernetes)
 # =========================
