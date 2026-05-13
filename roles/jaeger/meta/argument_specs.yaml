@@ -524,6 +524,8 @@ argument_specs:
       - "Deletes the remote Jaeger configuration directory and any copied certificate material."
       - "Nested Kubernetes config cleanup validates its own required arguments before removing the ConfigMap."
     options:
+      jaeger_use_k8s: *jaeger_use_k8s
+      jaeger_use_openshift: *jaeger_use_openshift
       remote_config_dir: *remote_config_dir
       jaeger_remote_config_dir: *jaeger_remote_config_dir
 
