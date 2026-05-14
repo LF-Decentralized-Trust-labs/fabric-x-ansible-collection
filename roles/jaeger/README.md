@@ -515,6 +515,10 @@ Deletes the remote Jaeger configuration directory and any copied certificate mat
 ```yaml
 - name: Remove Jaeger configuration assets
   vars:
+    # Runs the Kubernetes Jaeger path when set to `true`.
+    jaeger_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    jaeger_use_openshift: false
     # Sets the shared remote configuration base directory. Example: `/var/lib/fabricx/jaeger/config` on the control or remote host.
     remote_config_dir: "string"
     # Sets the remote directory mounted into the Jaeger container for configuration and certificates.
