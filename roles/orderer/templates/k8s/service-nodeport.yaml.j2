@@ -27,8 +27,8 @@ spec:
 {% endif %}
 {% if orderer_k8s_metrics_node_port is defined %}
     - name: metrics
-      # Optional Prometheus metrics endpoint exposed on the node.
-      port: {{ orderer_metrics_port }}
+      # Optional operations endpoint exposed on the node, including Prometheus metrics.
+      port: {{ orderer_operations_port }}
       targetPort: metrics
       nodePort: {{ orderer_k8s_metrics_node_port }}
 {% endif %}

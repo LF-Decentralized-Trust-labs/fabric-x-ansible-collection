@@ -554,7 +554,7 @@ Renders the main scrape configuration and supporting files on the remote host, i
     prometheus_tls_private_key_file: server.key
     # Filename used for the Prometheus TLS certificate.
     prometheus_tls_cert_file: server.crt
-    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{'job_name': 'fabric-orderer', 'use_tls': True, 'targets': [{'hosts': ['orderer-router-1', 'orderer-router-2'], 'port_to_scrape': 'orderer_metrics_port', 'label': {'group': 'orderers'}}]}, {'job_name': 'node-exporter', 'targets': [{'hosts': ['worker-1'], 'port_to_scrape': 'node_exporter_port', 'label': {'group': 'workers', 'export_type': 'node'}}]}]`.
+    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{'job_name': 'fabric-orderer', 'use_tls': True, 'targets': [{'hosts': ['orderer-router-1', 'orderer-router-2'], 'port_to_scrape': 'orderer_operations_port', 'label': {'group': 'orderers'}}]}, {'job_name': 'node-exporter', 'targets': [{'hosts': ['worker-1'], 'port_to_scrape': 'node_exporter_port', 'label': {'group': 'workers', 'export_type': 'node'}}]}]`.
     prometheus_scrape_services:
       - job_name: "fabric-orderer"
         use_tls: True
@@ -562,7 +562,7 @@ Renders the main scrape configuration and supporting files on the remote host, i
           - hosts:
               - "orderer-router-1"
               - "orderer-router-2"
-            port_to_scrape: "orderer_metrics_port"
+            port_to_scrape: "orderer_operations_port"
             label:
               group: "orderers"
       - job_name: "node-exporter"
@@ -609,7 +609,7 @@ Creates or updates the ConfigMap that carries the rendered Prometheus configurat
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
     prometheus_k8s_part_of: monitoring
-    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{'job_name': 'fabric-orderer', 'use_tls': True, 'targets': [{'hosts': ['orderer-router-1', 'orderer-router-2'], 'port_to_scrape': 'orderer_metrics_port', 'label': {'group': 'orderers'}}]}, {'job_name': 'node-exporter', 'targets': [{'hosts': ['worker-1'], 'port_to_scrape': 'node_exporter_port', 'label': {'group': 'workers', 'export_type': 'node'}}]}]`.
+    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{'job_name': 'fabric-orderer', 'use_tls': True, 'targets': [{'hosts': ['orderer-router-1', 'orderer-router-2'], 'port_to_scrape': 'orderer_operations_port', 'label': {'group': 'orderers'}}]}, {'job_name': 'node-exporter', 'targets': [{'hosts': ['worker-1'], 'port_to_scrape': 'node_exporter_port', 'label': {'group': 'workers', 'export_type': 'node'}}]}]`.
     prometheus_scrape_services:
       - job_name: "fabric-orderer"
         use_tls: True
@@ -617,7 +617,7 @@ Creates or updates the ConfigMap that carries the rendered Prometheus configurat
           - hosts:
               - "orderer-router-1"
               - "orderer-router-2"
-            port_to_scrape: "orderer_metrics_port"
+            port_to_scrape: "orderer_operations_port"
             label:
               group: "orderers"
       - job_name: "node-exporter"

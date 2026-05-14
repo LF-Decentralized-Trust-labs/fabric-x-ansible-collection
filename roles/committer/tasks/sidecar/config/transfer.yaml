@@ -32,46 +32,13 @@
     mode: "0o644"
 
 # =========================
-# HLFX Orderer Assemblers TLS
+# Genesis config block
 # =========================
-- name: Ensure Hyperledger Fabric-X Orderer Assemblers TLS folders exist
-  ansible.builtin.file:
-    path: "{{ committer_remote_config_dir }}/tls/orderers/{{ current_orderer_assembler }}"
-    state: directory
-    mode: "0o755"
-  loop: "{{ orderer_assemblers }}"
-  loop_control:
-    loop_var: current_orderer_assembler
-    label: "{{ current_orderer_assembler }}"
-  when:
-    - hostvars[current_orderer_assembler].orderer_use_tls is defined
-    - hostvars[current_orderer_assembler].orderer_use_tls
-
-- name: Transfer Hyperledger Fabric-X Orderer Assemblers TLS CA certificates
+- name: Copy genesis config block for Fabric-X Committer sidecar
   ansible.builtin.copy:
-    src: "{{ fetched_artifacts_dir }}/{{ current_orderer_assembler }}/tls/ca.crt"
-    dest: "{{ committer_remote_config_dir }}/tls/orderers/{{ current_orderer_assembler }}/ca.crt"
+    src: "{{ configtxgen_artifacts_dir }}/{{ channel_id }}_block.pb"
+    dest: "{{ committer_remote_config_dir }}/{{ committer_sidecar_config_block_file }}"
     mode: "0o644"
-  loop: "{{ orderer_assemblers }}"
-  loop_control:
-    loop_var: current_orderer_assembler
-    label: "{{ current_orderer_assembler }}"
-  when:
-    - hostvars[current_orderer_assembler].orderer_use_tls is defined
-    - hostvars[current_orderer_assembler].orderer_use_tls
-
-- name: Transfer Hyperledger Fabric-X Orderer Assemblers TLS certificates
-  ansible.builtin.copy:
-    src: "{{ fetched_artifacts_dir }}/{{ current_orderer_assembler }}/tls/server.crt"
-    dest: "{{ committer_remote_config_dir }}/tls/orderers/{{ current_orderer_assembler }}/server.crt"
-    mode: "0o644"
-  loop: "{{ orderer_assemblers }}"
-  loop_control:
-    loop_var: current_orderer_assembler
-    label: "{{ current_orderer_assembler }}"
-  when:
-    - hostvars[current_orderer_assembler].orderer_use_tls is defined
-    - hostvars[current_orderer_assembler].orderer_use_tls
 
 # =========================
 # Coordinator TLS certs

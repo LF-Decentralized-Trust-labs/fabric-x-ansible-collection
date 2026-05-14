@@ -40,22 +40,38 @@
         | map(attribute='inventory_hostname')
         | list
       }}
+    orderer_assembler_ref_host: "{{ orderer_assembler_hosts | first }}"
+    orderer_consenter_ref_host: "{{ orderer_consenter_hosts | first }}"
+    orderer_router_ref_host: "{{ orderer_router_hosts | first }}"
+    orderer_batcher_ref_host: "{{ orderer_batcher_hosts | first }}"
     orderer_scrape_services:
       - job_name: assembler_service
+        use_tls: "{{ hostvars[orderer_assembler_ref_host].orderer_operations_use_tls | default(false) }}"
+        use_mtls: "{{ hostvars[orderer_assembler_ref_host].orderer_operations_use_mtls | default(false) }}"
+        tls_ca_file: "{{ fetched_artifacts_dir }}/{{ orderer_assembler_ref_host }}/tls/ca.crt"
         targets:
           - hosts: "{{ orderer_assembler_hosts }}"
-            port_to_scrape: orderer_metrics_port
+            port_to_scrape: orderer_operations_port
       - job_name: consenter_service
+        use_tls: "{{ hostvars[orderer_consenter_ref_host].orderer_operations_use_tls | default(false) }}"
+        use_mtls: "{{ hostvars[orderer_consenter_ref_host].orderer_operations_use_mtls | default(false) }}"
+        tls_ca_file: "{{ fetched_artifacts_dir }}/{{ orderer_consenter_ref_host }}/tls/ca.crt"
         targets:
           - hosts: "{{ orderer_consenter_hosts }}"
-            port_to_scrape: orderer_metrics_port
+            port_to_scrape: orderer_operations_port
       - job_name: router_service
+        use_tls: "{{ hostvars[orderer_router_ref_host].orderer_operations_use_tls | default(false) }}"
+        use_mtls: "{{ hostvars[orderer_router_ref_host].orderer_operations_use_mtls | default(false) }}"
+        tls_ca_file: "{{ fetched_artifacts_dir }}/{{ orderer_router_ref_host }}/tls/ca.crt"
         targets:
           - hosts: "{{ orderer_router_hosts }}"
-            port_to_scrape: orderer_metrics_port
+            port_to_scrape: orderer_operations_port
       - job_name: batcher_service
+        use_tls: "{{ hostvars[orderer_batcher_ref_host].orderer_operations_use_tls | default(false) }}"
+        use_mtls: "{{ hostvars[orderer_batcher_ref_host].orderer_operations_use_mtls | default(false) }}"
+        tls_ca_file: "{{ fetched_artifacts_dir }}/{{ orderer_batcher_ref_host }}/tls/ca.crt"
         targets:
           - hosts: "{{ orderer_batcher_hosts }}"
-            port_to_scrape: orderer_metrics_port
+            port_to_scrape: orderer_operations_port
   ansible.builtin.set_fact:
     orderer_prometheus_scrape_services: "{{ orderer_scrape_services }}"

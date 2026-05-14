@@ -26,6 +26,6 @@ spec:
 {% endif %}
 {% if orderer_k8s_loadbalancer_expose_metrics_port %}
     - name: metrics
-      port: {{ orderer_metrics_port }}
+      port: {{ orderer_operations_port }}
       targetPort: metrics
 {% endif %}

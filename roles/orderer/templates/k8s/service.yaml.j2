@@ -24,7 +24,7 @@ spec:
     - name: rpc
       port: {{ orderer_rpc_port }}
       targetPort: {{ orderer_rpc_port }}
-    # Prometheus metrics scrape endpoint.
+    # Operations endpoint, including Prometheus metrics.
     - name: metrics
-      port: {{ orderer_metrics_port }}
-      targetPort: {{ orderer_metrics_port }}
+      port: {{ orderer_operations_port }}
+      targetPort: {{ orderer_operations_port }}

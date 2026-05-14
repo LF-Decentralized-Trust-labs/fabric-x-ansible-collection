@@ -22,6 +22,7 @@
   - [coordinator/teardown](#coordinatorteardown)
   - [wipe](#wipe)
   - [fetch\_logs](#fetch_logs)
+  - [effective\_address](#effective_address)
   - [get\_metrics](#get_metrics)
   - [start](#start)
   - [crypto/setup](#cryptosetup)
@@ -431,23 +432,33 @@ Fetch logs from the selected deployment mode. Dispatches to binary, container, o
     tasks_from: fetch_logs
 ```
 
+### effective_address
+
+> Resolve the effective committer metrics address
+
+Compute the address used to reach a committer metrics endpoint from outside its own host. Sets `committer_effective_metrics_address` as an Ansible fact on the calling host. Resolution priority is OpenShift Route, then Kubernetes NodePort, then the plain host port. Accepts a `committer_host` variable so the task can be called from any host in the inventory. All committer-specific variables are read from `hostvars[committer_host]`.
+
+```yaml
+- name: Resolve the effective committer metrics address
+  vars:
+    # Inventory host whose committer metrics endpoint should be resolved. Example: `committer-validator-1`.
+    committer_host: "committer-validator-1"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: effective_address
+```
+
 ### get_metrics
 
 > Retrieve Prometheus metrics
 
-Query the component metrics endpoint and print the response body. Uses `actual_host`, `committer_http_protocol`, and `committer_metrics_port`.
+Query the component metrics endpoint and print the response body. Delegates address resolution to the `effective_address` entry point.
 
 ```yaml
 - name: Retrieve Prometheus metrics
   vars:
-    # Real machine host. Example: `myvpc.cloud.ibm.com`.
-    actual_host: "myvpc.cloud.ibm.com"
-    # HTTP protocol used by the metrics client.
-    committer_http_protocol: "{{ 'https' if committer_use_tls else 'http' }}"
     # Metrics port exposed by the selected committer component. Example: `9443`.
     committer_metrics_port: 9443
-    # Enable TLS material for the selected component.
-    committer_use_tls: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: get_metrics
@@ -516,6 +527,20 @@ Fetch the committer TLS CA certificate and server certificate to the control nod
     fetched_artifacts_dir: "/tmp/fabricx/artifacts"
     # Enable TLS material for the selected component.
     committer_use_tls: false
+    # Committer component handled by the entry point. Example: `coordinator`.
+    committer_component_type: "coordinator"
+    # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
+      peer:
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: crypto/fetch
@@ -539,7 +564,7 @@ Install the committer binary through the shared `bin` role Go installer entry po
     # Git repository that contains the committer sources.
     committer_git_repo: hyperledger/fabric-x-committer
     # Git ref used for building or installing the binary.
-    committer_git_commit: v0.1.9
+    committer_git_commit: v1.0.0-alpha.1
     # Go package path used as the build or install target.
     committer_source_code_package: cmd/committer
   ansible.builtin.include_role:
@@ -563,7 +588,7 @@ Build the committer binary through the shared `bin` role Go build entry point. P
     # Git repository that contains the committer sources.
     committer_git_repo: hyperledger/fabric-x-committer
     # Git ref used for building or installing the binary.
-    committer_git_commit: v0.1.9
+    committer_git_commit: v1.0.0-alpha.1
     # Go package path used as the build or install target.
     committer_source_code_package: cmd/committer
   ansible.builtin.include_role:
@@ -651,7 +676,7 @@ Run the validator container with its generated configuration directory mounted r
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 0.1.9
+    committer_image_tag: 1.0.0-alpha.1
     # Metrics port exposed by the selected committer component. Example: `9443`.
     committer_metrics_port: 9443
     # Container registry endpoint for the committer image.
@@ -689,7 +714,7 @@ Run the verifier container with its generated configuration directory mounted re
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 0.1.9
+    committer_image_tag: 1.0.0-alpha.1
     # Metrics port exposed by the selected committer component. Example: `9443`.
     committer_metrics_port: 9443
     # Container registry endpoint for the committer image.
@@ -727,7 +752,7 @@ Run the coordinator container with its generated configuration directory mounted
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 0.1.9
+    committer_image_tag: 1.0.0-alpha.1
     # Metrics port exposed by the selected committer component. Example: `9443`.
     committer_metrics_port: 9443
     # Container registry endpoint for the committer image.
@@ -767,7 +792,7 @@ Ensure the sidecar data directory exists and run the sidecar container with conf
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 0.1.9
+    committer_image_tag: 1.0.0-alpha.1
     # Metrics port exposed by the selected committer component. Example: `9443`.
     committer_metrics_port: 9443
     # Container registry endpoint for the committer image.
@@ -809,7 +834,7 @@ Run the query-service container with its generated configuration directory mount
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 0.1.9
+    committer_image_tag: 1.0.0-alpha.1
     # Metrics port exposed by the selected committer component. Example: `9443`.
     committer_metrics_port: 9443
     # Container registry endpoint for the committer image.
@@ -1739,6 +1764,8 @@ Render sidecar configuration, upstream TLS bundles, and optional Kubernetes Conf
     committer_config_dir: "{{ committer_remote_config_dir if committer_use_bin else committer_container_config_dir }}"
     # Generated config file name used by the selected component.
     committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Filename of the genesis config block placed in the sidecar config directory.
+    committer_sidecar_config_block_file: config-block.pb.bin
     # Config directory inside the committer container.
     committer_container_config_dir: /config
     # Data directory inside the committer container.
@@ -1794,36 +1821,6 @@ Render sidecar configuration, upstream TLS bundles, and optional Kubernetes Conf
     committer_server_keep_alive_timeout: "600s"
     # Maximum concurrent streaming RPCs allowed per client connection. Example: `128`.
     committer_server_max_concurrent_streams: 128
-    # Server rate-limit burst. Example: `200`.
-    committer_server_rate_limit_burst: 200
-    # Server rate-limit requests per second. Example: `2000`.
-    committer_server_rate_limit_requests_per_second: 2000
-    # Sidecar internal channel buffer size. Example: `100`.
-    committer_sidecar_channel_buffer_size: 100
-    # Interval between sidecar committed-block updates. Example: `5s`.
-    committer_sidecar_last_committed_block_set_interval: "5s"
-    # Sidecar ledger sync interval. Example: `100`.
-    committer_sidecar_ledger_sync_interval: 100
-    # Sidecar notification timeout. Example: `10m`.
-    committer_sidecar_notification_max_timeout: "10m"
-    # Sidecar waiting transaction limit. Example: `20000000`.
-    committer_sidecar_waiting_txs_limit: 20000000
-    # Enable host-binary deployment mode.
-    committer_use_bin: false
-    # Enable Kubernetes deployment mode.
-    committer_use_k8s: false
-    # Enable mTLS for the selected component.
-    committer_use_mtls: false
-    # Selects the OpenShift deployment branch.
-    committer_use_openshift: false
-    # Enable TLS material for the selected component.
-    committer_use_tls: false
-    # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
-    fetched_artifacts_dir: "/tmp/fabricx/artifacts"
-    # Inventory hosts for orderer assembler components. Example: `['orderer-assembler-1', 'orderer-assembler-2']`.
-    orderer_assemblers:
-      - "orderer-assembler-1"
-      - "orderer-assembler-2"
     # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
@@ -1836,6 +1833,46 @@ Render sidecar configuration, upstream TLS bundles, and optional Kubernetes Conf
       users:
         - name: "committer-sidecar"
           secret: "committer-sidecarPWD"
+    # Fault tolerance level of the ordering service rendered into the sidecar config. Example: `BFT`.
+    committer_sidecar_orderer_fault_tolerance_level: "BFT"
+    # Grace period per block before the sidecar suspects an orderer node is faulty. Example: `1s`.
+    committer_sidecar_orderer_suspicion_grace_period_per_block: "1s"
+    # Interval between sidecar committed-block updates. Example: `5s`.
+    committer_sidecar_last_committed_block_set_interval: "5s"
+    # Sidecar waiting transaction limit. Example: `20000000`.
+    committer_sidecar_waiting_txs_limit: 20000000
+    # Server rate-limit burst. Example: `200`.
+    committer_server_rate_limit_burst: 200
+    # Server rate-limit requests per second. Example: `2000`.
+    committer_server_rate_limit_requests_per_second: 2000
+    # Sidecar internal channel buffer size. Example: `100`.
+    committer_sidecar_channel_buffer_size: 100
+    # Sidecar ledger sync interval. Example: `100`.
+    committer_sidecar_ledger_sync_interval: 100
+    # Sidecar notification timeout. Example: `10m`.
+    committer_sidecar_notification_max_timeout: "10m"
+    # Maximum number of active transaction IDs tracked for notification subscriptions. Example: `100000`.
+    committer_sidecar_notification_max_active_tx_ids: 100000
+    # Maximum number of transaction IDs returned per notification request. Example: `1000`.
+    committer_sidecar_notification_max_tx_ids_per_request: 1000
+    # Enable host-binary deployment mode.
+    committer_use_bin: false
+    # Enable Kubernetes deployment mode.
+    committer_use_k8s: false
+    # Enable mTLS for the selected component.
+    committer_use_mtls: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
+    # Control-node configtxgen output directory containing the genesis config block. Example: `/tmp/fabricx/configtxgen-artifacts`.
+    configtxgen_artifacts_dir: "/tmp/fabricx/configtxgen-artifacts"
+    # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
+    fetched_artifacts_dir: "/tmp/fabricx/artifacts"
+    # Inventory hosts for orderer assembler components. Example: `['orderer-assembler-1', 'orderer-assembler-2']`.
+    orderer_assemblers:
+      - "orderer-assembler-1"
+      - "orderer-assembler-2"
     # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
     remote_config_dir: "/opt/fabricx/committer/config"
     # Remote data directory used by delegated sidecar tasks. Example: `/var/lib/fabricx/committer/sidecar`.
@@ -1980,7 +2017,7 @@ Ensure the namespace exists and apply the validator Service, NodePort and LoadBa
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 0.1.9
+    committer_image_tag: 1.0.0-alpha.1
     # Filesystem group assigned to committer pods.
     committer_k8s_fs_group: 10001
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
@@ -2095,7 +2132,7 @@ Ensure the namespace exists and apply the verifier Service, NodePort and LoadBal
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 0.1.9
+    committer_image_tag: 1.0.0-alpha.1
     # Filesystem group assigned to committer pods.
     committer_k8s_fs_group: 10001
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
@@ -2206,7 +2243,7 @@ Ensure the namespace exists and apply the coordinator Service, NodePort and Load
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 0.1.9
+    committer_image_tag: 1.0.0-alpha.1
     # Filesystem group assigned to committer pods.
     committer_k8s_fs_group: 10001
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
@@ -2314,6 +2351,8 @@ Ensure the namespace exists and apply the sidecar Service, NodePort and LoadBala
 ```yaml
 - name: Start the sidecar on Kubernetes
   vars:
+    # Filename of the genesis config block placed in the sidecar config directory.
+    committer_sidecar_config_block_file: config-block.pb.bin
     # Committer component handled by the entry point. Example: `coordinator`.
     committer_component_type: "coordinator"
     # Generated config file name used by the selected component.
@@ -2331,7 +2370,7 @@ Ensure the namespace exists and apply the sidecar Service, NodePort and LoadBala
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 0.1.9
+    committer_image_tag: 1.0.0-alpha.1
     # Filesystem group assigned to committer pods.
     committer_k8s_fs_group: 10001
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
@@ -2409,10 +2448,6 @@ Ensure the namespace exists and apply the sidecar Service, NodePort and LoadBala
     k8s_storage_class: "fast-ssd"
     # Persistent volume size requested by the sidecar StatefulSet. Example: `20Gi`.
     k8s_storage_size: "20Gi"
-    # Inventory hosts for orderer assembler components. Example: `['orderer-assembler-1', 'orderer-assembler-2']`.
-    orderer_assemblers:
-      - "orderer-assembler-1"
-      - "orderer-assembler-2"
     # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"
@@ -2450,7 +2485,7 @@ Ensure the namespace exists and apply the query-service Service, NodePort and Lo
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 0.1.9
+    committer_image_tag: 1.0.0-alpha.1
     # Filesystem group assigned to committer pods.
     committer_k8s_fs_group: 10001
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
@@ -2910,14 +2945,12 @@ Ensure the namespace exists and create the sidecar Kubernetes ConfigMap. Publish
         domain: "ordererorg1.example.com"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
+    # Filename of the genesis config block placed in the sidecar config directory.
+    committer_sidecar_config_block_file: config-block.pb.bin
     # Enable mTLS for the selected component.
     committer_use_mtls: false
     # Kubernetes namespace that contains the committer resources. Example: `fabricx-committer`.
     k8s_namespace: "fabricx-committer"
-    # Inventory hosts for orderer assembler components. Example: `['orderer-assembler-1', 'orderer-assembler-2']`.
-    orderer_assemblers:
-      - "orderer-assembler-1"
-      - "orderer-assembler-2"
     # Organization definition consumed by crypto and sidecar configuration tasks. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}, 'users': [{'name': 'committer-sidecar', 'secret': 'committer-sidecarPWD'}]}`.
     organization:
       name: "Org1"

@@ -4,19 +4,31 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Validate committer metrics port
+  vars:
+    committer_metrics_port_required: "{{ committer_metrics_port }}"
+  ansible.builtin.assert:
+    that:
+      - committer_metrics_port_required is defined
+    fail_msg: "committer_metrics_port is required to fetch committer metrics"
+
+- name: Resolve effective committer metrics address
+  vars:
+    committer_host: "{{ inventory_hostname }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: effective_address
+
 - name: Get Fabric-X Committer metrics
   ansible.builtin.uri:
-    url: "{{ committer_http_protocol }}://{{ actual_host }}:{{ committer_metrics_port }}/metrics"
+    url: "{{ committer_effective_metrics_address }}/metrics"
     validate_certs: false
     method: GET
     return_content: true
   register: committer_metrics
-  when:
-    - committer_metrics_port is defined
 
 - name: Print Fabric-X Committer metrics
   ansible.builtin.debug:
     msg: "{{ committer_metrics.content }}"
   when:
-    - committer_metrics_port is defined
     - committer_metrics is defined

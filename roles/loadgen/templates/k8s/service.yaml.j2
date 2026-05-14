@@ -16,10 +16,6 @@ spec:
   selector:
     app.kubernetes.io/name: {{ loadgen_k8s_resource_name }}
   ports:
-    # HTTP API port used for rate-limit control and health checks.
-    - name: web
-      port: {{ loadgen_web_port }}
-      targetPort: {{ loadgen_web_port }}
     # Prometheus metrics scrape endpoint.
     - name: metrics
       port: {{ loadgen_metrics_port }}

@@ -17,13 +17,6 @@ spec:
   selector:
     app.kubernetes.io/name: {{ loadgen_k8s_resource_name }}
   ports:
-{% if loadgen_k8s_web_node_port is defined %}
-    # HTTP API port exposed externally via NodePort.
-    - name: web
-      port: {{ loadgen_web_port }}
-      targetPort: web
-      nodePort: {{ loadgen_k8s_web_node_port }}
-{% endif %}
 {% if loadgen_k8s_metrics_node_port is defined %}
     # Prometheus metrics port exposed externally via NodePort.
     - name: metrics

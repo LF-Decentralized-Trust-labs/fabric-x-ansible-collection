@@ -24,7 +24,7 @@
   when:
     - orderer_k8s_loadbalancer_expose_rpc_port
 
-- name: Check that the Fabric-X Orderer metrics node port is open
+- name: Check that the Fabric-X Orderer operations node port is open
   vars:
     utils_ports_to_ping:
       - "{{ orderer_k8s_metrics_node_port }}"
@@ -34,10 +34,10 @@
   when:
     - orderer_k8s_metrics_node_port is defined
 
-- name: Check that the Fabric-X Orderer metrics load balancer port is open
+- name: Check that the Fabric-X Orderer operations load balancer port is open
   vars:
     utils_ports_to_ping:
-      - "{{ orderer_metrics_port }}"
+      - "{{ orderer_operations_port }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: ping

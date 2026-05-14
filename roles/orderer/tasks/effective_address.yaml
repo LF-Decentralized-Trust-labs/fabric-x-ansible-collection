@@ -1,0 +1,35 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =======================
+# Metrics Address
+# =======================
+- name: Set effective orderer metrics address
+  vars:
+    orderer_host_operations_use_tls: "{{ hostvars[orderer_host].orderer_operations_use_tls | default(false) }}"
+    orderer_host_http_protocol: "{{ 'https' if orderer_host_operations_use_tls else 'http' }}"
+  block:
+    - name: Set effective orderer metrics address as OpenShift Route
+      ansible.builtin.set_fact:
+        orderer_effective_metrics_address: "{{ orderer_host_http_protocol }}://{{ hostvars[orderer_host].orderer_openshift_metrics_route }}"
+      when:
+        - hostvars[orderer_host].orderer_use_openshift is defined
+        - hostvars[orderer_host].orderer_use_openshift
+        - hostvars[orderer_host].orderer_openshift_metrics_route is defined
+
+    - name: Set effective orderer metrics address as k8s NodePort
+      ansible.builtin.set_fact:
+        orderer_effective_metrics_address: "{{ orderer_host_http_protocol }}://{{ hostvars[orderer_host].actual_host }}:{{ hostvars[orderer_host].orderer_k8s_metrics_node_port }}"
+      when:
+        - hostvars[orderer_host].orderer_openshift_metrics_route is not defined
+        - hostvars[orderer_host].orderer_k8s_metrics_node_port is defined
+
+    - name: Set effective orderer metrics address
+      ansible.builtin.set_fact:
+        orderer_effective_metrics_address: "{{ orderer_host_http_protocol }}://{{ hostvars[orderer_host].actual_host }}:{{ hostvars[orderer_host].orderer_operations_port }}"
+      when:
+        - hostvars[orderer_host].orderer_openshift_metrics_route is not defined
+        - hostvars[orderer_host].orderer_k8s_metrics_node_port is not defined

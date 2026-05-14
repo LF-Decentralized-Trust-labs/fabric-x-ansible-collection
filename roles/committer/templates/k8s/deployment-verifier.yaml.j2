@@ -34,7 +34,8 @@ spec:
 {{ k8s_resources | to_nice_yaml(indent=2) | indent(12, true) }}
 {% endif %}
           args:
-            - "start-verifier"
+            - "start"
+            - "verifier"
             - "--config={{ committer_container_config_dir }}/{{ committer_config_file }}"
           ports:
             - name: rpc

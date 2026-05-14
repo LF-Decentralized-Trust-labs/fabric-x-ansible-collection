@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# =========================
+# MSP and TLS certs
+# =========================
 - name: Ensure orderer config directory exists
   ansible.builtin.file:
     path: "{{ orderer_remote_config_dir }}"

@@ -23,7 +23,8 @@ argument_specs:
           - Armageddon image name.
       armageddon_image_tag: &armageddon_image_tag
         type: str
-        default: "0.0.21-1"
+        required: false
+        default: "1.0.0-alpha.1"
         description:
           - Armageddon image tag.
       armageddon_image: &armageddon_image
@@ -48,7 +49,8 @@ argument_specs:
           - Armageddon source repository path.
       armageddon_git_commit: &armageddon_git_commit
         type: str
-        default: "v0.0.23"
+        required: false
+        default: "v1.0.0-alpha.1"
         description:
           - Git ref used for Armageddon builds and installs.
       armageddon_source_code_package: &armageddon_source_code_package
