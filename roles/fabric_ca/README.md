@@ -16,6 +16,7 @@
   - [client/gencrl](#clientgencrl)
   - [server/effective\_address](#servereffective_address)
   - [client/cryptogenize](#clientcryptogenize)
+  - [client/idemixgenize](#clientidemixgenize)
   - [client/bin/build](#clientbinbuild)
   - [client/bin/install](#clientbininstall)
   - [client/bin/transfer](#clientbintransfer)
@@ -243,6 +244,24 @@ Copies enrolled client MSP and TLS material into cryptogen-compatible filenames.
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/cryptogenize
+```
+
+### client/idemixgenize
+
+> Normalize enrolled Idemix output
+
+Copies the enrolled Idemix issuer keys into an idemixgen-compatible layout. Creates the `msp/` subdirectory under `fabric_ca_msp_dir` and copies `IssuerPublicKey` and the revocation public key into it.
+
+```yaml
+- name: Normalize enrolled Idemix output
+  vars:
+    # Sets the MSP directory used by Fabric CA client flows and MSP normalization. Example: `/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp`.
+    fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
+    # Sets the filename of the revocation public key file produced by the Fabric CA client idemix enrollment.
+    fabric_ca_idemix_msp_revocation_public_key: RevocationPublicKey
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/idemixgenize
 ```
 
 ### client/bin/build

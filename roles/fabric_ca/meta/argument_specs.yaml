@@ -259,6 +259,12 @@ argument_specs:
         default: idemix
         description:
           - "Sets the Idemix enrollment profile."
+      fabric_ca_idemix_msp_revocation_public_key:
+        &fabric_ca_idemix_msp_revocation_public_key
+        type: str
+        default: RevocationPublicKey
+        description:
+          - "Sets the filename of the revocation public key file produced by the Fabric CA client idemix enrollment."
       fabric_ca_enrollment_profile: &fabric_ca_enrollment_profile
         type: str
         description:
@@ -481,6 +487,15 @@ argument_specs:
       fabric_ca_cryptogenize_tls_ca_cert_file: *fabric_ca_cryptogenize_tls_ca_cert_file
       fabric_ca_cryptogenize_tls_cert_file: *fabric_ca_cryptogenize_tls_cert_file
       fabric_ca_cryptogenize_tls_key_file: *fabric_ca_cryptogenize_tls_key_file
+
+  client/idemixgenize:
+    short_description: Normalize enrolled Idemix output
+    description:
+      - "Copies the enrolled Idemix issuer keys into an idemixgen-compatible layout."
+      - "Creates the C(msp/) subdirectory under C(fabric_ca_msp_dir) and copies C(IssuerPublicKey) and the revocation public key into it."
+    options:
+      fabric_ca_msp_dir: *fabric_ca_msp_dir
+      fabric_ca_idemix_msp_revocation_public_key: *fabric_ca_idemix_msp_revocation_public_key
 
   client/bin/build:
     short_description: Build the Fabric CA client binary

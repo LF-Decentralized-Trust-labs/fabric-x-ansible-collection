@@ -1,0 +1,25 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Normalize Idemix enrollment output
+  block:
+    - name: Create MSP subdirectory for Idemix issuer keys
+      ansible.builtin.file:
+        path: "{{ fabric_ca_msp_dir }}/msp"
+        state: directory
+        mode: "0755"
+    - name: Copy Idemix IssuerPublicKey to MSP subdirectory
+      ansible.builtin.copy:
+        src: "{{ fabric_ca_msp_dir }}/IssuerPublicKey"
+        dest: "{{ fabric_ca_msp_dir }}/msp/IssuerPublicKey"
+        remote_src: true
+        mode: "preserve"
+    - name: Copy Idemix revocation public key to MSP subdirectory
+      ansible.builtin.copy:
+        src: "{{ fabric_ca_msp_dir }}/{{ fabric_ca_idemix_msp_revocation_public_key }}"
+        dest: "{{ fabric_ca_msp_dir }}/msp/RevocationPublicKey"
+        remote_src: true
+        mode: "preserve"
