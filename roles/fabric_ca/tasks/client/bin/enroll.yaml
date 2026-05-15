@@ -78,3 +78,10 @@
     tasks_from: client/cryptogenize
   when:
     - fabric_ca_enrollment_type == 'bccsp'
+
+- name: Adjust crypto to be as idemixgen produced crypto
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/idemixgenize
+  when:
+    - fabric_ca_enrollment_type == 'idemix'

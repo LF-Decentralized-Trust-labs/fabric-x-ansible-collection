@@ -77,6 +77,8 @@ fabric_ca_name: '{{ inventory_hostname }}'
 fabric_ca_enrollment_type: bccsp
 # Sets the Idemix enrollment profile.
 fabric_ca_idemix_enrollment_profile: idemix
+# Sets the filename of the revocation public key file produced by the Fabric CA client idemix enrollment.
+fabric_ca_idemix_msp_revocation_public_key: RevocationPublicKey
 # Sets the CSR SAN host list.
 fabric_ca_csr_hosts:
   - '{{ ansible_host }}'
