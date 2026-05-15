@@ -86,7 +86,7 @@
             bin_operation: >-
               {{
                 'transfer' if (bin_build_on_control_node is defined and bin_build_on_control_node)
-                else ('build' if (fabric_ca_build_bin is defined and fabric_ca_build_bin)
+                else ('build' if (fabric_ca_server_build_bin is defined and fabric_ca_server_build_bin)
                 else 'install')
               }}
           block:
