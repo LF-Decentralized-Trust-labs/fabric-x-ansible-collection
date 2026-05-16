@@ -32,25 +32,19 @@ This inventory describes a larger container-based Fabric-X deployment:
 
 ```mermaid
 flowchart TD
-  all --> control_node_crypto["cryptogen artifacts"]
   all --> network
   network --> fabric_x
   all --> load_generators
   all --> monitoring
   fabric_x --> fabric_x_orderers
   fabric_x --> fabric_x_committer
-  fabric_x_orderers --> orderer_groups["4 orderer groups"]
-  orderer_groups --> orderer_scale["routers, consenters, assemblers, 2 batchers/group"]
-  fabric_x_committer --> committer_services["7 validators, 7 verifiers, coordinator, sidecar, query service"]
+  fabric_x_orderers --> fabric_x_orderer_1
+  fabric_x_orderers --> fabric_x_orderer_2
+  fabric_x_orderers --> fabric_x_orderer_3
+  fabric_x_orderers --> fabric_x_orderer_4
   fabric_x_committer --> committer_dbs
-  committer_dbs --> yugabyte_masters["3 YugabyteDB masters"]
-  committer_dbs --> yugabyte_tablets["7 YugabyteDB tablets"]
-  network --> machines["host_machine_1..16 placeholders"]
-  machines -.-> fabric_x_orderers
-  machines -.-> fabric_x_committer
-  machines -.-> load_generators
-  machines -.-> monitoring
-  control_node_crypto -.-> fabric_x
+  committer_dbs --> yb_masters
+  committer_dbs --> yb_tablets
 ```
 
 This is a performance-oriented reference topology, not a small development sample. It scales validators, verifiers, batchers, load generators, and YugabyteDB tablets across 16 remote machine placeholders.

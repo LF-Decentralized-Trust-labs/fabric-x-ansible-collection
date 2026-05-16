@@ -23,7 +23,8 @@ argument_specs:
           - Armageddon image name.
       armageddon_image_tag: &armageddon_image_tag
         type: str
-        default: "0.0.21-1"
+        required: false
+        default: "1.0.0-alpha.1"
         description:
           - Armageddon image tag.
       armageddon_image: &armageddon_image
@@ -48,7 +49,8 @@ argument_specs:
           - Armageddon source repository path.
       armageddon_git_commit: &armageddon_git_commit
         type: str
-        default: "v0.0.23"
+        required: false
+        default: "v1.0.0-alpha.1"
         description:
           - Git ref used for Armageddon builds and installs.
       armageddon_source_code_package: &armageddon_source_code_package
@@ -97,11 +99,6 @@ argument_specs:
         default: "/tmp/crypto"
         description:
           - Container directory for mounted crypto artifacts.
-      armageddon_config_file: &armageddon_config_file
-        type: str
-        default: armageddon.yaml
-        description:
-          - Armageddon config filename.
       armageddon_shared_config_file: &armageddon_shared_config_file
         type: str
         default: shared_config.yaml
@@ -143,7 +140,6 @@ argument_specs:
       armageddon_artifacts_dir: *armageddon_artifacts_dir
       fetched_artifacts_dir: *fetched_artifacts_dir
       armageddon_container_crypto_artifacts_dir: *armageddon_container_crypto_artifacts_dir
-      armageddon_config_file: *armageddon_config_file
       armageddon_shared_config_file: *armageddon_shared_config_file
 
   create_shared_config:
@@ -191,7 +187,6 @@ argument_specs:
       armageddon_bin_name: *armageddon_bin_name
       config_build_dir: *config_build_dir
       armageddon_artifacts_dir: *armageddon_artifacts_dir
-      armageddon_config_file: *armageddon_config_file
       armageddon_shared_config_file: *armageddon_shared_config_file
       cli_bin_dir: *cli_bin_dir
 
@@ -207,7 +202,6 @@ argument_specs:
       armageddon_image_tag: *armageddon_image_tag
       armageddon_image: *armageddon_image
       armageddon_container_config_dir: *armageddon_container_config_dir
-      armageddon_config_file: *armageddon_config_file
       armageddon_shared_config_file: *armageddon_shared_config_file
       armageddon_container_output_dir: *armageddon_container_output_dir
       config_build_dir: *config_build_dir

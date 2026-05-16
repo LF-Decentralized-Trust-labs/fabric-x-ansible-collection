@@ -9,7 +9,6 @@ kind: Service
 metadata:
   # Headless Service — required by the StatefulSet for stable DNS-based pod addressing.
   name: {{ orderer_k8s_resource_name }}
-  namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ orderer_k8s_resource_name }}
     app.kubernetes.io/component: {{ orderer_component_type }}
@@ -25,7 +24,7 @@ spec:
     - name: rpc
       port: {{ orderer_rpc_port }}
       targetPort: {{ orderer_rpc_port }}
-    # Prometheus metrics scrape endpoint.
+    # Operations endpoint, including Prometheus metrics.
     - name: metrics
-      port: {{ orderer_metrics_port }}
-      targetPort: {{ orderer_metrics_port }}
+      port: {{ orderer_operations_port }}
+      targetPort: {{ orderer_operations_port }}

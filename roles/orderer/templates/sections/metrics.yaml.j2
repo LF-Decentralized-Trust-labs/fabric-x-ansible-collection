@@ -1,0 +1,9 @@
+# ---------------------------------------------------------------------------
+# Metrics Configuration
+# This configures metrics collection for the orderer.
+# ---------------------------------------------------------------------------
+Metrics:
+  # The metrics provider is one of prometheus or disabled.
+  Provider: {{ orderer_metrics_provider | default('prometheus') }}
+  # MetricsLogInterval defines metrics log period; 0 disables.
+  MetricsLogInterval: {{ orderer_metrics_log_interval | default('0s') }}

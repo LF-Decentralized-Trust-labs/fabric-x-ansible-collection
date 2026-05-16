@@ -1,0 +1,33 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =======================
+# Metrics Address
+# =======================
+- name: Set effective loadgen metrics address
+  vars:
+    loadgen_host_monitoring_use_tls: "{{ hostvars[loadgen_host].loadgen_monitoring_use_tls | default(hostvars[loadgen_host].loadgen_use_tls) | default(false) }}"
+    loadgen_host_http_protocol: "{{ 'https' if loadgen_host_monitoring_use_tls else 'http' }}"
+  block:
+    - name: Set effective loadgen metrics address as OpenShift Route
+      ansible.builtin.set_fact:
+        loadgen_effective_metrics_address: "{{ loadgen_host_http_protocol }}://{{ hostvars[loadgen_host].loadgen_openshift_metrics_route }}"
+      when:
+        - hostvars[loadgen_host].loadgen_use_openshift is defined
+        - hostvars[loadgen_host].loadgen_use_openshift
+        - hostvars[loadgen_host].loadgen_openshift_metrics_route is defined
+    - name: Set effective loadgen metrics address as k8s NodePort
+      ansible.builtin.set_fact:
+        loadgen_effective_metrics_address: "{{ loadgen_host_http_protocol }}://{{ hostvars[loadgen_host].actual_host }}:{{ hostvars[loadgen_host].loadgen_k8s_metrics_node_port }}"
+      when:
+        - hostvars[loadgen_host].loadgen_openshift_metrics_route is not defined
+        - hostvars[loadgen_host].loadgen_k8s_metrics_node_port is defined
+    - name: Set effective loadgen metrics address
+      ansible.builtin.set_fact:
+        loadgen_effective_metrics_address: "{{ loadgen_host_http_protocol }}://{{ hostvars[loadgen_host].actual_host }}:{{ hostvars[loadgen_host].loadgen_metrics_port }}"
+      when:
+        - hostvars[loadgen_host].loadgen_openshift_metrics_route is not defined
+        - hostvars[loadgen_host].loadgen_k8s_metrics_node_port is not defined

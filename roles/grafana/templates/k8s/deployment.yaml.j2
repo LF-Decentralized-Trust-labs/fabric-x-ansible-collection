@@ -8,7 +8,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ grafana_k8s_resource_name }}
-  namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ grafana_k8s_resource_name }}
     app.kubernetes.io/component: grafana
@@ -30,6 +29,10 @@ spec:
       containers:
         - name: grafana
           image: {{ grafana_image }}
+{% if k8s_resources is defined and k8s_resources %}
+          resources:
+{{ k8s_resources | to_nice_yaml(indent=2) | indent(12, true) }}
+{% endif %}
           env:
             - name: GF_SECURITY_ADMIN_USER
               valueFrom:

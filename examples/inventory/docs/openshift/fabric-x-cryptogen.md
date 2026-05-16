@@ -16,7 +16,7 @@ Use it for repeatable OpenShift tests that should not exercise Fabric CA enrollm
 
 The diagram below summarizes this inventory's Fabric-X services and how they fit together.
 
-![OpenShift Fabric-X cryptogen inventory](../../../images/fabric-x-k8s-cryptogen.drawio.png)
+![OpenShift Fabric-X cryptogen inventory](../../../images/fabric-x-openshift-cryptogen.drawio.png)
 
 ## Inventory Details
 
@@ -30,20 +30,21 @@ This inventory deploys these logical services as OpenShift workloads, services, 
 - 1 load generator.
 - Monitoring with node exporter, PostgreSQL exporter, Prometheus, and Grafana.
 
+> [!NOTE]
+> If you run on macOS, the OpenShift routes map to `127.0.0.1`. While this works fine with binary CLIs, it can break containerized binaries because `127.0.0.1` is then resolved inside the container network namespace. Run `make oc-config-hosts-on-macos` (requires `sudo`) to setup the routes in `/etc/hosts` before starting Fabric-X.
+
 ```mermaid
 flowchart TD
-  all --> control_node_crypto["cryptogen artifacts"]
   all --> network
   network --> fabric_x
   all --> load_generators
   all --> monitoring
   fabric_x --> fabric_x_orderers
   fabric_x --> fabric_x_committer
-  fabric_x_orderers --> orderer_groups["fabric_x_orderer_1..4"]
-  fabric_x_committer --> committer_services["validator, verifier, coordinator, sidecar, query service"]
-  fabric_x_committer --> committer_db["committer-db PostgreSQL"]
-  control_node_crypto -.-> fabric_x_orderers
-  control_node_crypto -.-> fabric_x_committer
+  fabric_x_orderers --> fabric_x_orderer_1
+  fabric_x_orderers --> fabric_x_orderer_2
+  fabric_x_orderers --> fabric_x_orderer_3
+  fabric_x_orderers --> fabric_x_orderer_4
 ```
 
 Fabric CA is omitted entirely. Certificates and keys are generated centrally before OpenShift-backed component configuration consumes them.

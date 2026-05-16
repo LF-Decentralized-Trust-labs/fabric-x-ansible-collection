@@ -10,11 +10,15 @@
 
 {% include './sections/filestore.yaml.j2' +%}
 
+{% include './sections/operations.yaml.j2' +%}
+
+{% include './sections/metrics.yaml.j2' +%}
+
 # ---------------------------------------------------------------------------
 # Hyperledger Fabric-X Router settings
 # ---------------------------------------------------------------------------
 Router:
   # The number of connections between Router and Batcher
-  NumberOfConnectionsPerBatcher: 10
+  NumberOfConnectionsPerBatcher: {{ orderer_router_number_of_connections_per_batcher | default(10) }}
   # The number of streams per connection that are opened between Router and Batcher.
-  NumberOfStreamsPerConnection: 5
+  NumberOfStreamsPerConnection: {{ orderer_router_number_of_streams_per_connection | default(5) }}

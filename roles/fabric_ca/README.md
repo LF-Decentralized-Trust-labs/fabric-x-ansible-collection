@@ -9,12 +9,14 @@
 - [Tasks](#tasks)
   - [client/enroll](#clientenroll)
   - [client/register](#clientregister)
+  - [client/gather\_identities](#clientgather_identities)
   - [client/reenroll](#clientreenroll)
   - [client/identity\_list](#clientidentity_list)
   - [client/revoke](#clientrevoke)
   - [client/gencrl](#clientgencrl)
-  - [client/effective\_address](#clienteffective_address)
+  - [server/effective\_address](#servereffective_address)
   - [client/cryptogenize](#clientcryptogenize)
+  - [client/idemixgenize](#clientidemixgenize)
   - [client/bin/build](#clientbinbuild)
   - [client/bin/install](#clientbininstall)
   - [client/bin/transfer](#clientbintransfer)
@@ -113,6 +115,29 @@ Dispatches identity registration to the binary or transient-container implementa
     tasks_from: client/register
 ```
 
+### client/gather_identities
+
+> Gather organization identities from inventory
+
+Derives orderer, peer, and user identities for the current Fabric CA organization from inventory. Stores de-duplicated identities in the `fabric_ca_gathered_identities` host fact.
+
+```yaml
+- name: Gather organization identities from inventory
+  vars:
+    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'fabric_ca_host': 'fca-org1', 'role': 'peer', 'peer': {'name': 'peer0', 'secret': 'peer0PWD'}}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      fabric_ca_host: "fca-org1"
+      role: "peer"
+      peer:
+        name: "peer0"
+        secret: "peer0PWD"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/gather_identities
+```
+
 ### client/reenroll
 
 > Dispatch client reenrollment
@@ -177,20 +202,20 @@ Dispatches certificate revocation list generation to the binary or transient-con
     tasks_from: client/gencrl
 ```
 
-### client/effective_address
+### server/effective_address
 
-> Resolve the Fabric CA connection address
+> Resolve the Fabric CA server connection address
 
-Resolves the effective Fabric CA host, port, and URL scheme used by client operations. The referenced host must define `actual_host` and the Fabric CA server port settings; when it enables NodePort, the client uses `fabric_ca_server_k8s_node_port` instead of `fabric_ca_port`.
+Resolves the effective Fabric CA server host and port used by client operations. The referenced host must define `actual_host` and the Fabric CA server port settings; when it enables NodePort, the resolved address uses `fabric_ca_server_k8s_node_port` instead of `fabric_ca_port`.
 
 ```yaml
-- name: Resolve the Fabric CA connection address
+- name: Resolve the Fabric CA server connection address
   vars:
     # Names the inventory host that provides the target Fabric CA server. Example: `ca-org1`.
     fabric_ca_host: "ca-org1"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
-    tasks_from: client/effective_address
+    tasks_from: server/effective_address
 ```
 
 ### client/cryptogenize
@@ -206,6 +231,10 @@ Copies enrolled client MSP and TLS material into cryptogen-compatible filenames.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
     # Sets an optional enrollment profile such as `tls`. Example: `tls`.
     fabric_ca_enrollment_profile: "tls"
+    # Sets the normalized MSP CA certificate filename. Example: `ca.org1.example.com-cert.pem`.
+    fabric_ca_cryptogenize_msp_ca_cert_file: "ca.org1.example.com-cert.pem"
+    # Sets the normalized MSP sign certificate filename. Example: `cert.pem`
+    fabric_ca_cryptogenize_msp_signcert_file: "cert.pem"
     # Sets the normalized TLS CA certificate filename.
     fabric_ca_cryptogenize_tls_ca_cert_file: ca.crt
     # Sets the normalized TLS certificate filename.
@@ -215,6 +244,24 @@ Copies enrolled client MSP and TLS material into cryptogen-compatible filenames.
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/cryptogenize
+```
+
+### client/idemixgenize
+
+> Normalize enrolled Idemix output
+
+Copies the enrolled Idemix issuer keys into an idemixgen-compatible layout. Creates the `msp/` subdirectory under `fabric_ca_msp_dir` and copies `IssuerPublicKey` and the revocation public key into it.
+
+```yaml
+- name: Normalize enrolled Idemix output
+  vars:
+    # Sets the MSP directory used by Fabric CA client flows and MSP normalization. Example: `/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp`.
+    fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
+    # Sets the filename of the revocation public key file produced by the Fabric CA client idemix enrollment.
+    fabric_ca_idemix_msp_revocation_public_key: RevocationPublicKey
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/idemixgenize
 ```
 
 ### client/bin/build
@@ -231,7 +278,7 @@ Builds the Fabric CA client binary from the configured Fabric CA Git source revi
     # Sets the Fabric CA source repository.
     fabric_ca_git_repo: hyperledger/fabric-ca
     # Pins the Fabric CA source revision.
-    fabric_ca_git_commit: v1.5.15
+    fabric_ca_git_commit: v1.5.19
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
     # Sets the Go package path used to build the client binary.
@@ -261,7 +308,7 @@ Installs the Fabric CA client binary directly on the managed host with Go toolin
     # Sets the Go package path used to build the client binary.
     fabric_ca_client_source_code_package: cmd/fabric-ca-client
     # Pins the Fabric CA source revision.
-    fabric_ca_git_commit: v1.5.15
+    fabric_ca_git_commit: v1.5.19
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/bin/install
@@ -310,12 +357,16 @@ Enrolls an identity with the locally installed Fabric CA client binary. Writes X
   vars:
     # Sets the MSP directory used by Fabric CA client flows and MSP normalization. Example: `/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp`.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
-    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `peer0.org1.example.com`.
-    fabric_ca_identity:peer0.org1.example.com
+    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `{'name': 'peer0', 'secret': 'peer0PWD', 'type': 'peer', 'affiliation': 'org1.department1', 'attrs': {'hf.Revoker': 'true'}}`.
+    fabric_ca_identity:
+      name: "peer0"
+      secret: "peer0PWD"
+      type: "peer"
+      affiliation: "org1.department1"
+      attrs:
+        hf.Revoker: "true"
     # Selects the enrollment type.
     fabric_ca_enrollment_type: bccsp
-    # Names the inventory host that provides the target Fabric CA server. Example: `ca-org1`.
-    fabric_ca_host: "ca-org1"
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
     # Sets the client URL scheme.
@@ -326,8 +377,6 @@ Enrolls an identity with the locally installed Fabric CA client binary. Writes X
     fabric_ca_idemix_enrollment_profile: idemix
     # Sets an optional enrollment profile such as `tls`. Example: `tls`.
     fabric_ca_enrollment_profile: "tls"
-    # Real machine host. Example: `myvpc.cloud.ibm.com`.
-    actual_host: "myvpc.cloud.ibm.com"
     # Sets the CSR SAN host list.
     fabric_ca_csr_hosts:
       - "{{ ansible_host }}"
@@ -353,10 +402,14 @@ Registers a new identity with the locally installed Fabric CA client binary. Use
   vars:
     # Sets the MSP directory used by Fabric CA client flows and MSP normalization. Example: `/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp`.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
-    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `peer0.org1.example.com`.
-    fabric_ca_identity:peer0.org1.example.com
-    # Names the inventory host that provides the target Fabric CA server. Example: `ca-org1`.
-    fabric_ca_host: "ca-org1"
+    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `{'name': 'peer0', 'secret': 'peer0PWD', 'type': 'peer', 'affiliation': 'org1.department1', 'attrs': {'hf.Revoker': 'true'}}`.
+    fabric_ca_identity:
+      name: "peer0"
+      secret: "peer0PWD"
+      type: "peer"
+      affiliation: "org1.department1"
+      attrs:
+        hf.Revoker: "true"
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
     # Sets the client URL scheme.
@@ -383,10 +436,14 @@ Reenrolls an existing identity with the locally installed Fabric CA client binar
   vars:
     # Sets the MSP directory used by Fabric CA client flows and MSP normalization. Example: `/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp`.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
-    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `peer0.org1.example.com`.
-    fabric_ca_identity:peer0.org1.example.com
-    # Names the inventory host that provides the target Fabric CA server. Example: `ca-org1`.
-    fabric_ca_host: "ca-org1"
+    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `{'name': 'peer0', 'secret': 'peer0PWD', 'type': 'peer', 'affiliation': 'org1.department1', 'attrs': {'hf.Revoker': 'true'}}`.
+    fabric_ca_identity:
+      name: "peer0"
+      secret: "peer0PWD"
+      type: "peer"
+      affiliation: "org1.department1"
+      attrs:
+        hf.Revoker: "true"
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
     # Sets the client URL scheme.
@@ -395,8 +452,6 @@ Reenrolls an existing identity with the locally installed Fabric CA client binar
     fabric_ca_name: "{{ inventory_hostname }}"
     # Sets an optional enrollment profile such as `tls`. Example: `tls`.
     fabric_ca_enrollment_profile: "tls"
-    # Real machine host. Example: `myvpc.cloud.ibm.com`.
-    actual_host: "myvpc.cloud.ibm.com"
     # Sets the CSR SAN host list.
     fabric_ca_csr_hosts:
       - "{{ ansible_host }}"
@@ -422,8 +477,6 @@ Lists identities registered in the target Fabric CA server with the locally inst
   vars:
     # Sets the MSP directory used by Fabric CA client flows and MSP normalization. Example: `/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp`.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
-    # Names the inventory host that provides the target Fabric CA server. Example: `ca-org1`.
-    fabric_ca_host: "ca-org1"
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
     # Sets the client URL scheme.
@@ -450,10 +503,14 @@ Revokes an enrolled identity with the locally installed Fabric CA client binary.
   vars:
     # Sets the MSP directory used by Fabric CA client flows and MSP normalization. Example: `/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp`.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
-    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `peer0.org1.example.com`.
-    fabric_ca_identity:peer0.org1.example.com
-    # Names the inventory host that provides the target Fabric CA server. Example: `ca-org1`.
-    fabric_ca_host: "ca-org1"
+    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `{'name': 'peer0', 'secret': 'peer0PWD', 'type': 'peer', 'affiliation': 'org1.department1', 'attrs': {'hf.Revoker': 'true'}}`.
+    fabric_ca_identity:
+      name: "peer0"
+      secret: "peer0PWD"
+      type: "peer"
+      affiliation: "org1.department1"
+      attrs:
+        hf.Revoker: "true"
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
     # Sets the client URL scheme.
@@ -480,8 +537,6 @@ Generates a certificate revocation list from the target Fabric CA server with th
   vars:
     # Sets the MSP directory used by Fabric CA client flows and MSP normalization. Example: `/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp`.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
-    # Names the inventory host that provides the target Fabric CA server. Example: `ca-org1`.
-    fabric_ca_host: "ca-org1"
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
     # Sets the client URL scheme.
@@ -508,12 +563,16 @@ Enrolls an identity with a transient Fabric CA client container. Mounts the loca
   vars:
     # Sets the MSP directory used by Fabric CA client flows and MSP normalization. Example: `/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp`.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
-    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `peer0.org1.example.com`.
-    fabric_ca_identity:peer0.org1.example.com
+    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `{'name': 'peer0', 'secret': 'peer0PWD', 'type': 'peer', 'affiliation': 'org1.department1', 'attrs': {'hf.Revoker': 'true'}}`.
+    fabric_ca_identity:
+      name: "peer0"
+      secret: "peer0PWD"
+      type: "peer"
+      affiliation: "org1.department1"
+      attrs:
+        hf.Revoker: "true"
     # Selects the enrollment type.
     fabric_ca_enrollment_type: bccsp
-    # Names the inventory host that provides the target Fabric CA server. Example: `ca-org1`.
-    fabric_ca_host: "ca-org1"
     # Sets the Fabric CA image.
     fabric_ca_image: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
     # Sets the registry endpoint used to resolve the Fabric CA image.
@@ -521,7 +580,7 @@ Enrolls an identity with a transient Fabric CA client container. Mounts the loca
     # Sets the Fabric CA image name.
     fabric_ca_image_name: fabric-ca
     # Sets the Fabric CA image tag.
-    fabric_ca_image_tag: 1.5.15
+    fabric_ca_image_tag: 1.5.19
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
     # Sets the in-container client config root.
@@ -534,8 +593,6 @@ Enrolls an identity with a transient Fabric CA client container. Mounts the loca
     fabric_ca_idemix_enrollment_profile: idemix
     # Sets an optional enrollment profile such as `tls`. Example: `tls`.
     fabric_ca_enrollment_profile: "tls"
-    # Real machine host. Example: `myvpc.cloud.ibm.com`.
-    actual_host: "myvpc.cloud.ibm.com"
     # Sets the CSR SAN host list.
     fabric_ca_csr_hosts:
       - "{{ ansible_host }}"
@@ -561,10 +618,14 @@ Registers a new identity with a transient Fabric CA client container. Uses the m
   vars:
     # Sets the MSP directory used by Fabric CA client flows and MSP normalization. Example: `/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp`.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
-    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `peer0.org1.example.com`.
-    fabric_ca_identity:peer0.org1.example.com
-    # Names the inventory host that provides the target Fabric CA server. Example: `ca-org1`.
-    fabric_ca_host: "ca-org1"
+    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `{'name': 'peer0', 'secret': 'peer0PWD', 'type': 'peer', 'affiliation': 'org1.department1', 'attrs': {'hf.Revoker': 'true'}}`.
+    fabric_ca_identity:
+      name: "peer0"
+      secret: "peer0PWD"
+      type: "peer"
+      affiliation: "org1.department1"
+      attrs:
+        hf.Revoker: "true"
     # Sets the Fabric CA image.
     fabric_ca_image: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
     # Sets the registry endpoint used to resolve the Fabric CA image.
@@ -572,7 +633,7 @@ Registers a new identity with a transient Fabric CA client container. Uses the m
     # Sets the Fabric CA image name.
     fabric_ca_image_name: fabric-ca
     # Sets the Fabric CA image tag.
-    fabric_ca_image_tag: 1.5.15
+    fabric_ca_image_tag: 1.5.19
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
     # Sets the in-container client config root.
@@ -601,10 +662,14 @@ Reenrolls an existing identity with a transient Fabric CA client container. Refr
   vars:
     # Sets the MSP directory used by Fabric CA client flows and MSP normalization. Example: `/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp`.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
-    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `peer0.org1.example.com`.
-    fabric_ca_identity:peer0.org1.example.com
-    # Names the inventory host that provides the target Fabric CA server. Example: `ca-org1`.
-    fabric_ca_host: "ca-org1"
+    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `{'name': 'peer0', 'secret': 'peer0PWD', 'type': 'peer', 'affiliation': 'org1.department1', 'attrs': {'hf.Revoker': 'true'}}`.
+    fabric_ca_identity:
+      name: "peer0"
+      secret: "peer0PWD"
+      type: "peer"
+      affiliation: "org1.department1"
+      attrs:
+        hf.Revoker: "true"
     # Sets the Fabric CA image.
     fabric_ca_image: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
     # Sets the registry endpoint used to resolve the Fabric CA image.
@@ -612,7 +677,7 @@ Reenrolls an existing identity with a transient Fabric CA client container. Refr
     # Sets the Fabric CA image name.
     fabric_ca_image_name: fabric-ca
     # Sets the Fabric CA image tag.
-    fabric_ca_image_tag: 1.5.15
+    fabric_ca_image_tag: 1.5.19
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
     # Sets the in-container client config root.
@@ -623,8 +688,6 @@ Reenrolls an existing identity with a transient Fabric CA client container. Refr
     fabric_ca_name: "{{ inventory_hostname }}"
     # Sets an optional enrollment profile such as `tls`. Example: `tls`.
     fabric_ca_enrollment_profile: "tls"
-    # Real machine host. Example: `myvpc.cloud.ibm.com`.
-    actual_host: "myvpc.cloud.ibm.com"
     # Sets the CSR SAN host list.
     fabric_ca_csr_hosts:
       - "{{ ansible_host }}"
@@ -650,8 +713,6 @@ Lists identities registered in the target Fabric CA server with a transient clie
   vars:
     # Sets the MSP directory used by Fabric CA client flows and MSP normalization. Example: `/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp`.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
-    # Names the inventory host that provides the target Fabric CA server. Example: `ca-org1`.
-    fabric_ca_host: "ca-org1"
     # Sets the Fabric CA image.
     fabric_ca_image: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
     # Sets the registry endpoint used to resolve the Fabric CA image.
@@ -659,7 +720,7 @@ Lists identities registered in the target Fabric CA server with a transient clie
     # Sets the Fabric CA image name.
     fabric_ca_image_name: fabric-ca
     # Sets the Fabric CA image tag.
-    fabric_ca_image_tag: 1.5.15
+    fabric_ca_image_tag: 1.5.19
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
     # Sets the in-container client config root.
@@ -688,10 +749,14 @@ Revokes an enrolled identity with a transient Fabric CA client container. Uses t
   vars:
     # Sets the MSP directory used by Fabric CA client flows and MSP normalization. Example: `/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp`.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
-    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `peer0.org1.example.com`.
-    fabric_ca_identity:peer0.org1.example.com
-    # Names the inventory host that provides the target Fabric CA server. Example: `ca-org1`.
-    fabric_ca_host: "ca-org1"
+    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault. Example: `{'name': 'peer0', 'secret': 'peer0PWD', 'type': 'peer', 'affiliation': 'org1.department1', 'attrs': {'hf.Revoker': 'true'}}`.
+    fabric_ca_identity:
+      name: "peer0"
+      secret: "peer0PWD"
+      type: "peer"
+      affiliation: "org1.department1"
+      attrs:
+        hf.Revoker: "true"
     # Sets the Fabric CA image.
     fabric_ca_image: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
     # Sets the registry endpoint used to resolve the Fabric CA image.
@@ -699,7 +764,7 @@ Revokes an enrolled identity with a transient Fabric CA client container. Uses t
     # Sets the Fabric CA image name.
     fabric_ca_image_name: fabric-ca
     # Sets the Fabric CA image tag.
-    fabric_ca_image_tag: 1.5.15
+    fabric_ca_image_tag: 1.5.19
     # Sets the in-container client config root.
     fabric_ca_client_container_config_dir: /config
     # Sets the client URL scheme.
@@ -726,8 +791,6 @@ Generates a certificate revocation list from the target Fabric CA server with a 
   vars:
     # Sets the MSP directory used by Fabric CA client flows and MSP normalization. Example: `/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp`.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
-    # Names the inventory host that provides the target Fabric CA server. Example: `ca-org1`.
-    fabric_ca_host: "ca-org1"
     # Sets the Fabric CA image.
     fabric_ca_image: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
     # Sets the registry endpoint used to resolve the Fabric CA image.
@@ -735,7 +798,7 @@ Generates a certificate revocation list from the target Fabric CA server with a 
     # Sets the Fabric CA image name.
     fabric_ca_image_name: fabric-ca
     # Sets the Fabric CA image tag.
-    fabric_ca_image_tag: 1.5.15
+    fabric_ca_image_tag: 1.5.19
     # Sets the in-container client config root.
     fabric_ca_client_container_config_dir: /config
     # Sets the client URL scheme.
@@ -786,6 +849,10 @@ Dispatches Fabric CA server stop to the binary or container runtime. Stops local
     fabric_ca_server_use_container: "{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) and (not fabric_ca_server_use_openshift) }}"
     # Uses the binary server flow instead of container or Kubernetes.
     fabric_ca_server_use_bin: false
+    # Uses the Kubernetes server flow instead of the local runtimes.
+    fabric_ca_server_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    fabric_ca_server_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/stop
@@ -887,7 +954,7 @@ Builds the Fabric CA server binary from the configured Fabric CA Git source revi
     # Sets the Fabric CA source repository.
     fabric_ca_git_repo: hyperledger/fabric-ca
     # Pins the Fabric CA source revision.
-    fabric_ca_git_commit: v1.5.15
+    fabric_ca_git_commit: v1.5.19
     # Sets the server binary name.
     fabric_ca_server_bin_name: fabric-ca-server
     # Sets the Go package path used to build the server binary.
@@ -917,7 +984,7 @@ Installs the Fabric CA server binary directly on the managed host with Go toolin
     # Sets the Go package path used to build the server binary.
     fabric_ca_server_source_code_package: cmd/fabric-ca-server
     # Pins the Fabric CA source revision.
-    fabric_ca_git_commit: v1.5.15
+    fabric_ca_git_commit: v1.5.19
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/bin/install
@@ -1025,7 +1092,7 @@ Starts the Fabric CA server as a managed container. Mounts rendered configuratio
     # Sets the Fabric CA image name.
     fabric_ca_image_name: fabric-ca
     # Sets the Fabric CA image tag.
-    fabric_ca_image_tag: 1.5.15
+    fabric_ca_image_tag: 1.5.19
     # Sets the Fabric CA API port. Example: `7054`.
     fabric_ca_port: 7054
     # Sets the Fabric CA operations port. Example: `9443`.
@@ -1105,7 +1172,7 @@ Creates Fabric CA Kubernetes runtime resources for the server. Uses the ConfigMa
     # Sets the Fabric CA image name.
     fabric_ca_image_name: fabric-ca
     # Sets the Fabric CA image tag.
-    fabric_ca_image_tag: 1.5.15
+    fabric_ca_image_tag: 1.5.19
     # Sets the in-container Fabric CA config root.
     fabric_ca_server_container_config_dir: /config
     # Sets the Fabric CA API port. Example: `7054`.
@@ -1114,9 +1181,9 @@ Creates Fabric CA Kubernetes runtime resources for the server. Uses the ConfigMa
     fabric_ca_operations_port: 9443
     # Sets the pod fsGroup for the Fabric CA deployment.
     fabric_ca_server_k8s_fs_group: 0
-    # Sets the server CA private key filename.
-    fabric_ca_server_ca_private_key_file: ca-key.pem
-    # Sets the server CA certificate filename.
+    # Sets the server CA private key path, relative to the Fabric CA config root.
+    fabric_ca_server_ca_private_key_file: priv_sk
+    # Sets the server CA certificate path, relative to the Fabric CA config root.
     fabric_ca_server_ca_cert_file: ca-cert.pem
     # Enables TLS for server and client connections.
     fabric_ca_use_tls: false
@@ -1138,6 +1205,23 @@ Creates Fabric CA Kubernetes runtime resources for the server. Uses the ConfigMa
     fabric_ca_server_k8s_loadbalancer_expose_port: false
     # Set to `true` to create a LoadBalancer Service entry that exposes the operations port externally. When undefined or `false`, the operations port is not included in the LoadBalancer Service.
     fabric_ca_server_k8s_loadbalancer_expose_operations_port: false
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
+    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'fabric_ca_host': 'fca-org1', 'role': 'peer', 'peer': {'name': 'peer0', 'secret': 'peer0PWD'}}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      fabric_ca_host: "fca-org1"
+      role: "peer"
+      peer:
+        name: "peer0"
+        secret: "peer0PWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/k8s/start
@@ -1180,8 +1264,6 @@ Collects pod logs for the Fabric CA Kubernetes deployment. Fetches runtime outpu
   vars:
     # Sets the Kubernetes resource name for the Fabric CA server and its Service resources.
     fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Fabric CA server resources.
-    fabric_ca_server_k8s_part_of: "fabric-ca-{{ organization.name }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/k8s/fetch_logs
@@ -1198,8 +1280,6 @@ Deletes the Fabric CA Kubernetes runtime resources. Removes Deployment and Servi
   vars:
     # Sets the Kubernetes resource name for the Fabric CA server and its Service resources.
     fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Fabric CA server resources.
-    fabric_ca_server_k8s_part_of: "fabric-ca-{{ organization.name }}"
     # Provides the Kubernetes namespace from the shared inventory. Example: `fabricx`.
     k8s_namespace: "fabricx"
     # Kubernetes NodePort value used by the external API Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30054`.
@@ -1236,6 +1316,15 @@ Creates or updates the Fabric CA Kubernetes ConfigMap from rendered server confi
     postgres_db_host: "postgres0.example.com"
     # Provides the Kubernetes namespace from the shared inventory. Example: `fabricx`.
     k8s_namespace: "fabricx"
+    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'fabric_ca_host': 'fca-org1', 'role': 'peer', 'peer': {'name': 'peer0', 'secret': 'peer0PWD'}}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      fabric_ca_host: "fca-org1"
+      role: "peer"
+      peer:
+        name: "peer0"
+        secret: "peer0PWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/k8s/config/transfer
@@ -1252,8 +1341,6 @@ Deletes the Fabric CA Kubernetes ConfigMap. Removes Kubernetes config resources 
   vars:
     # Sets the Kubernetes resource name for the Fabric CA server and its Service resources.
     fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Fabric CA server resources.
-    fabric_ca_server_k8s_part_of: "fabric-ca-{{ organization.name }}"
     # Provides the Kubernetes namespace from the shared inventory. Example: `fabricx`.
     k8s_namespace: "fabricx"
   ansible.builtin.include_role:
@@ -1278,9 +1365,9 @@ Creates or updates the Fabric CA Kubernetes Secret containing server crypto mate
     fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Fabric CA server resources.
     fabric_ca_server_k8s_part_of: "fabric-ca-{{ organization.name }}"
-    # Sets the server CA private key filename.
-    fabric_ca_server_ca_private_key_file: ca-key.pem
-    # Sets the server CA certificate filename.
+    # Sets the server CA private key path, relative to the Fabric CA config root.
+    fabric_ca_server_ca_private_key_file: priv_sk
+    # Sets the server CA certificate path, relative to the Fabric CA config root.
     fabric_ca_server_ca_cert_file: ca-cert.pem
     # Sets the server TLS private key filename.
     fabric_ca_server_tls_private_key_file: tls-key.pem
@@ -1290,6 +1377,15 @@ Creates or updates the Fabric CA Kubernetes Secret containing server crypto mate
     fabric_ca_use_tls: false
     # Provides the Kubernetes namespace from the shared inventory. Example: `fabricx`.
     k8s_namespace: "fabricx"
+    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'fabric_ca_host': 'fca-org1', 'role': 'peer', 'peer': {'name': 'peer0', 'secret': 'peer0PWD'}}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      fabric_ca_host: "fca-org1"
+      role: "peer"
+      peer:
+        name: "peer0"
+        secret: "peer0PWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/k8s/crypto/transfer
@@ -1306,8 +1402,6 @@ Deletes the Fabric CA Kubernetes Secret. Removes server CA and TLS key material 
   vars:
     # Sets the Kubernetes resource name for the Fabric CA server and its Service resources.
     fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Fabric CA server resources.
-    fabric_ca_server_k8s_part_of: "fabric-ca-{{ organization.name }}"
     # Provides the Kubernetes namespace from the shared inventory. Example: `fabricx`.
     k8s_namespace: "fabricx"
   ansible.builtin.include_role:
@@ -1348,9 +1442,9 @@ Generates the Fabric CA root CA and TLS keypairs. Writes private keys and certif
     remote_config_dir: "/var/hyperledger/fabricx/fabric-ca/ca-org1/config"
     # Real machine host. Example: `myvpc.cloud.ibm.com`.
     actual_host: "myvpc.cloud.ibm.com"
-    # Sets the server CA private key filename.
-    fabric_ca_server_ca_private_key_file: ca-key.pem
-    # Sets the server CA certificate filename.
+    # Sets the server CA private key path, relative to the Fabric CA config root.
+    fabric_ca_server_ca_private_key_file: priv_sk
+    # Sets the server CA certificate path, relative to the Fabric CA config root.
     fabric_ca_server_ca_cert_file: ca-cert.pem
     # Sets the server TLS private key filename.
     fabric_ca_server_tls_private_key_file: tls-key.pem
@@ -1360,6 +1454,8 @@ Generates the Fabric CA root CA and TLS keypairs. Writes private keys and certif
     fabric_ca_server_openssl_curve: P-256
     # Sets the CSR common name.
     fabric_ca_csr_cn: "{{ fabric_ca_name }}"
+    # Sets the CA name.
+    fabric_ca_name: "{{ inventory_hostname }}"
     # Sets the CSR SAN host list.
     fabric_ca_csr_hosts:
       - "{{ ansible_host }}"
@@ -1367,8 +1463,15 @@ Generates the Fabric CA root CA and TLS keypairs. Writes private keys and certif
       - "{{ inventory_hostname }}"
     # Matches IPv4 SAN entries while splitting Fabric CA CSR hosts into IP and DNS names. Example: `^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$`
     openssl_san_ipv4_regex: "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"
-    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `org1.example.com`.
-    organization:org1.example.com
+    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'fabric_ca_host': 'fca-org1', 'role': 'peer', 'peer': {'name': 'peer0', 'secret': 'peer0PWD'}}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      fabric_ca_host: "fca-org1"
+      role: "peer"
+      peer:
+        name: "peer0"
+        secret: "peer0PWD"
     # Specifies the OpenShift Route host. Example: `fabric-ca.apps.example.com`.
     fabric_ca_server_openshift_route: "fabric-ca.apps.example.com"
     # Specifies the OpenShift Route host. Example: `fabric-ca-operations.apps.example.com`.
@@ -1407,15 +1510,22 @@ Fetches the Fabric CA server certificate material. Copies CA certificates from t
 ```yaml
 - name: Fetch server certificates
   vars:
-    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `org1.example.com`.
-    organization:org1.example.com
+    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'fabric_ca_host': 'fca-org1', 'role': 'peer', 'peer': {'name': 'peer0', 'secret': 'peer0PWD'}}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      fabric_ca_host: "fca-org1"
+      role: "peer"
+      peer:
+        name: "peer0"
+        secret: "peer0PWD"
     # Provides the shared local artifacts root used by this role. Example: `/tmp/fabricx/fetched-artifacts`.
     fetched_artifacts_dir: "/tmp/fabricx/fetched-artifacts"
     # Sets the remote Fabric CA config root.
     fabric_ca_server_remote_config_dir: "{{ remote_config_dir }}"
     # Provides the shared remote configuration root used by this role. Example: `/var/hyperledger/fabricx/fabric-ca/ca-org1/config`.
     remote_config_dir: "/var/hyperledger/fabricx/fabric-ca/ca-org1/config"
-    # Sets the server CA certificate filename.
+    # Sets the server CA certificate path, relative to the Fabric CA config root.
     fabric_ca_server_ca_cert_file: ca-cert.pem
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
@@ -1471,12 +1581,20 @@ Renders and transfers the Fabric CA server configuration. Includes bootstrap adm
     fabric_ca_server_tls_private_key_file: tls-key.pem
     # Sets the CA name.
     fabric_ca_name: "{{ inventory_hostname }}"
-    # Sets the server CA private key filename.
-    fabric_ca_server_ca_private_key_file: ca-key.pem
-    # Sets the server CA certificate filename.
+    # Sets the server CA private key path, relative to the Fabric CA config root.
+    fabric_ca_server_ca_private_key_file: priv_sk
+    # Sets the server CA certificate path, relative to the Fabric CA config root.
     fabric_ca_server_ca_cert_file: ca-cert.pem
-    # Supplies the bootstrap administrator rendered into the server registry section; `name` and `secret` are required. Store the secret in Ansible Vault. Example: `admin`.
-    fabric_ca_admin:admin
+    # Supplies the bootstrap administrator rendered into the server registry section; `name` and `secret` are required. Store the secret in Ansible Vault. Example: `{'name': 'admin', 'secret': 'adminPWD', 'attrs': {'hf.Registrar.Roles': '*', 'hf.Registrar.Attributes': '*'}}`.
+    fabric_ca_admin:
+      name: "admin"
+      secret: "adminPWD"
+      attrs:
+        hf.Registrar.Roles: "*"
+        hf.Registrar.Attributes: "*"
+    # Lists additional identities rendered into the server registry section for startup registration. Each identity uses `name`, `secret`, `type`, optional `affiliation`, and optional `attrs`.
+    fabric_ca_registry_identities:
+
     # Sets the CSR common name.
     fabric_ca_csr_cn: "{{ fabric_ca_name }}"
     # Sets the CSR SAN host list.
@@ -1484,12 +1602,17 @@ Renders and transfers the Fabric CA server configuration. Includes bootstrap adm
       - "{{ ansible_host }}"
       - "{{ actual_host }}"
       - "{{ inventory_hostname }}"
-    # Real machine host. Example: `myvpc.cloud.ibm.com`.
-    actual_host: "myvpc.cloud.ibm.com"
     # Sets the CSR expiry.
     fabric_ca_csr_expiry: 131400h
-    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `org1.example.com`.
-    organization:org1.example.com
+    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'fabric_ca_host': 'fca-org1', 'role': 'peer', 'peer': {'name': 'peer0', 'secret': 'peer0PWD'}}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      fabric_ca_host: "fca-org1"
+      role: "peer"
+      peer:
+        name: "peer0"
+        secret: "peer0PWD"
     # Names the PostgreSQL host defined elsewhere in inventory. Example: `postgres0.example.com`.
     postgres_db_host: "postgres0.example.com"
     # Provides the shared local artifacts root used by this role. Example: `/tmp/fabricx/fetched-artifacts`.
@@ -1542,8 +1665,15 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     fabric_ca_server_k8s_part_of: "fabric-ca-{{ organization.name }}"
     # Enables TLS for server and client connections.
     fabric_ca_use_tls: false
-    # Provides the Kubernetes namespace from the shared inventory. Example: `fabricx`.
-    k8s_namespace: "fabricx"
+    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'fabric_ca_host': 'fca-org1', 'role': 'peer', 'peer': {'name': 'peer0', 'secret': 'peer0PWD'}}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      fabric_ca_host: "fca-org1"
+      role: "peer"
+      peer:
+        name: "peer0"
+        secret: "peer0PWD"
     # Specifies the OpenShift Route host. Example: `fabric-ca.apps.example.com`.
     fabric_ca_server_openshift_route: "fabric-ca.apps.example.com"
     # Specifies the OpenShift Route host. Example: `fabric-ca-operations.apps.example.com`.
@@ -1584,10 +1714,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Sets the Kubernetes resource name for the Fabric CA server and its Service resources.
     fabric_ca_server_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Fabric CA server resources.
-    fabric_ca_server_k8s_part_of: "fabric-ca-{{ organization.name }}"
-    # Provides the Kubernetes namespace from the shared inventory. Example: `fabricx`.
-    k8s_namespace: "fabricx"
     # Specifies the OpenShift Route host. Example: `fabric-ca.apps.example.com`.
     fabric_ca_server_openshift_route: "fabric-ca.apps.example.com"
     # Specifies the OpenShift Route host. Example: `fabric-ca-operations.apps.example.com`.

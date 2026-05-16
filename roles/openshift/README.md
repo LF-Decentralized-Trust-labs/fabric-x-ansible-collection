@@ -10,6 +10,7 @@
   - [route/apply](#routeapply)
   - [route/rm](#routerm)
   - [route/ping](#routeping)
+  - [route/setup\_on\_macos](#routesetup_on_macos)
   - [cluster/login](#clusterlogin)
   - [cluster/service\_account\_login](#clusterservice_account_login)
 
@@ -93,6 +94,22 @@ Checks the external OpenShift Route host on port 80 or 443, depending on `opensh
     tasks_from: route/ping
 ```
 
+### route/setup_on_macos
+
+> Configure macOS hosts entries for OpenShift routes
+
+Discovers OpenShift Route hostnames from the current inventory and maps them to the control node's default IPv4 address in `/etc/hosts`. Intended for local CRC deployments on macOS where route DNS resolves to `127.0.0.1` but containerized clients need a non-loopback host address. Requires privilege escalation because `/etc/hosts` is owned by root.
+
+```yaml
+- name: Configure macOS hosts entries for OpenShift routes
+  vars:
+    # Path to the hosts file updated by the macOS OpenShift Route helper.
+    openshift_hosts_file_path: /etc/hosts
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/setup_on_macos
+```
+
 ### cluster/login
 
 > Login to a managed OpenShift cluster with a personal token
@@ -120,6 +137,8 @@ Mints a service-account token and logs in to a managed OpenShift cluster. Select
 ```yaml
 - name: Login to a managed OpenShift cluster with a service account
   vars:
+    # Specifies the namespace targeted by the OpenShift resource. Example: `fabric-x`.
+    k8s_namespace: "fabric-x"
     # OpenShift cluster API server URL for login Required for managed OpenShift cluster login Example: `https://api.cluster.example.com:6443`
     openshift_cluster_login_server: "https://api.cluster.example.com:6443"
     # OpenShift namespace/project to use

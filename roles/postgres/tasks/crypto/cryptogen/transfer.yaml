@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# =========================
+# TLS certs
+# =========================
 - name: Ensure PostgresDB config directory exists
   ansible.builtin.file:
     path: "{{ postgres_remote_config_dir }}/tls"

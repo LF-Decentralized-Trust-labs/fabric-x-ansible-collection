@@ -10,7 +10,7 @@
     api_version: apps/v1
     kind: StatefulSet
     name: "{{ prometheus_k8s_resource_name }}"
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
 
 - name: Delete Prometheus headless Service
   kubernetes.core.k8s:
@@ -18,7 +18,7 @@
     api_version: v1
     kind: Service
     name: "{{ prometheus_k8s_resource_name }}"
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
 
 - name: Delete Prometheus NodePort Service
   kubernetes.core.k8s:
@@ -26,7 +26,7 @@
     api_version: v1
     kind: Service
     name: "{{ prometheus_k8s_resource_name }}-nodeport"
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
   when: prometheus_k8s_node_port is defined
 
 - name: Delete Prometheus LoadBalancer Service
@@ -35,7 +35,7 @@
     api_version: v1
     kind: Service
     name: "{{ prometheus_k8s_resource_name }}-loadbalancer"
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
   when: prometheus_k8s_loadbalancer_expose_http_port
 
 - name: Detect whether any scrape service uses kubernetes_sd_configs

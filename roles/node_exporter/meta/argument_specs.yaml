@@ -25,10 +25,9 @@ argument_specs:
         description:
           - Provides organization data used to build the OpenSSL subject.
           - When organization data does not define a domain value, the inventory hostname is used instead.
-          - "Example: C(domain=node-exporter.example.org, common_name=node-exporter, organization=Example Org)."
+          - "Example: C({'domain': 'node-exporter.example.org', 'common_name': 'node-exporter.example.org', 'organization_name': 'Example Org'})."
       k8s_namespace: &k8s_namespace
         type: str
-        required: true
         description:
           - Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
           - Required when C(node_exporter_use_k8s) is true.
@@ -90,6 +89,11 @@ argument_specs:
           - Overrides the DaemonSet liveness probe failure threshold.
           - The template defaults to 5 failures.
           - "Example: C(5)."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
       node_exporter_registry_endpoint: &node_exporter_registry_endpoint
         type: str
         default: "{{ lookup('env', 'NODE_EXPORTER_REGISTRY_ENDPOINT') or 'docker.io/prom' }}"
@@ -130,11 +134,6 @@ argument_specs:
         default: web-config.yaml
         description:
           - Sets the rendered Node Exporter web configuration filename.
-      node_exporter_root_fs_flags: &node_exporter_root_fs_flags
-        type: str
-        default: ro,rslave
-        description:
-          - Sets the host root filesystem mount flags used by the container runtime path.
       node_exporter_use_tls: &node_exporter_use_tls
         type: bool
         default: false
@@ -206,12 +205,18 @@ argument_specs:
         description:
           - Lists the inventory hosts exposed as Prometheus scrape targets.
           - "Example: C(['worker-1', 'worker-2', 'worker-3'])."
-
       node_exporter_use_openshift: &node_exporter_use_openshift
         type: bool
         default: false
         description:
           - Selects the OpenShift deployment branch.
+      node_exporter_root_fs_flags: &node_exporter_root_fs_flags
+        type: str
+        default: "{{ 'ro' if ansible_facts.system == 'Darwin' else 'rslave,ro' }}"
+        description:
+          - Sets the bind-mount propagation flags for the host root filesystem volume (C(/:/host:<flags>)).
+          - On Linux the default is C(rslave,ro), required for Docker bind-mount propagation.
+          - On macOS, Docker Desktop with VirtioFS does not support C(rslave), so C(ro) is used instead.
       node_exporter_openshift_route: &node_exporter_openshift_route
         type: str
         description:
@@ -235,6 +240,8 @@ argument_specs:
       - Kubernetes deployments use C(teardown) instead of this entry point.
     options:
       node_exporter_use_container: *node_exporter_use_container
+      node_exporter_use_k8s: *node_exporter_use_k8s
+      node_exporter_use_openshift: *node_exporter_use_openshift
 
   teardown:
     short_description: Remove Node Exporter runtime resources
@@ -380,8 +387,8 @@ argument_specs:
       node_exporter_remote_config_dir: *node_exporter_remote_config_dir
       node_exporter_container_config_dir: *node_exporter_container_config_dir
       node_exporter_web_config_file: *node_exporter_web_config_file
-      node_exporter_root_fs_flags: *node_exporter_root_fs_flags
       node_exporter_use_tls: *node_exporter_use_tls
+      node_exporter_root_fs_flags: *node_exporter_root_fs_flags
 
   container/stop:
     short_description: Stop the Node Exporter container
@@ -448,6 +455,7 @@ argument_specs:
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
       node_exporter_k8s_loadbalancer_expose_metrics_port: *node_exporter_k8s_loadbalancer_expose_metrics_port
       node_exporter_k8s_run_as_user: *node_exporter_k8s_run_as_user
+      k8s_resources: *k8s_resources
 
   k8s/ping:
     short_description: Check that Node Exporter Kubernetes service is reachable
@@ -465,7 +473,6 @@ argument_specs:
       - Targets the workload by C(k8s_namespace) and C(node_exporter_k8s_resource_name).
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
-      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
       k8s_namespace: *k8s_namespace
       node_exporter_k8s_node_port: *node_exporter_k8s_node_port
       node_exporter_k8s_loadbalancer_expose_metrics_port: *node_exporter_k8s_loadbalancer_expose_metrics_port
@@ -477,7 +484,6 @@ argument_specs:
       - This is the Kubernetes-mode log path used by the top-level fetch_logs entry point.
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
-      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
 
   k8s/config/transfer:
     short_description: Apply the Node Exporter Kubernetes ConfigMap
@@ -500,7 +506,6 @@ argument_specs:
       - Keeps the namespace and runtime pods untouched so teardown can be handled separately.
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
-      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
       k8s_namespace: *k8s_namespace
 
   k8s/crypto/transfer:
@@ -525,7 +530,6 @@ argument_specs:
       - Targets the Secret named after C(node_exporter_k8s_resource_name).
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
-      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
       k8s_namespace: *k8s_namespace
 
   prometheus/get_scrapers:
@@ -546,7 +550,6 @@ argument_specs:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
       node_exporter_k8s_part_of: *node_exporter_k8s_part_of
       node_exporter_use_tls: *node_exporter_use_tls
-      k8s_namespace: *k8s_namespace
       node_exporter_openshift_route: *node_exporter_openshift_route
 
   openshift/ping:
@@ -563,6 +566,4 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
-      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
-      k8s_namespace: *k8s_namespace
       node_exporter_openshift_route: *node_exporter_openshift_route

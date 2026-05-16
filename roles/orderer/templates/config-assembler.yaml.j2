@@ -10,13 +10,18 @@
 
 {% include './sections/filestore.yaml.j2' +%}
 
+{% include './sections/operations.yaml.j2' +%}
+
+{% include './sections/metrics.yaml.j2' +%}
+
 # ---------------------------------------------------------------------------
 # Hyperledger Fabric-X Assembler settings
 # ---------------------------------------------------------------------------
 Assembler:
   # The size of the buffer that is used to store prefetched batches from the Batchers.
-  PrefetchBufferMemoryBytes: 1073741824
-  RestartLedgerScanTimeout: 5s
-  PrefetchEvictionTtl: 1h0m0s
-  ReplicationChannelSize: 100
-  BatchRequestsChannelSize: 1000
+  PrefetchBufferMemoryBytes: {{ orderer_assembler_prefetch_buffer_memory_bytes | default(1073741824) }}
+  RestartLedgerScanTimeout: {{ orderer_assembler_restart_ledger_scan_timeout | default('5s') }}
+  PrefetchEvictionTtl: {{ orderer_assembler_prefetch_eviction_ttl | default('1h') }}
+  PopWaitMonitorTimeout: {{ orderer_assembler_pop_wait_monitor_timeout | default('1s') }}
+  ReplicationChannelSize: {{ orderer_assembler_replication_channel_size | default(100) }}
+  BatchRequestsChannelSize: {{ orderer_assembler_batch_requests_channel_size | default(1000) }}

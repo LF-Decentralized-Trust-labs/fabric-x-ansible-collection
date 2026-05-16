@@ -56,6 +56,8 @@ Copy generated MSP directories for orderer and peer organizations into the fetch
   vars:
     # Sets the base directory for generated configuration artifacts. Example: `/opt/hyperledger/fabricx/build`.
     config_build_dir: "/opt/hyperledger/fabricx/build"
+    # Sets the directory that stores cryptogen inputs and generated files.
+    cryptogen_artifacts_dir: "{{ config_build_dir }}/cryptogen-artifacts"
     # Sets the destination directory for fetched MSP folders. Example: `/opt/hyperledger/fabricx/build/fetched-artifacts`.
     fetched_artifacts_dir: "/opt/hyperledger/fabricx/build/fetched-artifacts"
     # Sets the directory where cryptogen writes generated crypto material.
@@ -113,7 +115,7 @@ Clean the output directory and run the cryptogen CLI in a container. The contain
     # Sets the cryptogen image name.
     cryptogen_image_name: fabric-x-tools
     # Sets the cryptogen image tag.
-    cryptogen_image_tag: 0.0.8
+    cryptogen_image_tag: 0.0.16
     # Sets the full cryptogen image reference.
     cryptogen_image: "{{ cryptogen_registry_endpoint }}/{{ cryptogen_image_name }}:{{ cryptogen_image_tag }}"
     # Sets the container name used for the cryptogen run.
@@ -149,7 +151,7 @@ Install the cryptogen binary through `hyperledger.fabricx.bin`. This entry point
     # Sets the cryptogen source repository path.
     cryptogen_git_repo: hyperledger/fabric-x
     # Pins the cryptogen source revision.
-    cryptogen_git_commit: v0.0.8
+    cryptogen_git_commit: v0.0.16
     # Sets the Go package path that contains the cryptogen source.
     cryptogen_source_code_package: tools/cryptogen
     # Sets the Go package path used to install cryptogen.
@@ -177,7 +179,7 @@ Build the cryptogen binary from the configured source repository through `hyperl
     # Sets the cryptogen source repository path.
     cryptogen_git_repo: hyperledger/fabric-x
     # Pins the cryptogen source revision.
-    cryptogen_git_commit: v0.0.8
+    cryptogen_git_commit: v0.0.16
     # Sets the Go package path that contains the cryptogen source.
     cryptogen_source_code_package: tools/cryptogen
   ansible.builtin.include_role:

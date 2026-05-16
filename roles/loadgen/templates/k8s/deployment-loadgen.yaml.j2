@@ -8,7 +8,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ loadgen_k8s_resource_name }}
-  namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ loadgen_k8s_resource_name }}
     app.kubernetes.io/component: loadgen
@@ -30,13 +29,14 @@ spec:
       containers:
         - name: loadgen
           image: {{ loadgen_image }}
+{% if k8s_resources is defined and k8s_resources %}
+          resources:
+{{ k8s_resources | to_nice_yaml(indent=2) | indent(12, true) }}
+{% endif %}
           args:
             - "start"
             - "--config={{ loadgen_container_config_dir }}/{{ loadgen_config_file }}"
           ports:
-            - name: web
-              containerPort: {{ loadgen_web_port }}
-              protocol: TCP
             - name: metrics
               containerPort: {{ loadgen_metrics_port }}
               protocol: TCP
@@ -55,7 +55,7 @@ spec:
               readOnly: true
             # Peer MSP signing certificate (Fabric CA).
             - name: secret
-              mountPath: {{ loadgen_container_config_dir }}/msp/signcerts/cert.pem
+              mountPath: {{ loadgen_container_config_dir }}/msp/signcerts/{{ loadgen_crypto_name }}.{{ organization.domain }}-cert.pem
               subPath: msp-signcert.pem
               readOnly: true
             # Peer MSP CA certificate.
@@ -75,19 +75,11 @@ spec:
               mountPath: {{ loadgen_container_config_dir }}/users/{{ user.name }}@{{ organization.domain }}/msp/keystore/priv_sk
               subPath: user-{{ user.name }}-msp-keystore-priv-sk
               readOnly: true
-{% if organization.fabric_ca_host is defined %}
-            # MSP signing certificate for user {{ user.name }} (Fabric CA).
-            - name: secret
-              mountPath: {{ loadgen_container_config_dir }}/users/{{ user.name }}@{{ organization.domain }}/msp/signcerts/cert.pem
-              subPath: user-{{ user.name }}-msp-signcert.pem
-              readOnly: true
-{% else %}
-            # MSP signing certificate for user {{ user.name }} (cryptogen).
+            # MSP signing certificate for user {{ user.name }}.
             - name: secret
               mountPath: {{ loadgen_container_config_dir }}/users/{{ user.name }}@{{ organization.domain }}/msp/signcerts/{{ user.name }}@{{ organization.domain }}-cert.pem
               subPath: user-{{ user.name }}-msp-signcert.pem
               readOnly: true
-{% endif %}
             # MSP CA certificate for user {{ user.name }}.
             - name: secret
               mountPath: {{ loadgen_container_config_dir }}/users/{{ user.name }}@{{ organization.domain }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem
@@ -152,36 +144,11 @@ spec:
 {% endif %}
 {% endfor %}
 {% endif %}
-{% for current_orderer_router in orderer_router_hosts %}
-{% if hostvars[current_orderer_router].orderer_use_tls is defined and hostvars[current_orderer_router].orderer_use_tls %}
-            # TLS CA certificate for orderer router {{ current_orderer_router }}.
+            # Config block for orderer endpoint and TLS credential discovery.
             - name: config
-              mountPath: {{ loadgen_container_config_dir }}/tls/orderers/{{ current_orderer_router }}/ca.crt
-              subPath: tls-orderers-{{ current_orderer_router }}-ca.crt
+              mountPath: {{ loadgen_container_config_dir }}/{{ loadgen_config_block_file }}
+              subPath: config-block.pb.bin
               readOnly: true
-            # TLS server certificate for orderer router {{ current_orderer_router }}.
-            - name: config
-              mountPath: {{ loadgen_container_config_dir }}/tls/orderers/{{ current_orderer_router }}/server.crt
-              subPath: tls-orderers-{{ current_orderer_router }}-server.crt
-              readOnly: true
-{% endif %}
-{% endfor %}
-{% if orderer_assembler_hosts is defined %}
-{% for current_orderer_assembler in orderer_assembler_hosts %}
-{% if hostvars[current_orderer_assembler].orderer_use_tls is defined and hostvars[current_orderer_assembler].orderer_use_tls %}
-            # TLS CA certificate for orderer assembler {{ current_orderer_assembler }}.
-            - name: config
-              mountPath: {{ loadgen_container_config_dir }}/tls/orderers/{{ current_orderer_assembler }}/ca.crt
-              subPath: tls-orderers-{{ current_orderer_assembler }}-ca.crt
-              readOnly: true
-            # TLS server certificate for orderer assembler {{ current_orderer_assembler }}.
-            - name: config
-              mountPath: {{ loadgen_container_config_dir }}/tls/orderers/{{ current_orderer_assembler }}/server.crt
-              subPath: tls-orderers-{{ current_orderer_assembler }}-server.crt
-              readOnly: true
-{% endif %}
-{% endfor %}
-{% endif %}
 {% if committer_sidecar_host is defined and hostvars[committer_sidecar_host].committer_use_tls is defined and hostvars[committer_sidecar_host].committer_use_tls %}
             # TLS CA certificate of the committer sidecar.
             - name: config

@@ -35,7 +35,6 @@ argument_specs:
         description:
           - Kubernetes namespace used for ElasticSearch resources.
           - "Example: C(fabricx-elasticsearch)."
-          - Set C(required) explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
       k8s_image_pull_secret: &k8s_image_pull_secret
         type: str
         description:
@@ -96,11 +95,16 @@ argument_specs:
         description:
           - Optionally overrides the liveness probe failure threshold.
           - "Example: C(3)."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
       organization: &organization
         type: dict
         description:
           - Optionally provides organization metadata used to derive the TLS certificate organization name.
-          - "Example: C({'common_name': 'elasticsearch.fabricx.example'})."
+          - "Example: C({'domain': 'observability.example.com', 'common_name': 'elasticsearch-0.observability.example.com', 'organization_name': 'Hyperledger Fabric-X'})."
       elasticsearch_registry_endpoint: &elasticsearch_registry_endpoint
         type: str
         default: "{{ lookup('env', 'ELASTICSEARCH_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
@@ -256,8 +260,7 @@ argument_specs:
     description:
       - Stops the ElasticSearch container instance without removing its data volume or configuration files.
       - Uses the container helper role internally and only applies in container mode.
-    options:
-      elasticsearch_container_name: *elasticsearch_container_name
+    options: {}
 
   teardown:
     short_description: Remove ElasticSearch runtime resources and data
@@ -365,9 +368,7 @@ argument_specs:
       elasticsearch_remote_data_dir: *elasticsearch_remote_data_dir
       remote_data_dir: *remote_data_dir
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
-      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
-      k8s_namespace:
-        <<: *k8s_namespace
+      k8s_namespace: *k8s_namespace
 
   crypto/setup:
     short_description: Prepare ElasticSearch TLS materials
@@ -423,9 +424,7 @@ argument_specs:
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
       elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
       elasticsearch_k8s_wait_timeout: *elasticsearch_k8s_wait_timeout
       elasticsearch_k8s_fs_group: *elasticsearch_k8s_fs_group
       elasticsearch_k8s_http_node_port: *elasticsearch_k8s_http_node_port
@@ -454,6 +453,7 @@ argument_specs:
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
       elasticsearch_k8s_loadbalancer_expose_http_port: *elasticsearch_k8s_loadbalancer_expose_http_port
       elasticsearch_k8s_loadbalancer_expose_transport_port: *elasticsearch_k8s_loadbalancer_expose_transport_port
+      k8s_resources: *k8s_resources
 
   k8s/ping:
     short_description: Check ElasticSearch Kubernetes services is reachable
@@ -474,10 +474,7 @@ argument_specs:
       - The persistent volume claim is removed separately by the C(data/rm) entry point so data cleanup stays explicit.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
-      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
       elasticsearch_k8s_http_node_port: *elasticsearch_k8s_http_node_port
       elasticsearch_k8s_loadbalancer_expose_http_port: *elasticsearch_k8s_loadbalancer_expose_http_port
@@ -490,10 +487,6 @@ argument_specs:
       - Selects pods using the ElasticSearch application label.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
-      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
 
   k8s/crypto/rm:
     short_description: Remove the ElasticSearch Kubernetes TLS Secret
@@ -502,10 +495,7 @@ argument_specs:
       - This entry point is typically invoked from the ElasticSearch crypto cleanup workflow after the remote certs are removed.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
-      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
   k8s/crypto/transfer:
     short_description: Apply the ElasticSearch Kubernetes TLS Secret
@@ -515,9 +505,7 @@ argument_specs:
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
       elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
       elasticsearch_use_tls: *elasticsearch_use_tls
       elasticsearch_remote_config_dir: *elasticsearch_remote_config_dir
       remote_config_dir: *remote_config_dir
@@ -532,7 +520,6 @@ argument_specs:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
       elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
       elasticsearch_use_tls: *elasticsearch_use_tls
-      k8s_namespace: *k8s_namespace
       elasticsearch_openshift_http_route: *elasticsearch_openshift_http_route
 
   openshift/ping:
@@ -549,6 +536,4 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       elasticsearch_k8s_resource_name: *elasticsearch_k8s_resource_name
-      elasticsearch_k8s_part_of: *elasticsearch_k8s_part_of
-      k8s_namespace: *k8s_namespace
       elasticsearch_openshift_http_route: *elasticsearch_openshift_http_route

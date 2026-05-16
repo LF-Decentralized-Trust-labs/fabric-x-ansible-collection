@@ -75,9 +75,6 @@ Stops the ElasticSearch container instance without removing its data volume or c
 
 ```yaml
 - name: Stop the ElasticSearch container
-  vars:
-    # Container name for the ElasticSearch instance.
-    elasticsearch_container_name: "{{ inventory_hostname }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: stop
@@ -291,9 +288,7 @@ Removes the ElasticSearch persistent data directory in container deployments. De
     remote_data_dir: "/opt/fabricx/elasticsearch/data"
     # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to ElasticSearch resources.
-    elasticsearch_k8s_part_of: monitoring
-    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
+    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`.
     k8s_namespace: "fabricx-elasticsearch"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
@@ -383,9 +378,11 @@ Generates a self-signed TLS certificate and private key for ElasticSearch on the
     elasticsearch_tls_private_key_file: server.key
     # Filename of the ElasticSearch TLS certificate under the TLS directory.
     elasticsearch_tls_cert_file: server.crt
-    # Optionally provides organization metadata used to derive the TLS certificate organization name. Example: `{'common_name': 'elasticsearch.fabricx.example'}`.
+    # Optionally provides organization metadata used to derive the TLS certificate organization name. Example: `{'domain': 'observability.example.com', 'common_name': 'elasticsearch-0.observability.example.com', 'organization_name': 'Hyperledger Fabric-X'}`.
     organization:
-      common_name: "elasticsearch.fabricx.example"
+      domain: "observability.example.com"
+      common_name: "elasticsearch-0.observability.example.com"
+      organization_name: "Hyperledger Fabric-X"
     # Specifies the OpenShift Route host. Example: `elasticsearch-http.apps.example.com`.
     elasticsearch_openshift_http_route: "elasticsearch-http.apps.example.com"
   ansible.builtin.include_role:
@@ -406,7 +403,7 @@ Ensures the Kubernetes namespace exists and applies the ElasticSearch headless S
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to ElasticSearch resources.
     elasticsearch_k8s_part_of: monitoring
-    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
+    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`.
     k8s_namespace: "fabricx-elasticsearch"
     # Timeout in seconds while waiting for the ElasticSearch StatefulSet rollout to complete.
     elasticsearch_k8s_wait_timeout: 120
@@ -464,6 +461,14 @@ Ensures the Kubernetes namespace exists and applies the ElasticSearch headless S
     elasticsearch_k8s_loadbalancer_expose_http_port: false
     # Set to `true` to create a LoadBalancer Service entry that exposes the transport port externally. When undefined or `false`, the transport port is not included in the LoadBalancer Service.
     elasticsearch_k8s_loadbalancer_expose_transport_port: false
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: k8s/start
@@ -506,9 +511,7 @@ Deletes the ElasticSearch StatefulSet and Services from Kubernetes. The persiste
   vars:
     # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to ElasticSearch resources.
-    elasticsearch_k8s_part_of: monitoring
-    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
+    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`.
     k8s_namespace: "fabricx-elasticsearch"
     # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30920`.
     elasticsearch_k8s_http_node_port: 30920
@@ -534,10 +537,6 @@ Collects logs from the ElasticSearch pod in Kubernetes and writes them to the co
   vars:
     # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to ElasticSearch resources.
-    elasticsearch_k8s_part_of: monitoring
-    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
-    k8s_namespace: "fabricx-elasticsearch"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
     tasks_from: k8s/fetch_logs
@@ -554,9 +553,7 @@ Deletes the Kubernetes Secret that stores ElasticSearch TLS materials. This entr
   vars:
     # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to ElasticSearch resources.
-    elasticsearch_k8s_part_of: monitoring
-    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
+    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`.
     k8s_namespace: "fabricx-elasticsearch"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
@@ -576,7 +573,7 @@ Applies the Kubernetes Secret that stores ElasticSearch TLS materials. Ensures t
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to ElasticSearch resources.
     elasticsearch_k8s_part_of: monitoring
-    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
+    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`.
     k8s_namespace: "fabricx-elasticsearch"
     # Enables TLS material handling and HTTPS configuration for ElasticSearch.
     elasticsearch_use_tls: false
@@ -608,8 +605,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     elasticsearch_k8s_part_of: monitoring
     # Enables TLS material handling and HTTPS configuration for ElasticSearch.
     elasticsearch_use_tls: false
-    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
-    k8s_namespace: "fabricx-elasticsearch"
     # Specifies the OpenShift Route host. Example: `elasticsearch-http.apps.example.com`.
     elasticsearch_openshift_http_route: "elasticsearch-http.apps.example.com"
   ansible.builtin.include_role:
@@ -646,10 +641,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to ElasticSearch resources.
-    elasticsearch_k8s_part_of: monitoring
-    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`. Set `required` explicitly at each entry point depending on whether Kubernetes mode is optional or mandatory there.
-    k8s_namespace: "fabricx-elasticsearch"
     # Specifies the OpenShift Route host. Example: `elasticsearch-http.apps.example.com`.
     elasticsearch_openshift_http_route: "elasticsearch-http.apps.example.com"
   ansible.builtin.include_role:

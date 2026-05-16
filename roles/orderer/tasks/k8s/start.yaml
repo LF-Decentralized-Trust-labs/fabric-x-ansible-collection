@@ -18,12 +18,14 @@
 - name: Apply Fabric-X Orderer Service
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service.yaml.j2
 
 - name: Apply Fabric-X Orderer NodePort Service
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service-nodeport.yaml.j2
   when:
@@ -33,6 +35,7 @@
 - name: Apply Fabric-X Orderer LoadBalancer Service
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service-loadbalancer.yaml.j2
   when:
@@ -42,6 +45,7 @@
 - name: Apply Fabric-X Orderer StatefulSet
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/statefulset.yaml.j2
     wait: true

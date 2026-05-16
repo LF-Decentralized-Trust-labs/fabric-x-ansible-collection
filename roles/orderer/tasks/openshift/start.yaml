@@ -31,7 +31,7 @@
     openshift_route_host: "{{ orderer_openshift_metrics_route }}"
     openshift_route_service_name: "{{ orderer_k8s_resource_name }}"
     openshift_route_service_port: metrics
-    openshift_route_use_tls: false
+    openshift_route_use_tls: "{{ orderer_operations_use_tls }}"
     openshift_route_labels:
       app.kubernetes.io/name: "{{ orderer_k8s_resource_name }}"
       app.kubernetes.io/component: "{{ orderer_component_type }}"

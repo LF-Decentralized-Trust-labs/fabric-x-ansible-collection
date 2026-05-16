@@ -4,28 +4,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Set effective loadgen metrics endpoint as OpenShift Route
+- name: Resolve effective loadgen address
   vars:
-    loadgen_openshift_metrics_route_port: "{{ 443 if loadgen_monitoring_use_tls else 80 }}"
-  ansible.builtin.set_fact:
-    loadgen_metrics_endpoint: "{{ loadgen_monitoring_http_protocol }}://{{ loadgen_openshift_metrics_route }}:{{ loadgen_openshift_metrics_route_port }}/metrics"
-  when:
-    - loadgen_use_openshift
-    - loadgen_openshift_metrics_route is defined
-
-- name: Set effective loadgen metrics endpoint as k8s NodePort
-  ansible.builtin.set_fact:
-    loadgen_metrics_endpoint: "{{ loadgen_monitoring_http_protocol }}://{{ actual_host }}:{{ loadgen_k8s_metrics_node_port }}/metrics"
-  when:
-    - loadgen_openshift_metrics_route is not defined
-    - loadgen_k8s_metrics_node_port is defined
+    loadgen_host: "{{ inventory_hostname }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: effective_address
 
 - name: Get Fabric-X Loadgen metrics
-  vars:
-    loadgen_default_metrics_endpoint: "{{ loadgen_monitoring_http_protocol }}://{{ actual_host }}:{{ loadgen_metrics_port }}/metrics"
-    loadgen_effective_metrics_endpoint: "{{ loadgen_metrics_endpoint | default(loadgen_default_metrics_endpoint) }}"
   ansible.builtin.uri:
-    url: "{{ loadgen_effective_metrics_endpoint }}"
+    url: "{{ loadgen_effective_metrics_address }}/metrics"
     validate_certs: false
     method: GET
     return_content: true
@@ -37,12 +25,12 @@
   when:
     - not loadgen_assert_metrics
 
-- name: Set the transaction latency from the Fabric-X Loadgen metrics
+- name: Set the committed transaction count from Fabric-X Loadgen metrics
   ansible.builtin.set_fact:
-    loadgen_tx_latency: >-
+    loadgen_tx_committed: >-
       {{
         loadgen_metrics.content
-        | regex_findall('loadgen_valid_transaction_latency_seconds_count\s+([0-9]+)')
+        | regex_findall('loadgen_transaction_committed_total\s+([0-9]+)')
         | default(['0'])
         | first
         | int
@@ -50,16 +38,31 @@
   when:
     - loadgen_assert_metrics
 
-- name: Assert the Fabric-X Loadgen latency metric
-  ansible.builtin.debug:
-    msg: "The transaction latency is valid (>0): {{ loadgen_tx_latency }}"
+- name: Set the aborted transaction count from Fabric-X Loadgen metrics
+  ansible.builtin.set_fact:
+    loadgen_tx_aborted: >-
+      {{
+        loadgen_metrics.content
+        | regex_findall('loadgen_transaction_aborted_total\s+([0-9]+)')
+        | default(['0'])
+        | first
+        | int
+      }}
   when:
     - loadgen_assert_metrics
-    - loadgen_tx_latency != 0
 
-- name: Assert the Fabric-X Loadgen latency metric
-  ansible.builtin.fail:
-    msg: "The transaction latency is invalid: {{ loadgen_tx_latency }}"
+- name: Assert the Fabric-X Loadgen committed transaction metric
+  ansible.builtin.debug:
+    msg:
+      - "Transactions committed (>0): {{ loadgen_tx_committed }}"
+      - "Transactions aborted: {{ loadgen_tx_aborted }}"
   when:
     - loadgen_assert_metrics
-    - loadgen_tx_latency == 0
+    - loadgen_tx_committed != 0
+
+- name: Fail if no transactions committed
+  ansible.builtin.fail:
+    msg: "No transactions committed: {{ loadgen_tx_committed }}; transactions aborted: {{ loadgen_tx_aborted }}"
+  when:
+    - loadgen_assert_metrics
+    - loadgen_tx_committed == 0

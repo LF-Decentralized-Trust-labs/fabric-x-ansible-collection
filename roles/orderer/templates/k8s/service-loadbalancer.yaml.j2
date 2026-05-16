@@ -10,7 +10,6 @@ kind: Service
 metadata:
   # LoadBalancer Service -- exposes Fabric-X Orderer outside the cluster for external clients.
   name: {{ orderer_k8s_resource_name }}-loadbalancer
-  namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ orderer_k8s_resource_name }}
     app.kubernetes.io/component: {{ orderer_component_type }}
@@ -27,6 +26,6 @@ spec:
 {% endif %}
 {% if orderer_k8s_loadbalancer_expose_metrics_port %}
     - name: metrics
-      port: {{ orderer_metrics_port }}
+      port: {{ orderer_operations_port }}
       targetPort: metrics
 {% endif %}

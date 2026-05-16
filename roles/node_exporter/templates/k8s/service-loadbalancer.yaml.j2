@@ -10,7 +10,6 @@ kind: Service
 metadata:
   # LoadBalancer Service -- exposes Node Exporter outside the cluster for external clients.
   name: {{ node_exporter_k8s_resource_name }}-loadbalancer
-  namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ node_exporter_k8s_resource_name }}
     app.kubernetes.io/component: node-exporter

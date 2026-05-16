@@ -24,10 +24,9 @@ argument_specs:
         type: dict
         description:
           - "Provides organization metadata forwarded to the OpenSSL role."
-          - "Example: C({'domain': 'org1.example.com'})."
+          - "Example: C({'domain': 'org1.example.com', 'common_name': 'postgres-exporter.org1.example.com', 'organization_name': 'Org1'})."
       k8s_namespace: &k8s_namespace
         type: str
-        required: true
         description:
           - "Sets the Kubernetes namespace used for Postgres Exporter resources."
           - "Example: C(postgres-exporter)."
@@ -80,6 +79,11 @@ argument_specs:
         description:
           - "Overrides the Deployment liveness probe failure threshold."
           - "Example: C(3)."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
       postgres_db_host: &postgres_db_host
         type: str
         required: true
@@ -236,6 +240,8 @@ argument_specs:
       - "This entry point only dispatches when C(postgres_exporter_use_container) resolves to C(true)."
     options:
       postgres_exporter_use_container: *postgres_exporter_use_container
+      postgres_exporter_use_k8s: *postgres_exporter_use_k8s
+      postgres_exporter_use_openshift: *postgres_exporter_use_openshift
 
   teardown:
     short_description: Remove Postgres Exporter runtime resources
@@ -433,6 +439,7 @@ argument_specs:
       postgres_exporter_tls_private_key_file: *postgres_exporter_tls_private_key_file
       postgres_exporter_tls_cert_file: *postgres_exporter_tls_cert_file
       postgres_exporter_k8s_loadbalancer_expose_metrics_port: *postgres_exporter_k8s_loadbalancer_expose_metrics_port
+      k8s_resources: *k8s_resources
 
   k8s/ping:
     short_description: Check that the Postgres Exporter Kubernetes service is reachable
@@ -450,7 +457,6 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
-      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
       postgres_exporter_k8s_node_port: *postgres_exporter_k8s_node_port
       postgres_exporter_k8s_loadbalancer_expose_metrics_port: *postgres_exporter_k8s_loadbalancer_expose_metrics_port
 
@@ -460,7 +466,6 @@ argument_specs:
       - "Delegates Postgres Exporter pod log collection to the shared Kubernetes role."
     options:
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
-      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
 
   k8s/config/transfer:
     short_description: Apply the Postgres Exporter ConfigMap
@@ -485,7 +490,6 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
-      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
 
   k8s/crypto/transfer:
     short_description: Apply the Postgres Exporter Secret
@@ -510,7 +514,6 @@ argument_specs:
     options:
       k8s_namespace: *k8s_namespace
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
-      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
 
   prometheus/get_scrapers:
     short_description: Build Prometheus scrape definitions for Postgres Exporter
@@ -529,7 +532,6 @@ argument_specs:
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
       postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
       postgres_exporter_use_tls: *postgres_exporter_use_tls
-      k8s_namespace: *k8s_namespace
       postgres_exporter_openshift_route: *postgres_exporter_openshift_route
 
   openshift/ping:
@@ -546,6 +548,4 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       postgres_exporter_k8s_resource_name: *postgres_exporter_k8s_resource_name
-      postgres_exporter_k8s_part_of: *postgres_exporter_k8s_part_of
-      k8s_namespace: *k8s_namespace
       postgres_exporter_openshift_route: *postgres_exporter_openshift_route

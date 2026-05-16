@@ -9,7 +9,6 @@ kind: Service
 metadata:
   # NodePort Service — exposes the orderer outside the cluster for external clients.
   name: {{ orderer_k8s_resource_name }}-nodeport
-  namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ orderer_k8s_resource_name }}
     app.kubernetes.io/component: {{ orderer_component_type }}
@@ -28,8 +27,8 @@ spec:
 {% endif %}
 {% if orderer_k8s_metrics_node_port is defined %}
     - name: metrics
-      # Optional Prometheus metrics endpoint exposed on the node.
-      port: {{ orderer_metrics_port }}
+      # Optional operations endpoint exposed on the node, including Prometheus metrics.
+      port: {{ orderer_operations_port }}
       targetPort: metrics
       nodePort: {{ orderer_k8s_metrics_node_port }}
 {% endif %}

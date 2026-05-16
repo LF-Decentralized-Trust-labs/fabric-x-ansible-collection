@@ -38,9 +38,10 @@ flowchart TD
   fabric_cas --> fabric_ca_dbs
   fabric_x --> fabric_x_orderers
   fabric_x --> fabric_x_committer
-  fabric_x_orderers --> orderer_groups["fabric_x_orderer_1..4"]
-  fabric_x_committer --> committer_services["validator, verifier, coordinator, sidecar, query service"]
-  fabric_x_committer --> committer_db["committer-db PostgreSQL"]
+  fabric_x_orderers --> fabric_x_orderer_1
+  fabric_x_orderers --> fabric_x_orderer_2
+  fabric_x_orderers --> fabric_x_orderer_3
+  fabric_x_orderers --> fabric_x_orderer_4
 ```
 
 This is the baseline local topology. Fabric CA issues identities for the orderer organizations and Org1. Fabric-X services use TLS and mTLS, while Fabric CA, PostgreSQL, load generator, and monitoring traffic use TLS where supported.

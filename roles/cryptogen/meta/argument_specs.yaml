@@ -40,7 +40,8 @@ argument_specs:
           - "Sets the cryptogen image name."
       cryptogen_image_tag: &cryptogen_image_tag
         type: str
-        default: "0.0.8"
+        required: false
+        default: "0.0.16"
         description:
           - "Sets the cryptogen image tag."
       cryptogen_image: &cryptogen_image
@@ -75,7 +76,8 @@ argument_specs:
           - "Sets the cryptogen source repository path."
       cryptogen_git_commit: &cryptogen_git_commit
         type: str
-        default: "v0.0.8"
+        required: false
+        default: "v0.0.16"
         description:
           - "Pins the cryptogen source revision."
       cryptogen_source_code_package: &cryptogen_source_code_package
@@ -135,6 +137,7 @@ argument_specs:
       - "Run this after crypto material has already been generated so downstream roles can consume the fetched artifacts."
     options:
       config_build_dir: *config_build_dir
+      cryptogen_artifacts_dir: *cryptogen_artifacts_dir
       fetched_artifacts_dir: *fetched_artifacts_dir
       cryptogen_output_dir: *cryptogen_output_dir
       cryptogen_orderers_by_org: *cryptogen_orderers_by_org

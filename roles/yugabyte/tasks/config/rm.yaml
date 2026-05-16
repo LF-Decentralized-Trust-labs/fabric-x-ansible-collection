@@ -15,5 +15,5 @@
     api_version: v1
     kind: ConfigMap
     name: "{{ yugabyte_k8s_resource_name }}-config"
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
   when: yugabyte_use_k8s or yugabyte_use_openshift

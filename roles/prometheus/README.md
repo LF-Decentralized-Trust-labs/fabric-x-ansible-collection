@@ -203,6 +203,14 @@ Ensures the namespace exists, renders and transfers Prometheus configuration, an
     k8s_liveness_probe_failure_threshold: 5
     # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP port externally. When undefined or `false`, the HTTP port is not included in the LoadBalancer Service.
     prometheus_k8s_loadbalancer_expose_http_port: false
+    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    k8s_resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/start
@@ -239,6 +247,10 @@ Stops Prometheus when the container deployment path is enabled.
   vars:
     # Enables the container deployment path when set to `true`.
     prometheus_use_container: "{{ (not prometheus_use_k8s) and (not prometheus_use_openshift) }}"
+    # Enables the Kubernetes deployment path when set to `true`.
+    prometheus_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    prometheus_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: stop
@@ -309,8 +321,6 @@ Deletes the Prometheus StatefulSet and both Services from Kubernetes.
     k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
-    prometheus_k8s_part_of: monitoring
     # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30990`.
     prometheus_k8s_node_port: 30990
     # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP port externally. When undefined or `false`, the HTTP port is not included in the LoadBalancer Service.
@@ -357,8 +367,6 @@ Deletes the PersistentVolumeClaim created for the Prometheus StatefulSet.
     k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
-    prometheus_k8s_part_of: monitoring
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/data/rm
@@ -406,8 +414,9 @@ Delegates certificate creation to the shared OpenSSL role using Prometheus-speci
 ```yaml
 - name: Generate a self-signed TLS certificate for Prometheus
   vars:
-    # Optional certificate organization data forwarded to OpenSSL. Example: `{'common_name': 'prometheus.observability.svc.cluster.local', 'organization_name': 'Hyperledger Fabric-X'}`.
+    # Optional certificate organization data forwarded to OpenSSL. Example: `{'domain': 'observability.example.com', 'common_name': 'prometheus.observability.svc.cluster.local', 'organization_name': 'Hyperledger Fabric-X'}`.
     organization:
+      domain: "observability.example.com"
       common_name: "prometheus.observability.svc.cluster.local"
       organization_name: "Hyperledger Fabric-X"
     # Remote configuration directory consumed by `prometheus_remote_config_dir`. Example: `/var/lib/prometheus/config`.
@@ -514,8 +523,6 @@ Deletes the Kubernetes Secret that stores the Prometheus TLS server keypair.
     k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
-    prometheus_k8s_part_of: monitoring
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/crypto/rm
@@ -548,17 +555,25 @@ Renders the main scrape configuration and supporting files on the remote host, i
     prometheus_tls_private_key_file: server.key
     # Filename used for the Prometheus TLS certificate.
     prometheus_tls_cert_file: server.crt
-    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{ 'job_name': 'fabric-orderer', 'static_configs': [{ 'targets': ['orderer1.example.com:9443', 'orderer2.example.com:9443'] }] }, { 'job_name': 'node_exporter', 'static_configs': [{ 'targets': ['worker1.example.com:9100'] }] }]`.
+    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{'job_name': 'fabric-orderer', 'use_tls': True, 'targets': [{'hosts': ['orderer-router-1', 'orderer-router-2'], 'port_to_scrape': 'orderer_operations_port', 'label': {'group': 'orderers'}}]}, {'job_name': 'node-exporter', 'targets': [{'hosts': ['worker-1'], 'port_to_scrape': 'node_exporter_port', 'label': {'group': 'workers', 'export_type': 'node'}}]}]`.
     prometheus_scrape_services:
       - job_name: "fabric-orderer"
-        static_configs:
-          - targets:
-              - "orderer1.example.com:9443"
-              - "orderer2.example.com:9443"
-      - job_name: "node_exporter"
-        static_configs:
-          - targets:
-              - "worker1.example.com:9100"
+        use_tls: True
+        targets:
+          - hosts:
+              - "orderer-router-1"
+              - "orderer-router-2"
+            port_to_scrape: "orderer_operations_port"
+            label:
+              group: "orderers"
+      - job_name: "node-exporter"
+        targets:
+          - hosts:
+              - "worker-1"
+            port_to_scrape: "node_exporter_port"
+            label:
+              group: "workers"
+              export_type: "node"
     # Enables HTTPS and TLS-aware health checks when set to `true`.
     prometheus_use_tls: false
     # Enables the Kubernetes deployment path when set to `true`.
@@ -595,17 +610,25 @@ Creates or updates the ConfigMap that carries the rendered Prometheus configurat
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
     prometheus_k8s_part_of: monitoring
-    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{ 'job_name': 'fabric-orderer', 'static_configs': [{ 'targets': ['orderer1.example.com:9443', 'orderer2.example.com:9443'] }] }, { 'job_name': 'node_exporter', 'static_configs': [{ 'targets': ['worker1.example.com:9100'] }] }]`.
+    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{'job_name': 'fabric-orderer', 'use_tls': True, 'targets': [{'hosts': ['orderer-router-1', 'orderer-router-2'], 'port_to_scrape': 'orderer_operations_port', 'label': {'group': 'orderers'}}]}, {'job_name': 'node-exporter', 'targets': [{'hosts': ['worker-1'], 'port_to_scrape': 'node_exporter_port', 'label': {'group': 'workers', 'export_type': 'node'}}]}]`.
     prometheus_scrape_services:
       - job_name: "fabric-orderer"
-        static_configs:
-          - targets:
-              - "orderer1.example.com:9443"
-              - "orderer2.example.com:9443"
-      - job_name: "node_exporter"
-        static_configs:
-          - targets:
-              - "worker1.example.com:9100"
+        use_tls: True
+        targets:
+          - hosts:
+              - "orderer-router-1"
+              - "orderer-router-2"
+            port_to_scrape: "orderer_operations_port"
+            label:
+              group: "orderers"
+      - job_name: "node-exporter"
+        targets:
+          - hosts:
+              - "worker-1"
+            port_to_scrape: "node_exporter_port"
+            label:
+              group: "workers"
+              export_type: "node"
     # Enables HTTPS and TLS-aware health checks when set to `true`.
     prometheus_use_tls: false
   ansible.builtin.include_role:
@@ -648,8 +671,6 @@ Deletes the Kubernetes ConfigMap that stores Prometheus configuration.
     k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
-    prometheus_k8s_part_of: monitoring
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/config/rm
@@ -700,12 +721,8 @@ Collects logs for the Prometheus pod through the shared Kubernetes role.
 ```yaml
 - name: Fetch Prometheus pod logs
   vars:
-    # Kubernetes namespace used for Prometheus resources. Example: `observability`.
-    k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
-    prometheus_k8s_part_of: monitoring
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: k8s/fetch_logs
@@ -726,8 +743,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     prometheus_k8s_part_of: monitoring
     # Enables HTTPS and TLS-aware health checks when set to `true`.
     prometheus_use_tls: false
-    # Kubernetes namespace used for Prometheus resources. Example: `observability`.
-    k8s_namespace: "observability"
     # Specifies the OpenShift Route host. Example: `prometheus.apps.example.com`.
     prometheus_openshift_route: "prometheus.apps.example.com"
   ansible.builtin.include_role:
@@ -764,10 +779,6 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
-    prometheus_k8s_part_of: monitoring
-    # Kubernetes namespace used for Prometheus resources. Example: `observability`.
-    k8s_namespace: "observability"
     # Specifies the OpenShift Route host. Example: `prometheus.apps.example.com`.
     prometheus_openshift_route: "prometheus.apps.example.com"
   ansible.builtin.include_role:
@@ -784,17 +795,25 @@ Sets the `prometheus_has_k8s_sd_scrapers` fact to `true` when at least one entry
 ```yaml
 - name: Detect whether any scrape service uses kubernetes_sd_configs
   vars:
-    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{ 'job_name': 'fabric-orderer', 'static_configs': [{ 'targets': ['orderer1.example.com:9443', 'orderer2.example.com:9443'] }] }, { 'job_name': 'node_exporter', 'static_configs': [{ 'targets': ['worker1.example.com:9100'] }] }]`.
+    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{'job_name': 'fabric-orderer', 'use_tls': True, 'targets': [{'hosts': ['orderer-router-1', 'orderer-router-2'], 'port_to_scrape': 'orderer_operations_port', 'label': {'group': 'orderers'}}]}, {'job_name': 'node-exporter', 'targets': [{'hosts': ['worker-1'], 'port_to_scrape': 'node_exporter_port', 'label': {'group': 'workers', 'export_type': 'node'}}]}]`.
     prometheus_scrape_services:
       - job_name: "fabric-orderer"
-        static_configs:
-          - targets:
-              - "orderer1.example.com:9443"
-              - "orderer2.example.com:9443"
-      - job_name: "node_exporter"
-        static_configs:
-          - targets:
-              - "worker1.example.com:9100"
+        use_tls: True
+        targets:
+          - hosts:
+              - "orderer-router-1"
+              - "orderer-router-2"
+            port_to_scrape: "orderer_operations_port"
+            label:
+              group: "orderers"
+      - job_name: "node-exporter"
+        targets:
+          - hosts:
+              - "worker-1"
+            port_to_scrape: "node_exporter_port"
+            label:
+              group: "workers"
+              export_type: "node"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: detect_k8s_sd

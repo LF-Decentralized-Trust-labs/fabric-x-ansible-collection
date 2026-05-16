@@ -9,7 +9,6 @@ kind: StatefulSet
 metadata:
   # One StatefulSet per orderer node instance.
   name: {{ orderer_k8s_resource_name }}
-  namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ orderer_k8s_resource_name }}
     app.kubernetes.io/component: {{ orderer_component_type }}
@@ -38,6 +37,10 @@ spec:
         - name: {{ orderer_component_type }}
           # Fabric-X orderer image containing all component binaries.
           image: {{ orderer_image }}
+{% if k8s_resources is defined and k8s_resources %}
+          resources:
+{{ k8s_resources | to_nice_yaml(indent=2) | indent(12, true) }}
+{% endif %}
           args:
             - "{{ orderer_component_type }}"
             - --config={{ orderer_container_config_dir }}/node_config.yaml
@@ -47,8 +50,8 @@ spec:
               containerPort: {{ orderer_rpc_port }}
               protocol: TCP
             - name: metrics
-              # Prometheus metrics scrape endpoint.
-              containerPort: {{ orderer_metrics_port }}
+              # Operations endpoint, including Prometheus metrics.
+              containerPort: {{ orderer_operations_port }}
               protocol: TCP
           volumeMounts:
             # Private signing key for this orderer node's MSP identity.
@@ -58,7 +61,7 @@ spec:
               readOnly: true
             # Node signing certificate issued by the organisation CA.
             - name: secret
-              mountPath: {{ orderer_container_config_dir }}/msp/signcerts/cert.pem
+              mountPath: {{ orderer_container_config_dir }}/msp/signcerts/{{ orderer_crypto_name }}.{{ organization.domain }}-cert.pem
               subPath: msp-signcert.pem
               readOnly: true
             # Organisation CA certificate. The filename must match the
@@ -112,12 +115,32 @@ spec:
               subPath: mtls-org-{{ org.domain }}-ca.crt
 {% endfor %}
 {% endif %}
+{% if orderer_operations_use_mtls and orderer_operations_mtls_clients is defined %}
+{% for client in orderer_operations_mtls_clients %}
+{% if client not in (orderer_mtls_clients | default([])) %}
+            # Operations mTLS CA cert for client {{ client }}.
+            - name: config
+              mountPath: {{ orderer_container_config_dir }}/mtls/{{ client }}/ca.crt
+              subPath: mtls-client-{{ client }}-ca.crt
+{% endif %}
+{% endfor %}
+{% endif %}
+{% if orderer_operations_use_mtls and orderer_operations_mtls_orgs is defined %}
+{% for org in orderer_operations_mtls_orgs %}
+{% if org.domain not in ((orderer_mtls_orgs | default([])) | map(attribute='domain') | list) %}
+            # Operations mTLS CA cert for org {{ org.domain }}.
+            - name: config
+              mountPath: {{ orderer_container_config_dir }}/mtls/{{ org.domain }}/ca.crt
+              subPath: mtls-org-{{ org.domain }}-ca.crt
+{% endif %}
+{% endfor %}
+{% endif %}
             # Persistent volume for ledger data and orderer state.
             - name: data
               mountPath: {{ orderer_container_data_dir }}
           readinessProbe:
             tcpSocket:
-              port: {{ orderer_metrics_port }}
+              port: {{ orderer_rpc_port }}
             initialDelaySeconds: {{ k8s_readiness_probe_initial_delay_seconds | default(10) }}
             periodSeconds: {{ k8s_readiness_probe_period_seconds | default(10) }}
             timeoutSeconds: {{ k8s_readiness_probe_timeout_seconds | default(5) }}
@@ -125,7 +148,7 @@ spec:
             successThreshold: 1
           livenessProbe:
             tcpSocket:
-              port: {{ orderer_metrics_port }}
+              port: {{ orderer_rpc_port }}
             initialDelaySeconds: {{ k8s_liveness_probe_initial_delay_seconds | default(30) }}
             periodSeconds: {{ k8s_liveness_probe_period_seconds | default(15) }}
             timeoutSeconds: {{ k8s_liveness_probe_timeout_seconds | default(5) }}

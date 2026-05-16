@@ -25,6 +25,11 @@ argument_specs:
         description:
           - Real machine host.
           - "Example: C(myvpc.cloud.ibm.com)."
+      orderer_host: &orderer_host
+        type: str
+        description:
+          - "Inventory host whose orderer metrics endpoint should be resolved."
+          - "Example: C(orderer-router-1)."
       channel_id: &channel_id
         type: str
         description:
@@ -78,7 +83,8 @@ argument_specs:
           - "Image name used for the orderer container."
       orderer_image_tag: &orderer_image_tag
         type: str
-        default: "0.0.23"
+        required: false
+        default: "1.0.0-alpha.1"
         description:
           - "Image tag used for the orderer container."
       orderer_image: &orderer_image
@@ -103,7 +109,8 @@ argument_specs:
           - "Repository path for the orderer source code."
       orderer_git_commit: &orderer_git_commit
         type: str
-        default: v0.0.23
+        required: false
+        default: v1.0.0-alpha.1
         description:
           - "Git ref or release tag used by the bin build and install branches."
       orderer_source_code_package: &orderer_source_code_package
@@ -157,7 +164,7 @@ argument_specs:
       orderer_k8s_metrics_node_port: &orderer_k8s_metrics_node_port
         type: int
         description:
-          - Kubernetes NodePort value used by the external metrics Service port.
+          - Kubernetes NodePort value used by the external operations/metrics Service port.
           - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
           - "Example: C(31051)."
       orderer_k8s_loadbalancer_expose_metrics_port:
@@ -165,8 +172,8 @@ argument_specs:
         type: bool
         default: false
         description:
-          - Set to C(true) to create a LoadBalancer Service entry that exposes the metrics port externally.
-          - When undefined or C(false), the metrics port is not included in the LoadBalancer Service.
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the operations/metrics port externally.
+          - When undefined or C(false), the operations/metrics port is not included in the LoadBalancer Service.
       orderer_container_config_dir: &orderer_container_config_dir
         type: path
         default: /config
@@ -213,11 +220,11 @@ argument_specs:
         description:
           - "Data path embedded into rendered orderer files."
       orderer_group: &orderer_group
-        type: str
+        type: int
         required: true
         description:
-          - "Party identifier written into the orderer configuration."
-          - "Example: C(consenter-1), C(batcher-1), C(assembler-1), or C(router-1)."
+          - "Numeric party identifier written to C(PartyID) in the orderer configuration."
+          - "Example: C(1)."
       orderer_component_type: &orderer_component_type
         type: str
         required: true
@@ -234,42 +241,253 @@ argument_specs:
         description:
           - "Batcher shard identifier written only by the batcher template."
           - "Example: C(0)."
+      orderer_listen_address: &orderer_listen_address
+        type: str
+        description:
+          - "IP address on which the orderer gRPC server binds."
+          - "Example: C(0.0.0.0)."
+      orderer_keepalive_client_interval: &orderer_keepalive_client_interval
+        type: str
+        description:
+          - "Interval between client keepalive pings to other orderer nodes."
+          - "Example: C(1m0s)."
+      orderer_keepalive_client_timeout: &orderer_keepalive_client_timeout
+        type: str
+        description:
+          - "Time the orderer client waits for a keepalive response before closing the connection."
+          - "Example: C(20s)."
+      orderer_keepalive_server_min_interval:
+        &orderer_keepalive_server_min_interval
+        type: str
+        description:
+          - "Minimum permitted interval between client pings to the orderer gRPC server."
+          - "Example: C(1m0s)."
+      orderer_keepalive_server_interval: &orderer_keepalive_server_interval
+        type: str
+        description:
+          - "Interval between server keepalive pings to connected clients."
+          - "Example: C(2h0m0s)."
+      orderer_keepalive_server_timeout: &orderer_keepalive_server_timeout
+        type: str
+        description:
+          - "Time the orderer server waits for a keepalive response before closing the connection."
+          - "Example: C(20s)."
+      orderer_backoff_base_delay: &orderer_backoff_base_delay
+        type: str
+        description:
+          - "Initial delay used by the orderer gRPC client backoff policy."
+          - "Example: C(1s)."
+      orderer_backoff_multiplier: &orderer_backoff_multiplier
+        type: float
+        description:
+          - "Multiplier applied to orderer gRPC client retry backoff delays."
+          - "Example: C(1.6)."
+      orderer_backoff_max_delay: &orderer_backoff_max_delay
+        type: str
+        description:
+          - "Maximum delay used by the orderer gRPC client backoff policy."
+          - "Example: C(2m0s)."
+      orderer_max_recv_msg_size: &orderer_max_recv_msg_size
+        type: int
+        description:
+          - "Maximum message size in bytes the orderer gRPC server and client can receive."
+          - "Example: C(104857600)."
+      orderer_max_send_msg_size: &orderer_max_send_msg_size
+        type: int
+        description:
+          - "Maximum message size in bytes the orderer gRPC server and client can send."
+          - "Example: C(104857600)."
+      orderer_bootstrap_method: &orderer_bootstrap_method
+        type: str
+        choices:
+          - block
+          - yaml
+        description:
+          - "Bootstrap method written to C(General.Bootstrap.Method) in the orderer config."
+          - "Example: C(block)."
+      orderer_cluster_send_buffer_size: &orderer_cluster_send_buffer_size
+        type: int
+        description:
+          - "Maximum number of messages in the orderer cluster egress buffer."
+          - "Example: C(100)."
+      orderer_cluster_replication_policy: &orderer_cluster_replication_policy
+        type: str
+        description:
+          - "Optional block replication policy written to C(General.Cluster.ReplicationPolicy)."
+      orderer_bccsp_default: &orderer_bccsp_default
+        type: str
+        choices:
+          - SW
+          - PKCS11
+        description:
+          - "Preferred blockchain crypto service provider for the orderer."
+          - "Example: C(SW)."
+      orderer_bccsp_sw_hash: &orderer_bccsp_sw_hash
+        type: str
+        description:
+          - "Hash algorithm for the software blockchain crypto provider."
+          - "Example: C(SHA2)."
+      orderer_bccsp_sw_security: &orderer_bccsp_sw_security
+        type: int
+        description:
+          - "Security level for the software blockchain crypto provider."
+          - "Example: C(256)."
+      orderer_bccsp_sw_file_key_store: &orderer_bccsp_sw_file_key_store
+        type: path
+        description:
+          - "Optional key store path for the software blockchain crypto provider."
+      orderer_bccsp_pkcs11_library: &orderer_bccsp_pkcs11_library
+        type: path
+        description:
+          - "PKCS#11 module library path used when C(orderer_bccsp_default) is C(PKCS11)."
+      orderer_bccsp_pkcs11_label: &orderer_bccsp_pkcs11_label
+        type: str
+        description:
+          - "PKCS#11 token label used by the orderer crypto provider."
+      orderer_bccsp_pkcs11_pin: &orderer_bccsp_pkcs11_pin
+        type: str
+        description:
+          - "PKCS#11 user PIN used by the orderer crypto provider."
+      orderer_bccsp_pkcs11_hash: &orderer_bccsp_pkcs11_hash
+        type: str
+        description:
+          - "Hash algorithm for the PKCS#11 crypto provider."
+      orderer_bccsp_pkcs11_security: &orderer_bccsp_pkcs11_security
+        type: int
+        description:
+          - "Security level for the PKCS#11 crypto provider."
+      orderer_bccsp_pkcs11_file_key_store: &orderer_bccsp_pkcs11_file_key_store
+        type: path
+        description:
+          - "Optional key store path for the PKCS#11 crypto provider."
+      orderer_log_spec: &orderer_log_spec
+        type: str
+        description:
+          - "Logging specification written to C(General.LogSpec)."
+          - "Example: C(info)."
+      orderer_client_signature_verification_required:
+        &orderer_client_signature_verification_required
+        type: bool
+        description:
+          - "Controls whether router and batcher validate signatures in client requests."
+          - "Example: C(false)."
+      orderer_router_number_of_connections_per_batcher:
+        &orderer_router_number_of_connections_per_batcher
+        type: int
+        description:
+          - "Number of connections the router opens to each batcher."
+          - "Example: C(10)."
+      orderer_router_number_of_streams_per_connection:
+        &orderer_router_number_of_streams_per_connection
+        type: int
+        description:
+          - "Number of streams the router opens per connection to a batcher."
+          - "Example: C(5)."
+      orderer_batcher_batch_sequence_gap: &orderer_batcher_batch_sequence_gap
+        type: int
+        description:
+          - "Maximum batch sequence distance primary batchers allow before waiting for secondaries."
+          - "Example: C(10)."
+      orderer_batcher_mem_pool_max_size: &orderer_batcher_mem_pool_max_size
+        type: int
+        description:
+          - "Maximum number of requests permitted in the batcher request pool."
+          - "Example: C(1000000)."
+      orderer_batcher_submit_timeout: &orderer_batcher_submit_timeout
+        type: str
+        description:
+          - "Time a client can wait when submitting a request into the batcher pool."
+          - "Example: C(500ms)."
+      orderer_assembler_prefetch_buffer_memory_bytes:
+        &orderer_assembler_prefetch_buffer_memory_bytes
+        type: int
+        description:
+          - "Maximum memory in bytes used by the assembler prefetch buffer."
+          - "Example: C(1073741824)."
+      orderer_assembler_restart_ledger_scan_timeout:
+        &orderer_assembler_restart_ledger_scan_timeout
+        type: str
+        description:
+          - "Timeout for assembler ledger scanning during restart."
+          - "Example: C(5s)."
+      orderer_assembler_prefetch_eviction_ttl:
+        &orderer_assembler_prefetch_eviction_ttl
+        type: str
+        description:
+          - "Time-to-live for evicting prefetched assembler batches."
+          - "Example: C(1h)."
+      orderer_assembler_pop_wait_monitor_timeout:
+        &orderer_assembler_pop_wait_monitor_timeout
+        type: str
+        description:
+          - "Timeout for assembler pop-wait monitoring."
+          - "Example: C(1s)."
+      orderer_assembler_replication_channel_size:
+        &orderer_assembler_replication_channel_size
+        type: int
+        description:
+          - "Channel size for assembler replication messages."
+          - "Example: C(100)."
+      orderer_assembler_batch_requests_channel_size:
+        &orderer_assembler_batch_requests_channel_size
+        type: int
+        description:
+          - "Channel size for assembler batch request messages."
+          - "Example: C(1000)."
       orderer_rpc_port: &orderer_rpc_port
         type: int
         required: true
         description:
           - "gRPC port exposed by the orderer."
           - "Example: C(7050)."
-      orderer_metrics_port: &orderer_metrics_port
+      orderer_operations_port: &orderer_operations_port
         type: int
         required: true
         description:
-          - "Metrics port exposed by the orderer."
+          - "Operations endpoint port exposed by the orderer."
+          - "This endpoint serves operational APIs and Prometheus metrics."
           - "Example: C(7060)."
-      orderer_metrics_port_config_transfer:
-        &orderer_metrics_port_config_transfer
-        type: int
+      orderer_operations_listen_address: &orderer_operations_listen_address
+        type: str
         description:
-          - "Metrics port written into the rendered config when enabled."
-          - "Example: C(9444)."
-      orderer_metrics_port_get_metrics: &orderer_metrics_port_get_metrics
-        type: int
+          - "IP address on which the orderer operations server binds."
+          - "Example: C(0.0.0.0)."
+      orderer_operations_use_tls: &orderer_operations_use_tls
+        type: bool
+        default: false
         description:
-          - "Metrics port queried by the metrics fetch branch."
-          - "Example: C(9445)."
+          - "Enables TLS for the orderer operations endpoint."
+      orderer_operations_use_mtls: &orderer_operations_use_mtls
+        type: bool
+        default: "{{ orderer_use_mtls }}"
+        description:
+          - "Enables client mutual TLS for the orderer operations endpoint."
+      orderer_operations_mtls_clients: &orderer_operations_mtls_clients
+        type: list
+        elements: str
+        description:
+          - "Client identifiers whose TLS CA certificates are trusted by the operations endpoint."
+          - "Trusts fetched C(tls/ca.crt) files under those artifact directories."
+          - "Example: C(['prometheus-1'])."
+      orderer_operations_mtls_orgs: &orderer_operations_mtls_orgs
+        type: list
+        elements: dict
+        description:
+          - "Organization dictionaries whose TLS CA certificates are trusted by the operations endpoint."
+          - "Example: C([{'name': 'Org1', 'domain': 'org1.example.com'}])."
+      orderer_metrics_provider: &orderer_metrics_provider
+        type: str
+        choices:
+          - prometheus
+          - disabled
+        description:
+          - "Metrics provider written to the orderer C(Metrics.Provider) setting."
+          - "Example: C(prometheus)."
       orderer_metrics_log_interval: &orderer_metrics_log_interval
         type: str
         description:
-          - "Optional metrics logging interval written into the rendered config."
-          - "Example: C(10s)."
-      orderer_http_protocol: &orderer_http_protocol
-        type: str
-        default: http
-        choices:
-          - http
-          - https
-        description:
-          - "Protocol used by the metrics fetch branch."
+          - "Metrics logging interval written to C(Metrics.MetricsLogInterval); C(0s) disables periodic logging."
+          - "Example: C(0s)."
       orderer_use_bin: &orderer_use_bin
         type: bool
         default: false
@@ -317,13 +535,13 @@ argument_specs:
         elements: dict
         description:
           - "Organization dictionaries whose mTLS CA certificates are mounted or transferred."
-          - "Example: C([{'domain': 'org1.example.com'}, {'domain': 'org2.example.com'}])."
+          - "Example: C([{'name': 'Org1', 'domain': 'org1.example.com'}, {'name': 'Org2', 'domain': 'org2.example.com'}])."
       organization: &organization
         type: dict
         required: true
         description:
           - "Organization metadata shared by the orderer crypto and config branches."
-          - "Example: C({'domain': 'orderer.example.com', 'orderer': {'name': 'orderer-consenter-1'}, 'fabric_ca_host': 'ca-orderer'})."
+          - "Example: C({'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com', 'role': 'orderer', 'fabric_ca_host': 'fca-orderer-org1', 'orderer': {'name': 'orderer-router-1', 'secret': 'orderer-router-1PWD'}})."
       k8s_storage_class: &k8s_storage_class
         type: str
         description:
@@ -378,6 +596,11 @@ argument_specs:
         description:
           - "Optional liveness probe failure threshold override."
           - "Example: C(3)."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
 
       orderer_use_openshift: &orderer_use_openshift
         type: bool
@@ -392,7 +615,7 @@ argument_specs:
       orderer_openshift_metrics_route: &orderer_openshift_metrics_route
         type: str
         description:
-          - Specifies the OpenShift Route host.
+          - Specifies the OpenShift Route host for the operations/metrics endpoint.
           - "Example: C(orderer-metrics.apps.example.com)."
   start:
     short_description: Dispatch orderer startup by component and deployment mode
@@ -459,15 +682,23 @@ argument_specs:
       orderer_use_k8s: *orderer_use_k8s
       orderer_use_openshift: *orderer_use_openshift
 
+  effective_address:
+    short_description: Resolve the effective orderer metrics address
+    description:
+      - "Compute the address used to reach an orderer operations metrics endpoint from outside its own host."
+      - "Sets C(orderer_effective_metrics_address) as an Ansible fact on the calling host."
+      - "Resolution priority is OpenShift Route, then Kubernetes NodePort, then the plain host port."
+      - "Accepts an C(orderer_host) variable so the task can be called from any host in the inventory."
+      - "All orderer-specific variables are read from C(hostvars[orderer_host])."
+    options:
+      orderer_host: *orderer_host
+
   get_metrics:
     short_description: Retrieve orderer Prometheus metrics
     description:
-      - "Fetches Prometheus metrics from the configured orderer monitoring endpoint using the selected HTTP protocol."
-      - "Consumes the metrics listener written into the generated orderer config."
-    options:
-      actual_host: *actual_host
-      orderer_http_protocol: *orderer_http_protocol
-      orderer_metrics_port: *orderer_metrics_port_get_metrics
+      - "Fetches Prometheus metrics from the configured orderer operations endpoint."
+      - "Delegates address resolution to the C(effective_address) entry point."
+    options: {}
 
   bin/build:
     short_description: Build the orderer binary from source
@@ -550,7 +781,7 @@ argument_specs:
     short_description: Start the orderer container
     description:
       - "Ensures the host data directory exists and starts the orderer container with the selected component command."
-      - "Mounts generated config and TLS/MSP material read-only, mounts the data directory read-write, and exposes gRPC and metrics ports."
+      - "Mounts generated config and TLS/MSP material read-only, mounts the data directory read-write, and exposes gRPC and operations ports."
     options:
       orderer_component_type: *orderer_component_type
       orderer_container_name: *orderer_container_name
@@ -566,7 +797,7 @@ argument_specs:
       orderer_container_data_dir: *orderer_container_data_dir
       orderer_config_file: *orderer_config_file
       orderer_rpc_port: *orderer_rpc_port
-      orderer_metrics_port: *orderer_metrics_port
+      orderer_operations_port: *orderer_operations_port
 
   container/stop:
     short_description: Stop the orderer container
@@ -609,8 +840,7 @@ argument_specs:
       remote_data_dir: *remote_data_dir
       orderer_use_k8s: *orderer_use_k8s
       orderer_use_openshift: *orderer_use_openshift
-      k8s_namespace:
-        <<: *k8s_namespace
+      k8s_namespace: *k8s_namespace
 
   config/transfer:
     short_description: Render and transfer orderer configuration
@@ -636,14 +866,57 @@ argument_specs:
       orderer_use_mtls: *orderer_use_mtls
       orderer_use_k8s: *orderer_use_k8s
       orderer_use_openshift: *orderer_use_openshift
+      orderer_listen_address: *orderer_listen_address
       orderer_rpc_port: *orderer_rpc_port
-      orderer_metrics_port: *orderer_metrics_port_config_transfer
+      orderer_keepalive_client_interval: *orderer_keepalive_client_interval
+      orderer_keepalive_client_timeout: *orderer_keepalive_client_timeout
+      orderer_keepalive_server_min_interval: *orderer_keepalive_server_min_interval
+      orderer_keepalive_server_interval: *orderer_keepalive_server_interval
+      orderer_keepalive_server_timeout: *orderer_keepalive_server_timeout
+      orderer_backoff_base_delay: *orderer_backoff_base_delay
+      orderer_backoff_multiplier: *orderer_backoff_multiplier
+      orderer_backoff_max_delay: *orderer_backoff_max_delay
+      orderer_max_recv_msg_size: *orderer_max_recv_msg_size
+      orderer_max_send_msg_size: *orderer_max_send_msg_size
+      orderer_bootstrap_method: *orderer_bootstrap_method
+      orderer_cluster_send_buffer_size: *orderer_cluster_send_buffer_size
+      orderer_cluster_replication_policy: *orderer_cluster_replication_policy
+      orderer_bccsp_default: *orderer_bccsp_default
+      orderer_bccsp_sw_hash: *orderer_bccsp_sw_hash
+      orderer_bccsp_sw_security: *orderer_bccsp_sw_security
+      orderer_bccsp_sw_file_key_store: *orderer_bccsp_sw_file_key_store
+      orderer_bccsp_pkcs11_library: *orderer_bccsp_pkcs11_library
+      orderer_bccsp_pkcs11_label: *orderer_bccsp_pkcs11_label
+      orderer_bccsp_pkcs11_pin: *orderer_bccsp_pkcs11_pin
+      orderer_bccsp_pkcs11_hash: *orderer_bccsp_pkcs11_hash
+      orderer_bccsp_pkcs11_security: *orderer_bccsp_pkcs11_security
+      orderer_bccsp_pkcs11_file_key_store: *orderer_bccsp_pkcs11_file_key_store
+      orderer_log_spec: *orderer_log_spec
+      orderer_client_signature_verification_required: *orderer_client_signature_verification_required
+      orderer_operations_port: *orderer_operations_port
+      orderer_operations_listen_address: *orderer_operations_listen_address
+      orderer_operations_use_tls: *orderer_operations_use_tls
+      orderer_operations_use_mtls: *orderer_operations_use_mtls
+      orderer_operations_mtls_clients: *orderer_operations_mtls_clients
+      orderer_operations_mtls_orgs: *orderer_operations_mtls_orgs
+      orderer_metrics_provider: *orderer_metrics_provider
       orderer_metrics_log_interval: *orderer_metrics_log_interval
       orderer_mtls_clients: *orderer_mtls_clients
       orderer_mtls_orgs: *orderer_mtls_orgs
       organization: *organization
       orderer_group: *orderer_group
       orderer_shard_id: *orderer_shard_id
+      orderer_router_number_of_connections_per_batcher: *orderer_router_number_of_connections_per_batcher
+      orderer_router_number_of_streams_per_connection: *orderer_router_number_of_streams_per_connection
+      orderer_batcher_batch_sequence_gap: *orderer_batcher_batch_sequence_gap
+      orderer_batcher_mem_pool_max_size: *orderer_batcher_mem_pool_max_size
+      orderer_batcher_submit_timeout: *orderer_batcher_submit_timeout
+      orderer_assembler_prefetch_buffer_memory_bytes: *orderer_assembler_prefetch_buffer_memory_bytes
+      orderer_assembler_restart_ledger_scan_timeout: *orderer_assembler_restart_ledger_scan_timeout
+      orderer_assembler_prefetch_eviction_ttl: *orderer_assembler_prefetch_eviction_ttl
+      orderer_assembler_pop_wait_monitor_timeout: *orderer_assembler_pop_wait_monitor_timeout
+      orderer_assembler_replication_channel_size: *orderer_assembler_replication_channel_size
+      orderer_assembler_batch_requests_channel_size: *orderer_assembler_batch_requests_channel_size
 
   config/mtls/transfer:
     short_description: Transfer mTLS CA certificates for orderer clients and orgs
@@ -656,6 +929,18 @@ argument_specs:
       orderer_remote_config_dir: *orderer_remote_config_dir
       orderer_mtls_clients: *orderer_mtls_clients
       orderer_mtls_orgs: *orderer_mtls_orgs
+
+  config/mtls/operations/transfer:
+    short_description: Transfer Operations mTLS CA certificates for orderer clients and orgs
+    description:
+      - "Copies trusted client and organization TLS CA certificates into the orderer mTLS directory structure for the Operations endpoint."
+      - "Consumes fetched client C(tls/ca.crt) files and peer organization tlsca certificates so generated configs can enable operations mutual TLS."
+    options:
+      remote_config_dir: *remote_config_dir
+      fetched_artifacts_dir: *fetched_artifacts_dir
+      orderer_remote_config_dir: *orderer_remote_config_dir
+      orderer_operations_mtls_clients: *orderer_operations_mtls_clients
+      orderer_operations_mtls_orgs: *orderer_operations_mtls_orgs
 
   config/rm:
     short_description: Remove orderer configuration
@@ -683,6 +968,8 @@ argument_specs:
     options:
       orderer_use_tls: *orderer_use_tls
       orderer_use_mtls: *orderer_use_mtls
+      orderer_operations_use_tls: *orderer_operations_use_tls
+      orderer_operations_use_mtls: *orderer_operations_use_mtls
       organization: *organization
       orderer_use_k8s: *orderer_use_k8s
       orderer_use_openshift: *orderer_use_openshift
@@ -709,9 +996,11 @@ argument_specs:
       actual_host: *actual_host
       remote_config_dir: *remote_config_dir
       organization: *organization
+      orderer_crypto_name: *orderer_crypto_name
       orderer_remote_config_dir: *orderer_remote_config_dir
       orderer_openshift_route: *orderer_openshift_route
       orderer_openshift_metrics_route: *orderer_openshift_metrics_route
+      orderer_operations_use_tls: *orderer_operations_use_tls
 
   crypto/fetch:
     short_description: Fetch orderer certificates to the control node
@@ -743,11 +1032,15 @@ argument_specs:
       - "Consumes ConfigMap and Secret artifacts generated by the Kubernetes config and crypto transfer entrypoints, then starts the selected component container."
     options:
       orderer_component_type: *orderer_component_type
+      orderer_crypto_name: *orderer_crypto_name
       orderer_k8s_resource_name: *orderer_k8s_resource_name
       orderer_k8s_part_of: *orderer_k8s_part_of
       orderer_k8s_wait_timeout: *orderer_k8s_wait_timeout
       orderer_rpc_port: *orderer_rpc_port
-      orderer_metrics_port: *orderer_metrics_port
+      orderer_operations_port: *orderer_operations_port
+      orderer_operations_use_mtls: *orderer_operations_use_mtls
+      orderer_operations_mtls_clients: *orderer_operations_mtls_clients
+      orderer_operations_mtls_orgs: *orderer_operations_mtls_orgs
       orderer_k8s_rpc_node_port: *orderer_k8s_rpc_node_port
       orderer_k8s_metrics_node_port: *orderer_k8s_metrics_node_port
       orderer_k8s_fs_group: *orderer_k8s_fs_group
@@ -761,9 +1054,7 @@ argument_specs:
       orderer_mtls_clients: *orderer_mtls_clients
       orderer_mtls_orgs: *orderer_mtls_orgs
       organization: *organization
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
       k8s_storage_size: *k8s_storage_size
       k8s_storage_class: *k8s_storage_class
       k8s_image_pull_secret: *k8s_image_pull_secret
@@ -777,6 +1068,7 @@ argument_specs:
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
       orderer_k8s_loadbalancer_expose_rpc_port: *orderer_k8s_loadbalancer_expose_rpc_port
       orderer_k8s_loadbalancer_expose_metrics_port: *orderer_k8s_loadbalancer_expose_metrics_port
+      k8s_resources: *k8s_resources
 
   k8s/ping:
     short_description: Check that the orderer Kubernetes services are reachable
@@ -788,7 +1080,7 @@ argument_specs:
       orderer_k8s_loadbalancer_expose_rpc_port: *orderer_k8s_loadbalancer_expose_rpc_port
       orderer_k8s_loadbalancer_expose_metrics_port: *orderer_k8s_loadbalancer_expose_metrics_port
       orderer_rpc_port: *orderer_rpc_port
-      orderer_metrics_port: *orderer_metrics_port
+      orderer_operations_port: *orderer_operations_port
 
   k8s/rm:
     short_description: Remove the orderer Kubernetes workload
@@ -797,10 +1089,7 @@ argument_specs:
       - "Leaves ConfigMap, Secret, and PVC artifacts for explicit config, crypto, or data cleanup entrypoints."
     options:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
-      orderer_k8s_part_of: *orderer_k8s_part_of
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
       orderer_k8s_rpc_node_port: *orderer_k8s_rpc_node_port
       orderer_k8s_loadbalancer_expose_rpc_port: *orderer_k8s_loadbalancer_expose_rpc_port
@@ -820,7 +1109,6 @@ argument_specs:
       - "Works for consenter, batcher, assembler, and router workloads by using the generated resource name labels."
     options:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
-      orderer_k8s_part_of: *orderer_k8s_part_of
 
   k8s/config/transfer:
     short_description: Create the orderer Kubernetes ConfigMap
@@ -837,9 +1125,11 @@ argument_specs:
       orderer_use_mtls: *orderer_use_mtls
       orderer_mtls_clients: *orderer_mtls_clients
       orderer_mtls_orgs: *orderer_mtls_orgs
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      orderer_operations_use_mtls: *orderer_operations_use_mtls
+      orderer_operations_mtls_clients: *orderer_operations_mtls_clients
+      orderer_operations_mtls_orgs: *orderer_operations_mtls_orgs
+      organization: *organization
+      k8s_namespace: *k8s_namespace
 
   k8s/config/rm:
     short_description: Remove the orderer Kubernetes ConfigMap
@@ -848,10 +1138,7 @@ argument_specs:
       - "Does not remove the local generated config directory."
     options:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
-      orderer_k8s_part_of: *orderer_k8s_part_of
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
   k8s/crypto/transfer:
     short_description: Create the orderer Kubernetes Secret
@@ -866,9 +1153,7 @@ argument_specs:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
       orderer_k8s_part_of: *orderer_k8s_part_of
       orderer_component_type: *orderer_component_type
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
   k8s/crypto/rm:
     short_description: Remove the orderer Kubernetes Secret
@@ -877,18 +1162,16 @@ argument_specs:
       - "Does not remove the local MSP and TLS directories under the orderer config path."
     options:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
-      orderer_k8s_part_of: *orderer_k8s_part_of
-      k8s_namespace:
-        <<: *k8s_namespace
-        required: true
+      k8s_namespace: *k8s_namespace
 
   prometheus/get_scrapers:
     short_description: Build Prometheus scrape targets for orderer hosts
     description:
       - "Groups orderer hosts by component type and exposes Prometheus scrape service definitions for downstream monitoring configuration."
-      - "Produces scrape targets for consenter, batcher, assembler, and router metrics endpoints using each host's configured metrics port."
+      - "Produces scrape targets for consenter, batcher, assembler, and router metrics endpoints using each host's configured operations port."
     options:
       orderer_hosts: *orderer_hosts
+      fetched_artifacts_dir: *fetched_artifacts_dir
 
   openshift/start:
     short_description: Start the OpenShift deployment
@@ -899,7 +1182,8 @@ argument_specs:
       orderer_k8s_part_of: *orderer_k8s_part_of
       orderer_component_type: *orderer_component_type
       orderer_use_tls: *orderer_use_tls
-      k8s_namespace: *k8s_namespace
+      orderer_operations_use_tls: *orderer_operations_use_tls
+      organization: *organization
       orderer_openshift_route: *orderer_openshift_route
       orderer_openshift_metrics_route: *orderer_openshift_metrics_route
 
@@ -909,6 +1193,7 @@ argument_specs:
       - Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
     options:
       orderer_use_tls: *orderer_use_tls
+      orderer_operations_use_tls: *orderer_operations_use_tls
       orderer_openshift_route: *orderer_openshift_route
       orderer_openshift_metrics_route: *orderer_openshift_metrics_route
 
@@ -918,8 +1203,6 @@ argument_specs:
       - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
     options:
       orderer_k8s_resource_name: *orderer_k8s_resource_name
-      orderer_k8s_part_of: *orderer_k8s_part_of
-      k8s_namespace: *k8s_namespace
       orderer_openshift_route: *orderer_openshift_route
       orderer_openshift_metrics_route: *orderer_openshift_metrics_route
 
