@@ -42,7 +42,7 @@
         - role: pod
           namespaces:
             names:
-              - "{{ hostvars[node_exporter_k8s_ref_host].k8s_namespace }}"
+              - "{{ hostvars[node_exporter_k8s_ref_host].k8s_namespace | default('default') }}"
       relabel_configs:
         - source_labels:
             - __meta_kubernetes_pod_label_app_kubernetes_io_component
