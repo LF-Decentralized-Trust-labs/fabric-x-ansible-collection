@@ -18,7 +18,7 @@ fxconfig_container_config_dir: /config
 # Defines the base container name used by fxconfig workflows.
 fxconfig_container_name: fxconfig
 # Selects the Git ref used by build and install workflows.
-fxconfig_git_commit: v0.0.12
+fxconfig_git_commit: v1.0.0
 # Defines the Git host used to resolve the Fabric-X source repository.
 fxconfig_git_hub_url: github.com
 # Defines the Fabric-X source repository path.
@@ -28,7 +28,7 @@ fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ f
 # Defines the image name used by the fxconfig container image.
 fxconfig_image_name: fabric-x-tools
 # Defines the image tag used by the fxconfig container image.
-fxconfig_image_tag: 0.0.12
+fxconfig_image_tag: 1.0.0
 # Defines the fxconfig log format.
 fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
 # Defines the fxconfig log level.
