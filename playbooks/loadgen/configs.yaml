@@ -9,8 +9,25 @@
   tasks:
     - name: Transfer Fabric-X Loadgen config files
       vars:
-        committer_hosts: "{{ groups['fabric_x_committer'] | default([]) }}"
+        reference_committer_hosts: >-
+          {{
+            (
+              groups['fabric_x_committers']
+              | default([])
+              | map('extract', hostvars)
+              | selectattr('organization', 'defined')
+              | selectattr('organization.domain', 'defined')
+              | selectattr('organization.domain', '==', organization.domain | default(''))
+              | map(attribute='inventory_hostname')
+              | list
+            )
+            or groups['fabric_x_committers'] | default([])
+          }}
         orderer_hosts: "{{ groups['fabric_x_orderers'] | default([]) }}"
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.loadgen
-        tasks_from: config/transfer
+      block:
+        - name: Transfer Fabric-X Loadgen config files
+          vars:
+            committer_hosts: "{{ reference_committer_hosts }}"
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.loadgen
+            tasks_from: config/transfer

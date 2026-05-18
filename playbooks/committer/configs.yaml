@@ -5,7 +5,7 @@
 #
 
 - name: Generate the Fabric-X Committer config files
-  hosts: "{{ target_hosts | default('fabric_x_committer') }}:&fabric_x_committer"
+  hosts: "{{ target_hosts | default('fabric_x_committers') }}:&fabric_x_committers"
   tasks:
     # =========================
     # Postgres
@@ -30,33 +30,18 @@
     # =========================
     - name: Generate the config files for the Fabric-X Committer
       vars:
-        committer_verifiers: >-
+        reference_committer_hosts: >-
           {{
-            groups['fabric_x_committer']
-            | map('extract', hostvars)
-            | selectattr('committer_component_type', 'defined')
-            | selectattr('committer_component_type', '==', 'verifier')
-            | map(attribute='inventory_hostname')
-            | list
-          }}
-        committer_validators: >-
-          {{
-            groups['fabric_x_committer']
-            | map('extract', hostvars)
-            | selectattr('committer_component_type', 'defined')
-            | selectattr('committer_component_type', '==', 'validator')
-            | map(attribute='inventory_hostname')
-            | list
-          }}
-        committer_coordinator: >-
-          {{
-            groups['fabric_x_committer']
-            | map('extract', hostvars)
-            | selectattr('committer_component_type', 'defined')
-            | selectattr('committer_component_type', '==', 'coordinator')
-            | map(attribute='inventory_hostname')
-            | list
-            | first
+            (
+              groups['fabric_x_committers']
+              | map('extract', hostvars)
+              | selectattr('organization', 'defined')
+              | selectattr('organization.domain', 'defined')
+              | selectattr('organization.domain', '==', organization.domain | default(''))
+              | map(attribute='inventory_hostname')
+              | list
+            )
+            or groups['fabric_x_committers']
           }}
         orderer_assemblers: >-
           {{
@@ -67,8 +52,39 @@
             | map(attribute='inventory_hostname')
             | list
           }}
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.committer
-        tasks_from: config/transfer
       when:
         - committer_component_type is defined
+      block:
+        - name: Generate the config files for the Fabric-X Committer
+          vars:
+            committer_verifiers: >-
+              {{
+                reference_committer_hosts
+                | map('extract', hostvars)
+                | selectattr('committer_component_type', 'defined')
+                | selectattr('committer_component_type', '==', 'verifier')
+                | map(attribute='inventory_hostname')
+                | list
+              }}
+            committer_validators: >-
+              {{
+                reference_committer_hosts
+                | map('extract', hostvars)
+                | selectattr('committer_component_type', 'defined')
+                | selectattr('committer_component_type', '==', 'validator')
+                | map(attribute='inventory_hostname')
+                | list
+              }}
+            committer_coordinator: >-
+              {{
+                reference_committer_hosts
+                | map('extract', hostvars)
+                | selectattr('committer_component_type', 'defined')
+                | selectattr('committer_component_type', '==', 'coordinator')
+                | map(attribute='inventory_hostname')
+                | list
+                | first
+              }}
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.committer
+            tasks_from: config/transfer
