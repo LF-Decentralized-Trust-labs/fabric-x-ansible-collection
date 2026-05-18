@@ -42,12 +42,26 @@
                 groups['fabric_x_orderers']
                 | map('extract', hostvars)
                 | selectattr('orderer_component_type', 'defined')
+                | selectattr('organization.domain', 'defined')
+                | selectattr('organization.domain', '==', current_orderer_organization_domain)
                 | map(attribute='inventory_hostname')
                 | list
               }}
           ansible.builtin.include_role:
             name: hyperledger.fabricx.orderer
             tasks_from: prometheus/get_scrapers
+          loop: >-
+            {{
+              groups['fabric_x_orderers']
+              | map('extract', hostvars)
+              | selectattr('orderer_component_type', 'defined')
+              | selectattr('organization.domain', 'defined')
+              | map(attribute='organization.domain')
+              | unique
+              | list
+            }}
+          loop_control:
+            loop_var: current_orderer_organization_domain
           when:
             - "'fabric_x_orderers' in groups"
             - orderer_hosts | length > 0
@@ -61,12 +75,26 @@
                 groups['fabric_x_committers']
                 | map('extract', hostvars)
                 | selectattr('committer_component_type', 'defined')
+                | selectattr('organization.domain', 'defined')
+                | selectattr('organization.domain', '==', current_committer_organization_domain)
                 | map(attribute='inventory_hostname')
                 | list
               }}
           ansible.builtin.include_role:
             name: hyperledger.fabricx.committer
             tasks_from: prometheus/get_scrapers
+          loop: >-
+            {{
+              groups['fabric_x_committers']
+              | map('extract', hostvars)
+              | selectattr('committer_component_type', 'defined')
+              | selectattr('organization.domain', 'defined')
+              | map(attribute='organization.domain')
+              | unique
+              | list
+            }}
+          loop_control:
+            loop_var: current_committer_organization_domain
           when:
             - "'fabric_x_committers' in groups"
             - committer_hosts | length > 0
@@ -75,10 +103,29 @@
         # =========================
         - name: Add Prometheus scrape services for Fabric-X Loadgen
           vars:
-            loadgen_hosts: "{{ groups['load_generators'] }}"
+            loadgen_hosts: >-
+              {{
+                groups['load_generators']
+                | map('extract', hostvars)
+                | selectattr('organization.domain', 'defined')
+                | selectattr('organization.domain', '==', current_loadgen_organization_domain)
+                | map(attribute='inventory_hostname')
+                | list
+              }}
           ansible.builtin.include_role:
             name: hyperledger.fabricx.loadgen
             tasks_from: prometheus/get_scrapers
+          loop: >-
+            {{
+              groups['load_generators']
+              | map('extract', hostvars)
+              | selectattr('organization.domain', 'defined')
+              | map(attribute='organization.domain')
+              | unique
+              | list
+            }}
+          loop_control:
+            loop_var: current_loadgen_organization_domain
           when:
             - "'load_generators' in groups"
             - loadgen_hosts | length > 0
