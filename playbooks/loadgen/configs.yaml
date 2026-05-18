@@ -17,7 +17,7 @@
               | map('extract', hostvars)
               | selectattr('organization', 'defined')
               | selectattr('organization.domain', 'defined')
-              | selectattr('organization.domain', '==', organization.domain | default(''))
+              | selectattr('organization.domain', '==', organization.domain)
               | map(attribute='inventory_hostname')
               | list
             )
