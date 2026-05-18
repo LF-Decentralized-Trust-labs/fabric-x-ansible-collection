@@ -84,7 +84,7 @@ argument_specs:
           - "Example: C(/tmp/fabricx/config-build/fxconfig-artifacts/mychannel/endorsed)."
       fxconfig_git_commit: &fxconfig_git_commit
         type: str
-        default: "v0.0.12"
+        default: "v1.0.0"
         description:
           - "Selects the Git ref used by build and install workflows."
       fxconfig_git_hub_url: &fxconfig_git_hub_url
@@ -116,7 +116,7 @@ argument_specs:
           - "Defines the image name used by the fxconfig container image."
       fxconfig_image_tag: &fxconfig_image_tag
         type: str
-        default: "0.0.12"
+        default: "1.0.0"
         description:
           - "Defines the image tag used by the fxconfig container image."
       fxconfig_log_format: &fxconfig_log_format
