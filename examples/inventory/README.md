@@ -16,6 +16,7 @@ This directory documents the example inventories shipped with the collection. Us
   - [Common Variables](#common-variables)
   - [Local](#local)
   - [Kubernetes](#kubernetes)
+  - [OpenShift](#openshift)
   - [Distributed](#distributed)
 - [Scaling a Component](#scaling-a-component)
 - [Moving a Service to Another Machine](#moving-a-service-to-another-machine)
@@ -59,21 +60,22 @@ The sample inventories all describe a complete network with orderers, a committe
 
 The collection playbooks target well-known groups. Those group names are part of the public contract of the examples and the [`Makefile`](../../Makefile) workflow.
 
-For example, the orderer lifecycle playbooks target `fabric_x_orderers`, the committer lifecycle playbooks target `fabric_x_committer`, load generator playbooks target `load_generators`, and monitoring playbooks target `monitoring`. The example wrapper playbooks compose those lifecycle playbooks into `make start`, `make stop`, `make teardown`, and related commands.
+For example, the orderer lifecycle playbooks target `fabric_x_orderers`, the committer lifecycle playbooks target `fabric_x_committers`, load generator playbooks target `load_generators`, and monitoring playbooks target `monitoring`. The example wrapper playbooks compose those lifecycle playbooks into `make start`, `make stop`, `make teardown`, and related commands.
 
 Keep the standard groups when adapting an example inventory. If you rename them, the roles can still be used directly, but the provided playbooks and generated `target_hosts` shortcuts will no longer know which hosts to operate on.
 
 The most important groups are:
 
-| Group                | Purpose                                                                   |
-| -------------------- | ------------------------------------------------------------------------- |
-| `network`            | Parent group for the deployable Fabric-X network.                         |
-| `fabric_cas`         | Fabric CA servers and their databases, when the inventory uses Fabric CA. |
-| `fabric_x`           | Parent group for Fabric-X orderer and committer components.               |
-| `fabric_x_orderers`  | All Fabric-X orderer component hosts.                                     |
-| `fabric_x_committer` | Fabric-X committer component hosts and the selected committer database.   |
-| `load_generators`    | Load generator instances.                                                 |
-| `monitoring`         | Monitoring components such as exporters, Prometheus, and Grafana.         |
+| Group                 | Purpose                                                                    |
+| --------------------- | -------------------------------------------------------------------------- |
+| `network`             | Parent group for the deployable Fabric-X network.                          |
+| `fabric_cas`          | Fabric CA servers and their databases, when the inventory uses Fabric CA.  |
+| `fabric_x`            | Parent group for Fabric-X orderer and committer components.                |
+| `fabric_x_orderers`   | All Fabric-X orderer component hosts.                                      |
+| `fabric_x_committers` | Parent group for one or more Fabric-X committer deployments.               |
+| `fabric_x_committer`  | The default Fabric-X committer deployment and selected committer database. |
+| `load_generators`     | Load generator instances.                                                  |
+| `monitoring`          | Monitoring components such as exporters, Prometheus, and Grafana.          |
 
 ```mermaid
 graph TD
@@ -83,7 +85,8 @@ graph TD
     network --> fabric_cas
     network --> fabric_x
     fabric_x --> fabric_x_orderers
-    fabric_x --> fabric_x_committer
+    fabric_x --> fabric_x_committers
+    fabric_x_committers --> fabric_x_committer
 ```
 
 ## Inventory Structure

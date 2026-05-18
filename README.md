@@ -149,11 +149,11 @@ flowchart LR
 
 The current sample inventory families are:
 
-| Family      | Documentation                                                           | Notes                                                                            |
-| ----------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| Local       | [Local inventories](./examples/README.md#local-inventories)             | Single-machine deployment, useful for trying and testing on your local machine   |
-| Distributed | [Distributed inventories](./examples/README.md#distributed-inventories) | Multi-machine deployment to scale the network and test high-throughput use-cases |
-| Kubernetes  | [Kubernetes inventories](./examples/README.md#kubernetes-inventories)   | Kubernetes deployments                                                           |
+| Family                                                      | Documentation                                                                    |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| [Local](./examples/README.md#local-inventories)             | Single-machine deployment, useful for trying and testing on your local machine   |
+| [Distributed](./examples/README.md#distributed-inventories) | Multi-machine deployment to scale the network and test high-throughput use-cases |
+| [Kubernetes](./examples/README.md#kubernetes-inventories)   | Kubernetes deployments                                                           |
 
 Set `ANSIBLE_INVENTORY` to use another inventory without editing [`examples/ansible.cfg`](./examples/ansible.cfg):
 
@@ -273,14 +273,14 @@ By default all the `Makefile` commands target all the hosts which are defined wi
 
 The `Makefile` comes with a set of [predefined host groups](./target_groups.mk) that can be used to easily restrict commands:
 
-| Group                | Target                                           |
-| -------------------- | ------------------------------------------------ |
-| `fabric_cas`         | The Fabric CA servers                            |
-| `fabric_x`           | The Fabric-X network nodes (orderers+committer). |
-| `fabric_x_orderers`  | All the Fabric-X orderers.                       |
-| `fabric_x_committer` | The Fabric-X committer components.               |
-| `load_generators`    | All the load_generators.                         |
-| `monitoring`         | All the monitoring instances.                    |
+| Group                 | Target                                           |
+| --------------------- | ------------------------------------------------ |
+| `fabric_cas`          | The Fabric CA servers                            |
+| `fabric_x`            | The Fabric-X network nodes (orderers+committer). |
+| `fabric_x_orderers`   | All the Fabric-X orderers.                       |
+| `fabric_x_committers` | The Fabric-X committer components.               |
+| `load_generators`     | All the load_generators.                         |
+| `monitoring`          | All the monitoring instances.                    |
 
 For example, running:
 

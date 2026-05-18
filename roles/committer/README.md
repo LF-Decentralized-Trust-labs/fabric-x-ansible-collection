@@ -459,6 +459,14 @@ Query the component metrics endpoint and print the response body. Delegates addr
   vars:
     # Metrics port exposed by the selected committer component. Example: `9443`.
     committer_metrics_port: 9443
+    # Enable mTLS for the monitoring endpoint.
+    committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
+    # Remote config directory managed by the role.
+    committer_remote_config_dir: "{{ remote_config_dir }}"
+    # Enable mTLS for the selected component.
+    committer_use_mtls: false
+    # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
+    remote_config_dir: "/opt/fabricx/committer/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: get_metrics

@@ -262,52 +262,54 @@ all:
             # =========================
             # HLFX Committer (k8s)
             # =========================
-            fabric_x_committer:
-              vars:
-                committer_use_k8s: true
-                committer_use_tls: true
-                committer_use_mtls: true
-                committer_monitoring_mtls_clients:
-                  - prometheus
-                organization:
-                  <<: *Org1
-                  fabric_ca_host: fca-org1
-                  role: peer
-                  peer:
-                    name: "{{ inventory_hostname }}"
-                    secret: "{{ inventory_hostname }}PWD"
-              hosts:
-                committer-db:
-                  postgres_user: sc_user
-                  postgres_password: sc_secret_pwd
-                  postgres_db: sc_db
-                  postgres_port: 5150
-                  postgres_use_k8s: true
-                  postgres_use_tls: true
-                committer-validator:
-                  committer_component_type: validator
-                  committer_rpc_port: 5100
-                  committer_metrics_port: 5200
-                  postgres_db_host: committer-db
-                committer-verifier:
-                  committer_component_type: verifier
-                  committer_rpc_port: 5110
-                  committer_metrics_port: 5210
-                committer-coordinator:
-                  committer_component_type: coordinator
-                  committer_rpc_port: 5120
-                  committer_metrics_port: 5220
-                committer-sidecar:
-                  committer_component_type: sidecar
-                  committer_rpc_port: 5130
-                  committer_metrics_port: 5230
-                  committer_k8s_rpc_node_port: 30560
-                committer-query-service:
-                  committer_component_type: query-service
-                  committer_rpc_port: 5140
-                  committer_metrics_port: 5240
-                  committer_k8s_rpc_node_port: 30580
-                  postgres_db_host: committer-db
+            fabric_x_committers:
+              children:
+                fabric_x_committer:
+                  vars:
+                    committer_use_k8s: true
+                    committer_use_tls: true
+                    committer_use_mtls: true
+                    committer_monitoring_mtls_clients:
+                      - prometheus
+                    organization:
+                      <<: *Org1
+                      fabric_ca_host: fca-org1
+                      role: peer
+                      peer:
+                        name: "{{ inventory_hostname }}"
+                        secret: "{{ inventory_hostname }}PWD"
+                  hosts:
+                    committer-db:
+                      postgres_user: sc_user
+                      postgres_password: sc_secret_pwd
+                      postgres_db: sc_db
+                      postgres_port: 5150
+                      postgres_use_k8s: true
+                      postgres_use_tls: true
+                    committer-validator:
+                      committer_component_type: validator
+                      committer_rpc_port: 5100
+                      committer_metrics_port: 5200
+                      postgres_db_host: committer-db
+                    committer-verifier:
+                      committer_component_type: verifier
+                      committer_rpc_port: 5110
+                      committer_metrics_port: 5210
+                    committer-coordinator:
+                      committer_component_type: coordinator
+                      committer_rpc_port: 5120
+                      committer_metrics_port: 5220
+                    committer-sidecar:
+                      committer_component_type: sidecar
+                      committer_rpc_port: 5130
+                      committer_metrics_port: 5230
+                      committer_k8s_rpc_node_port: 30560
+                    committer-query-service:
+                      committer_component_type: query-service
+                      committer_rpc_port: 5140
+                      committer_metrics_port: 5240
+                      committer_k8s_rpc_node_port: 30580
+                      postgres_db_host: committer-db
 
     # =========================
     # HLFX LoadGens
