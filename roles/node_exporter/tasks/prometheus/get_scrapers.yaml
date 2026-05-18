@@ -51,7 +51,7 @@
         - source_labels:
             - __meta_kubernetes_pod_label_app_kubernetes_io_name
           action: keep
-          regex: "{{ hostvars[node_exporter_k8s_ref_host].node_exporter_k8s_resource_name }}"
+          regex: "{{ hostvars[node_exporter_k8s_ref_host].node_exporter_k8s_resource_name | default(node_exporter_k8s_ref_host) }}"
         - source_labels:
             - __meta_kubernetes_pod_ip
           target_label: __address__
