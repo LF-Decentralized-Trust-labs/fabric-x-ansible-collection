@@ -38,10 +38,10 @@ fabric_x:
 fabric_x_orderers:
 	@$(eval TARGET_HOSTS = fabric_x_orderers):
 
-# Target the Fabric-X Committer components for the command being run (e.g. make fabric_x_committer start).
-.PHONY: fabric_x_committer
-fabric_x_committer:
-	@$(eval TARGET_HOSTS = fabric_x_committer):
+# Target the Fabric-X Committer components for the command being run (e.g. make fabric_x_committers start).
+.PHONY: fabric_x_committers
+fabric_x_committers:
+	@$(eval TARGET_HOSTS = fabric_x_committers):
 
 # Target the load_generators for the command being run (e.g. make load_generators start).
 .PHONY: load_generators

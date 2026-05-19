@@ -75,7 +75,7 @@ ansible-playbook hyperledger.fabricx.loadgen.configs --extra-vars '{"target_host
 Properties:
 
 - Target hosts: `load_generators` by default.
-- Nuance: reads `groups['fabric_x_committer']` and `groups['fabric_x_orderers']` to render connection configuration.
+- Nuance: reads `groups['fabric_x_committers']` and `groups['fabric_x_orderers']` to render connection configuration.
 
 ## start.yaml
 

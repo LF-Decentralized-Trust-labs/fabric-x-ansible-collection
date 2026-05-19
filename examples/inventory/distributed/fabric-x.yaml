@@ -190,118 +190,120 @@ all:
             # =========================
             # HLFX Committer
             # =========================
-            fabric_x_committer:
-              vars:
-                committer_use_tls: true
-                committer_use_mtls: true
-                committer_monitoring_mtls_clients:
-                  - prometheus
-                organization:
-                  <<: *Org1
-                  role: peer
-              hosts:
-                committer-sidecar:
-                  committer_component_type: sidecar
-                  ansible_host: "{{ host_machine_5 }}"
-                  committer_rpc_port: 5130
-                  committer_metrics_port: 5230
-                committer-coordinator:
-                  committer_component_type: coordinator
-                  ansible_host: "{{ host_machine_6 }}"
-                  committer_rpc_port: 5120
-                  committer_metrics_port: 5220
-                committer-query-service:
-                  committer_component_type: query-service
-                  ansible_host: "{{ host_machine_6 }}"
-                  yugabyte_cluster_ref_id: 1
-                  committer_rpc_port: 5140
-                  committer_metrics_port: 5240
+            fabric_x_committers:
               children:
-                committer_validators:
+                fabric_x_committer:
                   vars:
-                    committer_component_type: validator
-                    committer_rpc_port: 5100
-                    committer_metrics_port: 5200
-                    yugabyte_cluster_ref_id: 1
+                    committer_use_tls: true
+                    committer_use_mtls: true
+                    committer_monitoring_mtls_clients:
+                      - prometheus
+                    organization:
+                      <<: *Org1
+                      role: peer
                   hosts:
-                    committer-validator-1:
-                      ansible_host: "{{ host_machine_7 }}"
-                    committer-validator-2:
-                      ansible_host: "{{ host_machine_8 }}"
-                    committer-validator-3:
-                      ansible_host: "{{ host_machine_9 }}"
-                    committer-validator-4:
-                      ansible_host: "{{ host_machine_10 }}"
-                    committer-validator-5:
-                      ansible_host: "{{ host_machine_11 }}"
-                    committer-validator-6:
-                      ansible_host: "{{ host_machine_12 }}"
-                    committer-validator-7:
-                      ansible_host: "{{ host_machine_13 }}"
-                committer_verifiers:
-                  vars:
-                    committer_component_type: verifier
-                    committer_rpc_port: 5110
-                    committer_metrics_port: 5210
-                  hosts:
-                    committer-verifier-1:
-                      ansible_host: "{{ host_machine_7 }}"
-                    committer-verifier-2:
-                      ansible_host: "{{ host_machine_8 }}"
-                    committer-verifier-3:
-                      ansible_host: "{{ host_machine_9 }}"
-                    committer-verifier-4:
-                      ansible_host: "{{ host_machine_10 }}"
-                    committer-verifier-5:
-                      ansible_host: "{{ host_machine_11 }}"
-                    committer-verifier-6:
-                      ansible_host: "{{ host_machine_12 }}"
-                    committer-verifier-7:
-                      ansible_host: "{{ host_machine_13 }}"
-                committer_dbs:
-                  vars:
-                    yugabyte_user: yugabyte
-                    yugabyte_password: yugabyte
-                    yugabyte_db: yugabyte
-                    yugabyte_cluster_id: 1
-                    yugabyte_use_tls: true
+                    committer-sidecar:
+                      committer_component_type: sidecar
+                      ansible_host: "{{ host_machine_5 }}"
+                      committer_rpc_port: 5130
+                      committer_metrics_port: 5230
+                    committer-coordinator:
+                      committer_component_type: coordinator
+                      ansible_host: "{{ host_machine_6 }}"
+                      committer_rpc_port: 5120
+                      committer_metrics_port: 5220
+                    committer-query-service:
+                      committer_component_type: query-service
+                      ansible_host: "{{ host_machine_6 }}"
+                      yugabyte_cluster_ref_id: 1
+                      committer_rpc_port: 5140
+                      committer_metrics_port: 5240
                   children:
-                    yb_masters:
+                    committer_validators:
                       vars:
-                        yugabyte_component_type: master
-                        yugabyte_master_rpc_bind_port: 5300
-                        yugabyte_master_webserver_port: 5310
+                        committer_component_type: validator
+                        committer_rpc_port: 5100
+                        committer_metrics_port: 5200
+                        yugabyte_cluster_ref_id: 1
                       hosts:
-                        yugabytedb-master-1:
-                          ansible_host: "{{ host_machine_5 }}"
-                        yugabytedb-master-2:
-                          ansible_host: "{{ host_machine_6 }}"
-                        yugabytedb-master-3:
+                        committer-validator-1:
                           ansible_host: "{{ host_machine_7 }}"
-                    yb_tablets:
-                      vars:
-                        yugabyte_component_type: tablet
-                        yugabyte_tablet_pgsql_bind_port: 5320
-                        yugabyte_tablet_rpc_bind_port: 5330
-                        yugabyte_tablet_webserver_port: 5340
-                        yugabyte_tablet_cql_web_port: 5360
-                        yugabyte_tablet_pgsql_web_port: 5370
-                        yugabyte_tablet_cql_bind_port: 5380
-                      hosts:
-                        yugabytedb-tablet-1:
-                          ansible_host: "{{ host_machine_7 }}"
-                        yugabytedb-tablet-2:
+                        committer-validator-2:
                           ansible_host: "{{ host_machine_8 }}"
-                        yugabytedb-tablet-3:
+                        committer-validator-3:
                           ansible_host: "{{ host_machine_9 }}"
-                        yugabytedb-tablet-4:
+                        committer-validator-4:
                           ansible_host: "{{ host_machine_10 }}"
-                        yugabytedb-tablet-5:
+                        committer-validator-5:
                           ansible_host: "{{ host_machine_11 }}"
-                        yugabytedb-tablet-6:
+                        committer-validator-6:
                           ansible_host: "{{ host_machine_12 }}"
-                        yugabytedb-tablet-7:
+                        committer-validator-7:
                           ansible_host: "{{ host_machine_13 }}"
+                    committer_verifiers:
+                      vars:
+                        committer_component_type: verifier
+                        committer_rpc_port: 5110
+                        committer_metrics_port: 5210
+                      hosts:
+                        committer-verifier-1:
+                          ansible_host: "{{ host_machine_7 }}"
+                        committer-verifier-2:
+                          ansible_host: "{{ host_machine_8 }}"
+                        committer-verifier-3:
+                          ansible_host: "{{ host_machine_9 }}"
+                        committer-verifier-4:
+                          ansible_host: "{{ host_machine_10 }}"
+                        committer-verifier-5:
+                          ansible_host: "{{ host_machine_11 }}"
+                        committer-verifier-6:
+                          ansible_host: "{{ host_machine_12 }}"
+                        committer-verifier-7:
+                          ansible_host: "{{ host_machine_13 }}"
+                    committer_dbs:
+                      vars:
+                        yugabyte_user: yugabyte
+                        yugabyte_password: yugabyte
+                        yugabyte_db: yugabyte
+                        yugabyte_cluster_id: 1
+                        yugabyte_use_tls: true
+                      children:
+                        yb_masters:
+                          vars:
+                            yugabyte_component_type: master
+                            yugabyte_master_rpc_bind_port: 5300
+                            yugabyte_master_webserver_port: 5310
+                          hosts:
+                            yugabytedb-master-1:
+                              ansible_host: "{{ host_machine_5 }}"
+                            yugabytedb-master-2:
+                              ansible_host: "{{ host_machine_6 }}"
+                            yugabytedb-master-3:
+                              ansible_host: "{{ host_machine_7 }}"
+                        yb_tablets:
+                          vars:
+                            yugabyte_component_type: tablet
+                            yugabyte_tablet_pgsql_bind_port: 5320
+                            yugabyte_tablet_rpc_bind_port: 5330
+                            yugabyte_tablet_webserver_port: 5340
+                            yugabyte_tablet_cql_web_port: 5360
+                            yugabyte_tablet_pgsql_web_port: 5370
+                            yugabyte_tablet_cql_bind_port: 5380
+                          hosts:
+                            yugabytedb-tablet-1:
+                              ansible_host: "{{ host_machine_7 }}"
+                            yugabytedb-tablet-2:
+                              ansible_host: "{{ host_machine_8 }}"
+                            yugabytedb-tablet-3:
+                              ansible_host: "{{ host_machine_9 }}"
+                            yugabytedb-tablet-4:
+                              ansible_host: "{{ host_machine_10 }}"
+                            yugabytedb-tablet-5:
+                              ansible_host: "{{ host_machine_11 }}"
+                            yugabytedb-tablet-6:
+                              ansible_host: "{{ host_machine_12 }}"
+                            yugabytedb-tablet-7:
+                              ansible_host: "{{ host_machine_13 }}"
 
     # =========================
     # HLFX LoadGens

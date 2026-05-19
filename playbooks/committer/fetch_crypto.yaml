@@ -5,7 +5,7 @@
 #
 
 - name: Fetch the Fabric-X Committer crypto material
-  hosts: "{{ target_hosts | default('fabric_x_committer') }}:&fabric_x_committer"
+  hosts: "{{ target_hosts | default('fabric_x_committers') }}:&fabric_x_committers"
   tasks:
     - name: Fetch Hyperledger Fabric-X Committer Postgres DB certificates
       ansible.builtin.include_role:
