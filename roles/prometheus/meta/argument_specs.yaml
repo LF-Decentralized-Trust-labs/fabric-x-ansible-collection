@@ -563,3 +563,11 @@ argument_specs:
     options:
       prometheus_k8s_resource_name: *prometheus_k8s_resource_name
       prometheus_openshift_route: *prometheus_openshift_route
+
+  detect_k8s_sd:
+    short_description: Detect whether any scrape service uses kubernetes_sd_configs
+    description:
+      - Sets the C(prometheus_has_k8s_sd_scrapers) fact to C(true) when at least one entry in C(prometheus_scrape_services) defines C(kubernetes_sd_configs).
+      - Used by other tasks to conditionally create RBAC resources and configure the StatefulSet ServiceAccount.
+    options:
+      prometheus_scrape_services: *prometheus_scrape_services

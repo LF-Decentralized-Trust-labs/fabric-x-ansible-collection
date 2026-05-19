@@ -1,0 +1,27 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Delete ClusterRoleBinding "{{ k8s_rbac_resource_name }}"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    name: "{{ k8s_rbac_resource_name }}"
+
+- name: Delete ClusterRole "{{ k8s_rbac_resource_name }}"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    name: "{{ k8s_rbac_resource_name }}"
+
+- name: Delete ServiceAccount "{{ k8s_rbac_resource_name }}"
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: ServiceAccount
+    name: "{{ k8s_rbac_resource_name }}"
+    namespace: "{{ k8s_namespace }}"

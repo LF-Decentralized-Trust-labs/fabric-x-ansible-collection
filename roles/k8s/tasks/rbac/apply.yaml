@@ -1,0 +1,23 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Apply ServiceAccount "{{ k8s_rbac_resource_name }}"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: serviceaccount.yaml.j2
+
+- name: Apply ClusterRole "{{ k8s_rbac_resource_name }}"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: clusterrole.yaml.j2
+
+- name: Apply ClusterRoleBinding "{{ k8s_rbac_resource_name }}"
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: clusterrolebinding.yaml.j2

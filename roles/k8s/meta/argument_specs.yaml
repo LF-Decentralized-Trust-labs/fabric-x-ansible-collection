@@ -90,6 +90,38 @@ argument_specs:
         default: logs.txt
         description:
           - Specifies the filename used for the fetched log artifact on the control node.
+      k8s_rbac_resource_name: &k8s_rbac_resource_name
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Base name used for RBAC resources (ServiceAccount, ClusterRole, ClusterRoleBinding).
+      k8s_rbac_part_of: &k8s_rbac_part_of
+        type: str
+        required: true
+        description:
+          - Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to RBAC resources.
+          - Must be set by the consumer role.
+      k8s_rbac_clusterrole_api_groups: &k8s_rbac_clusterrole_api_groups
+        type: list
+        elements: str
+        description:
+          - API groups granted by the ClusterRole for Kubernetes service discovery.
+          - Must be set by the consumer role.
+          - "Example: C([''])."
+      k8s_rbac_clusterrole_resources: &k8s_rbac_clusterrole_resources
+        type: list
+        elements: str
+        description:
+          - Resources granted by the ClusterRole for Kubernetes service discovery.
+          - Must be set by the consumer role.
+          - "Example: C(['pods', 'nodes', 'nodes/metrics', 'services', 'endpoints'])."
+      k8s_rbac_clusterrole_verbs: &k8s_rbac_clusterrole_verbs
+        type: list
+        elements: str
+        description:
+          - Verbs granted by the ClusterRole for Kubernetes service discovery.
+          - Must be set by the consumer role.
+          - "Example: C(['get', 'list', 'watch'])."
 
   namespace/create:
     short_description: Ensure a Kubernetes namespace exists
@@ -131,3 +163,26 @@ argument_specs:
       k8s_remote_logs_file: *k8s_remote_logs_file
       k8s_fetched_logs_dir: *k8s_fetched_logs_dir
       k8s_fetched_logs_file: *k8s_fetched_logs_file
+
+  rbac/apply:
+    short_description: Apply RBAC resources for Kubernetes service discovery
+    description:
+      - Creates or updates a ServiceAccount, ClusterRole, and ClusterRoleBinding for Prometheus Kubernetes service discovery.
+      - The ClusterRole grants read access to pods, nodes, services, and endpoints.
+      - Resource names are controlled by C(k8s_rbac_resource_name) and labels include C(k8s_rbac_part_of).
+    options:
+      k8s_namespace: *k8s_namespace
+      k8s_rbac_resource_name: *k8s_rbac_resource_name
+      k8s_rbac_part_of: *k8s_rbac_part_of
+      k8s_rbac_clusterrole_api_groups: *k8s_rbac_clusterrole_api_groups
+      k8s_rbac_clusterrole_resources: *k8s_rbac_clusterrole_resources
+      k8s_rbac_clusterrole_verbs: *k8s_rbac_clusterrole_verbs
+
+  rbac/rm:
+    short_description: Remove RBAC resources for Kubernetes service discovery
+    description:
+      - Deletes the ClusterRoleBinding, ClusterRole, and ServiceAccount previously created by C(rbac/apply).
+      - Targets resources by C(k8s_rbac_resource_name) in C(k8s_namespace).
+    options:
+      k8s_namespace: *k8s_namespace
+      k8s_rbac_resource_name: *k8s_rbac_resource_name
