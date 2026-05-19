@@ -8,6 +8,22 @@
   hosts: "{{ target_hosts | default('all') }}"
   tasks:
     - name: Define configuration files for fxconfig
+      vars:
+        reference_committer_hosts: >-
+          {{
+            (
+              groups['fabric_x_committers']
+              | default([])
+              | map('extract', hostvars)
+              | selectattr('organization', 'defined')
+              | selectattr('organization.domain', 'defined')
+              | selectattr('organization.domain', '==', organization.domain)
+              | map(attribute='inventory_hostname')
+              | sort
+              | list
+            )
+            or groups['fabric_x_committers'] | default([])
+          }}
       when:
         - organization is defined
         - organization.namespaces is defined
@@ -32,22 +48,24 @@
               }}
             committer_query_service_host: >-
               {{
-                groups['all']
+                reference_committer_hosts
                 | map('extract', hostvars)
                 | selectattr('committer_component_type', 'defined')
                 | selectattr('committer_component_type', '==', 'query-service')
                 | map(attribute='inventory_hostname')
                 | sort
+                | list
                 | first
               }}
             committer_sidecar_host: >-
               {{
-                groups['all']
+                reference_committer_hosts
                 | map('extract', hostvars)
                 | selectattr('committer_component_type', 'defined')
                 | selectattr('committer_component_type', '==', 'sidecar')
                 | map(attribute='inventory_hostname')
                 | sort
+                | list
                 | first
               }}
           ansible.builtin.include_role:

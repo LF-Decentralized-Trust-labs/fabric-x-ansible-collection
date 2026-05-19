@@ -40,7 +40,8 @@ flowchart TD
   fabric_cas --> fabric_ca_servers
   fabric_cas --> fabric_ca_dbs
   fabric_x --> fabric_x_orderers
-  fabric_x --> fabric_x_committer
+  fabric_x --> fabric_x_committers
+  fabric_x_committers --> fabric_x_committer
   fabric_x_orderers --> fabric_x_orderer_1
   fabric_x_orderers --> fabric_x_orderer_2
   fabric_x_orderers --> fabric_x_orderer_3
