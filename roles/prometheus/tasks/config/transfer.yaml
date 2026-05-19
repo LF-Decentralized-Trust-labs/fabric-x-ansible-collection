@@ -47,11 +47,6 @@
     - current_service_to_scrape.use_tls
     - current_service_to_scrape.tls_ca_file is defined
 
-- name: Detect whether any scrape service uses kubernetes_sd_configs
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.prometheus
-    tasks_from: detect_k8s_sd
-
 - name: Transfer Prometheus k8s ConfigMap
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus

@@ -260,6 +260,7 @@ all:
           prometheus_port: 9090
           prometheus_use_tls: true
           prometheus_use_k8s: true
+          prometheus_k8s_node_port: 30301
         grafana:
           grafana_username: admin
           grafana_password: adminPWD

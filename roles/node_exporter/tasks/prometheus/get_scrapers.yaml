@@ -34,10 +34,12 @@
 - name: Set Prometheus scrape services for k8s Node Exporters
   vars:
     node_exporter_k8s_ref_host: "{{ node_exporter_k8s_hosts | first }}"
+    node_exporter_host_k8s_resource_name: "{{ hostvars[node_exporter_k8s_ref_host].node_exporter_k8s_resource_name | default(node_exporter_k8s_ref_host) }}"
     node_exporter_scrape_service:
       job_name: "node_exporter"
       use_tls: "{{ hostvars[node_exporter_k8s_ref_host].node_exporter_use_tls | default(false) }}"
       tls_ca_file: "{{ fetched_artifacts_dir }}/{{ node_exporter_k8s_ref_host }}/tls/ca.crt"
+      tls_server_name: "{{ node_exporter_host_k8s_resource_name }}.{{ hostvars[node_exporter_k8s_ref_host].k8s_namespace | default('default') }}.svc.cluster.local"
       kubernetes_sd_configs:
         - role: pod
           namespaces:
@@ -51,7 +53,7 @@
         - source_labels:
             - __meta_kubernetes_pod_label_app_kubernetes_io_name
           action: keep
-          regex: "{{ hostvars[node_exporter_k8s_ref_host].node_exporter_k8s_resource_name | default(node_exporter_k8s_ref_host) }}"
+          regex: "{{ node_exporter_host_k8s_resource_name }}"
         - source_labels:
             - __meta_kubernetes_pod_ip
           target_label: __address__

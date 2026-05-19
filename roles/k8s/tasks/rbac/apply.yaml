@@ -7,17 +7,20 @@
 - name: Apply ServiceAccount "{{ k8s_rbac_resource_name }}"
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: serviceaccount.yaml.j2
 
 - name: Apply ClusterRole "{{ k8s_rbac_resource_name }}"
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: clusterrole.yaml.j2
 
 - name: Apply ClusterRoleBinding "{{ k8s_rbac_resource_name }}"
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: clusterrolebinding.yaml.j2

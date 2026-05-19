@@ -423,7 +423,6 @@ argument_specs:
     description:
       - Creates or updates the Kubernetes Secret that stores the Prometheus TLS server keypair.
     options:
-      k8s_namespace: *k8s_namespace
       remote_config_dir: *remote_config_dir
       prometheus_remote_config_dir: *prometheus_remote_config_dir
       prometheus_tls_private_key_file: *prometheus_tls_private_key_file
@@ -467,6 +466,7 @@ argument_specs:
       - Renders the main scrape configuration and supporting files on the remote host, including scrape target lists and TLS client settings.
       - Applies the Kubernetes ConfigMap when Kubernetes mode is enabled.
     options:
+      k8s_namespace: *k8s_namespace
       remote_config_dir: *remote_config_dir
       prometheus_remote_config_dir: *prometheus_remote_config_dir
       prometheus_config_file: *prometheus_config_file
@@ -480,6 +480,8 @@ argument_specs:
       prometheus_use_tls: *prometheus_use_tls
       prometheus_use_k8s: *prometheus_use_k8s
       prometheus_use_openshift: *prometheus_use_openshift
+      prometheus_k8s_resource_name: *prometheus_k8s_resource_name
+      prometheus_k8s_part_of: *prometheus_k8s_part_of
 
   k8s/config/transfer:
     short_description: Apply the Prometheus ConfigMap on Kubernetes
@@ -506,6 +508,7 @@ argument_specs:
       prometheus_remote_config_dir: *prometheus_remote_config_dir
       prometheus_use_k8s: *prometheus_use_k8s
       prometheus_use_openshift: *prometheus_use_openshift
+      prometheus_k8s_resource_name: *prometheus_k8s_resource_name
 
   k8s/config/rm:
     short_description: Remove the Prometheus ConfigMap
