@@ -4,6 +4,67 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Split Node Exporter hosts by deployment mode
+  ansible.builtin.set_fact:
+    node_exporter_k8s_hosts: >-
+      {{
+        node_exporter_hosts
+        | map('extract', hostvars)
+        | selectattr('node_exporter_use_k8s', 'defined')
+        | selectattr('node_exporter_use_k8s')
+        | map(attribute='inventory_hostname')
+        | list
+      }}
+    node_exporter_container_hosts: >-
+      {{
+        node_exporter_hosts
+        | map('extract', hostvars)
+        | rejectattr('node_exporter_use_k8s', 'defined')
+        | map(attribute='inventory_hostname')
+        | list
+        +
+        node_exporter_hosts
+        | map('extract', hostvars)
+        | selectattr('node_exporter_use_k8s', 'defined')
+        | rejectattr('node_exporter_use_k8s')
+        | map(attribute='inventory_hostname')
+        | list
+      }}
+
+- name: Set Prometheus scrape services for k8s Node Exporters
+  vars:
+    node_exporter_k8s_ref_host: "{{ node_exporter_k8s_hosts | first }}"
+    node_exporter_host_k8s_resource_name: "{{ hostvars[node_exporter_k8s_ref_host].node_exporter_k8s_resource_name | default(node_exporter_k8s_ref_host) }}"
+    node_exporter_scrape_service:
+      job_name: "node_exporter"
+      use_tls: "{{ hostvars[node_exporter_k8s_ref_host].node_exporter_use_tls | default(false) }}"
+      tls_ca_file: "{{ fetched_artifacts_dir }}/{{ node_exporter_k8s_ref_host }}/tls/ca.crt"
+      tls_server_name: "{{ node_exporter_host_k8s_resource_name }}.{{ hostvars[node_exporter_k8s_ref_host].k8s_namespace | default('default') }}.svc.cluster.local"
+      kubernetes_sd_configs:
+        - role: pod
+          namespaces:
+            names:
+              - "{{ hostvars[node_exporter_k8s_ref_host].k8s_namespace | default('default') }}"
+      relabel_configs:
+        - source_labels:
+            - __meta_kubernetes_pod_label_app_kubernetes_io_component
+          action: keep
+          regex: node-exporter
+        - source_labels:
+            - __meta_kubernetes_pod_label_app_kubernetes_io_name
+          action: keep
+          regex: "{{ node_exporter_host_k8s_resource_name }}"
+        - source_labels:
+            - __meta_kubernetes_pod_ip
+          target_label: __address__
+          replacement: "$1:{{ hostvars[node_exporter_k8s_ref_host].node_exporter_port }}"
+        - source_labels:
+            - __meta_kubernetes_pod_node_name
+          target_label: node
+  ansible.builtin.set_fact:
+    node_exporter_prometheus_scrape_services: "{{ [node_exporter_scrape_service] }}"
+  when: node_exporter_k8s_hosts | length > 0
+
 - name: Set Prometheus scrape services for Node Exporters
   vars:
     node_exporter_scrape_service:
@@ -15,7 +76,8 @@
           port_to_scrape: node_exporter_port
   ansible.builtin.set_fact:
     node_exporter_prometheus_scrape_services: "{{ (node_exporter_prometheus_scrape_services | default([])) + [node_exporter_scrape_service] }}"
-  loop: "{{ node_exporter_hosts }}"
+  loop: "{{ node_exporter_container_hosts }}"
   loop_control:
     loop_var: current_node_exporter
     label: "{{ current_node_exporter }}"
+  when: node_exporter_container_hosts | length > 0

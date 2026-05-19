@@ -10,6 +10,8 @@
   - [namespace/create](#namespacecreate)
   - [registry/create\_pull\_secret](#registrycreate_pull_secret)
   - [fetch\_logs](#fetch_logs)
+  - [rbac/apply](#rbacapply)
+  - [rbac/rm](#rbacrm)
 
 ## Role Defaults
 
@@ -99,4 +101,57 @@ Collects pod logs from the target namespace for pods matched by `k8s_pod_label_s
   ansible.builtin.include_role:
     name: hyperledger.fabricx.k8s
     tasks_from: fetch_logs
+```
+
+### rbac/apply
+
+> Apply RBAC resources for Kubernetes service discovery
+
+Creates or updates a ServiceAccount, ClusterRole, and ClusterRoleBinding for Prometheus Kubernetes service discovery. The ClusterRole grants read access to pods, nodes, services, and endpoints. Resource names are controlled by `k8s_rbac_resource_name` and labels include `k8s_rbac_part_of`.
+
+```yaml
+- name: Apply RBAC resources for Kubernetes service discovery
+  vars:
+    # Specifies the Kubernetes namespace targeted by the task. Example: `fabric-x`.
+    k8s_namespace: "fabric-x"
+    # Base name used for RBAC resources (ServiceAccount, ClusterRole, ClusterRoleBinding).
+    k8s_rbac_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to RBAC resources. Must be set by the consumer role.
+    k8s_rbac_part_of: "string"
+    # API groups granted by the ClusterRole for Kubernetes service discovery. Must be set by the consumer role. Example: `['']`.
+    k8s_rbac_clusterrole_api_groups:
+      - ""
+    # Resources granted by the ClusterRole for Kubernetes service discovery. Must be set by the consumer role. Example: `['pods', 'nodes', 'nodes/metrics', 'services', 'endpoints']`.
+    k8s_rbac_clusterrole_resources:
+      - "pods"
+      - "nodes"
+      - "nodes/metrics"
+      - "services"
+      - "endpoints"
+    # Verbs granted by the ClusterRole for Kubernetes service discovery. Must be set by the consumer role. Example: `['get', 'list', 'watch']`.
+    k8s_rbac_clusterrole_verbs:
+      - "get"
+      - "list"
+      - "watch"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: rbac/apply
+```
+
+### rbac/rm
+
+> Remove RBAC resources for Kubernetes service discovery
+
+Deletes the ClusterRoleBinding, ClusterRole, and ServiceAccount previously created by `rbac/apply`. Targets resources by `k8s_rbac_resource_name` in `k8s_namespace`.
+
+```yaml
+- name: Remove RBAC resources for Kubernetes service discovery
+  vars:
+    # Specifies the Kubernetes namespace targeted by the task. Example: `fabric-x`.
+    k8s_namespace: "fabric-x"
+    # Base name used for RBAC resources (ServiceAccount, ClusterRole, ClusterRoleBinding).
+    k8s_rbac_resource_name: "{{ inventory_hostname }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: rbac/rm
 ```
