@@ -65,7 +65,9 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.k8s
     tasks_from: rbac/apply
-  when: prometheus_has_k8s_sd_scrapers
+  when:
+    - prometheus_has_k8s_sd_scrapers is defined
+    - prometheus_has_k8s_sd_scrapers
 
 - name: Apply Prometheus StatefulSet
   kubernetes.core.k8s:

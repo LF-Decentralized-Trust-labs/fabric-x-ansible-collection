@@ -26,7 +26,7 @@ spec:
         app.kubernetes.io/name: {{ prometheus_k8s_resource_name }}
         app.kubernetes.io/part-of: {{ prometheus_k8s_part_of }}
     spec:
-{% if prometheus_has_k8s_sd_scrapers %}
+{% if prometheus_has_k8s_sd_scrapers is defined and prometheus_has_k8s_sd_scrapers %}
       # Dedicated ServiceAccount for Kubernetes service discovery (pod/node listing).
       serviceAccountName: {{ prometheus_k8s_resource_name }}
 {% endif %}
