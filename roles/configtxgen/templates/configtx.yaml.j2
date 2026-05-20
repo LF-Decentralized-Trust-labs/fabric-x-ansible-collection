@@ -152,35 +152,17 @@ Capabilities:
   # Channel capabilities apply to both the orderers and the peers and must be
   # supported by both.
   # Set the value of the capability to true to require it.
-  Channel: &ChannelCapabilities
-    # V2.0 for Channel is a catchall flag for behavior which has been
-    # determined to be desired for all orderers and peers running at the v2.0.0
-    # level, but which would be incompatible with orderers and peers from
-    # prior releases.
-    # Prior to enabling V2.0 channel capabilities, ensure that all
-    # orderers and peers on a channel are at v2.0.0 or later.
-    V3_0: true
+  Channel: &ChannelCapabilities {}
 
   # Orderer capabilities apply only to the orderers, and may be safely
   # used with prior release peers.
   # Set the value of the capability to true to require it.
-  Orderer: &OrdererCapabilities
-    # V1.1 for Orderer is a catchall flag for behavior which has been
-    # determined to be desired for all orderers running at the v1.1.x
-    # level, but which would be incompatible with orderers from prior releases.
-    # Prior to enabling V2.0 orderer capabilities, ensure that all
-    # orderers on a channel are at v2.0.0 or later.
-    V2_0: true
+  Orderer: &OrdererCapabilities {}
 
   # Application capabilities apply only to the peer network, and may be safely
   # used with prior release orderers.
   # Set the value of the capability to true to require it.
-  Application: &ApplicationCapabilities
-    # V2.5 for Application enables the new non-backwards compatible
-    # features of fabric v2.5, namely the ability to purge private data.
-    # Prior to enabling V2.5 application capabilities, ensure that all
-    # peers on a channel are at v2.5.0 or later.
-    V2_5: true
+  Application: &ApplicationCapabilities {}
 
 ################################################################################
 #
@@ -191,85 +173,6 @@ Capabilities:
 #
 ################################################################################
 Application: &ApplicationDefaults
-  ACLs: &ACLsDefault
-    # This section provides defaults for policies for various resources
-    # in the system. These "resources" could be functions on system chaincodes
-    # (e.g., "GetBlockByNumber" on the "qscc" system chaincode) or other resources
-    # (e.g.,who can receive Block events). This section does NOT specify the resource's
-    # definition or API, but just the ACL policy for it.
-    #
-    # Users can override these defaults with their own policy mapping by defining the
-    # mapping under ACLs in their channel definition
-
-    #---New Lifecycle System Chaincode (_lifecycle) function to policy mapping for access control--#
-
-    # ACL policy for _lifecycle's "CheckCommitReadiness" function
-    _lifecycle/CheckCommitReadiness: /Channel/Application/Writers
-
-    # ACL policy for _lifecycle's "CommitChaincodeDefinition" function
-    _lifecycle/CommitChaincodeDefinition: /Channel/Application/Writers
-
-    # ACL policy for _lifecycle's "QueryChaincodeDefinition" function
-    _lifecycle/QueryChaincodeDefinition: /Channel/Application/Writers
-
-    # ACL policy for _lifecycle's "QueryChaincodeDefinitions" function
-    _lifecycle/QueryChaincodeDefinitions: /Channel/Application/Writers
-
-    #---Lifecycle System Chaincode (lscc) function to policy mapping for access control---#
-
-    # ACL policy for lscc's "getid" function
-    lscc/ChaincodeExists: /Channel/Application/Readers
-
-    # ACL policy for lscc's "getdepspec" function
-    lscc/GetDeploymentSpec: /Channel/Application/Readers
-
-    # ACL policy for lscc's "getccdata" function
-    lscc/GetChaincodeData: /Channel/Application/Readers
-
-    # ACL Policy for lscc's "getchaincodes" function
-    lscc/GetInstantiatedChaincodes: /Channel/Application/Readers
-
-    #---Query System Chaincode (qscc) function to policy mapping for access control---#
-
-    # ACL policy for qscc's "GetChainInfo" function
-    qscc/GetChainInfo: /Channel/Application/Readers
-
-    # ACL policy for qscc's "GetBlockByNumber" function
-    qscc/GetBlockByNumber: /Channel/Application/Readers
-
-    # ACL policy for qscc's  "GetBlockByHash" function
-    qscc/GetBlockByHash: /Channel/Application/Readers
-
-    # ACL policy for qscc's "GetTransactionByID" function
-    qscc/GetTransactionByID: /Channel/Application/Readers
-
-    # ACL policy for qscc's "GetBlockByTxID" function
-    qscc/GetBlockByTxID: /Channel/Application/Readers
-
-    #---Configuration System Chaincode (cscc) function to policy mapping for access control---#
-
-    # ACL policy for cscc's "GetConfigBlock" function
-    cscc/GetConfigBlock: /Channel/Application/Readers
-
-    # ACL policy for cscc's "GetChannelConfig" function
-    cscc/GetChannelConfig: /Channel/Application/Readers
-
-    #---Miscellaneous peer function to policy mapping for access control---#
-
-    # ACL policy for invoking chaincodes on peer
-    peer/Propose: /Channel/Application/Writers
-
-    # ACL policy for chaincode to chaincode invocation
-    peer/ChaincodeToChaincode: /Channel/Application/Writers
-
-    #---Events resource to policy mapping for access control###---#
-
-    # ACL policy for sending block events
-    event/Block: /Channel/Application/Readers
-
-    # ACL policy for sending filtered block events
-    event/FilteredBlock: /Channel/Application/Readers
-
   # Organizations lists the orgs participating on the application side of the
   # network.
   Organizations:

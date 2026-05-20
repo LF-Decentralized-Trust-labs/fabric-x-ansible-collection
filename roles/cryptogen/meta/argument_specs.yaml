@@ -41,7 +41,7 @@ argument_specs:
       cryptogen_image_tag: &cryptogen_image_tag
         type: str
         required: false
-        default: "0.0.16"
+        default: "1.0.0"
         description:
           - "Sets the cryptogen image tag."
       cryptogen_image: &cryptogen_image
@@ -77,7 +77,7 @@ argument_specs:
       cryptogen_git_commit: &cryptogen_git_commit
         type: str
         required: false
-        default: "v0.0.16"
+        default: "v1.0.0"
         description:
           - "Pins the cryptogen source revision."
       cryptogen_source_code_package: &cryptogen_source_code_package

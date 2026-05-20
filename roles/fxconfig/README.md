@@ -59,7 +59,7 @@ Builds the fxconfig Go binary from the configured Fabric-X source package by del
     # Defines the fxconfig binary name.
     fxconfig_bin_name: fxconfig
     # Selects the Git ref used by build and install workflows.
-    fxconfig_git_commit: v0.0.12
+    fxconfig_git_commit: v1.0.0
     # Defines the Git host used to resolve the Fabric-X source repository.
     fxconfig_git_hub_url: github.com
     # Defines the Fabric-X source repository path.
@@ -111,7 +111,7 @@ Installs the fxconfig Go package from the configured Fabric-X source package by 
     # Defines the Go package path used to install fxconfig.
     fxconfig_bin_package: "{{ fxconfig_git_hub_url }}/{{ fxconfig_git_repo }}/{{ fxconfig_source_code_package }}"
     # Selects the Git ref used by build and install workflows.
-    fxconfig_git_commit: v0.0.12
+    fxconfig_git_commit: v1.0.0
     # Defines the Git host used to resolve the Fabric-X source repository.
     fxconfig_git_hub_url: github.com
     # Defines the Fabric-X source repository path.
@@ -390,7 +390,7 @@ Copies a namespace transaction JSON file to the managed host, mounts the rendere
     # Defines the image name used by the fxconfig container image.
     fxconfig_image_name: fabric-x-tools
     # Defines the image tag used by the fxconfig container image.
-    fxconfig_image_tag: 0.0.12
+    fxconfig_image_tag: 1.0.0
     # Defines the transaction artifact path on the managed host.
     fxconfig_output: "{{ fxconfig_remote_config_dir }}/tx.json"
     # Defines the registry endpoint used by the fxconfig container image.
@@ -428,7 +428,7 @@ Collects endorsed namespace transaction JSON files from the artifact directory, 
     # Defines the image name used by the fxconfig container image.
     fxconfig_image_name: fabric-x-tools
     # Defines the image tag used by the fxconfig container image.
-    fxconfig_image_tag: 0.0.12
+    fxconfig_image_tag: 1.0.0
     # Defines the fxconfig log format.
     fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
     # Defines the fxconfig log level.
@@ -464,7 +464,7 @@ Creates a namespace transaction JSON artifact for the configured namespace and e
     # Defines the image name used by the fxconfig container image.
     fxconfig_image_name: fabric-x-tools
     # Defines the image tag used by the fxconfig container image.
-    fxconfig_image_tag: 0.0.12
+    fxconfig_image_tag: 1.0.0
     # Defines the fxconfig log format.
     fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
     # Defines the fxconfig log level.
@@ -508,7 +508,7 @@ Lists namespaces from the configured Fabric-X network by mounting the rendered c
     # Defines the image name used by the fxconfig container image.
     fxconfig_image_name: fabric-x-tools
     # Defines the image tag used by the fxconfig container image.
-    fxconfig_image_tag: 0.0.12
+    fxconfig_image_tag: 1.0.0
     # Defines the fxconfig log format.
     fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
     # Defines the fxconfig log level.
@@ -546,7 +546,7 @@ Transfers a merged namespace transaction JSON artifact to the managed host, moun
     # Defines the image name used by the fxconfig container image.
     fxconfig_image_name: fabric-x-tools
     # Defines the image tag used by the fxconfig container image.
-    fxconfig_image_tag: 0.0.12
+    fxconfig_image_tag: 1.0.0
     # Defines the registry endpoint used by the fxconfig container image.
     fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # Defines the fxconfig remote configuration directory.
