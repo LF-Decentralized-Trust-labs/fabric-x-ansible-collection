@@ -10,7 +10,7 @@
     state: directory
     mode: "0755"
 
-- name: Check if already enrolled
+- name: Check if BCCSP is already enrolled
   vars:
     fabric_ca_bccsp_enrollment_cert_file: "{{ fabric_ca_cryptogenize_tls_cert_file if (fabric_ca_enrollment_profile is defined and fabric_ca_enrollment_profile == 'tls') else fabric_ca_cryptogenize_msp_signcert_file }}"
   ansible.builtin.stat:
@@ -19,17 +19,12 @@
   when:
     - fabric_ca_enrollment_type == 'bccsp'
 
-- name: Check if already enrolled
+- name: Check if Idemix is already enrolled
   ansible.builtin.stat:
     path: "{{ fabric_ca_msp_dir }}/msp/user/SignerConfig"
   register: fabric_ca_idemix_signer
   when:
     - fabric_ca_enrollment_type == 'idemix'
-
-- name: Resolve effective Fabric CA connection port
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.fabric_ca
-    tasks_from: server/effective_address
 
 - name: Prepare and enroll identity with Fabric CA client container
   when:
@@ -42,6 +37,10 @@
       and not fabric_ca_msp_cert.stat.exists
       )
   block:
+    - name: Resolve effective Fabric CA connection port
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: server/effective_address
     - name: Set volumes for Fabric-CA client
       ansible.builtin.set_fact:
         fabric_ca_volumes:
