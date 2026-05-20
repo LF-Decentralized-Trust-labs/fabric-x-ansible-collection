@@ -4,10 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Configure macOS hosts entries for OpenShift routes
+- name: Configure hosts entries for OpenShift routes
   hosts: localhost
   tasks:
-    - name: Configure macOS hosts entries for OpenShift routes
+    - name: Configure hosts entries for OpenShift routes
       ansible.builtin.include_role:
         name: hyperledger.fabricx.openshift
-        tasks_from: route/setup_on_macos
+        tasks_from: route/setup_hosts

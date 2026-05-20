@@ -28,7 +28,7 @@ This inventory deploys these logical services as OpenShift workloads, services, 
 - Monitoring with node exporter, PostgreSQL exporter, Prometheus, and Grafana.
 
 > [!NOTE]
-> If you run on macOS, the OpenShift routes map to `127.0.0.1`. While this works fine with binary CLIs, it can break containerized binaries because `127.0.0.1` is then resolved inside the container network namespace. Run `make oc-config-hosts-on-macos` (requires `sudo`) to setup the routes in `/etc/hosts` before starting Fabric-X.
+> If OpenShift routes map to `127.0.0.1`, binary CLIs can still work, but containerized binaries may fail because `127.0.0.1` is resolved inside the container network namespace. Run `make oc-config-hosts` (requires `sudo`) to setup the routes in `/etc/hosts` before starting Fabric-X.
 
 ```mermaid
 flowchart TD

@@ -20,5 +20,5 @@ openshift_cluster_personal_token: "{{ lookup('env', 'OPENSHIFT_PERSONAL_TOKEN') 
 openshift_cluster_namespace: '{{ k8s_namespace }}'
 # Duration for the service account token
 openshift_cluster_service_account_token_duration: 12h
-# Path to the hosts file updated by the macOS OpenShift Route helper.
+# Path to the hosts file updated by the OpenShift Route helper.
 openshift_hosts_file_path: /etc/hosts
