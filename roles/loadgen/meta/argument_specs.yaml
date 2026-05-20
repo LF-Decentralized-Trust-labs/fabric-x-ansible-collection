@@ -726,6 +726,7 @@ argument_specs:
     options:
       organization: *organization
       cryptogen_artifacts_dir: *cryptogen_artifacts_dir
+      loadgen_crypto_name: *loadgen_crypto_name
       loadgen_remote_config_dir: *loadgen_remote_config_dir
       remote_config_dir: *remote_config_dir
       loadgen_use_tls: *loadgen_use_tls
@@ -756,6 +757,7 @@ argument_specs:
     options:
       organization: *organization
       fetched_artifacts_dir: *fetched_artifacts_dir
+      loadgen_crypto_name: *loadgen_crypto_name
       loadgen_remote_config_dir: *loadgen_remote_config_dir
       remote_config_dir: *remote_config_dir
       loadgen_use_tls: *loadgen_use_tls

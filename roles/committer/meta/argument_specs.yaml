@@ -907,6 +907,7 @@ argument_specs:
       - Stores fetched files under C(fetched_artifacts_dir) for downstream trust bundle generation.
     options:
       remote_config_dir: *remote_config_dir
+      committer_crypto_name: *committer_crypto_name
       committer_remote_config_dir: *committer_remote_config_dir
       fetched_artifacts_dir: *fetched_artifacts_dir
       committer_use_tls: *committer_use_tls
@@ -1199,6 +1200,7 @@ argument_specs:
       - Sidecar components also receive MSP material from the organization peer directory.
     options:
       committer_component_type: *committer_component_type
+      committer_crypto_name: *committer_crypto_name
       committer_remote_config_dir: *committer_remote_config_dir
       committer_use_tls: *committer_use_tls
       cryptogen_artifacts_dir: *cryptogen_artifacts_dir
