@@ -18,7 +18,7 @@ argument_specs:
           - Image registry endpoint for C(configtxgen_image).
       configtxgen_image_name: &configtxgen_image_name
         type: str
-        default: fabric-x-tools
+        default: "fabric-x-tools"
         description:
           - Image repository name for C(configtxgen_image).
       configtxgen_image_tag: &configtxgen_image_tag
