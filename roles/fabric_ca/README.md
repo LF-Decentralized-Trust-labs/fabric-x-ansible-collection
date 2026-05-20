@@ -336,6 +336,15 @@ Enrolls an identity with the locally installed Fabric CA client binary. Writes X
       affiliation: "org1.department1"
       attrs:
         hf.Revoker: "true"
+    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'fabric_ca_host': 'fca-org1', 'role': 'peer', 'peer': {'name': 'peer0', 'secret': 'peer0PWD'}}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      fabric_ca_host: "fca-org1"
+      role: "peer"
+      peer:
+        name: "peer0"
+        secret: "peer0PWD"
     # Selects the enrollment type.
     fabric_ca_enrollment_type: bccsp
     # Sets the client binary name.
@@ -354,7 +363,7 @@ Enrolls an identity with the locally installed Fabric CA client binary. Writes X
     # Sets the Fabric CA client MSP private key output path relative to `fabric_ca_msp_dir`. Example: `keystore/priv_sk`.
     fabric_ca_cryptogenize_msp_private_key_file: keystore/priv_sk
     # Sets the Fabric CA client MSP CA certificate output path relative to `fabric_ca_msp_dir`. Example: `cacerts/ca.org1.example.com-cert.pem`.
-    fabric_ca_cryptogenize_msp_ca_cert_file: cacerts/ca-cert.pem
+    fabric_ca_cryptogenize_msp_ca_cert_file: "cacerts/ca.{{ organization.domain }}-cert.pem"
     # Sets the Fabric CA client MSP sign certificate output path relative to `fabric_ca_msp_dir`. Example: `signcerts/cert.pem`.
     fabric_ca_cryptogenize_msp_signcert_file: signcerts/cert.pem
     # Sets the Fabric CA client TLS CA certificate output path relative to `fabric_ca_msp_dir`.
@@ -425,6 +434,15 @@ Reenrolls an existing identity with the locally installed Fabric CA client binar
       affiliation: "org1.department1"
       attrs:
         hf.Revoker: "true"
+    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'fabric_ca_host': 'fca-org1', 'role': 'peer', 'peer': {'name': 'peer0', 'secret': 'peer0PWD'}}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      fabric_ca_host: "fca-org1"
+      role: "peer"
+      peer:
+        name: "peer0"
+        secret: "peer0PWD"
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
     # Sets the client URL scheme.
@@ -441,7 +459,7 @@ Reenrolls an existing identity with the locally installed Fabric CA client binar
     # Sets the Fabric CA client MSP private key output path relative to `fabric_ca_msp_dir`. Example: `keystore/priv_sk`.
     fabric_ca_cryptogenize_msp_private_key_file: keystore/priv_sk
     # Sets the Fabric CA client MSP CA certificate output path relative to `fabric_ca_msp_dir`. Example: `cacerts/ca.org1.example.com-cert.pem`.
-    fabric_ca_cryptogenize_msp_ca_cert_file: cacerts/ca-cert.pem
+    fabric_ca_cryptogenize_msp_ca_cert_file: "cacerts/ca.{{ organization.domain }}-cert.pem"
     # Sets the Fabric CA client MSP sign certificate output path relative to `fabric_ca_msp_dir`. Example: `signcerts/cert.pem`.
     fabric_ca_cryptogenize_msp_signcert_file: signcerts/cert.pem
     # Sets the Fabric CA client TLS CA certificate output path relative to `fabric_ca_msp_dir`.
@@ -564,6 +582,15 @@ Enrolls an identity with a transient Fabric CA client container. Mounts the loca
       affiliation: "org1.department1"
       attrs:
         hf.Revoker: "true"
+    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'fabric_ca_host': 'fca-org1', 'role': 'peer', 'peer': {'name': 'peer0', 'secret': 'peer0PWD'}}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      fabric_ca_host: "fca-org1"
+      role: "peer"
+      peer:
+        name: "peer0"
+        secret: "peer0PWD"
     # Selects the enrollment type.
     fabric_ca_enrollment_type: bccsp
     # Sets the Fabric CA image.
@@ -592,7 +619,7 @@ Enrolls an identity with a transient Fabric CA client container. Mounts the loca
     # Sets the Fabric CA client MSP private key output path relative to `fabric_ca_msp_dir`. Example: `keystore/priv_sk`.
     fabric_ca_cryptogenize_msp_private_key_file: keystore/priv_sk
     # Sets the Fabric CA client MSP CA certificate output path relative to `fabric_ca_msp_dir`. Example: `cacerts/ca.org1.example.com-cert.pem`.
-    fabric_ca_cryptogenize_msp_ca_cert_file: cacerts/ca-cert.pem
+    fabric_ca_cryptogenize_msp_ca_cert_file: "cacerts/ca.{{ organization.domain }}-cert.pem"
     # Sets the Fabric CA client MSP sign certificate output path relative to `fabric_ca_msp_dir`. Example: `signcerts/cert.pem`.
     fabric_ca_cryptogenize_msp_signcert_file: signcerts/cert.pem
     # Sets the Fabric CA client TLS CA certificate output path relative to `fabric_ca_msp_dir`.
@@ -673,6 +700,15 @@ Reenrolls an existing identity with a transient Fabric CA client container. Refr
       affiliation: "org1.department1"
       attrs:
         hf.Revoker: "true"
+    # Provides the organization metadata defined elsewhere in inventory; `domain` is required. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'fabric_ca_host': 'fca-org1', 'role': 'peer', 'peer': {'name': 'peer0', 'secret': 'peer0PWD'}}`.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      fabric_ca_host: "fca-org1"
+      role: "peer"
+      peer:
+        name: "peer0"
+        secret: "peer0PWD"
     # Sets the Fabric CA image.
     fabric_ca_image: "{{ fabric_ca_registry_endpoint }}/{{ fabric_ca_image_name }}:{{ fabric_ca_image_tag }}"
     # Sets the registry endpoint used to resolve the Fabric CA image.
@@ -699,7 +735,7 @@ Reenrolls an existing identity with a transient Fabric CA client container. Refr
     # Sets the Fabric CA client MSP private key output path relative to `fabric_ca_msp_dir`. Example: `keystore/priv_sk`.
     fabric_ca_cryptogenize_msp_private_key_file: keystore/priv_sk
     # Sets the Fabric CA client MSP CA certificate output path relative to `fabric_ca_msp_dir`. Example: `cacerts/ca.org1.example.com-cert.pem`.
-    fabric_ca_cryptogenize_msp_ca_cert_file: cacerts/ca-cert.pem
+    fabric_ca_cryptogenize_msp_ca_cert_file: "cacerts/ca.{{ organization.domain }}-cert.pem"
     # Sets the Fabric CA client MSP sign certificate output path relative to `fabric_ca_msp_dir`. Example: `signcerts/cert.pem`.
     fabric_ca_cryptogenize_msp_signcert_file: signcerts/cert.pem
     # Sets the Fabric CA client TLS CA certificate output path relative to `fabric_ca_msp_dir`.

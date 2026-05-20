@@ -343,7 +343,7 @@ argument_specs:
       fabric_ca_cryptogenize_msp_ca_cert_file:
         &fabric_ca_cryptogenize_msp_ca_cert_file
         type: str
-        default: cacerts/ca-cert.pem
+        default: "cacerts/ca.{{ organization.domain }}-cert.pem"
         description:
           - "Sets the Fabric CA client MSP CA certificate output path relative to C(fabric_ca_msp_dir)."
           - "Example: C(cacerts/ca.org1.example.com-cert.pem)."
@@ -536,6 +536,7 @@ argument_specs:
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
       fabric_ca_identity: *fabric_ca_identity
+      organization: *organization
       fabric_ca_enrollment_type: *fabric_ca_enrollment_type
       fabric_ca_client_bin_name: *fabric_ca_client_bin_name
       fabric_ca_scheme: *fabric_ca_scheme
@@ -573,6 +574,7 @@ argument_specs:
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
       fabric_ca_identity: *fabric_ca_identity
+      organization: *organization
       fabric_ca_client_bin_name: *fabric_ca_client_bin_name
       fabric_ca_scheme: *fabric_ca_scheme
       fabric_ca_name: *fabric_ca_name
@@ -635,6 +637,7 @@ argument_specs:
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
       fabric_ca_identity: *fabric_ca_identity
+      organization: *organization
       fabric_ca_enrollment_type: *fabric_ca_enrollment_type
       fabric_ca_image: *fabric_ca_image
       fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
@@ -682,6 +685,7 @@ argument_specs:
     options:
       fabric_ca_msp_dir: *fabric_ca_msp_dir
       fabric_ca_identity: *fabric_ca_identity
+      organization: *organization
       fabric_ca_image: *fabric_ca_image
       fabric_ca_registry_endpoint: *fabric_ca_registry_endpoint
       fabric_ca_image_name: *fabric_ca_image_name

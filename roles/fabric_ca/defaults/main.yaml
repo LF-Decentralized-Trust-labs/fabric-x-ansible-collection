@@ -103,7 +103,7 @@ fabric_ca_csr_expiry: 131400h
 fabric_ca_cryptogenize_msp_private_key_file: keystore/priv_sk
 # Sets the Fabric CA client MSP CA certificate output path relative to C(fabric_ca_msp_dir).
 # Example: C(cacerts/ca.org1.example.com-cert.pem).
-fabric_ca_cryptogenize_msp_ca_cert_file: cacerts/ca-cert.pem
+fabric_ca_cryptogenize_msp_ca_cert_file: cacerts/ca.{{ organization.domain }}-cert.pem
 # Sets the Fabric CA client MSP sign certificate output path relative to C(fabric_ca_msp_dir).
 # Example: C(signcerts/cert.pem).
 fabric_ca_cryptogenize_msp_signcert_file: signcerts/cert.pem
