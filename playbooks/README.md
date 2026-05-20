@@ -10,7 +10,7 @@ This directory contains the reusable playbooks that the `hyperledger.fabricx` co
 - [create\_container\_networks.yaml](#create_container_networksyaml)
 - [remove\_container\_networks.yaml](#remove_container_networksyaml)
 - [generate\_target\_hosts.yaml](#generate_target_hostsyaml)
-- [openshift/config\_hosts\_on\_macos.yaml](#openshiftconfig_hosts_on_macosyaml)
+- [openshift/config\_hosts.yaml](#openshiftconfig_hostsyaml)
 - [Namespaced Playbooks](#namespaced-playbooks)
 
 ## Playbook Usage
@@ -102,21 +102,20 @@ Properties:
 - Nuance: writes `target_hosts.mk` to `project_dir`.
 - Nuance: normally used by `make targets`, but it can be run directly after inventory changes when you want the generated host-specific Makefile targets refreshed.
 
-## openshift/config_hosts_on_macos.yaml
+## openshift/config_hosts.yaml
 
-[`openshift/config_hosts_on_macos.yaml`](./openshift/config_hosts_on_macos.yaml) configures macOS `/etc/hosts` entries for OpenShift Route hosts declared in the current inventory. It maps each route host to the control node's default IPv4 address, which is useful for CRC on macOS when route DNS resolves to `127.0.0.1` but containerized clients need a non-loopback address.
+[`openshift/config_hosts.yaml`](./openshift/config_hosts.yaml) configures local hosts entries for OpenShift Route hosts declared in the current inventory. It maps each route host to the control node's default IPv4 address, which is useful for local OpenShift deployments when route DNS resolves to `127.0.0.1` but containerized clients need a non-loopback address.
 
 ```shell
-ansible-playbook hyperledger.fabricx.openshift.config_hosts_on_macos --ask-become-pass
+ansible-playbook hyperledger.fabricx.openshift.config_hosts --ask-become-pass
 ```
 
 Properties:
 
 - Target hosts: `localhost`.
-- Nuance: macOS only; the playbook fails before editing `/etc/hosts` on other operating systems.
+- Nuance: supported on Linux and macOS; the playbook fails before editing `/etc/hosts` on other operating systems.
 - Nuance: `/etc/hosts` does not support wildcards, so this playbook enumerates route hostnames from inventory and writes them in one managed block.
-- Nuance: when a CRC hosts section exists, duplicate inventory route hostnames are removed from CRC's `127.0.0.1` lines.
-- Nuance: rerun the playbook when the Mac's default-route IPv4 address changes or after CRC rewrites `/etc/hosts`.
+- Nuance: rerun the playbook when the control node's default-route IPv4 address changes or after the local OpenShift runtime rewrites `/etc/hosts`.
 
 ## Namespaced Playbooks
 
