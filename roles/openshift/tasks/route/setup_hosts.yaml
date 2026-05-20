@@ -4,17 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Verify OpenShift route hosts can be configured on macOS
+- name: Verify default interface and address are available
   ansible.builtin.fail:
-    msg: "OpenShift route host configuration is supported only on macOS."
-  when: ansible_facts.system != "Darwin"
-
-- name: Verify macOS default interface and address are available
-  ansible.builtin.fail:
-    msg: "Could not determine the macOS default network IP address."
-  when:
-    - ansible_facts.default_ipv4 is not defined
-    - ansible_facts.default_ipv4.address is not defined
+    msg: "Could not determine the default network IP address."
+  when: ansible_facts.default_ipv4 is not defined or ansible_facts.default_ipv4.address is not defined
 
 - name: Initialize OpenShift route host list
   ansible.builtin.set_fact:
@@ -48,7 +41,7 @@
     msg: "No OpenShift route host variables were found in the current inventory."
   when: openshift_hosts_route_hosts | length == 0
 
-- name: Configure macOS hosts entries for OpenShift routes
+- name: Configure hosts entries for OpenShift routes
   become: "{{ openshift_hosts_file_path == '/etc/hosts' }}"
   ansible.builtin.blockinfile:
     path: "{{ openshift_hosts_file_path }}"
