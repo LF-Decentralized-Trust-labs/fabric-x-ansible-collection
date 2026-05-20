@@ -26,6 +26,10 @@ spec:
         app.kubernetes.io/name: {{ prometheus_k8s_resource_name }}
         app.kubernetes.io/part-of: {{ prometheus_k8s_part_of }}
     spec:
+{% if prometheus_has_service_account %}
+      # Dedicated ServiceAccount for Kubernetes service discovery (pod/node listing).
+      serviceAccountName: {{ prometheus_k8s_resource_name }}
+{% endif %}
       securityContext:
         # prom/prometheus runs as nobody (UID 65534), so fsGroup keeps mounted files readable.
         fsGroup: {{ prometheus_k8s_fs_group }}

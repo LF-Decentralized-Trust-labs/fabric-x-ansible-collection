@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Detect whether any scrape service uses kubernetes_sd_configs
+  ansible.builtin.set_fact:
+    prometheus_has_k8s_sd_scrapers: >-
+      {{
+        prometheus_scrape_services | default([])
+        | selectattr('kubernetes_sd_configs', 'defined')
+        | list
+        | length > 0
+      }}

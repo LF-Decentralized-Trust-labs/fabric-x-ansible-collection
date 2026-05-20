@@ -672,7 +672,7 @@ Deletes the Secret that stores Node Exporter TLS material for Kubernetes deploym
 
 > Build Prometheus scrape targets for Node Exporter
 
-Builds the scrape service definitions Prometheus uses to collect metrics from the selected Node Exporter hosts. Uses the host list from `node_exporter_hosts` together with `node_exporter_port` to create scrape targets.
+Builds the scrape service definitions Prometheus uses to collect metrics from the selected Node Exporter hosts. When any host has `node_exporter_use_k8s` set to `true`, produces a single scrape job with `kubernetes_sd_configs` that discovers Node Exporter pods via the Kubernetes API using the pod role. Container-mode hosts produce per-host `static_configs` scrape jobs as before.
 
 ```yaml
 - name: Build Prometheus scrape targets for Node Exporter

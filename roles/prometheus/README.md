@@ -36,6 +36,7 @@
   - [openshift/start](#openshiftstart)
   - [openshift/ping](#openshiftping)
   - [openshift/rm](#openshiftrm)
+  - [detect\_k8s\_sd](#detect_k8s_sd)
 
 ## Role Defaults
 
@@ -783,4 +784,37 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
     tasks_from: openshift/rm
+```
+
+### detect_k8s_sd
+
+> Detect whether any scrape service uses kubernetes_sd_configs
+
+Sets the `prometheus_has_k8s_sd_scrapers` fact to `true` when at least one entry in `prometheus_scrape_services` defines `kubernetes_sd_configs`. Used by other tasks to conditionally create RBAC resources and configure the StatefulSet ServiceAccount.
+
+```yaml
+- name: Detect whether any scrape service uses kubernetes_sd_configs
+  vars:
+    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{'job_name': 'fabric-orderer', 'use_tls': True, 'targets': [{'hosts': ['orderer-router-1', 'orderer-router-2'], 'port_to_scrape': 'orderer_operations_port', 'label': {'group': 'orderers'}}]}, {'job_name': 'node-exporter', 'targets': [{'hosts': ['worker-1'], 'port_to_scrape': 'node_exporter_port', 'label': {'group': 'workers', 'export_type': 'node'}}]}]`.
+    prometheus_scrape_services:
+      - job_name: "fabric-orderer"
+        use_tls: True
+        targets:
+          - hosts:
+              - "orderer-router-1"
+              - "orderer-router-2"
+            port_to_scrape: "orderer_operations_port"
+            label:
+              group: "orderers"
+      - job_name: "node-exporter"
+        targets:
+          - hosts:
+              - "worker-1"
+            port_to_scrape: "node_exporter_port"
+            label:
+              group: "workers"
+              export_type: "node"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: detect_k8s_sd
 ```

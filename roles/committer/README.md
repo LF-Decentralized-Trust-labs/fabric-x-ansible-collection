@@ -529,6 +529,8 @@ Fetch the committer TLS CA certificate and server certificate to the control nod
   vars:
     # Remote config directory used by delegated crypto tasks. Example: `/opt/fabricx/committer/config`.
     remote_config_dir: "/opt/fabricx/committer/config"
+    # Crypto material base name for the committer.
+    committer_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Control-node directory that stores fetched artifacts. Example: `/tmp/fabricx/artifacts`.
@@ -1109,6 +1111,8 @@ Copy cryptogen-generated TLS assets for the selected committer component. Sideca
   vars:
     # Committer component handled by the entry point. Example: `coordinator`.
     committer_component_type: "coordinator"
+    # Crypto material base name for the committer.
+    committer_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
     # Enable TLS material for the selected component.

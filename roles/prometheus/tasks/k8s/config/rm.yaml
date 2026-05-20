@@ -4,6 +4,25 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Check Prometheus ServiceAccount
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: ServiceAccount
+    name: "{{ prometheus_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
+  register: prometheus_k8s_service_account
+
+- name: Delete Prometheus RBAC resources
+  vars:
+    k8s_rbac_resource_name: "{{ prometheus_k8s_resource_name }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: rbac/rm
+  when:
+    - prometheus_k8s_service_account is defined
+    - prometheus_k8s_service_account.resources is defined
+    - prometheus_k8s_service_account.resources | length > 0
+
 - name: Delete Prometheus ConfigMap
   kubernetes.core.k8s:
     state: absent

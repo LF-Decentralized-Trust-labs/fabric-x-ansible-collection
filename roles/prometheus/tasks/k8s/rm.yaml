@@ -37,3 +37,16 @@
     name: "{{ prometheus_k8s_resource_name }}-loadbalancer"
     namespace: "{{ k8s_namespace | default('default') }}"
   when: prometheus_k8s_loadbalancer_expose_http_port
+
+- name: Detect whether any scrape service uses kubernetes_sd_configs
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: detect_k8s_sd
+
+- name: Delete Prometheus RBAC resources
+  vars:
+    k8s_rbac_resource_name: "{{ prometheus_k8s_resource_name }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: rbac/rm
+  when: prometheus_has_k8s_sd_scrapers
