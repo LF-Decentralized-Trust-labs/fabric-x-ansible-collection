@@ -41,7 +41,7 @@ argument_specs:
           - "Sets the Fabric CA image name."
       fabric_ca_image_tag: &fabric_ca_image_tag
         type: str
-        default: 1.5.19
+        default: 1.5.20
         description:
           - "Sets the Fabric CA image tag."
       fabric_ca_image: &fabric_ca_image
@@ -66,7 +66,7 @@ argument_specs:
           - "Sets the Fabric CA source repository."
       fabric_ca_git_commit: &fabric_ca_git_commit
         type: str
-        default: v1.5.19
+        default: v1.5.20
         description:
           - "Pins the Fabric CA source revision."
       fabric_ca_server_source_code_package:
@@ -254,11 +254,6 @@ argument_specs:
           - idemix
         description:
           - "Selects the enrollment type."
-      fabric_ca_idemix_enrollment_profile: &fabric_ca_idemix_enrollment_profile
-        type: str
-        default: idemix
-        description:
-          - "Sets the Idemix enrollment profile."
       fabric_ca_idemix_msp_revocation_public_key:
         &fabric_ca_idemix_msp_revocation_public_key
         type: str
@@ -336,37 +331,46 @@ argument_specs:
         type: path
         required: true
         description:
-          - "Sets the MSP directory used by Fabric CA client flows and MSP normalization."
+          - "Sets the MSP directory used by Fabric CA client flows."
           - "Example: C(/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp)."
+      fabric_ca_cryptogenize_msp_private_key_file:
+        &fabric_ca_cryptogenize_msp_private_key_file
+        type: str
+        default: keystore/priv_sk
+        description:
+          - "Sets the Fabric CA client MSP private key output path relative to C(fabric_ca_msp_dir)."
+          - "Example: C(keystore/priv_sk)."
       fabric_ca_cryptogenize_msp_ca_cert_file:
         &fabric_ca_cryptogenize_msp_ca_cert_file
         type: str
+        default: cacerts/ca-cert.pem
         description:
-          - "Sets the normalized MSP CA certificate filename."
-          - "Example: C(ca.org1.example.com-cert.pem)."
+          - "Sets the Fabric CA client MSP CA certificate output path relative to C(fabric_ca_msp_dir)."
+          - "Example: C(cacerts/ca.org1.example.com-cert.pem)."
       fabric_ca_cryptogenize_msp_signcert_file:
         &fabric_ca_cryptogenize_msp_signcert_file
         type: str
+        default: signcerts/cert.pem
         description:
-          - "Sets the normalized MSP sign certificate filename."
-          - "Example: C(cert.pem)"
+          - "Sets the Fabric CA client MSP sign certificate output path relative to C(fabric_ca_msp_dir)."
+          - "Example: C(signcerts/cert.pem)."
       fabric_ca_cryptogenize_tls_ca_cert_file:
         &fabric_ca_cryptogenize_tls_ca_cert_file
         type: str
         default: ca.crt
         description:
-          - "Sets the normalized TLS CA certificate filename."
+          - "Sets the Fabric CA client TLS CA certificate output path relative to C(fabric_ca_msp_dir)."
       fabric_ca_cryptogenize_tls_cert_file:
         &fabric_ca_cryptogenize_tls_cert_file
         type: str
         default: server.crt
         description:
-          - "Sets the normalized TLS certificate filename."
+          - "Sets the Fabric CA client TLS certificate output path relative to C(fabric_ca_msp_dir)."
       fabric_ca_cryptogenize_tls_key_file: &fabric_ca_cryptogenize_tls_key_file
         type: str
         default: server.key
         description:
-          - "Sets the normalized TLS private key filename."
+          - "Sets the Fabric CA client TLS private key output path relative to C(fabric_ca_msp_dir)."
       fabric_ca_identity: &fabric_ca_identity
         type: dict
         required: true
@@ -474,20 +478,6 @@ argument_specs:
     options:
       fabric_ca_host: *fabric_ca_host
 
-  client/cryptogenize:
-    short_description: Normalize enrolled MSP output
-    description:
-      - "Copies enrolled client MSP and TLS material into cryptogen-compatible filenames."
-      - "Produces normalized files such as C(ca.crt), C(server.crt), and C(server.key) for consumers that expect cryptogen layout."
-    options:
-      fabric_ca_msp_dir: *fabric_ca_msp_dir
-      fabric_ca_enrollment_profile: *fabric_ca_enrollment_profile
-      fabric_ca_cryptogenize_msp_ca_cert_file: *fabric_ca_cryptogenize_msp_ca_cert_file
-      fabric_ca_cryptogenize_msp_signcert_file: *fabric_ca_cryptogenize_msp_signcert_file
-      fabric_ca_cryptogenize_tls_ca_cert_file: *fabric_ca_cryptogenize_tls_ca_cert_file
-      fabric_ca_cryptogenize_tls_cert_file: *fabric_ca_cryptogenize_tls_cert_file
-      fabric_ca_cryptogenize_tls_key_file: *fabric_ca_cryptogenize_tls_key_file
-
   client/idemixgenize:
     short_description: Normalize enrolled Idemix output
     description:
@@ -550,9 +540,14 @@ argument_specs:
       fabric_ca_client_bin_name: *fabric_ca_client_bin_name
       fabric_ca_scheme: *fabric_ca_scheme
       fabric_ca_name: *fabric_ca_name
-      fabric_ca_idemix_enrollment_profile: *fabric_ca_idemix_enrollment_profile
       fabric_ca_enrollment_profile: *fabric_ca_enrollment_profile
       fabric_ca_csr_hosts: *fabric_ca_csr_hosts
+      fabric_ca_cryptogenize_msp_private_key_file: *fabric_ca_cryptogenize_msp_private_key_file
+      fabric_ca_cryptogenize_msp_ca_cert_file: *fabric_ca_cryptogenize_msp_ca_cert_file
+      fabric_ca_cryptogenize_msp_signcert_file: *fabric_ca_cryptogenize_msp_signcert_file
+      fabric_ca_cryptogenize_tls_ca_cert_file: *fabric_ca_cryptogenize_tls_ca_cert_file
+      fabric_ca_cryptogenize_tls_cert_file: *fabric_ca_cryptogenize_tls_cert_file
+      fabric_ca_cryptogenize_tls_key_file: *fabric_ca_cryptogenize_tls_key_file
       fabric_ca_use_tls: *fabric_ca_use_tls
       fabric_ca_tls_certfile: *fabric_ca_tls_certfile
 
@@ -583,6 +578,12 @@ argument_specs:
       fabric_ca_name: *fabric_ca_name
       fabric_ca_enrollment_profile: *fabric_ca_enrollment_profile
       fabric_ca_csr_hosts: *fabric_ca_csr_hosts
+      fabric_ca_cryptogenize_msp_private_key_file: *fabric_ca_cryptogenize_msp_private_key_file
+      fabric_ca_cryptogenize_msp_ca_cert_file: *fabric_ca_cryptogenize_msp_ca_cert_file
+      fabric_ca_cryptogenize_msp_signcert_file: *fabric_ca_cryptogenize_msp_signcert_file
+      fabric_ca_cryptogenize_tls_ca_cert_file: *fabric_ca_cryptogenize_tls_ca_cert_file
+      fabric_ca_cryptogenize_tls_cert_file: *fabric_ca_cryptogenize_tls_cert_file
+      fabric_ca_cryptogenize_tls_key_file: *fabric_ca_cryptogenize_tls_key_file
       fabric_ca_use_tls: *fabric_ca_use_tls
       fabric_ca_tls_certfile: *fabric_ca_tls_certfile
 
@@ -643,9 +644,14 @@ argument_specs:
       fabric_ca_client_container_config_dir: *fabric_ca_client_container_config_dir
       fabric_ca_scheme: *fabric_ca_scheme
       fabric_ca_name: *fabric_ca_name
-      fabric_ca_idemix_enrollment_profile: *fabric_ca_idemix_enrollment_profile
       fabric_ca_enrollment_profile: *fabric_ca_enrollment_profile
       fabric_ca_csr_hosts: *fabric_ca_csr_hosts
+      fabric_ca_cryptogenize_msp_private_key_file: *fabric_ca_cryptogenize_msp_private_key_file
+      fabric_ca_cryptogenize_msp_ca_cert_file: *fabric_ca_cryptogenize_msp_ca_cert_file
+      fabric_ca_cryptogenize_msp_signcert_file: *fabric_ca_cryptogenize_msp_signcert_file
+      fabric_ca_cryptogenize_tls_ca_cert_file: *fabric_ca_cryptogenize_tls_ca_cert_file
+      fabric_ca_cryptogenize_tls_cert_file: *fabric_ca_cryptogenize_tls_cert_file
+      fabric_ca_cryptogenize_tls_key_file: *fabric_ca_cryptogenize_tls_key_file
       fabric_ca_use_tls: *fabric_ca_use_tls
       fabric_ca_tls_certfile: *fabric_ca_tls_certfile
 
@@ -686,6 +692,12 @@ argument_specs:
       fabric_ca_name: *fabric_ca_name
       fabric_ca_enrollment_profile: *fabric_ca_enrollment_profile
       fabric_ca_csr_hosts: *fabric_ca_csr_hosts
+      fabric_ca_cryptogenize_msp_private_key_file: *fabric_ca_cryptogenize_msp_private_key_file
+      fabric_ca_cryptogenize_msp_ca_cert_file: *fabric_ca_cryptogenize_msp_ca_cert_file
+      fabric_ca_cryptogenize_msp_signcert_file: *fabric_ca_cryptogenize_msp_signcert_file
+      fabric_ca_cryptogenize_tls_ca_cert_file: *fabric_ca_cryptogenize_tls_ca_cert_file
+      fabric_ca_cryptogenize_tls_cert_file: *fabric_ca_cryptogenize_tls_cert_file
+      fabric_ca_cryptogenize_tls_key_file: *fabric_ca_cryptogenize_tls_key_file
       fabric_ca_use_tls: *fabric_ca_use_tls
       fabric_ca_tls_certfile: *fabric_ca_tls_certfile
 

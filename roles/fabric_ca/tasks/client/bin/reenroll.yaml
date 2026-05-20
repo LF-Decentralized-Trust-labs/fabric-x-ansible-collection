@@ -18,8 +18,15 @@
       -u {{ fabric_ca_scheme }}://{{ fabric_ca_identity.name }}:{{ fabric_ca_identity.secret }}@{{ fabric_ca_server_effective_address }}
       --caname {{ fabric_ca_name }}
       --mspdir {{ fabric_ca_msp_dir }}
-      {% if fabric_ca_enrollment_profile is defined %}
-      --enrollment.profile {{ fabric_ca_enrollment_profile }}
+      {% if fabric_ca_enrollment_profile is defined and fabric_ca_enrollment_profile == 'tls' %}
+      --myskfile {{ fabric_ca_cryptogenize_tls_key_file }}
+      --mycertfile {{ fabric_ca_cryptogenize_tls_cert_file }}
+      --mycacertfile {{ fabric_ca_cryptogenize_tls_ca_cert_file }}
+      --enrollment.profile tls
+      {% else %}
+      --myskfile {{ fabric_ca_cryptogenize_msp_private_key_file }}
+      --mycertfile {{ fabric_ca_cryptogenize_msp_signcert_file }}
+      --mycacertfile {{ fabric_ca_cryptogenize_msp_ca_cert_file }}
       {% endif %}
       {% if fabric_ca_csr_hosts is defined and (fabric_ca_csr_hosts | length) > 0 %}
       {% for csr_host in fabric_ca_csr_hosts %}
@@ -34,9 +41,3 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: start
-
-# TODO: we need to evaluate if we want to go with this path or handle per component locations based on whether they receive material through cryptogen or fabric-ca
-- name: Adjust crypto to be as cryptogen produced crypto
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.fabric_ca
-    tasks_from: client/cryptogenize

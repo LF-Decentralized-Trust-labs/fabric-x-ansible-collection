@@ -5,8 +5,10 @@
 #
 
 - name: Check if already enrolled
+  vars:
+    fabric_ca_bccsp_enrollment_cert_file: "{{ fabric_ca_cryptogenize_tls_cert_file if (fabric_ca_enrollment_profile is defined and fabric_ca_enrollment_profile == 'tls') else fabric_ca_cryptogenize_msp_signcert_file }}"
   ansible.builtin.stat:
-    path: "{{ fabric_ca_msp_dir }}/signcerts/cert.pem"
+    path: "{{ fabric_ca_msp_dir }}/{{ fabric_ca_bccsp_enrollment_cert_file }}"
   register: fabric_ca_msp_cert
   when:
     - fabric_ca_enrollment_type == 'bccsp'
@@ -23,7 +25,6 @@
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/effective_address
 
-# TODO: When owner-wallet Idemix credentials move to the Onboarding Repository, scope this to Fabric identities only.
 - name: Enroll identity with Fabric CA client binary
   vars:
     bin_env:
@@ -36,9 +37,18 @@
       --mspdir {{ fabric_ca_msp_dir }}
       {% if fabric_ca_enrollment_type == 'idemix' %}
       --enrollment.type idemix
-      --enrollment.profile {{ fabric_ca_idemix_enrollment_profile }}
-      {% elif fabric_ca_enrollment_type == 'bccsp' and fabric_ca_enrollment_profile is defined %}
-      --enrollment.profile {{ fabric_ca_enrollment_profile }}
+      --enrollment.profile idemix
+      {% elif fabric_ca_enrollment_type == 'bccsp' %}
+      {% if fabric_ca_enrollment_profile is defined and fabric_ca_enrollment_profile == 'tls' %}
+      --myskfile {{ fabric_ca_cryptogenize_tls_key_file }}
+      --mycertfile {{ fabric_ca_cryptogenize_tls_cert_file }}
+      --mycacertfile {{ fabric_ca_cryptogenize_tls_ca_cert_file }}
+      --enrollment.profile tls
+      {% else %}
+      --myskfile {{ fabric_ca_cryptogenize_msp_private_key_file }}
+      --mycertfile {{ fabric_ca_cryptogenize_msp_signcert_file }}
+      --mycacertfile {{ fabric_ca_cryptogenize_msp_ca_cert_file }}
+      {% endif %}
       {% endif %}
       {% if fabric_ca_enrollment_type == 'bccsp' and fabric_ca_csr_hosts is defined and (fabric_ca_csr_hosts | length) > 0 %}
       {% for csr_host in fabric_ca_csr_hosts %}
@@ -68,14 +78,6 @@
     src: nodeous-config.yaml.j2
     dest: "{{ fabric_ca_msp_dir }}/config.yaml"
     mode: "0o644"
-  when:
-    - fabric_ca_enrollment_type == 'bccsp'
-
-# TODO: we need to evaluate if we want to go with this path or handle per component locations based on whether they receive material through cryptogen or fabric-ca
-- name: Adjust crypto to be as cryptogen produced crypto
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.fabric_ca
-    tasks_from: client/cryptogenize
   when:
     - fabric_ca_enrollment_type == 'bccsp'
 
