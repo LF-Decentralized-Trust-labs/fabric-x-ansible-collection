@@ -1,4 +1,10 @@
 #!/bin/bash
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
 # SSD Performance Benchmark Script
 # Tests sequential and random read/write performance
 
@@ -145,11 +151,12 @@ echo -e "${BLUE}[1/5]${NC} ${BOLD}Sequential Write Test${NC} (1GB file)"
 echo -n "      Running... "
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    output=$(dd if=/dev/zero of=testfile_seq bs=1m count=1024 2>&1)
-    sync
+    output=$(dd if=/dev/zero of=testfile_seq bs=1m count=1024 2>&1) || true
+    sync 2>/dev/null || true
 else
-    output=$(dd if=/dev/zero of=testfile_seq bs=1M count=1024 oflag=direct 2>&1)
-    sync
+    output=$(dd if=/dev/zero of=testfile_seq bs=1M count=1024 oflag=direct 2>&1) || \
+    output=$(dd if=/dev/zero of=testfile_seq bs=1M count=1024 2>&1) || true
+    sync 2>/dev/null || true
 fi
 
 # Parse dd output for bytes/sec
@@ -188,10 +195,11 @@ echo -n "      Running... "
 # Clear cache if possible
 if [[ "$OSTYPE" == "darwin"* ]]; then
     sudo purge 2>/dev/null || true
-    output=$(dd if=testfile_seq of=/dev/null bs=1m 2>&1)
+    output=$(dd if=testfile_seq of=/dev/null bs=1m 2>&1) || true
 else
     echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null 2>&1 || true
-    output=$(dd if=testfile_seq of=/dev/null bs=1M iflag=direct 2>&1)
+    output=$(dd if=testfile_seq of=/dev/null bs=1M iflag=direct 2>&1) || \
+    output=$(dd if=testfile_seq of=/dev/null bs=1M 2>&1) || true
 fi
 
 bytes_per_sec=$(echo "$output" | grep -oE '[0-9]+ bytes/sec' | grep -oE '[0-9]+' || echo "0")
@@ -300,4 +308,70 @@ else
     done
     RESULT_LATENCY_RAW=$((total / 10))
     if (( RESULT_LATENCY_RAW >= 1000 )); then
-        RESULT...
+        RESULT_LATENCY="$(echo "scale=2; $RESULT_LATENCY_RAW / 1000" | bc) ms"
+    else
+        RESULT_LATENCY="${RESULT_LATENCY_RAW} us"
+    fi
+fi
+
+echo -e "${GREEN}Done${NC} - ${RESULT_LATENCY}"
+
+# ============================================
+# Summary Report
+# ============================================
+echo ""
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${CYAN}┃${NC}${BOLD}                              BENCHMARK RESULTS                             ${NC}${CYAN}┃${NC}"
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+printf "  %-28s %-20s %s\n" "Test" "Result" "Rating"
+printf "  %-28s %-20s %s\n" "────────────────────────────" "──────────────────" "──────────────"
+
+seq_write_rating=$(get_rating "$RESULT_SEQ_WRITE_RAW" "seq_write")
+seq_read_rating=$(get_rating "$RESULT_SEQ_READ_RAW" "seq_read")
+
+printf "  %-28s %-20s %s\n" "Sequential Write" "$RESULT_SEQ_WRITE" "$seq_write_rating"
+printf "  %-28s %-20s %s\n" "Sequential Read" "$RESULT_SEQ_READ" "$seq_read_rating"
+
+if [[ "$HAS_FIO" == "1" ]]; then
+    rand_read_rating=$(get_rating "$RESULT_RAND_READ_IOPS" "rand_iops")
+    rand_write_rating=$(get_rating "$RESULT_RAND_WRITE_IOPS" "rand_iops")
+    printf "  %-28s %-20s %s\n" "Random Read 4K" "${RESULT_RAND_READ_IOPS} IOPS" "$rand_read_rating"
+    printf "  %-28s %-20s %s\n" "Random Write 4K" "${RESULT_RAND_WRITE_IOPS} IOPS" "$rand_write_rating"
+fi
+
+printf "  %-28s %-20s\n" "I/O Latency" "$RESULT_LATENCY"
+
+echo ""
+
+# ============================================
+# High-Performance Verdict
+# ============================================
+SEQ_WRITE_THRESHOLD_MB=1000  # 1 GB/s
+
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${CYAN}┃${NC}${BOLD}                         HIGH-PERFORMANCE VERDICT                           ${NC}${CYAN}┃${NC}"
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+echo -e "  Minimum required Sequential Write: ${BOLD}1 GB/s (1000 MB/s)${NC}"
+echo -e "  Measured Sequential Write:         ${BOLD}${RESULT_SEQ_WRITE}${NC}"
+echo ""
+
+if (( RESULT_SEQ_WRITE_RAW >= SEQ_WRITE_THRESHOLD_MB )); then
+    echo -e "  ${GREEN}✅ PASS${NC} - This machine meets the high-performance storage requirement."
+    BENCHMARK_VERDICT="PASS"
+else
+    echo -e "  ${RED}❌ FAIL${NC} - This machine does NOT meet the high-performance storage requirement."
+    echo -e "  ${YELLOW}   Consider using NVMe SSDs or upgrading storage for production workloads.${NC}"
+    BENCHMARK_VERDICT="FAIL"
+fi
+
+echo ""
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+# Exit with non-zero code if benchmark fails the threshold
+if [[ "$BENCHMARK_VERDICT" == "FAIL" ]]; then
+    exit 1
+fi
