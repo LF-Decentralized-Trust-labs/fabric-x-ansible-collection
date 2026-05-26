@@ -59,3 +59,47 @@ argument_specs:
       - "Creates the C(machines) inventory group with one selected host per distinct machine address."
       - "The selection reads C(actual_host) from C(hostvars) across C(ansible_play_hosts) to identify hosts that share the same machine."
     options: {}
+
+  benchmark_volume:
+    short_description: Run SSD performance benchmark on remote hosts
+    description:
+      - "Copies C(ssd_benchmark.sh) to the remote host and executes it to measure sequential write/read throughput, random 4K IOPS, and I/O latency."
+      - "Evaluates whether the machine meets the minimum sequential write threshold of C(1 GB/s) required for high-performance Fabric-X operations."
+      - "The task fails when C(utils_benchmark_fail_on_threshold) is C(true) and the measured sequential write speed falls below the threshold."
+    options:
+      utils_benchmark_remote_dir:
+        type: str
+        required: false
+        default: "/tmp"
+        description:
+          - "Remote directory where the benchmark script is copied before execution."
+          - "Example: C(/tmp)."
+      utils_benchmark_test_dir:
+        type: str
+        required: false
+        default: "/tmp/ssd_benchmark_test"
+        description:
+          - "Directory on the remote host where benchmark test files are created during the run."
+          - "The directory is cleaned up automatically after the benchmark completes."
+          - "Example: C(/tmp/ssd_benchmark_test)."
+      utils_benchmark_test_size:
+        type: str
+        required: false
+        default: "1G"
+        description:
+          - "Total data size used by fio random I/O tests."
+          - "Example: C(1G)."
+      utils_benchmark_block_size:
+        type: str
+        required: false
+        default: "4k"
+        description:
+          - "Block size used for random I/O tests."
+          - "Example: C(4k)."
+      utils_benchmark_fail_on_threshold:
+        type: bool
+        required: false
+        default: true
+        description:
+          - "When C(true), the task raises an assertion error if the sequential write speed is below 1 GB/s."
+          - "Set to C(false) to collect results without failing the play."

@@ -11,6 +11,7 @@
   - [ping](#ping)
   - [select\_one\_host\_per\_k8s\_namespace](#select_one_host_per_k8s_namespace)
   - [select\_one\_host\_per\_machine](#select_one_host_per_machine)
+  - [benchmark\_volume](#benchmark_volume)
 
 ## Role Defaults
 
@@ -86,4 +87,28 @@ Creates the `machines` inventory group with one selected host per distinct machi
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: select_one_host_per_machine
+```
+
+### benchmark_volume
+
+> Run SSD performance benchmark on remote hosts
+
+Copies `ssd_benchmark.sh` to the remote host and executes it to measure sequential write/read throughput, random 4K IOPS, and I/O latency. Evaluates whether the machine meets the minimum sequential write threshold of `1 GB/s` required for high-performance Fabric-X operations. The task fails when `utils_benchmark_fail_on_threshold` is `true` and the measured sequential write speed falls below the threshold.
+
+```yaml
+- name: Run SSD performance benchmark on remote hosts
+  vars:
+    # Remote directory where the benchmark script is copied before execution. Example: `/tmp`.
+    utils_benchmark_remote_dir: /tmp
+    # Directory on the remote host where benchmark test files are created during the run. The directory is cleaned up automatically after the benchmark completes. Example: `/tmp/ssd_benchmark_test`.
+    utils_benchmark_test_dir: /tmp/ssd_benchmark_test
+    # Total data size used by fio random I/O tests. Example: `1G`.
+    utils_benchmark_test_size: 1G
+    # Block size used for random I/O tests. Example: `4k`.
+    utils_benchmark_block_size: 4k
+    # When `true`, the task raises an assertion error if the sequential write speed is below 1 GB/s. Set to `false` to collect results without failing the play.
+    utils_benchmark_fail_on_threshold: true
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: benchmark_volume
 ```
