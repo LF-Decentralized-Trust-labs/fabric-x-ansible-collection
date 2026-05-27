@@ -403,6 +403,7 @@ if (( RESULT_SEQ_WRITE_RAW < SEQ_WRITE_THRESHOLD )); then
     echo -e "  Measured Sequential Write:         ${RESULT_SEQ_WRITE}"
     echo -e "\n  ❌ FAIL - This machine does not meet the high-performance storage requirement.\n"
     echo -e "${GREEN}Benchmark complete!${NC}"
+    exit 1
 else
     echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "${GREEN}┃                         HIGH-PERFORMANCE VERDICT                           ┃${NC}"
@@ -411,5 +412,3 @@ else
     echo -e "  Measured Sequential Write:         ${RESULT_SEQ_WRITE}"
     echo -e "\n  ✅ PASS - This machine meets the high-performance storage requirement.\n"
 fi
-
-echo -e "${GREEN}Benchmark complete!${NC}"
