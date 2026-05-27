@@ -40,11 +40,11 @@ RESULT_LATENCY="N/A"
 format_speed() {
     local bytes=$1
     if (( bytes >= 1073741824 )); then
-        printf "%.2f GB/s" "$(echo "scale=2; $bytes / 1073741824" | bc)"
+        printf "%.2f GB/s" "$(awk "BEGIN {printf \"%.2f\", $bytes / 1073741824}")"
     elif (( bytes >= 1048576 )); then
-        printf "%.2f MB/s" "$(echo "scale=2; $bytes / 1048576" | bc)"
+        printf "%.2f MB/s" "$(awk "BEGIN {printf \"%.2f\", $bytes / 1048576}")"
     else
-        printf "%.2f KB/s" "$(echo "scale=2; $bytes / 1024" | bc)"
+        printf "%.2f KB/s" "$(awk "BEGIN {printf \"%.2f\", $bytes / 1024}")"
     fi
 }
 
@@ -172,9 +172,9 @@ if [[ -z "$bytes_per_sec" || "$bytes_per_sec" == "0" ]]; then
     fi
     if [[ -n "$bytes_per_sec" && -n "$unit" ]]; then
         case $unit in
-            "GB/s") bytes_per_sec=$(echo "$bytes_per_sec * 1073741824" | bc | cut -d. -f1) ;;
-            "MB/s") bytes_per_sec=$(echo "$bytes_per_sec * 1048576" | bc | cut -d. -f1) ;;
-            "KB/s") bytes_per_sec=$(echo "$bytes_per_sec * 1024" | bc | cut -d. -f1) ;;
+            "GB/s") bytes_per_sec=$(awk "BEGIN {printf \"%d\", $bytes_per_sec * 1073741824}") ;;
+            "MB/s") bytes_per_sec=$(awk "BEGIN {printf \"%d\", $bytes_per_sec * 1048576}") ;;
+            "KB/s") bytes_per_sec=$(awk "BEGIN {printf \"%d\", $bytes_per_sec * 1024}") ;;
             *) bytes_per_sec="0" ;;
         esac
     else
@@ -214,9 +214,9 @@ if [[ -z "$bytes_per_sec" || "$bytes_per_sec" == "0" ]]; then
     fi
     if [[ -n "$bytes_per_sec" && -n "$unit" ]]; then
         case $unit in
-            "GB/s") bytes_per_sec=$(echo "$bytes_per_sec * 1073741824" | bc | cut -d. -f1) ;;
-            "MB/s") bytes_per_sec=$(echo "$bytes_per_sec * 1048576" | bc | cut -d. -f1) ;;
-            "KB/s") bytes_per_sec=$(echo "$bytes_per_sec * 1024" | bc | cut -d. -f1) ;;
+            "GB/s") bytes_per_sec=$(awk "BEGIN {printf \"%d\", $bytes_per_sec * 1073741824}") ;;
+            "MB/s") bytes_per_sec=$(awk "BEGIN {printf \"%d\", $bytes_per_sec * 1048576}") ;;
+            "KB/s") bytes_per_sec=$(awk "BEGIN {printf \"%d\", $bytes_per_sec * 1024}") ;;
             *) bytes_per_sec="0" ;;
         esac
     else
@@ -308,13 +308,12 @@ else
     done
     RESULT_LATENCY_RAW=$((total / 10))
     if (( RESULT_LATENCY_RAW >= 1000 )); then
-        RESULT_LATENCY="$(echo "scale=2; $RESULT_LATENCY_RAW / 1000" | bc) ms"
+        RESULT_LATENCY="$(awk "BEGIN {printf \"%.2f\", $RESULT_LATENCY_RAW / 1000}") ms"
     else
         RESULT_LATENCY="${RESULT_LATENCY_RAW} us"
     fi
 fi
-
-echo -e "${GREEN}Done${NC} - ${RESULT_LATENCY}"
+echo -e "${GREEN}Done${NC} - $RESULT_LATENCY"
 
 # ============================================
 # Print Summary Table
@@ -384,8 +383,8 @@ if [[ "$HAS_FIO" == "0" || "$HAS_IOPING" == "0" ]]; then
         [[ "$HAS_FIO" == "0" ]] && echo -e "    brew install fio      ${CYAN}# Random I/O tests${NC}"
         [[ "$HAS_IOPING" == "0" ]] && echo -e "    brew install ioping   ${CYAN}# Precise latency measurements${NC}"
     else
-        [[ "$HAS_FIO" == "0" ]] && echo -e "    apt install fio       ${CYAN}# Random I/O tests${NC}"
-        [[ "$HAS_IOPING" == "0" ]] && echo -e "    apt install ioping    ${CYAN}# Precise latency measurements${NC}"
+        [[ "$HAS_FIO" == "0" ]] && echo -e "    dnf install fio       ${CYAN}# Random I/O tests${NC}"
+        [[ "$HAS_IOPING" == "0" ]] && echo -e "    dnf install ioping    ${CYAN}# Precise latency measurements${NC}"
     fi
     echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 fi
