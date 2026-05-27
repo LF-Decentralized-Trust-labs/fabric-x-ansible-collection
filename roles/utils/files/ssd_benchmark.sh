@@ -389,4 +389,28 @@ if [[ "$HAS_FIO" == "0" || "$HAS_IOPING" == "0" ]]; then
     echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 fi
 
-echo -e "\n${GREEN}Benchmark complete!${NC}"
+# ============================================
+# Threshold Check
+# ============================================
+SEQ_WRITE_THRESHOLD=1000  # MB/s
+
+echo ""
+if (( RESULT_SEQ_WRITE_RAW < SEQ_WRITE_THRESHOLD )); then
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${RED}┃                         HIGH-PERFORMANCE VERDICT                           ┃${NC}"
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "\n  Minimum required Sequential Write: ${SEQ_WRITE_THRESHOLD} MB/s"
+    echo -e "  Measured Sequential Write:         ${RESULT_SEQ_WRITE}"
+    echo -e "\n  ❌ FAIL - This machine does not meet the high-performance storage requirement.\n"
+    echo -e "${GREEN}Benchmark complete!${NC}"
+    exit 1
+else
+    echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${GREEN}┃                         HIGH-PERFORMANCE VERDICT                           ┃${NC}"
+    echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "\n  Minimum required Sequential Write: ${SEQ_WRITE_THRESHOLD} MB/s"
+    echo -e "  Measured Sequential Write:         ${RESULT_SEQ_WRITE}"
+    echo -e "\n  ✅ PASS - This machine meets the high-performance storage requirement.\n"
+fi
+
+echo -e "${GREEN}Benchmark complete!${NC}"
