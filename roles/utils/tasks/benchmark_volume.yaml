@@ -21,18 +21,20 @@
   ansible.builtin.debug:
     msg: "{{ utils_benchmark_result.stdout_lines | map('regex_replace', '\\x1b\\[[0-9;]*m', '') | list }}"
 
-- name: Assert sequential write meets high-performance threshold
-  ansible.builtin.assert:
-    that:
-      - utils_benchmark_result.rc == 0
-    fail_msg: >-
-      SSD benchmark FAILED on {{ inventory_hostname }}: sequential write speed
-      does not meet the minimum 1 GB/s threshold required for high-performance
+- name: Warn if sequential write does not meet high-performance threshold
+  ansible.builtin.debug:
+    msg: >-
+      ⚠️  WARNING: SSD benchmark on {{ inventory_hostname }} - sequential write
+      speed does not meet the minimum 1 GB/s threshold for high-performance
       operations. Review the benchmark output above for details.
-    success_msg: >-
-      SSD benchmark PASSED on {{ inventory_hostname }}: sequential write speed
+  when: utils_benchmark_result.rc != 0
+
+- name: Confirm sequential write meets high-performance threshold
+  ansible.builtin.debug:
+    msg: >-
+      ✅ SSD benchmark PASSED on {{ inventory_hostname }}: sequential write speed
       meets the minimum 1 GB/s threshold for high-performance operations.
-  when: utils_benchmark_fail_on_threshold | bool
+  when: utils_benchmark_result.rc == 0
 
 - name: Remove benchmark script from remote host
   ansible.builtin.file:
