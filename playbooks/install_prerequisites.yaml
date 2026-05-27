@@ -54,6 +54,12 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.package
         tasks_from: install
+    - name: Install EPEL release for ioping
+      become: true
+      ansible.builtin.package:
+        name: epel-release
+        state: present
+      when: ansible_os_family == "RedHat"
     - name: Install ioping
       vars:
         package_name: ioping
