@@ -54,11 +54,12 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.package
         tasks_from: install
-    - name: Install EPEL release for ioping
+    - name: Enable EPEL repository for ioping (RHEL)
       become: true
-      ansible.builtin.package:
-        name: epel-release
-        state: present
+      ansible.builtin.command:
+        cmd: dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm
+      args:
+        creates: /etc/yum.repos.d/epel.repo
       when: ansible_os_family == "RedHat"
     - name: Install ioping
       vars:
