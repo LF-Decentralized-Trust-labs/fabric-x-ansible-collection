@@ -48,3 +48,15 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.package
         tasks_from: install
+    - name: Install fio
+      vars:
+        package_name: fio
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.package
+        tasks_from: install
+    - name: Install ioping
+      vars:
+        package_name: ioping
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.package
+        tasks_from: install

@@ -317,61 +317,77 @@ fi
 echo -e "${GREEN}Done${NC} - ${RESULT_LATENCY}"
 
 # ============================================
-# Summary Report
+# Print Summary Table
 # ============================================
 echo ""
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${CYAN}┃${NC}${BOLD}                              BENCHMARK RESULTS                             ${NC}${CYAN}┃${NC}"
+echo -e "${CYAN}┃${NC}${BOLD}                              RESULTS SUMMARY                               ${NC}${CYAN}┃${NC}"
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo ""
+printf "${CYAN}┃${NC} %-28s ${CYAN}│${NC} %-22s ${CYAN}│${NC} %-16s ${CYAN}┃${NC}\n" "Test" "Result" "Rating"
+echo -e "${CYAN}┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┿━━━━━━━━━━━━━━━━━━━━━━━━┿━━━━━━━━━━━━━━━━━━┫${NC}"
 
-printf "  %-28s %-20s %s\n" "Test" "Result" "Rating"
-printf "  %-28s %-20s %s\n" "────────────────────────────" "──────────────────" "──────────────"
+# Sequential Write
+rating=$(get_rating "${RESULT_SEQ_WRITE_RAW:-0}" "seq_write")
+printf "${CYAN}┃${NC} %-28s ${CYAN}│${NC} ${GREEN}%-22s${NC} ${CYAN}│${NC} %-16s ${CYAN}┃${NC}\n" "Sequential Write" "$RESULT_SEQ_WRITE" "$rating"
 
-seq_write_rating=$(get_rating "$RESULT_SEQ_WRITE_RAW" "seq_write")
-seq_read_rating=$(get_rating "$RESULT_SEQ_READ_RAW" "seq_read")
+# Sequential Read
+rating=$(get_rating "${RESULT_SEQ_READ_RAW:-0}" "seq_read")
+printf "${CYAN}┃${NC} %-28s ${CYAN}│${NC} ${GREEN}%-22s${NC} ${CYAN}│${NC} %-16s ${CYAN}┃${NC}\n" "Sequential Read" "$RESULT_SEQ_READ" "$rating"
 
-printf "  %-28s %-20s %s\n" "Sequential Write" "$RESULT_SEQ_WRITE" "$seq_write_rating"
-printf "  %-28s %-20s %s\n" "Sequential Read" "$RESULT_SEQ_READ" "$seq_read_rating"
+echo -e "${CYAN}┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┿━━━━━━━━━━━━━━━━━━━━━━━━┿━━━━━━━━━━━━━━━━━━┫${NC}"
 
-if [[ "$HAS_FIO" == "1" ]]; then
-    rand_read_rating=$(get_rating "$RESULT_RAND_READ_IOPS" "rand_iops")
-    rand_write_rating=$(get_rating "$RESULT_RAND_WRITE_IOPS" "rand_iops")
-    printf "  %-28s %-20s %s\n" "Random Read 4K" "${RESULT_RAND_READ_IOPS} IOPS" "$rand_read_rating"
-    printf "  %-28s %-20s %s\n" "Random Write 4K" "${RESULT_RAND_WRITE_IOPS} IOPS" "$rand_write_rating"
-fi
-
-printf "  %-28s %-20s\n" "I/O Latency" "$RESULT_LATENCY"
-
-echo ""
-
-# ============================================
-# High-Performance Verdict
-# ============================================
-SEQ_WRITE_THRESHOLD_MB=1000  # 1 GB/s
-
-echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${CYAN}┃${NC}${BOLD}                         HIGH-PERFORMANCE VERDICT                           ${NC}${CYAN}┃${NC}"
-echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo ""
-echo -e "  Minimum required Sequential Write: ${BOLD}1 GB/s (1000 MB/s)${NC}"
-echo -e "  Measured Sequential Write:         ${BOLD}${RESULT_SEQ_WRITE}${NC}"
-echo ""
-
-if (( RESULT_SEQ_WRITE_RAW >= SEQ_WRITE_THRESHOLD_MB )); then
-    echo -e "  ${GREEN}✅ PASS${NC} - This machine meets the high-performance storage requirement."
-    BENCHMARK_VERDICT="PASS"
+# Random Read
+if [[ "$RESULT_RAND_READ_IOPS" != "N/A" && "$RESULT_RAND_READ_IOPS" != "0" ]]; then
+    rating=$(get_rating "$RESULT_RAND_READ_IOPS" "rand_iops")
+    printf "${CYAN}┃${NC} %-28s ${CYAN}│${NC} ${GREEN}%-22s${NC} ${CYAN}│${NC} %-16s ${CYAN}┃${NC}\n" "Random Read 4K (IOPS)" "$RESULT_RAND_READ_IOPS IOPS" "$rating"
+    printf "${CYAN}┃${NC} %-28s ${CYAN}│${NC} ${GREEN}%-22s${NC} ${CYAN}│${NC} %-16s ${CYAN}┃${NC}\n" "Random Read 4K (Bandwidth)" "$RESULT_RAND_READ_BW MB/s" ""
 else
-    echo -e "  ${RED}❌ FAIL${NC} - This machine does NOT meet the high-performance storage requirement."
-    echo -e "  ${YELLOW}   Consider using NVMe SSDs or upgrading storage for production workloads.${NC}"
-    BENCHMARK_VERDICT="FAIL"
+    printf "${CYAN}┃${NC} %-28s ${CYAN}│${NC} ${YELLOW}%-22s${NC} ${CYAN}│${NC} %-16s ${CYAN}┃${NC}\n" "Random Read 4K" "N/A (install fio)" "-"
 fi
 
+# Random Write
+if [[ "$RESULT_RAND_WRITE_IOPS" != "N/A" && "$RESULT_RAND_WRITE_IOPS" != "0" ]]; then
+    rating=$(get_rating "$RESULT_RAND_WRITE_IOPS" "rand_iops")
+    printf "${CYAN}┃${NC} %-28s ${CYAN}│${NC} ${GREEN}%-22s${NC} ${CYAN}│${NC} %-16s ${CYAN}┃${NC}\n" "Random Write 4K (IOPS)" "$RESULT_RAND_WRITE_IOPS IOPS" "$rating"
+    printf "${CYAN}┃${NC} %-28s ${CYAN}│${NC} ${GREEN}%-22s${NC} ${CYAN}│${NC} %-16s ${CYAN}┃${NC}\n" "Random Write 4K (Bandwidth)" "$RESULT_RAND_WRITE_BW MB/s" ""
+else
+    printf "${CYAN}┃${NC} %-28s ${CYAN}│${NC} ${YELLOW}%-22s${NC} ${CYAN}│${NC} %-16s ${CYAN}┃${NC}\n" "Random Write 4K" "N/A (install fio)" "-"
+fi
+
+echo -e "${CYAN}┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┿━━━━━━━━━━━━━━━━━━━━━━━━┿━━━━━━━━━━━━━━━━━━┫${NC}"
+
+# Latency
+if [[ "$RESULT_LATENCY" != "N/A" ]]; then
+    rating=$(get_rating "${RESULT_LATENCY_RAW:-0}" "latency")
+    printf "${CYAN}┃${NC} %-28s ${CYAN}│${NC} ${GREEN}%-22s${NC} ${CYAN}│${NC} %-16s ${CYAN}┃${NC}\n" "I/O Latency" "$RESULT_LATENCY" "$rating"
+else
+    printf "${CYAN}┃${NC} %-28s ${CYAN}│${NC} ${YELLOW}%-22s${NC} ${CYAN}│${NC} %-16s ${CYAN}┃${NC}\n" "I/O Latency" "N/A" "-"
+fi
+
+echo -e "${CYAN}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━━━━━━━┛${NC}"
+
+# Performance reference
 echo ""
-echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BOLD}Performance Reference:${NC}"
+echo -e "  ${GREEN}Excellent${NC}  - Top-tier NVMe SSD performance"
+echo -e "  ${GREEN}Very Good${NC} - High-end NVMe/SATA SSD"
+echo -e "  ${GREEN}Good${NC}      - Standard SATA SSD"
+echo -e "  ${YELLOW}Average${NC}   - Entry-level SSD or fast HDD"
+echo -e "  ${RED}Below Avg${NC} - Slow storage or system bottleneck"
 echo ""
 
-# Exit with non-zero code if benchmark fails the threshold
-if [[ "$BENCHMARK_VERDICT" == "FAIL" ]]; then
-    exit 1
+# Missing tools warning
+if [[ "$HAS_FIO" == "0" || "$HAS_IOPING" == "0" ]]; then
+    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${YELLOW}  For complete benchmarks, install missing tools:${NC}"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        [[ "$HAS_FIO" == "0" ]] && echo -e "    brew install fio      ${CYAN}# Random I/O tests${NC}"
+        [[ "$HAS_IOPING" == "0" ]] && echo -e "    brew install ioping   ${CYAN}# Precise latency measurements${NC}"
+    else
+        [[ "$HAS_FIO" == "0" ]] && echo -e "    apt install fio       ${CYAN}# Random I/O tests${NC}"
+        [[ "$HAS_IOPING" == "0" ]] && echo -e "    apt install ioping    ${CYAN}# Precise latency measurements${NC}"
+    fi
+    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 fi
+
+echo -e "\n${GREEN}Benchmark complete!${NC}"

@@ -19,7 +19,7 @@
 
 - name: Print benchmark output
   ansible.builtin.debug:
-    msg: "{{ utils_benchmark_result.stdout | regex_replace('\\x1b\\[[0-9;]*m', '') }}"
+    msg: "{{ utils_benchmark_result.stdout_lines | map('regex_replace', '\\x1b\\[[0-9;]*m', '') | list }}"
 
 - name: Assert sequential write meets high-performance threshold
   ansible.builtin.assert:
