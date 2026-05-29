@@ -20,6 +20,3 @@ utils_benchmark_test_size: 1G
 # Block size used for random I/O tests.
 # Example: C(4k).
 utils_benchmark_block_size: 4k
-# When C(true), the task raises an assertion error if the sequential write speed is below 1 GB/s.
-# Set to C(false) to collect results without failing the play.
-utils_benchmark_fail_on_threshold: true

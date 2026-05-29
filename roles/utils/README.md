@@ -106,8 +106,6 @@ Copies `ssd_benchmark.sh` to the remote host and executes it to measure sequenti
     utils_benchmark_test_size: 1G
     # Block size used for random I/O tests. Example: `4k`.
     utils_benchmark_block_size: 4k
-    # When `true`, the task raises an assertion error if the sequential write speed is below 1 GB/s. Set to `false` to collect results without failing the play.
-    utils_benchmark_fail_on_threshold: true
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: benchmark_volume

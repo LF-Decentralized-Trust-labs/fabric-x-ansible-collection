@@ -28,6 +28,35 @@ argument_specs:
         description:
           - "Defines the project root directory used by utility entry points that generate Makefile targets, which writes C(target_hosts.mk) to C(project_dir/target_hosts.mk)."
           - "Example: C(/path/to/hyperledger/fabricx)."
+      utils_benchmark_remote_dir: &utils_benchmark_remote_dir
+        type: str
+        required: false
+        default: "/tmp"
+        description:
+          - "Remote directory where the benchmark script is copied before execution."
+          - "Example: C(/tmp)."
+      utils_benchmark_test_dir: &utils_benchmark_test_dir
+        type: str
+        required: false
+        default: "/tmp/ssd_benchmark_test"
+        description:
+          - "Directory on the remote host where benchmark test files are created during the run."
+          - "The directory is cleaned up automatically after the benchmark completes."
+          - "Example: C(/tmp/ssd_benchmark_test)."
+      utils_benchmark_test_size: &utils_benchmark_test_size
+        type: str
+        required: false
+        default: "1G"
+        description:
+          - "Total data size used by fio random I/O tests."
+          - "Example: C(1G)."
+      utils_benchmark_block_size: &utils_benchmark_block_size
+        type: str
+        required: false
+        default: "4k"
+        description:
+          - "Block size used for random I/O tests."
+          - "Example: C(4k)."
 
   generate_makefile_targets:
     short_description: Generate Makefile targets for inventory hosts
@@ -67,39 +96,7 @@ argument_specs:
       - "Evaluates whether the machine meets the minimum sequential write threshold of C(1 GB/s) required for high-performance Fabric-X operations."
       - "Prints a warning if the measured sequential write speed falls below the threshold but does not fail the play."
     options:
-      utils_benchmark_remote_dir:
-        type: str
-        required: false
-        default: "/tmp"
-        description:
-          - "Remote directory where the benchmark script is copied before execution."
-          - "Example: C(/tmp)."
-      utils_benchmark_test_dir:
-        type: str
-        required: false
-        default: "/tmp/ssd_benchmark_test"
-        description:
-          - "Directory on the remote host where benchmark test files are created during the run."
-          - "The directory is cleaned up automatically after the benchmark completes."
-          - "Example: C(/tmp/ssd_benchmark_test)."
-      utils_benchmark_test_size:
-        type: str
-        required: false
-        default: "1G"
-        description:
-          - "Total data size used by fio random I/O tests."
-          - "Example: C(1G)."
-      utils_benchmark_block_size:
-        type: str
-        required: false
-        default: "4k"
-        description:
-          - "Block size used for random I/O tests."
-          - "Example: C(4k)."
-      utils_benchmark_fail_on_threshold:
-        type: bool
-        required: false
-        default: true
-        description:
-          - "When C(true), the task raises an assertion error if the sequential write speed is below 1 GB/s."
-          - "Set to C(false) to collect results without failing the play."
+      utils_benchmark_remote_dir: *utils_benchmark_remote_dir
+      utils_benchmark_test_dir: *utils_benchmark_test_dir
+      utils_benchmark_test_size: *utils_benchmark_test_size
+      utils_benchmark_block_size: *utils_benchmark_block_size
