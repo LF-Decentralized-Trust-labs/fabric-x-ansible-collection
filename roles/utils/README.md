@@ -93,7 +93,7 @@ Creates the `machines` inventory group with one selected host per distinct machi
 
 > Run SSD performance benchmark on remote hosts
 
-Copies `ssd_benchmark.sh` to the remote host and executes it to measure sequential write/read throughput, random 4K IOPS, and I/O latency. Evaluates whether the machine meets the minimum sequential write threshold of `1 GB/s` required for high-performance Fabric-X operations. The task fails when `utils_benchmark_fail_on_threshold` is `true` and the measured sequential write speed falls below the threshold.
+Copies `ssd_benchmark.sh` to the remote host and executes it to measure sequential write/read throughput, random 4K IOPS, and I/O latency. Evaluates whether the machine meets the minimum sequential write threshold of `1 GB/s` required for high-performance Fabric-X operations. Prints a warning if the measured sequential write speed falls below the threshold but does not fail the play.
 
 ```yaml
 - name: Run SSD performance benchmark on remote hosts

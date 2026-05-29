@@ -65,7 +65,7 @@ argument_specs:
     description:
       - "Copies C(ssd_benchmark.sh) to the remote host and executes it to measure sequential write/read throughput, random 4K IOPS, and I/O latency."
       - "Evaluates whether the machine meets the minimum sequential write threshold of C(1 GB/s) required for high-performance Fabric-X operations."
-      - "The task fails when C(utils_benchmark_fail_on_threshold) is C(true) and the measured sequential write speed falls below the threshold."
+      - "Prints a warning if the measured sequential write speed falls below the threshold but does not fail the play."
     options:
       utils_benchmark_remote_dir:
         type: str
