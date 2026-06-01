@@ -31,10 +31,9 @@ argument_specs:
       utils_benchmark_remote_dir: &utils_benchmark_remote_dir
         type: str
         required: false
-        default: "/tmp"
+        default: "{{ remote_data_dir }}"
         description:
           - "Remote directory where the benchmark script is copied before execution."
-          - "Example: C(/tmp)."
       utils_benchmark_test_dir: &utils_benchmark_test_dir
         type: str
         required: false
@@ -42,7 +41,6 @@ argument_specs:
         description:
           - "Directory on the remote host where benchmark test files are created during the run."
           - "The directory is cleaned up automatically after the benchmark completes."
-          - "Example: C(/tmp/ssd_benchmark_test)."
       utils_benchmark_test_size: &utils_benchmark_test_size
         type: str
         required: false

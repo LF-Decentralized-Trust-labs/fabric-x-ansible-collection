@@ -98,9 +98,9 @@ Copies `ssd_benchmark.sh` to the remote host and executes it to measure sequenti
 ```yaml
 - name: Run SSD performance benchmark on remote hosts
   vars:
-    # Remote directory where the benchmark script is copied before execution. Example: `/tmp`.
-    utils_benchmark_remote_dir: /tmp
-    # Directory on the remote host where benchmark test files are created during the run. The directory is cleaned up automatically after the benchmark completes. Example: `/tmp/ssd_benchmark_test`.
+    # Remote directory where the benchmark script is copied before execution.
+    utils_benchmark_remote_dir: "{{ remote_data_dir }}"
+    # Directory on the remote host where benchmark test files are created during the run. The directory is cleaned up automatically after the benchmark completes.
     utils_benchmark_test_dir: /tmp/ssd_benchmark_test
     # Total data size used by fio random I/O tests. Example: `1G`.
     utils_benchmark_test_size: 1G

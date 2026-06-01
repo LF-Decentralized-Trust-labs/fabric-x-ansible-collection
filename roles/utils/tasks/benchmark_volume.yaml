@@ -25,7 +25,7 @@
   ansible.builtin.debug:
     msg: >-
       ⚠️  WARNING: SSD benchmark on {{ inventory_hostname }} - sequential write
-      speed does not meet the minimum 1 GB/s threshold for high-performance
+      speed does not meet the minimum {{ utils_benchmark_test_size }} threshold for high-performance
       operations. Review the benchmark output above for details.
   when: utils_benchmark_result.rc != 0
 
@@ -33,7 +33,7 @@
   ansible.builtin.debug:
     msg: >-
       ✅ SSD benchmark PASSED on {{ inventory_hostname }}: sequential write speed
-      meets the minimum 1 GB/s threshold for high-performance operations.
+      meets the minimum {{ utils_benchmark_test_size }}threshold for high-performance operations.
   when: utils_benchmark_result.rc == 0
 
 - name: Remove benchmark script from remote host

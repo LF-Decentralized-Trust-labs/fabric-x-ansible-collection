@@ -14,12 +14,6 @@
 
 - name: Benchmark volume performance
   hosts: "{{ target_hosts | default('machines') }}:&machines"
-  vars:
-    utils_benchmark_remote_dir: "{{ benchmark_remote_dir | default('/tmp') }}"
-    utils_benchmark_test_dir: "{{ benchmark_test_dir | default('/tmp/ssd_benchmark_test') }}"
-    utils_benchmark_test_size: "{{ benchmark_test_size | default('1G') }}"
-    utils_benchmark_block_size: "{{ benchmark_block_size | default('4k') }}"
-    utils_benchmark_fail_on_threshold: "{{ benchmark_fail_on_threshold | default(true) }}"
   tasks:
     - name: Run SSD benchmark
       ansible.builtin.include_role:
