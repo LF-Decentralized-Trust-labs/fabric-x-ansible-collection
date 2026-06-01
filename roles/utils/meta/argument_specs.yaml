@@ -100,7 +100,7 @@ argument_specs:
       - "Evaluates whether the machine meets the minimum sequential write threshold of C(1 GB/s) required for high-performance Fabric-X operations."
       - "Prints a warning if the measured sequential write speed falls below the threshold but does not fail the play."
     options:
-      remote_data_dir: *remote_data_dir 
+      remote_data_dir: *remote_data_dir
       utils_benchmark_remote_dir: *utils_benchmark_remote_dir
       utils_benchmark_test_dir: *utils_benchmark_test_dir
       utils_benchmark_test_size: *utils_benchmark_test_size
