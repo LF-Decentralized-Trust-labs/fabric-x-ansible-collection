@@ -13,8 +13,6 @@ utils_benchmark_remote_dir: '{{ remote_data_dir }}'
 # The directory is cleaned up automatically after the benchmark completes.
 utils_benchmark_test_dir: /tmp/ssd_benchmark_test
 # Total data size used by fio random I/O tests.
-# Example: C(1G).
 utils_benchmark_test_size: 1G
 # Block size used for random I/O tests.
-# Example: C(4k).
 utils_benchmark_block_size: 4k

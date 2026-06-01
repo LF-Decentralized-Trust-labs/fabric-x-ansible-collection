@@ -47,14 +47,12 @@ argument_specs:
         default: "1G"
         description:
           - "Total data size used by fio random I/O tests."
-          - "Example: C(1G)."
       utils_benchmark_block_size: &utils_benchmark_block_size
         type: str
         required: false
         default: "4k"
         description:
           - "Block size used for random I/O tests."
-          - "Example: C(4k)."
       remote_data_dir: &remote_data_dir
         type: str
         required: true

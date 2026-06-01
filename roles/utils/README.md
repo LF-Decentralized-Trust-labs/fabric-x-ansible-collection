@@ -104,9 +104,9 @@ Copies `ssd_benchmark.sh` to the remote host and executes it to measure sequenti
     utils_benchmark_remote_dir: "{{ remote_data_dir }}"
     # Directory on the remote host where benchmark test files are created during the run. The directory is cleaned up automatically after the benchmark completes.
     utils_benchmark_test_dir: /tmp/ssd_benchmark_test
-    # Total data size used by fio random I/O tests. Example: `1G`.
+    # Total data size used by fio random I/O tests.
     utils_benchmark_test_size: 1G
-    # Block size used for random I/O tests. Example: `4k`.
+    # Block size used for random I/O tests.
     utils_benchmark_block_size: 4k
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
