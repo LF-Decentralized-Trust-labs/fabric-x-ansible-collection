@@ -18,7 +18,7 @@
 
 - name: Run SSD benchmark
   ansible.builtin.command:
-    cmd: "bash {{ utils_benchmark_remote_dir }}/ssd_benchmark.sh {{ utils_benchmark_test_dir }} {{ utils_benchmark_test_size }} {{ utils_benchmark_block_size }}"
+    cmd: "bash {{ utils_benchmark_remote_dir }}/ssd_benchmark.sh {{ utils_benchmark_remote_dir }} {{ utils_benchmark_test_size }} {{ utils_benchmark_block_size }}"
   register: utils_benchmark_result
   failed_when: utils_benchmark_result.rc not in [0, 1]
   changed_when: false
