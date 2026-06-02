@@ -47,11 +47,6 @@ argument_specs:
         default: "4k"
         description:
           - "Block size used for random I/O tests."
-      remote_data_dir: &remote_data_dir
-        type: path
-        description:
-          - Remote data directory consumed by C(utils_benchmark_remote_dir).
-          - "Example: C(/var/lib/utils/data)."
 
   generate_makefile_targets:
     short_description: Generate Makefile targets for inventory hosts
@@ -91,7 +86,6 @@ argument_specs:
       - "Evaluates whether the machine meets the minimum sequential write threshold of C(1 GB/s) required for high-performance Fabric-X operations."
       - "Prints a warning if the measured sequential write speed falls below the threshold but does not fail the play."
     options:
-      remote_data_dir: *remote_data_dir
       utils_benchmark_remote_dir: *utils_benchmark_remote_dir
       utils_benchmark_test_size: *utils_benchmark_test_size
       utils_benchmark_block_size: *utils_benchmark_block_size
