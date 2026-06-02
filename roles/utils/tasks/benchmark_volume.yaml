@@ -45,7 +45,7 @@
       ⚠️  WARNING: SSD benchmark on {{ inventory_hostname }} - sequential write
       speed does not meet the minimum {{ utils_benchmark_test_size }} threshold for high-performance
       operations. Review the full results at:
-      {{ utils_benchmark_local_results_dir }}/{{ inventory_hostname }}_ssd_benchmark_results.txt
+      {{ utils_benchmark_results_dir }}/{{ inventory_hostname }}_ssd_benchmark_results.txt
   when: utils_benchmark_result.rc != 0
 
 - name: Confirm sequential write meets high-performance threshold
@@ -53,7 +53,7 @@
     msg: >-
       ✅ SSD benchmark PASSED on {{ inventory_hostname }}: sequential write speed
       meets the minimum {{ utils_benchmark_test_size }}threshold for high-performance operations.Review the full results at:
-      {{ utils_benchmark_local_results_dir }}/{{ inventory_hostname }}_ssd_benchmark_results.txt
+      {{ utils_benchmark_results_dir }}/{{ inventory_hostname }}_ssd_benchmark_results.txt
   when: utils_benchmark_result.rc == 0
 
 - name: Remove benchmark script from remote host
