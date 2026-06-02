@@ -211,6 +211,7 @@
           | selectattr('node_exporter_port', 'defined')
           | list
           | length > 0
+          or (grafana_use_openshift | default(false))
     - name: Transfer the Fabric-X Committer Grafana Dashboard
       ansible.builtin.include_role:
         name: hyperledger.fabricx.committer

@@ -10,12 +10,6 @@
       - "{{ ansible_host }}"
       - "{{ actual_host }}"
 
-- name: Append Node Exporter OpenShift route to TLS SAN hosts
-  ansible.builtin.set_fact:
-    node_exporter_tls_san_hosts: "{{ node_exporter_tls_san_hosts + [node_exporter_openshift_route] }}"
-  when:
-    - node_exporter_openshift_route is defined
-
 - name: Generate the Node Exporter TLS crypto material with OpenSSL
   vars:
     openssl_common_name: "{{ inventory_hostname }}"

@@ -10,6 +10,7 @@ apiVersion: 1
 # List of datasource definitions
 datasources:
   - name: "Prometheus"
+    uid: "000000001"
     # Type of datasource plugin to use
     type: "prometheus"
     # Access mode - “proxy” lets Grafana forward queries through its backend
@@ -34,8 +35,28 @@ datasources:
     # HTTP method used for queries
     httpMethod: GET
     # Make this the default datasource for the organization
+{% if grafana_use_openshift | default(false) %}
+    isDefault: false
+{% else %}
     isDefault: true
+{% endif %}
     # Version of the datasource definition (used for migrations)
     version: 1
     # Allow editing of this datasource via the Grafana UI
     editable: true
+{% if grafana_use_openshift | default(false) %}
+  - name: "OpenShift Platform Monitoring"
+    uid: "openshift-platform-monitoring"
+    type: "prometheus"
+    access: "proxy"
+    url: {{ openshift_platform_monitoring_thanos_url | default('https://thanos-querier.openshift-monitoring.svc:9091') }}
+    jsonData:
+      httpHeaderName1: "Authorization"
+      tlsSkipVerify: true
+    secureJsonData:
+      httpHeaderValue1: "Bearer $__file{{ '{' }}/var/run/secrets/kubernetes.io/serviceaccount/token{{ '}' }}"
+    httpMethod: GET
+    isDefault: true
+    version: 1
+    editable: true
+{% endif %}

@@ -345,10 +345,6 @@ all:
     # =========================
     monitoring:
       hosts:
-        node-exporter:
-          node_exporter_port: 9111
-          node_exporter_use_tls: true
-          node_exporter_use_openshift: true
         committer-db-exporter:
           postgres_db_host: committer-db
           postgres_exporter_port: 2110

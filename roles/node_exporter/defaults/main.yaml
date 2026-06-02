@@ -32,7 +32,7 @@ node_exporter_tls_cert_file: server.crt
 # Enables the Kubernetes backend or cleanup path when true.
 node_exporter_use_k8s: false
 # Enables the container backend.
-node_exporter_use_container: '{{ (not node_exporter_use_k8s) and (not node_exporter_use_openshift) }}'
+node_exporter_use_container: '{{ not node_exporter_use_k8s }}'
 # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
 node_exporter_k8s_resource_name: '{{ inventory_hostname }}'
 # Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Node Exporter resources.
@@ -44,8 +44,6 @@ node_exporter_k8s_wait_timeout: 120
 node_exporter_k8s_loadbalancer_expose_metrics_port: false
 # UID the Node Exporter container runs as.
 node_exporter_k8s_run_as_user: 0
-# Selects the OpenShift deployment branch.
-node_exporter_use_openshift: false
 # Sets the bind-mount propagation flags for the host root filesystem volume (C(/:/host:<flags>)).
 # On Linux the default is C(rslave,ro), required for Docker bind-mount propagation.
 # On macOS, Docker Desktop with VirtioFS does not support C(rslave), so C(ro) is used instead.

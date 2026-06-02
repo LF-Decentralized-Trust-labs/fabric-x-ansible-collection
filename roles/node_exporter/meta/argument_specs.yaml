@@ -156,7 +156,7 @@ argument_specs:
           - Enables the Kubernetes backend or cleanup path when true.
       node_exporter_use_container: &node_exporter_use_container
         type: bool
-        default: "{{ (not node_exporter_use_k8s) and (not node_exporter_use_openshift) }}"
+        default: "{{ not node_exporter_use_k8s }}"
         description:
           - Enables the container backend.
       node_exporter_k8s_resource_name: &node_exporter_k8s_resource_name
@@ -205,11 +205,6 @@ argument_specs:
         description:
           - Lists the inventory hosts exposed as Prometheus scrape targets.
           - "Example: C(['worker-1', 'worker-2', 'worker-3'])."
-      node_exporter_use_openshift: &node_exporter_use_openshift
-        type: bool
-        default: false
-        description:
-          - Selects the OpenShift deployment branch.
       node_exporter_root_fs_flags: &node_exporter_root_fs_flags
         type: str
         default: "{{ 'ro' if ansible_facts.system == 'Darwin' else 'rslave,ro' }}"
@@ -217,11 +212,6 @@ argument_specs:
           - Sets the bind-mount propagation flags for the host root filesystem volume (C(/:/host:<flags>)).
           - On Linux the default is C(rslave,ro), required for Docker bind-mount propagation.
           - On macOS, Docker Desktop with VirtioFS does not support C(rslave), so C(ro) is used instead.
-      node_exporter_openshift_route: &node_exporter_openshift_route
-        type: str
-        description:
-          - Specifies the OpenShift Route host.
-          - "Example: C(node-exporter-metrics.apps.example.com)."
   start:
     short_description: Start Node Exporter
     description:
@@ -231,7 +221,6 @@ argument_specs:
     options:
       node_exporter_use_container: *node_exporter_use_container
       node_exporter_use_k8s: *node_exporter_use_k8s
-      node_exporter_use_openshift: *node_exporter_use_openshift
 
   stop:
     short_description: Stop Node Exporter
@@ -241,7 +230,6 @@ argument_specs:
     options:
       node_exporter_use_container: *node_exporter_use_container
       node_exporter_use_k8s: *node_exporter_use_k8s
-      node_exporter_use_openshift: *node_exporter_use_openshift
 
   teardown:
     short_description: Remove Node Exporter runtime resources
@@ -252,7 +240,6 @@ argument_specs:
     options:
       node_exporter_use_container: *node_exporter_use_container
       node_exporter_use_k8s: *node_exporter_use_k8s
-      node_exporter_use_openshift: *node_exporter_use_openshift
 
   wipe:
     short_description: Remove Node Exporter data and runtime resources
@@ -270,7 +257,6 @@ argument_specs:
     options:
       node_exporter_use_container: *node_exporter_use_container
       node_exporter_use_k8s: *node_exporter_use_k8s
-      node_exporter_use_openshift: *node_exporter_use_openshift
 
   ping:
     short_description: Check Node Exporter reachability
@@ -280,7 +266,6 @@ argument_specs:
     options:
       node_exporter_port: *node_exporter_port
       node_exporter_use_k8s: *node_exporter_use_k8s
-      node_exporter_use_openshift: *node_exporter_use_openshift
 
   get_host_set:
     short_description: Build the Node Exporter host group
@@ -304,7 +289,6 @@ argument_specs:
       node_exporter_tls_private_key_file: *node_exporter_tls_private_key_file
       node_exporter_tls_cert_file: *node_exporter_tls_cert_file
       node_exporter_use_k8s: *node_exporter_use_k8s
-      node_exporter_use_openshift: *node_exporter_use_openshift
 
   config/rm:
     short_description: Remove Node Exporter configuration
@@ -315,7 +299,6 @@ argument_specs:
       remote_deploy_dir: *remote_deploy_dir
       node_exporter_remote_config_dir: *node_exporter_remote_config_dir
       node_exporter_use_k8s: *node_exporter_use_k8s
-      node_exporter_use_openshift: *node_exporter_use_openshift
 
   config/transfer_grafana_dashboard:
     short_description: Transfer the Grafana dashboard for Node Exporter
@@ -332,7 +315,6 @@ argument_specs:
     options:
       node_exporter_use_tls: *node_exporter_use_tls
       node_exporter_use_k8s: *node_exporter_use_k8s
-      node_exporter_use_openshift: *node_exporter_use_openshift
 
   crypto/fetch:
     short_description: Fetch Node Exporter TLS certificates
@@ -355,7 +337,6 @@ argument_specs:
       node_exporter_remote_config_dir: *node_exporter_remote_config_dir
       node_exporter_use_tls: *node_exporter_use_tls
       node_exporter_use_k8s: *node_exporter_use_k8s
-      node_exporter_use_openshift: *node_exporter_use_openshift
 
   crypto/openssl/generate_cert:
     short_description: Generate a self-signed TLS certificate for Node Exporter
@@ -368,7 +349,6 @@ argument_specs:
       node_exporter_tls_private_key_file: *node_exporter_tls_private_key_file
       node_exporter_tls_cert_file: *node_exporter_tls_cert_file
       organization: *organization
-      node_exporter_openshift_route: *node_exporter_openshift_route
 
   container/start:
     short_description: Start Node Exporter in a container
@@ -541,29 +521,3 @@ argument_specs:
     options:
       node_exporter_hosts: *node_exporter_hosts
       fetched_artifacts_dir: *fetched_artifacts_dir
-
-  openshift/start:
-    short_description: Start the OpenShift deployment
-    description:
-      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
-    options:
-      node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
-      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
-      node_exporter_use_tls: *node_exporter_use_tls
-      node_exporter_openshift_route: *node_exporter_openshift_route
-
-  openshift/ping:
-    short_description: Check the OpenShift deployment
-    description:
-      - Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
-    options:
-      node_exporter_use_tls: *node_exporter_use_tls
-      node_exporter_openshift_route: *node_exporter_openshift_route
-
-  openshift/rm:
-    short_description: Remove the OpenShift deployment
-    description:
-      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
-    options:
-      node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
-      node_exporter_openshift_route: *node_exporter_openshift_route

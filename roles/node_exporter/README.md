@@ -34,9 +34,6 @@
   - [k8s/crypto/transfer](#k8scryptotransfer)
   - [k8s/crypto/rm](#k8scryptorm)
   - [prometheus/get\_scrapers](#prometheusget_scrapers)
-  - [openshift/start](#openshiftstart)
-  - [openshift/ping](#openshiftping)
-  - [openshift/rm](#openshiftrm)
 
 ## Role Defaults
 
@@ -62,11 +59,9 @@ Starts Node Exporter using the backend selected for the host. In container mode,
 - name: Start Node Exporter
   vars:
     # Enables the container backend.
-    node_exporter_use_container: "{{ (not node_exporter_use_k8s) and (not node_exporter_use_openshift) }}"
+    node_exporter_use_container: "{{ not node_exporter_use_k8s }}"
     # Enables the Kubernetes backend or cleanup path when true.
     node_exporter_use_k8s: false
-    # Selects the OpenShift deployment branch.
-    node_exporter_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: start
@@ -82,11 +77,9 @@ Stops the container-backed Node Exporter workload for the host. Kubernetes deplo
 - name: Stop Node Exporter
   vars:
     # Enables the container backend.
-    node_exporter_use_container: "{{ (not node_exporter_use_k8s) and (not node_exporter_use_openshift) }}"
+    node_exporter_use_container: "{{ not node_exporter_use_k8s }}"
     # Enables the Kubernetes backend or cleanup path when true.
     node_exporter_use_k8s: false
-    # Selects the OpenShift deployment branch.
-    node_exporter_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: stop
@@ -102,11 +95,9 @@ Removes Node Exporter runtime resources for the enabled backend. Container mode 
 - name: Remove Node Exporter runtime resources
   vars:
     # Enables the container backend.
-    node_exporter_use_container: "{{ (not node_exporter_use_k8s) and (not node_exporter_use_openshift) }}"
+    node_exporter_use_container: "{{ not node_exporter_use_k8s }}"
     # Enables the Kubernetes backend or cleanup path when true.
     node_exporter_use_k8s: false
-    # Selects the OpenShift deployment branch.
-    node_exporter_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: teardown
@@ -135,11 +126,9 @@ Collects logs from the active Node Exporter backend for this host. Container mod
 - name: Collect Node Exporter logs
   vars:
     # Enables the container backend.
-    node_exporter_use_container: "{{ (not node_exporter_use_k8s) and (not node_exporter_use_openshift) }}"
+    node_exporter_use_container: "{{ not node_exporter_use_k8s }}"
     # Enables the Kubernetes backend or cleanup path when true.
     node_exporter_use_k8s: false
-    # Selects the OpenShift deployment branch.
-    node_exporter_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: fetch_logs
@@ -158,8 +147,6 @@ Verifies that the Node Exporter metrics port is reachable on the current host. K
     node_exporter_port: 9100
     # Enables the Kubernetes backend or cleanup path when true.
     node_exporter_use_k8s: false
-    # Selects the OpenShift deployment branch.
-    node_exporter_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: ping
@@ -203,8 +190,6 @@ Creates the Node Exporter configuration directory and renders the web configurat
     node_exporter_tls_cert_file: server.crt
     # Enables the Kubernetes backend or cleanup path when true.
     node_exporter_use_k8s: false
-    # Selects the OpenShift deployment branch.
-    node_exporter_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: config/transfer
@@ -225,8 +210,6 @@ Removes transferred Node Exporter configuration files from the remote host. Kube
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
     # Enables the Kubernetes backend or cleanup path when true.
     node_exporter_use_k8s: false
-    # Selects the OpenShift deployment branch.
-    node_exporter_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: config/rm
@@ -258,8 +241,6 @@ Generates TLS material for Node Exporter when TLS is enabled. Container mode wri
     node_exporter_use_tls: false
     # Enables the Kubernetes backend or cleanup path when true.
     node_exporter_use_k8s: false
-    # Selects the OpenShift deployment branch.
-    node_exporter_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: crypto/setup
@@ -304,8 +285,6 @@ Removes generated TLS material for Node Exporter. Kubernetes mode also removes t
     node_exporter_use_tls: false
     # Enables the Kubernetes backend or cleanup path when true.
     node_exporter_use_k8s: false
-    # Selects the OpenShift deployment branch.
-    node_exporter_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: crypto/rm
@@ -333,8 +312,6 @@ Delegates to the OpenSSL role to generate a self-signed certificate and private 
       domain: "node-exporter.example.org"
       common_name: "node-exporter.example.org"
       organization_name: "Example Org"
-    # Specifies the OpenShift Route host. Example: `node-exporter-metrics.apps.example.com`.
-    node_exporter_openshift_route: "node-exporter-metrics.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: crypto/openssl/generate_cert
@@ -687,62 +664,4 @@ Builds the scrape service definitions Prometheus uses to collect metrics from th
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: prometheus/get_scrapers
-```
-
-### openshift/start
-
-> Start the OpenShift deployment
-
-Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
-
-```yaml
-- name: Start the OpenShift deployment
-  vars:
-    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
-    node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Node Exporter resources.
-    node_exporter_k8s_part_of: monitoring
-    # Enables the TLS web configuration and certificate paths when true.
-    node_exporter_use_tls: false
-    # Specifies the OpenShift Route host. Example: `node-exporter-metrics.apps.example.com`.
-    node_exporter_openshift_route: "node-exporter-metrics.apps.example.com"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.node_exporter
-    tasks_from: openshift/start
-```
-
-### openshift/ping
-
-> Check the OpenShift deployment
-
-Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
-
-```yaml
-- name: Check the OpenShift deployment
-  vars:
-    # Enables the TLS web configuration and certificate paths when true.
-    node_exporter_use_tls: false
-    # Specifies the OpenShift Route host. Example: `node-exporter-metrics.apps.example.com`.
-    node_exporter_openshift_route: "node-exporter-metrics.apps.example.com"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.node_exporter
-    tasks_from: openshift/ping
-```
-
-### openshift/rm
-
-> Remove the OpenShift deployment
-
-Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
-
-```yaml
-- name: Remove the OpenShift deployment
-  vars:
-    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
-    node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
-    # Specifies the OpenShift Route host. Example: `node-exporter-metrics.apps.example.com`.
-    node_exporter_openshift_route: "node-exporter-metrics.apps.example.com"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.node_exporter
-    tasks_from: openshift/rm
 ```
