@@ -29,12 +29,6 @@
     dest: "{{ utils_benchmark_remote_dir }}/ssd_benchmark_results.txt"
     mode: "0644"
 
-- name: Fetch benchmark results to control node
-  ansible.builtin.fetch:
-    src: "{{ utils_benchmark_remote_dir }}/ssd_benchmark_results.txt"
-    dest: "{{ utils_benchmark_results_dir }}/{{ inventory_hostname }}_ssd_benchmark_results.txt"
-    flat: true
-
 - name: Print benchmark output
   ansible.builtin.debug:
     msg: "{{ utils_benchmark_result.stdout_lines | map('regex_replace', '\\x1b\\[[0-9;]*m', '') | list }}"
@@ -45,7 +39,7 @@
       ⚠️  WARNING: SSD benchmark on {{ inventory_hostname }} - sequential write
       speed does not meet the minimum {{ utils_benchmark_test_size }} threshold for high-performance
       operations. Review the full results at:
-      {{ utils_benchmark_results_dir }}/{{ inventory_hostname }}_ssd_benchmark_results.txt
+      {{ utils_benchmark_remote_dir }}/ssd_benchmark_results.txt
   when: utils_benchmark_result.rc != 0
 
 - name: Confirm sequential write meets high-performance threshold
@@ -53,7 +47,7 @@
     msg: >-
       ✅ SSD benchmark PASSED on {{ inventory_hostname }}: sequential write speed
       meets the minimum {{ utils_benchmark_test_size }}threshold for high-performance operations.Review the full results at:
-      {{ utils_benchmark_results_dir }}/{{ inventory_hostname }}_ssd_benchmark_results.txt
+      {{ utils_benchmark_remote_dir }}/ssd_benchmark_results.txt
   when: utils_benchmark_result.rc == 0
 
 - name: Remove benchmark script from remote host
