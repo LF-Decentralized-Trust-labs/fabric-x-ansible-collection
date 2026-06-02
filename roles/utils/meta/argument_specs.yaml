@@ -50,8 +50,8 @@ argument_specs:
       remote_data_dir: &remote_data_dir
         type: path
         description:
-          - "Base directory on the remote host used for storing data and benchmark working files."
-          - "Example: C(/data)."
+          - Remote data directory consumed by C(utils_benchmark_remote_dir).
+          - "Example: C(/var/lib/utils/data)."
 
   generate_makefile_targets:
     short_description: Generate Makefile targets for inventory hosts
