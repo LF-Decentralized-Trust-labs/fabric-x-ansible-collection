@@ -35,6 +35,14 @@ argument_specs:
         description:
           - "Remote directory where the benchmark script is copied before execution."
           - "Directory on the remote host where benchmark test files are created during the run."
+      utils_benchmark_results_dir: &utils_benchmark_results_dir
+        type: path
+        required: false
+        default: "./benchmark_results"
+        description:
+          - "Local directory on the control node where benchmark result files are saved after each run."
+          - "Each host's results are written to a file named C(<inventory_hostname>_ssd_benchmark_results.txt)."
+          - "Example: C(./benchmark_results)."
       utils_benchmark_test_size: &utils_benchmark_test_size
         type: str
         required: false
@@ -93,5 +101,6 @@ argument_specs:
     options:
       remote_data_dir: *remote_data_dir
       utils_benchmark_remote_dir: *utils_benchmark_remote_dir
+      utils_benchmark_results_dir: *utils_benchmark_results_dir
       utils_benchmark_test_size: *utils_benchmark_test_size
       utils_benchmark_block_size: *utils_benchmark_block_size

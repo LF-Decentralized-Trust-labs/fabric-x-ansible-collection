@@ -102,6 +102,8 @@ Copies `ssd_benchmark.sh` to the remote host and executes it to measure sequenti
     remote_data_dir: "/data"
     # Remote directory where the benchmark script is copied before execution. Directory on the remote host where benchmark test files are created during the run.
     utils_benchmark_remote_dir: "{{ remote_data_dir }}"
+    # Local directory on the control node where benchmark result files are saved after each run. Each host's results are written to a file named `<inventory_hostname>_ssd_benchmark_results.txt`. Example: `./benchmark_results`.
+    utils_benchmark_results_dir: ./benchmark_results
     # Total data size used by fio random I/O tests.
     utils_benchmark_test_size: 1G
     # Block size used for random I/O tests.
