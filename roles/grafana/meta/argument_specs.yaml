@@ -231,6 +231,12 @@ argument_specs:
         default: false
         description:
           - Selects the OpenShift deployment branch.
+      openshift_platform_monitoring_thanos_url:
+        &openshift_platform_monitoring_thanos_url
+        type: str
+        description:
+          - Sets the OpenShift platform monitoring Thanos Querier URL used by the Grafana datasource.
+          - Used when C(grafana_use_openshift) is true.
       grafana_openshift_route: &grafana_openshift_route
         type: str
         description:
@@ -345,6 +351,7 @@ argument_specs:
       grafana_container_config_dir: *grafana_container_config_dir
       grafana_use_k8s: *grafana_use_k8s
       grafana_use_openshift: *grafana_use_openshift
+      openshift_platform_monitoring_thanos_url: *openshift_platform_monitoring_thanos_url
       prometheus_host: *prometheus_host
       fetched_artifacts_dir: *fetched_artifacts_dir
 
