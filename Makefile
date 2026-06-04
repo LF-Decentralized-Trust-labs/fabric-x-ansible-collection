@@ -358,3 +358,9 @@ fetch-crypto:
 limit-rate:
 	@printf "$(COLOR_CYAN)🚩 Setting TPS rate limit to $(COLOR_GREEN)$(LIMIT)$(COLOR_CYAN)...$(COLOR_RESET)\n"
 	$(ANSIBLE_PLAYBOOK) hyperledger.fabricx.loadgen.limit_rate --extra-vars '{"loadgen_limit_rate": "$(LIMIT)"}';
+
+# Benchmark the volume performance on targeted hosts and verify they meet the 1 GB/s sequential write threshold (e.g. make benchmark-volume TARGET_HOSTS=all).
+.PHONY: benchmark-volume
+benchmark-volume:
+	@printf "$(COLOR_CYAN)🚩 Benchmarking volume performance on hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
+	$(ANSIBLE_PLAYBOOK) hyperledger.fabricx.benchmark_volume --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'

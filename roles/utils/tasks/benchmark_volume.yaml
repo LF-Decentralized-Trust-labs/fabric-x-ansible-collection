@@ -1,0 +1,56 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure benchmark directory exists
+  ansible.builtin.file:
+    path: "{{ utils_benchmark_remote_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Copy SSD benchmark script to remote host
+  ansible.builtin.copy:
+    src: ssd_benchmark.sh
+    dest: "{{ utils_benchmark_remote_dir }}/ssd_benchmark.sh"
+    mode: "0755"
+
+- name: Run SSD benchmark
+  ansible.builtin.command:
+    cmd: "bash {{ utils_benchmark_remote_dir }}/ssd_benchmark.sh {{ utils_benchmark_remote_dir }} {{ utils_benchmark_test_size }} {{ utils_benchmark_block_size }}"
+  register: utils_benchmark_result
+  failed_when: utils_benchmark_result.rc not in [0, 1]
+  changed_when: false
+
+- name: Save benchmark results to file on remote host
+  ansible.builtin.copy:
+    content: "{{ utils_benchmark_result.stdout }}"
+    dest: "{{ utils_benchmark_remote_dir }}/ssd_benchmark_results.txt"
+    mode: "0644"
+
+- name: Print benchmark output
+  ansible.builtin.debug:
+    msg: "{{ utils_benchmark_result.stdout_lines | map('regex_replace', '\\x1b\\[[0-9;]*m', '') | list }}"
+
+- name: Warn if sequential write does not meet high-performance threshold
+  ansible.builtin.debug:
+    msg: >-
+      ⚠️  WARNING: SSD benchmark on {{ inventory_hostname }} - sequential write
+      speed does not meet the minimum {{ utils_benchmark_test_size }} threshold for high-performance
+      operations. Review the full results at:
+      {{ utils_benchmark_remote_dir }}/ssd_benchmark_results.txt
+  when: utils_benchmark_result.rc != 0
+
+- name: Confirm sequential write meets high-performance threshold
+  ansible.builtin.debug:
+    msg: >-
+      ✅ SSD benchmark PASSED on {{ inventory_hostname }}: sequential write speed
+      meets the minimum {{ utils_benchmark_test_size }}threshold for high-performance operations.Review the full results at:
+      {{ utils_benchmark_remote_dir }}/ssd_benchmark_results.txt
+  when: utils_benchmark_result.rc == 0
+
+- name: Remove benchmark script from remote host
+  ansible.builtin.file:
+    path: "{{ utils_benchmark_remote_dir }}/ssd_benchmark.sh"
+    state: absent
