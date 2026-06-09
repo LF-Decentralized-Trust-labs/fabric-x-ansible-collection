@@ -49,7 +49,7 @@ datasources:
     uid: "openshift-platform-monitoring"
     type: "prometheus"
     access: "proxy"
-    url: {{ openshift_platform_monitoring_thanos_url | default('https://thanos-querier.openshift-monitoring.svc:9091') }}
+    url: {{ openshift_platform_monitoring_thanos_url }}
     jsonData:
       httpHeaderName1: "Authorization"
       tlsSkipVerify: true

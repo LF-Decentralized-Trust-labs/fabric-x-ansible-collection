@@ -6,9 +6,6 @@
 
 - name: Start the Monitoring services
   hosts: "{{ target_hosts | default('monitoring') }}:&monitoring"
-  vars:
-    openshift_platform_monitoring_service_account_name: "{{ openshift_platform_monitoring_service_account | default('metrics-reader') }}"
-    openshift_platform_monitoring_cluster_role_name: "{{ openshift_platform_monitoring_cluster_role | default('cluster-monitoring-view') }}"
   tasks:
     # =========================
     # Node Exporter
@@ -46,6 +43,7 @@
         tasks_from: start
       when:
         - grafana_web_port is defined
+
     - name: Apply OpenShift platform monitoring reader ServiceAccount
       kubernetes.core.k8s:
         state: present
@@ -54,11 +52,11 @@
           apiVersion: v1
           kind: ServiceAccount
           metadata:
-            name: "{{ openshift_platform_monitoring_service_account_name }}"
+            name: "{{ openshift_platform_monitoring_service_account }}"
             namespace: "{{ k8s_namespace | default('default') }}"
             labels:
-              app.kubernetes.io/name: "{{ openshift_platform_monitoring_service_account_name }}"
-              app.kubernetes.io/component: metrics-reader
+              app.kubernetes.io/name: "{{ openshift_platform_monitoring_service_account }}"
+              app.kubernetes.io/component: "{{ openshift_platform_monitoring_service_account }}"
               app.kubernetes.io/part-of: monitoring
       when:
         - grafana_web_port is defined
@@ -70,22 +68,23 @@
           apiVersion: rbac.authorization.k8s.io/v1
           kind: ClusterRoleBinding
           metadata:
-            name: "{{ openshift_platform_monitoring_service_account_name }}-{{ k8s_namespace | default('default') }}"
+            name: "{{ openshift_platform_monitoring_service_account }}-{{ k8s_namespace | default('default') }}"
             labels:
-              app.kubernetes.io/name: "{{ openshift_platform_monitoring_service_account_name }}"
-              app.kubernetes.io/component: metrics-reader
+              app.kubernetes.io/name: "{{ openshift_platform_monitoring_service_account }}"
+              app.kubernetes.io/component: "{{ openshift_platform_monitoring_service_account }}"
               app.kubernetes.io/part-of: monitoring
           subjects:
             - kind: ServiceAccount
-              name: "{{ openshift_platform_monitoring_service_account_name }}"
+              name: "{{ openshift_platform_monitoring_service_account }}"
               namespace: "{{ k8s_namespace | default('default') }}"
           roleRef:
             apiGroup: rbac.authorization.k8s.io
             kind: ClusterRole
-            name: "{{ openshift_platform_monitoring_cluster_role_name }}"
+            name: "{{ openshift_platform_monitoring_cluster_role }}"
       when:
         - grafana_web_port is defined
         - grafana_use_openshift | default(false)
+
     - name: Use metrics-reader ServiceAccount for Grafana
       kubernetes.core.k8s:
         state: patched
@@ -97,7 +96,7 @@
           spec:
             template:
               spec:
-                serviceAccountName: "{{ openshift_platform_monitoring_service_account_name }}"
+                serviceAccountName: "{{ openshift_platform_monitoring_service_account }}"
         wait: true
         wait_timeout: "{{ grafana_k8s_wait_timeout | default(120) }}"
       when:
