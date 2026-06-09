@@ -28,6 +28,30 @@ argument_specs:
         description:
           - "Defines the project root directory used by utility entry points that generate Makefile targets, which writes C(target_hosts.mk) to C(project_dir/target_hosts.mk)."
           - "Example: C(/path/to/hyperledger/fabricx)."
+      utils_benchmark_remote_dir: &utils_benchmark_remote_dir
+        type: str
+        required: false
+        default: "{{ remote_data_dir }}"
+        description:
+          - "Remote directory where the benchmark script is copied before execution."
+          - "Directory on the remote host where benchmark test files are created during the run."
+      utils_benchmark_test_size: &utils_benchmark_test_size
+        type: str
+        required: false
+        default: "1G"
+        description:
+          - "Total data size used by fio random I/O tests."
+      utils_benchmark_block_size: &utils_benchmark_block_size
+        type: str
+        required: false
+        default: "4k"
+        description:
+          - "Block size used for random I/O tests."
+      remote_data_dir: &remote_data_dir
+        type: path
+        description:
+          - Remote data directory consumed by C(utils_benchmark_remote_dir).
+          - "Example: C(/var/lib/utils/data)."
 
   generate_makefile_targets:
     short_description: Generate Makefile targets for inventory hosts
@@ -59,3 +83,15 @@ argument_specs:
       - "Creates the C(machines) inventory group with one selected host per distinct machine address."
       - "The selection reads C(actual_host) from C(hostvars) across C(ansible_play_hosts) to identify hosts that share the same machine."
     options: {}
+
+  benchmark_volume:
+    short_description: Run SSD performance benchmark on remote hosts
+    description:
+      - "Copies C(ssd_benchmark.sh) to the remote host and executes it to measure sequential write/read throughput, random 4K IOPS, and I/O latency."
+      - "Evaluates whether the machine meets the minimum sequential write threshold of C(1 GB/s) required for high-performance Fabric-X operations."
+      - "Prints a warning if the measured sequential write speed falls below the threshold but does not fail the play."
+    options:
+      remote_data_dir: *remote_data_dir
+      utils_benchmark_remote_dir: *utils_benchmark_remote_dir
+      utils_benchmark_test_size: *utils_benchmark_test_size
+      utils_benchmark_block_size: *utils_benchmark_block_size
