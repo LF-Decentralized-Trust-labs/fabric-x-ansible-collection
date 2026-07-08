@@ -20,4 +20,4 @@
 
 - name: Remove Alloy data directory
   ansible.builtin.include_tasks: data/rm.yaml
-  when: alloy_use_container  
+  when: alloy_use_container
