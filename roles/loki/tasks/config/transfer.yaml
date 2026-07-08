@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Create Loki config directory
+  ansible.builtin.file:
+    path: "{{ loki_config_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Transfer Loki configuration file
+  ansible.builtin.template:
+    src: loki-config.yaml.j2
+    dest: "{{ loki_config_dir }}/loki-config.yaml"
+    mode: "0644"

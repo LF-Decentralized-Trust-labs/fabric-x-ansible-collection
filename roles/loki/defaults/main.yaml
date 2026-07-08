@@ -1,0 +1,43 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Container image name for Grafana Loki.
+loki_image: grafana/loki
+# Image tag for Grafana Loki.
+# Example: C(3.4.2)
+loki_version: 3.4.2
+# Port Loki listens on.
+loki_port: 3100
+# Name of the Loki container.
+loki_container_name: loki
+# Directory for Loki configuration files on the remote host.
+loki_config_dir: '{{ remote_deploy_dir }}/loki/config'
+# Directory for Loki data on the remote host.
+loki_data_dir: '{{ remote_deploy_dir }}/loki/data'
+# Log retention period. Default is 31 days.
+# Example: C(744h)
+loki_retention_period: 744h
+# Maximum ingestion rate in MB/s per distributor.
+loki_ingestion_rate_mb: 16
+# Maximum ingestion burst size in MB per distributor.
+loki_ingestion_burst_size_mb: 32
+# Replication factor. Use 1 for single-node/dev; 2+ for HA.
+loki_replication_factor: 1
+# Deploy Loki as a local container. Automatically true when neither loki_use_k8s nor loki_use_openshift is set.
+loki_use_container: '{{ (not loki_use_k8s) and (not loki_use_openshift) }}'
+# Deploy Loki on Kubernetes.
+loki_use_k8s: false
+# Deploy Loki on OpenShift.
+loki_use_openshift: false
+# PersistentVolumeClaim size for Loki storage on Kubernetes/OpenShift.
+loki_pvc_size: 50Gi
+# StorageClass name for the Loki PVC. Leave empty to use the cluster default.
+# Example: C(ibmc-file)
+loki_storage_class: ""
+# Seconds to wait for the Loki Deployment to become Available on Kubernetes/OpenShift.
+loki_k8s_wait_timeout: 120
+# Filesystem group used by the Loki pod security context for writable mounted volumes.
+loki_k8s_fs_group: 10001

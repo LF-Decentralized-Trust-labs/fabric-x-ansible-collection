@@ -1,0 +1,23 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start Loki as container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: container/start
+  when: loki_use_container
+
+- name: Start Loki on Kubernetes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: k8s/start
+  when: loki_use_k8s
+
+- name: Start Loki on OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: openshift/start
+  when: loki_use_openshift

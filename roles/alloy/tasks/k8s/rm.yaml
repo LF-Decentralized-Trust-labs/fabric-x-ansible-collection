@@ -1,0 +1,55 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Delete Alloy Deployment
+  kubernetes.core.k8s:
+    state: absent
+    api_version: apps/v1
+    kind: Deployment
+    name: "{{ alloy_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
+
+- name: Delete Alloy Service
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Service
+    name: "{{ alloy_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
+
+- name: Delete Alloy configuration (ConfigMap)
+  ansible.builtin.include_tasks: k8s/config/rm.yaml
+  
+- name: Delete Alloy RBAC resources
+  kubernetes.core.k8s:
+    state: absent
+    api_version: "{{ current_alloy_rbac.api_version }}"
+    kind: "{{ current_alloy_rbac.kind }}"
+    name: "{{ alloy_k8s_resource_name }}"
+    namespace: "{{ current_alloy_rbac.namespace | default(omit) }}"
+  loop:
+    - api_version: rbac.authorization.k8s.io/v1
+      kind: ClusterRoleBinding
+      cluster_scope: true
+    - api_version: rbac.authorization.k8s.io/v1
+      kind: ClusterRole
+      cluster_scope: true
+    - api_version: rbac.authorization.k8s.io/v1
+      kind: RoleBinding
+      namespace: "{{ k8s_namespace | default('default') }}"
+      cluster_scope: false
+    - api_version: rbac.authorization.k8s.io/v1
+      kind: Role
+      namespace: "{{ k8s_namespace | default('default') }}"
+      cluster_scope: false
+    - api_version: v1
+      kind: ServiceAccount
+      namespace: "{{ k8s_namespace | default('default') }}"
+      cluster_scope: false
+  loop_control:
+    loop_var: current_alloy_rbac
+  when:
+    - alloy_k8s_cluster_scope or not current_alloy_rbac.cluster_scope

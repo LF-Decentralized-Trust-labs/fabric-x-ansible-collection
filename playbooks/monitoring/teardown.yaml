@@ -44,6 +44,24 @@
       when:
         - prometheus_port is defined
     # =========================
+    # Alloy
+    # =========================
+    - name: Teardown Alloy
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.alloy
+        tasks_from: teardown
+      when:
+        - alloy_http_port is defined
+    # =========================
+    # Loki
+    # =========================
+    - name: Teardown Loki
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.loki
+        tasks_from: teardown
+      when:
+        - loki_port is defined
+    # =========================
     # Postgres Exporter
     # =========================
     - name: Teardown Postgres Exporter nodes

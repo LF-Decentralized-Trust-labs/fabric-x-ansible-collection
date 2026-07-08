@@ -1,0 +1,27 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+galaxy_info:
+  author: IBM
+  role_name: alloy
+  license: Apache-2.0
+  description: >
+    Deploys Grafana Alloy — the strategic successor to Promtail and Grafana Agent.
+    Supports container, Kubernetes, and OpenShift deployment modes.
+    Collects logs from containers, systemd journal, and arbitrary log files;
+    parses JSON; and ships to Grafana Loki.
+  min_ansible_version: "2.17.0"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: MacOSX
+      versions:
+        - all
+dependencies: []

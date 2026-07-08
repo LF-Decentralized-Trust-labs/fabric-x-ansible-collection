@@ -1,0 +1,33 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Create Alloy config directory
+  ansible.builtin.file:
+    path: "{{ alloy_config_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Check Alloy Docker socket is configured
+  ansible.builtin.assert:
+    that:
+      - "{{ alloy_docker_socket | string | length > 0 }}"
+    fail_msg: "alloy_docker_socket must be set when alloy_docker_logs_enabled is true and alloy_docker_host uses a Unix socket."
+  when:
+    - alloy_docker_logs_enabled
+    - alloy_use_container
+    - (alloy_docker_host | regex_search('^unix://')) is not none
+
+- name: Create Alloy data directory
+  ansible.builtin.file:
+    path: "{{ alloy_data_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Transfer Alloy configuration file
+  ansible.builtin.template:
+    src: "alloy-config.alloy.j2"
+    dest: "{{ alloy_config_dir }}/config.alloy"
+    mode: "0644"

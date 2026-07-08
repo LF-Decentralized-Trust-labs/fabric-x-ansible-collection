@@ -1,0 +1,32 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start Alloy container
+  vars:
+    container_name: "{{ alloy_container_name }}"
+    container_image: "{{ alloy_image }}:{{ alloy_version }}"
+    container_run_as_host_user: true
+    container_ports:
+      - "{{ alloy_http_port }}:{{ alloy_http_port }}"
+    alloy_docker_socket_volume: >-
+      {{
+        [alloy_docker_socket + ':/var/run/docker.sock:rw,z']
+        if alloy_docker_logs_enabled and ((alloy_docker_host | regex_search('^unix://')) is not none)
+        else []
+      }}
+    container_volumes: >-
+      {{
+        [
+          alloy_config_dir + '/config.alloy:/etc/alloy/config.alloy:ro,z',
+          alloy_data_dir + ':/var/lib/alloy:z'
+        ] + alloy_docker_socket_volume
+      }}
+    container_command: "run --server.http.listen-addr=0.0.0.0:{{ alloy_http_port }} --storage.path=/var/lib/alloy /etc/alloy/config.alloy"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start
+  when:
+    - alloy_use_container

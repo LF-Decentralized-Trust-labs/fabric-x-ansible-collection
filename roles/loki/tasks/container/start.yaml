@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure the data directory for Loki exists
+  ansible.builtin.file:
+    path: "{{ loki_data_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Start Loki container
+  vars:
+    container_name: "{{ loki_container_name }}"
+    container_image: "{{ loki_image }}:{{ loki_version }}"
+    container_run_as_host_user: true
+    container_ports:
+      - "{{ loki_port }}:{{ loki_port }}"
+    container_volumes:
+      - "{{ loki_config_dir }}/loki-config.yaml:/etc/loki/local-config.yaml:ro,z"
+      - "{{ loki_data_dir }}:/loki:z"
+    container_command: "-config.file=/etc/loki/local-config.yaml"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start

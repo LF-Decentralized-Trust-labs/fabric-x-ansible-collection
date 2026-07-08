@@ -1,0 +1,290 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+argument_specs:
+  # Shared option catalog - ALL variables defined here as YAML anchors
+  role-options:
+    short_description: Shared option catalog for alloy role entry points
+
+    options:
+      alloy_image: &alloy_image
+        type: str
+        default: "grafana/alloy"
+        description:
+          - "Container image name for Grafana Alloy."
+      alloy_version: &alloy_version
+        type: str
+        default: "v1.15.0"
+        description:
+          - "Image tag for Grafana Alloy."
+          - "Example: C(v1.15.0)"
+      alloy_container_name: &alloy_container_name
+        type: str
+        default: "alloy"
+        description:
+          - "Name of the Alloy container."
+      alloy_use_k8s: &alloy_use_k8s
+        type: bool
+        default: false
+        description:
+          - "Deploy Alloy on Kubernetes."
+      alloy_use_openshift: &alloy_use_openshift
+        type: bool
+        default: false
+        description:
+          - "Deploy Alloy on OpenShift."
+      alloy_use_container: &alloy_use_container
+        type: bool
+        default: "{{ (not alloy_use_k8s) and (not alloy_use_openshift) }}"
+        description:
+          - "Deploy Alloy as a local container. Automatically true when neither C(alloy_use_k8s) nor C(alloy_use_openshift) is set."
+      alloy_http_port: &alloy_http_port
+        type: int
+        default: 12345
+        description:
+          - "Port Alloy's HTTP server listens on."
+      alloy_config_dir: &alloy_config_dir
+        type: path
+        default: "{{ remote_deploy_dir }}/alloy/config"
+        description:
+          - "Directory for Alloy configuration files on the remote host."
+      alloy_data_dir: &alloy_data_dir
+        type: path
+        default: "{{ remote_deploy_dir }}/alloy/data"
+        description:
+          - "Directory for Alloy data and state files on the remote host."
+          - "Mounted into the container at C(/var/lib/alloy)."
+      alloy_docker_socket: &alloy_docker_socket
+        type: path
+        required: false
+        description:
+          - "Path to the container runtime socket mounted into Alloy."
+          - "Required when C(alloy_docker_logs_enabled) is true and C(alloy_docker_host) uses a Unix socket."
+      alloy_docker_host: &alloy_docker_host
+        type: str
+        default: "unix:///var/run/docker.sock"
+        description:
+          - "Docker-compatible API endpoint Alloy uses for container log discovery."
+          - "Use C(unix:///var/run/docker.sock) for a mounted socket or C(tcp://host:port) for a TCP endpoint."
+      alloy_loki_url: &alloy_loki_url
+        type: str
+        required: true
+        description:
+          - "Full push URL for the Loki instance."
+      alloy_default_labels: &alloy_default_labels
+        type: dict
+        default:
+          platform: "cbdc"
+        description:
+          - "Labels attached to every log line collected by this Alloy instance."
+      alloy_extra_log_paths: &alloy_extra_log_paths
+        type: list
+        elements: str
+        default: []
+        description:
+          - "Extra file paths (glob patterns accepted) to tail in addition to the defaults."
+          - "Example: C([/var/log/app/*.log])"
+      alloy_docker_logs_enabled: &alloy_docker_logs_enabled
+        type: bool
+        default: true
+        description:
+          - "Enable collection of container logs via the Docker/Podman socket."
+      alloy_docker_exclude_container_regex: &alloy_docker_exclude_container_regex
+        type: str
+        default: ""
+        description:
+          - "Regex matching Docker container names to exclude from log collection."
+      alloy_journal_logs_enabled: &alloy_journal_logs_enabled
+        type: bool
+        default: false
+        description:
+          - "Enable collection of systemd journal logs."
+      alloy_json_label_fields: &alloy_json_label_fields
+        type: list
+        elements: str
+        default:
+          - level
+          - component
+        description:
+          - "JSON fields to promote to Loki stream labels. Avoid high-cardinality fields such as txn_id or duration_ms."
+      alloy_k8s_resource_name: &alloy_k8s_resource_name
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Base Kubernetes resource name for Alloy."
+      alloy_k8s_part_of: &alloy_k8s_part_of
+        type: str
+        default: monitoring
+        description:
+          - "Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Alloy resources."
+      alloy_k8s_wait_timeout: &alloy_k8s_wait_timeout
+        type: int
+        default: 120
+        description:
+          - "Seconds to wait for the Alloy Deployment to become Available on Kubernetes."
+      alloy_k8s_fs_group: &alloy_k8s_fs_group
+        type: int
+        default: 1000
+        description:
+          - "Filesystem group used by the Alloy pod security context for writable mounted volumes."
+      alloy_k8s_cluster_scope: &alloy_k8s_cluster_scope
+        type: bool
+        default: true
+        description:
+          - "Use cluster-scoped RBAC for Alloy pod discovery."
+          - "Set to C(false) when Alloy only collects logs from C(alloy_k8s_namespaces) and the deployment user cannot create ClusterRoles."
+      alloy_k8s_namespaces: &alloy_k8s_namespaces
+        type: list
+        elements: str
+        description:
+          - "Optional Kubernetes namespaces Alloy should discover pod logs from."
+          - "When omitted, Alloy discovers pods from all namespaces its service account can read."
+      alloy_k8s_keep_part_of_regex: &alloy_k8s_keep_part_of_regex
+        type: str
+        description:
+          - "Optional regex used to keep only pods whose C(app.kubernetes.io/part-of) label matches."
+          - "Useful when the target namespace contains unrelated workloads."
+      remote_deploy_dir: &remote_deploy_dir
+        type: path
+        required: true
+        description:
+          - "Base deployment root directory on the remote host under which per-component config/data directories are created."
+      k8s_namespace: &k8s_namespace
+        type: str
+        # required: true
+        description:
+          - "Target Kubernetes/OpenShift namespace for this host's resources."
+      k8s_image_pull_secret: &k8s_image_pull_secret
+        type: str
+        required: false
+        description:
+          - "Name of the image pull secret to attach to the Alloy Kubernetes ServiceAccount/Deployment."
+      alloy_openshift_route: &alloy_openshift_route
+        type: str
+        required: false
+        description:
+          - "Hostname for the OpenShift Route exposing Alloy's HTTP endpoint."
+          - "When omitted, no Route is created."
+      alloy_use_tls: &alloy_use_tls
+        type: bool
+        default: false
+        description:
+          - "Enable TLS termination on the Alloy OpenShift Route."
+
+  start:
+    short_description: Start Alloy
+    description:
+      - "Dispatches to container or Kubernetes deployment based on deployment mode flags."
+    options:
+      alloy_container_name: *alloy_container_name
+      alloy_use_container: *alloy_use_container
+      alloy_use_k8s: *alloy_use_k8s
+      alloy_use_openshift: *alloy_use_openshift
+      alloy_image: *alloy_image
+      alloy_version: *alloy_version
+      alloy_http_port: *alloy_http_port
+      alloy_config_dir: *alloy_config_dir
+      alloy_data_dir: *alloy_data_dir
+      alloy_docker_socket: *alloy_docker_socket
+      alloy_docker_host: *alloy_docker_host
+      alloy_docker_logs_enabled: *alloy_docker_logs_enabled
+      remote_deploy_dir: *remote_deploy_dir
+
+  stop:
+    short_description: Stop Alloy container
+    description:
+      - "Stops the Grafana Alloy container without removing it."
+    options:
+      alloy_container_name: *alloy_container_name
+      alloy_use_container: *alloy_use_container
+      alloy_use_k8s: *alloy_use_k8s
+      alloy_use_openshift: *alloy_use_openshift
+
+  teardown:
+    short_description: Teardown Alloy
+    description:
+      - "Removes the Alloy container and configuration directory."
+    options:
+      alloy_container_name: *alloy_container_name
+      alloy_config_dir: *alloy_config_dir
+      alloy_data_dir: *alloy_data_dir
+      alloy_use_container: *alloy_use_container
+      alloy_use_k8s: *alloy_use_k8s
+      alloy_use_openshift: *alloy_use_openshift
+      remote_deploy_dir: *remote_deploy_dir
+
+  k8s/start:
+    short_description: Deploy Alloy on Kubernetes
+    description:
+      - "Creates RBAC, ConfigMap, Deployment, and Service for Alloy on Kubernetes."
+      - "Uses the shared C(k8s_namespace) inventory variable for the target namespace."
+    options:
+      alloy_k8s_resource_name: *alloy_k8s_resource_name
+      alloy_k8s_part_of: *alloy_k8s_part_of
+      alloy_k8s_wait_timeout: *alloy_k8s_wait_timeout
+      alloy_k8s_fs_group: *alloy_k8s_fs_group
+      alloy_k8s_cluster_scope: *alloy_k8s_cluster_scope
+      alloy_image: *alloy_image
+      alloy_version: *alloy_version
+      alloy_http_port: *alloy_http_port
+      alloy_config_dir: *alloy_config_dir
+      k8s_namespace: *k8s_namespace
+      k8s_image_pull_secret: *k8s_image_pull_secret
+      remote_deploy_dir: *remote_deploy_dir
+
+  k8s/rm:
+    short_description: Remove Alloy Kubernetes workload
+    description:
+      - "Deletes the Alloy Deployment, Service, ConfigMap, and RBAC resources from Kubernetes."
+      - "Uses the shared C(k8s_namespace) inventory variable for the target namespace."
+    options:
+      alloy_k8s_resource_name: *alloy_k8s_resource_name
+      alloy_k8s_cluster_scope: *alloy_k8s_cluster_scope
+      k8s_namespace: *k8s_namespace
+
+  openshift/start:
+    short_description: Deploy Alloy on OpenShift
+    description:
+      - "Delegates to k8s/start against an OpenShift-authenticated client context."
+      - "Optionally exposes Alloy's HTTP endpoint via an OpenShift Route when C(alloy_openshift_route) is set."
+      - "Uses the shared C(k8s_namespace) inventory variable for the target namespace."
+    options:
+      alloy_openshift_route: *alloy_openshift_route
+      alloy_use_tls: *alloy_use_tls
+      alloy_k8s_resource_name: *alloy_k8s_resource_name
+      alloy_k8s_part_of: *alloy_k8s_part_of
+
+  openshift/rm:
+    short_description: Remove Alloy OpenShift workload
+    description:
+      - "Deletes the Alloy OpenShift Route (if configured), then delegates to k8s/rm."
+      - "Uses the shared C(k8s_namespace) inventory variable for the target namespace."
+    options:
+      alloy_openshift_route: *alloy_openshift_route
+      alloy_k8s_resource_name: *alloy_k8s_resource_name
+
+  config/transfer:
+    short_description: Transfer Alloy configuration
+    description:
+      - "Renders and uploads the Alloy River configuration file to the remote host."
+    options:
+      alloy_config_dir: *alloy_config_dir
+      alloy_data_dir: *alloy_data_dir
+      alloy_use_container: *alloy_use_container
+      alloy_use_k8s: *alloy_use_k8s
+      alloy_use_openshift: *alloy_use_openshift
+      alloy_loki_url: *alloy_loki_url
+      alloy_default_labels: *alloy_default_labels
+      alloy_extra_log_paths: *alloy_extra_log_paths
+      alloy_docker_logs_enabled: *alloy_docker_logs_enabled
+      alloy_docker_host: *alloy_docker_host
+      alloy_docker_socket: *alloy_docker_socket
+      alloy_docker_exclude_container_regex: *alloy_docker_exclude_container_regex
+      alloy_journal_logs_enabled: *alloy_journal_logs_enabled
+      alloy_json_label_fields: *alloy_json_label_fields
+      alloy_k8s_namespaces: *alloy_k8s_namespaces
+      alloy_k8s_keep_part_of_regex: *alloy_k8s_keep_part_of_regex
+      remote_deploy_dir: *remote_deploy_dir

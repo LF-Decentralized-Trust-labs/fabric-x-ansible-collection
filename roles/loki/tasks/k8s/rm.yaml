@@ -1,0 +1,29 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Loki Kubernetes workload
+  block:
+    - name: Remove Loki Deployment
+      kubernetes.core.k8s:
+        state: absent
+        api_version: apps/v1
+        kind: Deployment
+        name: "{{ loki_container_name }}"
+        namespace: "{{ k8s_namespace }}"
+
+    - name: Remove Loki Service
+      kubernetes.core.k8s:
+        state: absent
+        api_version: v1
+        kind: Service
+        name: "{{ loki_container_name }}"
+        namespace: "{{ k8s_namespace }}"
+
+    - name: Remove Loki configuration
+      ansible.builtin.include_tasks: k8s/config/rm.yaml
+    
+    - name: Remove Loki PVC
+      ansible.builtin.include_tasks: k8s/data/rm.yaml

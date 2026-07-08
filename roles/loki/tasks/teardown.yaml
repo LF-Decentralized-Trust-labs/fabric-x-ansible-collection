@@ -1,0 +1,37 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Loki container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: container/rm
+  when: loki_use_container
+
+- name: Remove Loki Kubernetes workload
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: k8s/rm
+  when: loki_use_k8s
+
+- name: Remove Loki OpenShift workload
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: openshift/rm
+  when: loki_use_openshift
+
+- name: Remove Loki data
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: data/rm
+  when: not loki_use_k8s
+
+- name: Remove Loki Kubernetes data
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: k8s/data/rm
+  when: loki_use_k8s
+
+  

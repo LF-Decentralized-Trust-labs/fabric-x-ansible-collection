@@ -1,0 +1,72 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ alloy_k8s_resource_name }}"
+  labels:
+    app.kubernetes.io/name: "{{ alloy_k8s_resource_name }}"
+    app.kubernetes.io/component: alloy
+    app.kubernetes.io/part-of: "{{ alloy_k8s_part_of }}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "{{ alloy_k8s_resource_name }}"
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: "{{ alloy_k8s_resource_name }}"
+        app.kubernetes.io/component: alloy
+        app.kubernetes.io/part-of: "{{ alloy_k8s_part_of }}"
+      annotations:
+        checksum/config: "{{ lookup('file', alloy_config_dir + '/config.alloy') | hash('sha256') }}"
+    spec:
+      serviceAccountName: "{{ alloy_k8s_resource_name }}"
+      securityContext:
+        fsGroup: "{{ alloy_k8s_fs_group | int }}"
+      containers:
+        - name: alloy
+          image: "{{ alloy_image }}:{{ alloy_version }}"
+          args:
+            - run
+            - --server.http.listen-addr=0.0.0.0:{{ alloy_http_port }}
+            - --storage.path=/var/lib/alloy
+            - /etc/alloy/config.alloy
+          ports:
+            - name: http
+              containerPort: "{{ alloy_http_port }}"
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /etc/alloy/config.alloy
+              subPath: config.alloy
+              readOnly: true
+            - name: data
+              mountPath: /var/lib/alloy
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: "{{ alloy_http_port }}"
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /-/healthy
+              port: "{{ alloy_http_port }}"
+            initialDelaySeconds: 30
+            periodSeconds: 30
+      volumes:
+        - name: config
+          configMap:
+            name: "{{ alloy_k8s_resource_name }}"
+        - name: data
+          emptyDir: {}
+{% if k8s_image_pull_secret is defined and k8s_image_pull_secret %}
+      imagePullSecrets:
+        - name: "{{ k8s_image_pull_secret }}"
+{% endif %}

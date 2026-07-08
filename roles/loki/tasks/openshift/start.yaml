@@ -1,0 +1,25 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Deploy Loki workload using generic k8s flow
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: k8s/start
+
+- name: Apply Loki http OpenShift Route
+  vars:
+    openshift_route_name: "{{ loki_container_name }}-http"
+    openshift_route_host: "{{ loki_openshift_route }}"
+    openshift_route_service_name: "{{ loki_container_name }}"
+    openshift_route_service_port: http
+    openshift_route_use_tls: "{{ loki_use_tls | default(false) }}"
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ loki_container_name }}"
+      app.kubernetes.io/part-of: monitoring
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: loki_openshift_route is defined

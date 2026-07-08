@@ -39,3 +39,41 @@ datasources:
     version: 1
     # Allow editing of this datasource via the Grafana UI
     editable: true
+{% if loki_host is defined %}
+  - name: "Loki"
+    # Type of datasource plugin to use
+    type: "loki"
+    access: "proxy"
+    # URL of the Loki server
+{% if hostvars[loki_host].loki_use_tls is defined and hostvars[loki_host].loki_use_tls %}
+    url: https://{{ hostvars[loki_host].ansible_host }}:{{ hostvars[loki_host].loki_port | default(3100) }}
+    # TLS settings to access a datasource behind TLS
+    jsonData:
+      # Enable TLS authentication
+      tlsAuth: true
+      # Enable CA certificate verification for TLS
+      tlsAuthWithCACert: true
+      # Disable skipping TLS certificate verification
+      tlsSkipVerify: false
+      # Maximum number of log lines returned per query
+      maxLines: 5000
+      # Query timeout in seconds
+      timeout: 60
+    secureJsonData:
+      # Path to the TLS CA certificate
+      tlsCACert: $__file{% raw %}{{% endraw %}{{ grafana_container_config_dir }}/tls/{{ loki_host }}/ca.crt{% raw %}}{% endraw %}
+{% else %}
+    url: http://{{ hostvars[loki_host].ansible_host }}:{{ hostvars[loki_host].loki_port | default(3100) }}
+    jsonData:
+      # Maximum number of log lines returned per query
+      maxLines: 5000
+      # Query timeout in seconds
+      timeout: 60
+{% endif +%}
+    # Do not make this the default datasource
+    isDefault: true
+    # Version of the datasource definition (used for migrations)
+    version: 1
+    # Allow editing of this datasource via the Grafana UI
+    editable: true
+{% endif %}

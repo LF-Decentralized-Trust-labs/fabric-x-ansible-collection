@@ -1,0 +1,29 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure Kubernetes namespace exists for Alloy
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+- name: Transfer Alloy configuration (RBAC and ConfigMap)
+  ansible.builtin.include_tasks: k8s/config/transfer.yaml
+
+- name: Deploy Alloy Deployment
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/deployment.yaml.j2
+    wait: true
+    wait_timeout: "{{ alloy_k8s_wait_timeout }}"
+
+- name: Apply Alloy Service
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/service-alloy.yaml.j2

@@ -1,0 +1,86 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  # One StatefulSet per Loki instance.
+  name: {{ loki_container_name }}
+  namespace: {{ k8s_namespace }}
+  labels:
+    app: {{ loki_container_name }}
+    app.kubernetes.io/name: {{ loki_container_name }}
+    app.kubernetes.io/component: loki
+    app.kubernetes.io/part-of: monitoring
+    platform: cbdc
+spec:
+  # Must match the headless Service name so DNS-based pod addressing works.
+  serviceName: {{ loki_container_name }}
+  # Single-node Loki; scaling is done by adding nodes to the inventory.
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ loki_container_name }}
+  template:
+    metadata:
+      labels:
+        app: {{ loki_container_name }}
+        app.kubernetes.io/name: {{ loki_container_name }}
+        app.kubernetes.io/component: loki
+        app.kubernetes.io/part-of: monitoring
+        platform: cbdc
+    spec:
+      securityContext:
+        runAsUser: 0
+        fsGroup: 0
+      containers:
+        - name: {{ loki_container_name }}
+          image: "{{ loki_image }}:{{ loki_version }}"
+          args:
+            - -config.file=/etc/loki/loki-config.yaml
+          ports:
+            - name: http
+              containerPort: {{ loki_port }}
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: {{ k8s_readiness_probe_initial_delay_seconds | default(30) }}
+            periodSeconds: {{ k8s_readiness_probe_period_seconds | default(10) }}
+          livenessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: {{ k8s_liveness_probe_initial_delay_seconds | default(60) }}
+            periodSeconds: {{ k8s_liveness_probe_period_seconds | default(30) }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/loki
+              readOnly: true
+            - name: storage
+              mountPath: /loki
+      volumes:
+        - name: config
+          configMap:
+            name: {{ loki_container_name }}-config
+{% if k8s_image_pull_secret is defined and k8s_image_pull_secret %}
+      imagePullSecrets:
+        - name: {{ k8s_image_pull_secret }}
+{% endif %}
+  volumeClaimTemplates:
+    # PVC name: Kubernetes appends the pod ordinal, e.g. storage-<name>-0.
+    - metadata:
+        name: storage
+      spec:
+        accessModes:
+          - ReadWriteOnce
+{% if loki_storage_class is defined and loki_storage_class %}
+        storageClassName: {{ loki_storage_class }}
+{% endif %}
+        resources:
+          requests:
+            storage: {{ loki_pvc_size }}

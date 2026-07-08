@@ -1,0 +1,69 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Container image name for Grafana Alloy.
+alloy_image: grafana/alloy
+# Image tag for Grafana Alloy.
+# Example: C(v1.15.0)
+alloy_version: v1.15.0
+# Name of the Alloy container.
+alloy_container_name: alloy
+# Deploy Alloy on Kubernetes.
+alloy_use_k8s: false
+# Deploy Alloy on OpenShift.
+alloy_use_openshift: false
+# Deploy Alloy as a local container. Automatically true when neither C(alloy_use_k8s) nor C(alloy_use_openshift) is set.
+alloy_use_container: '{{ (not alloy_use_k8s) and (not alloy_use_openshift) }}'
+# Port Alloy's HTTP server listens on.
+alloy_http_port: 12345
+# Directory for Alloy configuration files on the remote host.
+alloy_config_dir: '{{ remote_deploy_dir }}/alloy/config'
+# Directory for Alloy data and state files on the remote host.
+# Mounted into the container at C(/var/lib/alloy).
+alloy_data_dir: '{{ remote_deploy_dir }}/alloy/data'
+# Docker-compatible API endpoint Alloy uses for container log discovery.
+# Use C(unix:///var/run/docker.sock) for a mounted socket or C(tcp://host:port) for a TCP endpoint.
+alloy_docker_host: "unix:///var/run/docker.sock"
+# Labels attached to every log line collected by this Alloy instance.
+alloy_default_labels:
+  environment: local
+  platform: cbdc
+# Extra file paths (glob patterns accepted) to tail in addition to the defaults.
+# Example: C([/var/log/app/*.log])
+alloy_extra_log_paths: []
+# Enable collection of container logs via the Docker/Podman socket.
+alloy_docker_logs_enabled: true
+# Regex matching Docker container names to exclude from log collection.
+alloy_docker_exclude_container_regex: ""
+# Enable collection of systemd journal logs.
+alloy_journal_logs_enabled: false
+# JSON fields to promote to Loki stream labels. Avoid high-cardinality fields such as txn_id or duration_ms.
+alloy_json_label_fields:
+  - level
+  - component
+# Base Kubernetes resource name for Alloy.
+alloy_k8s_resource_name: '{{ inventory_hostname }}'
+# Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Alloy resources.
+alloy_k8s_part_of: monitoring
+# Seconds to wait for the Alloy Deployment to become Available on Kubernetes.
+alloy_k8s_wait_timeout: 120
+# Filesystem group used by the Alloy pod security context for writable mounted volumes.
+alloy_k8s_fs_group: 1000
+# Use cluster-scoped RBAC for Alloy pod discovery.
+# Set to C(false) when Alloy only collects logs from C(alloy_k8s_namespaces) and the deployment user cannot create ClusterRoles.
+alloy_k8s_cluster_scope: true
+# Grafana Alloy — log collector agent
+alloy:
+  container_client: "{{ lookup('env', 'CONTAINER_CLIENT') or 'docker' }}"
+alloy_docker_socket: >-
+  {{
+    '/run/user/' ~ ansible_facts.user_uid ~ '/podman/podman.sock'
+      if ansible_system == 'Linux'
+      else lookup('env', 'DOCKER_HOST')
+  }}
+alloy_loki_url: "http://{{ hostvars[loki_host].ansible_host | default(loki_host) }}:{{ hostvars[loki_host].loki_port | default(3100) }}/loki/api/v1/push"
+
+

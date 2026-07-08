@@ -1,0 +1,10 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Alloy config directory
+  ansible.builtin.file:
+    path: "{{ alloy_config_dir }}"
+    state: absent
