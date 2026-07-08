@@ -10,6 +10,12 @@
     tasks_from: k8s/rm
   when: yugabyte_use_k8s
 
+- name: Teardown Yugabyte on OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: openshift/rm
+  when: yugabyte_use_openshift
+
 - name: Remove the Yugabyte DB containers
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte

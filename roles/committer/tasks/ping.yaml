@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# =======================
+# bin / container
+# =======================
 - name: Check that the gRPC port is open
   vars:
     utils_ports_to_ping:
@@ -11,3 +14,22 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: ping
+  when: not (committer_use_k8s or committer_use_openshift)
+
+# =======================
+# k8s
+# =======================
+- name: Check that the node ports are open
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: k8s/ping
+  when: committer_use_k8s
+
+# =======================
+# openshift
+# =======================
+- name: Check that the OpenShift routes and Kubernetes services are open
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: openshift/ping
+  when: committer_use_openshift

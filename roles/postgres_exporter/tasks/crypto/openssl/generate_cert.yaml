@@ -4,12 +4,25 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Initialize Postgres Exporter TLS SAN hosts
+  ansible.builtin.set_fact:
+    postgres_exporter_tls_san_hosts:
+      - "{{ ansible_host }}"
+      - "{{ actual_host }}"
+
+- name: Append Postgres Exporter OpenShift route to TLS SAN hosts
+  ansible.builtin.set_fact:
+    postgres_exporter_tls_san_hosts: "{{ postgres_exporter_tls_san_hosts + [postgres_exporter_openshift_route] }}"
+  when:
+    - postgres_exporter_openshift_route is defined
+
 - name: Generate the TLS crypto material with OpenSSL
   vars:
     openssl_common_name: "{{ inventory_hostname }}"
     openssl_organization: "{{ organization.domain | default(inventory_hostname) }}"
     openssl_private_key_path: "{{ postgres_exporter_remote_config_dir }}/tls/{{ postgres_exporter_tls_private_key_file }}"
     openssl_cert_path: "{{ postgres_exporter_remote_config_dir }}/tls/{{ postgres_exporter_tls_cert_file }}"
+    openssl_san_hosts: "{{ postgres_exporter_tls_san_hosts | unique }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openssl
     tasks_from: generate_self_signed_cert

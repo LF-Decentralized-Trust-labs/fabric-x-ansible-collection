@@ -8,11 +8,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ postgres_exporter_k8s_resource_name }}
-  namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ postgres_exporter_k8s_resource_name }}
     app.kubernetes.io/component: postgres-exporter
-    app.kubernetes.io/part-of: monitoring
+    app.kubernetes.io/part-of: {{ postgres_exporter_k8s_part_of }}
 spec:
   replicas: 1
   selector:
@@ -23,13 +22,17 @@ spec:
       labels:
         app.kubernetes.io/name: {{ postgres_exporter_k8s_resource_name }}
         app.kubernetes.io/component: postgres-exporter
-        app.kubernetes.io/part-of: monitoring
+        app.kubernetes.io/part-of: {{ postgres_exporter_k8s_part_of }}
     spec:
       securityContext:
         fsGroup: {{ postgres_exporter_k8s_fs_group }}
       containers:
         - name: postgres-exporter
           image: {{ postgres_exporter_image }}
+{% if k8s_resources is defined and k8s_resources %}
+          resources:
+{{ k8s_resources | to_nice_yaml(indent=2) | indent(12, true) }}
+{% endif %}
           args:
             - --web.listen-address=:{{ postgres_exporter_port }}
             - --config.file={{ postgres_exporter_container_config_dir }}/{{ postgres_exporter_config_file }}

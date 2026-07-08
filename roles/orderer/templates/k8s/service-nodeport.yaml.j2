@@ -9,23 +9,26 @@ kind: Service
 metadata:
   # NodePort Service — exposes the orderer outside the cluster for external clients.
   name: {{ orderer_k8s_resource_name }}-nodeport
-  namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ orderer_k8s_resource_name }}
     app.kubernetes.io/component: {{ orderer_component_type }}
-    app.kubernetes.io/part-of: fabric-x-orderer
+    app.kubernetes.io/part-of: {{ orderer_k8s_part_of }}
 spec:
   type: NodePort
   selector:
     app.kubernetes.io/name: {{ orderer_k8s_resource_name }}
   ports:
+{% if orderer_k8s_rpc_node_port is defined %}
     - name: rpc
       # gRPC port — nodePort matches port so external addresses are predictable.
       port: {{ orderer_rpc_port }}
-      targetPort: {{ orderer_rpc_port }}
+      targetPort: rpc
       nodePort: {{ orderer_k8s_rpc_node_port }}
+{% endif %}
+{% if orderer_k8s_metrics_node_port is defined %}
     - name: metrics
-      # Prometheus metrics endpoint exposed on the node for external scraping.
-      port: {{ orderer_metrics_port }}
-      targetPort: {{ orderer_metrics_port }}
+      # Optional operations endpoint exposed on the node, including Prometheus metrics.
+      port: {{ orderer_operations_port }}
+      targetPort: metrics
       nodePort: {{ orderer_k8s_metrics_node_port }}
+{% endif %}

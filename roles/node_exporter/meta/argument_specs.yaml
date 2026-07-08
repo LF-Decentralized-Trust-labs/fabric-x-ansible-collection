@@ -1,0 +1,569 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+argument_specs:
+  role-options:
+    short_description: Shared option catalog for node_exporter role entry points
+    options:
+      remote_deploy_dir: &remote_deploy_dir
+        type: path
+        description:
+          - Sets the base remote deployment directory used by C(node_exporter_remote_config_dir).
+          - "Example: C(/opt/fabricx/node-exporter)."
+      fetched_artifacts_dir: &fetched_artifacts_dir
+        type: path
+        required: true
+        description:
+          - Sets the local directory used to store fetched TLS artifacts.
+          - "Example: C(/tmp/fabricx-artifacts/node-exporter)."
+      organization: &organization
+        type: dict
+        description:
+          - Provides organization data used to build the OpenSSL subject.
+          - When organization data does not define a domain value, the inventory hostname is used instead.
+          - "Example: C({'domain': 'node-exporter.example.org', 'common_name': 'node-exporter.example.org', 'organization_name': 'Example Org'})."
+      k8s_namespace: &k8s_namespace
+        type: str
+        description:
+          - Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
+          - Required when C(node_exporter_use_k8s) is true.
+          - "Example: C(monitoring)."
+      k8s_image_pull_secret: &k8s_image_pull_secret
+        type: str
+        description:
+          - Sets the optional image pull secret used by the Node Exporter DaemonSet.
+          - "Example: C(regcred)."
+      k8s_readiness_probe_initial_delay_seconds:
+        &k8s_readiness_probe_initial_delay_seconds
+        type: int
+        description:
+          - Overrides the DaemonSet readiness probe initial delay.
+          - The template defaults to 10 seconds.
+          - "Example: C(10)."
+      k8s_readiness_probe_period_seconds: &k8s_readiness_probe_period_seconds
+        type: int
+        description:
+          - Overrides the DaemonSet readiness probe period.
+          - The template defaults to 10 seconds.
+          - "Example: C(10)."
+      k8s_readiness_probe_timeout_seconds: &k8s_readiness_probe_timeout_seconds
+        type: int
+        description:
+          - Overrides the DaemonSet readiness probe timeout.
+          - The template defaults to 5 seconds.
+          - "Example: C(5)."
+      k8s_readiness_probe_failure_threshold:
+        &k8s_readiness_probe_failure_threshold
+        type: int
+        description:
+          - Overrides the DaemonSet readiness probe failure threshold.
+          - The template defaults to 3 failures.
+          - "Example: C(3)."
+      k8s_liveness_probe_initial_delay_seconds:
+        &k8s_liveness_probe_initial_delay_seconds
+        type: int
+        description:
+          - Overrides the DaemonSet liveness probe initial delay.
+          - The template defaults to 30 seconds.
+          - "Example: C(30)."
+      k8s_liveness_probe_period_seconds: &k8s_liveness_probe_period_seconds
+        type: int
+        description:
+          - Overrides the DaemonSet liveness probe period.
+          - The template defaults to 15 seconds.
+          - "Example: C(15)."
+      k8s_liveness_probe_timeout_seconds: &k8s_liveness_probe_timeout_seconds
+        type: int
+        description:
+          - Overrides the DaemonSet liveness probe timeout.
+          - The template defaults to 5 seconds.
+          - "Example: C(5)."
+      k8s_liveness_probe_failure_threshold:
+        &k8s_liveness_probe_failure_threshold
+        type: int
+        description:
+          - Overrides the DaemonSet liveness probe failure threshold.
+          - The template defaults to 5 failures.
+          - "Example: C(5)."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
+      node_exporter_registry_endpoint: &node_exporter_registry_endpoint
+        type: str
+        default: "{{ lookup('env', 'NODE_EXPORTER_REGISTRY_ENDPOINT') or 'docker.io/prom' }}"
+        description:
+          - Sets the registry endpoint used to build the default Node Exporter image reference.
+      node_exporter_image_name: &node_exporter_image_name
+        type: str
+        default: node-exporter
+        description:
+          - Sets the Node Exporter image name used in the default image reference.
+      node_exporter_image_tag: &node_exporter_image_tag
+        type: str
+        default: latest
+        description:
+          - Sets the Node Exporter image tag used in the default image reference.
+      node_exporter_image: &node_exporter_image
+        type: str
+        default: "{{ node_exporter_registry_endpoint }}/{{ node_exporter_image_name }}:{{ node_exporter_image_tag }}"
+        description:
+          - Sets the full Node Exporter image reference.
+      node_exporter_container_name: &node_exporter_container_name
+        type: str
+        default: node-exporter
+        description:
+          - Sets the container name used for the Node Exporter runtime.
+      node_exporter_remote_config_dir: &node_exporter_remote_config_dir
+        type: path
+        default: "{{ remote_deploy_dir }}/node-exporter/config"
+        description:
+          - Sets the remote Node Exporter configuration directory.
+      node_exporter_container_config_dir: &node_exporter_container_config_dir
+        type: path
+        default: /var/config
+        description:
+          - Sets the configuration mount point inside the Node Exporter container.
+      node_exporter_web_config_file: &node_exporter_web_config_file
+        type: str
+        default: web-config.yaml
+        description:
+          - Sets the rendered Node Exporter web configuration filename.
+      node_exporter_use_tls: &node_exporter_use_tls
+        type: bool
+        default: false
+        description:
+          - Enables the TLS web configuration and certificate paths when true.
+      node_exporter_tls_private_key_file: &node_exporter_tls_private_key_file
+        type: str
+        default: server.key
+        description:
+          - Sets the Node Exporter TLS private key filename.
+      node_exporter_tls_cert_file: &node_exporter_tls_cert_file
+        type: str
+        default: server.crt
+        description:
+          - Sets the Node Exporter TLS certificate filename.
+      node_exporter_use_k8s: &node_exporter_use_k8s
+        type: bool
+        default: false
+        description:
+          - Enables the Kubernetes backend or cleanup path when true.
+      node_exporter_use_container: &node_exporter_use_container
+        type: bool
+        default: "{{ (not node_exporter_use_k8s) and (not node_exporter_use_openshift) }}"
+        description:
+          - Enables the container backend.
+      node_exporter_k8s_resource_name: &node_exporter_k8s_resource_name
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
+      node_exporter_k8s_part_of: &node_exporter_k8s_part_of
+        type: str
+        default: monitoring
+        description:
+          - Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Node Exporter resources.
+      node_exporter_k8s_wait_timeout: &node_exporter_k8s_wait_timeout
+        type: int
+        default: 120
+        description:
+          - Sets how long to wait for the Node Exporter DaemonSet rollout.
+      node_exporter_k8s_node_port: &node_exporter_k8s_node_port
+        type: int
+        description:
+          - Kubernetes NodePort value used by the external metrics Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
+          - "Example: C(31000)."
+      node_exporter_k8s_loadbalancer_expose_metrics_port:
+        &node_exporter_k8s_loadbalancer_expose_metrics_port
+        type: bool
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the metrics port externally.
+          - When undefined or C(false), the metrics port is not included in the LoadBalancer Service.
+      node_exporter_k8s_run_as_user: &node_exporter_k8s_run_as_user
+        type: int
+        default: 0
+        description:
+          - UID the Node Exporter container runs as.
+      node_exporter_port: &node_exporter_port
+        type: int
+        required: true
+        description:
+          - Sets the TCP port exposed by Node Exporter and seeds the default Kubernetes NodePort value.
+          - "Example: C(9100)."
+      node_exporter_hosts: &node_exporter_hosts
+        type: list
+        elements: str
+        required: true
+        description:
+          - Lists the inventory hosts exposed as Prometheus scrape targets.
+          - "Example: C(['worker-1', 'worker-2', 'worker-3'])."
+      node_exporter_use_openshift: &node_exporter_use_openshift
+        type: bool
+        default: false
+        description:
+          - Selects the OpenShift deployment branch.
+      node_exporter_root_fs_flags: &node_exporter_root_fs_flags
+        type: str
+        default: "{{ 'ro' if ansible_facts.system == 'Darwin' else 'rslave,ro' }}"
+        description:
+          - Sets the bind-mount propagation flags for the host root filesystem volume (C(/:/host:<flags>)).
+          - On Linux the default is C(rslave,ro), required for Docker bind-mount propagation.
+          - On macOS, Docker Desktop with VirtioFS does not support C(rslave), so C(ro) is used instead.
+      node_exporter_openshift_route: &node_exporter_openshift_route
+        type: str
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(node-exporter-metrics.apps.example.com)."
+  start:
+    short_description: Start Node Exporter
+    description:
+      - Starts Node Exporter using the backend selected for the host.
+      - In container mode, launches the local C(node_exporter_container_name) container and publishes C(node_exporter_port).
+      - In Kubernetes mode, creates the Service and DaemonSet in C(k8s_namespace) and waits for rollout completion.
+    options:
+      node_exporter_use_container: *node_exporter_use_container
+      node_exporter_use_k8s: *node_exporter_use_k8s
+      node_exporter_use_openshift: *node_exporter_use_openshift
+
+  stop:
+    short_description: Stop Node Exporter
+    description:
+      - Stops the container-backed Node Exporter workload for the host.
+      - Kubernetes deployments use C(teardown) instead of this entry point.
+    options:
+      node_exporter_use_container: *node_exporter_use_container
+      node_exporter_use_k8s: *node_exporter_use_k8s
+      node_exporter_use_openshift: *node_exporter_use_openshift
+
+  teardown:
+    short_description: Remove Node Exporter runtime resources
+    description:
+      - Removes Node Exporter runtime resources for the enabled backend.
+      - Container mode removes the local runtime container.
+      - Kubernetes mode removes the Service, optional NodePort Service, and DaemonSet.
+    options:
+      node_exporter_use_container: *node_exporter_use_container
+      node_exporter_use_k8s: *node_exporter_use_k8s
+      node_exporter_use_openshift: *node_exporter_use_openshift
+
+  wipe:
+    short_description: Remove Node Exporter data and runtime resources
+    description:
+      - Removes runtime resources, generated TLS material, and transferred configuration for Node Exporter.
+      - Use this to fully reset either deployment mode on the current host.
+    options: {}
+
+  fetch_logs:
+    short_description: Collect Node Exporter logs
+    description:
+      - Collects logs from the active Node Exporter backend for this host.
+      - Container mode reads the container log stream.
+      - Kubernetes mode reads the matching pod logs from the DaemonSet.
+    options:
+      node_exporter_use_container: *node_exporter_use_container
+      node_exporter_use_k8s: *node_exporter_use_k8s
+      node_exporter_use_openshift: *node_exporter_use_openshift
+
+  ping:
+    short_description: Check Node Exporter reachability
+    description:
+      - Verifies that the Node Exporter metrics port is reachable on the current host.
+      - Kubernetes deployments verify the optional NodePort exposure when it is enabled.
+    options:
+      node_exporter_port: *node_exporter_port
+      node_exporter_use_k8s: *node_exporter_use_k8s
+      node_exporter_use_openshift: *node_exporter_use_openshift
+
+  get_host_set:
+    short_description: Build the Node Exporter host group
+    description:
+      - Adds one inventory host per unique C(ansible_host) with a defined C(node_exporter_port) to the C(node_exporter_hosts) group.
+      - Example hosts include C(worker-1), C(worker-2), and C(worker-3).
+    options: {}
+
+  config/transfer:
+    short_description: Transfer Node Exporter configuration
+    description:
+      - Creates the Node Exporter configuration directory and renders the web configuration file when TLS is enabled.
+      - Container mode writes the config under C(node_exporter_remote_config_dir) for bind-mounting into the runtime container.
+      - Kubernetes mode also applies the ConfigMap that supplies the same config to the DaemonSet.
+    options:
+      remote_deploy_dir: *remote_deploy_dir
+      node_exporter_remote_config_dir: *node_exporter_remote_config_dir
+      node_exporter_container_config_dir: *node_exporter_container_config_dir
+      node_exporter_web_config_file: *node_exporter_web_config_file
+      node_exporter_use_tls: *node_exporter_use_tls
+      node_exporter_tls_private_key_file: *node_exporter_tls_private_key_file
+      node_exporter_tls_cert_file: *node_exporter_tls_cert_file
+      node_exporter_use_k8s: *node_exporter_use_k8s
+      node_exporter_use_openshift: *node_exporter_use_openshift
+
+  config/rm:
+    short_description: Remove Node Exporter configuration
+    description:
+      - Removes transferred Node Exporter configuration files from the remote host.
+      - Kubernetes mode also removes the ConfigMap used by the DaemonSet.
+    options:
+      remote_deploy_dir: *remote_deploy_dir
+      node_exporter_remote_config_dir: *node_exporter_remote_config_dir
+      node_exporter_use_k8s: *node_exporter_use_k8s
+      node_exporter_use_openshift: *node_exporter_use_openshift
+
+  config/transfer_grafana_dashboard:
+    short_description: Transfer the Grafana dashboard for Node Exporter
+    description:
+      - Copies the bundled Node Exporter dashboard into Grafana by delegating to the Grafana role.
+    options: {}
+
+  crypto/setup:
+    short_description: Generate Node Exporter TLS material
+    description:
+      - Generates TLS material for Node Exporter when TLS is enabled.
+      - Container mode writes certs and keys under C(node_exporter_remote_config_dir)/tls.
+      - Kubernetes mode also applies the Secret that mounts the same artifacts into the DaemonSet.
+    options:
+      node_exporter_use_tls: *node_exporter_use_tls
+      node_exporter_use_k8s: *node_exporter_use_k8s
+      node_exporter_use_openshift: *node_exporter_use_openshift
+
+  crypto/fetch:
+    short_description: Fetch Node Exporter TLS certificates
+    description:
+      - Fetches the generated Node Exporter CA certificate and server certificate from the remote host when TLS is enabled.
+      - Writes the artifacts into C(fetched_artifacts_dir) for later reuse.
+    options:
+      remote_deploy_dir: *remote_deploy_dir
+      fetched_artifacts_dir: *fetched_artifacts_dir
+      node_exporter_remote_config_dir: *node_exporter_remote_config_dir
+      node_exporter_use_tls: *node_exporter_use_tls
+
+  crypto/rm:
+    short_description: Remove Node Exporter TLS material
+    description:
+      - Removes generated TLS material for Node Exporter.
+      - Kubernetes mode also removes the TLS Secret used by the DaemonSet.
+    options:
+      remote_deploy_dir: *remote_deploy_dir
+      node_exporter_remote_config_dir: *node_exporter_remote_config_dir
+      node_exporter_use_tls: *node_exporter_use_tls
+      node_exporter_use_k8s: *node_exporter_use_k8s
+      node_exporter_use_openshift: *node_exporter_use_openshift
+
+  crypto/openssl/generate_cert:
+    short_description: Generate a self-signed TLS certificate for Node Exporter
+    description:
+      - Delegates to the OpenSSL role to generate a self-signed certificate and private key for Node Exporter.
+      - Uses the organization data and TLS filenames to place the artifacts under the Node Exporter config path.
+    options:
+      remote_deploy_dir: *remote_deploy_dir
+      node_exporter_remote_config_dir: *node_exporter_remote_config_dir
+      node_exporter_tls_private_key_file: *node_exporter_tls_private_key_file
+      node_exporter_tls_cert_file: *node_exporter_tls_cert_file
+      organization: *organization
+      node_exporter_openshift_route: *node_exporter_openshift_route
+
+  container/start:
+    short_description: Start Node Exporter in a container
+    description:
+      - Starts the Node Exporter container with the configured image, port, mounts, and optional TLS web configuration.
+      - The container name comes from C(node_exporter_container_name) and the image from C(node_exporter_image).
+      - The runtime binds the host root filesystem plus C(node_exporter_remote_config_dir) for config and TLS material.
+    options:
+      node_exporter_container_name: *node_exporter_container_name
+      node_exporter_registry_endpoint: *node_exporter_registry_endpoint
+      node_exporter_image_name: *node_exporter_image_name
+      node_exporter_image_tag: *node_exporter_image_tag
+      node_exporter_image: *node_exporter_image
+      node_exporter_port: *node_exporter_port
+      remote_deploy_dir: *remote_deploy_dir
+      node_exporter_remote_config_dir: *node_exporter_remote_config_dir
+      node_exporter_container_config_dir: *node_exporter_container_config_dir
+      node_exporter_web_config_file: *node_exporter_web_config_file
+      node_exporter_use_tls: *node_exporter_use_tls
+      node_exporter_root_fs_flags: *node_exporter_root_fs_flags
+
+  container/stop:
+    short_description: Stop the Node Exporter container
+    description:
+      - Stops the Node Exporter container by delegating to the shared container role.
+      - Uses the configured container name and image reference to identify the runtime.
+    options:
+      node_exporter_container_name: *node_exporter_container_name
+      node_exporter_registry_endpoint: *node_exporter_registry_endpoint
+      node_exporter_image_name: *node_exporter_image_name
+      node_exporter_image_tag: *node_exporter_image_tag
+      node_exporter_image: *node_exporter_image
+
+  container/rm:
+    short_description: Remove the Node Exporter container
+    description:
+      - Removes the Node Exporter container by delegating to the shared container role.
+      - Leaves the config and TLS paths untouched so a later start can reuse them if desired.
+    options:
+      node_exporter_container_name: *node_exporter_container_name
+      node_exporter_registry_endpoint: *node_exporter_registry_endpoint
+      node_exporter_image_name: *node_exporter_image_name
+      node_exporter_image_tag: *node_exporter_image_tag
+      node_exporter_image: *node_exporter_image
+
+  container/fetch_logs:
+    short_description: Fetch logs from the Node Exporter container
+    description:
+      - Collects logs from the Node Exporter container by delegating to the shared container role.
+      - This is the container-mode log path used by the top-level fetch_logs entry point.
+    options:
+      node_exporter_container_name: *node_exporter_container_name
+
+  k8s/start:
+    short_description: Start Node Exporter on Kubernetes
+    description:
+      - Creates the Kubernetes Service, optional NodePort and LoadBalancer Services, and DaemonSet for Node Exporter.
+      - Uses C(k8s_namespace), C(node_exporter_k8s_resource_name), and C(node_exporter_port) to shape the workload identity and service exposure.
+      - Waits for the DaemonSet rollout before returning.
+    options:
+      node_exporter_k8s_wait_timeout: *node_exporter_k8s_wait_timeout
+      node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
+      node_exporter_port: *node_exporter_port
+      node_exporter_k8s_node_port: *node_exporter_k8s_node_port
+      node_exporter_registry_endpoint: *node_exporter_registry_endpoint
+      node_exporter_image_name: *node_exporter_image_name
+      node_exporter_image_tag: *node_exporter_image_tag
+      node_exporter_image: *node_exporter_image
+      node_exporter_use_tls: *node_exporter_use_tls
+      node_exporter_container_config_dir: *node_exporter_container_config_dir
+      node_exporter_web_config_file: *node_exporter_web_config_file
+      node_exporter_tls_cert_file: *node_exporter_tls_cert_file
+      node_exporter_tls_private_key_file: *node_exporter_tls_private_key_file
+      k8s_namespace: *k8s_namespace
+      k8s_image_pull_secret: *k8s_image_pull_secret
+      k8s_readiness_probe_initial_delay_seconds: *k8s_readiness_probe_initial_delay_seconds
+      k8s_readiness_probe_period_seconds: *k8s_readiness_probe_period_seconds
+      k8s_readiness_probe_timeout_seconds: *k8s_readiness_probe_timeout_seconds
+      k8s_readiness_probe_failure_threshold: *k8s_readiness_probe_failure_threshold
+      k8s_liveness_probe_initial_delay_seconds: *k8s_liveness_probe_initial_delay_seconds
+      k8s_liveness_probe_period_seconds: *k8s_liveness_probe_period_seconds
+      k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
+      k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
+      node_exporter_k8s_loadbalancer_expose_metrics_port: *node_exporter_k8s_loadbalancer_expose_metrics_port
+      node_exporter_k8s_run_as_user: *node_exporter_k8s_run_as_user
+      k8s_resources: *k8s_resources
+
+  k8s/ping:
+    short_description: Check that Node Exporter Kubernetes service is reachable
+    description:
+      - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
+    options:
+      node_exporter_port: *node_exporter_port
+      node_exporter_k8s_node_port: *node_exporter_k8s_node_port
+      node_exporter_k8s_loadbalancer_expose_metrics_port: *node_exporter_k8s_loadbalancer_expose_metrics_port
+
+  k8s/rm:
+    short_description: Remove Node Exporter Kubernetes resources
+    description:
+      - Removes the Kubernetes DaemonSet and Services created for Node Exporter.
+      - Targets the workload by C(k8s_namespace) and C(node_exporter_k8s_resource_name).
+    options:
+      node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      k8s_namespace: *k8s_namespace
+      node_exporter_k8s_node_port: *node_exporter_k8s_node_port
+      node_exporter_k8s_loadbalancer_expose_metrics_port: *node_exporter_k8s_loadbalancer_expose_metrics_port
+
+  k8s/fetch_logs:
+    short_description: Fetch logs from Node Exporter pods
+    description:
+      - Collects logs from Node Exporter pods by delegating to the shared Kubernetes role.
+      - This is the Kubernetes-mode log path used by the top-level fetch_logs entry point.
+    options:
+      node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+
+  k8s/config/transfer:
+    short_description: Apply the Node Exporter Kubernetes ConfigMap
+    description:
+      - Ensures the target namespace exists and applies the ConfigMap used by the Node Exporter DaemonSet.
+      - The ConfigMap points at C(node_exporter_remote_config_dir) content and the rendered web config when TLS is enabled.
+    options:
+      node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
+      node_exporter_use_tls: *node_exporter_use_tls
+      node_exporter_web_config_file: *node_exporter_web_config_file
+      remote_deploy_dir: *remote_deploy_dir
+      node_exporter_remote_config_dir: *node_exporter_remote_config_dir
+      k8s_namespace: *k8s_namespace
+
+  k8s/config/rm:
+    short_description: Remove the Node Exporter Kubernetes ConfigMap
+    description:
+      - Deletes the ConfigMap used by the Node Exporter Kubernetes deployment.
+      - Keeps the namespace and runtime pods untouched so teardown can be handled separately.
+    options:
+      node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      k8s_namespace: *k8s_namespace
+
+  k8s/crypto/transfer:
+    short_description: Apply the Node Exporter Kubernetes TLS Secret
+    description:
+      - Ensures the target namespace exists and applies the Secret that stores Node Exporter TLS material.
+      - The Secret name matches C(node_exporter_k8s_resource_name).
+    options:
+      node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
+      node_exporter_use_tls: *node_exporter_use_tls
+      remote_deploy_dir: *remote_deploy_dir
+      node_exporter_remote_config_dir: *node_exporter_remote_config_dir
+      node_exporter_tls_private_key_file: *node_exporter_tls_private_key_file
+      node_exporter_tls_cert_file: *node_exporter_tls_cert_file
+      k8s_namespace: *k8s_namespace
+
+  k8s/crypto/rm:
+    short_description: Remove the Node Exporter Kubernetes TLS Secret
+    description:
+      - Deletes the Secret that stores Node Exporter TLS material for Kubernetes deployments.
+      - Targets the Secret named after C(node_exporter_k8s_resource_name).
+    options:
+      node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      k8s_namespace: *k8s_namespace
+
+  prometheus/get_scrapers:
+    short_description: Build Prometheus scrape targets for Node Exporter
+    description:
+      - Builds the scrape service definitions Prometheus uses to collect metrics from the selected Node Exporter hosts.
+      - When any host has C(node_exporter_use_k8s) set to C(true), produces a single scrape job with C(kubernetes_sd_configs) that discovers Node Exporter pods via the Kubernetes API using the pod role.
+      - Container-mode hosts produce per-host C(static_configs) scrape jobs as before.
+    options:
+      node_exporter_hosts: *node_exporter_hosts
+      fetched_artifacts_dir: *fetched_artifacts_dir
+
+  openshift/start:
+    short_description: Start the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      node_exporter_k8s_part_of: *node_exporter_k8s_part_of
+      node_exporter_use_tls: *node_exporter_use_tls
+      node_exporter_openshift_route: *node_exporter_openshift_route
+
+  openshift/ping:
+    short_description: Check the OpenShift deployment
+    description:
+      - Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+    options:
+      node_exporter_use_tls: *node_exporter_use_tls
+      node_exporter_openshift_route: *node_exporter_openshift_route
+
+  openshift/rm:
+    short_description: Remove the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      node_exporter_k8s_resource_name: *node_exporter_k8s_resource_name
+      node_exporter_openshift_route: *node_exporter_openshift_route

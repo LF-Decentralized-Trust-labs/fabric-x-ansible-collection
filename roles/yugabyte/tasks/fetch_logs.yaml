@@ -8,7 +8,7 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.yugabyte
     tasks_from: k8s/fetch_logs
-  when: yugabyte_use_k8s
+  when: yugabyte_use_k8s or yugabyte_use_openshift
 
 - name: Fetch the Yugabyte DB container logs
   ansible.builtin.include_role:

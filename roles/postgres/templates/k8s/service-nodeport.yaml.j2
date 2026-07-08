@@ -9,17 +9,18 @@ kind: Service
 metadata:
   # NodePort Service — exposes PostgreSQL outside the cluster for external clients.
   name: {{ postgres_k8s_resource_name }}-nodeport
-  namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ postgres_k8s_resource_name }}
-    app.kubernetes.io/part-of: postgres
+    app.kubernetes.io/part-of: {{ postgres_k8s_part_of }}
 spec:
   type: NodePort
   selector:
     app.kubernetes.io/name: {{ postgres_k8s_resource_name }}
   ports:
+{% if postgres_k8s_node_port is defined %}
     - name: postgres
-      # nodePort matches port so external addresses are predictable.
+      # Exposes PostgreSQL externally.
       port: {{ postgres_port }}
-      targetPort: {{ postgres_port }}
-      nodePort: {{ postgres_k8s_port_node_port }}
+      targetPort: postgres
+      nodePort: {{ postgres_k8s_node_port }}
+{% endif %}

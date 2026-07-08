@@ -21,3 +21,9 @@
     name: hyperledger.fabricx.loadgen
     tasks_from: k8s/rm
   when: loadgen_use_k8s
+
+- name: Teardown Loadgen on OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: openshift/rm
+  when: loadgen_use_openshift

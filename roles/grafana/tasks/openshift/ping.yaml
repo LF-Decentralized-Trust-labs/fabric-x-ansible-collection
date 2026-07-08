@@ -1,0 +1,19 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the Grafana OpenShift route is reachable
+  vars:
+    openshift_route_host: "{{ grafana_openshift_route }}"
+    openshift_route_use_tls: "{{ grafana_use_tls }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/ping
+  when: grafana_openshift_route is defined
+
+- name: Check that the Grafana Kubernetes services are reachable
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.grafana
+    tasks_from: k8s/ping

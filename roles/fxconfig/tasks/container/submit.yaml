@@ -14,7 +14,7 @@
   ansible.builtin.copy:
     src: "{{ fxconfig_tx_to_submit_path }}"
     dest: "{{ fxconfig_remote_config_dir }}/to_submit/ns.json"
-    mode: preserve
+    mode: "0o644"
 
 - name: Submit transaction with fxconfig container
   vars:

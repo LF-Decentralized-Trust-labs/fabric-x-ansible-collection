@@ -13,10 +13,21 @@
     tasks_from: namespace/create
 
 # =========================
+# Config block (orderer-client only)
+# =========================
+- name: Slurp Fabric-X Loadgen config block
+  ansible.builtin.slurp:
+    src: "{{ loadgen_remote_config_dir }}/{{ loadgen_config_block_file }}"
+  register: loadgen_slurp_config_block
+
+# =========================
 # Apply ConfigMap
 # =========================
 - name: Apply Fabric-X Loadgen ConfigMap
+  vars:
+    loadgen_k8s_config_block_b64: "{{ loadgen_slurp_config_block.content | default('') }}"
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
-      path: "k8s/configmap-{{ loadgen_type }}.yaml.j2"
+      path: "k8s/configmap-loadgen.yaml.j2"

@@ -4,15 +4,15 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure Fabric CA config directory exists
+- name: Ensure Fabric CA keystore directory exists
   ansible.builtin.file:
-    path: "{{ fabric_ca_server_remote_config_dir }}"
+    path: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore"
     state: directory
     mode: "0750"
 
 - name: Check if Fabric CA root key already exists
   ansible.builtin.stat:
-    path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_private_key_file }}"
+    path: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore/{{ fabric_ca_server_ca_private_key_file }}"
   register: fabric_ca_server_ca_key_stat
 
 - name: Check if Fabric CA root certificate already exists
@@ -22,7 +22,7 @@
 
 - name: Generate Fabric CA root x509 keypair and certificate
   vars:
-    openssl_private_key_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_private_key_file }}"
+    openssl_private_key_path: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore/{{ fabric_ca_server_ca_private_key_file }}"
     openssl_cert_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_cert_file }}"
     openssl_key_type: ec
     openssl_key_opt: "ec_paramgen_curve:{{ fabric_ca_server_openssl_curve }}"
@@ -46,6 +46,22 @@
     path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_tls_cert_file }}"
   register: fabric_ca_server_tls_cert_stat
 
+- name: Initialize Fabric CA server TLS SAN hosts
+  ansible.builtin.set_fact:
+    fabric_ca_server_tls_san_hosts: "{{ fabric_ca_csr_hosts | default([ansible_host, actual_host, inventory_hostname]) }}"
+
+- name: Append Fabric CA server OpenShift API route to TLS SAN hosts
+  ansible.builtin.set_fact:
+    fabric_ca_server_tls_san_hosts: "{{ fabric_ca_server_tls_san_hosts + [fabric_ca_server_openshift_route] }}"
+  when:
+    - fabric_ca_server_openshift_route is defined
+
+- name: Append Fabric CA server OpenShift operations route to TLS SAN hosts
+  ansible.builtin.set_fact:
+    fabric_ca_server_tls_san_hosts: "{{ fabric_ca_server_tls_san_hosts + [fabric_ca_server_openshift_operations_route] }}"
+  when:
+    - fabric_ca_server_openshift_operations_route is defined
+
 - name: Generate Fabric CA TLS keypair and certificate from CA
   when:
     - not (fabric_ca_server_tls_key_stat.stat.exists or fabric_ca_server_tls_cert_stat.stat.exists)
@@ -59,6 +75,7 @@
         openssl_key_opt: "ec_paramgen_curve:{{ fabric_ca_server_openssl_curve }}"
         openssl_common_name: "{{ fabric_ca_csr_cn }}"
         openssl_organization: "{{ organization.domain }}"
+        fabric_ca_csr_hosts: "{{ fabric_ca_server_tls_san_hosts | unique }}"
         openssl_san_ip_entries: >-
           {{
             (fabric_ca_csr_hosts | default([]))
@@ -80,7 +97,7 @@
         tasks_from: generate_csr
     - name: Generate Fabric CA TLS certificate from CSR
       vars:
-        openssl_ca_private_key_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_private_key_file }}"
+        openssl_ca_private_key_path: "{{ fabric_ca_server_remote_config_dir }}/msp/keystore/{{ fabric_ca_server_ca_private_key_file }}"
         openssl_ca_cert_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_cert_file }}"
         openssl_csr_path: "{{ fabric_ca_server_remote_config_dir }}/tls.csr"
         openssl_cert_path: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_tls_cert_file }}"

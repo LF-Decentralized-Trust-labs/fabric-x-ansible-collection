@@ -8,7 +8,7 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: k8s/fetch_logs
-  when: orderer_use_k8s
+  when: orderer_use_k8s or orderer_use_openshift
 
 - name: Fetch the logs from the Fabric-X Orderer container
   ansible.builtin.include_role:

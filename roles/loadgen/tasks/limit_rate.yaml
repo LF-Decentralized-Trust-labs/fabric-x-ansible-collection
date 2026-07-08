@@ -4,9 +4,18 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Resolve effective loadgen address
+  vars:
+    loadgen_host: "{{ inventory_hostname }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loadgen
+    tasks_from: effective_address
+
 - name: Send HTTP POST request to set the new limit
+  vars:
+    loadgen_effective_limit_rate_endpoint: "{{ loadgen_effective_metrics_address }}/setRateLimit"
   ansible.builtin.uri:
-    url: "http://{{ actual_host }}:{{ loadgen_web_port }}/setRateLimit"
+    url: "{{ loadgen_effective_limit_rate_endpoint }}"
     validate_certs: false
     method: POST
     body_format: json

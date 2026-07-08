@@ -1,0 +1,95 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# ---------------------------------------------------------------------------
+# Orderer Client Settings
+# ---------------------------------------------------------------------------
+orderer-client:
+  # Number of parallel goroutines for broadcasting transactions to the orderer.
+  # Higher values increase throughput but consume more resources.
+  # We set low values to reduce the CPU load during tests.
+  broadcast-parallelism: {{ loadgen_broadcast_parallelism | default(ansible_facts.processor_vcpus | int // 4) }}
+  # Direct orderer connection configuration (alternative to sidecar-client)
+  orderer:
+    # Fault tolerance level of the ordering service: 'BFT' (Byzantine Fault Tolerant) or 'CFT'.
+    # Affects how the loadgen interacts with the orderer.
+    fault-tolerance-level: {{ loadgen_orderer_fault_tolerance_level | default('BFT') }}
+    # Path to the latest known config block file, used to obtain the latest endpoints and TLS credentials
+    # of the Orderer parties.
+    latest-known-config-block-path: {{ loadgen_config_dir }}/{{ loadgen_config_block_file }}
+{% if (hostvars[orderer_ref_host].orderer_use_tls is defined) and hostvars[orderer_ref_host].orderer_use_tls %}
+    # Loadgen uses these TLS credentials when connecting to the orderers as a client.
+    tls:
+      # Path to the client's TLS private key file.
+      key-path: {{ loadgen_config_dir }}/tls/server.key
+      # Path to the client's TLS certificate file (public key) for authentication.
+      cert-path: {{ loadgen_config_dir }}/tls/server.crt
+{% if (hostvars[orderer_ref_host].orderer_use_mtls is defined) and hostvars[orderer_ref_host].orderer_use_mtls %}
+      # TLS mode for orderer client connections.
+      mode: mtls
+{% else %}
+      # TLS mode for orderer client connections.
+      mode: tls
+{% endif %}
+{% endif %}
+    # Identity configuration for signing transactions and connecting to orderers.
+    identity:
+      # MSP (Membership Service Provider) ID identifying the organization.
+      msp-id: {{ organization.name }}MSP
+      # Path to the MSP directory containing certificates and keys.
+      # Standard Fabric MSP structure with signcerts/, keystore/, cacerts/, etc.
+      msp-dir: {{ loadgen_config_dir }}/msp
+      # BCCSP (Blockchain Crypto Service Provider) configuration for cryptographic operations.
+      bccsp:
+        # Default crypto provider: 'SW' (software) or 'PKCS11' (hardware security module).
+        Default: SW
+        SW:
+          # Security level in bits (256 for ECDSA P-256, 384 for P-384).
+          Security: 256
+          # Hash algorithm: 'SHA2' or 'SHA3'.
+          Hash: SHA2
+{% if committer_sidecar_host is defined %}
+  # Sidecar client configuration (alternative to direct orderer connection)
+  sidecar-client:
+    # Endpoint of the sidecar service to connect to for block delivery.
+    # Format: host:port.
+    endpoint: {{ hostvars[committer_sidecar_host].ansible_host }}:{{ hostvars[committer_sidecar_host].committer_rpc_port }}
+{% if (hostvars[committer_sidecar_host].committer_use_tls is defined) and hostvars[committer_sidecar_host].committer_use_tls %}
+    # Define TLS options and certificate paths used for secure communication
+    # between the sidecar-client and the sidecar.
+    tls:
+      # List of paths to CA certificate files for verifying server certificates.
+      ca-cert-paths:
+        - {{ loadgen_config_dir }}/tls/sidecar/ca.crt
+{% if (hostvars[committer_sidecar_host].committer_use_mtls is defined) and hostvars[committer_sidecar_host].committer_use_mtls %}
+      # Path to the client's TLS private key file.
+      key-path: {{ loadgen_config_dir }}/tls/server.key
+      # Path to the client's TLS certificate file (public key) for authentication.
+      cert-path: {{ loadgen_config_dir }}/tls/server.crt
+      # TLS mode for sidecar client connections: 'none' (no TLS), 'tls' (server auth only),
+      # or 'mtls' (mutual TLS with client cert verification).
+      mode: mtls
+{% else %}
+      # TLS mode for sidecar client connections: 'none' (no TLS), 'tls' (server auth only),
+      # or 'mtls' (mutual TLS with client cert verification).
+      mode: tls
+{% endif %}
+{% endif %}
+{% endif %}
+
+{% include './sections/server.yaml.j2' %}
+
+{% include './sections/load-profile.yaml.j2' %}
+
+{% include './sections/monitoring.yaml.j2' +%}
+
+{% include './sections/stream.yaml.j2' +%}
+
+{% include './sections/generate.yaml.j2' +%}
+
+{% include './sections/limit.yaml.j2' +%}
+
+{% include './sections/logging.yaml.j2' +%}

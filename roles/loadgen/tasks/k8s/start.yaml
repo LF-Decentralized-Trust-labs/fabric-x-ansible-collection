@@ -18,14 +18,29 @@
 - name: Apply Fabric-X Loadgen Service
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service.yaml.j2
 
 - name: Apply Fabric-X Loadgen NodePort Service
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service-nodeport.yaml.j2
+  when:
+    - loadgen_k8s_metrics_node_port is defined or
+      loadgen_k8s_rpc_node_port is defined
+
+- name: Apply Fabric-X Loadgen LoadBalancer Service
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/service-loadbalancer.yaml.j2
+  when:
+    - loadgen_k8s_loadbalancer_expose_metrics_port or
+      loadgen_k8s_loadbalancer_expose_rpc_port
 
 - name: Apply Fabric-X Loadgen Deployment
   vars:
@@ -38,34 +53,6 @@
         | map(attribute='inventory_hostname')
         | list
         | first
-      }}
-    committer_coordinator_host: >-
-      {{
-        committer_hosts
-        | map('extract', hostvars)
-        | selectattr('committer_component_type', 'defined')
-        | selectattr('committer_component_type', '==', 'coordinator')
-        | map(attribute='inventory_hostname')
-        | list
-        | first
-      }}
-    committer_verifier_hosts: >-
-      {{
-        committer_hosts
-        | map('extract', hostvars)
-        | selectattr('committer_component_type', 'defined')
-        | selectattr('committer_component_type', '==', 'verifier')
-        | map(attribute='inventory_hostname')
-        | list
-      }}
-    committer_validator_hosts: >-
-      {{
-        committer_hosts
-        | map('extract', hostvars)
-        | selectattr('committer_component_type', 'defined')
-        | selectattr('committer_component_type', '==', 'validator')
-        | map(attribute='inventory_hostname')
-        | list
       }}
     orderer_router_hosts: >-
       {{
@@ -85,7 +72,8 @@
       }}
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
-      path: "k8s/deployment-{{ loadgen_type }}.yaml.j2"
-    wait: "{{ loadgen_k8s_wait }}"
+      path: "k8s/deployment-loadgen.yaml.j2"
+    wait: true
     wait_timeout: "{{ loadgen_k8s_wait_timeout }}"

@@ -15,3 +15,9 @@
     name: hyperledger.fabricx.node_exporter
     tasks_from: k8s/rm
   when: node_exporter_use_k8s
+
+- name: Teardown Node Exporter on OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.node_exporter
+    tasks_from: openshift/rm
+  when: node_exporter_use_openshift

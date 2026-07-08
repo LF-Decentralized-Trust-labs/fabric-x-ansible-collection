@@ -18,18 +18,30 @@
 - name: Apply Postgres DB Service
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service.yaml.j2
 
 - name: Apply Postgres DB NodePort Service
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service-nodeport.yaml.j2
+  when: postgres_k8s_node_port is defined
+
+- name: Apply Postgres DB LoadBalancer Service
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/service-loadbalancer.yaml.j2
+  when: postgres_k8s_loadbalancer_expose_port
 
 - name: Apply Postgres DB StatefulSet
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/statefulset.yaml.j2
     wait: true

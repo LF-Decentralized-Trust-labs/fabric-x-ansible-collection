@@ -22,6 +22,42 @@
     - hostvars[organization.fabric_ca_host].fabric_ca_use_tls is defined
     - hostvars[organization.fabric_ca_host].fabric_ca_use_tls
 
+- name: Initialize Yugabyte TLS SAN hosts
+  ansible.builtin.set_fact:
+    yugabyte_tls_san_hosts: "{{ ansible_all_ipv4_addresses + [ansible_host, actual_host] }}"
+
+- name: Append master webserver route to Yugabyte TLS SAN hosts
+  ansible.builtin.set_fact:
+    yugabyte_tls_san_hosts: "{{ yugabyte_tls_san_hosts + [yugabyte_openshift_master_webserver_route] }}"
+  when:
+    - yugabyte_component_type == 'master'
+    - yugabyte_openshift_master_webserver_route is defined
+    - yugabyte_openshift_master_webserver_route | length > 0
+
+- name: Append tablet webserver route to Yugabyte TLS SAN hosts
+  ansible.builtin.set_fact:
+    yugabyte_tls_san_hosts: "{{ yugabyte_tls_san_hosts + [yugabyte_openshift_tablet_webserver_route] }}"
+  when:
+    - yugabyte_component_type == 'tablet'
+    - yugabyte_openshift_tablet_webserver_route is defined
+    - yugabyte_openshift_tablet_webserver_route | length > 0
+
+- name: Append tablet pgsql web route to Yugabyte TLS SAN hosts
+  ansible.builtin.set_fact:
+    yugabyte_tls_san_hosts: "{{ yugabyte_tls_san_hosts + [yugabyte_openshift_tablet_pgsql_web_route] }}"
+  when:
+    - yugabyte_component_type == 'tablet'
+    - yugabyte_openshift_tablet_pgsql_web_route is defined
+    - yugabyte_openshift_tablet_pgsql_web_route | length > 0
+
+- name: Append tablet cql web route to Yugabyte TLS SAN hosts
+  ansible.builtin.set_fact:
+    yugabyte_tls_san_hosts: "{{ yugabyte_tls_san_hosts + [yugabyte_openshift_tablet_cql_web_route] }}"
+  when:
+    - yugabyte_component_type == 'tablet'
+    - yugabyte_openshift_tablet_cql_web_route is defined
+    - yugabyte_openshift_tablet_cql_web_route | length > 0
+
 - name: Generate Yugabyte TLS crypto material
   vars:
     fabric_ca_host: "{{ organization.fabric_ca_host }}"
@@ -32,7 +68,7 @@
     fabric_ca_enrollment_profile: tls
     fabric_ca_cryptogenize_tls_cert_file: node.{{ ansible_host }}.crt
     fabric_ca_cryptogenize_tls_key_file: node.{{ ansible_host }}.key
-    fabric_ca_csr_hosts: "{{ ansible_all_ipv4_addresses + [ansible_host, actual_host] }}"
+    fabric_ca_csr_hosts: "{{ yugabyte_tls_san_hosts }}"
     fabric_ca_identity:
       name: "{{ organization.peer.name }}"
       secret: "{{ organization.peer.secret }}"

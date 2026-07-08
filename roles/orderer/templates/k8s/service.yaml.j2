@@ -9,11 +9,10 @@ kind: Service
 metadata:
   # Headless Service — required by the StatefulSet for stable DNS-based pod addressing.
   name: {{ orderer_k8s_resource_name }}
-  namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ orderer_k8s_resource_name }}
     app.kubernetes.io/component: {{ orderer_component_type }}
-    app.kubernetes.io/part-of: fabric-x-orderer
+    app.kubernetes.io/part-of: {{ orderer_k8s_part_of }}
 spec:
   # clusterIP: None makes this a headless Service — no virtual IP is assigned,
   # DNS resolves directly to the pod IP, which is needed by the StatefulSet.
@@ -25,7 +24,7 @@ spec:
     - name: rpc
       port: {{ orderer_rpc_port }}
       targetPort: {{ orderer_rpc_port }}
-    # Prometheus metrics scrape endpoint.
+    # Operations endpoint, including Prometheus metrics.
     - name: metrics
-      port: {{ orderer_metrics_port }}
-      targetPort: {{ orderer_metrics_port }}
+      port: {{ orderer_operations_port }}
+      targetPort: {{ orderer_operations_port }}

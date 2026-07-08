@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# =======================
+# bin / container
+# =======================
 - name: Check that the Prometheus port is open
   vars:
     utils_ports_to_ping:
@@ -11,3 +14,22 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: ping
+  when: not (prometheus_use_k8s or prometheus_use_openshift)
+
+# =======================
+# k8s
+# =======================
+- name: Check that the node ports are open
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: k8s/ping
+  when: prometheus_use_k8s
+
+# =======================
+# openshift
+# =======================
+- name: Check that the OpenShift routes and Kubernetes services are open
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: openshift/ping
+  when: prometheus_use_openshift

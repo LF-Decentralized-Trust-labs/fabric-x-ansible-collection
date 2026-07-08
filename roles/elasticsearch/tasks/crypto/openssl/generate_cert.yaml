@@ -4,12 +4,25 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Initialize Elasticsearch TLS SAN hosts
+  ansible.builtin.set_fact:
+    elasticsearch_tls_san_hosts:
+      - "{{ ansible_host }}"
+      - "{{ actual_host }}"
+
+- name: Append Elasticsearch OpenShift route to TLS SAN hosts
+  ansible.builtin.set_fact:
+    elasticsearch_tls_san_hosts: "{{ elasticsearch_tls_san_hosts + [elasticsearch_openshift_http_route] }}"
+  when:
+    - elasticsearch_openshift_http_route is defined
+
 - name: Generate the TLS crypto material with OpenSSL
   vars:
     openssl_common_name: "{{ inventory_hostname }}"
     openssl_organization: "{{ organization.domain | default(inventory_hostname) }}"
     openssl_private_key_path: "{{ elasticsearch_remote_config_dir }}/tls/{{ elasticsearch_tls_private_key_file }}"
     openssl_cert_path: "{{ elasticsearch_remote_config_dir }}/tls/{{ elasticsearch_tls_cert_file }}"
+    openssl_san_hosts: "{{ elasticsearch_tls_san_hosts | unique }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openssl
     tasks_from: generate_self_signed_cert

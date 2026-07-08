@@ -15,3 +15,9 @@
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: k8s/rm
   when: postgres_exporter_use_k8s
+
+- name: Teardown Postgres Exporter on OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.postgres_exporter
+    tasks_from: openshift/rm
+  when: postgres_exporter_use_openshift

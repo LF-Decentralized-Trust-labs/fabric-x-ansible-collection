@@ -9,18 +9,28 @@
     state: absent
     kind: Deployment
     name: "{{ postgres_exporter_k8s_resource_name }}"
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
 
 - name: Remove Postgres Exporter Service
   kubernetes.core.k8s:
     state: absent
     kind: Service
     name: "{{ postgres_exporter_k8s_resource_name }}"
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
 
 - name: Remove Postgres Exporter NodePort Service
   kubernetes.core.k8s:
     state: absent
     kind: Service
     name: "{{ postgres_exporter_k8s_resource_name }}-nodeport"
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
+  when: postgres_exporter_k8s_node_port is defined
+
+- name: Delete Postgres Exporter LoadBalancer Service
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Service
+    name: "{{ postgres_exporter_k8s_resource_name }}-loadbalancer"
+    namespace: "{{ k8s_namespace | default('default') }}"
+  when: postgres_exporter_k8s_loadbalancer_expose_metrics_port

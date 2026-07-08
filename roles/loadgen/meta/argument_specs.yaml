@@ -1,0 +1,1055 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+argument_specs:
+  role-options:
+    short_description: Shared option catalog for loadgen role entry points
+    options:
+      remote_config_dir: &remote_config_dir
+        type: path
+        description:
+          - Base remote config directory that feeds C(loadgen_remote_config_dir).
+          - "Example: C(/var/hyperledger/fabricx/loadgen/lg-1/config)."
+      loadgen_remote_config_dir: &loadgen_remote_config_dir
+        type: path
+        default: "{{ remote_config_dir }}"
+        description:
+          - Remote config directory used by Loadgen.
+      loadgen_container_config_dir: &loadgen_container_config_dir
+        type: path
+        default: "/config"
+        description:
+          - Config mount path inside a container or pod.
+      loadgen_config_file: &loadgen_config_file
+        type: str
+        default: "config-loadgen.yaml"
+        description:
+          - Rendered Loadgen config filename.
+      loadgen_config_block_file: &loadgen_config_block_file
+        type: str
+        required: false
+        default: "config-block.pb.bin"
+        description:
+          - Filename of the genesis config block placed in the Loadgen config directory.
+      loadgen_config_dir: &loadgen_config_dir
+        type: path
+        default: "{{ loadgen_remote_config_dir if loadgen_use_bin else loadgen_container_config_dir }}"
+        description:
+          - Effective config directory used inside rendered Loadgen configuration.
+      loadgen_use_bin: &loadgen_use_bin
+        type: bool
+        default: false
+        description:
+          - Run the binary runtime.
+      loadgen_use_k8s: &loadgen_use_k8s
+        type: bool
+        default: false
+        description:
+          - Use Kubernetes resources.
+      loadgen_use_container: &loadgen_use_container
+        type: bool
+        default: "{{ (not loadgen_use_bin) and (not loadgen_use_k8s) and (not loadgen_use_openshift) }}"
+        description:
+          - Run the container runtime.
+      loadgen_registry_endpoint: &loadgen_registry_endpoint
+        type: str
+        default: "{{ lookup('env', 'LOADGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+        description:
+          - Image registry endpoint.
+      loadgen_image_name: &loadgen_image_name
+        type: str
+        default: "fabric-x-loadgen"
+        description:
+          - Image name used by the Loadgen container.
+      loadgen_image_tag: &loadgen_image_tag
+        type: str
+        required: false
+        default: "1.0.0"
+        description:
+          - Image tag used by the Loadgen container.
+      loadgen_image: &loadgen_image
+        type: str
+        default: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
+        description:
+          - Loadgen container image.
+      loadgen_container_name: &loadgen_container_name
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Container name used by the runtime.
+      loadgen_git_hub_url: &loadgen_git_hub_url
+        type: str
+        default: "github.com"
+        description:
+          - Git host used for binary builds.
+      loadgen_git_repo: &loadgen_git_repo
+        type: str
+        default: "hyperledger/fabric-x-committer"
+        description:
+          - Git repository that provides the Loadgen source.
+      loadgen_git_commit: &loadgen_git_commit
+        type: str
+        required: false
+        default: "v1.0.0"
+        description:
+          - Git revision used for binary builds and installs.
+      loadgen_source_code_package: &loadgen_source_code_package
+        type: str
+        default: "cmd/loadgen"
+        description:
+          - Go package path for the Loadgen binary.
+      loadgen_bin_package: &loadgen_bin_package
+        type: str
+        default: "{{ loadgen_git_hub_url }}/{{ loadgen_git_repo }}/{{ loadgen_source_code_package }}"
+        description:
+          - Go package used for binary installation.
+      loadgen_bin_name: &loadgen_bin_name
+        type: str
+        default: "loadgen"
+        description:
+          - Binary name used by the shared bin role.
+      loadgen_metrics_port: &loadgen_metrics_port
+        type: int
+        required: true
+        description:
+          - Prometheus metrics port exposed by Loadgen.
+          - "Example: C(9443)."
+      loadgen_rpc_port: &loadgen_rpc_port
+        type: int
+        required: true
+        description:
+          - gRPC control port exposed by Loadgen.
+          - "Example: C(7051)."
+      loadgen_use_tls: &loadgen_use_tls
+        type: bool
+        default: false
+        description:
+          - Enable TLS for the main endpoint.
+      loadgen_use_mtls: &loadgen_use_mtls
+        type: bool
+        default: false
+        description:
+          - Enable mTLS for the main endpoint.
+      loadgen_monitoring_use_tls: &loadgen_monitoring_use_tls
+        type: bool
+        default: "{{ loadgen_use_tls }}"
+        description:
+          - Enable TLS for the monitoring endpoint.
+      loadgen_monitoring_use_mtls: &loadgen_monitoring_use_mtls
+        type: bool
+        default: "{{ loadgen_use_mtls }}"
+        description:
+          - Enable mTLS for the monitoring endpoint.
+      loadgen_monitoring_http_protocol:
+        type: str
+        default: "{{ 'https' if loadgen_monitoring_use_tls else 'http' }}"
+        description:
+          - Protocol used to reach the monitoring endpoint.
+      loadgen_assert_metrics: &loadgen_assert_metrics
+        type: bool
+        default: false
+        description:
+          - Assert the committed transaction metric and report aborted transactions when fetching metrics.
+      loadgen_generate_config_block: &loadgen_generate_config_block
+        type: bool
+        default: false
+        description:
+          - Render the config transaction block section.
+          - "Example: C(false)."
+      loadgen_generate_namespace: &loadgen_generate_namespace
+        type: bool
+        description:
+          - Render the namespace creation section.
+          - "Example: C(true) when the workload should create namespace records before sending load."
+      loadgen_generate_load: &loadgen_generate_load
+        type: bool
+        description:
+          - Render the transaction load section.
+          - "Example: C(true) for a normal benchmark workload."
+      loadgen_crypto_name: &loadgen_crypto_name
+        type: str
+        default: "{{ organization.peer.name | default(inventory_hostname) }}"
+        description:
+          - Crypto identity name used for MSP and TLS file names.
+      loadgen_log_level: &loadgen_log_level
+        type: str
+        default: "info"
+        description:
+          - Log level specification.
+      loadgen_log_format: &loadgen_log_format
+        type: str
+        default: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
+        description:
+          - Log message format template.
+      loadgen_orderer_fault_tolerance_level:
+        &loadgen_orderer_fault_tolerance_level
+        type: str
+        required: false
+        description:
+          - Fault tolerance level of the ordering service rendered into the Loadgen config.
+          - "Example: C(BFT)."
+      loadgen_broadcast_parallelism: &loadgen_broadcast_parallelism
+        type: int
+        description:
+          - Broadcast goroutine count used by the orderer client.
+          - "Example: C(8)."
+      loadgen_key_size: &loadgen_key_size
+        type: int
+        description:
+          - Generated key size in bytes.
+          - "Example: C(32)."
+      loadgen_tx_seed: &loadgen_tx_seed
+        type: int
+        description:
+          - Random seed used to build repeatable transaction streams.
+          - "Example: C(12345)."
+      loadgen_workers: &loadgen_workers
+        type: int
+        description:
+          - Worker goroutine count used by the load profile.
+          - "Example: C(16)."
+      loadgen_block_max_size: &loadgen_block_max_size
+        type: int
+        description:
+          - Maximum generated block size.
+          - "Example: C(500)."
+      loadgen_block_min_size: &loadgen_block_min_size
+        type: int
+        description:
+          - Minimum generated block size.
+          - "Example: C(1)."
+      loadgen_block_preferred_rate: &loadgen_block_preferred_rate
+        type: str
+        description:
+          - Preferred block flush interval.
+          - "Example: C(1s)."
+      loadgen_generate_read_only_tx: &loadgen_generate_read_only_tx
+        type: bool
+        description:
+          - Enable read-only transactions in the load profile.
+          - "Example: C(true) to include read-only query traffic."
+      loadgen_read_only_tx_keys: &loadgen_read_only_tx_keys
+        type: int
+        description:
+          - Read-only key count per transaction.
+          - "Example: C(2)."
+      loadgen_generate_write_only_tx: &loadgen_generate_write_only_tx
+        type: bool
+        description:
+          - Enable write-only transactions in the load profile.
+          - "Example: C(true) to include blind-write traffic."
+      loadgen_write_only_tx_keys: &loadgen_write_only_tx_keys
+        type: int
+        description:
+          - Write-only key count per transaction.
+          - "Example: C(4)."
+      loadgen_write_only_tx_val_size: &loadgen_write_only_tx_val_size
+        type: int
+        description:
+          - Write-only value size in bytes.
+          - "Example: C(256)."
+      loadgen_generate_read_write_tx: &loadgen_generate_read_write_tx
+        type: bool
+        description:
+          - Enable read-write transactions in the load profile.
+          - "Example: C(true) to include endorsement-style read-write traffic."
+      loadgen_read_write_tx_keys: &loadgen_read_write_tx_keys
+        type: int
+        description:
+          - Read-write key count per transaction.
+          - "Example: C(2)."
+      loadgen_read_write_tx_val_size: &loadgen_read_write_tx_val_size
+        type: int
+        description:
+          - Read-write value size in bytes.
+          - "Example: C(128)."
+      loadgen_key_scheme: &loadgen_key_scheme
+        type: str
+        description:
+          - Signature scheme used for generated identities.
+          - "Example: C(ECDSA)."
+      loadgen_query_settings: &loadgen_query_settings
+        type: dict
+        description:
+          - Optional query tuning block consumed by the load profile.
+          - "Example: C({'size': 4, 'min_invalid_keys_portion': 0.1, 'shuffle': true})."
+      loadgen_conflicts_settings: &loadgen_conflicts_settings
+        type: dict
+        description:
+          - Optional conflict injection block consumed by the load profile.
+          - "Example: C({'invalid_signatures': 1, 'dependencies': [{'source': 1, 'target': 2}]})."
+      loadgen_monitoring_rate_limit_requests_per_second:
+        &loadgen_monitoring_rate_limit_requests_per_second
+        type: int
+        description:
+          - Monitoring endpoint rate limit in requests per second.
+          - "Example: C(50)."
+      loadgen_monitoring_rate_limit_burst: &loadgen_monitoring_rate_limit_burst
+        type: int
+        description:
+          - Monitoring endpoint rate limit burst size.
+          - "Example: C(100)."
+      loadgen_latency_sampler_prefix: &loadgen_latency_sampler_prefix
+        type: str
+        description:
+          - Prefix used by the latency sampler.
+          - "Example: C(loadgen_lg_1)."
+      loadgen_latency_sampler_portion: &loadgen_latency_sampler_portion
+        type: float
+        description:
+          - Portion of transactions sampled for latency tracking.
+          - "Example: C(0.01)."
+      loadgen_latency_distribution: &loadgen_latency_distribution
+        type: str
+        description:
+          - Histogram distribution used for latency buckets.
+          - "Example: C(uniform)."
+      loadgen_max_latency: &loadgen_max_latency
+        type: str
+        description:
+          - Upper latency bound tracked by the histogram.
+          - "Example: C(5s)."
+      loadgen_latency_buckets: &loadgen_latency_buckets
+        type: int
+        description:
+          - Number of latency histogram buckets.
+          - "Example: C(1000)."
+      loadgen_monitoring_latency_max_tracked_txs:
+        &loadgen_monitoring_latency_max_tracked_txs
+        type: int
+        description:
+          - Maximum number of TX entries held in memory for latency tracking.
+          - "Example: C(10000)."
+      loadgen_limit_rate: &loadgen_limit_rate
+        type: int
+        description:
+          - Maximum generated transaction rate.
+          - "Example: C(2500)."
+      loadgen_limit_blocks: &loadgen_limit_blocks
+        type: int
+        description:
+          - Optional stopping limit for generated blocks.
+          - "Example: C(100)."
+      loadgen_limit_transactions: &loadgen_limit_transactions
+        type: int
+        description:
+          - Optional stopping limit for generated transactions.
+          - "Example: C(100000)."
+      loadgen_stream_batches: &loadgen_stream_batches
+        type: int
+        description:
+          - Batch size used by the stream pipeline.
+          - "Example: C(10)."
+      loadgen_stream_buffers_size: &loadgen_stream_buffers_size
+        type: int
+        description:
+          - Channel buffer size used by the stream pipeline.
+          - "Example: C(64)."
+      loadgen_host: &loadgen_host
+        type: str
+        required: true
+        description:
+          - Names the inventory host that provides the target Loadgen instance.
+          - "Example: C(loadgen1)."
+      loadgen_hosts: &loadgen_hosts
+        type: list
+        elements: str
+        required: true
+        description:
+          - Inventory hosts running Loadgen instances.
+          - "Example: C(['loadgen1', 'loadgen2'])."
+      actual_host: &actual_host
+        type: str
+        required: true
+        description:
+          - Real machine host.
+          - "Example: C(myvpc.cloud.ibm.com)."
+      organization: &organization
+        type: dict
+        required: true
+        description:
+          - Organization definition consumed by crypto, config, and Kubernetes templates.
+          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}, 'users': [{'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}], 'namespaces': [{'id': 0, 'policy': 'threshold'}]})."
+      channel_id: &channel_id
+        type: str
+        required: true
+        description:
+          - Channel identifier rendered into generated transactions.
+          - "Example: C(fabricx-channel)."
+      fetched_artifacts_dir: &fetched_artifacts_dir
+        type: path
+        required: true
+        description:
+          - Local artifacts directory used for fetched TLS and MSP files.
+          - "Example: C(/tmp/fabricx-artifacts)."
+      cryptogen_artifacts_dir: &cryptogen_artifacts_dir
+        type: path
+        required: true
+        description:
+          - Local cryptogen output directory.
+          - "Example: C(/tmp/fabricx-crypto)."
+      configtxgen_artifacts_dir: &configtxgen_artifacts_dir
+        type: path
+        required: true
+        description:
+          - Local configtxgen output directory containing the genesis config block.
+      committer_hosts: &committer_hosts
+        type: list
+        elements: str
+        required: true
+        description:
+          - Committer inventory hosts used by the dispatcher to derive client targets.
+          - "Example: C(['committer-sidecar1', 'committer-validator1'])."
+      orderer_hosts: &orderer_hosts
+        type: list
+        elements: str
+        required: true
+        description:
+          - Orderer inventory hosts used by the dispatcher to derive client targets.
+          - "Example: C(['orderer-router1', 'orderer-assembler1'])."
+      committer_sidecar_host: &committer_sidecar_host
+        type: str
+        description:
+          - Sidecar host targeted by the orderer and sidecar clients.
+          - "Example: C(committer-sidecar1)."
+      k8s_namespace: &k8s_namespace
+        type: str
+        description:
+          - Kubernetes namespace used for loadgen resources.
+          - "Example: C(fabricx-loadgen)."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
+      loadgen_k8s_resource_name: &loadgen_k8s_resource_name
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
+      loadgen_k8s_part_of: &loadgen_k8s_part_of
+        type: str
+        default: "fabric-x-loadgen-{{ organization.name }}"
+        description:
+          - Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Loadgen resources.
+      loadgen_k8s_wait_timeout: &loadgen_k8s_wait_timeout
+        type: int
+        default: 120
+        description:
+          - Deployment rollout wait timeout in seconds.
+      loadgen_k8s_fs_group: &loadgen_k8s_fs_group
+        type: int
+        default: 10001
+        description:
+          - Pod FSGroup used for mounted config and secrets.
+      loadgen_k8s_metrics_node_port: &loadgen_k8s_metrics_node_port
+        type: int
+        description:
+          - Kubernetes NodePort value used by the external metrics Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
+          - "Example: C(30090)."
+      loadgen_k8s_loadbalancer_expose_metrics_port:
+        &loadgen_k8s_loadbalancer_expose_metrics_port
+        type: bool
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the metrics port externally.
+          - When undefined or C(false), the metrics port is not included in the LoadBalancer Service.
+      loadgen_k8s_rpc_node_port: &loadgen_k8s_rpc_node_port
+        type: int
+        description:
+          - Kubernetes NodePort value used by the external gRPC control Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
+          - "Example: C(30051)."
+      loadgen_k8s_loadbalancer_expose_rpc_port:
+        &loadgen_k8s_loadbalancer_expose_rpc_port
+        type: bool
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the gRPC control port externally.
+          - When undefined or C(false), the gRPC control port is not included in the LoadBalancer Service.
+      k8s_image_pull_secret: &k8s_image_pull_secret
+        type: str
+        description:
+          - Optional image pull secret used by Kubernetes workloads.
+          - "Example: C(fabricx-registry-pull)."
+      loadgen_mtls_clients: &loadgen_mtls_clients
+        type: list
+        elements: str
+        description:
+          - Additional mTLS client identities trusted by the main endpoint.
+          - "Example: C(['orderer-router1', 'committer-sidecar1'])."
+      loadgen_mtls_orgs: &loadgen_mtls_orgs
+        type: list
+        elements: dict
+        description:
+          - Additional mTLS organizations trusted by the main endpoint.
+          - "Example: C([{'name': 'Org1', 'domain': 'org1.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}])."
+      loadgen_monitoring_mtls_clients: &loadgen_monitoring_mtls_clients
+        type: list
+        elements: str
+        description:
+          - Additional mTLS client identities trusted by the monitoring endpoint.
+          - "Example: C(['prometheus1', 'node-exporter1'])."
+      loadgen_monitoring_mtls_orgs: &loadgen_monitoring_mtls_orgs
+        type: list
+        elements: dict
+        description:
+          - Additional mTLS organizations trusted by the monitoring endpoint.
+          - "Example: C([{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}])."
+
+      loadgen_use_openshift: &loadgen_use_openshift
+        type: bool
+        default: false
+        description:
+          - Selects the OpenShift deployment branch.
+      loadgen_openshift_metrics_route: &loadgen_openshift_metrics_route
+        type: str
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(loadgen-metrics.apps.example.com)."
+      loadgen_openshift_rpc_route: &loadgen_openshift_rpc_route
+        type: str
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(loadgen-rpc.apps.example.com)."
+  start:
+    short_description: Start the load generator
+    description:
+      - Start the Loadgen runtime selected by the deployment mode flags.
+      - Container mode is the default, binary mode starts the installed C(loadgen) process, and Kubernetes mode applies Services and a Deployment.
+      - The runtime consumes the rendered Loadgen configuration and crypto material prepared by the config and crypto entry points.
+    options:
+      loadgen_use_openshift: *loadgen_use_openshift
+      loadgen_use_container: *loadgen_use_container
+      loadgen_use_bin: *loadgen_use_bin
+      loadgen_use_k8s: *loadgen_use_k8s
+  stop:
+    short_description: Stop the load generator
+    description:
+      - Stop the active Loadgen runtime selected by the deployment mode flags.
+      - Stops the local binary process or container without removing configuration, crypto material, logs, or Kubernetes resources.
+    options:
+      loadgen_use_container: *loadgen_use_container
+      loadgen_use_bin: *loadgen_use_bin
+      loadgen_use_k8s: *loadgen_use_k8s
+      loadgen_use_openshift: *loadgen_use_openshift
+
+  teardown:
+    short_description: Remove runtime artifacts
+    description:
+      - Remove runtime resources for the selected Loadgen deployment mode.
+      - Deletes the local container or Kubernetes workload resources while leaving generated config, crypto material, and fetched artifacts intact.
+    options:
+      loadgen_use_container: *loadgen_use_container
+      loadgen_use_bin: *loadgen_use_bin
+      loadgen_use_k8s: *loadgen_use_k8s
+      loadgen_use_openshift: *loadgen_use_openshift
+
+  wipe:
+    short_description: Remove all load generator data
+    description:
+      - Remove Loadgen runtime resources, binary artifacts, generated configuration, and crypto material from the host.
+      - Use this lifecycle entry point for a full role-local cleanup before rebuilding config or credentials.
+    options:
+      loadgen_use_bin: *loadgen_use_bin
+
+  fetch_logs:
+    short_description: Collect runtime logs
+    description:
+      - Collect Loadgen logs for the selected deployment mode.
+      - Binary, container, and Kubernetes modes delegate to their mode-specific log collection tasks and store the fetched runtime output as role artifacts.
+    options:
+      loadgen_use_container: *loadgen_use_container
+      loadgen_use_bin: *loadgen_use_bin
+      loadgen_use_k8s: *loadgen_use_k8s
+      loadgen_use_openshift: *loadgen_use_openshift
+
+  ping:
+    short_description: Check the monitoring endpoint
+    description:
+      - Verify that the Loadgen monitoring endpoint is reachable.
+      - Uses direct host access for binary and container deployments and delegates to the Kubernetes ping task when C(loadgen_use_k8s) is enabled.
+    options:
+      loadgen_metrics_port: *loadgen_metrics_port
+      loadgen_use_k8s: *loadgen_use_k8s
+      loadgen_use_openshift: *loadgen_use_openshift
+
+  effective_address:
+    short_description: Resolve the effective connection addresses
+    description:
+      - Compute the host-and-port values used to reach the Loadgen instance from outside its own host.
+      - Sets C(loadgen_effective_metrics_address) as an Ansible fact on the calling host.
+      - Resolution priority is OpenShift Route, then Kubernetes NodePort, then the plain host port.
+      - Accepts a C(loadgen_host) variable so the task can be called from any host in the inventory, not just the Loadgen host itself.
+      - All Loadgen-specific variables are read from C(hostvars[loadgen_host]) rather than from the calling host's scope.
+    options:
+      loadgen_host: *loadgen_host
+
+  get_metrics:
+    short_description: Fetch exported metrics
+    description:
+      - Query the Loadgen Prometheus metrics endpoint over HTTP or HTTPS.
+      - Delegates address resolution to the C(effective_address) entry point.
+    options:
+      loadgen_assert_metrics: *loadgen_assert_metrics
+
+  limit_rate:
+    short_description: Update the runtime rate limit
+    description:
+      - Send a control-plane HTTP request that changes the active generated transaction rate.
+      - Delegates address resolution to the C(effective_address) entry point.
+    options:
+      loadgen_limit_rate: *loadgen_limit_rate
+
+  prometheus/get_scrapers:
+    short_description: Build Prometheus scrape targets
+    description:
+      - Build Prometheus scrape target definitions for all Loadgen hosts.
+      - Includes monitoring endpoint and TLS artifact paths consumed by the Prometheus role when scraping Loadgen metrics.
+    options:
+      loadgen_hosts: *loadgen_hosts
+      fetched_artifacts_dir: *fetched_artifacts_dir
+
+  config/transfer:
+    short_description: Dispatch configuration rendering
+    description:
+      - Render the Loadgen configuration file and transfer config-side support artifacts.
+      - The generated config contains orderer router and assembler targets, optional committer sidecar access, TLS and mTLS paths, workload profile settings, stream limits, and logging behavior.
+      - For Kubernetes deployments, also publishes the rendered config and trusted CA bundles as a ConfigMap.
+    options:
+      remote_config_dir: *remote_config_dir
+      loadgen_remote_config_dir: *loadgen_remote_config_dir
+      loadgen_container_config_dir: *loadgen_container_config_dir
+      loadgen_config_dir: *loadgen_config_dir
+      loadgen_config_file: *loadgen_config_file
+      loadgen_use_bin: *loadgen_use_bin
+      loadgen_use_k8s: *loadgen_use_k8s
+      loadgen_use_openshift: *loadgen_use_openshift
+      loadgen_use_tls: *loadgen_use_tls
+      loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
+      loadgen_use_mtls: *loadgen_use_mtls
+      committer_hosts: *committer_hosts
+      orderer_hosts: *orderer_hosts
+      loadgen_mtls_clients: *loadgen_mtls_clients
+      loadgen_mtls_orgs: *loadgen_mtls_orgs
+      loadgen_monitoring_mtls_clients: *loadgen_monitoring_mtls_clients
+      loadgen_monitoring_mtls_orgs: *loadgen_monitoring_mtls_orgs
+      loadgen_metrics_port: *loadgen_metrics_port
+      loadgen_rpc_port: *loadgen_rpc_port
+      loadgen_generate_config_block: *loadgen_generate_config_block
+      loadgen_generate_namespace: *loadgen_generate_namespace
+      loadgen_generate_load: *loadgen_generate_load
+      loadgen_key_size: *loadgen_key_size
+      loadgen_tx_seed: *loadgen_tx_seed
+      loadgen_workers: *loadgen_workers
+      loadgen_block_max_size: *loadgen_block_max_size
+      loadgen_block_min_size: *loadgen_block_min_size
+      loadgen_block_preferred_rate: *loadgen_block_preferred_rate
+      loadgen_generate_read_only_tx: *loadgen_generate_read_only_tx
+      loadgen_read_only_tx_keys: *loadgen_read_only_tx_keys
+      loadgen_generate_write_only_tx: *loadgen_generate_write_only_tx
+      loadgen_write_only_tx_keys: *loadgen_write_only_tx_keys
+      loadgen_write_only_tx_val_size: *loadgen_write_only_tx_val_size
+      loadgen_generate_read_write_tx: *loadgen_generate_read_write_tx
+      loadgen_read_write_tx_keys: *loadgen_read_write_tx_keys
+      loadgen_read_write_tx_val_size: *loadgen_read_write_tx_val_size
+      loadgen_key_scheme: *loadgen_key_scheme
+      loadgen_query_settings: *loadgen_query_settings
+      loadgen_conflicts_settings: *loadgen_conflicts_settings
+      loadgen_monitoring_rate_limit_requests_per_second: *loadgen_monitoring_rate_limit_requests_per_second
+      loadgen_monitoring_rate_limit_burst: *loadgen_monitoring_rate_limit_burst
+      loadgen_latency_sampler_prefix: *loadgen_latency_sampler_prefix
+      loadgen_latency_sampler_portion: *loadgen_latency_sampler_portion
+      loadgen_latency_distribution: *loadgen_latency_distribution
+      loadgen_max_latency: *loadgen_max_latency
+      loadgen_latency_buckets: *loadgen_latency_buckets
+      loadgen_limit_rate: *loadgen_limit_rate
+      loadgen_stream_batches: *loadgen_stream_batches
+      loadgen_stream_buffers_size: *loadgen_stream_buffers_size
+      loadgen_log_level: *loadgen_log_level
+      loadgen_log_format: *loadgen_log_format
+      fetched_artifacts_dir: *fetched_artifacts_dir
+      channel_id: *channel_id
+      organization: *organization
+      loadgen_config_block_file: *loadgen_config_block_file
+      configtxgen_artifacts_dir: *configtxgen_artifacts_dir
+      loadgen_orderer_fault_tolerance_level: *loadgen_orderer_fault_tolerance_level
+      loadgen_monitoring_latency_max_tracked_txs: *loadgen_monitoring_latency_max_tracked_txs
+      loadgen_broadcast_parallelism: *loadgen_broadcast_parallelism
+      loadgen_limit_blocks: *loadgen_limit_blocks
+      loadgen_limit_transactions: *loadgen_limit_transactions
+      loadgen_monitoring_use_mtls: *loadgen_monitoring_use_mtls
+
+  config/mtls/monitoring/transfer:
+    short_description: Transfer monitoring mTLS CA bundles
+    description:
+      - Transfer CA bundles trusted by the Loadgen monitoring endpoint.
+      - Copies client and organization CA files into the config tree so the metrics listener can verify Prometheus or other monitoring clients when mTLS is enabled.
+    options:
+      remote_config_dir: *remote_config_dir
+      loadgen_remote_config_dir: *loadgen_remote_config_dir
+      fetched_artifacts_dir: *fetched_artifacts_dir
+      loadgen_monitoring_mtls_clients: *loadgen_monitoring_mtls_clients
+      loadgen_monitoring_mtls_orgs: *loadgen_monitoring_mtls_orgs
+
+  config/rm:
+    short_description: Remove rendered configuration
+    description:
+      - Remove host-side rendered Loadgen configuration.
+      - Also removes the Kubernetes ConfigMap when Kubernetes deployment mode is enabled.
+    options:
+      loadgen_remote_config_dir: *loadgen_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      loadgen_use_k8s: *loadgen_use_k8s
+      loadgen_use_openshift: *loadgen_use_openshift
+
+  crypto/setup:
+    short_description: Prepare crypto material
+    description:
+      - Prepare Loadgen MSP, user, and TLS material through the configured crypto source.
+      - Delegates to cryptogen transfer or Fabric CA enrollment, then publishes Kubernetes Secret material when Kubernetes mode is enabled.
+    options:
+      organization: *organization
+      loadgen_use_k8s: *loadgen_use_k8s
+      loadgen_use_openshift: *loadgen_use_openshift
+
+  crypto/cryptogen/transfer:
+    short_description: Transfer cryptogen artifacts
+    description:
+      - Transfer MSP, user, and TLS artifacts generated by cryptogen to the Loadgen host config directory.
+      - The copied paths are consumed by the rendered orderer client, sidecar client, server, and monitoring TLS sections.
+    options:
+      organization: *organization
+      cryptogen_artifacts_dir: *cryptogen_artifacts_dir
+      loadgen_crypto_name: *loadgen_crypto_name
+      loadgen_remote_config_dir: *loadgen_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      loadgen_use_tls: *loadgen_use_tls
+      loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
+
+  crypto/fabric_ca/enroll:
+    short_description: Enroll identities with Fabric CA
+    description:
+      - Enroll Loadgen peer, user, and optional TLS identities against Fabric CA.
+      - Writes MSP and TLS artifacts under the remote config directory for use by the generated Loadgen config and later fetch or Kubernetes transfer tasks.
+    options:
+      organization: *organization
+      fetched_artifacts_dir: *fetched_artifacts_dir
+      loadgen_crypto_name: *loadgen_crypto_name
+      loadgen_remote_config_dir: *loadgen_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      actual_host: *actual_host
+      loadgen_use_tls: *loadgen_use_tls
+      loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
+      loadgen_openshift_metrics_route: *loadgen_openshift_metrics_route
+      loadgen_openshift_rpc_route: *loadgen_openshift_rpc_route
+
+  crypto/fetch:
+    short_description: Fetch generated certificates
+    description:
+      - Fetch generated Loadgen MSP signcerts and TLS certificates back to the control node.
+      - Stores artifacts under the fetched artifacts directory so other roles can trust Loadgen endpoints or reuse generated crypto outputs.
+    options:
+      organization: *organization
+      fetched_artifacts_dir: *fetched_artifacts_dir
+      loadgen_crypto_name: *loadgen_crypto_name
+      loadgen_remote_config_dir: *loadgen_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      loadgen_use_tls: *loadgen_use_tls
+      loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
+
+  crypto/rm:
+    short_description: Remove crypto material
+    description:
+      - Remove Loadgen MSP, user, and TLS artifacts from the host config directory.
+      - Also removes the Kubernetes Secret when Kubernetes deployment mode is enabled.
+    options:
+      loadgen_remote_config_dir: *loadgen_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      loadgen_use_tls: *loadgen_use_tls
+      loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
+      loadgen_use_k8s: *loadgen_use_k8s
+      loadgen_use_openshift: *loadgen_use_openshift
+
+  bin/build:
+    short_description: Build the load generator binary
+    description:
+      - Build the C(loadgen) binary from the configured Fabric-X source repository.
+      - Uses the shared binary helper role and the configured Git host, repository, revision, and Go package path.
+    options:
+      loadgen_bin_name: *loadgen_bin_name
+      loadgen_git_hub_url: *loadgen_git_hub_url
+      loadgen_git_repo: *loadgen_git_repo
+      loadgen_git_commit: *loadgen_git_commit
+      loadgen_source_code_package: *loadgen_source_code_package
+
+  bin/install:
+    short_description: Install the load generator binary
+    description:
+      - Install the C(loadgen) binary through the shared binary helper role.
+      - Consumes the configured Go package and source revision so binary deployments can start the local process.
+    options:
+      loadgen_bin_name: *loadgen_bin_name
+      loadgen_bin_package: *loadgen_bin_package
+      loadgen_git_hub_url: *loadgen_git_hub_url
+      loadgen_git_repo: *loadgen_git_repo
+      loadgen_git_commit: *loadgen_git_commit
+      loadgen_source_code_package: *loadgen_source_code_package
+
+  bin/rm:
+    short_description: Remove the load generator binary
+    description:
+      - Remove the installed C(loadgen) binary managed by the shared binary helper role.
+      - Does not remove generated configuration, crypto material, or runtime logs.
+    options:
+      loadgen_bin_name: *loadgen_bin_name
+
+  bin/start:
+    short_description: Start the binary runtime
+    description:
+      - Start Loadgen as a local binary process using the rendered config file.
+      - Waits on the monitoring port after invoking C(loadgen start --config=...).
+    options:
+      loadgen_bin_name: *loadgen_bin_name
+      loadgen_remote_config_dir: *loadgen_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      loadgen_config_file: *loadgen_config_file
+      loadgen_metrics_port: *loadgen_metrics_port
+
+  bin/stop:
+    short_description: Stop the binary runtime
+    description:
+      - Stop the local Loadgen binary process managed by the shared binary helper role.
+      - Leaves the remote config directory and logs available for inspection or collection.
+    options: {}
+
+  bin/transfer:
+    short_description: Transfer the load generator binary
+    description:
+      - Transfer a prebuilt C(loadgen) binary through the shared binary helper role.
+      - Used by binary deployments when the executable is built elsewhere and then staged onto the target host.
+    options:
+      loadgen_bin_name: *loadgen_bin_name
+
+  bin/fetch_logs:
+    short_description: Fetch binary logs
+    description:
+      - Collect logs emitted by a binary-based Loadgen runtime.
+      - Fetches process logs without changing the running state or removing generated artifacts.
+    options: {}
+
+  container/start:
+    short_description: Start the container runtime
+    description:
+      - Start Loadgen as a local container with the rendered config directory mounted read-only.
+      - Exposes the Prometheus metrics and gRPC ports and waits for the monitoring port to become reachable.
+    options:
+      loadgen_container_name: *loadgen_container_name
+      loadgen_image: *loadgen_image
+      loadgen_registry_endpoint: *loadgen_registry_endpoint
+      loadgen_image_name: *loadgen_image_name
+      loadgen_image_tag: *loadgen_image_tag
+      remote_config_dir: *remote_config_dir
+      loadgen_remote_config_dir: *loadgen_remote_config_dir
+      loadgen_container_config_dir: *loadgen_container_config_dir
+      loadgen_config_file: *loadgen_config_file
+      loadgen_metrics_port: *loadgen_metrics_port
+      loadgen_rpc_port: *loadgen_rpc_port
+
+  container/stop:
+    short_description: Stop the container runtime
+    description:
+      - Stop the local Loadgen container.
+      - Preserves the container definition, image reference, mounted configuration, crypto material, and logs for later cleanup or collection.
+    options:
+      loadgen_container_name: *loadgen_container_name
+      loadgen_image: *loadgen_image
+      loadgen_image_name: *loadgen_image_name
+      loadgen_image_tag: *loadgen_image_tag
+      loadgen_registry_endpoint: *loadgen_registry_endpoint
+
+  container/rm:
+    short_description: Remove the container runtime
+    description:
+      - Remove the local Loadgen container runtime resources.
+      - Leaves host-side generated configuration and crypto material under the remote config directory.
+    options:
+      loadgen_container_name: *loadgen_container_name
+      loadgen_image: *loadgen_image
+      loadgen_image_name: *loadgen_image_name
+      loadgen_image_tag: *loadgen_image_tag
+      loadgen_registry_endpoint: *loadgen_registry_endpoint
+
+  container/fetch_logs:
+    short_description: Fetch container logs
+    description:
+      - Collect logs from a containerized Loadgen runtime.
+      - Reads container logs for the configured container name without modifying runtime or config state.
+    options:
+      loadgen_container_name: *loadgen_container_name
+
+  k8s/start:
+    short_description: Start the Kubernetes deployment
+    description:
+      - Create or update Kubernetes resources for Loadgen.
+      - Ensures the namespace exists, applies the Service, optional NodePort and LoadBalancer Services, and Deployment, and mounts generated ConfigMap and Secret artifacts into the pod.
+    options:
+      committer_hosts: *committer_hosts
+      orderer_hosts: *orderer_hosts
+      organization: *organization
+      loadgen_crypto_name: *loadgen_crypto_name
+      loadgen_image: *loadgen_image
+      loadgen_registry_endpoint: *loadgen_registry_endpoint
+      loadgen_image_name: *loadgen_image_name
+      loadgen_image_tag: *loadgen_image_tag
+      loadgen_container_config_dir: *loadgen_container_config_dir
+      loadgen_config_file: *loadgen_config_file
+      loadgen_k8s_wait_timeout: *loadgen_k8s_wait_timeout
+      loadgen_k8s_fs_group: *loadgen_k8s_fs_group
+      k8s_namespace: *k8s_namespace
+      loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_part_of: *loadgen_k8s_part_of
+      loadgen_use_tls: *loadgen_use_tls
+      loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
+      loadgen_use_mtls: *loadgen_use_mtls
+      loadgen_monitoring_use_mtls: *loadgen_monitoring_use_mtls
+      loadgen_mtls_clients: *loadgen_mtls_clients
+      loadgen_mtls_orgs: *loadgen_mtls_orgs
+      loadgen_monitoring_mtls_clients: *loadgen_monitoring_mtls_clients
+      loadgen_monitoring_mtls_orgs: *loadgen_monitoring_mtls_orgs
+      k8s_image_pull_secret: *k8s_image_pull_secret
+      loadgen_metrics_port: *loadgen_metrics_port
+      loadgen_rpc_port: *loadgen_rpc_port
+      loadgen_config_block_file: *loadgen_config_block_file
+      loadgen_k8s_metrics_node_port: *loadgen_k8s_metrics_node_port
+      loadgen_k8s_rpc_node_port: *loadgen_k8s_rpc_node_port
+      loadgen_k8s_loadbalancer_expose_metrics_port: *loadgen_k8s_loadbalancer_expose_metrics_port
+      loadgen_k8s_loadbalancer_expose_rpc_port: *loadgen_k8s_loadbalancer_expose_rpc_port
+      k8s_resources: *k8s_resources
+
+  k8s/ping:
+    short_description: Check that the Loadgen Kubernetes service is reachable
+    description:
+      - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
+    options:
+      loadgen_metrics_port: *loadgen_metrics_port
+      loadgen_rpc_port: *loadgen_rpc_port
+      loadgen_k8s_metrics_node_port: *loadgen_k8s_metrics_node_port
+      loadgen_k8s_rpc_node_port: *loadgen_k8s_rpc_node_port
+      loadgen_k8s_loadbalancer_expose_metrics_port: *loadgen_k8s_loadbalancer_expose_metrics_port
+      loadgen_k8s_loadbalancer_expose_rpc_port: *loadgen_k8s_loadbalancer_expose_rpc_port
+
+  k8s/rm:
+    short_description: Remove Kubernetes resources
+    description:
+      - Remove the Kubernetes Deployment and Services created for Loadgen.
+      - Does not remove the ConfigMap or Secret; use the Kubernetes config and crypto remove entry points for those generated artifacts.
+    options:
+      k8s_namespace: *k8s_namespace
+      loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_metrics_node_port: *loadgen_k8s_metrics_node_port
+      loadgen_k8s_loadbalancer_expose_metrics_port: *loadgen_k8s_loadbalancer_expose_metrics_port
+      loadgen_k8s_rpc_node_port: *loadgen_k8s_rpc_node_port
+      loadgen_k8s_loadbalancer_expose_rpc_port: *loadgen_k8s_loadbalancer_expose_rpc_port
+
+  k8s/fetch_logs:
+    short_description: Fetch pod logs
+    description:
+      - Collect logs from the Kubernetes pod running Loadgen.
+      - Uses the configured Kubernetes resource name to fetch pod output without changing workload state.
+    options:
+      loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+
+  k8s/config/transfer:
+    short_description: Publish the Kubernetes ConfigMap
+    description:
+      - Publish the rendered Loadgen configuration and trusted CA bundles as a Kubernetes ConfigMap.
+      - The ConfigMap is consumed by the Loadgen Deployment and includes orderer, sidecar, TLS, mTLS, workload, stream, and logging config content.
+    options:
+      k8s_namespace: *k8s_namespace
+      loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_part_of: *loadgen_k8s_part_of
+      organization: *organization
+      remote_config_dir: *remote_config_dir
+      loadgen_remote_config_dir: *loadgen_remote_config_dir
+      loadgen_config_file: *loadgen_config_file
+      loadgen_config_block_file: *loadgen_config_block_file
+      committer_sidecar_host: *committer_sidecar_host
+      loadgen_use_mtls: *loadgen_use_mtls
+      loadgen_monitoring_use_mtls: *loadgen_monitoring_use_mtls
+      loadgen_mtls_clients: *loadgen_mtls_clients
+      loadgen_mtls_orgs: *loadgen_mtls_orgs
+      loadgen_monitoring_mtls_clients: *loadgen_monitoring_mtls_clients
+      loadgen_monitoring_mtls_orgs: *loadgen_monitoring_mtls_orgs
+
+  k8s/config/rm:
+    short_description: Remove the Kubernetes ConfigMap
+    description:
+      - Remove the Kubernetes ConfigMap created for Loadgen configuration.
+      - Leaves host-side rendered config files intact for inspection, regeneration, or non-Kubernetes deployments.
+    options:
+      k8s_namespace: *k8s_namespace
+      loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+
+  k8s/crypto/transfer:
+    short_description: Publish the Kubernetes Secret
+    description:
+      - Publish Loadgen MSP and TLS material as a Kubernetes Secret.
+      - The Secret is consumed by the Loadgen Deployment and is built from fetched or remote crypto artifacts for the selected identity.
+    options:
+      organization: *organization
+      remote_config_dir: *remote_config_dir
+      loadgen_remote_config_dir: *loadgen_remote_config_dir
+      loadgen_crypto_name: *loadgen_crypto_name
+      k8s_namespace: *k8s_namespace
+      loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_part_of: *loadgen_k8s_part_of
+      loadgen_use_tls: *loadgen_use_tls
+      loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
+
+  k8s/crypto/rm:
+    short_description: Remove the Kubernetes Secret
+    description:
+      - Remove the Kubernetes Secret created for Loadgen MSP and TLS material.
+      - Leaves host-side crypto artifacts and fetched local artifacts untouched.
+    options:
+      k8s_namespace: *k8s_namespace
+      loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_use_tls: *loadgen_use_tls
+
+  openshift/start:
+    short_description: Start the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_k8s_part_of: *loadgen_k8s_part_of
+      organization: *organization
+      loadgen_use_tls: *loadgen_use_tls
+      loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
+      loadgen_openshift_metrics_route: *loadgen_openshift_metrics_route
+      loadgen_openshift_rpc_route: *loadgen_openshift_rpc_route
+
+  openshift/ping:
+    short_description: Check the OpenShift deployment
+    description:
+      - Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+    options:
+      loadgen_use_tls: *loadgen_use_tls
+      loadgen_monitoring_use_tls: *loadgen_monitoring_use_tls
+      loadgen_openshift_metrics_route: *loadgen_openshift_metrics_route
+      loadgen_openshift_rpc_route: *loadgen_openshift_rpc_route
+
+  openshift/rm:
+    short_description: Remove the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+    options:
+      loadgen_k8s_resource_name: *loadgen_k8s_resource_name
+      loadgen_openshift_metrics_route: *loadgen_openshift_metrics_route
+      loadgen_openshift_rpc_route: *loadgen_openshift_rpc_route

@@ -28,7 +28,6 @@
     loop_var: current_orderer
     label: "{{ current_orderer.name }}"
   when:
-    - cryptogen_orderers_by_org is defined
     - hostvars[current_orderer.name].ansible_facts.all_ipv4_addresses is undefined
 
 - name: Gather Hyperledger Fabric-X Peers facts
@@ -46,7 +45,6 @@
     loop_var: current_peer
     label: "{{ current_peer.name }}"
   when:
-    - cryptogen_peers_by_org is defined
     - hostvars[current_peer.name].ansible_facts.all_ipv4_addresses is undefined
 
 - name: Create crypto-config.yaml from template

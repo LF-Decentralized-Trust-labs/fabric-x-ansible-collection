@@ -14,4 +14,4 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.jaeger
     tasks_from: k8s/fetch_logs
-  when: jaeger_use_k8s
+  when: jaeger_use_k8s or jaeger_use_openshift

@@ -43,4 +43,4 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: verifier/k8s/config/transfer
-  when: committer_use_k8s
+  when: committer_use_k8s or committer_use_openshift

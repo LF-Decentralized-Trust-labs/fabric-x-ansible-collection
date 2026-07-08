@@ -4,30 +4,22 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that the MSP directory has been defined
-  ansible.builtin.fail:
-    msg: "No MSP directory is indicated. Set it via 'fabric_ca_msp_dir'."
-  when: fabric_ca_msp_dir is not defined
-
-- name: Check that the Fabric CA identity to enroll has been defined
-  ansible.builtin.fail:
-    msg: "No Fabric CA identity is indicated. Set it via 'fabric_ca_identity'."
-  when: fabric_ca_identity is not defined
-
 - name: Ensure MSP directory exists
   ansible.builtin.file:
     path: "{{ fabric_ca_msp_dir }}"
     state: directory
     mode: "0755"
 
-- name: Check if already enrolled
+- name: Check if BCCSP is already enrolled
+  vars:
+    fabric_ca_bccsp_enrollment_cert_file: "{{ fabric_ca_cryptogenize_tls_cert_file if (fabric_ca_enrollment_profile is defined and fabric_ca_enrollment_profile == 'tls') else fabric_ca_cryptogenize_msp_signcert_file }}"
   ansible.builtin.stat:
-    path: "{{ fabric_ca_msp_dir }}/signcerts/cert.pem"
+    path: "{{ fabric_ca_msp_dir }}/{{ fabric_ca_bccsp_enrollment_cert_file }}"
   register: fabric_ca_msp_cert
   when:
     - fabric_ca_enrollment_type == 'bccsp'
 
-- name: Check if already enrolled (Idemix only)
+- name: Check if Idemix is already enrolled
   ansible.builtin.stat:
     path: "{{ fabric_ca_msp_dir }}/msp/user/SignerConfig"
   register: fabric_ca_idemix_signer
@@ -45,11 +37,14 @@
       and not fabric_ca_msp_cert.stat.exists
       )
   block:
+    - name: Resolve effective Fabric CA connection port
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: server/effective_address
     - name: Set volumes for Fabric-CA client
       ansible.builtin.set_fact:
         fabric_ca_volumes:
           - "{{ fabric_ca_msp_dir }}:{{ fabric_ca_client_container_config_dir }}:z"
-
     - name: Set volumes for TLS certificates
       vars:
         fabric_ca_tls_certfile_volume: "{{ fabric_ca_tls_certfile }}:/tmp/tls-cert.pem:z"
@@ -58,8 +53,6 @@
       when:
         - fabric_ca_use_tls
         - fabric_ca_tls_certfile is defined
-
-    # TODO: When owner-wallet Idemix credentials move to the Onboarding Repository, scope this to Fabric identities only.
     - name: Enroll identity with Fabric CA client container
       vars:
         container_name: "{{ fabric_ca_name }}-enroll-{{ fabric_ca_identity.name }}"
@@ -69,14 +62,23 @@
         container_command: >-
           {{ fabric_ca_client_bin_name }}
           enroll
-          -u {{ fabric_ca_scheme }}://{{ fabric_ca_identity.name }}:{{ fabric_ca_identity.secret }}@{{ hostvars[fabric_ca_host].actual_host }}:{{ hostvars[fabric_ca_host].fabric_ca_port }}
+          -u {{ fabric_ca_scheme }}://{{ fabric_ca_identity.name }}:{{ fabric_ca_identity.secret }}@{{ fabric_ca_server_effective_address }}
           --caname {{ fabric_ca_name }}
           --mspdir {{ fabric_ca_client_container_config_dir }}
           {% if fabric_ca_enrollment_type == 'idemix' %}
           --enrollment.type idemix
-          --enrollment.profile {{ fabric_ca_idemix_enrollment_profile }}
-          {% elif fabric_ca_enrollment_type == 'bccsp' and fabric_ca_enrollment_profile is defined %}
-          --enrollment.profile {{ fabric_ca_enrollment_profile }}
+          --enrollment.profile idemix
+          {% elif fabric_ca_enrollment_type == 'bccsp' %}
+          {% if fabric_ca_enrollment_profile is defined and fabric_ca_enrollment_profile == 'tls' %}
+          --myskfile {{ fabric_ca_cryptogenize_tls_key_file }}
+          --mycertfile {{ fabric_ca_cryptogenize_tls_cert_file }}
+          --mycacertfile {{ fabric_ca_cryptogenize_tls_ca_cert_file }}
+          --enrollment.profile tls
+          {% else %}
+          --myskfile {{ fabric_ca_cryptogenize_msp_private_key_file }}
+          --mycertfile {{ fabric_ca_cryptogenize_msp_signcert_file }}
+          --mycacertfile {{ fabric_ca_cryptogenize_msp_ca_cert_file }}
+          {% endif %}
           {% endif %}
           {% if fabric_ca_enrollment_type == 'bccsp' and fabric_ca_csr_hosts is defined and (fabric_ca_csr_hosts | length) > 0 %}
           {% for csr_host in fabric_ca_csr_hosts %}
@@ -102,10 +104,9 @@
   when:
     - fabric_ca_enrollment_type == 'bccsp'
 
-# TODO: we need to evaluate if we want to go with this path or handle per component locations based on whether they receive material through cryptogen or fabric-ca
-- name: Adjust crypto to be as cryptogen produced crypto
+- name: Adjust crypto to be as idemixgen produced crypto
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
-    tasks_from: client/cryptogenize
+    tasks_from: client/idemixgenize
   when:
-    - fabric_ca_enrollment_type == 'bccsp'
+    - fabric_ca_enrollment_type == 'idemix'

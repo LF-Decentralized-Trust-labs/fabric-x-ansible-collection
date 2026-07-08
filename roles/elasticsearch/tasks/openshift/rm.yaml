@@ -1,0 +1,18 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Delete Elasticsearch http OpenShift Route
+  vars:
+    openshift_route_name: "{{ elasticsearch_k8s_resource_name }}-http"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/rm
+  when: elasticsearch_openshift_http_route is defined
+
+- name: Remove Elasticsearch workload using generic k8s flow
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.elasticsearch
+    tasks_from: k8s/rm

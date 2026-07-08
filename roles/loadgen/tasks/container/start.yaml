@@ -13,13 +13,12 @@
       --config={{ loadgen_container_config_dir }}/{{ loadgen_config_file }}
     container_ports:
       - "{{ loadgen_metrics_port }}:{{ loadgen_metrics_port }}"
-      - "{{ loadgen_web_port }}:{{ loadgen_web_port }}"
       - "{{ loadgen_rpc_port }}:{{ loadgen_rpc_port }}"
     container_volumes:
       - "{{ loadgen_remote_config_dir }}:{{ loadgen_container_config_dir }}:z,ro"
     container_wait_until_running: true
     container_run_as_host_user: true
-    container_wait_port: "{{ loadgen_web_port }}"
+    container_wait_port: "{{ loadgen_metrics_port }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: start
