@@ -239,9 +239,6 @@ argument_specs:
       loki_port: *loki_port
       loki_k8s_wait_timeout: *loki_k8s_wait_timeout
       k8s_namespace: *k8s_namespace
-      k8s_image_pull_secret: *k8s_image_pull_secret
-      loki_pvc_size: *loki_pvc_size
-      loki_storage_class: *loki_storage_class
 
   k8s/rm:
     short_description: Remove Loki Kubernetes workload
