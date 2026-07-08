@@ -17,8 +17,8 @@
     base_bin_hosts: >-
       {{
         targeted_hosts
-        | default(groups['fabric_x_committer'])
-        | intersect(groups['fabric_x_committer'])
+        | default(groups['fabric_x_committers'])
+        | intersect(groups['fabric_x_committers'])
         | map('extract', hostvars)
         | selectattr("bin_build_on_control_node", 'defined')
         | selectattr("bin_build_on_control_node", 'eq', true)
@@ -31,7 +31,7 @@
   tasks:
     - name: Build/Install the Fabric-X Committer binaries on the control node
       when:
-        - "'fabric_x_committer' in groups"
+        - "'fabric_x_committers' in groups"
       block:
         # =========================
         # Install on the control node
@@ -74,7 +74,7 @@
             - bin_hosts | length > 0
 
 - name: Ensure Fabric-X Committer binaries are on remote nodes
-  hosts: "{{ target_hosts | default('fabric_x_committer') }}:&fabric_x_committer"
+  hosts: "{{ target_hosts | default('fabric_x_committers') }}:&fabric_x_committers"
   tasks:
     - name: Setup Fabric-X Committer binary on the remote nodes
       when:

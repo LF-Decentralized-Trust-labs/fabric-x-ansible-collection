@@ -1,0 +1,14 @@
+#############################################################################
+#  BCCSP section
+#
+#  The software BCCSP provider stores and loads the CA signing key from the
+#  configured file keystore.
+#############################################################################
+bccsp:
+  default: SW
+  sw:
+    hash: SHA2
+    security: 256
+    filekeystore:
+      keystore: "{{ fabric_ca_server_config_dir }}/msp/keystore"
+

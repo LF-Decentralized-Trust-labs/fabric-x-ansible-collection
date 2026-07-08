@@ -38,6 +38,11 @@ OrdererOrgs:
 {% endfor %}
           - {{ hostvars[orderer.name].ansible_host }}
           - {{ hostvars[orderer.name].actual_host }}
+{% if hostvars[orderer.name].organization.orderer.additional_sans is defined %}
+{% for additional_san in hostvars[orderer.name].organization.orderer.additional_sans %}
+          - {{ additional_san }}
+{% endfor %}
+{% endif %}
 {% endfor %}
 {% endif %}
 {% endfor %}
@@ -89,6 +94,11 @@ PeerOrgs:
 {% endfor %}
           - {{ hostvars[peer.name].ansible_host }}
           - {{ hostvars[peer.name].actual_host }}
+{% if hostvars[peer.name].organization.peer.additional_sans is defined %}
+{% for additional_san in hostvars[peer.name].organization.peer.additional_sans %}
+          - {{ additional_san }}
+{% endfor %}
+{% endif %}
 {% endfor %}
 {% endif %}
 

@@ -16,3 +16,5 @@ keyUsage = {{ openssl_key_usage }}
 # Extended key usage refines purpose: server/client authentication, code signing, etc.
 # For TLS, "serverAuth" and "clientAuth" are typical.
 extendedKeyUsage = {{ openssl_extended_key_usage }}
+# Required by Hyperledger Fabric MSP: adds Subject Key Identifier (SKI) to CA cert
+subjectKeyIdentifier = hash

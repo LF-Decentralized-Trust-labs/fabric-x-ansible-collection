@@ -1,91 +1,112 @@
 # hyperledger.fabricx.utils
 
-> Provides utility functions for inventory management and port checking.
+> Provides inventory grouping helpers, Makefile target generation, and TCP reachability checks.
 
 ## Table of Contents <!-- omit in toc -->
 
+- [Role Defaults](#role-defaults)
+- [ansible-doc](#ansible-doc)
 - [Tasks](#tasks)
-  - [Lifecycle](#lifecycle)
-    - [generate_makefile_targets](#generate_makefile_targets)
-    - [ping](#ping)
-    - [select_one_host_per_machine](#select_one_host_per_machine)
-    - [select_one_host_per_k8s_namespace](#select_one_host_per_k8s_namespace)
-- [Variables](#variables)
+  - [generate\_makefile\_targets](#generate_makefile_targets)
+  - [ping](#ping)
+  - [select\_one\_host\_per\_k8s\_namespace](#select_one_host_per_k8s_namespace)
+  - [select\_one\_host\_per\_machine](#select_one_host_per_machine)
+  - [benchmark\_volume](#benchmark_volume)
+
+## Role Defaults
+
+See [`defaults/main.yaml`](defaults/main.yaml) for the generated role defaults and inline variable descriptions.
+
+## ansible-doc
+
+You can view the role documentation in your terminal running:
+
+```shell
+ansible-doc -t role hyperledger.fabricx.utils
+```
 
 ## Tasks
 
-### Lifecycle
+### generate_makefile_targets
 
-| Task                                                                                | Description                  |
-| ----------------------------------------------------------------------------------- | ---------------------------- |
-| [generate_makefile_targets](./tasks/generate_makefile_targets.yaml)                 | Generates Makefile targets   |
-| [ping](./tasks/ping.yaml)                                                           | Checks port availability     |
-| [select_one_host_per_k8s_namespace](./tasks/select_one_host_per_k8s_namespace.yaml) | Creates k8s_namespaces group |
-| [select_one_host_per_machine](./tasks/select_one_host_per_machine.yaml)             | Creates machines group       |
+> Generate Makefile targets for inventory hosts
 
-#### generate_makefile_targets
-
-Generates Makefile targets for all individual hosts in the inventory. The generated targets are written to `target_hosts.mk` in the project root directory.
+Creates the inventory dispatch group in Makefile form by writing one phony target per host in `groups['all']`. The generated targets are named after inventory hosts and route commands to a single host through `TARGET_HOSTS`, which is written to `project_dir/target_hosts.mk`.
 
 ```yaml
-- name: Generate Makefile targets for all inventory hosts
+- name: Generate Makefile targets for inventory hosts
+  vars:
+    # Defines the project root directory used by utility entry points that generate Makefile targets, which writes `target_hosts.mk` to `project_dir/target_hosts.mk`. Example: `/path/to/hyperledger/fabricx`.
+    project_dir: "/path/to/hyperledger/fabricx"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: generate_makefile_targets
 ```
 
-This is typically invoked via the Makefile:
+### ping
 
-```bash
-make targets
-```
+> Check whether TCP ports are reachable
 
-After generation, you can target individual hosts:
-
-```bash
-make orderer-router-1 start
-make committer-validator stop
-```
-
-#### ping
-
-Checks whether a set of ports on a given machine is open:
+Checks each port in `utils_ports_to_ping` against `actual_host` to verify whether the host is reachable on the requested network endpoints. Unreachable ports are handled through a silent rescue block, so this entry point reports reachability without failing the play.
 
 ```yaml
-- name: Check that the port 9000 and 9001 are open
+- name: Check whether TCP ports are reachable
   vars:
+    # Lists the TCP ports that the ping entry point probes for reachability on the current host. Example: `[7051, 9443]`.
     utils_ports_to_ping:
-      - 9000
-      - 9001
+      - 7051
+      - 9443
+    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    actual_host: "myvpc.cloud.ibm.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: ping
 ```
 
-#### select_one_host_per_machine
+### select_one_host_per_k8s_namespace
 
-Creates a group named `machines` that will contain exactly a single host per machine. It can be useful when you need to perform some operations that would collide and generate errors if run concurrently on the same machine (e.g. when 2 hosts are located on the same machine).
+> Create a group with one host per Kubernetes namespace
 
-```yaml
-- name: Set the group "machines"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.utils
-    tasks_from: select_one_host_per_machine
-```
-
-#### select_one_host_per_k8s_namespace
-
-Creates a group named `k8s_namespaces` that will contain exactly a single host per Kubernetes namespace among hosts with `k8s_image_pull_secret` defined. It is useful when you need to perform an operation once per namespace instead of once per host.
+Creates the `k8s_namespaces` inventory group with one selected host per distinct Kubernetes namespace. Only hosts with `k8s_image_pull_secret` defined participate, and the selection reads `k8s_namespace` from `hostvars` across `ansible_play_hosts`.
 
 ```yaml
-- name: Set the group "k8s_namespaces"
+- name: Create a group with one host per Kubernetes namespace
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: select_one_host_per_k8s_namespace
 ```
 
----
+### select_one_host_per_machine
 
-## Variables
+> Create a group with one host per machine
 
-See [`defaults/main.yaml`](defaults/main.yaml) for full variable documentation.
+Creates the `machines` inventory group with one selected host per distinct machine address. The selection reads `actual_host` from `hostvars` across `ansible_play_hosts` to identify hosts that share the same machine.
+
+```yaml
+- name: Create a group with one host per machine
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: select_one_host_per_machine
+```
+
+### benchmark_volume
+
+> Run SSD performance benchmark on remote hosts
+
+Copies `ssd_benchmark.sh` to the remote host and executes it to measure sequential write/read throughput, random 4K IOPS, and I/O latency. Evaluates whether the machine meets the minimum sequential write threshold of `1 GB/s` required for high-performance Fabric-X operations. Prints a warning if the measured sequential write speed falls below the threshold but does not fail the play.
+
+```yaml
+- name: Run SSD performance benchmark on remote hosts
+  vars:
+    # Remote data directory consumed by `utils_benchmark_remote_dir`. Example: `/var/lib/utils/data`.
+    remote_data_dir: "/var/lib/utils/data"
+    # Remote directory where the benchmark script is copied before execution. Directory on the remote host where benchmark test files are created during the run.
+    utils_benchmark_remote_dir: "{{ remote_data_dir }}"
+    # Total data size used by fio random I/O tests.
+    utils_benchmark_test_size: 1G
+    # Block size used for random I/O tests.
+    utils_benchmark_block_size: 4k
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: benchmark_volume
+```

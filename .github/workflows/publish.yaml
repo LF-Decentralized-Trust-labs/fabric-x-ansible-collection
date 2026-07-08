@@ -11,6 +11,9 @@ on:
     tags:
       - "[0-9]+.[0-9]+.[0-9]+"
 
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -31,13 +34,41 @@ jobs:
         run: |
           pip install ansible-core yq
 
+      # Read the collection version from galaxy.yml
+      - name: Read collection version
+        id: collection_version
+        run: |
+          NAMESPACE=$(yq -r .namespace galaxy.yml)
+          NAME=$(yq -r .name galaxy.yml)
+          VERSION=$(yq -r .version galaxy.yml)
+          echo "tarball=${NAMESPACE}-${NAME}-${VERSION}.tar.gz" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      # Guard: ensure the pushed tag matches the version in galaxy.yml
+      - name: Verify tag matches galaxy.yml version
+        run: |
+          TAG="${{ github.ref_name }}"
+          VERSION="${{ steps.collection_version.outputs.version }}"
+          if [ "${TAG}" != "${VERSION}" ]; then
+            echo "ERROR: git tag '${TAG}' does not match galaxy.yml version '${VERSION}'."
+            echo "Update galaxy.yml to match the tag before publishing."
+            exit 1
+          fi
+
       # Build the collection
       - name: Build collection
         run: |
           ansible-galaxy collection build
 
+      # Upload the collection tarball to the matching GitHub release
+      - name: Upload collection tarball to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: ${{ steps.collection_version.outputs.tarball }}
+          fail_on_unmatched_files: true
+
       # Publish the collection to Ansible Galaxy
       - name: Publish collection to Ansible Galaxy
         run: |
-          VERSION=$(yq -r .version galaxy.yml)
-          ansible-galaxy collection publish hyperledger-fabricx-${VERSION}.tar.gz --api-key ${{ secrets.ANSIBLE_GALAXY_API_KEY }}
+          ansible-galaxy collection publish ${{ steps.collection_version.outputs.tarball }} --api-key ${{ secrets.ANSIBLE_GALAXY_API_KEY }}

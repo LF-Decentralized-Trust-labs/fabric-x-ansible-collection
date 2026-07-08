@@ -9,10 +9,9 @@ kind: StatefulSet
 metadata:
   # One StatefulSet per Prometheus instance.
   name: {{ prometheus_k8s_resource_name }}
-  namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ prometheus_k8s_resource_name }}
-    app.kubernetes.io/part-of: prometheus
+    app.kubernetes.io/part-of: {{ prometheus_k8s_part_of }}
 spec:
   # Must match the headless Service name so DNS-based pod addressing works.
   serviceName: {{ prometheus_k8s_resource_name }}
@@ -25,14 +24,22 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: {{ prometheus_k8s_resource_name }}
-        app.kubernetes.io/part-of: prometheus
+        app.kubernetes.io/part-of: {{ prometheus_k8s_part_of }}
     spec:
+{% if prometheus_has_service_account %}
+      # Dedicated ServiceAccount for Kubernetes service discovery (pod/node listing).
+      serviceAccountName: {{ prometheus_k8s_resource_name }}
+{% endif %}
       securityContext:
         # prom/prometheus runs as nobody (UID 65534), so fsGroup keeps mounted files readable.
         fsGroup: {{ prometheus_k8s_fs_group }}
       containers:
         - name: prometheus
           image: {{ prometheus_image }}
+{% if k8s_resources is defined and k8s_resources %}
+          resources:
+{{ k8s_resources | to_nice_yaml(indent=2) | indent(12, true) }}
+{% endif %}
           args:
             - --web.listen-address=:{{ prometheus_port }}
             - --config.file={{ prometheus_container_config_dir }}/{{ prometheus_config_file }}

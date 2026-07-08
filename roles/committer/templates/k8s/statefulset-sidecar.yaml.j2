@@ -8,11 +8,10 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ committer_k8s_resource_name }}
-  namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ committer_k8s_resource_name }}
     app.kubernetes.io/component: {{ committer_component_type }}
-    app.kubernetes.io/part-of: fabric-x-committer
+    app.kubernetes.io/part-of: {{ committer_k8s_part_of }}
 spec:
   # Must match the headless Service name so DNS-based pod addressing works.
   serviceName: {{ committer_k8s_resource_name }}
@@ -25,15 +24,20 @@ spec:
       labels:
         app.kubernetes.io/name: {{ committer_k8s_resource_name }}
         app.kubernetes.io/component: {{ committer_component_type }}
-        app.kubernetes.io/part-of: fabric-x-committer
+        app.kubernetes.io/part-of: {{ committer_k8s_part_of }}
     spec:
       securityContext:
         fsGroup: {{ committer_k8s_fs_group }}
       containers:
         - name: {{ committer_component_type }}
           image: {{ committer_image }}
+{% if k8s_resources is defined and k8s_resources %}
+          resources:
+{{ k8s_resources | to_nice_yaml(indent=2) | indent(12, true) }}
+{% endif %}
           args:
-            - "start-sidecar"
+            - "start"
+            - "sidecar"
             - "--config={{ committer_container_config_dir }}/{{ committer_config_file }}"
           ports:
             - name: rpc
@@ -71,23 +75,14 @@ spec:
               subPath: tls-coordinator-ca.crt
               readOnly: true
 {% endif %}
-{% for assembler in orderer_assemblers %}
-{% if hostvars[assembler].orderer_use_tls is defined and hostvars[assembler].orderer_use_tls %}
-            # TLS CA certificate of orderer assembler {{ assembler }}.
+            # Config block for orderer endpoint and TLS credential discovery.
             - name: config
-              mountPath: {{ committer_container_config_dir }}/tls/orderers/{{ assembler }}/ca.crt
-              subPath: tls-orderers-{{ assembler }}-ca.crt
+              mountPath: {{ committer_container_config_dir }}/{{ committer_sidecar_config_block_file }}
+              subPath: config-block.pb.bin
               readOnly: true
-            # TLS server certificate of orderer assembler {{ assembler }} (per-org ca-cert-paths).
-            - name: config
-              mountPath: {{ committer_container_config_dir }}/tls/orderers/{{ assembler }}/server.crt
-              subPath: tls-orderers-{{ assembler }}-server.crt
-              readOnly: true
-{% endif %}
-{% endfor %}
             # MSP signing certificate.
             - name: secret
-              mountPath: {{ committer_container_config_dir }}/msp/signcerts/cert.pem
+              mountPath: {{ committer_container_config_dir }}/msp/signcerts/{{ committer_crypto_name }}.{{ organization.domain }}-cert.pem
               subPath: msp-signcerts-cert.pem
               readOnly: true
             # MSP private key.
@@ -95,9 +90,11 @@ spec:
               mountPath: {{ committer_container_config_dir }}/msp/keystore/priv_sk
               subPath: msp-keystore-priv-sk
               readOnly: true
-            # MSP CA certificate.
+            # MSP CA certificate. The filename must match the
+            # Certificate reference inside msp/config.yaml so that Fabric's
+            # NodeOUs resolution can locate it at runtime.
             - name: secret
-              mountPath: {{ committer_container_config_dir }}/msp/cacerts/ca.pem
+              mountPath: {{ committer_container_config_dir }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem
               subPath: msp-cacerts-ca.pem
               readOnly: true
             # NodeOUs configuration: tells Fabric to classify identities by OU.

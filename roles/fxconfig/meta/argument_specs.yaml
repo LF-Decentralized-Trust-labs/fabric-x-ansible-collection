@@ -1,0 +1,527 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+argument_specs:
+  role-options:
+    short_description: Shared option catalog for fxconfig role entry points
+    options:
+      channel_id: &channel_id
+        type: str
+        required: true
+        description:
+          - "Defines the Fabric-X channel written into the rendered fxconfig file."
+          - "Example: C(mychannel)."
+      fxconfig_committer_query_service_connection_timeout:
+        &fxconfig_committer_query_service_connection_timeout
+        type: str
+        description:
+          - "Defines the Committer Query-Service connection timeout written into the rendered fxconfig file."
+          - "Example: C(45s)."
+      committer_query_service_host: &committer_query_service_host
+        type: str
+        required: true
+        description:
+          - "Identifies the inventory host for the Committer Query-Service endpoint consumed by fxconfig."
+          - "Example: C(committer-query-service)."
+      fxconfig_committer_sidecar_connection_timeout:
+        &fxconfig_committer_sidecar_connection_timeout
+        type: str
+        description:
+          - "Defines the Committer Sidecar notification connection timeout written into the rendered fxconfig file."
+          - "Example: C(45s)."
+      committer_sidecar_host: &committer_sidecar_host
+        type: str
+        required: true
+        description:
+          - "Identifies the inventory host for the Committer Sidecar notification endpoint consumed by fxconfig."
+          - "Example: C(committer-sidecar)."
+      fxconfig_committer_sidecar_waiting_timeout:
+        &fxconfig_committer_sidecar_waiting_timeout
+        type: str
+        description:
+          - "Defines the Committer Sidecar notification waiting timeout written into the rendered fxconfig file."
+          - "Example: C(2m)."
+      fetched_artifacts_dir: &fetched_artifacts_dir
+        type: path
+        required: true
+        description:
+          - "Defines the local directory that stores fetched crypto and TLS artifacts consumed by fxconfig."
+          - "Example: C(/tmp/fabricx/config-build)."
+      fxconfig_bin_name: &fxconfig_bin_name
+        type: str
+        default: "fxconfig"
+        description:
+          - "Defines the fxconfig binary name."
+      fxconfig_bin_package: &fxconfig_bin_package
+        type: str
+        default: "{{ fxconfig_git_hub_url }}/{{ fxconfig_git_repo }}/{{ fxconfig_source_code_package }}"
+        description:
+          - "Defines the Go package path used to install fxconfig."
+      fxconfig_config_file: &fxconfig_config_file
+        type: str
+        default: "fxconfig.yaml"
+        description:
+          - "Defines the fxconfig configuration filename."
+      fxconfig_container_config_dir: &fxconfig_container_config_dir
+        type: path
+        default: "/config"
+        description:
+          - "Defines the configuration directory mounted inside the fxconfig container."
+      fxconfig_container_name: &fxconfig_container_name
+        type: str
+        default: "fxconfig"
+        description:
+          - "Defines the base container name used by fxconfig workflows."
+      fxconfig_endorsed_txs_dir: &fxconfig_endorsed_txs_dir
+        type: path
+        required: true
+        description:
+          - "Defines the local directory containing endorsed namespace transaction JSON files to merge."
+          - "Example: C(/tmp/fabricx/config-build/fxconfig-artifacts/mychannel/endorsed)."
+      fxconfig_git_commit: &fxconfig_git_commit
+        type: str
+        default: "v1.0.0"
+        description:
+          - "Selects the Git ref used by build and install workflows."
+      fxconfig_git_hub_url: &fxconfig_git_hub_url
+        type: str
+        default: "github.com"
+        description:
+          - "Defines the Git host used to resolve the Fabric-X source repository."
+      fxconfig_git_repo: &fxconfig_git_repo
+        type: str
+        default: "hyperledger/fabric-x"
+        description:
+          - "Defines the Fabric-X source repository path."
+      fxconfig_hosts: &fxconfig_hosts
+        type: list
+        elements: str
+        description:
+          - "Limits namespace grouping to a subset of inventory hosts. If omitted, the task considers all hosts."
+          - "Example: C(['committer-sidecar', 'committer-query-service'])."
+          - "Selected hosts must expose the organization metadata expected by the namespace grouping helper."
+      fxconfig_image: &fxconfig_image
+        type: str
+        default: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
+        description:
+          - "Defines the fxconfig container image."
+      fxconfig_image_name: &fxconfig_image_name
+        type: str
+        default: "fabric-x-tools"
+        description:
+          - "Defines the image name used by the fxconfig container image."
+      fxconfig_image_tag: &fxconfig_image_tag
+        type: str
+        default: "1.0.0"
+        description:
+          - "Defines the image tag used by the fxconfig container image."
+      fxconfig_log_format: &fxconfig_log_format
+        type: str
+        default: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
+        description:
+          - "Defines the fxconfig log format."
+      fxconfig_log_level: &fxconfig_log_level
+        type: str
+        default: "info"
+        description:
+          - "Defines the fxconfig log level."
+      fxconfig_msp_config_path: &fxconfig_msp_config_path
+        type: path
+        required: true
+        description:
+          - "Defines the source MSP directory copied into the fxconfig configuration directory."
+          - "Example: C(/opt/hyperledger/fabricx/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp)."
+      fxconfig_msp_id: &fxconfig_msp_id
+        type: str
+        default: "{{ organization.name }}MSP"
+        description:
+          - "Defines the MSP identifier written into the rendered configuration."
+      fxconfig_mtls_client_cert_path: &fxconfig_mtls_client_cert_path
+        type: path
+        default: "{{ remote_config_dir }}/tls/server.crt"
+        description:
+          - "Defines the source certificate path used for fxconfig mTLS."
+      fxconfig_mtls_client_key_path: &fxconfig_mtls_client_key_path
+        type: path
+        default: "{{ remote_config_dir }}/tls/server.key"
+        description:
+          - "Defines the source private key path used for fxconfig mTLS."
+      fxconfig_namespace_id: &fxconfig_namespace_id
+        type: raw
+        required: true
+        description:
+          - "Defines the namespace identifier used when creating namespace transaction artifacts. Accepts either a string or an integer value."
+          - "Example: C(payments)."
+      fxconfig_namespace_policy: &fxconfig_namespace_policy
+        type: str
+        required: true
+        description:
+          - "Defines the namespace endorsement policy."
+          - "Example: C(threshold:/tmp/fabricx/config-build/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem)."
+      fxconfig_orderer_connection_timeout: &fxconfig_orderer_connection_timeout
+        type: str
+        description:
+          - "Defines the Orderer Router connection timeout written into the rendered fxconfig file."
+          - "Example: C(45s)."
+      fxconfig_output: &fxconfig_output
+        type: path
+        default: "{{ fxconfig_remote_config_dir }}/tx.json"
+        description:
+          - "Defines the transaction artifact path on the managed host."
+      fxconfig_registry_endpoint: &fxconfig_registry_endpoint
+        type: str
+        default: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+        description:
+          - "Defines the registry endpoint used by the fxconfig container image."
+      fxconfig_remote_config_dir: &fxconfig_remote_config_dir
+        type: path
+        default: "{{ remote_config_dir }}/fxconfig"
+        description:
+          - "Defines the fxconfig remote configuration directory."
+      fxconfig_source_code_package: &fxconfig_source_code_package
+        type: str
+        default: "tools/fxconfig"
+        description:
+          - "Defines the Go package path containing the fxconfig source code."
+      fxconfig_tx_to_endorse: &fxconfig_tx_to_endorse
+        type: path
+        required: true
+        description:
+          - "Supplies the local namespace transaction JSON file to endorse."
+          - "Example: C(/tmp/fabricx/config-build/fxconfig-artifacts/payments/ns.json)."
+      fxconfig_tx_to_submit_path: &fxconfig_tx_to_submit_path
+        type: path
+        required: true
+        description:
+          - "Supplies the local merged namespace transaction JSON file to submit."
+          - "Example: C(/tmp/fabricx/config-build/fxconfig-artifacts/payments/merged.json)."
+      fxconfig_use_bin: &fxconfig_use_bin
+        type: bool
+        default: false
+        description:
+          - "Selects the host-binary workflow instead of the container workflow."
+      organization: &organization
+        type: dict
+        description:
+          - "Provides organization metadata used by tasks that read C(organization.*), including names, users, domains, and namespace declarations."
+          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'users': [{'name': 'endorser', 'cert': '/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem'}], 'namespaces': [{'id': 'payments', 'policy': 'threshold'}]})."
+      orderer_router_host: &orderer_router_host
+        type: str
+        required: true
+        description:
+          - "Identifies the inventory host for the Orderer Router endpoint consumed by fxconfig."
+          - "Example: C(orderer-router-1)."
+      remote_config_dir: &remote_config_dir
+        type: path
+        description:
+          - "Provides the base remote configuration directory used by the role."
+          - "Example: C(/opt/hyperledger/fabricx/config)."
+
+  bin/build:
+    short_description: Build the fxconfig binary
+    description:
+      - "Builds the fxconfig Go binary from the configured Fabric-X source package by delegating compilation to the shared bin role."
+    options:
+      fxconfig_bin_name: *fxconfig_bin_name
+      fxconfig_git_commit: *fxconfig_git_commit
+      fxconfig_git_hub_url: *fxconfig_git_hub_url
+      fxconfig_git_repo: *fxconfig_git_repo
+      fxconfig_source_code_package: *fxconfig_source_code_package
+
+  bin/endorse:
+    short_description: Endorse a namespace transaction with the fxconfig binary
+    description:
+      - "Copies a namespace transaction JSON file to the managed host, endorses it with the local fxconfig binary and rendered configuration, then fetches the endorsed JSON artifact into the source artifact tree."
+    options:
+      fxconfig_bin_name: *fxconfig_bin_name
+      fxconfig_config_file: *fxconfig_config_file
+      fxconfig_output: *fxconfig_output
+      fxconfig_remote_config_dir: *fxconfig_remote_config_dir
+      fxconfig_tx_to_endorse: *fxconfig_tx_to_endorse
+      remote_config_dir: *remote_config_dir
+
+  bin/install:
+    short_description: Install the fxconfig binary
+    description:
+      - "Installs the fxconfig Go package from the configured Fabric-X source package by delegating to the shared bin role."
+    options:
+      fxconfig_bin_name: *fxconfig_bin_name
+      fxconfig_bin_package: *fxconfig_bin_package
+      fxconfig_git_commit: *fxconfig_git_commit
+      fxconfig_git_hub_url: *fxconfig_git_hub_url
+      fxconfig_git_repo: *fxconfig_git_repo
+      fxconfig_source_code_package: *fxconfig_source_code_package
+
+  bin/merge:
+    short_description: Merge endorsed transactions with the fxconfig binary
+    description:
+      - "Collects endorsed namespace transaction JSON files from the artifact directory and writes a merged transaction using the local fxconfig binary."
+    options:
+      fxconfig_bin_name: *fxconfig_bin_name
+      fxconfig_endorsed_txs_dir: *fxconfig_endorsed_txs_dir
+      fxconfig_log_format: *fxconfig_log_format
+      fxconfig_log_level: *fxconfig_log_level
+      fxconfig_output: *fxconfig_output
+      fxconfig_remote_config_dir: *fxconfig_remote_config_dir
+      remote_config_dir: *remote_config_dir
+
+  bin/namespace/create:
+    short_description: Create a namespace transaction with the fxconfig binary
+    description:
+      - "Creates a namespace transaction JSON artifact for the configured namespace and endorsement policy with the local fxconfig binary."
+    options:
+      fxconfig_bin_name: *fxconfig_bin_name
+      fxconfig_log_format: *fxconfig_log_format
+      fxconfig_log_level: *fxconfig_log_level
+      fxconfig_namespace_id: *fxconfig_namespace_id
+      fxconfig_namespace_policy: *fxconfig_namespace_policy
+      fxconfig_output: *fxconfig_output
+      fxconfig_remote_config_dir: *fxconfig_remote_config_dir
+      remote_config_dir: *remote_config_dir
+
+  bin/namespace/list:
+    short_description: List namespaces with the fxconfig binary
+    description:
+      - "Lists namespaces from the configured Fabric-X network by invoking the local fxconfig binary with the rendered fxconfig file."
+    options:
+      fxconfig_bin_name: *fxconfig_bin_name
+      fxconfig_config_file: *fxconfig_config_file
+      fxconfig_log_format: *fxconfig_log_format
+      fxconfig_log_level: *fxconfig_log_level
+      fxconfig_remote_config_dir: *fxconfig_remote_config_dir
+      remote_config_dir: *remote_config_dir
+
+  bin/rm:
+    short_description: Remove the fxconfig binary
+    description:
+      - "Removes the fxconfig binary from the managed host by delegating cleanup to the shared bin role."
+    options:
+      fxconfig_bin_name: *fxconfig_bin_name
+
+  bin/submit:
+    short_description: Submit a namespace transaction with the fxconfig binary
+    description:
+      - "Transfers a merged namespace transaction JSON artifact to the managed host and submits it with the local fxconfig binary and rendered configuration."
+    options:
+      fxconfig_bin_name: *fxconfig_bin_name
+      fxconfig_config_file: *fxconfig_config_file
+      fxconfig_remote_config_dir: *fxconfig_remote_config_dir
+      fxconfig_tx_to_submit_path: *fxconfig_tx_to_submit_path
+      remote_config_dir: *remote_config_dir
+
+  bin/transfer:
+    short_description: Transfer the fxconfig binary
+    description:
+      - "Transfers the previously built fxconfig binary to the managed host by delegating to the shared bin role."
+    options:
+      fxconfig_bin_name: *fxconfig_bin_name
+
+  config/mtls/transfer:
+    short_description: Transfer fxconfig mTLS client material
+    description:
+      - "Copies the client certificate and key consumed by fxconfig for mTLS connections into C(fxconfig_remote_config_dir)/mtls."
+    options:
+      fxconfig_mtls_client_cert_path: *fxconfig_mtls_client_cert_path
+      fxconfig_mtls_client_key_path: *fxconfig_mtls_client_key_path
+      fxconfig_remote_config_dir: *fxconfig_remote_config_dir
+      remote_config_dir: *remote_config_dir
+
+  config/tls/transfer:
+    short_description: Transfer fxconfig TLS trust material
+    description:
+      - "Copies fetched Orderer Router and Committer Query-Service CA certificates into the fxconfig TLS trust directories consumed by the rendered configuration."
+      - "Inventory hosts named by the endpoint variables must expose connection metadata, RPC ports, and TLS flags."
+    options:
+      committer_query_service_host: *committer_query_service_host
+      fetched_artifacts_dir: *fetched_artifacts_dir
+      fxconfig_remote_config_dir: *fxconfig_remote_config_dir
+      orderer_router_host: *orderer_router_host
+      remote_config_dir: *remote_config_dir
+
+  config/transfer:
+    short_description: Transfer fxconfig configuration material
+    description:
+      - "Creates the remote fxconfig configuration directory, renders the fxconfig file, copies MSP material, and stages TLS or mTLS assets when the inventory enables them."
+      - "For k8s deployments that expose NodePorts, writes NodePort addresses from the Orderer Router, Committer Sidecar, and Committer Query-Service hostvars; otherwise writes the component RPC addresses."
+      - "Consumes fetched TLS artifacts, MSP directories, channel identifiers, endpoint hosts, RPC ports, and optional timeout values."
+    options:
+      channel_id: *channel_id
+      fxconfig_committer_query_service_connection_timeout: *fxconfig_committer_query_service_connection_timeout
+      committer_query_service_host: *committer_query_service_host
+      fxconfig_committer_sidecar_connection_timeout: *fxconfig_committer_sidecar_connection_timeout
+      committer_sidecar_host: *committer_sidecar_host
+      fxconfig_committer_sidecar_waiting_timeout: *fxconfig_committer_sidecar_waiting_timeout
+      fxconfig_config_file: *fxconfig_config_file
+      fxconfig_container_config_dir: *fxconfig_container_config_dir
+      fxconfig_log_format: *fxconfig_log_format
+      fxconfig_log_level: *fxconfig_log_level
+      fxconfig_msp_config_path: *fxconfig_msp_config_path
+      fxconfig_msp_id: *fxconfig_msp_id
+      fxconfig_orderer_connection_timeout: *fxconfig_orderer_connection_timeout
+      fxconfig_remote_config_dir: *fxconfig_remote_config_dir
+      fxconfig_use_bin: *fxconfig_use_bin
+      orderer_router_host: *orderer_router_host
+      organization: *organization
+      remote_config_dir: *remote_config_dir
+
+  container/endorse:
+    short_description: Endorse a namespace transaction with the fxconfig container
+    description:
+      - "Copies a namespace transaction JSON file to the managed host, mounts the rendered configuration into a transient fxconfig container, and fetches the endorsed JSON artifact into the source artifact tree."
+    options:
+      fxconfig_bin_name: *fxconfig_bin_name
+      fxconfig_config_file: *fxconfig_config_file
+      fxconfig_container_config_dir: *fxconfig_container_config_dir
+      fxconfig_container_name: *fxconfig_container_name
+      fxconfig_image: *fxconfig_image
+      fxconfig_image_name: *fxconfig_image_name
+      fxconfig_image_tag: *fxconfig_image_tag
+      fxconfig_output: *fxconfig_output
+      fxconfig_registry_endpoint: *fxconfig_registry_endpoint
+      fxconfig_remote_config_dir: *fxconfig_remote_config_dir
+      fxconfig_tx_to_endorse: *fxconfig_tx_to_endorse
+      remote_config_dir: *remote_config_dir
+
+  container/merge:
+    short_description: Merge endorsed transactions with the fxconfig container
+    description:
+      - "Collects endorsed namespace transaction JSON files from the artifact directory, mounts them into a transient fxconfig container, and writes a merged transaction artifact."
+    options:
+      fxconfig_bin_name: *fxconfig_bin_name
+      fxconfig_container_config_dir: *fxconfig_container_config_dir
+      fxconfig_container_name: *fxconfig_container_name
+      fxconfig_endorsed_txs_dir: *fxconfig_endorsed_txs_dir
+      fxconfig_image: *fxconfig_image
+      fxconfig_image_name: *fxconfig_image_name
+      fxconfig_image_tag: *fxconfig_image_tag
+      fxconfig_log_format: *fxconfig_log_format
+      fxconfig_log_level: *fxconfig_log_level
+      fxconfig_output: *fxconfig_output
+      fxconfig_registry_endpoint: *fxconfig_registry_endpoint
+      fxconfig_remote_config_dir: *fxconfig_remote_config_dir
+      remote_config_dir: *remote_config_dir
+
+  container/namespace/create:
+    short_description: Create a namespace transaction with the fxconfig container
+    description:
+      - "Creates a namespace transaction JSON artifact for the configured namespace and endorsement policy by running fxconfig in a transient container."
+      - "For threshold policies, mounts the referenced signing certificate into the container and rewrites the policy path for container execution."
+    options:
+      fxconfig_bin_name: *fxconfig_bin_name
+      fxconfig_container_name: *fxconfig_container_name
+      fxconfig_image: *fxconfig_image
+      fxconfig_image_name: *fxconfig_image_name
+      fxconfig_image_tag: *fxconfig_image_tag
+      fxconfig_log_format: *fxconfig_log_format
+      fxconfig_log_level: *fxconfig_log_level
+      fxconfig_namespace_id: *fxconfig_namespace_id
+      fxconfig_namespace_policy: *fxconfig_namespace_policy
+      fxconfig_output: *fxconfig_output
+      fxconfig_registry_endpoint: *fxconfig_registry_endpoint
+      fxconfig_remote_config_dir: *fxconfig_remote_config_dir
+      remote_config_dir: *remote_config_dir
+
+  container/namespace/list:
+    short_description: List namespaces with the fxconfig container
+    description:
+      - "Lists namespaces from the configured Fabric-X network by mounting the rendered configuration into a transient fxconfig container."
+    options:
+      fxconfig_bin_name: *fxconfig_bin_name
+      fxconfig_config_file: *fxconfig_config_file
+      fxconfig_container_config_dir: *fxconfig_container_config_dir
+      fxconfig_container_name: *fxconfig_container_name
+      fxconfig_image: *fxconfig_image
+      fxconfig_image_name: *fxconfig_image_name
+      fxconfig_image_tag: *fxconfig_image_tag
+      fxconfig_log_format: *fxconfig_log_format
+      fxconfig_log_level: *fxconfig_log_level
+      fxconfig_registry_endpoint: *fxconfig_registry_endpoint
+      fxconfig_remote_config_dir: *fxconfig_remote_config_dir
+      remote_config_dir: *remote_config_dir
+
+  container/submit:
+    short_description: Submit a namespace transaction with the fxconfig container
+    description:
+      - "Transfers a merged namespace transaction JSON artifact to the managed host, mounts the fxconfig configuration directory, and submits it from a transient container."
+    options:
+      fxconfig_bin_name: *fxconfig_bin_name
+      fxconfig_config_file: *fxconfig_config_file
+      fxconfig_container_config_dir: *fxconfig_container_config_dir
+      fxconfig_container_name: *fxconfig_container_name
+      fxconfig_image: *fxconfig_image
+      fxconfig_image_name: *fxconfig_image_name
+      fxconfig_image_tag: *fxconfig_image_tag
+      fxconfig_registry_endpoint: *fxconfig_registry_endpoint
+      fxconfig_remote_config_dir: *fxconfig_remote_config_dir
+      fxconfig_tx_to_submit_path: *fxconfig_tx_to_submit_path
+      remote_config_dir: *remote_config_dir
+
+  endorse:
+    short_description: Endorse a namespace transaction
+    description:
+      - "Dispatches namespace transaction endorsement to either the host binary or a transient container based on C(fxconfig_use_bin)."
+      - "Consumes a namespace transaction JSON artifact and the rendered fxconfig configuration, then fetches the endorsed artifact."
+    options:
+      fxconfig_use_bin: *fxconfig_use_bin
+
+  get_endorser:
+    short_description: Resolve the namespace endorser user
+    description:
+      - "Selects the preferred endorser from C(organization.users) for namespace transaction endorsement and stores it in C(fxconfig_endorser_user)."
+    options:
+      organization:
+        <<: *organization
+        required: true
+
+  merge:
+    short_description: Merge endorsed namespace transactions
+    description:
+      - "Dispatches endorsed namespace transaction merging to either the host binary or a transient container based on C(fxconfig_use_bin)."
+      - "Consumes endorsed JSON artifacts and writes the merged transaction artifact used by submission."
+    options:
+      fxconfig_use_bin: *fxconfig_use_bin
+
+  namespace/create:
+    short_description: Create a namespace transaction
+    description:
+      - "Dispatches namespace transaction creation to either the host binary or a transient container based on C(fxconfig_use_bin)."
+      - "Writes a namespace transaction JSON artifact for the configured namespace identifier and endorsement policy."
+    options:
+      fxconfig_use_bin: *fxconfig_use_bin
+
+  namespace/group:
+    short_description: Group hosts by declared namespaces
+    description:
+      - "Builds a namespace-to-host mapping from inventory organization data before creating, endorsing, merging, and submitting namespace transactions."
+      - "For threshold policies, resolves the signing certificate path under the fetched crypto artifact directory."
+      - "Inventory hosts selected via C(fxconfig_hosts) must define organization namespace data."
+    options:
+      fetched_artifacts_dir: *fetched_artifacts_dir
+      fxconfig_hosts: *fxconfig_hosts
+
+  namespace/list:
+    short_description: List namespaces
+    description:
+      - "Dispatches namespace listing to either the host binary or a transient container based on C(fxconfig_use_bin)."
+      - "Consumes the rendered fxconfig configuration that points at the Orderer Router and Committer services."
+    options:
+      fxconfig_use_bin: *fxconfig_use_bin
+
+  submit:
+    short_description: Submit a namespace transaction
+    description:
+      - "Dispatches merged namespace transaction submission to either the host binary or a transient container based on C(fxconfig_use_bin)."
+      - "Consumes the merged JSON artifact and rendered fxconfig configuration, then waits for submission completion."
+    options:
+      fxconfig_use_bin: *fxconfig_use_bin
+
+  wipe:
+    short_description: Remove fxconfig binaries when enabled
+    description:
+      - "Removes the fxconfig binary from the managed host when the binary workflow is enabled; container workflows have no role-local binary to remove."
+    options:
+      fxconfig_use_bin: *fxconfig_use_bin

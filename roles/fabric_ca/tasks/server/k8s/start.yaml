@@ -18,18 +18,34 @@
 - name: Apply Fabric CA Service
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service.yaml.j2
 
 - name: Apply Fabric CA NodePort Service
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service-nodeport.yaml.j2
+  when:
+    - fabric_ca_server_k8s_node_port is defined or
+      fabric_ca_server_k8s_operations_node_port is defined
+
+- name: Apply Fabric CA LoadBalancer Service
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/service-loadbalancer.yaml.j2
+  when:
+    - fabric_ca_server_k8s_loadbalancer_expose_port or
+      fabric_ca_server_k8s_loadbalancer_expose_operations_port
 
 - name: Apply Fabric CA Deployment
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/deployment.yaml.j2
     wait: true

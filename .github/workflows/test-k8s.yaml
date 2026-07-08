@@ -130,4 +130,4 @@ jobs:
           ANSIBLE_CACHE_PLUGIN_CONNECTION: /tmp/ansible_fact_cache
           K8S_NODE_IP: ${{ env.K8S_NODE_IP }}
         run: |
-          ./ci/run_ci_test.sh
+          ./scripts/run_ci_test.sh

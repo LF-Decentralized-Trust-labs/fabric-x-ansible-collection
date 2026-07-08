@@ -1,0 +1,97 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+argument_specs:
+  role-options:
+    short_description: Shared option catalog for utils role entry points
+    options:
+      utils_ports_to_ping: &utils_ports_to_ping
+        type: list
+        elements: int
+        required: true
+        description:
+          - "Lists the TCP ports that the ping entry point probes for reachability on the current host."
+          - "Example: C([7051, 9443])."
+      actual_host: &actual_host
+        type: str
+        required: true
+        description:
+          - Real machine host.
+          - "Example: C(myvpc.cloud.ibm.com)."
+      project_dir: &project_dir
+        type: str
+        required: true
+        description:
+          - "Defines the project root directory used by utility entry points that generate Makefile targets, which writes C(target_hosts.mk) to C(project_dir/target_hosts.mk)."
+          - "Example: C(/path/to/hyperledger/fabricx)."
+      utils_benchmark_remote_dir: &utils_benchmark_remote_dir
+        type: str
+        required: false
+        default: "{{ remote_data_dir }}"
+        description:
+          - "Remote directory where the benchmark script is copied before execution."
+          - "Directory on the remote host where benchmark test files are created during the run."
+      utils_benchmark_test_size: &utils_benchmark_test_size
+        type: str
+        required: false
+        default: "1G"
+        description:
+          - "Total data size used by fio random I/O tests."
+      utils_benchmark_block_size: &utils_benchmark_block_size
+        type: str
+        required: false
+        default: "4k"
+        description:
+          - "Block size used for random I/O tests."
+      remote_data_dir: &remote_data_dir
+        type: path
+        description:
+          - Remote data directory consumed by C(utils_benchmark_remote_dir).
+          - "Example: C(/var/lib/utils/data)."
+
+  generate_makefile_targets:
+    short_description: Generate Makefile targets for inventory hosts
+    description:
+      - "Creates the inventory dispatch group in Makefile form by writing one phony target per host in C(groups['all'])."
+      - "The generated targets are named after inventory hosts and route commands to a single host through C(TARGET_HOSTS), which is written to C(project_dir/target_hosts.mk)."
+    options:
+      project_dir: *project_dir
+
+  ping:
+    short_description: Check whether TCP ports are reachable
+    description:
+      - "Checks each port in C(utils_ports_to_ping) against C(actual_host) to verify whether the host is reachable on the requested network endpoints."
+      - "Unreachable ports are handled through a silent rescue block, so this entry point reports reachability without failing the play."
+    options:
+      utils_ports_to_ping: *utils_ports_to_ping
+      actual_host: *actual_host
+
+  select_one_host_per_k8s_namespace:
+    short_description: Create a group with one host per Kubernetes namespace
+    description:
+      - "Creates the C(k8s_namespaces) inventory group with one selected host per distinct Kubernetes namespace."
+      - "Only hosts with C(k8s_image_pull_secret) defined participate, and the selection reads C(k8s_namespace) from C(hostvars) across C(ansible_play_hosts)."
+    options: {}
+
+  select_one_host_per_machine:
+    short_description: Create a group with one host per machine
+    description:
+      - "Creates the C(machines) inventory group with one selected host per distinct machine address."
+      - "The selection reads C(actual_host) from C(hostvars) across C(ansible_play_hosts) to identify hosts that share the same machine."
+    options: {}
+
+  benchmark_volume:
+    short_description: Run SSD performance benchmark on remote hosts
+    description:
+      - "Copies C(ssd_benchmark.sh) to the remote host and executes it to measure sequential write/read throughput, random 4K IOPS, and I/O latency."
+      - "Evaluates whether the machine meets the minimum sequential write threshold of C(1 GB/s) required for high-performance Fabric-X operations."
+      - "Prints a warning if the measured sequential write speed falls below the threshold but does not fail the play."
+    options:
+      remote_data_dir: *remote_data_dir
+      utils_benchmark_remote_dir: *utils_benchmark_remote_dir
+      utils_benchmark_test_size: *utils_benchmark_test_size
+      utils_benchmark_block_size: *utils_benchmark_block_size

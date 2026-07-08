@@ -1,0 +1,18 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Delete Yugabyte master webserver OpenShift Route
+  vars:
+    openshift_route_name: "{{ yugabyte_k8s_resource_name }}-webserver"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/rm
+  when: yugabyte_openshift_master_webserver_route is defined
+
+- name: Remove Yugabyte master workload using generic k8s flow
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.yugabyte
+    tasks_from: k8s/master/rm

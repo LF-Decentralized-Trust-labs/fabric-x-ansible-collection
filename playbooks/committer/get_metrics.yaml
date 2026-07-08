@@ -5,11 +5,11 @@
 #
 
 - name: Collect the Fabric-X Committer metrics
-  hosts: "{{ target_hosts | default('fabric_x_committer') }}:&fabric_x_committer"
+  hosts: "{{ target_hosts | default('fabric_x_committers') }}:&fabric_x_committers"
   tasks:
     - name: Collect Fabric-X Committer components metrics
       ansible.builtin.include_role:
         name: hyperledger.fabricx.committer
         tasks_from: get_metrics
       when:
-        - yugabyte_component_type is defined
+        - committer_metrics_port is defined

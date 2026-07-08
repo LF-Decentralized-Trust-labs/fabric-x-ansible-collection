@@ -10,4 +10,4 @@
     api_version: v1
     kind: Secret
     name: "{{ node_exporter_k8s_resource_name }}"
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default('default') }}"

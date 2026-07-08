@@ -18,5 +18,6 @@
     fabric_ca_server_k8s_db_tls_cert_local_path: "{{ fabric_ca_server_remote_config_dir }}/db/tls/cert.pem"
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/configmap.yaml.j2

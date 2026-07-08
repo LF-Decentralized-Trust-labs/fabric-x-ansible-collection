@@ -9,5 +9,5 @@
     utils_all_inventory_hosts: "{{ groups['all'] | sort }}"
   ansible.builtin.template:
     src: target_hosts.mk.j2
-    dest: "{{ lookup('env', 'PROJECT_DIR') }}/target_hosts.mk"
+    dest: "{{ project_dir }}/target_hosts.mk"
     mode: "0644"

@@ -1,0 +1,25 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start Elasticsearch workload using generic k8s flow
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.elasticsearch
+    tasks_from: k8s/start
+
+- name: Apply Elasticsearch http OpenShift Route
+  vars:
+    openshift_route_name: "{{ elasticsearch_k8s_resource_name }}-http"
+    openshift_route_host: "{{ elasticsearch_openshift_http_route }}"
+    openshift_route_service_name: "{{ elasticsearch_k8s_resource_name }}"
+    openshift_route_service_port: http
+    openshift_route_use_tls: "{{ elasticsearch_use_tls }}"
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ elasticsearch_k8s_resource_name }}"
+      app.kubernetes.io/part-of: "{{ elasticsearch_k8s_part_of }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: elasticsearch_openshift_http_route is defined

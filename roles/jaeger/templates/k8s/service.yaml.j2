@@ -8,11 +8,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ jaeger_k8s_resource_name }}
-  namespace: {{ k8s_namespace }}
   labels:
     app.kubernetes.io/name: {{ jaeger_k8s_resource_name }}
     app.kubernetes.io/component: jaeger
-    app.kubernetes.io/part-of: monitoring
+    app.kubernetes.io/part-of: {{ jaeger_k8s_part_of }}
 spec:
   type: ClusterIP
   selector:

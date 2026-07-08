@@ -42,19 +42,22 @@ Organizations:
     Policies: &{{ orderer_org_info.name }}Policies
       Readers:
         Type: Signature
-        Rule: OR('{{ orderer_org_info.name }}MSP.member')
+        Rule: "{{ configtxgen_orderer_org_policies_readers_operator | default('OR') }}('{{ orderer_org_info.name }}MSP.member')"
         # If your MSP is configured with the new NodeOUs, you might
         # want to use a more specific rule like the following:
         # Rule: "OR('SampleOrg.admin', 'SampleOrg.peer', 'SampleOrg.client')"
       Writers:
         Type: Signature
-        Rule: OR('{{ orderer_org_info.name }}MSP.member')
+        Rule: "{{ configtxgen_orderer_org_policies_writers_operator | default('OR') }}('{{ orderer_org_info.name }}MSP.member')"
         # If your MSP is configured with the new NodeOUs, you might
         # want to use a more specific rule like the following:
         # Rule: "OR('SampleOrg.admin', 'SampleOrg.client')"
       Admins:
         Type: Signature
-        Rule: OR('{{ orderer_org_info.name }}MSP.admin')
+        Rule: "{{ configtxgen_orderer_org_policies_admins_operator | default('OR') }}('{{ orderer_org_info.name }}MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "{{ configtxgen_orderer_org_policies_endorsement_operator | default('OR') }}('{{ orderer_org_info.name }}MSP.member')"
 
     # OrdererEndpoints is a list of all orderers this org runs which clients
     # and peers may to connect to to push transactions and receive blocks respectively.
@@ -93,22 +96,22 @@ Organizations:
     Policies: &{{ peer_org_info.name }}Policies
       Readers:
         Type: Signature
-        Rule: OR('{{ peer_org_info.name }}MSP.member')
+        Rule: "{{ configtxgen_peer_org_policies_readers_operator | default('OR') }}('{{ peer_org_info.name }}MSP.member')"
         # If your MSP is configured with the new NodeOUs, you might
         # want to use a more specific rule like the following:
         # Rule: "OR('SampleOrg.admin', 'SampleOrg.peer', 'SampleOrg.client')"
       Writers:
         Type: Signature
-        Rule: OR('{{ peer_org_info.name }}MSP.member')
+        Rule: "{{ configtxgen_peer_org_policies_writers_operator | default('OR') }}('{{ peer_org_info.name }}MSP.member')"
         # If your MSP is configured with the new NodeOUs, you might
         # want to use a more specific rule like the following:
         # Rule: "OR('SampleOrg.admin', 'SampleOrg.client')"
       Endorsement:
         Type: Signature
-        Rule: OR('{{ peer_org_info.name }}MSP.member')
+        Rule: "{{ configtxgen_peer_org_policies_endorsement_operator | default('OR') }}('{{ peer_org_info.name }}MSP.member')"
       Admins:
         Type: Signature
-        Rule: OR('{{ peer_org_info.name }}MSP.admin')
+        Rule: "{{ configtxgen_peer_org_policies_admins_operator | default('OR') }}('{{ peer_org_info.name }}MSP.admin')"
 
     # AnchorPeers defines the location of peers which can be used for
     # cross-org gossip communication.
@@ -149,35 +152,17 @@ Capabilities:
   # Channel capabilities apply to both the orderers and the peers and must be
   # supported by both.
   # Set the value of the capability to true to require it.
-  Channel: &ChannelCapabilities
-    # V2.0 for Channel is a catchall flag for behavior which has been
-    # determined to be desired for all orderers and peers running at the v2.0.0
-    # level, but which would be incompatible with orderers and peers from
-    # prior releases.
-    # Prior to enabling V2.0 channel capabilities, ensure that all
-    # orderers and peers on a channel are at v2.0.0 or later.
-    V3_0: true
+  Channel: &ChannelCapabilities {}
 
   # Orderer capabilities apply only to the orderers, and may be safely
   # used with prior release peers.
   # Set the value of the capability to true to require it.
-  Orderer: &OrdererCapabilities
-    # V1.1 for Orderer is a catchall flag for behavior which has been
-    # determined to be desired for all orderers running at the v1.1.x
-    # level, but which would be incompatible with orderers from prior releases.
-    # Prior to enabling V2.0 orderer capabilities, ensure that all
-    # orderers on a channel are at v2.0.0 or later.
-    V2_0: true
+  Orderer: &OrdererCapabilities {}
 
   # Application capabilities apply only to the peer network, and may be safely
   # used with prior release orderers.
   # Set the value of the capability to true to require it.
-  Application: &ApplicationCapabilities
-    # V2.5 for Application enables the new non-backwards compatible
-    # features of fabric v2.5, namely the ability to purge private data.
-    # Prior to enabling V2.5 application capabilities, ensure that all
-    # peers on a channel are at v2.5.0 or later.
-    V2_5: true
+  Application: &ApplicationCapabilities {}
 
 ################################################################################
 #
@@ -188,85 +173,6 @@ Capabilities:
 #
 ################################################################################
 Application: &ApplicationDefaults
-  ACLs: &ACLsDefault
-    # This section provides defaults for policies for various resources
-    # in the system. These "resources" could be functions on system chaincodes
-    # (e.g., "GetBlockByNumber" on the "qscc" system chaincode) or other resources
-    # (e.g.,who can receive Block events). This section does NOT specify the resource's
-    # definition or API, but just the ACL policy for it.
-    #
-    # Users can override these defaults with their own policy mapping by defining the
-    # mapping under ACLs in their channel definition
-
-    #---New Lifecycle System Chaincode (_lifecycle) function to policy mapping for access control--#
-
-    # ACL policy for _lifecycle's "CheckCommitReadiness" function
-    _lifecycle/CheckCommitReadiness: /Channel/Application/Writers
-
-    # ACL policy for _lifecycle's "CommitChaincodeDefinition" function
-    _lifecycle/CommitChaincodeDefinition: /Channel/Application/Writers
-
-    # ACL policy for _lifecycle's "QueryChaincodeDefinition" function
-    _lifecycle/QueryChaincodeDefinition: /Channel/Application/Writers
-
-    # ACL policy for _lifecycle's "QueryChaincodeDefinitions" function
-    _lifecycle/QueryChaincodeDefinitions: /Channel/Application/Writers
-
-    #---Lifecycle System Chaincode (lscc) function to policy mapping for access control---#
-
-    # ACL policy for lscc's "getid" function
-    lscc/ChaincodeExists: /Channel/Application/Readers
-
-    # ACL policy for lscc's "getdepspec" function
-    lscc/GetDeploymentSpec: /Channel/Application/Readers
-
-    # ACL policy for lscc's "getccdata" function
-    lscc/GetChaincodeData: /Channel/Application/Readers
-
-    # ACL Policy for lscc's "getchaincodes" function
-    lscc/GetInstantiatedChaincodes: /Channel/Application/Readers
-
-    #---Query System Chaincode (qscc) function to policy mapping for access control---#
-
-    # ACL policy for qscc's "GetChainInfo" function
-    qscc/GetChainInfo: /Channel/Application/Readers
-
-    # ACL policy for qscc's "GetBlockByNumber" function
-    qscc/GetBlockByNumber: /Channel/Application/Readers
-
-    # ACL policy for qscc's  "GetBlockByHash" function
-    qscc/GetBlockByHash: /Channel/Application/Readers
-
-    # ACL policy for qscc's "GetTransactionByID" function
-    qscc/GetTransactionByID: /Channel/Application/Readers
-
-    # ACL policy for qscc's "GetBlockByTxID" function
-    qscc/GetBlockByTxID: /Channel/Application/Readers
-
-    #---Configuration System Chaincode (cscc) function to policy mapping for access control---#
-
-    # ACL policy for cscc's "GetConfigBlock" function
-    cscc/GetConfigBlock: /Channel/Application/Readers
-
-    # ACL policy for cscc's "GetChannelConfig" function
-    cscc/GetChannelConfig: /Channel/Application/Readers
-
-    #---Miscellaneous peer function to policy mapping for access control---#
-
-    # ACL policy for invoking chaincodes on peer
-    peer/Propose: /Channel/Application/Writers
-
-    # ACL policy for chaincode to chaincode invocation
-    peer/ChaincodeToChaincode: /Channel/Application/Writers
-
-    #---Events resource to policy mapping for access control###---#
-
-    # ACL policy for sending block events
-    event/Block: /Channel/Application/Readers
-
-    # ACL policy for sending filtered block events
-    event/FilteredBlock: /Channel/Application/Readers
-
   # Organizations lists the orgs participating on the application side of the
   # network.
   Organizations:
@@ -280,16 +186,16 @@ Application: &ApplicationDefaults
   Policies:
     Readers:
       Type: ImplicitMeta
-      Rule: ANY Readers
+      Rule: "{{ configtxgen_application_policies_readers_operator | default('ANY') }} Readers"
     Writers:
       Type: ImplicitMeta
-      Rule: ANY Writers
+      Rule: "{{ configtxgen_application_policies_writers_operator | default('ANY') }} Writers"
     Admins:
       Type: ImplicitMeta
-      Rule: ANY Admins
+      Rule: "{{ configtxgen_application_policies_admins_operator | default('MAJORITY') }} Admins"
     Endorsement:
       Type: ImplicitMeta
-      Rule: ANY Endorsement
+      Rule: "{{ configtxgen_application_policies_endorsement_operator | default('MAJORITY') }} Endorsement"
     LifecycleEndorsement:
 {% if configtxgen_peers_by_org.items() | length > 0 %}
       Type: Signature
@@ -462,18 +368,18 @@ Orderer: &OrdererDefaults
   Policies:
     Readers:
       Type: ImplicitMeta
-      Rule: ANY Readers
+      Rule: "{{ configtxgen_orderer_policies_readers_operator | default('ANY') }} Readers"
     Writers:
       Type: ImplicitMeta
-      Rule: ANY Writers
+      Rule: "{{ configtxgen_orderer_policies_writers_operator | default('ANY') }} Writers"
     Admins:
       Type: ImplicitMeta
-      Rule: MAJORITY Admins
+      Rule: "{{ configtxgen_orderer_policies_admins_operator | default('MAJORITY') }} Admins"
     # BlockValidation specifies what signatures must be included in the block
     # from the orderer for the peer to validate it.
     BlockValidation:
       Type: ImplicitMeta
-      Rule: ANY Writers
+      Rule: "{{ configtxgen_orderer_policies_block_validation_operator | default('MAJORITY') }} Writers"
 
   # Capabilities describes the orderer level capabilities, see the
   # dedicated Capabilities section elsewhere in this file for a full
@@ -497,15 +403,15 @@ Channel: &ChannelDefaults
     # Who may invoke the 'Deliver' API
     Readers:
       Type: ImplicitMeta
-      Rule: ANY Readers
+      Rule: "{{ configtxgen_channel_policies_readers_operator | default('ANY') }} Readers"
     # Who may invoke the 'Broadcast' API
     Writers:
       Type: ImplicitMeta
-      Rule: ANY Writers
+      Rule: "{{ configtxgen_channel_policies_writers_operator | default('ANY') }} Writers"
     # By default, who may modify elements at this config level
     Admins:
       Type: ImplicitMeta
-      Rule: MAJORITY Admins
+      Rule: "{{ configtxgen_channel_policies_admins_operator | default('MAJORITY') }} Admins"
 
   # Capabilities describes the channel level capabilities, see the
   # dedicated Capabilities section elsewhere in this file for a full

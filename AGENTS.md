@@ -17,21 +17,19 @@ Namespace/name: `hyperledger.fabricx`. Authoritative version and deps: [`galaxy.
    #
    ```
 
-   CI enforces this via `ci/check_license_header.sh`.
+   CI enforces this via `scripts/check_license_header.sh`.
 
-2. **No trailing spaces** in `.j2` files — enforced by `ci/check_trailing_spaces.sh`.
-3. **Lint** — run `make lint` before committing (`ansible-lint` over roles, playbooks, examples).
-4. **Idempotency** — all tasks must be idempotent; use `creates:`, `changed_when:`, or appropriate modules.
-5. **Task names** — every `ansible.builtin.*` task must have a `name:` field.
-6. **Code order** — first `name:` field, then `vars:` (if needed), FQDN name of task and finally `when:` (if needed). For blocks: `name:`, then `when:`, then `block:`.
-7. **Defaults** — role variables with defaults go in `roles/<role>/defaults/main.yaml`; never hard-code values in tasks unless they are truly constant.
-8. **Templates** — Jinja2 templates go in `roles/<role>/templates/` with `.j2` extension.
+2. **No trailing spaces** in `.j2` files — enforced by `scripts/check_trailing_spaces.sh`.
+3. **Idempotency** — all tasks must be idempotent; use `creates:`, `changed_when:`, or appropriate modules.
+4. **Task names** — every `ansible.builtin.*` task must have a `name:` field.
+5. **Code order** — first `name:` field, then `vars:` (if needed), FQDN name of task and finally `when:` (if needed). For blocks: `name:`, then `when:`, then `block:`.
+6. **Templates** — Jinja2 templates go in `roles/<role>/templates/` with `.j2` extension.
 
 ---
 
 ## Working in isolation
 
-For large or multi-file changes, create a git worktree under `.worktrees/` rather than editing the main checkout directly. If you are unsure whether a change qualifies, ask before starting.
+Use git worktrees under `.worktrees/` only for multi-agent jobs (i.e. with subagents). For single-agent work, edit the main checkout directly.
 
 ```shell
 git worktree add .worktrees/<3-4-word-slug> -b worktree/<3-4-word-slug>
@@ -43,9 +41,9 @@ Do **not** remove the worktree when done — leave cleanup to the user.
 
 ## Architecture
 
-### Always read the role README first
+### Always read the role argument_specs.yaml first
 
-Before modifying any role, read `roles/<role>/README.md`. It is the authoritative reference for that role: available tasks, variables, and which deployment modes (binary / container / k8s) it supports. Deployment mode support varies per role — do not assume.
+Before modifying any role, read `roles/<role>/meta/argument_specs.yaml`. It is the authoritative reference for that role: available tasks, variables, and which deployment modes (binary / container / k8s) it supports. Deployment mode support varies per role — do not assume.
 
 ### Dispatch pattern
 
@@ -61,7 +59,8 @@ ansible.builtin.include_role:
 
 ```text
 roles/<role>/
-├── defaults/main.yaml          # all role variables and defaults
+├── defaults/main.yaml          # auto-generated from meta/argument_specs.yaml
+├── meta/argument_specs.yaml    # single source of truth for variables and docs
 ├── tasks/
 │   ├── start.yaml              # top-level dispatcher (reads *_component_type)
 │   ├── <sub_component>/
@@ -132,20 +131,40 @@ make install-deps          # set up control node (venv + python + ansible deps)
 make help                  # full command reference
 ```
 
-## Modifying a role or playbook
+## Modifying a role
 
-1. If the modification introduces new tasks under `tasks/`, `tasks/config/` or `tasks/crypto`, update the role README.
-2. If the modification introduces new variables, put them in `defaults/main.yaml` only if it makes sense that such variables can have multiple values.
-3. Run `make lint` and fix any issues before committing.
+1. Role variables and documentation are managed exclusively through [`roles/<role>/meta/argument_specs.yaml`](roles/). Both `defaults/main.yaml` and `README.md` are auto-generated — never edit them directly.
+2. When you change `argument_specs.yaml`, run these checks in order:
 
----
+   ```shell
+   make check-argument-specs
+   make check-trailing-spaces
+   make check-license-header
+   make lint
+   ```
 
-## Adding a role or playbook (rare)
+3. Only when all checks pass, regenerate the docs:
 
-1. Create `roles/<new_role>/README.md`, `defaults/main.yaml`, and at least one task file.
-2. Add the Apache-2.0 license header to every file created.
-3. Register the role in [`roles/README.md`](roles/README.md) (alphabetical order).
-4. Add playbooks under `playbooks/<new_role>/` following existing patterns.
-5. Run `make lint` and fix any issues before committing.
+   ```shell
+   make generate-roles-docs
+   ```
+
+## Adding a role (rare)
+
+1. Create `roles/<new_role>/meta/argument_specs.yaml` with role options and entrypoints.
+2. Create the task files under `roles/<new_role>/tasks/`.
+3. Add the Apache-2.0 license header to every file created.
+4. Run `make generate-roles-docs` to generate `defaults/main.yaml` and `README.md`.
+5. Register the role in [`roles/README.md`](roles/README.md) (alphabetical order).
+6. Add playbooks under `playbooks/<new_role>/` following existing patterns.
+7. Run `make lint` and fix any issues before committing.
+
+## Adding a new inventory
+
+When a new inventory is added under [`examples/inventory/`](examples/inventory/), write a corresponding doc under [`examples/inventory/docs/`](examples/inventory/docs/) following the structure of existing docs (e.g. [`examples/inventory/docs/local/fabric-x.md`](examples/inventory/docs/local/fabric-x.md)). Then register the new doc in [`mkdocs.yml`](mkdocs.yml) under the `nav.Inventories` section, in the appropriate deployment-type group.
+
+## Modifying a playbook
+
+When a playbook under [`playbooks/`](playbooks/) is modified, update the corresponding `README.md` in the same directory. These READMEs are **not** auto-generated.
 
 > **WARNING**: Never run `make install` when the repo is cloned directly into the Ansible collections path — it overwrites the live checkout with a built artifact.

@@ -46,4 +46,4 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
     tasks_from: k8s/config/transfer
-  when: postgres_exporter_use_k8s
+  when: postgres_exporter_use_k8s or postgres_exporter_use_openshift

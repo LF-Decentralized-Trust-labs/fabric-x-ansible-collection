@@ -21,3 +21,9 @@
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/k8s/start
   when: fabric_ca_server_use_k8s
+
+- name: Start Fabric CA server on OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/openshift/start
+  when: fabric_ca_server_use_openshift

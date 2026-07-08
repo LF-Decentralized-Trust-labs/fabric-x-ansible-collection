@@ -9,5 +9,5 @@
     state: absent
     kind: Secret
     name: "{{ loadgen_k8s_resource_name }}-secret"
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
   when: loadgen_use_tls

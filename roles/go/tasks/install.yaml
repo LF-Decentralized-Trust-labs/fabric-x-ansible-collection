@@ -4,12 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that the go binary package has been defined
-  ansible.builtin.fail:
-    msg: "No go binary package has been defined, but required to install the binary. Set it via 'go_package'."
-  when:
-    - go_package is not defined
-
 - name: Map host platform to GOOS and GOARCH
   ansible.builtin.include_role:
     name: hyperledger.fabricx.go

@@ -1,0 +1,188 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+argument_specs:
+  role-options:
+    short_description: Shared k8s options
+    description:
+      - Shared option definitions reused by the k8s role entry points.
+    options:
+      k8s_namespace: &k8s_namespace
+        type: str
+        description:
+          - Specifies the Kubernetes namespace targeted by the task.
+          - "Example: C(fabric-x)."
+      k8s_create_namespace: &k8s_create_namespace
+        type: bool
+        default: true
+        description:
+          - Controls whether the namespace creation task applies the namespace resource.
+          - When C(false), the namespace creation task is skipped.
+      k8s_image_pull_secret: &k8s_image_pull_secret
+        type: str
+        required: true
+        description:
+          - Specifies the Kubernetes Secret name used for image pulls.
+          - "Example: C(regcred)."
+      k8s_container_registry: &k8s_container_registry
+        type: str
+        required: true
+        description:
+          - Specifies the container registry host recorded in the generated Docker config.
+          - "Example: C(icr.io)."
+      k8s_container_registry_username: &k8s_container_registry_username
+        type: str
+        required: true
+        description:
+          - Specifies the registry username stored in the generated image pull secret.
+          - "Example: C(iamapikey)."
+      k8s_container_registry_password: &k8s_container_registry_password
+        type: str
+        required: true
+        description:
+          - Specifies the registry password or token stored in the generated image pull secret.
+          - Store this value in an Ansible Vault.
+          - "Example: C(my_private_cr_password)."
+      k8s_pod_label_selectors: &k8s_pod_label_selectors
+        type: list
+        elements: str
+        required: true
+        description:
+          - Specifies the Kubernetes label selectors used to select pods for log collection.
+          - "Example: C(['app=fabric-x-orderer', 'component=assembler'])."
+      k8s_pod_container: &k8s_pod_container
+        type: str
+        description:
+          - Optionally specifies the container name to query from multi-container pods.
+          - "Example: C(orderer)."
+          - When omitted, Kubernetes uses the default container.
+      remote_node_dir: &remote_node_dir
+        type: path
+        description:
+          - Shared managed-host root directory for the remote log path.
+          - "Example: C(/var/tmp/fabricx)."
+      fetched_artifacts_dir: &fetched_artifacts_dir
+        type: path
+        description:
+          - Shared control-node artifact root for the fetched log directory.
+          - "Example: C(artifacts)."
+      k8s_remote_logs_dir: &k8s_remote_logs_dir
+        type: path
+        default: "{{ remote_node_dir }}/logs"
+        description:
+          - Specifies the directory on the managed host where pod logs are written before transfer.
+      k8s_remote_logs_file: &k8s_remote_logs_file
+        type: str
+        default: logs.txt
+        description:
+          - Specifies the filename used for pod logs on the managed host.
+      k8s_fetched_logs_dir: &k8s_fetched_logs_dir
+        type: path
+        default: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}"
+        description:
+          - Specifies the directory on the control node where fetched pod logs are stored.
+      k8s_fetched_logs_file: &k8s_fetched_logs_file
+        type: str
+        default: logs.txt
+        description:
+          - Specifies the filename used for the fetched log artifact on the control node.
+      k8s_rbac_resource_name: &k8s_rbac_resource_name
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Base name used for RBAC resources (ServiceAccount, ClusterRole, ClusterRoleBinding).
+      k8s_rbac_part_of: &k8s_rbac_part_of
+        type: str
+        required: true
+        description:
+          - Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to RBAC resources.
+          - Must be set by the consumer role.
+      k8s_rbac_clusterrole_api_groups: &k8s_rbac_clusterrole_api_groups
+        type: list
+        elements: str
+        description:
+          - API groups granted by the ClusterRole for Kubernetes service discovery.
+          - Must be set by the consumer role.
+          - "Example: C([''])."
+      k8s_rbac_clusterrole_resources: &k8s_rbac_clusterrole_resources
+        type: list
+        elements: str
+        description:
+          - Resources granted by the ClusterRole for Kubernetes service discovery.
+          - Must be set by the consumer role.
+          - "Example: C(['pods', 'nodes', 'nodes/metrics', 'services', 'endpoints'])."
+      k8s_rbac_clusterrole_verbs: &k8s_rbac_clusterrole_verbs
+        type: list
+        elements: str
+        description:
+          - Verbs granted by the ClusterRole for Kubernetes service discovery.
+          - Must be set by the consumer role.
+          - "Example: C(['get', 'list', 'watch'])."
+
+  namespace/create:
+    short_description: Ensure a Kubernetes namespace exists
+    description:
+      - Creates or updates the named Kubernetes namespace resource in the target cluster.
+      - Uses the control-node kubeconfig and the kubernetes.core collection to apply a Namespace object named by C(k8s_namespace).
+      - Skips the task when C(k8s_create_namespace) is false.
+    options:
+      k8s_namespace: *k8s_namespace
+      k8s_create_namespace: *k8s_create_namespace
+
+  registry/create_pull_secret:
+    short_description: Create a Kubernetes image pull secret
+    description:
+      - Creates or updates a C(kubernetes.io/dockerconfigjson) Secret named by C(k8s_image_pull_secret) in the target namespace.
+      - Renders the secret from the configured registry host, username, and password for image pulls.
+      - Requires the namespace to exist and a valid kubeconfig on the control node.
+    options:
+      k8s_namespace: *k8s_namespace
+      k8s_image_pull_secret: *k8s_image_pull_secret
+      k8s_container_registry: *k8s_container_registry
+      k8s_container_registry_username: *k8s_container_registry_username
+      k8s_container_registry_password: *k8s_container_registry_password
+
+  fetch_logs:
+    short_description: Fetch Kubernetes pod logs
+    description:
+      - Collects pod logs from the target namespace for pods matched by C(k8s_pod_label_selectors).
+      - Optionally narrows collection to C(k8s_pod_container) when the selected pods expose multiple containers.
+      - Writes the collected logs to C(k8s_remote_logs_dir)/C(k8s_remote_logs_file) on the managed host and fetches them to C(k8s_fetched_logs_dir)/C(k8s_fetched_logs_file) on the control node.
+      - Continues even when no pod logs are returned so artifact retrieval still happens.
+    options:
+      k8s_namespace: *k8s_namespace
+      k8s_pod_label_selectors: *k8s_pod_label_selectors
+      k8s_pod_container: *k8s_pod_container
+      remote_node_dir: *remote_node_dir
+      fetched_artifacts_dir: *fetched_artifacts_dir
+      k8s_remote_logs_dir: *k8s_remote_logs_dir
+      k8s_remote_logs_file: *k8s_remote_logs_file
+      k8s_fetched_logs_dir: *k8s_fetched_logs_dir
+      k8s_fetched_logs_file: *k8s_fetched_logs_file
+
+  rbac/apply:
+    short_description: Apply RBAC resources for Kubernetes service discovery
+    description:
+      - Creates or updates a ServiceAccount, ClusterRole, and ClusterRoleBinding for Prometheus Kubernetes service discovery.
+      - The ClusterRole grants read access to pods, nodes, services, and endpoints.
+      - Resource names are controlled by C(k8s_rbac_resource_name) and labels include C(k8s_rbac_part_of).
+    options:
+      k8s_namespace: *k8s_namespace
+      k8s_rbac_resource_name: *k8s_rbac_resource_name
+      k8s_rbac_part_of: *k8s_rbac_part_of
+      k8s_rbac_clusterrole_api_groups: *k8s_rbac_clusterrole_api_groups
+      k8s_rbac_clusterrole_resources: *k8s_rbac_clusterrole_resources
+      k8s_rbac_clusterrole_verbs: *k8s_rbac_clusterrole_verbs
+
+  rbac/rm:
+    short_description: Remove RBAC resources for Kubernetes service discovery
+    description:
+      - Deletes the ClusterRoleBinding, ClusterRole, and ServiceAccount previously created by C(rbac/apply).
+      - Targets resources by C(k8s_rbac_resource_name) in C(k8s_namespace).
+    options:
+      k8s_namespace: *k8s_namespace
+      k8s_rbac_resource_name: *k8s_rbac_resource_name

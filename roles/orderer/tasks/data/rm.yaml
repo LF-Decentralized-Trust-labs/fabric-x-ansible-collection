@@ -16,5 +16,5 @@
     api_version: v1
     kind: PersistentVolumeClaim
     name: "data-{{ inventory_hostname }}-0"
-    namespace: "{{ k8s_namespace }}"
-  when: orderer_use_k8s
+    namespace: "{{ k8s_namespace | default('default') }}"
+  when: orderer_use_k8s or orderer_use_openshift

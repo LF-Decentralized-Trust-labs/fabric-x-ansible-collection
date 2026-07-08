@@ -1,0 +1,18 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Delete Prometheus http OpenShift Route
+  vars:
+    openshift_route_name: "{{ prometheus_k8s_resource_name }}-http"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/rm
+  when: prometheus_openshift_route is defined
+
+- name: Remove Prometheus workload using generic k8s flow
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.prometheus
+    tasks_from: k8s/rm

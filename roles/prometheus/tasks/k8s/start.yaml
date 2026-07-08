@@ -18,18 +18,40 @@
 - name: Apply Prometheus Service
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service.yaml.j2
 
 - name: Apply Prometheus NodePort Service
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service-nodeport.yaml.j2
+  when: prometheus_k8s_node_port is defined
 
-- name: Apply Prometheus StatefulSet
+- name: Apply Prometheus LoadBalancer Service
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/service-loadbalancer.yaml.j2
+  when: prometheus_k8s_loadbalancer_expose_http_port
+
+- name: Check Prometheus ServiceAccount
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: ServiceAccount
+    name: "{{ prometheus_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
+  register: prometheus_k8s_service_account
+
+- name: Apply Prometheus StatefulSet
+  vars:
+    prometheus_has_service_account: "{{ prometheus_k8s_service_account.resources | default([]) | length > 0 }}"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/statefulset.yaml.j2
     wait: true

@@ -43,6 +43,9 @@ ANSIBLE_LINT ?= ansible-lint
 ANSIBLE_PYTHON_INTERPRETER ?= python3
 endif
 
+AAR_DOC ?= $(ANSIBLE_PYTHON_INTERPRETER) $(PROJECT_DIR)/scripts/aar-doc.py
+MKDOCS ?= $(ANSIBLE_PYTHON_INTERPRETER) -m mkdocs
+
 # Color codes for echo messages
 COLOR_CYAN := \033[0;36m
 COLOR_GREEN := \033[0;32m
@@ -138,17 +141,57 @@ lint:
 	@printf "$(COLOR_CYAN)🚩 Running ansible-lint checks...$(COLOR_RESET)\n"
 	$(ANSIBLE_LINT) --offline roles playbooks examples
 
+# Generate role READMEs and defaults from argument_specs.yaml
+.PHONY: generate-roles-docs
+generate-roles-docs:
+	@printf "$(COLOR_CYAN)🚩 Generating role docs from argument_specs.yaml...$(COLOR_RESET)\n"
+	@for role in roles/*/; do \
+	    printf "  → $$role\n"; \
+	    $(AAR_DOC) --output-mode replace --output-template $(PROJECT_DIR)/scripts/templates/role_readme.md.j2 $$role markdown; \
+	    $(AAR_DOC) --output-file main.yaml $$role defaults; \
+	done
+
+# Check that generated docs are in sync with argument_specs.yaml
+.PHONY: check-docs
+check-docs: generate-roles-docs
+	@git diff --exit-code roles/*/defaults/main.yaml roles/*/README.md \
+	    || (printf "$(COLOR_RESET)ERROR: Generated docs are out of date. Run 'make generate-roles-docs' and commit the changes.\n" && exit 1)
+
+# Generate the MkDocs source tree from the repository READMEs.
+.PHONY: mkdocs-generate
+mkdocs-generate:
+	@printf "$(COLOR_CYAN)🚩 Generating MkDocs source tree...$(COLOR_RESET)\n"
+	$(ANSIBLE_PYTHON_INTERPRETER) $(PROJECT_DIR)/scripts/build_mkdocs_source.py
+
+# Serve the documentation site locally.
+.PHONY: mkdocs-serve
+mkdocs-serve: mkdocs-generate
+	@printf "$(COLOR_CYAN)🚩 Serving MkDocs site...$(COLOR_RESET)\n"
+	$(MKDOCS) serve
+
+# Build the static documentation site.
+.PHONY: mkdocs-build
+mkdocs-build: mkdocs-generate
+	@printf "$(COLOR_CYAN)🚩 Building MkDocs site...$(COLOR_RESET)\n"
+	$(MKDOCS) build --strict
+
 # Check the license header
 .PHONY: check-license-header
 check-license-header:
 	@printf "$(COLOR_CYAN)🚩 Checking license headers...$(COLOR_RESET)\n"
-	./ci/check_license_header.sh
+	./scripts/check_license_header.sh
 
 # Check that no trailing spaces are added in the j2 files
 .PHONY: check-trailing-spaces
 check-trailing-spaces:
 	@printf "$(COLOR_CYAN)🚩 Checking for trailing spaces in templates...$(COLOR_RESET)\n"
-	./ci/check_trailing_spaces.sh
+	./scripts/check_trailing_spaces.sh
+
+# Check that argument_specs.yaml entrypoints match tasks/ files for every role
+.PHONY: check-argument-specs
+check-argument-specs:
+	@printf "$(COLOR_CYAN)🚩 Checking argument_specs alignment with tasks...$(COLOR_RESET)\n"
+	$(ANSIBLE_PYTHON_INTERPRETER) ./scripts/check_argument_specs.py
 
 # =======================
 # Deployment
@@ -159,6 +202,18 @@ check-trailing-spaces:
 login-cr:
 	@printf "$(COLOR_CYAN)🚩 Logging into container registry [$(COLOR_GREEN)$(CONTAINER_REGISTRY)$(COLOR_CYAN)] for hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
 	$(ANSIBLE_PLAYBOOK) hyperledger.fabricx.log_in_container_registry --extra-vars '{"target_hosts": "$(TARGET_HOSTS)", "container_registry": "$(CONTAINER_REGISTRY)", "container_registry_username": "$(CONTAINER_REGISTRY_USERNAME)", "container_registry_password": "$(CONTAINER_REGISTRY_PASSWORD)"}'
+
+# Login to managed OpenShift using personal token.
+.PHONY: login-oc
+login-oc:
+	@printf "$(COLOR_CYAN)🚩 Logging in to OpenShift cluster...$(COLOR_RESET)\n"
+	$(ANSIBLE_PLAYBOOK) hyperledger.fabricx.openshift.login
+
+# Configure local hosts entries for OpenShift routes (e.g. CRC apps-crc.testing).
+.PHONY: oc-config-hosts
+oc-config-hosts:
+	@printf "$(COLOR_CYAN)🚩 Configuring local hosts entries for OpenShift routes...$(COLOR_RESET)\n"
+	$(ANSIBLE_PLAYBOOK) hyperledger.fabricx.openshift.config_hosts --ask-become-pass
 
 # Build all the artifacts, the binaries and configuration files (e.g. make setup).
 .PHONY: setup
@@ -188,7 +243,7 @@ binaries:
 
 # Clean all the artifacts (configs and bins) built on the controller node (e.g. make clean).
 .PHONY: clean
-clean: clean-cache
+clean: clean-cache clean-mkdocs
 	@printf "$(COLOR_CYAN)🚩 Cleaning local artifacts and cache...$(COLOR_RESET)\n"
 	rm -rf $(OUT_DIR)
 
@@ -197,6 +252,12 @@ clean: clean-cache
 clean-cache:
 	@printf "$(COLOR_CYAN)🚩 Cleaning Ansible cache...$(COLOR_RESET)\n"
 	rm -rf $(ANSIBLE_CACHE_PLUGIN_CONNECTION)
+
+# Clean the auto-generated mkdocs (e.g. make clean-mkdocs).
+.PHONY: clean-mkdocs
+clean-mkdocs:
+	@printf "$(COLOR_CYAN)🚩 Cleaning mkDocs artifacts...$(COLOR_RESET)\n"
+	rm -rf site docs/mkdocs
 
 # Create/Ship the configs to the remote nodes (e.g. make fabric_x configs).
 .PHONY: configs
@@ -297,3 +358,9 @@ fetch-crypto:
 limit-rate:
 	@printf "$(COLOR_CYAN)🚩 Setting TPS rate limit to $(COLOR_GREEN)$(LIMIT)$(COLOR_CYAN)...$(COLOR_RESET)\n"
 	$(ANSIBLE_PLAYBOOK) hyperledger.fabricx.loadgen.limit_rate --extra-vars '{"loadgen_limit_rate": "$(LIMIT)"}';
+
+# Benchmark the volume performance on targeted hosts and verify they meet the 1 GB/s sequential write threshold (e.g. make benchmark-volume TARGET_HOSTS=all).
+.PHONY: benchmark-volume
+benchmark-volume:
+	@printf "$(COLOR_CYAN)🚩 Benchmarking volume performance on hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
+	$(ANSIBLE_PLAYBOOK) hyperledger.fabricx.benchmark_volume --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}'

@@ -7,7 +7,7 @@
 - name: Start Hyperledger Fabric-X Committer coordinator binary
   vars:
     bin_command: >-
-      {{ committer_bin_name }} start-coordinator
+      {{ committer_bin_name }} start coordinator
       --config={{ committer_remote_config_dir }}/{{ committer_config_file }}
     bin_wait_until_running: true
     bin_wait_port: "{{ committer_rpc_port }}"

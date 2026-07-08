@@ -1,28 +1,32 @@
 # ---------------------------------------------------------------------------
-# GRPC Server settings
-# It configures the address, settings for gRPC, TLS config
-# and crypto material of the node.
+# General settings
+# These settings configure the gRPC server, TLS, bootstrap, cluster,
+# local MSP, crypto provider, and logging for the orderer node.
 # ---------------------------------------------------------------------------
 General:
-  # The IP on which to bind to listen.
-  ListenAddress: 0.0.0.0
-  # The port on which to bind to listen.
+  # Listen address: The IP on which to bind to listen.
+  ListenAddress: {{ orderer_listen_address | default('0.0.0.0') }}
+  # Listen port: The port on which to bind to listen.
   ListenPort: {{ orderer_rpc_port }}
-  # The TLS settings for the GRPC server.
+  # TLS: TLS settings for the GRPC server.
   TLS:
-    # Require server-side TLS
+    # Require server-side TLS.
+    # Even when TLS is disabled, PrivateKey and Certificate point to valid
+    # credentials because nodes operate with mTLS internally.
     Enabled: {{ orderer_use_tls | bool | lower }}
-    # The file location of the private key of the server TLS certificate.
+    # PrivateKey governs the file location of the private key of the TLS certificate.
     PrivateKey: {{ orderer_config_dir }}/tls/server.key
-    # The file location of the server TLS certificate.
+    # Certificate governs the file location of the server TLS certificate.
     Certificate: {{ orderer_config_dir }}/tls/server.crt
-    # A list of additional file locations for root certificates used for verifying certificates of other nodes during outbound connections.
+    # RootCAs contains additional root certificates for verifying certificates
+    # of other orderer nodes during outbound connections.
     RootCAs:
       - {{ orderer_config_dir }}/tls/ca.crt
-    # Require client certificates / mutual TLS for inbound connections
+    # Require client certificates / mutual TLS for inbound connections.
     ClientAuthRequired: {{ orderer_use_mtls | bool | lower }}
-{% if orderer_use_tls and orderer_use_mtls %}
-    # A list of additional root certificates used for verifying certificates of client connections.
+{% if orderer_use_tls and orderer_use_mtls and (orderer_mtls_clients is defined or orderer_mtls_orgs is defined) %}
+    # ClientRootCAs contains additional root certificates used for verifying
+    # certificates of client connections.
     ClientRootCAs:
 {% if orderer_mtls_clients is defined %}
 {% for orderer_mtls_client in orderer_mtls_clients %}
@@ -35,71 +39,103 @@ General:
 {% endfor %}
 {% endif %}
 {% endif %}
-  # The Keepalive settings for the GRPC server.
+  # Keepalive settings for the GRPC server.
   Keepalive:
-    # The duration after which if the client does not see any activity
-    # from the server it pings the server to see if it is alive.
-    ClientInterval: 1m0s
-    # The duration the client waits for a response from the server
-    # after sending a ping before closing the connection.
-    ClientTimeout: 20s
-    # The duration after which if the server does not see any activity
-    # from the client it pings the client to see if it is alive.
-    ServerInterval: 2h0m0s
-    # The duration the server waits for a response  from the client
-    # after sending a ping before closing the connection.
-    ServerTimeout: 20s
-    # The minimum permitted time between client pings.
+    # ClientInterval is the time between pings to orderer nodes.
+    ClientInterval: {{ orderer_keepalive_client_interval | default('1m0s') }}
+    # ClientTimeout is the duration the client waits for a response before
+    # closing the connection.
+    ClientTimeout: {{ orderer_keepalive_client_timeout | default('20s') }}
+    # ServerMinInterval is the minimum permitted time between client pings.
     # If clients send pings more frequently, the server will disconnect them.
-    ServerMinInterval: 1m0s
-  # The configuration options for GRPC client.
+    ServerMinInterval: {{ orderer_keepalive_server_min_interval | default('1m0s') }}
+    # ServerInterval is the time between pings to clients.
+    ServerInterval: {{ orderer_keepalive_server_interval | default('2h0m0s') }}
+    # ServerTimeout is the duration the server waits for a response from a
+    # client before closing the connection.
+    ServerTimeout: {{ orderer_keepalive_server_timeout | default('20s') }}
+  # Config defines the configuration options for backoff GRPC client.
   Backoff:
-    # The amount of time to backoff after the first failure.
-    BaseDelay: 1s
-    # The factor with which to multiply backoffs after a
-    # failed retry. Should ideally be greater than 1.
-    Multiplier: 1.6
-    # The upper bound of backoff delay.
-    MaxDelay: 2m0s
+    # BaseDelay is the amount of time to backoff after the first failure.
+    BaseDelay: {{ orderer_backoff_base_delay | default('1s') }}
+    # Multiplier is the factor with which to multiply backoffs after a failed
+    # retry. Should ideally be greater than 1.
+    Multiplier: {{ orderer_backoff_multiplier | default(1.6) }}
+    # MaxDelay is the upper bound of backoff delay.
+    MaxDelay: {{ orderer_backoff_max_delay | default('2m0s') }}
   # Max message size in bytes the GRPC server and client can receive.
-  MaxRecvMsgSize: 104857600
+  MaxRecvMsgSize: {{ orderer_max_recv_msg_size | default(104857600) }}
   # Max message size in bytes the GRPC server and client can send.
-  MaxSendMsgSize: 104857600
-  # Indicates the method by which to obtain the bootstrap configuration and the file containing the bootstrap configuration.
+  MaxSendMsgSize: {{ orderer_max_send_msg_size | default(104857600) }}
+  # Bootstrap: how to obtain the bootstrap configuration.
   Bootstrap:
-    # Specify the method by which to obtain the bootstrap configuration.
+    # Method: The method by which to obtain the bootstrap configuration.
     # The option can be one of:
-    #  1. "block" - path to a file containing the genesis block or config block
-    #  2. "yaml" - path to a file containing a YAML boostrap configuration (i.e. ./shared_config.yaml).
-    Method: block
-    # The path for the bootstrap configuration.
-    # The bootstrap file can be the genesis block, and it can also be a config block for late bootstrap.
+    #   "block" - path to a file containing the genesis block or config block
+    #   "yaml" - path to a file containing a YAML bootstrap configuration.
+    Method: {{ orderer_bootstrap_method | default('block') }}
+    # File: The file containing the bootstrap configuration.
+    # The bootstrap file can be the genesis block, and it can also be a config
+    # block for late bootstrap.
     File: {{ orderer_config_dir }}/genesis.block
-  # Defines the settings for ordering service nodes that communicate with other ordering service nodes.
+  # Cluster settings for ordering service nodes that communicate with other ordering service nodes.
   Cluster:
-    # The maximum number of messages in the egress buffer.
+    # SendBufferSize is the maximum number of messages in the egress buffer.
     # Consensus messages are dropped if the buffer is full, and transaction
     # messages are waiting for space to be freed.
-    SendBufferSize: 2000
-    # The file location of the client TLS certificate used to establish mutual TLS connections
-    # with other ordering service nodes.
+    SendBufferSize: {{ orderer_cluster_send_buffer_size | default(100) }}
+    # ClientCertificate governs the file location of the client TLS certificate
+    # used to establish mutual TLS connections with other ordering service nodes.
     # If not set, the server General.TLS.Certificate is re-used.
     ClientCertificate: {{ orderer_config_dir }}/tls/server.crt
-    # The file location of the private key of the client TLS certificate.
+    # ClientPrivateKey governs the file location of the private key of the client TLS certificate.
     # If not set, the server General.TLS.PrivateKey is re-used.
     ClientPrivateKey: {{ orderer_config_dir }}/tls/server.key
-  # The path to the private crypto material needed by the Fabric-X Orderer.
-  LocalMSPDir: {{ orderer_config_dir }}/msp
-  # The identity to register the local MSP material with the MSP manager.
-  LocalMSPID: {{ organization.name }}
-  # The logging level of the node
-  LogSpec: info
-{% if orderer_metrics_port is defined %}
-  # Defines metrics log period; 0 disables.
-  MetricsLogInterval: {{ orderer_metrics_log_interval | default('10s') }}
-  # The address on which to bind to listen the monitoring service
-  MonitoringListenAddress: 0.0.0.0
-  # The port on which to expose the monitoring service
-	# If empty, the General.ListenAddress is used.
-  MonitoringListenPort: {{ orderer_metrics_port }}
+{% if orderer_cluster_replication_policy is defined %}
+    # ReplicationPolicy defines how blocks are replicated between orderers.
+    ReplicationPolicy: {{ orderer_cluster_replication_policy }}
 {% endif %}
+  # LocalMSPDir is where to find the private crypto material needed by the orderer.
+  LocalMSPDir: {{ orderer_config_dir }}/msp
+  # LocalMSPID is the identity to register the local MSP material with the MSP manager.
+  LocalMSPID: {{ organization.name }}
+  # BCCSP configures the blockchain crypto service providers.
+  BCCSP:
+    # Default specifies the preferred blockchain crypto service provider to use.
+    Default: {{ orderer_bccsp_default | default('SW') }}
+    # SW configures the software based blockchain crypto provider.
+    SW:
+      Hash: {{ orderer_bccsp_sw_hash | default('SHA2') }}
+      Security: {{ orderer_bccsp_sw_security | default(256) }}
+{% if orderer_bccsp_sw_file_key_store is defined %}
+      FileKeyStore:
+        KeyStore: {{ orderer_bccsp_sw_file_key_store }}
+{% endif %}
+{% if (orderer_bccsp_default | default('SW')) == 'PKCS11' %}
+    # Settings for the PKCS#11 crypto provider.
+    PKCS11:
+{% if orderer_bccsp_pkcs11_library is defined %}
+      Library: {{ orderer_bccsp_pkcs11_library }}
+{% endif %}
+{% if orderer_bccsp_pkcs11_label is defined %}
+      Label: {{ orderer_bccsp_pkcs11_label }}
+{% endif %}
+{% if orderer_bccsp_pkcs11_pin is defined %}
+      Pin: {{ orderer_bccsp_pkcs11_pin }}
+{% endif %}
+{% if orderer_bccsp_pkcs11_hash is defined %}
+      Hash: {{ orderer_bccsp_pkcs11_hash }}
+{% endif %}
+{% if orderer_bccsp_pkcs11_security is defined %}
+      Security: {{ orderer_bccsp_pkcs11_security }}
+{% endif %}
+{% if orderer_bccsp_pkcs11_file_key_store is defined %}
+      FileKeyStore:
+        KeyStore: {{ orderer_bccsp_pkcs11_file_key_store }}
+{% endif %}
+{% endif %}
+  # LogSpec controls the logging level of the server.
+  LogSpec: {{ orderer_log_spec | default('info') }}
+  # ClientSignatureVerificationRequired specifies if router and batcher validate
+  # the signature in client requests.
+  ClientSignatureVerificationRequired: {{ orderer_client_signature_verification_required | default(false) | bool | lower }}

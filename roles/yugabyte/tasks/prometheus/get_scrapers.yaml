@@ -4,12 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check if yugabyte_hosts required variable is set
-  ansible.builtin.fail:
-    msg: "The variable 'yugabyte_hosts' must be defined to use this role. It must contain the list of hosts devoted for the YugabyteDB clusters."
-  when:
-    - yugabyte_hosts is not defined
-
 - name: Set Prometheus scrape services for Yugabyte clusters
   vars:
     current_yugabyte_cluster: >-

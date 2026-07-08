@@ -1,0 +1,14 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that OpenShift Route "{{ openshift_route_host }}" is reachable
+  vars:
+    actual_host: "{{ openshift_route_host }}"
+    utils_ports_to_ping:
+      - "{{ 443 if openshift_route_use_tls else 80 }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping

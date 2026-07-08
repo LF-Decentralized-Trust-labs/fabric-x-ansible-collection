@@ -4,12 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that the namespace policy for the namespace has been defined
-  ansible.builtin.fail:
-    msg: "No namespace policy has been defined. Set it via 'fxconfig_namespace_policy'."
-  when:
-    - fxconfig_namespace_policy is not defined
-
 - name: Ensure output directory exists
   ansible.builtin.file:
     path: "{{ fxconfig_output | dirname }}"

@@ -9,5 +9,6 @@
     grafana_dashboard_name: "{{ grafana_k8s_resource_name }}-{{ grafana_dashboard_file | replace('.json', '') | lower | replace('_', '-') }}"
   kubernetes.core.k8s:
     state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/configmap-dashboard.yaml.j2

@@ -15,3 +15,9 @@
     name: hyperledger.fabricx.elasticsearch
     tasks_from: k8s/start
   when: elasticsearch_use_k8s
+
+- name: Start Elasticsearch on OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.elasticsearch
+    tasks_from: openshift/start
+  when: elasticsearch_use_openshift

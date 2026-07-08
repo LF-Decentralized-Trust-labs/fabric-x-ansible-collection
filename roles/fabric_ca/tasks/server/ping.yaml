@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# =======================
+# bin / container
+# =======================
 - name: Check that the Fabric CA web port is open
   vars:
     utils_ports_to_ping:
@@ -12,3 +15,22 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: ping
+  when: not (fabric_ca_server_use_k8s or fabric_ca_server_use_openshift)
+
+# =======================
+# k8s
+# =======================
+- name: Check that the node ports are open
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/k8s/ping
+  when: fabric_ca_server_use_k8s
+
+# =======================
+# openshift
+# =======================
+- name: Check that the OpenShift routes and Kubernetes services are open
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: server/openshift/ping
+  when: fabric_ca_server_use_openshift

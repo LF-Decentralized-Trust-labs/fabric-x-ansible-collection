@@ -9,18 +9,40 @@
     state: absent
     kind: Deployment
     name: "{{ jaeger_k8s_resource_name }}"
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
 
 - name: Remove Jaeger Service
   kubernetes.core.k8s:
     state: absent
     kind: Service
     name: "{{ jaeger_k8s_resource_name }}"
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
 
 - name: Remove Jaeger NodePort Service
   kubernetes.core.k8s:
     state: absent
     kind: Service
     name: "{{ jaeger_k8s_resource_name }}-nodeport"
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
+  when:
+    - jaeger_k8s_ui_node_port is defined or
+      jaeger_k8s_admin_node_port is defined or
+      jaeger_k8s_http_server_node_port is defined or
+      jaeger_k8s_http_collector_node_port is defined or
+      jaeger_k8s_grpc_server_node_port is defined or
+      jaeger_k8s_collector_node_port is defined
+
+- name: Delete Jaeger LoadBalancer Service
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Service
+    name: "{{ jaeger_k8s_resource_name }}-loadbalancer"
+    namespace: "{{ k8s_namespace | default('default') }}"
+  when:
+    - jaeger_k8s_loadbalancer_expose_ui_port or
+      jaeger_k8s_loadbalancer_expose_admin_port or
+      jaeger_k8s_loadbalancer_expose_http_server_port or
+      jaeger_k8s_loadbalancer_expose_http_collector_port or
+      jaeger_k8s_loadbalancer_expose_grpc_server_port or
+      jaeger_k8s_loadbalancer_expose_collector_port

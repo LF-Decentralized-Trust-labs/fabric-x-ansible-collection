@@ -4,12 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that the organization users hosts have been defined
-  ansible.builtin.fail:
-    msg: "Cannot define an endorser user since no users have been defined for this host under his organization. Set them via 'organization.users'."
-  when:
-    - organization.users is not defined
-
 - name: Define the Fabric user to use for endorsement
   vars:
     # We default for now to the first in the list as the MSP
