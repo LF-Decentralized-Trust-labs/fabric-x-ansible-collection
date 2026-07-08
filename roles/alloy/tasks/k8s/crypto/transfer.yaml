@@ -1,0 +1,21 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure Kubernetes namespace exists for Alloy
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+- name: Apply Alloy Secret
+  vars:
+    alloy_k8s_tls_server_key_path: "{{ alloy_remote_config_dir }}/tls/{{ alloy_tls_private_key_file }}"
+    alloy_k8s_tls_server_cert_path: "{{ alloy_remote_config_dir }}/tls/{{ alloy_tls_cert_file }}"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/secret.yaml.j2
+  when: alloy_use_tls

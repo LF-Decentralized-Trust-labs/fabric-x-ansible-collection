@@ -11,14 +11,14 @@
 
 - name: Apply Loki http OpenShift Route
   vars:
-    openshift_route_name: "{{ loki_container_name }}-http"
+    openshift_route_name: "{{ loki_k8s_resource_name }}-http"
     openshift_route_host: "{{ loki_openshift_route }}"
-    openshift_route_service_name: "{{ loki_container_name }}"
+    openshift_route_service_name: "{{ loki_k8s_resource_name }}"
     openshift_route_service_port: http
     openshift_route_use_tls: "{{ loki_use_tls | default(false) }}"
     openshift_route_labels:
-      app.kubernetes.io/name: "{{ loki_container_name }}"
-      app.kubernetes.io/part-of: monitoring
+      app.kubernetes.io/name: "{{ loki_k8s_resource_name }}"
+      app.kubernetes.io/part-of: "{{ loki_k8s_part_of }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openshift
     tasks_from: route/apply

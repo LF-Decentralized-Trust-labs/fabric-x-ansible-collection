@@ -3,15 +3,19 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: "{{ alloy_k8s_resource_name }}"
+  name: {{ alloy_k8s_resource_name }}-config
   labels:
-    app.kubernetes.io/name: "{{ alloy_k8s_resource_name }}"
+    app.kubernetes.io/name: {{ alloy_k8s_resource_name }}
     app.kubernetes.io/component: alloy
-    app.kubernetes.io/part-of: "{{ alloy_k8s_part_of }}"
+    app.kubernetes.io/part-of: {{ alloy_k8s_part_of }}
 data:
   config.alloy: |
-{{ lookup('file', alloy_remote_config_dir + '/config.alloy') | indent(4, first=True) }}
+{{ lookup('file', alloy_remote_config_dir + '/config.alloy') | indent(4, true) }}
+{% if hostvars[loki_host].loki_use_tls is defined and hostvars[loki_host].loki_use_tls %}
+  loki-ca.crt: |
+{{ lookup('file', alloy_remote_config_dir + '/tls/' + loki_host + '/ca.crt') | indent(4, true) }}
+{% endif %}

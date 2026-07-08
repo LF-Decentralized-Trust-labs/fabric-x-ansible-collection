@@ -9,7 +9,7 @@
     state: absent
     api_version: v1
     kind: ConfigMap
-    name: "{{ alloy_k8s_resource_name }}"
+    name: "{{ alloy_k8s_resource_name }}-config"
     namespace: "{{ k8s_namespace | default('default') }}"
 
 - name: Delete Alloy RBAC (cluster-scoped)

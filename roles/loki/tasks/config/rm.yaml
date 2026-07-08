@@ -6,5 +6,11 @@
 
 - name: Remove Loki config directory
   ansible.builtin.file:
-    path: "{{ loki_config_dir }}"
+    path: "{{ loki_remote_config_dir }}"
     state: absent
+
+- name: Delete Loki k8s ConfigMap
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: k8s/config/rm
+  when: loki_use_k8s or loki_use_openshift

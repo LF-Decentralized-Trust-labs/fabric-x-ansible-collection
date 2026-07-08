@@ -10,6 +10,24 @@
     state: directory
     mode: "0755"
 
+- name: Ensure Alloy TLS directory for Loki TLS CA exists
+  ansible.builtin.file:
+    path: "{{ alloy_remote_config_dir }}/tls/{{ loki_host }}"
+    state: directory
+    mode: "0755"
+  when:
+    - hostvars[loki_host].loki_use_tls is defined
+    - hostvars[loki_host].loki_use_tls
+
+- name: Transfer Loki TLS CA certificate
+  ansible.builtin.copy:
+    src: "{{ fetched_artifacts_dir }}/{{ loki_host }}/tls/ca.crt"
+    dest: "{{ alloy_remote_config_dir }}/tls/{{ loki_host }}/ca.crt"
+    mode: "0644"
+  when:
+    - hostvars[loki_host].loki_use_tls is defined
+    - hostvars[loki_host].loki_use_tls
+
 - name: Transfer Alloy configuration file
   vars:
     loki_http_protocol: "{{ 'https' if (hostvars[loki_host].loki_use_tls is defined and hostvars[loki_host].loki_use_tls) else 'http' }}"
@@ -17,3 +35,9 @@
     src: "alloy-config.alloy.j2"
     dest: "{{ alloy_remote_config_dir }}/config.alloy"
     mode: "0644"
+
+- name: Transfer Alloy k8s ConfigMap
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.alloy
+    tasks_from: k8s/config/transfer
+  when: alloy_use_k8s or alloy_use_openshift

@@ -32,11 +32,11 @@
     container_image: "{{ alloy_image }}"
     container_run_as_host_user: true
     container_ports:
-      - "{{ alloy_http_port }}:{{ alloy_http_port }}"
+      - "{{ alloy_port }}:{{ alloy_port }}"
     container_volumes: "{{ alloy_container_volumes }}"
     container_command: >-
       run
-      --server.http.listen-addr=0.0.0.0:{{ alloy_http_port }}
+      --server.http.listen-addr=0.0.0.0:{{ alloy_port }}
       --storage.path={{ alloy_container_data_dir }}
       {{ alloy_container_config_dir }}/config.alloy
   ansible.builtin.include_role:

@@ -448,6 +448,7 @@ argument_specs:
       grafana_tls_private_key_file: *grafana_tls_private_key_file
       grafana_tls_cert_file: *grafana_tls_cert_file
       prometheus_host: *prometheus_host
+      loki_host: *loki_host
       k8s_namespace: *k8s_namespace
       k8s_image_pull_secret: *k8s_image_pull_secret
       k8s_readiness_probe_initial_delay_seconds: *k8s_readiness_probe_initial_delay_seconds
@@ -499,6 +500,7 @@ argument_specs:
       grafana_datasource_file: *grafana_datasource_file
       grafana_dashboards_file: *grafana_dashboards_file
       prometheus_host: *prometheus_host
+      loki_host: *loki_host
       k8s_namespace: *k8s_namespace
 
   k8s/config/rm:

@@ -24,7 +24,7 @@ alloy_use_openshift: false
 # Deploy Alloy as a local container. Automatically true when neither C(alloy_use_k8s) nor C(alloy_use_openshift) is set.
 alloy_use_container: '{{ (not alloy_use_k8s) and (not alloy_use_openshift) }}'
 # Port Alloy's HTTP server listens on.
-alloy_http_port: 12345
+alloy_port: 12345
 # Directory for Alloy configuration files on the remote host.
 alloy_remote_config_dir: '{{ remote_config_dir }}'
 # Directory for Alloy configuration files within the container.
@@ -51,12 +51,18 @@ alloy_json_label_fields:
 alloy_k8s_resource_name: '{{ inventory_hostname }}'
 # Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Alloy resources.
 alloy_k8s_part_of: monitoring
-# Seconds to wait for the Alloy Deployment to become Available on Kubernetes.
+# Seconds to wait for the Alloy StatefulSet to become ready on Kubernetes.
 alloy_k8s_wait_timeout: 120
 # Filesystem group used by the Alloy pod security context for writable mounted volumes.
 alloy_k8s_fs_group: 1000
+# Set to C(true) to create a LoadBalancer Service entry that exposes the Alloy HTTP port externally.
+alloy_k8s_loadbalancer_expose_port: false
 # Use cluster-scoped RBAC for Alloy pod discovery.
 # Set to C(false) when Alloy only collects logs from C(alloy_k8s_namespaces) and the deployment user cannot create ClusterRoles.
 alloy_k8s_cluster_scope: true
-# Enable TLS termination on the Alloy OpenShift Route.
+# Enable HTTPS for Alloy's HTTP endpoint and TLS-aware Kubernetes/OpenShift probes.
 alloy_use_tls: false
+# Filename used for the Alloy TLS private key.
+alloy_tls_private_key_file: server.key
+# Filename used for the Alloy TLS certificate.
+alloy_tls_cert_file: server.crt

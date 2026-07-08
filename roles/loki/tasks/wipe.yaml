@@ -4,7 +4,17 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Teardown Loki
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: teardown
+
+- name: Remove Loki crypto files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: crypto/rm
+
 - name: Remove Loki configuration files
   ansible.builtin.include_role:
-    name: ibm.commom.loki
+    name: hyperledger.fabricx.loki
     tasks_from: config/rm

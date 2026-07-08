@@ -8,6 +8,11 @@ auth_enabled: false
 server:
   http_listen_port: {{ loki_port }}
   grpc_listen_port: 9096
+{% if loki_use_tls %}
+  http_tls_config:
+    cert_file: {{ loki_container_config_dir }}/tls/{{ loki_tls_cert_file }}
+    key_file: {{ loki_container_config_dir }}/tls/{{ loki_tls_private_key_file }}
+{% endif %}
 
 common:
   instance_addr: 127.0.0.1

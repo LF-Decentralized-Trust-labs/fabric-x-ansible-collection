@@ -4,43 +4,50 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Deploy Loki on Kubernetes
-  block:
-    - name: Transfer Loki configuration
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.loki
-        tasks_from: k8s/config/transfer
+- name: Ensure Kubernetes namespace exists for Loki
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
 
-    - name: Create Loki headless Service
-      kubernetes.core.k8s:
-        state: present
-        definition:
-          apiVersion: v1
-          kind: Service
-          metadata:
-            name: "{{ loki_container_name }}"
-            namespace: "{{ k8s_namespace }}"
-            labels:
-              app: "{{ loki_container_name }}"
-              app.kubernetes.io/name: "{{ loki_container_name }}"
-              app.kubernetes.io/component: loki
-              app.kubernetes.io/part-of: monitoring
-              platform: cbdc
-          spec:
-            clusterIP: None
-            selector:
-              app: "{{ loki_container_name }}"
-            ports:
-              - name: http
-                port: "{{ loki_port }}"
-                targetPort: "{{ loki_port }}"
-                protocol: TCP
+- name: Apply Loki Service
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/service.yaml.j2
 
-    - name: Deploy Loki StatefulSet
-      kubernetes.core.k8s:
-        state: present
-        namespace: "{{ k8s_namespace }}"
-        template:
-          path: k8s/statefulset.yaml.j2
-        wait: true
-        wait_timeout: "{{ loki_k8s_wait_timeout }}"
+- name: Apply Loki NodePort Service
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/service-nodeport.yaml.j2
+  when: loki_k8s_node_port is defined
+
+- name: Apply Loki LoadBalancer Service
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/service-loadbalancer.yaml.j2
+  when: loki_k8s_loadbalancer_expose_port
+
+- name: Transfer Loki configuration
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: k8s/config/transfer
+
+- name: Apply Loki K8s crypto Secret
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: k8s/crypto/transfer
+  when: loki_use_tls
+
+- name: Deploy Loki StatefulSet
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/statefulset.yaml.j2
+    wait: true
+    wait_timeout: "{{ loki_k8s_wait_timeout }}"

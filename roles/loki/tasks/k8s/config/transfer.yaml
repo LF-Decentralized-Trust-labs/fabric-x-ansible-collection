@@ -7,6 +7,6 @@
 - name: Apply Loki ConfigMap
   kubernetes.core.k8s:
     state: present
-    namespace: "{{ k8s_namespace }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/configmap.yaml.j2

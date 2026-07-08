@@ -42,7 +42,7 @@
         name: hyperledger.fabricx.alloy
         tasks_from: stop
       when:
-        - alloy_http_port is defined
+        - alloy_port is defined
     # =========================
     # Loki
     # =========================

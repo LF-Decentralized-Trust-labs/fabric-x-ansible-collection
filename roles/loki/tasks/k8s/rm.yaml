@@ -4,31 +4,36 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Remove Loki Kubernetes workload
-  block:
-    - name: Remove Loki StatefulSet
-      kubernetes.core.k8s:
-        state: absent
-        api_version: apps/v1
-        kind: StatefulSet
-        name: "{{ loki_container_name }}"
-        namespace: "{{ k8s_namespace }}"
+- name: Remove Loki StatefulSet
+  kubernetes.core.k8s:
+    state: absent
+    api_version: apps/v1
+    kind: StatefulSet
+    name: "{{ loki_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
 
-    - name: Remove Loki Service
-      kubernetes.core.k8s:
-        state: absent
-        api_version: v1
-        kind: Service
-        name: "{{ loki_container_name }}"
-        namespace: "{{ k8s_namespace }}"
+- name: Remove Loki Service
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Service
+    name: "{{ loki_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
 
-    - name: Remove Loki configuration
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.loki
-        tasks_from: k8s/config/rm
+- name: Remove Loki NodePort Service
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Service
+    name: "{{ loki_k8s_resource_name }}-nodeport"
+    namespace: "{{ k8s_namespace | default('default') }}"
+  when: loki_k8s_node_port is defined
 
-    - name: Remove Loki PVC
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.loki
-        tasks_from: k8s/data/rm
-      when: loki_wipe | default(false)
+- name: Remove Loki LoadBalancer Service
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Service
+    name: "{{ loki_k8s_resource_name }}-loadbalancer"
+    namespace: "{{ k8s_namespace | default('default') }}"
+  when: loki_k8s_loadbalancer_expose_port

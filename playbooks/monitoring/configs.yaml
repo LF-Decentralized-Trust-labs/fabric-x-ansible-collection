@@ -275,7 +275,7 @@
         name: hyperledger.fabricx.alloy
         tasks_from: config/transfer
       when:
-        - alloy_http_port is defined
+        - alloy_port is defined
     # =========================
     # Jaeger
     # =========================

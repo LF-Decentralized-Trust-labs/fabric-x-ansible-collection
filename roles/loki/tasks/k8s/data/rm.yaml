@@ -9,5 +9,5 @@
     state: absent
     api_version: v1
     kind: PersistentVolumeClaim
-    name: "{{ loki_container_name }}-pvc"
-    namespace: "{{ k8s_namespace }}"
+    name: "data-{{ loki_k8s_resource_name }}-0"
+    namespace: "{{ k8s_namespace | default('default') }}"

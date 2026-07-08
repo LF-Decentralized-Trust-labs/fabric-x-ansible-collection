@@ -1,0 +1,21 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Fetch the Loki TLS CA certificate
+  ansible.builtin.fetch:
+    src: "{{ loki_remote_config_dir }}/tls/ca.crt"
+    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/ca.crt"
+    flat: true
+  when:
+    - loki_use_tls
+
+- name: Fetch the Loki TLS certificate
+  ansible.builtin.fetch:
+    src: "{{ loki_remote_config_dir }}/tls/{{ loki_tls_cert_file }}"
+    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/{{ loki_tls_cert_file }}"
+    flat: true
+  when:
+    - loki_use_tls

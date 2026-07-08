@@ -6,7 +6,7 @@
 
 - name: Delete Loki http OpenShift Route
   vars:
-    openshift_route_name: "{{ loki_container_name }}-http"
+    openshift_route_name: "{{ loki_k8s_resource_name }}-http"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openshift
     tasks_from: route/rm

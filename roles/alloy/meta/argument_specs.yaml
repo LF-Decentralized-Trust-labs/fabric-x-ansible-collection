@@ -49,7 +49,7 @@ argument_specs:
         default: "{{ (not alloy_use_k8s) and (not alloy_use_openshift) }}"
         description:
           - "Deploy Alloy as a local container. Automatically true when neither C(alloy_use_k8s) nor C(alloy_use_openshift) is set."
-      alloy_http_port: &alloy_http_port
+      alloy_port: &alloy_port
         type: int
         default: 12345
         description:
@@ -125,12 +125,23 @@ argument_specs:
         type: int
         default: 120
         description:
-          - "Seconds to wait for the Alloy Deployment to become Available on Kubernetes."
+          - "Seconds to wait for the Alloy StatefulSet to become ready on Kubernetes."
       alloy_k8s_fs_group: &alloy_k8s_fs_group
         type: int
         default: 1000
         description:
           - "Filesystem group used by the Alloy pod security context for writable mounted volumes."
+      alloy_k8s_node_port: &alloy_k8s_node_port
+        type: int
+        description:
+          - "Kubernetes NodePort value used by the external Alloy HTTP Service port."
+          - "Defining this variable enables the NodePort Service."
+      alloy_k8s_loadbalancer_expose_port:
+        &alloy_k8s_loadbalancer_expose_port
+        type: bool
+        default: false
+        description:
+          - "Set to C(true) to create a LoadBalancer Service entry that exposes the Alloy HTTP port externally."
       alloy_k8s_cluster_scope: &alloy_k8s_cluster_scope
         type: bool
         default: true
@@ -148,11 +159,27 @@ argument_specs:
         description:
           - "Optional regex used to keep only pods whose C(app.kubernetes.io/part-of) label matches."
           - "Useful when the target namespace contains unrelated workloads."
-      remote_deploy_dir: &remote_deploy_dir
+      remote_config_dir: &remote_config_dir
         type: path
+        description:
+          - "Remote configuration directory consumed by C(alloy_remote_config_dir)."
+      fetched_artifacts_dir: &fetched_artifacts_dir
+        type: path
+        description:
+          - "Control-node directory where fetched TLS artifacts are written and read."
+      organization: &organization
+        type: dict
+        description:
+          - "Optional certificate organization data forwarded to OpenSSL."
+      remote_data_dir: &remote_data_dir
+        type: path
+        description:
+          - "Remote data directory consumed by C(alloy_remote_data_dir)."
+      loki_host: &loki_host
+        type: str
         required: true
         description:
-          - "Base deployment root directory on the remote host under which per-component config/data directories are created."
+          - "Inventory host name of the Loki instance Alloy forwards logs to."
       k8s_namespace: &k8s_namespace
         type: str
         # required: true
@@ -161,7 +188,18 @@ argument_specs:
       k8s_image_pull_secret: &k8s_image_pull_secret
         type: str
         description:
-          - "Name of the image pull secret to attach to the Alloy Kubernetes ServiceAccount/Deployment."
+          - "Name of the image pull secret to attach to the Alloy Kubernetes ServiceAccount/StatefulSet."
+      k8s_storage_size: &k8s_storage_size
+        type: str
+        required: true
+        description:
+          - "Persistent volume size requested for Alloy's data volume (WAL, positions file)."
+          - "Example: C(1Gi)."
+      k8s_storage_class: &k8s_storage_class
+        type: str
+        description:
+          - "Optional Kubernetes storage class name for the Alloy PVC."
+          - "Example: C(fast-ssd)."
       alloy_openshift_route: &alloy_openshift_route
         type: str
         description:
@@ -171,7 +209,17 @@ argument_specs:
         type: bool
         default: false
         description:
-          - "Enable TLS termination on the Alloy OpenShift Route."
+          - "Enable HTTPS for Alloy's HTTP endpoint and TLS-aware Kubernetes/OpenShift probes."
+      alloy_tls_private_key_file: &alloy_tls_private_key_file
+        type: str
+        default: server.key
+        description:
+          - "Filename used for the Alloy TLS private key."
+      alloy_tls_cert_file: &alloy_tls_cert_file
+        type: str
+        default: server.crt
+        description:
+          - "Filename used for the Alloy TLS certificate."
 
   start:
     short_description: Start Alloy
@@ -215,14 +263,19 @@ argument_specs:
       alloy_container_name: *alloy_container_name
       alloy_image: *alloy_image
       alloy_image_tag: *alloy_image_tag
-      alloy_http_port: *alloy_http_port
+      alloy_port: *alloy_port
+      alloy_registry_endpoint: *alloy_registry_endpoint
+      alloy_image_name: *alloy_image_name
       alloy_remote_config_dir: *alloy_remote_config_dir
+      alloy_container_config_dir: *alloy_container_config_dir
       alloy_remote_data_dir: *alloy_remote_data_dir
+      alloy_container_data_dir: *alloy_container_data_dir
       alloy_docker_host: *alloy_docker_host
       alloy_use_container: *alloy_use_container
       alloy_use_k8s: *alloy_use_k8s
       alloy_use_openshift: *alloy_use_openshift
-      remote_deploy_dir: *remote_deploy_dir
+      remote_config_dir: *remote_config_dir
+      remote_data_dir: *remote_data_dir
 
   container/rm:
     short_description: Remove Alloy container
@@ -232,47 +285,75 @@ argument_specs:
       alloy_container_name: *alloy_container_name
 
   data/rm:
-    short_description: Remove Alloy data directory
+    short_description: Remove Alloy data
     description:
-      - "Deletes the Alloy data directory from the remote host."
+      - "Deletes Alloy data from the active deployment mode."
     options:
       alloy_remote_data_dir: *alloy_remote_data_dir
-      remote_deploy_dir: *remote_deploy_dir
+      alloy_use_container: *alloy_use_container
+      alloy_use_k8s: *alloy_use_k8s
+      alloy_use_openshift: *alloy_use_openshift
+      remote_data_dir: *remote_data_dir
 
   config/rm:
-    short_description: Remove Alloy configuration directory
+    short_description: Remove Alloy configuration
     description:
-      - "Deletes the Alloy configuration directory from the remote host."
+      - "Deletes the Alloy configuration directory from the remote host and, in Kubernetes/OpenShift mode, the Alloy ConfigMap."
     options:
       alloy_remote_config_dir: *alloy_remote_config_dir
-      remote_deploy_dir: *remote_deploy_dir
+      alloy_use_k8s: *alloy_use_k8s
+      alloy_use_openshift: *alloy_use_openshift
+      remote_config_dir: *remote_config_dir
 
   k8s/start:
     short_description: Deploy Alloy on Kubernetes
     description:
-      - "Creates RBAC, ConfigMap, Deployment, and Service for Alloy on Kubernetes."
+      - "Creates RBAC, ConfigMap, headless Service, and StatefulSet (with a PVC via volumeClaimTemplates) for Alloy on Kubernetes."
       - "Uses the shared C(k8s_namespace) inventory variable for the target namespace."
     options:
       alloy_k8s_resource_name: *alloy_k8s_resource_name
       alloy_k8s_part_of: *alloy_k8s_part_of
       alloy_k8s_wait_timeout: *alloy_k8s_wait_timeout
       alloy_k8s_fs_group: *alloy_k8s_fs_group
+      alloy_k8s_node_port: *alloy_k8s_node_port
+      alloy_k8s_loadbalancer_expose_port: *alloy_k8s_loadbalancer_expose_port
+      alloy_registry_endpoint: *alloy_registry_endpoint
+      alloy_image_name: *alloy_image_name
       alloy_image: *alloy_image
       alloy_image_tag: *alloy_image_tag
-      alloy_http_port: *alloy_http_port
+      alloy_port: *alloy_port
+      alloy_use_tls: *alloy_use_tls
+      alloy_tls_private_key_file: *alloy_tls_private_key_file
+      alloy_tls_cert_file: *alloy_tls_cert_file
       alloy_remote_config_dir: *alloy_remote_config_dir
+      alloy_container_config_dir: *alloy_container_config_dir
+      alloy_container_data_dir: *alloy_container_data_dir
+      loki_host: *loki_host
       k8s_namespace: *k8s_namespace
+      k8s_storage_size: *k8s_storage_size
+      k8s_storage_class: *k8s_storage_class
       k8s_image_pull_secret: *k8s_image_pull_secret
-      remote_deploy_dir: *remote_deploy_dir
+      remote_config_dir: *remote_config_dir
 
   k8s/rm:
     short_description: Remove Alloy Kubernetes workload
     description:
-      - "Deletes the Alloy Deployment, Service, ConfigMap, and RBAC resources from Kubernetes."
+      - "Deletes the Alloy StatefulSet, Service, ConfigMap, and RBAC resources from Kubernetes."
+      - "Does not delete the underlying PersistentVolumeClaim; see C(k8s/data/rm)."
       - "Uses the shared C(k8s_namespace) inventory variable for the target namespace."
     options:
       alloy_k8s_resource_name: *alloy_k8s_resource_name
+      alloy_k8s_node_port: *alloy_k8s_node_port
+      alloy_k8s_loadbalancer_expose_port: *alloy_k8s_loadbalancer_expose_port
       alloy_k8s_cluster_scope: *alloy_k8s_cluster_scope
+      k8s_namespace: *k8s_namespace
+
+  k8s/data/rm:
+    short_description: Remove the Alloy data PVC
+    description:
+      - "Deletes the PersistentVolumeClaim created for the Alloy StatefulSet."
+    options:
+      alloy_k8s_resource_name: *alloy_k8s_resource_name
       k8s_namespace: *k8s_namespace
 
   k8s/config/transfer:
@@ -284,7 +365,8 @@ argument_specs:
       alloy_k8s_part_of: *alloy_k8s_part_of
       alloy_k8s_cluster_scope: *alloy_k8s_cluster_scope
       alloy_remote_config_dir: *alloy_remote_config_dir
-      remote_deploy_dir: *remote_deploy_dir
+      remote_config_dir: *remote_config_dir
+      loki_host: *loki_host
       k8s_namespace: *k8s_namespace
 
   k8s/config/rm:
@@ -321,12 +403,15 @@ argument_specs:
     short_description: Transfer Alloy configuration
     description:
       - "Renders and uploads the Alloy River configuration file to the remote host."
+      - "Applies the Kubernetes ConfigMap when Kubernetes/OpenShift mode is enabled."
     options:
       alloy_remote_config_dir: *alloy_remote_config_dir
-      alloy_remote_data_dir: *alloy_remote_data_dir
-      alloy_use_container: *alloy_use_container
+      alloy_container_config_dir: *alloy_container_config_dir
       alloy_use_k8s: *alloy_use_k8s
       alloy_use_openshift: *alloy_use_openshift
+      alloy_use_tls: *alloy_use_tls
+      alloy_tls_private_key_file: *alloy_tls_private_key_file
+      alloy_tls_cert_file: *alloy_tls_cert_file
       alloy_default_labels: *alloy_default_labels
       alloy_extra_log_paths: *alloy_extra_log_paths
       alloy_docker_host: *alloy_docker_host
@@ -335,4 +420,71 @@ argument_specs:
       alloy_json_label_fields: *alloy_json_label_fields
       alloy_k8s_namespaces: *alloy_k8s_namespaces
       alloy_k8s_keep_part_of_regex: *alloy_k8s_keep_part_of_regex
-      remote_deploy_dir: *remote_deploy_dir
+      loki_host: *loki_host
+      fetched_artifacts_dir: *fetched_artifacts_dir
+      remote_config_dir: *remote_config_dir
+
+  crypto/setup:
+    short_description: Generate Alloy TLS materials
+    description:
+      - "Generates TLS assets for Alloy and applies the Kubernetes Secret when Kubernetes/OpenShift mode is enabled."
+    options:
+      alloy_use_tls: *alloy_use_tls
+      alloy_use_k8s: *alloy_use_k8s
+      alloy_use_openshift: *alloy_use_openshift
+
+  crypto/openssl/generate_cert:
+    short_description: Generate a self-signed TLS certificate for Alloy
+    description:
+      - "Delegates certificate creation to the shared OpenSSL role using Alloy-specific output paths."
+    options:
+      alloy_remote_config_dir: *alloy_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      organization: *organization
+      alloy_tls_private_key_file: *alloy_tls_private_key_file
+      alloy_tls_cert_file: *alloy_tls_cert_file
+      alloy_openshift_route: *alloy_openshift_route
+
+  k8s/crypto/transfer:
+    short_description: Apply the Alloy TLS Secret on Kubernetes
+    description:
+      - "Creates or updates the Kubernetes Secret that stores the Alloy TLS server keypair."
+    options:
+      k8s_namespace: *k8s_namespace
+      alloy_remote_config_dir: *alloy_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      alloy_tls_private_key_file: *alloy_tls_private_key_file
+      alloy_tls_cert_file: *alloy_tls_cert_file
+      alloy_k8s_resource_name: *alloy_k8s_resource_name
+      alloy_k8s_part_of: *alloy_k8s_part_of
+      alloy_use_tls: *alloy_use_tls
+
+  crypto/fetch:
+    short_description: Fetch Alloy TLS certificates
+    description:
+      - "Fetches the generated Alloy TLS certificate material to the control node."
+    options:
+      fetched_artifacts_dir: *fetched_artifacts_dir
+      alloy_remote_config_dir: *alloy_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      alloy_tls_cert_file: *alloy_tls_cert_file
+      alloy_use_tls: *alloy_use_tls
+
+  crypto/rm:
+    short_description: Remove Alloy TLS materials
+    description:
+      - "Deletes the Alloy TLS directory and removes the Kubernetes Secret when Kubernetes/OpenShift mode is enabled."
+    options:
+      alloy_remote_config_dir: *alloy_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      alloy_use_tls: *alloy_use_tls
+      alloy_use_k8s: *alloy_use_k8s
+      alloy_use_openshift: *alloy_use_openshift
+
+  k8s/crypto/rm:
+    short_description: Remove the Alloy TLS Secret
+    description:
+      - "Deletes the Kubernetes Secret that stores the Alloy TLS server keypair."
+    options:
+      k8s_namespace: *k8s_namespace
+      alloy_k8s_resource_name: *alloy_k8s_resource_name

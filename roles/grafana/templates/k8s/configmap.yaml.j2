@@ -21,3 +21,7 @@ data:
   prometheus-ca.crt: |
 {{ lookup('file', grafana_k8s_prometheus_ca_path) | indent(4, true) }}
 {% endif %}
+{% if loki_host is defined and hostvars[loki_host].loki_use_tls is defined and hostvars[loki_host].loki_use_tls %}
+  loki-ca.crt: |
+{{ lookup('file', grafana_k8s_loki_ca_path) | indent(4, true) }}
+{% endif %}

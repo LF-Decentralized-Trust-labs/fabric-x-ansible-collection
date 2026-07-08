@@ -1,0 +1,18 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Loki TLS directory
+  ansible.builtin.file:
+    path: "{{ loki_remote_config_dir }}/tls"
+    state: absent
+  when:
+    - loki_use_tls
+
+- name: Delete Loki k8s Secret
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: k8s/crypto/rm
+  when: loki_use_k8s or loki_use_openshift

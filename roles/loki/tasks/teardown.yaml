@@ -26,10 +26,3 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loki
     tasks_from: data/rm
-  when: not loki_use_k8s
-
-- name: Remove Loki Kubernetes data
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.loki
-    tasks_from: k8s/data/rm
-  when: loki_use_k8s

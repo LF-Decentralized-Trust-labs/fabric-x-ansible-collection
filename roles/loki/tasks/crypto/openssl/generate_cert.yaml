@@ -1,0 +1,28 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Initialize Loki TLS SAN hosts
+  ansible.builtin.set_fact:
+    loki_tls_san_hosts:
+      - "{{ ansible_host }}"
+      - "{{ actual_host }}"
+
+- name: Append Loki OpenShift route to TLS SAN hosts
+  ansible.builtin.set_fact:
+    loki_tls_san_hosts: "{{ loki_tls_san_hosts + [loki_openshift_route] }}"
+  when:
+    - loki_openshift_route is defined
+
+- name: Generate the Loki TLS crypto material with OpenSSL
+  vars:
+    openssl_common_name: "{{ inventory_hostname }}"
+    openssl_organization: "{{ organization.domain | default(inventory_hostname) }}"
+    openssl_private_key_path: "{{ loki_remote_config_dir }}/tls/{{ loki_tls_private_key_file }}"
+    openssl_cert_path: "{{ loki_remote_config_dir }}/tls/{{ loki_tls_cert_file }}"
+    openssl_san_hosts: "{{ loki_tls_san_hosts | unique }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openssl
+    tasks_from: generate_self_signed_cert

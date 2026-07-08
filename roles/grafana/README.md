@@ -478,6 +478,8 @@ Applies the Grafana Service, optional NodePort and LoadBalancer Services, Secret
     grafana_tls_cert_file: server.crt
     # Sets the inventory host name of the Prometheus instance used by Grafana. Example: `prometheus-1.example.com`. The referenced host must expose the Prometheus inventory vars used by the templates.
     prometheus_host: "prometheus-1.example.com"
+    # Sets the inventory host name of the Loki instance used by Grafana. Example: `loki-1.example.com`.
+    loki_host: "loki-1.example.com"
     # Sets the Kubernetes namespace used for Grafana resources. Example: `fabricx-observability`.
     k8s_namespace: "fabricx-observability"
     # Sets the optional image pull secret used by the Grafana Deployment. Example: `grafana-registry-secret`.
@@ -594,6 +596,8 @@ Applies the Kubernetes ConfigMap that contains Grafana provisioning files for th
     grafana_dashboards_file: dashboards.yaml
     # Sets the inventory host name of the Prometheus instance used by Grafana. Example: `prometheus-1.example.com`. The referenced host must expose the Prometheus inventory vars used by the templates.
     prometheus_host: "prometheus-1.example.com"
+    # Sets the inventory host name of the Loki instance used by Grafana. Example: `loki-1.example.com`.
+    loki_host: "loki-1.example.com"
     # Sets the Kubernetes namespace used for Grafana resources. Example: `fabricx-observability`.
     k8s_namespace: "fabricx-observability"
   ansible.builtin.include_role:

@@ -6,12 +6,18 @@
 
 - name: Create Loki config directory
   ansible.builtin.file:
-    path: "{{ loki_config_dir }}"
+    path: "{{ loki_remote_config_dir }}"
     state: directory
     mode: "0755"
 
 - name: Transfer Loki configuration file
   ansible.builtin.template:
     src: loki-config.yaml.j2
-    dest: "{{ loki_config_dir }}/loki-config.yaml"
+    dest: "{{ loki_remote_config_dir }}/config.yaml"
     mode: "0644"
+
+- name: Transfer Loki k8s ConfigMap
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: k8s/config/transfer
+  when: loki_use_k8s or loki_use_openshift

@@ -331,5 +331,5 @@ all:
         loki:
           loki_port: 3100
         alloy:
-          alloy_http_port: 12345
+          alloy_port: 12345
           loki_host: loki
