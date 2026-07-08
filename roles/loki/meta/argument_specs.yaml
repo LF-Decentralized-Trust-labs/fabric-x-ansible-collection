@@ -238,7 +238,6 @@ argument_specs:
       loki_storage_class: *loki_storage_class
       loki_k8s_fs_group: *loki_k8s_fs_group
       loki_kubeconfig: *loki_kubeconfig
-      
 
   k8s/rm:
     short_description: Remove Loki Kubernetes workload

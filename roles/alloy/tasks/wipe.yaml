@@ -8,4 +8,3 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.alloy
     tasks_from: config/rm
-
