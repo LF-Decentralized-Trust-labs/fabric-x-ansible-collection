@@ -222,6 +222,8 @@ argument_specs:
       alloy_docker_logs_enabled: *alloy_docker_logs_enabled
       alloy_docker_host: *alloy_docker_host
       alloy_use_container: *alloy_use_container
+      alloy_use_k8s: *alloy_use_k8s
+      alloy_use_openshift: *alloy_use_openshift
       remote_deploy_dir: *remote_deploy_dir
 
   container/rm:
@@ -281,7 +283,10 @@ argument_specs:
       - "Applies Alloy's RBAC (cluster- or namespace-scoped) and ConfigMap on Kubernetes/OpenShift."
     options:
       alloy_k8s_resource_name: *alloy_k8s_resource_name
+      alloy_k8s_part_of: *alloy_k8s_part_of
       alloy_k8s_cluster_scope: *alloy_k8s_cluster_scope
+      alloy_config_dir: *alloy_config_dir
+      remote_deploy_dir: *remote_deploy_dir
       k8s_namespace: *k8s_namespace
 
   k8s/config/rm:

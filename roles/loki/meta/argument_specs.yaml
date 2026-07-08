@@ -149,6 +149,8 @@ argument_specs:
       - "Stops the Loki container. No-op for Kubernetes/OpenShift deployments."
     options:
       loki_use_container: *loki_use_container
+      loki_use_k8s: *loki_use_k8s
+      loki_use_openshift: *loki_use_openshift
 
   teardown:
     short_description: Teardown Loki
@@ -185,6 +187,8 @@ argument_specs:
     options:
       loki_container_name: *loki_container_name
       loki_use_container: *loki_use_container
+      loki_use_k8s: *loki_use_k8s
+      loki_use_openshift: *loki_use_openshift
 
   container/rm:
     short_description: Remove Loki container
@@ -193,6 +197,8 @@ argument_specs:
     options:
       loki_container_name: *loki_container_name
       loki_use_container: *loki_use_container
+      loki_use_k8s: *loki_use_k8s
+      loki_use_openshift: *loki_use_openshift
 
   data/rm:
     short_description: Remove Loki data directory
@@ -236,8 +242,6 @@ argument_specs:
       k8s_image_pull_secret: *k8s_image_pull_secret
       loki_pvc_size: *loki_pvc_size
       loki_storage_class: *loki_storage_class
-      loki_k8s_fs_group: *loki_k8s_fs_group
-      loki_kubeconfig: *loki_kubeconfig
 
   k8s/rm:
     short_description: Remove Loki Kubernetes workload
@@ -255,6 +259,9 @@ argument_specs:
     description:
       - "Applies the Loki ConfigMap on Kubernetes/OpenShift."
     options:
+      loki_container_name: *loki_container_name
+      loki_config_dir: *loki_config_dir
+      remote_deploy_dir: *remote_deploy_dir
       k8s_namespace: *k8s_namespace
 
   k8s/config/rm:
