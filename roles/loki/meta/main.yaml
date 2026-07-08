@@ -8,10 +8,7 @@ galaxy_info:
   role_name: loki
   author: IBM
   license: Apache-2.0
-  description: >
-    Deploys Grafana Loki for log aggregation.
-    Supports container (local/dev), Kubernetes, and OpenShift deployment modes
-    with filesystem and PVC storage backends.
+  description: Ansible role to deploy and configure Loki, a log aggregation system.
   min_ansible_version: "2.17.0"
   platforms:
     - name: Ubuntu

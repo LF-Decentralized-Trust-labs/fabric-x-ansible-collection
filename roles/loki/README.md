@@ -1,7 +1,6 @@
 # hyperledger.fabricx.loki
 
-> Deploys Grafana Loki for log aggregation. Supports container (local/dev), Kubernetes, and OpenShift deployment modes with filesystem and PVC storage backends.
-
+> Ansible role to deploy and configure Loki, a log aggregation system.
 
 ## Table of Contents <!-- omit in toc -->
 
