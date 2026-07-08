@@ -326,6 +326,7 @@ all:
           grafana_web_port: 3000
           prometheus_host: prometheus
           grafana_use_tls: true
+        # TO BE TESTED
         loki:
           loki_host: loki
           loki_port: 3100
