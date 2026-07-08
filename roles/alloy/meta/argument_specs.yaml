@@ -5,7 +5,6 @@
 #
 ---
 argument_specs:
-  # Shared option catalog - ALL variables defined here as YAML anchors
   role-options:
     short_description: Shared option catalog for alloy role entry points
 
@@ -179,19 +178,9 @@ argument_specs:
     description:
       - "Dispatches to container or Kubernetes deployment based on deployment mode flags."
     options:
-      alloy_container_name: *alloy_container_name
       alloy_use_container: *alloy_use_container
       alloy_use_k8s: *alloy_use_k8s
       alloy_use_openshift: *alloy_use_openshift
-      alloy_image: *alloy_image
-      alloy_version: *alloy_version
-      alloy_http_port: *alloy_http_port
-      alloy_config_dir: *alloy_config_dir
-      alloy_data_dir: *alloy_data_dir
-      alloy_docker_socket: *alloy_docker_socket
-      alloy_docker_host: *alloy_docker_host
-      alloy_docker_logs_enabled: *alloy_docker_logs_enabled
-      remote_deploy_dir: *remote_deploy_dir
 
   stop:
     short_description: Stop Alloy container
@@ -206,14 +195,56 @@ argument_specs:
   teardown:
     short_description: Teardown Alloy
     description:
-      - "Removes the Alloy container and configuration directory."
+      - "Removes the Alloy container, Kubernetes/OpenShift workload, and data directory."
     options:
-      alloy_container_name: *alloy_container_name
-      alloy_config_dir: *alloy_config_dir
-      alloy_data_dir: *alloy_data_dir
       alloy_use_container: *alloy_use_container
       alloy_use_k8s: *alloy_use_k8s
       alloy_use_openshift: *alloy_use_openshift
+
+  wipe:
+    short_description: Wipe Alloy configuration
+    description:
+      - "Removes the Alloy configuration directory. Intended to be called explicitly, not as part of routine teardown."
+    options: {}
+
+  container/start:
+    short_description: Start Alloy container
+    description:
+      - "Starts the Alloy container via hyperledger.fabricx.container, mounting config, data, and (when enabled) the Docker/Podman socket."
+    options:
+      alloy_container_name: *alloy_container_name
+      alloy_image: *alloy_image
+      alloy_version: *alloy_version
+      alloy_http_port: *alloy_http_port
+      alloy_config_dir: *alloy_config_dir
+      alloy_data_dir: *alloy_data_dir
+      alloy_docker_socket: *alloy_docker_socket
+      alloy_docker_logs_enabled: *alloy_docker_logs_enabled
+      alloy_docker_host: *alloy_docker_host
+      alloy_use_container: *alloy_use_container
+      remote_deploy_dir: *remote_deploy_dir
+
+  container/rm:
+    short_description: Remove Alloy container
+    description:
+      - "Removes the Alloy container via hyperledger.fabricx.container."
+    options:
+      alloy_container_name: *alloy_container_name
+
+  data/rm:
+    short_description: Remove Alloy data directory
+    description:
+      - "Deletes the Alloy data directory from the remote host."
+    options:
+      alloy_data_dir: *alloy_data_dir
+      remote_deploy_dir: *remote_deploy_dir
+
+  config/rm:
+    short_description: Remove Alloy configuration directory
+    description:
+      - "Deletes the Alloy configuration directory from the remote host."
+    options:
+      alloy_config_dir: *alloy_config_dir
       remote_deploy_dir: *remote_deploy_dir
 
   k8s/start:
@@ -226,7 +257,6 @@ argument_specs:
       alloy_k8s_part_of: *alloy_k8s_part_of
       alloy_k8s_wait_timeout: *alloy_k8s_wait_timeout
       alloy_k8s_fs_group: *alloy_k8s_fs_group
-      alloy_k8s_cluster_scope: *alloy_k8s_cluster_scope
       alloy_image: *alloy_image
       alloy_version: *alloy_version
       alloy_http_port: *alloy_http_port
@@ -240,6 +270,24 @@ argument_specs:
     description:
       - "Deletes the Alloy Deployment, Service, ConfigMap, and RBAC resources from Kubernetes."
       - "Uses the shared C(k8s_namespace) inventory variable for the target namespace."
+    options:
+      alloy_k8s_resource_name: *alloy_k8s_resource_name
+      alloy_k8s_cluster_scope: *alloy_k8s_cluster_scope
+      k8s_namespace: *k8s_namespace
+
+  k8s/config/transfer:
+    short_description: Apply Alloy RBAC and ConfigMap
+    description:
+      - "Applies Alloy's RBAC (cluster- or namespace-scoped) and ConfigMap on Kubernetes/OpenShift."
+    options:
+      alloy_k8s_resource_name: *alloy_k8s_resource_name
+      alloy_k8s_cluster_scope: *alloy_k8s_cluster_scope
+      k8s_namespace: *k8s_namespace
+
+  k8s/config/rm:
+    short_description: Remove Alloy RBAC and ConfigMap
+    description:
+      - "Deletes Alloy's ConfigMap and RBAC (cluster- or namespace-scoped) from Kubernetes/OpenShift."
     options:
       alloy_k8s_resource_name: *alloy_k8s_resource_name
       alloy_k8s_cluster_scope: *alloy_k8s_cluster_scope

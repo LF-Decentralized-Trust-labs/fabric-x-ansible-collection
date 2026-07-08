@@ -5,7 +5,6 @@
 #
 ---
 argument_specs:
-  # Shared option catalog - ALL variables defined here as YAML anchors
   role-options:
     short_description: Shared option catalog for loki role entry points
 
@@ -118,7 +117,7 @@ argument_specs:
         type: bool
         default: false
         description:
-          - "When true, also removes the Loki config directory, data directory, and PersistentVolumeClaim during teardown/rm."
+          - "When true, also removes the Loki PersistentVolumeClaim during k8s/rm."
       remote_deploy_dir: &remote_deploy_dir
         type: path
         required: true
@@ -149,24 +148,22 @@ argument_specs:
     description:
       - "Stops the Loki container. No-op for Kubernetes/OpenShift deployments."
     options:
-      loki_container_name: *loki_container_name
       loki_use_container: *loki_use_container
-      loki_use_k8s: *loki_use_k8s
-      loki_use_openshift: *loki_use_openshift
 
   teardown:
     short_description: Teardown Loki
     description:
-      - "Removes the Loki workload and, when C(loki_wipe) is true, all config/data directories."
+      - "Removes the Loki container, Kubernetes/OpenShift workload, and data directory."
     options:
-      loki_container_name: *loki_container_name
-      loki_config_dir: *loki_config_dir
-      loki_data_dir: *loki_data_dir
-      loki_wipe: *loki_wipe
-      remote_deploy_dir: *remote_deploy_dir
       loki_use_container: *loki_use_container
       loki_use_k8s: *loki_use_k8s
       loki_use_openshift: *loki_use_openshift
+
+  wipe:
+    short_description: Wipe Loki configuration
+    description:
+      - "Removes the Loki configuration directory. Intended to be called explicitly, not as part of routine teardown."
+    options: {}
 
   container/start:
     short_description: Start Loki container
@@ -181,35 +178,100 @@ argument_specs:
       loki_data_dir: *loki_data_dir
       remote_deploy_dir: *remote_deploy_dir
 
+  container/stop:
+    short_description: Stop Loki container
+    description:
+      - "Stops the Loki container via hyperledger.fabricx.container."
+    options:
+      loki_container_name: *loki_container_name
+      loki_use_container: *loki_use_container
+
+  container/rm:
+    short_description: Remove Loki container
+    description:
+      - "Removes the Loki container via hyperledger.fabricx.container."
+    options:
+      loki_container_name: *loki_container_name
+      loki_use_container: *loki_use_container
+
+  data/rm:
+    short_description: Remove Loki data directory
+    description:
+      - "Deletes the Loki data directory from the remote host."
+    options:
+      loki_data_dir: *loki_data_dir
+      remote_deploy_dir: *remote_deploy_dir
+
+  config/transfer:
+    short_description: Transfer Loki configuration
+    description:
+      - "Renders and uploads the Loki config file to the remote host."
+    options:
+      remote_deploy_dir: *remote_deploy_dir
+      loki_config_dir: *loki_config_dir
+      loki_port: *loki_port
+      loki_retention_period: *loki_retention_period
+      loki_ingestion_rate_mb: *loki_ingestion_rate_mb
+      loki_ingestion_burst_size_mb: *loki_ingestion_burst_size_mb
+      loki_replication_factor: *loki_replication_factor
+
+  config/rm:
+    short_description: Remove Loki configuration directory
+    description:
+      - "Deletes the Loki configuration directory from the remote host."
+    options:
+      loki_config_dir: *loki_config_dir
+      remote_deploy_dir: *remote_deploy_dir
+
   k8s/start:
     short_description: Deploy Loki on Kubernetes
     description:
-      - "Creates the ConfigMap, a headless Service, and a StatefulSet (with a PVC via volumeClaimTemplates) for Loki on Kubernetes."
+      - "Applies the ConfigMap, a headless Service, and a StatefulSet (with a PVC via volumeClaimTemplates) for Loki on Kubernetes."
       - "Uses the shared C(k8s_namespace) inventory variable for the target namespace."
     options:
       loki_container_name: *loki_container_name
-      loki_image: *loki_image
-      loki_version: *loki_version
       loki_port: *loki_port
-      loki_use_tls: *loki_use_tls
-      loki_pvc_size: *loki_pvc_size
-      loki_storage_class: *loki_storage_class
       loki_k8s_wait_timeout: *loki_k8s_wait_timeout
-      loki_k8s_fs_group: *loki_k8s_fs_group
-      loki_config_dir: *loki_config_dir
       k8s_namespace: *k8s_namespace
       k8s_image_pull_secret: *k8s_image_pull_secret
-      remote_deploy_dir: *remote_deploy_dir
+      loki_pvc_size: *loki_pvc_size
+      loki_storage_class: *loki_storage_class
+      loki_k8s_fs_group: *loki_k8s_fs_group
+      loki_kubeconfig: *loki_kubeconfig
+      
 
   k8s/rm:
     short_description: Remove Loki Kubernetes workload
     description:
-      - "Deletes the Loki StatefulSet, headless Service, and ConfigMap from Kubernetes."
+      - "Deletes the Loki StatefulSet, Service, and ConfigMap from Kubernetes."
       - "When C(loki_wipe) is true, also deletes the underlying PersistentVolumeClaim."
       - "Uses the shared C(k8s_namespace) inventory variable for the target namespace."
     options:
       loki_container_name: *loki_container_name
       loki_wipe: *loki_wipe
+      k8s_namespace: *k8s_namespace
+
+  k8s/config/transfer:
+    short_description: Apply Loki ConfigMap
+    description:
+      - "Applies the Loki ConfigMap on Kubernetes/OpenShift."
+    options:
+      k8s_namespace: *k8s_namespace
+
+  k8s/config/rm:
+    short_description: Remove Loki ConfigMap
+    description:
+      - "Deletes the Loki ConfigMap from Kubernetes/OpenShift."
+    options:
+      loki_container_name: *loki_container_name
+      k8s_namespace: *k8s_namespace
+
+  k8s/data/rm:
+    short_description: Remove Loki PersistentVolumeClaim
+    description:
+      - "Deletes the Loki PersistentVolumeClaim from Kubernetes/OpenShift."
+    options:
+      loki_container_name: *loki_container_name
       k8s_namespace: *k8s_namespace
 
   openshift/start:
@@ -222,7 +284,6 @@ argument_specs:
       loki_openshift_route: *loki_openshift_route
       loki_use_tls: *loki_use_tls
       loki_container_name: *loki_container_name
-      loki_kubeconfig: *loki_kubeconfig
 
   openshift/rm:
     short_description: Remove Loki OpenShift workload
@@ -232,26 +293,3 @@ argument_specs:
     options:
       loki_openshift_route: *loki_openshift_route
       loki_container_name: *loki_container_name
-
-  config/transfer:
-    short_description: Transfer Loki configuration
-    description:
-      - "Renders and uploads the Loki config file to the remote host, and on Kubernetes/OpenShift, applies the Loki ConfigMap."
-    options:
-      remote_deploy_dir: *remote_deploy_dir
-      loki_config_dir: *loki_config_dir
-      loki_data_dir: *loki_data_dir
-      loki_container_name: *loki_container_name
-      loki_port: *loki_port
-      loki_retention_period: *loki_retention_period
-      loki_ingestion_rate_mb: *loki_ingestion_rate_mb
-      loki_ingestion_burst_size_mb: *loki_ingestion_burst_size_mb
-      loki_replication_factor: *loki_replication_factor
-
-  config/rm:
-    short_description: Remove Loki configuration
-    description:
-      - "Deletes the Loki ConfigMap from Kubernetes/OpenShift."
-    options:
-      loki_container_name: *loki_container_name
-      k8s_namespace: *k8s_namespace

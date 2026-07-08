@@ -236,6 +236,12 @@ argument_specs:
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(grafana.apps.example.com)."
+      loki_host: &loki_host
+        type: str
+        required: true
+        description:
+          - Sets the inventory host name of the Loki instance used by Grafana.
+          - "Example: C(loki-1.example.com)."
   start:
     short_description: Start Grafana in the selected deployment mode
     description:
@@ -347,6 +353,7 @@ argument_specs:
       grafana_use_openshift: *grafana_use_openshift
       prometheus_host: *prometheus_host
       fetched_artifacts_dir: *fetched_artifacts_dir
+      loki_host: *loki_host
 
   config/rm:
     short_description: Remove Grafana configuration files

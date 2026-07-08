@@ -6,11 +6,11 @@
 
 - name: Remove Loki Kubernetes workload
   block:
-    - name: Remove Loki Deployment
+    - name: Remove Loki StatefulSet
       kubernetes.core.k8s:
         state: absent
         api_version: apps/v1
-        kind: Deployment
+        kind: StatefulSet
         name: "{{ loki_container_name }}"
         namespace: "{{ k8s_namespace }}"
 
@@ -27,3 +27,4 @@
 
     - name: Remove Loki PVC
       ansible.builtin.include_tasks: k8s/data/rm.yaml
+      when: loki_wipe | default(false)

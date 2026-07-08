@@ -6,5 +6,6 @@
 
 - name: Remove Alloy configuration files
   ansible.builtin.include_role:
-    name: ibm.commom.alloy
+    name: hyperledger.fabricx.alloy
     tasks_from: config/rm
+
