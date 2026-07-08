@@ -9,11 +9,12 @@ apiVersion: 1
 
 # List of datasource definitions
 datasources:
-  - name: "Prometheus"
+{% if prometheus_host is defined %}
+  - name: {{ prometheus_host }}
     # Type of datasource plugin to use
-    type: "prometheus"
+    type: prometheus
     # Access mode - “proxy” lets Grafana forward queries through its backend
-    access: "proxy"
+    access: proxy
     # URL of the Prometheus server (environment variable substitution)
 {% if hostvars[prometheus_host].prometheus_use_tls is defined and hostvars[prometheus_host].prometheus_use_tls %}
     url: https://{{ hostvars[prometheus_host].ansible_host }}:{{ hostvars[prometheus_host].prometheus_port }}
@@ -39,14 +40,16 @@ datasources:
     version: 1
     # Allow editing of this datasource via the Grafana UI
     editable: true
+{% endif %}
 {% if loki_host is defined %}
-  - name: "Loki"
+  - name: {{ loki_host }}
     # Type of datasource plugin to use
-    type: "loki"
-    access: "proxy"
+    type: loki
+    # Access mode - “proxy” lets Grafana forward queries through its backend
+    access: proxy
     # URL of the Loki server
 {% if hostvars[loki_host].loki_use_tls is defined and hostvars[loki_host].loki_use_tls %}
-    url: https://{{ hostvars[loki_host].ansible_host }}:{{ hostvars[loki_host].loki_port | default(3100) }}
+    url: https://{{ hostvars[loki_host].ansible_host }}:{{ hostvars[loki_host].loki_port }}
     # TLS settings to access a datasource behind TLS
     jsonData:
       # Enable TLS authentication
@@ -63,15 +66,13 @@ datasources:
       # Path to the TLS CA certificate
       tlsCACert: $__file{% raw %}{{% endraw %}{{ grafana_container_config_dir }}/tls/{{ loki_host }}/ca.crt{% raw %}}{% endraw %}
 {% else %}
-    url: http://{{ hostvars[loki_host].ansible_host }}:{{ hostvars[loki_host].loki_port | default(3100) }}
+    url: http://{{ hostvars[loki_host].ansible_host }}:{{ hostvars[loki_host].loki_port }}
     jsonData:
       # Maximum number of log lines returned per query
       maxLines: 5000
       # Query timeout in seconds
       timeout: 60
-{% endif +%}
-    # Do not make this the default datasource
-    isDefault: true
+{% endif %}
     # Version of the datasource definition (used for migrations)
     version: 1
     # Allow editing of this datasource via the Grafana UI
