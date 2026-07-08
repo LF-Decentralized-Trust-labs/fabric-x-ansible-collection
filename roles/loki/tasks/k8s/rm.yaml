@@ -23,8 +23,12 @@
         namespace: "{{ k8s_namespace }}"
 
     - name: Remove Loki configuration
-      ansible.builtin.include_tasks: k8s/config/rm.yaml
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.loki
+        tasks_from: k8s/config/rm
 
     - name: Remove Loki PVC
-      ansible.builtin.include_tasks: k8s/data/rm.yaml
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.loki
+        tasks_from: k8s/data/rm
       when: loki_wipe | default(false)

@@ -11,13 +11,19 @@
   when: alloy_use_container
 
 - name: Remove Alloy Kubernetes workload
-  ansible.builtin.include_tasks: k8s/rm.yaml
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.alloy
+    tasks_from: k8s/rm
   when: alloy_use_k8s
 
 - name: Remove Alloy OpenShift workload
-  ansible.builtin.include_tasks: openshift/rm.yaml
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.alloy
+    tasks_from: openshift/rm
   when: alloy_use_openshift
 
 - name: Remove Alloy data directory
-  ansible.builtin.include_tasks: data/rm.yaml
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.alloy
+    tasks_from: data/rm
   when: alloy_use_container

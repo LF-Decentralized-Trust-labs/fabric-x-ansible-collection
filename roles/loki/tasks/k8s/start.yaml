@@ -7,7 +7,9 @@
 - name: Deploy Loki on Kubernetes
   block:
     - name: Transfer Loki configuration
-      ansible.builtin.include_tasks: k8s/config/transfer.yaml
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.loki
+        tasks_from: k8s/config/transfer
 
     - name: Create Loki headless Service
       kubernetes.core.k8s:

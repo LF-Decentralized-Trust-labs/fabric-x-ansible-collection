@@ -5,16 +5,22 @@
 #
 
 - name: Start Alloy container
-  ansible.builtin.include_tasks: container/start.yaml
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.alloy
+    tasks_from: container/start
   when:
     - alloy_use_container
 
 - name: Start Alloy on Kubernetes
-  ansible.builtin.include_tasks: k8s/start.yaml
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.alloy
+    tasks_from: k8s/start
   when:
     - alloy_use_k8s
 
 - name: Start Alloy on OpenShift
-  ansible.builtin.include_tasks: openshift/start.yaml
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.alloy
+    tasks_from: openshift/start
   when:
     - alloy_use_openshift

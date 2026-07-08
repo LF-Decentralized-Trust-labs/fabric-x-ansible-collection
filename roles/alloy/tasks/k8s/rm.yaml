@@ -21,7 +21,9 @@
     namespace: "{{ k8s_namespace | default('default') }}"
 
 - name: Delete Alloy configuration (ConfigMap)
-  ansible.builtin.include_tasks: k8s/config/rm.yaml
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.alloy
+    tasks_from: k8s/config/rm
 
 - name: Delete Alloy RBAC resources
   kubernetes.core.k8s:

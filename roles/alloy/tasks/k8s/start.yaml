@@ -10,7 +10,9 @@
     tasks_from: namespace/create
 
 - name: Transfer Alloy configuration (RBAC and ConfigMap)
-  ansible.builtin.include_tasks: k8s/config/transfer.yaml
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.alloy
+    tasks_from: k8s/config/transfer
 
 - name: Deploy Alloy Deployment
   kubernetes.core.k8s:
