@@ -6,5 +6,5 @@
 
 - name: Remove Alloy config directory
   ansible.builtin.file:
-    path: "{{ alloy_config_dir }}"
+    path: "{{ alloy_remote_config_dir }}"
     state: absent

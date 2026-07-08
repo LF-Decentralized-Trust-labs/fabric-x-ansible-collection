@@ -8,11 +8,7 @@ galaxy_info:
   author: IBM
   role_name: alloy
   license: Apache-2.0
-  description: >
-    Deploys Grafana Alloy — the strategic successor to Promtail and Grafana Agent.
-    Supports container, Kubernetes, and OpenShift deployment modes.
-    Collects logs from containers, systemd journal, and arbitrary log files;
-    parses JSON; and ships to Grafana Loki.
+  description: "Ansible role to deploy Grafana Alloy for log collection and forwarding to Loki."
   min_ansible_version: "2.17.0"
   platforms:
     - name: Ubuntu

@@ -24,14 +24,14 @@ spec:
         app.kubernetes.io/component: alloy
         app.kubernetes.io/part-of: "{{ alloy_k8s_part_of }}"
       annotations:
-        checksum/config: "{{ lookup('file', alloy_config_dir + '/config.alloy') | hash('sha256') }}"
+        checksum/config: "{{ lookup('file', alloy_remote_config_dir + '/config.alloy') | hash('sha256') }}"
     spec:
       serviceAccountName: "{{ alloy_k8s_resource_name }}"
       securityContext:
         fsGroup: "{{ alloy_k8s_fs_group | int }}"
       containers:
         - name: alloy
-          image: "{{ alloy_image }}:{{ alloy_version }}"
+          image: "{{ alloy_image }}:{{ alloy_image_tag }}"
           args:
             - run
             - --server.http.listen-addr=0.0.0.0:{{ alloy_http_port }}

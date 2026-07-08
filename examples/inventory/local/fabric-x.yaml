@@ -324,12 +324,12 @@ all:
           grafana_username: admin
           grafana_password: adminPWD
           grafana_web_port: 3000
-          prometheus_host: prometheus
           grafana_use_tls: true
+          prometheus_host: prometheus
+          loki_host: loki
         # TO BE TESTED
         loki:
-          loki_host: loki
           loki_port: 3100
         alloy:
           alloy_http_port: 12345
-          alloy_loki_url: "http://{{ hostvars['loki'].ansible_host | default('loki') }}:{{ hostvars['loki'].loki_port | default(3100) }}/loki/api/v1/push"
+          loki_host: loki

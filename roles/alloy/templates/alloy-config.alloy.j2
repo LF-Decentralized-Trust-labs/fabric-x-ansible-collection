@@ -10,6 +10,20 @@ logging {
   format = "logfmt"
 }
 
+// -------------------------------------------------------------------------
+// Loki write endpoint
+// -------------------------------------------------------------------------
+loki.write "loki_endpoint" {
+  endpoint {
+    url = "{{ loki_http_protocol }}://{{ hostvars[loki_host].ansible_host }}:{{ hostvars[loki_host].loki_port }}/loki/api/v1/push"
+  }
+  external_labels = {
+{% for alloy_label_key, alloy_label_value in alloy_default_labels.items() %}
+    {{ alloy_label_key }} = "{{ alloy_label_value }}",
+{% endfor %}
+  }
+}
+
 {% if alloy_use_k8s or alloy_use_openshift %}
 // -------------------------------------------------------------------------
 // Kubernetes pod log discovery
@@ -17,7 +31,6 @@ logging {
 discovery.kubernetes "pods" {
   role = "pod"
 {% if alloy_k8s_namespaces is defined and alloy_k8s_namespaces | length > 0 %}
-
   namespaces {
     names = [
 {% for namespace in alloy_k8s_namespaces %}
@@ -81,7 +94,6 @@ loki.source.kubernetes "pod_logs" {
 // -------------------------------------------------------------------------
 // Docker container log discovery
 // -------------------------------------------------------------------------
-{% if alloy_docker_logs_enabled %}
 discovery.docker "containers" {
   host = "{{ alloy_docker_host }}"
 }
@@ -122,7 +134,6 @@ loki.source.docker "docker_logs" {
   targets    = discovery.relabel.docker_labels.output
   forward_to = [loki.process.json_pipeline.receiver]
 }
-{% endif %}
 
 {% if alloy_journal_logs_enabled %}
 // -------------------------------------------------------------------------
@@ -133,14 +144,14 @@ loki.source.journal "journal_logs" {
   forward_to    = [loki.process.json_pipeline.receiver]
   labels        = {
     job = "systemd-journal",
-{% for k, v in alloy_default_labels.items() %}
-    {{ k }} = "{{ v }}",
+{% for alloy_label_key, alloy_label_value in alloy_default_labels.items() %}
+    {{ alloy_label_key }} = "{{ alloy_label_value }}",
 {% endfor %}
   }
 }
 {% endif %}
 
-{% if alloy_extra_log_paths | length > 0 %}
+{% if alloy_extra_log_paths is defined and alloy_extra_log_paths | length > 0 %}
 // -------------------------------------------------------------------------
 // File-based log discovery (extra paths)
 // -------------------------------------------------------------------------
@@ -189,8 +200,8 @@ loki.process "json_pipeline" {
 
   stage.static_labels {
     values = {
-{% for k, v in alloy_default_labels.items() %}
-      {{ k }} = "{{ v }}",
+{% for alloy_label_key, alloy_label_value in alloy_default_labels.items() %}
+      {{ alloy_label_key }} = "{{ alloy_label_value }}",
 {% endfor %}
     }
   }
@@ -225,24 +236,10 @@ loki.process "json_pipeline" {
   // Attach static platform labels to every log entry
   stage.static_labels {
     values = {
-{% for k, v in alloy_default_labels.items() %}
-      {{ k }} = "{{ v }}",
+{% for alloy_label_key, alloy_label_value in alloy_default_labels.items() %}
+      {{ alloy_label_key }} = "{{ alloy_label_value }}",
 {% endfor %}
     }
   }
 {% endif %}
-}
-
-// -------------------------------------------------------------------------
-// Loki write endpoint
-// -------------------------------------------------------------------------
-loki.write "loki_endpoint" {
-  endpoint {
-    url = "{{ alloy_loki_url }}"
-  }
-  external_labels = {
-{% for k, v in alloy_default_labels.items() %}
-    {{ k }} = "{{ v }}",
-{% endfor %}
-  }
 }

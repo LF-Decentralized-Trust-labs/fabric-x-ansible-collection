@@ -281,6 +281,8 @@ Writes the datasource and dashboard provisioning files to the remote Grafana con
     prometheus_host: "prometheus-1.example.com"
     # Sets the shared fetched-artifacts root used by Grafana. Example: `/tmp/fabricx-artifacts`. Required when relying on it to derive paths for fetched TLS artifacts.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
+    # Sets the inventory host name of the Loki instance used by Grafana. Example: `loki-1.example.com`.
+    loki_host: "loki-1.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
     tasks_from: config/transfer

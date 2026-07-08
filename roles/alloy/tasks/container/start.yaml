@@ -4,27 +4,41 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Create Alloy data directory
+  ansible.builtin.file:
+    path: "{{ alloy_remote_data_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Set Alloy mandatory volumes
+  ansible.builtin.set_fact:
+    alloy_container_volumes:
+      - "{{ alloy_remote_config_dir }}:{{ alloy_container_config_dir }}:ro,z"
+      - "{{ alloy_remote_data_dir }}:{{ alloy_container_data_dir }}:z"
+
+- name: Add Docker socket volume
+  vars:
+    alloy_docker_socket: "{{ alloy_docker_host | regex_replace('^unix://', '') }}"
+    alloy_docker_socket_volume: "{{ alloy_docker_socket }}:/var/run/docker.sock:rw,z"
+  ansible.builtin.set_fact:
+    alloy_container_volumes: "{{ alloy_container_volumes + [alloy_docker_socket_volume] }}"
+  when:
+    - alloy_docker_host is defined
+    - alloy_docker_host | regex_search('^unix://') is not none
+
 - name: Start Alloy container
   vars:
     container_name: "{{ alloy_container_name }}"
-    container_image: "{{ alloy_image }}:{{ alloy_version }}"
+    container_image: "{{ alloy_image }}"
     container_run_as_host_user: true
     container_ports:
       - "{{ alloy_http_port }}:{{ alloy_http_port }}"
-    alloy_docker_socket_volume: >-
-      {{
-        [alloy_docker_socket + ':/var/run/docker.sock:rw,z']
-        if alloy_docker_logs_enabled and ((alloy_docker_host | regex_search('^unix://')) is not none)
-        else []
-      }}
-    container_volumes: >-
-      {{
-        [
-          alloy_config_dir + '/config.alloy:/etc/alloy/config.alloy:ro,z',
-          alloy_data_dir + ':/var/lib/alloy:z'
-        ] + alloy_docker_socket_volume
-      }}
-    container_command: "run --server.http.listen-addr=0.0.0.0:{{ alloy_http_port }} --storage.path=/var/lib/alloy /etc/alloy/config.alloy"
+    container_volumes: "{{ alloy_container_volumes }}"
+    container_command: >-
+      run
+      --server.http.listen-addr=0.0.0.0:{{ alloy_http_port }}
+      --storage.path={{ alloy_container_data_dir }}
+      {{ alloy_container_config_dir }}/config.alloy
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: start

@@ -257,7 +257,6 @@
         tasks_from: config/transfer
       when:
         - grafana_web_port is defined
-
     # =========================
     # Loki
     # =========================
@@ -267,7 +266,6 @@
         tasks_from: config/transfer
       when:
         - loki_port is defined
-
     # =========================
     # Alloy
     # =========================
@@ -278,7 +276,6 @@
         tasks_from: config/transfer
       when:
         - alloy_http_port is defined
-
     # =========================
     # Jaeger
     # =========================

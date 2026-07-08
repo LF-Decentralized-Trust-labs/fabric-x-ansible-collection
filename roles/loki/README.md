@@ -11,13 +11,20 @@
   - [start](#start)
   - [stop](#stop)
   - [teardown](#teardown)
+  - [wipe](#wipe)
   - [container/start](#containerstart)
+  - [container/stop](#containerstop)
+  - [container/rm](#containerrm)
+  - [data/rm](#datarm)
+  - [config/transfer](#configtransfer)
+  - [config/rm](#configrm)
   - [k8s/start](#k8sstart)
   - [k8s/rm](#k8srm)
+  - [k8s/config/transfer](#k8sconfigtransfer)
+  - [k8s/config/rm](#k8sconfigrm)
+  - [k8s/data/rm](#k8sdatarm)
   - [openshift/start](#openshiftstart)
   - [openshift/rm](#openshiftrm)
-  - [config/transfer](#configtransfer)
-  - [config/transfer\_grafana\_datasource](#configtransfer_grafana_datasource)
 
 ## Role Defaults
 
@@ -62,8 +69,6 @@ Stops the Loki container. No-op for Kubernetes/OpenShift deployments.
 ```yaml
 - name: Stop Loki
   vars:
-    # Name of the Loki container.
-    loki_container_name: loki
     # Deploy Loki as a local container. Automatically true when neither loki_use_k8s nor loki_use_openshift is set.
     loki_use_container: "{{ (not loki_use_k8s) and (not loki_use_openshift) }}"
     # Deploy Loki on Kubernetes.
@@ -79,19 +84,11 @@ Stops the Loki container. No-op for Kubernetes/OpenShift deployments.
 
 > Teardown Loki
 
-Removes the Loki workload and all config/data directories.
+Removes the Loki container, Kubernetes/OpenShift workload, and data directory.
 
 ```yaml
 - name: Teardown Loki
   vars:
-    # Name of the Loki container.
-    loki_container_name: loki
-    # Directory for Loki configuration files on the remote host.
-    loki_config_dir: "{{ remote_deploy_dir }}/loki/config"
-    # Directory for Loki data on the remote host.
-    loki_data_dir: "{{ remote_deploy_dir }}/loki/data"
-    # Base deployment root directory on the remote host under which per-component config/data directories are created.
-    remote_deploy_dir: "string"
     # Deploy Loki as a local container. Automatically true when neither loki_use_k8s nor loki_use_openshift is set.
     loki_use_container: "{{ (not loki_use_k8s) and (not loki_use_openshift) }}"
     # Deploy Loki on Kubernetes.
@@ -103,11 +100,24 @@ Removes the Loki workload and all config/data directories.
     tasks_from: teardown
 ```
 
+### wipe
+
+> Wipe Loki configuration
+
+Removes the Loki configuration directory. Intended to be called explicitly, not as part of routine teardown.
+
+```yaml
+- name: Wipe Loki configuration
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: wipe
+```
+
 ### container/start
 
 > Start Loki container
 
-Starts the Loki container via hyperledger.fabricx.container.
+Creates the Loki data directory and starts the Loki container via hyperledger.fabricx.container.
 
 ```yaml
 - name: Start Loki container
@@ -131,107 +141,66 @@ Starts the Loki container via hyperledger.fabricx.container.
     tasks_from: container/start
 ```
 
-### k8s/start
+### container/stop
 
-> Deploy Loki on Kubernetes
+> Stop Loki container
 
-Creates PVC, ConfigMap, Deployment, and Service for Loki on Kubernetes. Uses the shared `k8s_namespace` inventory variable for the target namespace.
+Stops the Loki container via hyperledger.fabricx.container.
 
 ```yaml
-- name: Deploy Loki on Kubernetes
+- name: Stop Loki container
   vars:
     # Name of the Loki container.
     loki_container_name: loki
-    # Container image name for Grafana Loki.
-    loki_image: grafana/loki
-    # Image tag for Grafana Loki. Example: `3.4.2`
-    loki_version: 3.4.2
-    # Port Loki listens on.
-    loki_port: 3100
-    # PersistentVolumeClaim size for Loki storage on Kubernetes/OpenShift.
-    loki_pvc_size: 50Gi
-    # StorageClass name for the Loki PVC. Leave empty to use the cluster default. Example: `ibmc-file`
-    loki_storage_class: ""
-    # Seconds to wait for the Loki Deployment to become Available on Kubernetes/OpenShift.
-    loki_k8s_wait_timeout: 120
-    # Directory for Loki configuration files on the remote host.
-    loki_config_dir: "{{ remote_deploy_dir }}/loki/config"
-    # Target Kubernetes/OpenShift namespace for this host's resources.
-    k8s_namespace: "string"
+    # Deploy Loki as a local container. Automatically true when neither loki_use_k8s nor loki_use_openshift is set.
+    loki_use_container: "{{ (not loki_use_k8s) and (not loki_use_openshift) }}"
+    # Deploy Loki on Kubernetes.
+    loki_use_k8s: false
+    # Deploy Loki on OpenShift.
+    loki_use_openshift: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: container/stop
+```
+
+### container/rm
+
+> Remove Loki container
+
+Removes the Loki container via hyperledger.fabricx.container.
+
+```yaml
+- name: Remove Loki container
+  vars:
+    # Name of the Loki container.
+    loki_container_name: loki
+    # Deploy Loki as a local container. Automatically true when neither loki_use_k8s nor loki_use_openshift is set.
+    loki_use_container: "{{ (not loki_use_k8s) and (not loki_use_openshift) }}"
+    # Deploy Loki on Kubernetes.
+    loki_use_k8s: false
+    # Deploy Loki on OpenShift.
+    loki_use_openshift: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: container/rm
+```
+
+### data/rm
+
+> Remove Loki data directory
+
+Deletes the Loki data directory from the remote host.
+
+```yaml
+- name: Remove Loki data directory
+  vars:
+    # Directory for Loki data on the remote host.
+    loki_data_dir: "{{ remote_deploy_dir }}/loki/data"
     # Base deployment root directory on the remote host under which per-component config/data directories are created.
     remote_deploy_dir: "string"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loki
-    tasks_from: k8s/start
-```
-
-### k8s/rm
-
-> Remove Loki Kubernetes workload
-
-Deletes the Loki Deployment, Service, ConfigMap, and PVC from Kubernetes. Uses the shared `k8s_namespace` inventory variable for the target namespace.
-
-```yaml
-- name: Remove Loki Kubernetes workload
-  vars:
-    # Name of the Loki container.
-    loki_container_name: loki
-    # Target Kubernetes/OpenShift namespace for this host's resources.
-    k8s_namespace: "string"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.loki
-    tasks_from: k8s/rm
-```
-
-### openshift/start
-
-> Deploy Loki on OpenShift
-
-Creates PVC, ConfigMap, Deployment, and Service for Loki on OpenShift. Uses the shared `k8s_namespace` inventory variable for the target namespace.
-
-```yaml
-- name: Deploy Loki on OpenShift
-  vars:
-    # Name of the Loki container.
-    loki_container_name: loki
-    # Container image name for Grafana Loki.
-    loki_image: grafana/loki
-    # Image tag for Grafana Loki. Example: `3.4.2`
-    loki_version: 3.4.2
-    # Port Loki listens on.
-    loki_port: 3100
-    # PersistentVolumeClaim size for Loki storage on Kubernetes/OpenShift.
-    loki_pvc_size: 50Gi
-    # StorageClass name for the Loki PVC. Leave empty to use the cluster default. Example: `ibmc-file`
-    loki_storage_class: ""
-    # Seconds to wait for the Loki Deployment to become Available on Kubernetes/OpenShift.
-    loki_k8s_wait_timeout: 120
-    # Filesystem group used by the Loki pod security context for writable mounted volumes.
-    loki_k8s_fs_group: 10001
-    # Directory for Loki configuration files on the remote host.
-    loki_config_dir: "{{ remote_deploy_dir }}/loki/config"
-    # Target Kubernetes/OpenShift namespace for this host's resources.
-    k8s_namespace: "string"
-    # Path to the kubeconfig file used to authenticate to the OpenShift cluster.
-    loki_kubeconfig: "string"
-    # Base deployment root directory on the remote host under which per-component config/data directories are created.
-    remote_deploy_dir: "string"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.loki
-    tasks_from: openshift/start
-```
-
-### openshift/rm
-
-> Remove Loki OpenShift workload
-
-Deletes the Loki Deployment, Service, ConfigMap, and PVC from OpenShift. Uses the shared `k8s_namespace` inventory variable for the target namespace.
-
-```yaml
-- name: Remove Loki OpenShift workload
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.loki
-    tasks_from: openshift/rm
+    tasks_from: data/rm
 ```
 
 ### config/transfer
@@ -247,8 +216,6 @@ Renders and uploads the Loki config file to the remote host.
     remote_deploy_dir: "string"
     # Directory for Loki configuration files on the remote host.
     loki_config_dir: "{{ remote_deploy_dir }}/loki/config"
-    # Directory for Loki data on the remote host.
-    loki_data_dir: "{{ remote_deploy_dir }}/loki/data"
     # Port Loki listens on.
     loki_port: 3100
     # Log retention period. Default is 31 days. Example: `744h`
@@ -264,30 +231,158 @@ Renders and uploads the Loki config file to the remote host.
     tasks_from: config/transfer
 ```
 
-### config/transfer_grafana_datasource
+### config/rm
 
-> Transfer Loki Grafana datasource
+> Remove Loki configuration directory
 
-Drops a Loki datasource provisioning file into Grafana's datasources directory.
+Deletes the Loki configuration directory from the remote host.
 
 ```yaml
-- name: Transfer Loki Grafana datasource
+- name: Remove Loki configuration directory
   vars:
-    # Filename for the provisioned Loki datasource dropped into Grafana's datasources directory.
-    grafana_datasource_file: "string"
-    # Kubernetes resource name of the Grafana Deployment/ConfigMap, used when provisioning the datasource via the API/ConfigMap instead of a local file.
-    grafana_k8s_resource_name: "string"
-    # Directory on the remote host where Grafana provisioning files are read from.
-    grafana_remote_config_dir: "string"
-    # Whether the target Grafana instance is deployed on Kubernetes.
-    grafana_use_k8s: false
-    # Whether the target Grafana instance is deployed on OpenShift.
-    grafana_use_openshift: false
-    # Target Kubernetes/OpenShift namespace for this host's resources.
-    k8s_namespace: "string"
+    # Directory for Loki configuration files on the remote host.
+    loki_config_dir: "{{ remote_deploy_dir }}/loki/config"
     # Base deployment root directory on the remote host under which per-component config/data directories are created.
     remote_deploy_dir: "string"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loki
-    tasks_from: config/transfer_grafana_datasource
+    tasks_from: config/rm
+```
+
+### k8s/start
+
+> Deploy Loki on Kubernetes
+
+Applies the ConfigMap, a headless Service, and a StatefulSet (with a PVC via volumeClaimTemplates) for Loki on Kubernetes. Uses the shared `k8s_namespace` inventory variable for the target namespace.
+
+```yaml
+- name: Deploy Loki on Kubernetes
+  vars:
+    # Name of the Loki container.
+    loki_container_name: loki
+    # Port Loki listens on.
+    loki_port: 3100
+    # Seconds to wait for the Loki StatefulSet to become ready on Kubernetes/OpenShift.
+    loki_k8s_wait_timeout: 120
+    # Target Kubernetes/OpenShift namespace for this host's resources.
+    k8s_namespace: "string"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: k8s/start
+```
+
+### k8s/rm
+
+> Remove Loki Kubernetes workload
+
+Deletes the Loki StatefulSet, Service, and ConfigMap from Kubernetes. When `loki_wipe` is true, also deletes the underlying PersistentVolumeClaim. Uses the shared `k8s_namespace` inventory variable for the target namespace.
+
+```yaml
+- name: Remove Loki Kubernetes workload
+  vars:
+    # Name of the Loki container.
+    loki_container_name: loki
+    # When true, also removes the Loki PersistentVolumeClaim during k8s/rm.
+    loki_wipe: false
+    # Target Kubernetes/OpenShift namespace for this host's resources.
+    k8s_namespace: "string"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: k8s/rm
+```
+
+### k8s/config/transfer
+
+> Apply Loki ConfigMap
+
+Applies the Loki ConfigMap on Kubernetes/OpenShift.
+
+```yaml
+- name: Apply Loki ConfigMap
+  vars:
+    # Name of the Loki container.
+    loki_container_name: loki
+    # Directory for Loki configuration files on the remote host.
+    loki_config_dir: "{{ remote_deploy_dir }}/loki/config"
+    # Base deployment root directory on the remote host under which per-component config/data directories are created.
+    remote_deploy_dir: "string"
+    # Target Kubernetes/OpenShift namespace for this host's resources.
+    k8s_namespace: "string"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: k8s/config/transfer
+```
+
+### k8s/config/rm
+
+> Remove Loki ConfigMap
+
+Deletes the Loki ConfigMap from Kubernetes/OpenShift.
+
+```yaml
+- name: Remove Loki ConfigMap
+  vars:
+    # Name of the Loki container.
+    loki_container_name: loki
+    # Target Kubernetes/OpenShift namespace for this host's resources.
+    k8s_namespace: "string"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: k8s/config/rm
+```
+
+### k8s/data/rm
+
+> Remove Loki PersistentVolumeClaim
+
+Deletes the Loki PersistentVolumeClaim from Kubernetes/OpenShift.
+
+```yaml
+- name: Remove Loki PersistentVolumeClaim
+  vars:
+    # Name of the Loki container.
+    loki_container_name: loki
+    # Target Kubernetes/OpenShift namespace for this host's resources.
+    k8s_namespace: "string"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: k8s/data/rm
+```
+
+### openshift/start
+
+> Deploy Loki on OpenShift
+
+Delegates to k8s/start against an OpenShift-authenticated client context. Optionally exposes Loki's HTTP endpoint via an OpenShift Route when `loki_openshift_route` is set. Uses the shared `k8s_namespace` inventory variable for the target namespace.
+
+```yaml
+- name: Deploy Loki on OpenShift
+  vars:
+    # Hostname for the OpenShift Route exposing Loki's HTTP endpoint. When omitted, no Route is created.
+    loki_openshift_route: "string"
+    # Whether Loki serves HTTPS. Also controls the Loki Grafana datasource URL scheme and the OpenShift Route TLS setting.
+    loki_use_tls: false
+    # Name of the Loki container.
+    loki_container_name: loki
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: openshift/start
+```
+
+### openshift/rm
+
+> Remove Loki OpenShift workload
+
+Deletes the Loki OpenShift Route (if configured), then delegates to k8s/rm. Uses the shared `k8s_namespace` inventory variable for the target namespace.
+
+```yaml
+- name: Remove Loki OpenShift workload
+  vars:
+    # Hostname for the OpenShift Route exposing Loki's HTTP endpoint. When omitted, no Route is created.
+    loki_openshift_route: "string"
+    # Name of the Loki container.
+    loki_container_name: loki
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: openshift/rm
 ```

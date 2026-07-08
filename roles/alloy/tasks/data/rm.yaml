@@ -6,5 +6,5 @@
 
 - name: Remove Alloy data directory
   ansible.builtin.file:
-    path: "{{ alloy_data_dir }}"
+    path: "{{ alloy_remote_data_dir }}"
     state: absent

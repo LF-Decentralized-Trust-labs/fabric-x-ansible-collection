@@ -14,4 +14,4 @@ metadata:
     app.kubernetes.io/part-of: "{{ alloy_k8s_part_of }}"
 data:
   config.alloy: |
-{{ lookup('file', alloy_config_dir + '/config.alloy') | indent(4, first=True) }}
+{{ lookup('file', alloy_remote_config_dir + '/config.alloy') | indent(4, first=True) }}
