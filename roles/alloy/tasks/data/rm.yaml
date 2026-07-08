@@ -8,3 +8,5 @@
   ansible.builtin.file:
     path: "{{ alloy_remote_data_dir }}"
     state: absent
+  when:
+    - alloy_use_container is defined
