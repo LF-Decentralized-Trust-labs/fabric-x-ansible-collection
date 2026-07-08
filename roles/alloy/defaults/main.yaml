@@ -54,10 +54,9 @@ alloy_k8s_wait_timeout: 120
 alloy_k8s_fs_group: 1000
 # Use cluster-scoped RBAC for Alloy pod discovery.
 # Set to C(false) when Alloy only collects logs from C(alloy_k8s_namespaces) and the deployment user cannot create ClusterRoles.
+# Use cluster-scoped RBAC for Alloy pod discovery.
+# Set to C(false) when Alloy only collects logs from C(alloy_k8s_namespaces) and the deployment user cannot create ClusterRoles.
 alloy_k8s_cluster_scope: true
-# Grafana Alloy — log collector agent
-alloy:
-  container_client: "{{ lookup('env', 'CONTAINER_CLIENT') or 'docker' }}"
 alloy_docker_socket: >-
   {{
     '/run/user/' ~ ansible_facts.user_uid ~ '/podman/podman.sock'
@@ -65,5 +64,3 @@ alloy_docker_socket: >-
       else lookup('env', 'DOCKER_HOST')
   }}
 alloy_loki_url: "http://{{ hostvars[loki_host].ansible_host | default(loki_host) }}:{{ hostvars[loki_host].loki_port | default(3100) }}/loki/api/v1/push"
-
-

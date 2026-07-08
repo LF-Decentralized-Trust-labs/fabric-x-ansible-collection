@@ -22,7 +22,7 @@
 
 - name: Delete Alloy configuration (ConfigMap)
   ansible.builtin.include_tasks: k8s/config/rm.yaml
-  
+
 - name: Delete Alloy RBAC resources
   kubernetes.core.k8s:
     state: absent

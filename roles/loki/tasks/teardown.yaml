@@ -33,5 +33,3 @@
     name: hyperledger.fabricx.loki
     tasks_from: k8s/data/rm
   when: loki_use_k8s
-
-  

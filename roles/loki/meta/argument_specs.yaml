@@ -247,7 +247,7 @@ argument_specs:
       loki_ingestion_rate_mb: *loki_ingestion_rate_mb
       loki_ingestion_burst_size_mb: *loki_ingestion_burst_size_mb
       loki_replication_factor: *loki_replication_factor
-  
+
   config/rm:
     short_description: Remove Loki configuration
     description:
