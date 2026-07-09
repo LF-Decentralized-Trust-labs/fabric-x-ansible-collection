@@ -17,7 +17,7 @@ The diagram below summarizes this inventory's Fabric-X services and how they fit
 
 ## Inventory Details
 
-Fabric CA, CA databases, orderer, committer, YugabyteDB, load generator, node exporter, Prometheus, and Grafana use Kubernetes task paths. YugabyteDB master and tablet webserver ports are exposed through fixed NodePorts for inspection.
+Fabric CA, CA databases, orderer, committer, YugabyteDB, load generator, node exporter, Prometheus, Grafana, Loki, and Alloy use Kubernetes task paths. YugabyteDB master and tablet webserver ports are exposed through fixed NodePorts for inspection.
 
 This inventory deploys these logical services as Kubernetes workloads and services:
 
@@ -26,7 +26,7 @@ This inventory deploys these logical services as Kubernetes workloads and servic
 - 1 committer with validator, verifier, coordinator, sidecar, and query service.
 - 1 YugabyteDB master and 1 YugabyteDB tablet in cluster `1`.
 - 1 load generator.
-- Monitoring with node exporter, Prometheus, and Grafana.
+- Monitoring with node exporter, Prometheus, Grafana, Loki, and Alloy.
 
 > [!NOTE]
 > You can scale YugabyteDB for stronger performance by adding more master and tablet hosts. See the [distributed Fabric-X inventory](../distributed/fabric-x.md) for a larger topology with replicated YugabyteDB masters and tablets.
@@ -38,6 +38,13 @@ flowchart TD
   network --> fabric_x
   all --> load_generators
   all --> monitoring
+  monitoring --> prometheus
+  monitoring --> grafana
+  monitoring --> loki
+  monitoring --> alloy
+  grafana --> prometheus
+  grafana --> loki
+  alloy --> loki
   fabric_cas --> fabric_ca_servers
   fabric_cas --> fabric_ca_dbs
   fabric_x --> fabric_x_orderers

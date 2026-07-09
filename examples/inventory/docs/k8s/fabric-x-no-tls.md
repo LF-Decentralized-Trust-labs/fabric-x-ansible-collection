@@ -20,7 +20,7 @@ The diagram below summarizes this inventory's Fabric-X services and how they fit
 
 ## Inventory Details
 
-Fabric CA, CA databases, orderer, committer, PostgreSQL, load generator, node exporter, Prometheus, and Grafana use Kubernetes task paths. External access follows the same NodePort pattern as [`fabric-x.yaml`](./fabric-x.md).
+Fabric CA, CA databases, orderer, committer, PostgreSQL, load generator, node exporter, Prometheus, Grafana, Loki, and Alloy use Kubernetes task paths. External access follows the same NodePort pattern as [`fabric-x.yaml`](./fabric-x.md).
 
 This inventory deploys the same service layout as the default Kubernetes sample:
 
@@ -28,7 +28,7 @@ This inventory deploys the same service layout as the default Kubernetes sample:
 - 4 orderer groups. Each group has 1 router, 1 consenter, 1 assembler, and 1 batcher.
 - 1 committer with validator, verifier, coordinator, sidecar, query service, and PostgreSQL storage.
 - 1 load generator.
-- Monitoring with node exporter, PostgreSQL exporter, Prometheus, and Grafana.
+- Monitoring with node exporter, PostgreSQL exporter, Prometheus, Grafana, Loki, and Alloy.
 
 ```mermaid
 flowchart TD
@@ -37,6 +37,13 @@ flowchart TD
   network --> fabric_x
   all --> load_generators
   all --> monitoring
+  monitoring --> prometheus
+  monitoring --> grafana
+  monitoring --> loki
+  monitoring --> alloy
+  grafana --> prometheus
+  grafana --> loki
+  alloy --> loki
   fabric_cas --> fabric_ca_servers
   fabric_cas --> fabric_ca_dbs
   fabric_x --> fabric_x_orderers

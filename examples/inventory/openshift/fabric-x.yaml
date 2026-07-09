@@ -363,6 +363,18 @@ all:
           grafana_password: adminPWD
           grafana_web_port: 3000
           prometheus_host: prometheus
+          loki_host: loki
           grafana_use_tls: true
           grafana_use_openshift: true
           grafana_openshift_route: "grafana.{{ openshift_apps_domain }}"
+        loki:
+          loki_port: 9200
+          loki_use_tls: true
+          loki_use_openshift: true
+          loki_openshift_route: "loki.{{ openshift_apps_domain }}"
+        alloy:
+          alloy_port: 9300
+          alloy_use_tls: true
+          alloy_use_openshift: true
+          alloy_openshift_route: "alloy.{{ openshift_apps_domain }}"
+          loki_host: loki

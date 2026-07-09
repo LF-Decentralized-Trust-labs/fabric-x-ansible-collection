@@ -20,7 +20,7 @@ The diagram below summarizes this inventory's Fabric-X services and how they fit
 
 ## Inventory Details
 
-Orderer, committer, PostgreSQL, load generator, node exporter, Prometheus, and Grafana use Kubernetes task paths. `cryptogen` runs on the control node and writes artifacts below `cryptogen_artifacts_dir`.
+Orderer, committer, PostgreSQL, load generator, node exporter, Prometheus, Grafana, Loki, and Alloy use Kubernetes task paths. `cryptogen` runs on the control node and writes artifacts below `cryptogen_artifacts_dir`.
 
 This inventory deploys these logical services as Kubernetes workloads and services:
 
@@ -28,7 +28,7 @@ This inventory deploys these logical services as Kubernetes workloads and servic
 - 4 orderer groups. Each group has 1 router, 1 consenter, 1 assembler, and 1 batcher.
 - 1 committer with validator, verifier, coordinator, sidecar, query service, and PostgreSQL storage.
 - 1 load generator.
-- Monitoring with node exporter, PostgreSQL exporter, Prometheus, and Grafana.
+- Monitoring with node exporter, PostgreSQL exporter, Prometheus, Grafana, Loki, and Alloy.
 
 ```mermaid
 flowchart TD
@@ -36,6 +36,13 @@ flowchart TD
   network --> fabric_x
   all --> load_generators
   all --> monitoring
+  monitoring --> prometheus
+  monitoring --> grafana
+  monitoring --> loki
+  monitoring --> alloy
+  grafana --> prometheus
+  grafana --> loki
+  alloy --> loki
   fabric_x --> fabric_x_orderers
   fabric_x --> fabric_x_committers
   fabric_x_committers --> fabric_x_committer

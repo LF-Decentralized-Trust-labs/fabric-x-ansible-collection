@@ -28,7 +28,7 @@ If you are new to Fabric-X, read an inventory as a map of services:
 | Orderer        | Router, batcher, consenter, and assembler services.                 |
 | Committer      | Validator, verifier, coordinator, sidecar, query service, and a DB. |
 | Load generator | A client process that submits test traffic.                         |
-| Monitoring     | Exporters, Prometheus, and Grafana.                                 |
+| Monitoring     | Exporters, Prometheus, Grafana, Loki, and Alloy.                    |
 
 Fabric-X keeps the Fabric governance and identity model, but decomposes the ordering and peer-side work into independently scalable services. Fabric-X currently supports a single channel, and state is partitioned across namespaces within that channel.
 
@@ -100,6 +100,8 @@ flowchart TB
 
   PROM[Prometheus]
   GRAF[Grafana]
+  LOKI[Loki]
+  ALLOY[Alloy]
 
   LG -->|submits transactions| R1
   LG --> R2
@@ -118,6 +120,11 @@ flowchart TB
   PROM -.->|scrapes metrics| ORDS
   PROM -.->|scrapes metrics| COM
   GRAF -->|shows metrics| PROM
+  ALLOY -.->|collects logs| LG
+  ALLOY -.->|collects logs| ORDS
+  ALLOY -.->|collects logs| COM
+  ALLOY -->|forwards logs| LOKI
+  GRAF -->|shows logs| LOKI
 ```
 
 Inventories differ mostly in runtime mode, security settings, crypto source, and database backend.

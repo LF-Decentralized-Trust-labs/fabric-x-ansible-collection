@@ -342,7 +342,9 @@ all:
           loki_host: loki
           grafana_use_tls: true
         loki:
-          loki_port: 3100
+          loki_port: 9200
+          loki_use_tls: true
         alloy:
-          alloy_port: 12345
+          alloy_port: 9300
+          alloy_use_tls: true
           loki_host: loki

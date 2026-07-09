@@ -75,13 +75,20 @@ The most important groups are:
 | `fabric_x_committers` | Parent group for one or more Fabric-X committer deployments.               |
 | `fabric_x_committer`  | The default Fabric-X committer deployment and selected committer database. |
 | `load_generators`     | Load generator instances.                                                  |
-| `monitoring`          | Monitoring components such as exporters, Prometheus, and Grafana.          |
+| `monitoring`          | Monitoring components such as exporters, Prometheus, Grafana, Loki, and Alloy. |
 
 ```mermaid
 graph TD
     all --> network
     all --> load_generators
     all --> monitoring
+    monitoring --> prometheus
+    monitoring --> grafana
+    monitoring --> loki
+    monitoring --> alloy
+    grafana --> prometheus
+    grafana --> loki
+    alloy --> loki
     network --> fabric_cas
     network --> fabric_x
     fabric_x --> fabric_x_orderers
