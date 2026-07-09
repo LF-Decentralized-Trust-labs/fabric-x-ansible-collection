@@ -35,14 +35,14 @@
       when:
         - prometheus_port is defined
     # =========================
-    # Grafana
+    # Loki
     # =========================
-    - name: Start the Grafana service
+    - name: Start the Loki service
       ansible.builtin.include_role:
-        name: hyperledger.fabricx.grafana
+        name: hyperledger.fabricx.loki
         tasks_from: start
       when:
-        - grafana_web_port is defined
+        - loki_port is defined
     # =========================
     # Alloy
     # =========================
@@ -53,14 +53,14 @@
       when:
         - alloy_port is defined
     # =========================
-    # Loki
+    # Grafana
     # =========================
-    - name: Start the Loki service
+    - name: Start the Grafana service
       ansible.builtin.include_role:
-        name: hyperledger.fabricx.loki
+        name: hyperledger.fabricx.grafana
         tasks_from: start
       when:
-        - loki_port is defined
+        - grafana_web_port is defined
     # =========================
     # ElasticSearch
     # =========================

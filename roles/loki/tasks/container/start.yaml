@@ -21,6 +21,16 @@
       - "{{ loki_remote_config_dir }}:{{ loki_container_config_dir }}:ro,z"
       - "{{ loki_remote_data_dir }}:{{ loki_container_data_dir }}:z"
     container_command: "-config.file={{ loki_container_config_dir }}/config.yaml"
+    # `grafana/loki` ships BusyBox wget/nc but no curl. BusyBox wget is unreliable
+    # over TLS (docker-library/busybox#162), so fall back to a TCP check when TLS is on:
+    container_healthcheck_test: >-
+      {% if loki_use_tls %}
+      nc -z -w 3 localhost {{ loki_port }}
+      {% else %}
+      wget -q --spider http://localhost:{{ loki_port }}/ready
+      {% endif %}
+    container_wait_until_running: true
+    container_wait_port: "{{ loki_port }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: start

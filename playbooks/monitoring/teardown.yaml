@@ -35,15 +35,6 @@
       when:
         - grafana_web_port is defined
     # =========================
-    # Prometheus
-    # =========================
-    - name: Teardown Prometheus
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.prometheus
-        tasks_from: teardown
-      when:
-        - prometheus_port is defined
-    # =========================
     # Alloy
     # =========================
     - name: Teardown Alloy
@@ -61,6 +52,15 @@
         tasks_from: teardown
       when:
         - loki_port is defined
+    # =========================
+    # Prometheus
+    # =========================
+    - name: Teardown Prometheus
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.prometheus
+        tasks_from: teardown
+      when:
+        - prometheus_port is defined
     # =========================
     # Postgres Exporter
     # =========================

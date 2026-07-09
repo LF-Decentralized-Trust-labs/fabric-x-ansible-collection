@@ -39,6 +39,17 @@
       --server.http.listen-addr=0.0.0.0:{{ alloy_port }}
       --storage.path={{ alloy_container_data_dir }}
       {{ alloy_container_config_dir }}/config.alloy
+    # `grafana/alloy` (Ubuntu-minimal) has no curl/wget/nc — only bash. Use a
+    # /dev/tcp HTTP probe for plain HTTP; TLS can't be checked with the available
+    # tools, so fall back to a no-op healthcheck when TLS is enabled.
+    container_healthcheck_test: >-
+      {% if alloy_use_tls %}
+      true
+      {% else %}
+      bash -c 'exec 42<>/dev/tcp/localhost/{{ alloy_port }}; echo -e "GET /-/healthy HTTP/1.1\nHost: localhost\nConnection: close\n\n" >&42; head -1 <&42 | cut -d" " -f2 | grep -q "^200$" || exit 1; exec 42<&-; exec 42>&-'
+      {% endif %}
+    container_wait_until_running: true
+    container_wait_port: "{{ alloy_port }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: start
