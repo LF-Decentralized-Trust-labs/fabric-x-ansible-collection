@@ -274,6 +274,7 @@ argument_specs:
       alloy_use_container: *alloy_use_container
       alloy_use_k8s: *alloy_use_k8s
       alloy_use_openshift: *alloy_use_openshift
+      alloy_use_tls: *alloy_use_tls
       remote_config_dir: *remote_config_dir
       remote_data_dir: *remote_data_dir
 

@@ -249,6 +249,7 @@ argument_specs:
       loki_container_config_dir: *loki_container_config_dir
       loki_remote_data_dir: *loki_remote_data_dir
       loki_container_data_dir: *loki_container_data_dir
+      loki_use_tls: *loki_use_tls
       remote_deploy_dir: *remote_deploy_dir
 
   container/stop:

@@ -10,23 +10,21 @@
     state: directory
     mode: "0o755"
 
-- name: Ensure the TLS directory for ElasticSearch CA cert exists
-  ansible.builtin.file:
-    path: "{{ jaeger_remote_config_dir }}/tls/{{ elasticsearch_host }}"
-    state: directory
-    mode: "0o755"
+- name: Transfer the ElasticSearch TLS CA certificate
   when:
     - hostvars[elasticsearch_host].elasticsearch_use_tls is defined
     - hostvars[elasticsearch_host].elasticsearch_use_tls
-
-- name: Copy the ElasticSearch TLS CA certificate
-  ansible.builtin.copy:
-    src: "{{ fetched_artifacts_dir }}/{{ elasticsearch_host }}/tls/ca.crt"
-    dest: "{{ jaeger_remote_config_dir }}/tls/{{ elasticsearch_host }}/ca.crt"
-    mode: preserve
-  when:
-    - hostvars[elasticsearch_host].elasticsearch_use_tls is defined
-    - hostvars[elasticsearch_host].elasticsearch_use_tls
+  block:
+    - name: Ensure the TLS directory for ElasticSearch CA cert exists
+      ansible.builtin.file:
+        path: "{{ jaeger_remote_config_dir }}/tls/{{ elasticsearch_host }}"
+        state: directory
+        mode: "0o755"
+    - name: Copy the ElasticSearch TLS CA certificate
+      ansible.builtin.copy:
+        src: "{{ fetched_artifacts_dir }}/{{ elasticsearch_host }}/tls/ca.crt"
+        dest: "{{ jaeger_remote_config_dir }}/tls/{{ elasticsearch_host }}/ca.crt"
+        mode: preserve
 
 - name: Transfer Jaeger Kubernetes ConfigMap
   ansible.builtin.include_role:

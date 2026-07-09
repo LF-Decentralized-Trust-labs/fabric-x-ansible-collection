@@ -4,25 +4,22 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure TLS CA certificate folder exists
-  ansible.builtin.file:
-    path: "{{ committer_remote_config_dir }}/tlscacerts"
-    state: directory
-    mode: "0o755"
+- name: Transfer TLS CA certificate of Fabric CA
   when:
     - committer_use_tls
     - hostvars[organization.fabric_ca_host].fabric_ca_use_tls is defined
     - hostvars[organization.fabric_ca_host].fabric_ca_use_tls
-
-- name: Copy TLS CA certificate of Fabric CA
-  ansible.builtin.copy:
-    src: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
-    dest: "{{ committer_remote_config_dir }}/tlscacerts"
-    mode: "preserve"
-  when:
-    - committer_use_tls
-    - hostvars[organization.fabric_ca_host].fabric_ca_use_tls is defined
-    - hostvars[organization.fabric_ca_host].fabric_ca_use_tls
+  block:
+    - name: Ensure TLS CA certificate folder exists
+      ansible.builtin.file:
+        path: "{{ committer_remote_config_dir }}/tlscacerts"
+        state: directory
+        mode: "0o755"
+    - name: Copy TLS CA certificate of Fabric CA
+      ansible.builtin.copy:
+        src: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
+        dest: "{{ committer_remote_config_dir }}/tlscacerts"
+        mode: "preserve"
 
 # Only the sidecar component requires an MSP since it's the only Committer component
 # interfacing with the ordering service

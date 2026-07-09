@@ -147,6 +147,8 @@ Creates the Loki data directory and starts the Loki container via hyperledger.fa
     loki_remote_data_dir: "{{ remote_deploy_dir }}/loki/data"
     # Directory for Loki data and state files within the container.
     loki_container_data_dir: /loki
+    # Whether Loki serves HTTPS. Also controls the Loki Grafana datasource URL scheme and the OpenShift Route TLS setting.
+    loki_use_tls: false
     # Base deployment root directory on the remote host under which per-component config/data directories are created.
     remote_deploy_dir: "string"
   ansible.builtin.include_role:

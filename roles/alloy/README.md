@@ -156,6 +156,8 @@ Starts the Alloy container via hyperledger.fabricx.container, mounting config, d
     alloy_use_k8s: false
     # Deploy Alloy on OpenShift.
     alloy_use_openshift: false
+    # Enable HTTPS for Alloy's HTTP endpoint and TLS-aware Kubernetes/OpenShift probes.
+    alloy_use_tls: false
     # Remote configuration directory consumed by `alloy_remote_config_dir`.
     remote_config_dir: "string"
     # Remote data directory consumed by `alloy_remote_data_dir`.
