@@ -10,6 +10,7 @@
   - [go/build](#gobuild)
   - [go/install](#goinstall)
   - [map\_platform\_to\_host](#map_platform_to_host)
+  - [get\_bin\_services](#get_bin_services)
   - [transfer](#transfer)
   - [start](#start)
   - [stop](#stop)
@@ -115,6 +116,34 @@ Builds the `bin_platforms` fact by grouping target hosts that share the same ope
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: map_platform_to_host
+```
+
+### get_bin_services
+
+> Discover colocated binary service hosts
+
+Finds inventory hosts running long-lived services as binaries on the same physical host as `bin_host`. Sets `bin_service_hosts` to the matching inventory hostnames.
+
+```yaml
+- name: Discover colocated binary service hosts
+  vars:
+    # Host address used by `get_bin_services` to find colocated binary services.
+    bin_host: "{{ ansible_host }}"
+    # Inventory boolean flags treated as long-running binary services by `get_bin_services`.
+    bin_service_flags:
+      - orderer_use_bin
+      - committer_use_bin
+      - fabric_ca_server_use_bin
+      - loadgen_use_bin
+    # Maps each binary service flag to a host variable that must also be present for `get_bin_services` to treat the host as that service.
+    bin_service_marker_vars:
+      orderer_use_bin: orderer_rpc_port
+      committer_use_bin: committer_rpc_port
+      fabric_ca_server_use_bin: fabric_ca_port
+      loadgen_use_bin: loadgen_rpc_port
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: get_bin_services
 ```
 
 ### transfer

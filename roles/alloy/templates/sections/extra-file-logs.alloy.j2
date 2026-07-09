@@ -1,17 +1,20 @@
 // -------------------------------------------------------------------------
-// File-based log discovery (extra paths)
+// File-based binary service log discovery
 // -------------------------------------------------------------------------
 
-// Expands configured file globs into file targets for Alloy to tail.
+// Expands discovered binary service log files into file targets for Alloy to tail.
 local.file_match "extra_files" {
   path_targets = [
-{% for path in alloy_extra_log_paths %}
-    { "__path__" = "{{ path }}" },
+{% for service_name, log_path in alloy_bin_logs.items() %}
+    {
+      "__path__"     = "{{ log_path }}",
+      "service_name" = "{{ service_name }}",
+    },
 {% endfor %}
   ]
 }
 
-// Tails additional matched files and forwards their log entries to Loki.
+// Tails binary service log files and forwards their log entries to Loki.
 loki.source.file "extra_logs" {
   targets    = local.file_match.extra_files.targets
   forward_to = [loki.write.loki_endpoint.receiver]

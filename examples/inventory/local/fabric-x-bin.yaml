@@ -339,4 +339,10 @@ all:
           grafana_password: adminPWD
           grafana_web_port: 3000
           prometheus_host: prometheus
+          loki_host: loki
           grafana_use_tls: true
+        loki:
+          loki_port: 3100
+        alloy:
+          alloy_port: 12345
+          loki_host: loki

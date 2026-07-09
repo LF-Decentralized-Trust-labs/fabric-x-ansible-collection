@@ -13,6 +13,7 @@
   - [wipe](#wipe)
   - [container/start](#containerstart)
   - [container/rm](#containerrm)
+  - [get\_bin\_logs](#get_bin_logs)
   - [data/rm](#datarm)
   - [config/rm](#configrm)
   - [k8s/start](#k8sstart)
@@ -179,6 +180,19 @@ Removes the Alloy container via hyperledger.fabricx.container.
   ansible.builtin.include_role:
     name: hyperledger.fabricx.alloy
     tasks_from: container/rm
+```
+
+### get_bin_logs
+
+> Build Alloy binary log targets
+
+Discovers colocated binary service hosts and builds `alloy_bin_logs`, a mapping of service name to binary log path. Also sets `alloy_bin_log_dirs`, the unique host log directories Alloy must mount when running in container mode.
+
+```yaml
+- name: Build Alloy binary log targets
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.alloy
+    tasks_from: get_bin_logs
 ```
 
 ### data/rm
@@ -430,6 +444,8 @@ Renders and uploads the Alloy River configuration file to the remote host. Appli
     alloy_remote_config_dir: "{{ remote_config_dir }}"
     # Directory for Alloy configuration files within the container.
     alloy_container_config_dir: /etc/alloy
+    # Deploy Alloy as a local container. Automatically true when neither `alloy_use_k8s` nor `alloy_use_openshift` is set.
+    alloy_use_container: "{{ (not alloy_use_k8s) and (not alloy_use_openshift) }}"
     # Deploy Alloy on Kubernetes.
     alloy_use_k8s: false
     # Deploy Alloy on OpenShift.
@@ -443,9 +459,6 @@ Renders and uploads the Alloy River configuration file to the remote host. Appli
     # Labels attached to every log line collected by this Alloy instance.
     alloy_labels:
       host: "{{ ansible_host }}"
-    # Extra file paths (glob patterns accepted) to tail in addition to the defaults. Example: `['/var/log/app/*.log']`
-    alloy_extra_log_paths:
-      - "/var/log/app/*.log"
     # Optional Docker-compatible API endpoint Alloy uses for container log discovery. When omitted, the role discovers the local Docker or Podman socket. Example: `unix:///path/to/socket`.
     container_socket: "unix:///path/to/socket"
     # Regex matching Docker container names to exclude from log collection.

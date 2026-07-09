@@ -12,7 +12,7 @@ loki.write "loki_endpoint" {
     }
 {% endif %}
   }
-  
+
   // Attach platform labels to every log stream sent by this Alloy instance.
   // Example output: host="{{ ansible_host }}".
   external_labels = {

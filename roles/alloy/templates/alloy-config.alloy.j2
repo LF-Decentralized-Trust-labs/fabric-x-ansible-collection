@@ -14,7 +14,7 @@
 {% include './sections/kubernetes-logs.alloy.j2' %}
 {% else +%}
 {% include './sections/docker-logs.alloy.j2' %}
-{% if alloy_extra_log_paths is defined and alloy_extra_log_paths | length > 0 %}
+{% if alloy_bin_logs is defined and alloy_bin_logs | length > 0 %}
 {% include './sections/extra-file-logs.alloy.j2' %}
 {% endif %}
 {% endif %}

@@ -10,6 +10,13 @@
     state: directory
     mode: "0755"
 
+- name: Get Alloy binary logs
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.alloy
+    tasks_from: get_bin_logs
+  when:
+    - alloy_use_container
+
 - name: Transfer Loki TLS CA certificate
   when:
     - hostvars[loki_host].loki_use_tls is defined

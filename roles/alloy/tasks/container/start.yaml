@@ -29,6 +29,22 @@
   when:
     - container_socket_path | default('') | length > 0
 
+- name: Get Alloy binary logs
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.alloy
+    tasks_from: get_bin_logs
+
+- name: Add binary log volumes
+  vars:
+    current_alloy_bin_log_volume: "{{ current_bin_log_dir }}:{{ current_bin_log_dir }}:ro,z"
+  ansible.builtin.set_fact:
+    alloy_container_volumes: "{{ alloy_container_volumes + [current_alloy_bin_log_volume] }}"
+  loop: "{{ alloy_bin_log_dirs }}"
+  loop_control:
+    loop_var: current_bin_log_dir
+  when:
+    - alloy_bin_log_dirs | length > 0
+
 - name: Start Alloy container
   vars:
     container_name: "{{ alloy_container_name }}"

@@ -86,12 +86,6 @@ argument_specs:
           host: "{{ ansible_host }}"
         description:
           - "Labels attached to every log line collected by this Alloy instance."
-      alloy_extra_log_paths: &alloy_extra_log_paths
-        type: list
-        elements: str
-        description:
-          - "Extra file paths (glob patterns accepted) to tail in addition to the defaults."
-          - "Example: C(['/var/log/app/*.log'])"
       alloy_docker_exclude_container_regex:
         &alloy_docker_exclude_container_regex
         type: str
@@ -265,6 +259,13 @@ argument_specs:
     options:
       alloy_container_name: *alloy_container_name
 
+  get_bin_logs:
+    short_description: Build Alloy binary log targets
+    description:
+      - "Discovers colocated binary service hosts and builds C(alloy_bin_logs), a mapping of service name to binary log path."
+      - "Also sets C(alloy_bin_log_dirs), the unique host log directories Alloy must mount when running in container mode."
+    options: {}
+
   data/rm:
     short_description: Remove Alloy data
     description:
@@ -388,13 +389,13 @@ argument_specs:
     options:
       alloy_remote_config_dir: *alloy_remote_config_dir
       alloy_container_config_dir: *alloy_container_config_dir
+      alloy_use_container: *alloy_use_container
       alloy_use_k8s: *alloy_use_k8s
       alloy_use_openshift: *alloy_use_openshift
       alloy_use_tls: *alloy_use_tls
       alloy_tls_private_key_file: *alloy_tls_private_key_file
       alloy_tls_cert_file: *alloy_tls_cert_file
       alloy_labels: *alloy_labels
-      alloy_extra_log_paths: *alloy_extra_log_paths
       container_socket: *container_socket
       alloy_docker_exclude_container_regex: *alloy_docker_exclude_container_regex
       alloy_k8s_namespaces: *alloy_k8s_namespaces
