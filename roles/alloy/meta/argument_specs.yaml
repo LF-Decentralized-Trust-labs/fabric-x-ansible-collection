@@ -80,7 +80,7 @@ argument_specs:
           - "Optional Docker-compatible API endpoint Alloy uses for container log discovery."
           - "When omitted, the role discovers the local Docker or Podman socket."
           - "Example: C(unix:///path/to/socket)."
-      alloy_default_labels: &alloy_default_labels
+      alloy_labels: &alloy_labels
         type: dict
         default:
           host: "{{ ansible_host }}"
@@ -98,19 +98,6 @@ argument_specs:
         default: ""
         description:
           - "Regex matching Docker container names to exclude from log collection."
-      alloy_journal_logs_enabled: &alloy_journal_logs_enabled
-        type: bool
-        default: false
-        description:
-          - "Enable collection of systemd journal logs."
-      alloy_json_label_fields: &alloy_json_label_fields
-        type: list
-        elements: str
-        default:
-          - level
-          - component
-        description:
-          - "JSON fields to promote to Loki stream labels. Avoid high-cardinality fields such as txn_id or duration_ms."
       alloy_k8s_resource_name: &alloy_k8s_resource_name
         type: str
         default: "{{ inventory_hostname }}"
@@ -153,11 +140,6 @@ argument_specs:
         description:
           - "Optional Kubernetes namespaces Alloy should discover pod logs from."
           - "When omitted, Alloy discovers pods from all namespaces its service account can read."
-      alloy_k8s_keep_part_of_regex: &alloy_k8s_keep_part_of_regex
-        type: str
-        description:
-          - "Optional regex used to keep only pods whose C(app.kubernetes.io/part-of) label matches."
-          - "Useful when the target namespace contains unrelated workloads."
       remote_config_dir: &remote_config_dir
         type: path
         description:
@@ -411,14 +393,11 @@ argument_specs:
       alloy_use_tls: *alloy_use_tls
       alloy_tls_private_key_file: *alloy_tls_private_key_file
       alloy_tls_cert_file: *alloy_tls_cert_file
-      alloy_default_labels: *alloy_default_labels
+      alloy_labels: *alloy_labels
       alloy_extra_log_paths: *alloy_extra_log_paths
       container_socket: *container_socket
       alloy_docker_exclude_container_regex: *alloy_docker_exclude_container_regex
-      alloy_journal_logs_enabled: *alloy_journal_logs_enabled
-      alloy_json_label_fields: *alloy_json_label_fields
       alloy_k8s_namespaces: *alloy_k8s_namespaces
-      alloy_k8s_keep_part_of_regex: *alloy_k8s_keep_part_of_regex
       loki_host: *loki_host
       fetched_artifacts_dir: *fetched_artifacts_dir
       remote_config_dir: *remote_config_dir

@@ -34,16 +34,10 @@ alloy_remote_data_dir: '{{ remote_data_dir }}'
 # Directory for Alloy data and state files within the container.
 alloy_container_data_dir: /var/lib/alloy
 # Labels attached to every log line collected by this Alloy instance.
-alloy_default_labels:
+alloy_labels:
   host: '{{ ansible_host }}'
 # Regex matching Docker container names to exclude from log collection.
 alloy_docker_exclude_container_regex: ""
-# Enable collection of systemd journal logs.
-alloy_journal_logs_enabled: false
-# JSON fields to promote to Loki stream labels. Avoid high-cardinality fields such as txn_id or duration_ms.
-alloy_json_label_fields:
-  - level
-  - component
 # Base Kubernetes resource name for Alloy.
 alloy_k8s_resource_name: '{{ inventory_hostname }}'
 # Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Alloy resources.

@@ -441,7 +441,7 @@ Renders and uploads the Alloy River configuration file to the remote host. Appli
     # Filename used for the Alloy TLS certificate.
     alloy_tls_cert_file: server.crt
     # Labels attached to every log line collected by this Alloy instance.
-    alloy_default_labels:
+    alloy_labels:
       host: "{{ ansible_host }}"
     # Extra file paths (glob patterns accepted) to tail in addition to the defaults. Example: `['/var/log/app/*.log']`
     alloy_extra_log_paths:
@@ -450,16 +450,8 @@ Renders and uploads the Alloy River configuration file to the remote host. Appli
     container_socket: "unix:///path/to/socket"
     # Regex matching Docker container names to exclude from log collection.
     alloy_docker_exclude_container_regex: ""
-    # Enable collection of systemd journal logs.
-    alloy_journal_logs_enabled: false
-    # JSON fields to promote to Loki stream labels. Avoid high-cardinality fields such as txn_id or duration_ms.
-    alloy_json_label_fields:
-      - level
-      - component
     # Optional Kubernetes namespaces Alloy should discover pod logs from. When omitted, Alloy discovers pods from all namespaces its service account can read.
     alloy_k8s_namespaces: ["entry1", "entry2"]
-    # Optional regex used to keep only pods whose `app.kubernetes.io/part-of` label matches. Useful when the target namespace contains unrelated workloads.
-    alloy_k8s_keep_part_of_regex: "string"
     # Inventory host name of the Loki instance Alloy forwards logs to.
     loki_host: "string"
     # Control-node directory where fetched TLS artifacts are written and read.

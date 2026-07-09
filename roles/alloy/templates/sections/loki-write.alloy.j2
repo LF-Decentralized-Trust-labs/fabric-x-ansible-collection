@@ -1,0 +1,23 @@
+// -------------------------------------------------------------------------
+// Loki write endpoint
+// -------------------------------------------------------------------------
+
+// Sends collected log entries to the configured Loki push API.
+loki.write "loki_endpoint" {
+  endpoint {
+    url = "{{ loki_http_protocol }}://{{ hostvars[loki_host].ansible_host }}:{{ hostvars[loki_host].loki_port }}/loki/api/v1/push"
+{% if hostvars[loki_host].loki_use_tls is defined and hostvars[loki_host].loki_use_tls %}
+    tls_config {
+      ca_file = "{{ alloy_container_config_dir }}/tls/{{ loki_host }}/ca.crt"
+    }
+{% endif %}
+  }
+  
+  // Attach platform labels to every log stream sent by this Alloy instance.
+  // Example output: host="{{ ansible_host }}".
+  external_labels = {
+{% for alloy_label_key, alloy_label_value in alloy_labels.items() %}
+    {{ alloy_label_key }} = "{{ alloy_label_value }}",
+{% endfor %}
+  }
+}
