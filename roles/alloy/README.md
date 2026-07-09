@@ -148,8 +148,6 @@ Starts the Alloy container via hyperledger.fabricx.container, mounting config, d
     alloy_remote_data_dir: "{{ remote_data_dir }}"
     # Directory for Alloy data and state files within the container.
     alloy_container_data_dir: /var/lib/alloy
-    # Docker-compatible API endpoint Alloy uses for container log discovery. Use `unix:///var/run/docker.sock` for a mounted socket or `tcp://host:port` for a TCP endpoint.
-    alloy_docker_host: "unix:///var/run/docker.sock"
     # Deploy Alloy as a local container. Automatically true when neither `alloy_use_k8s` nor `alloy_use_openshift` is set.
     alloy_use_container: "{{ (not alloy_use_k8s) and (not alloy_use_openshift) }}"
     # Deploy Alloy on Kubernetes.
@@ -448,8 +446,8 @@ Renders and uploads the Alloy River configuration file to the remote host. Appli
     # Extra file paths (glob patterns accepted) to tail in addition to the defaults. Example: `['/var/log/app/*.log']`
     alloy_extra_log_paths:
       - "/var/log/app/*.log"
-    # Docker-compatible API endpoint Alloy uses for container log discovery. Use `unix:///var/run/docker.sock` for a mounted socket or `tcp://host:port` for a TCP endpoint.
-    alloy_docker_host: "unix:///var/run/docker.sock"
+    # Optional Docker-compatible API endpoint Alloy uses for container log discovery. When omitted, the role discovers the local Docker or Podman socket. Example: `unix:///path/to/socket`.
+    container_socket: "unix:///path/to/socket"
     # Regex matching Docker container names to exclude from log collection.
     alloy_docker_exclude_container_regex: ""
     # Enable collection of systemd journal logs.

@@ -74,12 +74,12 @@ argument_specs:
         default: "/var/lib/alloy"
         description:
           - "Directory for Alloy data and state files within the container."
-      alloy_docker_host: &alloy_docker_host
+      container_socket: &container_socket
         type: str
-        default: "unix:///var/run/docker.sock"
         description:
-          - "Docker-compatible API endpoint Alloy uses for container log discovery."
-          - "Use C(unix:///var/run/docker.sock) for a mounted socket or C(tcp://host:port) for a TCP endpoint."
+          - "Optional Docker-compatible API endpoint Alloy uses for container log discovery."
+          - "When omitted, the role discovers the local Docker or Podman socket."
+          - "Example: C(unix:///path/to/socket)."
       alloy_default_labels: &alloy_default_labels
         type: dict
         default:
@@ -136,8 +136,7 @@ argument_specs:
         description:
           - "Kubernetes NodePort value used by the external Alloy HTTP Service port."
           - "Defining this variable enables the NodePort Service."
-      alloy_k8s_loadbalancer_expose_port:
-        &alloy_k8s_loadbalancer_expose_port
+      alloy_k8s_loadbalancer_expose_port: &alloy_k8s_loadbalancer_expose_port
         type: bool
         default: false
         description:
@@ -270,7 +269,6 @@ argument_specs:
       alloy_container_config_dir: *alloy_container_config_dir
       alloy_remote_data_dir: *alloy_remote_data_dir
       alloy_container_data_dir: *alloy_container_data_dir
-      alloy_docker_host: *alloy_docker_host
       alloy_use_container: *alloy_use_container
       alloy_use_k8s: *alloy_use_k8s
       alloy_use_openshift: *alloy_use_openshift
@@ -415,7 +413,7 @@ argument_specs:
       alloy_tls_cert_file: *alloy_tls_cert_file
       alloy_default_labels: *alloy_default_labels
       alloy_extra_log_paths: *alloy_extra_log_paths
-      alloy_docker_host: *alloy_docker_host
+      container_socket: *container_socket
       alloy_docker_exclude_container_regex: *alloy_docker_exclude_container_regex
       alloy_journal_logs_enabled: *alloy_journal_logs_enabled
       alloy_json_label_fields: *alloy_json_label_fields

@@ -33,9 +33,6 @@ alloy_container_config_dir: /etc/alloy
 alloy_remote_data_dir: '{{ remote_data_dir }}'
 # Directory for Alloy data and state files within the container.
 alloy_container_data_dir: /var/lib/alloy
-# Docker-compatible API endpoint Alloy uses for container log discovery.
-# Use C(unix:///var/run/docker.sock) for a mounted socket or C(tcp://host:port) for a TCP endpoint.
-alloy_docker_host: "unix:///var/run/docker.sock"
 # Labels attached to every log line collected by this Alloy instance.
 alloy_default_labels:
   host: '{{ ansible_host }}'

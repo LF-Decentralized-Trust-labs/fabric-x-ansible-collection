@@ -29,6 +29,16 @@
 - name: Transfer Alloy configuration file
   vars:
     loki_http_protocol: "{{ 'https' if (hostvars[loki_host].loki_use_tls is defined and hostvars[loki_host].loki_use_tls) else 'http' }}"
+    alloy_effective_container_socket: >-
+      {{
+        container_socket
+        if (
+          container_socket is defined
+          and container_socket | length > 0
+          and container_socket | regex_search('^unix://') is none
+        )
+        else 'unix:///var/run/docker.sock'
+      }}
   ansible.builtin.template:
     src: "alloy-config.alloy.j2"
     dest: "{{ alloy_remote_config_dir }}/config.alloy"

@@ -1,0 +1,52 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Reset container socket path
+  ansible.builtin.set_fact:
+    container_socket_path: ""
+    container_socket_requires_root: false
+
+- name: Resolve configured container socket
+  vars:
+    container_configured_socket_path: "{{ container_socket | regex_replace('^unix://', '') }}"
+  ansible.builtin.set_fact:
+    container_socket_path: "{{ container_configured_socket_path }}"
+    container_socket_requires_root: "{{ container_configured_socket_path == '/run/podman/podman.sock' }}"
+  when:
+    - container_socket is defined
+    - container_socket | length > 0
+    - container_socket | regex_search('^unix://') is not none
+
+- name: Discover container socket
+  when:
+    - container_socket is not defined or container_socket | default('') | length == 0
+  block:
+    - name: Find the container client to use
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.container
+        tasks_from: get_container_client
+      when:
+        - container_client == ''
+    - name: Discover Docker socket
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.container
+        tasks_from: docker/get_socket
+      when:
+        - container_client == 'docker'
+    - name: Discover Podman socket
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.container
+        tasks_from: podman/get_socket
+      when:
+        - container_client == 'podman'
+    - name: Fail when no container socket was found
+      ansible.builtin.fail:
+        msg: >-
+          Could not find a Docker-compatible socket for container client
+          {{ container_client }}. Set container_socket explicitly if the runtime
+          socket is in a non-standard location.
+      when:
+        - container_socket | default('') | length == 0

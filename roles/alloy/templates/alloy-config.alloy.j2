@@ -113,7 +113,7 @@ loki.source.kubernetes "pod_logs" {
 // Docker container log discovery
 // -------------------------------------------------------------------------
 discovery.docker "containers" {
-  host = "{{ alloy_docker_host }}"
+  host = "{{ alloy_effective_container_socket }}"
 }
 
 discovery.relabel "docker_labels" {
@@ -148,7 +148,7 @@ discovery.relabel "docker_labels" {
 }
 
 loki.source.docker "docker_logs" {
-  host       = "{{ alloy_docker_host }}"
+  host       = "{{ alloy_effective_container_socket }}"
   targets    = discovery.relabel.docker_labels.output
   forward_to = [loki.process.json_pipeline.receiver]
 }

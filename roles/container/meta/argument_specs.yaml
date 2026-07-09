@@ -33,6 +33,12 @@ argument_specs:
         description:
           - "Selects the container client to verify or use."
           - "Leave it empty to auto-detect C(podman) first and then C(docker)."
+      container_socket: &container_socket
+        type: str
+        description:
+          - "Optional Docker-compatible API endpoint for the selected container client."
+          - "When omitted, the role discovers the local Docker or Podman socket."
+          - "Example: C(unix:///run/user/1000/podman/podman.sock)."
       container_name: &container_name
         type: str
         description:
@@ -127,6 +133,12 @@ argument_specs:
         description:
           - "Applies runtime ulimit settings to the container."
           - "Example: C(['nofile=65536:65536'])."
+      container_security_opts: &container_security_opts
+        type: list
+        elements: str
+        description:
+          - "Applies runtime security options to the container."
+          - "Example: C(['label=disable'])."
       container_env: &container_env
         type: dict
         description:
@@ -316,6 +328,16 @@ argument_specs:
     options:
       container_client: *container_client
 
+  get_container_client_socket:
+    short_description: Resolve the Docker-compatible socket for the selected container client
+    description:
+      - "Uses C(container_socket) when provided."
+      - "Otherwise discovers the local Docker or Podman socket for the selected container client."
+      - "For Unix sockets, preserves the endpoint in C(container_socket) and sets C(container_socket_path) for bind mounts."
+    options:
+      container_client: *container_client
+      container_socket: *container_socket
+
   start:
     short_description: Start a container with the selected client
     description:
@@ -415,6 +437,13 @@ argument_specs:
       - "Enables the Docker service and runs a hello-world container to verify that the client and daemon can launch containers."
     options: {}
 
+  docker/get_socket:
+    short_description: Resolve the Docker socket from the current Docker context
+    description:
+      - "Reads the active Docker context and sets C(container_socket)."
+      - "For Unix endpoints, also sets C(container_socket_path) for bind mounts."
+    options: {}
+
   docker/start:
     short_description: Start a container with Docker
     description:
@@ -440,6 +469,7 @@ argument_specs:
       container_cpus: *container_cpus
       container_volumes: *container_volumes
       container_ulimits: *container_ulimits
+      container_security_opts: *container_security_opts
       container_env: *container_env
       container_log_driver: *container_log_driver
       container_log_max_size: *container_log_max_size
@@ -565,6 +595,14 @@ argument_specs:
       - "Verifies that the Podman client is available for subsequent container lifecycle tasks."
     options: {}
 
+  podman/get_socket:
+    short_description: Resolve the Podman socket from system information
+    description:
+      - "Reads Podman system information and sets C(container_socket)."
+      - "For Unix endpoints, also sets C(container_socket_path) for bind mounts."
+      - "Sets C(container_socket_requires_root) when the selected socket belongs to a rootful Podman service."
+    options: {}
+
   podman/start:
     short_description: Start a container with Podman
     description:
@@ -590,6 +628,7 @@ argument_specs:
       container_memory: *container_memory
       container_cpus: *container_cpus
       container_volumes: *container_volumes
+      container_security_opts: *container_security_opts
       container_env: *container_env
       container_log_driver: *container_log_driver
       container_log_max_size: *container_log_max_size
