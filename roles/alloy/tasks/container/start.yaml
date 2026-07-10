@@ -4,11 +4,16 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Create Alloy data directory
-  ansible.builtin.file:
-    path: "{{ alloy_remote_data_dir }}"
-    state: directory
-    mode: "0755"
+- name: Create Alloy data volume
+  vars:
+    container_volume_path: "{{ alloy_remote_data_dir }}"
+    container_volume_mode: "0o755"
+    container_volume_uid: "0"
+    container_volume_gid: "0"
+    container_volume_type: directory
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: volume/create
 
 - name: Set container client socket
   ansible.builtin.include_role:

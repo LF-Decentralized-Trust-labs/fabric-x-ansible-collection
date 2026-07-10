@@ -4,12 +4,14 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Remove Alloy data directory
-  ansible.builtin.file:
-    path: "{{ alloy_remote_data_dir }}"
-    state: absent
+- name: Remove Alloy data volume
+  vars:
+    container_volume_path: "{{ alloy_remote_data_dir }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: volume/rm
   when:
-    - alloy_use_container is defined
+    - alloy_use_container
 
 - name: Delete Alloy k8s data PVC
   ansible.builtin.include_role:
