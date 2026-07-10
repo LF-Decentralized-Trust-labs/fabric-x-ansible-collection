@@ -3,52 +3,99 @@
 # Do not edit manually; re-run the configs playbook to regenerate.
 #
 
+# Disable Loki's multi-tenant authentication; all requests use a single
+# anonymous tenant. Fine for a self-contained monitoring stack.
 auth_enabled: false
 
+# ---------------------------------------------------------------------------
+# Server settings
+# HTTP/gRPC listeners (both bind 0.0.0.0 by default) and optional API TLS.
+# ---------------------------------------------------------------------------
 server:
+  # HTTP port serving the Loki API, /ready and /metrics endpoints.
   http_listen_port: {{ loki_port }}
-  grpc_listen_port: 9096
+  # gRPC port for the query/ingest API and inter-component RPC (distributed mode).
+  grpc_listen_port: {{ loki_grpc_port }}
 {% if loki_use_tls %}
+  # Serve the HTTP API over TLS using the transferred server certificate.
   http_tls_config:
     cert_file: {{ loki_container_config_dir }}/tls/{{ loki_tls_cert_file }}
     key_file: {{ loki_container_config_dir }}/tls/{{ loki_tls_private_key_file }}
 {% endif %}
 
+# ---------------------------------------------------------------------------
+# Common settings
+# Shared storage path and the hash ring used to coordinate components.
+# ---------------------------------------------------------------------------
 common:
-  instance_addr: 127.0.0.1
-  path_prefix: /loki
+  # Address this node advertises to ring peers. With the single-node inmemory
+  # ring below it is effectively cosmetic (the node only talks to itself);
+  # it becomes meaningful only in a multi-node HA cluster.
+  instance_addr: {{ loki_instance_addr }}
+  # Base directory for Loki's on-disk state.
+  path_prefix: {{ loki_container_data_dir }}
+  # Number of ingesters each stream is written to. 1 = single node; 2+ needs
+  # a real ring backend (memberlist/consul) for HA.
   replication_factor: {{ loki_replication_factor }}
   ring:
     kvstore:
+      # Keep the ring in-process. This holds only ring membership/token
+      # metadata (kilobytes) — it does NOT buffer logs and does not grow with
+      # ingested data. Correct for a single-node deployment.
       store: inmemory
 
+# ---------------------------------------------------------------------------
+# Storage
+# Where compressed log chunks are persisted (local filesystem).
+# ---------------------------------------------------------------------------
 storage_config:
   filesystem:
-    directory: /loki/chunks
+    directory: {{ loki_container_data_dir }}/chunks
 
+# ---------------------------------------------------------------------------
+# Schema
+# Index/storage layout. TSDB + filesystem is Loki's current recommended setup.
+# ---------------------------------------------------------------------------
 schema_config:
   configs:
+    # Date this schema takes effect. Never edit retroactively — add a new
+    # entry with a future date to change it.
     - from: 2024-01-01
-      store: tsdb
+      store: tsdb            # TSDB: Loki's current, most efficient index.
       object_store: filesystem
-      schema: v13
+      schema: v13             # Schema version paired with the tsdb store.
       index:
-        prefix: loki_index_
-        period: 24h
+        prefix: loki_index_   # Index table name prefix.
+        period: 24h           # Index table rotation period.
 
+# ---------------------------------------------------------------------------
+# Limits
+# Per-tenant retention and ingestion rate limits.
+# ---------------------------------------------------------------------------
 limits_config:
+  # How long logs are kept before the compactor deletes them.
   retention_period: {{ loki_retention_period }}
+  # Sustained ingestion cap (MB/s) per distributor.
   ingestion_rate_mb: {{ loki_ingestion_rate_mb }}
+  # Burst allowance (MB) above the sustained rate.
   ingestion_burst_size_mb: {{ loki_ingestion_burst_size_mb }}
+  # Allow structured metadata on log lines (needed for some Alloy/OTLP labels).
   allow_structured_metadata: true
 
+# ---------------------------------------------------------------------------
+# Compactor
+# Compacts index files and enforces retention by deleting expired chunks.
+# ---------------------------------------------------------------------------
 compactor:
-  working_directory: /loki/compactor
+  working_directory: {{ loki_container_data_dir }}/compactor
+  # Enforce retention (honours limits_config.retention_period).
   retention_enabled: true
+  # Backend recording pending delete requests.
   delete_request_store: filesystem
 
-ruler:
-  alertmanager_url: http://localhost:9093
-
+# ---------------------------------------------------------------------------
+# Analytics
+# Disable anonymous usage reporting to Grafana Labs.
+# ---------------------------------------------------------------------------
 analytics:
   reporting_enabled: false

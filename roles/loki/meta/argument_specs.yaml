@@ -32,9 +32,16 @@ argument_specs:
           - "Sets the Grafana Loki image reference."
       loki_port: &loki_port
         type: int
-        default: 3100
+        required: true
         description:
           - "Port Loki listens on."
+          - "Example: C(9200)."
+      loki_grpc_port: &loki_grpc_port
+        type: int
+        required: true
+        description:
+          - "gRPC port Loki listens on, used for the query/ingest API and inter-component RPC."
+          - "Example: C(9201)."
       loki_container_name: &loki_container_name
         type: str
         default: "loki"
@@ -81,6 +88,12 @@ argument_specs:
         default: 1
         description:
           - "Replication factor. Use 1 for single-node/dev; 2+ for HA."
+      loki_instance_addr: &loki_instance_addr
+        type: str
+        default: "{{ ansible_host }}"
+        description:
+          - "Address this Loki node advertises to peers in its hash ring."
+          - "Cosmetic for the single-node inmemory ring; set to a routable address for multi-node HA."
       loki_use_container: &loki_use_container
         type: bool
         default: "{{ (not loki_use_k8s) and (not loki_use_openshift) }}"
@@ -245,6 +258,7 @@ argument_specs:
       loki_image_tag: *loki_image_tag
       loki_image: *loki_image
       loki_port: *loki_port
+      loki_grpc_port: *loki_grpc_port
       loki_remote_config_dir: *loki_remote_config_dir
       loki_container_config_dir: *loki_container_config_dir
       loki_remote_data_dir: *loki_remote_data_dir
@@ -291,7 +305,10 @@ argument_specs:
       remote_deploy_dir: *remote_deploy_dir
       loki_remote_config_dir: *loki_remote_config_dir
       loki_container_config_dir: *loki_container_config_dir
+      loki_container_data_dir: *loki_container_data_dir
       loki_port: *loki_port
+      loki_grpc_port: *loki_grpc_port
+      loki_instance_addr: *loki_instance_addr
       loki_retention_period: *loki_retention_period
       loki_ingestion_rate_mb: *loki_ingestion_rate_mb
       loki_ingestion_burst_size_mb: *loki_ingestion_burst_size_mb
@@ -324,6 +341,7 @@ argument_specs:
       loki_image_tag: *loki_image_tag
       loki_image: *loki_image
       loki_port: *loki_port
+      loki_grpc_port: *loki_grpc_port
       loki_k8s_resource_name: *loki_k8s_resource_name
       loki_k8s_part_of: *loki_k8s_part_of
       loki_k8s_node_port: *loki_k8s_node_port

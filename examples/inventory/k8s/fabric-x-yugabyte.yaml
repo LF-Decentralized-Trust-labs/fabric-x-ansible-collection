@@ -376,6 +376,7 @@ all:
           grafana_k8s_web_node_port: 30300
         loki:
           loki_port: 9200
+          loki_grpc_port: 9201
           loki_use_tls: true
           loki_use_k8s: true
         alloy:

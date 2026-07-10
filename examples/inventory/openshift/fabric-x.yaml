@@ -369,6 +369,7 @@ all:
           grafana_openshift_route: "grafana.{{ openshift_apps_domain }}"
         loki:
           loki_port: 9200
+          loki_grpc_port: 9201
           loki_use_tls: true
           loki_use_openshift: true
           loki_openshift_route: "loki.{{ openshift_apps_domain }}"

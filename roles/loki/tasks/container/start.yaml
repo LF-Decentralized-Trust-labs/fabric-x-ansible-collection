@@ -17,6 +17,7 @@
     container_run_as_host_user: true
     container_ports:
       - "{{ loki_port }}:{{ loki_port }}"
+      - "{{ loki_grpc_port }}:{{ loki_grpc_port }}"
     container_volumes:
       - "{{ loki_remote_config_dir }}:{{ loki_container_config_dir }}:ro,z"
       - "{{ loki_remote_data_dir }}:{{ loki_container_data_dir }}:z"

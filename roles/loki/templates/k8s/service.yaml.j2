@@ -23,3 +23,7 @@ spec:
       port: {{ loki_port }}
       targetPort: http
       protocol: TCP
+    - name: grpc
+      port: {{ loki_grpc_port }}
+      targetPort: grpc
+      protocol: TCP

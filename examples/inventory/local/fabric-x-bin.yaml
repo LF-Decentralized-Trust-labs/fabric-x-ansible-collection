@@ -343,6 +343,7 @@ all:
           grafana_use_tls: true
         loki:
           loki_port: 9200
+          loki_grpc_port: 9201
           loki_use_tls: true
         alloy:
           alloy_port: 9300

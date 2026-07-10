@@ -40,6 +40,9 @@ spec:
             - name: http
               containerPort: {{ loki_port }}
               protocol: TCP
+            - name: grpc
+              containerPort: {{ loki_grpc_port }}
+              protocol: TCP
           readinessProbe:
             httpGet:
               path: /ready
