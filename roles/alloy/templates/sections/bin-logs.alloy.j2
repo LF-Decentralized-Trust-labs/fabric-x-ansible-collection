@@ -9,6 +9,9 @@ local.file_match "extra_files" {
     {
       "__path__"     = "{{ log_path }}",
       "service_name" = "{{ service_name }}",
+{% for group_name in (['all'] + hostvars[service_name].group_names) | unique | sort %}
+      "{{ group_name }}" = "group",
+{% endfor %}
     },
 {% endfor %}
   ]

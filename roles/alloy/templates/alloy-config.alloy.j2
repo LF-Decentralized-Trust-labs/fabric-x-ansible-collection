@@ -15,6 +15,6 @@
 {% else +%}
 {% include './sections/docker-logs.alloy.j2' %}
 {% if alloy_bin_logs is defined and alloy_bin_logs | length > 0 %}
-{% include './sections/extra-file-logs.alloy.j2' %}
+{% include './sections/bin-logs.alloy.j2' %}
 {% endif %}
 {% endif %}

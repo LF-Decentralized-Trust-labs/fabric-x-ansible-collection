@@ -53,6 +53,21 @@ discovery.relabel "pod_labels" {
     source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
     target_label  = "service_name"
   }
+
+  // Emit one boolean label per inventory group the pod belongs to, so logs can be
+  // filtered by topology, e.g. {fabric_x_orderers="true"}. One rule per group; the regex
+  // matches the app.kubernetes.io/name label (= inventory hostname) of that group's members.
+{% for group_name in groups | sort %}
+{% if groups[group_name] | length > 0 %}
+  rule {
+    source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+    regex         = "({{ groups[group_name] | sort | join('|') }})"
+    target_label  = "{{ group_name }}"
+    replacement   = "group"
+    action        = "replace"
+  }
+{% endif %}
+{% endfor %}
 }
 
 // Reads pod logs from the Kubernetes API and forwards them to Loki.
