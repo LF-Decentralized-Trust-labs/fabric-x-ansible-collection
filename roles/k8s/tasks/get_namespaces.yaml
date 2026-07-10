@@ -1,0 +1,19 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Get Kubernetes namespaces
+  ansible.builtin.set_fact:
+    k8s_namespaces: >-
+      {{
+        groups['all']
+        | default([])
+        | map('extract', hostvars)
+        | map(attribute='k8s_namespace', default='default')
+        | select
+        | unique
+        | sort
+        | list
+      }}

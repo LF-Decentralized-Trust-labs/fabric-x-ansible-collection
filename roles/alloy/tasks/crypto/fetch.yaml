@@ -1,0 +1,20 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Fetch the Alloy TLS certificates
+  when:
+    - alloy_use_tls
+  block:
+    - name: Fetch the Alloy TLS CA certificate
+      ansible.builtin.fetch:
+        src: "{{ alloy_remote_config_dir }}/tls/ca.crt"
+        dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/ca.crt"
+        flat: true
+    - name: Fetch the Alloy TLS certificate
+      ansible.builtin.fetch:
+        src: "{{ alloy_remote_config_dir }}/tls/{{ alloy_tls_cert_file }}"
+        dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/{{ alloy_tls_cert_file }}"
+        flat: true

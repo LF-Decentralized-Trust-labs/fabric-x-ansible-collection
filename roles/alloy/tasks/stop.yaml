@@ -1,0 +1,14 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Stop Alloy container
+  vars:
+    container_name: "{{ alloy_container_name }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: stop
+  when:
+    - alloy_use_container

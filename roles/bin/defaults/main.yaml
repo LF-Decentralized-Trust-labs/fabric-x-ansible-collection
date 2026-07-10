@@ -28,6 +28,20 @@ bin_dir: '{{ bin_control_dir if bin_build_on_control_node else bin_remote_dir }}
 # Lists the hosts whose facts are used to determine the operating system and architecture combinations that must be built.
 bin_hosts:
   - '{{ inventory_hostname }}'
+# Host address used by C(get_bin_services) to find colocated binary services.
+bin_host: '{{ ansible_host }}'
+# Inventory boolean flags treated as long-running binary services by C(get_bin_services).
+bin_service_flags:
+  - orderer_use_bin
+  - committer_use_bin
+  - fabric_ca_server_use_bin
+  - loadgen_use_bin
+# Maps each binary service flag to a host variable that must also be present for C(get_bin_services) to treat the host as that service.
+bin_service_marker_vars:
+  orderer_use_bin: orderer_rpc_port
+  committer_use_bin: committer_rpc_port
+  fabric_ca_server_use_bin: fabric_ca_port
+  loadgen_use_bin: loadgen_rpc_port
 # Sets the directory that is prefixed to C(bin_command) when constructing the executable path.
 bin_remote_dir: '{{ remote_node_dir }}/bin'
 # Provides environment variables prefixed onto the command line before the binary is started.

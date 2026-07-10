@@ -1,0 +1,20 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Delete Alloy ConfigMap
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: ConfigMap
+    name: "{{ alloy_k8s_resource_name }}-config"
+    namespace: "{{ k8s_namespace | default('default') }}"
+
+- name: Delete Alloy RBAC
+  vars:
+    k8s_rbac_resource_name: "{{ alloy_k8s_resource_name }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: rbac/rm

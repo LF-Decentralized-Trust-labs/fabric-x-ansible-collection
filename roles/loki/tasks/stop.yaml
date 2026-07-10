@@ -1,0 +1,11 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Stop Loki container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.loki
+    tasks_from: container/stop
+  when: loki_use_container

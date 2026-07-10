@@ -4,21 +4,20 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Clean Postgres TLS key
-  vars:
-    container_volume_path: "{{ postgres_remote_config_dir }}/tls/{{ postgres_tls_private_key_file }}"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.container
-    tasks_from: volume/rm
+- name: Clean Postgres TLS files
   when:
     - postgres_use_tls
-
-- name: Clean Postgres TLS folder
-  ansible.builtin.file:
-    path: "{{ postgres_remote_config_dir }}/tls"
-    state: absent
-  when:
-    - postgres_use_tls
+  block:
+    - name: Clean Postgres TLS key
+      vars:
+        container_volume_path: "{{ postgres_remote_config_dir }}/tls/{{ postgres_tls_private_key_file }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.container
+        tasks_from: volume/rm
+    - name: Clean Postgres TLS folder
+      ansible.builtin.file:
+        path: "{{ postgres_remote_config_dir }}/tls"
+        state: absent
 
 - name: Delete Postgres DB K8s crypto Secret
   ansible.builtin.include_role:

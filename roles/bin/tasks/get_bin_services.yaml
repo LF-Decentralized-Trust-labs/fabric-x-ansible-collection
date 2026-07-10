@@ -1,0 +1,52 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Initialize binary service discovery facts
+  ansible.builtin.set_fact:
+    bin_service_hosts: []
+
+- name: Collect colocated binary service hosts
+  vars:
+    current_bin_service_hostvars: "{{ hostvars[current_bin_service_host] }}"
+    current_bin_service_physical_host: >-
+      {{
+        current_bin_service_hostvars.actual_host
+        | default(current_bin_service_hostvars.ansible_host)
+        | default(current_bin_service_host)
+      }}
+    current_bin_service_flags: >-
+      {{
+        current_bin_service_hostvars
+        | dict2items
+        | selectattr('key', 'in', bin_service_flags)
+        | selectattr('value', 'equalto', true)
+        | list
+      }}
+    current_bin_service_flag_names: "{{ current_bin_service_flags | map(attribute='key') | list }}"
+    current_bin_service_marker_vars: >-
+      {{
+        bin_service_marker_vars
+        | dict2items
+        | selectattr('key', 'in', current_bin_service_flag_names)
+        | map(attribute='value')
+        | list
+      }}
+    current_bin_service_markers: >-
+      {{
+        current_bin_service_hostvars
+        | dict2items
+        | selectattr('key', 'in', current_bin_service_marker_vars)
+        | list
+      }}
+  ansible.builtin.set_fact:
+    bin_service_hosts: "{{ bin_service_hosts + [current_bin_service_host] }}"
+  loop: "{{ groups['all'] }}"
+  loop_control:
+    loop_var: current_bin_service_host
+  when:
+    - current_bin_service_physical_host == bin_host
+    - current_bin_service_flags | length > 0
+    - current_bin_service_markers | length > 0

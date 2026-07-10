@@ -1,0 +1,59 @@
+// -------------------------------------------------------------------------
+// Docker container log discovery
+// -------------------------------------------------------------------------
+// Discovers Docker-compatible containers whose logs Alloy can collect.
+discovery.docker "containers" {
+  host = "{{ alloy_effective_container_socket }}"
+}
+
+// Rewrites Docker discovery metadata into stable Loki labels.
+discovery.relabel "docker_labels" {
+  targets = discovery.docker.containers.targets
+
+{% if alloy_docker_exclude_container_regex | length > 0 %}
+  // Drop containers whose Docker name matches the configured exclusion regex.
+  // Example output: a container named "/alloy" is skipped when the regex matches "/alloy".
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "{{ alloy_docker_exclude_container_regex }}"
+    action        = "drop"
+  }
+{% endif -%}
+
+  // Convert the Docker container name directly into Loki's service name label and strip Docker's leading slash.
+  // Example output: __meta_docker_container_name="/orderer" becomes service_name="orderer".
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "service_name"
+  }
+
+  // Copy the Docker image reference into a Loki label.
+  // Example output: image="hyperledger/fabric-x-orderer:latest".
+  rule {
+    source_labels = ["__meta_docker_container_image"]
+    target_label  = "image"
+  }
+
+  // Emit one boolean label per inventory group the container belongs to, so logs can be
+  // filtered by topology, e.g. {fabric_x_orderers="true"}. One rule per group; the regex
+  // matches the container names (= inventory hostnames) of that group's members.
+{% for group_name in groups | sort %}
+{% if groups[group_name] | length > 0 %}
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/({{ groups[group_name] | sort | join('|') }})"
+    target_label  = "{{ group_name }}"
+    replacement   = "group"
+    action        = "replace"
+  }
+{% endif %}
+{% endfor %}
+}
+
+// Reads container stdout/stderr logs from the Docker-compatible socket and forwards them to Loki.
+loki.source.docker "docker_logs" {
+  host       = "{{ alloy_effective_container_socket }}"
+  targets    = discovery.relabel.docker_labels.output
+  forward_to = [loki.write.loki_endpoint.receiver]
+}

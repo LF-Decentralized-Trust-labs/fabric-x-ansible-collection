@@ -20,7 +20,7 @@ The diagram below summarizes this inventory's Fabric-X services and how they fit
 
 ## Inventory Details
 
-Orderer, committer, PostgreSQL, load generator, node exporter, Prometheus, and Grafana use OpenShift task paths. `cryptogen` runs on the control node and writes artifacts below `cryptogen_artifacts_dir`.
+Orderer, committer, PostgreSQL, load generator, node exporter, Prometheus, Grafana, Loki, and Alloy use OpenShift task paths. `cryptogen` runs on the control node and writes artifacts below `cryptogen_artifacts_dir`.
 
 This inventory deploys these logical services as OpenShift workloads, services, and routes:
 
@@ -28,7 +28,7 @@ This inventory deploys these logical services as OpenShift workloads, services, 
 - 4 orderer groups. Each group has 1 router, 1 consenter, 1 assembler, and 1 batcher.
 - 1 committer with validator, verifier, coordinator, sidecar, query service, and PostgreSQL storage.
 - 1 load generator.
-- Monitoring with node exporter, PostgreSQL exporter, Prometheus, and Grafana.
+- Monitoring with node exporter, PostgreSQL exporter, Prometheus, Grafana, Loki, and Alloy.
 
 > [!NOTE]
 > If OpenShift routes map to `127.0.0.1`, binary CLIs can still work, but containerized binaries may fail because `127.0.0.1` is resolved inside the container network namespace. Run `make oc-config-hosts` (requires `sudo`) to setup the routes in `/etc/hosts` before starting Fabric-X.
@@ -39,6 +39,13 @@ flowchart TD
   network --> fabric_x
   all --> load_generators
   all --> monitoring
+  monitoring --> prometheus
+  monitoring --> grafana
+  monitoring --> loki
+  monitoring --> alloy
+  grafana --> prometheus
+  grafana --> loki
+  alloy --> loki
   fabric_x --> fabric_x_orderers
   fabric_x --> fabric_x_committers
   fabric_x_committers --> fabric_x_committer

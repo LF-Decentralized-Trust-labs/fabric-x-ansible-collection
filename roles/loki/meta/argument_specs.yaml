@@ -1,0 +1,493 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+argument_specs:
+  role-options:
+    short_description: Shared option catalog for loki role entry points
+
+    options:
+      loki_registry_endpoint: &loki_registry_endpoint
+        type: str
+        default: "{{ lookup('env', 'LOKI_REGISTRY_ENDPOINT') or 'docker.io/grafana' }}"
+        description:
+          - "Sets the Grafana Loki image registry endpoint."
+      loki_image_name: &loki_image_name
+        type: str
+        default: loki
+        description:
+          - "Sets the Grafana Loki image name."
+      loki_image_tag: &loki_image_tag
+        type: str
+        default: "3.4.2"
+        description:
+          - "Sets the Grafana Loki image tag."
+          - "Example: C(3.4.2)"
+      loki_image: &loki_image
+        type: str
+        default: "{{ loki_registry_endpoint }}/{{ loki_image_name }}:{{ loki_image_tag }}"
+        description:
+          - "Sets the Grafana Loki image reference."
+      loki_port: &loki_port
+        type: int
+        required: true
+        description:
+          - "Port Loki listens on."
+          - "Example: C(9200)."
+      loki_grpc_port: &loki_grpc_port
+        type: int
+        required: true
+        description:
+          - "gRPC port Loki listens on, used for the query/ingest API and inter-component RPC."
+          - "Example: C(9201)."
+      loki_container_name: &loki_container_name
+        type: str
+        default: "loki"
+        description:
+          - "Name of the Loki container."
+      loki_remote_config_dir: &loki_remote_config_dir
+        type: path
+        default: "{{ remote_deploy_dir }}/loki/config"
+        description:
+          - "Directory for Loki configuration files on the remote host."
+      loki_container_config_dir: &loki_container_config_dir
+        type: path
+        default: "/etc/loki"
+        description:
+          - "Directory for Loki configuration files within the container."
+      loki_remote_data_dir: &loki_remote_data_dir
+        type: path
+        default: "{{ remote_deploy_dir }}/loki/data"
+        description:
+          - "Directory for Loki data on the remote host."
+      loki_container_data_dir: &loki_container_data_dir
+        type: path
+        default: "/loki"
+        description:
+          - "Directory for Loki data and state files within the container."
+      loki_retention_period: &loki_retention_period
+        type: str
+        default: "744h"
+        description:
+          - "Log retention period. Default is 31 days."
+          - "Example: C(744h)"
+      loki_ingestion_rate_mb: &loki_ingestion_rate_mb
+        type: int
+        default: 16
+        description:
+          - "Maximum ingestion rate in MB/s per distributor."
+      loki_ingestion_burst_size_mb: &loki_ingestion_burst_size_mb
+        type: int
+        default: 32
+        description:
+          - "Maximum ingestion burst size in MB per distributor."
+      loki_replication_factor: &loki_replication_factor
+        type: int
+        default: 1
+        description:
+          - "Replication factor. Use 1 for single-node/dev; 2+ for HA."
+      loki_instance_addr: &loki_instance_addr
+        type: str
+        default: "{{ ansible_host }}"
+        description:
+          - "Address this Loki node advertises to peers in its hash ring."
+          - "Cosmetic for the single-node inmemory ring; set to a routable address for multi-node HA."
+      loki_use_container: &loki_use_container
+        type: bool
+        default: "{{ (not loki_use_k8s) and (not loki_use_openshift) }}"
+        description:
+          - "Deploy Loki as a local container. Automatically true when neither loki_use_k8s nor loki_use_openshift is set."
+      loki_use_k8s: &loki_use_k8s
+        type: bool
+        default: false
+        description:
+          - "Deploy Loki on Kubernetes."
+      loki_use_openshift: &loki_use_openshift
+        type: bool
+        default: false
+        description:
+          - "Deploy Loki on OpenShift."
+      loki_use_tls: &loki_use_tls
+        type: bool
+        default: false
+        description:
+          - "Whether Loki serves HTTPS. Also controls the Loki Grafana datasource URL scheme and the OpenShift Route TLS setting."
+      loki_tls_private_key_file: &loki_tls_private_key_file
+        type: str
+        default: server.key
+        description:
+          - "Filename used for the Loki TLS private key."
+      loki_tls_cert_file: &loki_tls_cert_file
+        type: str
+        default: server.crt
+        description:
+          - "Filename used for the Loki TLS certificate."
+      loki_pvc_size: &loki_pvc_size
+        type: str
+        default: "50Gi"
+        description:
+          - "Requested storage size for the Loki StatefulSet's volumeClaimTemplate on Kubernetes/OpenShift."
+      loki_storage_class: &loki_storage_class
+        type: str
+        default: ""
+        description:
+          - "StorageClass name for the Loki volumeClaimTemplate. Leave empty to use the cluster default."
+          - "Example: C(ibmc-file)"
+      loki_k8s_resource_name: &loki_k8s_resource_name
+        type: str
+        default: "{{ loki_container_name }}"
+        description:
+          - "Base Kubernetes resource name used for the Loki StatefulSet and Services."
+      loki_k8s_part_of: &loki_k8s_part_of
+        type: str
+        default: monitoring
+        description:
+          - "Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Loki resources."
+      loki_k8s_wait_timeout: &loki_k8s_wait_timeout
+        type: int
+        default: 120
+        description:
+          - "Seconds to wait for the Loki StatefulSet to become ready on Kubernetes/OpenShift."
+      loki_k8s_fs_group: &loki_k8s_fs_group
+        type: int
+        default: 10001
+        description:
+          - "Filesystem group used by the Loki pod security context for writable mounted volumes."
+      loki_k8s_node_port: &loki_k8s_node_port
+        type: int
+        description:
+          - "Kubernetes NodePort value used by the external Loki HTTP Service port."
+          - "Defining this variable enables the NodePort Service."
+      loki_k8s_loadbalancer_expose_port:
+        &loki_k8s_loadbalancer_expose_port
+        type: bool
+        default: false
+        description:
+          - "Set to C(true) to create a LoadBalancer Service entry that exposes the Loki HTTP port externally."
+      loki_openshift_route: &loki_openshift_route
+        type: str
+        required: false
+        description:
+          - "Hostname for the OpenShift Route exposing Loki's HTTP endpoint."
+          - "When omitted, no Route is created."
+      remote_deploy_dir: &remote_deploy_dir
+        type: path
+        required: true
+        description:
+          - "Base deployment root directory on the remote host under which per-component config/data directories are created."
+      fetched_artifacts_dir: &fetched_artifacts_dir
+        type: path
+        description:
+          - "Control-node directory where fetched Loki TLS artifacts are written."
+      organization: &organization
+        type: dict
+        description:
+          - "Optional certificate organization data forwarded to OpenSSL."
+      k8s_namespace: &k8s_namespace
+        type: str
+        description:
+          - "Target Kubernetes/OpenShift namespace for this host's resources."
+      k8s_image_pull_secret: &k8s_image_pull_secret
+        type: str
+        required: false
+        description:
+          - "Name of the image pull secret to attach to the Loki Kubernetes StatefulSet."
+      k8s_readiness_probe_initial_delay_seconds:
+        &k8s_readiness_probe_initial_delay_seconds
+        type: int
+        description:
+          - "Readiness probe initial delay for the Loki StatefulSet. Defaults to 30 when omitted."
+      k8s_readiness_probe_period_seconds: &k8s_readiness_probe_period_seconds
+        type: int
+        description:
+          - "Readiness probe period for the Loki StatefulSet. Defaults to 10 when omitted."
+      k8s_liveness_probe_initial_delay_seconds:
+        &k8s_liveness_probe_initial_delay_seconds
+        type: int
+        description:
+          - "Liveness probe initial delay for the Loki StatefulSet. Defaults to 60 when omitted."
+      k8s_liveness_probe_period_seconds: &k8s_liveness_probe_period_seconds
+        type: int
+        description:
+          - "Liveness probe period for the Loki StatefulSet. Defaults to 30 when omitted."
+
+  start:
+    short_description: Start Loki
+    description:
+      - "Dispatches to container/start, k8s/start, or openshift/start based on deployment mode flags."
+    options:
+      loki_use_container: *loki_use_container
+      loki_use_k8s: *loki_use_k8s
+      loki_use_openshift: *loki_use_openshift
+
+  stop:
+    short_description: Stop Loki
+    description:
+      - "Stops the Loki container. No-op for Kubernetes/OpenShift deployments."
+    options:
+      loki_use_container: *loki_use_container
+      loki_use_k8s: *loki_use_k8s
+      loki_use_openshift: *loki_use_openshift
+
+  teardown:
+    short_description: Teardown Loki
+    description:
+      - "Removes the Loki container, Kubernetes/OpenShift workload, and data directory."
+    options:
+      loki_use_container: *loki_use_container
+      loki_use_k8s: *loki_use_k8s
+      loki_use_openshift: *loki_use_openshift
+
+  wipe:
+    short_description: Wipe Loki configuration
+    description:
+      - "Removes the Loki configuration directory. Intended to be called explicitly, not as part of routine teardown."
+    options: {}
+
+  container/start:
+    short_description: Start Loki container
+    description:
+      - "Creates the Loki data directory and starts the Loki container via hyperledger.fabricx.container."
+    options:
+      loki_container_name: *loki_container_name
+      loki_registry_endpoint: *loki_registry_endpoint
+      loki_image_name: *loki_image_name
+      loki_image_tag: *loki_image_tag
+      loki_image: *loki_image
+      loki_port: *loki_port
+      loki_grpc_port: *loki_grpc_port
+      loki_remote_config_dir: *loki_remote_config_dir
+      loki_container_config_dir: *loki_container_config_dir
+      loki_remote_data_dir: *loki_remote_data_dir
+      loki_container_data_dir: *loki_container_data_dir
+      loki_use_tls: *loki_use_tls
+      remote_deploy_dir: *remote_deploy_dir
+
+  container/stop:
+    short_description: Stop Loki container
+    description:
+      - "Stops the Loki container via hyperledger.fabricx.container."
+    options:
+      loki_container_name: *loki_container_name
+      loki_use_container: *loki_use_container
+      loki_use_k8s: *loki_use_k8s
+      loki_use_openshift: *loki_use_openshift
+
+  container/rm:
+    short_description: Remove Loki container
+    description:
+      - "Removes the Loki container via hyperledger.fabricx.container."
+    options:
+      loki_container_name: *loki_container_name
+      loki_use_container: *loki_use_container
+      loki_use_k8s: *loki_use_k8s
+      loki_use_openshift: *loki_use_openshift
+
+  data/rm:
+    short_description: Remove Loki data
+    description:
+      - "Deletes the Loki data directory from the remote host and, in Kubernetes/OpenShift mode, the Loki PersistentVolumeClaim."
+    options:
+      loki_remote_data_dir: *loki_remote_data_dir
+      loki_use_k8s: *loki_use_k8s
+      loki_use_openshift: *loki_use_openshift
+      remote_deploy_dir: *remote_deploy_dir
+
+  config/transfer:
+    short_description: Transfer Loki configuration
+    description:
+      - "Renders and uploads the Loki config file to the remote host."
+      - "Applies the Kubernetes ConfigMap when Kubernetes/OpenShift mode is enabled."
+    options:
+      remote_deploy_dir: *remote_deploy_dir
+      loki_remote_config_dir: *loki_remote_config_dir
+      loki_container_config_dir: *loki_container_config_dir
+      loki_container_data_dir: *loki_container_data_dir
+      loki_port: *loki_port
+      loki_grpc_port: *loki_grpc_port
+      loki_instance_addr: *loki_instance_addr
+      loki_retention_period: *loki_retention_period
+      loki_ingestion_rate_mb: *loki_ingestion_rate_mb
+      loki_ingestion_burst_size_mb: *loki_ingestion_burst_size_mb
+      loki_replication_factor: *loki_replication_factor
+      loki_use_tls: *loki_use_tls
+      loki_tls_private_key_file: *loki_tls_private_key_file
+      loki_tls_cert_file: *loki_tls_cert_file
+      loki_use_k8s: *loki_use_k8s
+      loki_use_openshift: *loki_use_openshift
+
+  config/rm:
+    short_description: Remove Loki configuration
+    description:
+      - "Deletes the Loki configuration directory from the remote host and, in Kubernetes/OpenShift mode, the Loki ConfigMap."
+    options:
+      loki_remote_config_dir: *loki_remote_config_dir
+      loki_use_k8s: *loki_use_k8s
+      loki_use_openshift: *loki_use_openshift
+      remote_deploy_dir: *remote_deploy_dir
+
+  k8s/start:
+    short_description: Deploy Loki on Kubernetes
+    description:
+      - "Applies the ConfigMap, a headless Service, and a StatefulSet (with a PVC via volumeClaimTemplates) for Loki on Kubernetes."
+      - "Uses the shared C(k8s_namespace) inventory variable for the target namespace."
+    options:
+      loki_container_name: *loki_container_name
+      loki_registry_endpoint: *loki_registry_endpoint
+      loki_image_name: *loki_image_name
+      loki_image_tag: *loki_image_tag
+      loki_image: *loki_image
+      loki_port: *loki_port
+      loki_grpc_port: *loki_grpc_port
+      loki_k8s_resource_name: *loki_k8s_resource_name
+      loki_k8s_part_of: *loki_k8s_part_of
+      loki_k8s_node_port: *loki_k8s_node_port
+      loki_k8s_loadbalancer_expose_port: *loki_k8s_loadbalancer_expose_port
+      loki_use_tls: *loki_use_tls
+      loki_container_config_dir: *loki_container_config_dir
+      loki_container_data_dir: *loki_container_data_dir
+      loki_k8s_wait_timeout: *loki_k8s_wait_timeout
+      loki_k8s_fs_group: *loki_k8s_fs_group
+      loki_pvc_size: *loki_pvc_size
+      loki_storage_class: *loki_storage_class
+      k8s_namespace: *k8s_namespace
+      k8s_image_pull_secret: *k8s_image_pull_secret
+      k8s_readiness_probe_initial_delay_seconds: *k8s_readiness_probe_initial_delay_seconds
+      k8s_readiness_probe_period_seconds: *k8s_readiness_probe_period_seconds
+      k8s_liveness_probe_initial_delay_seconds: *k8s_liveness_probe_initial_delay_seconds
+      k8s_liveness_probe_period_seconds: *k8s_liveness_probe_period_seconds
+
+  k8s/rm:
+    short_description: Remove Loki Kubernetes workload
+    description:
+      - "Deletes the Loki StatefulSet and Service from Kubernetes."
+      - "Does not delete the ConfigMap or PersistentVolumeClaim; see C(k8s/config/rm) and C(k8s/data/rm)."
+      - "Uses the shared C(k8s_namespace) inventory variable for the target namespace."
+    options:
+      loki_container_name: *loki_container_name
+      loki_k8s_resource_name: *loki_k8s_resource_name
+      loki_k8s_node_port: *loki_k8s_node_port
+      loki_k8s_loadbalancer_expose_port: *loki_k8s_loadbalancer_expose_port
+      k8s_namespace: *k8s_namespace
+
+  k8s/config/transfer:
+    short_description: Apply Loki ConfigMap
+    description:
+      - "Applies the Loki ConfigMap on Kubernetes/OpenShift."
+    options:
+      loki_container_name: *loki_container_name
+      loki_k8s_resource_name: *loki_k8s_resource_name
+      loki_k8s_part_of: *loki_k8s_part_of
+      loki_remote_config_dir: *loki_remote_config_dir
+      remote_deploy_dir: *remote_deploy_dir
+      k8s_namespace: *k8s_namespace
+
+  k8s/config/rm:
+    short_description: Remove Loki ConfigMap
+    description:
+      - "Deletes the Loki ConfigMap from Kubernetes/OpenShift."
+    options:
+      loki_container_name: *loki_container_name
+      loki_k8s_resource_name: *loki_k8s_resource_name
+      k8s_namespace: *k8s_namespace
+
+  k8s/data/rm:
+    short_description: Remove Loki PersistentVolumeClaim
+    description:
+      - "Deletes the Loki PersistentVolumeClaim from Kubernetes/OpenShift."
+    options:
+      loki_container_name: *loki_container_name
+      loki_k8s_resource_name: *loki_k8s_resource_name
+      k8s_namespace: *k8s_namespace
+
+  openshift/start:
+    short_description: Deploy Loki on OpenShift
+    description:
+      - "Delegates to k8s/start against an OpenShift-authenticated client context."
+      - "Optionally exposes Loki's HTTP endpoint via an OpenShift Route when C(loki_openshift_route) is set."
+      - "Uses the shared C(k8s_namespace) inventory variable for the target namespace."
+    options:
+      loki_openshift_route: *loki_openshift_route
+      loki_use_tls: *loki_use_tls
+      loki_container_name: *loki_container_name
+      loki_k8s_resource_name: *loki_k8s_resource_name
+      loki_k8s_part_of: *loki_k8s_part_of
+
+  openshift/rm:
+    short_description: Remove Loki OpenShift workload
+    description:
+      - "Deletes the Loki OpenShift Route (if configured), then delegates to k8s/rm."
+      - "Uses the shared C(k8s_namespace) inventory variable for the target namespace."
+    options:
+      loki_openshift_route: *loki_openshift_route
+      loki_container_name: *loki_container_name
+      loki_k8s_resource_name: *loki_k8s_resource_name
+
+  crypto/setup:
+    short_description: Generate Loki TLS materials
+    description:
+      - "Generates TLS assets for Loki and applies the Kubernetes Secret when Kubernetes/OpenShift mode is enabled."
+    options:
+      loki_use_tls: *loki_use_tls
+      loki_use_k8s: *loki_use_k8s
+      loki_use_openshift: *loki_use_openshift
+
+  crypto/openssl/generate_cert:
+    short_description: Generate a self-signed TLS certificate for Loki
+    description:
+      - "Delegates certificate creation to the shared OpenSSL role using Loki-specific output paths."
+    options:
+      organization: *organization
+      remote_deploy_dir: *remote_deploy_dir
+      loki_remote_config_dir: *loki_remote_config_dir
+      loki_tls_private_key_file: *loki_tls_private_key_file
+      loki_tls_cert_file: *loki_tls_cert_file
+      loki_openshift_route: *loki_openshift_route
+
+  k8s/crypto/transfer:
+    short_description: Apply the Loki TLS Secret on Kubernetes
+    description:
+      - "Creates or updates the Kubernetes Secret that stores the Loki TLS server keypair."
+    options:
+      k8s_namespace: *k8s_namespace
+      remote_deploy_dir: *remote_deploy_dir
+      loki_container_name: *loki_container_name
+      loki_remote_config_dir: *loki_remote_config_dir
+      loki_tls_private_key_file: *loki_tls_private_key_file
+      loki_tls_cert_file: *loki_tls_cert_file
+      loki_k8s_resource_name: *loki_k8s_resource_name
+      loki_k8s_part_of: *loki_k8s_part_of
+      loki_use_tls: *loki_use_tls
+
+  crypto/fetch:
+    short_description: Fetch Loki TLS certificates
+    description:
+      - "Fetches the generated Loki TLS certificate material to the control node."
+    options:
+      fetched_artifacts_dir: *fetched_artifacts_dir
+      remote_deploy_dir: *remote_deploy_dir
+      loki_remote_config_dir: *loki_remote_config_dir
+      loki_tls_cert_file: *loki_tls_cert_file
+      loki_use_tls: *loki_use_tls
+
+  crypto/rm:
+    short_description: Remove Loki TLS materials
+    description:
+      - "Deletes the Loki TLS directory and removes the Kubernetes Secret when Kubernetes/OpenShift mode is enabled."
+    options:
+      loki_remote_config_dir: *loki_remote_config_dir
+      remote_deploy_dir: *remote_deploy_dir
+      loki_use_tls: *loki_use_tls
+      loki_use_k8s: *loki_use_k8s
+      loki_use_openshift: *loki_use_openshift
+
+  k8s/crypto/rm:
+    short_description: Remove the Loki TLS Secret
+    description:
+      - "Deletes the Kubernetes Secret that stores the Loki TLS server keypair."
+    options:
+      k8s_namespace: *k8s_namespace
+      loki_container_name: *loki_container_name
+      loki_k8s_resource_name: *loki_k8s_resource_name

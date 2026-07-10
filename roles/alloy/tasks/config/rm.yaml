@@ -1,0 +1,16 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Alloy config directory
+  ansible.builtin.file:
+    path: "{{ alloy_remote_config_dir }}"
+    state: absent
+
+- name: Delete Alloy k8s ConfigMap
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.alloy
+    tasks_from: k8s/config/rm
+  when: alloy_use_k8s or alloy_use_openshift

@@ -9,6 +9,7 @@
 - [Tasks](#tasks)
   - [install](#install)
   - [get\_container\_client](#get_container_client)
+  - [get\_container\_client\_socket](#get_container_client_socket)
   - [start](#start)
   - [stop](#stop)
   - [rm](#rm)
@@ -20,6 +21,7 @@
   - [volume/create](#volumecreate)
   - [volume/rm](#volumerm)
   - [docker/install](#dockerinstall)
+  - [docker/get\_socket](#dockerget_socket)
   - [docker/start](#dockerstart)
   - [docker/stop](#dockerstop)
   - [docker/rm](#dockerrm)
@@ -30,6 +32,7 @@
   - [docker/volume/create](#dockervolumecreate)
   - [docker/volume/rm](#dockervolumerm)
   - [podman/install](#podmaninstall)
+  - [podman/get\_socket](#podmanget_socket)
   - [podman/start](#podmanstart)
   - [podman/stop](#podmanstop)
   - [podman/rm](#podmanrm)
@@ -84,6 +87,24 @@ Selects the container runtime used by generic lifecycle tasks. Uses `container_c
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: get_container_client
+```
+
+### get_container_client_socket
+
+> Resolve the Docker-compatible socket for the selected container client
+
+Uses `container_socket` when provided. Otherwise discovers the local Docker or Podman socket for the selected container client. For Unix sockets, preserves the endpoint in `container_socket` and sets `container_socket_path` for bind mounts.
+
+```yaml
+- name: Resolve the Docker-compatible socket for the selected container client
+  vars:
+    # Selects the container client to verify or use. Leave it empty to auto-detect `podman` first and then `docker`.
+    container_client: "{{ lookup('env', 'CONTAINER_CLIENT') or '' }}"
+    # Optional Docker-compatible API endpoint for the selected container client. When omitted, the role discovers the local Docker or Podman socket. Example: `unix:///run/user/1000/podman/podman.sock`.
+    container_socket: "unix:///run/user/1000/podman/podman.sock"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: get_container_client_socket
 ```
 
 ### start
@@ -277,6 +298,19 @@ Installs the Docker runtime on supported Linux hosts. Enables the Docker service
     tasks_from: docker/install
 ```
 
+### docker/get_socket
+
+> Resolve the Docker socket from the current Docker context
+
+Reads the active Docker context and sets `container_socket`. For Unix endpoints, also sets `container_socket_path` for bind mounts.
+
+```yaml
+- name: Resolve the Docker socket from the current Docker context
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: docker/get_socket
+```
+
 ### docker/start
 
 > Start a container with Docker
@@ -322,6 +356,9 @@ Starts or updates a Docker container with the requested image, command, environm
     # Applies runtime ulimit settings to the container. Example: `['nofile=65536:65536']`.
     container_ulimits:
       - "nofile=65536:65536"
+    # Applies runtime security options to the container. Example: `['label=disable']`.
+    container_security_opts:
+      - "label=disable"
     # Defines environment variables passed to the container process. Example: `{'FABRIC_LOGGING_SPEC': 'INFO', 'ORDERER_GENERAL_LISTENPORT': '7050'}`.
     container_env:
       FABRIC_LOGGING_SPEC: "INFO"
@@ -554,6 +591,19 @@ Installs the Podman runtime on supported hosts. Verifies that the Podman client 
     tasks_from: podman/install
 ```
 
+### podman/get_socket
+
+> Resolve the Podman socket from system information
+
+Reads Podman system information and sets `container_socket`. For Unix endpoints, also sets `container_socket_path` for bind mounts. Sets `container_socket_requires_root` when the selected socket belongs to a rootful Podman service.
+
+```yaml
+- name: Resolve the Podman socket from system information
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: podman/get_socket
+```
+
 ### podman/start
 
 > Start a container with Podman
@@ -598,6 +648,9 @@ Starts or updates a Podman container with the requested image, command, environm
     # Mounts host paths or named volumes into the container. Example: `['/opt/fabricx/orderer/config:/etc/fabricx:ro']`.
     container_volumes:
       - "/opt/fabricx/orderer/config:/etc/fabricx:ro"
+    # Applies runtime security options to the container. Example: `['label=disable']`.
+    container_security_opts:
+      - "label=disable"
     # Defines environment variables passed to the container process. Example: `{'FABRIC_LOGGING_SPEC': 'INFO', 'ORDERER_GENERAL_LISTENPORT': '7050'}`.
     container_env:
       FABRIC_LOGGING_SPEC: "INFO"

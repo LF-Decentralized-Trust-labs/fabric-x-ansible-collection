@@ -130,5 +130,5 @@ Namespaced playbooks are collections of playbooks tailored for a specific group 
 | [committer](./committer/README.md)               | Operates Fabric-X committer services and their PostgreSQL or YugabyteDB backend targeting the `fabric_x_committers` group.               |
 | [fxconfig](./fxconfig/README.md)                 | Builds, endorses, and submits Fabric-X configuration transactions including namespace creation. Run after `start` during initialization. |
 | [loadgen](./loadgen/README.md)                   | Operates load generators: start, stop, reconfigure submission rate at runtime, collect metrics and logs.                                 |
-| [monitoring](./monitoring/README.md)             | Operates observability components: Prometheus, Grafana, node exporter, PostgreSQL exporter, Elasticsearch, and Jaeger.                   |
+| [monitoring](./monitoring/README.md)             | Operates observability components: Prometheus, Grafana, Loki, Alloy, node exporter, PostgreSQL exporter, Elasticsearch, and Jaeger.      |
 | [yugabyte](./yugabyte/README.md)                 | Standalone TLS certificate generation for YugabyteDB clusters. Most YugabyteDB lifecycle is handled through the `committer` namespace.   |

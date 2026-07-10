@@ -35,6 +35,24 @@
       when:
         - grafana_web_port is defined
     # =========================
+    # Alloy
+    # =========================
+    - name: Stop Alloy
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.alloy
+        tasks_from: stop
+      when:
+        - alloy_port is defined
+    # =========================
+    # Loki
+    # =========================
+    - name: Stop Loki
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.loki
+        tasks_from: stop
+      when:
+        - loki_port is defined
+    # =========================
     # Prometheus
     # =========================
     - name: Stop Prometheus

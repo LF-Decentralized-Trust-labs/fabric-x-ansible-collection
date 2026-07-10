@@ -20,6 +20,7 @@
     grafana_k8s_datasources_path: "{{ grafana_remote_config_dir }}/datasources/{{ grafana_datasource_file }}"
     grafana_k8s_dashboards_path: "{{ grafana_remote_config_dir }}/dashboards/{{ grafana_dashboards_file }}"
     grafana_k8s_prometheus_ca_path: "{{ grafana_remote_config_dir }}/tls/{{ prometheus_host }}/ca.crt"
+    grafana_k8s_loki_ca_path: "{{ grafana_remote_config_dir }}/tls/{{ loki_host }}/ca.crt"
   kubernetes.core.k8s:
     state: present
     namespace: "{{ k8s_namespace | default('default') }}"

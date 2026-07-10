@@ -79,6 +79,12 @@ spec:
               subPath: prometheus-ca.crt
               readOnly: true
 {% endif %}
+{% if loki_host is defined and hostvars[loki_host].loki_use_tls is defined and hostvars[loki_host].loki_use_tls %}
+            - name: config
+              mountPath: {{ grafana_container_config_dir }}/tls/{{ loki_host }}/ca.crt
+              subPath: loki-ca.crt
+              readOnly: true
+{% endif %}
 {% if grafana_use_tls %}
             - name: secret
               mountPath: {{ grafana_container_config_dir }}/tls/{{ grafana_tls_private_key_file }}

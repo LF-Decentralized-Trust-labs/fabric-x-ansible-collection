@@ -164,11 +164,18 @@ argument_specs:
       k8s_fetched_logs_dir: *k8s_fetched_logs_dir
       k8s_fetched_logs_file: *k8s_fetched_logs_file
 
+  get_namespaces:
+    short_description: Build Kubernetes namespace targets
+    description:
+      - Discovers unique C(k8s_namespace) values from inventory host variables.
+      - Sets C(k8s_namespaces), the sorted namespace list used by consumers that need inventory-wide namespace targets.
+    options: {}
+
   rbac/apply:
     short_description: Apply RBAC resources for Kubernetes service discovery
     description:
-      - Creates or updates a ServiceAccount, ClusterRole, and ClusterRoleBinding for Prometheus Kubernetes service discovery.
-      - The ClusterRole grants read access to pods, nodes, services, and endpoints.
+      - Creates or updates a ServiceAccount, ClusterRole, and ClusterRoleBinding for Kubernetes service discovery.
+      - The ClusterRole grants the read access specified by the consumer role.
       - Resource names are controlled by C(k8s_rbac_resource_name) and labels include C(k8s_rbac_part_of).
     options:
       k8s_namespace: *k8s_namespace
