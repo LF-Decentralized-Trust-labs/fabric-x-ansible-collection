@@ -122,18 +122,6 @@ argument_specs:
         default: false
         description:
           - "Set to C(true) to create a LoadBalancer Service entry that exposes the Alloy HTTP port externally."
-      alloy_k8s_cluster_scope: &alloy_k8s_cluster_scope
-        type: bool
-        default: true
-        description:
-          - "Use cluster-scoped RBAC for Alloy pod discovery."
-          - "Set to C(false) when Alloy only collects logs from C(alloy_k8s_namespaces) and the deployment user cannot create ClusterRoles."
-      alloy_k8s_namespaces: &alloy_k8s_namespaces
-        type: list
-        elements: str
-        description:
-          - "Optional Kubernetes namespaces Alloy should discover pod logs from."
-          - "When omitted, Alloy discovers pods from all namespaces its service account can read."
       remote_config_dir: &remote_config_dir
         type: path
         description:
@@ -327,7 +315,6 @@ argument_specs:
       alloy_k8s_resource_name: *alloy_k8s_resource_name
       alloy_k8s_node_port: *alloy_k8s_node_port
       alloy_k8s_loadbalancer_expose_port: *alloy_k8s_loadbalancer_expose_port
-      alloy_k8s_cluster_scope: *alloy_k8s_cluster_scope
       k8s_namespace: *k8s_namespace
 
   k8s/data/rm:
@@ -341,11 +328,10 @@ argument_specs:
   k8s/config/transfer:
     short_description: Apply Alloy RBAC and ConfigMap
     description:
-      - "Applies Alloy's RBAC (cluster- or namespace-scoped) and ConfigMap on Kubernetes/OpenShift."
+      - "Applies Alloy's cluster-scoped RBAC and ConfigMap on Kubernetes/OpenShift."
     options:
       alloy_k8s_resource_name: *alloy_k8s_resource_name
       alloy_k8s_part_of: *alloy_k8s_part_of
-      alloy_k8s_cluster_scope: *alloy_k8s_cluster_scope
       alloy_remote_config_dir: *alloy_remote_config_dir
       remote_config_dir: *remote_config_dir
       loki_host: *loki_host
@@ -354,10 +340,9 @@ argument_specs:
   k8s/config/rm:
     short_description: Remove Alloy RBAC and ConfigMap
     description:
-      - "Deletes Alloy's ConfigMap and RBAC (cluster- or namespace-scoped) from Kubernetes/OpenShift."
+      - "Deletes Alloy's ConfigMap and cluster-scoped RBAC from Kubernetes/OpenShift."
     options:
       alloy_k8s_resource_name: *alloy_k8s_resource_name
-      alloy_k8s_cluster_scope: *alloy_k8s_cluster_scope
       k8s_namespace: *k8s_namespace
 
   openshift/start:
@@ -398,7 +383,6 @@ argument_specs:
       alloy_labels: *alloy_labels
       container_socket: *container_socket
       alloy_docker_exclude_container_regex: *alloy_docker_exclude_container_regex
-      alloy_k8s_namespaces: *alloy_k8s_namespaces
       loki_host: *loki_host
       fetched_artifacts_dir: *fetched_artifacts_dir
       remote_config_dir: *remote_config_dir

@@ -316,8 +316,6 @@ Deletes the Alloy StatefulSet, Service, ConfigMap, and RBAC resources from Kuber
     alloy_k8s_node_port: 1000
     # Set to `true` to create a LoadBalancer Service entry that exposes the Alloy HTTP port externally.
     alloy_k8s_loadbalancer_expose_port: false
-    # Use cluster-scoped RBAC for Alloy pod discovery. Set to `false` when Alloy only collects logs from `alloy_k8s_namespaces` and the deployment user cannot create ClusterRoles.
-    alloy_k8s_cluster_scope: true
     # Target Kubernetes/OpenShift namespace for this host's resources.
     k8s_namespace: "string"
   ansible.builtin.include_role:
@@ -347,7 +345,7 @@ Deletes the PersistentVolumeClaim created for the Alloy StatefulSet.
 
 > Apply Alloy RBAC and ConfigMap
 
-Applies Alloy's RBAC (cluster- or namespace-scoped) and ConfigMap on Kubernetes/OpenShift.
+Applies Alloy's cluster-scoped RBAC and ConfigMap on Kubernetes/OpenShift.
 
 ```yaml
 - name: Apply Alloy RBAC and ConfigMap
@@ -356,8 +354,6 @@ Applies Alloy's RBAC (cluster- or namespace-scoped) and ConfigMap on Kubernetes/
     alloy_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Alloy resources.
     alloy_k8s_part_of: monitoring
-    # Use cluster-scoped RBAC for Alloy pod discovery. Set to `false` when Alloy only collects logs from `alloy_k8s_namespaces` and the deployment user cannot create ClusterRoles.
-    alloy_k8s_cluster_scope: true
     # Directory for Alloy configuration files on the remote host.
     alloy_remote_config_dir: "{{ remote_config_dir }}"
     # Remote configuration directory consumed by `alloy_remote_config_dir`.
@@ -375,15 +371,13 @@ Applies Alloy's RBAC (cluster- or namespace-scoped) and ConfigMap on Kubernetes/
 
 > Remove Alloy RBAC and ConfigMap
 
-Deletes Alloy's ConfigMap and RBAC (cluster- or namespace-scoped) from Kubernetes/OpenShift.
+Deletes Alloy's ConfigMap and cluster-scoped RBAC from Kubernetes/OpenShift.
 
 ```yaml
 - name: Remove Alloy RBAC and ConfigMap
   vars:
     # Base Kubernetes resource name for Alloy.
     alloy_k8s_resource_name: "{{ inventory_hostname }}"
-    # Use cluster-scoped RBAC for Alloy pod discovery. Set to `false` when Alloy only collects logs from `alloy_k8s_namespaces` and the deployment user cannot create ClusterRoles.
-    alloy_k8s_cluster_scope: true
     # Target Kubernetes/OpenShift namespace for this host's resources.
     k8s_namespace: "string"
   ansible.builtin.include_role:
@@ -463,8 +457,6 @@ Renders and uploads the Alloy River configuration file to the remote host. Appli
     container_socket: "unix:///path/to/socket"
     # Regex matching Docker container names to exclude from log collection.
     alloy_docker_exclude_container_regex: ""
-    # Optional Kubernetes namespaces Alloy should discover pod logs from. When omitted, Alloy discovers pods from all namespaces its service account can read.
-    alloy_k8s_namespaces: ["entry1", "entry2"]
     # Inventory host name of the Loki instance Alloy forwards logs to.
     loki_host: "string"
     # Control-node directory where fetched TLS artifacts are written and read.

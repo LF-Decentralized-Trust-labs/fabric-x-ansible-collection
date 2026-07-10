@@ -12,20 +12,9 @@
     name: "{{ alloy_k8s_resource_name }}-config"
     namespace: "{{ k8s_namespace | default('default') }}"
 
-- name: Delete Alloy RBAC (cluster-scoped)
+- name: Delete Alloy RBAC
   vars:
     k8s_rbac_resource_name: "{{ alloy_k8s_resource_name }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.k8s
     tasks_from: rbac/rm
-  when:
-    - alloy_k8s_cluster_scope
-
-- name: Delete Alloy RBAC (namespace-scoped)
-  vars:
-    k8s_rbac_resource_name: "{{ alloy_k8s_resource_name }}"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.k8s
-    tasks_from: rbac/rm-namespaced
-  when:
-    - not alloy_k8s_cluster_scope

@@ -10,6 +10,7 @@
   - [namespace/create](#namespacecreate)
   - [registry/create\_pull\_secret](#registrycreate_pull_secret)
   - [fetch\_logs](#fetch_logs)
+  - [get\_namespaces](#get_namespaces)
   - [rbac/apply](#rbacapply)
   - [rbac/rm](#rbacrm)
 
@@ -103,11 +104,24 @@ Collects pod logs from the target namespace for pods matched by `k8s_pod_label_s
     tasks_from: fetch_logs
 ```
 
+### get_namespaces
+
+> Build Kubernetes namespace targets
+
+Discovers unique `k8s_namespace` values from inventory host variables. Sets `k8s_namespaces`, the sorted namespace list used by consumers that need inventory-wide namespace targets.
+
+```yaml
+- name: Build Kubernetes namespace targets
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: get_namespaces
+```
+
 ### rbac/apply
 
 > Apply RBAC resources for Kubernetes service discovery
 
-Creates or updates a ServiceAccount, ClusterRole, and ClusterRoleBinding for Prometheus Kubernetes service discovery. The ClusterRole grants read access to pods, nodes, services, and endpoints. Resource names are controlled by `k8s_rbac_resource_name` and labels include `k8s_rbac_part_of`.
+Creates or updates a ServiceAccount, ClusterRole, and ClusterRoleBinding for Kubernetes service discovery. The ClusterRole grants the read access specified by the consumer role. Resource names are controlled by `k8s_rbac_resource_name` and labels include `k8s_rbac_part_of`.
 
 ```yaml
 - name: Apply RBAC resources for Kubernetes service discovery

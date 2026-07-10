@@ -48,9 +48,6 @@ alloy_k8s_wait_timeout: 120
 alloy_k8s_fs_group: 1000
 # Set to C(true) to create a LoadBalancer Service entry that exposes the Alloy HTTP port externally.
 alloy_k8s_loadbalancer_expose_port: false
-# Use cluster-scoped RBAC for Alloy pod discovery.
-# Set to C(false) when Alloy only collects logs from C(alloy_k8s_namespaces) and the deployment user cannot create ClusterRoles.
-alloy_k8s_cluster_scope: true
 # Enable HTTPS for Alloy's HTTP endpoint and TLS-aware Kubernetes/OpenShift probes.
 alloy_use_tls: false
 # Filename used for the Alloy TLS private key.

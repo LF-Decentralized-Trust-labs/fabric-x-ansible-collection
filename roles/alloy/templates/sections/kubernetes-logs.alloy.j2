@@ -5,10 +5,10 @@
 // Discovers Kubernetes pods whose container logs Alloy can collect.
 discovery.kubernetes "pods" {
   role = "pod"
-{% if alloy_k8s_namespaces is defined and alloy_k8s_namespaces | length > 0 %}
+{% if k8s_namespaces is defined and k8s_namespaces | length > 0 %}
   namespaces {
     names = [
-{% for namespace in alloy_k8s_namespaces %}
+{% for namespace in k8s_namespaces %}
       "{{ namespace }}",
 {% endfor %}
     ]

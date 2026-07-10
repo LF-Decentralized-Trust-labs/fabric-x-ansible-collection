@@ -187,7 +187,6 @@ argument_specs:
           - "Optional certificate organization data forwarded to OpenSSL."
       k8s_namespace: &k8s_namespace
         type: str
-        required: true
         description:
           - "Target Kubernetes/OpenShift namespace for this host's resources."
       k8s_image_pull_secret: &k8s_image_pull_secret

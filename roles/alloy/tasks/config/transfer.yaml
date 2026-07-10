@@ -17,6 +17,13 @@
   when:
     - alloy_use_container
 
+- name: Get Kubernetes namespaces
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: get_namespaces
+  when:
+    - alloy_use_k8s or alloy_use_openshift
+
 - name: Transfer Loki TLS CA certificate
   when:
     - hostvars[loki_host].loki_use_tls is defined
