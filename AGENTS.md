@@ -125,25 +125,29 @@ These connections are not visible from within a single role:
 ## Essential commands
 
 ```shell
-make lint                  # validate before committing
+make lint                  # full validation; run only when the user explicitly asks
 make start / stop / teardown / wipe   # lifecycle
 make install-deps          # set up control node (venv + python + ansible deps)
 make help                  # full command reference
 ```
 
+Agents must use the Makefile targets for repository checks. Do not rewrite or bypass the project check scripts (for example, with ad hoc Python replacements) unless the user explicitly asks for that.
+
+`make lint` is very time consuming. Do not run it unless the user explicitly asks you to run `make lint`.
+
 ## Modifying a role
 
 1. Role variables and documentation are managed exclusively through [`roles/<role>/meta/argument_specs.yaml`](roles/). Both `defaults/main.yaml` and `README.md` are auto-generated — never edit them directly.
-2. When you change `argument_specs.yaml`, run these checks in order:
+2. When you change `argument_specs.yaml`, use these Makefile checks in order:
 
    ```shell
    make check-argument-specs
    make check-trailing-spaces
    make check-license-header
-   make lint
    ```
 
-3. Only when all checks pass, regenerate the docs:
+3. Run `make lint` only if the user explicitly asks for it.
+4. Only when all checks pass, regenerate the docs:
 
    ```shell
    make generate-roles-docs
