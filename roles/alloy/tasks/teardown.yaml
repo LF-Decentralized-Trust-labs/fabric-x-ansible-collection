@@ -26,4 +26,3 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.alloy
     tasks_from: data/rm
-  when: alloy_use_container
