@@ -17,7 +17,7 @@ The diagram below summarizes this inventory's Fabric-X services and how they fit
 
 ## Inventory Details
 
-Fabric CA, CA databases, orderer, committer, PostgreSQL, load generator, Prometheus, Grafana, Loki, and Alloy use OpenShift task paths. Ansible still runs from the control node, but inventory hosts represent OpenShift resources rather than SSH machines. Node Exporter is not deployed on OpenShift; node-level metrics come from the OpenShift platform monitoring stack.
+Fabric CA, CA databases, orderer, committer, PostgreSQL, load generator, node exporter, Prometheus, Grafana, Loki, and Alloy use OpenShift task paths. Ansible still runs from the control node, but inventory hosts represent OpenShift resources rather than SSH machines.
 
 This inventory deploys these logical services as OpenShift workloads, services, and routes:
 
@@ -25,7 +25,7 @@ This inventory deploys these logical services as OpenShift workloads, services, 
 - 4 orderer groups. Each group has 1 router, 1 consenter, 1 assembler, and 1 batcher.
 - 1 committer with validator, verifier, coordinator, sidecar, query service, and PostgreSQL storage.
 - 1 load generator.
-- Monitoring with PostgreSQL exporter, Prometheus, Grafana, Loki, Alloy, and OpenShift platform monitoring for node-level metrics.
+- Monitoring with node exporter, PostgreSQL exporter, Prometheus, Grafana, Loki, and Alloy.
 
 > [!NOTE]
 > If OpenShift routes map to `127.0.0.1`, binary CLIs can still work, but containerized binaries may fail because `127.0.0.1` is resolved inside the container network namespace. Run `make oc-config-hosts` (requires `sudo`) to setup the routes in `/etc/hosts` before starting Fabric-X.

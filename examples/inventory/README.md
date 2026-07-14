@@ -220,7 +220,7 @@ export K8S_NODE_IP=<node-ip>
 
 ### OpenShift
 
-OpenShift inventories deploy Kubernetes-compatible workloads and services, then expose selected HTTP or HTTP2-capable ports with OpenShift Routes instead of Kubernetes NodePort or LoadBalancer services. Node Exporter is not deployed on OpenShift; node-level metrics are read from the OpenShift platform monitoring stack.
+OpenShift inventories deploy Kubernetes-compatible workloads and services, then expose selected HTTP or HTTP2-capable ports with OpenShift Routes instead of Kubernetes NodePort or LoadBalancer services. Node Exporter runs as a Kubernetes-compatible DaemonSet when the cluster allows the required host mounts and security context.
 
 [`openshift/group_vars/all/env.yaml`](./openshift/group_vars/all/env.yaml) uses local Ansible execution against OpenShift services and stores generated deployment state below `out_dir`.
 
