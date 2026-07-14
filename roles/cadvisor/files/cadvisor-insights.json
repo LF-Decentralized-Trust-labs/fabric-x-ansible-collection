@@ -989,10 +989,10 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "cAdvisor Docker Insights",
+  "title": "cAdvisor Container Insights",
   "uid": "ae3c41d7-cea5-4cca-a918-5708706b4d1a",
   "version": 14,
   "weekStart": "",
   "gnetId": 19908,
-  "description": "This Grafana dashboard offers a basic overview of key performance metrics for Docker containers in your system."
+  "description": "This Grafana dashboard offers a basic overview of key performance metrics for containers in your system."
 }
