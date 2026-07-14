@@ -277,8 +277,6 @@ Writes the datasource and dashboard provisioning files to the remote Grafana con
     grafana_use_k8s: false
     # Selects the OpenShift deployment branch.
     grafana_use_openshift: false
-    # Sets the OpenShift platform monitoring Thanos Querier URL used by the Grafana datasource. Used when `grafana_use_openshift` is true.
-    openshift_platform_monitoring_thanos_url: "string"
     # Sets the inventory host name of the Prometheus instance used by Grafana. Example: `prometheus-1.example.com`. The referenced host must expose the Prometheus inventory vars used by the templates.
     prometheus_host: "prometheus-1.example.com"
     # Sets the shared fetched-artifacts root used by Grafana. Example: `/tmp/fabricx-artifacts`. Required when relying on it to derive paths for fetched TLS artifacts.
