@@ -359,6 +359,8 @@ Starts or updates a Docker container with the requested image, command, environm
     # Applies runtime security options to the container. Example: `['label=disable']`.
     container_security_opts:
       - "label=disable"
+    # Sets the cgroup namespace mode for the container. Example: `host`, to share the host's cgroup namespace so the container can read other containers' cgroup stats.
+    container_cgroupns_mode: "string"
     # Defines environment variables passed to the container process. Example: `{'FABRIC_LOGGING_SPEC': 'INFO', 'ORDERER_GENERAL_LISTENPORT': '7050'}`.
     container_env:
       FABRIC_LOGGING_SPEC: "INFO"
@@ -651,6 +653,8 @@ Starts or updates a Podman container with the requested image, command, environm
     # Applies runtime security options to the container. Example: `['label=disable']`.
     container_security_opts:
       - "label=disable"
+    # Sets the cgroup namespace mode for the container. Example: `host`, to share the host's cgroup namespace so the container can read other containers' cgroup stats.
+    container_cgroupns_mode: "string"
     # Defines environment variables passed to the container process. Example: `{'FABRIC_LOGGING_SPEC': 'INFO', 'ORDERER_GENERAL_LISTENPORT': '7050'}`.
     container_env:
       FABRIC_LOGGING_SPEC: "INFO"

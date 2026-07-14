@@ -139,6 +139,11 @@ argument_specs:
         description:
           - "Applies runtime security options to the container."
           - "Example: C(['label=disable'])."
+      container_cgroupns_mode: &container_cgroupns_mode
+        type: str
+        description:
+          - "Sets the cgroup namespace mode for the container."
+          - "Example: C(host), to share the host's cgroup namespace so the container can read other containers' cgroup stats."
       container_env: &container_env
         type: dict
         description:
@@ -470,6 +475,7 @@ argument_specs:
       container_volumes: *container_volumes
       container_ulimits: *container_ulimits
       container_security_opts: *container_security_opts
+      container_cgroupns_mode: *container_cgroupns_mode
       container_env: *container_env
       container_log_driver: *container_log_driver
       container_log_max_size: *container_log_max_size
@@ -629,6 +635,7 @@ argument_specs:
       container_cpus: *container_cpus
       container_volumes: *container_volumes
       container_security_opts: *container_security_opts
+      container_cgroupns_mode: *container_cgroupns_mode
       container_env: *container_env
       container_log_driver: *container_log_driver
       container_log_max_size: *container_log_max_size
