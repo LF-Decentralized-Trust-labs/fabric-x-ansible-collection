@@ -38,7 +38,7 @@ This inventory deploys these logical services on the local machine:
 - 1 committer with validator, verifier, coordinator, sidecar, and query service as binaries.
 - 1 PostgreSQL committer database as a container.
 - 1 load generator as a binary.
-- Monitoring with node exporter, PostgreSQL exporter, Prometheus, and Grafana.
+- Monitoring with node exporter, PostgreSQL exporter, Prometheus, Grafana, Loki, and Alloy.
 
 ```mermaid
 flowchart TD
@@ -47,6 +47,13 @@ flowchart TD
   network --> fabric_x
   all --> load_generators
   all --> monitoring
+  monitoring --> prometheus
+  monitoring --> grafana
+  monitoring --> loki
+  monitoring --> alloy
+  grafana --> prometheus
+  grafana --> loki
+  alloy --> loki
   fabric_cas --> fabric_ca_servers
   fabric_cas --> fabric_ca_dbs
   fabric_x --> fabric_x_orderers

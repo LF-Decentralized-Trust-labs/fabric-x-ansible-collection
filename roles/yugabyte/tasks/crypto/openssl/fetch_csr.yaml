@@ -4,18 +4,17 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Fetch OpenSSL CSR on control node
-  ansible.builtin.fetch:
-    src: "{{ yugabyte_remote_config_dir }}/tls/tls.csr"
-    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls.csr"
-    flat: true
+- name: Fetch OpenSSL CSR and extension files on control node
   when:
     - yugabyte_use_tls
-
-- name: Fetch OpenSSL extension file on control node
-  ansible.builtin.fetch:
-    src: "{{ yugabyte_remote_config_dir }}/tls/tls.ext"
-    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls.ext"
-    flat: true
-  when:
-    - yugabyte_use_tls
+  block:
+    - name: Fetch OpenSSL CSR on control node
+      ansible.builtin.fetch:
+        src: "{{ yugabyte_remote_config_dir }}/tls/tls.csr"
+        dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls.csr"
+        flat: true
+    - name: Fetch OpenSSL extension file on control node
+      ansible.builtin.fetch:
+        src: "{{ yugabyte_remote_config_dir }}/tls/tls.ext"
+        dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/tls.ext"
+        flat: true

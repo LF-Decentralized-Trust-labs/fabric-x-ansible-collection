@@ -1,0 +1,93 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Create Alloy data volume
+  vars:
+    container_volume_path: "{{ alloy_remote_data_dir }}"
+    container_volume_mode: "0o755"
+    container_volume_uid: "0"
+    container_volume_gid: "0"
+    container_volume_type: directory
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: volume/create
+
+- name: Set container client socket
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: get_container_client_socket
+
+- name: Set Alloy mandatory volumes
+  ansible.builtin.set_fact:
+    alloy_container_volumes:
+      - "{{ alloy_remote_config_dir }}:{{ alloy_container_config_dir }}:ro,z"
+      - "{{ alloy_remote_data_dir }}:{{ alloy_container_data_dir }}:z"
+
+- name: Add container socket volume
+  vars:
+    alloy_socket_volume: "{{ container_socket_path }}:/var/run/docker.sock:rw,z"
+  ansible.builtin.set_fact:
+    alloy_container_volumes: "{{ alloy_container_volumes + [alloy_socket_volume] }}"
+  when:
+    - container_socket_path | default('') | length > 0
+
+- name: Get Alloy binary logs
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.alloy
+    tasks_from: get_bin_logs
+
+- name: Ensure binary log directories exist before mounting
+  ansible.builtin.file:
+    path: "{{ current_bin_log_dir }}"
+    state: directory
+    mode: "0o755"
+  loop: "{{ alloy_bin_log_dirs }}"
+  loop_control:
+    loop_var: current_bin_log_dir
+  when:
+    - alloy_bin_log_dirs | length > 0
+
+- name: Add binary log volumes
+  vars:
+    current_alloy_bin_log_volume: "{{ current_bin_log_dir }}:{{ current_bin_log_dir }}:ro,z"
+  ansible.builtin.set_fact:
+    alloy_container_volumes: "{{ alloy_container_volumes + [current_alloy_bin_log_volume] }}"
+  loop: "{{ alloy_bin_log_dirs }}"
+  loop_control:
+    loop_var: current_bin_log_dir
+  when:
+    - alloy_bin_log_dirs | length > 0
+
+- name: Start Alloy container
+  vars:
+    container_name: "{{ alloy_container_name }}"
+    container_image: "{{ alloy_image }}"
+    container_command: >-
+      run
+      --server.http.listen-addr=0.0.0.0:{{ alloy_port }}
+      --storage.path={{ alloy_container_data_dir }}
+      {{ alloy_container_config_dir }}/config.alloy
+    container_ports:
+      - "{{ alloy_port }}:{{ alloy_port }}"
+    container_volumes: "{{ alloy_container_volumes }}"
+    # `grafana/alloy` (Ubuntu-minimal) has no curl/wget/nc — only bash. Use a
+    # /dev/tcp HTTP probe for plain HTTP; TLS can't be checked with the available
+    # tools, so fall back to a no-op healthcheck when TLS is enabled.
+    container_healthcheck_test: >-
+      {% if alloy_use_tls %}
+      true
+      {% else %}
+      bash -c 'exec 42<>/dev/tcp/localhost/{{ alloy_port }}; echo -e "GET /-/healthy HTTP/1.1\nHost: localhost\nConnection: close\n\n" >&42; head -1 <&42 | cut -d" " -f2 | grep -q "^200$" || exit 1; exec 42<&-; exec 42>&-'
+      {% endif %}
+    container_wait_until_running: true
+    container_security_opts:
+      - label=disable
+    container_wait_port: "{{ alloy_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start
+  when:
+    - alloy_use_container

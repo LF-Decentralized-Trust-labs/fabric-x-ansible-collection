@@ -28,7 +28,7 @@ This inventory describes a larger container-based Fabric-X deployment:
 - 7 validators, 7 verifiers, 1 coordinator, 1 sidecar, and 1 query service.
 - 3 YugabyteDB masters and 7 YugabyteDB tablets.
 - 2 load generators.
-- Monitoring with 16 node exporters, Prometheus, and Grafana.
+- Monitoring with 16 node exporters, Prometheus, Grafana, Loki, and Alloy.
 
 ```mermaid
 flowchart TD
@@ -36,6 +36,13 @@ flowchart TD
   network --> fabric_x
   all --> load_generators
   all --> monitoring
+  monitoring --> prometheus
+  monitoring --> grafana
+  monitoring --> loki
+  monitoring --> alloy
+  grafana --> prometheus
+  grafana --> loki
+  alloy --> loki
   fabric_x --> fabric_x_orderers
   fabric_x --> fabric_x_committers
   fabric_x_committers --> fabric_x_committer

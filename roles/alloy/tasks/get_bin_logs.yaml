@@ -1,0 +1,36 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Initialize Alloy binary log facts
+  ansible.builtin.set_fact:
+    alloy_bin_logs: {}
+    alloy_bin_log_dirs: []
+
+- name: Get colocated binary services for Alloy log collection
+  vars:
+    bin_host: "{{ ansible_host }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: get_bin_services
+
+- name: Build Alloy binary log facts
+  vars:
+    current_alloy_bin_hostvars: "{{ hostvars[current_alloy_bin_host] }}"
+    current_alloy_bin_log_dir: >-
+      {{
+        current_alloy_bin_hostvars.bin_remote_logs_dir
+        | default(current_alloy_bin_hostvars.remote_node_dir ~ '/logs')
+      }}
+    current_alloy_bin_log_file: "{{ current_alloy_bin_hostvars.bin_remote_logs_file | default('logs.txt') }}"
+    current_alloy_bin_log_path: "{{ current_alloy_bin_log_dir }}/{{ current_alloy_bin_log_file }}"
+  ansible.builtin.set_fact:
+    alloy_bin_logs: "{{ alloy_bin_logs | combine({current_alloy_bin_host: current_alloy_bin_log_path}) }}"
+    alloy_bin_log_dirs: "{{ (alloy_bin_log_dirs + [current_alloy_bin_log_dir]) | unique }}"
+  loop: "{{ bin_service_hosts }}"
+  loop_control:
+    loop_var: current_alloy_bin_host
+  when:
+    - current_alloy_bin_hostvars.bin_collect_logs | default(true)

@@ -1,0 +1,11 @@
+// -------------------------------------------------------------------------
+// Alloy HTTP server TLS
+// -------------------------------------------------------------------------
+
+// Enables TLS for Alloy's HTTP server, including health and metrics endpoints.
+http {
+  tls {
+    cert_file = "{{ alloy_container_config_dir }}/tls/{{ alloy_tls_cert_file }}"
+    key_file  = "{{ alloy_container_config_dir }}/tls/{{ alloy_tls_private_key_file }}"
+  }
+}

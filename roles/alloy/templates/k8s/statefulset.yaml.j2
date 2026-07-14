@@ -1,0 +1,106 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ alloy_k8s_resource_name }}
+  labels:
+    app.kubernetes.io/name: {{ alloy_k8s_resource_name }}
+    app.kubernetes.io/component: alloy
+    app.kubernetes.io/part-of: {{ alloy_k8s_part_of }}
+spec:
+  serviceName: {{ alloy_k8s_resource_name }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ alloy_k8s_resource_name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ alloy_k8s_resource_name }}
+        app.kubernetes.io/component: alloy
+        app.kubernetes.io/part-of: {{ alloy_k8s_part_of }}
+      annotations:
+        checksum/config: "{{ lookup('file', alloy_remote_config_dir + '/config.alloy') | hash('sha256') }}"
+    spec:
+      serviceAccountName: {{ alloy_k8s_resource_name }}
+      securityContext:
+        fsGroup: {{ alloy_k8s_fs_group }}
+      containers:
+        - name: alloy
+          image: {{ alloy_image }}
+          args:
+            - run
+            - --server.http.listen-addr=0.0.0.0:{{ alloy_port }}
+            - --storage.path={{ alloy_container_data_dir }}
+            - {{ alloy_container_config_dir }}/config.alloy
+          ports:
+            - name: http
+              containerPort: {{ alloy_port }}
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: {{ alloy_container_config_dir }}/config.alloy
+              subPath: config.alloy
+              readOnly: true
+{% if hostvars[loki_host].loki_use_tls is defined and hostvars[loki_host].loki_use_tls %}
+            - name: config
+              mountPath: {{ alloy_container_config_dir }}/tls/{{ loki_host }}/ca.crt
+              subPath: loki-ca.crt
+              readOnly: true
+{% endif %}
+{% if alloy_use_tls %}
+            - name: secret
+              mountPath: {{ alloy_container_config_dir }}/tls/{{ alloy_tls_private_key_file }}
+              subPath: {{ alloy_tls_private_key_file }}
+              readOnly: true
+            - name: secret
+              mountPath: {{ alloy_container_config_dir }}/tls/{{ alloy_tls_cert_file }}
+              subPath: {{ alloy_tls_cert_file }}
+              readOnly: true
+{% endif %}
+            - name: data
+              mountPath: {{ alloy_container_data_dir }}
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: http
+              scheme: "{{ 'HTTPS' if alloy_use_tls else 'HTTP' }}"
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /-/healthy
+              port: http
+              scheme: "{{ 'HTTPS' if alloy_use_tls else 'HTTP' }}"
+            initialDelaySeconds: 30
+            periodSeconds: 30
+      volumes:
+        - name: config
+          configMap:
+            name: {{ alloy_k8s_resource_name }}-config
+{% if alloy_use_tls %}
+        - name: secret
+          secret:
+            secretName: {{ alloy_k8s_resource_name }}-secret
+{% endif %}
+{% if k8s_image_pull_secret is defined and k8s_image_pull_secret %}
+      imagePullSecrets:
+        - name: {{ k8s_image_pull_secret }}
+{% endif %}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+{% if k8s_storage_class is defined and k8s_storage_class %}
+        storageClassName: {{ k8s_storage_class }}
+{% endif %}
+        resources:
+          requests:
+            storage: {{ k8s_storage_size }}

@@ -28,18 +28,17 @@
 # =========================
 # TLS certs
 # =========================
-- name: Fetch Hyperledger Fabric-X Committer TLS CA certificate
-  ansible.builtin.fetch:
-    src: "{{ committer_remote_config_dir }}/tls/ca.crt"
-    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/ca.crt"
-    flat: true
+- name: Fetch Hyperledger Fabric-X Committer TLS certificates
   when:
     - committer_use_tls
-
-- name: Fetch Hyperledger Fabric-X Committer TLS certificate
-  ansible.builtin.fetch:
-    src: "{{ committer_remote_config_dir }}/tls/server.crt"
-    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/server.crt"
-    flat: true
-  when:
-    - committer_use_tls
+  block:
+    - name: Fetch Hyperledger Fabric-X Committer TLS CA certificate
+      ansible.builtin.fetch:
+        src: "{{ committer_remote_config_dir }}/tls/ca.crt"
+        dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/ca.crt"
+        flat: true
+    - name: Fetch Hyperledger Fabric-X Committer TLS certificate
+      ansible.builtin.fetch:
+        src: "{{ committer_remote_config_dir }}/tls/server.crt"
+        dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/server.crt"
+        flat: true

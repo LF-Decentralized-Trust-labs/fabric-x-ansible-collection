@@ -1,0 +1,29 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Apply Alloy RBAC
+  vars:
+    k8s_rbac_resource_name: "{{ alloy_k8s_resource_name }}"
+    k8s_rbac_part_of: "{{ alloy_k8s_part_of }}"
+    k8s_rbac_clusterrole_api_groups:
+      - ""
+    k8s_rbac_clusterrole_resources:
+      - pods
+      - pods/log
+    k8s_rbac_clusterrole_verbs:
+      - get
+      - list
+      - watch
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: rbac/apply
+
+- name: Apply Alloy ConfigMap
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/configmap.yaml.j2

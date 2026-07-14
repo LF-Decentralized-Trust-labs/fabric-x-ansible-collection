@@ -311,3 +311,10 @@ all:
           grafana_password: adminPWD
           grafana_web_port: 3000
           prometheus_host: prometheus
+          loki_host: loki
+        loki:
+          loki_port: 9200
+          loki_grpc_port: 9201
+        alloy:
+          alloy_port: 9300
+          loki_host: loki

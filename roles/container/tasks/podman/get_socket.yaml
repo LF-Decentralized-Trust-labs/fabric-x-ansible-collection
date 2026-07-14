@@ -1,0 +1,21 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Get Podman information
+  containers.podman.podman_system_info:
+  register: container_podman_info_output
+
+- name: Set Podman socket from remote information
+  vars:
+    container_podman_info: "{{ container_podman_info_output.podman_system_info }}"
+    container_podman_remote_socket: "{{ container_podman_info.host.remoteSocket.path | default('') }}"
+  ansible.builtin.set_fact:
+    container_socket: "{{ container_podman_remote_socket }}"
+    container_socket_path: "{{ container_podman_remote_socket | regex_replace('^unix://', '') }}"
+    container_socket_requires_root: "{{ not (container_podman_info.host.security.rootless | default(false)) }}"
+  when:
+    - container_podman_info.host.remoteSocket.exists | default(false)
+    - container_podman_remote_socket | regex_search('^unix://') is not none

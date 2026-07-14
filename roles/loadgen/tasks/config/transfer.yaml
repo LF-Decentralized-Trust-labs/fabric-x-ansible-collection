@@ -50,22 +50,21 @@
     # =========================
     # HLFX Committer Sidecar TLS
     # =========================
-    - name: Ensure Hyperledger Fabric-X Committer Sidecar TLS folder exist
-      ansible.builtin.file:
-        path: "{{ loadgen_remote_config_dir }}/tls/sidecar"
-        state: directory
-        mode: "0o755"
-      when:
-        - hostvars[committer_sidecar_host].committer_use_tls is defined
-        - hostvars[committer_sidecar_host].committer_use_tls
     - name: Transfer Hyperledger Fabric-X Committer Sidecar TLS CA certificate
-      ansible.builtin.copy:
-        src: "{{ fetched_artifacts_dir }}/{{ committer_sidecar_host }}/tls/ca.crt"
-        dest: "{{ loadgen_remote_config_dir }}/tls/sidecar/ca.crt"
-        mode: "0o644"
       when:
         - hostvars[committer_sidecar_host].committer_use_tls is defined
         - hostvars[committer_sidecar_host].committer_use_tls
+      block:
+        - name: Ensure Hyperledger Fabric-X Committer Sidecar TLS folder exist
+          ansible.builtin.file:
+            path: "{{ loadgen_remote_config_dir }}/tls/sidecar"
+            state: directory
+            mode: "0o755"
+        - name: Transfer Hyperledger Fabric-X Committer Sidecar TLS CA certificate
+          ansible.builtin.copy:
+            src: "{{ fetched_artifacts_dir }}/{{ committer_sidecar_host }}/tls/ca.crt"
+            dest: "{{ loadgen_remote_config_dir }}/tls/sidecar/ca.crt"
+            mode: "0o644"
     # =========================
     # mTLS
     # =========================

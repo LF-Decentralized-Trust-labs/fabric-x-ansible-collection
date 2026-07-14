@@ -35,6 +35,24 @@
       when:
         - prometheus_port is defined
     # =========================
+    # Loki
+    # =========================
+    - name: Start the Loki service
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.loki
+        tasks_from: start
+      when:
+        - loki_port is defined
+    # =========================
+    # Alloy
+    # =========================
+    - name: Start the Alloy service
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.alloy
+        tasks_from: start
+      when:
+        - alloy_port is defined
+    # =========================
     # Grafana
     # =========================
     - name: Start the Grafana service

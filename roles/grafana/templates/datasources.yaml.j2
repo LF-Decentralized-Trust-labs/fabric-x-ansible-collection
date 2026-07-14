@@ -9,12 +9,12 @@ apiVersion: 1
 
 # List of datasource definitions
 datasources:
-  - name: "Prometheus"
-    uid: "000000001"
+{% if prometheus_host is defined %}
+  - name: {{ prometheus_host }}
     # Type of datasource plugin to use
-    type: "prometheus"
+    type: prometheus
     # Access mode - “proxy” lets Grafana forward queries through its backend
-    access: "proxy"
+    access: proxy
     # URL of the Prometheus server (environment variable substitution)
 {% if hostvars[prometheus_host].prometheus_use_tls is defined and hostvars[prometheus_host].prometheus_use_tls %}
     url: https://{{ hostvars[prometheus_host].ansible_host }}:{{ hostvars[prometheus_host].prometheus_port }}
@@ -44,11 +44,12 @@ datasources:
     version: 1
     # Allow editing of this datasource via the Grafana UI
     editable: true
+{% endif %}
 {% if grafana_use_openshift | default(false) %}
   - name: "OpenShift Platform Monitoring"
     uid: "openshift-platform-monitoring"
-    type: "prometheus"
-    access: "proxy"
+    type: prometheus
+    access: proxy
     url: {{ openshift_platform_monitoring_thanos_url }}
     jsonData:
       httpHeaderName1: "Authorization"
@@ -58,5 +59,42 @@ datasources:
     httpMethod: GET
     isDefault: true
     version: 1
+    editable: true
+{% endif %}
+{% if loki_host is defined %}
+  - name: {{ loki_host }}
+    # Type of datasource plugin to use
+    type: loki
+    # Access mode - “proxy” lets Grafana forward queries through its backend
+    access: proxy
+    # URL of the Loki server
+{% if hostvars[loki_host].loki_use_tls is defined and hostvars[loki_host].loki_use_tls %}
+    url: https://{{ hostvars[loki_host].ansible_host }}:{{ hostvars[loki_host].loki_port }}
+    # TLS settings to access a datasource behind TLS
+    jsonData:
+      # Enable TLS authentication
+      tlsAuth: true
+      # Enable CA certificate verification for TLS
+      tlsAuthWithCACert: true
+      # Disable skipping TLS certificate verification
+      tlsSkipVerify: false
+      # Maximum number of log lines returned per query
+      maxLines: 5000
+      # Query timeout in seconds
+      timeout: 60
+    secureJsonData:
+      # Path to the TLS CA certificate
+      tlsCACert: $__file{% raw %}{{% endraw %}{{ grafana_container_config_dir }}/tls/{{ loki_host }}/ca.crt{% raw %}}{% endraw %}
+{% else %}
+    url: http://{{ hostvars[loki_host].ansible_host }}:{{ hostvars[loki_host].loki_port }}
+    jsonData:
+      # Maximum number of log lines returned per query
+      maxLines: 5000
+      # Query timeout in seconds
+      timeout: 60
+{% endif %}
+    # Version of the datasource definition (used for migrations)
+    version: 1
+    # Allow editing of this datasource via the Grafana UI
     editable: true
 {% endif %}

@@ -6,7 +6,7 @@
 
 namespace: hyperledger
 name: fabricx
-version: "0.8.2"
+version: "0.8.5"
 repository: https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection.git
 readme: README.md
 authors:
@@ -25,3 +25,20 @@ dependencies:
   community.docker: ">=4.3.1"
   containers.podman: ">=1.16.2"
   kubernetes.core: ">=6.3.0"
+build_ignore:
+  - examples/images
+  - .github
+  - scripts
+  - mkdocs.yml
+  - AGENTS.md
+  - .markdownlint.yaml
+  - .gitignore
+  - .venv
+  - .worktrees
+  - plans
+  - site
+  - out
+  - .vscode
+  - .idea
+  - .env
+  - .DS_Store

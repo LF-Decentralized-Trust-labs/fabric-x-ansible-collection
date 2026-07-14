@@ -1,0 +1,53 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure Kubernetes namespace exists for Alloy
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+- name: Apply Alloy Service
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/service.yaml.j2
+
+- name: Apply Alloy NodePort Service
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/service-nodeport.yaml.j2
+  when: alloy_k8s_node_port is defined
+
+- name: Apply Alloy LoadBalancer Service
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/service-loadbalancer.yaml.j2
+  when: alloy_k8s_loadbalancer_expose_port
+
+- name: Transfer Alloy configuration (RBAC and ConfigMap)
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.alloy
+    tasks_from: k8s/config/transfer
+
+- name: Apply Alloy K8s crypto Secret
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.alloy
+    tasks_from: k8s/crypto/transfer
+  when: alloy_use_tls
+
+- name: Deploy Alloy StatefulSet
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/statefulset.yaml.j2
+    wait: true
+    wait_timeout: "{{ alloy_k8s_wait_timeout }}"

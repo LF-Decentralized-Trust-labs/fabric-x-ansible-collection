@@ -1,0 +1,44 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Delete Alloy StatefulSet
+  kubernetes.core.k8s:
+    state: absent
+    api_version: apps/v1
+    kind: StatefulSet
+    name: "{{ alloy_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
+
+- name: Delete Alloy Service
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Service
+    name: "{{ alloy_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
+
+- name: Delete Alloy NodePort Service
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Service
+    name: "{{ alloy_k8s_resource_name }}-nodeport"
+    namespace: "{{ k8s_namespace | default('default') }}"
+  when: alloy_k8s_node_port is defined
+
+- name: Delete Alloy LoadBalancer Service
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Service
+    name: "{{ alloy_k8s_resource_name }}-loadbalancer"
+    namespace: "{{ k8s_namespace | default('default') }}"
+  when: alloy_k8s_loadbalancer_expose_port
+
+- name: Delete Alloy configuration (ConfigMap)
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.alloy
+    tasks_from: k8s/config/rm

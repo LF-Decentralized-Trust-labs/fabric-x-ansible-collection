@@ -1,6 +1,6 @@
 # Monitoring Playbooks
 
-The `monitoring` playbooks operate observability components: node exporter, PostgreSQL exporter, Prometheus, Grafana, Elasticsearch, and Jaeger when those hosts are present in the inventory.
+The `monitoring` playbooks operate observability components: node exporter, PostgreSQL exporter, Prometheus, Grafana, Loki, Alloy, Elasticsearch, and Jaeger when those hosts are present in the inventory.
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -35,7 +35,7 @@ flowchart LR
 
 ## generate_crypto.yaml
 
-[`generate_crypto.yaml`](./generate_crypto.yaml) prepares TLS material for observability components that require it. It runs the relevant crypto setup/fetch tasks for monitoring hosts that define component-specific variables, such as Prometheus, Grafana, exporters, Elasticsearch, or Jaeger.
+[`generate_crypto.yaml`](./generate_crypto.yaml) prepares TLS material for observability components that require it. It runs the relevant crypto setup/fetch tasks for monitoring hosts that define component-specific variables, such as Prometheus, Grafana, Loki, Alloy, exporters, Elasticsearch, or Jaeger.
 
 ```shell
 ansible-playbook hyperledger.fabricx.monitoring.generate_crypto --extra-vars '{"target_hosts": "monitoring"}'
@@ -48,7 +48,7 @@ Properties:
 
 ## configs.yaml
 
-[`configs.yaml`](./configs.yaml) assembles the monitoring configuration for the selected topology. It transfers exporter configuration, discovers scrape targets from Fabric-X and database hosts, renders Prometheus configuration, transfers Grafana dashboards, and configures optional Elasticsearch or Jaeger services when present.
+[`configs.yaml`](./configs.yaml) assembles the monitoring configuration for the selected topology. It transfers exporter configuration, discovers scrape targets from Fabric-X and database hosts, renders Prometheus configuration, transfers Grafana dashboards, configures Loki and Alloy log collection when present, and configures optional Elasticsearch or Jaeger services when present.
 
 ```shell
 ansible-playbook hyperledger.fabricx.monitoring.configs --extra-vars '{"target_hosts": "monitoring"}'
@@ -61,7 +61,7 @@ Properties:
 
 ## start.yaml
 
-[`start.yaml`](./start.yaml) starts the monitoring stack described by the inventory. It conditionally starts node exporter, PostgreSQL exporter, Prometheus, Grafana, Elasticsearch, and Jaeger only on hosts that declare the matching variables.
+[`start.yaml`](./start.yaml) starts the monitoring stack described by the inventory. It conditionally starts node exporter, PostgreSQL exporter, Prometheus, Loki, Alloy, Grafana, Elasticsearch, and Jaeger only on hosts that declare the matching variables.
 
 ```shell
 ansible-playbook hyperledger.fabricx.monitoring.start --extra-vars '{"target_hosts": "monitoring"}'
@@ -70,7 +70,7 @@ ansible-playbook hyperledger.fabricx.monitoring.start --extra-vars '{"target_hos
 Properties:
 
 - Target hosts: `monitoring` by default.
-- Nuance: the sample inventories include Prometheus and Grafana. Elasticsearch and Jaeger are opt-in and start only when matching hosts and variables exist.
+- Nuance: the sample inventories include Prometheus, Grafana, Loki, and Alloy. Elasticsearch and Jaeger are opt-in and start only when matching hosts and variables exist.
 
 ## stop.yaml
 
@@ -139,7 +139,7 @@ Properties:
 
 ## fetch_logs.yaml
 
-[`fetch_logs.yaml`](./fetch_logs.yaml) collects logs from the monitoring services declared on targeted hosts, which is useful when Prometheus targets, Grafana dashboards, or optional tracing/logging backends do not come up cleanly.
+[`fetch_logs.yaml`](./fetch_logs.yaml) collects logs from the monitoring services declared on targeted hosts, which is useful when Prometheus targets, Grafana dashboards, Loki, Alloy, or optional tracing/logging backends do not come up cleanly.
 
 ```shell
 ansible-playbook hyperledger.fabricx.monitoring.fetch_logs --extra-vars '{"target_hosts": "monitoring"}'
