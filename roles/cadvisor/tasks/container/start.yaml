@@ -1,0 +1,86 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Find the container client to use
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: get_container_client
+
+- name: Set container client socket
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: get_container_client_socket
+
+- name: Find the containerd socket used by Docker
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: docker/get_containerd_socket
+  when:
+    - container_client == 'docker'
+
+# Both /run and /var/run are mounted (not just the runtime socket file)
+# because cAdvisor's Docker factory also dials the containerd socket that
+# lives alongside it (e.g. /run/containerd/containerd.sock), and the cAdvisor
+# image does not symlink one to the other internally — mounting only one of
+# the two leaves the other empty inside the container.
+- name: Set cAdvisor mandatory volumes
+  ansible.builtin.set_fact:
+    cadvisor_container_volumes:
+      - "/:/rootfs:ro"
+      - "/sys:/sys:ro"
+      - "/dev/disk/:/dev/disk/:ro"
+      - "/run:/run:rw"
+      - "/var/run:/var/run:rw"
+
+- name: Add Docker storage volume
+  vars:
+    cadvisor_docker_storage_volume: "/var/lib/docker/:/var/lib/docker/:ro"
+  ansible.builtin.set_fact:
+    cadvisor_container_volumes: "{{ cadvisor_container_volumes + [cadvisor_docker_storage_volume] }}"
+  when:
+    - container_client == 'docker'
+
+- name: Add Podman storage volume
+  vars:
+    cadvisor_podman_storage_volume: "/var/lib/containers/storage/:/var/lib/containers/storage/:ro"
+  ansible.builtin.set_fact:
+    cadvisor_container_volumes: "{{ cadvisor_container_volumes + [cadvisor_podman_storage_volume] }}"
+  when:
+    - container_client == 'podman'
+
+- name: Start cAdvisor container
+  vars:
+    container_name: "{{ cadvisor_container_name }}"
+    container_image: "{{ cadvisor_image }}"
+    # Unlike --docker/--podman, --containerd takes a bare path, not a unix://
+    # URI. container_containerd_socket_path (set by docker/get_containerd_socket)
+    # already accounts for the standard vs Docker-bundled location.
+    container_command: >-
+      --port={{ cadvisor_port }}
+      --housekeeping_interval={{ cadvisor_housekeeping_interval }}
+      {% if container_client == 'podman' %}
+      --podman={{ container_socket }}
+      {% else %}
+      --docker={{ container_socket }}
+      --containerd={{ container_containerd_socket_path }}
+      {% endif %}
+    container_ports:
+      - "{{ cadvisor_port }}:{{ cadvisor_port }}"
+    container_volumes: "{{ cadvisor_container_volumes }}"
+    # Shares the host's cgroup namespace so cAdvisor can read other containers'
+    # cgroup stats, not just its own.
+    container_cgroupns_mode: host
+    container_healthcheck_test: >-
+      wget --quiet
+      --tries=1
+      --spider http://localhost:{{ cadvisor_port }}/healthz
+    container_wait_until_running: true
+    container_wait_port: "{{ cadvisor_port }}"
+    container_security_opts:
+      - label=disable
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start

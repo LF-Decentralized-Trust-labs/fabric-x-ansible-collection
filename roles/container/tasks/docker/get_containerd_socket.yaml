@@ -1,0 +1,96 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Reset containerd socket path
+  ansible.builtin.set_fact:
+    container_containerd_socket_path: ""
+
+# On macOS the Docker daemon runs inside a VM (Docker Desktop / Rancher
+# Desktop), so `ansible.builtin.stat` would inspect macOS itself rather than
+# the VM's filesystem. A throwaway container is the only way to see what the
+# daemon actually has mounted.
+- name: Discover the containerd socket via a throwaway container
+  when:
+    - container_on_mac
+  block:
+    - name: Check for the standard containerd socket
+      community.docker.docker_container:
+        name: "container-check-containerd-standard-{{ 999999 | random }}"
+        image: docker.io/library/alpine:3.18
+        command: ["test", "-S", "/run/containerd/containerd.sock"]
+        volumes:
+          - "/run:/run:ro"
+        detach: false
+        auto_remove: true
+        state: started
+      register: container_containerd_standard_socket_check
+      changed_when: false
+      failed_when: false
+    - name: Set the standard containerd socket path
+      ansible.builtin.set_fact:
+        container_containerd_socket_path: /run/containerd/containerd.sock
+      when:
+        - container_containerd_standard_socket_check.status == 0
+    - name: Check for Docker's bundled containerd socket
+      when:
+        - container_containerd_socket_path | length == 0
+      block:
+        - name: Check for the socket
+          community.docker.docker_container:
+            name: "container-check-containerd-docker-{{ 999999 | random }}"
+            image: docker.io/library/alpine:3.18
+            command: ["test", "-S", "/run/docker/containerd/containerd.sock"]
+            volumes:
+              - "/run:/run:ro"
+            detach: false
+            auto_remove: true
+            state: started
+          register: container_containerd_docker_socket_check
+          changed_when: false
+          failed_when: false
+        - name: Set Docker's bundled containerd socket path
+          ansible.builtin.set_fact:
+            container_containerd_socket_path: /run/docker/containerd/containerd.sock
+          when:
+            - container_containerd_docker_socket_check.status == 0
+
+# On Linux the Ansible connection target IS the Docker host, so the socket
+# paths can be checked directly.
+- name: Discover the containerd socket directly on the host
+  when:
+    - not container_on_mac
+  block:
+    - name: Check for the standard containerd socket
+      ansible.builtin.stat:
+        path: /run/containerd/containerd.sock
+      register: container_containerd_standard_socket
+    - name: Set the standard containerd socket path
+      ansible.builtin.set_fact:
+        container_containerd_socket_path: /run/containerd/containerd.sock
+      when:
+        - container_containerd_standard_socket.stat.exists
+    - name: Check for Docker's bundled containerd socket
+      when:
+        - container_containerd_socket_path | length == 0
+      block:
+        - name: Check for the socket
+          ansible.builtin.stat:
+            path: /run/docker/containerd/containerd.sock
+          register: container_containerd_docker_socket
+        - name: Set Docker's bundled containerd socket path
+          ansible.builtin.set_fact:
+            container_containerd_socket_path: /run/docker/containerd/containerd.sock
+          when:
+            - container_containerd_docker_socket.stat.exists
+
+- name: Fail when no containerd socket was found
+  ansible.builtin.fail:
+    msg: >-
+      Could not find a containerd socket at either the standard location
+      (/run/containerd/containerd.sock) or Docker's bundled location
+      (/run/docker/containerd/containerd.sock).
+  when:
+    - container_containerd_socket_path | length == 0

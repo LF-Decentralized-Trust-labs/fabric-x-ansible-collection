@@ -449,6 +449,15 @@ argument_specs:
       - "For Unix endpoints, also sets C(container_socket_path) for bind mounts."
     options: {}
 
+  docker/get_containerd_socket:
+    short_description: Resolve Docker's containerd socket
+    description:
+      - "Checks for a containerd socket at the standard location (C(/run/containerd/containerd.sock)), falling back to Docker's own bundled instance (C(/run/docker/containerd/containerd.sock))."
+      - "Sets C(container_containerd_socket_path) to whichever location exists."
+      - "On macOS, checks via a throwaway container since the Docker daemon runs inside a VM."
+    options:
+      container_on_mac: *container_on_mac
+
   docker/start:
     short_description: Start a container with Docker
     description:

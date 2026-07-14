@@ -328,6 +328,8 @@ all:
         node-exporter:
           node_exporter_port: 9111
           node_exporter_use_tls: true
+        cadvisor:
+          cadvisor_port: 9400
         prometheus:
           prometheus_port: 9090
           prometheus_use_tls: true

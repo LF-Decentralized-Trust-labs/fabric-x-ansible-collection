@@ -26,6 +26,15 @@
       when:
         - postgres_exporter_port is defined
     # =========================
+    # cAdvisor
+    # =========================
+    - name: Fetch the logs from cAdvisor
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.cadvisor
+        tasks_from: fetch_logs
+      when:
+        - cadvisor_port is defined
+    # =========================
     # Prometheus
     # =========================
     - name: Fetch the logs from Prometheus
