@@ -42,9 +42,11 @@ flowchart TD
   monitoring --> grafana
   monitoring --> loki
   monitoring --> alloy
+  monitoring --> node_exporter
   grafana --> prometheus
   grafana --> loki
   alloy --> loki
+  prometheus --> node_exporter
   fabric_cas --> fabric_ca_servers
   fabric_cas --> fabric_ca_dbs
   fabric_x --> fabric_x_orderers

@@ -26,7 +26,7 @@ This inventory deploys these logical services on the local machine:
 - 1 committer with validator, verifier, coordinator, sidecar, and query service.
 - 1 YugabyteDB master and 1 YugabyteDB tablet in cluster `1`.
 - 1 load generator.
-- Monitoring with node exporter, Prometheus, Grafana, Loki, and Alloy.
+- Monitoring with node exporter, cAdvisor, Prometheus, Grafana, Loki, and Alloy.
 
 > [!NOTE]
 > You can scale YugabyteDB for stronger performance by adding more master and tablet hosts. See the [distributed Fabric-X inventory](../distributed/fabric-x.md) for a larger topology with replicated YugabyteDB masters and tablets.
@@ -42,9 +42,13 @@ flowchart TD
   monitoring --> grafana
   monitoring --> loki
   monitoring --> alloy
+  monitoring --> node_exporter
+  monitoring --> cadvisor
   grafana --> prometheus
   grafana --> loki
   alloy --> loki
+  prometheus --> node_exporter
+  prometheus --> cadvisor
   fabric_cas --> fabric_ca_servers
   fabric_cas --> fabric_ca_dbs
   fabric_x --> fabric_x_orderers

@@ -40,9 +40,13 @@ flowchart TD
   monitoring --> grafana
   monitoring --> loki
   monitoring --> alloy
+  monitoring --> node_exporter
+  monitoring --> postgres_exporter
   grafana --> prometheus
   grafana --> loki
   alloy --> loki
+  prometheus --> node_exporter
+  prometheus --> postgres_exporter
   fabric_x --> fabric_x_orderers
   fabric_x --> fabric_x_committers
   fabric_x_committers --> fabric_x_committer
