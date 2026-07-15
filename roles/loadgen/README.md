@@ -677,7 +677,7 @@ Build the `loadgen` binary from the configured Fabric-X source repository. Uses 
     # Git repository that provides the Loadgen source.
     loadgen_git_repo: hyperledger/fabric-x-committer
     # Git revision used for binary builds and installs.
-    loadgen_git_commit: v1.0.3
+    loadgen_git_commit: v1.0.4
     # Go package path for the Loadgen binary.
     loadgen_source_code_package: cmd/loadgen
   ansible.builtin.include_role:
@@ -703,7 +703,7 @@ Install the `loadgen` binary through the shared binary helper role. Consumes the
     # Git repository that provides the Loadgen source.
     loadgen_git_repo: hyperledger/fabric-x-committer
     # Git revision used for binary builds and installs.
-    loadgen_git_commit: v1.0.3
+    loadgen_git_commit: v1.0.4
     # Go package path for the Loadgen binary.
     loadgen_source_code_package: cmd/loadgen
   ansible.builtin.include_role:
@@ -811,7 +811,7 @@ Start Loadgen as a local container with the rendered config directory mounted re
     # Image name used by the Loadgen container.
     loadgen_image_name: fabric-x-loadgen
     # Image tag used by the Loadgen container.
-    loadgen_image_tag: 1.0.3
+    loadgen_image_tag: 1.0.4
     # Base remote config directory that feeds `loadgen_remote_config_dir`. Example: `/var/hyperledger/fabricx/loadgen/lg-1/config`.
     remote_config_dir: "/var/hyperledger/fabricx/loadgen/lg-1/config"
     # Remote config directory used by Loadgen.
@@ -845,7 +845,7 @@ Stop the local Loadgen container. Preserves the container definition, image refe
     # Image name used by the Loadgen container.
     loadgen_image_name: fabric-x-loadgen
     # Image tag used by the Loadgen container.
-    loadgen_image_tag: 1.0.3
+    loadgen_image_tag: 1.0.4
     # Image registry endpoint.
     loadgen_registry_endpoint: "{{ lookup('env', 'LOADGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
   ansible.builtin.include_role:
@@ -869,7 +869,7 @@ Remove the local Loadgen container runtime resources. Leaves host-side generated
     # Image name used by the Loadgen container.
     loadgen_image_name: fabric-x-loadgen
     # Image tag used by the Loadgen container.
-    loadgen_image_tag: 1.0.3
+    loadgen_image_tag: 1.0.4
     # Image registry endpoint.
     loadgen_registry_endpoint: "{{ lookup('env', 'LOADGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
   ansible.builtin.include_role:
@@ -934,7 +934,7 @@ Create or update Kubernetes resources for Loadgen. Ensures the namespace exists,
     # Image name used by the Loadgen container.
     loadgen_image_name: fabric-x-loadgen
     # Image tag used by the Loadgen container.
-    loadgen_image_tag: 1.0.3
+    loadgen_image_tag: 1.0.4
     # Config mount path inside a container or pod.
     loadgen_container_config_dir: /config
     # Rendered Loadgen config filename.

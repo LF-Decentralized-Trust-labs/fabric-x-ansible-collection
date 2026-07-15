@@ -24,7 +24,7 @@ argument_specs:
       committer_image_tag: &committer_image_tag
         type: str
         required: false
-        default: "1.0.3"
+        default: "1.0.4"
         description:
           - Image tag for the committer container.
       committer_image: &committer_image
@@ -50,7 +50,7 @@ argument_specs:
       committer_git_commit: &committer_git_commit
         type: str
         required: false
-        default: v1.0.3
+        default: v1.0.4
         description:
           - Git ref used for building or installing the binary.
       committer_source_code_package: &committer_source_code_package
