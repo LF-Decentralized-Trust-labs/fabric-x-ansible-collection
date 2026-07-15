@@ -32,8 +32,8 @@
       - "/:/rootfs:ro"
       - "/sys:/sys:ro"
       - "/dev/disk/:/dev/disk/:ro"
-      - "/run:/run:rw"
-      - "/var/run:/var/run:rw"
+      - "/run:/run:ro"
+      - "/var/run:/var/run:ro"
 
 - name: Add Docker storage volume
   vars:
