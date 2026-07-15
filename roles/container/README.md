@@ -614,7 +614,7 @@ Installs the Podman runtime on supported hosts. Verifies that the Podman client 
 
 > Resolve the Podman socket from system information
 
-Reads Podman system information and sets `container_socket`. For Unix endpoints, also sets `container_socket_path` for bind mounts. Sets `container_socket_requires_root` when the selected socket belongs to a rootful Podman service.
+Reads Podman system information and sets `container_socket`. For Unix endpoints, also sets `container_socket_path` for bind mounts.
 
 ```yaml
 - name: Resolve the Podman socket from system information

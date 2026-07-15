@@ -7,14 +7,12 @@
 - name: Reset container socket path
   ansible.builtin.set_fact:
     container_socket_path: ""
-    container_socket_requires_root: false
 
 - name: Resolve configured container socket
   vars:
     container_configured_socket_path: "{{ container_socket | regex_replace('^unix://', '') }}"
   ansible.builtin.set_fact:
     container_socket_path: "{{ container_configured_socket_path }}"
-    container_socket_requires_root: "{{ container_configured_socket_path == '/run/podman/podman.sock' }}"
   when:
     - container_socket is defined
     - container_socket | length > 0

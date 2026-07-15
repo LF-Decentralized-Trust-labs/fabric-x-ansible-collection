@@ -615,7 +615,6 @@ argument_specs:
     description:
       - "Reads Podman system information and sets C(container_socket)."
       - "For Unix endpoints, also sets C(container_socket_path) for bind mounts."
-      - "Sets C(container_socket_requires_root) when the selected socket belongs to a rootful Podman service."
     options: {}
 
   podman/start:
