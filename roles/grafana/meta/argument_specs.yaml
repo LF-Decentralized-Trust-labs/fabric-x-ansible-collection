@@ -100,12 +100,12 @@ argument_specs:
           - Sets the Grafana image registry endpoint.
       grafana_image_name: &grafana_image_name
         type: str
-        default: grafana-oss
+        default: grafana
         description:
           - Sets the Grafana image name.
       grafana_image_tag: &grafana_image_tag
         type: str
-        default: 12.4.2
+        default: 13.1.0
         description:
           - Sets the Grafana image tag.
       grafana_image: &grafana_image

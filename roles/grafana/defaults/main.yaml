@@ -10,9 +10,9 @@
 # Sets the Grafana image registry endpoint.
 grafana_registry_endpoint: "{{ lookup('env', 'GRAFANA_REGISTRY_ENDPOINT') or 'docker.io/grafana' }}"
 # Sets the Grafana image name.
-grafana_image_name: grafana-oss
+grafana_image_name: grafana
 # Sets the Grafana image tag.
-grafana_image_tag: 12.4.2
+grafana_image_tag: 13.1.0
 # Sets the Grafana image reference.
 grafana_image: "{{ grafana_registry_endpoint }}/{{ grafana_image_name }}:{{ grafana_image_tag }}"
 # Sets the Grafana container name.
