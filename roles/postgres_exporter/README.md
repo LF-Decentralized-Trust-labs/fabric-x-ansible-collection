@@ -184,7 +184,7 @@ Builds the exporter PostgreSQL datasource from the monitored host facts, renders
     # Sets the image name used to build `postgres_exporter_image`.
     postgres_exporter_image_name: postgres-exporter
     # Sets the image tag used to build `postgres_exporter_image`.
-    postgres_exporter_image_tag: latest
+    postgres_exporter_image_tag: v0.20.1
     # Sets the full Postgres Exporter image reference.
     postgres_exporter_image: "{{ postgres_exporter_registry_endpoint }}/{{ postgres_exporter_image_name }}:{{ postgres_exporter_image_tag }}"
     # Sets the Postgres Exporter container name.
@@ -458,7 +458,7 @@ Applies the Service, optional NodePort and LoadBalancer Services, and Deployment
     # Sets the image name used to build `postgres_exporter_image`.
     postgres_exporter_image_name: postgres-exporter
     # Sets the image tag used to build `postgres_exporter_image`.
-    postgres_exporter_image_tag: latest
+    postgres_exporter_image_tag: v0.20.1
     # Sets the full Postgres Exporter image reference.
     postgres_exporter_image: "{{ postgres_exporter_registry_endpoint }}/{{ postgres_exporter_image_name }}:{{ postgres_exporter_image_tag }}"
     # Sets the Kubernetes resource base name used for ConfigMaps, Secrets, Services, and Deployments.

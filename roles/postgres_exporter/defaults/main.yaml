@@ -12,7 +12,7 @@ postgres_exporter_registry_endpoint: "{{ lookup('env', 'POSTGRES_EXPORTER_REGIST
 # Sets the image name used to build C(postgres_exporter_image).
 postgres_exporter_image_name: postgres-exporter
 # Sets the image tag used to build C(postgres_exporter_image).
-postgres_exporter_image_tag: latest
+postgres_exporter_image_tag: v0.20.1
 # Sets the full Postgres Exporter image reference.
 postgres_exporter_image: "{{ postgres_exporter_registry_endpoint }}/{{ postgres_exporter_image_name }}:{{ postgres_exporter_image_tag }}"
 # Sets the Postgres Exporter container name.

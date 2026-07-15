@@ -99,7 +99,7 @@ argument_specs:
           - Filename of the promtool HTTP client configuration used for TLS health checks.
       prometheus_scrape_interval: &prometheus_scrape_interval
         type: str
-        default: 20s
+        default: 5s
         description:
           - Global Prometheus scrape interval.
       prometheus_scrape_services: &prometheus_scrape_services

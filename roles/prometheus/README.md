@@ -548,7 +548,7 @@ Renders the main scrape configuration and supporting files on the remote host, i
     # Filename of the promtool HTTP client configuration used for TLS health checks.
     prometheus_http_config_file: http-config.yaml
     # Global Prometheus scrape interval.
-    prometheus_scrape_interval: 20s
+    prometheus_scrape_interval: 5s
     # In-container or in-pod mount point for Prometheus configuration files.
     prometheus_container_config_dir: /etc/prometheus/config
     # Filename used for the Prometheus TLS private key.

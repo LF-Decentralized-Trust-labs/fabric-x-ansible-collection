@@ -31,7 +31,7 @@ argument_specs:
           - "Sets the Jaeger image name."
       jaeger_image_tag: &jaeger_image_tag
         type: str
-        default: "latest"
+        default: "1.76.0"
         description:
           - "Sets the Jaeger image tag."
       jaeger_image: &jaeger_image

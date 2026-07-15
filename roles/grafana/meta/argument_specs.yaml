@@ -105,7 +105,7 @@ argument_specs:
           - Sets the Grafana image name.
       grafana_image_tag: &grafana_image_tag
         type: str
-        default: latest
+        default: 12.4.2
         description:
           - Sets the Grafana image tag.
       grafana_image: &grafana_image

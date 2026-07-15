@@ -182,7 +182,7 @@ Starts the containerized Grafana deployment with the generated datasource and da
     # Sets the Grafana image name.
     grafana_image_name: grafana-oss
     # Sets the Grafana image tag.
-    grafana_image_tag: latest
+    grafana_image_tag: 12.4.2
     # Sets the Grafana admin username. Example: `admin`.
     grafana_username: "admin"
     # Sets the Grafana admin password. Example: `my_grafana_password`. Store this value in Ansible Vault.
@@ -459,7 +459,7 @@ Applies the Grafana Service, optional NodePort and LoadBalancer Services, Secret
     # Sets the Grafana image name.
     grafana_image_name: grafana-oss
     # Sets the Grafana image tag.
-    grafana_image_tag: latest
+    grafana_image_tag: 12.4.2
     # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
     # Sets the shared remote config root used by Grafana. Example: `/var/hyperledger/fabricx/grafana`. Required when using it for `grafana_remote_config_dir`.

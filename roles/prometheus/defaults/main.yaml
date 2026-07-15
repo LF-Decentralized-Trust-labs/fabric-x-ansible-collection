@@ -32,7 +32,7 @@ prometheus_web_config_file: web-config.yaml
 # Filename of the promtool HTTP client configuration used for TLS health checks.
 prometheus_http_config_file: http-config.yaml
 # Global Prometheus scrape interval.
-prometheus_scrape_interval: 20s
+prometheus_scrape_interval: 5s
 # Enables HTTPS and TLS-aware health checks when set to C(true).
 prometheus_use_tls: false
 # Filename used for the Prometheus TLS private key.
