@@ -48,9 +48,16 @@ argument_specs:
           - Enables the container backend. cAdvisor currently only supports container mode.
       cadvisor_housekeeping_interval: &cadvisor_housekeeping_interval
         type: str
-        default: "10s"
+        default: "15s"
         description:
           - Sets the interval at which cAdvisor refreshes its internal container metrics.
+      cadvisor_disable_metrics: &cadvisor_disable_metrics
+        type: str
+        default: "advtcp,cpu_topology,cpuset,disk,hugetlb,memory_numa,percpu,perf_event,process,referenced_memory,resctrl,sched,tcp,udp,cpuLoad"
+        description:
+          - "Comma-separated list of cAdvisor metric groups to disable (C(--disable_metrics))."
+          - "The default disables expensive collectors the bundled Grafana dashboard does not use, keeping C(cpu), C(memory), C(network), and C(diskIO) enabled."
+          - "Set to an empty string to keep cAdvisor's built-in defaults."
       cadvisor_hosts: &cadvisor_hosts
         type: list
         elements: str
@@ -121,6 +128,7 @@ argument_specs:
       cadvisor_image: *cadvisor_image
       cadvisor_port: *cadvisor_port
       cadvisor_housekeeping_interval: *cadvisor_housekeeping_interval
+      cadvisor_disable_metrics: *cadvisor_disable_metrics
 
   container/stop:
     short_description: Stop the cAdvisor container
