@@ -27,6 +27,7 @@ This inventory describes a larger container-based Fabric-X deployment:
 - 4 orderer groups. Each group has 1 router, 1 consenter, 1 assembler, and 2 batchers.
 - 7 validators, 7 verifiers, 1 coordinator, 1 sidecar, and 1 query service.
 - 3 YugabyteDB masters and 7 YugabyteDB tablets.
+- 1 Block Explorer server and UI with its own PostgreSQL storage, co-located on the monitoring machine and streaming blocks from the committer sidecar.
 - 2 load generators.
 - Monitoring with 16 node exporters, 16 cAdvisors, Prometheus, Grafana, Loki, and Alloy.
 
@@ -49,6 +50,7 @@ flowchart TD
   prometheus --> cadvisor
   fabric_x --> fabric_x_orderers
   fabric_x --> fabric_x_committers
+  fabric_x --> fabric_x_block_explorer
   fabric_x_committers --> fabric_x_committer
   fabric_x_orderers --> fabric_x_orderer_1
   fabric_x_orderers --> fabric_x_orderer_2

@@ -1,0 +1,551 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+argument_specs:
+  role-options:
+    short_description: Shared option catalog for block_explorer role entry points
+    options:
+      remote_config_dir: &remote_config_dir
+        type: path
+        description:
+          - Base remote config directory that feeds C(block_explorer_remote_config_dir).
+          - "Example: C(/var/hyperledger/fabricx/block-explorer/config)."
+      fetched_artifacts_dir: &fetched_artifacts_dir
+        type: path
+        description:
+          - Local artifacts directory used for fetched TLS material.
+          - "Example: C(/tmp/fabricx-artifacts)."
+      actual_host: &actual_host
+        type: str
+        description:
+          - Real machine host.
+          - "Example: C(myvpc.cloud.ibm.com)."
+      organization: &organization
+        type: dict
+        description:
+          - Sets the optional organization mapping used for TLS certificate generation.
+          - "Example: C({'domain': 'block-explorer.fabricx.example'})."
+      sidecar_host: &sidecar_host
+        type: str
+        required: true
+        description:
+          - Names the inventory host that provides the committer sidecar Block Explorer streams from.
+          - "Example: C(committer-sidecar)."
+      postgres_db_host: &postgres_db_host
+        type: str
+        required: true
+        description:
+          - Names the inventory host that provides the PostgreSQL database used by Block Explorer.
+          - "Example: C(block-explorer-db)."
+      k8s_namespace: &k8s_namespace
+        type: str
+        description:
+          - Kubernetes namespace used for Block Explorer resources.
+          - "Example: C(fabricx-block-explorer)."
+      k8s_image_pull_secret: &k8s_image_pull_secret
+        type: str
+        description:
+          - Optional image pull secret used by the Block Explorer Deployment.
+          - "Example: C(fabricx-registry-pull)."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '512Mi', 'cpu': '250m'}, 'limits': {'memory': '1Gi', 'cpu': '1000m'}})."
+      k8s_readiness_probe_initial_delay_seconds:
+        &k8s_readiness_probe_initial_delay_seconds
+        type: int
+        description:
+          - Sets the Block Explorer readiness probe initial delay.
+          - "Example: C(10)."
+      k8s_readiness_probe_period_seconds: &k8s_readiness_probe_period_seconds
+        type: int
+        description:
+          - Sets the Block Explorer readiness probe period.
+          - "Example: C(10)."
+      k8s_readiness_probe_timeout_seconds: &k8s_readiness_probe_timeout_seconds
+        type: int
+        description:
+          - Sets the Block Explorer readiness probe timeout.
+          - "Example: C(5)."
+      k8s_readiness_probe_failure_threshold:
+        &k8s_readiness_probe_failure_threshold
+        type: int
+        description:
+          - Sets the Block Explorer readiness probe failure threshold.
+          - "Example: C(3)."
+      k8s_liveness_probe_initial_delay_seconds:
+        &k8s_liveness_probe_initial_delay_seconds
+        type: int
+        description:
+          - Sets the Block Explorer liveness probe initial delay.
+          - "Example: C(30)."
+      k8s_liveness_probe_period_seconds: &k8s_liveness_probe_period_seconds
+        type: int
+        description:
+          - Sets the Block Explorer liveness probe period.
+          - "Example: C(15)."
+      k8s_liveness_probe_timeout_seconds: &k8s_liveness_probe_timeout_seconds
+        type: int
+        description:
+          - Sets the Block Explorer liveness probe timeout.
+          - "Example: C(5)."
+      k8s_liveness_probe_failure_threshold:
+        &k8s_liveness_probe_failure_threshold
+        type: int
+        description:
+          - Sets the Block Explorer liveness probe failure threshold.
+          - "Example: C(5)."
+      block_explorer_use_k8s: &block_explorer_use_k8s
+        type: bool
+        default: false
+        description:
+          - Use Kubernetes resources.
+      block_explorer_use_openshift: &block_explorer_use_openshift
+        type: bool
+        default: false
+        description:
+          - Selects the OpenShift deployment branch.
+      block_explorer_use_container: &block_explorer_use_container
+        type: bool
+        default: "{{ (not block_explorer_use_k8s) and (not block_explorer_use_openshift) }}"
+        description:
+          - Run the container runtime.
+      block_explorer_registry_endpoint: &block_explorer_registry_endpoint
+        type: str
+        default: "{{ lookup('env', 'BLOCK_EXPLORER_REGISTRY_ENDPOINT') or 'ghcr.io/lf-decentralized-trust-labs' }}"
+        description:
+          - Image registry endpoint.
+      block_explorer_image_name: &block_explorer_image_name
+        type: str
+        default: fabric-x-block-explorer
+        description:
+          - Image name used by the Block Explorer container.
+      block_explorer_image_tag: &block_explorer_image_tag
+        type: str
+        default: 0.1.0-dryrun.2
+        description:
+          - Image tag used by the Block Explorer container.
+      block_explorer_image: &block_explorer_image
+        type: str
+        default: "{{ block_explorer_registry_endpoint }}/{{ block_explorer_image_name }}:{{ block_explorer_image_tag }}"
+        description:
+          - Block Explorer container image.
+      block_explorer_container_name: &block_explorer_container_name
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Container name used by the runtime.
+      block_explorer_remote_config_dir: &block_explorer_remote_config_dir
+        type: path
+        default: "{{ remote_config_dir }}"
+        description:
+          - Remote config directory used by Block Explorer.
+      block_explorer_container_config_dir: &block_explorer_container_config_dir
+        type: path
+        default: /app/config
+        description:
+          - Config mount path inside a container or pod.
+      block_explorer_config_file: &block_explorer_config_file
+        type: str
+        default: config.yaml
+        description:
+          - Rendered Block Explorer config filename.
+      block_explorer_port: &block_explorer_port
+        type: int
+        required: true
+        description:
+          - REST API port exposed by the Block Explorer server.
+          - "Example: C(18080)."
+      block_explorer_start_block: &block_explorer_start_block
+        type: int
+        default: 0
+        description:
+          - First block number streamed from the committer sidecar.
+      block_explorer_processor_count: &block_explorer_processor_count
+        type: int
+        default: 4
+        description:
+          - Number of block processor workers.
+      block_explorer_writer_count: &block_explorer_writer_count
+        type: int
+        default: 4
+        description:
+          - Number of database writer workers.
+      block_explorer_max_conns: &block_explorer_max_conns
+        type: int
+        default: 20
+        description:
+          - Maximum PostgreSQL connection pool size.
+      block_explorer_raw_channel_size: &block_explorer_raw_channel_size
+        type: int
+        default: 500
+        description:
+          - Buffer size of the raw block channel.
+      block_explorer_proc_channel_size: &block_explorer_proc_channel_size
+        type: int
+        default: 500
+        description:
+          - Buffer size of the processed block channel.
+      block_explorer_default_tx_limit: &block_explorer_default_tx_limit
+        type: int
+        default: 50
+        description:
+          - Default page size for transaction list REST queries.
+      block_explorer_tls_private_key_file: &block_explorer_tls_private_key_file
+        type: str
+        default: client.key
+        description:
+          - Filename of the self-signed client TLS private key used for mTLS to the committer sidecar.
+      block_explorer_tls_cert_file: &block_explorer_tls_cert_file
+        type: str
+        default: client.crt
+        description:
+          - Filename of the self-signed client TLS certificate used for mTLS to the committer sidecar.
+      block_explorer_k8s_resource_name: &block_explorer_k8s_resource_name
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Kubernetes resource name used for the Deployment, Service, ConfigMap, optional Secret, and optional NodePort Service.
+      block_explorer_k8s_part_of: &block_explorer_k8s_part_of
+        type: str
+        default: block-explorer
+        description:
+          - Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Block Explorer resources.
+      block_explorer_k8s_wait_timeout: &block_explorer_k8s_wait_timeout
+        type: int
+        default: 120
+        description:
+          - Deployment rollout wait timeout in seconds.
+      block_explorer_k8s_fs_group: &block_explorer_k8s_fs_group
+        type: int
+        default: 10001
+        description:
+          - Pod FSGroup used for mounted config and secrets.
+      block_explorer_k8s_node_port: &block_explorer_k8s_node_port
+        type: int
+        description:
+          - Kubernetes NodePort value used by the external Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
+          - "Example: C(30680)."
+      block_explorer_k8s_loadbalancer_expose_port:
+        &block_explorer_k8s_loadbalancer_expose_port
+        type: bool
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the REST port externally.
+          - When undefined or C(false), the REST port is not included in the LoadBalancer Service.
+      block_explorer_openshift_route: &block_explorer_openshift_route
+        type: str
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(block-explorer.apps.example.com)."
+  start:
+    short_description: Start the Block Explorer server
+    description:
+      - Start the Block Explorer server runtime selected by the deployment mode flags.
+      - Container mode is the default, and Kubernetes mode applies Services and a Deployment.
+      - The runtime consumes the rendered Block Explorer configuration and TLS material prepared by the config and crypto entry points.
+    options:
+      block_explorer_use_container: *block_explorer_use_container
+      block_explorer_use_k8s: *block_explorer_use_k8s
+      block_explorer_use_openshift: *block_explorer_use_openshift
+
+  stop:
+    short_description: Stop the Block Explorer server
+    description:
+      - Stop the active Block Explorer container without removing configuration, crypto material, logs, or Kubernetes resources.
+    options:
+      block_explorer_use_container: *block_explorer_use_container
+      block_explorer_use_k8s: *block_explorer_use_k8s
+      block_explorer_use_openshift: *block_explorer_use_openshift
+
+  teardown:
+    short_description: Remove runtime artifacts
+    description:
+      - Remove runtime resources for the selected Block Explorer deployment mode.
+      - Deletes the local container or Kubernetes workload resources while leaving generated config, crypto material, and fetched artifacts intact.
+    options:
+      block_explorer_use_container: *block_explorer_use_container
+      block_explorer_use_k8s: *block_explorer_use_k8s
+      block_explorer_use_openshift: *block_explorer_use_openshift
+
+  wipe:
+    short_description: Remove all Block Explorer server data
+    description:
+      - Remove Block Explorer runtime resources, generated configuration, and crypto material from the host.
+    options: {}
+
+  fetch_logs:
+    short_description: Collect runtime logs
+    description:
+      - Collect Block Explorer server logs for the selected deployment mode.
+    options:
+      block_explorer_use_container: *block_explorer_use_container
+      block_explorer_use_k8s: *block_explorer_use_k8s
+      block_explorer_use_openshift: *block_explorer_use_openshift
+
+  ping:
+    short_description: Check the REST endpoint
+    description:
+      - Verify that the Block Explorer REST endpoint is reachable.
+      - Uses direct host access for container deployments and delegates to the Kubernetes ping task when C(block_explorer_use_k8s) is enabled.
+    options:
+      block_explorer_port: *block_explorer_port
+      block_explorer_use_k8s: *block_explorer_use_k8s
+      block_explorer_use_openshift: *block_explorer_use_openshift
+
+  container/start:
+    short_description: Start the container runtime
+    description:
+      - Start the Block Explorer server as a local container with the rendered config directory mounted read-only.
+      - Exposes the REST port and waits for it to become reachable.
+    options:
+      block_explorer_container_name: *block_explorer_container_name
+      block_explorer_image: *block_explorer_image
+      block_explorer_registry_endpoint: *block_explorer_registry_endpoint
+      block_explorer_image_name: *block_explorer_image_name
+      block_explorer_image_tag: *block_explorer_image_tag
+      remote_config_dir: *remote_config_dir
+      block_explorer_remote_config_dir: *block_explorer_remote_config_dir
+      block_explorer_container_config_dir: *block_explorer_container_config_dir
+      block_explorer_config_file: *block_explorer_config_file
+      block_explorer_port: *block_explorer_port
+
+  container/stop:
+    short_description: Stop the container runtime
+    description:
+      - Stop the local Block Explorer container.
+      - Preserves the container definition, mounted configuration, crypto material, and logs for later cleanup or collection.
+    options:
+      block_explorer_container_name: *block_explorer_container_name
+
+  container/rm:
+    short_description: Remove the container runtime
+    description:
+      - Remove the local Block Explorer container runtime resources.
+      - Leaves host-side generated configuration and crypto material under the remote config directory.
+    options:
+      block_explorer_container_name: *block_explorer_container_name
+
+  container/fetch_logs:
+    short_description: Fetch container logs
+    description:
+      - Collect logs from a containerized Block Explorer runtime.
+    options:
+      block_explorer_container_name: *block_explorer_container_name
+
+  config/transfer:
+    short_description: Render and transfer the Block Explorer configuration
+    description:
+      - Render the Block Explorer configuration file with the resolved PostgreSQL and committer sidecar connection details.
+      - Transfers the committer sidecar and PostgreSQL TLS CA certificates when their respective TLS modes are enabled.
+      - For Kubernetes deployments, also publishes the rendered config and trusted CA bundles as a ConfigMap.
+    options:
+      remote_config_dir: *remote_config_dir
+      block_explorer_remote_config_dir: *block_explorer_remote_config_dir
+      block_explorer_container_config_dir: *block_explorer_container_config_dir
+      block_explorer_config_file: *block_explorer_config_file
+      block_explorer_use_k8s: *block_explorer_use_k8s
+      block_explorer_use_openshift: *block_explorer_use_openshift
+      block_explorer_port: *block_explorer_port
+      block_explorer_start_block: *block_explorer_start_block
+      block_explorer_processor_count: *block_explorer_processor_count
+      block_explorer_writer_count: *block_explorer_writer_count
+      block_explorer_max_conns: *block_explorer_max_conns
+      block_explorer_raw_channel_size: *block_explorer_raw_channel_size
+      block_explorer_proc_channel_size: *block_explorer_proc_channel_size
+      block_explorer_default_tx_limit: *block_explorer_default_tx_limit
+      block_explorer_tls_private_key_file: *block_explorer_tls_private_key_file
+      block_explorer_tls_cert_file: *block_explorer_tls_cert_file
+      sidecar_host: *sidecar_host
+      postgres_db_host: *postgres_db_host
+      fetched_artifacts_dir: *fetched_artifacts_dir
+
+  config/rm:
+    short_description: Remove rendered configuration
+    description:
+      - Remove host-side rendered Block Explorer configuration.
+      - Also removes the Kubernetes ConfigMap when Kubernetes deployment mode is enabled.
+    options:
+      block_explorer_remote_config_dir: *block_explorer_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      block_explorer_use_k8s: *block_explorer_use_k8s
+      block_explorer_use_openshift: *block_explorer_use_openshift
+
+  crypto/setup:
+    short_description: Prepare crypto material
+    description:
+      - Generates a self-signed client certificate for the committer sidecar mTLS connection when the sidecar requires mTLS.
+      - Then publishes Kubernetes Secret material when Kubernetes mode is enabled.
+    options:
+      sidecar_host: *sidecar_host
+      block_explorer_use_k8s: *block_explorer_use_k8s
+      block_explorer_use_openshift: *block_explorer_use_openshift
+
+  crypto/openssl/generate_cert:
+    short_description: Generate a self-signed client certificate for Block Explorer
+    description:
+      - Generates the Block Explorer client TLS key pair and certificate using OpenSSL for the staged Block Explorer artifacts directory.
+    options:
+      organization: *organization
+      actual_host: *actual_host
+      block_explorer_remote_config_dir: *block_explorer_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      block_explorer_tls_private_key_file: *block_explorer_tls_private_key_file
+      block_explorer_tls_cert_file: *block_explorer_tls_cert_file
+
+  crypto/fetch:
+    short_description: Fetch the Block Explorer client CA certificate
+    description:
+      - Fetches the Block Explorer self-signed client CA certificate so the committer sidecar can trust it as an mTLS client.
+    options:
+      sidecar_host: *sidecar_host
+      block_explorer_remote_config_dir: *block_explorer_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      fetched_artifacts_dir: *fetched_artifacts_dir
+
+  crypto/rm:
+    short_description: Remove crypto material
+    description:
+      - Remove Block Explorer TLS artifacts from the host config directory.
+      - Also removes the Kubernetes Secret when Kubernetes deployment mode is enabled.
+    options:
+      block_explorer_remote_config_dir: *block_explorer_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      block_explorer_use_k8s: *block_explorer_use_k8s
+      block_explorer_use_openshift: *block_explorer_use_openshift
+
+  k8s/start:
+    short_description: Start the Kubernetes deployment
+    description:
+      - Create or update Kubernetes resources for the Block Explorer server.
+      - Ensures the namespace exists, applies the Service, optional NodePort and LoadBalancer Services, and Deployment, and mounts generated ConfigMap and optional Secret artifacts into the pod.
+    options:
+      block_explorer_image: *block_explorer_image
+      block_explorer_registry_endpoint: *block_explorer_registry_endpoint
+      block_explorer_image_name: *block_explorer_image_name
+      block_explorer_image_tag: *block_explorer_image_tag
+      block_explorer_container_config_dir: *block_explorer_container_config_dir
+      block_explorer_config_file: *block_explorer_config_file
+      block_explorer_k8s_wait_timeout: *block_explorer_k8s_wait_timeout
+      block_explorer_k8s_fs_group: *block_explorer_k8s_fs_group
+      k8s_namespace: *k8s_namespace
+      block_explorer_k8s_resource_name: *block_explorer_k8s_resource_name
+      block_explorer_k8s_part_of: *block_explorer_k8s_part_of
+      k8s_image_pull_secret: *k8s_image_pull_secret
+      block_explorer_port: *block_explorer_port
+      block_explorer_k8s_node_port: *block_explorer_k8s_node_port
+      block_explorer_k8s_loadbalancer_expose_port: *block_explorer_k8s_loadbalancer_expose_port
+      block_explorer_tls_private_key_file: *block_explorer_tls_private_key_file
+      block_explorer_tls_cert_file: *block_explorer_tls_cert_file
+      sidecar_host: *sidecar_host
+      postgres_db_host: *postgres_db_host
+      k8s_resources: *k8s_resources
+      k8s_readiness_probe_initial_delay_seconds: *k8s_readiness_probe_initial_delay_seconds
+      k8s_readiness_probe_period_seconds: *k8s_readiness_probe_period_seconds
+      k8s_readiness_probe_timeout_seconds: *k8s_readiness_probe_timeout_seconds
+      k8s_readiness_probe_failure_threshold: *k8s_readiness_probe_failure_threshold
+      k8s_liveness_probe_initial_delay_seconds: *k8s_liveness_probe_initial_delay_seconds
+      k8s_liveness_probe_period_seconds: *k8s_liveness_probe_period_seconds
+      k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
+      k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
+
+  k8s/ping:
+    short_description: Check that the Block Explorer Kubernetes service is reachable
+    description:
+      - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
+    options:
+      block_explorer_port: *block_explorer_port
+      block_explorer_k8s_node_port: *block_explorer_k8s_node_port
+      block_explorer_k8s_loadbalancer_expose_port: *block_explorer_k8s_loadbalancer_expose_port
+
+  k8s/rm:
+    short_description: Remove Kubernetes resources
+    description:
+      - Remove the Kubernetes Deployment and Services created for the Block Explorer server.
+      - Does not remove the ConfigMap or Secret; use the Kubernetes config and crypto remove entry points for those generated artifacts.
+    options:
+      k8s_namespace: *k8s_namespace
+      block_explorer_k8s_resource_name: *block_explorer_k8s_resource_name
+      block_explorer_k8s_node_port: *block_explorer_k8s_node_port
+      block_explorer_k8s_loadbalancer_expose_port: *block_explorer_k8s_loadbalancer_expose_port
+
+  k8s/fetch_logs:
+    short_description: Fetch pod logs
+    description:
+      - Collect logs from the Kubernetes pod running the Block Explorer server.
+    options:
+      block_explorer_k8s_resource_name: *block_explorer_k8s_resource_name
+
+  k8s/config/transfer:
+    short_description: Publish the Kubernetes ConfigMap
+    description:
+      - Publish the rendered Block Explorer configuration and trusted CA bundles as a Kubernetes ConfigMap.
+    options:
+      k8s_namespace: *k8s_namespace
+      block_explorer_k8s_resource_name: *block_explorer_k8s_resource_name
+      block_explorer_k8s_part_of: *block_explorer_k8s_part_of
+      block_explorer_remote_config_dir: *block_explorer_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      block_explorer_config_file: *block_explorer_config_file
+      sidecar_host: *sidecar_host
+      postgres_db_host: *postgres_db_host
+
+  k8s/config/rm:
+    short_description: Remove the Kubernetes ConfigMap
+    description:
+      - Remove the Kubernetes ConfigMap created for the Block Explorer configuration.
+    options:
+      k8s_namespace: *k8s_namespace
+      block_explorer_k8s_resource_name: *block_explorer_k8s_resource_name
+
+  k8s/crypto/transfer:
+    short_description: Publish the Kubernetes Secret
+    description:
+      - Publish the Block Explorer self-signed client TLS material as a Kubernetes Secret when the committer sidecar requires mTLS.
+    options:
+      sidecar_host: *sidecar_host
+      block_explorer_remote_config_dir: *block_explorer_remote_config_dir
+      remote_config_dir: *remote_config_dir
+      block_explorer_tls_private_key_file: *block_explorer_tls_private_key_file
+      block_explorer_tls_cert_file: *block_explorer_tls_cert_file
+      k8s_namespace: *k8s_namespace
+      block_explorer_k8s_resource_name: *block_explorer_k8s_resource_name
+      block_explorer_k8s_part_of: *block_explorer_k8s_part_of
+
+  k8s/crypto/rm:
+    short_description: Remove the Kubernetes Secret
+    description:
+      - Remove the Kubernetes Secret created for the Block Explorer client TLS material.
+    options:
+      k8s_namespace: *k8s_namespace
+      block_explorer_k8s_resource_name: *block_explorer_k8s_resource_name
+
+  openshift/start:
+    short_description: Start the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages an OpenShift Route for the REST port.
+    options:
+      block_explorer_k8s_resource_name: *block_explorer_k8s_resource_name
+      block_explorer_k8s_part_of: *block_explorer_k8s_part_of
+      block_explorer_openshift_route: *block_explorer_openshift_route
+
+  openshift/ping:
+    short_description: Check the OpenShift deployment
+    description:
+      - Checks the configured OpenShift Route and reuses the Kubernetes service ping flow.
+    options:
+      block_explorer_openshift_route: *block_explorer_openshift_route
+
+  openshift/rm:
+    short_description: Remove the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and removes the OpenShift Route for the REST port.
+    options:
+      block_explorer_k8s_resource_name: *block_explorer_k8s_resource_name
+      block_explorer_openshift_route: *block_explorer_openshift_route

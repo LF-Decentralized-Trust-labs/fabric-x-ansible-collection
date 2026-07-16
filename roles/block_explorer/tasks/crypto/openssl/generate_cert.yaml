@@ -1,0 +1,22 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Initialize Block Explorer TLS SAN hosts
+  ansible.builtin.set_fact:
+    block_explorer_tls_san_hosts:
+      - "{{ ansible_host }}"
+      - "{{ actual_host }}"
+
+- name: Generate the Block Explorer client TLS crypto material with OpenSSL
+  vars:
+    openssl_common_name: "{{ inventory_hostname }}"
+    openssl_organization: "{{ organization.domain | default(inventory_hostname) }}"
+    openssl_private_key_path: "{{ block_explorer_remote_config_dir }}/tls/{{ block_explorer_tls_private_key_file }}"
+    openssl_cert_path: "{{ block_explorer_remote_config_dir }}/tls/{{ block_explorer_tls_cert_file }}"
+    openssl_san_hosts: "{{ block_explorer_tls_san_hosts | unique }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openssl
+    tasks_from: generate_self_signed_cert

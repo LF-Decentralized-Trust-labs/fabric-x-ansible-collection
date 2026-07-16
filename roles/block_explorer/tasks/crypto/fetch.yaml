@@ -1,0 +1,13 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Fetch the Block Explorer client TLS CA certificate
+  ansible.builtin.fetch:
+    src: "{{ block_explorer_remote_config_dir }}/tls/ca.crt"
+    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/ca.crt"
+    flat: true
+  when:
+    - hostvars[sidecar_host].committer_use_mtls | default(false)

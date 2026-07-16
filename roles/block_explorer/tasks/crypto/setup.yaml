@@ -1,0 +1,22 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# With OpenSSL
+# =========================
+- name: Generate the Block Explorer client TLS crypto material with OpenSSL
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.block_explorer
+    tasks_from: crypto/openssl/generate_cert
+  when:
+    - hostvars[sidecar_host].committer_use_mtls | default(false)
+
+- name: Transfer Block Explorer Kubernetes crypto
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.block_explorer
+    tasks_from: k8s/crypto/transfer
+  when:
+    - block_explorer_use_k8s or block_explorer_use_openshift

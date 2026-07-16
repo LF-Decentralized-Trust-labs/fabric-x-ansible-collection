@@ -1,0 +1,15 @@
+# ---------------------------------------------------------------------------
+# Server configuration
+# The REST API served to the Block Explorer UI.
+# ---------------------------------------------------------------------------
+server:
+  rest:
+    # The REST server endpoint.
+    endpoint:
+      host: 0.0.0.0
+      port: {{ block_explorer_port }}
+    # Timeout for reading the request headers of an incoming REST call.
+    read_header_timeout: 10s
+    # Default page size applied to transaction list queries when the caller
+    # does not specify a limit.
+    default_tx_limit: {{ block_explorer_default_tx_limit }}

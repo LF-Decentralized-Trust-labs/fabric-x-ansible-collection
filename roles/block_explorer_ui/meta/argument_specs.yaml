@@ -1,0 +1,320 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+argument_specs:
+  role-options:
+    short_description: Shared option catalog for block_explorer_ui role entry points
+    options:
+      block_explorer_host: &block_explorer_host
+        type: str
+        required: true
+        description:
+          - Sets the inventory host name of the Block Explorer server instance used by the UI.
+          - "Example: C(block-explorer)."
+          - The referenced host must expose the C(block_explorer_port) inventory var.
+      k8s_namespace: &k8s_namespace
+        type: str
+        description:
+          - Kubernetes namespace used for Block Explorer UI resources.
+          - "Example: C(fabricx-block-explorer)."
+      k8s_image_pull_secret: &k8s_image_pull_secret
+        type: str
+        description:
+          - Optional image pull secret used by the Block Explorer UI Deployment.
+          - "Example: C(fabricx-registry-pull)."
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - Optional Kubernetes container resource requests and limits.
+          - "Example: C({'requests': {'memory': '256Mi', 'cpu': '100m'}, 'limits': {'memory': '512Mi', 'cpu': '500m'}})."
+      k8s_readiness_probe_initial_delay_seconds:
+        &k8s_readiness_probe_initial_delay_seconds
+        type: int
+        description:
+          - Sets the Block Explorer UI readiness probe initial delay.
+          - "Example: C(10)."
+      k8s_readiness_probe_period_seconds: &k8s_readiness_probe_period_seconds
+        type: int
+        description:
+          - Sets the Block Explorer UI readiness probe period.
+          - "Example: C(10)."
+      k8s_readiness_probe_timeout_seconds: &k8s_readiness_probe_timeout_seconds
+        type: int
+        description:
+          - Sets the Block Explorer UI readiness probe timeout.
+          - "Example: C(5)."
+      k8s_readiness_probe_failure_threshold:
+        &k8s_readiness_probe_failure_threshold
+        type: int
+        description:
+          - Sets the Block Explorer UI readiness probe failure threshold.
+          - "Example: C(3)."
+      k8s_liveness_probe_initial_delay_seconds:
+        &k8s_liveness_probe_initial_delay_seconds
+        type: int
+        description:
+          - Sets the Block Explorer UI liveness probe initial delay.
+          - "Example: C(30)."
+      k8s_liveness_probe_period_seconds: &k8s_liveness_probe_period_seconds
+        type: int
+        description:
+          - Sets the Block Explorer UI liveness probe period.
+          - "Example: C(15)."
+      k8s_liveness_probe_timeout_seconds: &k8s_liveness_probe_timeout_seconds
+        type: int
+        description:
+          - Sets the Block Explorer UI liveness probe timeout.
+          - "Example: C(5)."
+      k8s_liveness_probe_failure_threshold:
+        &k8s_liveness_probe_failure_threshold
+        type: int
+        description:
+          - Sets the Block Explorer UI liveness probe failure threshold.
+          - "Example: C(5)."
+      block_explorer_ui_use_k8s: &block_explorer_ui_use_k8s
+        type: bool
+        default: false
+        description:
+          - Use Kubernetes resources.
+      block_explorer_ui_use_openshift: &block_explorer_ui_use_openshift
+        type: bool
+        default: false
+        description:
+          - Selects the OpenShift deployment branch.
+      block_explorer_ui_use_container: &block_explorer_ui_use_container
+        type: bool
+        default: "{{ (not block_explorer_ui_use_k8s) and (not block_explorer_ui_use_openshift) }}"
+        description:
+          - Run the container runtime.
+      block_explorer_ui_registry_endpoint: &block_explorer_ui_registry_endpoint
+        type: str
+        default: "{{ lookup('env', 'BLOCK_EXPLORER_UI_REGISTRY_ENDPOINT') or 'ghcr.io/lf-decentralized-trust-labs' }}"
+        description:
+          - Image registry endpoint.
+      block_explorer_ui_image_name: &block_explorer_ui_image_name
+        type: str
+        default: fabric-x-block-explorer-ui
+        description:
+          - Image name used by the Block Explorer UI container.
+      block_explorer_ui_image_tag: &block_explorer_ui_image_tag
+        type: str
+        default: latest
+        description:
+          - Image tag used by the Block Explorer UI container.
+      block_explorer_ui_image: &block_explorer_ui_image
+        type: str
+        default: "{{ block_explorer_ui_registry_endpoint }}/{{ block_explorer_ui_image_name }}:{{ block_explorer_ui_image_tag }}"
+        description:
+          - Block Explorer UI container image.
+      block_explorer_ui_container_name: &block_explorer_ui_container_name
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Container name used by the runtime.
+      block_explorer_ui_port: &block_explorer_ui_port
+        type: int
+        required: true
+        description:
+          - Web port exposed by the Block Explorer UI.
+          - "Example: C(18000)."
+      block_explorer_ui_k8s_resource_name: &block_explorer_ui_k8s_resource_name
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - Kubernetes resource name used for the Deployment, Service, and optional NodePort Service.
+      block_explorer_ui_k8s_part_of: &block_explorer_ui_k8s_part_of
+        type: str
+        default: block-explorer
+        description:
+          - Value for the Kubernetes C(app.kubernetes.io/part-of) label applied to Block Explorer UI resources.
+      block_explorer_ui_k8s_wait_timeout: &block_explorer_ui_k8s_wait_timeout
+        type: int
+        default: 120
+        description:
+          - Deployment rollout wait timeout in seconds.
+      block_explorer_ui_k8s_node_port: &block_explorer_ui_k8s_node_port
+        type: int
+        description:
+          - Kubernetes NodePort value used by the external web Service port.
+          - Defining this variable enables the NodePort Service; the value is set as the static C(nodePort) in the Service spec.
+          - "Example: C(30600)."
+      block_explorer_ui_k8s_loadbalancer_expose_port:
+        &block_explorer_ui_k8s_loadbalancer_expose_port
+        type: bool
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the web port externally.
+          - When undefined or C(false), the web port is not included in the LoadBalancer Service.
+      block_explorer_ui_openshift_route: &block_explorer_ui_openshift_route
+        type: str
+        description:
+          - Specifies the OpenShift Route host.
+          - "Example: C(block-explorer-ui.apps.example.com)."
+  start:
+    short_description: Start the Block Explorer UI
+    description:
+      - Starts the Block Explorer UI by dispatching to the container or Kubernetes entry point.
+      - Set exactly one deployment mode flag for the target host.
+    options:
+      block_explorer_ui_use_container: *block_explorer_ui_use_container
+      block_explorer_ui_use_k8s: *block_explorer_ui_use_k8s
+      block_explorer_ui_use_openshift: *block_explorer_ui_use_openshift
+
+  stop:
+    short_description: Stop the Block Explorer UI in container mode
+    description:
+      - Stops the Block Explorer UI container without removing generated artifacts.
+    options:
+      block_explorer_ui_use_container: *block_explorer_ui_use_container
+      block_explorer_ui_use_k8s: *block_explorer_ui_use_k8s
+      block_explorer_ui_use_openshift: *block_explorer_ui_use_openshift
+
+  teardown:
+    short_description: Remove the Block Explorer UI in the selected deployment mode
+    description:
+      - Removes the Block Explorer UI container or Kubernetes workload by dispatching to the matching entry point.
+    options:
+      block_explorer_ui_use_container: *block_explorer_ui_use_container
+      block_explorer_ui_use_k8s: *block_explorer_ui_use_k8s
+      block_explorer_ui_use_openshift: *block_explorer_ui_use_openshift
+
+  wipe:
+    short_description: Remove all Block Explorer UI data
+    description:
+      - Removes the Block Explorer UI workload.
+    options: {}
+
+  fetch_logs:
+    short_description: Collect Block Explorer UI logs for the selected deployment mode
+    description:
+      - Collects Block Explorer UI logs from the container deployment or from the Kubernetes pod for troubleshooting.
+    options:
+      block_explorer_ui_use_container: *block_explorer_ui_use_container
+      block_explorer_ui_use_k8s: *block_explorer_ui_use_k8s
+      block_explorer_ui_use_openshift: *block_explorer_ui_use_openshift
+
+  ping:
+    short_description: Check that the Block Explorer UI web port is reachable
+    description:
+      - Verifies that the Block Explorer UI web interface port is reachable on the target host.
+      - In Kubernetes mode, also validates the optional NodePort configuration when enabled.
+    options:
+      block_explorer_ui_use_k8s: *block_explorer_ui_use_k8s
+      block_explorer_ui_use_openshift: *block_explorer_ui_use_openshift
+      block_explorer_ui_port: *block_explorer_ui_port
+
+  container/start:
+    short_description: Start the Block Explorer UI container
+    description:
+      - Starts the containerized Block Explorer UI with C(BACKEND_URL) pointed at the resolved Block Explorer server address.
+    options:
+      block_explorer_ui_container_name: *block_explorer_ui_container_name
+      block_explorer_ui_image: *block_explorer_ui_image
+      block_explorer_ui_registry_endpoint: *block_explorer_ui_registry_endpoint
+      block_explorer_ui_image_name: *block_explorer_ui_image_name
+      block_explorer_ui_image_tag: *block_explorer_ui_image_tag
+      block_explorer_ui_port: *block_explorer_ui_port
+      block_explorer_host: *block_explorer_host
+
+  container/stop:
+    short_description: Stop the Block Explorer UI container
+    description:
+      - Stops the running Block Explorer UI container by name without deleting associated artifacts.
+    options:
+      block_explorer_ui_container_name: *block_explorer_ui_container_name
+
+  container/rm:
+    short_description: Remove the Block Explorer UI container
+    description:
+      - Removes the Block Explorer UI container by name.
+    options:
+      block_explorer_ui_container_name: *block_explorer_ui_container_name
+
+  container/fetch_logs:
+    short_description: Fetch logs from the Block Explorer UI container
+    description:
+      - Collects logs from the named Block Explorer UI container for post-startup inspection.
+    options:
+      block_explorer_ui_container_name: *block_explorer_ui_container_name
+
+  k8s/start:
+    short_description: Start the Block Explorer UI on Kubernetes
+    description:
+      - Applies the Block Explorer UI Service, optional NodePort and LoadBalancer Services, and Deployment on Kubernetes.
+    options:
+      block_explorer_ui_k8s_resource_name: *block_explorer_ui_k8s_resource_name
+      block_explorer_ui_k8s_part_of: *block_explorer_ui_k8s_part_of
+      block_explorer_ui_port: *block_explorer_ui_port
+      block_explorer_ui_k8s_node_port: *block_explorer_ui_k8s_node_port
+      block_explorer_ui_k8s_wait_timeout: *block_explorer_ui_k8s_wait_timeout
+      block_explorer_ui_image: *block_explorer_ui_image
+      block_explorer_ui_registry_endpoint: *block_explorer_ui_registry_endpoint
+      block_explorer_ui_image_name: *block_explorer_ui_image_name
+      block_explorer_ui_image_tag: *block_explorer_ui_image_tag
+      block_explorer_host: *block_explorer_host
+      k8s_namespace: *k8s_namespace
+      k8s_image_pull_secret: *k8s_image_pull_secret
+      k8s_readiness_probe_initial_delay_seconds: *k8s_readiness_probe_initial_delay_seconds
+      k8s_readiness_probe_period_seconds: *k8s_readiness_probe_period_seconds
+      k8s_readiness_probe_timeout_seconds: *k8s_readiness_probe_timeout_seconds
+      k8s_readiness_probe_failure_threshold: *k8s_readiness_probe_failure_threshold
+      k8s_liveness_probe_initial_delay_seconds: *k8s_liveness_probe_initial_delay_seconds
+      k8s_liveness_probe_period_seconds: *k8s_liveness_probe_period_seconds
+      k8s_liveness_probe_timeout_seconds: *k8s_liveness_probe_timeout_seconds
+      k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
+      block_explorer_ui_k8s_loadbalancer_expose_port: *block_explorer_ui_k8s_loadbalancer_expose_port
+      k8s_resources: *k8s_resources
+
+  k8s/ping:
+    short_description: Check that the Block Explorer UI Kubernetes service is reachable
+    description:
+      - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
+    options:
+      block_explorer_ui_port: *block_explorer_ui_port
+      block_explorer_ui_k8s_node_port: *block_explorer_ui_k8s_node_port
+      block_explorer_ui_k8s_loadbalancer_expose_port: *block_explorer_ui_k8s_loadbalancer_expose_port
+
+  k8s/rm:
+    short_description: Remove Block Explorer UI Kubernetes resources
+    description:
+      - Deletes the Block Explorer UI Deployment, Service, and NodePort Service from Kubernetes.
+    options:
+      block_explorer_ui_k8s_resource_name: *block_explorer_ui_k8s_resource_name
+      k8s_namespace: *k8s_namespace
+      block_explorer_ui_k8s_node_port: *block_explorer_ui_k8s_node_port
+      block_explorer_ui_k8s_loadbalancer_expose_port: *block_explorer_ui_k8s_loadbalancer_expose_port
+
+  k8s/fetch_logs:
+    short_description: Fetch logs from the Block Explorer UI pod
+    description:
+      - Collects logs from the Block Explorer UI pod selected by the application label.
+    options:
+      block_explorer_ui_k8s_resource_name: *block_explorer_ui_k8s_resource_name
+
+  openshift/start:
+    short_description: Start the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and manages an OpenShift Route for the web port.
+    options:
+      block_explorer_ui_k8s_resource_name: *block_explorer_ui_k8s_resource_name
+      block_explorer_ui_k8s_part_of: *block_explorer_ui_k8s_part_of
+      block_explorer_ui_openshift_route: *block_explorer_ui_openshift_route
+
+  openshift/ping:
+    short_description: Check the OpenShift deployment
+    description:
+      - Checks the configured OpenShift Route and reuses the Kubernetes service ping flow.
+    options:
+      block_explorer_ui_openshift_route: *block_explorer_ui_openshift_route
+
+  openshift/rm:
+    short_description: Remove the OpenShift deployment
+    description:
+      - Reuses the Kubernetes workload flow and removes the OpenShift Route for the web port.
+    options:
+      block_explorer_ui_k8s_resource_name: *block_explorer_ui_k8s_resource_name
+      block_explorer_ui_openshift_route: *block_explorer_ui_openshift_route

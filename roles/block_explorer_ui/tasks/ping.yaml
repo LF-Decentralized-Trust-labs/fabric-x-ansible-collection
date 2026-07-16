@@ -1,0 +1,35 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =======================
+# container
+# =======================
+- name: Check that the Block Explorer UI web port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ block_explorer_ui_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when: not (block_explorer_ui_use_k8s or block_explorer_ui_use_openshift)
+
+# =======================
+# k8s
+# =======================
+- name: Check that the node ports are open
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.block_explorer_ui
+    tasks_from: k8s/ping
+  when: block_explorer_ui_use_k8s
+
+# =======================
+# openshift
+# =======================
+- name: Check that the OpenShift routes and Kubernetes services are open
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.block_explorer_ui
+    tasks_from: openshift/ping
+  when: block_explorer_ui_use_openshift

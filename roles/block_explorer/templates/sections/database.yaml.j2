@@ -1,0 +1,28 @@
+# ---------------------------------------------------------------------------
+# Database configuration
+# Connection details for the PostgreSQL instance that stores indexed blocks,
+# transactions, and namespace policies.
+# ---------------------------------------------------------------------------
+database:
+  # List of database endpoints to connect to. Format: host and port pairs.
+  endpoints:
+    - host: {{ hostvars[postgres_db_host].ansible_host }}
+      port: {{ hostvars[postgres_db_host].postgres_port }}
+  # Database username for authentication.
+  user: {{ hostvars[postgres_db_host].postgres_user }}
+  # Database password for authentication.
+  password: {{ hostvars[postgres_db_host].postgres_password }}
+  # Database name to connect to.
+  dbname: {{ hostvars[postgres_db_host].postgres_db }}
+  # Maximum size of the database connection pool. Should be greater than or
+  # equal to workers.writer_count.
+  max_conns: {{ block_explorer_max_conns }}
+{% if (hostvars[postgres_db_host].postgres_use_tls is defined) and hostvars[postgres_db_host].postgres_use_tls %}
+  # Define TLS options used for the connection to the database.
+  # Note: database connections do not support mutual TLS (mtls).
+  tls:
+    # TLS mode for database connections: 'none' (no TLS) or 'tls' (server auth with CA verification).
+    mode: tls
+    # Path to the CA certificate file used to verify the database server's certificate.
+    ca-cert-path: {{ block_explorer_container_config_dir }}/tls/db/ca.crt
+{% endif %}

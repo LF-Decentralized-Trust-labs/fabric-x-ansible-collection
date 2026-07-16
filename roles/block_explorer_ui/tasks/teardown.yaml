@@ -1,0 +1,23 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Block Explorer UI container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.block_explorer_ui
+    tasks_from: container/rm
+  when: block_explorer_ui_use_container
+
+- name: Remove Block Explorer UI Kubernetes workload
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.block_explorer_ui
+    tasks_from: k8s/rm
+  when: block_explorer_ui_use_k8s
+
+- name: Teardown Block Explorer UI on OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.block_explorer_ui
+    tasks_from: openshift/rm
+  when: block_explorer_ui_use_openshift
