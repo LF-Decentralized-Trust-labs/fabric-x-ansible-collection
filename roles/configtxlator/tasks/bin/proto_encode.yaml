@@ -1,0 +1,19 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Run {{ configtxlator_bin_name }} proto_encode
+  vars:
+    bin_run_with_tmux: false
+    bin_remote_dir: "{{ cli_bin_dir }}"
+    bin_command: >-
+      {{ configtxlator_bin_name }} proto_encode
+      --type {{ configtxlator_proto_type }}
+      --input {{ configtxlator_input_file }}
+      --output {{ configtxlator_output_file }}
+    bin_collect_logs: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start

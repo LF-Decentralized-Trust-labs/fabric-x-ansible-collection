@@ -31,6 +31,7 @@ The roles that come within such collection are listed hereafter. Click on them t
 - [`hyperledger.fabricx.cadvisor`](./cadvisor);
 - [`hyperledger.fabricx.committer`](./committer);
 - [`hyperledger.fabricx.configtxgen`](./configtxgen);
+- [`hyperledger.fabricx.configtxlator`](./configtxlator);
 - [`hyperledger.fabricx.container`](./container);
 - [`hyperledger.fabricx.cryptogen`](./cryptogen);
 - [`hyperledger.fabricx.fabric_ca`](./fabric_ca);

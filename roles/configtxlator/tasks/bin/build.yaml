@@ -1,0 +1,21 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Build {{ configtxlator_bin_name }}
+  vars:
+    # Git vars
+    git_hub_url: "{{ configtxlator_git_hub_url }}"
+    git_repo: "{{ configtxlator_git_repo }}"
+    git_commit: "{{ configtxlator_git_commit }}"
+    # Bin vars
+    bin_name: "{{ configtxlator_bin_name }}"
+    bin_build_on_control_node: true
+    bin_dir: "{{ cli_bin_dir }}"
+    # Go vars
+    go_source_code_package: "{{ configtxlator_source_code_package }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: go/build
