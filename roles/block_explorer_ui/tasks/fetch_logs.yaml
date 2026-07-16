@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Fetch the logs from the Block Explorer UI container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.block_explorer_ui
+    tasks_from: container/fetch_logs
+  when: block_explorer_ui_use_container
+
+- name: Fetch Block Explorer UI pod logs
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.block_explorer_ui
+    tasks_from: k8s/fetch_logs
+  when: block_explorer_ui_use_k8s or block_explorer_ui_use_openshift

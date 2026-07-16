@@ -1,0 +1,43 @@
+# ---------------------------------------------------------------------------
+# Sidecar configuration
+# gRPC connection to the Fabric-X Committer sidecar that Block Explorer
+# streams blocks from for indexing.
+# ---------------------------------------------------------------------------
+sidecar:
+  connection:
+    # Endpoint of the committer sidecar to connect to for block delivery.
+    endpoint:
+      host: {{ hostvars[sidecar_host].ansible_host }}
+      port: {{ hostvars[sidecar_host].committer_rpc_port }}
+    # Define TLS options used for the connection to the sidecar. The mode is
+    # derived from the sidecar's own TLS/mTLS configuration; there is no local
+    # override.
+    tls:
+{% if (hostvars[sidecar_host].committer_use_tls is defined) and hostvars[sidecar_host].committer_use_tls %}
+{% if (hostvars[sidecar_host].committer_use_mtls is defined) and hostvars[sidecar_host].committer_use_mtls %}
+      # TLS mode for sidecar connections: 'none' (no TLS), 'tls' (server auth only),
+      # or 'mtls' (mutual TLS with client cert verification).
+      mode: mtls
+      # List of paths to CA certificate files for verifying the sidecar's certificate.
+      ca-cert-paths:
+        - {{ block_explorer_container_config_dir }}/tls/sidecar/ca.crt
+      # Path to the client's TLS certificate file (public key) presented to the sidecar.
+      cert-path: {{ block_explorer_container_config_dir }}/tls/{{ block_explorer_tls_cert_file }}
+      # Path to the client's TLS private key file.
+      key-path: {{ block_explorer_container_config_dir }}/tls/{{ block_explorer_tls_private_key_file }}
+{% else %}
+      # TLS mode for sidecar connections: 'none' (no TLS), 'tls' (server auth only),
+      # or 'mtls' (mutual TLS with client cert verification).
+      mode: tls
+      # List of paths to CA certificate files for verifying the sidecar's certificate.
+      ca-cert-paths:
+        - {{ block_explorer_container_config_dir }}/tls/sidecar/ca.crt
+{% endif %}
+{% else %}
+      # TLS mode for sidecar connections: 'none' (no TLS), 'tls' (server auth only),
+      # or 'mtls' (mutual TLS with client cert verification).
+      mode: none
+{% endif %}
+  # First block number to resume streaming from when Block Explorer has no
+  # persisted state yet.
+  start_block: {{ block_explorer_start_block }}

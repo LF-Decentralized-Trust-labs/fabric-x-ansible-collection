@@ -43,6 +43,11 @@ fabric_x_orderers:
 fabric_x_committers:
 	@$(eval TARGET_HOSTS = fabric_x_committers):
 
+# Target the Fabric-X Block Explorer components for the command being run (e.g. make fabric_x_block_explorer start).
+.PHONY: fabric_x_block_explorer
+fabric_x_block_explorer:
+	@$(eval TARGET_HOSTS = fabric_x_block_explorer):
+
 # Target the load_generators for the command being run (e.g. make load_generators start).
 .PHONY: load_generators
 load_generators:

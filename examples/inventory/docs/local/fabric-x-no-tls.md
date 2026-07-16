@@ -27,6 +27,7 @@ This inventory deploys the same service layout as the default local sample:
 - 5 Fabric CA servers and 5 PostgreSQL databases for Fabric CA state.
 - 4 orderer groups. Each group has 1 router, 1 consenter, 1 assembler, and 1 batcher.
 - 1 committer with validator, verifier, coordinator, sidecar, query service, and PostgreSQL storage.
+- 1 Block Explorer server and UI with PostgreSQL storage, streaming blocks from the committer sidecar.
 - 1 load generator.
 - Monitoring with node exporter, PostgreSQL exporter, cAdvisor, Prometheus, Grafana, Loki, and Alloy.
 
@@ -54,6 +55,7 @@ flowchart TD
   fabric_cas --> fabric_ca_dbs
   fabric_x --> fabric_x_orderers
   fabric_x --> fabric_x_committers
+  fabric_x --> fabric_x_block_explorer
   fabric_x_committers --> fabric_x_committer
   fabric_x_orderers --> fabric_x_orderer_1
   fabric_x_orderers --> fabric_x_orderer_2

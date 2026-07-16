@@ -13,6 +13,9 @@
 - name: Ping Fabric-X Committer
   ansible.builtin.import_playbook: hyperledger.fabricx.committer.ping
 
+- name: Ping Fabric-X Block Explorer
+  ansible.builtin.import_playbook: hyperledger.fabricx.block_explorer.ping
+
 - name: Ping Fabric-X Loadgen
   ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.ping
 

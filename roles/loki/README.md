@@ -133,13 +133,13 @@ Creates the Loki data directory and starts the Loki container via hyperledger.fa
     loki_registry_endpoint: "{{ lookup('env', 'LOKI_REGISTRY_ENDPOINT') or 'docker.io/grafana' }}"
     # Sets the Grafana Loki image name.
     loki_image_name: loki
-    # Sets the Grafana Loki image tag. Example: `3.4.2`
+    # Sets the Grafana Loki image tag.
     loki_image_tag: 3.4.2
     # Sets the Grafana Loki image reference.
     loki_image: "{{ loki_registry_endpoint }}/{{ loki_image_name }}:{{ loki_image_tag }}"
-    # Port Loki listens on. Example: `9200`.
+    # Port Loki listens on.
     loki_port: 9200
-    # gRPC port Loki listens on, used for the query/ingest API and inter-component RPC. Example: `9201`.
+    # gRPC port Loki listens on, used for the query/ingest API and inter-component RPC.
     loki_grpc_port: 9201
     # Directory for Loki configuration files on the remote host.
     loki_remote_config_dir: "{{ remote_deploy_dir }}/loki/config"
@@ -241,13 +241,13 @@ Renders and uploads the Loki config file to the remote host. Applies the Kuberne
     loki_container_config_dir: /etc/loki
     # Directory for Loki data and state files within the container.
     loki_container_data_dir: /loki
-    # Port Loki listens on. Example: `9200`.
+    # Port Loki listens on.
     loki_port: 9200
-    # gRPC port Loki listens on, used for the query/ingest API and inter-component RPC. Example: `9201`.
+    # gRPC port Loki listens on, used for the query/ingest API and inter-component RPC.
     loki_grpc_port: 9201
     # Address this Loki node advertises to peers in its hash ring. Cosmetic for the single-node inmemory ring; set to a routable address for multi-node HA.
     loki_instance_addr: "{{ ansible_host }}"
-    # Log retention period. Default is 31 days. Example: `744h`
+    # Log retention period. Default is 31 days.
     loki_retention_period: 744h
     # Maximum ingestion rate in MB/s per distributor.
     loki_ingestion_rate_mb: 16
@@ -307,13 +307,13 @@ Applies the ConfigMap, a headless Service, and a StatefulSet (with a PVC via vol
     loki_registry_endpoint: "{{ lookup('env', 'LOKI_REGISTRY_ENDPOINT') or 'docker.io/grafana' }}"
     # Sets the Grafana Loki image name.
     loki_image_name: loki
-    # Sets the Grafana Loki image tag. Example: `3.4.2`
+    # Sets the Grafana Loki image tag.
     loki_image_tag: 3.4.2
     # Sets the Grafana Loki image reference.
     loki_image: "{{ loki_registry_endpoint }}/{{ loki_image_name }}:{{ loki_image_tag }}"
-    # Port Loki listens on. Example: `9200`.
+    # Port Loki listens on.
     loki_port: 9200
-    # gRPC port Loki listens on, used for the query/ingest API and inter-component RPC. Example: `9201`.
+    # gRPC port Loki listens on, used for the query/ingest API and inter-component RPC.
     loki_grpc_port: 9201
     # Base Kubernetes resource name used for the Loki StatefulSet and Services.
     loki_k8s_resource_name: "{{ loki_container_name }}"
@@ -335,7 +335,7 @@ Applies the ConfigMap, a headless Service, and a StatefulSet (with a PVC via vol
     loki_k8s_fs_group: 10001
     # Requested storage size for the Loki StatefulSet's volumeClaimTemplate on Kubernetes/OpenShift.
     loki_pvc_size: 50Gi
-    # StorageClass name for the Loki volumeClaimTemplate. Leave empty to use the cluster default. Example: `ibmc-file`
+    # StorageClass name for the Loki volumeClaimTemplate. Leave empty to use the cluster default.
     loki_storage_class: ""
     # Target Kubernetes/OpenShift namespace for this host's resources.
     k8s_namespace: "string"

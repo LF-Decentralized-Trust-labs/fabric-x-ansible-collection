@@ -164,12 +164,14 @@ argument_specs:
         type: bool
         description:
           - Render the namespace creation section.
-          - "Example: C(true) when the workload should create namespace records before sending load."
+          - Set C(true) when the workload should create namespace records before sending load.
+          - "Example: C(true)."
       loadgen_generate_load: &loadgen_generate_load
         type: bool
         description:
           - Render the transaction load section.
-          - "Example: C(true) for a normal benchmark workload."
+          - Set C(true) for a normal benchmark workload.
+          - "Example: C(true)."
       loadgen_crypto_name: &loadgen_crypto_name
         type: str
         default: "{{ organization.peer.name | default(inventory_hostname) }}"
@@ -231,7 +233,8 @@ argument_specs:
         type: bool
         description:
           - Enable read-only transactions in the load profile.
-          - "Example: C(true) to include read-only query traffic."
+          - Set C(true) to include read-only query traffic.
+          - "Example: C(true)."
       loadgen_read_only_tx_keys: &loadgen_read_only_tx_keys
         type: int
         description:
@@ -241,7 +244,8 @@ argument_specs:
         type: bool
         description:
           - Enable write-only transactions in the load profile.
-          - "Example: C(true) to include blind-write traffic."
+          - Set C(true) to include blind-write traffic.
+          - "Example: C(true)."
       loadgen_write_only_tx_keys: &loadgen_write_only_tx_keys
         type: int
         description:
@@ -256,7 +260,8 @@ argument_specs:
         type: bool
         description:
           - Enable read-write transactions in the load profile.
-          - "Example: C(true) to include endorsement-style read-write traffic."
+          - Set C(true) to include endorsement-style read-write traffic.
+          - "Example: C(true)."
       loadgen_read_write_tx_keys: &loadgen_read_write_tx_keys
         type: int
         description:

@@ -37,7 +37,7 @@ Creates or updates the named Kubernetes namespace resource in the target cluster
 ```yaml
 - name: Ensure a Kubernetes namespace exists
   vars:
-    # Specifies the Kubernetes namespace targeted by the task. Example: `fabric-x`.
+    # Specifies the Kubernetes namespace targeted by the task.
     k8s_namespace: "fabric-x"
     # Controls whether the namespace creation task applies the namespace resource. When `false`, the namespace creation task is skipped.
     k8s_create_namespace: true
@@ -55,15 +55,15 @@ Creates or updates a `kubernetes.io/dockerconfigjson` Secret named by `k8s_image
 ```yaml
 - name: Create a Kubernetes image pull secret
   vars:
-    # Specifies the Kubernetes namespace targeted by the task. Example: `fabric-x`.
+    # Specifies the Kubernetes namespace targeted by the task.
     k8s_namespace: "fabric-x"
-    # Specifies the Kubernetes Secret name used for image pulls. Example: `regcred`.
+    # Specifies the Kubernetes Secret name used for image pulls.
     k8s_image_pull_secret: "regcred"
-    # Specifies the container registry host recorded in the generated Docker config. Example: `icr.io`.
+    # Specifies the container registry host recorded in the generated Docker config.
     k8s_container_registry: "icr.io"
-    # Specifies the registry username stored in the generated image pull secret. Example: `iamapikey`.
+    # Specifies the registry username stored in the generated image pull secret.
     k8s_container_registry_username: "iamapikey"
-    # Specifies the registry password or token stored in the generated image pull secret. Store this value in an Ansible Vault. Example: `my_private_cr_password`.
+    # Specifies the registry password or token stored in the generated image pull secret. Store this value in an Ansible Vault.
     k8s_container_registry_password: "my_private_cr_password"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.k8s
@@ -79,17 +79,17 @@ Collects pod logs from the target namespace for pods matched by `k8s_pod_label_s
 ```yaml
 - name: Fetch Kubernetes pod logs
   vars:
-    # Specifies the Kubernetes namespace targeted by the task. Example: `fabric-x`.
+    # Specifies the Kubernetes namespace targeted by the task.
     k8s_namespace: "fabric-x"
-    # Specifies the Kubernetes label selectors used to select pods for log collection. Example: `['app=fabric-x-orderer', 'component=assembler']`.
+    # Specifies the Kubernetes label selectors used to select pods for log collection.
     k8s_pod_label_selectors:
       - "app=fabric-x-orderer"
       - "component=assembler"
-    # Optionally specifies the container name to query from multi-container pods. Example: `orderer`. When omitted, Kubernetes uses the default container.
+    # Optionally specifies the container name to query from multi-container pods. When omitted, Kubernetes uses the default container.
     k8s_pod_container: "orderer"
-    # Shared managed-host root directory for the remote log path. Example: `/var/tmp/fabricx`.
+    # Shared managed-host root directory for the remote log path.
     remote_node_dir: "/var/tmp/fabricx"
-    # Shared control-node artifact root for the fetched log directory. Example: `artifacts`.
+    # Shared control-node artifact root for the fetched log directory.
     fetched_artifacts_dir: "artifacts"
     # Specifies the directory on the managed host where pod logs are written before transfer.
     k8s_remote_logs_dir: "{{ remote_node_dir }}/logs"
@@ -126,23 +126,23 @@ Creates or updates a ServiceAccount, ClusterRole, and ClusterRoleBinding for Kub
 ```yaml
 - name: Apply RBAC resources for Kubernetes service discovery
   vars:
-    # Specifies the Kubernetes namespace targeted by the task. Example: `fabric-x`.
+    # Specifies the Kubernetes namespace targeted by the task.
     k8s_namespace: "fabric-x"
     # Base name used for RBAC resources (ServiceAccount, ClusterRole, ClusterRoleBinding).
     k8s_rbac_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to RBAC resources. Must be set by the consumer role.
     k8s_rbac_part_of: "string"
-    # API groups granted by the ClusterRole for Kubernetes service discovery. Must be set by the consumer role. Example: `['']`.
+    # API groups granted by the ClusterRole for Kubernetes service discovery. Must be set by the consumer role.
     k8s_rbac_clusterrole_api_groups:
       - ""
-    # Resources granted by the ClusterRole for Kubernetes service discovery. Must be set by the consumer role. Example: `['pods', 'nodes', 'nodes/metrics', 'services', 'endpoints']`.
+    # Resources granted by the ClusterRole for Kubernetes service discovery. Must be set by the consumer role.
     k8s_rbac_clusterrole_resources:
       - "pods"
       - "nodes"
       - "nodes/metrics"
       - "services"
       - "endpoints"
-    # Verbs granted by the ClusterRole for Kubernetes service discovery. Must be set by the consumer role. Example: `['get', 'list', 'watch']`.
+    # Verbs granted by the ClusterRole for Kubernetes service discovery. Must be set by the consumer role.
     k8s_rbac_clusterrole_verbs:
       - "get"
       - "list"
@@ -161,7 +161,7 @@ Deletes the ClusterRoleBinding, ClusterRole, and ServiceAccount previously creat
 ```yaml
 - name: Remove RBAC resources for Kubernetes service discovery
   vars:
-    # Specifies the Kubernetes namespace targeted by the task. Example: `fabric-x`.
+    # Specifies the Kubernetes namespace targeted by the task.
     k8s_namespace: "fabric-x"
     # Base name used for RBAC resources (ServiceAccount, ClusterRole, ClusterRoleBinding).
     k8s_rbac_resource_name: "{{ inventory_hostname }}"

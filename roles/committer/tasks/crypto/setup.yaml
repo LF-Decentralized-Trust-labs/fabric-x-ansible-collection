@@ -4,12 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Check that crypto prerequisites are satisfied
-  ansible.builtin.fail:
-    msg: "Cannot setup TLS crypto material for HLFX Committer without an organization. Please define it through the 'organization' field."
-  when:
-    - organization is undefined
-
 - name: Check that a peer role is provided for TLS cert
   ansible.builtin.fail:
     msg: "Cannot setup TLS crypto material for HLFX Committer if is not a peer. Please set the field 'organization.role' as 'peer'."

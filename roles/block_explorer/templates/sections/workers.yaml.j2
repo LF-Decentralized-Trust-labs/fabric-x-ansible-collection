@@ -1,0 +1,10 @@
+# ---------------------------------------------------------------------------
+# Workers configuration
+# Concurrency settings for the block processing pipeline.
+# ---------------------------------------------------------------------------
+workers:
+  # Number of goroutines parsing raw blocks into the indexed data model.
+  processor_count: {{ block_explorer_processor_count }}
+  # Number of goroutines writing processed blocks to the database. Must not
+  # exceed database.max_conns.
+  writer_count: {{ block_explorer_writer_count }}

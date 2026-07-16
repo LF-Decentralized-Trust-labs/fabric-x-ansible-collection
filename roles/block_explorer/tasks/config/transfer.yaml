@@ -1,0 +1,64 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure the Block Explorer config directory exists
+  ansible.builtin.file:
+    path: "{{ block_explorer_remote_config_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Generate the config for the Block Explorer server
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: "{{ block_explorer_remote_config_dir }}/{{ block_explorer_config_file }}"
+    mode: "0o644"
+
+# =========================
+# Committer Sidecar TLS
+# =========================
+- name: Transfer Committer Sidecar TLS CA certificate
+  when:
+    - hostvars[sidecar_host].committer_use_tls is defined
+    - hostvars[sidecar_host].committer_use_tls
+  block:
+    - name: Ensure Committer Sidecar TLS folder exists
+      ansible.builtin.file:
+        path: "{{ block_explorer_remote_config_dir }}/tls/sidecar"
+        state: directory
+        mode: "0o755"
+    - name: Transfer Committer Sidecar TLS CA certificate
+      ansible.builtin.copy:
+        src: "{{ fetched_artifacts_dir }}/{{ sidecar_host }}/tls/ca.crt"
+        dest: "{{ block_explorer_remote_config_dir }}/tls/sidecar/ca.crt"
+        mode: "0o644"
+
+# =========================
+# PostgreSQL TLS
+# =========================
+- name: Transfer PostgreSQL TLS CA certificate
+  when:
+    - hostvars[postgres_db_host].postgres_use_tls is defined
+    - hostvars[postgres_db_host].postgres_use_tls
+  block:
+    - name: Ensure PostgreSQL TLS folder exists
+      ansible.builtin.file:
+        path: "{{ block_explorer_remote_config_dir }}/tls/db"
+        state: directory
+        mode: "0o755"
+    - name: Transfer PostgreSQL TLS CA certificate
+      ansible.builtin.copy:
+        src: "{{ fetched_artifacts_dir }}/{{ postgres_db_host }}/tls/ca.crt"
+        dest: "{{ block_explorer_remote_config_dir }}/tls/db/ca.crt"
+        mode: "0o644"
+
+# =========================
+# Kubernetes ConfigMap
+# =========================
+- name: Transfer Block Explorer Kubernetes ConfigMap
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.block_explorer
+    tasks_from: k8s/config/transfer
+  when: block_explorer_use_k8s or block_explorer_use_openshift

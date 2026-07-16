@@ -1,0 +1,11 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Stop Block Explorer UI container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.block_explorer_ui
+    tasks_from: container/stop
+  when: block_explorer_ui_use_container

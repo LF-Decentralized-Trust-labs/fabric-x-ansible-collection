@@ -146,9 +146,9 @@ Probes the ElasticSearch HTTP and transport ports in container mode. Delegates t
     elasticsearch_use_k8s: false
     # Selects the OpenShift deployment branch.
     elasticsearch_use_openshift: false
-    # ElasticSearch HTTP port used by the container, Kubernetes Service, and readiness checks. Example: `9200`.
+    # ElasticSearch HTTP port used by the container, Kubernetes Service, and readiness checks.
     elasticsearch_http_port: 9200
-    # ElasticSearch transport port used by the container and Kubernetes Service. Example: `9300`.
+    # ElasticSearch transport port used by the container and Kubernetes Service.
     elasticsearch_transport_port: 9300
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
@@ -176,19 +176,19 @@ Creates the required data volume, prepares the configuration path, and starts th
     elasticsearch_image: "{{ elasticsearch_registry_endpoint }}/{{ elasticsearch_image_name }}:{{ elasticsearch_image_tag }}"
     # Remote directory used for ElasticSearch configuration and TLS files.
     elasticsearch_remote_config_dir: "{{ remote_config_dir }}"
-    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Example: `/opt/fabricx/elasticsearch/config`. Required when relying on the default of that option.
+    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Required when relying on the default of that option.
     remote_config_dir: "/opt/fabricx/elasticsearch/config"
     # Remote directory used for ElasticSearch persistent data.
     elasticsearch_remote_data_dir: "{{ remote_data_dir }}"
-    # Shared remote data directory consumed by `elasticsearch_remote_data_dir`. Example: `/opt/fabricx/elasticsearch/data`. Required when relying on the default of that option.
+    # Shared remote data directory consumed by `elasticsearch_remote_data_dir`. Required when relying on the default of that option.
     remote_data_dir: "/opt/fabricx/elasticsearch/data"
     # Base configuration directory path inside the ElasticSearch container.
     elasticsearch_container_config_dir: /usr/share/elasticsearch
     # Data directory path inside the ElasticSearch container.
     elasticsearch_container_data_dir: /usr/share/elasticsearch/data
-    # ElasticSearch HTTP port used by the container, Kubernetes Service, and readiness checks. Example: `9200`.
+    # ElasticSearch HTTP port used by the container, Kubernetes Service, and readiness checks.
     elasticsearch_http_port: 9200
-    # ElasticSearch transport port used by the container and Kubernetes Service. Example: `9300`.
+    # ElasticSearch transport port used by the container and Kubernetes Service.
     elasticsearch_transport_port: 9300
     # Enables TLS material handling and HTTPS configuration for ElasticSearch.
     elasticsearch_use_tls: false
@@ -260,7 +260,7 @@ Deletes the remote ElasticSearch configuration directory from the target host. T
   vars:
     # Remote directory used for ElasticSearch configuration and TLS files.
     elasticsearch_remote_config_dir: "{{ remote_config_dir }}"
-    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Example: `/opt/fabricx/elasticsearch/config`. Required when relying on the default of that option.
+    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Required when relying on the default of that option.
     remote_config_dir: "/opt/fabricx/elasticsearch/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
@@ -284,11 +284,11 @@ Removes the ElasticSearch persistent data directory in container deployments. De
     elasticsearch_use_container: "{{ (not elasticsearch_use_k8s) and (not elasticsearch_use_openshift) }}"
     # Remote directory used for ElasticSearch persistent data.
     elasticsearch_remote_data_dir: "{{ remote_data_dir }}"
-    # Shared remote data directory consumed by `elasticsearch_remote_data_dir`. Example: `/opt/fabricx/elasticsearch/data`. Required when relying on the default of that option.
+    # Shared remote data directory consumed by `elasticsearch_remote_data_dir`. Required when relying on the default of that option.
     remote_data_dir: "/opt/fabricx/elasticsearch/data"
     # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`.
+    # Kubernetes namespace used for ElasticSearch resources.
     k8s_namespace: "fabricx-elasticsearch"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
@@ -328,9 +328,9 @@ Fetches the ElasticSearch CA certificate and server certificate from the remote 
     elasticsearch_use_tls: false
     # Remote directory used for ElasticSearch configuration and TLS files.
     elasticsearch_remote_config_dir: "{{ remote_config_dir }}"
-    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Example: `/opt/fabricx/elasticsearch/config`. Required when relying on the default of that option.
+    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Required when relying on the default of that option.
     remote_config_dir: "/opt/fabricx/elasticsearch/config"
-    # Control-node directory where fetched ElasticSearch artifacts such as TLS certificates and log bundles are written. Example: `/tmp/fabricx/elasticsearch-artifacts`.
+    # Control-node directory where fetched ElasticSearch artifacts such as TLS certificates and log bundles are written.
     fetched_artifacts_dir: "/tmp/fabricx/elasticsearch-artifacts"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
@@ -348,7 +348,7 @@ Deletes local ElasticSearch TLS files from the remote host. Removes the Kubernet
   vars:
     # Remote directory used for ElasticSearch configuration and TLS files.
     elasticsearch_remote_config_dir: "{{ remote_config_dir }}"
-    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Example: `/opt/fabricx/elasticsearch/config`. Required when relying on the default of that option.
+    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Required when relying on the default of that option.
     remote_config_dir: "/opt/fabricx/elasticsearch/config"
     # Filename of the ElasticSearch TLS private key under the TLS directory.
     elasticsearch_tls_private_key_file: server.key
@@ -372,18 +372,18 @@ Generates a self-signed TLS certificate and private key for ElasticSearch on the
   vars:
     # Remote directory used for ElasticSearch configuration and TLS files.
     elasticsearch_remote_config_dir: "{{ remote_config_dir }}"
-    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Example: `/opt/fabricx/elasticsearch/config`. Required when relying on the default of that option.
+    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Required when relying on the default of that option.
     remote_config_dir: "/opt/fabricx/elasticsearch/config"
     # Filename of the ElasticSearch TLS private key under the TLS directory.
     elasticsearch_tls_private_key_file: server.key
     # Filename of the ElasticSearch TLS certificate under the TLS directory.
     elasticsearch_tls_cert_file: server.crt
-    # Optionally provides organization metadata used to derive the TLS certificate organization name. Example: `{'domain': 'observability.example.com', 'common_name': 'elasticsearch-0.observability.example.com', 'organization_name': 'Hyperledger Fabric-X'}`.
+    # Optionally provides organization metadata used to derive the TLS certificate organization name.
     organization:
       domain: "observability.example.com"
       common_name: "elasticsearch-0.observability.example.com"
       organization_name: "Hyperledger Fabric-X"
-    # Specifies the OpenShift Route host. Example: `elasticsearch-http.apps.example.com`.
+    # Specifies the OpenShift Route host.
     elasticsearch_openshift_http_route: "elasticsearch-http.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
@@ -403,19 +403,19 @@ Ensures the Kubernetes namespace exists and applies the ElasticSearch headless S
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to ElasticSearch resources.
     elasticsearch_k8s_part_of: monitoring
-    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`.
+    # Kubernetes namespace used for ElasticSearch resources.
     k8s_namespace: "fabricx-elasticsearch"
     # Timeout in seconds while waiting for the ElasticSearch StatefulSet rollout to complete.
     elasticsearch_k8s_wait_timeout: 120
     # Kubernetes pod `fsGroup` applied so mounted TLS files are readable by the ElasticSearch process.
     elasticsearch_k8s_fs_group: 1000
-    # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30920`.
+    # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     elasticsearch_k8s_http_node_port: 30920
-    # Kubernetes NodePort value used by the external transport Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30930`.
+    # Kubernetes NodePort value used by the external transport Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     elasticsearch_k8s_transport_node_port: 30930
-    # ElasticSearch HTTP port used by the container, Kubernetes Service, and readiness checks. Example: `9200`.
+    # ElasticSearch HTTP port used by the container, Kubernetes Service, and readiness checks.
     elasticsearch_http_port: 9200
-    # ElasticSearch transport port used by the container and Kubernetes Service. Example: `9300`.
+    # ElasticSearch transport port used by the container and Kubernetes Service.
     elasticsearch_transport_port: 9300
     # Container registry endpoint used to build `elasticsearch_image`.
     elasticsearch_registry_endpoint: "{{ lookup('env', 'ELASTICSEARCH_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
@@ -435,33 +435,33 @@ Ensures the Kubernetes namespace exists and applies the ElasticSearch headless S
     elasticsearch_tls_private_key_file: server.key
     # Filename of the ElasticSearch TLS certificate under the TLS directory.
     elasticsearch_tls_cert_file: server.crt
-    # Requested persistent storage size for the ElasticSearch PVC. Example: `20Gi`.
+    # Requested persistent storage size for the ElasticSearch PVC.
     k8s_storage_size: "20Gi"
-    # Kubernetes storage class name for the ElasticSearch PVC when a non-default class is required. Example: `fast-ssd`.
+    # Kubernetes storage class name for the ElasticSearch PVC when a non-default class is required.
     k8s_storage_class: "fast-ssd"
-    # Existing Kubernetes `imagePullSecret` name used for private registries. Example: `elasticsearch-regcred`.
+    # Existing Kubernetes `imagePullSecret` name used for private registries.
     k8s_image_pull_secret: "elasticsearch-regcred"
-    # Optionally overrides the readiness probe initial delay in seconds. Example: `10`.
+    # Optionally overrides the readiness probe initial delay in seconds.
     k8s_readiness_probe_initial_delay_seconds: 10
-    # Optionally overrides the readiness probe interval in seconds. Example: `5`.
+    # Optionally overrides the readiness probe interval in seconds.
     k8s_readiness_probe_period_seconds: 5
-    # Optionally overrides the readiness probe timeout in seconds. Example: `2`.
+    # Optionally overrides the readiness probe timeout in seconds.
     k8s_readiness_probe_timeout_seconds: 2
-    # Optionally overrides the readiness probe failure threshold. Example: `3`.
+    # Optionally overrides the readiness probe failure threshold.
     k8s_readiness_probe_failure_threshold: 3
-    # Optionally overrides the liveness probe initial delay in seconds. Example: `30`.
+    # Optionally overrides the liveness probe initial delay in seconds.
     k8s_liveness_probe_initial_delay_seconds: 30
-    # Optionally overrides the liveness probe interval in seconds. Example: `10`.
+    # Optionally overrides the liveness probe interval in seconds.
     k8s_liveness_probe_period_seconds: 10
-    # Optionally overrides the liveness probe timeout in seconds. Example: `2`.
+    # Optionally overrides the liveness probe timeout in seconds.
     k8s_liveness_probe_timeout_seconds: 2
-    # Optionally overrides the liveness probe failure threshold. Example: `3`.
+    # Optionally overrides the liveness probe failure threshold.
     k8s_liveness_probe_failure_threshold: 3
     # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP port externally. When undefined or `false`, the HTTP port is not included in the LoadBalancer Service.
     elasticsearch_k8s_loadbalancer_expose_http_port: false
     # Set to `true` to create a LoadBalancer Service entry that exposes the transport port externally. When undefined or `false`, the transport port is not included in the LoadBalancer Service.
     elasticsearch_k8s_loadbalancer_expose_transport_port: false
-    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    # Optional Kubernetes container resource requests and limits.
     k8s_resources:
       requests:
         memory: "1Gi"
@@ -483,17 +483,17 @@ Probes configured Kubernetes NodePort values and LoadBalancer-exposed service po
 ```yaml
 - name: Check ElasticSearch Kubernetes services is reachable
   vars:
-    # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30920`.
+    # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     elasticsearch_k8s_http_node_port: 30920
-    # Kubernetes NodePort value used by the external transport Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30930`.
+    # Kubernetes NodePort value used by the external transport Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     elasticsearch_k8s_transport_node_port: 30930
     # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP port externally. When undefined or `false`, the HTTP port is not included in the LoadBalancer Service.
     elasticsearch_k8s_loadbalancer_expose_http_port: false
     # Set to `true` to create a LoadBalancer Service entry that exposes the transport port externally. When undefined or `false`, the transport port is not included in the LoadBalancer Service.
     elasticsearch_k8s_loadbalancer_expose_transport_port: false
-    # ElasticSearch HTTP port used by the container, Kubernetes Service, and readiness checks. Example: `9200`.
+    # ElasticSearch HTTP port used by the container, Kubernetes Service, and readiness checks.
     elasticsearch_http_port: 9200
-    # ElasticSearch transport port used by the container and Kubernetes Service. Example: `9300`.
+    # ElasticSearch transport port used by the container and Kubernetes Service.
     elasticsearch_transport_port: 9300
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
@@ -511,13 +511,13 @@ Deletes the ElasticSearch StatefulSet and Services from Kubernetes. The persiste
   vars:
     # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`.
+    # Kubernetes namespace used for ElasticSearch resources.
     k8s_namespace: "fabricx-elasticsearch"
-    # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30920`.
+    # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     elasticsearch_k8s_http_node_port: 30920
     # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP port externally. When undefined or `false`, the HTTP port is not included in the LoadBalancer Service.
     elasticsearch_k8s_loadbalancer_expose_http_port: false
-    # Kubernetes NodePort value used by the external transport Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30930`.
+    # Kubernetes NodePort value used by the external transport Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     elasticsearch_k8s_transport_node_port: 30930
     # Set to `true` to create a LoadBalancer Service entry that exposes the transport port externally. When undefined or `false`, the transport port is not included in the LoadBalancer Service.
     elasticsearch_k8s_loadbalancer_expose_transport_port: false
@@ -553,7 +553,7 @@ Deletes the Kubernetes Secret that stores ElasticSearch TLS materials. This entr
   vars:
     # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`.
+    # Kubernetes namespace used for ElasticSearch resources.
     k8s_namespace: "fabricx-elasticsearch"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
@@ -573,13 +573,13 @@ Applies the Kubernetes Secret that stores ElasticSearch TLS materials. Ensures t
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to ElasticSearch resources.
     elasticsearch_k8s_part_of: monitoring
-    # Kubernetes namespace used for ElasticSearch resources. Example: `fabricx-elasticsearch`.
+    # Kubernetes namespace used for ElasticSearch resources.
     k8s_namespace: "fabricx-elasticsearch"
     # Enables TLS material handling and HTTPS configuration for ElasticSearch.
     elasticsearch_use_tls: false
     # Remote directory used for ElasticSearch configuration and TLS files.
     elasticsearch_remote_config_dir: "{{ remote_config_dir }}"
-    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Example: `/opt/fabricx/elasticsearch/config`. Required when relying on the default of that option.
+    # Shared remote configuration directory consumed by `elasticsearch_remote_config_dir`. Required when relying on the default of that option.
     remote_config_dir: "/opt/fabricx/elasticsearch/config"
     # Filename of the ElasticSearch TLS private key under the TLS directory.
     elasticsearch_tls_private_key_file: server.key
@@ -605,7 +605,7 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     elasticsearch_k8s_part_of: monitoring
     # Enables TLS material handling and HTTPS configuration for ElasticSearch.
     elasticsearch_use_tls: false
-    # Specifies the OpenShift Route host. Example: `elasticsearch-http.apps.example.com`.
+    # Specifies the OpenShift Route host.
     elasticsearch_openshift_http_route: "elasticsearch-http.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
@@ -623,7 +623,7 @@ Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
   vars:
     # Enables TLS material handling and HTTPS configuration for ElasticSearch.
     elasticsearch_use_tls: false
-    # Specifies the OpenShift Route host. Example: `elasticsearch-http.apps.example.com`.
+    # Specifies the OpenShift Route host.
     elasticsearch_openshift_http_route: "elasticsearch-http.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch
@@ -641,7 +641,7 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Base Kubernetes resource name used for ElasticSearch objects, including the StatefulSet, Services, and Secret.
     elasticsearch_k8s_resource_name: "{{ inventory_hostname }}"
-    # Specifies the OpenShift Route host. Example: `elasticsearch-http.apps.example.com`.
+    # Specifies the OpenShift Route host.
     elasticsearch_openshift_http_route: "elasticsearch-http.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.elasticsearch

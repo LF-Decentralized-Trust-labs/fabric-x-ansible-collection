@@ -1,0 +1,36 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ping the Fabric-X Block Explorer
+  hosts: "{{ target_hosts | default('fabric_x_block_explorer') }}:&fabric_x_block_explorer"
+  tasks:
+    # =========================
+    # Postgres
+    # =========================
+    - name: Check that the Fabric-X Block Explorer Postgres DB port is open
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres
+        tasks_from: ping
+      when:
+        - postgres_port is defined
+    # =========================
+    # Block Explorer server
+    # =========================
+    - name: Ping the Fabric-X Block Explorer server
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.block_explorer
+        tasks_from: ping
+      when:
+        - block_explorer_port is defined
+    # =========================
+    # Block Explorer UI
+    # =========================
+    - name: Ping the Fabric-X Block Explorer UI
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.block_explorer_ui
+        tasks_from: ping
+      when:
+        - block_explorer_ui_port is defined

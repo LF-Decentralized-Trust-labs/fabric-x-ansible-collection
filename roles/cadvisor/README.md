@@ -120,7 +120,7 @@ Verifies that the cAdvisor HTTP port is reachable on the current host.
 ```yaml
 - name: Check cAdvisor reachability
   vars:
-    # Sets the TCP port cAdvisor's HTTP server and metrics endpoint listen on. Example: `9400`.
+    # Sets the TCP port cAdvisor's HTTP server and metrics endpoint listen on.
     cadvisor_port: 9400
     # Enables the container backend. cAdvisor currently only supports container mode.
     cadvisor_use_container: true
@@ -161,7 +161,7 @@ Starts the cAdvisor container with the configured image, port, and host mounts. 
     cadvisor_image_tag: v0.60.5
     # Sets the full cAdvisor image reference.
     cadvisor_image: "{{ cadvisor_registry_endpoint }}/{{ cadvisor_image_name }}:{{ cadvisor_image_tag }}"
-    # Sets the TCP port cAdvisor's HTTP server and metrics endpoint listen on. Example: `9400`.
+    # Sets the TCP port cAdvisor's HTTP server and metrics endpoint listen on.
     cadvisor_port: 9400
     # Sets the interval at which cAdvisor refreshes its internal container metrics.
     cadvisor_housekeeping_interval: 10s
@@ -243,7 +243,7 @@ Builds the `cadvisor_prometheus_scrape_services` fact for the cAdvisor hosts lis
 ```yaml
 - name: Build Prometheus scrape targets for cAdvisor
   vars:
-    # Lists the inventory hosts exposed as Prometheus scrape targets. Example: `['orderer-1', 'committer-1']`.
+    # Lists the inventory hosts exposed as Prometheus scrape targets.
     cadvisor_hosts:
       - "orderer-1"
       - "committer-1"

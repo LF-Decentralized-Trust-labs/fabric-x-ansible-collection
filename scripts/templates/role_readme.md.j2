@@ -41,7 +41,7 @@ ansible-doc -t role {{ role }}
 {%- if current_role_task.options is defined and current_role_task.options.items() | length > 0 %}
   vars:
 {%- for var_name, var in current_role_task.options.items() %}
-    # {{ var.display_description | ansible_doc_markup }}
+    # {{ var.get("description", []) | display_description_without_examples | ansible_doc_markup }}
 {%- if var.default is defined and var.default is not none %}
     {{ var_name }}:{{ var.default | render_default }}
 {%- else %}
