@@ -110,7 +110,7 @@ Renders the remote configuration, creates the data directory, and starts Prometh
     # Image name used when composing `prometheus_image`.
     prometheus_image_name: prometheus
     # Image tag used when composing `prometheus_image`.
-    prometheus_image_tag: latest
+    prometheus_image_tag: v3.11.3
     # Fully qualified Prometheus container image.
     prometheus_image: "{{ prometheus_registry_endpoint }}/{{ prometheus_image_name }}:{{ prometheus_image_tag }}"
     # Container name used for the Prometheus workload.
@@ -152,7 +152,7 @@ Ensures the namespace exists, renders and transfers Prometheus configuration, an
     # Image name used when composing `prometheus_image`.
     prometheus_image_name: prometheus
     # Image tag used when composing `prometheus_image`.
-    prometheus_image_tag: latest
+    prometheus_image_tag: v3.11.3
     # Fully qualified Prometheus container image.
     prometheus_image: "{{ prometheus_registry_endpoint }}/{{ prometheus_image_name }}:{{ prometheus_image_tag }}"
     # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services.
@@ -548,7 +548,7 @@ Renders the main scrape configuration and supporting files on the remote host, i
     # Filename of the promtool HTTP client configuration used for TLS health checks.
     prometheus_http_config_file: http-config.yaml
     # Global Prometheus scrape interval.
-    prometheus_scrape_interval: 2s
+    prometheus_scrape_interval: 5s
     # In-container or in-pod mount point for Prometheus configuration files.
     prometheus_container_config_dir: /etc/prometheus/config
     # Filename used for the Prometheus TLS private key.

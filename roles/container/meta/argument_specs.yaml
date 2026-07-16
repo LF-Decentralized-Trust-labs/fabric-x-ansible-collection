@@ -139,6 +139,11 @@ argument_specs:
         description:
           - "Applies runtime security options to the container."
           - "Example: C(['label=disable'])."
+      container_cgroupns_mode: &container_cgroupns_mode
+        type: str
+        description:
+          - "Sets the cgroup namespace mode for the container."
+          - "Example: C(host), to share the host's cgroup namespace so the container can read other containers' cgroup stats."
       container_env: &container_env
         type: dict
         description:
@@ -444,6 +449,15 @@ argument_specs:
       - "For Unix endpoints, also sets C(container_socket_path) for bind mounts."
     options: {}
 
+  docker/get_containerd_socket:
+    short_description: Resolve Docker's containerd socket
+    description:
+      - "Checks for a containerd socket at the standard location (C(/run/containerd/containerd.sock)), falling back to Docker's own bundled instance (C(/run/docker/containerd/containerd.sock))."
+      - "Sets C(container_containerd_socket_path) to whichever location exists."
+      - "On macOS, checks via a throwaway container since the Docker daemon runs inside a VM."
+    options:
+      container_on_mac: *container_on_mac
+
   docker/start:
     short_description: Start a container with Docker
     description:
@@ -470,6 +484,7 @@ argument_specs:
       container_volumes: *container_volumes
       container_ulimits: *container_ulimits
       container_security_opts: *container_security_opts
+      container_cgroupns_mode: *container_cgroupns_mode
       container_env: *container_env
       container_log_driver: *container_log_driver
       container_log_max_size: *container_log_max_size
@@ -600,7 +615,6 @@ argument_specs:
     description:
       - "Reads Podman system information and sets C(container_socket)."
       - "For Unix endpoints, also sets C(container_socket_path) for bind mounts."
-      - "Sets C(container_socket_requires_root) when the selected socket belongs to a rootful Podman service."
     options: {}
 
   podman/start:
@@ -629,6 +643,7 @@ argument_specs:
       container_cpus: *container_cpus
       container_volumes: *container_volumes
       container_security_opts: *container_security_opts
+      container_cgroupns_mode: *container_cgroupns_mode
       container_env: *container_env
       container_log_driver: *container_log_driver
       container_log_max_size: *container_log_max_size

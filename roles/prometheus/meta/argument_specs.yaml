@@ -49,7 +49,7 @@ argument_specs:
           - Image name used when composing C(prometheus_image).
       prometheus_image_tag: &prometheus_image_tag
         type: str
-        default: latest
+        default: v3.11.3
         description:
           - Image tag used when composing C(prometheus_image).
       prometheus_image: &prometheus_image
@@ -99,7 +99,7 @@ argument_specs:
           - Filename of the promtool HTTP client configuration used for TLS health checks.
       prometheus_scrape_interval: &prometheus_scrape_interval
         type: str
-        default: 2s
+        default: 5s
         description:
           - Global Prometheus scrape interval.
       prometheus_scrape_services: &prometheus_scrape_services

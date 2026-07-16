@@ -301,6 +301,8 @@ all:
       hosts:
         node-exporter:
           node_exporter_port: 9111
+        cadvisor:
+          cadvisor_port: 9400
         committer-db-exporter:
           postgres_db_host: committer-db
           postgres_exporter_port: 2110

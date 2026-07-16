@@ -26,6 +26,15 @@
       when:
         - postgres_exporter_port is defined
     # =========================
+    # cAdvisor
+    # =========================
+    - name: Ping cAdvisor
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.cadvisor
+        tasks_from: ping
+      when:
+        - cadvisor_port is defined
+    # =========================
     # Prometheus
     # =========================
     - name: Ping Prometheus

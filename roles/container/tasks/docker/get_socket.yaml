@@ -9,19 +9,32 @@
     only_current: true
   register: container_docker_context_info_output
 
-- name: Set Docker Unix socket from context information
-  vars:
-    container_docker_socket: "{{ container_docker_context_info_output.contexts[0].config.docker_host | default('') }}"
-  ansible.builtin.set_fact:
-    container_socket: "{{ container_docker_socket }}"
-    container_socket_path: "{{ container_docker_socket | regex_replace('^unix://', '') }}"
+- name: Set Docker socket from context information
   when:
-    - container_docker_socket | regex_search('^unix://') is not none
-
-- name: Set Docker TCP endpoint from context information
+    - container_docker_socket is defined
   vars:
-    container_docker_socket: "{{ container_docker_context_info_output.contexts[0].config.docker_host | default('') }}"
-  ansible.builtin.set_fact:
-    container_socket: "{{ container_docker_socket }}"
-  when:
-    - container_docker_socket | regex_search('^tcp://') is not none
+    container_docker_socket: "{{ container_docker_context_info_output.contexts[0].config.docker_host }}"
+    container_docker_socket_is_tcp: "{{ container_docker_socket | regex_search('^tcp://') is not none }}"
+    container_docker_socket_is_unix: "{{ container_docker_socket | regex_search('^unix://') is not none }}"
+  block:
+    - name: Set Docker TCP endpoint
+      ansible.builtin.set_fact:
+        container_socket: "{{ container_docker_socket }}"
+      when:
+        - container_docker_socket_is_tcp
+    - name: Set Docker Unix socket and path
+      when:
+        - not container_docker_socket_is_tcp
+      block:
+        - name: Set Unix Docker socket and path
+          ansible.builtin.set_fact:
+            container_socket: "{{ container_docker_socket }}"
+            container_socket_path: "{{ container_docker_socket | regex_replace('^unix://', '') }}"
+          when:
+            - container_docker_socket_is_unix
+        - name: Prepend Unix scheme to bare Docker socket
+          ansible.builtin.set_fact:
+            container_socket: "unix://{{ container_docker_socket }}"
+            container_socket_path: "{{ container_docker_socket }}"
+          when:
+            - not container_docker_socket_is_unix

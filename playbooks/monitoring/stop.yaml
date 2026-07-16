@@ -79,3 +79,12 @@
         tasks_from: stop
       when:
         - node_exporter_port is defined
+    # =========================
+    # cAdvisor
+    # =========================
+    - name: Stop cAdvisor nodes
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.cadvisor
+        tasks_from: stop
+      when:
+        - cadvisor_port is defined

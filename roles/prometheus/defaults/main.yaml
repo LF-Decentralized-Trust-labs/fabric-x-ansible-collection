@@ -12,7 +12,7 @@ prometheus_registry_endpoint: "{{ lookup('env', 'PROMETHEUS_REGISTRY_ENDPOINT') 
 # Image name used when composing C(prometheus_image).
 prometheus_image_name: prometheus
 # Image tag used when composing C(prometheus_image).
-prometheus_image_tag: latest
+prometheus_image_tag: v3.11.3
 # Fully qualified Prometheus container image.
 prometheus_image: "{{ prometheus_registry_endpoint }}/{{ prometheus_image_name }}:{{ prometheus_image_tag }}"
 # Container name used for the Prometheus workload.
@@ -32,7 +32,7 @@ prometheus_web_config_file: web-config.yaml
 # Filename of the promtool HTTP client configuration used for TLS health checks.
 prometheus_http_config_file: http-config.yaml
 # Global Prometheus scrape interval.
-prometheus_scrape_interval: 2s
+prometheus_scrape_interval: 5s
 # Enables HTTPS and TLS-aware health checks when set to C(true).
 prometheus_use_tls: false
 # Filename used for the Prometheus TLS private key.

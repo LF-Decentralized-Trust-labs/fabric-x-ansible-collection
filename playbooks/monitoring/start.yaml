@@ -26,6 +26,15 @@
       when:
         - postgres_exporter_port is defined
     # =========================
+    # cAdvisor
+    # =========================
+    - name: Start cAdvisor nodes
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.cadvisor
+        tasks_from: start
+      when:
+        - cadvisor_port is defined
+    # =========================
     # Prometheus
     # =========================
     - name: Start the Prometheus service

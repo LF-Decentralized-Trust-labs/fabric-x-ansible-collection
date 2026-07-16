@@ -22,6 +22,7 @@
   - [volume/rm](#volumerm)
   - [docker/install](#dockerinstall)
   - [docker/get\_socket](#dockerget_socket)
+  - [docker/get\_containerd\_socket](#dockerget_containerd_socket)
   - [docker/start](#dockerstart)
   - [docker/stop](#dockerstop)
   - [docker/rm](#dockerrm)
@@ -311,6 +312,22 @@ Reads the active Docker context and sets `container_socket`. For Unix endpoints,
     tasks_from: docker/get_socket
 ```
 
+### docker/get_containerd_socket
+
+> Resolve Docker's containerd socket
+
+Checks for a containerd socket at the standard location (`/run/containerd/containerd.sock`), falling back to Docker's own bundled instance (`/run/docker/containerd/containerd.sock`). Sets `container_containerd_socket_path` to whichever location exists. On macOS, checks via a throwaway container since the Docker daemon runs inside a VM.
+
+```yaml
+- name: Resolve Docker's containerd socket
+  vars:
+    # Marks whether the target host is macOS.
+    container_on_mac: "{{ ansible_facts.os_family == 'Darwin' }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: docker/get_containerd_socket
+```
+
 ### docker/start
 
 > Start a container with Docker
@@ -359,6 +376,8 @@ Starts or updates a Docker container with the requested image, command, environm
     # Applies runtime security options to the container. Example: `['label=disable']`.
     container_security_opts:
       - "label=disable"
+    # Sets the cgroup namespace mode for the container. Example: `host`, to share the host's cgroup namespace so the container can read other containers' cgroup stats.
+    container_cgroupns_mode: "string"
     # Defines environment variables passed to the container process. Example: `{'FABRIC_LOGGING_SPEC': 'INFO', 'ORDERER_GENERAL_LISTENPORT': '7050'}`.
     container_env:
       FABRIC_LOGGING_SPEC: "INFO"
@@ -595,7 +614,7 @@ Installs the Podman runtime on supported hosts. Verifies that the Podman client 
 
 > Resolve the Podman socket from system information
 
-Reads Podman system information and sets `container_socket`. For Unix endpoints, also sets `container_socket_path` for bind mounts. Sets `container_socket_requires_root` when the selected socket belongs to a rootful Podman service.
+Reads Podman system information and sets `container_socket`. For Unix endpoints, also sets `container_socket_path` for bind mounts.
 
 ```yaml
 - name: Resolve the Podman socket from system information
@@ -651,6 +670,8 @@ Starts or updates a Podman container with the requested image, command, environm
     # Applies runtime security options to the container. Example: `['label=disable']`.
     container_security_opts:
       - "label=disable"
+    # Sets the cgroup namespace mode for the container. Example: `host`, to share the host's cgroup namespace so the container can read other containers' cgroup stats.
+    container_cgroupns_mode: "string"
     # Defines environment variables passed to the container process. Example: `{'FABRIC_LOGGING_SPEC': 'INFO', 'ORDERER_GENERAL_LISTENPORT': '7050'}`.
     container_env:
       FABRIC_LOGGING_SPEC: "INFO"

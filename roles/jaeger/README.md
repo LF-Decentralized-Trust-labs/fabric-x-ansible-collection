@@ -184,7 +184,7 @@ Builds the Jaeger container environment, publishes the query and collector ports
     # Sets the Jaeger image name.
     jaeger_image_name: all-in-one
     # Sets the Jaeger image tag.
-    jaeger_image_tag: latest
+    jaeger_image_tag: 1.76.0
     # Sets the Jaeger container image.
     jaeger_image: "{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_image_tag }}"
     # Sets the shared remote configuration base directory. Example: `/var/lib/fabricx/jaeger/config` on the control or remote host.
@@ -226,7 +226,7 @@ Stops the named Jaeger container without changing image or configuration setting
     # Sets the Jaeger image name.
     jaeger_image_name: all-in-one
     # Sets the Jaeger image tag.
-    jaeger_image_tag: latest
+    jaeger_image_tag: 1.76.0
     # Sets the Jaeger container image.
     jaeger_image: "{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_image_tag }}"
   ansible.builtin.include_role:
@@ -250,7 +250,7 @@ Removes the Jaeger container and its runtime state from the container host.
     # Sets the Jaeger image name.
     jaeger_image_name: all-in-one
     # Sets the Jaeger image tag.
-    jaeger_image_tag: latest
+    jaeger_image_tag: 1.76.0
     # Sets the Jaeger container image.
     jaeger_image: "{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_image_tag }}"
   ansible.builtin.include_role:
@@ -298,7 +298,7 @@ Applies the Jaeger Service, optional NodePort and LoadBalancer Services, and Dep
     # Sets the Jaeger image name.
     jaeger_image_name: all-in-one
     # Sets the Jaeger image tag.
-    jaeger_image_tag: latest
+    jaeger_image_tag: 1.76.0
     # Sets the Jaeger container image.
     jaeger_image: "{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_image_tag }}"
     # Sets the in-container directory where Jaeger reads configuration and certificates.

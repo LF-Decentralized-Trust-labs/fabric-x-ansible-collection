@@ -1,0 +1,162 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+argument_specs:
+  role-options:
+    short_description: Shared option catalog for cadvisor role entry points
+    options:
+      cadvisor_registry_endpoint: &cadvisor_registry_endpoint
+        type: str
+        default: "{{ lookup('env', 'CADVISOR_REGISTRY_ENDPOINT') or 'ghcr.io/google' }}"
+        description:
+          - Sets the registry endpoint used to build the default cAdvisor image reference.
+      cadvisor_image_name: &cadvisor_image_name
+        type: str
+        default: cadvisor
+        description:
+          - Sets the cAdvisor image name used in the default image reference.
+      cadvisor_image_tag: &cadvisor_image_tag
+        type: str
+        default: v0.60.5
+        description:
+          - Sets the cAdvisor image tag used in the default image reference.
+          - "C(v0.49.1) or later is required for Podman support (the C(--podman) flag)."
+      cadvisor_image: &cadvisor_image
+        type: str
+        default: "{{ cadvisor_registry_endpoint }}/{{ cadvisor_image_name }}:{{ cadvisor_image_tag }}"
+        description:
+          - Sets the full cAdvisor image reference.
+      cadvisor_container_name: &cadvisor_container_name
+        type: str
+        default: cadvisor
+        description:
+          - Sets the container name used for the cAdvisor runtime.
+      cadvisor_port: &cadvisor_port
+        type: int
+        required: true
+        description:
+          - Sets the TCP port cAdvisor's HTTP server and metrics endpoint listen on.
+          - "Example: C(9400)."
+      cadvisor_use_container: &cadvisor_use_container
+        type: bool
+        default: true
+        description:
+          - Enables the container backend. cAdvisor currently only supports container mode.
+      cadvisor_housekeeping_interval: &cadvisor_housekeeping_interval
+        type: str
+        default: "10s"
+        description:
+          - Sets the interval at which cAdvisor refreshes its internal container metrics.
+      cadvisor_hosts: &cadvisor_hosts
+        type: list
+        elements: str
+        required: true
+        description:
+          - Lists the inventory hosts exposed as Prometheus scrape targets.
+          - "Example: C(['orderer-1', 'committer-1'])."
+
+  start:
+    short_description: Start cAdvisor
+    description:
+      - "Starts the local C(cadvisor_container_name) container and publishes C(cadvisor_port)."
+    options:
+      cadvisor_use_container: *cadvisor_use_container
+
+  stop:
+    short_description: Stop cAdvisor
+    description:
+      - "Stops the container-backed cAdvisor workload for the host."
+    options:
+      cadvisor_use_container: *cadvisor_use_container
+
+  teardown:
+    short_description: Remove cAdvisor runtime resources
+    description:
+      - "Removes the local cAdvisor runtime container."
+    options:
+      cadvisor_use_container: *cadvisor_use_container
+
+  wipe:
+    short_description: Remove cAdvisor runtime resources
+    description:
+      - "Removes the cAdvisor runtime container for the host. Use this to fully reset the deployment."
+    options: {}
+
+  fetch_logs:
+    short_description: Collect cAdvisor logs
+    description:
+      - "Collects logs from the cAdvisor container for this host."
+    options:
+      cadvisor_use_container: *cadvisor_use_container
+
+  ping:
+    short_description: Check cAdvisor reachability
+    description:
+      - "Verifies that the cAdvisor HTTP port is reachable on the current host."
+    options:
+      cadvisor_port: *cadvisor_port
+      cadvisor_use_container: *cadvisor_use_container
+
+  config/transfer_grafana_dashboard:
+    short_description: Transfer the Grafana dashboard for cAdvisor
+    description:
+      - "Copies the bundled cAdvisor Insights dashboard into Grafana by delegating to the Grafana role."
+    options: {}
+
+  container/start:
+    short_description: Start cAdvisor in a container
+    description:
+      - "Starts the cAdvisor container with the configured image, port, and host mounts."
+      - "The container name comes from C(cadvisor_container_name) and the image from C(cadvisor_image)."
+      - "Detects the local Docker or Podman client and adapts the storage mount and runtime flags accordingly."
+    options:
+      cadvisor_container_name: *cadvisor_container_name
+      cadvisor_registry_endpoint: *cadvisor_registry_endpoint
+      cadvisor_image_name: *cadvisor_image_name
+      cadvisor_image_tag: *cadvisor_image_tag
+      cadvisor_image: *cadvisor_image
+      cadvisor_port: *cadvisor_port
+      cadvisor_housekeeping_interval: *cadvisor_housekeeping_interval
+
+  container/stop:
+    short_description: Stop the cAdvisor container
+    description:
+      - "Stops the cAdvisor container by delegating to the shared container role."
+      - "Uses the configured container name and image reference to identify the runtime."
+    options:
+      cadvisor_container_name: *cadvisor_container_name
+      cadvisor_registry_endpoint: *cadvisor_registry_endpoint
+      cadvisor_image_name: *cadvisor_image_name
+      cadvisor_image_tag: *cadvisor_image_tag
+      cadvisor_image: *cadvisor_image
+
+  container/rm:
+    short_description: Remove the cAdvisor container
+    description:
+      - "Removes the cAdvisor container by delegating to the shared container role."
+    options:
+      cadvisor_container_name: *cadvisor_container_name
+      cadvisor_registry_endpoint: *cadvisor_registry_endpoint
+      cadvisor_image_name: *cadvisor_image_name
+      cadvisor_image_tag: *cadvisor_image_tag
+      cadvisor_image: *cadvisor_image
+
+  container/fetch_logs:
+    short_description: Fetch logs from the cAdvisor container
+    description:
+      - "Collects logs from the cAdvisor container by delegating to the shared container role."
+      - "This is the container-mode log path used by the top-level fetch_logs entry point."
+    options:
+      cadvisor_container_name: *cadvisor_container_name
+
+  prometheus/get_scrapers:
+    short_description: Build Prometheus scrape targets for cAdvisor
+    description:
+      - "Builds the C(cadvisor_prometheus_scrape_services) fact for the cAdvisor hosts listed in C(cadvisor_hosts)."
+      - "cAdvisor is scraped in plain HTTP; it has no native TLS support for its metrics endpoint."
+    options:
+      cadvisor_hosts: *cadvisor_hosts

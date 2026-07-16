@@ -356,7 +356,7 @@ Starts the Node Exporter container with the configured image, port, mounts, and 
     # Sets the Node Exporter image name used in the default image reference.
     node_exporter_image_name: node-exporter
     # Sets the Node Exporter image tag used in the default image reference.
-    node_exporter_image_tag: latest
+    node_exporter_image_tag: v1.12.1
     # Sets the full Node Exporter image reference.
     node_exporter_image: "{{ node_exporter_registry_endpoint }}/{{ node_exporter_image_name }}:{{ node_exporter_image_tag }}"
     # Sets the TCP port exposed by Node Exporter and seeds the default Kubernetes NodePort value. Example: `9100`.
@@ -394,7 +394,7 @@ Stops the Node Exporter container by delegating to the shared container role. Us
     # Sets the Node Exporter image name used in the default image reference.
     node_exporter_image_name: node-exporter
     # Sets the Node Exporter image tag used in the default image reference.
-    node_exporter_image_tag: latest
+    node_exporter_image_tag: v1.12.1
     # Sets the full Node Exporter image reference.
     node_exporter_image: "{{ node_exporter_registry_endpoint }}/{{ node_exporter_image_name }}:{{ node_exporter_image_tag }}"
   ansible.builtin.include_role:
@@ -418,7 +418,7 @@ Removes the Node Exporter container by delegating to the shared container role. 
     # Sets the Node Exporter image name used in the default image reference.
     node_exporter_image_name: node-exporter
     # Sets the Node Exporter image tag used in the default image reference.
-    node_exporter_image_tag: latest
+    node_exporter_image_tag: v1.12.1
     # Sets the full Node Exporter image reference.
     node_exporter_image: "{{ node_exporter_registry_endpoint }}/{{ node_exporter_image_name }}:{{ node_exporter_image_tag }}"
   ansible.builtin.include_role:
@@ -466,7 +466,7 @@ Creates the Kubernetes Service, optional NodePort and LoadBalancer Services, and
     # Sets the Node Exporter image name used in the default image reference.
     node_exporter_image_name: node-exporter
     # Sets the Node Exporter image tag used in the default image reference.
-    node_exporter_image_tag: latest
+    node_exporter_image_tag: v1.12.1
     # Sets the full Node Exporter image reference.
     node_exporter_image: "{{ node_exporter_registry_endpoint }}/{{ node_exporter_image_name }}:{{ node_exporter_image_tag }}"
     # Enables the TLS web configuration and certificate paths when true.

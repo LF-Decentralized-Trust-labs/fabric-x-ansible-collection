@@ -35,58 +35,19 @@ Fabric-X keeps the Fabric governance and identity model, but decomposes the orde
 Inventories define both topology and behavior. A variable such as `orderer_use_k8s: true` changes the runtime mode, while `orderer_use_mtls: true` changes the security posture. Most samples use the same logical Fabric-X shape:
 
 ```mermaid
-flowchart TB
+flowchart LR
   LG[Load generator]
 
-  subgraph ORDS[Fabric-X Orderers]
+  subgraph ORDS[Fabric-X ordering service - 4 instances]
     direction LR
-    subgraph O1[Fabric-X Orderer 1]
-      direction TB
-      R1[Router]
-      B1[Batcher]
-      C1[Consensus]
-      A1[Assembler]
-      R1 --> B1
-      B1 --> C1
-      C1 --> A1
-      A1 --> B1
-    end
-    subgraph O2[Fabric-X Orderer 2]
-      direction TB
-      R2[Router]
-      B2[Batcher]
-      C2[Consensus]
-      A2[Assembler]
-      R2 --> B2
-      B2 --> C2
-      C2 --> A2
-      A2 --> B2
-    end
-    subgraph O3[Fabric-X Orderer 3]
-      direction TB
-      R3[Router]
-      B3[Batcher]
-      C3[Consensus]
-      A3[Assembler]
-      R3 --> B3
-      B3 --> C3
-      C3 --> A3
-      A3 --> B3
-    end
-    subgraph O4[Fabric-X Orderer 4]
-      direction TB
-      R4[Router]
-      B4[Batcher]
-      C4[Consensus]
-      A4[Assembler]
-      R4 --> B4
-      B4 --> C4
-      C4 --> A4
-      A4 --> B4
-    end
+    R[Routers x4] --> B[Batchers x4]
+    B --> C[Consenters x4]
+    C --> A[Assemblers x4]
+    A -. batch feedback .-> B
   end
 
   subgraph COM[Fabric-X Committer]
+    direction LR
     SC[Sidecar]
     CO[Coordinator]
     VAL[Validators]
@@ -98,33 +59,36 @@ flowchart TB
     VAL -->|stores ledger transactions| DB
   end
 
-  PROM[Prometheus]
-  GRAF[Grafana]
-  LOKI[Loki]
-  ALLOY[Alloy]
-
-  LG -->|submits transactions| R1
-  LG --> R2
-  LG --> R3
-  LG --> R4
-  LG -->|fetches blocks| A1
-  LG --> A2
-  LG --> A3
-  LG --> A4
+  LG -->|submits transactions| R
+  LG -->|fetches blocks| A
   LG -->|fetches blocks| SC
-  A1 -->|blocks| SC
-  A2 --> SC
-  A3 --> SC
-  A4 --> SC
-  PROM -.->|scrapes metrics| LG
-  PROM -.->|scrapes metrics| ORDS
-  PROM -.->|scrapes metrics| COM
-  GRAF -->|shows metrics| PROM
-  ALLOY -.->|collects logs| LG
-  ALLOY -.->|collects logs| ORDS
-  ALLOY -.->|collects logs| COM
-  ALLOY -->|forwards logs| LOKI
-  GRAF -->|shows logs| LOKI
+  A -->|ordered blocks| SC
+```
+
+The monitoring services observe the same three parts of the deployment without participating in the transaction path:
+
+```mermaid
+flowchart LR
+  subgraph TARGETS[Fabric-X deployment]
+    direction TB
+    LG[Load generator]
+    ORD[Ordering service]
+    COM[Committer]
+  end
+
+  subgraph OBS[Observability]
+    direction TB
+    PROM[Prometheus] -->|metrics| GRAF[Grafana]
+    ALLOY[Alloy] -->|logs| LOKI[Loki]
+    LOKI -->|logs| GRAF
+  end
+
+  LG -. metrics .-> PROM
+  ORD -. metrics .-> PROM
+  COM -. metrics .-> PROM
+  LG -. logs .-> ALLOY
+  ORD -. logs .-> ALLOY
+  COM -. logs .-> ALLOY
 ```
 
 Inventories differ mostly in runtime mode, security settings, crypto source, and database backend.

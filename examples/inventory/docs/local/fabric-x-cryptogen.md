@@ -28,7 +28,7 @@ This inventory deploys these logical services on the local machine:
 - 4 orderer groups. Each group has 1 router, 1 consenter, 1 assembler, and 1 batcher.
 - 1 committer with validator, verifier, coordinator, sidecar, query service, and PostgreSQL storage.
 - 1 load generator.
-- Monitoring with node exporter, PostgreSQL exporter, Prometheus, Grafana, Loki, and Alloy.
+- Monitoring with node exporter, PostgreSQL exporter, cAdvisor, Prometheus, Grafana, Loki, and Alloy.
 
 ```mermaid
 flowchart TD
@@ -40,9 +40,15 @@ flowchart TD
   monitoring --> grafana
   monitoring --> loki
   monitoring --> alloy
+  monitoring --> node_exporter
+  monitoring --> postgres_exporter
+  monitoring --> cadvisor
   grafana --> prometheus
   grafana --> loki
   alloy --> loki
+  prometheus --> node_exporter
+  prometheus --> postgres_exporter
+  prometheus --> cadvisor
   fabric_x --> fabric_x_orderers
   fabric_x --> fabric_x_committers
   fabric_x_committers --> fabric_x_committer

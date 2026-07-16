@@ -50,6 +50,7 @@
       }}
     env: "{{ container_env | default(omit) }}"
     security_opts: "{{ container_security_opts | default(omit) }}"
+    cgroupns_mode: "{{ container_cgroupns_mode | default(omit) }}"
     log_driver: "{{ container_log_driver }}"
     log_options:
       max-size: "{{ container_log_max_size }}"

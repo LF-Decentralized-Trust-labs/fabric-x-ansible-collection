@@ -136,8 +136,10 @@ nav:
       - yugabyte: playbooks/yugabyte/index.md
   - Roles:
       - Overview: roles/index.md
+      - alloy: roles/alloy/index.md
       - armageddon: roles/armageddon/index.md
       - bin: roles/bin/index.md
+      - cadvisor: roles/cadvisor/index.md
       - committer: roles/committer/index.md
       - configtxgen: roles/configtxgen/index.md
       - container: roles/container/index.md
@@ -152,6 +154,7 @@ nav:
       - jaeger: roles/jaeger/index.md
       - k8s: roles/k8s/index.md
       - loadgen: roles/loadgen/index.md
+      - loki: roles/loki/index.md
       - node_exporter: roles/node_exporter/index.md
       - openshift: roles/openshift/index.md
       - openssl: roles/openssl/index.md

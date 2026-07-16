@@ -1,0 +1,20 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Set Prometheus scrape services for cAdvisor
+  vars:
+    cadvisor_scrape_service:
+      job_name: "cadvisor.{{ current_cadvisor_host }}"
+      use_tls: false
+      targets:
+        - hosts: "{{ [current_cadvisor_host] }}"
+          port_to_scrape: cadvisor_port
+  ansible.builtin.set_fact:
+    cadvisor_prometheus_scrape_services: "{{ (cadvisor_prometheus_scrape_services | default([])) + [cadvisor_scrape_service] }}"
+  loop: "{{ cadvisor_hosts }}"
+  loop_control:
+    loop_var: current_cadvisor_host
+    label: "{{ current_cadvisor_host }}"

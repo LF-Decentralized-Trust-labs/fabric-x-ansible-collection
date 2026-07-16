@@ -1,0 +1,11 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove cAdvisor container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.cadvisor
+    tasks_from: container/rm
+  when: cadvisor_use_container
