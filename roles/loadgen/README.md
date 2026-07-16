@@ -175,7 +175,7 @@ Verify that the Loadgen monitoring endpoint is reachable. Uses direct host acces
 ```yaml
 - name: Check the monitoring endpoint
   vars:
-    # Prometheus metrics port exposed by Loadgen. Example: `9443`.
+    # Prometheus metrics port exposed by Loadgen.
     loadgen_metrics_port: 9443
     # Use Kubernetes resources.
     loadgen_use_k8s: false
@@ -195,7 +195,7 @@ Compute the host-and-port values used to reach the Loadgen instance from outside
 ```yaml
 - name: Resolve the effective connection addresses
   vars:
-    # Names the inventory host that provides the target Loadgen instance. Example: `loadgen1`.
+    # Names the inventory host that provides the target Loadgen instance.
     loadgen_host: "loadgen1"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
@@ -227,7 +227,7 @@ Send a control-plane HTTP request that changes the active generated transaction 
 ```yaml
 - name: Update the runtime rate limit
   vars:
-    # Maximum generated transaction rate. Example: `2500`.
+    # Maximum generated transaction rate.
     loadgen_limit_rate: 2500
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
@@ -243,11 +243,11 @@ Build Prometheus scrape target definitions for all Loadgen hosts. Includes monit
 ```yaml
 - name: Build Prometheus scrape targets
   vars:
-    # Inventory hosts running Loadgen instances. Example: `['loadgen1', 'loadgen2']`.
+    # Inventory hosts running Loadgen instances.
     loadgen_hosts:
       - "loadgen1"
       - "loadgen2"
-    # Local artifacts directory used for fetched TLS and MSP files. Example: `/tmp/fabricx-artifacts`.
+    # Local artifacts directory used for fetched TLS and MSP files.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
@@ -263,7 +263,7 @@ Render the Loadgen configuration file and transfer config-side support artifacts
 ```yaml
 - name: Dispatch configuration rendering
   vars:
-    # Base remote config directory that feeds `loadgen_remote_config_dir`. Example: `/var/hyperledger/fabricx/loadgen/lg-1/config`.
+    # Base remote config directory that feeds `loadgen_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/loadgen/lg-1/config"
     # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
@@ -285,109 +285,109 @@ Render the Loadgen configuration file and transfer config-side support artifacts
     loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
     # Enable mTLS for the main endpoint.
     loadgen_use_mtls: false
-    # Committer inventory hosts used by the dispatcher to derive client targets. Example: `['committer-sidecar1', 'committer-validator1']`.
+    # Committer inventory hosts used by the dispatcher to derive client targets.
     committer_hosts:
       - "committer-sidecar1"
       - "committer-validator1"
-    # Orderer inventory hosts used by the dispatcher to derive client targets. Example: `['orderer-router1', 'orderer-assembler1']`.
+    # Orderer inventory hosts used by the dispatcher to derive client targets.
     orderer_hosts:
       - "orderer-router1"
       - "orderer-assembler1"
-    # Additional mTLS client identities trusted by the main endpoint. Example: `['orderer-router1', 'committer-sidecar1']`.
+    # Additional mTLS client identities trusted by the main endpoint.
     loadgen_mtls_clients:
       - "orderer-router1"
       - "committer-sidecar1"
-    # Additional mTLS organizations trusted by the main endpoint. Example: `[{'name': 'Org1', 'domain': 'org1.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
+    # Additional mTLS organizations trusted by the main endpoint.
     loadgen_mtls_orgs:
       - name: "Org1"
         domain: "org1.example.com"
       - name: "OrdererOrg1"
         domain: "ordererorg1.example.com"
-    # Additional mTLS client identities trusted by the monitoring endpoint. Example: `['prometheus1', 'node-exporter1']`.
+    # Additional mTLS client identities trusted by the monitoring endpoint.
     loadgen_monitoring_mtls_clients:
       - "prometheus1"
       - "node-exporter1"
-    # Additional mTLS organizations trusted by the monitoring endpoint. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
+    # Additional mTLS organizations trusted by the monitoring endpoint.
     loadgen_monitoring_mtls_orgs:
       - name: "MonitoringOrg"
         domain: "monitoring.example.com"
-    # Prometheus metrics port exposed by Loadgen. Example: `9443`.
+    # Prometheus metrics port exposed by Loadgen.
     loadgen_metrics_port: 9443
-    # gRPC control port exposed by Loadgen. Example: `7051`.
+    # gRPC control port exposed by Loadgen.
     loadgen_rpc_port: 7051
-    # Render the config transaction block section. Example: `false`.
+    # Render the config transaction block section.
     loadgen_generate_config_block: false
-    # Render the namespace creation section. Example: `true` when the workload should create namespace records before sending load.
-    loadgen_generate_namespace: false
-    # Render the transaction load section. Example: `true` for a normal benchmark workload.
-    loadgen_generate_load: false
-    # Generated key size in bytes. Example: `32`.
+    # Render the namespace creation section. Set `true` when the workload should create namespace records before sending load.
+    loadgen_generate_namespace: true
+    # Render the transaction load section. Set `true` for a normal benchmark workload.
+    loadgen_generate_load: true
+    # Generated key size in bytes.
     loadgen_key_size: 32
-    # Random seed used to build repeatable transaction streams. Example: `12345`.
+    # Random seed used to build repeatable transaction streams.
     loadgen_tx_seed: 12345
-    # Worker goroutine count used by the load profile. Example: `16`.
+    # Worker goroutine count used by the load profile.
     loadgen_workers: 16
-    # Maximum generated block size. Example: `500`.
+    # Maximum generated block size.
     loadgen_block_max_size: 500
-    # Minimum generated block size. Example: `1`.
+    # Minimum generated block size.
     loadgen_block_min_size: 1
-    # Preferred block flush interval. Example: `1s`.
+    # Preferred block flush interval.
     loadgen_block_preferred_rate: "1s"
-    # Enable read-only transactions in the load profile. Example: `true` to include read-only query traffic.
-    loadgen_generate_read_only_tx: false
-    # Read-only key count per transaction. Example: `2`.
+    # Enable read-only transactions in the load profile. Set `true` to include read-only query traffic.
+    loadgen_generate_read_only_tx: true
+    # Read-only key count per transaction.
     loadgen_read_only_tx_keys: 2
-    # Enable write-only transactions in the load profile. Example: `true` to include blind-write traffic.
-    loadgen_generate_write_only_tx: false
-    # Write-only key count per transaction. Example: `4`.
+    # Enable write-only transactions in the load profile. Set `true` to include blind-write traffic.
+    loadgen_generate_write_only_tx: true
+    # Write-only key count per transaction.
     loadgen_write_only_tx_keys: 4
-    # Write-only value size in bytes. Example: `256`.
+    # Write-only value size in bytes.
     loadgen_write_only_tx_val_size: 256
-    # Enable read-write transactions in the load profile. Example: `true` to include endorsement-style read-write traffic.
-    loadgen_generate_read_write_tx: false
-    # Read-write key count per transaction. Example: `2`.
+    # Enable read-write transactions in the load profile. Set `true` to include endorsement-style read-write traffic.
+    loadgen_generate_read_write_tx: true
+    # Read-write key count per transaction.
     loadgen_read_write_tx_keys: 2
-    # Read-write value size in bytes. Example: `128`.
+    # Read-write value size in bytes.
     loadgen_read_write_tx_val_size: 128
-    # Signature scheme used for generated identities. Example: `ECDSA`.
+    # Signature scheme used for generated identities.
     loadgen_key_scheme: "ECDSA"
-    # Optional query tuning block consumed by the load profile. Example: `{'size': 4, 'min_invalid_keys_portion': 0.1, 'shuffle': true}`.
+    # Optional query tuning block consumed by the load profile.
     loadgen_query_settings:{'size': 4, 'min_invalid_keys_portion': 0.1, 'shuffle': true}
-    # Optional conflict injection block consumed by the load profile. Example: `{'invalid_signatures': 1, 'dependencies': [{'source': 1, 'target': 2}]}`.
+    # Optional conflict injection block consumed by the load profile.
     loadgen_conflicts_settings:
       invalid_signatures: 1
       dependencies:
         - source: 1
           target: 2
-    # Monitoring endpoint rate limit in requests per second. Example: `50`.
+    # Monitoring endpoint rate limit in requests per second.
     loadgen_monitoring_rate_limit_requests_per_second: 50
-    # Monitoring endpoint rate limit burst size. Example: `100`.
+    # Monitoring endpoint rate limit burst size.
     loadgen_monitoring_rate_limit_burst: 100
-    # Prefix used by the latency sampler. Example: `loadgen_lg_1`.
+    # Prefix used by the latency sampler.
     loadgen_latency_sampler_prefix: "loadgen_lg_1"
-    # Portion of transactions sampled for latency tracking. Example: `0.01`.
+    # Portion of transactions sampled for latency tracking.
     loadgen_latency_sampler_portion: 0.01
-    # Histogram distribution used for latency buckets. Example: `uniform`.
+    # Histogram distribution used for latency buckets.
     loadgen_latency_distribution: "uniform"
-    # Upper latency bound tracked by the histogram. Example: `5s`.
+    # Upper latency bound tracked by the histogram.
     loadgen_max_latency: "5s"
-    # Number of latency histogram buckets. Example: `1000`.
+    # Number of latency histogram buckets.
     loadgen_latency_buckets: 1000
-    # Maximum generated transaction rate. Example: `2500`.
+    # Maximum generated transaction rate.
     loadgen_limit_rate: 2500
-    # Batch size used by the stream pipeline. Example: `10`.
+    # Batch size used by the stream pipeline.
     loadgen_stream_batches: 10
-    # Channel buffer size used by the stream pipeline. Example: `64`.
+    # Channel buffer size used by the stream pipeline.
     loadgen_stream_buffers_size: 64
     # Log level specification.
     loadgen_log_level: info
     # Log message format template.
     loadgen_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}"
-    # Local artifacts directory used for fetched TLS and MSP files. Example: `/tmp/fabricx-artifacts`.
+    # Local artifacts directory used for fetched TLS and MSP files.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
-    # Channel identifier rendered into generated transactions. Example: `fabricx-channel`.
+    # Channel identifier rendered into generated transactions.
     channel_id: "fabricx-channel"
-    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}, 'users': [{'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}], 'namespaces': [{'id': 0, 'policy': 'threshold'}]}`.
+    # Organization definition consumed by crypto, config, and Kubernetes templates.
     organization:
       name: "Org1"
       domain: "org1.example.com"
@@ -406,15 +406,15 @@ Render the Loadgen configuration file and transfer config-side support artifacts
     loadgen_config_block_file: config-block.pb.bin
     # Local configtxgen output directory containing the genesis config block.
     configtxgen_artifacts_dir: "string"
-    # Fault tolerance level of the ordering service rendered into the Loadgen config. Example: `BFT`.
+    # Fault tolerance level of the ordering service rendered into the Loadgen config.
     loadgen_orderer_fault_tolerance_level: "BFT"
-    # Maximum number of TX entries held in memory for latency tracking. Example: `10000`.
+    # Maximum number of TX entries held in memory for latency tracking.
     loadgen_monitoring_latency_max_tracked_txs: 10000
-    # Broadcast goroutine count used by the orderer client. Example: `8`.
+    # Broadcast goroutine count used by the orderer client.
     loadgen_broadcast_parallelism: 8
-    # Optional stopping limit for generated blocks. Example: `100`.
+    # Optional stopping limit for generated blocks.
     loadgen_limit_blocks: 100
-    # Optional stopping limit for generated transactions. Example: `100000`.
+    # Optional stopping limit for generated transactions.
     loadgen_limit_transactions: 100000
     # Enable mTLS for the monitoring endpoint.
     loadgen_monitoring_use_mtls: "{{ loadgen_use_mtls }}"
@@ -432,17 +432,17 @@ Transfer CA bundles trusted by the Loadgen monitoring endpoint. Copies client an
 ```yaml
 - name: Transfer monitoring mTLS CA bundles
   vars:
-    # Base remote config directory that feeds `loadgen_remote_config_dir`. Example: `/var/hyperledger/fabricx/loadgen/lg-1/config`.
+    # Base remote config directory that feeds `loadgen_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/loadgen/lg-1/config"
     # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
-    # Local artifacts directory used for fetched TLS and MSP files. Example: `/tmp/fabricx-artifacts`.
+    # Local artifacts directory used for fetched TLS and MSP files.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
-    # Additional mTLS client identities trusted by the monitoring endpoint. Example: `['prometheus1', 'node-exporter1']`.
+    # Additional mTLS client identities trusted by the monitoring endpoint.
     loadgen_monitoring_mtls_clients:
       - "prometheus1"
       - "node-exporter1"
-    # Additional mTLS organizations trusted by the monitoring endpoint. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
+    # Additional mTLS organizations trusted by the monitoring endpoint.
     loadgen_monitoring_mtls_orgs:
       - name: "MonitoringOrg"
         domain: "monitoring.example.com"
@@ -462,7 +462,7 @@ Remove host-side rendered Loadgen configuration. Also removes the Kubernetes Con
   vars:
     # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
-    # Base remote config directory that feeds `loadgen_remote_config_dir`. Example: `/var/hyperledger/fabricx/loadgen/lg-1/config`.
+    # Base remote config directory that feeds `loadgen_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/loadgen/lg-1/config"
     # Use Kubernetes resources.
     loadgen_use_k8s: false
@@ -482,7 +482,7 @@ Prepare Loadgen MSP, user, and TLS material through the configured crypto source
 ```yaml
 - name: Prepare crypto material
   vars:
-    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}, 'users': [{'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}], 'namespaces': [{'id': 0, 'policy': 'threshold'}]}`.
+    # Organization definition consumed by crypto, config, and Kubernetes templates.
     organization:
       name: "Org1"
       domain: "org1.example.com"
@@ -515,7 +515,7 @@ Transfer MSP, user, and TLS artifacts generated by cryptogen to the Loadgen host
 ```yaml
 - name: Transfer cryptogen artifacts
   vars:
-    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}, 'users': [{'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}], 'namespaces': [{'id': 0, 'policy': 'threshold'}]}`.
+    # Organization definition consumed by crypto, config, and Kubernetes templates.
     organization:
       name: "Org1"
       domain: "org1.example.com"
@@ -530,13 +530,13 @@ Transfer MSP, user, and TLS artifacts generated by cryptogen to the Loadgen host
       namespaces:
         - id: 0
           policy: "threshold"
-    # Local cryptogen output directory. Example: `/tmp/fabricx-crypto`.
+    # Local cryptogen output directory.
     cryptogen_artifacts_dir: "/tmp/fabricx-crypto"
     # Crypto identity name used for MSP and TLS file names.
     loadgen_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}"
     # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
-    # Base remote config directory that feeds `loadgen_remote_config_dir`. Example: `/var/hyperledger/fabricx/loadgen/lg-1/config`.
+    # Base remote config directory that feeds `loadgen_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/loadgen/lg-1/config"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
@@ -556,7 +556,7 @@ Enroll Loadgen peer, user, and optional TLS identities against Fabric CA. Writes
 ```yaml
 - name: Enroll identities with Fabric CA
   vars:
-    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}, 'users': [{'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}], 'namespaces': [{'id': 0, 'policy': 'threshold'}]}`.
+    # Organization definition consumed by crypto, config, and Kubernetes templates.
     organization:
       name: "Org1"
       domain: "org1.example.com"
@@ -571,23 +571,23 @@ Enroll Loadgen peer, user, and optional TLS identities against Fabric CA. Writes
       namespaces:
         - id: 0
           policy: "threshold"
-    # Local artifacts directory used for fetched TLS and MSP files. Example: `/tmp/fabricx-artifacts`.
+    # Local artifacts directory used for fetched TLS and MSP files.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
     # Crypto identity name used for MSP and TLS file names.
     loadgen_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}"
     # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
-    # Base remote config directory that feeds `loadgen_remote_config_dir`. Example: `/var/hyperledger/fabricx/loadgen/lg-1/config`.
+    # Base remote config directory that feeds `loadgen_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/loadgen/lg-1/config"
-    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    # Real machine host.
     actual_host: "myvpc.cloud.ibm.com"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
     # Enable TLS for the monitoring endpoint.
     loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
-    # Specifies the OpenShift Route host. Example: `loadgen-metrics.apps.example.com`.
+    # Specifies the OpenShift Route host.
     loadgen_openshift_metrics_route: "loadgen-metrics.apps.example.com"
-    # Specifies the OpenShift Route host. Example: `loadgen-rpc.apps.example.com`.
+    # Specifies the OpenShift Route host.
     loadgen_openshift_rpc_route: "loadgen-rpc.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
@@ -603,7 +603,7 @@ Fetch generated Loadgen MSP signcerts and TLS certificates back to the control n
 ```yaml
 - name: Fetch generated certificates
   vars:
-    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}, 'users': [{'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}], 'namespaces': [{'id': 0, 'policy': 'threshold'}]}`.
+    # Organization definition consumed by crypto, config, and Kubernetes templates.
     organization:
       name: "Org1"
       domain: "org1.example.com"
@@ -618,13 +618,13 @@ Fetch generated Loadgen MSP signcerts and TLS certificates back to the control n
       namespaces:
         - id: 0
           policy: "threshold"
-    # Local artifacts directory used for fetched TLS and MSP files. Example: `/tmp/fabricx-artifacts`.
+    # Local artifacts directory used for fetched TLS and MSP files.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
     # Crypto identity name used for MSP and TLS file names.
     loadgen_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}"
     # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
-    # Base remote config directory that feeds `loadgen_remote_config_dir`. Example: `/var/hyperledger/fabricx/loadgen/lg-1/config`.
+    # Base remote config directory that feeds `loadgen_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/loadgen/lg-1/config"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
@@ -646,7 +646,7 @@ Remove Loadgen MSP, user, and TLS artifacts from the host config directory. Also
   vars:
     # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
-    # Base remote config directory that feeds `loadgen_remote_config_dir`. Example: `/var/hyperledger/fabricx/loadgen/lg-1/config`.
+    # Base remote config directory that feeds `loadgen_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/loadgen/lg-1/config"
     # Enable TLS for the main endpoint.
     loadgen_use_tls: false
@@ -740,11 +740,11 @@ Start Loadgen as a local binary process using the rendered config file. Waits on
     loadgen_bin_name: loadgen
     # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
-    # Base remote config directory that feeds `loadgen_remote_config_dir`. Example: `/var/hyperledger/fabricx/loadgen/lg-1/config`.
+    # Base remote config directory that feeds `loadgen_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/loadgen/lg-1/config"
     # Rendered Loadgen config filename.
     loadgen_config_file: config-loadgen.yaml
-    # Prometheus metrics port exposed by Loadgen. Example: `9443`.
+    # Prometheus metrics port exposed by Loadgen.
     loadgen_metrics_port: 9443
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
@@ -812,7 +812,7 @@ Start Loadgen as a local container with the rendered config directory mounted re
     loadgen_image_name: fabric-x-loadgen
     # Image tag used by the Loadgen container.
     loadgen_image_tag: 1.0.4
-    # Base remote config directory that feeds `loadgen_remote_config_dir`. Example: `/var/hyperledger/fabricx/loadgen/lg-1/config`.
+    # Base remote config directory that feeds `loadgen_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/loadgen/lg-1/config"
     # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
@@ -820,9 +820,9 @@ Start Loadgen as a local container with the rendered config directory mounted re
     loadgen_container_config_dir: /config
     # Rendered Loadgen config filename.
     loadgen_config_file: config-loadgen.yaml
-    # Prometheus metrics port exposed by Loadgen. Example: `9443`.
+    # Prometheus metrics port exposed by Loadgen.
     loadgen_metrics_port: 9443
-    # gRPC control port exposed by Loadgen. Example: `7051`.
+    # gRPC control port exposed by Loadgen.
     loadgen_rpc_port: 7051
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
@@ -902,15 +902,15 @@ Create or update Kubernetes resources for Loadgen. Ensures the namespace exists,
 ```yaml
 - name: Start the Kubernetes deployment
   vars:
-    # Committer inventory hosts used by the dispatcher to derive client targets. Example: `['committer-sidecar1', 'committer-validator1']`.
+    # Committer inventory hosts used by the dispatcher to derive client targets.
     committer_hosts:
       - "committer-sidecar1"
       - "committer-validator1"
-    # Orderer inventory hosts used by the dispatcher to derive client targets. Example: `['orderer-router1', 'orderer-assembler1']`.
+    # Orderer inventory hosts used by the dispatcher to derive client targets.
     orderer_hosts:
       - "orderer-router1"
       - "orderer-assembler1"
-    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}, 'users': [{'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}], 'namespaces': [{'id': 0, 'policy': 'threshold'}]}`.
+    # Organization definition consumed by crypto, config, and Kubernetes templates.
     organization:
       name: "Org1"
       domain: "org1.example.com"
@@ -943,7 +943,7 @@ Create or update Kubernetes resources for Loadgen. Ensures the namespace exists,
     loadgen_k8s_wait_timeout: 120
     # Pod FSGroup used for mounted config and secrets.
     loadgen_k8s_fs_group: 10001
-    # Kubernetes namespace used for loadgen resources. Example: `fabricx-loadgen`.
+    # Kubernetes namespace used for loadgen resources.
     k8s_namespace: "fabricx-loadgen"
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
@@ -957,41 +957,41 @@ Create or update Kubernetes resources for Loadgen. Ensures the namespace exists,
     loadgen_use_mtls: false
     # Enable mTLS for the monitoring endpoint.
     loadgen_monitoring_use_mtls: "{{ loadgen_use_mtls }}"
-    # Additional mTLS client identities trusted by the main endpoint. Example: `['orderer-router1', 'committer-sidecar1']`.
+    # Additional mTLS client identities trusted by the main endpoint.
     loadgen_mtls_clients:
       - "orderer-router1"
       - "committer-sidecar1"
-    # Additional mTLS organizations trusted by the main endpoint. Example: `[{'name': 'Org1', 'domain': 'org1.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
+    # Additional mTLS organizations trusted by the main endpoint.
     loadgen_mtls_orgs:
       - name: "Org1"
         domain: "org1.example.com"
       - name: "OrdererOrg1"
         domain: "ordererorg1.example.com"
-    # Additional mTLS client identities trusted by the monitoring endpoint. Example: `['prometheus1', 'node-exporter1']`.
+    # Additional mTLS client identities trusted by the monitoring endpoint.
     loadgen_monitoring_mtls_clients:
       - "prometheus1"
       - "node-exporter1"
-    # Additional mTLS organizations trusted by the monitoring endpoint. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
+    # Additional mTLS organizations trusted by the monitoring endpoint.
     loadgen_monitoring_mtls_orgs:
       - name: "MonitoringOrg"
         domain: "monitoring.example.com"
-    # Optional image pull secret used by Kubernetes workloads. Example: `fabricx-registry-pull`.
+    # Optional image pull secret used by Kubernetes workloads.
     k8s_image_pull_secret: "fabricx-registry-pull"
-    # Prometheus metrics port exposed by Loadgen. Example: `9443`.
+    # Prometheus metrics port exposed by Loadgen.
     loadgen_metrics_port: 9443
-    # gRPC control port exposed by Loadgen. Example: `7051`.
+    # gRPC control port exposed by Loadgen.
     loadgen_rpc_port: 7051
     # Filename of the genesis config block placed in the Loadgen config directory.
     loadgen_config_block_file: config-block.pb.bin
-    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30090`.
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     loadgen_k8s_metrics_node_port: 30090
-    # Kubernetes NodePort value used by the external gRPC control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30051`.
+    # Kubernetes NodePort value used by the external gRPC control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     loadgen_k8s_rpc_node_port: 30051
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
     loadgen_k8s_loadbalancer_expose_metrics_port: false
     # Set to `true` to create a LoadBalancer Service entry that exposes the gRPC control port externally. When undefined or `false`, the gRPC control port is not included in the LoadBalancer Service.
     loadgen_k8s_loadbalancer_expose_rpc_port: false
-    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    # Optional Kubernetes container resource requests and limits.
     k8s_resources:
       requests:
         memory: "1Gi"
@@ -1013,13 +1013,13 @@ Probes configured Kubernetes NodePort values and LoadBalancer-exposed service po
 ```yaml
 - name: Check that the Loadgen Kubernetes service is reachable
   vars:
-    # Prometheus metrics port exposed by Loadgen. Example: `9443`.
+    # Prometheus metrics port exposed by Loadgen.
     loadgen_metrics_port: 9443
-    # gRPC control port exposed by Loadgen. Example: `7051`.
+    # gRPC control port exposed by Loadgen.
     loadgen_rpc_port: 7051
-    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30090`.
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     loadgen_k8s_metrics_node_port: 30090
-    # Kubernetes NodePort value used by the external gRPC control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30051`.
+    # Kubernetes NodePort value used by the external gRPC control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     loadgen_k8s_rpc_node_port: 30051
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
     loadgen_k8s_loadbalancer_expose_metrics_port: false
@@ -1039,15 +1039,15 @@ Remove the Kubernetes Deployment and Services created for Loadgen. Does not remo
 ```yaml
 - name: Remove Kubernetes resources
   vars:
-    # Kubernetes namespace used for loadgen resources. Example: `fabricx-loadgen`.
+    # Kubernetes namespace used for loadgen resources.
     k8s_namespace: "fabricx-loadgen"
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30090`.
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     loadgen_k8s_metrics_node_port: 30090
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
     loadgen_k8s_loadbalancer_expose_metrics_port: false
-    # Kubernetes NodePort value used by the external gRPC control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30051`.
+    # Kubernetes NodePort value used by the external gRPC control Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     loadgen_k8s_rpc_node_port: 30051
     # Set to `true` to create a LoadBalancer Service entry that exposes the gRPC control port externally. When undefined or `false`, the gRPC control port is not included in the LoadBalancer Service.
     loadgen_k8s_loadbalancer_expose_rpc_port: false
@@ -1081,13 +1081,13 @@ Publish the rendered Loadgen configuration and trusted CA bundles as a Kubernete
 ```yaml
 - name: Publish the Kubernetes ConfigMap
   vars:
-    # Kubernetes namespace used for loadgen resources. Example: `fabricx-loadgen`.
+    # Kubernetes namespace used for loadgen resources.
     k8s_namespace: "fabricx-loadgen"
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Loadgen resources.
     loadgen_k8s_part_of: "fabric-x-loadgen-{{ organization.name }}"
-    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}, 'users': [{'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}], 'namespaces': [{'id': 0, 'policy': 'threshold'}]}`.
+    # Organization definition consumed by crypto, config, and Kubernetes templates.
     organization:
       name: "Org1"
       domain: "org1.example.com"
@@ -1102,7 +1102,7 @@ Publish the rendered Loadgen configuration and trusted CA bundles as a Kubernete
       namespaces:
         - id: 0
           policy: "threshold"
-    # Base remote config directory that feeds `loadgen_remote_config_dir`. Example: `/var/hyperledger/fabricx/loadgen/lg-1/config`.
+    # Base remote config directory that feeds `loadgen_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/loadgen/lg-1/config"
     # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
@@ -1110,27 +1110,27 @@ Publish the rendered Loadgen configuration and trusted CA bundles as a Kubernete
     loadgen_config_file: config-loadgen.yaml
     # Filename of the genesis config block placed in the Loadgen config directory.
     loadgen_config_block_file: config-block.pb.bin
-    # Sidecar host targeted by the orderer and sidecar clients. Example: `committer-sidecar1`.
+    # Sidecar host targeted by the orderer and sidecar clients.
     committer_sidecar_host: "committer-sidecar1"
     # Enable mTLS for the main endpoint.
     loadgen_use_mtls: false
     # Enable mTLS for the monitoring endpoint.
     loadgen_monitoring_use_mtls: "{{ loadgen_use_mtls }}"
-    # Additional mTLS client identities trusted by the main endpoint. Example: `['orderer-router1', 'committer-sidecar1']`.
+    # Additional mTLS client identities trusted by the main endpoint.
     loadgen_mtls_clients:
       - "orderer-router1"
       - "committer-sidecar1"
-    # Additional mTLS organizations trusted by the main endpoint. Example: `[{'name': 'Org1', 'domain': 'org1.example.com'}, {'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com'}]`.
+    # Additional mTLS organizations trusted by the main endpoint.
     loadgen_mtls_orgs:
       - name: "Org1"
         domain: "org1.example.com"
       - name: "OrdererOrg1"
         domain: "ordererorg1.example.com"
-    # Additional mTLS client identities trusted by the monitoring endpoint. Example: `['prometheus1', 'node-exporter1']`.
+    # Additional mTLS client identities trusted by the monitoring endpoint.
     loadgen_monitoring_mtls_clients:
       - "prometheus1"
       - "node-exporter1"
-    # Additional mTLS organizations trusted by the monitoring endpoint. Example: `[{'name': 'MonitoringOrg', 'domain': 'monitoring.example.com'}]`.
+    # Additional mTLS organizations trusted by the monitoring endpoint.
     loadgen_monitoring_mtls_orgs:
       - name: "MonitoringOrg"
         domain: "monitoring.example.com"
@@ -1148,7 +1148,7 @@ Remove the Kubernetes ConfigMap created for Loadgen configuration. Leaves host-s
 ```yaml
 - name: Remove the Kubernetes ConfigMap
   vars:
-    # Kubernetes namespace used for loadgen resources. Example: `fabricx-loadgen`.
+    # Kubernetes namespace used for loadgen resources.
     k8s_namespace: "fabricx-loadgen"
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
@@ -1166,7 +1166,7 @@ Publish Loadgen MSP and TLS material as a Kubernetes Secret. The Secret is consu
 ```yaml
 - name: Publish the Kubernetes Secret
   vars:
-    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}, 'users': [{'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}], 'namespaces': [{'id': 0, 'policy': 'threshold'}]}`.
+    # Organization definition consumed by crypto, config, and Kubernetes templates.
     organization:
       name: "Org1"
       domain: "org1.example.com"
@@ -1181,13 +1181,13 @@ Publish Loadgen MSP and TLS material as a Kubernetes Secret. The Secret is consu
       namespaces:
         - id: 0
           policy: "threshold"
-    # Base remote config directory that feeds `loadgen_remote_config_dir`. Example: `/var/hyperledger/fabricx/loadgen/lg-1/config`.
+    # Base remote config directory that feeds `loadgen_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/loadgen/lg-1/config"
     # Remote config directory used by Loadgen.
     loadgen_remote_config_dir: "{{ remote_config_dir }}"
     # Crypto identity name used for MSP and TLS file names.
     loadgen_crypto_name: "{{ organization.peer.name | default(inventory_hostname) }}"
-    # Kubernetes namespace used for loadgen resources. Example: `fabricx-loadgen`.
+    # Kubernetes namespace used for loadgen resources.
     k8s_namespace: "fabricx-loadgen"
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
@@ -1211,7 +1211,7 @@ Remove the Kubernetes Secret created for Loadgen MSP and TLS material. Leaves ho
 ```yaml
 - name: Remove the Kubernetes Secret
   vars:
-    # Kubernetes namespace used for loadgen resources. Example: `fabricx-loadgen`.
+    # Kubernetes namespace used for loadgen resources.
     k8s_namespace: "fabricx-loadgen"
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
@@ -1235,7 +1235,7 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Loadgen resources.
     loadgen_k8s_part_of: "fabric-x-loadgen-{{ organization.name }}"
-    # Organization definition consumed by crypto, config, and Kubernetes templates. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}, 'users': [{'name': 'orderer-loadgen', 'secret': 'orderer-loadgenPWD'}], 'namespaces': [{'id': 0, 'policy': 'threshold'}]}`.
+    # Organization definition consumed by crypto, config, and Kubernetes templates.
     organization:
       name: "Org1"
       domain: "org1.example.com"
@@ -1254,9 +1254,9 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     loadgen_use_tls: false
     # Enable TLS for the monitoring endpoint.
     loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
-    # Specifies the OpenShift Route host. Example: `loadgen-metrics.apps.example.com`.
+    # Specifies the OpenShift Route host.
     loadgen_openshift_metrics_route: "loadgen-metrics.apps.example.com"
-    # Specifies the OpenShift Route host. Example: `loadgen-rpc.apps.example.com`.
+    # Specifies the OpenShift Route host.
     loadgen_openshift_rpc_route: "loadgen-rpc.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
@@ -1276,9 +1276,9 @@ Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
     loadgen_use_tls: false
     # Enable TLS for the monitoring endpoint.
     loadgen_monitoring_use_tls: "{{ loadgen_use_tls }}"
-    # Specifies the OpenShift Route host. Example: `loadgen-metrics.apps.example.com`.
+    # Specifies the OpenShift Route host.
     loadgen_openshift_metrics_route: "loadgen-metrics.apps.example.com"
-    # Specifies the OpenShift Route host. Example: `loadgen-rpc.apps.example.com`.
+    # Specifies the OpenShift Route host.
     loadgen_openshift_rpc_route: "loadgen-rpc.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen
@@ -1296,9 +1296,9 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Kubernetes resource name used for the Deployment, Service, Secret, and optional NodePort Service.
     loadgen_k8s_resource_name: "{{ inventory_hostname }}"
-    # Specifies the OpenShift Route host. Example: `loadgen-metrics.apps.example.com`.
+    # Specifies the OpenShift Route host.
     loadgen_openshift_metrics_route: "loadgen-metrics.apps.example.com"
-    # Specifies the OpenShift Route host. Example: `loadgen-rpc.apps.example.com`.
+    # Specifies the OpenShift Route host.
     loadgen_openshift_rpc_route: "loadgen-rpc.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.loadgen

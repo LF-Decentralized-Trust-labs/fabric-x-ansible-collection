@@ -40,9 +40,9 @@ Clones the source repository, groups target hosts by platform, and builds one bi
 ```yaml
 - name: Build a Go binary for each target platform
   vars:
-    # Sets the base directory on the control node for `bin_control_source_code_dir` and `bin_control_dir`. Example: `/opt/fabricx/control`.
+    # Sets the base directory on the control node for `bin_control_source_code_dir` and `bin_control_dir`.
     control_node_dir: "/opt/fabricx/control"
-    # Sets the base directory on the managed host for `bin_remote_source_code_dir`, `bin_remote_dir`, and `bin_remote_logs_dir`. Example: `/var/lib/fabricx`.
+    # Sets the base directory on the managed host for `bin_remote_source_code_dir`, `bin_remote_dir`, and `bin_remote_logs_dir`.
     remote_node_dir: "/var/lib/fabricx"
     # Controls whether source code is cloned and binaries are built on the control node instead of on the managed host.
     bin_build_on_control_node: false
@@ -79,9 +79,9 @@ Groups target hosts by platform and invokes the go install entry point once per 
 ```yaml
 - name: Install a Go binary for each target platform
   vars:
-    # Sets the base directory on the control node for `bin_control_source_code_dir` and `bin_control_dir`. Example: `/opt/fabricx/control`.
+    # Sets the base directory on the control node for `bin_control_source_code_dir` and `bin_control_dir`.
     control_node_dir: "/opt/fabricx/control"
-    # Sets the base directory on the managed host for `bin_remote_source_code_dir`, `bin_remote_dir`, and `bin_remote_logs_dir`. Example: `/var/lib/fabricx`.
+    # Sets the base directory on the managed host for `bin_remote_source_code_dir`, `bin_remote_dir`, and `bin_remote_logs_dir`.
     remote_node_dir: "/var/lib/fabricx"
     # Controls whether source code is cloned and binaries are built on the control node instead of on the managed host.
     bin_build_on_control_node: false
@@ -155,9 +155,9 @@ Ensures the target binary directory exists on the managed host and copies the se
 ```yaml
 - name: Copy a binary to the managed host
   vars:
-    # Sets the base directory on the control node for `bin_control_source_code_dir` and `bin_control_dir`. Example: `/opt/fabricx/control`.
+    # Sets the base directory on the control node for `bin_control_source_code_dir` and `bin_control_dir`.
     control_node_dir: "/opt/fabricx/control"
-    # Sets the base directory on the managed host for `bin_remote_source_code_dir`, `bin_remote_dir`, and `bin_remote_logs_dir`. Example: `/var/lib/fabricx`.
+    # Sets the base directory on the managed host for `bin_remote_source_code_dir`, `bin_remote_dir`, and `bin_remote_logs_dir`.
     remote_node_dir: "/var/lib/fabricx"
     # Controls whether source code is cloned and binaries are built on the control node instead of on the managed host.
     bin_build_on_control_node: false
@@ -187,9 +187,9 @@ Builds the runtime command, optionally redirects logs, and starts the binary eit
 ```yaml
 - name: Start a binary process
   vars:
-    # Sets the base directory on the managed host for `bin_remote_source_code_dir`, `bin_remote_dir`, and `bin_remote_logs_dir`. Example: `/var/lib/fabricx`.
+    # Sets the base directory on the managed host for `bin_remote_source_code_dir`, `bin_remote_dir`, and `bin_remote_logs_dir`.
     remote_node_dir: "/var/lib/fabricx"
-    # Defines the command to execute, relative to `bin_remote_dir` when that directory is set. Example: `orderer --config /etc/fabricx/orderer.yaml`.
+    # Defines the command to execute, relative to `bin_remote_dir` when that directory is set.
     bin_command: "orderer --config /etc/fabricx/orderer.yaml"
     # Provides environment variables prefixed onto the command line before the binary is started.
     bin_env: {}
@@ -219,7 +219,7 @@ Builds the runtime command, optionally redirects logs, and starts the binary eit
     bin_ignore_errors: false
     # Controls whether the role waits for a TCP port to become reachable after the process starts.
     bin_wait_until_running: false
-    # Sets the TCP port checked by the wait step when `bin_wait_until_running` is true. Example: `7050`.
+    # Sets the TCP port checked by the wait step when `bin_wait_until_running` is true.
     bin_wait_port: 7050
     # Sets the initial delay in seconds before checking `bin_wait_port`.
     bin_wait_delay: 1
@@ -275,9 +275,9 @@ Copies the binary log file from the managed host to the control node without fai
 ```yaml
 - name: Fetch binary log output
   vars:
-    # Sets the local directory for `bin_fetched_logs_dir`. Example: `/tmp/fabricx/artifacts`.
+    # Sets the local directory for `bin_fetched_logs_dir`.
     fetched_artifacts_dir: "/tmp/fabricx/artifacts"
-    # Sets the base directory on the managed host for `bin_remote_source_code_dir`, `bin_remote_dir`, and `bin_remote_logs_dir`. Example: `/var/lib/fabricx`.
+    # Sets the base directory on the managed host for `bin_remote_source_code_dir`, `bin_remote_dir`, and `bin_remote_logs_dir`.
     remote_node_dir: "/var/lib/fabricx"
     # Sets the output binary name.
     bin_name: "{{ inventory_hostname }}"

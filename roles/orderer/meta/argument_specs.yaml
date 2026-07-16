@@ -235,7 +235,7 @@ argument_specs:
           - router
         description:
           - "Orderer component to manage; use C(consensus) for the consenter process."
-          - "Example: C(consensus), C(batcher), C(assembler), or C(router)."
+          - "Example: C(consensus)."
       orderer_shard_id: &orderer_shard_id
         type: int
         description:
@@ -601,7 +601,6 @@ argument_specs:
         description:
           - Optional Kubernetes container resource requests and limits.
           - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
-
       orderer_use_openshift: &orderer_use_openshift
         type: bool
         default: false
@@ -617,6 +616,7 @@ argument_specs:
         description:
           - Specifies the OpenShift Route host for the operations/metrics endpoint.
           - "Example: C(orderer-metrics.apps.example.com)."
+
   start:
     short_description: Dispatch orderer startup by component and deployment mode
     description:

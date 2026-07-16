@@ -17,6 +17,7 @@ For every role under roles/:
       undocumented — task file exists but not declared in argument_specs
       unused anchor — YAML anchor is defined but never aliased
       uncataloged option — entrypoint option is missing from role-options
+      invalid example — option examples must use one standalone C(...) value
 
 Exits 0 if all roles are clean, 1 if any mismatch is found.
 
@@ -108,6 +109,7 @@ JINJA_ENV = Environment()
 UNKNOWN_FILTER_RE = re.compile(r"No filter named '([^']+)'")
 UNKNOWN_TEST_RE = re.compile(r"No test named '([^']+)'")
 JINJA_SEGMENT_RE = re.compile(r"({[{%#].*?[}%#]})")
+EXAMPLE_DESCRIPTION_RE = re.compile(r"^Example: C\([^()]+\)\.?$")
 
 
 def passthrough_filter(value, *args, **kwargs):
@@ -922,6 +924,52 @@ def extract_invalid_default_options(specs, role_name):
     return sorted(invalid)
 
 
+def extract_invalid_option_examples(specs):
+    """Return catalog options whose example descriptions aar-doc cannot render.
+
+    ``aar-doc`` derives a placeholder from an option's example, so each option
+    can have at most one example and it must be its own description item in the
+    form ``Example: C(<value>).``. The final period is optional.
+    """
+    role_options = specs.get("role-options")
+    if not isinstance(role_options, dict):
+        raise SpecError("'argument_specs.role-options' must be a mapping")
+
+    catalog_options = role_options.get("options")
+    if not isinstance(catalog_options, dict):
+        raise SpecError("'argument_specs.role-options.options' must be a mapping")
+
+    invalid = []
+    for option, option_spec in catalog_options.items():
+        if not isinstance(option, str):
+            raise SpecError(f"non-string key in role-options.options: {option!r}")
+        if not isinstance(option_spec, dict):
+            continue
+
+        description = option_spec.get("description", [])
+        description_items = [description] if isinstance(description, str) else description
+        if not isinstance(description_items, list):
+            continue
+
+        examples = [
+            item.strip()
+            for item in description_items
+            if isinstance(item, str) and "Example:" in item
+        ]
+        if len(examples) > 1:
+            invalid.append((option, "contains more than one Example: description item"))
+            continue
+        if examples and not EXAMPLE_DESCRIPTION_RE.fullmatch(examples[0]):
+            invalid.append(
+                (
+                    option,
+                    "must use exactly one standalone 'Example: C(<value>).' description item",
+                )
+            )
+
+    return sorted(invalid)
+
+
 def format_task_path(role_dir, entrypoint):
     """Return the repo-relative path for a task entrypoint."""
     return (Path("roles") / role_dir.name / "tasks" / f"{entrypoint}.yaml").as_posix()
@@ -949,6 +997,7 @@ def check_role(role_dir, collection_local_vars=None):
         uncataloged_options = extract_uncataloged_options(specs, spec_options)
         non_aliased_options = extract_non_aliased_entrypoint_options(specs_file)
         invalid_default_options = extract_invalid_default_options(specs, role_dir.name)
+        invalid_option_examples = extract_invalid_option_examples(specs)
     except SpecError as exc:
         print(f"{RED}[FAIL]{NC}   {role_dir.name}: {exc}")
         return False
@@ -982,6 +1031,7 @@ def check_role(role_dir, collection_local_vars=None):
         and not uncataloged_options
         and not non_aliased_options
         and not invalid_default_options
+        and not invalid_option_examples
         and not missing_task_options
         and not extra_task_options
     ):
@@ -1019,6 +1069,10 @@ def check_role(role_dir, collection_local_vars=None):
     if invalid_default_options:
         print("  Invalid defaulted argument_specs options:")
         for option, reason in sorted(invalid_default_options):
+            print(f"    - {format_argument_specs_path(role_dir)}: {option} {reason}")
+    if invalid_option_examples:
+        print("  Invalid argument_specs examples:")
+        for option, reason in invalid_option_examples:
             print(f"    - {format_argument_specs_path(role_dir)}: {option} {reason}")
     if missing_task_options:
         print("  Task variables missing from argument_specs options:")

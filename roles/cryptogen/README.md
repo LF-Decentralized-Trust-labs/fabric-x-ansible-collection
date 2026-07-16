@@ -54,11 +54,11 @@ Copy generated MSP directories for orderer and peer organizations into the fetch
 ```yaml
 - name: Fetch generated MSP directories
   vars:
-    # Sets the base directory for generated configuration artifacts. Example: `/opt/hyperledger/fabricx/build`.
+    # Sets the base directory for generated configuration artifacts.
     config_build_dir: "/opt/hyperledger/fabricx/build"
     # Sets the directory that stores cryptogen inputs and generated files.
     cryptogen_artifacts_dir: "{{ config_build_dir }}/cryptogen-artifacts"
-    # Sets the destination directory for fetched MSP folders. Example: `/opt/hyperledger/fabricx/build/fetched-artifacts`.
+    # Sets the destination directory for fetched MSP folders.
     fetched_artifacts_dir: "/opt/hyperledger/fabricx/build/fetched-artifacts"
     # Sets the directory where cryptogen writes generated crypto material.
     cryptogen_output_dir: "{{ cryptogen_artifacts_dir }}/crypto"
@@ -80,7 +80,7 @@ Render `crypto-config.yaml` for the cryptogen CLI. This entry point gathers host
 ```yaml
 - name: Build the cryptogen configuration file
   vars:
-    # Sets the base directory for generated configuration artifacts. Example: `/opt/hyperledger/fabricx/build`.
+    # Sets the base directory for generated configuration artifacts.
     config_build_dir: "/opt/hyperledger/fabricx/build"
     # Sets the directory that stores cryptogen inputs and generated files.
     cryptogen_artifacts_dir: "{{ config_build_dir }}/cryptogen-artifacts"
@@ -104,7 +104,7 @@ Clean the output directory and run the cryptogen CLI in a container. The contain
 ```yaml
 - name: Generate crypto material with a container
   vars:
-    # Sets the base directory for generated configuration artifacts. Example: `/opt/hyperledger/fabricx/build`.
+    # Sets the base directory for generated configuration artifacts.
     config_build_dir: "/opt/hyperledger/fabricx/build"
     # Sets the directory that stores cryptogen inputs and generated files.
     cryptogen_artifacts_dir: "{{ config_build_dir }}/cryptogen-artifacts"
@@ -142,7 +142,7 @@ Install the cryptogen binary through `hyperledger.fabricx.bin`. This entry point
 ```yaml
 - name: Install the cryptogen binary
   vars:
-    # Sets the directory that receives the cryptogen binary. Example: `/opt/hyperledger/fabricx/bin`.
+    # Sets the directory that receives the cryptogen binary.
     cli_bin_dir: "/opt/hyperledger/fabricx/bin"
     # Sets the cryptogen executable name.
     cryptogen_bin_name: cryptogen
@@ -170,7 +170,7 @@ Build the cryptogen binary from the configured source repository through `hyperl
 ```yaml
 - name: Build the cryptogen binary from source
   vars:
-    # Sets the directory that receives the cryptogen binary. Example: `/opt/hyperledger/fabricx/bin`.
+    # Sets the directory that receives the cryptogen binary.
     cli_bin_dir: "/opt/hyperledger/fabricx/bin"
     # Sets the cryptogen executable name.
     cryptogen_bin_name: cryptogen
@@ -196,9 +196,9 @@ Clean the output directory and run the cryptogen binary on the target host. The 
 ```yaml
 - name: Generate crypto material with the binary
   vars:
-    # Sets the directory that receives the cryptogen binary. Example: `/opt/hyperledger/fabricx/bin`.
+    # Sets the directory that receives the cryptogen binary.
     cli_bin_dir: "/opt/hyperledger/fabricx/bin"
-    # Sets the base directory for generated configuration artifacts. Example: `/opt/hyperledger/fabricx/build`.
+    # Sets the base directory for generated configuration artifacts.
     config_build_dir: "/opt/hyperledger/fabricx/build"
     # Sets the directory that stores cryptogen inputs and generated files.
     cryptogen_artifacts_dir: "{{ config_build_dir }}/cryptogen-artifacts"

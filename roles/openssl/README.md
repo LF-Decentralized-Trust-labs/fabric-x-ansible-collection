@@ -49,13 +49,13 @@ Generate a private key and the matching public key on the target host. The priva
 ```yaml
 - name: Generate an asymmetric key pair
   vars:
-    # Path to the private key file to create. Example: `/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.key`.
+    # Path to the private key file to create.
     openssl_private_key_path: "/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.key"
-    # Path to the public key file to create. Example: `/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.pub`.
+    # Path to the public key file to create.
     openssl_public_key_path: "/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.pub"
     # OpenSSL algorithm passed to `openssl genpkey`.
     openssl_key_alg: RSA
-    # Optional key-generation option passed with `-pkeyopt`. Example: `rsa_keygen_bits:4096`.
+    # Optional key-generation option passed with `-pkeyopt`.
     openssl_key_opt: "rsa_keygen_bits:4096"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openssl
@@ -71,13 +71,13 @@ Generate a private key and a self-signed X.509 certificate. The certificate is w
 ```yaml
 - name: Generate a self-signed certificate
   vars:
-    # Base directory for remote role state and temporary OpenSSL config files. Example: `/tmp/fabricx/openssl`.
+    # Base directory for remote role state and temporary OpenSSL config files.
     remote_node_dir: "/tmp/fabricx/openssl"
-    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    # Real machine host.
     actual_host: "myvpc.cloud.ibm.com"
-    # Path to the private key file to create. Example: `/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.key`.
+    # Path to the private key file to create.
     openssl_private_key_path: "/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.key"
-    # Path to the certificate file to create. Example: `/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.crt`.
+    # Path to the certificate file to create.
     openssl_cert_path: "/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.crt"
     # Directory for the temporary OpenSSL config file.
     openssl_remote_config_dir: "{{ remote_node_dir }}/openssl"
@@ -87,7 +87,7 @@ Generate a private key and a self-signed X.509 certificate. The certificate is w
     openssl_ca_cert_file: ca.crt
     # Key type passed to `openssl req -newkey`.
     openssl_key_type: "rsa:4096"
-    # Optional key-generation option passed with `-pkeyopt`. Example: `rsa_keygen_bits:4096`.
+    # Optional key-generation option passed with `-pkeyopt`.
     openssl_key_opt: "rsa_keygen_bits:4096"
     # Number of days the generated certificate remains valid.
     openssl_cert_duration: 365
@@ -97,11 +97,11 @@ Generate a private key and a self-signed X.509 certificate. The certificate is w
     openssl_country: US
     # State or province written into the certificate subject.
     openssl_state: California
-    # Optional locality or city written into the certificate subject. Example: `Zurich`.
+    # Optional locality or city written into the certificate subject.
     openssl_locality: "Zurich"
     # Organization name written into the certificate subject.
     openssl_organization: MyOrg Inc.
-    # Optional organizational unit written into the certificate subject. Example: `Platform Engineering`.
+    # Optional organizational unit written into the certificate subject.
     openssl_organizational_unit: "Platform Engineering"
     # Common Name written into the certificate subject.
     openssl_common_name: example.com
@@ -155,23 +155,23 @@ Generate a private key and certificate signing request using a rendered OpenSSL 
 ```yaml
 - name: Generate a certificate signing request
   vars:
-    # Base directory for remote role state and temporary OpenSSL config files. Example: `/tmp/fabricx/openssl`.
+    # Base directory for remote role state and temporary OpenSSL config files.
     remote_node_dir: "/tmp/fabricx/openssl"
-    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    # Real machine host.
     actual_host: "myvpc.cloud.ibm.com"
-    # Path to the private key file to create. Example: `/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.key`.
+    # Path to the private key file to create.
     openssl_private_key_path: "/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.key"
-    # Path to the CSR file to create. Example: `/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.csr`.
+    # Path to the CSR file to create.
     openssl_csr_path: "/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.csr"
     # Directory for the temporary OpenSSL config file.
     openssl_remote_config_dir: "{{ remote_node_dir }}/openssl"
-    # Optional extension file path passed to `openssl x509 -extfile`. Example: `/var/hyperledger/fabricx/openssl/server.ext`.
+    # Optional extension file path passed to `openssl x509 -extfile`.
     openssl_ext_file_path: "/var/hyperledger/fabricx/openssl/server.ext"
     # Remove the rendered OpenSSL config directory after generation.
     openssl_clean_after_gen: false
     # Key type passed to `openssl req -newkey`.
     openssl_key_type: "rsa:4096"
-    # Optional key-generation option passed with `-pkeyopt`. Example: `rsa_keygen_bits:4096`.
+    # Optional key-generation option passed with `-pkeyopt`.
     openssl_key_opt: "rsa_keygen_bits:4096"
     # Number of days the generated certificate remains valid.
     openssl_cert_duration: 365
@@ -181,11 +181,11 @@ Generate a private key and certificate signing request using a rendered OpenSSL 
     openssl_country: US
     # State or province written into the certificate subject.
     openssl_state: California
-    # Optional locality or city written into the certificate subject. Example: `Zurich`.
+    # Optional locality or city written into the certificate subject.
     openssl_locality: "Zurich"
     # Organization name written into the certificate subject.
     openssl_organization: MyOrg Inc.
-    # Optional organizational unit written into the certificate subject. Example: `Platform Engineering`.
+    # Optional organizational unit written into the certificate subject.
     openssl_organizational_unit: "Platform Engineering"
     # Common Name written into the certificate subject.
     openssl_common_name: example.com
@@ -239,17 +239,17 @@ Generate a certificate from an existing CSR using the provided CA certificate an
 ```yaml
 - name: Sign a certificate from a CSR
   vars:
-    # Path to the CA private key used to sign the certificate. Store this value in Ansible Vault. Example: `/var/hyperledger/fabricx/crypto/org1.example.com/ca/ca.key`.
+    # Path to the CA private key used to sign the certificate. Store this value in Ansible Vault.
     openssl_ca_private_key_path: "/var/hyperledger/fabricx/crypto/org1.example.com/ca/ca.key"
-    # Path to the CA certificate used to sign the certificate. Example: `/var/hyperledger/fabricx/crypto/org1.example.com/ca/ca.crt`.
+    # Path to the CA certificate used to sign the certificate.
     openssl_ca_cert_path: "/var/hyperledger/fabricx/crypto/org1.example.com/ca/ca.crt"
-    # Path to the CSR file to create. Example: `/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.csr`.
+    # Path to the CSR file to create.
     openssl_csr_path: "/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.csr"
-    # Path to the certificate file to create. Example: `/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.crt`.
+    # Path to the certificate file to create.
     openssl_cert_path: "/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.crt"
     # Number of days the generated certificate remains valid.
     openssl_cert_duration: 365
-    # Optional extension file path passed to `openssl x509 -extfile`. Example: `/var/hyperledger/fabricx/openssl/server.ext`.
+    # Optional extension file path passed to `openssl x509 -extfile`.
     openssl_ext_file_path: "/var/hyperledger/fabricx/openssl/server.ext"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openssl

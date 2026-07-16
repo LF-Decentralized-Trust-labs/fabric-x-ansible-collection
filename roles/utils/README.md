@@ -36,7 +36,7 @@ Creates the inventory dispatch group in Makefile form by writing one phony targe
 ```yaml
 - name: Generate Makefile targets for inventory hosts
   vars:
-    # Defines the project root directory used by utility entry points that generate Makefile targets, which writes `target_hosts.mk` to `project_dir/target_hosts.mk`. Example: `/path/to/hyperledger/fabricx`.
+    # Defines the project root directory used by utility entry points that generate Makefile targets, which writes `target_hosts.mk` to `project_dir/target_hosts.mk`.
     project_dir: "/path/to/hyperledger/fabricx"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
@@ -52,11 +52,11 @@ Checks each port in `utils_ports_to_ping` against `actual_host` to verify whethe
 ```yaml
 - name: Check whether TCP ports are reachable
   vars:
-    # Lists the TCP ports that the ping entry point probes for reachability on the current host. Example: `[7051, 9443]`.
+    # Lists the TCP ports that the ping entry point probes for reachability on the current host.
     utils_ports_to_ping:
       - 7051
       - 9443
-    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    # Real machine host.
     actual_host: "myvpc.cloud.ibm.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
@@ -98,7 +98,7 @@ Copies `ssd_benchmark.sh` to the remote host and executes it to measure sequenti
 ```yaml
 - name: Run SSD performance benchmark on remote hosts
   vars:
-    # Remote data directory consumed by `utils_benchmark_remote_dir`. Example: `/var/lib/utils/data`.
+    # Remote data directory consumed by `utils_benchmark_remote_dir`.
     remote_data_dir: "/var/lib/utils/data"
     # Remote directory where the benchmark script is copied before execution. Directory on the remote host where benchmark test files are created during the run.
     utils_benchmark_remote_dir: "{{ remote_data_dir }}"

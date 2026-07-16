@@ -155,7 +155,7 @@ Checks whether the Postgres Exporter metrics port is reachable on the current ho
 ```yaml
 - name: Check Postgres Exporter reachability
   vars:
-    # Sets the Postgres Exporter metrics port. Example: `9187`.
+    # Sets the Postgres Exporter metrics port.
     postgres_exporter_port: 9187
     # Enables the Kubernetes backend and Kubernetes cleanup path when set to `true`.
     postgres_exporter_use_k8s: false
@@ -175,9 +175,9 @@ Builds the exporter PostgreSQL datasource from the monitored host facts, renders
 ```yaml
 - name: Start the Postgres Exporter container
   vars:
-    # Sets the inventory host name of the PostgreSQL instance that Postgres Exporter monitors. Example: `postgres-db-01`. The exporter builds its datasource from the referenced host's `postgres_user`, `postgres_password`, `ansible_host`, `postgres_port`, and `postgres_db` facts. The referenced host must expose the Postgres role facts consumed through `hostvars[postgres_db_host]`.
+    # Sets the inventory host name of the PostgreSQL instance that Postgres Exporter monitors. The exporter builds its datasource from the referenced host's `postgres_user`, `postgres_password`, `ansible_host`, `postgres_port`, and `postgres_db` facts. The referenced host must expose the Postgres role facts consumed through `hostvars[postgres_db_host]`.
     postgres_db_host: "postgres-db-01"
-    # Provides the shared remote configuration directory used by Postgres Exporter. Example: `/opt/fabricx/postgres-exporter/config`.
+    # Provides the shared remote configuration directory used by Postgres Exporter.
     remote_config_dir: "/opt/fabricx/postgres-exporter/config"
     # Sets the registry endpoint used to build the Postgres Exporter image reference.
     postgres_exporter_registry_endpoint: "{{ lookup('env', 'POSTGRES_EXPORTER_REGISTRY_ENDPOINT') or 'docker.io/prometheuscommunity' }}"
@@ -189,7 +189,7 @@ Builds the exporter PostgreSQL datasource from the monitored host facts, renders
     postgres_exporter_image: "{{ postgres_exporter_registry_endpoint }}/{{ postgres_exporter_image_name }}:{{ postgres_exporter_image_tag }}"
     # Sets the Postgres Exporter container name.
     postgres_exporter_container_name: "{{ inventory_hostname }}"
-    # Sets the Postgres Exporter metrics port. Example: `9187`.
+    # Sets the Postgres Exporter metrics port.
     postgres_exporter_port: 9187
     # Sets the remote directory that stores Postgres Exporter configuration and TLS files.
     postgres_exporter_remote_config_dir: "{{ remote_config_dir }}"
@@ -263,11 +263,11 @@ Generates the Postgres Exporter configuration files and copies the PostgreSQL CA
 ```yaml
 - name: Generate and transfer Postgres Exporter configuration
   vars:
-    # Sets the inventory host name of the PostgreSQL instance that Postgres Exporter monitors. Example: `postgres-db-01`. The exporter builds its datasource from the referenced host's `postgres_user`, `postgres_password`, `ansible_host`, `postgres_port`, and `postgres_db` facts. The referenced host must expose the Postgres role facts consumed through `hostvars[postgres_db_host]`.
+    # Sets the inventory host name of the PostgreSQL instance that Postgres Exporter monitors. The exporter builds its datasource from the referenced host's `postgres_user`, `postgres_password`, `ansible_host`, `postgres_port`, and `postgres_db` facts. The referenced host must expose the Postgres role facts consumed through `hostvars[postgres_db_host]`.
     postgres_db_host: "postgres-db-01"
-    # Provides the shared remote configuration directory used by Postgres Exporter. Example: `/opt/fabricx/postgres-exporter/config`.
+    # Provides the shared remote configuration directory used by Postgres Exporter.
     remote_config_dir: "/opt/fabricx/postgres-exporter/config"
-    # Provides the control-node directory used to fetch or stage Postgres Exporter TLS artifacts. Example: `/tmp/postgres-exporter-artifacts`.
+    # Provides the control-node directory used to fetch or stage Postgres Exporter TLS artifacts.
     fetched_artifacts_dir: "/tmp/postgres-exporter-artifacts"
     # Sets the remote directory that stores Postgres Exporter configuration and TLS files.
     postgres_exporter_remote_config_dir: "{{ remote_config_dir }}"
@@ -301,7 +301,7 @@ Removes generated Postgres Exporter configuration files from the remote host. Fo
 ```yaml
 - name: Remove Postgres Exporter configuration
   vars:
-    # Provides the shared remote configuration directory used by Postgres Exporter. Example: `/opt/fabricx/postgres-exporter/config`.
+    # Provides the shared remote configuration directory used by Postgres Exporter.
     remote_config_dir: "/opt/fabricx/postgres-exporter/config"
     # Sets the remote directory that stores Postgres Exporter configuration and TLS files.
     postgres_exporter_remote_config_dir: "{{ remote_config_dir }}"
@@ -356,9 +356,9 @@ Fetches the generated Postgres Exporter TLS CA certificate and server certificat
 ```yaml
 - name: Fetch Postgres Exporter TLS artifacts
   vars:
-    # Provides the control-node directory used to fetch or stage Postgres Exporter TLS artifacts. Example: `/tmp/postgres-exporter-artifacts`.
+    # Provides the control-node directory used to fetch or stage Postgres Exporter TLS artifacts.
     fetched_artifacts_dir: "/tmp/postgres-exporter-artifacts"
-    # Provides the shared remote configuration directory used by Postgres Exporter. Example: `/opt/fabricx/postgres-exporter/config`.
+    # Provides the shared remote configuration directory used by Postgres Exporter.
     remote_config_dir: "/opt/fabricx/postgres-exporter/config"
     # Sets the remote directory that stores Postgres Exporter configuration and TLS files.
     postgres_exporter_remote_config_dir: "{{ remote_config_dir }}"
@@ -378,7 +378,7 @@ Removes generated Postgres Exporter TLS files from the remote host. For Kubernet
 ```yaml
 - name: Remove Postgres Exporter TLS artifacts
   vars:
-    # Provides the shared remote configuration directory used by Postgres Exporter. Example: `/opt/fabricx/postgres-exporter/config`.
+    # Provides the shared remote configuration directory used by Postgres Exporter.
     remote_config_dir: "/opt/fabricx/postgres-exporter/config"
     # Sets the remote directory that stores Postgres Exporter configuration and TLS files.
     postgres_exporter_remote_config_dir: "{{ remote_config_dir }}"
@@ -402,12 +402,12 @@ Delegates self-signed certificate generation to the OpenSSL role using Postgres 
 ```yaml
 - name: Generate Postgres Exporter TLS files with OpenSSL
   vars:
-    # Provides organization metadata forwarded to the OpenSSL role. Example: `{'domain': 'org1.example.com', 'common_name': 'postgres-exporter.org1.example.com', 'organization_name': 'Org1'}`.
+    # Provides organization metadata forwarded to the OpenSSL role.
     organization:
       domain: "org1.example.com"
       common_name: "postgres-exporter.org1.example.com"
       organization_name: "Org1"
-    # Provides the shared remote configuration directory used by Postgres Exporter. Example: `/opt/fabricx/postgres-exporter/config`.
+    # Provides the shared remote configuration directory used by Postgres Exporter.
     remote_config_dir: "/opt/fabricx/postgres-exporter/config"
     # Sets the remote directory that stores Postgres Exporter configuration and TLS files.
     postgres_exporter_remote_config_dir: "{{ remote_config_dir }}"
@@ -415,7 +415,7 @@ Delegates self-signed certificate generation to the OpenSSL role using Postgres 
     postgres_exporter_tls_private_key_file: server.key
     # Sets the TLS certificate file name used under `postgres_exporter_remote_config_dir`/tls.
     postgres_exporter_tls_cert_file: server.crt
-    # Specifies the OpenShift Route host. Example: `postgres-exporter-metrics.apps.example.com`.
+    # Specifies the OpenShift Route host.
     postgres_exporter_openshift_route: "postgres-exporter-metrics.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
@@ -431,27 +431,27 @@ Applies the Service, optional NodePort and LoadBalancer Services, and Deployment
 ```yaml
 - name: Start Postgres Exporter on Kubernetes
   vars:
-    # Sets the Kubernetes namespace used for Postgres Exporter resources. Example: `postgres-exporter`.
+    # Sets the Kubernetes namespace used for Postgres Exporter resources.
     k8s_namespace: "postgres-exporter"
-    # Sets the optional Kubernetes image pull secret used by the Postgres Exporter Deployment. Example: `registry-credentials`.
+    # Sets the optional Kubernetes image pull secret used by the Postgres Exporter Deployment.
     k8s_image_pull_secret: "registry-credentials"
-    # Overrides the Deployment readiness probe initial delay. Example: `5`.
+    # Overrides the Deployment readiness probe initial delay.
     k8s_readiness_probe_initial_delay_seconds: 5
-    # Overrides the Deployment readiness probe period. Example: `10`.
+    # Overrides the Deployment readiness probe period.
     k8s_readiness_probe_period_seconds: 10
-    # Overrides the Deployment readiness probe timeout. Example: `2`.
+    # Overrides the Deployment readiness probe timeout.
     k8s_readiness_probe_timeout_seconds: 2
-    # Overrides the Deployment readiness probe failure threshold. Example: `3`.
+    # Overrides the Deployment readiness probe failure threshold.
     k8s_readiness_probe_failure_threshold: 3
-    # Overrides the Deployment liveness probe initial delay. Example: `15`.
+    # Overrides the Deployment liveness probe initial delay.
     k8s_liveness_probe_initial_delay_seconds: 15
-    # Overrides the Deployment liveness probe period. Example: `20`.
+    # Overrides the Deployment liveness probe period.
     k8s_liveness_probe_period_seconds: 20
-    # Overrides the Deployment liveness probe timeout. Example: `2`.
+    # Overrides the Deployment liveness probe timeout.
     k8s_liveness_probe_timeout_seconds: 2
-    # Overrides the Deployment liveness probe failure threshold. Example: `3`.
+    # Overrides the Deployment liveness probe failure threshold.
     k8s_liveness_probe_failure_threshold: 3
-    # Sets the inventory host name of the PostgreSQL instance that Postgres Exporter monitors. Example: `postgres-db-01`. The exporter builds its datasource from the referenced host's `postgres_user`, `postgres_password`, `ansible_host`, `postgres_port`, and `postgres_db` facts. The referenced host must expose the Postgres role facts consumed through `hostvars[postgres_db_host]`.
+    # Sets the inventory host name of the PostgreSQL instance that Postgres Exporter monitors. The exporter builds its datasource from the referenced host's `postgres_user`, `postgres_password`, `ansible_host`, `postgres_port`, and `postgres_db` facts. The referenced host must expose the Postgres role facts consumed through `hostvars[postgres_db_host]`.
     postgres_db_host: "postgres-db-01"
     # Sets the registry endpoint used to build the Postgres Exporter image reference.
     postgres_exporter_registry_endpoint: "{{ lookup('env', 'POSTGRES_EXPORTER_REGISTRY_ENDPOINT') or 'docker.io/prometheuscommunity' }}"
@@ -469,9 +469,9 @@ Applies the Service, optional NodePort and LoadBalancer Services, and Deployment
     postgres_exporter_k8s_wait_timeout: 120
     # Sets the pod filesystem group used by the Postgres Exporter Deployment.
     postgres_exporter_k8s_fs_group: 65534
-    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30987`.
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     postgres_exporter_k8s_node_port: 30987
-    # Sets the Postgres Exporter metrics port. Example: `9187`.
+    # Sets the Postgres Exporter metrics port.
     postgres_exporter_port: 9187
     # Sets the configuration directory mounted inside the container or pod.
     postgres_exporter_container_config_dir: /var/config
@@ -487,7 +487,7 @@ Applies the Service, optional NodePort and LoadBalancer Services, and Deployment
     postgres_exporter_tls_cert_file: server.crt
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
     postgres_exporter_k8s_loadbalancer_expose_metrics_port: false
-    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    # Optional Kubernetes container resource requests and limits.
     k8s_resources:
       requests:
         memory: "1Gi"
@@ -509,9 +509,9 @@ Probes configured Kubernetes NodePort values and LoadBalancer-exposed service po
 ```yaml
 - name: Check that the Postgres Exporter Kubernetes service is reachable
   vars:
-    # Sets the Postgres Exporter metrics port. Example: `9187`.
+    # Sets the Postgres Exporter metrics port.
     postgres_exporter_port: 9187
-    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30987`.
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     postgres_exporter_k8s_node_port: 30987
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
     postgres_exporter_k8s_loadbalancer_expose_metrics_port: false
@@ -529,11 +529,11 @@ Removes the Postgres Exporter Deployment and Services from Kubernetes.
 ```yaml
 - name: Remove Postgres Exporter Kubernetes resources
   vars:
-    # Sets the Kubernetes namespace used for Postgres Exporter resources. Example: `postgres-exporter`.
+    # Sets the Kubernetes namespace used for Postgres Exporter resources.
     k8s_namespace: "postgres-exporter"
     # Sets the Kubernetes resource base name used for ConfigMaps, Secrets, Services, and Deployments.
     postgres_exporter_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30987`.
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     postgres_exporter_k8s_node_port: 30987
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
     postgres_exporter_k8s_loadbalancer_expose_metrics_port: false
@@ -567,11 +567,11 @@ Ensures the Kubernetes namespace exists and applies the ConfigMap rendered from 
 ```yaml
 - name: Apply the Postgres Exporter ConfigMap
   vars:
-    # Sets the Kubernetes namespace used for Postgres Exporter resources. Example: `postgres-exporter`.
+    # Sets the Kubernetes namespace used for Postgres Exporter resources.
     k8s_namespace: "postgres-exporter"
-    # Sets the inventory host name of the PostgreSQL instance that Postgres Exporter monitors. Example: `postgres-db-01`. The exporter builds its datasource from the referenced host's `postgres_user`, `postgres_password`, `ansible_host`, `postgres_port`, and `postgres_db` facts. The referenced host must expose the Postgres role facts consumed through `hostvars[postgres_db_host]`.
+    # Sets the inventory host name of the PostgreSQL instance that Postgres Exporter monitors. The exporter builds its datasource from the referenced host's `postgres_user`, `postgres_password`, `ansible_host`, `postgres_port`, and `postgres_db` facts. The referenced host must expose the Postgres role facts consumed through `hostvars[postgres_db_host]`.
     postgres_db_host: "postgres-db-01"
-    # Provides the shared remote configuration directory used by Postgres Exporter. Example: `/opt/fabricx/postgres-exporter/config`.
+    # Provides the shared remote configuration directory used by Postgres Exporter.
     remote_config_dir: "/opt/fabricx/postgres-exporter/config"
     # Sets the Kubernetes resource base name used for ConfigMaps, Secrets, Services, and Deployments.
     postgres_exporter_k8s_resource_name: "{{ inventory_hostname }}"
@@ -599,7 +599,7 @@ Deletes the Postgres Exporter ConfigMap from Kubernetes.
 ```yaml
 - name: Remove the Postgres Exporter ConfigMap
   vars:
-    # Sets the Kubernetes namespace used for Postgres Exporter resources. Example: `postgres-exporter`.
+    # Sets the Kubernetes namespace used for Postgres Exporter resources.
     k8s_namespace: "postgres-exporter"
     # Sets the Kubernetes resource base name used for ConfigMaps, Secrets, Services, and Deployments.
     postgres_exporter_k8s_resource_name: "{{ inventory_hostname }}"
@@ -617,11 +617,11 @@ Builds the exporter PostgreSQL datasource for Kubernetes from the monitored host
 ```yaml
 - name: Apply the Postgres Exporter Secret
   vars:
-    # Sets the Kubernetes namespace used for Postgres Exporter resources. Example: `postgres-exporter`.
+    # Sets the Kubernetes namespace used for Postgres Exporter resources.
     k8s_namespace: "postgres-exporter"
-    # Sets the inventory host name of the PostgreSQL instance that Postgres Exporter monitors. Example: `postgres-db-01`. The exporter builds its datasource from the referenced host's `postgres_user`, `postgres_password`, `ansible_host`, `postgres_port`, and `postgres_db` facts. The referenced host must expose the Postgres role facts consumed through `hostvars[postgres_db_host]`.
+    # Sets the inventory host name of the PostgreSQL instance that Postgres Exporter monitors. The exporter builds its datasource from the referenced host's `postgres_user`, `postgres_password`, `ansible_host`, `postgres_port`, and `postgres_db` facts. The referenced host must expose the Postgres role facts consumed through `hostvars[postgres_db_host]`.
     postgres_db_host: "postgres-db-01"
-    # Provides the shared remote configuration directory used by Postgres Exporter. Example: `/opt/fabricx/postgres-exporter/config`.
+    # Provides the shared remote configuration directory used by Postgres Exporter.
     remote_config_dir: "/opt/fabricx/postgres-exporter/config"
     # Sets the Kubernetes resource base name used for ConfigMaps, Secrets, Services, and Deployments.
     postgres_exporter_k8s_resource_name: "{{ inventory_hostname }}"
@@ -651,7 +651,7 @@ Deletes the Postgres Exporter Secret from Kubernetes.
 ```yaml
 - name: Remove the Postgres Exporter Secret
   vars:
-    # Sets the Kubernetes namespace used for Postgres Exporter resources. Example: `postgres-exporter`.
+    # Sets the Kubernetes namespace used for Postgres Exporter resources.
     k8s_namespace: "postgres-exporter"
     # Sets the Kubernetes resource base name used for ConfigMaps, Secrets, Services, and Deployments.
     postgres_exporter_k8s_resource_name: "{{ inventory_hostname }}"
@@ -669,9 +669,9 @@ Builds the `postgres_exporter_prometheus_scrape_services` fact for the Postgres 
 ```yaml
 - name: Build Prometheus scrape definitions for Postgres Exporter
   vars:
-    # Provides the control-node directory used to fetch or stage Postgres Exporter TLS artifacts. Example: `/tmp/postgres-exporter-artifacts`.
+    # Provides the control-node directory used to fetch or stage Postgres Exporter TLS artifacts.
     fetched_artifacts_dir: "/tmp/postgres-exporter-artifacts"
-    # Lists the inventory hosts that run Postgres Exporter and should be exposed to Prometheus. Example: `['postgres-exporter-a', 'postgres-exporter-b']`.
+    # Lists the inventory hosts that run Postgres Exporter and should be exposed to Prometheus.
     postgres_exporter_hosts:
       - "postgres-exporter-a"
       - "postgres-exporter-b"
@@ -695,7 +695,7 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     postgres_exporter_k8s_part_of: monitoring
     # Enables Postgres Exporter TLS assets and HTTPS listener configuration when set to `true`.
     postgres_exporter_use_tls: false
-    # Specifies the OpenShift Route host. Example: `postgres-exporter-metrics.apps.example.com`.
+    # Specifies the OpenShift Route host.
     postgres_exporter_openshift_route: "postgres-exporter-metrics.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
@@ -713,7 +713,7 @@ Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
   vars:
     # Enables Postgres Exporter TLS assets and HTTPS listener configuration when set to `true`.
     postgres_exporter_use_tls: false
-    # Specifies the OpenShift Route host. Example: `postgres-exporter-metrics.apps.example.com`.
+    # Specifies the OpenShift Route host.
     postgres_exporter_openshift_route: "postgres-exporter-metrics.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter
@@ -731,7 +731,7 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Sets the Kubernetes resource base name used for ConfigMaps, Secrets, Services, and Deployments.
     postgres_exporter_k8s_resource_name: "{{ inventory_hostname }}"
-    # Specifies the OpenShift Route host. Example: `postgres-exporter-metrics.apps.example.com`.
+    # Specifies the OpenShift Route host.
     postgres_exporter_openshift_route: "postgres-exporter-metrics.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres_exporter

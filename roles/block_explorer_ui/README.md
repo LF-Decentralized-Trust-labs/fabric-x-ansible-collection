@@ -145,7 +145,7 @@ Verifies that the Block Explorer UI web interface port is reachable on the targe
     block_explorer_ui_use_k8s: false
     # Selects the OpenShift deployment branch.
     block_explorer_ui_use_openshift: false
-    # Web port exposed by the Block Explorer UI. Example: `18000`.
+    # Web port exposed by the Block Explorer UI.
     block_explorer_ui_port: 18000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.block_explorer_ui
@@ -171,9 +171,9 @@ Starts the containerized Block Explorer UI with `BACKEND_URL` pointed at the res
     block_explorer_ui_image_name: fabric-x-block-explorer-ui
     # Image tag used by the Block Explorer UI container.
     block_explorer_ui_image_tag: latest
-    # Web port exposed by the Block Explorer UI. Example: `18000`.
+    # Web port exposed by the Block Explorer UI.
     block_explorer_ui_port: 18000
-    # Sets the inventory host name of the Block Explorer server instance used by the UI. Example: `block-explorer`. The referenced host must expose the `block_explorer_port` inventory var.
+    # Sets the inventory host name of the Block Explorer server instance used by the UI. The referenced host must expose the `block_explorer_port` inventory var.
     block_explorer_host: "block-explorer"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.block_explorer_ui
@@ -241,9 +241,9 @@ Applies the Block Explorer UI Service, optional NodePort and LoadBalancer Servic
     block_explorer_ui_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Block Explorer UI resources.
     block_explorer_ui_k8s_part_of: block-explorer
-    # Web port exposed by the Block Explorer UI. Example: `18000`.
+    # Web port exposed by the Block Explorer UI.
     block_explorer_ui_port: 18000
-    # Kubernetes NodePort value used by the external web Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30600`.
+    # Kubernetes NodePort value used by the external web Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     block_explorer_ui_k8s_node_port: 30600
     # Deployment rollout wait timeout in seconds.
     block_explorer_ui_k8s_wait_timeout: 120
@@ -255,31 +255,31 @@ Applies the Block Explorer UI Service, optional NodePort and LoadBalancer Servic
     block_explorer_ui_image_name: fabric-x-block-explorer-ui
     # Image tag used by the Block Explorer UI container.
     block_explorer_ui_image_tag: latest
-    # Sets the inventory host name of the Block Explorer server instance used by the UI. Example: `block-explorer`. The referenced host must expose the `block_explorer_port` inventory var.
+    # Sets the inventory host name of the Block Explorer server instance used by the UI. The referenced host must expose the `block_explorer_port` inventory var.
     block_explorer_host: "block-explorer"
-    # Kubernetes namespace used for Block Explorer UI resources. Example: `fabricx-block-explorer`.
+    # Kubernetes namespace used for Block Explorer UI resources.
     k8s_namespace: "fabricx-block-explorer"
-    # Optional image pull secret used by the Block Explorer UI Deployment. Example: `fabricx-registry-pull`.
+    # Optional image pull secret used by the Block Explorer UI Deployment.
     k8s_image_pull_secret: "fabricx-registry-pull"
-    # Sets the Block Explorer UI readiness probe initial delay. Example: `10`.
+    # Sets the Block Explorer UI readiness probe initial delay.
     k8s_readiness_probe_initial_delay_seconds: 10
-    # Sets the Block Explorer UI readiness probe period. Example: `10`.
+    # Sets the Block Explorer UI readiness probe period.
     k8s_readiness_probe_period_seconds: 10
-    # Sets the Block Explorer UI readiness probe timeout. Example: `5`.
+    # Sets the Block Explorer UI readiness probe timeout.
     k8s_readiness_probe_timeout_seconds: 5
-    # Sets the Block Explorer UI readiness probe failure threshold. Example: `3`.
+    # Sets the Block Explorer UI readiness probe failure threshold.
     k8s_readiness_probe_failure_threshold: 3
-    # Sets the Block Explorer UI liveness probe initial delay. Example: `30`.
+    # Sets the Block Explorer UI liveness probe initial delay.
     k8s_liveness_probe_initial_delay_seconds: 30
-    # Sets the Block Explorer UI liveness probe period. Example: `15`.
+    # Sets the Block Explorer UI liveness probe period.
     k8s_liveness_probe_period_seconds: 15
-    # Sets the Block Explorer UI liveness probe timeout. Example: `5`.
+    # Sets the Block Explorer UI liveness probe timeout.
     k8s_liveness_probe_timeout_seconds: 5
-    # Sets the Block Explorer UI liveness probe failure threshold. Example: `5`.
+    # Sets the Block Explorer UI liveness probe failure threshold.
     k8s_liveness_probe_failure_threshold: 5
     # Set to `true` to create a LoadBalancer Service entry that exposes the web port externally. When undefined or `false`, the web port is not included in the LoadBalancer Service.
     block_explorer_ui_k8s_loadbalancer_expose_port: false
-    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '256Mi', 'cpu': '100m'}, 'limits': {'memory': '512Mi', 'cpu': '500m'}}`.
+    # Optional Kubernetes container resource requests and limits.
     k8s_resources:
       requests:
         memory: "256Mi"
@@ -301,9 +301,9 @@ Probes configured Kubernetes NodePort values and LoadBalancer-exposed service po
 ```yaml
 - name: Check that the Block Explorer UI Kubernetes service is reachable
   vars:
-    # Web port exposed by the Block Explorer UI. Example: `18000`.
+    # Web port exposed by the Block Explorer UI.
     block_explorer_ui_port: 18000
-    # Kubernetes NodePort value used by the external web Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30600`.
+    # Kubernetes NodePort value used by the external web Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     block_explorer_ui_k8s_node_port: 30600
     # Set to `true` to create a LoadBalancer Service entry that exposes the web port externally. When undefined or `false`, the web port is not included in the LoadBalancer Service.
     block_explorer_ui_k8s_loadbalancer_expose_port: false
@@ -323,9 +323,9 @@ Deletes the Block Explorer UI Deployment, Service, and NodePort Service from Kub
   vars:
     # Kubernetes resource name used for the Deployment, Service, and optional NodePort Service.
     block_explorer_ui_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes namespace used for Block Explorer UI resources. Example: `fabricx-block-explorer`.
+    # Kubernetes namespace used for Block Explorer UI resources.
     k8s_namespace: "fabricx-block-explorer"
-    # Kubernetes NodePort value used by the external web Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30600`.
+    # Kubernetes NodePort value used by the external web Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     block_explorer_ui_k8s_node_port: 30600
     # Set to `true` to create a LoadBalancer Service entry that exposes the web port externally. When undefined or `false`, the web port is not included in the LoadBalancer Service.
     block_explorer_ui_k8s_loadbalancer_expose_port: false
@@ -363,7 +363,7 @@ Reuses the Kubernetes workload flow and manages an OpenShift Route for the web p
     block_explorer_ui_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Block Explorer UI resources.
     block_explorer_ui_k8s_part_of: block-explorer
-    # Specifies the OpenShift Route host. Example: `block-explorer-ui.apps.example.com`.
+    # Specifies the OpenShift Route host.
     block_explorer_ui_openshift_route: "block-explorer-ui.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.block_explorer_ui
@@ -379,7 +379,7 @@ Checks the configured OpenShift Route and reuses the Kubernetes service ping flo
 ```yaml
 - name: Check the OpenShift deployment
   vars:
-    # Specifies the OpenShift Route host. Example: `block-explorer-ui.apps.example.com`.
+    # Specifies the OpenShift Route host.
     block_explorer_ui_openshift_route: "block-explorer-ui.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.block_explorer_ui
@@ -397,7 +397,7 @@ Reuses the Kubernetes workload flow and removes the OpenShift Route for the web 
   vars:
     # Kubernetes resource name used for the Deployment, Service, and optional NodePort Service.
     block_explorer_ui_k8s_resource_name: "{{ inventory_hostname }}"
-    # Specifies the OpenShift Route host. Example: `block-explorer-ui.apps.example.com`.
+    # Specifies the OpenShift Route host.
     block_explorer_ui_openshift_route: "block-explorer-ui.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.block_explorer_ui

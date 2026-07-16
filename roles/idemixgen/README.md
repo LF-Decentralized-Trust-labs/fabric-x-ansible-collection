@@ -71,7 +71,7 @@ Builds the idemixgen CLI from source on the control node so binary-mode CA key g
 ```yaml
 - name: Build the idemixgen binary
   vars:
-    # Sets the shared directory used by the binary execution path. Example: `/opt/hyperledger/fabricx/bin`.
+    # Sets the shared directory used by the binary execution path.
     cli_bin_dir: "/opt/hyperledger/fabricx/bin"
     # Defines the idemixgen binary name.
     idemixgen_bin_name: idemixgen
@@ -97,7 +97,7 @@ Installs the idemixgen CLI from the configured repository and commit before bina
 ```yaml
 - name: Install the idemixgen binary
   vars:
-    # Sets the shared directory used by the binary execution path. Example: `/opt/hyperledger/fabricx/bin`.
+    # Sets the shared directory used by the binary execution path.
     cli_bin_dir: "/opt/hyperledger/fabricx/bin"
     # Defines the idemixgen binary name.
     idemixgen_bin_name: idemixgen
@@ -125,9 +125,9 @@ Runs `idemixgen ca-keygen` through the locally installed binary. The task remove
 ```yaml
 - name: Generate Idemix CA key material with the binary
   vars:
-    # Sets the shared directory used by the binary execution path. Example: `/opt/hyperledger/fabricx/bin`.
+    # Sets the shared directory used by the binary execution path.
     cli_bin_dir: "/opt/hyperledger/fabricx/bin"
-    # Sets the shared build root used by `idemixgen_output_dir`. Required when using `idemixgen_output_dir`. Example: `/opt/hyperledger/fabricx/build`.
+    # Sets the shared build root used by `idemixgen_output_dir`. Required when using `idemixgen_output_dir`.
     config_build_dir: "/opt/hyperledger/fabricx/build"
     # Defines the idemixgen binary name.
     idemixgen_bin_name: idemixgen
@@ -151,19 +151,19 @@ Runs `idemixgen signerconfig` through the locally installed binary. The task rem
 ```yaml
 - name: Generate Idemix signer configuration with the binary
   vars:
-    # Sets the shared directory used by the binary execution path. Example: `/opt/hyperledger/fabricx/bin`.
+    # Sets the shared directory used by the binary execution path.
     cli_bin_dir: "/opt/hyperledger/fabricx/bin"
-    # Sets the shared build root used by `idemixgen_output_dir`. Required when using `idemixgen_output_dir`. Example: `/opt/hyperledger/fabricx/build`.
+    # Sets the shared build root used by `idemixgen_output_dir`. Required when using `idemixgen_output_dir`.
     config_build_dir: "/opt/hyperledger/fabricx/build"
     # Defines the idemixgen binary name.
     idemixgen_bin_name: idemixgen
-    # Sets the directory containing the CA material consumed by `signerconfig`. Example: `/opt/hyperledger/fabricx/build/idemixgen-artifacts/ca`.
+    # Sets the directory containing the CA material consumed by `signerconfig`.
     idemixgen_ca_input_dir: "/opt/hyperledger/fabricx/build/idemixgen-artifacts/ca"
     # Selects the cryptographic curve passed to idemixgen.
     idemixgen_curve_id: BLS12_381_BBS
     # Defines the enrollment identifier embedded in the signer configuration.
     idemixgen_enrollment_id: "{{ inventory_hostname }}"
-    # Sets the organization unit passed to `signerconfig`. Example: `org1.example.com`.
+    # Sets the organization unit passed to `signerconfig`.
     idemixgen_org_domain: "org1.example.com"
     # Sets the host directory where the generated artifacts are written.
     idemixgen_output_dir: "{{ config_build_dir }}/idemixgen-artifacts"
@@ -185,7 +185,7 @@ Runs `idemixgen ca-keygen` in the configured container image. The task removes a
 ```yaml
 - name: Generate Idemix CA key material in a container
   vars:
-    # Sets the shared build root used by `idemixgen_output_dir`. Required when using `idemixgen_output_dir`. Example: `/opt/hyperledger/fabricx/build`.
+    # Sets the shared build root used by `idemixgen_output_dir`. Required when using `idemixgen_output_dir`.
     config_build_dir: "/opt/hyperledger/fabricx/build"
     # Defines the idemixgen binary name.
     idemixgen_bin_name: idemixgen
@@ -221,11 +221,11 @@ Runs `idemixgen signerconfig` in the configured container image. The task remove
 ```yaml
 - name: Generate Idemix signer configuration in a container
   vars:
-    # Sets the shared build root used by `idemixgen_output_dir`. Required when using `idemixgen_output_dir`. Example: `/opt/hyperledger/fabricx/build`.
+    # Sets the shared build root used by `idemixgen_output_dir`. Required when using `idemixgen_output_dir`.
     config_build_dir: "/opt/hyperledger/fabricx/build"
     # Defines the idemixgen binary name.
     idemixgen_bin_name: idemixgen
-    # Sets the directory containing the CA material consumed by `signerconfig`. Example: `/opt/hyperledger/fabricx/build/idemixgen-artifacts/ca`.
+    # Sets the directory containing the CA material consumed by `signerconfig`.
     idemixgen_ca_input_dir: "/opt/hyperledger/fabricx/build/idemixgen-artifacts/ca"
     # Defines the container name used for the idemixgen run.
     idemixgen_container_name: "idemixgen-{{ inventory_hostname }}"
@@ -241,7 +241,7 @@ Runs `idemixgen signerconfig` in the configured container image. The task remove
     idemixgen_image_name: fabric-x-tools
     # Defines the image tag used for the idemixgen container.
     idemixgen_image_tag: 1.0.0
-    # Sets the organization unit passed to `signerconfig`. Example: `org1.example.com`.
+    # Sets the organization unit passed to `signerconfig`.
     idemixgen_org_domain: "org1.example.com"
     # Sets the host directory where the generated artifacts are written.
     idemixgen_output_dir: "{{ config_build_dir }}/idemixgen-artifacts"

@@ -12,15 +12,18 @@ argument_specs:
       control_node_dir: &control_node_dir
         type: path
         description:
-          - "Sets the base directory on the control node for C(bin_control_source_code_dir) and C(bin_control_dir). Example: C(/opt/fabricx/control)."
+          - "Sets the base directory on the control node for C(bin_control_source_code_dir) and C(bin_control_dir)."
+          - "Example: C(/opt/fabricx/control)."
       remote_node_dir: &remote_node_dir
         type: path
         description:
-          - "Sets the base directory on the managed host for C(bin_remote_source_code_dir), C(bin_remote_dir), and C(bin_remote_logs_dir). Example: C(/var/lib/fabricx)."
+          - "Sets the base directory on the managed host for C(bin_remote_source_code_dir), C(bin_remote_dir), and C(bin_remote_logs_dir)."
+          - "Example: C(/var/lib/fabricx)."
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         description:
-          - "Sets the local directory for C(bin_fetched_logs_dir). Example: C(/tmp/fabricx/artifacts)."
+          - "Sets the local directory for C(bin_fetched_logs_dir)."
+          - "Example: C(/tmp/fabricx/artifacts)."
       bin_build_on_control_node: &bin_build_on_control_node
         type: bool
         default: false
@@ -106,7 +109,8 @@ argument_specs:
         type: str
         required: true
         description:
-          - "Defines the command to execute, relative to C(bin_remote_dir) when that directory is set. Example: C(orderer --config /etc/fabricx/orderer.yaml)."
+          - "Defines the command to execute, relative to C(bin_remote_dir) when that directory is set."
+          - "Example: C(orderer --config /etc/fabricx/orderer.yaml)."
       bin_env: &bin_env
         type: dict
         default: {}
@@ -170,7 +174,8 @@ argument_specs:
       bin_wait_port: &bin_wait_port
         type: int
         description:
-          - "Sets the TCP port checked by the wait step when C(bin_wait_until_running) is true. Example: C(7050)."
+          - "Sets the TCP port checked by the wait step when C(bin_wait_until_running) is true."
+          - "Example: C(7050)."
       bin_wait_delay: &bin_wait_delay
         type: int
         default: 1

@@ -58,6 +58,30 @@ _d.yaml.best_width = 99999
 _d.yaml.width = 99999
 
 
+_EXAMPLE_CLAUSE = re.compile(r"\s*Example:\s*.*$")
+
+
+def _description_without_examples(description):
+    """Return description lines with their rendering-only examples removed.
+
+    Argument specs keep ``Example:`` clauses so ``render_placeholder`` can
+    build useful YAML values for options without defaults.  Generated comments
+    should retain only the explanatory text, both in README snippets and in
+    ``defaults/main.yaml``.
+    """
+    description_items = [description] if isinstance(description, str) else (description or [])
+    return [
+        cleaned
+        for item in description_items
+        if (cleaned := _EXAMPLE_CLAUSE.sub("", str(item)).strip())
+    ]
+
+
+def _display_description_without_examples(description):
+    """Jinja2 filter: join non-example description text for a README comment."""
+    return " ".join(_description_without_examples(description))
+
+
 def _add_default_preserving_scalar_style(self, name, value, description, depth=0):
     """Store defaults without discarding ruamel scalar subclasses.
 
@@ -79,6 +103,9 @@ def _add_default_preserving_scalar_style(self, name, value, description, depth=0
     elif isinstance(value, str):
         # Plain Python strings just need leading/trailing whitespace removed.
         value = value.strip()
+
+    # Examples drive README placeholder rendering and do not belong in defaults comments.
+    description = _description_without_examples(description)
 
     if self._overwrite:
         # Always replace the entry when overwrite mode is active.
@@ -370,6 +397,7 @@ def _env_init_with_extras(self, *args, **kwargs):
     _orig_env_init(self, *args, **kwargs)
     self.filters["render_default"] = _render_default
     self.filters["render_placeholder"] = _render_placeholder
+    self.filters["display_description_without_examples"] = _display_description_without_examples
 
 
 _c.jinja2.Environment.__init__ = _env_init_with_extras

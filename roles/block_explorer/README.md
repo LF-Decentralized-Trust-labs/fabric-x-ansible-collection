@@ -153,7 +153,7 @@ Verify that the Block Explorer REST endpoint is reachable. Uses direct host acce
 ```yaml
 - name: Check the REST endpoint
   vars:
-    # REST API port exposed by the Block Explorer server. Example: `18080`.
+    # REST API port exposed by the Block Explorer server.
     block_explorer_port: 18080
     # Use Kubernetes resources.
     block_explorer_use_k8s: false
@@ -183,7 +183,7 @@ Start the Block Explorer server as a local container with the rendered config di
     block_explorer_image_name: fabric-x-block-explorer
     # Image tag used by the Block Explorer container.
     block_explorer_image_tag: 0.1.0-dryrun.2
-    # Base remote config directory that feeds `block_explorer_remote_config_dir`. Example: `/var/hyperledger/fabricx/block-explorer/config`.
+    # Base remote config directory that feeds `block_explorer_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/block-explorer/config"
     # Remote config directory used by Block Explorer.
     block_explorer_remote_config_dir: "{{ remote_config_dir }}"
@@ -191,7 +191,7 @@ Start the Block Explorer server as a local container with the rendered config di
     block_explorer_container_config_dir: /app/config
     # Rendered Block Explorer config filename.
     block_explorer_config_file: config.yaml
-    # REST API port exposed by the Block Explorer server. Example: `18080`.
+    # REST API port exposed by the Block Explorer server.
     block_explorer_port: 18080
   ansible.builtin.include_role:
     name: hyperledger.fabricx.block_explorer
@@ -255,7 +255,7 @@ Render the Block Explorer configuration file with the resolved PostgreSQL and co
 ```yaml
 - name: Render and transfer the Block Explorer configuration
   vars:
-    # Base remote config directory that feeds `block_explorer_remote_config_dir`. Example: `/var/hyperledger/fabricx/block-explorer/config`.
+    # Base remote config directory that feeds `block_explorer_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/block-explorer/config"
     # Remote config directory used by Block Explorer.
     block_explorer_remote_config_dir: "{{ remote_config_dir }}"
@@ -267,7 +267,7 @@ Render the Block Explorer configuration file with the resolved PostgreSQL and co
     block_explorer_use_k8s: false
     # Selects the OpenShift deployment branch.
     block_explorer_use_openshift: false
-    # REST API port exposed by the Block Explorer server. Example: `18080`.
+    # REST API port exposed by the Block Explorer server.
     block_explorer_port: 18080
     # First block number streamed from the committer sidecar.
     block_explorer_start_block: 0
@@ -287,11 +287,11 @@ Render the Block Explorer configuration file with the resolved PostgreSQL and co
     block_explorer_tls_private_key_file: client.key
     # Filename of the self-signed client TLS certificate used for mTLS to the committer sidecar.
     block_explorer_tls_cert_file: client.crt
-    # Names the inventory host that provides the committer sidecar Block Explorer streams from. Example: `committer-sidecar`.
+    # Names the inventory host that provides the committer sidecar Block Explorer streams from.
     sidecar_host: "committer-sidecar"
-    # Names the inventory host that provides the PostgreSQL database used by Block Explorer. Example: `block-explorer-db`.
+    # Names the inventory host that provides the PostgreSQL database used by Block Explorer.
     postgres_db_host: "block-explorer-db"
-    # Local artifacts directory used for fetched TLS material. Example: `/tmp/fabricx-artifacts`.
+    # Local artifacts directory used for fetched TLS material.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.block_explorer
@@ -309,7 +309,7 @@ Remove host-side rendered Block Explorer configuration. Also removes the Kuberne
   vars:
     # Remote config directory used by Block Explorer.
     block_explorer_remote_config_dir: "{{ remote_config_dir }}"
-    # Base remote config directory that feeds `block_explorer_remote_config_dir`. Example: `/var/hyperledger/fabricx/block-explorer/config`.
+    # Base remote config directory that feeds `block_explorer_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/block-explorer/config"
     # Use Kubernetes resources.
     block_explorer_use_k8s: false
@@ -329,9 +329,9 @@ Generates or transfers a client certificate for the committer sidecar mTLS conne
 ```yaml
 - name: Prepare crypto material
   vars:
-    # Names the inventory host that provides the committer sidecar Block Explorer streams from. Example: `committer-sidecar`.
+    # Names the inventory host that provides the committer sidecar Block Explorer streams from.
     sidecar_host: "committer-sidecar"
-    # Sets the optional organization mapping used for client TLS certificate generation. When undefined, or when `organization.role` is undefined, a self-signed certificate is generated with OpenSSL. When `organization.role` is `peer` and `organization.fabric_ca_host` is undefined, crypto material generated by `cryptogen` is transferred. When `organization.role` is `peer` and `organization.fabric_ca_host` is defined, the identity is enrolled with Fabric CA. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'block-explorer', 'secret': 'block-explorerPWD'}}`.
+    # Sets the optional organization mapping used for client TLS certificate generation. When undefined, or when `organization.role` is undefined, a self-signed certificate is generated with OpenSSL. When `organization.role` is `peer` and `organization.fabric_ca_host` is undefined, crypto material generated by `cryptogen` is transferred. When `organization.role` is `peer` and `organization.fabric_ca_host` is defined, the identity is enrolled with Fabric CA.
     organization:
       domain: "org1.example.com"
       role: "peer"
@@ -357,7 +357,7 @@ Generates the Block Explorer client TLS key pair and certificate using OpenSSL f
 ```yaml
 - name: Generate a self-signed client certificate for Block Explorer
   vars:
-    # Sets the optional organization mapping used for client TLS certificate generation. When undefined, or when `organization.role` is undefined, a self-signed certificate is generated with OpenSSL. When `organization.role` is `peer` and `organization.fabric_ca_host` is undefined, crypto material generated by `cryptogen` is transferred. When `organization.role` is `peer` and `organization.fabric_ca_host` is defined, the identity is enrolled with Fabric CA. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'block-explorer', 'secret': 'block-explorerPWD'}}`.
+    # Sets the optional organization mapping used for client TLS certificate generation. When undefined, or when `organization.role` is undefined, a self-signed certificate is generated with OpenSSL. When `organization.role` is `peer` and `organization.fabric_ca_host` is undefined, crypto material generated by `cryptogen` is transferred. When `organization.role` is `peer` and `organization.fabric_ca_host` is defined, the identity is enrolled with Fabric CA.
     organization:
       domain: "org1.example.com"
       role: "peer"
@@ -365,11 +365,11 @@ Generates the Block Explorer client TLS key pair and certificate using OpenSSL f
       peer:
         name: "block-explorer"
         secret: "block-explorerPWD"
-    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    # Real machine host.
     actual_host: "myvpc.cloud.ibm.com"
     # Remote config directory used by Block Explorer.
     block_explorer_remote_config_dir: "{{ remote_config_dir }}"
-    # Base remote config directory that feeds `block_explorer_remote_config_dir`. Example: `/var/hyperledger/fabricx/block-explorer/config`.
+    # Base remote config directory that feeds `block_explorer_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/block-explorer/config"
     # Filename of the self-signed client TLS private key used for mTLS to the committer sidecar.
     block_explorer_tls_private_key_file: client.key
@@ -389,7 +389,7 @@ Transfers the client TLS key, certificate, and CA certificate generated by `cryp
 ```yaml
 - name: Transfer a cryptogen-generated client certificate for Block Explorer
   vars:
-    # Sets the optional organization mapping used for client TLS certificate generation. When undefined, or when `organization.role` is undefined, a self-signed certificate is generated with OpenSSL. When `organization.role` is `peer` and `organization.fabric_ca_host` is undefined, crypto material generated by `cryptogen` is transferred. When `organization.role` is `peer` and `organization.fabric_ca_host` is defined, the identity is enrolled with Fabric CA. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'block-explorer', 'secret': 'block-explorerPWD'}}`.
+    # Sets the optional organization mapping used for client TLS certificate generation. When undefined, or when `organization.role` is undefined, a self-signed certificate is generated with OpenSSL. When `organization.role` is `peer` and `organization.fabric_ca_host` is undefined, crypto material generated by `cryptogen` is transferred. When `organization.role` is `peer` and `organization.fabric_ca_host` is defined, the identity is enrolled with Fabric CA.
     organization:
       domain: "org1.example.com"
       role: "peer"
@@ -397,11 +397,11 @@ Transfers the client TLS key, certificate, and CA certificate generated by `cryp
       peer:
         name: "block-explorer"
         secret: "block-explorerPWD"
-    # Local cryptogen output directory. Required when `organization.role` is `peer` without `organization.fabric_ca_host`. Example: `/tmp/fabricx-crypto`.
+    # Local cryptogen output directory. Required when `organization.role` is `peer` without `organization.fabric_ca_host`.
     cryptogen_artifacts_dir: "/tmp/fabricx-crypto"
     # Remote config directory used by Block Explorer.
     block_explorer_remote_config_dir: "{{ remote_config_dir }}"
-    # Base remote config directory that feeds `block_explorer_remote_config_dir`. Example: `/var/hyperledger/fabricx/block-explorer/config`.
+    # Base remote config directory that feeds `block_explorer_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/block-explorer/config"
     # Filename of the self-signed client TLS private key used for mTLS to the committer sidecar.
     block_explorer_tls_private_key_file: client.key
@@ -421,7 +421,7 @@ Enrolls the Block Explorer peer identity through Fabric CA to generate client TL
 ```yaml
 - name: Enroll Block Explorer with Fabric CA for client TLS
   vars:
-    # Sets the optional organization mapping used for client TLS certificate generation. When undefined, or when `organization.role` is undefined, a self-signed certificate is generated with OpenSSL. When `organization.role` is `peer` and `organization.fabric_ca_host` is undefined, crypto material generated by `cryptogen` is transferred. When `organization.role` is `peer` and `organization.fabric_ca_host` is defined, the identity is enrolled with Fabric CA. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'fabric_ca_host': 'fca-org1', 'peer': {'name': 'block-explorer', 'secret': 'block-explorerPWD'}}`.
+    # Sets the optional organization mapping used for client TLS certificate generation. When undefined, or when `organization.role` is undefined, a self-signed certificate is generated with OpenSSL. When `organization.role` is `peer` and `organization.fabric_ca_host` is undefined, crypto material generated by `cryptogen` is transferred. When `organization.role` is `peer` and `organization.fabric_ca_host` is defined, the identity is enrolled with Fabric CA.
     organization:
       domain: "org1.example.com"
       role: "peer"
@@ -431,15 +431,15 @@ Enrolls the Block Explorer peer identity through Fabric CA to generate client TL
         secret: "block-explorerPWD"
     # Remote config directory used by Block Explorer.
     block_explorer_remote_config_dir: "{{ remote_config_dir }}"
-    # Base remote config directory that feeds `block_explorer_remote_config_dir`. Example: `/var/hyperledger/fabricx/block-explorer/config`.
+    # Base remote config directory that feeds `block_explorer_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/block-explorer/config"
     # Filename of the self-signed client TLS private key used for mTLS to the committer sidecar.
     block_explorer_tls_private_key_file: client.key
     # Filename of the self-signed client TLS certificate used for mTLS to the committer sidecar.
     block_explorer_tls_cert_file: client.crt
-    # Local artifacts directory used for fetched TLS material. Example: `/tmp/fabricx-artifacts`.
+    # Local artifacts directory used for fetched TLS material.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
-    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    # Real machine host.
     actual_host: "myvpc.cloud.ibm.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.block_explorer
@@ -455,13 +455,13 @@ Fetches the Block Explorer self-signed client CA certificate so the committer si
 ```yaml
 - name: Fetch the Block Explorer client CA certificate
   vars:
-    # Names the inventory host that provides the committer sidecar Block Explorer streams from. Example: `committer-sidecar`.
+    # Names the inventory host that provides the committer sidecar Block Explorer streams from.
     sidecar_host: "committer-sidecar"
     # Remote config directory used by Block Explorer.
     block_explorer_remote_config_dir: "{{ remote_config_dir }}"
-    # Base remote config directory that feeds `block_explorer_remote_config_dir`. Example: `/var/hyperledger/fabricx/block-explorer/config`.
+    # Base remote config directory that feeds `block_explorer_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/block-explorer/config"
-    # Local artifacts directory used for fetched TLS material. Example: `/tmp/fabricx-artifacts`.
+    # Local artifacts directory used for fetched TLS material.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.block_explorer
@@ -479,7 +479,7 @@ Remove Block Explorer TLS artifacts from the host config directory. Also removes
   vars:
     # Remote config directory used by Block Explorer.
     block_explorer_remote_config_dir: "{{ remote_config_dir }}"
-    # Base remote config directory that feeds `block_explorer_remote_config_dir`. Example: `/var/hyperledger/fabricx/block-explorer/config`.
+    # Base remote config directory that feeds `block_explorer_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/block-explorer/config"
     # Use Kubernetes resources.
     block_explorer_use_k8s: false
@@ -515,17 +515,17 @@ Create or update Kubernetes resources for the Block Explorer server. Ensures the
     block_explorer_k8s_wait_timeout: 120
     # Pod FSGroup used for mounted config and secrets.
     block_explorer_k8s_fs_group: 10001
-    # Kubernetes namespace used for Block Explorer resources. Example: `fabricx-block-explorer`.
+    # Kubernetes namespace used for Block Explorer resources.
     k8s_namespace: "fabricx-block-explorer"
     # Kubernetes resource name used for the Deployment, Service, ConfigMap, optional Secret, and optional NodePort Service.
     block_explorer_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Block Explorer resources.
     block_explorer_k8s_part_of: block-explorer
-    # Optional image pull secret used by the Block Explorer Deployment. Example: `fabricx-registry-pull`.
+    # Optional image pull secret used by the Block Explorer Deployment.
     k8s_image_pull_secret: "fabricx-registry-pull"
-    # REST API port exposed by the Block Explorer server. Example: `18080`.
+    # REST API port exposed by the Block Explorer server.
     block_explorer_port: 18080
-    # Kubernetes NodePort value used by the external Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30680`.
+    # Kubernetes NodePort value used by the external Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     block_explorer_k8s_node_port: 30680
     # Set to `true` to create a LoadBalancer Service entry that exposes the REST port externally. When undefined or `false`, the REST port is not included in the LoadBalancer Service.
     block_explorer_k8s_loadbalancer_expose_port: false
@@ -533,11 +533,11 @@ Create or update Kubernetes resources for the Block Explorer server. Ensures the
     block_explorer_tls_private_key_file: client.key
     # Filename of the self-signed client TLS certificate used for mTLS to the committer sidecar.
     block_explorer_tls_cert_file: client.crt
-    # Names the inventory host that provides the committer sidecar Block Explorer streams from. Example: `committer-sidecar`.
+    # Names the inventory host that provides the committer sidecar Block Explorer streams from.
     sidecar_host: "committer-sidecar"
-    # Names the inventory host that provides the PostgreSQL database used by Block Explorer. Example: `block-explorer-db`.
+    # Names the inventory host that provides the PostgreSQL database used by Block Explorer.
     postgres_db_host: "block-explorer-db"
-    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '512Mi', 'cpu': '250m'}, 'limits': {'memory': '1Gi', 'cpu': '1000m'}}`.
+    # Optional Kubernetes container resource requests and limits.
     k8s_resources:
       requests:
         memory: "512Mi"
@@ -545,21 +545,21 @@ Create or update Kubernetes resources for the Block Explorer server. Ensures the
       limits:
         memory: "1Gi"
         cpu: "1000m"
-    # Sets the Block Explorer readiness probe initial delay. Example: `10`.
+    # Sets the Block Explorer readiness probe initial delay.
     k8s_readiness_probe_initial_delay_seconds: 10
-    # Sets the Block Explorer readiness probe period. Example: `10`.
+    # Sets the Block Explorer readiness probe period.
     k8s_readiness_probe_period_seconds: 10
-    # Sets the Block Explorer readiness probe timeout. Example: `5`.
+    # Sets the Block Explorer readiness probe timeout.
     k8s_readiness_probe_timeout_seconds: 5
-    # Sets the Block Explorer readiness probe failure threshold. Example: `3`.
+    # Sets the Block Explorer readiness probe failure threshold.
     k8s_readiness_probe_failure_threshold: 3
-    # Sets the Block Explorer liveness probe initial delay. Example: `30`.
+    # Sets the Block Explorer liveness probe initial delay.
     k8s_liveness_probe_initial_delay_seconds: 30
-    # Sets the Block Explorer liveness probe period. Example: `15`.
+    # Sets the Block Explorer liveness probe period.
     k8s_liveness_probe_period_seconds: 15
-    # Sets the Block Explorer liveness probe timeout. Example: `5`.
+    # Sets the Block Explorer liveness probe timeout.
     k8s_liveness_probe_timeout_seconds: 5
-    # Sets the Block Explorer liveness probe failure threshold. Example: `5`.
+    # Sets the Block Explorer liveness probe failure threshold.
     k8s_liveness_probe_failure_threshold: 5
   ansible.builtin.include_role:
     name: hyperledger.fabricx.block_explorer
@@ -575,9 +575,9 @@ Probes configured Kubernetes NodePort values and LoadBalancer-exposed service po
 ```yaml
 - name: Check that the Block Explorer Kubernetes service is reachable
   vars:
-    # REST API port exposed by the Block Explorer server. Example: `18080`.
+    # REST API port exposed by the Block Explorer server.
     block_explorer_port: 18080
-    # Kubernetes NodePort value used by the external Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30680`.
+    # Kubernetes NodePort value used by the external Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     block_explorer_k8s_node_port: 30680
     # Set to `true` to create a LoadBalancer Service entry that exposes the REST port externally. When undefined or `false`, the REST port is not included in the LoadBalancer Service.
     block_explorer_k8s_loadbalancer_expose_port: false
@@ -595,11 +595,11 @@ Remove the Kubernetes Deployment and Services created for the Block Explorer ser
 ```yaml
 - name: Remove Kubernetes resources
   vars:
-    # Kubernetes namespace used for Block Explorer resources. Example: `fabricx-block-explorer`.
+    # Kubernetes namespace used for Block Explorer resources.
     k8s_namespace: "fabricx-block-explorer"
     # Kubernetes resource name used for the Deployment, Service, ConfigMap, optional Secret, and optional NodePort Service.
     block_explorer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes NodePort value used by the external Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30680`.
+    # Kubernetes NodePort value used by the external Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     block_explorer_k8s_node_port: 30680
     # Set to `true` to create a LoadBalancer Service entry that exposes the REST port externally. When undefined or `false`, the REST port is not included in the LoadBalancer Service.
     block_explorer_k8s_loadbalancer_expose_port: false
@@ -633,7 +633,7 @@ Publish the rendered Block Explorer configuration and trusted CA bundles as a Ku
 ```yaml
 - name: Publish the Kubernetes ConfigMap
   vars:
-    # Kubernetes namespace used for Block Explorer resources. Example: `fabricx-block-explorer`.
+    # Kubernetes namespace used for Block Explorer resources.
     k8s_namespace: "fabricx-block-explorer"
     # Kubernetes resource name used for the Deployment, Service, ConfigMap, optional Secret, and optional NodePort Service.
     block_explorer_k8s_resource_name: "{{ inventory_hostname }}"
@@ -641,13 +641,13 @@ Publish the rendered Block Explorer configuration and trusted CA bundles as a Ku
     block_explorer_k8s_part_of: block-explorer
     # Remote config directory used by Block Explorer.
     block_explorer_remote_config_dir: "{{ remote_config_dir }}"
-    # Base remote config directory that feeds `block_explorer_remote_config_dir`. Example: `/var/hyperledger/fabricx/block-explorer/config`.
+    # Base remote config directory that feeds `block_explorer_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/block-explorer/config"
     # Rendered Block Explorer config filename.
     block_explorer_config_file: config.yaml
-    # Names the inventory host that provides the committer sidecar Block Explorer streams from. Example: `committer-sidecar`.
+    # Names the inventory host that provides the committer sidecar Block Explorer streams from.
     sidecar_host: "committer-sidecar"
-    # Names the inventory host that provides the PostgreSQL database used by Block Explorer. Example: `block-explorer-db`.
+    # Names the inventory host that provides the PostgreSQL database used by Block Explorer.
     postgres_db_host: "block-explorer-db"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.block_explorer
@@ -663,7 +663,7 @@ Remove the Kubernetes ConfigMap created for the Block Explorer configuration.
 ```yaml
 - name: Remove the Kubernetes ConfigMap
   vars:
-    # Kubernetes namespace used for Block Explorer resources. Example: `fabricx-block-explorer`.
+    # Kubernetes namespace used for Block Explorer resources.
     k8s_namespace: "fabricx-block-explorer"
     # Kubernetes resource name used for the Deployment, Service, ConfigMap, optional Secret, and optional NodePort Service.
     block_explorer_k8s_resource_name: "{{ inventory_hostname }}"
@@ -681,17 +681,17 @@ Publish the Block Explorer self-signed client TLS material as a Kubernetes Secre
 ```yaml
 - name: Publish the Kubernetes Secret
   vars:
-    # Names the inventory host that provides the committer sidecar Block Explorer streams from. Example: `committer-sidecar`.
+    # Names the inventory host that provides the committer sidecar Block Explorer streams from.
     sidecar_host: "committer-sidecar"
     # Remote config directory used by Block Explorer.
     block_explorer_remote_config_dir: "{{ remote_config_dir }}"
-    # Base remote config directory that feeds `block_explorer_remote_config_dir`. Example: `/var/hyperledger/fabricx/block-explorer/config`.
+    # Base remote config directory that feeds `block_explorer_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/block-explorer/config"
     # Filename of the self-signed client TLS private key used for mTLS to the committer sidecar.
     block_explorer_tls_private_key_file: client.key
     # Filename of the self-signed client TLS certificate used for mTLS to the committer sidecar.
     block_explorer_tls_cert_file: client.crt
-    # Kubernetes namespace used for Block Explorer resources. Example: `fabricx-block-explorer`.
+    # Kubernetes namespace used for Block Explorer resources.
     k8s_namespace: "fabricx-block-explorer"
     # Kubernetes resource name used for the Deployment, Service, ConfigMap, optional Secret, and optional NodePort Service.
     block_explorer_k8s_resource_name: "{{ inventory_hostname }}"
@@ -711,7 +711,7 @@ Remove the Kubernetes Secret created for the Block Explorer client TLS material.
 ```yaml
 - name: Remove the Kubernetes Secret
   vars:
-    # Kubernetes namespace used for Block Explorer resources. Example: `fabricx-block-explorer`.
+    # Kubernetes namespace used for Block Explorer resources.
     k8s_namespace: "fabricx-block-explorer"
     # Kubernetes resource name used for the Deployment, Service, ConfigMap, optional Secret, and optional NodePort Service.
     block_explorer_k8s_resource_name: "{{ inventory_hostname }}"
@@ -733,7 +733,7 @@ Reuses the Kubernetes workload flow and manages an OpenShift Route for the REST 
     block_explorer_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Block Explorer resources.
     block_explorer_k8s_part_of: block-explorer
-    # Specifies the OpenShift Route host. Example: `block-explorer.apps.example.com`.
+    # Specifies the OpenShift Route host.
     block_explorer_openshift_route: "block-explorer.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.block_explorer
@@ -749,7 +749,7 @@ Checks the configured OpenShift Route and reuses the Kubernetes service ping flo
 ```yaml
 - name: Check the OpenShift deployment
   vars:
-    # Specifies the OpenShift Route host. Example: `block-explorer.apps.example.com`.
+    # Specifies the OpenShift Route host.
     block_explorer_openshift_route: "block-explorer.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.block_explorer
@@ -767,7 +767,7 @@ Reuses the Kubernetes workload flow and removes the OpenShift Route for the REST
   vars:
     # Kubernetes resource name used for the Deployment, Service, ConfigMap, optional Secret, and optional NodePort Service.
     block_explorer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Specifies the OpenShift Route host. Example: `block-explorer.apps.example.com`.
+    # Specifies the OpenShift Route host.
     block_explorer_openshift_route: "block-explorer.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.block_explorer

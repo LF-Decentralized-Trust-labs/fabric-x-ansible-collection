@@ -37,15 +37,15 @@ Creates or updates an OpenShift Route targeting a named Service port. Renders pa
 ```yaml
 - name: Apply an OpenShift Route
   vars:
-    # Specifies the namespace targeted by the OpenShift resource. Example: `fabric-x`.
+    # Specifies the namespace targeted by the OpenShift resource.
     k8s_namespace: "fabric-x"
-    # Specifies the OpenShift Route resource name. Example: `orderer-router-1-rpc`.
+    # Specifies the OpenShift Route resource name.
     openshift_route_name: "orderer-router-1-rpc"
-    # Specifies the external host assigned to the OpenShift Route. Example: `orderer.apps.example.com`.
+    # Specifies the external host assigned to the OpenShift Route.
     openshift_route_host: "orderer.apps.example.com"
-    # Specifies the Service targeted by the OpenShift Route. Example: `orderer-router-1`.
+    # Specifies the Service targeted by the OpenShift Route.
     openshift_route_service_name: "orderer-router-1"
-    # Specifies the named Service port targeted by the OpenShift Route. Example: `rpc`.
+    # Specifies the named Service port targeted by the OpenShift Route.
     openshift_route_service_port: "rpc"
     # Specifies labels to render on the OpenShift Route.
     openshift_route_labels: {}
@@ -67,9 +67,9 @@ Deletes the named OpenShift Route from `k8s_namespace`.
 ```yaml
 - name: Remove an OpenShift Route
   vars:
-    # Specifies the namespace targeted by the OpenShift resource. Example: `fabric-x`.
+    # Specifies the namespace targeted by the OpenShift resource.
     k8s_namespace: "fabric-x"
-    # Specifies the OpenShift Route resource name. Example: `orderer-router-1-rpc`.
+    # Specifies the OpenShift Route resource name.
     openshift_route_name: "orderer-router-1-rpc"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openshift
@@ -85,7 +85,7 @@ Checks the external OpenShift Route host on port 80 or 443, depending on `opensh
 ```yaml
 - name: Check an OpenShift Route host
   vars:
-    # Specifies the external host assigned to the OpenShift Route. Example: `orderer.apps.example.com`.
+    # Specifies the external host assigned to the OpenShift Route.
     openshift_route_host: "orderer.apps.example.com"
     # Controls whether the Route uses passthrough TLS termination.
     openshift_route_use_tls: false
@@ -119,7 +119,7 @@ Logs in to a managed OpenShift cluster using a personal user token.
 ```yaml
 - name: Login to a managed OpenShift cluster with a personal token
   vars:
-    # OpenShift cluster API server URL for login Required for managed OpenShift cluster login Example: `https://api.cluster.example.com:6443`
+    # OpenShift cluster API server URL for login Required for managed OpenShift cluster login
     openshift_cluster_login_server: "https://api.cluster.example.com:6443"
     # Personal user token for interactive OpenShift login Can be set via OPENSHIFT_PERSONAL_TOKEN environment variable
     openshift_cluster_personal_token: "{{ lookup('env', 'OPENSHIFT_PERSONAL_TOKEN') | trim }}"
@@ -137,13 +137,13 @@ Mints a service-account token and logs in to a managed OpenShift cluster. Select
 ```yaml
 - name: Login to a managed OpenShift cluster with a service account
   vars:
-    # Specifies the namespace targeted by the OpenShift resource. Example: `fabric-x`.
+    # Specifies the namespace targeted by the OpenShift resource.
     k8s_namespace: "fabric-x"
-    # OpenShift cluster API server URL for login Required for managed OpenShift cluster login Example: `https://api.cluster.example.com:6443`
+    # OpenShift cluster API server URL for login Required for managed OpenShift cluster login
     openshift_cluster_login_server: "https://api.cluster.example.com:6443"
     # OpenShift namespace/project to use
     openshift_cluster_namespace: "{{ k8s_namespace }}"
-    # Service account name to be used by automation after login Example: `ansible-deployer`
+    # Service account name to be used by automation after login
     openshift_cluster_service_account_name: "ansible-deployer"
     # Duration for the service account token
     openshift_cluster_service_account_token_duration: 12h
