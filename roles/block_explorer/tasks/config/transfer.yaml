@@ -21,7 +21,8 @@
 # =========================
 - name: Transfer Committer Sidecar TLS CA certificate
   when:
-    - hostvars[sidecar_host].committer_use_tls | default(false)
+    - hostvars[sidecar_host].committer_use_tls is defined
+    - hostvars[sidecar_host].committer_use_tls
   block:
     - name: Ensure Committer Sidecar TLS folder exists
       ansible.builtin.file:
@@ -39,7 +40,8 @@
 # =========================
 - name: Transfer PostgreSQL TLS CA certificate
   when:
-    - hostvars[postgres_db_host].postgres_use_tls | default(false)
+    - hostvars[postgres_db_host].postgres_use_tls is defined
+    - hostvars[postgres_db_host].postgres_use_tls
   block:
     - name: Ensure PostgreSQL TLS folder exists
       ansible.builtin.file:

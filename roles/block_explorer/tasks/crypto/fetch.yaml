@@ -10,4 +10,5 @@
     dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/ca.crt"
     flat: true
   when:
-    - hostvars[sidecar_host].committer_use_mtls | default(false)
+    - hostvars[sidecar_host].committer_use_mtls is defined
+    - hostvars[sidecar_host].committer_use_mtls

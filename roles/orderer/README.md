@@ -771,19 +771,11 @@ Publishes the bundled Fabric-X Orderer Grafana dashboard through the grafana rol
 
 > Prepare orderer crypto material
 
-Validates TLS and mTLS prerequisites, provisions orderer MSP and TLS material through cryptogen or Fabric CA, and optionally creates the Kubernetes Secret. Produces the crypto artifacts consumed by config rendering, binary/container mounts, and Kubernetes workloads.
+Provisions orderer MSP and TLS material through cryptogen or Fabric CA based on `organization.fabric_ca_host`, and optionally creates the Kubernetes Secret. Produces the crypto artifacts consumed by config rendering, binary/container mounts, and Kubernetes workloads.
 
 ```yaml
 - name: Prepare orderer crypto material
   vars:
-    # Enables server-side TLS in the rendered config.
-    orderer_use_tls: false
-    # Enables client mutual TLS in the rendered config.
-    orderer_use_mtls: false
-    # Enables TLS for the orderer operations endpoint.
-    orderer_operations_use_tls: false
-    # Enables client mutual TLS for the orderer operations endpoint.
-    orderer_operations_use_mtls: "{{ orderer_use_mtls }}"
     # Organization metadata shared by the orderer crypto and config branches. Example: `{'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com', 'role': 'orderer', 'fabric_ca_host': 'fca-orderer-org1', 'orderer': {'name': 'orderer-router-1', 'secret': 'orderer-router-1PWD'}}`.
     organization:
       name: "OrdererOrg1"

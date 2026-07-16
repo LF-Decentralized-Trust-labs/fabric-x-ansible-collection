@@ -963,13 +963,9 @@ argument_specs:
   crypto/setup:
     short_description: Prepare orderer crypto material
     description:
-      - "Validates TLS and mTLS prerequisites, provisions orderer MSP and TLS material through cryptogen or Fabric CA, and optionally creates the Kubernetes Secret."
+      - "Provisions orderer MSP and TLS material through cryptogen or Fabric CA based on C(organization.fabric_ca_host), and optionally creates the Kubernetes Secret."
       - "Produces the crypto artifacts consumed by config rendering, binary/container mounts, and Kubernetes workloads."
     options:
-      orderer_use_tls: *orderer_use_tls
-      orderer_use_mtls: *orderer_use_mtls
-      orderer_operations_use_tls: *orderer_operations_use_tls
-      orderer_operations_use_mtls: *orderer_operations_use_mtls
       organization: *organization
       orderer_use_k8s: *orderer_use_k8s
       orderer_use_openshift: *orderer_use_openshift

@@ -25,4 +25,5 @@
     template:
       path: k8s/secret.yaml.j2
   when:
-    - hostvars[sidecar_host].committer_use_mtls | default(false)
+    - hostvars[sidecar_host].committer_use_mtls is defined
+    - hostvars[sidecar_host].committer_use_mtls

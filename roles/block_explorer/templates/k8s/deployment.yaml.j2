@@ -45,19 +45,19 @@ spec:
               mountPath: {{ block_explorer_container_config_dir }}/{{ block_explorer_config_file }}
               subPath: {{ block_explorer_config_file }}
               readOnly: true
-{% if hostvars[sidecar_host].committer_use_tls | default(false) %}
+{% if hostvars[sidecar_host].committer_use_tls is defined and hostvars[sidecar_host].committer_use_tls %}
             - name: config
               mountPath: {{ block_explorer_container_config_dir }}/tls/sidecar/ca.crt
               subPath: sidecar-ca.crt
               readOnly: true
 {% endif %}
-{% if hostvars[postgres_db_host].postgres_use_tls | default(false) %}
+{% if hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
             - name: config
               mountPath: {{ block_explorer_container_config_dir }}/tls/db/ca.crt
               subPath: db-ca.crt
               readOnly: true
 {% endif %}
-{% if hostvars[sidecar_host].committer_use_mtls | default(false) %}
+{% if hostvars[sidecar_host].committer_use_mtls is defined and hostvars[sidecar_host].committer_use_mtls %}
             - name: secret
               mountPath: {{ block_explorer_container_config_dir }}/tls/{{ block_explorer_tls_cert_file }}
               subPath: client.crt
@@ -87,7 +87,7 @@ spec:
         - name: config
           configMap:
             name: {{ block_explorer_k8s_resource_name }}
-{% if hostvars[sidecar_host].committer_use_mtls | default(false) %}
+{% if hostvars[sidecar_host].committer_use_mtls is defined and hostvars[sidecar_host].committer_use_mtls %}
         - name: secret
           secret:
             secretName: {{ block_explorer_k8s_resource_name }}

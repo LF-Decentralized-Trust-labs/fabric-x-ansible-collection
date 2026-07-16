@@ -15,11 +15,11 @@ metadata:
 data:
   {{ block_explorer_config_file }}: |
 {{ lookup('file', block_explorer_k8s_config_path) | indent(4, true) }}
-{% if hostvars[sidecar_host].committer_use_tls | default(false) %}
+{% if hostvars[sidecar_host].committer_use_tls is defined and hostvars[sidecar_host].committer_use_tls %}
   sidecar-ca.crt: |
 {{ lookup('file', block_explorer_k8s_sidecar_ca_path) | indent(4, true) }}
 {% endif %}
-{% if hostvars[postgres_db_host].postgres_use_tls | default(false) %}
+{% if hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
   db-ca.crt: |
 {{ lookup('file', block_explorer_k8s_db_ca_path) | indent(4, true) }}
 {% endif %}
