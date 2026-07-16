@@ -16,7 +16,7 @@
     container_volumes:
       - "{{ block_explorer_remote_config_dir }}:{{ block_explorer_container_config_dir }}:z,ro"
     container_healthcheck_test: >-
-      wget --quiet --tries=1 --spider
+      curl -f --silent --show-error
       http://localhost:{{ block_explorer_port }}/healthz
     container_wait_until_running: true
     container_run_as_host_user: true
