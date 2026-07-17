@@ -61,11 +61,16 @@
     container_command: >-
       --port={{ cadvisor_port }}
       --housekeeping_interval={{ cadvisor_housekeeping_interval }}
+      --store_container_labels=false
+      {% if cadvisor_disable_metrics | length > 0 %}
+      --disable_metrics={{ cadvisor_disable_metrics }}
+      {% endif %}
       {% if container_client == 'podman' %}
       --podman={{ container_socket }}
       {% else %}
       --docker={{ container_socket }}
       --containerd={{ container_containerd_socket_path }}
+      --docker_only=true
       {% endif %}
     container_ports:
       - "{{ cadvisor_port }}:{{ cadvisor_port }}"
