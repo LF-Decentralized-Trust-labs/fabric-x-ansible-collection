@@ -99,13 +99,10 @@ fabric_ca_csr_cn: '{{ fabric_ca_name }}'
 # Sets the CSR expiry.
 fabric_ca_csr_expiry: 131400h
 # Sets the Fabric CA client MSP private key output path relative to C(fabric_ca_msp_dir).
-# Example: C(keystore/priv_sk).
 fabric_ca_cryptogenize_msp_private_key_file: keystore/priv_sk
 # Sets the Fabric CA client MSP CA certificate output path relative to C(fabric_ca_msp_dir).
-# Example: C(cacerts/ca.org1.example.com-cert.pem).
 fabric_ca_cryptogenize_msp_ca_cert_file: cacerts/ca.{{ organization.domain }}-cert.pem
 # Sets the Fabric CA client MSP sign certificate output path relative to C(fabric_ca_msp_dir).
-# Example: C(signcerts/cert.pem).
 fabric_ca_cryptogenize_msp_signcert_file: signcerts/cert.pem
 # Sets the Fabric CA client TLS CA certificate output path relative to C(fabric_ca_msp_dir).
 fabric_ca_cryptogenize_tls_ca_cert_file: ca.crt

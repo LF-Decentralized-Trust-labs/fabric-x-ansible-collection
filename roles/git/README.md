@@ -47,9 +47,9 @@ Clones a Git repository at the requested revision into a derived destination dir
 ```yaml
 - name: Clone or update a Git repository into a target directory
   vars:
-    # Repository path component used to derive the checkout directory name and default repository URIs. The checkout name is computed from the basename of this value. Example: `LF-Decentralized-Trust-labs/fabric-x-ansible-collection`.
+    # Repository path component used to derive the checkout directory name and default repository URIs. The checkout name is computed from the basename of this value.
     git_repo: "LF-Decentralized-Trust-labs/fabric-x-ansible-collection"
-    # Parent directory that will contain the checkout created by `clone`. The final destination is derived as `<git_dir>/<repo-basename>@<git_commit>`. Example: `/opt/fabricx/source`.
+    # Parent directory that will contain the checkout created by `clone`. The final destination is derived as `<git_dir>/<repo-basename>@<git_commit>`.
     git_dir: "/opt/fabricx/source"
     # Git branch, tag, or commit to check out. The value is appended to the derived checkout directory name and passed to `ansible.builtin.git` as the revision.
     git_commit: main
@@ -77,7 +77,7 @@ Derives `git_repo_name` as `<basename(git_repo`>@<git_commit>). The resulting fa
 ```yaml
 - name: Compute the repository checkout directory name
   vars:
-    # Repository path component used to derive the checkout directory name and default repository URIs. The checkout name is computed from the basename of this value. Example: `LF-Decentralized-Trust-labs/fabric-x-ansible-collection`.
+    # Repository path component used to derive the checkout directory name and default repository URIs. The checkout name is computed from the basename of this value.
     git_repo: "LF-Decentralized-Trust-labs/fabric-x-ansible-collection"
     # Git branch, tag, or commit to check out. The value is appended to the derived checkout directory name and passed to `ansible.builtin.git` as the revision.
     git_commit: main

@@ -1,0 +1,36 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove Block Explorer UI Deployment
+  kubernetes.core.k8s:
+    state: absent
+    kind: Deployment
+    name: "{{ block_explorer_ui_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
+
+- name: Remove Block Explorer UI Service
+  kubernetes.core.k8s:
+    state: absent
+    kind: Service
+    name: "{{ block_explorer_ui_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
+
+- name: Remove Block Explorer UI NodePort Service
+  kubernetes.core.k8s:
+    state: absent
+    kind: Service
+    name: "{{ block_explorer_ui_k8s_resource_name }}-nodeport"
+    namespace: "{{ k8s_namespace | default('default') }}"
+  when: block_explorer_ui_k8s_node_port is defined
+
+- name: Delete Block Explorer UI LoadBalancer Service
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Service
+    name: "{{ block_explorer_ui_k8s_resource_name }}-loadbalancer"
+    namespace: "{{ k8s_namespace | default('default') }}"
+  when: block_explorer_ui_k8s_loadbalancer_expose_port

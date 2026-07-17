@@ -1,0 +1,18 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the Block Explorer UI OpenShift route is reachable
+  vars:
+    openshift_route_host: "{{ block_explorer_ui_openshift_route }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/ping
+  when: block_explorer_ui_openshift_route is defined
+
+- name: Check that the Block Explorer UI Kubernetes services are reachable
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.block_explorer_ui
+    tasks_from: k8s/ping

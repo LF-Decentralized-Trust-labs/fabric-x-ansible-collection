@@ -13,6 +13,9 @@
 - name: Fetch Hyperledger Fabric-X Committer crypto material
   ansible.builtin.import_playbook: hyperledger.fabricx.committer.fetch_crypto
 
+- name: Fetch Hyperledger Fabric-X Block Explorer crypto material
+  ansible.builtin.import_playbook: hyperledger.fabricx.block_explorer.fetch_crypto
+
 - name: Fetch Hyperledger Fabric-X Loadgen crypto material
   ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.fetch_crypto
 

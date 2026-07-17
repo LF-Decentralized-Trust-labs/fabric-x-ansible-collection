@@ -278,6 +278,25 @@ all:
                       committer_metrics_port: 5240
                       postgres_db_host: committer-db
 
+            # =========================
+            # HLFX Block Explorer
+            # =========================
+            fabric_x_block_explorer:
+              hosts:
+                block-explorer-db:
+                  postgres_user: block_explorer_user
+                  postgres_password: block_explorer_pwd
+                  postgres_db: explorer
+                  postgres_port: 18432
+                  postgres_use_tls: true
+                block-explorer:
+                  block_explorer_port: 18080
+                  sidecar_host: committer-sidecar
+                  postgres_db_host: block-explorer-db
+                block-explorer-ui:
+                  block_explorer_ui_port: 18000
+                  block_explorer_host: block-explorer
+
     # =========================
     # HLFX LoadGens
     # =========================

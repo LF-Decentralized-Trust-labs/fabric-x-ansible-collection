@@ -13,6 +13,9 @@
 - name: Wipe fxconfig
   ansible.builtin.import_playbook: hyperledger.fabricx.fxconfig.wipe
 
+- name: Wipe Fabric-X Block Explorer
+  ansible.builtin.import_playbook: hyperledger.fabricx.block_explorer.wipe
+
 - name: Wipe Fabric-X Committer
   ansible.builtin.import_playbook: hyperledger.fabricx.committer.wipe
 

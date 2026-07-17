@@ -143,7 +143,8 @@ argument_specs:
         type: str
         description:
           - "Sets the cgroup namespace mode for the container."
-          - "Example: C(host), to share the host's cgroup namespace so the container can read other containers' cgroup stats."
+          - "Set C(host) to share the host's cgroup namespace so the container can read other containers' cgroup stats."
+          - "Example: C(host)."
       container_env: &container_env
         type: dict
         description:

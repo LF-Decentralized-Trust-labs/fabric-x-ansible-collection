@@ -183,15 +183,15 @@ Starts the containerized Grafana deployment with the generated datasource and da
     grafana_image_name: grafana
     # Sets the Grafana image tag.
     grafana_image_tag: 13.1.0
-    # Sets the Grafana admin username. Example: `admin`.
+    # Sets the Grafana admin username.
     grafana_username: "admin"
-    # Sets the Grafana admin password. Example: `my_grafana_password`. Store this value in Ansible Vault.
+    # Sets the Grafana admin password. Store this value in Ansible Vault.
     grafana_password: "my_grafana_password"
     # Sets the Grafana web port.
     grafana_web_port: 3000
     # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the shared remote config root used by Grafana. Example: `/var/hyperledger/fabricx/grafana`. Required when using it for `grafana_remote_config_dir`.
+    # Sets the shared remote config root used by Grafana. Required when using it for `grafana_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/grafana"
     # Sets the provisioning path inside the Grafana container.
     grafana_container_config_dir: /etc/grafana/provisioning
@@ -265,7 +265,7 @@ Writes the datasource and dashboard provisioning files to the remote Grafana con
   vars:
     # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the shared remote config root used by Grafana. Example: `/var/hyperledger/fabricx/grafana`. Required when using it for `grafana_remote_config_dir`.
+    # Sets the shared remote config root used by Grafana. Required when using it for `grafana_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/grafana"
     # Sets the Grafana datasource provisioning filename.
     grafana_datasource_file: datasources.yaml
@@ -277,11 +277,11 @@ Writes the datasource and dashboard provisioning files to the remote Grafana con
     grafana_use_k8s: false
     # Selects the OpenShift deployment branch.
     grafana_use_openshift: false
-    # Sets the inventory host name of the Prometheus instance used by Grafana. Example: `prometheus-1.example.com`. The referenced host must expose the Prometheus inventory vars used by the templates.
+    # Sets the inventory host name of the Prometheus instance used by Grafana. The referenced host must expose the Prometheus inventory vars used by the templates.
     prometheus_host: "prometheus-1.example.com"
-    # Sets the shared fetched-artifacts root used by Grafana. Example: `/tmp/fabricx-artifacts`. Required when relying on it to derive paths for fetched TLS artifacts.
+    # Sets the shared fetched-artifacts root used by Grafana. Required when relying on it to derive paths for fetched TLS artifacts.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
-    # Sets the inventory host name of the Loki instance used by Grafana. Example: `loki-1.example.com`.
+    # Sets the inventory host name of the Loki instance used by Grafana.
     loki_host: "loki-1.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
@@ -299,7 +299,7 @@ Removes the remote Grafana provisioning directory. Deletes the Kubernetes Config
   vars:
     # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the shared remote config root used by Grafana. Example: `/var/hyperledger/fabricx/grafana`. Required when using it for `grafana_remote_config_dir`.
+    # Sets the shared remote config root used by Grafana. Required when using it for `grafana_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/grafana"
     # Enables Kubernetes mode.
     grafana_use_k8s: false
@@ -319,11 +319,11 @@ Copies one Grafana dashboard JSON file into the remote dashboards directory. App
 ```yaml
 - name: Copy a Grafana dashboard JSON file
   vars:
-    # Sets the local path to the Grafana dashboard JSON file. Example: `/opt/fabricx/grafana/dashboards/main.json`.
+    # Sets the local path to the Grafana dashboard JSON file.
     grafana_dashboard_path: "/opt/fabricx/grafana/dashboards/main.json"
     # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the shared remote config root used by Grafana. Example: `/var/hyperledger/fabricx/grafana`. Required when using it for `grafana_remote_config_dir`.
+    # Sets the shared remote config root used by Grafana. Required when using it for `grafana_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/grafana"
     # Sets the Grafana dashboard filename.
     grafana_dashboard_file: dashboard.json
@@ -369,9 +369,9 @@ Fetches the Grafana TLS CA certificate when TLS is enabled so other roles can tr
     grafana_use_tls: false
     # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the shared remote config root used by Grafana. Example: `/var/hyperledger/fabricx/grafana`. Required when using it for `grafana_remote_config_dir`.
+    # Sets the shared remote config root used by Grafana. Required when using it for `grafana_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/grafana"
-    # Sets the shared fetched-artifacts root used by Grafana. Example: `/tmp/fabricx-artifacts`. Required when relying on it to derive paths for fetched TLS artifacts.
+    # Sets the shared fetched-artifacts root used by Grafana. Required when relying on it to derive paths for fetched TLS artifacts.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
@@ -395,7 +395,7 @@ Removes the Grafana TLS directory when TLS is enabled. Deletes the Kubernetes Se
     grafana_use_openshift: false
     # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the shared remote config root used by Grafana. Example: `/var/hyperledger/fabricx/grafana`. Required when using it for `grafana_remote_config_dir`.
+    # Sets the shared remote config root used by Grafana. Required when using it for `grafana_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/grafana"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
@@ -411,20 +411,20 @@ Generates the Grafana TLS key pair and certificate using OpenSSL for the staged 
 ```yaml
 - name: Generate a self-signed certificate for Grafana
   vars:
-    # Sets the optional organization mapping used for TLS certificate generation. Example: `{'name': 'Grafana', 'domain': 'grafana.fabricx.example', 'common_name': 'grafana.fabricx.example'}`. When set, `organization.domain` is used as the OpenSSL organization name.
+    # Sets the optional organization mapping used for TLS certificate generation. When set, `organization.domain` is used as the OpenSSL organization name.
     organization:
       name: "Grafana"
       domain: "grafana.fabricx.example"
       common_name: "grafana.fabricx.example"
     # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the shared remote config root used by Grafana. Example: `/var/hyperledger/fabricx/grafana`. Required when using it for `grafana_remote_config_dir`.
+    # Sets the shared remote config root used by Grafana. Required when using it for `grafana_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/grafana"
     # Sets the Grafana TLS private key filename.
     grafana_tls_private_key_file: server.key
     # Sets the Grafana TLS certificate filename.
     grafana_tls_cert_file: server.crt
-    # Specifies the OpenShift Route host. Example: `grafana.apps.example.com`.
+    # Specifies the OpenShift Route host.
     grafana_openshift_route: "grafana.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
@@ -446,7 +446,7 @@ Applies the Grafana Service, optional NodePort and LoadBalancer Services, Secret
     grafana_k8s_part_of: monitoring
     # Sets the Grafana web port.
     grafana_web_port: 3000
-    # Kubernetes NodePort value used by the external web Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32000`.
+    # Kubernetes NodePort value used by the external web Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     grafana_k8s_web_node_port: 32000
     # Sets the Grafana Deployment wait timeout in seconds.
     grafana_k8s_wait_timeout: 120
@@ -462,7 +462,7 @@ Applies the Grafana Service, optional NodePort and LoadBalancer Services, Secret
     grafana_image_tag: 13.1.0
     # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the shared remote config root used by Grafana. Example: `/var/hyperledger/fabricx/grafana`. Required when using it for `grafana_remote_config_dir`.
+    # Sets the shared remote config root used by Grafana. Required when using it for `grafana_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/grafana"
     # Sets the provisioning path inside the Grafana container.
     grafana_container_config_dir: /etc/grafana/provisioning
@@ -476,33 +476,33 @@ Applies the Grafana Service, optional NodePort and LoadBalancer Services, Secret
     grafana_tls_private_key_file: server.key
     # Sets the Grafana TLS certificate filename.
     grafana_tls_cert_file: server.crt
-    # Sets the inventory host name of the Prometheus instance used by Grafana. Example: `prometheus-1.example.com`. The referenced host must expose the Prometheus inventory vars used by the templates.
+    # Sets the inventory host name of the Prometheus instance used by Grafana. The referenced host must expose the Prometheus inventory vars used by the templates.
     prometheus_host: "prometheus-1.example.com"
-    # Sets the inventory host name of the Loki instance used by Grafana. Example: `loki-1.example.com`.
+    # Sets the inventory host name of the Loki instance used by Grafana.
     loki_host: "loki-1.example.com"
-    # Sets the Kubernetes namespace used for Grafana resources. Example: `fabricx-observability`.
+    # Sets the Kubernetes namespace used for Grafana resources.
     k8s_namespace: "fabricx-observability"
-    # Sets the optional image pull secret used by the Grafana Deployment. Example: `grafana-registry-secret`.
+    # Sets the optional image pull secret used by the Grafana Deployment.
     k8s_image_pull_secret: "grafana-registry-secret"
-    # Sets the Grafana readiness probe initial delay. Example: `10`.
+    # Sets the Grafana readiness probe initial delay.
     k8s_readiness_probe_initial_delay_seconds: 10
-    # Sets the Grafana readiness probe period. Example: `5`.
+    # Sets the Grafana readiness probe period.
     k8s_readiness_probe_period_seconds: 5
-    # Sets the Grafana readiness probe timeout. Example: `3`.
+    # Sets the Grafana readiness probe timeout.
     k8s_readiness_probe_timeout_seconds: 3
-    # Sets the Grafana readiness probe failure threshold. Example: `3`.
+    # Sets the Grafana readiness probe failure threshold.
     k8s_readiness_probe_failure_threshold: 3
-    # Sets the Grafana liveness probe initial delay. Example: `20`.
+    # Sets the Grafana liveness probe initial delay.
     k8s_liveness_probe_initial_delay_seconds: 20
-    # Sets the Grafana liveness probe period. Example: `10`.
+    # Sets the Grafana liveness probe period.
     k8s_liveness_probe_period_seconds: 10
-    # Sets the Grafana liveness probe timeout. Example: `5`.
+    # Sets the Grafana liveness probe timeout.
     k8s_liveness_probe_timeout_seconds: 5
-    # Sets the Grafana liveness probe failure threshold. Example: `3`.
+    # Sets the Grafana liveness probe failure threshold.
     k8s_liveness_probe_failure_threshold: 3
     # Set to `true` to create a LoadBalancer Service entry that exposes the web port externally. When undefined or `false`, the web port is not included in the LoadBalancer Service.
     grafana_k8s_loadbalancer_expose_web_port: false
-    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    # Optional Kubernetes container resource requests and limits.
     k8s_resources:
       requests:
         memory: "1Gi"
@@ -526,7 +526,7 @@ Probes configured Kubernetes NodePort values and LoadBalancer-exposed service po
   vars:
     # Sets the Grafana web port.
     grafana_web_port: 3000
-    # Kubernetes NodePort value used by the external web Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32000`.
+    # Kubernetes NodePort value used by the external web Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     grafana_k8s_web_node_port: 32000
     # Set to `true` to create a LoadBalancer Service entry that exposes the web port externally. When undefined or `false`, the web port is not included in the LoadBalancer Service.
     grafana_k8s_loadbalancer_expose_web_port: false
@@ -546,9 +546,9 @@ Deletes the Grafana Deployment, Service, and NodePort Service from Kubernetes.
   vars:
     # Sets the base Kubernetes resource name for Grafana.
     grafana_k8s_resource_name: "{{ inventory_hostname }}"
-    # Sets the Kubernetes namespace used for Grafana resources. Example: `fabricx-observability`.
+    # Sets the Kubernetes namespace used for Grafana resources.
     k8s_namespace: "fabricx-observability"
-    # Kubernetes NodePort value used by the external web Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `32000`.
+    # Kubernetes NodePort value used by the external web Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     grafana_k8s_web_node_port: 32000
     # Set to `true` to create a LoadBalancer Service entry that exposes the web port externally. When undefined or `false`, the web port is not included in the LoadBalancer Service.
     grafana_k8s_loadbalancer_expose_web_port: false
@@ -588,17 +588,17 @@ Applies the Kubernetes ConfigMap that contains Grafana provisioning files for th
     grafana_k8s_part_of: monitoring
     # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the shared remote config root used by Grafana. Example: `/var/hyperledger/fabricx/grafana`. Required when using it for `grafana_remote_config_dir`.
+    # Sets the shared remote config root used by Grafana. Required when using it for `grafana_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/grafana"
     # Sets the Grafana datasource provisioning filename.
     grafana_datasource_file: datasources.yaml
     # Sets the Grafana dashboard provider filename.
     grafana_dashboards_file: dashboards.yaml
-    # Sets the inventory host name of the Prometheus instance used by Grafana. Example: `prometheus-1.example.com`. The referenced host must expose the Prometheus inventory vars used by the templates.
+    # Sets the inventory host name of the Prometheus instance used by Grafana. The referenced host must expose the Prometheus inventory vars used by the templates.
     prometheus_host: "prometheus-1.example.com"
-    # Sets the inventory host name of the Loki instance used by Grafana. Example: `loki-1.example.com`.
+    # Sets the inventory host name of the Loki instance used by Grafana.
     loki_host: "loki-1.example.com"
-    # Sets the Kubernetes namespace used for Grafana resources. Example: `fabricx-observability`.
+    # Sets the Kubernetes namespace used for Grafana resources.
     k8s_namespace: "fabricx-observability"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
@@ -618,7 +618,7 @@ Deletes the Grafana provisioning ConfigMap and dashboard ConfigMaps from the nam
     grafana_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Grafana resources.
     grafana_k8s_part_of: monitoring
-    # Sets the Kubernetes namespace used for Grafana resources. Example: `fabricx-observability`.
+    # Sets the Kubernetes namespace used for Grafana resources.
     k8s_namespace: "fabricx-observability"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
@@ -640,9 +640,9 @@ Applies a dashboard ConfigMap for one Grafana dashboard JSON file.
     grafana_k8s_part_of: monitoring
     # Sets the Grafana dashboard filename.
     grafana_dashboard_file: dashboard.json
-    # Sets the local path to the Grafana dashboard JSON file. Example: `/opt/fabricx/grafana/dashboards/main.json`.
+    # Sets the local path to the Grafana dashboard JSON file.
     grafana_dashboard_path: "/opt/fabricx/grafana/dashboards/main.json"
-    # Sets the Kubernetes namespace used for Grafana resources. Example: `fabricx-observability`.
+    # Sets the Kubernetes namespace used for Grafana resources.
     k8s_namespace: "fabricx-observability"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
@@ -664,11 +664,11 @@ Applies the Grafana Kubernetes Secret that holds admin credentials and optional 
     grafana_k8s_part_of: monitoring
     # Sets the remote directory that stores Grafana provisioning files and TLS material.
     grafana_remote_config_dir: "{{ remote_config_dir }}"
-    # Sets the shared remote config root used by Grafana. Example: `/var/hyperledger/fabricx/grafana`. Required when using it for `grafana_remote_config_dir`.
+    # Sets the shared remote config root used by Grafana. Required when using it for `grafana_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/grafana"
-    # Sets the Grafana admin username. Example: `admin`.
+    # Sets the Grafana admin username.
     grafana_username: "admin"
-    # Sets the Grafana admin password. Example: `my_grafana_password`. Store this value in Ansible Vault.
+    # Sets the Grafana admin password. Store this value in Ansible Vault.
     grafana_password: "my_grafana_password"
     # Enables Grafana TLS handling.
     grafana_use_tls: false
@@ -676,7 +676,7 @@ Applies the Grafana Kubernetes Secret that holds admin credentials and optional 
     grafana_tls_private_key_file: server.key
     # Sets the Grafana TLS certificate filename.
     grafana_tls_cert_file: server.crt
-    # Sets the Kubernetes namespace used for Grafana resources. Example: `fabricx-observability`.
+    # Sets the Kubernetes namespace used for Grafana resources.
     k8s_namespace: "fabricx-observability"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
@@ -694,7 +694,7 @@ Deletes the Grafana Kubernetes Secret from the namespace.
   vars:
     # Sets the base Kubernetes resource name for Grafana.
     grafana_k8s_resource_name: "{{ inventory_hostname }}"
-    # Sets the Kubernetes namespace used for Grafana resources. Example: `fabricx-observability`.
+    # Sets the Kubernetes namespace used for Grafana resources.
     k8s_namespace: "fabricx-observability"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
@@ -716,7 +716,7 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     grafana_k8s_part_of: monitoring
     # Enables Grafana TLS handling.
     grafana_use_tls: false
-    # Specifies the OpenShift Route host. Example: `grafana.apps.example.com`.
+    # Specifies the OpenShift Route host.
     grafana_openshift_route: "grafana.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
@@ -734,7 +734,7 @@ Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
   vars:
     # Enables Grafana TLS handling.
     grafana_use_tls: false
-    # Specifies the OpenShift Route host. Example: `grafana.apps.example.com`.
+    # Specifies the OpenShift Route host.
     grafana_openshift_route: "grafana.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana
@@ -752,7 +752,7 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Sets the base Kubernetes resource name for Grafana.
     grafana_k8s_resource_name: "{{ inventory_hostname }}"
-    # Specifies the OpenShift Route host. Example: `grafana.apps.example.com`.
+    # Specifies the OpenShift Route host.
     grafana_openshift_route: "grafana.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.grafana

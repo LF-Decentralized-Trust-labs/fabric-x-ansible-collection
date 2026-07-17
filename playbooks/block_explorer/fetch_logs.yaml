@@ -1,0 +1,36 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Fetch the Fabric-X Block Explorer logs
+  hosts: "{{ target_hosts | default('fabric_x_block_explorer') }}:&fabric_x_block_explorer"
+  tasks:
+    # =========================
+    # Postgres
+    # =========================
+    - name: Fetch the Fabric-X Block Explorer Postgres DB logs
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres
+        tasks_from: fetch_logs
+      when:
+        - postgres_port is defined
+    # =========================
+    # Block Explorer server
+    # =========================
+    - name: Fetch the Fabric-X Block Explorer server logs
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.block_explorer
+        tasks_from: fetch_logs
+      when:
+        - block_explorer_port is defined
+    # =========================
+    # Block Explorer UI
+    # =========================
+    - name: Fetch the Fabric-X Block Explorer UI logs
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.block_explorer_ui
+        tasks_from: fetch_logs
+      when:
+        - block_explorer_ui_port is defined

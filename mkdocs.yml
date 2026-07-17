@@ -126,6 +126,7 @@ nav:
   - Playbooks:
       - Overview: playbooks/index.md
       - artifacts: playbooks/artifacts/index.md
+      - block_explorer: playbooks/block_explorer/index.md
       - committer: playbooks/committer/index.md
       - fabric_ca_client: playbooks/fabric_ca_client/index.md
       - fabric_ca_server: playbooks/fabric_ca_server/index.md
@@ -139,6 +140,8 @@ nav:
       - alloy: roles/alloy/index.md
       - armageddon: roles/armageddon/index.md
       - bin: roles/bin/index.md
+      - block_explorer: roles/block_explorer/index.md
+      - block_explorer_ui: roles/block_explorer_ui/index.md
       - cadvisor: roles/cadvisor/index.md
       - committer: roles/committer/index.md
       - configtxgen: roles/configtxgen/index.md

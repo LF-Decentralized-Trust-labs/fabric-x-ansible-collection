@@ -77,8 +77,8 @@ Dispatches `consensus`, `batcher`, `assembler`, or `router` startup to the selec
 ```yaml
 - name: Dispatch orderer startup by component and deployment mode
   vars:
-    # Orderer component to manage; use `consensus` for the consenter process. Example: `consensus`, `batcher`, `assembler`, or `router`.
-    orderer_component_type: "router"
+    # Orderer component to manage; use `consensus` for the consenter process.
+    orderer_component_type: "consensus"
     # Deployment backend selected by the top-level dispatcher.
     orderer_deployment_mode: "{%- if orderer_use_bin -%}bin{%- elif orderer_use_openshift -%}openshift{%- elif orderer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
     # Selects the binary deployment branch.
@@ -101,8 +101,8 @@ Dispatches component shutdown to the active binary, container, or Kubernetes lif
 ```yaml
 - name: Dispatch orderer shutdown by component and deployment mode
   vars:
-    # Orderer component to manage; use `consensus` for the consenter process. Example: `consensus`, `batcher`, `assembler`, or `router`.
-    orderer_component_type: "router"
+    # Orderer component to manage; use `consensus` for the consenter process.
+    orderer_component_type: "consensus"
     # Deployment backend selected by the top-level dispatcher.
     orderer_deployment_mode: "{%- if orderer_use_bin -%}bin{%- elif orderer_use_openshift -%}openshift{%- elif orderer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
     # Selects the binary deployment branch.
@@ -125,8 +125,8 @@ Dispatches component teardown to the selected deployment backend. Removes runtim
 ```yaml
 - name: Dispatch orderer teardown by component and deployment mode
   vars:
-    # Orderer component to manage; use `consensus` for the consenter process. Example: `consensus`, `batcher`, `assembler`, or `router`.
-    orderer_component_type: "router"
+    # Orderer component to manage; use `consensus` for the consenter process.
+    orderer_component_type: "consensus"
     # Deployment backend selected by the top-level dispatcher.
     orderer_deployment_mode: "{%- if orderer_use_bin -%}bin{%- elif orderer_use_openshift -%}openshift{%- elif orderer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
     # Selects the binary deployment branch.
@@ -187,7 +187,7 @@ Checks the configured orderer gRPC listener for binary and container deployments
 ```yaml
 - name: Check the orderer gRPC port
   vars:
-    # gRPC port exposed by the orderer. Example: `7050`.
+    # gRPC port exposed by the orderer.
     orderer_rpc_port: 7050
     # Selects the Kubernetes deployment branch.
     orderer_use_k8s: false
@@ -207,7 +207,7 @@ Compute the address used to reach an orderer operations metrics endpoint from ou
 ```yaml
 - name: Resolve the effective orderer metrics address
   vars:
-    # Inventory host whose orderer metrics endpoint should be resolved. Example: `orderer-router-1`.
+    # Inventory host whose orderer metrics endpoint should be resolved.
     orderer_host: "orderer-router-1"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -320,11 +320,11 @@ Ensures the binary-mode data directory exists and starts `orderer_bin_name` with
   vars:
     # Binary name used by the bin branches.
     orderer_bin_name: arma
-    # Orderer component to manage; use `consensus` for the consenter process. Example: `consensus`, `batcher`, `assembler`, or `router`.
-    orderer_component_type: "router"
-    # Shared base directory for generated configuration. Example: `/var/hyperledger/fabric-x/config/orderer/assembler-1`.
+    # Orderer component to manage; use `consensus` for the consenter process.
+    orderer_component_type: "consensus"
+    # Shared base directory for generated configuration.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
-    # Shared base directory for persisted runtime data. Example: `/var/hyperledger/fabric-x/data/orderer/router-1`.
+    # Shared base directory for persisted runtime data.
     remote_data_dir: "/var/hyperledger/fabric-x/data/orderer/router-1"
     # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
@@ -332,7 +332,7 @@ Ensures the binary-mode data directory exists and starts `orderer_bin_name` with
     orderer_remote_data_dir: "{{ remote_data_dir }}"
     # Rendered orderer configuration filename.
     orderer_config_file: node_config.yaml
-    # gRPC port exposed by the orderer. Example: `7050`.
+    # gRPC port exposed by the orderer.
     orderer_rpc_port: 7050
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -387,8 +387,8 @@ Ensures the host data directory exists and starts the orderer container with the
 ```yaml
 - name: Start the orderer container
   vars:
-    # Orderer component to manage; use `consensus` for the consenter process. Example: `consensus`, `batcher`, `assembler`, or `router`.
-    orderer_component_type: "router"
+    # Orderer component to manage; use `consensus` for the consenter process.
+    orderer_component_type: "consensus"
     # Container name used by the container lifecycle branch.
     orderer_container_name: "{{ inventory_hostname }}"
     # Full image reference used by the container and Kubernetes branches.
@@ -399,9 +399,9 @@ Ensures the host data directory exists and starts the orderer container with the
     orderer_image_name: fabric-x-orderer
     # Image tag used for the orderer container.
     orderer_image_tag: 1.0.3
-    # Shared base directory for generated configuration. Example: `/var/hyperledger/fabric-x/config/orderer/assembler-1`.
+    # Shared base directory for generated configuration.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
-    # Shared base directory for persisted runtime data. Example: `/var/hyperledger/fabric-x/data/orderer/router-1`.
+    # Shared base directory for persisted runtime data.
     remote_data_dir: "/var/hyperledger/fabric-x/data/orderer/router-1"
     # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
@@ -413,9 +413,9 @@ Ensures the host data directory exists and starts the orderer container with the
     orderer_container_data_dir: /data
     # Rendered orderer configuration filename.
     orderer_config_file: node_config.yaml
-    # gRPC port exposed by the orderer. Example: `7050`.
+    # gRPC port exposed by the orderer.
     orderer_rpc_port: 7050
-    # Operations endpoint port exposed by the orderer. This endpoint serves operational APIs and Prometheus metrics. Example: `7060`.
+    # Operations endpoint port exposed by the orderer. This endpoint serves operational APIs and Prometheus metrics.
     orderer_operations_port: 7060
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -494,13 +494,13 @@ Deletes the orderer data directory for binary and container deployments. In Kube
   vars:
     # Remote directory where orderer data is stored.
     orderer_remote_data_dir: "{{ remote_data_dir }}"
-    # Shared base directory for persisted runtime data. Example: `/var/hyperledger/fabric-x/data/orderer/router-1`.
+    # Shared base directory for persisted runtime data.
     remote_data_dir: "/var/hyperledger/fabric-x/data/orderer/router-1"
     # Selects the Kubernetes deployment branch.
     orderer_use_k8s: false
     # Selects the OpenShift deployment branch.
     orderer_use_openshift: false
-    # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
+    # Kubernetes namespace used for orderer resources.
     k8s_namespace: "fabricx-orderer"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -516,11 +516,11 @@ Renders the component-specific orderer config for `consensus`, `batcher`, `assem
 ```yaml
 - name: Render and transfer orderer configuration
   vars:
-    # Orderer component to manage; use `consensus` for the consenter process. Example: `consensus`, `batcher`, `assembler`, or `router`.
-    orderer_component_type: "router"
-    # Shared base directory for generated configuration. Example: `/var/hyperledger/fabric-x/config/orderer/assembler-1`.
+    # Orderer component to manage; use `consensus` for the consenter process.
+    orderer_component_type: "consensus"
+    # Shared base directory for generated configuration.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
-    # Shared base directory for persisted runtime data. Example: `/var/hyperledger/fabric-x/data/orderer/router-1`.
+    # Shared base directory for persisted runtime data.
     remote_data_dir: "/var/hyperledger/fabric-x/data/orderer/router-1"
     # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
@@ -536,9 +536,9 @@ Renders the component-specific orderer config for `consensus`, `batcher`, `assem
     orderer_data_dir: "{{ orderer_remote_data_dir if orderer_use_bin else orderer_container_data_dir }}"
     # Rendered orderer configuration filename.
     orderer_config_file: node_config.yaml
-    # Control-node directory containing configtxgen artifacts. Example: `/tmp/fabric-x/artifacts/configtxgen`.
+    # Control-node directory containing configtxgen artifacts.
     configtxgen_artifacts_dir: "/tmp/fabric-x/artifacts/configtxgen"
-    # Channel identifier used to derive the genesis block filename. Example: `fabricx-channel`.
+    # Channel identifier used to derive the genesis block filename.
     channel_id: "fabricx-channel"
     # Genesis block filename copied into the config directory.
     orderer_genesis_block_file: "{{ channel_id }}_block.pb"
@@ -552,41 +552,41 @@ Renders the component-specific orderer config for `consensus`, `batcher`, `assem
     orderer_use_k8s: false
     # Selects the OpenShift deployment branch.
     orderer_use_openshift: false
-    # IP address on which the orderer gRPC server binds. Example: `0.0.0.0`.
+    # IP address on which the orderer gRPC server binds.
     orderer_listen_address: "0.0.0.0"
-    # gRPC port exposed by the orderer. Example: `7050`.
+    # gRPC port exposed by the orderer.
     orderer_rpc_port: 7050
-    # Interval between client keepalive pings to other orderer nodes. Example: `1m0s`.
+    # Interval between client keepalive pings to other orderer nodes.
     orderer_keepalive_client_interval: "1m0s"
-    # Time the orderer client waits for a keepalive response before closing the connection. Example: `20s`.
+    # Time the orderer client waits for a keepalive response before closing the connection.
     orderer_keepalive_client_timeout: "20s"
-    # Minimum permitted interval between client pings to the orderer gRPC server. Example: `1m0s`.
+    # Minimum permitted interval between client pings to the orderer gRPC server.
     orderer_keepalive_server_min_interval: "1m0s"
-    # Interval between server keepalive pings to connected clients. Example: `2h0m0s`.
+    # Interval between server keepalive pings to connected clients.
     orderer_keepalive_server_interval: "2h0m0s"
-    # Time the orderer server waits for a keepalive response before closing the connection. Example: `20s`.
+    # Time the orderer server waits for a keepalive response before closing the connection.
     orderer_keepalive_server_timeout: "20s"
-    # Initial delay used by the orderer gRPC client backoff policy. Example: `1s`.
+    # Initial delay used by the orderer gRPC client backoff policy.
     orderer_backoff_base_delay: "1s"
-    # Multiplier applied to orderer gRPC client retry backoff delays. Example: `1.6`.
+    # Multiplier applied to orderer gRPC client retry backoff delays.
     orderer_backoff_multiplier: 1.6
-    # Maximum delay used by the orderer gRPC client backoff policy. Example: `2m0s`.
+    # Maximum delay used by the orderer gRPC client backoff policy.
     orderer_backoff_max_delay: "2m0s"
-    # Maximum message size in bytes the orderer gRPC server and client can receive. Example: `104857600`.
+    # Maximum message size in bytes the orderer gRPC server and client can receive.
     orderer_max_recv_msg_size: 104857600
-    # Maximum message size in bytes the orderer gRPC server and client can send. Example: `104857600`.
+    # Maximum message size in bytes the orderer gRPC server and client can send.
     orderer_max_send_msg_size: 104857600
-    # Bootstrap method written to `General.Bootstrap.Method` in the orderer config. Example: `block`.
+    # Bootstrap method written to `General.Bootstrap.Method` in the orderer config.
     orderer_bootstrap_method: "block"
-    # Maximum number of messages in the orderer cluster egress buffer. Example: `100`.
+    # Maximum number of messages in the orderer cluster egress buffer.
     orderer_cluster_send_buffer_size: 100
     # Optional block replication policy written to `General.Cluster.ReplicationPolicy`.
     orderer_cluster_replication_policy: "string"
-    # Preferred blockchain crypto service provider for the orderer. Example: `SW`.
+    # Preferred blockchain crypto service provider for the orderer.
     orderer_bccsp_default: "SW"
-    # Hash algorithm for the software blockchain crypto provider. Example: `SHA2`.
+    # Hash algorithm for the software blockchain crypto provider.
     orderer_bccsp_sw_hash: "SHA2"
-    # Security level for the software blockchain crypto provider. Example: `256`.
+    # Security level for the software blockchain crypto provider.
     orderer_bccsp_sw_security: 256
     # Optional key store path for the software blockchain crypto provider.
     orderer_bccsp_sw_file_key_store: "string"
@@ -602,40 +602,40 @@ Renders the component-specific orderer config for `consensus`, `batcher`, `assem
     orderer_bccsp_pkcs11_security: 1000
     # Optional key store path for the PKCS#11 crypto provider.
     orderer_bccsp_pkcs11_file_key_store: "string"
-    # Logging specification written to `General.LogSpec`. Example: `info`.
+    # Logging specification written to `General.LogSpec`.
     orderer_log_spec: "info"
-    # Controls whether router and batcher validate signatures in client requests. Example: `false`.
+    # Controls whether router and batcher validate signatures in client requests.
     orderer_client_signature_verification_required: false
-    # Operations endpoint port exposed by the orderer. This endpoint serves operational APIs and Prometheus metrics. Example: `7060`.
+    # Operations endpoint port exposed by the orderer. This endpoint serves operational APIs and Prometheus metrics.
     orderer_operations_port: 7060
-    # IP address on which the orderer operations server binds. Example: `0.0.0.0`.
+    # IP address on which the orderer operations server binds.
     orderer_operations_listen_address: "0.0.0.0"
     # Enables TLS for the orderer operations endpoint.
     orderer_operations_use_tls: false
     # Enables client mutual TLS for the orderer operations endpoint.
     orderer_operations_use_mtls: "{{ orderer_use_mtls }}"
-    # Client identifiers whose TLS CA certificates are trusted by the operations endpoint. Trusts fetched `tls/ca.crt` files under those artifact directories. Example: `['prometheus-1']`.
+    # Client identifiers whose TLS CA certificates are trusted by the operations endpoint. Trusts fetched `tls/ca.crt` files under those artifact directories.
     orderer_operations_mtls_clients:
       - "prometheus-1"
-    # Organization dictionaries whose TLS CA certificates are trusted by the operations endpoint. Example: `[{'name': 'Org1', 'domain': 'org1.example.com'}]`.
+    # Organization dictionaries whose TLS CA certificates are trusted by the operations endpoint.
     orderer_operations_mtls_orgs:
       - name: "Org1"
         domain: "org1.example.com"
-    # Metrics provider written to the orderer `Metrics.Provider` setting. Example: `prometheus`.
+    # Metrics provider written to the orderer `Metrics.Provider` setting.
     orderer_metrics_provider: "prometheus"
-    # Metrics logging interval written to `Metrics.MetricsLogInterval`; `0s` disables periodic logging. Example: `0s`.
+    # Metrics logging interval written to `Metrics.MetricsLogInterval`; `0s` disables periodic logging.
     orderer_metrics_log_interval: "0s"
-    # Client identifiers whose mTLS CA certificates are mounted or transferred. Trusts fetched `tls/ca.crt` files under those artifact directories. Example: `['loadgen-1', 'gateway-1']`.
+    # Client identifiers whose mTLS CA certificates are mounted or transferred. Trusts fetched `tls/ca.crt` files under those artifact directories.
     orderer_mtls_clients:
       - "loadgen-1"
       - "gateway-1"
-    # Organization dictionaries whose mTLS CA certificates are mounted or transferred. Example: `[{'name': 'Org1', 'domain': 'org1.example.com'}, {'name': 'Org2', 'domain': 'org2.example.com'}]`.
+    # Organization dictionaries whose mTLS CA certificates are mounted or transferred.
     orderer_mtls_orgs:
       - name: "Org1"
         domain: "org1.example.com"
       - name: "Org2"
         domain: "org2.example.com"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com', 'role': 'orderer', 'fabric_ca_host': 'fca-orderer-org1', 'orderer': {'name': 'orderer-router-1', 'secret': 'orderer-router-1PWD'}}`.
+    # Organization metadata shared by the orderer crypto and config branches.
     organization:
       name: "OrdererOrg1"
       domain: "ordererorg1.example.com"
@@ -644,31 +644,31 @@ Renders the component-specific orderer config for `consensus`, `batcher`, `assem
       orderer:
         name: "orderer-router-1"
         secret: "orderer-router-1PWD"
-    # Numeric party identifier written to `PartyID` in the orderer configuration. Example: `1`.
+    # Numeric party identifier written to `PartyID` in the orderer configuration.
     orderer_group: 1
-    # Batcher shard identifier written only by the batcher template. Example: `0`.
+    # Batcher shard identifier written only by the batcher template.
     orderer_shard_id: 0
-    # Number of connections the router opens to each batcher. Example: `10`.
+    # Number of connections the router opens to each batcher.
     orderer_router_number_of_connections_per_batcher: 10
-    # Number of streams the router opens per connection to a batcher. Example: `5`.
+    # Number of streams the router opens per connection to a batcher.
     orderer_router_number_of_streams_per_connection: 5
-    # Maximum batch sequence distance primary batchers allow before waiting for secondaries. Example: `10`.
+    # Maximum batch sequence distance primary batchers allow before waiting for secondaries.
     orderer_batcher_batch_sequence_gap: 10
-    # Maximum number of requests permitted in the batcher request pool. Example: `1000000`.
+    # Maximum number of requests permitted in the batcher request pool.
     orderer_batcher_mem_pool_max_size: 1000000
-    # Time a client can wait when submitting a request into the batcher pool. Example: `500ms`.
+    # Time a client can wait when submitting a request into the batcher pool.
     orderer_batcher_submit_timeout: "500ms"
-    # Maximum memory in bytes used by the assembler prefetch buffer. Example: `1073741824`.
+    # Maximum memory in bytes used by the assembler prefetch buffer.
     orderer_assembler_prefetch_buffer_memory_bytes: 1073741824
-    # Timeout for assembler ledger scanning during restart. Example: `5s`.
+    # Timeout for assembler ledger scanning during restart.
     orderer_assembler_restart_ledger_scan_timeout: "5s"
-    # Time-to-live for evicting prefetched assembler batches. Example: `1h`.
+    # Time-to-live for evicting prefetched assembler batches.
     orderer_assembler_prefetch_eviction_ttl: "1h"
-    # Timeout for assembler pop-wait monitoring. Example: `1s`.
+    # Timeout for assembler pop-wait monitoring.
     orderer_assembler_pop_wait_monitor_timeout: "1s"
-    # Channel size for assembler replication messages. Example: `100`.
+    # Channel size for assembler replication messages.
     orderer_assembler_replication_channel_size: 100
-    # Channel size for assembler batch request messages. Example: `1000`.
+    # Channel size for assembler batch request messages.
     orderer_assembler_batch_requests_channel_size: 1000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -684,17 +684,17 @@ Copies trusted client and organization TLS CA certificates into the orderer mTLS
 ```yaml
 - name: Transfer mTLS CA certificates for orderer clients and orgs
   vars:
-    # Shared base directory for generated configuration. Example: `/var/hyperledger/fabric-x/config/orderer/assembler-1`.
+    # Shared base directory for generated configuration.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
-    # Control-node directory containing fetched crypto artifacts. Example: `/tmp/fabric-x/artifacts/fetched`.
+    # Control-node directory containing fetched crypto artifacts.
     fetched_artifacts_dir: "/tmp/fabric-x/artifacts/fetched"
     # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
-    # Client identifiers whose mTLS CA certificates are mounted or transferred. Trusts fetched `tls/ca.crt` files under those artifact directories. Example: `['loadgen-1', 'gateway-1']`.
+    # Client identifiers whose mTLS CA certificates are mounted or transferred. Trusts fetched `tls/ca.crt` files under those artifact directories.
     orderer_mtls_clients:
       - "loadgen-1"
       - "gateway-1"
-    # Organization dictionaries whose mTLS CA certificates are mounted or transferred. Example: `[{'name': 'Org1', 'domain': 'org1.example.com'}, {'name': 'Org2', 'domain': 'org2.example.com'}]`.
+    # Organization dictionaries whose mTLS CA certificates are mounted or transferred.
     orderer_mtls_orgs:
       - name: "Org1"
         domain: "org1.example.com"
@@ -714,16 +714,16 @@ Copies trusted client and organization TLS CA certificates into the orderer mTLS
 ```yaml
 - name: Transfer Operations mTLS CA certificates for orderer clients and orgs
   vars:
-    # Shared base directory for generated configuration. Example: `/var/hyperledger/fabric-x/config/orderer/assembler-1`.
+    # Shared base directory for generated configuration.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
-    # Control-node directory containing fetched crypto artifacts. Example: `/tmp/fabric-x/artifacts/fetched`.
+    # Control-node directory containing fetched crypto artifacts.
     fetched_artifacts_dir: "/tmp/fabric-x/artifacts/fetched"
     # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
-    # Client identifiers whose TLS CA certificates are trusted by the operations endpoint. Trusts fetched `tls/ca.crt` files under those artifact directories. Example: `['prometheus-1']`.
+    # Client identifiers whose TLS CA certificates are trusted by the operations endpoint. Trusts fetched `tls/ca.crt` files under those artifact directories.
     orderer_operations_mtls_clients:
       - "prometheus-1"
-    # Organization dictionaries whose TLS CA certificates are trusted by the operations endpoint. Example: `[{'name': 'Org1', 'domain': 'org1.example.com'}]`.
+    # Organization dictionaries whose TLS CA certificates are trusted by the operations endpoint.
     orderer_operations_mtls_orgs:
       - name: "Org1"
         domain: "org1.example.com"
@@ -741,7 +741,7 @@ Deletes the orderer configuration directory, including rendered config, genesis 
 ```yaml
 - name: Remove orderer configuration
   vars:
-    # Shared base directory for generated configuration. Example: `/var/hyperledger/fabric-x/config/orderer/assembler-1`.
+    # Shared base directory for generated configuration.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
     # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
@@ -771,20 +771,12 @@ Publishes the bundled Fabric-X Orderer Grafana dashboard through the grafana rol
 
 > Prepare orderer crypto material
 
-Validates TLS and mTLS prerequisites, provisions orderer MSP and TLS material through cryptogen or Fabric CA, and optionally creates the Kubernetes Secret. Produces the crypto artifacts consumed by config rendering, binary/container mounts, and Kubernetes workloads.
+Provisions orderer MSP and TLS material through cryptogen or Fabric CA based on `organization.fabric_ca_host`, and optionally creates the Kubernetes Secret. Produces the crypto artifacts consumed by config rendering, binary/container mounts, and Kubernetes workloads.
 
 ```yaml
 - name: Prepare orderer crypto material
   vars:
-    # Enables server-side TLS in the rendered config.
-    orderer_use_tls: false
-    # Enables client mutual TLS in the rendered config.
-    orderer_use_mtls: false
-    # Enables TLS for the orderer operations endpoint.
-    orderer_operations_use_tls: false
-    # Enables client mutual TLS for the orderer operations endpoint.
-    orderer_operations_use_mtls: "{{ orderer_use_mtls }}"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com', 'role': 'orderer', 'fabric_ca_host': 'fca-orderer-org1', 'orderer': {'name': 'orderer-router-1', 'secret': 'orderer-router-1PWD'}}`.
+    # Organization metadata shared by the orderer crypto and config branches.
     organization:
       name: "OrdererOrg1"
       domain: "ordererorg1.example.com"
@@ -811,11 +803,11 @@ Copies cryptogen-generated MSP and TLS artifacts for the orderer identity into t
 ```yaml
 - name: Transfer cryptogen-generated orderer crypto material
   vars:
-    # Control-node directory containing cryptogen-generated crypto artifacts. Example: `/tmp/fabric-x/artifacts/cryptogen`.
+    # Control-node directory containing cryptogen-generated crypto artifacts.
     cryptogen_artifacts_dir: "/tmp/fabric-x/artifacts/cryptogen"
-    # Shared base directory for generated configuration. Example: `/var/hyperledger/fabric-x/config/orderer/assembler-1`.
+    # Shared base directory for generated configuration.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com', 'role': 'orderer', 'fabric_ca_host': 'fca-orderer-org1', 'orderer': {'name': 'orderer-router-1', 'secret': 'orderer-router-1PWD'}}`.
+    # Organization metadata shared by the orderer crypto and config branches.
     organization:
       name: "OrdererOrg1"
       domain: "ordererorg1.example.com"
@@ -842,13 +834,13 @@ Copies the Fabric CA TLS certificate when needed and enrolls both MSP and TLS id
 ```yaml
 - name: Enroll the orderer with Fabric CA
   vars:
-    # Control-node directory containing fetched crypto artifacts. Example: `/tmp/fabric-x/artifacts/fetched`.
+    # Control-node directory containing fetched crypto artifacts.
     fetched_artifacts_dir: "/tmp/fabric-x/artifacts/fetched"
-    # Real machine host. Example: `myvpc.cloud.ibm.com`.
+    # Real machine host.
     actual_host: "myvpc.cloud.ibm.com"
-    # Shared base directory for generated configuration. Example: `/var/hyperledger/fabric-x/config/orderer/assembler-1`.
+    # Shared base directory for generated configuration.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com', 'role': 'orderer', 'fabric_ca_host': 'fca-orderer-org1', 'orderer': {'name': 'orderer-router-1', 'secret': 'orderer-router-1PWD'}}`.
+    # Organization metadata shared by the orderer crypto and config branches.
     organization:
       name: "OrdererOrg1"
       domain: "ordererorg1.example.com"
@@ -861,9 +853,9 @@ Copies the Fabric CA TLS certificate when needed and enrolls both MSP and TLS id
     orderer_crypto_name: "{{ organization.orderer.name | default(inventory_hostname) }}"
     # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
-    # Specifies the OpenShift Route host. Example: `orderer-rpc.apps.example.com`.
+    # Specifies the OpenShift Route host.
     orderer_openshift_route: "orderer-rpc.apps.example.com"
-    # Specifies the OpenShift Route host for the operations/metrics endpoint. Example: `orderer-metrics.apps.example.com`.
+    # Specifies the OpenShift Route host for the operations/metrics endpoint.
     orderer_openshift_metrics_route: "orderer-metrics.apps.example.com"
     # Enables TLS for the orderer operations endpoint.
     orderer_operations_use_tls: false
@@ -881,11 +873,11 @@ Fetches the orderer sign certificate, TLS server certificate, and TLS CA certifi
 ```yaml
 - name: Fetch orderer certificates to the control node
   vars:
-    # Control-node directory containing fetched crypto artifacts. Example: `/tmp/fabric-x/artifacts/fetched`.
+    # Control-node directory containing fetched crypto artifacts.
     fetched_artifacts_dir: "/tmp/fabric-x/artifacts/fetched"
-    # Shared base directory for generated configuration. Example: `/var/hyperledger/fabric-x/config/orderer/assembler-1`.
+    # Shared base directory for generated configuration.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com', 'role': 'orderer', 'fabric_ca_host': 'fca-orderer-org1', 'orderer': {'name': 'orderer-router-1', 'secret': 'orderer-router-1PWD'}}`.
+    # Organization metadata shared by the orderer crypto and config branches.
     organization:
       name: "OrdererOrg1"
       domain: "ordererorg1.example.com"
@@ -912,7 +904,7 @@ Deletes the orderer MSP and TLS directories from the config path. In Kubernetes 
 ```yaml
 - name: Remove orderer crypto material
   vars:
-    # Shared base directory for generated configuration. Example: `/var/hyperledger/fabric-x/config/orderer/assembler-1`.
+    # Shared base directory for generated configuration.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
     # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
@@ -934,8 +926,8 @@ Creates the orderer Kubernetes Service, StatefulSet, and optional NodePort and L
 ```yaml
 - name: Create the orderer Kubernetes workload
   vars:
-    # Orderer component to manage; use `consensus` for the consenter process. Example: `consensus`, `batcher`, `assembler`, or `router`.
-    orderer_component_type: "router"
+    # Orderer component to manage; use `consensus` for the consenter process.
+    orderer_component_type: "consensus"
     # Orderer identity name used to derive crypto artifact paths.
     orderer_crypto_name: "{{ organization.orderer.name | default(inventory_hostname) }}"
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
@@ -944,22 +936,22 @@ Creates the orderer Kubernetes Service, StatefulSet, and optional NodePort and L
     orderer_k8s_part_of: "fabric-x-orderer-{{ organization.name }}"
     # Seconds to wait for the orderer StatefulSet rollout.
     orderer_k8s_wait_timeout: 120
-    # gRPC port exposed by the orderer. Example: `7050`.
+    # gRPC port exposed by the orderer.
     orderer_rpc_port: 7050
-    # Operations endpoint port exposed by the orderer. This endpoint serves operational APIs and Prometheus metrics. Example: `7060`.
+    # Operations endpoint port exposed by the orderer. This endpoint serves operational APIs and Prometheus metrics.
     orderer_operations_port: 7060
     # Enables client mutual TLS for the orderer operations endpoint.
     orderer_operations_use_mtls: "{{ orderer_use_mtls }}"
-    # Client identifiers whose TLS CA certificates are trusted by the operations endpoint. Trusts fetched `tls/ca.crt` files under those artifact directories. Example: `['prometheus-1']`.
+    # Client identifiers whose TLS CA certificates are trusted by the operations endpoint. Trusts fetched `tls/ca.crt` files under those artifact directories.
     orderer_operations_mtls_clients:
       - "prometheus-1"
-    # Organization dictionaries whose TLS CA certificates are trusted by the operations endpoint. Example: `[{'name': 'Org1', 'domain': 'org1.example.com'}]`.
+    # Organization dictionaries whose TLS CA certificates are trusted by the operations endpoint.
     orderer_operations_mtls_orgs:
       - name: "Org1"
         domain: "org1.example.com"
-    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31050`.
+    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     orderer_k8s_rpc_node_port: 31050
-    # Kubernetes NodePort value used by the external operations/metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
+    # Kubernetes NodePort value used by the external operations/metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     orderer_k8s_metrics_node_port: 31051
     # Filesystem group applied to mounted ConfigMap and Secret volumes.
     orderer_k8s_fs_group: 10001
@@ -977,17 +969,17 @@ Creates the orderer Kubernetes Service, StatefulSet, and optional NodePort and L
     orderer_container_data_dir: /data
     # Enables client mutual TLS in the rendered config.
     orderer_use_mtls: false
-    # Client identifiers whose mTLS CA certificates are mounted or transferred. Trusts fetched `tls/ca.crt` files under those artifact directories. Example: `['loadgen-1', 'gateway-1']`.
+    # Client identifiers whose mTLS CA certificates are mounted or transferred. Trusts fetched `tls/ca.crt` files under those artifact directories.
     orderer_mtls_clients:
       - "loadgen-1"
       - "gateway-1"
-    # Organization dictionaries whose mTLS CA certificates are mounted or transferred. Example: `[{'name': 'Org1', 'domain': 'org1.example.com'}, {'name': 'Org2', 'domain': 'org2.example.com'}]`.
+    # Organization dictionaries whose mTLS CA certificates are mounted or transferred.
     orderer_mtls_orgs:
       - name: "Org1"
         domain: "org1.example.com"
       - name: "Org2"
         domain: "org2.example.com"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com', 'role': 'orderer', 'fabric_ca_host': 'fca-orderer-org1', 'orderer': {'name': 'orderer-router-1', 'secret': 'orderer-router-1PWD'}}`.
+    # Organization metadata shared by the orderer crypto and config branches.
     organization:
       name: "OrdererOrg1"
       domain: "ordererorg1.example.com"
@@ -996,35 +988,35 @@ Creates the orderer Kubernetes Service, StatefulSet, and optional NodePort and L
       orderer:
         name: "orderer-router-1"
         secret: "orderer-router-1PWD"
-    # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
+    # Kubernetes namespace used for orderer resources.
     k8s_namespace: "fabricx-orderer"
-    # PVC storage request used by the orderer StatefulSet. Example: `20Gi`.
+    # PVC storage request used by the orderer StatefulSet.
     k8s_storage_size: "20Gi"
-    # Optional storage class used by the StatefulSet PVC. Example: `fast-ssd`.
+    # Optional storage class used by the StatefulSet PVC.
     k8s_storage_class: "fast-ssd"
-    # Optional image pull secret used by the StatefulSet. Example: `regcred-orderer`.
+    # Optional image pull secret used by the StatefulSet.
     k8s_image_pull_secret: "regcred-orderer"
-    # Optional readiness probe initial delay override. Example: `15`.
+    # Optional readiness probe initial delay override.
     k8s_readiness_probe_initial_delay_seconds: 15
-    # Optional readiness probe period override. Example: `10`.
+    # Optional readiness probe period override.
     k8s_readiness_probe_period_seconds: 10
-    # Optional readiness probe timeout override. Example: `3`.
+    # Optional readiness probe timeout override.
     k8s_readiness_probe_timeout_seconds: 3
-    # Optional readiness probe failure threshold override. Example: `6`.
+    # Optional readiness probe failure threshold override.
     k8s_readiness_probe_failure_threshold: 6
-    # Optional liveness probe initial delay override. Example: `30`.
+    # Optional liveness probe initial delay override.
     k8s_liveness_probe_initial_delay_seconds: 30
-    # Optional liveness probe period override. Example: `20`.
+    # Optional liveness probe period override.
     k8s_liveness_probe_period_seconds: 20
-    # Optional liveness probe timeout override. Example: `5`.
+    # Optional liveness probe timeout override.
     k8s_liveness_probe_timeout_seconds: 5
-    # Optional liveness probe failure threshold override. Example: `3`.
+    # Optional liveness probe failure threshold override.
     k8s_liveness_probe_failure_threshold: 3
     # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
     orderer_k8s_loadbalancer_expose_rpc_port: false
     # Set to `true` to create a LoadBalancer Service entry that exposes the operations/metrics port externally. When undefined or `false`, the operations/metrics port is not included in the LoadBalancer Service.
     orderer_k8s_loadbalancer_expose_metrics_port: false
-    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    # Optional Kubernetes container resource requests and limits.
     k8s_resources:
       requests:
         memory: "1Gi"
@@ -1046,17 +1038,17 @@ Probes configured Kubernetes NodePort values and LoadBalancer-exposed service po
 ```yaml
 - name: Check that the orderer Kubernetes services are reachable
   vars:
-    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31050`.
+    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     orderer_k8s_rpc_node_port: 31050
-    # Kubernetes NodePort value used by the external operations/metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
+    # Kubernetes NodePort value used by the external operations/metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     orderer_k8s_metrics_node_port: 31051
     # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
     orderer_k8s_loadbalancer_expose_rpc_port: false
     # Set to `true` to create a LoadBalancer Service entry that exposes the operations/metrics port externally. When undefined or `false`, the operations/metrics port is not included in the LoadBalancer Service.
     orderer_k8s_loadbalancer_expose_metrics_port: false
-    # gRPC port exposed by the orderer. Example: `7050`.
+    # gRPC port exposed by the orderer.
     orderer_rpc_port: 7050
-    # Operations endpoint port exposed by the orderer. This endpoint serves operational APIs and Prometheus metrics. Example: `7060`.
+    # Operations endpoint port exposed by the orderer. This endpoint serves operational APIs and Prometheus metrics.
     orderer_operations_port: 7060
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -1074,13 +1066,13 @@ Deletes the orderer StatefulSet and Services from the configured namespace. Leav
   vars:
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
+    # Kubernetes namespace used for orderer resources.
     k8s_namespace: "fabricx-orderer"
-    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31050`.
+    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     orderer_k8s_rpc_node_port: 31050
     # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
     orderer_k8s_loadbalancer_expose_rpc_port: false
-    # Kubernetes NodePort value used by the external operations/metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31051`.
+    # Kubernetes NodePort value used by the external operations/metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     orderer_k8s_metrics_node_port: 31051
     # Set to `true` to create a LoadBalancer Service entry that exposes the operations/metrics port externally. When undefined or `false`, the operations/metrics port is not included in the LoadBalancer Service.
     orderer_k8s_loadbalancer_expose_metrics_port: false
@@ -1127,7 +1119,7 @@ Slurps the generated genesis block and renders the orderer ConfigMap. Includes t
 ```yaml
 - name: Create the orderer Kubernetes ConfigMap
   vars:
-    # Shared base directory for generated configuration. Example: `/var/hyperledger/fabric-x/config/orderer/assembler-1`.
+    # Shared base directory for generated configuration.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
     # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
@@ -1135,17 +1127,17 @@ Slurps the generated genesis block and renders the orderer ConfigMap. Includes t
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
     orderer_k8s_part_of: "fabric-x-orderer-{{ organization.name }}"
-    # Orderer component to manage; use `consensus` for the consenter process. Example: `consensus`, `batcher`, `assembler`, or `router`.
-    orderer_component_type: "router"
+    # Orderer component to manage; use `consensus` for the consenter process.
+    orderer_component_type: "consensus"
     # Rendered orderer configuration filename.
     orderer_config_file: node_config.yaml
     # Enables client mutual TLS in the rendered config.
     orderer_use_mtls: false
-    # Client identifiers whose mTLS CA certificates are mounted or transferred. Trusts fetched `tls/ca.crt` files under those artifact directories. Example: `['loadgen-1', 'gateway-1']`.
+    # Client identifiers whose mTLS CA certificates are mounted or transferred. Trusts fetched `tls/ca.crt` files under those artifact directories.
     orderer_mtls_clients:
       - "loadgen-1"
       - "gateway-1"
-    # Organization dictionaries whose mTLS CA certificates are mounted or transferred. Example: `[{'name': 'Org1', 'domain': 'org1.example.com'}, {'name': 'Org2', 'domain': 'org2.example.com'}]`.
+    # Organization dictionaries whose mTLS CA certificates are mounted or transferred.
     orderer_mtls_orgs:
       - name: "Org1"
         domain: "org1.example.com"
@@ -1153,14 +1145,14 @@ Slurps the generated genesis block and renders the orderer ConfigMap. Includes t
         domain: "org2.example.com"
     # Enables client mutual TLS for the orderer operations endpoint.
     orderer_operations_use_mtls: "{{ orderer_use_mtls }}"
-    # Client identifiers whose TLS CA certificates are trusted by the operations endpoint. Trusts fetched `tls/ca.crt` files under those artifact directories. Example: `['prometheus-1']`.
+    # Client identifiers whose TLS CA certificates are trusted by the operations endpoint. Trusts fetched `tls/ca.crt` files under those artifact directories.
     orderer_operations_mtls_clients:
       - "prometheus-1"
-    # Organization dictionaries whose TLS CA certificates are trusted by the operations endpoint. Example: `[{'name': 'Org1', 'domain': 'org1.example.com'}]`.
+    # Organization dictionaries whose TLS CA certificates are trusted by the operations endpoint.
     orderer_operations_mtls_orgs:
       - name: "Org1"
         domain: "org1.example.com"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com', 'role': 'orderer', 'fabric_ca_host': 'fca-orderer-org1', 'orderer': {'name': 'orderer-router-1', 'secret': 'orderer-router-1PWD'}}`.
+    # Organization metadata shared by the orderer crypto and config branches.
     organization:
       name: "OrdererOrg1"
       domain: "ordererorg1.example.com"
@@ -1169,7 +1161,7 @@ Slurps the generated genesis block and renders the orderer ConfigMap. Includes t
       orderer:
         name: "orderer-router-1"
         secret: "orderer-router-1PWD"
-    # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
+    # Kubernetes namespace used for orderer resources.
     k8s_namespace: "fabricx-orderer"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -1187,7 +1179,7 @@ Deletes the ConfigMap that holds orderer configuration, genesis material, and op
   vars:
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
+    # Kubernetes namespace used for orderer resources.
     k8s_namespace: "fabricx-orderer"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -1203,11 +1195,11 @@ Resolves orderer MSP and TLS file locations and renders the Kubernetes Secret. T
 ```yaml
 - name: Create the orderer Kubernetes Secret
   vars:
-    # Shared base directory for generated configuration. Example: `/var/hyperledger/fabric-x/config/orderer/assembler-1`.
+    # Shared base directory for generated configuration.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
     # Remote directory where orderer configuration is written.
     orderer_remote_config_dir: "{{ remote_config_dir }}"
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com', 'role': 'orderer', 'fabric_ca_host': 'fca-orderer-org1', 'orderer': {'name': 'orderer-router-1', 'secret': 'orderer-router-1PWD'}}`.
+    # Organization metadata shared by the orderer crypto and config branches.
     organization:
       name: "OrdererOrg1"
       domain: "ordererorg1.example.com"
@@ -1222,9 +1214,9 @@ Resolves orderer MSP and TLS file locations and renders the Kubernetes Secret. T
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
     orderer_k8s_part_of: "fabric-x-orderer-{{ organization.name }}"
-    # Orderer component to manage; use `consensus` for the consenter process. Example: `consensus`, `batcher`, `assembler`, or `router`.
-    orderer_component_type: "router"
-    # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
+    # Orderer component to manage; use `consensus` for the consenter process.
+    orderer_component_type: "consensus"
+    # Kubernetes namespace used for orderer resources.
     k8s_namespace: "fabricx-orderer"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -1242,7 +1234,7 @@ Deletes the Secret that stores orderer MSP and TLS material. Does not remove the
   vars:
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes namespace used for orderer resources. Example: `fabricx-orderer`.
+    # Kubernetes namespace used for orderer resources.
     k8s_namespace: "fabricx-orderer"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -1258,13 +1250,13 @@ Groups orderer hosts by component type and exposes Prometheus scrape service def
 ```yaml
 - name: Build Prometheus scrape targets for orderer hosts
   vars:
-    # Inventory hosts dedicated to orderer nodes. Example: `['orderer-consenter-1', 'orderer-batcher-1', 'orderer-assembler-1', 'orderer-router-1']`.
+    # Inventory hosts dedicated to orderer nodes.
     orderer_hosts:
       - "orderer-consenter-1"
       - "orderer-batcher-1"
       - "orderer-assembler-1"
       - "orderer-router-1"
-    # Control-node directory containing fetched crypto artifacts. Example: `/tmp/fabric-x/artifacts/fetched`.
+    # Control-node directory containing fetched crypto artifacts.
     fetched_artifacts_dir: "/tmp/fabric-x/artifacts/fetched"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -1284,13 +1276,13 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to orderer resources.
     orderer_k8s_part_of: "fabric-x-orderer-{{ organization.name }}"
-    # Orderer component to manage; use `consensus` for the consenter process. Example: `consensus`, `batcher`, `assembler`, or `router`.
-    orderer_component_type: "router"
+    # Orderer component to manage; use `consensus` for the consenter process.
+    orderer_component_type: "consensus"
     # Enables server-side TLS in the rendered config.
     orderer_use_tls: false
     # Enables TLS for the orderer operations endpoint.
     orderer_operations_use_tls: false
-    # Organization metadata shared by the orderer crypto and config branches. Example: `{'name': 'OrdererOrg1', 'domain': 'ordererorg1.example.com', 'role': 'orderer', 'fabric_ca_host': 'fca-orderer-org1', 'orderer': {'name': 'orderer-router-1', 'secret': 'orderer-router-1PWD'}}`.
+    # Organization metadata shared by the orderer crypto and config branches.
     organization:
       name: "OrdererOrg1"
       domain: "ordererorg1.example.com"
@@ -1299,9 +1291,9 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
       orderer:
         name: "orderer-router-1"
         secret: "orderer-router-1PWD"
-    # Specifies the OpenShift Route host. Example: `orderer-rpc.apps.example.com`.
+    # Specifies the OpenShift Route host.
     orderer_openshift_route: "orderer-rpc.apps.example.com"
-    # Specifies the OpenShift Route host for the operations/metrics endpoint. Example: `orderer-metrics.apps.example.com`.
+    # Specifies the OpenShift Route host for the operations/metrics endpoint.
     orderer_openshift_metrics_route: "orderer-metrics.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -1321,9 +1313,9 @@ Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
     orderer_use_tls: false
     # Enables TLS for the orderer operations endpoint.
     orderer_operations_use_tls: false
-    # Specifies the OpenShift Route host. Example: `orderer-rpc.apps.example.com`.
+    # Specifies the OpenShift Route host.
     orderer_openshift_route: "orderer-rpc.apps.example.com"
-    # Specifies the OpenShift Route host for the operations/metrics endpoint. Example: `orderer-metrics.apps.example.com`.
+    # Specifies the OpenShift Route host for the operations/metrics endpoint.
     orderer_openshift_metrics_route: "orderer-metrics.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
@@ -1341,9 +1333,9 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Base name used for the orderer Kubernetes objects, including the optional NodePort Service.
     orderer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Specifies the OpenShift Route host. Example: `orderer-rpc.apps.example.com`.
+    # Specifies the OpenShift Route host.
     orderer_openshift_route: "orderer-rpc.apps.example.com"
-    # Specifies the OpenShift Route host for the operations/metrics endpoint. Example: `orderer-metrics.apps.example.com`.
+    # Specifies the OpenShift Route host for the operations/metrics endpoint.
     orderer_openshift_metrics_route: "orderer-metrics.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer

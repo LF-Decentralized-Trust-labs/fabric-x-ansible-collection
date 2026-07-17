@@ -37,6 +37,7 @@ This inventory deploys these logical services on the local machine:
 - 4 orderer groups. Each group has 1 router, 1 consenter, 1 assembler, and 1 batcher as binaries.
 - 1 committer with validator, verifier, coordinator, sidecar, and query service as binaries.
 - 1 PostgreSQL committer database as a container.
+- 1 Block Explorer server and UI as containers, with PostgreSQL storage, streaming blocks from the committer sidecar.
 - 1 load generator as a binary.
 - Monitoring with node exporter, PostgreSQL exporter, cAdvisor, Prometheus, Grafana, Loki, and Alloy.
 
@@ -64,6 +65,7 @@ flowchart TD
   fabric_cas --> fabric_ca_dbs
   fabric_x --> fabric_x_orderers
   fabric_x --> fabric_x_committers
+  fabric_x --> fabric_x_block_explorer
   fabric_x_committers --> fabric_x_committer
   fabric_x_orderers --> fabric_x_orderer_1
   fabric_x_orderers --> fabric_x_orderer_2
