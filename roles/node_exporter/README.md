@@ -156,6 +156,8 @@ Verifies that the Node Exporter metrics port is reachable on the current host. K
   vars:
     # Sets the TCP port exposed by Node Exporter and seeds the default Kubernetes NodePort value.
     node_exporter_port: 9100
+    # Enables the container backend.
+    node_exporter_use_container: "{{ (not node_exporter_use_k8s) and (not node_exporter_use_openshift) }}"
     # Enables the Kubernetes backend or cleanup path when true.
     node_exporter_use_k8s: false
     # Selects the OpenShift deployment branch.

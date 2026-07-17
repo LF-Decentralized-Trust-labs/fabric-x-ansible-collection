@@ -279,6 +279,7 @@ argument_specs:
       - Kubernetes deployments verify the optional NodePort exposure when it is enabled.
     options:
       node_exporter_port: *node_exporter_port
+      node_exporter_use_container: *node_exporter_use_container
       node_exporter_use_k8s: *node_exporter_use_k8s
       node_exporter_use_openshift: *node_exporter_use_openshift
 
