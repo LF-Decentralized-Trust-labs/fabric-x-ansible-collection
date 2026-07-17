@@ -321,7 +321,8 @@ all:
         node-exporter:
           node_exporter_port: 9111
           node_exporter_use_tls: true
-          node_exporter_use_k8s: true
+          node_exporter_use_openshift: true
+          node_exporter_openshift_route: "node-exporter-metrics.{{ openshift_apps_domain }}"
         committer-db-exporter:
           postgres_db_host: committer-db
           postgres_exporter_port: 2110

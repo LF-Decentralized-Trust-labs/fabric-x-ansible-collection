@@ -14,7 +14,7 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: ping
-  when: not node_exporter_use_k8s
+  when: node_exporter_use_container
 
 # =======================
 # k8s
@@ -24,3 +24,9 @@
     name: hyperledger.fabricx.node_exporter
     tasks_from: k8s/ping
   when: node_exporter_use_k8s
+
+- name: Check that the Node Exporter OpenShift services are reachable
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.node_exporter
+    tasks_from: openshift/ping
+  when: node_exporter_use_openshift
