@@ -172,6 +172,8 @@ all:
                     committer_use_mtls: true
                     committer_monitoring_mtls_clients:
                       - prometheus
+                    committer_mtls_clients:
+                      - block-explorer
                   hosts:
                     committer-db:
                       postgres_user: sc_user
@@ -202,6 +204,25 @@ all:
                       committer_metrics_port: 5240
                       postgres_db_host: committer-db
 
+            # =========================
+            # HLFX Block Explorer
+            # =========================
+            fabric_x_block_explorer:
+              hosts:
+                block-explorer-db:
+                  postgres_user: block_explorer_user
+                  postgres_password: block_explorer_pwd
+                  postgres_db: explorer
+                  postgres_port: 18432
+                  postgres_use_tls: true
+                block-explorer:
+                  block_explorer_port: 18080
+                  sidecar_host: committer-sidecar
+                  postgres_db_host: block-explorer-db
+                block-explorer-ui:
+                  block_explorer_ui_port: 18000
+                  block_explorer_host: block-explorer
+
     # =========================
     # HLFX LoadGens
     # =========================
@@ -228,6 +249,8 @@ all:
         node-exporter:
           node_exporter_port: 9111
           node_exporter_use_tls: true
+        cadvisor:
+          cadvisor_port: 9400
         committer-db-exporter:
           postgres_db_host: committer-db
           postgres_exporter_port: 2110

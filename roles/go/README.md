@@ -69,9 +69,9 @@ Runs `go build` for the selected source tree and output name. Uses `GOOS`, `GOAR
 ```yaml
 - name: Build a Go binary from source
   vars:
-    # Sets the output path passed to `go build -o`. Example: `/opt/fabricx/bin/fxconfig`.
+    # Sets the output path passed to `go build -o`.
     go_output_name: "/opt/fabricx/bin/fxconfig"
-    # Defines the base directory containing the Go source tree or module to build. Example: `/opt/fabricx/tools/fxconfig`.
+    # Defines the base directory containing the Go source tree or module to build.
     go_source_code_path: "/opt/fabricx/tools/fxconfig"
     # Appends a package subdirectory under `go_source_code_path` before invoking `go build`.
     go_source_code_package: ""
@@ -79,7 +79,7 @@ Runs `go build` for the selected source tree and output name. Uses `GOOS`, `GOAR
     go_host_to_map: "{{ inventory_hostname }}"
     # Enables CGO for build and install commands. A compatible C compiler is required when this is `true`.
     go_cgo_enabled: false
-    # Provides optional Go build tags passed to the Go command. Example: `['netgo', 'osusergo']`. The list is joined with commas before execution.
+    # Provides optional Go build tags passed to the Go command. The list is joined with commas before execution.
     go_tags:
       - "netgo"
       - "osusergo"
@@ -97,7 +97,7 @@ Runs `go install` for the requested package or module path using the mapped targ
 ```yaml
 - name: Install a Go package with go install
   vars:
-    # Specifies the Go package or module path passed to `go install`. Example: `github.com/hyperledger/fabric-x/tools/fxconfig@v0.0.12`.
+    # Specifies the Go package or module path passed to `go install`.
     go_package: "github.com/hyperledger/fabric-x/tools/fxconfig@v0.0.12"
     # Sets the directory exported as `GOBIN` for installed binaries.
     go_output_dir: "{{ lookup('env', 'GOBIN') | default(lookup('env', 'GOPATH') + '/bin', true) }}"
@@ -105,7 +105,7 @@ Runs `go install` for the requested package or module path using the mapped targ
     go_host_to_map: "{{ inventory_hostname }}"
     # Enables CGO for build and install commands. A compatible C compiler is required when this is `true`.
     go_cgo_enabled: false
-    # Provides optional Go build tags passed to the Go command. Example: `['netgo', 'osusergo']`. The list is joined with commas before execution.
+    # Provides optional Go build tags passed to the Go command. The list is joined with commas before execution.
     go_tags:
       - "netgo"
       - "osusergo"

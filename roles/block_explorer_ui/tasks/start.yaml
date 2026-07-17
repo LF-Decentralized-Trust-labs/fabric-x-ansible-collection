@@ -1,0 +1,23 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start Block Explorer UI container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.block_explorer_ui
+    tasks_from: container/start
+  when: block_explorer_ui_use_container
+
+- name: Start Block Explorer UI on Kubernetes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.block_explorer_ui
+    tasks_from: k8s/start
+  when: block_explorer_ui_use_k8s
+
+- name: Start Block Explorer UI on OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.block_explorer_ui
+    tasks_from: openshift/start
+  when: block_explorer_ui_use_openshift

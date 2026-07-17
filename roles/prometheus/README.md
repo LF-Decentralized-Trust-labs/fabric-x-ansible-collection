@@ -101,16 +101,16 @@ Renders the remote configuration, creates the data directory, and starts Prometh
 ```yaml
 - name: Start the Prometheus container
   vars:
-    # Remote configuration directory consumed by `prometheus_remote_config_dir`. Example: `/var/lib/prometheus/config`.
+    # Remote configuration directory consumed by `prometheus_remote_config_dir`.
     remote_config_dir: "/var/lib/prometheus/config"
-    # Remote data directory consumed by `prometheus_remote_data_dir`. Example: `/var/lib/prometheus/data`.
+    # Remote data directory consumed by `prometheus_remote_data_dir`.
     remote_data_dir: "/var/lib/prometheus/data"
     # Container registry endpoint for Prometheus images.
     prometheus_registry_endpoint: "{{ lookup('env', 'PROMETHEUS_REGISTRY_ENDPOINT') or 'docker.io/prom' }}"
     # Image name used when composing `prometheus_image`.
     prometheus_image_name: prometheus
     # Image tag used when composing `prometheus_image`.
-    prometheus_image_tag: latest
+    prometheus_image_tag: v3.11.3
     # Fully qualified Prometheus container image.
     prometheus_image: "{{ prometheus_registry_endpoint }}/{{ prometheus_image_name }}:{{ prometheus_image_tag }}"
     # Container name used for the Prometheus workload.
@@ -152,7 +152,7 @@ Ensures the namespace exists, renders and transfers Prometheus configuration, an
     # Image name used when composing `prometheus_image`.
     prometheus_image_name: prometheus
     # Image tag used when composing `prometheus_image`.
-    prometheus_image_tag: latest
+    prometheus_image_tag: v3.11.3
     # Fully qualified Prometheus container image.
     prometheus_image: "{{ prometheus_registry_endpoint }}/{{ prometheus_image_name }}:{{ prometheus_image_tag }}"
     # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services.
@@ -161,7 +161,7 @@ Ensures the namespace exists, renders and transfers Prometheus configuration, an
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
     prometheus_k8s_part_of: monitoring
-    # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30990`.
+    # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     prometheus_k8s_node_port: 30990
     # File system group assigned to the pod.
     prometheus_k8s_fs_group: 65534
@@ -177,33 +177,33 @@ Ensures the namespace exists, renders and transfers Prometheus configuration, an
     prometheus_use_tls: false
     # Maximum number of seconds to wait for the StatefulSet rollout.
     prometheus_k8s_wait_timeout: 120
-    # Kubernetes namespace used for Prometheus resources. Example: `observability`.
+    # Kubernetes namespace used for Prometheus resources.
     k8s_namespace: "observability"
-    # Persistent volume size requested for Prometheus data. Example: `20Gi`.
+    # Persistent volume size requested for Prometheus data.
     k8s_storage_size: "20Gi"
-    # Optional image pull secret name for private registries. Example: `prometheus-registry-creds`.
+    # Optional image pull secret name for private registries.
     k8s_image_pull_secret: "prometheus-registry-creds"
-    # Optional Kubernetes storage class name for the Prometheus PVC. Example: `fast-ssd`.
+    # Optional Kubernetes storage class name for the Prometheus PVC.
     k8s_storage_class: "fast-ssd"
-    # Initial delay before the readiness probe starts. Example: `10`.
+    # Initial delay before the readiness probe starts.
     k8s_readiness_probe_initial_delay_seconds: 10
-    # Interval between readiness probe attempts. Example: `5`.
+    # Interval between readiness probe attempts.
     k8s_readiness_probe_period_seconds: 5
-    # Timeout for each readiness probe request. Example: `3`.
+    # Timeout for each readiness probe request.
     k8s_readiness_probe_timeout_seconds: 3
-    # Number of failed readiness probes before the pod is marked unready. Example: `3`.
+    # Number of failed readiness probes before the pod is marked unready.
     k8s_readiness_probe_failure_threshold: 3
-    # Initial delay before the liveness probe starts. Example: `30`.
+    # Initial delay before the liveness probe starts.
     k8s_liveness_probe_initial_delay_seconds: 30
-    # Interval between liveness probe attempts. Example: `10`.
+    # Interval between liveness probe attempts.
     k8s_liveness_probe_period_seconds: 10
-    # Timeout for each liveness probe request. Example: `5`.
+    # Timeout for each liveness probe request.
     k8s_liveness_probe_timeout_seconds: 5
-    # Number of failed liveness probes before Kubernetes restarts the pod. Example: `5`.
+    # Number of failed liveness probes before Kubernetes restarts the pod.
     k8s_liveness_probe_failure_threshold: 5
     # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP port externally. When undefined or `false`, the HTTP port is not included in the LoadBalancer Service.
     prometheus_k8s_loadbalancer_expose_http_port: false
-    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    # Optional Kubernetes container resource requests and limits.
     k8s_resources:
       requests:
         memory: "1Gi"
@@ -227,7 +227,7 @@ Probes configured Kubernetes NodePort values and LoadBalancer-exposed service po
   vars:
     # TCP port exposed by Prometheus and used by the container listener and Kubernetes Services.
     prometheus_port: 9090
-    # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30990`.
+    # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     prometheus_k8s_node_port: 30990
     # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP port externally. When undefined or `false`, the HTTP port is not included in the LoadBalancer Service.
     prometheus_k8s_loadbalancer_expose_http_port: false
@@ -317,11 +317,11 @@ Deletes the Prometheus StatefulSet and both Services from Kubernetes.
 ```yaml
 - name: Remove Prometheus Kubernetes resources
   vars:
-    # Kubernetes namespace used for Prometheus resources. Example: `observability`.
+    # Kubernetes namespace used for Prometheus resources.
     k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30990`.
+    # Kubernetes NodePort value used by the external HTTP Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     prometheus_k8s_node_port: 30990
     # Set to `true` to create a LoadBalancer Service entry that exposes the HTTP port externally. When undefined or `false`, the HTTP port is not included in the LoadBalancer Service.
     prometheus_k8s_loadbalancer_expose_http_port: false
@@ -339,7 +339,7 @@ Deletes Prometheus data from the active deployment mode.
 ```yaml
 - name: Remove Prometheus data
   vars:
-    # Remote data directory consumed by `prometheus_remote_data_dir`. Example: `/var/lib/prometheus/data`.
+    # Remote data directory consumed by `prometheus_remote_data_dir`.
     remote_data_dir: "/var/lib/prometheus/data"
     # Remote directory where Prometheus TSDB data is stored.
     prometheus_remote_data_dir: "{{ remote_data_dir }}"
@@ -363,7 +363,7 @@ Deletes the PersistentVolumeClaim created for the Prometheus StatefulSet.
 ```yaml
 - name: Remove the Prometheus data PVC
   vars:
-    # Kubernetes namespace used for Prometheus resources. Example: `observability`.
+    # Kubernetes namespace used for Prometheus resources.
     k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
@@ -414,12 +414,12 @@ Delegates certificate creation to the shared OpenSSL role using Prometheus-speci
 ```yaml
 - name: Generate a self-signed TLS certificate for Prometheus
   vars:
-    # Optional certificate organization data forwarded to OpenSSL. Example: `{'domain': 'observability.example.com', 'common_name': 'prometheus.observability.svc.cluster.local', 'organization_name': 'Hyperledger Fabric-X'}`.
+    # Optional certificate organization data forwarded to OpenSSL.
     organization:
       domain: "observability.example.com"
       common_name: "prometheus.observability.svc.cluster.local"
       organization_name: "Hyperledger Fabric-X"
-    # Remote configuration directory consumed by `prometheus_remote_config_dir`. Example: `/var/lib/prometheus/config`.
+    # Remote configuration directory consumed by `prometheus_remote_config_dir`.
     remote_config_dir: "/var/lib/prometheus/config"
     # Remote directory where Prometheus configuration files are written.
     prometheus_remote_config_dir: "{{ remote_config_dir }}"
@@ -427,7 +427,7 @@ Delegates certificate creation to the shared OpenSSL role using Prometheus-speci
     prometheus_tls_private_key_file: server.key
     # Filename used for the Prometheus TLS certificate.
     prometheus_tls_cert_file: server.crt
-    # Specifies the OpenShift Route host. Example: `prometheus.apps.example.com`.
+    # Specifies the OpenShift Route host.
     prometheus_openshift_route: "prometheus.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
@@ -443,9 +443,9 @@ Creates or updates the Kubernetes Secret that stores the Prometheus TLS server k
 ```yaml
 - name: Apply the Prometheus TLS Secret on Kubernetes
   vars:
-    # Kubernetes namespace used for Prometheus resources. Example: `observability`.
+    # Kubernetes namespace used for Prometheus resources.
     k8s_namespace: "observability"
-    # Remote configuration directory consumed by `prometheus_remote_config_dir`. Example: `/var/lib/prometheus/config`.
+    # Remote configuration directory consumed by `prometheus_remote_config_dir`.
     remote_config_dir: "/var/lib/prometheus/config"
     # Remote directory where Prometheus configuration files are written.
     prometheus_remote_config_dir: "{{ remote_config_dir }}"
@@ -473,9 +473,9 @@ Fetches the generated Prometheus TLS certificate material to the control node.
 ```yaml
 - name: Fetch Prometheus TLS certificates
   vars:
-    # Control-node directory where fetched Prometheus artifacts are written. Example: `/tmp/prometheus-artifacts`.
+    # Control-node directory where fetched Prometheus artifacts are written.
     fetched_artifacts_dir: "/tmp/prometheus-artifacts"
-    # Remote configuration directory consumed by `prometheus_remote_config_dir`. Example: `/var/lib/prometheus/config`.
+    # Remote configuration directory consumed by `prometheus_remote_config_dir`.
     remote_config_dir: "/var/lib/prometheus/config"
     # Remote directory where Prometheus configuration files are written.
     prometheus_remote_config_dir: "{{ remote_config_dir }}"
@@ -495,7 +495,7 @@ Deletes the Prometheus TLS directory and removes the Kubernetes Secret when Kube
 ```yaml
 - name: Remove Prometheus TLS materials
   vars:
-    # Remote configuration directory consumed by `prometheus_remote_config_dir`. Example: `/var/lib/prometheus/config`.
+    # Remote configuration directory consumed by `prometheus_remote_config_dir`.
     remote_config_dir: "/var/lib/prometheus/config"
     # Remote directory where Prometheus configuration files are written.
     prometheus_remote_config_dir: "{{ remote_config_dir }}"
@@ -519,7 +519,7 @@ Deletes the Kubernetes Secret that stores the Prometheus TLS server keypair.
 ```yaml
 - name: Remove the Prometheus TLS Secret
   vars:
-    # Kubernetes namespace used for Prometheus resources. Example: `observability`.
+    # Kubernetes namespace used for Prometheus resources.
     k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
@@ -537,7 +537,7 @@ Renders the main scrape configuration and supporting files on the remote host, i
 ```yaml
 - name: Transfer Prometheus configuration files
   vars:
-    # Remote configuration directory consumed by `prometheus_remote_config_dir`. Example: `/var/lib/prometheus/config`.
+    # Remote configuration directory consumed by `prometheus_remote_config_dir`.
     remote_config_dir: "/var/lib/prometheus/config"
     # Remote directory where Prometheus configuration files are written.
     prometheus_remote_config_dir: "{{ remote_config_dir }}"
@@ -548,14 +548,14 @@ Renders the main scrape configuration and supporting files on the remote host, i
     # Filename of the promtool HTTP client configuration used for TLS health checks.
     prometheus_http_config_file: http-config.yaml
     # Global Prometheus scrape interval.
-    prometheus_scrape_interval: 2s
+    prometheus_scrape_interval: 5s
     # In-container or in-pod mount point for Prometheus configuration files.
     prometheus_container_config_dir: /etc/prometheus/config
     # Filename used for the Prometheus TLS private key.
     prometheus_tls_private_key_file: server.key
     # Filename used for the Prometheus TLS certificate.
     prometheus_tls_cert_file: server.crt
-    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{'job_name': 'fabric-orderer', 'use_tls': True, 'targets': [{'hosts': ['orderer-router-1', 'orderer-router-2'], 'port_to_scrape': 'orderer_operations_port', 'label': {'group': 'orderers'}}]}, {'job_name': 'node-exporter', 'targets': [{'hosts': ['worker-1'], 'port_to_scrape': 'node_exporter_port', 'label': {'group': 'workers', 'export_type': 'node'}}]}]`.
+    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap.
     prometheus_scrape_services:
       - job_name: "fabric-orderer"
         use_tls: True
@@ -594,9 +594,9 @@ Creates or updates the ConfigMap that carries the rendered Prometheus configurat
 ```yaml
 - name: Apply the Prometheus ConfigMap on Kubernetes
   vars:
-    # Kubernetes namespace used for Prometheus resources. Example: `observability`.
+    # Kubernetes namespace used for Prometheus resources.
     k8s_namespace: "observability"
-    # Remote configuration directory consumed by `prometheus_remote_config_dir`. Example: `/var/lib/prometheus/config`.
+    # Remote configuration directory consumed by `prometheus_remote_config_dir`.
     remote_config_dir: "/var/lib/prometheus/config"
     # Remote directory where Prometheus configuration files are written.
     prometheus_remote_config_dir: "{{ remote_config_dir }}"
@@ -610,7 +610,7 @@ Creates or updates the ConfigMap that carries the rendered Prometheus configurat
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Prometheus resources.
     prometheus_k8s_part_of: monitoring
-    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{'job_name': 'fabric-orderer', 'use_tls': True, 'targets': [{'hosts': ['orderer-router-1', 'orderer-router-2'], 'port_to_scrape': 'orderer_operations_port', 'label': {'group': 'orderers'}}]}, {'job_name': 'node-exporter', 'targets': [{'hosts': ['worker-1'], 'port_to_scrape': 'node_exporter_port', 'label': {'group': 'workers', 'export_type': 'node'}}]}]`.
+    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap.
     prometheus_scrape_services:
       - job_name: "fabric-orderer"
         use_tls: True
@@ -645,7 +645,7 @@ Deletes the remote Prometheus configuration directory and optionally removes the
 ```yaml
 - name: Remove Prometheus configuration files
   vars:
-    # Remote configuration directory consumed by `prometheus_remote_config_dir`. Example: `/var/lib/prometheus/config`.
+    # Remote configuration directory consumed by `prometheus_remote_config_dir`.
     remote_config_dir: "/var/lib/prometheus/config"
     # Remote directory where Prometheus configuration files are written.
     prometheus_remote_config_dir: "{{ remote_config_dir }}"
@@ -667,7 +667,7 @@ Deletes the Kubernetes ConfigMap that stores Prometheus configuration.
 ```yaml
 - name: Remove the Prometheus ConfigMap
   vars:
-    # Kubernetes namespace used for Prometheus resources. Example: `observability`.
+    # Kubernetes namespace used for Prometheus resources.
     k8s_namespace: "observability"
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
@@ -743,7 +743,7 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     prometheus_k8s_part_of: monitoring
     # Enables HTTPS and TLS-aware health checks when set to `true`.
     prometheus_use_tls: false
-    # Specifies the OpenShift Route host. Example: `prometheus.apps.example.com`.
+    # Specifies the OpenShift Route host.
     prometheus_openshift_route: "prometheus.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
@@ -761,7 +761,7 @@ Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
   vars:
     # Enables HTTPS and TLS-aware health checks when set to `true`.
     prometheus_use_tls: false
-    # Specifies the OpenShift Route host. Example: `prometheus.apps.example.com`.
+    # Specifies the OpenShift Route host.
     prometheus_openshift_route: "prometheus.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
@@ -779,7 +779,7 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
   vars:
     # Base Kubernetes resource name used for the Prometheus StatefulSet and Services.
     prometheus_k8s_resource_name: "{{ inventory_hostname }}"
-    # Specifies the OpenShift Route host. Example: `prometheus.apps.example.com`.
+    # Specifies the OpenShift Route host.
     prometheus_openshift_route: "prometheus.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.prometheus
@@ -795,7 +795,7 @@ Sets the `prometheus_has_k8s_sd_scrapers` fact to `true` when at least one entry
 ```yaml
 - name: Detect whether any scrape service uses kubernetes_sd_configs
   vars:
-    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap. Example: `[{'job_name': 'fabric-orderer', 'use_tls': True, 'targets': [{'hosts': ['orderer-router-1', 'orderer-router-2'], 'port_to_scrape': 'orderer_operations_port', 'label': {'group': 'orderers'}}]}, {'job_name': 'node-exporter', 'targets': [{'hosts': ['worker-1'], 'port_to_scrape': 'node_exporter_port', 'label': {'group': 'workers', 'export_type': 'node'}}]}]`.
+    # Optional scrape job definitions rendered into `prometheus.yaml` and the Kubernetes ConfigMap.
     prometheus_scrape_services:
       - job_name: "fabric-orderer"
         use_tls: True

@@ -28,7 +28,7 @@ loadgen_registry_endpoint: "{{ lookup('env', 'LOADGEN_REGISTRY_ENDPOINT') or 'do
 # Image name used by the Loadgen container.
 loadgen_image_name: fabric-x-loadgen
 # Image tag used by the Loadgen container.
-loadgen_image_tag: 1.0.0
+loadgen_image_tag: 1.0.4
 # Loadgen container image.
 loadgen_image: "{{ loadgen_registry_endpoint }}/{{ loadgen_image_name }}:{{ loadgen_image_tag }}"
 # Container name used by the runtime.
@@ -38,7 +38,7 @@ loadgen_git_hub_url: github.com
 # Git repository that provides the Loadgen source.
 loadgen_git_repo: hyperledger/fabric-x-committer
 # Git revision used for binary builds and installs.
-loadgen_git_commit: v1.0.0
+loadgen_git_commit: v1.0.4
 # Go package path for the Loadgen binary.
 loadgen_source_code_package: cmd/loadgen
 # Go package used for binary installation.
@@ -58,7 +58,6 @@ loadgen_monitoring_http_protocol: "{{ 'https' if loadgen_monitoring_use_tls else
 # Assert the committed transaction metric and report aborted transactions when fetching metrics.
 loadgen_assert_metrics: false
 # Render the config transaction block section.
-# Example: C(false).
 loadgen_generate_config_block: false
 # Crypto identity name used for MSP and TLS file names.
 loadgen_crypto_name: '{{ organization.peer.name | default(inventory_hostname) }}'

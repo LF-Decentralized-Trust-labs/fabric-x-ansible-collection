@@ -88,9 +88,9 @@ Copies a namespace transaction JSON file to the managed host, endorses it with t
     fxconfig_output: "{{ fxconfig_remote_config_dir }}/tx.json"
     # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
-    # Supplies the local namespace transaction JSON file to endorse. Example: `/tmp/fabricx/config-build/fxconfig-artifacts/payments/ns.json`.
+    # Supplies the local namespace transaction JSON file to endorse.
     fxconfig_tx_to_endorse: "/tmp/fabricx/config-build/fxconfig-artifacts/payments/ns.json"
-    # Provides the base remote configuration directory used by the role. Example: `/opt/hyperledger/fabricx/config`.
+    # Provides the base remote configuration directory used by the role.
     remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
@@ -134,7 +134,7 @@ Collects endorsed namespace transaction JSON files from the artifact directory a
   vars:
     # Defines the fxconfig binary name.
     fxconfig_bin_name: fxconfig
-    # Defines the local directory containing endorsed namespace transaction JSON files to merge. Example: `/tmp/fabricx/config-build/fxconfig-artifacts/mychannel/endorsed`.
+    # Defines the local directory containing endorsed namespace transaction JSON files to merge.
     fxconfig_endorsed_txs_dir: "/tmp/fabricx/config-build/fxconfig-artifacts/mychannel/endorsed"
     # Defines the fxconfig log format.
     fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
@@ -144,7 +144,7 @@ Collects endorsed namespace transaction JSON files from the artifact directory a
     fxconfig_output: "{{ fxconfig_remote_config_dir }}/tx.json"
     # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
-    # Provides the base remote configuration directory used by the role. Example: `/opt/hyperledger/fabricx/config`.
+    # Provides the base remote configuration directory used by the role.
     remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
@@ -166,15 +166,15 @@ Creates a namespace transaction JSON artifact for the configured namespace and e
     fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
     # Defines the fxconfig log level.
     fxconfig_log_level: info
-    # Defines the namespace identifier used when creating namespace transaction artifacts. Accepts either a string or an integer value. Example: `payments`.
+    # Defines the namespace identifier used when creating namespace transaction artifacts. Accepts either a string or an integer value.
     fxconfig_namespace_id: payments
-    # Defines the namespace endorsement policy. Example: `threshold:/tmp/fabricx/config-build/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem`.
+    # Defines the namespace endorsement policy.
     fxconfig_namespace_policy: "threshold:/tmp/fabricx/config-build/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem"
     # Defines the transaction artifact path on the managed host.
     fxconfig_output: "{{ fxconfig_remote_config_dir }}/tx.json"
     # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
-    # Provides the base remote configuration directory used by the role. Example: `/opt/hyperledger/fabricx/config`.
+    # Provides the base remote configuration directory used by the role.
     remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
@@ -200,7 +200,7 @@ Lists namespaces from the configured Fabric-X network by invoking the local fxco
     fxconfig_log_level: info
     # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
-    # Provides the base remote configuration directory used by the role. Example: `/opt/hyperledger/fabricx/config`.
+    # Provides the base remote configuration directory used by the role.
     remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
@@ -238,9 +238,9 @@ Transfers a merged namespace transaction JSON artifact to the managed host and s
     fxconfig_config_file: fxconfig.yaml
     # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
-    # Supplies the local merged namespace transaction JSON file to submit. Example: `/tmp/fabricx/config-build/fxconfig-artifacts/payments/merged.json`.
+    # Supplies the local merged namespace transaction JSON file to submit.
     fxconfig_tx_to_submit_path: "/tmp/fabricx/config-build/fxconfig-artifacts/payments/merged.json"
-    # Provides the base remote configuration directory used by the role. Example: `/opt/hyperledger/fabricx/config`.
+    # Provides the base remote configuration directory used by the role.
     remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
@@ -278,7 +278,7 @@ Copies the client certificate and key consumed by fxconfig for mTLS connections 
     fxconfig_mtls_client_key_path: "{{ remote_config_dir }}/tls/server.key"
     # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
-    # Provides the base remote configuration directory used by the role. Example: `/opt/hyperledger/fabricx/config`.
+    # Provides the base remote configuration directory used by the role.
     remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
@@ -294,15 +294,15 @@ Copies fetched Orderer Router and Committer Query-Service CA certificates into t
 ```yaml
 - name: Transfer fxconfig TLS trust material
   vars:
-    # Identifies the inventory host for the Committer Query-Service endpoint consumed by fxconfig. Example: `committer-query-service`.
+    # Identifies the inventory host for the Committer Query-Service endpoint consumed by fxconfig.
     committer_query_service_host: "committer-query-service"
-    # Defines the local directory that stores fetched crypto and TLS artifacts consumed by fxconfig. Example: `/tmp/fabricx/config-build`.
+    # Defines the local directory that stores fetched crypto and TLS artifacts consumed by fxconfig.
     fetched_artifacts_dir: "/tmp/fabricx/config-build"
     # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
-    # Identifies the inventory host for the Orderer Router endpoint consumed by fxconfig. Example: `orderer-router-1`.
+    # Identifies the inventory host for the Orderer Router endpoint consumed by fxconfig.
     orderer_router_host: "orderer-router-1"
-    # Provides the base remote configuration directory used by the role. Example: `/opt/hyperledger/fabricx/config`.
+    # Provides the base remote configuration directory used by the role.
     remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
@@ -318,17 +318,17 @@ Creates the remote fxconfig configuration directory, renders the fxconfig file, 
 ```yaml
 - name: Transfer fxconfig configuration material
   vars:
-    # Defines the Fabric-X channel written into the rendered fxconfig file. Example: `mychannel`.
+    # Defines the Fabric-X channel written into the rendered fxconfig file.
     channel_id: "mychannel"
-    # Defines the Committer Query-Service connection timeout written into the rendered fxconfig file. Example: `45s`.
+    # Defines the Committer Query-Service connection timeout written into the rendered fxconfig file.
     fxconfig_committer_query_service_connection_timeout: "45s"
-    # Identifies the inventory host for the Committer Query-Service endpoint consumed by fxconfig. Example: `committer-query-service`.
+    # Identifies the inventory host for the Committer Query-Service endpoint consumed by fxconfig.
     committer_query_service_host: "committer-query-service"
-    # Defines the Committer Sidecar notification connection timeout written into the rendered fxconfig file. Example: `45s`.
+    # Defines the Committer Sidecar notification connection timeout written into the rendered fxconfig file.
     fxconfig_committer_sidecar_connection_timeout: "45s"
-    # Identifies the inventory host for the Committer Sidecar notification endpoint consumed by fxconfig. Example: `committer-sidecar`.
+    # Identifies the inventory host for the Committer Sidecar notification endpoint consumed by fxconfig.
     committer_sidecar_host: "committer-sidecar"
-    # Defines the Committer Sidecar notification waiting timeout written into the rendered fxconfig file. Example: `2m`.
+    # Defines the Committer Sidecar notification waiting timeout written into the rendered fxconfig file.
     fxconfig_committer_sidecar_waiting_timeout: "2m"
     # Defines the fxconfig configuration filename.
     fxconfig_config_file: fxconfig.yaml
@@ -338,19 +338,19 @@ Creates the remote fxconfig configuration directory, renders the fxconfig file, 
     fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
     # Defines the fxconfig log level.
     fxconfig_log_level: info
-    # Defines the source MSP directory copied into the fxconfig configuration directory. Example: `/opt/hyperledger/fabricx/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp`.
+    # Defines the source MSP directory copied into the fxconfig configuration directory.
     fxconfig_msp_config_path: "/opt/hyperledger/fabricx/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp"
     # Defines the MSP identifier written into the rendered configuration.
     fxconfig_msp_id: "{{ organization.name }}MSP"
-    # Defines the Orderer Router connection timeout written into the rendered fxconfig file. Example: `45s`.
+    # Defines the Orderer Router connection timeout written into the rendered fxconfig file.
     fxconfig_orderer_connection_timeout: "45s"
     # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
     # Selects the host-binary workflow instead of the container workflow.
     fxconfig_use_bin: false
-    # Identifies the inventory host for the Orderer Router endpoint consumed by fxconfig. Example: `orderer-router-1`.
+    # Identifies the inventory host for the Orderer Router endpoint consumed by fxconfig.
     orderer_router_host: "orderer-router-1"
-    # Provides organization metadata used by tasks that read `organization.*`, including names, users, domains, and namespace declarations. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'users': [{'name': 'endorser', 'cert': '/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem'}], 'namespaces': [{'id': 'payments', 'policy': 'threshold'}]}`.
+    # Provides organization metadata used by tasks that read `organization.*`, including names, users, domains, and namespace declarations.
     organization:
       name: "Org1"
       domain: "org1.example.com"
@@ -361,7 +361,7 @@ Creates the remote fxconfig configuration directory, renders the fxconfig file, 
       namespaces:
         - id: "payments"
           policy: "threshold"
-    # Provides the base remote configuration directory used by the role. Example: `/opt/hyperledger/fabricx/config`.
+    # Provides the base remote configuration directory used by the role.
     remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
@@ -397,9 +397,9 @@ Copies a namespace transaction JSON file to the managed host, mounts the rendere
     fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
-    # Supplies the local namespace transaction JSON file to endorse. Example: `/tmp/fabricx/config-build/fxconfig-artifacts/payments/ns.json`.
+    # Supplies the local namespace transaction JSON file to endorse.
     fxconfig_tx_to_endorse: "/tmp/fabricx/config-build/fxconfig-artifacts/payments/ns.json"
-    # Provides the base remote configuration directory used by the role. Example: `/opt/hyperledger/fabricx/config`.
+    # Provides the base remote configuration directory used by the role.
     remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
@@ -421,7 +421,7 @@ Collects endorsed namespace transaction JSON files from the artifact directory, 
     fxconfig_container_config_dir: /config
     # Defines the base container name used by fxconfig workflows.
     fxconfig_container_name: fxconfig
-    # Defines the local directory containing endorsed namespace transaction JSON files to merge. Example: `/tmp/fabricx/config-build/fxconfig-artifacts/mychannel/endorsed`.
+    # Defines the local directory containing endorsed namespace transaction JSON files to merge.
     fxconfig_endorsed_txs_dir: "/tmp/fabricx/config-build/fxconfig-artifacts/mychannel/endorsed"
     # Defines the fxconfig container image.
     fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
@@ -439,7 +439,7 @@ Collects endorsed namespace transaction JSON files from the artifact directory, 
     fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
-    # Provides the base remote configuration directory used by the role. Example: `/opt/hyperledger/fabricx/config`.
+    # Provides the base remote configuration directory used by the role.
     remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
@@ -469,9 +469,9 @@ Creates a namespace transaction JSON artifact for the configured namespace and e
     fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
     # Defines the fxconfig log level.
     fxconfig_log_level: info
-    # Defines the namespace identifier used when creating namespace transaction artifacts. Accepts either a string or an integer value. Example: `payments`.
+    # Defines the namespace identifier used when creating namespace transaction artifacts. Accepts either a string or an integer value.
     fxconfig_namespace_id: payments
-    # Defines the namespace endorsement policy. Example: `threshold:/tmp/fabricx/config-build/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem`.
+    # Defines the namespace endorsement policy.
     fxconfig_namespace_policy: "threshold:/tmp/fabricx/config-build/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem"
     # Defines the transaction artifact path on the managed host.
     fxconfig_output: "{{ fxconfig_remote_config_dir }}/tx.json"
@@ -479,7 +479,7 @@ Creates a namespace transaction JSON artifact for the configured namespace and e
     fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
-    # Provides the base remote configuration directory used by the role. Example: `/opt/hyperledger/fabricx/config`.
+    # Provides the base remote configuration directory used by the role.
     remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
@@ -517,7 +517,7 @@ Lists namespaces from the configured Fabric-X network by mounting the rendered c
     fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
-    # Provides the base remote configuration directory used by the role. Example: `/opt/hyperledger/fabricx/config`.
+    # Provides the base remote configuration directory used by the role.
     remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
@@ -551,9 +551,9 @@ Transfers a merged namespace transaction JSON artifact to the managed host, moun
     fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # Defines the fxconfig remote configuration directory.
     fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
-    # Supplies the local merged namespace transaction JSON file to submit. Example: `/tmp/fabricx/config-build/fxconfig-artifacts/payments/merged.json`.
+    # Supplies the local merged namespace transaction JSON file to submit.
     fxconfig_tx_to_submit_path: "/tmp/fabricx/config-build/fxconfig-artifacts/payments/merged.json"
-    # Provides the base remote configuration directory used by the role. Example: `/opt/hyperledger/fabricx/config`.
+    # Provides the base remote configuration directory used by the role.
     remote_config_dir: "/opt/hyperledger/fabricx/config"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
@@ -585,7 +585,7 @@ Selects the preferred endorser from `organization.users` for namespace transacti
 ```yaml
 - name: Resolve the namespace endorser user
   vars:
-    # Provides organization metadata used by tasks that read `organization.*`, including names, users, domains, and namespace declarations. Example: `{'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'users': [{'name': 'endorser', 'cert': '/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem'}], 'namespaces': [{'id': 'payments', 'policy': 'threshold'}]}`.
+    # Provides organization metadata used by tasks that read `organization.*`, including names, users, domains, and namespace declarations.
     organization:
       name: "Org1"
       domain: "org1.example.com"
@@ -642,9 +642,9 @@ Builds a namespace-to-host mapping from inventory organization data before creat
 ```yaml
 - name: Group hosts by declared namespaces
   vars:
-    # Defines the local directory that stores fetched crypto and TLS artifacts consumed by fxconfig. Example: `/tmp/fabricx/config-build`.
+    # Defines the local directory that stores fetched crypto and TLS artifacts consumed by fxconfig.
     fetched_artifacts_dir: "/tmp/fabricx/config-build"
-    # Limits namespace grouping to a subset of inventory hosts. If omitted, the task considers all hosts. Example: `['committer-sidecar', 'committer-query-service']`. Selected hosts must expose the organization metadata expected by the namespace grouping helper.
+    # Limits namespace grouping to a subset of inventory hosts. If omitted, the task considers all hosts. Selected hosts must expose the organization metadata expected by the namespace grouping helper.
     fxconfig_hosts:
       - "committer-sidecar"
       - "committer-query-service"

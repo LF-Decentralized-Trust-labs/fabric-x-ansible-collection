@@ -288,9 +288,9 @@ Creates RBAC, ConfigMap, headless Service, and StatefulSet (with a PVC via volum
     loki_host: "string"
     # Target Kubernetes/OpenShift namespace for this host's resources.
     k8s_namespace: "string"
-    # Persistent volume size requested for Alloy's data volume (WAL, positions file). Example: `1Gi`.
+    # Persistent volume size requested for Alloy's data volume (WAL, positions file).
     k8s_storage_size: "1Gi"
-    # Optional Kubernetes storage class name for the Alloy PVC. Example: `fast-ssd`.
+    # Optional Kubernetes storage class name for the Alloy PVC.
     k8s_storage_class: "fast-ssd"
     # Name of the image pull secret to attach to the Alloy Kubernetes ServiceAccount/StatefulSet.
     k8s_image_pull_secret: "string"
@@ -453,7 +453,7 @@ Renders and uploads the Alloy River configuration file to the remote host. Appli
     # Labels attached to every log line collected by this Alloy instance.
     alloy_labels:
       host: "{{ ansible_host }}"
-    # Optional Docker-compatible API endpoint Alloy uses for container log discovery. When omitted, the role discovers the local Docker or Podman socket. Example: `unix:///path/to/socket`.
+    # Optional Docker-compatible API endpoint Alloy uses for container log discovery. When omitted, the role discovers the local Docker or Podman socket.
     container_socket: "unix:///path/to/socket"
     # Regex matching Docker container names to exclude from log collection.
     alloy_docker_exclude_container_regex: ""

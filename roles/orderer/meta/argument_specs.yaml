@@ -84,7 +84,7 @@ argument_specs:
       orderer_image_tag: &orderer_image_tag
         type: str
         required: false
-        default: "1.0.0"
+        default: "1.0.3"
         description:
           - "Image tag used for the orderer container."
       orderer_image: &orderer_image
@@ -110,7 +110,7 @@ argument_specs:
       orderer_git_commit: &orderer_git_commit
         type: str
         required: false
-        default: v1.0.0
+        default: v1.0.3
         description:
           - "Git ref or release tag used by the bin build and install branches."
       orderer_source_code_package: &orderer_source_code_package
@@ -235,7 +235,7 @@ argument_specs:
           - router
         description:
           - "Orderer component to manage; use C(consensus) for the consenter process."
-          - "Example: C(consensus), C(batcher), C(assembler), or C(router)."
+          - "Example: C(consensus)."
       orderer_shard_id: &orderer_shard_id
         type: int
         description:
@@ -601,7 +601,6 @@ argument_specs:
         description:
           - Optional Kubernetes container resource requests and limits.
           - "Example: C({'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}})."
-
       orderer_use_openshift: &orderer_use_openshift
         type: bool
         default: false
@@ -617,6 +616,7 @@ argument_specs:
         description:
           - Specifies the OpenShift Route host for the operations/metrics endpoint.
           - "Example: C(orderer-metrics.apps.example.com)."
+
   start:
     short_description: Dispatch orderer startup by component and deployment mode
     description:
@@ -963,13 +963,9 @@ argument_specs:
   crypto/setup:
     short_description: Prepare orderer crypto material
     description:
-      - "Validates TLS and mTLS prerequisites, provisions orderer MSP and TLS material through cryptogen or Fabric CA, and optionally creates the Kubernetes Secret."
+      - "Provisions orderer MSP and TLS material through cryptogen or Fabric CA based on C(organization.fabric_ca_host), and optionally creates the Kubernetes Secret."
       - "Produces the crypto artifacts consumed by config rendering, binary/container mounts, and Kubernetes workloads."
     options:
-      orderer_use_tls: *orderer_use_tls
-      orderer_use_mtls: *orderer_use_mtls
-      orderer_operations_use_tls: *orderer_operations_use_tls
-      orderer_operations_use_mtls: *orderer_operations_use_mtls
       organization: *organization
       orderer_use_k8s: *orderer_use_k8s
       orderer_use_openshift: *orderer_use_openshift

@@ -1,0 +1,25 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ block_explorer_k8s_resource_name }}
+  labels:
+    app.kubernetes.io/name: {{ block_explorer_k8s_resource_name }}
+    app.kubernetes.io/component: block-explorer
+    app.kubernetes.io/part-of: {{ block_explorer_k8s_part_of }}
+data:
+  {{ block_explorer_config_file }}: |
+{{ lookup('file', block_explorer_k8s_config_path) | indent(4, true) }}
+{% if hostvars[sidecar_host].committer_use_tls is defined and hostvars[sidecar_host].committer_use_tls %}
+  sidecar-ca.crt: |
+{{ lookup('file', block_explorer_k8s_sidecar_ca_path) | indent(4, true) }}
+{% endif %}
+{% if hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
+  db-ca.crt: |
+{{ lookup('file', block_explorer_k8s_db_ca_path) | indent(4, true) }}
+{% endif %}

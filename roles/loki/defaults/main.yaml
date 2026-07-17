@@ -12,7 +12,6 @@ loki_registry_endpoint: "{{ lookup('env', 'LOKI_REGISTRY_ENDPOINT') or 'docker.i
 # Sets the Grafana Loki image name.
 loki_image_name: loki
 # Sets the Grafana Loki image tag.
-# Example: C(3.4.2)
 loki_image_tag: 3.4.2
 # Sets the Grafana Loki image reference.
 loki_image: "{{ loki_registry_endpoint }}/{{ loki_image_name }}:{{ loki_image_tag }}"
@@ -27,7 +26,6 @@ loki_remote_data_dir: '{{ remote_deploy_dir }}/loki/data'
 # Directory for Loki data and state files within the container.
 loki_container_data_dir: /loki
 # Log retention period. Default is 31 days.
-# Example: C(744h)
 loki_retention_period: 744h
 # Maximum ingestion rate in MB/s per distributor.
 loki_ingestion_rate_mb: 16
@@ -53,7 +51,6 @@ loki_tls_cert_file: server.crt
 # Requested storage size for the Loki StatefulSet's volumeClaimTemplate on Kubernetes/OpenShift.
 loki_pvc_size: 50Gi
 # StorageClass name for the Loki volumeClaimTemplate. Leave empty to use the cluster default.
-# Example: C(ibmc-file)
 loki_storage_class: ""
 # Base Kubernetes resource name used for the Loki StatefulSet and Services.
 loki_k8s_resource_name: '{{ loki_container_name }}'

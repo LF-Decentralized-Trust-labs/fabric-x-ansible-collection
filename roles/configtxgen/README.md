@@ -37,7 +37,7 @@ Generate `configtx.yaml` for Fabric-X genesis block creation. Render the config 
 ```yaml
 - name: Render the configtxgen configuration file
   vars:
-    # Base build directory for `configtxgen_artifacts_dir`. Example: `/opt/fabricx/build/configtxgen`.
+    # Base build directory for `configtxgen_artifacts_dir`.
     config_build_dir: "/opt/fabricx/build/configtxgen"
     # Directory used for the generated config file and genesis block artifacts.
     configtxgen_artifacts_dir: "{{ config_build_dir }}/configtxgen-artifacts"
@@ -57,47 +57,47 @@ Generate `configtx.yaml` for Fabric-X genesis block creation. Render the config 
     configtxgen_peers_by_org: {}
     # Config profile passed to `configtxgen`.
     configtxgen_profile_id: OrgsChannel
-    # Directory containing fetched crypto artifacts used by the binary path and container mounts. Example: `/opt/fabricx/artifacts/crypto`.
+    # Directory containing fetched crypto artifacts used by the binary path and container mounts.
     fetched_artifacts_dir: "/opt/fabricx/artifacts/crypto"
-    # Directory containing armageddon artifacts used by the binary path and container mounts. Example: `/opt/fabricx/artifacts/armageddon`.
+    # Directory containing armageddon artifacts used by the binary path and container mounts.
     armageddon_artifacts_dir: "/opt/fabricx/artifacts/armageddon"
-    # Operator for the orderer organization Readers Signature policy. Example: `OR`
+    # Operator for the orderer organization Readers Signature policy.
     configtxgen_orderer_org_policies_readers_operator: "OR"
-    # Operator for the orderer organization Writers Signature policy. Example: `OR`
+    # Operator for the orderer organization Writers Signature policy.
     configtxgen_orderer_org_policies_writers_operator: "OR"
-    # Operator for the orderer organization Admins Signature policy. Example: `OR`
+    # Operator for the orderer organization Admins Signature policy.
     configtxgen_orderer_org_policies_admins_operator: "OR"
-    # Operator for the orderer organization Endorsement Signature policy. Example: `OR`
+    # Operator for the orderer organization Endorsement Signature policy.
     configtxgen_orderer_org_policies_endorsement_operator: "OR"
-    # Operator for the peer organization Readers Signature policy. Example: `OR`
+    # Operator for the peer organization Readers Signature policy.
     configtxgen_peer_org_policies_readers_operator: "OR"
-    # Operator for the peer organization Writers Signature policy. Example: `OR`
+    # Operator for the peer organization Writers Signature policy.
     configtxgen_peer_org_policies_writers_operator: "OR"
-    # Operator for the peer organization Admins Signature policy. Example: `OR`
+    # Operator for the peer organization Admins Signature policy.
     configtxgen_peer_org_policies_admins_operator: "OR"
-    # Operator for the peer organization Endorsement Signature policy. Example: `OR`
+    # Operator for the peer organization Endorsement Signature policy.
     configtxgen_peer_org_policies_endorsement_operator: "OR"
-    # ImplicitMeta operator for the Application Readers policy. Example: `ANY`
+    # ImplicitMeta operator for the Application Readers policy.
     configtxgen_application_policies_readers_operator: "ANY"
-    # ImplicitMeta operator for the Application Writers policy. Example: `ANY`
+    # ImplicitMeta operator for the Application Writers policy.
     configtxgen_application_policies_writers_operator: "ANY"
-    # ImplicitMeta operator for the Application Admins policy. Example: `MAJORITY`
+    # ImplicitMeta operator for the Application Admins policy.
     configtxgen_application_policies_admins_operator: "MAJORITY"
-    # ImplicitMeta operator for the Application Endorsement policy. Example: `MAJORITY`
+    # ImplicitMeta operator for the Application Endorsement policy.
     configtxgen_application_policies_endorsement_operator: "MAJORITY"
-    # ImplicitMeta operator for the Orderer Readers policy. Example: `ANY`
+    # ImplicitMeta operator for the Orderer Readers policy.
     configtxgen_orderer_policies_readers_operator: "ANY"
-    # ImplicitMeta operator for the Orderer Writers policy. Example: `ANY`
+    # ImplicitMeta operator for the Orderer Writers policy.
     configtxgen_orderer_policies_writers_operator: "ANY"
-    # ImplicitMeta operator for the Orderer Admins policy. Example: `MAJORITY`
+    # ImplicitMeta operator for the Orderer Admins policy.
     configtxgen_orderer_policies_admins_operator: "MAJORITY"
-    # ImplicitMeta operator for the Orderer BlockValidation policy. Example: `MAJORITY`
+    # ImplicitMeta operator for the Orderer BlockValidation policy.
     configtxgen_orderer_policies_block_validation_operator: "MAJORITY"
-    # ImplicitMeta operator for the Channel Readers policy. Example: `ANY`
+    # ImplicitMeta operator for the Channel Readers policy.
     configtxgen_channel_policies_readers_operator: "ANY"
-    # ImplicitMeta operator for the Channel Writers policy. Example: `ANY`
+    # ImplicitMeta operator for the Channel Writers policy.
     configtxgen_channel_policies_writers_operator: "ANY"
-    # ImplicitMeta operator for the Channel Admins policy. Example: `MAJORITY`
+    # ImplicitMeta operator for the Channel Admins policy.
     configtxgen_channel_policies_admins_operator: "MAJORITY"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.configtxgen
@@ -123,7 +123,7 @@ Build the `configtxgen` binary from the Fabric-X source tree on the control node
     configtxgen_source_code_package: tools/configtxgen
     # Executable name used by the binary and container entry points.
     configtxgen_bin_name: configtxgen
-    # Directory used as the `configtxgen` binary destination or lookup path. Example: `/opt/fabricx/bin`.
+    # Directory used as the `configtxgen` binary destination or lookup path.
     cli_bin_dir: "/opt/fabricx/bin"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.configtxgen
@@ -151,7 +151,7 @@ Install the `configtxgen` Go package through the shared `bin` role. The installe
     configtxgen_git_commit: v1.0.0
     # Executable name used by the binary and container entry points.
     configtxgen_bin_name: configtxgen
-    # Directory used as the `configtxgen` binary destination or lookup path. Example: `/opt/fabricx/bin`.
+    # Directory used as the `configtxgen` binary destination or lookup path.
     cli_bin_dir: "/opt/fabricx/bin"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.configtxgen
@@ -167,11 +167,11 @@ Run the local `configtxgen` binary to generate the channel genesis block. The ou
 ```yaml
 - name: Generate a genesis block with the configtxgen binary
   vars:
-    # Channel identifier for `configtxgen_channel_id`. Example: `fabricx-main-channel`.
+    # Channel identifier for `configtxgen_channel_id`.
     channel_id: "fabricx-main-channel"
-    # Base build directory for `configtxgen_artifacts_dir`. Example: `/opt/fabricx/build/configtxgen`.
+    # Base build directory for `configtxgen_artifacts_dir`.
     config_build_dir: "/opt/fabricx/build/configtxgen"
-    # Directory used as the `configtxgen` binary destination or lookup path. Example: `/opt/fabricx/bin`.
+    # Directory used as the `configtxgen` binary destination or lookup path.
     cli_bin_dir: "/opt/fabricx/bin"
     # Executable name used by the binary and container entry points.
     configtxgen_bin_name: configtxgen
@@ -195,9 +195,9 @@ Run `configtxgen` in a container to generate the channel genesis block. The cont
 ```yaml
 - name: Generate a genesis block with the configtxgen container
   vars:
-    # Channel identifier for `configtxgen_channel_id`. Example: `fabricx-main-channel`.
+    # Channel identifier for `configtxgen_channel_id`.
     channel_id: "fabricx-main-channel"
-    # Base build directory for `configtxgen_artifacts_dir`. Example: `/opt/fabricx/build/configtxgen`.
+    # Base build directory for `configtxgen_artifacts_dir`.
     config_build_dir: "/opt/fabricx/build/configtxgen"
     # Directory used for the generated config file and genesis block artifacts.
     configtxgen_artifacts_dir: "{{ config_build_dir }}/configtxgen-artifacts"
@@ -227,9 +227,9 @@ Run `configtxgen` in a container to generate the channel genesis block. The cont
     configtxgen_armageddon_container_artifacts_dir: /tmp/armageddon-artifacts
     # Container mount path for fetched crypto artifacts.
     configtxgen_container_crypto_artifacts_dir: /tmp/crypto-artifacts
-    # Directory containing armageddon artifacts used by the binary path and container mounts. Example: `/opt/fabricx/artifacts/armageddon`.
+    # Directory containing armageddon artifacts used by the binary path and container mounts.
     armageddon_artifacts_dir: "/opt/fabricx/artifacts/armageddon"
-    # Directory containing fetched crypto artifacts used by the binary path and container mounts. Example: `/opt/fabricx/artifacts/crypto`.
+    # Directory containing fetched crypto artifacts used by the binary path and container mounts.
     fetched_artifacts_dir: "/opt/fabricx/artifacts/crypto"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.configtxgen

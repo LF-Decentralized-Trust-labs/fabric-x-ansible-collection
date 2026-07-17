@@ -10,6 +10,9 @@
 - name: Teardown Monitoring
   ansible.builtin.import_playbook: hyperledger.fabricx.monitoring.teardown
 
+- name: Teardown Fabric-X Block Explorer
+  ansible.builtin.import_playbook: hyperledger.fabricx.block_explorer.teardown
+
 - name: Teardown Fabric-X Committer
   ansible.builtin.import_playbook: hyperledger.fabricx.committer.teardown
 

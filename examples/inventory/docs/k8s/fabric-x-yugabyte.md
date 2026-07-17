@@ -25,6 +25,7 @@ This inventory deploys these logical services as Kubernetes workloads and servic
 - 4 orderer groups. Each group has 1 router, 1 consenter, 1 assembler, and 1 batcher.
 - 1 committer with validator, verifier, coordinator, sidecar, and query service.
 - 1 YugabyteDB master and 1 YugabyteDB tablet in cluster `1`.
+- 1 Block Explorer server and UI with its own PostgreSQL storage, streaming blocks from the committer sidecar and exposed through NodePort.
 - 1 load generator.
 - Monitoring with node exporter, Prometheus, Grafana, Loki, and Alloy.
 
@@ -42,13 +43,16 @@ flowchart TD
   monitoring --> grafana
   monitoring --> loki
   monitoring --> alloy
+  monitoring --> node_exporter
   grafana --> prometheus
   grafana --> loki
   alloy --> loki
+  prometheus --> node_exporter
   fabric_cas --> fabric_ca_servers
   fabric_cas --> fabric_ca_dbs
   fabric_x --> fabric_x_orderers
   fabric_x --> fabric_x_committers
+  fabric_x --> fabric_x_block_explorer
   fabric_x_committers --> fabric_x_committer
   fabric_x_orderers --> fabric_x_orderer_1
   fabric_x_orderers --> fabric_x_orderer_2

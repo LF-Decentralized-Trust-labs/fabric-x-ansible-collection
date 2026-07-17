@@ -143,7 +143,7 @@ Verifies that the Node Exporter metrics port is reachable on the current host. K
 ```yaml
 - name: Check Node Exporter reachability
   vars:
-    # Sets the TCP port exposed by Node Exporter and seeds the default Kubernetes NodePort value. Example: `9100`.
+    # Sets the TCP port exposed by Node Exporter and seeds the default Kubernetes NodePort value.
     node_exporter_port: 9100
     # Enables the Kubernetes backend or cleanup path when true.
     node_exporter_use_k8s: false
@@ -174,7 +174,7 @@ Creates the Node Exporter configuration directory and renders the web configurat
 ```yaml
 - name: Transfer Node Exporter configuration
   vars:
-    # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`. Example: `/opt/fabricx/node-exporter`.
+    # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`.
     remote_deploy_dir: "/opt/fabricx/node-exporter"
     # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
@@ -204,7 +204,7 @@ Removes transferred Node Exporter configuration files from the remote host. Kube
 ```yaml
 - name: Remove Node Exporter configuration
   vars:
-    # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`. Example: `/opt/fabricx/node-exporter`.
+    # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`.
     remote_deploy_dir: "/opt/fabricx/node-exporter"
     # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
@@ -255,9 +255,9 @@ Fetches the generated Node Exporter CA certificate and server certificate from t
 ```yaml
 - name: Fetch Node Exporter TLS certificates
   vars:
-    # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`. Example: `/opt/fabricx/node-exporter`.
+    # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`.
     remote_deploy_dir: "/opt/fabricx/node-exporter"
-    # Sets the local directory used to store fetched TLS artifacts. Example: `/tmp/fabricx-artifacts/node-exporter`.
+    # Sets the local directory used to store fetched TLS artifacts.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts/node-exporter"
     # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
@@ -277,7 +277,7 @@ Removes generated TLS material for Node Exporter. Kubernetes mode also removes t
 ```yaml
 - name: Remove Node Exporter TLS material
   vars:
-    # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`. Example: `/opt/fabricx/node-exporter`.
+    # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`.
     remote_deploy_dir: "/opt/fabricx/node-exporter"
     # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
@@ -299,7 +299,7 @@ Delegates to the OpenSSL role to generate a self-signed certificate and private 
 ```yaml
 - name: Generate a self-signed TLS certificate for Node Exporter
   vars:
-    # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`. Example: `/opt/fabricx/node-exporter`.
+    # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`.
     remote_deploy_dir: "/opt/fabricx/node-exporter"
     # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
@@ -307,11 +307,13 @@ Delegates to the OpenSSL role to generate a self-signed certificate and private 
     node_exporter_tls_private_key_file: server.key
     # Sets the Node Exporter TLS certificate filename.
     node_exporter_tls_cert_file: server.crt
-    # Provides organization data used to build the OpenSSL subject. When organization data does not define a domain value, the inventory hostname is used instead. Example: `{'domain': 'node-exporter.example.org', 'common_name': 'node-exporter.example.org', 'organization_name': 'Example Org'}`.
+    # Provides organization data used to build the OpenSSL subject. When organization data does not define a domain value, the inventory hostname is used instead.
     organization:
       domain: "node-exporter.example.org"
       common_name: "node-exporter.example.org"
       organization_name: "Example Org"
+    # Specifies the OpenShift Route host.
+    node_exporter_openshift_route: "node-exporter-metrics.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: crypto/openssl/generate_cert
@@ -333,12 +335,12 @@ Starts the Node Exporter container with the configured image, port, mounts, and 
     # Sets the Node Exporter image name used in the default image reference.
     node_exporter_image_name: node-exporter
     # Sets the Node Exporter image tag used in the default image reference.
-    node_exporter_image_tag: latest
+    node_exporter_image_tag: v1.12.1
     # Sets the full Node Exporter image reference.
     node_exporter_image: "{{ node_exporter_registry_endpoint }}/{{ node_exporter_image_name }}:{{ node_exporter_image_tag }}"
-    # Sets the TCP port exposed by Node Exporter and seeds the default Kubernetes NodePort value. Example: `9100`.
+    # Sets the TCP port exposed by Node Exporter and seeds the default Kubernetes NodePort value.
     node_exporter_port: 9100
-    # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`. Example: `/opt/fabricx/node-exporter`.
+    # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`.
     remote_deploy_dir: "/opt/fabricx/node-exporter"
     # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
@@ -371,7 +373,7 @@ Stops the Node Exporter container by delegating to the shared container role. Us
     # Sets the Node Exporter image name used in the default image reference.
     node_exporter_image_name: node-exporter
     # Sets the Node Exporter image tag used in the default image reference.
-    node_exporter_image_tag: latest
+    node_exporter_image_tag: v1.12.1
     # Sets the full Node Exporter image reference.
     node_exporter_image: "{{ node_exporter_registry_endpoint }}/{{ node_exporter_image_name }}:{{ node_exporter_image_tag }}"
   ansible.builtin.include_role:
@@ -395,7 +397,7 @@ Removes the Node Exporter container by delegating to the shared container role. 
     # Sets the Node Exporter image name used in the default image reference.
     node_exporter_image_name: node-exporter
     # Sets the Node Exporter image tag used in the default image reference.
-    node_exporter_image_tag: latest
+    node_exporter_image_tag: v1.12.1
     # Sets the full Node Exporter image reference.
     node_exporter_image: "{{ node_exporter_registry_endpoint }}/{{ node_exporter_image_name }}:{{ node_exporter_image_tag }}"
   ansible.builtin.include_role:
@@ -434,16 +436,16 @@ Creates the Kubernetes Service, optional NodePort and LoadBalancer Services, and
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Node Exporter resources.
     node_exporter_k8s_part_of: monitoring
-    # Sets the TCP port exposed by Node Exporter and seeds the default Kubernetes NodePort value. Example: `9100`.
+    # Sets the TCP port exposed by Node Exporter and seeds the default Kubernetes NodePort value.
     node_exporter_port: 9100
-    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31000`.
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     node_exporter_k8s_node_port: 31000
     # Sets the registry endpoint used to build the default Node Exporter image reference.
     node_exporter_registry_endpoint: "{{ lookup('env', 'NODE_EXPORTER_REGISTRY_ENDPOINT') or 'docker.io/prom' }}"
     # Sets the Node Exporter image name used in the default image reference.
     node_exporter_image_name: node-exporter
     # Sets the Node Exporter image tag used in the default image reference.
-    node_exporter_image_tag: latest
+    node_exporter_image_tag: v1.12.1
     # Sets the full Node Exporter image reference.
     node_exporter_image: "{{ node_exporter_registry_endpoint }}/{{ node_exporter_image_name }}:{{ node_exporter_image_tag }}"
     # Enables the TLS web configuration and certificate paths when true.
@@ -456,31 +458,31 @@ Creates the Kubernetes Service, optional NodePort and LoadBalancer Services, and
     node_exporter_tls_cert_file: server.crt
     # Sets the Node Exporter TLS private key filename.
     node_exporter_tls_private_key_file: server.key
-    # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true. Example: `monitoring`.
+    # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true.
     k8s_namespace: "monitoring"
-    # Sets the optional image pull secret used by the Node Exporter DaemonSet. Example: `regcred`.
+    # Sets the optional image pull secret used by the Node Exporter DaemonSet.
     k8s_image_pull_secret: "regcred"
-    # Overrides the DaemonSet readiness probe initial delay. The template defaults to 10 seconds. Example: `10`.
+    # Overrides the DaemonSet readiness probe initial delay. The template defaults to 10 seconds.
     k8s_readiness_probe_initial_delay_seconds: 10
-    # Overrides the DaemonSet readiness probe period. The template defaults to 10 seconds. Example: `10`.
+    # Overrides the DaemonSet readiness probe period. The template defaults to 10 seconds.
     k8s_readiness_probe_period_seconds: 10
-    # Overrides the DaemonSet readiness probe timeout. The template defaults to 5 seconds. Example: `5`.
+    # Overrides the DaemonSet readiness probe timeout. The template defaults to 5 seconds.
     k8s_readiness_probe_timeout_seconds: 5
-    # Overrides the DaemonSet readiness probe failure threshold. The template defaults to 3 failures. Example: `3`.
+    # Overrides the DaemonSet readiness probe failure threshold. The template defaults to 3 failures.
     k8s_readiness_probe_failure_threshold: 3
-    # Overrides the DaemonSet liveness probe initial delay. The template defaults to 30 seconds. Example: `30`.
+    # Overrides the DaemonSet liveness probe initial delay. The template defaults to 30 seconds.
     k8s_liveness_probe_initial_delay_seconds: 30
-    # Overrides the DaemonSet liveness probe period. The template defaults to 15 seconds. Example: `15`.
+    # Overrides the DaemonSet liveness probe period. The template defaults to 15 seconds.
     k8s_liveness_probe_period_seconds: 15
-    # Overrides the DaemonSet liveness probe timeout. The template defaults to 5 seconds. Example: `5`.
+    # Overrides the DaemonSet liveness probe timeout. The template defaults to 5 seconds.
     k8s_liveness_probe_timeout_seconds: 5
-    # Overrides the DaemonSet liveness probe failure threshold. The template defaults to 5 failures. Example: `5`.
+    # Overrides the DaemonSet liveness probe failure threshold. The template defaults to 5 failures.
     k8s_liveness_probe_failure_threshold: 5
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
     node_exporter_k8s_loadbalancer_expose_metrics_port: false
     # UID the Node Exporter container runs as.
     node_exporter_k8s_run_as_user: 0
-    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    # Optional Kubernetes container resource requests and limits.
     k8s_resources:
       requests:
         memory: "1Gi"
@@ -502,9 +504,9 @@ Probes configured Kubernetes NodePort values and LoadBalancer-exposed service po
 ```yaml
 - name: Check that Node Exporter Kubernetes service is reachable
   vars:
-    # Sets the TCP port exposed by Node Exporter and seeds the default Kubernetes NodePort value. Example: `9100`.
+    # Sets the TCP port exposed by Node Exporter and seeds the default Kubernetes NodePort value.
     node_exporter_port: 9100
-    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31000`.
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     node_exporter_k8s_node_port: 31000
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
     node_exporter_k8s_loadbalancer_expose_metrics_port: false
@@ -524,9 +526,9 @@ Removes the Kubernetes DaemonSet and Services created for Node Exporter. Targets
   vars:
     # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
-    # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true. Example: `monitoring`.
+    # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true.
     k8s_namespace: "monitoring"
-    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `31000`.
+    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     node_exporter_k8s_node_port: 31000
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
     node_exporter_k8s_loadbalancer_expose_metrics_port: false
@@ -568,11 +570,11 @@ Ensures the target namespace exists and applies the ConfigMap used by the Node E
     node_exporter_use_tls: false
     # Sets the rendered Node Exporter web configuration filename.
     node_exporter_web_config_file: web-config.yaml
-    # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`. Example: `/opt/fabricx/node-exporter`.
+    # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`.
     remote_deploy_dir: "/opt/fabricx/node-exporter"
     # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
-    # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true. Example: `monitoring`.
+    # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true.
     k8s_namespace: "monitoring"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
@@ -590,7 +592,7 @@ Deletes the ConfigMap used by the Node Exporter Kubernetes deployment. Keeps the
   vars:
     # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
-    # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true. Example: `monitoring`.
+    # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true.
     k8s_namespace: "monitoring"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
@@ -612,7 +614,7 @@ Ensures the target namespace exists and applies the Secret that stores Node Expo
     node_exporter_k8s_part_of: monitoring
     # Enables the TLS web configuration and certificate paths when true.
     node_exporter_use_tls: false
-    # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`. Example: `/opt/fabricx/node-exporter`.
+    # Sets the base remote deployment directory used by `node_exporter_remote_config_dir`.
     remote_deploy_dir: "/opt/fabricx/node-exporter"
     # Sets the remote Node Exporter configuration directory.
     node_exporter_remote_config_dir: "{{ remote_deploy_dir }}/node-exporter/config"
@@ -620,7 +622,7 @@ Ensures the target namespace exists and applies the Secret that stores Node Expo
     node_exporter_tls_private_key_file: server.key
     # Sets the Node Exporter TLS certificate filename.
     node_exporter_tls_cert_file: server.crt
-    # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true. Example: `monitoring`.
+    # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true.
     k8s_namespace: "monitoring"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
@@ -638,7 +640,7 @@ Deletes the Secret that stores Node Exporter TLS material for Kubernetes deploym
   vars:
     # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
     node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
-    # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true. Example: `monitoring`.
+    # Sets the Kubernetes namespace used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet. Required when `node_exporter_use_k8s` is true.
     k8s_namespace: "monitoring"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
@@ -654,14 +656,72 @@ Builds the scrape service definitions Prometheus uses to collect metrics from th
 ```yaml
 - name: Build Prometheus scrape targets for Node Exporter
   vars:
-    # Lists the inventory hosts exposed as Prometheus scrape targets. Example: `['worker-1', 'worker-2', 'worker-3']`.
+    # Lists the inventory hosts exposed as Prometheus scrape targets.
     node_exporter_hosts:
       - "worker-1"
       - "worker-2"
       - "worker-3"
-    # Sets the local directory used to store fetched TLS artifacts. Example: `/tmp/fabricx-artifacts/node-exporter`.
+    # Sets the local directory used to store fetched TLS artifacts.
     fetched_artifacts_dir: "/tmp/fabricx-artifacts/node-exporter"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.node_exporter
     tasks_from: prometheus/get_scrapers
+```
+
+### openshift/start
+
+> Start the OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Start the OpenShift deployment
+  vars:
+    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
+    node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to Node Exporter resources.
+    node_exporter_k8s_part_of: monitoring
+    # Enables the TLS web configuration and certificate paths when true.
+    node_exporter_use_tls: false
+    # Specifies the OpenShift Route host.
+    node_exporter_openshift_route: "node-exporter-metrics.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.node_exporter
+    tasks_from: openshift/start
+```
+
+### openshift/ping
+
+> Check the OpenShift deployment
+
+Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
+
+```yaml
+- name: Check the OpenShift deployment
+  vars:
+    # Enables the TLS web configuration and certificate paths when true.
+    node_exporter_use_tls: false
+    # Specifies the OpenShift Route host.
+    node_exporter_openshift_route: "node-exporter-metrics.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.node_exporter
+    tasks_from: openshift/ping
+```
+
+### openshift/rm
+
+> Remove the OpenShift deployment
+
+Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
+
+```yaml
+- name: Remove the OpenShift deployment
+  vars:
+    # Sets the Kubernetes object name used for Node Exporter resources, including the Service, optional NodePort Service, and DaemonSet.
+    node_exporter_k8s_resource_name: "{{ inventory_hostname }}"
+    # Specifies the OpenShift Route host.
+    node_exporter_openshift_route: "node-exporter-metrics.apps.example.com"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.node_exporter
+    tasks_from: openshift/rm
 ```

@@ -1,0 +1,50 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists for Block Explorer UI
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+# =========================
+# Apply Resources
+# =========================
+- name: Apply Block Explorer UI Service
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/service.yaml.j2
+
+- name: Apply Block Explorer UI NodePort Service
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/service-nodeport.yaml.j2
+  when: block_explorer_ui_k8s_node_port is defined
+
+- name: Apply Block Explorer UI LoadBalancer Service
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/service-loadbalancer.yaml.j2
+  when: block_explorer_ui_k8s_loadbalancer_expose_port
+
+- name: Apply Block Explorer UI Deployment
+  vars:
+    block_explorer_ui_backend_url: "http://{{ hostvars[block_explorer_host].ansible_host }}:{{ hostvars[block_explorer_host].block_explorer_port }}"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/deployment.yaml.j2
+    wait: true
+    wait_timeout: "{{ block_explorer_ui_k8s_wait_timeout }}"

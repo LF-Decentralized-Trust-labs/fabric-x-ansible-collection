@@ -16,7 +16,7 @@ jaeger_registry_endpoint: "{{ lookup('env', 'JAEGER_REGISTRY_ENDPOINT') or 'dock
 # Sets the Jaeger image name.
 jaeger_image_name: all-in-one
 # Sets the Jaeger image tag.
-jaeger_image_tag: latest
+jaeger_image_tag: 1.76.0
 # Sets the Jaeger container image.
 jaeger_image: "{{ jaeger_registry_endpoint }}/{{ jaeger_image_name }}:{{ jaeger_image_tag }}"
 # Sets the Jaeger container name.

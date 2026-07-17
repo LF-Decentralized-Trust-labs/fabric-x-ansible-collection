@@ -47,11 +47,11 @@ Start a detached tmux session when `tmux_session_name` does not already exist. T
 ```yaml
 - name: Start a detached tmux session
   vars:
-    # Sets the detached tmux session name used to look up, create, or stop the session. Example: `fx-orderer-1`.
+    # Sets the detached tmux session name used to look up, create, or stop the session.
     tmux_session_name: "fx-orderer-1"
-    # Sets the shell command started inside the detached tmux session. Example: `./bin/orderer --label orderer-1 >> /var/log/fabricx/orderer-1.log 2>&1`.
+    # Sets the shell command started inside the detached tmux session.
     tmux_cmd_to_run: "./bin/orderer --label orderer-1 >> /var/log/fabricx/orderer-1.log 2>&1"
-    # Sets the working directory used before running `tmux_cmd_to_run` in the detached session. Example: `/opt/fabricx/orderer`.
+    # Sets the working directory used before running `tmux_cmd_to_run` in the detached session.
     tmux_chdir: "/opt/fabricx/orderer"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.tmux
@@ -67,7 +67,7 @@ Stop an existing detached tmux session on the target host when `tmux_session_nam
 ```yaml
 - name: Stop a detached tmux session
   vars:
-    # Sets the detached tmux session name used to look up, create, or stop the session. Example: `fx-orderer-1`.
+    # Sets the detached tmux session name used to look up, create, or stop the session.
     tmux_session_name: "fx-orderer-1"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.tmux

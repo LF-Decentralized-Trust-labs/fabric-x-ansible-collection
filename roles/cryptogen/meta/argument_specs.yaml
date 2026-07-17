@@ -12,7 +12,8 @@ argument_specs:
       config_build_dir: &config_build_dir
         type: path
         description:
-          - "Sets the base directory for generated configuration artifacts. Example: C(/opt/hyperledger/fabricx/build)."
+          - "Sets the base directory for generated configuration artifacts."
+          - "Example: C(/opt/hyperledger/fabricx/build)."
       cryptogen_use_bin: &cryptogen_use_bin
         type: bool
         default: false
@@ -109,12 +110,14 @@ argument_specs:
         type: path
         required: true
         description:
-          - "Sets the destination directory for fetched MSP folders. Example: C(/opt/hyperledger/fabricx/build/fetched-artifacts)."
+          - "Sets the destination directory for fetched MSP folders."
+          - "Example: C(/opt/hyperledger/fabricx/build/fetched-artifacts)."
       cli_bin_dir: &cli_bin_dir
         type: path
         required: true
         description:
-          - "Sets the directory that receives the cryptogen binary. Example: C(/opt/hyperledger/fabricx/bin)."
+          - "Sets the directory that receives the cryptogen binary."
+          - "Example: C(/opt/hyperledger/fabricx/bin)."
       cryptogen_config_file: &cryptogen_config_file
         type: str
         default: "crypto-config.yaml"

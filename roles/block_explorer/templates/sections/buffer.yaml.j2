@@ -1,0 +1,11 @@
+# ---------------------------------------------------------------------------
+# Buffer configuration
+# Channel sizes used by the internal block pipeline (receiver -> processor ->
+# writer). Larger buffers absorb bursts from the sidecar stream at the cost
+# of memory.
+# ---------------------------------------------------------------------------
+buffer:
+  # Buffer size of the channel holding raw blocks received from the sidecar.
+  raw_channel_size: {{ block_explorer_raw_channel_size }}
+  # Buffer size of the channel holding parsed blocks waiting to be written to the database.
+  proc_channel_size: {{ block_explorer_proc_channel_size }}

@@ -28,6 +28,9 @@ The roles that come within such collection are listed hereafter. Click on them t
 
 - [`hyperledger.fabricx.armageddon`](./armageddon);
 - [`hyperledger.fabricx.bin`](./bin);
+- [`hyperledger.fabricx.block_explorer`](./block_explorer);
+- [`hyperledger.fabricx.block_explorer_ui`](./block_explorer_ui);
+- [`hyperledger.fabricx.cadvisor`](./cadvisor);
 - [`hyperledger.fabricx.committer`](./committer);
 - [`hyperledger.fabricx.configtxgen`](./configtxgen);
 - [`hyperledger.fabricx.container`](./container);

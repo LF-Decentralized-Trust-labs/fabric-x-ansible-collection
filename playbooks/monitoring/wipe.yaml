@@ -79,3 +79,12 @@
         tasks_from: wipe
       when:
         - node_exporter_port is defined
+    # =========================
+    # cAdvisor
+    # =========================
+    - name: Wipe cAdvisor nodes
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.cadvisor
+        tasks_from: wipe
+      when:
+        - cadvisor_port is defined

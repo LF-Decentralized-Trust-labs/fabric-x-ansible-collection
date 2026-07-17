@@ -76,74 +76,84 @@ roles/<role>/
 
 These connections are not visible from within a single role:
 
-| Dependency                                         | Detail                                                                                                                                                                                                          |
-| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `committer` → `postgres`                           | Started when `postgres_port` is defined in inventory                                                                                                                                                            |
-| `committer` → `yugabyte`                           | Started when `yugabyte_component_type` is defined in inventory                                                                                                                                                  |
-| `committer` ↔ `orderer`                            | Coordinator receives the assembler host list at startup                                                                                                                                                         |
-| `fxconfig` → `committer`, `orderer`                | Generates configs consumed by both; for k8s deployments also runs namespace creation                                                                                                                            |
-| `cryptogen` / `fabric_ca` → `orderer`, `committer` | Crypto artifacts must exist before either can be configured or started                                                                                                                                          |
-| `armageddon` / `configtxgen` → crypto              | Genesis block generation depends on crypto output                                                                                                                                                               |
-| `k8s` role → k8s deployments                       | Namespace setup is a prerequisite for any k8s-mode deployment                                                                                                                                                   |
-| Monitoring                                         | `prometheus` scrapes `committer`, `orderer`, `loadgen`, `yugabyte`; `postgres_exporter` scrapes postgres; `node_exporter` on all nodes; `grafana` for dashboards; `elasticsearch`/`jaeger` for logs and tracing |
+| Dependency                                         | Detail                                                                                                                                                                                                                                                |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `committer` → `postgres`                           | Started when `postgres_port` is defined in inventory                                                                                                                                                                                                  |
+| `committer` → `yugabyte`                           | Started when `yugabyte_component_type` is defined in inventory                                                                                                                                                                                        |
+| `committer` ↔ `orderer`                            | Coordinator receives the assembler host list at startup                                                                                                                                                                                               |
+| `fxconfig` → `committer`, `orderer`                | Generates configs consumed by both; for k8s deployments also runs namespace creation                                                                                                                                                                  |
+| `block_explorer` → `committer` (sidecar)           | Streams blocks over gRPC from the host named by `sidecar_host`; TLS/mTLS mode is derived from that host's `committer_use_tls`/`committer_use_mtls`, not a local flag                                                                                  |
+| `block_explorer` → `postgres`                      | Reads/writes indexed blocks via the host named by `postgres_db_host`                                                                                                                                                                                  |
+| `block_explorer_ui` → `block_explorer`             | Proxies REST calls to the host named by `block_explorer_host`                                                                                                                                                                                         |
+| `cryptogen` / `fabric_ca` → `orderer`, `committer` | Crypto artifacts must exist before either can be configured or started                                                                                                                                                                                |
+| `armageddon` / `configtxgen` → crypto              | Genesis block generation depends on crypto output                                                                                                                                                                                                     |
+| `k8s` role → k8s deployments                       | Namespace setup is a prerequisite for any k8s-mode deployment                                                                                                                                                                                         |
+| Monitoring                                         | `prometheus` scrapes `committer`, `orderer`, `loadgen`, `yugabyte`; `postgres_exporter` scrapes postgres; `node_exporter` on all nodes; `cadvisor` scrapes container metrics; `grafana` for dashboards; `elasticsearch`/`jaeger` for logs and tracing |
 
 ---
 
 ## Role reference
 
-| Role                | Component managed                                                         |
-| ------------------- | ------------------------------------------------------------------------- |
-| `armageddon`        | Genesis block builder (armageddon CLI)                                    |
-| `bin`               | Generic binary build/install helpers                                      |
-| `committer`         | Fabric-X Committer (validator/verifier/coordinator/sidecar/query-service) |
-| `configtxgen`       | configtxgen CLI wrapper                                                   |
-| `container`         | Generic container helpers (start/stop/rm)                                 |
-| `cryptogen`         | Crypto material generation                                                |
-| `elasticsearch`     | Elasticsearch log backend                                                 |
-| `fabric_ca`         | Fabric CA server and client                                               |
-| `fxconfig`          | fxconfig configuration tool                                               |
-| `git`               | Git clone helper                                                          |
-| `go`                | Go binary build, install, and platform-mapping helpers                    |
-| `grafana`           | Grafana dashboard                                                         |
-| `idemixgen`         | idemixgen CLI wrapper                                                     |
-| `jaeger`            | Jaeger tracing backend                                                    |
-| `k8s`               | Shared Kubernetes helper (used by roles that deploy to k8s)               |
-| `loadgen`           | Load generator                                                            |
-| `node_exporter`     | Prometheus Node Exporter                                                  |
-| `openssl`           | OpenSSL certificate helpers                                               |
-| `orderer`           | Fabric-X Orderer (consenter/batcher/assembler/router)                     |
-| `package`           | OS package installation (apt / brew)                                      |
-| `postgres`          | PostgreSQL database                                                       |
-| `postgres_exporter` | Prometheus Postgres Exporter                                              |
-| `prometheus`        | Prometheus monitoring                                                     |
-| `tmux`              | tmux session helpers                                                      |
-| `utils`             | Miscellaneous utility tasks                                               |
-| `yugabyte`          | YugabyteDB                                                                |
+| Role                | Component managed                                                          |
+| ------------------- | -------------------------------------------------------------------------- |
+| `armageddon`        | Genesis block builder (armageddon CLI)                                     |
+| `bin`               | Generic binary build/install helpers                                       |
+| `block_explorer`    | Fabric-X Block Explorer server (streams blocks from the committer sidecar) |
+| `block_explorer_ui` | Fabric-X Block Explorer Next.js UI                                         |
+| `cadvisor`          | cAdvisor container metrics exporter                                        |
+| `committer`         | Fabric-X Committer (validator/verifier/coordinator/sidecar/query-service)  |
+| `configtxgen`       | configtxgen CLI wrapper                                                    |
+| `container`         | Generic container helpers (start/stop/rm)                                  |
+| `cryptogen`         | Crypto material generation                                                 |
+| `elasticsearch`     | Elasticsearch log backend                                                  |
+| `fabric_ca`         | Fabric CA server and client                                                |
+| `fxconfig`          | fxconfig configuration tool                                                |
+| `git`               | Git clone helper                                                           |
+| `go`                | Go binary build, install, and platform-mapping helpers                     |
+| `grafana`           | Grafana dashboard                                                          |
+| `idemixgen`         | idemixgen CLI wrapper                                                      |
+| `jaeger`            | Jaeger tracing backend                                                     |
+| `k8s`               | Shared Kubernetes helper (used by roles that deploy to k8s)                |
+| `loadgen`           | Load generator                                                             |
+| `node_exporter`     | Prometheus Node Exporter                                                   |
+| `openssl`           | OpenSSL certificate helpers                                                |
+| `orderer`           | Fabric-X Orderer (consenter/batcher/assembler/router)                      |
+| `package`           | OS package installation (apt / brew)                                       |
+| `postgres`          | PostgreSQL database                                                        |
+| `postgres_exporter` | Prometheus Postgres Exporter                                               |
+| `prometheus`        | Prometheus monitoring                                                      |
+| `tmux`              | tmux session helpers                                                       |
+| `utils`             | Miscellaneous utility tasks                                                |
+| `yugabyte`          | YugabyteDB                                                                 |
 
 ---
 
 ## Essential commands
 
 ```shell
-make lint                  # validate before committing
+make lint                  # full validation; run only when the user explicitly asks
 make start / stop / teardown / wipe   # lifecycle
 make install-deps          # set up control node (venv + python + ansible deps)
 make help                  # full command reference
 ```
 
+Agents must use the Makefile targets for repository checks. Do not rewrite or bypass the project check scripts (for example, with ad hoc Python replacements) unless the user explicitly asks for that.
+
+`make lint` is very time consuming. Do not run it unless the user explicitly asks you to run `make lint`.
+
 ## Modifying a role
 
 1. Role variables and documentation are managed exclusively through [`roles/<role>/meta/argument_specs.yaml`](roles/). Both `defaults/main.yaml` and `README.md` are auto-generated — never edit them directly.
-2. When you change `argument_specs.yaml`, run these checks in order:
+2. When you change `argument_specs.yaml`, use these Makefile checks in order:
 
    ```shell
    make check-argument-specs
    make check-trailing-spaces
    make check-license-header
-   make lint
    ```
 
-3. Only when all checks pass, regenerate the docs:
+3. Run `make lint` only if the user explicitly asks for it.
+4. Only when all checks pass, regenerate the docs:
 
    ```shell
    make generate-roles-docs

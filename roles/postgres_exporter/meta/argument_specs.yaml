@@ -104,7 +104,7 @@ argument_specs:
           - "Sets the image name used to build C(postgres_exporter_image)."
       postgres_exporter_image_tag: &postgres_exporter_image_tag
         type: str
-        default: latest
+        default: v0.20.1
         description:
           - "Sets the image tag used to build C(postgres_exporter_image)."
       postgres_exporter_image: &postgres_exporter_image

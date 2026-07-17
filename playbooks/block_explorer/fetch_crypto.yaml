@@ -1,0 +1,21 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Fetch the Fabric-X Block Explorer crypto material
+  hosts: "{{ target_hosts | default('fabric_x_block_explorer') }}:&fabric_x_block_explorer"
+  tasks:
+    - name: Fetch the Fabric-X Block Explorer Postgres DB certificates
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres
+        tasks_from: crypto/fetch
+      when:
+        - postgres_port is defined
+    - name: Fetch the Fabric-X Block Explorer server certificates
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.block_explorer
+        tasks_from: crypto/fetch
+      when:
+        - block_explorer_port is defined

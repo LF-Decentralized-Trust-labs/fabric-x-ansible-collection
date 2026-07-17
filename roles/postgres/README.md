@@ -68,9 +68,9 @@ Validates PostgreSQL reachability for the selected deployment mode. In container
     postgres_use_openshift: false
     # Run PostgreSQL as a container when set to `true`.
     postgres_use_container: "{{ (not postgres_use_k8s) and (not postgres_use_openshift) }}"
-    # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
+    # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port.
     postgres_port: 5432
-    # Optional postgres_exporter port to probe after PostgreSQL itself. This entry point only runs when the variable is defined. Example: `9187`.
+    # Optional postgres_exporter port to probe after PostgreSQL itself. This entry point only runs when the variable is defined.
     postgres_exporter_port: 9187
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
@@ -187,9 +187,9 @@ Removes PostgreSQL persistent data for the selected deployment mode. Container m
     postgres_use_container: "{{ (not postgres_use_k8s) and (not postgres_use_openshift) }}"
     # Remote directory used for PostgreSQL persistent data.
     postgres_remote_data_dir: "{{ remote_data_dir }}"
-    # Outer remote data directory consumed by `postgres_remote_data_dir`. This dependency is validated wherever PostgreSQL persistent data is used. Example: `/var/lib/fabricx/postgres/postgres0/data`.
+    # Outer remote data directory consumed by `postgres_remote_data_dir`. This dependency is validated wherever PostgreSQL persistent data is used.
     remote_data_dir: "/var/lib/fabricx/postgres/postgres0/data"
-    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
+    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
     k8s_namespace: "fabricx-postgres"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
@@ -217,23 +217,23 @@ Creates the PostgreSQL data directory, fixes TLS file permissions when TLS is en
     postgres_image: "{{ postgres_registry_endpoint }}/{{ postgres_image_name }}:{{ postgres_image_tag }}"
     # Remote directory used for PostgreSQL configuration and TLS files.
     postgres_remote_config_dir: "{{ remote_config_dir }}"
-    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used. Example: `/opt/fabricx/postgres/postgres0/config`.
+    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
     remote_config_dir: "/opt/fabricx/postgres/postgres0/config"
     # Remote directory used for PostgreSQL persistent data.
     postgres_remote_data_dir: "{{ remote_data_dir }}"
-    # Outer remote data directory consumed by `postgres_remote_data_dir`. This dependency is validated wherever PostgreSQL persistent data is used. Example: `/var/lib/fabricx/postgres/postgres0/data`.
+    # Outer remote data directory consumed by `postgres_remote_data_dir`. This dependency is validated wherever PostgreSQL persistent data is used.
     remote_data_dir: "/var/lib/fabricx/postgres/postgres0/data"
     # Configuration directory path inside the PostgreSQL container.
     postgres_container_config_dir: /var/lib/postgresql/config
     # Data directory path inside the PostgreSQL container.
     postgres_container_data_dir: /var/lib/postgresql/data
-    # PostgreSQL database name used during initialization and in the readiness checks. Example: `fabricx`.
+    # PostgreSQL database name used during initialization and in the readiness checks.
     postgres_db: "fabricx"
-    # PostgreSQL user name used during initialization and in the readiness checks. Example: `postgres`.
+    # PostgreSQL user name used during initialization and in the readiness checks.
     postgres_user: "postgres"
-    # Password for `postgres_user` used during initialization. Store this value in an Ansible Vault. Example: `my_postgres_password`.
+    # Password for `postgres_user` used during initialization. Store this value in an Ansible Vault.
     postgres_password: "my_postgres_password"
-    # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
+    # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port.
     postgres_port: 5432
     # Enable server-side TLS for PostgreSQL.
     postgres_use_tls: false
@@ -243,11 +243,11 @@ Creates the PostgreSQL data directory, fixes TLS file permissions when TLS is en
     postgres_tls_private_key_file: server.key
     # Filename of the PostgreSQL TLS certificate under the TLS config directory.
     postgres_tls_cert_file: server.crt
-    # List of client artifact names whose certificates are assembled into the PostgreSQL mTLS bundle. This value is only required when PostgreSQL mTLS is enabled. Example: `['committer0', 'orderer0']`.
+    # List of client artifact names whose certificates are assembled into the PostgreSQL mTLS bundle. This value is only required when PostgreSQL mTLS is enabled.
     postgres_mtls_clients:
       - "committer0"
       - "orderer0"
-    # Additional PostgreSQL command-line options appended to the start command. Example: `-c max_connections=200 -c log_directory=/var/lib/postgresql/data/pg_log`.
+    # Additional PostgreSQL command-line options appended to the start command.
     postgres_extra_cmd_opts: "-c max_connections=200 -c log_directory=/var/lib/postgresql/data/pg_log"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
@@ -315,7 +315,7 @@ Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and S
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
     postgres_k8s_part_of: postgres
-    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
+    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
     k8s_namespace: "fabricx-postgres"
     # Timeout in seconds while waiting for the StatefulSet rollout to complete.
     postgres_k8s_wait_timeout: 120
@@ -323,9 +323,9 @@ Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and S
     postgres_k8s_fs_group: 999
     # Set to `true` to create a LoadBalancer Service and expose `postgres_port` externally. When undefined or `false`, no LoadBalancer Service is created.
     postgres_k8s_loadbalancer_expose_port: false
-    # Kubernetes NodePort value used by the external PostgreSQL Service. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30432`.
+    # Kubernetes NodePort value used by the external PostgreSQL Service. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     postgres_k8s_node_port: 30432
-    # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
+    # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port.
     postgres_port: 5432
     # Container registry endpoint used to build `postgres_image`.
     postgres_registry_endpoint: "{{ lookup('env', 'POSTGRES_REGISTRY_ENDPOINT') or 'docker.io/library' }}"
@@ -339,9 +339,9 @@ Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and S
     postgres_container_config_dir: /var/lib/postgresql/config
     # Data directory path inside the PostgreSQL container.
     postgres_container_data_dir: /var/lib/postgresql/data
-    # PostgreSQL database name used during initialization and in the readiness checks. Example: `fabricx`.
+    # PostgreSQL database name used during initialization and in the readiness checks.
     postgres_db: "fabricx"
-    # PostgreSQL user name used during initialization and in the readiness checks. Example: `postgres`.
+    # PostgreSQL user name used during initialization and in the readiness checks.
     postgres_user: "postgres"
     # Enable server-side TLS for PostgreSQL.
     postgres_use_tls: false
@@ -351,35 +351,35 @@ Ensures `k8s_namespace` exists and applies the PostgreSQL headless Service and S
     postgres_tls_private_key_file: server.key
     # Filename of the PostgreSQL TLS certificate under the TLS config directory.
     postgres_tls_cert_file: server.crt
-    # List of client artifact names whose certificates are assembled into the PostgreSQL mTLS bundle. This value is only required when PostgreSQL mTLS is enabled. Example: `['committer0', 'orderer0']`.
+    # List of client artifact names whose certificates are assembled into the PostgreSQL mTLS bundle. This value is only required when PostgreSQL mTLS is enabled.
     postgres_mtls_clients:
       - "committer0"
       - "orderer0"
-    # Additional PostgreSQL command-line options appended to the start command. Example: `-c max_connections=200 -c log_directory=/var/lib/postgresql/data/pg_log`.
+    # Additional PostgreSQL command-line options appended to the start command.
     postgres_extra_cmd_opts: "-c max_connections=200 -c log_directory=/var/lib/postgresql/data/pg_log"
-    # Requested persistent storage size for the PostgreSQL PVC. Example: `500Mi`.
+    # Requested persistent storage size for the PostgreSQL PVC.
     k8s_storage_size: "500Mi"
-    # Kubernetes storage class name for the PostgreSQL PVC when a non-default class is required. Example: `fast-ssd`.
+    # Kubernetes storage class name for the PostgreSQL PVC when a non-default class is required.
     k8s_storage_class: "fast-ssd"
-    # Existing Kubernetes `imagePullSecret` name used when the PostgreSQL image is stored in a private registry. Example: `postgres-registry-pull-secret`.
+    # Existing Kubernetes `imagePullSecret` name used when the PostgreSQL image is stored in a private registry.
     k8s_image_pull_secret: "postgres-registry-pull-secret"
-    # Override for the readiness probe initial delay in seconds. Example: `10`.
+    # Override for the readiness probe initial delay in seconds.
     k8s_readiness_probe_initial_delay_seconds: 10
-    # Override for the readiness probe period in seconds. Example: `10`.
+    # Override for the readiness probe period in seconds.
     k8s_readiness_probe_period_seconds: 10
-    # Override for the readiness probe timeout in seconds. Example: `5`.
+    # Override for the readiness probe timeout in seconds.
     k8s_readiness_probe_timeout_seconds: 5
-    # Override for the readiness probe failure threshold. Example: `3`.
+    # Override for the readiness probe failure threshold.
     k8s_readiness_probe_failure_threshold: 3
-    # Override for the liveness probe initial delay in seconds. Example: `30`.
+    # Override for the liveness probe initial delay in seconds.
     k8s_liveness_probe_initial_delay_seconds: 30
-    # Override for the liveness probe period in seconds. Example: `15`.
+    # Override for the liveness probe period in seconds.
     k8s_liveness_probe_period_seconds: 15
-    # Override for the liveness probe timeout in seconds. Example: `5`.
+    # Override for the liveness probe timeout in seconds.
     k8s_liveness_probe_timeout_seconds: 5
-    # Override for the liveness probe failure threshold. Example: `5`.
+    # Override for the liveness probe failure threshold.
     k8s_liveness_probe_failure_threshold: 5
-    # Optional Kubernetes container resource requests and limits. Example: `{'requests': {'memory': '1Gi', 'cpu': '500m'}, 'limits': {'memory': '2Gi', 'cpu': '1000m'}}`.
+    # Optional Kubernetes container resource requests and limits.
     k8s_resources:
       requests:
         memory: "1Gi"
@@ -401,9 +401,9 @@ Probes the PostgreSQL NodePort Service when `postgres_k8s_node_port` is defined.
 ```yaml
 - name: Check that PostgreSQL Kubernetes service is reachable
   vars:
-    # Kubernetes NodePort value used by the external PostgreSQL Service. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30432`.
+    # Kubernetes NodePort value used by the external PostgreSQL Service. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     postgres_k8s_node_port: 30432
-    # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port. Example: `5432`.
+    # PostgreSQL listener port used by the container, Kubernetes Service, and optional NodePort Service target port.
     postgres_port: 5432
     # Set to `true` to create a LoadBalancer Service and expose `postgres_port` externally. When undefined or `false`, no LoadBalancer Service is created.
     postgres_k8s_loadbalancer_expose_port: false
@@ -423,9 +423,9 @@ Deletes the PostgreSQL StatefulSet, headless Service, optional NodePort Service,
   vars:
     # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
+    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
     k8s_namespace: "fabricx-postgres"
-    # Kubernetes NodePort value used by the external PostgreSQL Service. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec. Example: `30432`.
+    # Kubernetes NodePort value used by the external PostgreSQL Service. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     postgres_k8s_node_port: 30432
     # Set to `true` to create a LoadBalancer Service and expose `postgres_port` externally. When undefined or `false`, no LoadBalancer Service is created.
     postgres_k8s_loadbalancer_expose_port: false
@@ -463,21 +463,21 @@ Applies the Kubernetes Secret named `postgres_k8s_resource_name`-secret. Stores 
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
     postgres_k8s_part_of: postgres
-    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
+    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
     k8s_namespace: "fabricx-postgres"
     # Remote directory used for PostgreSQL configuration and TLS files.
     postgres_remote_config_dir: "{{ remote_config_dir }}"
-    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used. Example: `/opt/fabricx/postgres/postgres0/config`.
+    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
     remote_config_dir: "/opt/fabricx/postgres/postgres0/config"
     # Filename of the PostgreSQL TLS private key under the TLS config directory.
     postgres_tls_private_key_file: server.key
     # Filename of the PostgreSQL TLS certificate under the TLS config directory.
     postgres_tls_cert_file: server.crt
-    # PostgreSQL user name used during initialization and in the readiness checks. Example: `postgres`.
+    # PostgreSQL user name used during initialization and in the readiness checks.
     postgres_user: "postgres"
-    # Password for `postgres_user` used during initialization. Store this value in an Ansible Vault. Example: `my_postgres_password`.
+    # Password for `postgres_user` used during initialization. Store this value in an Ansible Vault.
     postgres_password: "my_postgres_password"
-    # PostgreSQL database name used during initialization and in the readiness checks. Example: `fabricx`.
+    # PostgreSQL database name used during initialization and in the readiness checks.
     postgres_db: "fabricx"
     # Enable server-side TLS for PostgreSQL.
     postgres_use_tls: false
@@ -497,7 +497,7 @@ Deletes the Kubernetes Secret named `postgres_k8s_resource_name`-secret from `k8
   vars:
     # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
+    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
     k8s_namespace: "fabricx-postgres"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
@@ -517,15 +517,15 @@ Applies the Kubernetes ConfigMap named `postgres_k8s_resource_name`-config. Stor
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
     # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to PostgreSQL resources.
     postgres_k8s_part_of: postgres
-    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
+    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
     k8s_namespace: "fabricx-postgres"
     # Remote directory used for PostgreSQL configuration and TLS files.
     postgres_remote_config_dir: "{{ remote_config_dir }}"
-    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used. Example: `/opt/fabricx/postgres/postgres0/config`.
+    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
     remote_config_dir: "/opt/fabricx/postgres/postgres0/config"
     # Enable mutual TLS for PostgreSQL clients.
     postgres_use_mtls: false
-    # List of client artifact names whose certificates are assembled into the PostgreSQL mTLS bundle. This value is only required when PostgreSQL mTLS is enabled. Example: `['committer0', 'orderer0']`.
+    # List of client artifact names whose certificates are assembled into the PostgreSQL mTLS bundle. This value is only required when PostgreSQL mTLS is enabled.
     postgres_mtls_clients:
       - "committer0"
       - "orderer0"
@@ -545,7 +545,7 @@ Deletes the Kubernetes ConfigMap named `postgres_k8s_resource_name`-config from 
   vars:
     # Base Kubernetes resource name used for PostgreSQL objects, including the StatefulSet and Services.
     postgres_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point. Example: `fabricx-postgres`.
+    # Kubernetes namespace used for PostgreSQL resources. This dependency is validated by every Kubernetes leaf entry point.
     k8s_namespace: "fabricx-postgres"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
@@ -606,7 +606,7 @@ Selects the PostgreSQL TLS generation path for OpenSSL, cryptogen, or Fabric CA 
     postgres_use_k8s: false
     # Run PostgreSQL on OpenShift when set to `true`.
     postgres_use_openshift: false
-    # Fabric organization inputs used by PostgreSQL TLS generation paths. The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'postgres0', 'secret': 'postgres0PWD'}, 'fabric_ca_host': 'fca-org1'}`.
+    # Fabric organization inputs used by PostgreSQL TLS generation paths. The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA.
     organization:
       domain: "org1.example.com"
       role: "peer"
@@ -632,9 +632,9 @@ Fetches the PostgreSQL TLS CA certificate and server certificate from `postgres_
     postgres_use_tls: false
     # Remote directory used for PostgreSQL configuration and TLS files.
     postgres_remote_config_dir: "{{ remote_config_dir }}"
-    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used. Example: `/opt/fabricx/postgres/postgres0/config`.
+    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
     remote_config_dir: "/opt/fabricx/postgres/postgres0/config"
-    # Control-node directory where fetched PostgreSQL artifacts are written. Example: `/tmp/fabricx/fetched-artifacts`.
+    # Control-node directory where fetched PostgreSQL artifacts are written.
     fetched_artifacts_dir: "/tmp/fabricx/fetched-artifacts"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
@@ -658,7 +658,7 @@ Deletes PostgreSQL TLS files from `postgres_remote_config_dir` when TLS is enabl
     postgres_use_openshift: false
     # Remote directory used for PostgreSQL configuration and TLS files.
     postgres_remote_config_dir: "{{ remote_config_dir }}"
-    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used. Example: `/opt/fabricx/postgres/postgres0/config`.
+    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
     remote_config_dir: "/opt/fabricx/postgres/postgres0/config"
     # Filename of the PostgreSQL TLS private key under the TLS config directory.
     postgres_tls_private_key_file: server.key
@@ -678,13 +678,13 @@ Generates a self-signed TLS keypair for PostgreSQL under `postgres_remote_config
   vars:
     # Remote directory used for PostgreSQL configuration and TLS files.
     postgres_remote_config_dir: "{{ remote_config_dir }}"
-    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used. Example: `/opt/fabricx/postgres/postgres0/config`.
+    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
     remote_config_dir: "/opt/fabricx/postgres/postgres0/config"
     # Filename of the PostgreSQL TLS private key under the TLS config directory.
     postgres_tls_private_key_file: server.key
     # Filename of the PostgreSQL TLS certificate under the TLS config directory.
     postgres_tls_cert_file: server.crt
-    # Fabric organization inputs used by PostgreSQL TLS generation paths. The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'postgres0', 'secret': 'postgres0PWD'}, 'fabric_ca_host': 'fca-org1'}`.
+    # Fabric organization inputs used by PostgreSQL TLS generation paths. The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA.
     organization:
       domain: "org1.example.com"
       role: "peer"
@@ -708,15 +708,15 @@ Copies PostgreSQL TLS files generated by cryptogen from `cryptogen_artifacts_dir
   vars:
     # Remote directory used for PostgreSQL configuration and TLS files.
     postgres_remote_config_dir: "{{ remote_config_dir }}"
-    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used. Example: `/opt/fabricx/postgres/postgres0/config`.
+    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
     remote_config_dir: "/opt/fabricx/postgres/postgres0/config"
     # Filename of the PostgreSQL TLS private key under the TLS config directory.
     postgres_tls_private_key_file: server.key
     # Filename of the PostgreSQL TLS certificate under the TLS config directory.
     postgres_tls_cert_file: server.crt
-    # Control-node directory containing cryptogen output for PostgreSQL. Example: `/tmp/fabricx/cryptogen-artifacts`.
+    # Control-node directory containing cryptogen output for PostgreSQL.
     cryptogen_artifacts_dir: "/tmp/fabricx/cryptogen-artifacts"
-    # Fabric organization inputs used by PostgreSQL TLS generation paths. The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'postgres0', 'secret': 'postgres0PWD'}, 'fabric_ca_host': 'fca-org1'}`.
+    # Fabric organization inputs used by PostgreSQL TLS generation paths. The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA.
     organization:
       domain: "org1.example.com"
       role: "peer"
@@ -740,15 +740,15 @@ Enrolls PostgreSQL through Fabric CA to generate TLS materials under `postgres_r
   vars:
     # Remote directory used for PostgreSQL configuration and TLS files.
     postgres_remote_config_dir: "{{ remote_config_dir }}"
-    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used. Example: `/opt/fabricx/postgres/postgres0/config`.
+    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
     remote_config_dir: "/opt/fabricx/postgres/postgres0/config"
     # Filename of the PostgreSQL TLS private key under the TLS config directory.
     postgres_tls_private_key_file: server.key
     # Filename of the PostgreSQL TLS certificate under the TLS config directory.
     postgres_tls_cert_file: server.crt
-    # Control-node directory where fetched PostgreSQL artifacts are written. Example: `/tmp/fabricx/fetched-artifacts`.
+    # Control-node directory where fetched PostgreSQL artifacts are written.
     fetched_artifacts_dir: "/tmp/fabricx/fetched-artifacts"
-    # Fabric organization inputs used by PostgreSQL TLS generation paths. The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA. Example: `{'domain': 'org1.example.com', 'role': 'peer', 'peer': {'name': 'postgres0', 'secret': 'postgres0PWD'}, 'fabric_ca_host': 'fca-org1'}`.
+    # Fabric organization inputs used by PostgreSQL TLS generation paths. The exact required fields depend on whether PostgreSQL TLS is sourced from OpenSSL, cryptogen, or Fabric CA.
     organization:
       domain: "org1.example.com"
       role: "peer"
@@ -756,7 +756,7 @@ Enrolls PostgreSQL through Fabric CA to generate TLS materials under `postgres_r
         name: "postgres0"
         secret: "postgres0PWD"
       fabric_ca_host: "fca-org1"
-    # Resolved host name used for external reachability checks and in the Fabric CA CSR SAN list. Example: `postgres0.example.com`.
+    # Resolved host name used for external reachability checks and in the Fabric CA CSR SAN list.
     actual_host: "postgres0.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres
@@ -774,11 +774,11 @@ Ensures `postgres_remote_config_dir` exists and prepares optional mTLS configura
   vars:
     # Remote directory used for PostgreSQL configuration and TLS files.
     postgres_remote_config_dir: "{{ remote_config_dir }}"
-    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used. Example: `/opt/fabricx/postgres/postgres0/config`.
+    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
     remote_config_dir: "/opt/fabricx/postgres/postgres0/config"
     # Enable mutual TLS for PostgreSQL clients.
     postgres_use_mtls: false
-    # List of client artifact names whose certificates are assembled into the PostgreSQL mTLS bundle. This value is only required when PostgreSQL mTLS is enabled. Example: `['committer0', 'orderer0']`.
+    # List of client artifact names whose certificates are assembled into the PostgreSQL mTLS bundle. This value is only required when PostgreSQL mTLS is enabled.
     postgres_mtls_clients:
       - "committer0"
       - "orderer0"
@@ -802,7 +802,7 @@ Deletes PostgreSQL configuration files from `postgres_remote_config_dir` on the 
   vars:
     # Remote directory used for PostgreSQL configuration and TLS files.
     postgres_remote_config_dir: "{{ remote_config_dir }}"
-    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used. Example: `/opt/fabricx/postgres/postgres0/config`.
+    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
     remote_config_dir: "/opt/fabricx/postgres/postgres0/config"
     # Run PostgreSQL on Kubernetes when set to `true`.
     postgres_use_k8s: false
@@ -824,13 +824,13 @@ Renders `pg_hba.conf` and assembles the PostgreSQL client CA bundle used for mTL
   vars:
     # Remote directory used for PostgreSQL configuration and TLS files.
     postgres_remote_config_dir: "{{ remote_config_dir }}"
-    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used. Example: `/opt/fabricx/postgres/postgres0/config`.
+    # Outer remote configuration directory consumed by `postgres_remote_config_dir`. This dependency is validated wherever PostgreSQL configuration files or TLS materials are used.
     remote_config_dir: "/opt/fabricx/postgres/postgres0/config"
-    # List of client artifact names whose certificates are assembled into the PostgreSQL mTLS bundle. This value is only required when PostgreSQL mTLS is enabled. Example: `['committer0', 'orderer0']`.
+    # List of client artifact names whose certificates are assembled into the PostgreSQL mTLS bundle. This value is only required when PostgreSQL mTLS is enabled.
     postgres_mtls_clients:
       - "committer0"
       - "orderer0"
-    # Control-node directory where fetched PostgreSQL artifacts are written. Example: `/tmp/fabricx/fetched-artifacts`.
+    # Control-node directory where fetched PostgreSQL artifacts are written.
     fetched_artifacts_dir: "/tmp/fabricx/fetched-artifacts"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.postgres

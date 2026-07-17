@@ -31,7 +31,7 @@ argument_specs:
           - "Sets the Jaeger image name."
       jaeger_image_tag: &jaeger_image_tag
         type: str
-        default: "latest"
+        default: "1.76.0"
         description:
           - "Sets the Jaeger image tag."
       jaeger_image: &jaeger_image
@@ -48,7 +48,8 @@ argument_specs:
         type: path
         description:
           - "Sets the shared remote configuration base directory."
-          - "Example: C(/var/lib/fabricx/jaeger/config) on the control or remote host."
+          - "The directory can be on the control or remote host."
+          - "Example: C(/var/lib/fabricx/jaeger/config)."
       jaeger_remote_config_dir: &jaeger_remote_config_dir
         type: path
         default: "{{ remote_config_dir }}"
@@ -64,13 +65,15 @@ argument_specs:
         required: true
         description:
           - "Sets the local directory containing fetched artifacts used by Jaeger."
-          - "Example: C(/tmp/fabricx-artifacts) when copying the ElasticSearch CA certificate into Jaeger config."
+          - "It is used when copying the ElasticSearch CA certificate into Jaeger configuration."
+          - "Example: C(/tmp/fabricx-artifacts)."
       elasticsearch_host: &elasticsearch_host
         type: str
         required: true
         description:
           - "Names the inventory host running ElasticSearch for Jaeger span storage."
-          - "Example: C(elasticsearch-0) when Jaeger should send spans to that inventory host."
+          - "Jaeger sends spans to this inventory host."
+          - "Example: C(elasticsearch-0)."
       jaeger_ui_port: &jaeger_ui_port
         type: int
         default: 16686
@@ -203,12 +206,14 @@ argument_specs:
         type: str
         description:
           - "Sets the Kubernetes namespace used for Jaeger resources."
-          - "Example: C(tracing) when Jaeger shares a namespace with other observability services."
+          - "Use a shared namespace when Jaeger runs with other observability services."
+          - "Example: C(tracing)."
       k8s_image_pull_secret: &k8s_image_pull_secret
         type: str
         description:
           - "Sets the Kubernetes imagePullSecret name when the deployment needs one."
-          - "Example: C(registry-pull-secret) when the Jaeger image comes from a private registry."
+          - "Set this when the Jaeger image comes from a private registry."
+          - "Example: C(registry-pull-secret)."
       k8s_readiness_probe_initial_delay_seconds:
         &k8s_readiness_probe_initial_delay_seconds
         type: int
