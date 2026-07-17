@@ -4,6 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Ensure configtxlator artifacts directory exists
+  ansible.builtin.file:
+    path: "{{ configtxlator_artifacts_dir }}"
+    state: directory
+    mode: "0o755"
+
 - name: Run {{ configtxlator_bin_name }} compute_update as container
   vars:
     container_name: "{{ configtxlator_container_name }}"
