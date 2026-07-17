@@ -4,6 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Ensure configtxlator artifacts directory exists
+  ansible.builtin.file:
+    path: "{{ configtxlator_artifacts_dir }}"
+    state: directory
+    mode: "0o755"
+
 - name: Run {{ configtxlator_bin_name }} proto_decode
   vars:
     bin_run_with_tmux: false
@@ -11,8 +17,8 @@
     bin_command: >-
       {{ configtxlator_bin_name }} proto_decode
       --type {{ configtxlator_proto_type }}
-      --input {{ configtxlator_input_file }}
-      --output {{ configtxlator_output_file }}
+      --input {{ configtxlator_artifacts_dir }}/{{ configtxlator_input_file }}
+      --output {{ configtxlator_artifacts_dir }}/{{ configtxlator_output_file }}
     bin_collect_logs: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin

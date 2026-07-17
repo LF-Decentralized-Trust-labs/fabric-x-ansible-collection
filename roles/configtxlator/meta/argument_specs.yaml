@@ -103,30 +103,34 @@ argument_specs:
           - Fully qualified protobuf message type passed to C(proto_encode) and C(proto_decode).
           - "Example: C(common.Block)."
       configtxlator_input_file: &configtxlator_input_file
-        type: path
+        type: str
         required: true
         description:
-          - Path to the input file for C(proto_encode) and C(proto_decode).
+          - Filename of the input file within C(configtxlator_artifacts_dir) for C(proto_encode) and C(proto_decode).
+          - "Example: C(config.json)."
       configtxlator_output_file: &configtxlator_output_file
-        type: path
+        type: str
         required: true
         description:
-          - Path to the output file written by C(proto_encode), C(proto_decode), and C(compute_update).
+          - Filename of the output file within C(configtxlator_artifacts_dir) written by C(proto_encode), C(proto_decode), and C(compute_update).
+          - "Example: C(config.pb)."
       configtxlator_channel_id: &configtxlator_channel_id
         type: str
         required: true
         description:
           - Channel identifier passed to the C(compute_update) sub-command.
       configtxlator_original_file: &configtxlator_original_file
-        type: path
+        type: str
         required: true
         description:
-          - Path to the original config proto passed to C(compute_update).
+          - Filename of the original config proto within C(configtxlator_artifacts_dir) passed to C(compute_update).
+          - "Example: C(original_config.pb)."
       configtxlator_updated_file: &configtxlator_updated_file
-        type: path
+        type: str
         required: true
         description:
-          - Path to the updated config proto passed to C(compute_update).
+          - Filename of the updated config proto within C(configtxlator_artifacts_dir) passed to C(compute_update).
+          - "Example: C(modified_config.pb)."
 
   bin/build:
     short_description: Build the configtxlator binary on the control node
@@ -159,8 +163,11 @@ argument_specs:
     short_description: Run configtxlator proto_encode with the binary
     description:
       - Run C(configtxlator proto_encode) one-shot through the locally installed binary.
+      - Input and output files are resolved relative to C(configtxlator_artifacts_dir).
     options:
       cli_bin_dir: *cli_bin_dir
+      config_build_dir: *config_build_dir
+      configtxlator_artifacts_dir: *configtxlator_artifacts_dir
       configtxlator_bin_name: *configtxlator_bin_name
       configtxlator_proto_type: *configtxlator_proto_type
       configtxlator_input_file: *configtxlator_input_file
@@ -170,8 +177,11 @@ argument_specs:
     short_description: Run configtxlator proto_decode with the binary
     description:
       - Run C(configtxlator proto_decode) one-shot through the locally installed binary.
+      - Input and output files are resolved relative to C(configtxlator_artifacts_dir).
     options:
       cli_bin_dir: *cli_bin_dir
+      config_build_dir: *config_build_dir
+      configtxlator_artifacts_dir: *configtxlator_artifacts_dir
       configtxlator_bin_name: *configtxlator_bin_name
       configtxlator_proto_type: *configtxlator_proto_type
       configtxlator_input_file: *configtxlator_input_file
@@ -181,8 +191,11 @@ argument_specs:
     short_description: Run configtxlator compute_update with the binary
     description:
       - Run C(configtxlator compute_update) one-shot through the locally installed binary.
+      - Input and output files are resolved relative to C(configtxlator_artifacts_dir).
     options:
       cli_bin_dir: *cli_bin_dir
+      config_build_dir: *config_build_dir
+      configtxlator_artifacts_dir: *configtxlator_artifacts_dir
       configtxlator_bin_name: *configtxlator_bin_name
       configtxlator_channel_id: *configtxlator_channel_id
       configtxlator_original_file: *configtxlator_original_file

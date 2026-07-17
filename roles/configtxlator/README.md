@@ -42,7 +42,7 @@ Build the `configtxlator` binary from the Fabric-X source tree on the control no
 ```yaml
 - name: Build the configtxlator binary on the control node
   vars:
-    # Directory used as the `configtxlator` binary destination or lookup path. Example: `/opt/fabricx/bin`.
+    # Directory used as the `configtxlator` binary destination or lookup path.
     cli_bin_dir: "/opt/fabricx/bin"
     # Executable name used by the binary and container entry points.
     configtxlator_bin_name: configtxlator
@@ -68,7 +68,7 @@ Install the `configtxlator` Go package through the shared `bin` role. The instal
 ```yaml
 - name: Install the configtxlator binary into the local bin directory
   vars:
-    # Directory used as the `configtxlator` binary destination or lookup path. Example: `/opt/fabricx/bin`.
+    # Directory used as the `configtxlator` binary destination or lookup path.
     cli_bin_dir: "/opt/fabricx/bin"
     # Executable name used by the binary and container entry points.
     configtxlator_bin_name: configtxlator
@@ -91,21 +91,25 @@ Install the `configtxlator` Go package through the shared `bin` role. The instal
 
 > Run configtxlator proto_encode with the binary
 
-Run `configtxlator proto_encode` one-shot through the locally installed binary.
+Run `configtxlator proto_encode` one-shot through the locally installed binary. Input and output files are resolved relative to `configtxlator_artifacts_dir`.
 
 ```yaml
 - name: Run configtxlator proto_encode with the binary
   vars:
-    # Directory used as the `configtxlator` binary destination or lookup path. Example: `/opt/fabricx/bin`.
+    # Directory used as the `configtxlator` binary destination or lookup path.
     cli_bin_dir: "/opt/fabricx/bin"
+    # Base build directory for `configtxlator_artifacts_dir`.
+    config_build_dir: "/opt/fabricx/build"
+    # Host directory mounted into the container for CLI operation input and output.
+    configtxlator_artifacts_dir: "{{ config_build_dir }}/configtxlator-artifacts"
     # Executable name used by the binary and container entry points.
     configtxlator_bin_name: configtxlator
-    # Fully qualified protobuf message type passed to `proto_encode` and `proto_decode`. Example: `common.Block`.
+    # Fully qualified protobuf message type passed to `proto_encode` and `proto_decode`.
     configtxlator_proto_type: "common.Block"
-    # Path to the input file for `proto_encode` and `proto_decode`.
-    configtxlator_input_file: "string"
-    # Path to the output file written by `proto_encode`, `proto_decode`, and `compute_update`.
-    configtxlator_output_file: "string"
+    # Filename of the input file within `configtxlator_artifacts_dir` for `proto_encode` and `proto_decode`.
+    configtxlator_input_file: "config.json"
+    # Filename of the output file within `configtxlator_artifacts_dir` written by `proto_encode`, `proto_decode`, and `compute_update`.
+    configtxlator_output_file: "config.pb"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.configtxlator
     tasks_from: bin/proto_encode
@@ -115,21 +119,25 @@ Run `configtxlator proto_encode` one-shot through the locally installed binary.
 
 > Run configtxlator proto_decode with the binary
 
-Run `configtxlator proto_decode` one-shot through the locally installed binary.
+Run `configtxlator proto_decode` one-shot through the locally installed binary. Input and output files are resolved relative to `configtxlator_artifacts_dir`.
 
 ```yaml
 - name: Run configtxlator proto_decode with the binary
   vars:
-    # Directory used as the `configtxlator` binary destination or lookup path. Example: `/opt/fabricx/bin`.
+    # Directory used as the `configtxlator` binary destination or lookup path.
     cli_bin_dir: "/opt/fabricx/bin"
+    # Base build directory for `configtxlator_artifacts_dir`.
+    config_build_dir: "/opt/fabricx/build"
+    # Host directory mounted into the container for CLI operation input and output.
+    configtxlator_artifacts_dir: "{{ config_build_dir }}/configtxlator-artifacts"
     # Executable name used by the binary and container entry points.
     configtxlator_bin_name: configtxlator
-    # Fully qualified protobuf message type passed to `proto_encode` and `proto_decode`. Example: `common.Block`.
+    # Fully qualified protobuf message type passed to `proto_encode` and `proto_decode`.
     configtxlator_proto_type: "common.Block"
-    # Path to the input file for `proto_encode` and `proto_decode`.
-    configtxlator_input_file: "string"
-    # Path to the output file written by `proto_encode`, `proto_decode`, and `compute_update`.
-    configtxlator_output_file: "string"
+    # Filename of the input file within `configtxlator_artifacts_dir` for `proto_encode` and `proto_decode`.
+    configtxlator_input_file: "config.json"
+    # Filename of the output file within `configtxlator_artifacts_dir` written by `proto_encode`, `proto_decode`, and `compute_update`.
+    configtxlator_output_file: "config.pb"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.configtxlator
     tasks_from: bin/proto_decode
@@ -139,23 +147,27 @@ Run `configtxlator proto_decode` one-shot through the locally installed binary.
 
 > Run configtxlator compute_update with the binary
 
-Run `configtxlator compute_update` one-shot through the locally installed binary.
+Run `configtxlator compute_update` one-shot through the locally installed binary. Input and output files are resolved relative to `configtxlator_artifacts_dir`.
 
 ```yaml
 - name: Run configtxlator compute_update with the binary
   vars:
-    # Directory used as the `configtxlator` binary destination or lookup path. Example: `/opt/fabricx/bin`.
+    # Directory used as the `configtxlator` binary destination or lookup path.
     cli_bin_dir: "/opt/fabricx/bin"
+    # Base build directory for `configtxlator_artifacts_dir`.
+    config_build_dir: "/opt/fabricx/build"
+    # Host directory mounted into the container for CLI operation input and output.
+    configtxlator_artifacts_dir: "{{ config_build_dir }}/configtxlator-artifacts"
     # Executable name used by the binary and container entry points.
     configtxlator_bin_name: configtxlator
     # Channel identifier passed to the `compute_update` sub-command.
     configtxlator_channel_id: "string"
-    # Path to the original config proto passed to `compute_update`.
-    configtxlator_original_file: "string"
-    # Path to the updated config proto passed to `compute_update`.
-    configtxlator_updated_file: "string"
-    # Path to the output file written by `proto_encode`, `proto_decode`, and `compute_update`.
-    configtxlator_output_file: "string"
+    # Filename of the original config proto within `configtxlator_artifacts_dir` passed to `compute_update`.
+    configtxlator_original_file: "original_config.pb"
+    # Filename of the updated config proto within `configtxlator_artifacts_dir` passed to `compute_update`.
+    configtxlator_updated_file: "modified_config.pb"
+    # Filename of the output file within `configtxlator_artifacts_dir` written by `proto_encode`, `proto_decode`, and `compute_update`.
+    configtxlator_output_file: "config.pb"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.configtxlator
     tasks_from: bin/compute_update
@@ -170,7 +182,7 @@ Run `configtxlator proto_encode` as a one-shot auto-removing container. Mounts `
 ```yaml
 - name: Run configtxlator proto_encode in a container
   vars:
-    # Base build directory for `configtxlator_artifacts_dir`. Example: `/opt/fabricx/build`.
+    # Base build directory for `configtxlator_artifacts_dir`.
     config_build_dir: "/opt/fabricx/build"
     # Host directory mounted into the container for CLI operation input and output.
     configtxlator_artifacts_dir: "{{ config_build_dir }}/configtxlator-artifacts"
@@ -186,11 +198,11 @@ Run `configtxlator proto_encode` as a one-shot auto-removing container. Mounts `
     configtxlator_image_name: fabric-x-tools
     # Image tag for `configtxlator_image`.
     configtxlator_image_tag: 1.0.0
-    # Path to the input file for `proto_encode` and `proto_decode`.
-    configtxlator_input_file: "string"
-    # Path to the output file written by `proto_encode`, `proto_decode`, and `compute_update`.
-    configtxlator_output_file: "string"
-    # Fully qualified protobuf message type passed to `proto_encode` and `proto_decode`. Example: `common.Block`.
+    # Filename of the input file within `configtxlator_artifacts_dir` for `proto_encode` and `proto_decode`.
+    configtxlator_input_file: "config.json"
+    # Filename of the output file within `configtxlator_artifacts_dir` written by `proto_encode`, `proto_decode`, and `compute_update`.
+    configtxlator_output_file: "config.pb"
+    # Fully qualified protobuf message type passed to `proto_encode` and `proto_decode`.
     configtxlator_proto_type: "common.Block"
     # Image registry endpoint for `configtxlator_image`.
     configtxlator_registry_endpoint: "{{ lookup('env', 'CONFIGTXLATOR_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
@@ -208,7 +220,7 @@ Run `configtxlator proto_decode` as a one-shot auto-removing container. Mounts `
 ```yaml
 - name: Run configtxlator proto_decode in a container
   vars:
-    # Base build directory for `configtxlator_artifacts_dir`. Example: `/opt/fabricx/build`.
+    # Base build directory for `configtxlator_artifacts_dir`.
     config_build_dir: "/opt/fabricx/build"
     # Host directory mounted into the container for CLI operation input and output.
     configtxlator_artifacts_dir: "{{ config_build_dir }}/configtxlator-artifacts"
@@ -224,11 +236,11 @@ Run `configtxlator proto_decode` as a one-shot auto-removing container. Mounts `
     configtxlator_image_name: fabric-x-tools
     # Image tag for `configtxlator_image`.
     configtxlator_image_tag: 1.0.0
-    # Path to the input file for `proto_encode` and `proto_decode`.
-    configtxlator_input_file: "string"
-    # Path to the output file written by `proto_encode`, `proto_decode`, and `compute_update`.
-    configtxlator_output_file: "string"
-    # Fully qualified protobuf message type passed to `proto_encode` and `proto_decode`. Example: `common.Block`.
+    # Filename of the input file within `configtxlator_artifacts_dir` for `proto_encode` and `proto_decode`.
+    configtxlator_input_file: "config.json"
+    # Filename of the output file within `configtxlator_artifacts_dir` written by `proto_encode`, `proto_decode`, and `compute_update`.
+    configtxlator_output_file: "config.pb"
+    # Fully qualified protobuf message type passed to `proto_encode` and `proto_decode`.
     configtxlator_proto_type: "common.Block"
     # Image registry endpoint for `configtxlator_image`.
     configtxlator_registry_endpoint: "{{ lookup('env', 'CONFIGTXLATOR_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
@@ -246,7 +258,7 @@ Run `configtxlator compute_update` as a one-shot auto-removing container. Mounts
 ```yaml
 - name: Run configtxlator compute_update in a container
   vars:
-    # Base build directory for `configtxlator_artifacts_dir`. Example: `/opt/fabricx/build`.
+    # Base build directory for `configtxlator_artifacts_dir`.
     config_build_dir: "/opt/fabricx/build"
     # Host directory mounted into the container for CLI operation input and output.
     configtxlator_artifacts_dir: "{{ config_build_dir }}/configtxlator-artifacts"
@@ -264,14 +276,14 @@ Run `configtxlator compute_update` as a one-shot auto-removing container. Mounts
     configtxlator_image_name: fabric-x-tools
     # Image tag for `configtxlator_image`.
     configtxlator_image_tag: 1.0.0
-    # Path to the original config proto passed to `compute_update`.
-    configtxlator_original_file: "string"
-    # Path to the output file written by `proto_encode`, `proto_decode`, and `compute_update`.
-    configtxlator_output_file: "string"
+    # Filename of the original config proto within `configtxlator_artifacts_dir` passed to `compute_update`.
+    configtxlator_original_file: "original_config.pb"
+    # Filename of the output file within `configtxlator_artifacts_dir` written by `proto_encode`, `proto_decode`, and `compute_update`.
+    configtxlator_output_file: "config.pb"
     # Image registry endpoint for `configtxlator_image`.
     configtxlator_registry_endpoint: "{{ lookup('env', 'CONFIGTXLATOR_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # Path to the updated config proto passed to `compute_update`.
-    configtxlator_updated_file: "string"
+    # Filename of the updated config proto within `configtxlator_artifacts_dir` passed to `compute_update`.
+    configtxlator_updated_file: "modified_config.pb"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.configtxlator
     tasks_from: container/compute_update
