@@ -164,7 +164,9 @@ Starts the cAdvisor container with the configured image, port, and host mounts. 
     # Sets the TCP port cAdvisor's HTTP server and metrics endpoint listen on.
     cadvisor_port: 9400
     # Sets the interval at which cAdvisor refreshes its internal container metrics.
-    cadvisor_housekeeping_interval: 10s
+    cadvisor_housekeeping_interval: 15s
+    # Comma-separated list of cAdvisor metric groups to disable (`--disable_metrics`). The default disables expensive collectors the bundled Grafana dashboard does not use, keeping `cpu`, `memory`, `network`, and `diskIO` enabled. Set to an empty string to keep cAdvisor's built-in defaults.
+    cadvisor_disable_metrics: advtcp,cpu_topology,cpuset,disk,hugetlb,memory_numa,percpu,perf_event,process,referenced_memory,resctrl,sched,tcp,udp,cpuLoad
   ansible.builtin.include_role:
     name: hyperledger.fabricx.cadvisor
     tasks_from: container/start

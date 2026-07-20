@@ -21,4 +21,8 @@ cadvisor_container_name: cadvisor
 # Enables the container backend. cAdvisor currently only supports container mode.
 cadvisor_use_container: true
 # Sets the interval at which cAdvisor refreshes its internal container metrics.
-cadvisor_housekeeping_interval: 10s
+cadvisor_housekeeping_interval: 15s
+# Comma-separated list of cAdvisor metric groups to disable (C(--disable_metrics)).
+# The default disables expensive collectors the bundled Grafana dashboard does not use, keeping C(cpu), C(memory), C(network), and C(diskIO) enabled.
+# Set to an empty string to keep cAdvisor's built-in defaults.
+cadvisor_disable_metrics: advtcp,cpu_topology,cpuset,disk,hugetlb,memory_numa,percpu,perf_event,process,referenced_memory,resctrl,sched,tcp,udp,cpuLoad
