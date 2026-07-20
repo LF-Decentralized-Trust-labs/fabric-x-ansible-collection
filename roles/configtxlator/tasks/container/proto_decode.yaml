@@ -17,8 +17,8 @@
     container_command: >-
       {{ configtxlator_bin_name }} proto_decode
       --type {{ configtxlator_proto_type }}
-      --input {{ configtxlator_container_artifacts_dir }}/{{ configtxlator_input_file | basename }}
-      --output {{ configtxlator_container_artifacts_dir }}/{{ configtxlator_output_file | basename }}
+      --input {{ configtxlator_container_artifacts_dir }}/{{ configtxlator_input_file }}
+      --output {{ configtxlator_container_artifacts_dir }}/{{ configtxlator_output_file }}
     container_volumes:
       - "{{ configtxlator_artifacts_dir }}:{{ configtxlator_container_artifacts_dir }}:z"
     container_run_detach_mode: false

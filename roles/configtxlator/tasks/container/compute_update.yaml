@@ -17,9 +17,9 @@
     container_command: >-
       {{ configtxlator_bin_name }} compute_update
       --channel_id {{ configtxlator_channel_id }}
-      --original {{ configtxlator_container_artifacts_dir }}/{{ configtxlator_original_file | basename }}
-      --updated {{ configtxlator_container_artifacts_dir }}/{{ configtxlator_updated_file | basename }}
-      --output {{ configtxlator_container_artifacts_dir }}/{{ configtxlator_output_file | basename }}
+      --original {{ configtxlator_container_artifacts_dir }}/{{ configtxlator_original_file }}
+      --updated {{ configtxlator_container_artifacts_dir }}/{{ configtxlator_updated_file }}
+      --output {{ configtxlator_container_artifacts_dir }}/{{ configtxlator_output_file }}
     container_volumes:
       - "{{ configtxlator_artifacts_dir }}:{{ configtxlator_container_artifacts_dir }}:z"
     container_run_detach_mode: false
