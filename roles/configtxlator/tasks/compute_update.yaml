@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Run configtxlator compute_update as container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.configtxlator
+    tasks_from: container/compute_update
+  when: not configtxlator_use_bin
+
+- name: Run configtxlator compute_update as binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.configtxlator
+    tasks_from: bin/compute_update
+  when: configtxlator_use_bin

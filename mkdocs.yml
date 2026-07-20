@@ -145,6 +145,7 @@ nav:
       - cadvisor: roles/cadvisor/index.md
       - committer: roles/committer/index.md
       - configtxgen: roles/configtxgen/index.md
+      - configtxlator: roles/configtxlator/index.md
       - container: roles/container/index.md
       - cryptogen: roles/cryptogen/index.md
       - elasticsearch: roles/elasticsearch/index.md

@@ -1,0 +1,282 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+argument_specs:
+  role-options:
+    short_description: Shared option catalog for configtxlator role entry points
+    description:
+      - Common inputs reused by the binary, container, and dispatch entry points in this role.
+      - This role wraps the C(configtxlator) CLI for one-shot proto_encode, proto_decode, and compute_update operations.
+    options:
+      cli_bin_dir: &cli_bin_dir
+        type: path
+        required: true
+        description:
+          - Directory used as the C(configtxlator) binary destination or lookup path.
+          - "Example: C(/opt/fabricx/bin)."
+      config_build_dir: &config_build_dir
+        type: path
+        description:
+          - Base build directory for C(configtxlator_artifacts_dir).
+          - "Example: C(/opt/fabricx/build)."
+      configtxlator_registry_endpoint: &configtxlator_registry_endpoint
+        type: str
+        default: "{{ lookup('env', 'CONFIGTXLATOR_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+        description:
+          - Image registry endpoint for C(configtxlator_image).
+      configtxlator_image_name: &configtxlator_image_name
+        type: str
+        default: "fabric-x-tools"
+        description:
+          - Image repository name for C(configtxlator_image).
+      configtxlator_image_tag: &configtxlator_image_tag
+        type: str
+        required: false
+        default: "1.0.0"
+        description:
+          - Image tag for C(configtxlator_image).
+      configtxlator_image: &configtxlator_image
+        type: str
+        default: "{{ configtxlator_registry_endpoint }}/{{ configtxlator_image_name }}:{{ configtxlator_image_tag }}"
+        description:
+          - Full container image reference for C(configtxlator).
+      configtxlator_container_name: &configtxlator_container_name
+        type: str
+        default: "configtxlator-{{ inventory_hostname }}"
+        description:
+          - Container name used by the container entry points.
+      configtxlator_git_hub_url: &configtxlator_git_hub_url
+        type: str
+        default: github.com
+        description:
+          - Git host for C(configtxlator_bin_package).
+      configtxlator_git_repo: &configtxlator_git_repo
+        type: str
+        default: hyperledger/fabric-x
+        description:
+          - Repository path for C(configtxlator_bin_package).
+      configtxlator_git_commit: &configtxlator_git_commit
+        type: str
+        required: false
+        default: v1.0.0
+        description:
+          - Git reference used by the binary build and install entry points.
+      configtxlator_source_code_package: &configtxlator_source_code_package
+        type: str
+        default: tools/configtxlator
+        description:
+          - Go package path for the C(configtxlator) source tree.
+      configtxlator_bin_package: &configtxlator_bin_package
+        type: str
+        default: "{{ configtxlator_git_hub_url }}/{{ configtxlator_git_repo }}/{{ configtxlator_source_code_package }}"
+        description:
+          - Go package reference used by C(bin/install).
+      configtxlator_bin_name: &configtxlator_bin_name
+        type: str
+        default: configtxlator
+        description:
+          - Executable name used by the binary and container entry points.
+      configtxlator_use_bin: &configtxlator_use_bin
+        type: bool
+        default: false
+        description:
+          - Dispatch selector for the public entry points.
+          - When false, the container path is used.
+      configtxlator_container_artifacts_dir: &configtxlator_container_artifacts_dir
+        type: path
+        default: /tmp/configtxlator-artifacts
+        description:
+          - Directory path used inside the container for CLI operation input and output.
+      configtxlator_artifacts_dir: &configtxlator_artifacts_dir
+        type: path
+        default: "{{ config_build_dir }}/configtxlator-artifacts"
+        description:
+          - Host directory mounted into the container for CLI operation input and output.
+      configtxlator_proto_type: &configtxlator_proto_type
+        type: str
+        required: true
+        description:
+          - Fully qualified protobuf message type passed to C(proto_encode) and C(proto_decode).
+          - "Example: C(common.Block)."
+      configtxlator_input_file: &configtxlator_input_file
+        type: str
+        required: true
+        description:
+          - Filename of the input file within C(configtxlator_artifacts_dir) for C(proto_encode) and C(proto_decode).
+          - "Example: C(config.json)."
+      configtxlator_output_file: &configtxlator_output_file
+        type: str
+        required: true
+        description:
+          - Filename of the output file within C(configtxlator_artifacts_dir) written by C(proto_encode), C(proto_decode), and C(compute_update).
+          - "Example: C(config.pb)."
+      configtxlator_channel_id: &configtxlator_channel_id
+        type: str
+        required: true
+        description:
+          - Channel identifier passed to the C(compute_update) sub-command.
+      configtxlator_original_file: &configtxlator_original_file
+        type: str
+        required: true
+        description:
+          - Filename of the original config proto within C(configtxlator_artifacts_dir) passed to C(compute_update).
+          - "Example: C(original_config.pb)."
+      configtxlator_updated_file: &configtxlator_updated_file
+        type: str
+        required: true
+        description:
+          - Filename of the updated config proto within C(configtxlator_artifacts_dir) passed to C(compute_update).
+          - "Example: C(modified_config.pb)."
+
+  bin/build:
+    short_description: Build the configtxlator binary on the control node
+    description:
+      - Build the C(configtxlator) binary from the Fabric-X source tree on the control node.
+      - The compiled executable is written to C(cli_bin_dir) and reused by binary entry points.
+    options:
+      cli_bin_dir: *cli_bin_dir
+      configtxlator_bin_name: *configtxlator_bin_name
+      configtxlator_git_commit: *configtxlator_git_commit
+      configtxlator_git_hub_url: *configtxlator_git_hub_url
+      configtxlator_git_repo: *configtxlator_git_repo
+      configtxlator_source_code_package: *configtxlator_source_code_package
+
+  bin/install:
+    short_description: Install the configtxlator binary into the local bin directory
+    description:
+      - Install the C(configtxlator) Go package through the shared C(bin) role.
+      - The installed executable lands in C(cli_bin_dir) and is then used by the binary entry points.
+    options:
+      cli_bin_dir: *cli_bin_dir
+      configtxlator_bin_name: *configtxlator_bin_name
+      configtxlator_bin_package: *configtxlator_bin_package
+      configtxlator_git_commit: *configtxlator_git_commit
+      configtxlator_git_hub_url: *configtxlator_git_hub_url
+      configtxlator_git_repo: *configtxlator_git_repo
+      configtxlator_source_code_package: *configtxlator_source_code_package
+
+  bin/proto_encode:
+    short_description: Run configtxlator proto_encode with the binary
+    description:
+      - Run C(configtxlator proto_encode) one-shot through the locally installed binary.
+      - Input and output files are resolved relative to C(configtxlator_artifacts_dir).
+    options:
+      cli_bin_dir: *cli_bin_dir
+      config_build_dir: *config_build_dir
+      configtxlator_artifacts_dir: *configtxlator_artifacts_dir
+      configtxlator_bin_name: *configtxlator_bin_name
+      configtxlator_proto_type: *configtxlator_proto_type
+      configtxlator_input_file: *configtxlator_input_file
+      configtxlator_output_file: *configtxlator_output_file
+
+  bin/proto_decode:
+    short_description: Run configtxlator proto_decode with the binary
+    description:
+      - Run C(configtxlator proto_decode) one-shot through the locally installed binary.
+      - Input and output files are resolved relative to C(configtxlator_artifacts_dir).
+    options:
+      cli_bin_dir: *cli_bin_dir
+      config_build_dir: *config_build_dir
+      configtxlator_artifacts_dir: *configtxlator_artifacts_dir
+      configtxlator_bin_name: *configtxlator_bin_name
+      configtxlator_proto_type: *configtxlator_proto_type
+      configtxlator_input_file: *configtxlator_input_file
+      configtxlator_output_file: *configtxlator_output_file
+
+  bin/compute_update:
+    short_description: Run configtxlator compute_update with the binary
+    description:
+      - Run C(configtxlator compute_update) one-shot through the locally installed binary.
+      - Input and output files are resolved relative to C(configtxlator_artifacts_dir).
+    options:
+      cli_bin_dir: *cli_bin_dir
+      config_build_dir: *config_build_dir
+      configtxlator_artifacts_dir: *configtxlator_artifacts_dir
+      configtxlator_bin_name: *configtxlator_bin_name
+      configtxlator_channel_id: *configtxlator_channel_id
+      configtxlator_original_file: *configtxlator_original_file
+      configtxlator_updated_file: *configtxlator_updated_file
+      configtxlator_output_file: *configtxlator_output_file
+
+  container/proto_encode:
+    short_description: Run configtxlator proto_encode in a container
+    description:
+      - Run C(configtxlator proto_encode) as a one-shot auto-removing container.
+      - Mounts C(configtxlator_artifacts_dir) for input and output file access.
+    options:
+      config_build_dir: *config_build_dir
+      configtxlator_artifacts_dir: *configtxlator_artifacts_dir
+      configtxlator_bin_name: *configtxlator_bin_name
+      configtxlator_container_artifacts_dir: *configtxlator_container_artifacts_dir
+      configtxlator_container_name: *configtxlator_container_name
+      configtxlator_image: *configtxlator_image
+      configtxlator_image_name: *configtxlator_image_name
+      configtxlator_image_tag: *configtxlator_image_tag
+      configtxlator_input_file: *configtxlator_input_file
+      configtxlator_output_file: *configtxlator_output_file
+      configtxlator_proto_type: *configtxlator_proto_type
+      configtxlator_registry_endpoint: *configtxlator_registry_endpoint
+
+  container/proto_decode:
+    short_description: Run configtxlator proto_decode in a container
+    description:
+      - Run C(configtxlator proto_decode) as a one-shot auto-removing container.
+      - Mounts C(configtxlator_artifacts_dir) for input and output file access.
+    options:
+      config_build_dir: *config_build_dir
+      configtxlator_artifacts_dir: *configtxlator_artifacts_dir
+      configtxlator_bin_name: *configtxlator_bin_name
+      configtxlator_container_artifacts_dir: *configtxlator_container_artifacts_dir
+      configtxlator_container_name: *configtxlator_container_name
+      configtxlator_image: *configtxlator_image
+      configtxlator_image_name: *configtxlator_image_name
+      configtxlator_image_tag: *configtxlator_image_tag
+      configtxlator_input_file: *configtxlator_input_file
+      configtxlator_output_file: *configtxlator_output_file
+      configtxlator_proto_type: *configtxlator_proto_type
+      configtxlator_registry_endpoint: *configtxlator_registry_endpoint
+
+  container/compute_update:
+    short_description: Run configtxlator compute_update in a container
+    description:
+      - Run C(configtxlator compute_update) as a one-shot auto-removing container.
+      - Mounts C(configtxlator_artifacts_dir) for input and output file access.
+    options:
+      config_build_dir: *config_build_dir
+      configtxlator_artifacts_dir: *configtxlator_artifacts_dir
+      configtxlator_bin_name: *configtxlator_bin_name
+      configtxlator_channel_id: *configtxlator_channel_id
+      configtxlator_container_artifacts_dir: *configtxlator_container_artifacts_dir
+      configtxlator_container_name: *configtxlator_container_name
+      configtxlator_image: *configtxlator_image
+      configtxlator_image_name: *configtxlator_image_name
+      configtxlator_image_tag: *configtxlator_image_tag
+      configtxlator_original_file: *configtxlator_original_file
+      configtxlator_output_file: *configtxlator_output_file
+      configtxlator_registry_endpoint: *configtxlator_registry_endpoint
+      configtxlator_updated_file: *configtxlator_updated_file
+
+  proto_encode:
+    short_description: Dispatch proto_encode to binary or container
+    description:
+      - Select the binary or container execution path for C(proto_encode) based on C(configtxlator_use_bin).
+    options:
+      configtxlator_use_bin: *configtxlator_use_bin
+
+  proto_decode:
+    short_description: Dispatch proto_decode to binary or container
+    description:
+      - Select the binary or container execution path for C(proto_decode) based on C(configtxlator_use_bin).
+    options:
+      configtxlator_use_bin: *configtxlator_use_bin
+
+  compute_update:
+    short_description: Dispatch compute_update to binary or container
+    description:
+      - Select the binary or container execution path for C(compute_update) based on C(configtxlator_use_bin).
+    options:
+      configtxlator_use_bin: *configtxlator_use_bin

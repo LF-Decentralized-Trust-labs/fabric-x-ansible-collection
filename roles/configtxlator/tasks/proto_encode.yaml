@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Run configtxlator proto_encode as container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.configtxlator
+    tasks_from: container/proto_encode
+  when: not configtxlator_use_bin
+
+- name: Run configtxlator proto_encode as binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.configtxlator
+    tasks_from: bin/proto_encode
+  when: configtxlator_use_bin
