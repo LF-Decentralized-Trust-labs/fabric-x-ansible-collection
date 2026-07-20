@@ -16,6 +16,10 @@ scrape_configs:
 {% if (current_service_to_scrape.targets | default([]) | map(attribute='hosts') | sum(start=[]) | length) > 0 or current_service_to_scrape.kubernetes_sd_configs is defined %}
   # Identifier for the scrape job
   - job_name: {{ current_service_to_scrape.job_name }}
+{% if current_service_to_scrape.scrape_interval is defined %}
+    # Per-job scrape interval override
+    scrape_interval: {{ current_service_to_scrape.scrape_interval }}
+{% endif %}
 {% if current_service_to_scrape.prometheus_metrics_path is defined %}
     # GET endpoint path to collect the metrics
     metrics_path: {{ current_service_to_scrape.prometheus_metrics_path }}

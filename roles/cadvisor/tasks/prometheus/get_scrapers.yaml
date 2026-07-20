@@ -9,6 +9,7 @@
     cadvisor_scrape_service:
       job_name: "cadvisor.{{ current_cadvisor_host }}"
       use_tls: false
+      scrape_interval: "{{ cadvisor_housekeeping_interval }}"
       targets:
         - hosts: "{{ [current_cadvisor_host] }}"
           port_to_scrape: cadvisor_port
