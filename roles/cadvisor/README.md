@@ -249,6 +249,8 @@ Builds the `cadvisor_prometheus_scrape_services` fact for the cAdvisor hosts lis
     cadvisor_hosts:
       - "orderer-1"
       - "committer-1"
+    # Sets the interval at which cAdvisor refreshes its internal container metrics.
+    cadvisor_housekeeping_interval: 15s
   ansible.builtin.include_role:
     name: hyperledger.fabricx.cadvisor
     tasks_from: prometheus/get_scrapers

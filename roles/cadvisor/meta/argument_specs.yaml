@@ -168,3 +168,4 @@ argument_specs:
       - "cAdvisor is scraped in plain HTTP; it has no native TLS support for its metrics endpoint."
     options:
       cadvisor_hosts: *cadvisor_hosts
+      cadvisor_housekeeping_interval: *cadvisor_housekeeping_interval
