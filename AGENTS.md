@@ -3,6 +3,13 @@
 `hyperledger.fabricx` is an Ansible collection that automates deployment and lifecycle management of **Hyperledger Fabric-X** networks.
 Namespace/name: `hyperledger.fabricx`. Authoritative version and deps: [`galaxy.yml`](galaxy.yml).
 
+## Project-local Agent Skills
+
+[`.agents/skills/`](.agents/skills/) is the source of truth for project-local Agent Skills. Compatible agents discover their metadata from this trusted repository checkout and load the applicable `SKILL.md` on demand:
+
+- `creating-fabricx-inventories`: load when creating, adapting, or reviewing a custom operator-owned Fabric-X inventory.
+- `validating-fabricx-changes`: load when checking, validating, reviewing, or preparing repository changes.
+
 ---
 
 ## Rules — follow before every commit

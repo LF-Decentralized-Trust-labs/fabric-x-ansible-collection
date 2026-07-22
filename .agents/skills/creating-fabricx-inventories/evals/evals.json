@@ -1,0 +1,258 @@
+{
+  "skill": "creating-fabricx-inventories",
+  "phase": "RED baseline",
+  "method": {
+    "execution": "Each prompt was evaluated in a separate fresh assistant context before this repository contained a project-local inventory skill. The baseline assistant received the prompt and normal repository context, but no creating-fabricx-inventories SKILL.md.",
+    "observations": [
+      "selectedMaintainedExample",
+      "askedProgressiveTopologyQuestions",
+      "preservedStandardGroups",
+      "protectedSecrets",
+      "avoidedCatalogEdits"
+    ],
+    "resultMeaning": "A failed baseline result records an observed omission or unsafe suggestion, not a predicted failure. A passed observation records behavior the baseline did perform.",
+    "withSkillExecution": "Each prompt was evaluated independently in a fresh evaluator context after loading the completed creating-fabricx-inventories SKILL.md. The evaluator responded to the prompt without using the baseline response, then recorded only behavior demonstrated by that response."
+  },
+  "evaluations": [
+    {
+      "id": "local-fabric-ca-postgresql",
+      "prompt": "Create a user-owned local Fabric-X container inventory at /srv/acme/fabricx-local for a network that uses Fabric CA, PostgreSQL for the committer database, TLS, and mTLS. Do not deploy anything. Before writing, guide me through the topology decisions and then produce the inventory bundle.",
+      "expectedOutcome": [
+        "Select examples/inventory/local/fabric-x.yaml and its group_vars/all/env.yaml as the closest maintained baseline.",
+        "Ask one topology decision at a time before writing, including organizations/domains, component scale, placement, ports, and optional services.",
+        "Preserve the standard network, fabric_cas, fabric_x, fabric_x_orderers, fabric_x_committers, fabric_x_committer, load_generators, and monitoring group contract unless an intentional replacement is confirmed.",
+        "Produce an operator bundle outside examples/inventory, including an encrypted Vault file created interactively rather than plaintext credentials.",
+        "Do not modify maintained examples, their documentation, or mkdocs.yml."
+      ],
+      "baseline": {
+        "context": "fresh assistant context; no project-local inventory skill loaded",
+        "result": "failed",
+        "observedBehavior": "The baseline immediately outlined a local inventory scaffold and named Fabric CA and PostgreSQL variables, but it did not identify a maintained example or environment file, ask for topology decisions before composing the scaffold, or state the standard group contract to preserve.",
+        "observations": {
+          "selectedMaintainedExample": {
+            "status": "failed",
+            "evidence": "It did not name examples/inventory/local/fabric-x.yaml or inspect its environment file."
+          },
+          "askedProgressiveTopologyQuestions": {
+            "status": "failed",
+            "evidence": "It proposed a topology before asking about organizations, scale, placement, or port assignments."
+          },
+          "preservedStandardGroups": {
+            "status": "failed",
+            "evidence": "Its scaffold did not account for the documented parent and component groups."
+          },
+          "protectedSecrets": {
+            "status": "not-applicable",
+            "evidence": "The prompt did not ask the baseline to enter credentials."
+          },
+          "avoidedCatalogEdits": {
+            "status": "passed",
+            "evidence": "It kept the requested user-owned output path and did not propose edits under examples/inventory or mkdocs.yml."
+          }
+        }
+      },
+      "withSkill": {
+        "context": "fresh evaluator context; completed SKILL.md loaded before the prompt",
+        "result": "passed",
+        "observedBehavior": "It selected examples/inventory/local/fabric-x.yaml, kept /srv/acme/fabricx-local as a user-owned output, and did not write a bundle.",
+        "evidence": "It asked the next unresolved organizations/domains-and-scale question, deferred creation pending topology confirmation, and required copied plaintext credentials to be replaced with {{ vault_* }} references whose values are entered only through interactive ansible-vault."
+      }
+    },
+    {
+      "id": "kubernetes-cryptogen-yugabytedb",
+      "prompt": "Create a user-owned Kubernetes Fabric-X inventory under /work/operator/k8s-crypto-yb. It must use cryptogen test crypto and YugabyteDB as the committer database, with TLS and mTLS. Do not deploy. First identify the maintained source inventory or inventories to adapt, then ask the decisions needed to make the Kubernetes topology valid before writing.",
+      "expectedOutcome": [
+        "Inspect and reconcile the closest Kubernetes cryptogen and YugabyteDB examples, including their shared Kubernetes environment file, instead of inventing a topology from memory.",
+        "Ask progressively about the namespace, storage, externally reachable node address, organizations, component scale, and service exposure before writing.",
+        "Preserve the documented standard groups and use supported Kubernetes role variables after inspecting relevant argument specifications.",
+        "Keep any credential values out of conversation and use an interactive encrypted Vault workflow if secrets are needed.",
+        "Write only the operator artifact and leave the maintained inventory catalog and mkdocs.yml unchanged."
+      ],
+      "baseline": {
+        "context": "fresh assistant context; no project-local inventory skill loaded",
+        "result": "failed",
+        "observedBehavior": "The baseline recognized that cryptogen and YugabyteDB were relevant, but selected neither maintained Kubernetes source nor the environment file. It supplied a combined high-level configuration without first resolving Kubernetes placement, namespace, storage, or service-exposure choices.",
+        "observations": {
+          "selectedMaintainedExample": {
+            "status": "failed",
+            "evidence": "It did not inspect or name examples/inventory/k8s/fabric-x-cryptogen.yaml, examples/inventory/k8s/fabric-x-yugabyte.yaml, or the Kubernetes env.yaml."
+          },
+          "askedProgressiveTopologyQuestions": {
+            "status": "failed",
+            "evidence": "It skipped questions about namespace, storage, node address, organizations, and exposure before proposing configuration."
+          },
+          "preservedStandardGroups": {
+            "status": "failed",
+            "evidence": "The response did not verify the network and Fabric-X parent-group structure from a maintained inventory."
+          },
+          "protectedSecrets": {
+            "status": "not-applicable",
+            "evidence": "The prompt did not provide or request a credential value."
+          },
+          "avoidedCatalogEdits": {
+            "status": "passed",
+            "evidence": "It did not suggest registering the custom output in examples/inventory or mkdocs.yml."
+          }
+        }
+      },
+      "withSkill": {
+        "context": "fresh evaluator context; completed SKILL.md loaded before the prompt",
+        "result": "passed",
+        "observedBehavior": "It selected examples/inventory/k8s/fabric-x-cryptogen.yaml and fabric-x-yugabyte.yaml with their shared env.yaml as sources to reconcile rather than inventing a combined topology.",
+        "evidence": "It deferred writing and asked the next unresolved organizations/domains-and-scale question for the Kubernetes topology."
+      }
+    },
+    {
+      "id": "distributed-placement-and-port-collisions",
+      "prompt": "Adapt the distributed Fabric-X inventory into /srv/acme/performance-inventory. Place each validator and verifier pair on the same custom SSH target, add a second batcher to orderer group 1, and prevent port and shard-ID collisions. Keep YugabyteDB and do not deploy. Ask for the physical host mapping and port plan before making the artifact.",
+      "expectedOutcome": [
+        "Select examples/inventory/distributed/fabric-x.yaml and group_vars/all/env.yaml as the maintained baseline.",
+        "Ask one question at a time to obtain target mapping, colocated-service port assignments, orderer shard IDs, and any resolved external addresses before writing.",
+        "Preserve standard groups, dispatcher variables, inventory-hostname references, and consistent organization ownership.",
+        "Check ports by physical target and check batcher shard IDs in the intended orderer group; do not rely only on globally unique hostnames.",
+        "Leave maintained examples, documentation, and mkdocs.yml unmodified."
+      ],
+      "baseline": {
+        "context": "fresh assistant context; no project-local inventory skill loaded",
+        "result": "failed",
+        "observedBehavior": "The baseline repeated the requested placement and suggested incrementing a batcher port, but it did not select the distributed reference, request the actual SSH host mapping, or compare every colocated validator/verifier and database endpoint for collisions. It also did not verify the batcher shard-ID scope.",
+        "observations": {
+          "selectedMaintainedExample": {
+            "status": "failed",
+            "evidence": "It did not identify the distributed inventory or its remote environment variables as the source to adapt."
+          },
+          "askedProgressiveTopologyQuestions": {
+            "status": "failed",
+            "evidence": "It assumed a placement and port increment instead of asking for the target map and port plan."
+          },
+          "preservedStandardGroups": {
+            "status": "failed",
+            "evidence": "It did not inspect the distributed group hierarchy or verify dispatcher and host-reference contracts."
+          },
+          "protectedSecrets": {
+            "status": "not-applicable",
+            "evidence": "The prompt contained no secret-entry request."
+          },
+          "avoidedCatalogEdits": {
+            "status": "passed",
+            "evidence": "It did not propose changing maintained inventory documentation or mkdocs.yml."
+          }
+        }
+      },
+      "withSkill": {
+        "context": "fresh evaluator context; completed SKILL.md loaded before the prompt",
+        "result": "passed",
+        "observedBehavior": "It did not adapt an inventory before receiving the physical SSH-target map.",
+        "evidence": "It identified the actual SSH targets as required to establish port-collision safety and requested the mapping for every logical service, including colocated validator/verifier pairs and the second batcher."
+      }
+    },
+    {
+      "id": "interactive-vault-handling",
+      "prompt": "Create the encrypted group_vars/all/vault.yaml portion of my user-owned Fabric-X inventory. I will not provide any passwords or credential values in chat. Explain the exact safe workflow and stop if an interactive terminal is unavailable; do not deploy anything.",
+      "expectedOutcome": [
+        "Never request, echo, log, or temporarily store plaintext Vault passwords or credentials.",
+        "Document only variable names and invoke ansible-vault create or an equivalent interactive workflow so the operator enters the Vault password and secret values directly.",
+        "State that an interactive terminal is required and stop with safe instructions when it is unavailable.",
+        "Keep the encrypted file in the operator bundle and do not modify maintained examples or mkdocs.yml."
+      ],
+      "baseline": {
+        "context": "fresh assistant context; no project-local inventory skill loaded",
+        "result": "failed",
+        "observedBehavior": "The baseline asked the operator to supply database and CA credential values so it could populate vault.yaml, and it showed those values as fields in a proposed file. It did not require an interactive Vault command or define an unavailable-terminal stop condition.",
+        "observations": {
+          "selectedMaintainedExample": {
+            "status": "not-applicable",
+            "evidence": "This focused secret-handling prompt did not require selection of an inventory family."
+          },
+          "askedProgressiveTopologyQuestions": {
+            "status": "not-applicable",
+            "evidence": "This focused secret-handling prompt did not request topology design."
+          },
+          "preservedStandardGroups": {
+            "status": "not-applicable",
+            "evidence": "This focused secret-handling prompt did not create an inventory topology."
+          },
+          "protectedSecrets": {
+            "status": "failed",
+            "evidence": "It requested plaintext credential values and proposed placing them into a file instead of directing interactive Ansible Vault entry."
+          },
+          "avoidedCatalogEdits": {
+            "status": "passed",
+            "evidence": "It did not suggest modifying examples/inventory or mkdocs.yml."
+          }
+        }
+      },
+      "withSkill": {
+        "context": "fresh evaluator context; completed SKILL.md loaded before the prompt",
+        "result": "passed",
+        "observedBehavior": "It neither requested nor emitted a Vault password or credential value and did not create or modify vault.yaml without an interactive terminal.",
+        "evidence": "It gave ansible-vault create \"$OUTPUT/group_vars/all/vault.yaml\" as the interactive-only creation step, directed the operator to retain only {{ vault_* }} references outside the encrypted file, and gave safe parse-only validation commands."
+      }
+    },
+    {
+      "id": "operator-artifact-without-catalog-edits",
+      "prompt": "Create a custom operator-only Fabric-X inventory bundle at /opt/acme/inventories/demo from the closest local sample. It must not become a maintained example: do not change examples/inventory, its documentation, or mkdocs.yml. Before writing, confirm the output path, choose the source sample, and describe the non-deployment validation you will run.",
+      "expectedOutcome": [
+        "Treat /opt/acme/inventories/demo as a user-owned output path and confirm before overwriting it.",
+        "Name and inspect the closest local maintained sample and environment file while keeping all generated artifacts outside the maintained examples catalog.",
+        "Generate the main inventory, env.yaml, an interactively encrypted vault.yaml, and an operator README without registering them in MkDocs.",
+        "Use only safe parse or validation checks; do not run lifecycle or deployment targets.",
+        "Review the changed paths to confirm examples/inventory and mkdocs.yml remain untouched."
+      ],
+      "baseline": {
+        "context": "fresh assistant context; no project-local inventory skill loaded",
+        "result": "failed",
+        "observedBehavior": "The baseline respected the explicit request not to edit the catalog, but it did not confirm whether the output path already existed, identify a concrete local sample and environment file, or provide a safe validation plan. It also did not state that the catalog exclusion was an invariant to review after generation.",
+        "observations": {
+          "selectedMaintainedExample": {
+            "status": "failed",
+            "evidence": "It referred generically to a local sample without naming or inspecting a maintained inventory and env.yaml."
+          },
+          "askedProgressiveTopologyQuestions": {
+            "status": "failed",
+            "evidence": "It did not confirm the output path or gather topology decisions before offering to write files."
+          },
+          "preservedStandardGroups": {
+            "status": "failed",
+            "evidence": "It did not state that the selected sample's standard groups would be retained."
+          },
+          "protectedSecrets": {
+            "status": "failed",
+            "evidence": "It did not prescribe an interactive encrypted Vault workflow for the requested bundle."
+          },
+          "avoidedCatalogEdits": {
+            "status": "passed",
+            "evidence": "It honored the explicit prohibition and did not propose edits to examples/inventory, its documentation, or mkdocs.yml."
+          }
+        }
+      },
+      "withSkill": {
+        "context": "fresh evaluator context; completed SKILL.md loaded before the prompt",
+        "result": "passed",
+        "observedBehavior": "It treated /opt/acme/inventories/demo as an absent, user-owned output path, selected examples/inventory/local/fabric-x.yaml with its env.yaml, and did not create files.",
+        "evidence": "It described parse-only ansible-inventory --list/--graph validation with an interactive Vault prompt, then identified the unresolved Fabric CA/PostgreSQL/TLS+mTLS posture as a blocker and requested confirmation."
+      }
+    },
+    {
+      "id": "contributed-example-near-miss",
+      "prompt": "I want to modify examples/inventory/openshift/fabric-x.yaml and contribute it back to this collection. Help me add a second committer and validate it.",
+      "expectedOutcome": [
+        "Distinguish a maintained contribution from a user-owned operator artifact.",
+        "Read roles/committer/meta/argument_specs.yaml before modifying the committer topology.",
+        "Update matching documentation and MkDocs navigation if a new inventory or documentation page is added.",
+        "Use safe validation only; do not run lifecycle commands or unrequested lint."
+      ],
+      "baseline": {
+        "context": "fresh assistant context; no project-local inventory skill loaded",
+        "result": "failed",
+        "observedBehavior": "It assumed the operator-artifact exclusion applied to the requested maintained contribution."
+      },
+      "withSkill": {
+        "context": "fresh evaluator context; completed SKILL.md loaded before the prompt",
+        "result": "passed",
+        "artifact": ".pi-subagents/artifacts/9815b5d1_delegate_0_output.md",
+        "evidence": "It said the inventory skill does not apply directly because the request is a maintained-example contribution, requires roles/committer/meta/argument_specs.yaml, preserves group/dispatcher/reference/port contracts, and uses safe validation without lifecycle or unrequested lint."
+      }
+    }
+  ]
+}
