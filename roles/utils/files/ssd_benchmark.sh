@@ -32,8 +32,6 @@ RESULT_RAND_READ_IOPS="N/A"
 RESULT_RAND_READ_BW="N/A"
 RESULT_RAND_WRITE_IOPS="N/A"
 RESULT_RAND_WRITE_BW="N/A"
-RESULT_MIXED_READ_IOPS="N/A"
-RESULT_MIXED_WRITE_IOPS="N/A"
 RESULT_LATENCY="N/A"
 
 # Helper function to format bytes to human readable
@@ -298,7 +296,7 @@ if [[ "$HAS_IOPING" == "1" ]]; then
     RESULT_LATENCY_RAW=$(echo "$avg_line" | awk -F'/' '{print $6}' | grep -oE '[0-9.]+' | head -1 || echo "0")
 else
     total=0
-    for i in {1..10}; do
+    for _ in {1..10}; do
         start=$(python3 -c "import time; print(int(time.time()*1000000))")
         dd if=/dev/zero of=latency_test bs=4k count=1 conv=fsync 2>/dev/null
         end=$(python3 -c "import time; print(int(time.time()*1000000))")
