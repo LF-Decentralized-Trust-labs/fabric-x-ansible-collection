@@ -141,7 +141,6 @@ nav:
       - armageddon: roles/armageddon/index.md
       - bin: roles/bin/index.md
       - block_explorer: roles/block_explorer/index.md
-      - block_explorer_ui: roles/block_explorer_ui/index.md
       - cadvisor: roles/cadvisor/index.md
       - committer: roles/committer/index.md
       - configtxgen: roles/configtxgen/index.md

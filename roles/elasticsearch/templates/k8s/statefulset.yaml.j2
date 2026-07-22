@@ -77,7 +77,7 @@ spec:
             # Queries /_cluster/health to confirm ES is ready to serve requests.
             httpGet:
               path: /_cluster/health
-              port: {{ elasticsearch_http_port }}
+              port: http
               scheme: "{{ 'HTTPS' if elasticsearch_use_tls else 'HTTP' }}"
             initialDelaySeconds: {{ k8s_readiness_probe_initial_delay_seconds | default(20) }}
             periodSeconds: {{ k8s_readiness_probe_period_seconds | default(10) }}
@@ -89,7 +89,7 @@ spec:
             # and we do not want Kubernetes to restart the pod too aggressively.
             httpGet:
               path: /_cluster/health
-              port: {{ elasticsearch_http_port }}
+              port: http
               scheme: "{{ 'HTTPS' if elasticsearch_use_tls else 'HTTP' }}"
             initialDelaySeconds: {{ k8s_liveness_probe_initial_delay_seconds | default(90) }}
             periodSeconds: {{ k8s_liveness_probe_period_seconds | default(20) }}

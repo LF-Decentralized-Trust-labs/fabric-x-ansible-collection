@@ -20,3 +20,6 @@ spec:
     - name: rest
       port: {{ block_explorer_port }}
       targetPort: {{ block_explorer_port }}
+    - name: web
+      port: {{ block_explorer_ui_port }}
+      targetPort: {{ block_explorer_ui_port }}

@@ -91,7 +91,6 @@ These connections are not visible from within a single role:
 | `fxconfig` → `committer`, `orderer`                | Generates configs consumed by both; for k8s deployments also runs namespace creation                                                                                                                                                                  |
 | `block_explorer` → `committer` (sidecar)           | Streams blocks over gRPC from the host named by `sidecar_host`; TLS/mTLS mode is derived from that host's `committer_use_tls`/`committer_use_mtls`, not a local flag                                                                                  |
 | `block_explorer` → `postgres`                      | Reads/writes indexed blocks via the host named by `postgres_db_host`                                                                                                                                                                                  |
-| `block_explorer_ui` → `block_explorer`             | Proxies REST calls to the host named by `block_explorer_host`                                                                                                                                                                                         |
 | `cryptogen` / `fabric_ca` → `orderer`, `committer` | Crypto artifacts must exist before either can be configured or started                                                                                                                                                                                |
 | `armageddon` / `configtxgen` → crypto              | Genesis block generation depends on crypto output                                                                                                                                                                                                     |
 | `k8s` role → k8s deployments                       | Namespace setup is a prerequisite for any k8s-mode deployment                                                                                                                                                                                         |
@@ -105,8 +104,7 @@ These connections are not visible from within a single role:
 | ------------------- | -------------------------------------------------------------------------- |
 | `armageddon`        | Genesis block builder (armageddon CLI)                                     |
 | `bin`               | Generic binary build/install helpers                                       |
-| `block_explorer`    | Fabric-X Block Explorer server (streams blocks from the committer sidecar) |
-| `block_explorer_ui` | Fabric-X Block Explorer Next.js UI                                         |
+| `block_explorer`    | Fabric-X Block Explorer server + Next.js UI (streams blocks from sidecar)  |
 | `cadvisor`          | cAdvisor container metrics exporter                                        |
 | `committer`         | Fabric-X Committer (validator/verifier/coordinator/sidecar/query-service)  |
 | `configtxgen`       | configtxgen CLI wrapper                                                    |

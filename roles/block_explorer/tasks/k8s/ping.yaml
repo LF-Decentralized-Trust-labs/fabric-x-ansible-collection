@@ -23,3 +23,23 @@
     tasks_from: ping
   when:
     - block_explorer_k8s_loadbalancer_expose_port
+
+- name: Check that the Block Explorer UI node port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ block_explorer_ui_k8s_node_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - block_explorer_ui_k8s_node_port is defined
+
+- name: Check that the Block Explorer UI load balancer port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ block_explorer_ui_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - block_explorer_ui_k8s_loadbalancer_expose_port

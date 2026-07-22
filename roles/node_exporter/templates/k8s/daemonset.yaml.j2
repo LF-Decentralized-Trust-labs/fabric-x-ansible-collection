@@ -87,7 +87,7 @@ spec:
 {% endif %}
           readinessProbe:
             tcpSocket:
-              port: {{ node_exporter_port }}
+              port: metrics
             initialDelaySeconds: {{ k8s_readiness_probe_initial_delay_seconds | default(10) }}
             periodSeconds: {{ k8s_readiness_probe_period_seconds | default(10) }}
             timeoutSeconds: {{ k8s_readiness_probe_timeout_seconds | default(5) }}
@@ -95,7 +95,7 @@ spec:
             successThreshold: 1
           livenessProbe:
             tcpSocket:
-              port: {{ node_exporter_port }}
+              port: metrics
             initialDelaySeconds: {{ k8s_liveness_probe_initial_delay_seconds | default(30) }}
             periodSeconds: {{ k8s_liveness_probe_period_seconds | default(15) }}
             timeoutSeconds: {{ k8s_liveness_probe_timeout_seconds | default(5) }}
