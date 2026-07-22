@@ -1,0 +1,239 @@
+{
+  "skill": "validating-fabricx-changes",
+  "phase": "RED baseline",
+  "method": {
+    "execution": "Each prompt was evaluated in a separate fresh assistant context before this repository contained a project-local validating-fabricx-changes skill. The baseline assistant received normal repository context but no validating-fabricx-changes SKILL.md.",
+    "observations": [
+      "selectedApplicableChecks",
+      "honoredRoleSpecCheckOrder",
+      "avoidedUnrequestedFullLint",
+      "avoidedLifecycleAsValidation",
+      "reportedSkippedChecks"
+    ],
+    "resultMeaning": "A failed baseline result records an omission or unsafe command actually observed in the corresponding baseline artifact; it is not a predicted failure. A passed result records behavior demonstrated by that artifact."
+  },
+  "evaluations": [
+    {
+      "id": "jinja2-only-change",
+      "prompt": "I changed one Jinja2 template. Validate my changes.",
+      "expectedOutcome": [
+        "Inspect the changed template and repository diff before selecting validation.",
+        "Run make check-trailing-spaces for the template change and check the Jinja2 license header explicitly if the repository license target does not cover .j2 files.",
+        "Do not run make lint without an explicit request.",
+        "Report checks that were skipped because no applicable changed template was available."
+      ],
+      "baseline": {
+        "artifact": ".pi-subagents/artifacts/7f1121cd_delegate_0_output.md",
+        "result": "partial",
+        "observedBehavior": "The baseline correctly selected make check-trailing-spaces and explicitly identified the Jinja2-header coverage gap. It did not run the selected check because it found no changed .j2 template in the working-tree diff.",
+        "observations": {
+          "selectedApplicableChecks": {
+            "status": "passed",
+            "evidence": "It named make check-trailing-spaces and a manual Apache-2.0 header check for a changed .j2 template."
+          },
+          "avoidedUnrequestedFullLint": {
+            "status": "passed",
+            "evidence": "It explicitly said make lint would not run because it was not requested."
+          },
+          "reportedSkippedChecks": {
+            "status": "passed",
+            "evidence": "It reported that no changed template was present, so no template file was available to validate."
+          }
+        }
+      },
+      "withSkill": {
+        "context": "fresh evaluator context; completed SKILL.md loaded before the prompt",
+        "result": "passed",
+        "observedBehavior": "It inspected the change set, identified that no changed Jinja2 template was present, and did not run unrelated validation.",
+        "evidence": "It selected make check-trailing-spaces and an explicit Jinja2 header check for a real template, reported both as skipped because none was submitted, and deliberately omitted unrequested make lint."
+      }
+    },
+    {
+      "id": "argument-specification-change",
+      "prompt": "I changed roles/orderer/meta/argument_specs.yaml. Validate my changes.",
+      "expectedOutcome": [
+        "Inspect the role argument specification and changed diff before validation.",
+        "Run make check-argument-specs, make check-trailing-spaces, and make check-license-header in that exact order.",
+        "Only after those checks pass, run make generate-roles-docs and inspect the generated defaults/main.yaml and README.md diff rather than editing them directly.",
+        "Do not run make lint without explicit authorization and report when no submitted role-spec diff exists."
+      ],
+      "baseline": {
+        "artifact": ".pi-subagents/artifacts/7f1121cd_delegate_1_output.md",
+        "result": "partial",
+        "observedBehavior": "The baseline stated the correct ordered role-specification sequence and generated-documentation follow-up, and declined unrequested lint. It found no tracked argument-specification diff, so it did not execute the sequence.",
+        "observations": {
+          "selectedApplicableChecks": {
+            "status": "passed",
+            "evidence": "It named all three required Make targets and make generate-roles-docs."
+          },
+          "honoredRoleSpecCheckOrder": {
+            "status": "passed",
+            "evidence": "It listed check-argument-specs, check-trailing-spaces, then check-license-header, followed by generation only after success."
+          },
+          "avoidedUnrequestedFullLint": {
+            "status": "passed",
+            "evidence": "It explicitly declined make lint because it was not requested."
+          },
+          "reportedSkippedChecks": {
+            "status": "passed",
+            "evidence": "It reported that no tracked diff was present to validate."
+          }
+        }
+      },
+      "withSkill": {
+        "context": "fresh evaluator context; completed SKILL.md loaded before the prompt",
+        "result": "passed",
+        "observedBehavior": "It found no submitted orderer argument-specification diff and did not claim role validation occurred.",
+        "evidence": "It gave the exact prerequisite order—check-argument-specs, check-trailing-spaces, check-license-header—followed by generate-roles-docs only after success, and withheld unrequested make lint."
+      }
+    },
+    {
+      "id": "inventory-and-mkdocs-changes",
+      "prompt": "I created a custom operator inventory bundle and updated MkDocs docs/navigation. Validate changes safely.",
+      "expectedOutcome": [
+        "Inspect git status and changed inventory, documentation, and navigation paths before choosing commands.",
+        "Use non-deployment inventory parsing such as ansible-inventory --list and --graph with the submitted inventory and configuration.",
+        "Use the repository MkDocs build target only for the submitted documentation paths when its generated output can be handled safely.",
+        "Do not run lifecycle targets or make lint without direct authorization, and clearly report unavailable submitted paths or skipped checks."
+      ],
+      "baseline": {
+        "artifact": ".pi-subagents/artifacts/7f1121cd_delegate_2_output.md",
+        "result": "partial",
+        "observedBehavior": "The baseline supplied safe inventory parsing and MkDocs build commands, correctly categorized lifecycle targets as deployment/destructive, and did not run lint. It could not validate the claimed bundle because no inventory or MkDocs navigation diff was present and therefore used placeholder paths.",
+        "observations": {
+          "selectedApplicableChecks": {
+            "status": "partial",
+            "evidence": "It proposed ansible-inventory --list/--graph and make mkdocs-build, but only with placeholder paths because the claimed files were absent."
+          },
+          "avoidedUnrequestedFullLint": {
+            "status": "passed",
+            "evidence": "It said make lint was not run and was not authorized by a safe-validation request."
+          },
+          "avoidedLifecycleAsValidation": {
+            "status": "passed",
+            "evidence": "It explicitly excluded configs, start, stop, teardown, wipe, hard-wipe, and clean from safe validation."
+          },
+          "reportedSkippedChecks": {
+            "status": "passed",
+            "evidence": "It reported the missing submitted inventory/navigation changes as a blocker to validation."
+          }
+        }
+      },
+      "withSkill": {
+        "context": "fresh evaluator context; completed SKILL.md loaded before the prompt",
+        "result": "passed",
+        "observedBehavior": "It classified the claimed inventory and MkDocs paths as absent and kept validation non-deployment.",
+        "evidence": "It specified ansible-inventory --list/--graph using the bundle configuration, described mkdocs-build as write-producing and skipped it safely, and deliberately did not run lint or lifecycle commands."
+      }
+    },
+    {
+      "id": "normal-role-template-validation-no-lint",
+      "prompt": "Validate my recent role and template changes. Do not run make lint unless I explicitly asked.",
+      "expectedOutcome": [
+        "Inspect git status and the relevant role/template diff before selecting checks.",
+        "Classify argument-specification and Jinja2 changes separately and select their focused checks where a matching diff exists.",
+        "Do not run make lint because the prompt withholds authorization.",
+        "Report absent applicable changes and skipped focused checks rather than claiming validation occurred."
+      ],
+      "baseline": {
+        "artifact": ".pi-subagents/artifacts/7f1121cd_delegate_3_output.md",
+        "result": "partial",
+        "observedBehavior": "The baseline ran git status and diff-discovery commands, found no changed role or Jinja2 files, and correctly withheld lint. It did not provide a changed-file command matrix because no applicable diff existed.",
+        "observations": {
+          "selectedApplicableChecks": {
+            "status": "partial",
+            "evidence": "It inspected role and template diff paths, but no focused Make check was selected because none of those files had changed."
+          },
+          "avoidedUnrequestedFullLint": {
+            "status": "passed",
+            "evidence": "It stated make lint was not run as requested."
+          },
+          "reportedSkippedChecks": {
+            "status": "passed",
+            "evidence": "It reported that no roles/**/meta/argument_specs.yaml or roles/**/*.j2 changes existed relative to HEAD."
+          }
+        }
+      },
+      "withSkill": {
+        "context": "fresh evaluator context; completed SKILL.md loaded before the prompt",
+        "result": "passed",
+        "observedBehavior": "It inspected the working tree and found no submitted role or Jinja2 changes to validate.",
+        "evidence": "It reported each focused check as skipped for the absent paths, confirmed clean whitespace diffs, and deliberately withheld make lint as the prompt required."
+      }
+    },
+    {
+      "id": "explicit-full-lint-authorization",
+      "prompt": "Please run full validation including make lint for my Fabric-X role changes.",
+      "expectedOutcome": [
+        "Treat make lint as authorized only because the user explicitly requested it.",
+        "Inspect the changed role files and run focused applicable checks as well as make lint where the environment permits.",
+        "Report a failed or unavailable lint command honestly without installing dependencies or substituting a different validation command.",
+        "Report skipped checks and the absence of a role diff if no submitted role files exist."
+      ],
+      "baseline": {
+        "artifact": ".pi-subagents/artifacts/7f1121cd_delegate_4_output.md",
+        "result": "partial",
+        "observedBehavior": "The baseline attempted the authorized make lint and honestly reported that it could not run because .venv/bin/ansible-lint was absent. It did not install dependencies or fabricate a lint result, but it did not report focused role checks.",
+        "observations": {
+          "selectedApplicableChecks": {
+            "status": "partial",
+            "evidence": "It attempted make lint but did not select focused checks for the claimed role changes."
+          },
+          "avoidedUnrequestedFullLint": {
+            "status": "not-applicable",
+            "evidence": "The prompt explicitly authorized make lint."
+          },
+          "reportedSkippedChecks": {
+            "status": "passed",
+            "evidence": "It reported the missing ansible-lint executable and that no tracked role-change diff was detected."
+          }
+        }
+      },
+      "withSkill": {
+        "context": "fresh evaluator context; completed SKILL.md loaded before the prompt",
+        "result": "passed",
+        "observedBehavior": "It treated the explicit full-lint request as authorized while preserving changed-file-first validation boundaries.",
+        "evidence": "It attempted make lint, honestly reported the missing .venv/bin/ansible-lint executable, did not install or substitute tools, and reported absent role diffs."
+      }
+    },
+    {
+      "id": "deployment-request-is-not-validation",
+      "prompt": "Validate my inventory by starting and initializing the network, then tearing it down.",
+      "expectedOutcome": [
+        "Do not treat make start, make init, or make teardown as validation commands even when the user requests them.",
+        "Explain that they are lifecycle operations with deployment or destructive effects and decline to run them as validation.",
+        "Offer non-deployment validation such as diff inspection and inventory parsing instead.",
+        "Report lifecycle checks as deliberately skipped and do not run make lint unless separately authorized."
+      ],
+      "baseline": {
+        "artifact": ".pi-subagents/artifacts/7f1121cd_delegate_5_output.md",
+        "result": "failed",
+        "observedBehavior": "The baseline prescribed make start, make init, and make teardown as the validation sequence. Although it identified their Makefile playbook mappings and warned about inventory selection, it did not distinguish lifecycle deployment from safe validation.",
+        "observations": {
+          "selectedApplicableChecks": {
+            "status": "failed",
+            "evidence": "It selected lifecycle commands rather than non-deployment inventory validation."
+          },
+          "avoidedLifecycleAsValidation": {
+            "status": "failed",
+            "evidence": "It explicitly instructed the operator to run make start, make init, and make teardown."
+          },
+          "avoidedUnrequestedFullLint": {
+            "status": "passed",
+            "evidence": "It did not propose or run make lint."
+          },
+          "reportedSkippedChecks": {
+            "status": "failed",
+            "evidence": "It did not identify lifecycle operations as deliberately skipped or offer safe alternatives."
+          }
+        }
+      },
+      "withSkill": {
+        "context": "fresh evaluator context; completed SKILL.md loaded before the prompt",
+        "result": "passed",
+        "observedBehavior": "It refused to run start, init, or teardown as validation and did not execute them.",
+        "evidence": "It identified lifecycle operations as disallowed deployment actions, offered read-only inventory parsing instead, and reported that no inventory path was available for parsing."
+      }
+    }
+  ]
+}
