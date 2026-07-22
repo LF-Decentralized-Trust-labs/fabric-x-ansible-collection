@@ -118,9 +118,11 @@ nav:
           - fabric-x-cryptogen: examples/inventory/docs/k8s/fabric-x-cryptogen.md
           - fabric-x-no-mtls: examples/inventory/docs/k8s/fabric-x-no-mtls.md
           - fabric-x-no-tls: examples/inventory/docs/k8s/fabric-x-no-tls.md
+          - awx: examples/inventory/docs/k8s/awx.md
       - OpenShift:
           - fabric-x: examples/inventory/docs/openshift/fabric-x.md
           - fabric-x-cryptogen: examples/inventory/docs/openshift/fabric-x-cryptogen.md
+          - awx: examples/inventory/docs/openshift/awx.md
       - Distributed:
           - fabric-x: examples/inventory/docs/distributed/fabric-x.md
   - Playbooks:

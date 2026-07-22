@@ -1,0 +1,39 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: awx-backup-pvc-fix
+  namespace: {{ k8s_namespace | default('default') }}
+  labels:
+    app.kubernetes.io/name: awx-backup-pvc-fix
+    app.kubernetes.io/part-of: awx
+spec:
+  # One-shot pod: run to completion, then removed by the calling task.
+  restartPolicy: Never
+  securityContext:
+    # Must run as root to chown a volume it doesn't already own.
+    runAsUser: 0
+  containers:
+    - name: awx-backup-pvc-fix
+      image: "{{ awx_pvc_permissions_image }}"
+      command:
+        - /bin/sh
+        - -c
+        # GID 0 (root group) matches the arbitrary-UID convention used by the
+        # AWX Operator's own PostgreSQL image, so the backup pod's container
+        # (running as an arbitrary UID in group 0) can also read/write here.
+        - >-
+          chown -R {{ awx_postgres_run_as_user }}:0 /backups &&
+          chmod -R g+rwX /backups
+      volumeMounts:
+        - name: backup
+          mountPath: /backups
+  volumes:
+    - name: backup
+      persistentVolumeClaim:
+        claimName: "{{ awx_backup_pvc_name }}"

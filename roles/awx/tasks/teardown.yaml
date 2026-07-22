@@ -1,0 +1,22 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Teardown AWX on Kubernetes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.awx
+    tasks_from: k8s/rm
+  when: awx_use_k8s
+
+- name: Teardown AWX on OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.awx
+    tasks_from: openshift/rm
+  when: awx_use_openshift
+
+- name: Remove AWX data
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.awx
+    tasks_from: data/rm

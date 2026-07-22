@@ -1,0 +1,59 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Prepare backup storage
+# =========================
+- name: Prepare AWX backup PVC
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.awx
+    tasks_from: k8s/resources/fix_backup_pvc
+  when: awx_postgres_fix_pvc_permissions
+
+# =========================
+# Create backup and wait for completion
+# =========================
+- name: Create/ensure AWXBackup resource
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/backup.yaml.j2
+
+- name: Wait for AWXBackup to reach terminal state (Successful or Failure)
+  kubernetes.core.k8s_info:
+    api_version: awx.ansible.com/v1beta1
+    kind: AWXBackup
+    name: "{{ awx_backup_name }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
+  register: awx_backup_info
+  retries: 40
+  delay: 10
+  until:
+    - awx_backup_info.resources | length > 0
+    - awx_backup_info.resources[0].status is defined
+    - awx_backup_info.resources[0].status.conditions is defined
+    - awx_backup_info.resources[0].status.conditions
+      | selectattr('type', 'equalto', 'Successful')
+      | selectattr('status', 'equalto', 'True')
+      | list
+      | length > 0
+  failed_when:
+    - awx_backup_info.resources | length > 0
+    - awx_backup_info.resources[0].status is defined
+    - awx_backup_info.resources[0].status.conditions is defined
+    - awx_backup_info.resources[0].status.conditions
+      | selectattr('type', 'equalto', 'Failure')
+      | selectattr('status', 'equalto', 'True')
+      | list
+      | length > 0
+
+- name: Show backup details
+  ansible.builtin.debug:
+    msg:
+      - "Backup '{{ awx_backup_name }}' for AWX 'awx' completed successfully."
+      - "Backup claim: {{ awx_backup_info.resources[0].status.backupClaim | default('N/A') }}"
+      - "Backup directory: {{ awx_backup_info.resources[0].status.backupDirectory | default('N/A') }}"

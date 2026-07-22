@@ -1,0 +1,20 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Teardown AWX
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.awx
+    tasks_from: teardown
+
+- name: Remove AWX Secrets
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.awx
+    tasks_from: crypto/rm
+
+- name: Remove AWX ConfigMaps and Operator
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.awx
+    tasks_from: config/rm

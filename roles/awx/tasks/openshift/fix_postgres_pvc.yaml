@@ -1,0 +1,133 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# OpenShift-only workaround — only reached from k8s/start.yaml when awx_use_openshift
+# is true. On plain Kubernetes, awx_postgres_fix_pvc_permissions works by setting
+# postgres_data_volume_init: true on the AWX custom resource (see templates/k8s/awx.yaml.j2),
+# which asks the AWX Operator to add a root-running init container that chowns/chmods the
+# PostgreSQL data directory before the database container starts. That mechanism is defined
+# here, gated on "not is_openshift":
+#   https://github.com/ansible/awx-operator/blob/2.19.1/roles/installer/templates/statefulsets/postgres.yaml.j2#L50
+#     {% if postgres_data_volume_init and not is_openshift %}
+#       initContainers:
+#         - name: init
+#           securityContext:
+#             runAsUser: 0
+#           command: [...]  # chown 26:0 / chmod 700 on the data directory
+#
+# is_openshift is auto-detected by the Operator itself (never something a caller can
+# influence) by checking for the route.openshift.io API group on the cluster:
+#   https://github.com/ansible/awx-operator/blob/2.19.1/roles/common/tasks/main.yml#L12
+#     is_openshift: "{{ True if 'route.openshift.io' in api_groups else False }}"
+#
+# So on OpenShift, postgres_data_volume_init is silently ignored — verified empirically:
+# setting it on the CR does not add an initContainer to the rendered StatefulSet at all.
+# The PostgreSQL PVC's ownership is therefore never fixed by the Operator on OpenShift, no
+# matter what this role asks for on the CR. This task reimplements the same fix ourselves:
+# scale the StatefulSet to 0 so nothing holds the volume, run a one-shot root pod to
+# chown/chmod it (templates/openshift/postgres-pvc-fix-pod.yaml.j2), then scale back up.
+
+- name: Wait for AWX PostgreSQL PVC
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: PersistentVolumeClaim
+    namespace: "{{ k8s_namespace | default('default') }}"
+    name: "postgres-15-awx-postgres-15-0"
+  register: awx_postgres_pvc
+  retries: "{{ awx_k8s_ready_retries }}"
+  delay: "{{ awx_k8s_ready_delay }}"
+  until:
+    - awx_postgres_pvc.resources | length > 0
+
+- name: Check whether the AWX PostgreSQL container is already Ready
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Pod
+    namespace: "{{ k8s_namespace | default('default') }}"
+    name: "awx-postgres-15-0"
+  register: awx_postgres_pod_check
+
+- name: Fix AWX PostgreSQL PVC ownership
+  when: >-
+    not (
+      awx_postgres_pod_check.resources | length > 0 and
+      awx_postgres_pod_check.resources[0].status.containerStatuses is defined and
+      awx_postgres_pod_check.resources[0].status.containerStatuses | length > 0 and
+      awx_postgres_pod_check.resources[0].status.containerStatuses[0].ready
+    )
+  block:
+    # =========================
+    # Shut Postgres down so we can fix the PVC
+    # =========================
+    - name: Scale down AWX PostgreSQL StatefulSet before fixing PVC ownership
+      kubernetes.core.k8s:
+        state: patched
+        api_version: apps/v1
+        kind: StatefulSet
+        namespace: "{{ k8s_namespace | default('default') }}"
+        name: "awx-postgres-15"
+        definition:
+          spec:
+            replicas: 0
+        wait: true
+        wait_timeout: "{{ awx_k8s_wait_timeout }}"
+    - name: Stop AWX PostgreSQL pod before fixing PVC ownership
+      kubernetes.core.k8s:
+        state: absent
+        api_version: v1
+        kind: Pod
+        namespace: "{{ k8s_namespace | default('default') }}"
+        name: "awx-postgres-15-0"
+        wait: true
+        wait_timeout: "{{ awx_k8s_wait_timeout }}"
+    # =========================
+    # Apply the ownership fix
+    # =========================
+    - name: Run AWX PostgreSQL PVC ownership fix pod
+      kubernetes.core.k8s:
+        state: present
+        namespace: "{{ k8s_namespace | default('default') }}"
+        template:
+          path: openshift/postgres-pvc-fix-pod.yaml.j2
+    - name: Wait for AWX PostgreSQL PVC ownership fix pod to complete
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Pod
+        namespace: "{{ k8s_namespace | default('default') }}"
+        name: "awx-postgres-pvc-fix"
+      register: awx_postgres_pvc_fix_pod
+      retries: "{{ awx_k8s_ready_retries }}"
+      delay: "{{ awx_k8s_ready_delay }}"
+      until:
+        - awx_postgres_pvc_fix_pod.resources | length > 0
+        - awx_postgres_pvc_fix_pod.resources[0].status.phase in ["Succeeded", "Failed"]
+      failed_when:
+        - awx_postgres_pvc_fix_pod.resources | length > 0
+        - awx_postgres_pvc_fix_pod.resources[0].status.phase != "Succeeded"
+    - name: Remove AWX PostgreSQL PVC ownership fix pod
+      kubernetes.core.k8s:
+        state: absent
+        api_version: v1
+        kind: Pod
+        namespace: "{{ k8s_namespace | default('default') }}"
+        name: "awx-postgres-pvc-fix"
+        wait: true
+        wait_timeout: "{{ awx_k8s_wait_timeout }}"
+    # =========================
+    # Restore Postgres to service after fixing PVC ownership
+    # =========================
+    - name: Scale up AWX PostgreSQL StatefulSet after fixing PVC ownership
+      kubernetes.core.k8s:
+        state: patched
+        api_version: apps/v1
+        kind: StatefulSet
+        namespace: "{{ k8s_namespace | default('default') }}"
+        name: "awx-postgres-15"
+        definition:
+          spec:
+            replicas: 1
+        wait: true
+        wait_timeout: "{{ awx_k8s_wait_timeout }}"

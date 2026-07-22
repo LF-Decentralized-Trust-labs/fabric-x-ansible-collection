@@ -1,0 +1,29 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# This inventory deploys a standalone AWX (Ansible automation controller)
+# instance on a local Kubernetes cluster. Unlike the other sample inventories
+# in this directory, it is not a Fabric-X network sample: AWX is a general
+# automation controller and is deployed independently through the `awx`
+# role and its companion playbooks (see playbooks/awx/).
+#
+# Prerequisites:
+#   - A running Kubernetes cluster reachable from the control node
+#   - kubectl configured and pointing at the target cluster
+#   - Cluster-admin rights: the AWX Operator installs CRDs, ClusterRoles, and ClusterRoleBindings
+#
+# To use a remote k8s node (e.g. kind in CI, k3s), set K8S_NODE_IP to the node's IP address:
+#   export K8S_NODE_IP=<node-ip>
+
+all:
+  children:
+    awx:
+      hosts:
+        awx-controller:
+          awx_use_k8s: true
+          awx_k8s_wait_timeout: 300
+          awx_k8s_node_port: 30080
+          awx_restore_name: awx

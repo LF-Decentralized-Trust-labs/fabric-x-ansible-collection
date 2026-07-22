@@ -1,0 +1,19 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: awx.ansible.com/v1beta1
+kind: AWXRestore
+metadata:
+  name: {{ awx_restore_name }}-restore
+  namespace: {{ k8s_namespace | default('default') }}
+spec:
+  # deployment_name is the NEW AWX instance the Operator creates (or reuses,
+  # if it already exists) from the backup; backup_name is the AWXBackup being
+  # restored from. They can differ, e.g. to restore into a fresh instance
+  # without disturbing the original.
+  deployment_name: {{ awx_restore_name }}
+  backup_name: {{ awx_backup_name }}
+  image_pull_policy: IfNotPresent

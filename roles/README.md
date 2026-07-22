@@ -27,6 +27,7 @@ The roles are interconnected each other, meaning that some roles play as base fo
 The roles that come within such collection are listed hereafter. Click on them to access their documentation:
 
 - [`hyperledger.fabricx.armageddon`](./armageddon);
+- [`hyperledger.fabricx.awx`](./awx);
 - [`hyperledger.fabricx.bin`](./bin);
 - [`hyperledger.fabricx.block_explorer`](./block_explorer);
 - [`hyperledger.fabricx.block_explorer_ui`](./block_explorer_ui);

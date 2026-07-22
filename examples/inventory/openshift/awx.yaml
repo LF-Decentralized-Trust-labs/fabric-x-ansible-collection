@@ -1,0 +1,34 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# This inventory deploys a standalone AWX (Ansible automation controller)
+# instance on OpenShift. Unlike the other sample inventories in this
+# directory, it is not a Fabric-X network sample: AWX is a general
+# automation controller and is deployed independently through the `awx`
+# role and its companion playbooks (see playbooks/awx/).
+#
+# Prerequisites:
+#   - A running OpenShift cluster reachable from the control node
+#   - oc/kubectl configured and pointing at the target cluster
+#   - Cluster-admin rights: the AWX Operator installs CRDs, ClusterRoles, and ClusterRoleBindings
+#
+# Supported only on CRC (CodeReady Containers). Installing the AWX Operator
+# requires cluster-admin rights on the target cluster.
+
+all:
+  children:
+    awx:
+      hosts:
+        awx-controller:
+          awx_use_openshift: true
+          awx_use_tls: true
+          awx_k8s_wait_timeout: 600
+          awx_postgres_security_context_settings:
+            runAsUser: 26
+          awx_postgres_fix_pvc_permissions: true
+          awx_openshift_route: "awx.{{ openshift_apps_domain }}"
+          awx_restore_openshift_route: "awx-restore.{{ openshift_apps_domain }}"
+          awx_restore_name: awx

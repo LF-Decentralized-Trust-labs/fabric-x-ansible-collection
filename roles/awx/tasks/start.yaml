@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start AWX on Kubernetes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.awx
+    tasks_from: k8s/start
+  when: awx_use_k8s
+
+- name: Start AWX on OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.awx
+    tasks_from: openshift/start
+  when: awx_use_openshift

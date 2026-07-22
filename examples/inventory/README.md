@@ -204,13 +204,14 @@ Kubernetes inventories deploy the same logical Fabric-X services as Kubernetes w
 
 [`k8s/group_vars/all/env.yaml`](./k8s/group_vars/all/env.yaml) uses local Ansible execution against Kubernetes services and adds Kubernetes defaults such as `k8s_namespace` and `k8s_storage_size`.
 
-| Inventory                                                         | Description                                                              |
-| ----------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| [`k8s/fabric-x.yaml`](./docs/k8s/fabric-x.md)                     | Default Kubernetes deployment with Fabric CA, PostgreSQL, TLS, and mTLS. |
-| [`k8s/fabric-x-yugabyte.yaml`](./docs/k8s/fabric-x-yugabyte.md)   | Kubernetes deployment using YugabyteDB as the committer database.        |
-| [`k8s/fabric-x-cryptogen.yaml`](./docs/k8s/fabric-x-cryptogen.md) | Kubernetes deployment using centrally generated `cryptogen` material.    |
-| [`k8s/fabric-x-no-mtls.yaml`](./docs/k8s/fabric-x-no-mtls.md)     | Kubernetes deployment with TLS enabled and mTLS disabled.                |
-| [`k8s/fabric-x-no-tls.yaml`](./docs/k8s/fabric-x-no-tls.md)       | Kubernetes deployment with TLS and mTLS disabled for debugging only.     |
+| Inventory                                                         | Description                                                                               |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [`k8s/fabric-x.yaml`](./docs/k8s/fabric-x.md)                     | Default Kubernetes deployment with Fabric CA, PostgreSQL, TLS, and mTLS.                  |
+| [`k8s/fabric-x-yugabyte.yaml`](./docs/k8s/fabric-x-yugabyte.md)   | Kubernetes deployment using YugabyteDB as the committer database.                         |
+| [`k8s/fabric-x-cryptogen.yaml`](./docs/k8s/fabric-x-cryptogen.md) | Kubernetes deployment using centrally generated `cryptogen` material.                     |
+| [`k8s/fabric-x-no-mtls.yaml`](./docs/k8s/fabric-x-no-mtls.md)     | Kubernetes deployment with TLS enabled and mTLS disabled.                                 |
+| [`k8s/fabric-x-no-tls.yaml`](./docs/k8s/fabric-x-no-tls.md)       | Kubernetes deployment with TLS and mTLS disabled for debugging only.                      |
+| [`k8s/awx.yaml`](./docs/k8s/awx.md)                               | Standalone AWX (Ansible automation controller) deployment. Not a Fabric-X network sample. |
 
 For remote clusters, set the externally reachable node address used by NodePort services:
 
@@ -224,9 +225,10 @@ OpenShift inventories deploy Kubernetes-compatible workloads and services, then 
 
 [`openshift/group_vars/all/env.yaml`](./openshift/group_vars/all/env.yaml) uses local Ansible execution against OpenShift services and stores generated deployment state below `out_dir`.
 
-| Inventory                                                                     | Description                                                                                 |
-| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| [`openshift/fabric-x-cryptogen.yaml`](./docs/openshift/fabric-x-cryptogen.md) | OpenShift deployment using centrally generated `cryptogen` material and route-based access. |
+| Inventory                                                                     | Description                                                                                                                   |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| [`openshift/fabric-x-cryptogen.yaml`](./docs/openshift/fabric-x-cryptogen.md) | OpenShift deployment using centrally generated `cryptogen` material and route-based access.                                   |
+| [`openshift/awx.yaml`](./docs/openshift/awx.md)                               | Standalone AWX (Ansible automation controller) deployment.
 
 Set the OpenShift wildcard route domain before running the inventory:
 

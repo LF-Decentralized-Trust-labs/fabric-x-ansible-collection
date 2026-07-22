@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start AWX on Kubernetes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.awx
+    tasks_from: k8s/start
+
+- name: Apply AWX OpenShift Route
+  vars:
+    openshift_route_name: "awx"
+    openshift_route_host: "{{ awx_openshift_route }}"
+    openshift_route_service_name: "awx-service"
+    openshift_route_service_port: http
+    openshift_route_use_tls: "{{ awx_use_tls }}"
+    openshift_route_tls_termination: edge
+    openshift_route_labels:
+      app.kubernetes.io/name: "awx"
+      app.kubernetes.io/part-of: "awx"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: awx_openshift_route is defined

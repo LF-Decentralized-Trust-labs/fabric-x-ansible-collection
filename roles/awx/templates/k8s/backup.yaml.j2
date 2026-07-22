@@ -1,0 +1,22 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: awx.ansible.com/v1beta1
+kind: AWXBackup
+metadata:
+  name: {{ awx_backup_name }}
+  namespace: {{ k8s_namespace | default('default') }}
+spec:
+  # Name of the AWX instance to back up, not this AWXBackup resource itself.
+  deployment_name: awx
+{% if awx_postgres_fix_pvc_permissions %}
+  # Same storage-ownership workaround as postgres_data_volume_init in
+  # awx.yaml.j2, but for the backup PVC — the Operator's db-management pod
+  # has no init-container/securityContext lever of its own, so we point at
+  # a PVC we created and chowned ourselves (see k8s/resources/fix_backup_pvc)
+  # instead of letting the Operator provision one.
+  backup_pvc: {{ awx_backup_pvc_name }}
+{% endif %}

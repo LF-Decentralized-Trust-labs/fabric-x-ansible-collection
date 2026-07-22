@@ -104,6 +104,7 @@ These connections are not visible from within a single role:
 | Role                | Component managed                                                          |
 | ------------------- | -------------------------------------------------------------------------- |
 | `armageddon`        | Genesis block builder (armageddon CLI)                                     |
+| `awx`               | AWX (Ansible automation controller) lifecycle on Kubernetes/OpenShift      |
 | `bin`               | Generic binary build/install helpers                                       |
 | `block_explorer`    | Fabric-X Block Explorer server (streams blocks from the committer sidecar) |
 | `block_explorer_ui` | Fabric-X Block Explorer Next.js UI                                         |

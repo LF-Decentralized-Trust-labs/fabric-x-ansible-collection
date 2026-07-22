@@ -1,0 +1,123 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure Kubernetes namespace exists for AWX
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+# =========================
+# Install and configure the AWX Operator (CRDs, RBAC, controller)
+# =========================
+- name: Create AWX operator kustomize directory
+  ansible.builtin.file:
+    path: "{{ awx_k8s_operator_kustomize_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Render AWX operator kustomization
+  ansible.builtin.template:
+    src: "k8s/kustomization.yaml.j2"
+    dest: "{{ awx_k8s_operator_kustomize_dir }}/kustomization.yaml"
+    mode: "0644"
+
+- name: Apply AWX operator
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('kubernetes.core.kustomize', dir=awx_k8s_operator_kustomize_dir) }}"
+    wait: true
+    wait_timeout: "{{ awx_k8s_wait_timeout }}"
+
+- name: Wait for AWX CRD
+  kubernetes.core.k8s_info:
+    api_version: apiextensions.k8s.io/v1
+    kind: CustomResourceDefinition
+    name: awxs.awx.ansible.com
+  register: awx_crd
+  retries: "{{ awx_k8s_ready_retries }}"
+  delay: "{{ awx_k8s_ready_delay }}"
+  until: awx_crd.resources | length > 0
+
+# =========================
+# Reconcile AWX instance and apply known Operator workarounds
+# =========================
+- name: Apply AWX custom resource
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/awx.yaml.j2
+    wait: true
+    wait_timeout: "{{ awx_k8s_wait_timeout }}"
+
+# The AWX Operator ignores postgres_data_volume_init on OpenShift (see
+# tasks/openshift/fix_postgres_pvc.yaml for the upstream source references), so the
+# fix has to be applied manually.
+- name: Fix AWX PostgreSQL PVC ownership on OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.awx
+    tasks_from: openshift/fix_postgres_pvc
+  when:
+    - awx_use_openshift
+    - awx_postgres_fix_pvc_permissions
+
+- name: Wait until AWX is ready
+  kubernetes.core.k8s_info:
+    api_version: awx.ansible.com/v1beta1
+    kind: AWX
+    name: "awx"
+    namespace: "{{ k8s_namespace | default('default') }}"
+  register: awx_ready_info
+  retries: "{{ awx_k8s_ready_retries }}"
+  delay: "{{ awx_k8s_ready_delay }}"
+  until:
+    - awx_ready_info.resources | length > 0
+    - awx_ready_info.resources[0].status is defined
+    - awx_ready_info.resources[0].status.conditions is defined
+    - awx_ready_info.resources[0].status.conditions
+      | selectattr('type', 'equalto', 'Successful')
+      | selectattr('status', 'equalto', 'True')
+      | list
+      | length > 0
+  failed_when:
+    - awx_ready_info.resources | length > 0
+    - awx_ready_info.resources[0].status is defined
+    - awx_ready_info.resources[0].status.conditions is defined
+    - awx_ready_info.resources[0].status.conditions
+      | selectattr('type', 'equalto', 'Failure')
+      | selectattr('status', 'equalto', 'True')
+      | list
+      | length > 0
+
+# =========================
+# Surface AWX access details
+# =========================
+- name: Retrieve AWX admin password secret
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Secret
+    namespace: "{{ k8s_namespace | default('default') }}"
+    name: "awx-admin-password"
+  register: awx_admin_password_secret
+  retries: "{{ awx_k8s_ready_retries }}"
+  delay: "{{ awx_k8s_ready_delay }}"
+  until:
+    - awx_admin_password_secret.resources | length > 0
+    - "'password' in (awx_admin_password_secret.resources[0].data | default({}))"
+  no_log: true
+
+- name: Get AWX effective address
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.awx
+    tasks_from: effective_address
+
+- name: Show AWX admin credentials
+  ansible.builtin.debug:
+    msg:
+      - "AWX is ready."
+      - "URL: {{ awx_effective_address }}"
+      - "Username: admin"
+      - "Password: {{ awx_admin_password_secret.resources[0].data.password | b64decode }}"

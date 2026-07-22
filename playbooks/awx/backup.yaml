@@ -1,0 +1,13 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Backup AWX instance
+  hosts: "{{ target_hosts | default('awx') }}:&awx"
+  tasks:
+    - name: Backup AWX
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.awx
+        tasks_from: backup
