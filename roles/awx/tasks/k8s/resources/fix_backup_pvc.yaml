@@ -1,0 +1,47 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Apply AWX backup PVC
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/backup-pvc.yaml.j2
+    wait: true
+    wait_timeout: "{{ awx_k8s_wait_timeout }}"
+
+- name: Run AWX backup PVC ownership fix pod
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/backup-pvc-fix-pod.yaml.j2
+
+- name: Wait for AWX backup PVC ownership fix pod to complete
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Pod
+    namespace: "{{ k8s_namespace | default('default') }}"
+    name: awx-backup-pvc-fix
+  register: awx_backup_pvc_fix_pod
+  retries: "{{ awx_k8s_ready_retries }}"
+  delay: "{{ awx_k8s_ready_delay }}"
+  until:
+    - awx_backup_pvc_fix_pod.resources | length > 0
+    - awx_backup_pvc_fix_pod.resources[0].status.phase in ["Succeeded", "Failed"]
+  failed_when:
+    - awx_backup_pvc_fix_pod.resources | length > 0
+    - awx_backup_pvc_fix_pod.resources[0].status.phase != "Succeeded"
+
+- name: Remove AWX backup PVC ownership fix pod
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Pod
+    namespace: "{{ k8s_namespace | default('default') }}"
+    name: awx-backup-pvc-fix
+    wait: true
+    wait_timeout: "{{ awx_k8s_wait_timeout }}"

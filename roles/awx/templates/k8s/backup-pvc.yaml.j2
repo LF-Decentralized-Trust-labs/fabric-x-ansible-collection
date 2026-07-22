@@ -1,0 +1,28 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+# Pre-created so tasks/k8s/resources/fix_backup_pvc.yaml can chown it before
+# the AWXBackup resource (backup.yaml.j2) references it by name, instead of
+# letting the Operator provision and own a PVC we can't fix up ourselves.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ awx_backup_pvc_name }}
+  namespace: {{ k8s_namespace | default('default') }}
+  labels:
+    app.kubernetes.io/name: {{ awx_backup_pvc_name }}
+    app.kubernetes.io/part-of: awx
+    app.kubernetes.io/managed-by: hyperledger.fabricx.awx
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ awx_backup_pvc_size }}
+{% if k8s_storage_class is defined and k8s_storage_class | length > 0 %}
+  # Omitting this uses the cluster's default StorageClass.
+  storageClassName: {{ k8s_storage_class }}
+{% endif %}

@@ -1,0 +1,168 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# AWX ConfigMaps
+# =========================
+- name: Remove AWX ConfigMaps
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: ConfigMap
+    namespace: "{{ k8s_namespace | default('default') }}"
+    label_selectors:
+      - "app.kubernetes.io/part-of=awx"
+
+# =========================
+# Remove the AWX Operator, its RBAC, and its CRDs
+# =========================
+
+# =========================
+# Kustomize-based bulk delete
+# =========================
+- name: Check whether AWX operator kustomization was rendered
+  ansible.builtin.stat:
+    path: "{{ awx_k8s_operator_kustomize_dir }}/kustomization.yaml"
+  register: awx_operator_kustomization_file
+
+- name: Delete AWX operator
+  kubernetes.core.k8s:
+    state: absent
+    definition: "{{ lookup('kubernetes.core.kustomize', dir=awx_k8s_operator_kustomize_dir) }}"
+  when: awx_operator_kustomization_file.stat.exists
+
+- name: Remove AWX operator kustomize directory
+  ansible.builtin.file:
+    path: "{{ awx_k8s_operator_kustomize_dir }}"
+    state: absent
+
+# =========================
+# AWX Operator Deployment/Service/ServiceAccount
+# =========================
+- name: Delete AWX Operator Deployment
+  kubernetes.core.k8s:
+    state: absent
+    api_version: apps/v1
+    kind: Deployment
+    name: awx-operator-controller-manager
+    namespace: "{{ k8s_namespace | default('default') }}"
+
+- name: Delete AWX Operator metrics Service
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Service
+    name: awx-operator-controller-manager-metrics-service
+    namespace: "{{ k8s_namespace | default('default') }}"
+
+- name: Delete AWX Operator ServiceAccount
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: ServiceAccount
+    name: awx-operator-controller-manager
+    namespace: "{{ k8s_namespace | default('default') }}"
+
+# =========================
+# AWX Operator ConfigMap
+# =========================
+- name: Delete AWX Operator manager ConfigMap
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: ConfigMap
+    name: awx-operator-awx-manager-config
+    namespace: "{{ k8s_namespace | default('default') }}"
+
+# =========================
+# AWX Operator Role/RoleBinding
+# =========================
+- name: Delete AWX Operator manager Role
+  kubernetes.core.k8s:
+    state: absent
+    api_version: rbac.authorization.k8s.io/v1
+    kind: Role
+    name: awx-operator-awx-manager-role
+    namespace: "{{ k8s_namespace | default('default') }}"
+
+- name: Delete AWX Operator leader-election Role
+  kubernetes.core.k8s:
+    state: absent
+    api_version: rbac.authorization.k8s.io/v1
+    kind: Role
+    name: awx-operator-leader-election-role
+    namespace: "{{ k8s_namespace | default('default') }}"
+
+- name: Delete AWX Operator manager RoleBinding
+  kubernetes.core.k8s:
+    state: absent
+    api_version: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    name: awx-operator-awx-manager-rolebinding
+    namespace: "{{ k8s_namespace | default('default') }}"
+
+- name: Delete AWX Operator leader-election RoleBinding
+  kubernetes.core.k8s:
+    state: absent
+    api_version: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    name: awx-operator-leader-election-rolebinding
+    namespace: "{{ k8s_namespace | default('default') }}"
+
+# =========================
+# AWX Operator ClusterRole/ClusterRoleBinding
+# =========================
+- name: Delete AWX Operator metrics-reader ClusterRole
+  kubernetes.core.k8s:
+    state: absent
+    api_version: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    name: awx-operator-metrics-reader
+
+- name: Delete AWX Operator proxy ClusterRole
+  kubernetes.core.k8s:
+    state: absent
+    api_version: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    name: awx-operator-proxy-role
+
+- name: Delete AWX Operator proxy ClusterRoleBinding
+  kubernetes.core.k8s:
+    state: absent
+    api_version: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    name: awx-operator-proxy-rolebinding
+
+# =========================
+# AWX CustomResourceDefinition
+# =========================
+- name: Delete AWXBackup CustomResourceDefinition
+  kubernetes.core.k8s:
+    state: absent
+    api_version: apiextensions.k8s.io/v1
+    kind: CustomResourceDefinition
+    name: awxbackups.awx.ansible.com
+
+- name: Delete AWXMeshIngress CustomResourceDefinition
+  kubernetes.core.k8s:
+    state: absent
+    api_version: apiextensions.k8s.io/v1
+    kind: CustomResourceDefinition
+    name: awxmeshingresses.awx.ansible.com
+
+- name: Delete AWXRestore CustomResourceDefinition
+  kubernetes.core.k8s:
+    state: absent
+    api_version: apiextensions.k8s.io/v1
+    kind: CustomResourceDefinition
+    name: awxrestores.awx.ansible.com
+
+- name: Delete AWX CustomResourceDefinition
+  kubernetes.core.k8s:
+    state: absent
+    api_version: apiextensions.k8s.io/v1
+    kind: CustomResourceDefinition
+    name: awxs.awx.ansible.com

@@ -1,0 +1,39 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: awx-postgres-pvc-fix
+  namespace: {{ k8s_namespace | default('default') }}
+  labels:
+    app.kubernetes.io/name: awx-postgres-pvc-fix
+    app.kubernetes.io/part-of: awx
+spec:
+  # One-shot pod: run to completion, then removed by the calling task.
+  restartPolicy: Never
+  securityContext:
+    # Must run as root to chown a volume it doesn't already own. The AWX Operator
+    # refuses to do this itself on OpenShift (see tasks/openshift/fix_postgres_pvc.yaml
+    # for why), so this pod exists to do it in its place.
+    runAsUser: 0
+  containers:
+    - name: awx-postgres-pvc-fix
+      image: "{{ awx_pvc_permissions_image }}"
+      command:
+        - /bin/sh
+        - -c
+        - >-
+          mkdir -p /mnt/data/userdata &&
+          chown -R {{ awx_postgres_run_as_user }}:0 /mnt/data &&
+          chmod -R g+rwX /mnt/data
+      volumeMounts:
+        - name: postgres
+          mountPath: /mnt
+  volumes:
+    - name: postgres
+      persistentVolumeClaim:
+        claimName: postgres-15-awx-postgres-15-0

@@ -1,0 +1,287 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+argument_specs:
+  role-options:
+    short_description: Shared option catalog for awx role entry points
+    options:
+      awx_use_k8s: &awx_use_k8s
+        type: bool
+        default: false
+        description:
+          - "Deploy AWX on Kubernetes"
+      awx_use_openshift: &awx_use_openshift
+        type: bool
+        default: false
+        description:
+          - "Deploy AWX on OpenShift"
+      awx_use_tls: &awx_use_tls
+        type: bool
+        default: true
+        description:
+          - "Expose AWX routes with TLS"
+      k8s_namespace: &k8s_namespace
+        type: str
+        description:
+          - "Kubernetes namespace for AWX resources"
+      k8s_storage_class: &k8s_storage_class
+        type: str
+        description:
+          - "Kubernetes storage class for AWX persistent volumes"
+      remote_config_dir: &remote_config_dir
+        type: path
+        description:
+          - "Directory for rendered remote configuration artifacts"
+      awx_k8s_operator_kustomize_dir: &awx_k8s_operator_kustomize_dir
+        type: path
+        default: "{{ remote_config_dir }}/awx-operator"
+        description:
+          - "Directory used to render the AWX operator kustomization"
+      awx_k8s_wait_timeout: &awx_k8s_wait_timeout
+        type: int
+        default: 300
+        description:
+          - "Timeout in seconds for Kubernetes resource apply operations"
+      awx_k8s_node_port: &awx_k8s_node_port
+        type: int
+        description:
+          - "Kubernetes NodePort for AWX external access"
+      awx_k8s_ready_retries: &awx_k8s_ready_retries
+        type: int
+        default: 60
+        description:
+          - "Readiness polling retry count"
+      awx_k8s_ready_delay: &awx_k8s_ready_delay
+        type: int
+        default: 10
+        description:
+          - "Readiness polling delay in seconds"
+      awx_operator_version: &awx_operator_version
+        type: str
+        default: "2.19.1"
+        description:
+          - "AWX Operator version Git ref"
+      awx_kube_rbac_proxy_image: &awx_kube_rbac_proxy_image
+        type: str
+        default: "quay.io/brancz/kube-rbac-proxy"
+        description:
+          - "Replacement image repository for the AWX Operator kube-rbac-proxy sidecar"
+      awx_kube_rbac_proxy_version: &awx_kube_rbac_proxy_version
+        type: str
+        default: "v0.15.0"
+        description:
+          - "Replacement image tag for the AWX Operator kube-rbac-proxy sidecar"
+      awx_postgres_size: &awx_postgres_size
+        type: str
+        default: "8Gi"
+        description:
+          - "Size of the PostgreSQL persistent volume"
+      awx_projects_size: &awx_projects_size
+        type: str
+        default: "1Gi"
+        description:
+          - "Size of the projects persistent volume"
+      awx_postgres_security_context_settings: &awx_postgres_security_context_settings
+        type: dict
+        description:
+          - "Security context settings applied to the AWX Operator-managed PostgreSQL container (not the pod)."
+          - "Example: C({'allowPrivilegeEscalation': False, 'capabilities': {'drop': ['ALL']}, 'seccompProfile': {'type': 'RuntimeDefault'}})."
+      awx_postgres_fix_pvc_permissions: &awx_postgres_fix_pvc_permissions
+        type: bool
+        default: false
+        description:
+          - "Enable ownership workarounds for storage backends that don't apply correct PVC permissions on mount."
+          - "Triggers the AWX Operator's own init-container-based fix (postgres_data_volume_init) for the PostgreSQL PVC, and this role's own pre-create-and-chown fix for the AWXBackup PVC (the Operator has no equivalent lever for that one)."
+      awx_pvc_permissions_image: &awx_pvc_permissions_image
+        type: str
+        default: "quay.io/sclorg/postgresql-15-c9s:latest"
+        description:
+          - "Container image used by AWX PVC permissions fix pods"
+      awx_postgres_run_as_user: &awx_postgres_run_as_user
+        type: int
+        default: 26
+        description:
+          - "User ID expected to own the AWX PostgreSQL data directory"
+      awx_backup_pvc_name: &awx_backup_pvc_name
+        type: str
+        default: "awx-backup-claim"
+        description:
+          - "Name of the PVC used by AWXBackup when pre-creating the backup volume"
+      awx_backup_pvc_size: &awx_backup_pvc_size
+        type: str
+        default: "8Gi"
+        description:
+          - "Size of the AWXBackup PVC when pre-creating the backup volume"
+      k8s_resources: &k8s_resources
+        type: dict
+        description:
+          - "Optional Kubernetes container resource requests and limits, applied identically to both the AWX web and task pods."
+          - "Example: C({'requests': {'memory': '512Mi', 'cpu': '250m'}, 'limits': {'memory': '1Gi', 'cpu': '1000m'}})."
+      awx_openshift_route: &awx_openshift_route
+        type: str
+        description:
+          - "OpenShift route host for AWX"
+      awx_host: &awx_host
+        type: str
+        default: "{{ inventory_hostname }}"
+        description:
+          - "Inventory host whose AWX effective address should be computed"
+      awx_backup_name: &awx_backup_name
+        type: str
+        default: "awx-backup"
+        description:
+          - "Name of AWX backup"
+      awx_restore_name: &awx_restore_name
+        type: str
+        default: "awx-restore"
+        description:
+          - "Name of AWX restore instance"
+      awx_restore_openshift_route: &awx_restore_openshift_route
+        type: str
+        description:
+          - "OpenShift route host for the restored AWX instance"
+      awx_new_admin_credential: &awx_new_admin_credential
+        type: str
+        description:
+          - "New admin credential for AWX restore, used only as a fallback if the restored instance's admin-password Secret is missing a password."
+          - "Has no default; supply a vaulted or otherwise secret-managed value. Only required when that fallback path is actually reached."
+  start:
+    short_description: Start AWX
+    options:
+      awx_use_k8s: *awx_use_k8s
+      awx_use_openshift: *awx_use_openshift
+
+  teardown:
+    short_description: Teardown AWX
+    options:
+      awx_use_k8s: *awx_use_k8s
+      awx_use_openshift: *awx_use_openshift
+
+  wipe:
+    short_description: Wipe AWX
+    options: {}
+
+  data/rm:
+    short_description: Remove AWX persistent volume claims
+    options:
+      awx_use_k8s: *awx_use_k8s
+      awx_use_openshift: *awx_use_openshift
+
+  crypto/rm:
+    short_description: Remove AWX Secrets
+    options:
+      awx_use_k8s: *awx_use_k8s
+      awx_use_openshift: *awx_use_openshift
+
+  config/rm:
+    short_description: Remove AWX ConfigMaps and Operator
+    options:
+      awx_use_k8s: *awx_use_k8s
+      awx_use_openshift: *awx_use_openshift
+
+  k8s/start:
+    short_description: Start AWX on Kubernetes
+    options:
+      k8s_namespace: *k8s_namespace
+      k8s_storage_class: *k8s_storage_class
+      remote_config_dir: *remote_config_dir
+      awx_k8s_operator_kustomize_dir: *awx_k8s_operator_kustomize_dir
+      awx_k8s_wait_timeout: *awx_k8s_wait_timeout
+      awx_k8s_node_port: *awx_k8s_node_port
+      awx_k8s_ready_retries: *awx_k8s_ready_retries
+      awx_k8s_ready_delay: *awx_k8s_ready_delay
+      awx_operator_version: *awx_operator_version
+      awx_kube_rbac_proxy_image: *awx_kube_rbac_proxy_image
+      awx_kube_rbac_proxy_version: *awx_kube_rbac_proxy_version
+      awx_postgres_size: *awx_postgres_size
+      awx_projects_size: *awx_projects_size
+      awx_postgres_security_context_settings: *awx_postgres_security_context_settings
+      awx_postgres_fix_pvc_permissions: *awx_postgres_fix_pvc_permissions
+      k8s_resources: *k8s_resources
+      awx_use_openshift: *awx_use_openshift
+
+  effective_address:
+    short_description: Compute the effective AWX web address
+    options:
+      awx_host: *awx_host
+
+  k8s/rm:
+    short_description: Remove AWX Kubernetes resources
+    options:
+      k8s_namespace: *k8s_namespace
+      awx_k8s_wait_timeout: *awx_k8s_wait_timeout
+
+  k8s/data/rm:
+    short_description: Remove AWX persistent volume claims
+    options:
+      k8s_namespace: *k8s_namespace
+      awx_backup_pvc_name: *awx_backup_pvc_name
+
+  k8s/crypto/rm:
+    short_description: Remove AWX Secrets
+    options:
+      k8s_namespace: *k8s_namespace
+
+  k8s/config/rm:
+    short_description: Remove AWX ConfigMaps and Operator
+    options:
+      k8s_namespace: *k8s_namespace
+      remote_config_dir: *remote_config_dir
+      awx_k8s_operator_kustomize_dir: *awx_k8s_operator_kustomize_dir
+
+  k8s/resources/fix_backup_pvc:
+    short_description: Fix AWXBackup PVC ownership
+    options:
+      k8s_namespace: *k8s_namespace
+      k8s_storage_class: *k8s_storage_class
+      awx_k8s_wait_timeout: *awx_k8s_wait_timeout
+      awx_k8s_ready_retries: *awx_k8s_ready_retries
+      awx_k8s_ready_delay: *awx_k8s_ready_delay
+      awx_backup_pvc_name: *awx_backup_pvc_name
+      awx_backup_pvc_size: *awx_backup_pvc_size
+      awx_pvc_permissions_image: *awx_pvc_permissions_image
+      awx_postgres_run_as_user: *awx_postgres_run_as_user
+
+  openshift/start:
+    short_description: Start AWX on OpenShift
+    options:
+      awx_use_tls: *awx_use_tls
+      awx_openshift_route: *awx_openshift_route
+
+  openshift/rm:
+    short_description: Remove AWX OpenShift resources
+    options:
+      awx_openshift_route: *awx_openshift_route
+
+  openshift/fix_postgres_pvc:
+    short_description: Fix AWX PostgreSQL PVC ownership on OpenShift
+    options:
+      k8s_namespace: *k8s_namespace
+      awx_k8s_wait_timeout: *awx_k8s_wait_timeout
+      awx_k8s_ready_retries: *awx_k8s_ready_retries
+      awx_k8s_ready_delay: *awx_k8s_ready_delay
+      awx_pvc_permissions_image: *awx_pvc_permissions_image
+      awx_postgres_run_as_user: *awx_postgres_run_as_user
+
+  backup:
+    short_description: Backup AWX instance
+    options:
+      k8s_namespace: *k8s_namespace
+      awx_backup_name: *awx_backup_name
+      awx_postgres_fix_pvc_permissions: *awx_postgres_fix_pvc_permissions
+      awx_backup_pvc_name: *awx_backup_pvc_name
+
+  restore:
+    short_description: Restore AWX instance
+    options:
+      k8s_namespace: *k8s_namespace
+      awx_use_openshift: *awx_use_openshift
+      awx_use_tls: *awx_use_tls
+      awx_backup_name: *awx_backup_name
+      awx_restore_name: *awx_restore_name
+      awx_restore_openshift_route: *awx_restore_openshift_route
+      awx_new_admin_credential: *awx_new_admin_credential
+      awx_k8s_wait_timeout: *awx_k8s_wait_timeout

@@ -1,0 +1,62 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: awx.ansible.com/v1beta1
+kind: AWX
+metadata:
+  name: awx
+  namespace: {{ k8s_namespace | default('default') }}
+  labels:
+    app.kubernetes.io/name: awx
+    app.kubernetes.io/part-of: awx
+spec:
+{% if awx_k8s_node_port is defined %}
+  # Expose the web Service externally on a fixed NodePort instead of the
+  # default ClusterIP, so it's reachable without a Route/LoadBalancer.
+  service_type: nodeport
+  nodeport_port: {{ awx_k8s_node_port }}
+{% else %}
+  service_type: clusterip
+{% endif %}
+  # Size of the PVC backing the PostgreSQL database.
+  postgres_storage_requirements:
+    requests:
+      storage: {{ awx_postgres_size }}
+  # Size of the PVC used to check out Ansible project (playbook) repositories.
+  projects_storage_size: {{ awx_projects_size }}
+{% if awx_postgres_fix_pvc_permissions %}
+  # Some storage provisioners (e.g. local-path-provisioner) don't reliably
+  # apply fsGroup ownership on mount, leaving the volume owned by root while
+  # PostgreSQL runs as a non-root UID. This enables the Operator's own
+  # init container (runs as root, chown+chmod) to fix it before PostgreSQL
+  # starts. Prefer postgres_security_context_settings below on clusters that
+  # already honor fsGroup correctly.
+  postgres_data_volume_init: true
+{% endif %}
+{% if awx_postgres_security_context_settings is defined %}
+  # Rendered verbatim under the PostgreSQL container's own securityContext
+  # (not the pod's) — solves a different problem than postgres_data_volume_init
+  # above: use this to satisfy container-level hardening requirements (e.g.
+  # a restricted Pod Security Standard), not to fix volume ownership.
+  postgres_security_context_settings:
+{{ awx_postgres_security_context_settings | to_nice_yaml | indent(4, true) }}
+{% endif %}
+{% if k8s_storage_class is defined and k8s_storage_class %}
+  # Applies the same StorageClass to both the PostgreSQL and projects PVCs;
+  # omitting this uses the cluster's default StorageClass for both.
+  postgres_storage_class: {{ k8s_storage_class }}
+  projects_storage_class: {{ k8s_storage_class }}
+{% endif %}
+{% if k8s_resources is defined and k8s_resources %}
+  # Applied identically to both the "web" pod (UI/API server) and the "task"
+  # pod (runs the receptor and executes jobs/playbooks) — this role does not
+  # support sizing them independently. Omitting k8s_resources entirely lets
+  # the AWX Operator's own defaults apply instead.
+  web_resource_requirements:
+{{ k8s_resources | to_nice_yaml(indent=2) | indent(4, true) }}
+  task_resource_requirements:
+{{ k8s_resources | to_nice_yaml(indent=2) | indent(4, true) }}
+{% endif %}

@@ -1,0 +1,18 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove AWX OpenShift Route
+  vars:
+    openshift_route_name: "awx"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/rm
+  when: awx_openshift_route is defined
+
+- name: Remove AWX Kubernetes resources
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.awx
+    tasks_from: k8s/rm

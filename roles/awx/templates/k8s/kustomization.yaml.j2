@@ -1,0 +1,41 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Applies to every namespaced resource in this kustomization — see the
+# Namespace-object caveat on the patches block below.
+namespace: {{ k8s_namespace | default('default') }}
+
+# Pulls the operator's own manifests (CRDs, RBAC, Deployment) straight from
+# upstream, pinned to a specific release so the CRD/controller version we
+# install is reproducible and matches what this role was tested against.
+resources:
+  - github.com/ansible/awx-operator/config/default?ref={{ awx_operator_version }}
+
+# The pinned operator version bundles a kube-rbac-proxy sidecar hardcoded to
+# gcr.io/kubebuilder/kube-rbac-proxy, an image registry known to be flaky/
+# rate-limited. Swap in the community-maintained quay.io/brancz fork instead,
+# keeping the same version.
+images:
+  - name: gcr.io/kubebuilder/kube-rbac-proxy
+    newName: {{ awx_kube_rbac_proxy_image }}
+    newTag: {{ awx_kube_rbac_proxy_version }}
+
+# The upstream base bundles its own Namespace object, which the "namespace:"
+# transformer above would otherwise rename to k8s_namespace. This role manages
+# namespace lifecycle separately (hyperledger.fabricx.k8s namespace/create), so
+# that Namespace object must never be applied or deleted by this kustomization.
+patches:
+  - target:
+      kind: Namespace
+    patch: |-
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: placeholder
+      $patch: delete

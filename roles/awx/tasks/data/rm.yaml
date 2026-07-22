@@ -1,0 +1,14 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# K8s PersistentVolumeClaims
+# =========================
+- name: Remove AWX Kubernetes PersistentVolumeClaims
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.awx
+    tasks_from: k8s/data/rm
+  when: awx_use_k8s or awx_use_openshift

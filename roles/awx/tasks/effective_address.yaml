@@ -1,0 +1,39 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Set AWX effective address as OpenShift Route
+  vars:
+    awx_http_protocol: "{{ 'https' if hostvars[awx_host].awx_use_tls is defined and hostvars[awx_host].awx_use_tls else 'http' }}"
+  ansible.builtin.set_fact:
+    awx_effective_address: "{{ awx_http_protocol }}://{{ hostvars[awx_host].awx_openshift_route }}"
+  when:
+    - hostvars[awx_host].awx_use_openshift is defined
+    - hostvars[awx_host].awx_use_openshift
+    - hostvars[awx_host].awx_openshift_route is defined
+
+- name: Set AWX effective connection address as k8s NodePort
+  vars:
+    awx_http_protocol: "{{ 'https' if hostvars[awx_host].awx_use_tls is defined and hostvars[awx_host].awx_use_tls else 'http' }}"
+  ansible.builtin.set_fact:
+    awx_effective_address: "{{ awx_http_protocol }}://{{ hostvars[awx_host].actual_host }}:{{ hostvars[awx_host].awx_k8s_node_port }}"
+  when:
+    - hostvars[awx_host].awx_openshift_route is not defined
+    - hostvars[awx_host].awx_k8s_node_port is defined
+
+- name: Set AWX effective connection address
+  vars:
+    awx_http_protocol: "{{ 'https' if hostvars[awx_host].awx_use_tls is defined and hostvars[awx_host].awx_use_tls else 'http' }}"
+    # The AWX Operator's web Service always listens on port 80 (named "http",
+    # targetPort 8052) for both the clusterip and nodeport service types —
+    # this is hardcoded in the Operator's own Service template and not
+    # something this role can override via the AWX custom resource, so it's
+    # a literal here rather than a configurable variable.
+    awx_clusterip_port: 80
+  ansible.builtin.set_fact:
+    awx_effective_address: "{{ awx_http_protocol }}://{{ hostvars[awx_host].actual_host }}:{{ awx_clusterip_port }}"
+  when:
+    - hostvars[awx_host].awx_openshift_route is not defined
+    - hostvars[awx_host].awx_k8s_node_port is not defined

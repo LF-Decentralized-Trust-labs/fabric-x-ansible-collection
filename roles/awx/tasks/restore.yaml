@@ -1,0 +1,306 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Validate source backup
+# =========================
+- name: Check that AWXBackup exists
+  kubernetes.core.k8s_info:
+    api_version: awx.ansible.com/v1beta1
+    kind: AWXBackup
+    name: "{{ awx_backup_name }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
+  register: awx_backup_info
+  failed_when: awx_backup_info.resources | length == 0
+
+- name: Ensure backup is marked Successful
+  kubernetes.core.k8s_info:
+    api_version: awx.ansible.com/v1beta1
+    kind: AWXBackup
+    name: "{{ awx_backup_name }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
+  register: awx_backup_info_wait
+  retries: 40
+  delay: 10
+  until:
+    - awx_backup_info_wait.resources | length > 0
+    - awx_backup_info_wait.resources[0].status is defined
+    - awx_backup_info_wait.resources[0].status.conditions is defined
+    - awx_backup_info_wait.resources[0].status.conditions
+      | selectattr('type', 'equalto', 'Successful')
+      | selectattr('status', 'equalto', 'True')
+      | list
+      | length > 0
+
+# =========================
+# Clean up any previous target instance
+# =========================
+- name: Ensure target AWX instance ({{ awx_restore_name }}) is absent
+  kubernetes.core.k8s:
+    api_version: awx.ansible.com/v1beta1
+    kind: AWX
+    name: "{{ awx_restore_name }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
+    state: absent
+    wait: true
+    wait_timeout: "{{ awx_k8s_wait_timeout }}"
+
+- name: Ensure previous AWXRestore for target is absent
+  kubernetes.core.k8s:
+    api_version: awx.ansible.com/v1beta1
+    kind: AWXRestore
+    name: "{{ awx_restore_name }}-restore"
+    namespace: "{{ k8s_namespace | default('default') }}"
+    state: absent
+
+- name: Delete old PVCs for target AWX (if any)
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: PersistentVolumeClaim
+    namespace: "{{ k8s_namespace | default('default') }}"
+    label_selectors:
+      - "app.kubernetes.io/managed-by=awx-operator"
+      - "app.kubernetes.io/instance=postgres-15-{{ awx_restore_name }}"
+  register: awx_target_pvcs
+  failed_when: false
+
+- name: Remove discovered PVCs for target AWX
+  kubernetes.core.k8s:
+    api_version: v1
+    kind: PersistentVolumeClaim
+    namespace: "{{ k8s_namespace | default('default') }}"
+    name: "{{ current_target_pvc.metadata.name }}"
+    state: absent
+    wait: true
+    wait_timeout: "{{ awx_k8s_wait_timeout }}"
+  loop: "{{ awx_target_pvcs.resources | default([]) }}"
+  loop_control:
+    loop_var: current_target_pvc
+    label: "{{ current_target_pvc.metadata.name }}"
+  when:
+    - awx_target_pvcs.resources is defined
+    - awx_target_pvcs.resources | length > 0
+
+# =========================
+# Create restore and wait for completion
+# =========================
+- name: Create AWXRestore resource to create {{ awx_restore_name }} from backup
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/restore.yaml.j2
+  register: awx_restore_created
+
+- name: Wait for AWXRestore to reach terminal state (Successful or Failure)
+  kubernetes.core.k8s_info:
+    api_version: awx.ansible.com/v1beta1
+    kind: AWXRestore
+    name: "{{ awx_restore_name }}-restore"
+    namespace: "{{ k8s_namespace | default('default') }}"
+  register: awx_restore_status
+  retries: 60
+  delay: 10
+  until:
+    - awx_restore_status.resources | length > 0
+    - awx_restore_status.resources[0].status is defined
+    - awx_restore_status.resources[0].status.conditions is defined
+    - awx_restore_status.resources[0].status.conditions
+      | selectattr('type', 'equalto', 'Successful')
+      | selectattr('status', 'equalto', 'True')
+      | list
+      | length > 0
+  failed_when:
+    - awx_restore_status.resources | length > 0
+    - awx_restore_status.resources[0].status is defined
+    - awx_restore_status.resources[0].status.conditions is defined
+    - awx_restore_status.resources[0].status.conditions
+      | selectattr('type', 'equalto', 'Failure')
+      | selectattr('status', 'equalto', 'True')
+      | list
+      | length > 0
+
+# =========================
+# Wait for restored workloads
+# =========================
+- name: Wait for new Postgres pod to be running
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Pod
+    namespace: "{{ k8s_namespace | default('default') }}"
+    label_selectors:
+      - "app.kubernetes.io/component=database"
+      - "app.kubernetes.io/part-of={{ awx_restore_name }}"
+  register: awx_restore_pg_pods
+  retries: 40
+  delay: 10
+  until:
+    - awx_restore_pg_pods.resources | length > 0
+    - awx_restore_pg_pods.resources[0].status.phase == "Running"
+
+- name: Wait for new web pod to be running
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Pod
+    namespace: "{{ k8s_namespace | default('default') }}"
+    label_selectors:
+      - "app.kubernetes.io/name={{ awx_restore_name }}-web"
+      - "app.kubernetes.io/part-of={{ awx_restore_name }}"
+  register: awx_restore_web_pods
+  retries: 40
+  delay: 10
+  until:
+    - awx_restore_web_pods.resources | length > 0
+    - awx_restore_web_pods.resources[0].status.phase == "Running"
+
+- name: Wait for new task pod to be running
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Pod
+    namespace: "{{ k8s_namespace | default('default') }}"
+    label_selectors:
+      - "app.kubernetes.io/name={{ awx_restore_name }}-task"
+      - "app.kubernetes.io/part-of={{ awx_restore_name }}"
+  register: awx_restore_task_pods
+  retries: 10
+  delay: 10
+  until:
+    - awx_restore_task_pods.resources | length > 0
+    - awx_restore_task_pods.resources[0].status.phase == "Running"
+  failed_when: false
+
+# =========================
+# Expose restored instance
+# =========================
+- name: Apply restored AWX OpenShift Route
+  vars:
+    openshift_route_name: "{{ awx_restore_name }}"
+    openshift_route_host: "{{ awx_restore_openshift_route }}"
+    openshift_route_service_name: "{{ awx_restore_name }}-service"
+    openshift_route_service_port: http
+    openshift_route_use_tls: "{{ awx_use_tls }}"
+    openshift_route_tls_termination: edge
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ awx_restore_name }}"
+      app.kubernetes.io/part-of: "{{ awx_restore_name }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when:
+    - awx_use_openshift
+    - awx_restore_openshift_route is defined
+
+- name: Get AWX route for new instance
+  kubernetes.core.k8s_info:
+    api_version: route.openshift.io/v1
+    kind: Route
+    namespace: "{{ k8s_namespace | default('default') }}"
+    name: "{{ awx_restore_name }}"
+  register: awx_route
+  failed_when: awx_route.resources | length == 0
+  when: awx_use_openshift
+
+# =========================
+# Resolve admin credentials
+# =========================
+- name: Get admin password secret for new instance
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Secret
+    namespace: "{{ k8s_namespace | default('default') }}"
+    name: "{{ awx_restore_name }}-admin-password"
+  register: awx_admin_secret
+  failed_when: awx_admin_secret.resources | length == 0
+
+- name: Check if admin password data exists
+  ansible.builtin.set_fact:
+    awx_admin_secret_has_password: >-
+      {{
+        awx_admin_secret.resources[0].data is defined and
+        ('password' in awx_admin_secret.resources[0].data)
+      }}
+
+- name: Reset admin password via awx-manage shell if secret is missing password
+  kubernetes.core.k8s_exec:
+    namespace: "{{ k8s_namespace | default('default') }}"
+    pod: "{{ awx_restore_web_pods.resources[0].metadata.name }}"
+    command: |-
+      awx-manage shell -c 'from django.contrib.auth import get_user_model
+      User = get_user_model()
+      u, _ = User.objects.get_or_create(username="admin", defaults={"is_superuser": True, "is_staff": True})
+      u.set_password("{{ awx_new_admin_credential }}")
+      u.save()
+      print("Password changed for admin")'
+  register: awx_reset_admin_password
+  when: not awx_admin_secret_has_password
+  changed_when: true
+  failed_when: awx_reset_admin_password.rc != 0
+
+- name: Decode admin password from secret if present
+  ansible.builtin.set_fact:
+    awx_effective_admin_password: >-
+      {{
+        awx_admin_secret.resources[0].data.password | b64decode
+      }}
+  when: awx_admin_secret_has_password
+
+- name: Use fallback password if we set it manually
+  ansible.builtin.set_fact:
+    awx_effective_admin_password: "{{ awx_new_admin_credential }}"
+  when: not awx_admin_secret_has_password
+
+- name: Set restored AWX effective address from OpenShift route
+  ansible.builtin.set_fact:
+    awx_effective_address: "https://{{ awx_route.resources[0].spec.host }}"
+  when: awx_use_openshift
+
+- name: Get AWX effective address for restored instance
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.awx
+    tasks_from: effective_address
+  when: not awx_use_openshift
+
+- name: Show NEW AWX URL and credentials
+  ansible.builtin.debug:
+    msg:
+      - "AWX restore complete. New instance '{{ awx_restore_name }}' was created from backup '{{ awx_backup_name }}'."
+      - "URL: {{ awx_effective_address }}"
+      - "Username: admin"
+      - "Password: {{ awx_effective_admin_password }}"
+
+# =========================
+# Clean up consumed backup
+# =========================
+- name: Cleanup old AWXBackup CR
+  kubernetes.core.k8s:
+    api_version: awx.ansible.com/v1beta1
+    kind: AWXBackup
+    name: "{{ awx_backup_name }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
+    state: absent
+  register: awx_backup_delete
+  failed_when:
+    - awx_backup_delete.failed | default(false)
+    - "'NotFound' not in (awx_backup_delete.msg | default(''))"
+    - "'not found' not in (awx_backup_delete.msg | default(''))"
+  changed_when: false
+
+- name: Cleanup old AWXBackup PVC
+  kubernetes.core.k8s:
+    api_version: v1
+    kind: PersistentVolumeClaim
+    namespace: "{{ k8s_namespace | default('default') }}"
+    name: "{{ awx_backup_info.resources[0].status.backupClaim }}"
+    state: absent
+  register: awx_backup_pvc_delete
+  failed_when:
+    - awx_backup_pvc_delete.failed | default(false)
+    - "'NotFound' not in (awx_backup_pvc_delete.msg | default(''))"
+    - "'not found' not in (awx_backup_pvc_delete.msg | default(''))"
+  changed_when: false
+  when:
+    - (awx_backup_info.resources | default([])) | length > 0
+    - awx_backup_info.resources[0].status.backupClaim is defined

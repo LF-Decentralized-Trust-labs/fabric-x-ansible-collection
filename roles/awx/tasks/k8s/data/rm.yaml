@@ -1,0 +1,36 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Find AWX PostgreSQL PVCs
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: PersistentVolumeClaim
+    namespace: "{{ k8s_namespace | default('default') }}"
+    label_selectors:
+      - "app.kubernetes.io/managed-by=awx-operator"
+  register: awx_postgres_pvcs
+
+- name: Remove AWX PostgreSQL PVCs
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: PersistentVolumeClaim
+    name: "{{ current_postgres_pvc.metadata.name }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
+  loop: "{{ awx_postgres_pvcs.resources }}"
+  loop_control:
+    loop_var: current_postgres_pvc
+    label: "{{ current_postgres_pvc.metadata.name }}"
+  when:
+    - awx_postgres_pvcs.resources | length > 0
+
+- name: Remove AWX backup PVC
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: PersistentVolumeClaim
+    name: "{{ awx_backup_pvc_name }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
