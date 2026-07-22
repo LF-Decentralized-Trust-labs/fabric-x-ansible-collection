@@ -1,0 +1,50 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Decode the unsigned ConfigUpdateEnvelope to JSON
+  vars:
+    configtxlator_artifacts_dir: "{{ fabric_reconfig_artifacts_dir }}"
+    configtxlator_proto_type: common.ConfigUpdateEnvelope
+    configtxlator_input_file: unsigned_config_update_envelope.pb
+    configtxlator_output_file: unsigned_config_update_envelope.json
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.configtxlator
+    tasks_from: proto_decode
+
+- name: Write the base64 ConfigUpdate text for decoding
+  vars:
+    fabric_reconfig_unsigned_envelope: "{{ lookup('ansible.builtin.file', fabric_reconfig_artifacts_dir + '/unsigned_config_update_envelope.json') | from_json }}"
+  ansible.builtin.copy:
+    content: "{{ fabric_reconfig_unsigned_envelope.config_update }}"
+    dest: "{{ fabric_reconfig_artifacts_dir }}/config_update.b64"
+    mode: "0o644"
+
+- name: Decode the ConfigUpdate to raw protobuf bytes
+  ansible.builtin.command:
+    argv:
+      - "{{ ansible_python_interpreter | default('python3') }}"
+      - -c
+      - "import base64, sys; open(sys.argv[2], 'wb').write(base64.b64decode(open(sys.argv[1]).read()))"
+      - "{{ fabric_reconfig_artifacts_dir }}/config_update.b64"
+      - "{{ fabric_reconfig_artifacts_dir }}/config_update.pb"
+  changed_when: true
+
+# BLOCKED: no CLI or script exists yet from the ordering team to sign a ConfigUpdate. May
+# Buzaglo confirmed this is on their side: "Some of the steps we currently perform in our
+# Go-based tests, such as ... preparing a signed envelope ... should probably be converted
+# into scripts or CLI commands ... Currently, we do not have such scripts or CLI commands."
+# Everything up to this point (decoding the unsigned envelope, isolating the ConfigUpdate
+# bytes to sign) is ours; this step is a deliberate stop, not a bug.
+- name: "BLOCKED: sign the ConfigUpdate (needs an ordering-team CLI)"
+  ansible.builtin.fail:
+    msg: >-
+      No CLI/script exists yet from the ordering team to sign a ConfigUpdate.
+      This step is ready to call one once it exists: sign
+      {{ fabric_reconfig_artifacts_dir }}/config_update.pb with identity
+      {{ fabric_reconfig_signer_mspid }} (cert {{ fabric_reconfig_signer_cert }}, key
+      {{ fabric_reconfig_signer_key }}), matching Fabric's ConfigSignature construction
+      (a signature over signature_header || config_update), and write the result to
+      {{ fabric_reconfig_artifacts_dir }}/signature_party{{ fabric_reconfig_signing_party }}.pb.

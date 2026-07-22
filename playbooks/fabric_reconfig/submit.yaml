@@ -1,0 +1,31 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Collect signatures and submit the Fabric-X reconfig update
+  hosts: localhost
+  tasks:
+    - name: Merge collected ConfigSignatures
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_reconfig
+        tasks_from: collect_and_merge_signatures
+
+    - name: Wrap, sign, and submit the final Envelope
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_reconfig
+        tasks_from: submit
+
+    - name: Confirm the update landed on-chain
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_reconfig
+        tasks_from: verify
+
+- name: Restart the reconfigured Assembler
+  hosts: "{{ target_hosts | default('fabric_x_orderers') }}:&fabric_x_orderers"
+  tasks:
+    - name: Stop and start only the reconfigured node
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_reconfig
+        tasks_from: handle_restart

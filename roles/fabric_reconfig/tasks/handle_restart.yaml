@@ -1,0 +1,51 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Resolve the reconfigured Assembler's inventory_hostname
+  vars:
+    fabric_reconfig_target_assembler_hostvars: >-
+      {{
+        groups['fabric_x_orderers']
+        | map('extract', hostvars)
+        | selectattr('orderer_group', 'defined')
+        | selectattr('orderer_group', '==', fabric_reconfig_target_party | int)
+        | selectattr('orderer_component_type', '==', 'assembler')
+        | first
+      }}
+  ansible.builtin.set_fact:
+    fabric_reconfig_target_host: "{{ fabric_reconfig_target_assembler_hostvars.inventory_hostname }}"
+
+- name: Determine whether this host is the reconfigured Assembler
+  ansible.builtin.set_fact:
+    fabric_reconfig_is_target_node: "{{ inventory_hostname == fabric_reconfig_target_host }}"
+
+- name: Stop and restart the reconfigured Assembler
+  when:
+    - fabric_reconfig_is_target_node
+    - orderer_component_type == 'assembler'
+  block:
+    # CAVEAT, not blocked: the stop/start mechanism below is real and works today (existing
+    # hyperledger.fabricx.orderer role). What's unconfirmed is *when* it's safe to run it. The
+    # ordering team's own test harness waits for a node to enter "pending admin state" first
+    # (WaitForPendingAdminByTypeAndParty) before stopping it; we don't yet know of an externally
+    # observable signal (metric/health endpoint/log line) for that state, so this stops the node
+    # immediately after submit/verify succeed instead. Confirm with the ordering team whether
+    # that's safe or whether we need to wait for something first.
+    - name: Note the unconfirmed pending-admin-state timing
+      ansible.builtin.debug:
+        msg: >-
+          Restarting {{ inventory_hostname }} immediately; pending-admin-state timing has not
+          been confirmed with the ordering team (see comment above this task).
+
+    - name: Stop the reconfigured Assembler
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.orderer
+        tasks_from: "{{ orderer_deployment_mode }}/stop"
+
+    - name: Start the reconfigured Assembler
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.orderer
+        tasks_from: "{{ orderer_deployment_mode }}/start"

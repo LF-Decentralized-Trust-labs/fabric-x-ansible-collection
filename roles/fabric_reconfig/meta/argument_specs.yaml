@@ -1,0 +1,247 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+argument_specs:
+  role-options:
+    short_description: Shared option catalog for fabric_reconfig role entry points
+    description:
+      - Common inputs reused by every entry point in this role.
+      - "This role performs a live channel-config update against a running Fabric-X network (v1 scope: changing one party's Assembler endpoint), built on top of C(hyperledger.fabricx.configtxlator)."
+      - "The pipeline is split across three playbooks to support out-of-band, per-party signing: C(prepare) (fetch + compute an unsigned update), C(sign) (run independently by each required party), and C(submit) (collect signatures, submit, verify, restart)."
+      - "The ordering team does not yet have a fetch/sign/submit CLI (confirmed directly with them). C(fetch_current_config), C(sign), and C(submit) resolve everything they can from inventory and then deliberately fail with a message describing the exact operation still needed, rather than reimplementing that logic ourselves."
+    options:
+      config_build_dir: &config_build_dir
+        type: path
+        description:
+          - Base build directory for C(fabric_reconfig_artifacts_dir).
+      fabric_reconfig_artifacts_dir: &fabric_reconfig_artifacts_dir
+        type: path
+        default: "{{ config_build_dir }}/fabric-reconfig-artifacts"
+        description:
+          - Working directory on the control node for every intermediate and final artifact produced by this role.
+      channel_id: &channel_id
+        type: str
+        description:
+          - Channel identifier for C(fabric_reconfig_channel_id).
+      fabric_reconfig_channel_id: &fabric_reconfig_channel_id
+        type: str
+        default: "{{ channel_id }}"
+        description:
+          - Channel identifier used for the reconfig update.
+      fabric_reconfig_target_party: &fabric_reconfig_target_party
+        type: int
+        required: true
+        description:
+          - PartyID whose Assembler endpoint is being changed.
+          - Only one party may be reconfigured per run.
+      fabric_reconfig_reader_mspid: &fabric_reconfig_reader_mspid
+        type: str
+        required: true
+        description:
+          - MSP ID of the identity used to fetch the current config (must satisfy the channel's Readers policy; any party admin qualifies).
+      fabric_reconfig_reader_cert: &fabric_reconfig_reader_cert
+        type: path
+        required: true
+        description:
+          - Path to the reader identity's certificate PEM file.
+      fabric_reconfig_reader_key: &fabric_reconfig_reader_key
+        type: path
+        required: true
+        description:
+          - Path to the reader identity's private key PEM file.
+      fabric_reconfig_tls_ca: &fabric_reconfig_tls_ca
+        type: path
+        default: ""
+        description:
+          - Path to the Assembler/Router TLS CA certificate PEM file.
+          - Leave unset for plaintext (no-TLS) deployments.
+      fabric_reconfig_fetch_party: &fabric_reconfig_fetch_party
+        type: int
+        description:
+          - PartyID whose Assembler is used as the fetch source for the current config.
+          - Defaults to C(fabric_reconfig_target_party).
+      fabric_reconfig_signing_party: &fabric_reconfig_signing_party
+        type: int
+        required: true
+        description:
+          - PartyID of the admin identity running the C(sign) entry point in this invocation.
+      fabric_reconfig_signer_mspid: &fabric_reconfig_signer_mspid
+        type: str
+        required: true
+        description:
+          - MSP ID of the signing party's admin identity.
+      fabric_reconfig_signer_cert: &fabric_reconfig_signer_cert
+        type: path
+        required: true
+        description:
+          - Path to the signing party's admin certificate PEM file.
+      fabric_reconfig_signer_key: &fabric_reconfig_signer_key
+        type: path
+        required: true
+        description:
+          - Path to the signing party's admin private key PEM file.
+      fabric_reconfig_required_signers: &fabric_reconfig_required_signers
+        type: list
+        elements: int
+        required: true
+        description:
+          - PartyIDs whose C(sign) output must be collected before C(submit) will proceed.
+          - Must satisfy the channel's block validation policy majority requirement.
+      fabric_reconfig_submitting_party: &fabric_reconfig_submitting_party
+        type: int
+        required: true
+        description:
+          - PartyID whose Router the final signed Envelope is submitted to.
+      fabric_reconfig_submitter_mspid: &fabric_reconfig_submitter_mspid
+        type: str
+        required: true
+        description:
+          - MSP ID of the submitting party's admin identity (signs the outer Envelope).
+      fabric_reconfig_submitter_cert: &fabric_reconfig_submitter_cert
+        type: path
+        required: true
+        description:
+          - Path to the submitting party's admin certificate PEM file.
+      fabric_reconfig_submitter_key: &fabric_reconfig_submitter_key
+        type: path
+        required: true
+        description:
+          - Path to the submitting party's admin private key PEM file.
+      orderer_component_type: &orderer_component_type
+        type: str
+        description:
+          - Fabric-X orderer sub-component running on this host, set per-host in inventory by C(hyperledger.fabricx.orderer).
+          - C(handle_restart) only acts when this is C(assembler).
+      orderer_deployment_mode: &orderer_deployment_mode
+        type: str
+        description:
+          - Deployment mode (C(bin) or C(container)) C(hyperledger.fabricx.orderer) was started with for this host.
+
+  main:
+    short_description: Validate reconfig inputs
+    description:
+      - Assert that exactly one party is targeted for this run.
+    options:
+      fabric_reconfig_target_party: *fabric_reconfig_target_party
+
+  fetch_current_config:
+    short_description: Fetch and extract the current channel config
+    description:
+      - "Resolves C(fabric_reconfig_fetch_party)'s Assembler endpoint from inventory, then BLOCKED: fails with the exact fetch operation the ordering team's not-yet-built CLI needs to perform (see role description)."
+    options:
+      config_build_dir: *config_build_dir
+      fabric_reconfig_artifacts_dir: *fabric_reconfig_artifacts_dir
+      channel_id: *channel_id
+      fabric_reconfig_channel_id: *fabric_reconfig_channel_id
+      fabric_reconfig_fetch_party: *fabric_reconfig_fetch_party
+      fabric_reconfig_target_party: *fabric_reconfig_target_party
+      fabric_reconfig_reader_mspid: *fabric_reconfig_reader_mspid
+      fabric_reconfig_reader_cert: *fabric_reconfig_reader_cert
+      fabric_reconfig_reader_key: *fabric_reconfig_reader_key
+      fabric_reconfig_tls_ca: *fabric_reconfig_tls_ca
+
+  render_desired_config:
+    short_description: Render the desired config from current_config.json
+    description:
+      - Run C(files/apply_endpoint_change.py) against C(current_config.json) to produce C(desired_config.json) with C(fabric_reconfig_target_party)'s Assembler endpoint changed to C(fabric_reconfig_new_host):C(fabric_reconfig_new_port).
+    options:
+      config_build_dir: *config_build_dir
+      fabric_reconfig_artifacts_dir: *fabric_reconfig_artifacts_dir
+      fabric_reconfig_target_party: *fabric_reconfig_target_party
+
+  diff_check:
+    short_description: Idempotency check between current and desired config
+    description:
+      - Compare C(current_config.json) and C(desired_config.json) as parsed JSON structures; end the play with no further action when they are identical.
+    options:
+      config_build_dir: *config_build_dir
+      fabric_reconfig_artifacts_dir: *fabric_reconfig_artifacts_dir
+      fabric_reconfig_target_party: *fabric_reconfig_target_party
+
+  build_config_update:
+    short_description: Compute the ConfigUpdate
+    description:
+      - Encode C(current_config.json) and C(desired_config.json) to protobuf and run C(configtxlator compute_update) to produce C(config_update.pb).
+    options:
+      config_build_dir: *config_build_dir
+      fabric_reconfig_artifacts_dir: *fabric_reconfig_artifacts_dir
+      channel_id: *channel_id
+      fabric_reconfig_channel_id: *fabric_reconfig_channel_id
+
+  build_unsigned_envelope:
+    short_description: Wrap the ConfigUpdate into an unsigned ConfigUpdateEnvelope
+    description:
+      - Wrap C(config_update.pb) into a C(common.ConfigUpdateEnvelope) with an empty C(signatures) list, ready to hand off to each required party for out-of-band signing.
+    options:
+      config_build_dir: *config_build_dir
+      fabric_reconfig_artifacts_dir: *fabric_reconfig_artifacts_dir
+      fabric_reconfig_required_signers: *fabric_reconfig_required_signers
+
+  sign:
+    short_description: Produce one ConfigSignature for the pending update
+    description:
+      - "Decodes the unsigned envelope produced by C(build_unsigned_envelope) and isolates the ConfigUpdate bytes to sign, then BLOCKED: fails with the exact signing operation the ordering team's not-yet-built CLI needs to perform (see role description)."
+    options:
+      config_build_dir: *config_build_dir
+      fabric_reconfig_artifacts_dir: *fabric_reconfig_artifacts_dir
+      fabric_reconfig_signing_party: *fabric_reconfig_signing_party
+      fabric_reconfig_signer_mspid: *fabric_reconfig_signer_mspid
+      fabric_reconfig_signer_cert: *fabric_reconfig_signer_cert
+      fabric_reconfig_signer_key: *fabric_reconfig_signer_key
+
+  collect_and_merge_signatures:
+    short_description: Merge collected ConfigSignatures into the ConfigUpdateEnvelope
+    description:
+      - Splice each C(fabric_reconfig_required_signers) party's C(signature_party<id>.json) into the unsigned envelope's C(signatures) list and re-encode C(signed_config_update_envelope.pb).
+    options:
+      config_build_dir: *config_build_dir
+      fabric_reconfig_artifacts_dir: *fabric_reconfig_artifacts_dir
+      fabric_reconfig_required_signers: *fabric_reconfig_required_signers
+
+  submit:
+    short_description: Wrap, sign, and submit the final Envelope
+    description:
+      - "Resolves C(fabric_reconfig_submitting_party)'s Router endpoint from inventory, then BLOCKED: fails with the exact wrap/sign/submit operation the ordering team's not-yet-built CLI needs to perform (see role description)."
+      - "Submission is intended to target only the submitting party's Router, matching Fabric-X's own C(BroadcastClient.SendTxTo) usage for config transactions in their test harness -- not a fan-out to every Router -- but this is inferred, not confirmed with the ordering team."
+    options:
+      config_build_dir: *config_build_dir
+      fabric_reconfig_artifacts_dir: *fabric_reconfig_artifacts_dir
+      channel_id: *channel_id
+      fabric_reconfig_channel_id: *fabric_reconfig_channel_id
+      fabric_reconfig_submitting_party: *fabric_reconfig_submitting_party
+      fabric_reconfig_submitter_mspid: *fabric_reconfig_submitter_mspid
+      fabric_reconfig_submitter_cert: *fabric_reconfig_submitter_cert
+      fabric_reconfig_submitter_key: *fabric_reconfig_submitter_key
+      fabric_reconfig_tls_ca: *fabric_reconfig_tls_ca
+
+  verify:
+    short_description: Confirm the update landed on-chain
+    description:
+      - "Resolves C(fabric_reconfig_fetch_party)'s Assembler endpoint from inventory, then BLOCKED: fails with the same fetch operation as C(fetch_current_config) (see role description). Once fetch works, this compares the result against C(desired_config.json)."
+      - A mismatch there usually means the submission was rejected (for example a stale config version at the consensus layer); re-run from C(fetch_current_config) rather than treating it as a generic error.
+    options:
+      config_build_dir: *config_build_dir
+      fabric_reconfig_artifacts_dir: *fabric_reconfig_artifacts_dir
+      channel_id: *channel_id
+      fabric_reconfig_channel_id: *fabric_reconfig_channel_id
+      fabric_reconfig_fetch_party: *fabric_reconfig_fetch_party
+      fabric_reconfig_target_party: *fabric_reconfig_target_party
+      fabric_reconfig_reader_mspid: *fabric_reconfig_reader_mspid
+      fabric_reconfig_reader_cert: *fabric_reconfig_reader_cert
+      fabric_reconfig_reader_key: *fabric_reconfig_reader_key
+      fabric_reconfig_tls_ca: *fabric_reconfig_tls_ca
+
+  handle_restart:
+    short_description: Restart the reconfigured Assembler
+    description:
+      - Stop and start only the reconfigured party's Assembler (resolved from inventory via C(fabric_reconfig_target_party)). Every other node in C(fabric_x_orderers) relaunches itself dynamically once the update lands and needs no Ansible-driven restart.
+      - "Run against C(hosts: fabric_x_orderers); the per-host C(when) guard makes it a no-op everywhere except the reconfigured Assembler."
+      - "NOT blocked, but unconfirmed: stops and starts immediately after submit/verify succeed. The ordering team's test harness waits for a node to enter \"pending admin state\" first; we don't yet know an externally observable signal for that. See the debug note this task emits."
+    options:
+      fabric_reconfig_target_party: *fabric_reconfig_target_party
+      orderer_component_type: *orderer_component_type
+      orderer_deployment_mode: *orderer_deployment_mode

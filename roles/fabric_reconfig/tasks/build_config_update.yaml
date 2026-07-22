@@ -1,0 +1,36 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Encode the current config to protobuf
+  vars:
+    configtxlator_artifacts_dir: "{{ fabric_reconfig_artifacts_dir }}"
+    configtxlator_proto_type: common.Config
+    configtxlator_input_file: current_config.json
+    configtxlator_output_file: current_config.pb
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.configtxlator
+    tasks_from: proto_encode
+
+- name: Encode the desired config to protobuf
+  vars:
+    configtxlator_artifacts_dir: "{{ fabric_reconfig_artifacts_dir }}"
+    configtxlator_proto_type: common.Config
+    configtxlator_input_file: desired_config.json
+    configtxlator_output_file: desired_config.pb
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.configtxlator
+    tasks_from: proto_encode
+
+- name: Compute the ConfigUpdate
+  vars:
+    configtxlator_artifacts_dir: "{{ fabric_reconfig_artifacts_dir }}"
+    configtxlator_channel_id: "{{ fabric_reconfig_channel_id }}"
+    configtxlator_original_file: current_config.pb
+    configtxlator_updated_file: desired_config.pb
+    configtxlator_output_file: config_update.pb
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.configtxlator
+    tasks_from: compute_update

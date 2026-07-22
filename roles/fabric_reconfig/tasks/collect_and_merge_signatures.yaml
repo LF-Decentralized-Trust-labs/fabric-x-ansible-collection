@@ -1,0 +1,40 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Load each required signer's ConfigSignature JSON
+  ansible.builtin.set_fact:
+    fabric_reconfig_collected_signatures: >-
+      {{
+        fabric_reconfig_collected_signatures | default([]) +
+        [lookup('ansible.builtin.file', fabric_reconfig_artifacts_dir + '/signature_party' ~ item ~ '.json') | from_json]
+      }}
+  loop: "{{ fabric_reconfig_required_signers }}"
+
+- name: Assert every required signature was collected
+  ansible.builtin.assert:
+    that:
+      - fabric_reconfig_collected_signatures | length == fabric_reconfig_required_signers | length
+    fail_msg: >-
+      Expected {{ fabric_reconfig_required_signers | length }} signatures ({{ fabric_reconfig_required_signers }}),
+      collected {{ fabric_reconfig_collected_signatures | length }}.
+
+- name: Splice the collected signatures into the ConfigUpdateEnvelope JSON
+  vars:
+    fabric_reconfig_unsigned_envelope: "{{ lookup('ansible.builtin.file', fabric_reconfig_artifacts_dir + '/unsigned_config_update_envelope.json') | from_json }}"
+  ansible.builtin.copy:
+    content: "{{ (fabric_reconfig_unsigned_envelope | combine({'signatures': fabric_reconfig_collected_signatures})) | to_nice_json }}"
+    dest: "{{ fabric_reconfig_artifacts_dir }}/signed_config_update_envelope.json"
+    mode: "0o644"
+
+- name: Encode the signed ConfigUpdateEnvelope to protobuf
+  vars:
+    configtxlator_artifacts_dir: "{{ fabric_reconfig_artifacts_dir }}"
+    configtxlator_proto_type: common.ConfigUpdateEnvelope
+    configtxlator_input_file: signed_config_update_envelope.json
+    configtxlator_output_file: signed_config_update_envelope.pb
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.configtxlator
+    tasks_from: proto_encode

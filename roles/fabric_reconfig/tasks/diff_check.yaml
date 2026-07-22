@@ -1,0 +1,21 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Compare current and desired config
+  vars:
+    fabric_reconfig_current_config_parsed: "{{ lookup('ansible.builtin.file', fabric_reconfig_artifacts_dir + '/current_config.json') | from_json }}"
+    fabric_reconfig_desired_config_parsed: "{{ lookup('ansible.builtin.file', fabric_reconfig_artifacts_dir + '/desired_config.json') | from_json }}"
+  ansible.builtin.set_fact:
+    fabric_reconfig_changed: "{{ fabric_reconfig_current_config_parsed != fabric_reconfig_desired_config_parsed }}"
+
+- name: Report a no-op when nothing changed
+  ansible.builtin.debug:
+    msg: "Desired config matches the current config for party {{ fabric_reconfig_target_party }}; nothing to do."
+  when: not fabric_reconfig_changed
+
+- name: End the play when there is nothing to change
+  ansible.builtin.meta: end_play
+  when: not fabric_reconfig_changed

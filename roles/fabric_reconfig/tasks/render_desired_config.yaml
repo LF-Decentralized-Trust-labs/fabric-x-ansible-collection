@@ -1,0 +1,38 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Resolve the desired Assembler endpoint from inventory
+  vars:
+    fabric_reconfig_target_assembler_hostvars: >-
+      {{
+        groups['fabric_x_orderers']
+        | map('extract', hostvars)
+        | selectattr('orderer_group', 'defined')
+        | selectattr('orderer_group', '==', fabric_reconfig_target_party | int)
+        | selectattr('orderer_component_type', '==', 'assembler')
+        | first
+      }}
+  ansible.builtin.set_fact:
+    fabric_reconfig_new_host: "{{ fabric_reconfig_target_assembler_hostvars.ansible_host }}"
+    fabric_reconfig_new_port: "{{ fabric_reconfig_target_assembler_hostvars.orderer_rpc_port }}"
+    fabric_reconfig_target_host: "{{ fabric_reconfig_target_assembler_hostvars.inventory_hostname }}"
+
+- name: Render the desired config with the new Assembler endpoint
+  ansible.builtin.command:
+    argv:
+      - "{{ ansible_python_interpreter | default('python3') }}"
+      - "{{ role_path }}/files/apply_endpoint_change.py"
+      - --current
+      - "{{ fabric_reconfig_artifacts_dir }}/current_config.json"
+      - --desired
+      - "{{ fabric_reconfig_artifacts_dir }}/desired_config.json"
+      - --party
+      - "{{ fabric_reconfig_target_party }}"
+      - --host
+      - "{{ fabric_reconfig_new_host }}"
+      - --port
+      - "{{ fabric_reconfig_new_port }}"
+  changed_when: true

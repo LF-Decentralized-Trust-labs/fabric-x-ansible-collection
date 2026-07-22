@@ -1,0 +1,13 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Sign a pending Fabric-X reconfig update
+  hosts: localhost
+  tasks:
+    - name: Produce this party's ConfigSignature
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_reconfig
+        tasks_from: sign

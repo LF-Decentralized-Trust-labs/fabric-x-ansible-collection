@@ -1,0 +1,12 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Assert exactly one party is targeted for this reconfig run
+  ansible.builtin.assert:
+    that:
+      - fabric_reconfig_target_party is defined
+      - fabric_reconfig_target_party | int > 0
+    fail_msg: "fabric_reconfig_target_party must be set to the PartyID being reconfigured; only one party may be changed per run."

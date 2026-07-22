@@ -1,0 +1,35 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Resolve the verify-fetch Assembler endpoint from inventory
+  vars:
+    fabric_reconfig_fetch_party_resolved: "{{ fabric_reconfig_fetch_party | default(fabric_reconfig_target_party) | int }}"
+    fabric_reconfig_verify_assembler_hostvars: >-
+      {{
+        groups['fabric_x_orderers']
+        | map('extract', hostvars)
+        | selectattr('orderer_group', 'defined')
+        | selectattr('orderer_group', '==', fabric_reconfig_fetch_party_resolved)
+        | selectattr('orderer_component_type', '==', 'assembler')
+        | first
+      }}
+  ansible.builtin.set_fact:
+    fabric_reconfig_verify_assembler_endpoint: "{{ fabric_reconfig_verify_assembler_hostvars.ansible_host }}:{{ fabric_reconfig_verify_assembler_hostvars.orderer_rpc_port }}"
+
+# BLOCKED: same gap as fetch_current_config.yaml -- there is no CLI/script yet from the
+# ordering team to fetch a channel config block.
+- name: "BLOCKED: re-fetch the config to confirm the update landed (needs an ordering-team CLI)"
+  ansible.builtin.fail:
+    msg: >-
+      No CLI/script exists yet from the ordering team to fetch a channel config block (same gap
+      as fetch_current_config). Once available, re-fetch from
+      {{ fabric_reconfig_verify_assembler_endpoint }} (channel {{ fabric_reconfig_channel_id }}),
+      signed by reader identity {{ fabric_reconfig_reader_mspid }}
+      (cert {{ fabric_reconfig_reader_cert }}, key {{ fabric_reconfig_reader_key }}
+      {%- if fabric_reconfig_tls_ca %}, TLS CA {{ fabric_reconfig_tls_ca }}{% else %}, plaintext{% endif %}),
+      and assert the result matches {{ fabric_reconfig_artifacts_dir }}/desired_config.json --
+      a mismatch there means the submission was rejected (for example a stale config version at
+      the consensus layer), not a generic error.

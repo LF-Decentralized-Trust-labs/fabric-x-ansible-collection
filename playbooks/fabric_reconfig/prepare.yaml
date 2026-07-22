@@ -1,0 +1,38 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Prepare a Fabric-X reconfig update on the control node
+  hosts: localhost
+  tasks:
+    - name: Validate reconfig inputs
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_reconfig
+        tasks_from: main
+
+    - name: Fetch the current channel config
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_reconfig
+        tasks_from: fetch_current_config
+
+    - name: Render the desired config
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_reconfig
+        tasks_from: render_desired_config
+
+    - name: Check whether anything actually changed
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_reconfig
+        tasks_from: diff_check
+
+    - name: Compute the ConfigUpdate
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_reconfig
+        tasks_from: build_config_update
+
+    - name: Build the unsigned ConfigUpdateEnvelope
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_reconfig
+        tasks_from: build_unsigned_envelope
