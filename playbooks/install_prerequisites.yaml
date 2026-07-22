@@ -48,27 +48,3 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.package
         tasks_from: install
-    - name: Install fio
-      vars:
-        package_name: fio
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.package
-        tasks_from: install
-    - name: Import Fedora EPEL GPG key (RHEL)
-      become: true
-      ansible.builtin.rpm_key:
-        key: "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
-        state: present
-      when: ansible_os_family == "RedHat"
-    - name: Enable EPEL repository for ioping (RHEL)
-      become: true
-      ansible.builtin.dnf:
-        name: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
-        state: present
-      when: ansible_os_family == "RedHat"
-    - name: Install ioping
-      vars:
-        package_name: ioping
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.package
-        tasks_from: install

@@ -4,6 +4,43 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Install fio
+  vars:
+    package_name: fio
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.package
+    tasks_from: install
+
+- name: Check if ioping is installed
+  ansible.builtin.shell:
+    cmd: "command -v ioping > /dev/null 2>&1"
+  register: utils_ioping_check
+  changed_when: false
+  failed_when: false
+
+- name: Install ioping if missing
+  when: utils_ioping_check.rc != 0
+  block:
+    - name: Enable EPEL repository for ioping (RHEL)
+      when: ansible_os_family == "RedHat"
+      block:
+        - name: Import Fedora EPEL GPG key
+          become: true
+          ansible.builtin.rpm_key:
+            key: "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
+            state: present
+        - name: Enable EPEL repository
+          become: true
+          ansible.builtin.dnf:
+            name: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
+            state: present
+    - name: Install ioping
+      vars:
+        package_name: ioping
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.package
+        tasks_from: install
+
 - name: Ensure benchmark directory exists
   ansible.builtin.file:
     path: "{{ utils_benchmark_remote_dir }}"
@@ -31,6 +68,8 @@
 
 - name: Print benchmark output
   ansible.builtin.debug:
+    # Strip ANSI color escape codes (e.g. \x1b[32m) that the script emits for terminal output,
+    # since Ansible's debug module prints the raw escape sequences instead of rendering them.
     msg: "{{ utils_benchmark_result.stdout_lines | map('regex_replace', '\\x1b\\[[0-9;]*m', '') | list }}"
 
 - name: Warn if sequential write does not meet high-performance threshold
@@ -46,7 +85,8 @@
   ansible.builtin.debug:
     msg: >-
       ✅ SSD benchmark PASSED on {{ inventory_hostname }}: sequential write speed
-      meets the minimum {{ utils_benchmark_test_size }}threshold for high-performance operations.Review the full results at:
+      meets the minimum {{ utils_benchmark_test_size }} threshold for high-performance operations.
+      Review the full results at:
       {{ utils_benchmark_remote_dir }}/ssd_benchmark_results.txt
   when: utils_benchmark_result.rc == 0
 
