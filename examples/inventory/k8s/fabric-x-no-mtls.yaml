@@ -324,7 +324,6 @@ all:
                   block_explorer_port: 18080
                   block_explorer_ui_port: 18000
                   sidecar_host: committer-sidecar
-                  block_explorer_k8s_node_port: 30680
                   block_explorer_ui_k8s_node_port: 30690
                   postgres_db_host: block-explorer-db
 

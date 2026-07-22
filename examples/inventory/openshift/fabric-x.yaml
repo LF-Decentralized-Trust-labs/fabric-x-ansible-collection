@@ -334,7 +334,6 @@ all:
                   block_explorer_port: 18080
                   block_explorer_ui_port: 18000
                   sidecar_host: committer-sidecar
-                  block_explorer_openshift_route: "block-explorer.{{ openshift_apps_domain }}"
                   block_explorer_ui_openshift_route: "block-explorer-ui.{{ openshift_apps_domain }}"
                   postgres_db_host: block-explorer-db
 
