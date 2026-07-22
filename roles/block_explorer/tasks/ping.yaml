@@ -7,10 +7,11 @@
 # =======================
 # container
 # =======================
-- name: Check that the Block Explorer REST port is open
+- name: Check that the Block Explorer REST and UI ports are open
   vars:
     utils_ports_to_ping:
       - "{{ block_explorer_port }}"
+      - "{{ block_explorer_ui_port }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.utils
     tasks_from: ping

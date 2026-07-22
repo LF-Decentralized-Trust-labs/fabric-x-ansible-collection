@@ -98,7 +98,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /api/health
-              port: {{ grafana_web_port }}
+              port: web
 {% if grafana_use_tls %}
               scheme: HTTPS
 {% endif %}
@@ -109,7 +109,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /api/health
-              port: {{ grafana_web_port }}
+              port: web
 {% if grafana_use_tls %}
               scheme: HTTPS
 {% endif %}

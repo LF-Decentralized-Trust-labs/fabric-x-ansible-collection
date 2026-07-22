@@ -8,18 +8,9 @@
   hosts: "{{ target_hosts | default('fabric_x_block_explorer') }}:&fabric_x_block_explorer"
   tasks:
     # =========================
-    # Block Explorer UI
+    # Block Explorer server and UI
     # =========================
-    - name: Stop the Fabric-X Block Explorer UI
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.block_explorer_ui
-        tasks_from: stop
-      when:
-        - block_explorer_ui_port is defined
-    # =========================
-    # Block Explorer server
-    # =========================
-    - name: Stop the Fabric-X Block Explorer server
+    - name: Stop the Fabric-X Block Explorer server and UI
       ansible.builtin.include_role:
         name: hyperledger.fabricx.block_explorer
         tasks_from: stop

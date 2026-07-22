@@ -24,7 +24,9 @@
     kind: Service
     name: "{{ block_explorer_k8s_resource_name }}-nodeport"
     namespace: "{{ k8s_namespace | default('default') }}"
-  when: block_explorer_k8s_node_port is defined
+  when:
+    - block_explorer_k8s_node_port is defined
+      or block_explorer_ui_k8s_node_port is defined
 
 - name: Delete Block Explorer LoadBalancer Service
   kubernetes.core.k8s:
@@ -33,4 +35,6 @@
     kind: Service
     name: "{{ block_explorer_k8s_resource_name }}-loadbalancer"
     namespace: "{{ k8s_namespace | default('default') }}"
-  when: block_explorer_k8s_loadbalancer_expose_port
+  when:
+    - block_explorer_k8s_loadbalancer_expose_port
+      or block_explorer_ui_k8s_loadbalancer_expose_port

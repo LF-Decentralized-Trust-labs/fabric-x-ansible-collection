@@ -310,11 +310,9 @@ all:
                   postgres_use_tls: true
                 block-explorer:
                   block_explorer_port: 18080
+                  block_explorer_ui_port: 18000
                   sidecar_host: committer-sidecar
                   postgres_db_host: block-explorer-db
-                block-explorer-ui:
-                  block_explorer_ui_port: 18000
-                  block_explorer_host: block-explorer
 
     # =========================
     # HLFX LoadGens

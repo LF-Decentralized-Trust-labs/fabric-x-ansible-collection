@@ -136,7 +136,7 @@ argument_specs:
           - Image name used by the Block Explorer container.
       block_explorer_image_tag: &block_explorer_image_tag
         type: str
-        default: 0.1.0-dryrun.2
+        default: 0.1.0
         description:
           - Image tag used by the Block Explorer container.
       block_explorer_image: &block_explorer_image
@@ -253,10 +253,34 @@ argument_specs:
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(block-explorer.apps.example.com)."
+      block_explorer_ui_port: &block_explorer_ui_port
+        type: int
+        required: true
+        description:
+          - Web port exposed by the Block Explorer UI.
+          - "Example: C(18000)."
+      block_explorer_ui_k8s_node_port: &block_explorer_ui_k8s_node_port
+        type: int
+        description:
+          - Kubernetes NodePort value used by the external UI web Service port.
+          - Defining this variable enables the NodePort Service entry for the UI; the value is set as the static C(nodePort) in the Service spec.
+          - "Example: C(30690)."
+      block_explorer_ui_k8s_loadbalancer_expose_port:
+        &block_explorer_ui_k8s_loadbalancer_expose_port
+        type: bool
+        default: false
+        description:
+          - Set to C(true) to create a LoadBalancer Service entry that exposes the UI web port externally.
+          - When undefined or C(false), the UI web port is not included in the LoadBalancer Service.
+      block_explorer_ui_openshift_route: &block_explorer_ui_openshift_route
+        type: str
+        description:
+          - Specifies the OpenShift Route host for the UI web port.
+          - "Example: C(block-explorer-ui.apps.example.com)."
   start:
-    short_description: Start the Block Explorer server
+    short_description: Start the Block Explorer server and UI
     description:
-      - Start the Block Explorer server runtime selected by the deployment mode flags.
+      - Start the combined Block Explorer server and UI runtime selected by the deployment mode flags.
       - Container mode is the default, and Kubernetes mode applies Services and a Deployment.
       - The runtime consumes the rendered Block Explorer configuration and TLS material prepared by the config and crypto entry points.
     options:
@@ -299,20 +323,21 @@ argument_specs:
       block_explorer_use_openshift: *block_explorer_use_openshift
 
   ping:
-    short_description: Check the REST endpoint
+    short_description: Check the REST and UI endpoints
     description:
-      - Verify that the Block Explorer REST endpoint is reachable.
+      - Verify that the Block Explorer REST endpoint and UI are reachable.
       - Uses direct host access for container deployments and delegates to the Kubernetes ping task when C(block_explorer_use_k8s) is enabled.
     options:
       block_explorer_port: *block_explorer_port
+      block_explorer_ui_port: *block_explorer_ui_port
       block_explorer_use_k8s: *block_explorer_use_k8s
       block_explorer_use_openshift: *block_explorer_use_openshift
 
   container/start:
     short_description: Start the container runtime
     description:
-      - Start the Block Explorer server as a local container with the rendered config directory mounted read-only.
-      - Exposes the REST port and waits for it to become reachable.
+      - Start the combined Block Explorer server and UI as a local container with the rendered config directory mounted read-only.
+      - Exposes the REST and UI ports and waits for the UI port to become reachable.
     options:
       block_explorer_container_name: *block_explorer_container_name
       block_explorer_image: *block_explorer_image
@@ -324,6 +349,7 @@ argument_specs:
       block_explorer_container_config_dir: *block_explorer_container_config_dir
       block_explorer_config_file: *block_explorer_config_file
       block_explorer_port: *block_explorer_port
+      block_explorer_ui_port: *block_explorer_ui_port
 
   container/stop:
     short_description: Stop the container runtime
@@ -465,7 +491,7 @@ argument_specs:
   k8s/start:
     short_description: Start the Kubernetes deployment
     description:
-      - Create or update Kubernetes resources for the Block Explorer server.
+      - Create or update Kubernetes resources for the combined Block Explorer server and UI.
       - Ensures the namespace exists, applies the Service, optional NodePort and LoadBalancer Services, and Deployment, and mounts generated ConfigMap and optional Secret artifacts into the pod.
     options:
       block_explorer_image: *block_explorer_image
@@ -483,6 +509,9 @@ argument_specs:
       block_explorer_port: *block_explorer_port
       block_explorer_k8s_node_port: *block_explorer_k8s_node_port
       block_explorer_k8s_loadbalancer_expose_port: *block_explorer_k8s_loadbalancer_expose_port
+      block_explorer_ui_port: *block_explorer_ui_port
+      block_explorer_ui_k8s_node_port: *block_explorer_ui_k8s_node_port
+      block_explorer_ui_k8s_loadbalancer_expose_port: *block_explorer_ui_k8s_loadbalancer_expose_port
       block_explorer_tls_private_key_file: *block_explorer_tls_private_key_file
       block_explorer_tls_cert_file: *block_explorer_tls_cert_file
       sidecar_host: *sidecar_host
@@ -498,24 +527,29 @@ argument_specs:
       k8s_liveness_probe_failure_threshold: *k8s_liveness_probe_failure_threshold
 
   k8s/ping:
-    short_description: Check that the Block Explorer Kubernetes service is reachable
+    short_description: Check that the Block Explorer Kubernetes services are reachable
     description:
-      - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
+      - Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability, for both the REST and UI web ports.
     options:
       block_explorer_port: *block_explorer_port
       block_explorer_k8s_node_port: *block_explorer_k8s_node_port
       block_explorer_k8s_loadbalancer_expose_port: *block_explorer_k8s_loadbalancer_expose_port
+      block_explorer_ui_port: *block_explorer_ui_port
+      block_explorer_ui_k8s_node_port: *block_explorer_ui_k8s_node_port
+      block_explorer_ui_k8s_loadbalancer_expose_port: *block_explorer_ui_k8s_loadbalancer_expose_port
 
   k8s/rm:
     short_description: Remove Kubernetes resources
     description:
-      - Remove the Kubernetes Deployment and Services created for the Block Explorer server.
+      - Remove the Kubernetes Deployment and Services created for the combined Block Explorer server and UI.
       - Does not remove the ConfigMap or Secret; use the Kubernetes config and crypto remove entry points for those generated artifacts.
     options:
       k8s_namespace: *k8s_namespace
       block_explorer_k8s_resource_name: *block_explorer_k8s_resource_name
       block_explorer_k8s_node_port: *block_explorer_k8s_node_port
       block_explorer_k8s_loadbalancer_expose_port: *block_explorer_k8s_loadbalancer_expose_port
+      block_explorer_ui_k8s_node_port: *block_explorer_ui_k8s_node_port
+      block_explorer_ui_k8s_loadbalancer_expose_port: *block_explorer_ui_k8s_loadbalancer_expose_port
 
   k8s/fetch_logs:
     short_description: Fetch pod logs
@@ -571,23 +605,26 @@ argument_specs:
   openshift/start:
     short_description: Start the OpenShift deployment
     description:
-      - Reuses the Kubernetes workload flow and manages an OpenShift Route for the REST port.
+      - Reuses the Kubernetes workload flow and manages OpenShift Routes for the REST and UI web ports.
     options:
       block_explorer_k8s_resource_name: *block_explorer_k8s_resource_name
       block_explorer_k8s_part_of: *block_explorer_k8s_part_of
       block_explorer_openshift_route: *block_explorer_openshift_route
+      block_explorer_ui_openshift_route: *block_explorer_ui_openshift_route
 
   openshift/ping:
     short_description: Check the OpenShift deployment
     description:
-      - Checks the configured OpenShift Route and reuses the Kubernetes service ping flow.
+      - Checks the configured OpenShift Routes and reuses the Kubernetes service ping flow.
     options:
       block_explorer_openshift_route: *block_explorer_openshift_route
+      block_explorer_ui_openshift_route: *block_explorer_ui_openshift_route
 
   openshift/rm:
     short_description: Remove the OpenShift deployment
     description:
-      - Reuses the Kubernetes workload flow and removes the OpenShift Route for the REST port.
+      - Reuses the Kubernetes workload flow and removes the OpenShift Routes for the REST and UI web ports.
     options:
       block_explorer_k8s_resource_name: *block_explorer_k8s_resource_name
       block_explorer_openshift_route: *block_explorer_openshift_route
+      block_explorer_ui_openshift_route: *block_explorer_ui_openshift_route

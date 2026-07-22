@@ -1,6 +1,6 @@
 # hyperledger.fabricx.block_explorer
 
-> Deploys and manages the Fabric-X Block Explorer server across container and Kubernetes modes, including committer sidecar streaming, PostgreSQL connectivity, TLS/mTLS, and log collection workflows.
+> Deploys and manages the Fabric-X Block Explorer server and UI across container and Kubernetes modes, including committer sidecar streaming, PostgreSQL connectivity, TLS/mTLS, and log collection workflows.
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -53,12 +53,12 @@ ansible-doc -t role hyperledger.fabricx.block_explorer
 
 ### start
 
-> Start the Block Explorer server
+> Start the Block Explorer server and UI
 
-Start the Block Explorer server runtime selected by the deployment mode flags. Container mode is the default, and Kubernetes mode applies Services and a Deployment. The runtime consumes the rendered Block Explorer configuration and TLS material prepared by the config and crypto entry points.
+Start the combined Block Explorer server and UI runtime selected by the deployment mode flags. Container mode is the default, and Kubernetes mode applies Services and a Deployment. The runtime consumes the rendered Block Explorer configuration and TLS material prepared by the config and crypto entry points.
 
 ```yaml
-- name: Start the Block Explorer server
+- name: Start the Block Explorer server and UI
   vars:
     # Run the container runtime.
     block_explorer_use_container: "{{ (not block_explorer_use_k8s) and (not block_explorer_use_openshift) }}"
@@ -146,15 +146,17 @@ Collect Block Explorer server logs for the selected deployment mode.
 
 ### ping
 
-> Check the REST endpoint
+> Check the REST and UI endpoints
 
-Verify that the Block Explorer REST endpoint is reachable. Uses direct host access for container deployments and delegates to the Kubernetes ping task when `block_explorer_use_k8s` is enabled.
+Verify that the Block Explorer REST endpoint and UI are reachable. Uses direct host access for container deployments and delegates to the Kubernetes ping task when `block_explorer_use_k8s` is enabled.
 
 ```yaml
-- name: Check the REST endpoint
+- name: Check the REST and UI endpoints
   vars:
     # REST API port exposed by the Block Explorer server.
     block_explorer_port: 18080
+    # Web port exposed by the Block Explorer UI.
+    block_explorer_ui_port: 18000
     # Use Kubernetes resources.
     block_explorer_use_k8s: false
     # Selects the OpenShift deployment branch.
@@ -168,7 +170,7 @@ Verify that the Block Explorer REST endpoint is reachable. Uses direct host acce
 
 > Start the container runtime
 
-Start the Block Explorer server as a local container with the rendered config directory mounted read-only. Exposes the REST port and waits for it to become reachable.
+Start the combined Block Explorer server and UI as a local container with the rendered config directory mounted read-only. Exposes the REST and UI ports and waits for the UI port to become reachable.
 
 ```yaml
 - name: Start the container runtime
@@ -182,7 +184,7 @@ Start the Block Explorer server as a local container with the rendered config di
     # Image name used by the Block Explorer container.
     block_explorer_image_name: fabric-x-block-explorer
     # Image tag used by the Block Explorer container.
-    block_explorer_image_tag: 0.1.0-dryrun.2
+    block_explorer_image_tag: 0.1.0
     # Base remote config directory that feeds `block_explorer_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/block-explorer/config"
     # Remote config directory used by Block Explorer.
@@ -193,6 +195,8 @@ Start the Block Explorer server as a local container with the rendered config di
     block_explorer_config_file: config.yaml
     # REST API port exposed by the Block Explorer server.
     block_explorer_port: 18080
+    # Web port exposed by the Block Explorer UI.
+    block_explorer_ui_port: 18000
   ansible.builtin.include_role:
     name: hyperledger.fabricx.block_explorer
     tasks_from: container/start
@@ -494,7 +498,7 @@ Remove Block Explorer TLS artifacts from the host config directory. Also removes
 
 > Start the Kubernetes deployment
 
-Create or update Kubernetes resources for the Block Explorer server. Ensures the namespace exists, applies the Service, optional NodePort and LoadBalancer Services, and Deployment, and mounts generated ConfigMap and optional Secret artifacts into the pod.
+Create or update Kubernetes resources for the combined Block Explorer server and UI. Ensures the namespace exists, applies the Service, optional NodePort and LoadBalancer Services, and Deployment, and mounts generated ConfigMap and optional Secret artifacts into the pod.
 
 ```yaml
 - name: Start the Kubernetes deployment
@@ -506,7 +510,7 @@ Create or update Kubernetes resources for the Block Explorer server. Ensures the
     # Image name used by the Block Explorer container.
     block_explorer_image_name: fabric-x-block-explorer
     # Image tag used by the Block Explorer container.
-    block_explorer_image_tag: 0.1.0-dryrun.2
+    block_explorer_image_tag: 0.1.0
     # Config mount path inside a container or pod.
     block_explorer_container_config_dir: /app/config
     # Rendered Block Explorer config filename.
@@ -529,6 +533,12 @@ Create or update Kubernetes resources for the Block Explorer server. Ensures the
     block_explorer_k8s_node_port: 30680
     # Set to `true` to create a LoadBalancer Service entry that exposes the REST port externally. When undefined or `false`, the REST port is not included in the LoadBalancer Service.
     block_explorer_k8s_loadbalancer_expose_port: false
+    # Web port exposed by the Block Explorer UI.
+    block_explorer_ui_port: 18000
+    # Kubernetes NodePort value used by the external UI web Service port. Defining this variable enables the NodePort Service entry for the UI; the value is set as the static `nodePort` in the Service spec.
+    block_explorer_ui_k8s_node_port: 30690
+    # Set to `true` to create a LoadBalancer Service entry that exposes the UI web port externally. When undefined or `false`, the UI web port is not included in the LoadBalancer Service.
+    block_explorer_ui_k8s_loadbalancer_expose_port: false
     # Filename of the self-signed client TLS private key used for mTLS to the committer sidecar.
     block_explorer_tls_private_key_file: client.key
     # Filename of the self-signed client TLS certificate used for mTLS to the committer sidecar.
@@ -568,12 +578,12 @@ Create or update Kubernetes resources for the Block Explorer server. Ensures the
 
 ### k8s/ping
 
-> Check that the Block Explorer Kubernetes service is reachable
+> Check that the Block Explorer Kubernetes services are reachable
 
-Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability.
+Probes configured Kubernetes NodePort values and LoadBalancer-exposed service ports for external reachability, for both the REST and UI web ports.
 
 ```yaml
-- name: Check that the Block Explorer Kubernetes service is reachable
+- name: Check that the Block Explorer Kubernetes services are reachable
   vars:
     # REST API port exposed by the Block Explorer server.
     block_explorer_port: 18080
@@ -581,6 +591,12 @@ Probes configured Kubernetes NodePort values and LoadBalancer-exposed service po
     block_explorer_k8s_node_port: 30680
     # Set to `true` to create a LoadBalancer Service entry that exposes the REST port externally. When undefined or `false`, the REST port is not included in the LoadBalancer Service.
     block_explorer_k8s_loadbalancer_expose_port: false
+    # Web port exposed by the Block Explorer UI.
+    block_explorer_ui_port: 18000
+    # Kubernetes NodePort value used by the external UI web Service port. Defining this variable enables the NodePort Service entry for the UI; the value is set as the static `nodePort` in the Service spec.
+    block_explorer_ui_k8s_node_port: 30690
+    # Set to `true` to create a LoadBalancer Service entry that exposes the UI web port externally. When undefined or `false`, the UI web port is not included in the LoadBalancer Service.
+    block_explorer_ui_k8s_loadbalancer_expose_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.block_explorer
     tasks_from: k8s/ping
@@ -590,7 +606,7 @@ Probes configured Kubernetes NodePort values and LoadBalancer-exposed service po
 
 > Remove Kubernetes resources
 
-Remove the Kubernetes Deployment and Services created for the Block Explorer server. Does not remove the ConfigMap or Secret; use the Kubernetes config and crypto remove entry points for those generated artifacts.
+Remove the Kubernetes Deployment and Services created for the combined Block Explorer server and UI. Does not remove the ConfigMap or Secret; use the Kubernetes config and crypto remove entry points for those generated artifacts.
 
 ```yaml
 - name: Remove Kubernetes resources
@@ -603,6 +619,10 @@ Remove the Kubernetes Deployment and Services created for the Block Explorer ser
     block_explorer_k8s_node_port: 30680
     # Set to `true` to create a LoadBalancer Service entry that exposes the REST port externally. When undefined or `false`, the REST port is not included in the LoadBalancer Service.
     block_explorer_k8s_loadbalancer_expose_port: false
+    # Kubernetes NodePort value used by the external UI web Service port. Defining this variable enables the NodePort Service entry for the UI; the value is set as the static `nodePort` in the Service spec.
+    block_explorer_ui_k8s_node_port: 30690
+    # Set to `true` to create a LoadBalancer Service entry that exposes the UI web port externally. When undefined or `false`, the UI web port is not included in the LoadBalancer Service.
+    block_explorer_ui_k8s_loadbalancer_expose_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.block_explorer
     tasks_from: k8s/rm
@@ -724,7 +744,7 @@ Remove the Kubernetes Secret created for the Block Explorer client TLS material.
 
 > Start the OpenShift deployment
 
-Reuses the Kubernetes workload flow and manages an OpenShift Route for the REST port.
+Reuses the Kubernetes workload flow and manages OpenShift Routes for the REST and UI web ports.
 
 ```yaml
 - name: Start the OpenShift deployment
@@ -735,6 +755,8 @@ Reuses the Kubernetes workload flow and manages an OpenShift Route for the REST 
     block_explorer_k8s_part_of: block-explorer
     # Specifies the OpenShift Route host.
     block_explorer_openshift_route: "block-explorer.apps.example.com"
+    # Specifies the OpenShift Route host for the UI web port.
+    block_explorer_ui_openshift_route: "block-explorer-ui.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.block_explorer
     tasks_from: openshift/start
@@ -744,13 +766,15 @@ Reuses the Kubernetes workload flow and manages an OpenShift Route for the REST 
 
 > Check the OpenShift deployment
 
-Checks the configured OpenShift Route and reuses the Kubernetes service ping flow.
+Checks the configured OpenShift Routes and reuses the Kubernetes service ping flow.
 
 ```yaml
 - name: Check the OpenShift deployment
   vars:
     # Specifies the OpenShift Route host.
     block_explorer_openshift_route: "block-explorer.apps.example.com"
+    # Specifies the OpenShift Route host for the UI web port.
+    block_explorer_ui_openshift_route: "block-explorer-ui.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.block_explorer
     tasks_from: openshift/ping
@@ -760,7 +784,7 @@ Checks the configured OpenShift Route and reuses the Kubernetes service ping flo
 
 > Remove the OpenShift deployment
 
-Reuses the Kubernetes workload flow and removes the OpenShift Route for the REST port.
+Reuses the Kubernetes workload flow and removes the OpenShift Routes for the REST and UI web ports.
 
 ```yaml
 - name: Remove the OpenShift deployment
@@ -769,6 +793,8 @@ Reuses the Kubernetes workload flow and removes the OpenShift Route for the REST
     block_explorer_k8s_resource_name: "{{ inventory_hostname }}"
     # Specifies the OpenShift Route host.
     block_explorer_openshift_route: "block-explorer.apps.example.com"
+    # Specifies the OpenShift Route host for the UI web port.
+    block_explorer_ui_openshift_route: "block-explorer-ui.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.block_explorer
     tasks_from: openshift/rm

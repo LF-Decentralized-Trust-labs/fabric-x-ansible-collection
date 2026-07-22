@@ -23,3 +23,9 @@ spec:
       targetPort: rest
       nodePort: {{ block_explorer_k8s_node_port }}
 {% endif %}
+{% if block_explorer_ui_k8s_node_port is defined %}
+    - name: web
+      port: {{ block_explorer_ui_port }}
+      targetPort: web
+      nodePort: {{ block_explorer_ui_k8s_node_port }}
+{% endif %}

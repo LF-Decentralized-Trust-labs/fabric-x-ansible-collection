@@ -17,20 +17,11 @@
       when:
         - postgres_port is defined
     # =========================
-    # Block Explorer server
+    # Block Explorer server and UI
     # =========================
-    - name: Ping the Fabric-X Block Explorer server
+    - name: Ping the Fabric-X Block Explorer server and UI
       ansible.builtin.include_role:
         name: hyperledger.fabricx.block_explorer
         tasks_from: ping
       when:
         - block_explorer_port is defined
-    # =========================
-    # Block Explorer UI
-    # =========================
-    - name: Ping the Fabric-X Block Explorer UI
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.block_explorer_ui
-        tasks_from: ping
-      when:
-        - block_explorer_ui_port is defined

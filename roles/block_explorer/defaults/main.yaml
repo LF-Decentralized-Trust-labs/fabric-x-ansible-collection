@@ -18,7 +18,7 @@ block_explorer_registry_endpoint: "{{ lookup('env', 'BLOCK_EXPLORER_REGISTRY_END
 # Image name used by the Block Explorer container.
 block_explorer_image_name: fabric-x-block-explorer
 # Image tag used by the Block Explorer container.
-block_explorer_image_tag: 0.1.0-dryrun.2
+block_explorer_image_tag: 0.1.0
 # Block Explorer container image.
 block_explorer_image: "{{ block_explorer_registry_endpoint }}/{{ block_explorer_image_name }}:{{ block_explorer_image_tag }}"
 # Container name used by the runtime.
@@ -58,3 +58,6 @@ block_explorer_k8s_fs_group: 10001
 # Set to C(true) to create a LoadBalancer Service entry that exposes the REST port externally.
 # When undefined or C(false), the REST port is not included in the LoadBalancer Service.
 block_explorer_k8s_loadbalancer_expose_port: false
+# Set to C(true) to create a LoadBalancer Service entry that exposes the UI web port externally.
+# When undefined or C(false), the UI web port is not included in the LoadBalancer Service.
+block_explorer_ui_k8s_loadbalancer_expose_port: false

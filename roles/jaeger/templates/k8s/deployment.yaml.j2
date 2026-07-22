@@ -88,7 +88,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /
-              port: {{ jaeger_admin_port }}
+              port: admin
             initialDelaySeconds: {{ k8s_readiness_probe_initial_delay_seconds | default(10) }}
             periodSeconds: {{ k8s_readiness_probe_period_seconds | default(10) }}
             timeoutSeconds: {{ k8s_readiness_probe_timeout_seconds | default(5) }}
@@ -96,7 +96,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /
-              port: {{ jaeger_admin_port }}
+              port: admin
             initialDelaySeconds: {{ k8s_liveness_probe_initial_delay_seconds | default(30) }}
             periodSeconds: {{ k8s_liveness_probe_period_seconds | default(15) }}
             timeoutSeconds: {{ k8s_liveness_probe_timeout_seconds | default(5) }}

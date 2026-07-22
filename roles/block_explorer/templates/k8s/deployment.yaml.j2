@@ -33,12 +33,23 @@ spec:
           resources:
 {{ k8s_resources | to_nice_yaml(indent=2) | indent(12, true) }}
 {% endif %}
-          args:
-            - start
-            - --config={{ block_explorer_container_config_dir }}/{{ block_explorer_config_file }}
+          env:
+            - name: EXPLORER_CONFIG_PATH
+              value: {{ block_explorer_container_config_dir }}/{{ block_explorer_config_file }}
+            - name: BACKEND_URL
+              value: http://localhost:{{ block_explorer_port }}
+            - name: NEXT_PUBLIC_BACKEND_DISPLAY_URL
+              value: http://localhost:{{ block_explorer_port }}
+            - name: PORT
+              value: "{{ block_explorer_ui_port }}"
+            - name: HOSTNAME
+              value: "0.0.0.0"
           ports:
             - name: rest
               containerPort: {{ block_explorer_port }}
+              protocol: TCP
+            - name: web
+              containerPort: {{ block_explorer_ui_port }}
               protocol: TCP
           volumeMounts:
             - name: config
@@ -69,8 +80,8 @@ spec:
 {% endif %}
           readinessProbe:
             httpGet:
-              path: /healthz
-              port: {{ block_explorer_port }}
+              path: /api/health
+              port: web
             initialDelaySeconds: {{ k8s_readiness_probe_initial_delay_seconds | default(10) }}
             periodSeconds: {{ k8s_readiness_probe_period_seconds | default(10) }}
             timeoutSeconds: {{ k8s_readiness_probe_timeout_seconds | default(5) }}
@@ -78,7 +89,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /healthz
-              port: {{ block_explorer_port }}
+              port: rest
             initialDelaySeconds: {{ k8s_liveness_probe_initial_delay_seconds | default(30) }}
             periodSeconds: {{ k8s_liveness_probe_period_seconds | default(15) }}
             timeoutSeconds: {{ k8s_liveness_probe_timeout_seconds | default(5) }}

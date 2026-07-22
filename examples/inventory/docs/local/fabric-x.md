@@ -62,4 +62,4 @@ flowchart TD
 
 This is the baseline local topology. Fabric CA issues identities for the orderer organizations and Org1. Fabric-X services use TLS and mTLS, while Fabric CA, PostgreSQL, load generator, and monitoring traffic use TLS where supported.
 
-The committer validator and query service use the PostgreSQL host `committer-db`. The Block Explorer server streams blocks from `committer-sidecar` (named by `sidecar_host`) and stores them on its own PostgreSQL host `block-explorer-db`; the Block Explorer UI (`block-explorer-ui`) proxies REST calls to the server.
+The committer validator and query service use the PostgreSQL host `committer-db`. The Block Explorer (server and UI combined in a single container on the `block-explorer` host) streams blocks from `committer-sidecar` (named by `sidecar_host`) and stores them on its own PostgreSQL host `block-explorer-db`.

@@ -8,19 +8,25 @@
   vars:
     container_name: "{{ block_explorer_container_name }}"
     container_image: "{{ block_explorer_image }}"
-    container_command: >-
-      start
-      --config={{ block_explorer_container_config_dir }}/{{ block_explorer_config_file }}
+    container_env:
+      EXPLORER_CONFIG_PATH: "{{ block_explorer_container_config_dir }}/{{ block_explorer_config_file }}"
+      BACKEND_URL: "http://localhost:{{ block_explorer_port }}"
+      NEXT_PUBLIC_BACKEND_DISPLAY_URL: "http://{{ ansible_host }}:{{ block_explorer_port }}"
+      PORT: "{{ block_explorer_ui_port | string }}"
+      HOSTNAME: "0.0.0.0"
     container_ports:
       - "{{ block_explorer_port }}:{{ block_explorer_port }}"
+      - "{{ block_explorer_ui_port }}:{{ block_explorer_ui_port }}"
     container_volumes:
       - "{{ block_explorer_remote_config_dir }}:{{ block_explorer_container_config_dir }}:z,ro"
     container_healthcheck_test: >-
-      curl -f --silent --show-error
+      wget --quiet --tries=1 --spider
       http://localhost:{{ block_explorer_port }}/healthz
+      && wget --quiet --tries=1 --spider
+      http://localhost:{{ block_explorer_ui_port }}/api/health
     container_wait_until_running: true
     container_run_as_host_user: true
-    container_wait_port: "{{ block_explorer_port }}"
+    container_wait_port: "{{ block_explorer_ui_port }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.container
     tasks_from: start
