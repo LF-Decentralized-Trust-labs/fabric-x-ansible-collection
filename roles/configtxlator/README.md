@@ -1,6 +1,6 @@
 # hyperledger.fabricx.configtxlator
 
-> Wraps the configtxlator CLI for one-shot proto_encode, proto_decode, and compute_update operations through binary or container entry points.
+> Wraps the configtxlator CLI for one-shot proto_encode, proto_decode, and compute_update operations through binary or container entry points, plus a composite create_config_update_envelope task for the full decode-edit-encode-diff-wrap config update workflow.
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -18,6 +18,7 @@
   - [proto\_encode](#proto_encode)
   - [proto\_decode](#proto_decode)
   - [compute\_update](#compute_update)
+  - [create\_config\_update\_envelope](#create_config_update_envelope)
 
 ## Role Defaults
 
@@ -335,4 +336,26 @@ Select the binary or container execution path for `compute_update` based on `con
   ansible.builtin.include_role:
     name: hyperledger.fabricx.configtxlator
     tasks_from: compute_update
+```
+
+### create_config_update_envelope
+
+> Wrap a ConfigUpdate into an unsigned ConfigUpdateEnvelope
+
+Wrap a computed `common.ConfigUpdate` proto (`configtxlator_config_update_file`, the output of `compute_update`) into a `common.ConfigUpdateEnvelope` with an empty `signatures` list, ready to hand off for out-of-band signing. A composite task built on top of `proto_encode` -- it honors `configtxlator_use_bin` the same way, with no separate binary or container entry point of its own.
+
+```yaml
+- name: Wrap a ConfigUpdate into an unsigned ConfigUpdateEnvelope
+  vars:
+    # Base build directory for `configtxlator_artifacts_dir`.
+    config_build_dir: "/opt/fabricx/build"
+    # Host directory mounted into the container for CLI operation input and output.
+    configtxlator_artifacts_dir: "{{ config_build_dir }}/configtxlator-artifacts"
+    # Filename of the computed `common.ConfigUpdate` proto within `configtxlator_artifacts_dir`, as produced by `compute_update`, passed to `create_config_update_envelope`.
+    configtxlator_config_update_file: "config_update.pb"
+    # Filename of the unsigned `common.ConfigUpdateEnvelope` proto written within `configtxlator_artifacts_dir` by `create_config_update_envelope`.
+    configtxlator_config_update_envelope_file: "config_update_envelope.pb"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.configtxlator
+    tasks_from: create_config_update_envelope
 ```

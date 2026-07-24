@@ -11,6 +11,46 @@
 fabric_reconfig_artifacts_dir: '{{ config_build_dir }}/fabric-reconfig-artifacts'
 # Channel identifier used for the reconfig update.
 fabric_reconfig_channel_id: '{{ channel_id }}'
-# Path to the Assembler/Router TLS CA certificate PEM file.
-# Leave unset for plaintext (no-TLS) deployments.
+# MSP ID of the reader identity.
+# Leave unset to auto-derive from C(fabric_reconfig_reader_party) and inventory (cryptogen layout). Set explicitly for fabric-ca-based or non-standard deployments.
+fabric_reconfig_reader_mspid: ""
+# Path to the reader identity's certificate PEM file.
+# Leave unset to auto-derive; see C(fabric_reconfig_reader_mspid).
+fabric_reconfig_reader_cert: ""
+# Path to the reader identity's private key PEM file.
+# Leave unset to auto-derive; see C(fabric_reconfig_reader_mspid).
+fabric_reconfig_reader_key: ""
+# Path to a TLS CA certificate (or bundle) PEM file trusted for Assembler/Router connections.
+# Leave unset to auto-derive: when C(orderer_use_tls) is true, a bundle covering every orderer org's TLS CA cert is built from inventory; when false, connections are made in plaintext.
 fabric_reconfig_tls_ca: ""
+# Override the TLS server name verified against the remote endpoint's certificate SANs.
+# Needed whenever the dial address doesn't literally match a SAN entry -- for example a port-forwarded/NATed address such as 127.0.0.1 dialing a container whose certificate only lists its LAN IPs. Leave unset to derive it from the dial address.
+fabric_reconfig_tls_server_name: ""
+# Path to the reader identity's TLS client certificate PEM file.
+# Required when the target network enforces mTLS (C(orderer_use_mtls)): the Assembler's Deliver API rejects requests that don't bind a client TLS cert hash. Leave unset to auto-derive alongside C(fabric_reconfig_reader_mspid), or for TLS deployments that don't require a client certificate.
+fabric_reconfig_reader_tls_client_cert: ""
+# Path to the reader identity's TLS client private key PEM file.
+fabric_reconfig_reader_tls_client_key: ""
+# MSP ID of the signing party's admin identity.
+# Leave unset to auto-derive from C(fabric_reconfig_signing_party) and inventory (cryptogen layout). Set explicitly for fabric-ca-based or non-standard deployments.
+fabric_reconfig_signer_mspid: ""
+# Path to the signing party's admin certificate PEM file.
+# Leave unset to auto-derive; see C(fabric_reconfig_signer_mspid).
+fabric_reconfig_signer_cert: ""
+# Path to the signing party's admin private key PEM file.
+# Leave unset to auto-derive; see C(fabric_reconfig_signer_mspid).
+fabric_reconfig_signer_key: ""
+# MSP ID of the submitting party's admin identity (signs the outer Envelope).
+# Leave unset to auto-derive from C(fabric_reconfig_submitter_party) and inventory (cryptogen layout). Set explicitly for fabric-ca-based or non-standard deployments.
+fabric_reconfig_submitter_mspid: ""
+# Path to the submitting party's admin certificate PEM file.
+# Leave unset to auto-derive; see C(fabric_reconfig_submitter_mspid).
+fabric_reconfig_submitter_cert: ""
+# Path to the submitting party's admin private key PEM file.
+# Leave unset to auto-derive; see C(fabric_reconfig_submitter_mspid).
+fabric_reconfig_submitter_key: ""
+# Path to the submitting party's TLS client certificate PEM file.
+# Required when the target network enforces mTLS (C(orderer_use_mtls)). Leave unset to auto-derive alongside C(fabric_reconfig_submitter_mspid), or for TLS deployments that don't require a client certificate.
+fabric_reconfig_submitter_tls_client_cert: ""
+# Path to the submitting party's TLS client private key PEM file.
+fabric_reconfig_submitter_tls_client_key: ""

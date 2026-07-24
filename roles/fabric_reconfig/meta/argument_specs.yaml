@@ -12,7 +12,9 @@ argument_specs:
       - Common inputs reused by every entry point in this role.
       - "This role performs a live channel-config update against a running Fabric-X network (v1 scope: changing one party's Assembler endpoint), built on top of C(hyperledger.fabricx.configtxlator)."
       - "The pipeline is split across three playbooks to support out-of-band, per-party signing: C(prepare) (fetch + compute an unsigned update), C(sign) (run independently by each required party), and C(submit) (collect signatures, submit, verify, restart)."
-      - "The ordering team does not yet have a fetch/sign/submit CLI (confirmed directly with them). C(fetch_current_config), C(sign), and C(submit) resolve everything they can from inventory and then deliberately fail with a message describing the exact operation still needed, rather than reimplementing that logic ourselves."
+      - "C(fetch_current_config), C(sign), and C(submit) drive C(hyperledger.fabricx.fx_reconfig_client), a small Go client this collection builds and vendors because the ordering team does not yet have fetch/sign/submit tooling of its own (confirmed directly with them). Expect this to be replaced by their own CLI once it exists; see C(hyperledger.fabricx.fx_reconfig_client) for the protocol details (Deliver/Broadcast against C(orderer.AtomicBroadcast))."
+      - "Submission broadcasts the signed Envelope to every Router in the network (confirmed with the ordering team: C(BroadcastTxClient.SendTx)), not a single Router."
+      - "Identity (MSP ID, admin cert/key, TLS client cert/key) and the TLS CA are only required inputs on non-cryptogen deployments. On the standard cryptogen layout, passing just a PartyID (C(fabric_reconfig_reader_party) / C(fabric_reconfig_signing_party) / C(fabric_reconfig_submitter_party)) is enough -- the role resolves the rest from inventory."
     options:
       config_build_dir: &config_build_dir
         type: path
@@ -32,33 +34,67 @@ argument_specs:
         default: "{{ channel_id }}"
         description:
           - Channel identifier used for the reconfig update.
+      cryptogen_artifacts_dir: &cryptogen_artifacts_dir
+        type: path
+        description:
+          - Control-node directory holding cryptogen-generated crypto material, used to auto-derive admin identities and TLS CA certs by PartyID.
+      fabric_reconfig_identity_party: &fabric_reconfig_identity_party
+        type: int
+        required: true
+        description:
+          - PartyID to resolve an admin identity for, from inventory and the standard cryptogen crypto material layout.
       fabric_reconfig_target_party: &fabric_reconfig_target_party
         type: int
         required: true
         description:
           - PartyID whose Assembler endpoint is being changed.
           - Only one party may be reconfigured per run.
+      fabric_reconfig_reader_party: &fabric_reconfig_reader_party
+        type: int
+        description:
+          - PartyID whose admin identity is used to authenticate fetch/verify requests (must satisfy the channel's Readers policy; any party admin qualifies).
+          - Defaults to C(fabric_reconfig_target_party). Ignored once C(fabric_reconfig_reader_cert) is set explicitly.
       fabric_reconfig_reader_mspid: &fabric_reconfig_reader_mspid
         type: str
-        required: true
+        default: ""
         description:
-          - MSP ID of the identity used to fetch the current config (must satisfy the channel's Readers policy; any party admin qualifies).
+          - MSP ID of the reader identity.
+          - "Leave unset to auto-derive from C(fabric_reconfig_reader_party) and inventory (cryptogen layout). Set explicitly for fabric-ca-based or non-standard deployments."
       fabric_reconfig_reader_cert: &fabric_reconfig_reader_cert
         type: path
-        required: true
+        default: ""
         description:
           - Path to the reader identity's certificate PEM file.
+          - Leave unset to auto-derive; see C(fabric_reconfig_reader_mspid).
       fabric_reconfig_reader_key: &fabric_reconfig_reader_key
         type: path
-        required: true
+        default: ""
         description:
           - Path to the reader identity's private key PEM file.
+          - Leave unset to auto-derive; see C(fabric_reconfig_reader_mspid).
       fabric_reconfig_tls_ca: &fabric_reconfig_tls_ca
         type: path
         default: ""
         description:
-          - Path to the Assembler/Router TLS CA certificate PEM file.
-          - Leave unset for plaintext (no-TLS) deployments.
+          - Path to a TLS CA certificate (or bundle) PEM file trusted for Assembler/Router connections.
+          - "Leave unset to auto-derive: when C(orderer_use_tls) is true, a bundle covering every orderer org's TLS CA cert is built from inventory; when false, connections are made in plaintext."
+      fabric_reconfig_tls_server_name: &fabric_reconfig_tls_server_name
+        type: str
+        default: ""
+        description:
+          - Override the TLS server name verified against the remote endpoint's certificate SANs.
+          - "Needed whenever the dial address doesn't literally match a SAN entry -- for example a port-forwarded/NATed address such as 127.0.0.1 dialing a container whose certificate only lists its LAN IPs. Leave unset to derive it from the dial address."
+      fabric_reconfig_reader_tls_client_cert: &fabric_reconfig_reader_tls_client_cert
+        type: path
+        default: ""
+        description:
+          - Path to the reader identity's TLS client certificate PEM file.
+          - "Required when the target network enforces mTLS (C(orderer_use_mtls)): the Assembler's Deliver API rejects requests that don't bind a client TLS cert hash. Leave unset to auto-derive alongside C(fabric_reconfig_reader_mspid), or for TLS deployments that don't require a client certificate."
+      fabric_reconfig_reader_tls_client_key: &fabric_reconfig_reader_tls_client_key
+        type: path
+        default: ""
+        description:
+          - Path to the reader identity's TLS client private key PEM file.
       fabric_reconfig_fetch_party: &fabric_reconfig_fetch_party
         type: int
         description:
@@ -71,19 +107,22 @@ argument_specs:
           - PartyID of the admin identity running the C(sign) entry point in this invocation.
       fabric_reconfig_signer_mspid: &fabric_reconfig_signer_mspid
         type: str
-        required: true
+        default: ""
         description:
           - MSP ID of the signing party's admin identity.
+          - "Leave unset to auto-derive from C(fabric_reconfig_signing_party) and inventory (cryptogen layout). Set explicitly for fabric-ca-based or non-standard deployments."
       fabric_reconfig_signer_cert: &fabric_reconfig_signer_cert
         type: path
-        required: true
+        default: ""
         description:
           - Path to the signing party's admin certificate PEM file.
+          - Leave unset to auto-derive; see C(fabric_reconfig_signer_mspid).
       fabric_reconfig_signer_key: &fabric_reconfig_signer_key
         type: path
-        required: true
+        default: ""
         description:
           - Path to the signing party's admin private key PEM file.
+          - Leave unset to auto-derive; see C(fabric_reconfig_signer_mspid).
       fabric_reconfig_required_signers: &fabric_reconfig_required_signers
         type: list
         elements: int
@@ -91,26 +130,40 @@ argument_specs:
         description:
           - PartyIDs whose C(sign) output must be collected before C(submit) will proceed.
           - Must satisfy the channel's block validation policy majority requirement.
-      fabric_reconfig_submitting_party: &fabric_reconfig_submitting_party
+      fabric_reconfig_submitter_party: &fabric_reconfig_submitter_party
         type: int
-        required: true
         description:
-          - PartyID whose Router the final signed Envelope is submitted to.
+          - PartyID whose admin identity signs and submits the outer Envelope.
+          - Defaults to C(fabric_reconfig_target_party). Ignored once C(fabric_reconfig_submitter_cert) is set explicitly.
       fabric_reconfig_submitter_mspid: &fabric_reconfig_submitter_mspid
         type: str
-        required: true
+        default: ""
         description:
           - MSP ID of the submitting party's admin identity (signs the outer Envelope).
+          - "Leave unset to auto-derive from C(fabric_reconfig_submitter_party) and inventory (cryptogen layout). Set explicitly for fabric-ca-based or non-standard deployments."
       fabric_reconfig_submitter_cert: &fabric_reconfig_submitter_cert
         type: path
-        required: true
+        default: ""
         description:
           - Path to the submitting party's admin certificate PEM file.
+          - Leave unset to auto-derive; see C(fabric_reconfig_submitter_mspid).
       fabric_reconfig_submitter_key: &fabric_reconfig_submitter_key
         type: path
-        required: true
+        default: ""
         description:
           - Path to the submitting party's admin private key PEM file.
+          - Leave unset to auto-derive; see C(fabric_reconfig_submitter_mspid).
+      fabric_reconfig_submitter_tls_client_cert: &fabric_reconfig_submitter_tls_client_cert
+        type: path
+        default: ""
+        description:
+          - Path to the submitting party's TLS client certificate PEM file.
+          - "Required when the target network enforces mTLS (C(orderer_use_mtls)). Leave unset to auto-derive alongside C(fabric_reconfig_submitter_mspid), or for TLS deployments that don't require a client certificate."
+      fabric_reconfig_submitter_tls_client_key: &fabric_reconfig_submitter_tls_client_key
+        type: path
+        default: ""
+        description:
+          - Path to the submitting party's TLS client private key PEM file.
       orderer_component_type: &orderer_component_type
         type: str
         description:
@@ -128,10 +181,28 @@ argument_specs:
     options:
       fabric_reconfig_target_party: *fabric_reconfig_target_party
 
+  resolve_identity:
+    short_description: Resolve an admin identity from a PartyID (internal helper)
+    description:
+      - "Included via C(include_tasks) by C(fetch_current_config), C(sign), C(submit), and C(verify) to derive an admin identity's MSP ID, cert, key, and TLS client cert/key from a PartyID and the standard cryptogen crypto material layout. Not intended to be run as its own entry point."
+    options:
+      cryptogen_artifacts_dir: *cryptogen_artifacts_dir
+      fabric_reconfig_identity_party: *fabric_reconfig_identity_party
+
+  resolve_tls_ca:
+    short_description: Auto-derive a TLS CA bundle from inventory (internal helper)
+    description:
+      - "Included via C(include_tasks) by C(fetch_current_config), C(submit), and C(verify). When C(fabric_reconfig_tls_ca) is unset and the network uses TLS, builds one PEM bundle covering every orderer org's TLS CA cert. Not intended to be run as its own entry point."
+    options:
+      config_build_dir: *config_build_dir
+      fabric_reconfig_artifacts_dir: *fabric_reconfig_artifacts_dir
+      cryptogen_artifacts_dir: *cryptogen_artifacts_dir
+      fabric_reconfig_tls_ca: *fabric_reconfig_tls_ca
+
   fetch_current_config:
     short_description: Fetch and extract the current channel config
     description:
-      - "Resolves C(fabric_reconfig_fetch_party)'s Assembler endpoint from inventory, then BLOCKED: fails with the exact fetch operation the ordering team's not-yet-built CLI needs to perform (see role description)."
+      - "Resolves C(fabric_reconfig_fetch_party)'s Assembler endpoint from inventory, fetches the current config block via C(hyperledger.fabricx.fx_reconfig_client) (Deliver API), decodes it with C(configtxlator), and extracts C(.data.data[0].payload.data.config) into C(current_config.json)."
     options:
       config_build_dir: *config_build_dir
       fabric_reconfig_artifacts_dir: *fabric_reconfig_artifacts_dir
@@ -139,10 +210,14 @@ argument_specs:
       fabric_reconfig_channel_id: *fabric_reconfig_channel_id
       fabric_reconfig_fetch_party: *fabric_reconfig_fetch_party
       fabric_reconfig_target_party: *fabric_reconfig_target_party
+      fabric_reconfig_reader_party: *fabric_reconfig_reader_party
       fabric_reconfig_reader_mspid: *fabric_reconfig_reader_mspid
       fabric_reconfig_reader_cert: *fabric_reconfig_reader_cert
       fabric_reconfig_reader_key: *fabric_reconfig_reader_key
       fabric_reconfig_tls_ca: *fabric_reconfig_tls_ca
+      fabric_reconfig_tls_server_name: *fabric_reconfig_tls_server_name
+      fabric_reconfig_reader_tls_client_cert: *fabric_reconfig_reader_tls_client_cert
+      fabric_reconfig_reader_tls_client_key: *fabric_reconfig_reader_tls_client_key
 
   render_desired_config:
     short_description: Render the desired config from current_config.json
@@ -184,7 +259,7 @@ argument_specs:
   sign:
     short_description: Produce one ConfigSignature for the pending update
     description:
-      - "Decodes the unsigned envelope produced by C(build_unsigned_envelope) and isolates the ConfigUpdate bytes to sign, then BLOCKED: fails with the exact signing operation the ordering team's not-yet-built CLI needs to perform (see role description)."
+      - Decodes the unsigned envelope produced by C(build_unsigned_envelope), isolates the ConfigUpdate bytes, and signs them via C(hyperledger.fabricx.fx_reconfig_client) (a signature over C(signature_header || config_update), matching Fabric's ConfigSignature construction).
     options:
       config_build_dir: *config_build_dir
       fabric_reconfig_artifacts_dir: *fabric_reconfig_artifacts_dir
@@ -205,23 +280,27 @@ argument_specs:
   submit:
     short_description: Wrap, sign, and submit the final Envelope
     description:
-      - "Resolves C(fabric_reconfig_submitting_party)'s Router endpoint from inventory, then BLOCKED: fails with the exact wrap/sign/submit operation the ordering team's not-yet-built CLI needs to perform (see role description)."
-      - "Submission is intended to target only the submitting party's Router, matching Fabric-X's own C(BroadcastClient.SendTxTo) usage for config transactions in their test harness -- not a fan-out to every Router -- but this is inferred, not confirmed with the ordering team."
+      - Wraps and signs the outer Envelope via C(hyperledger.fabricx.fx_reconfig_client), then resolves every Router in C(fabric_x_orderers) from inventory and broadcasts the signed Envelope to all of them.
+      - "Confirmed with the ordering team: submission targets ALL Routers (C(BroadcastTxClient.SendTx)), not a single Router. Quorum defaults to C(BroadcastTxClient.SendTx)'s own fault-tolerance formula; see C(hyperledger.fabricx.fx_reconfig_client)."
     options:
       config_build_dir: *config_build_dir
       fabric_reconfig_artifacts_dir: *fabric_reconfig_artifacts_dir
       channel_id: *channel_id
       fabric_reconfig_channel_id: *fabric_reconfig_channel_id
-      fabric_reconfig_submitting_party: *fabric_reconfig_submitting_party
+      fabric_reconfig_target_party: *fabric_reconfig_target_party
+      fabric_reconfig_submitter_party: *fabric_reconfig_submitter_party
       fabric_reconfig_submitter_mspid: *fabric_reconfig_submitter_mspid
       fabric_reconfig_submitter_cert: *fabric_reconfig_submitter_cert
       fabric_reconfig_submitter_key: *fabric_reconfig_submitter_key
       fabric_reconfig_tls_ca: *fabric_reconfig_tls_ca
+      fabric_reconfig_tls_server_name: *fabric_reconfig_tls_server_name
+      fabric_reconfig_submitter_tls_client_cert: *fabric_reconfig_submitter_tls_client_cert
+      fabric_reconfig_submitter_tls_client_key: *fabric_reconfig_submitter_tls_client_key
 
   verify:
     short_description: Confirm the update landed on-chain
     description:
-      - "Resolves C(fabric_reconfig_fetch_party)'s Assembler endpoint from inventory, then BLOCKED: fails with the same fetch operation as C(fetch_current_config) (see role description). Once fetch works, this compares the result against C(desired_config.json)."
+      - Resolves C(fabric_reconfig_fetch_party)'s Assembler endpoint from inventory, re-fetches the config the same way C(fetch_current_config) does, and compares the result against C(desired_config.json).
       - A mismatch there usually means the submission was rejected (for example a stale config version at the consensus layer); re-run from C(fetch_current_config) rather than treating it as a generic error.
     options:
       config_build_dir: *config_build_dir
@@ -230,10 +309,14 @@ argument_specs:
       fabric_reconfig_channel_id: *fabric_reconfig_channel_id
       fabric_reconfig_fetch_party: *fabric_reconfig_fetch_party
       fabric_reconfig_target_party: *fabric_reconfig_target_party
+      fabric_reconfig_reader_party: *fabric_reconfig_reader_party
       fabric_reconfig_reader_mspid: *fabric_reconfig_reader_mspid
       fabric_reconfig_reader_cert: *fabric_reconfig_reader_cert
       fabric_reconfig_reader_key: *fabric_reconfig_reader_key
       fabric_reconfig_tls_ca: *fabric_reconfig_tls_ca
+      fabric_reconfig_tls_server_name: *fabric_reconfig_tls_server_name
+      fabric_reconfig_reader_tls_client_cert: *fabric_reconfig_reader_tls_client_cert
+      fabric_reconfig_reader_tls_client_key: *fabric_reconfig_reader_tls_client_key
 
   handle_restart:
     short_description: Restart the reconfigured Assembler

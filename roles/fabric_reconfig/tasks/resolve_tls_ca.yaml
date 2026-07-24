@@ -1,0 +1,66 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# When fabric_reconfig_tls_ca isn't explicitly set and the network uses TLS,
+# builds one PEM bundle covering every orderer org's TLS CA cert straight
+# from inventory (each org signs its own node certs with its own CA, so a
+# client dialing across parties needs all of them in one trust pool) and sets
+# fabric_reconfig_resolved_tls_ca to it. No-ops for plaintext deployments or
+# when the caller already passed an explicit CA path/bundle -- callers should
+# fall back with "fabric_reconfig_resolved_tls_ca | default(fabric_reconfig_tls_ca)".
+
+- name: Determine whether the network uses TLS
+  ansible.builtin.set_fact:
+    fabric_reconfig_network_uses_tls: "{{ hostvars[groups['fabric_x_orderers'][0]].orderer_use_tls | default(false) | bool }}"
+
+- name: Resolve every orderer org's TLS CA cert path from inventory
+  when: fabric_reconfig_tls_ca == "" and fabric_reconfig_network_uses_tls
+  vars:
+    fabric_reconfig_orderer_org_domains: >-
+      {{
+        groups['fabric_x_orderers']
+        | map('extract', hostvars)
+        | selectattr('organization', 'defined')
+        | map(attribute='organization.domain')
+        | unique
+        | list
+      }}
+  ansible.builtin.set_fact:
+    fabric_reconfig_tls_ca_cert_paths: >-
+      {{
+        fabric_reconfig_orderer_org_domains
+        | map('regex_replace', '^(.*)$', cryptogen_artifacts_dir + '/crypto/ordererOrganizations/\1/msp/tlscacerts/tlsca.\1-cert.pem')
+        | list
+      }}
+
+- name: Read each orderer org's TLS CA cert
+  when: fabric_reconfig_tls_ca == "" and fabric_reconfig_network_uses_tls
+  ansible.builtin.set_fact:
+    fabric_reconfig_tls_ca_contents: >-
+      {{
+        fabric_reconfig_tls_ca_contents | default([]) +
+        [lookup('ansible.builtin.file', item)]
+      }}
+  loop: "{{ fabric_reconfig_tls_ca_cert_paths }}"
+
+- name: Ensure the reconfig artifacts directory exists
+  when: fabric_reconfig_tls_ca == "" and fabric_reconfig_network_uses_tls
+  ansible.builtin.file:
+    path: "{{ fabric_reconfig_artifacts_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Write the combined TLS CA bundle
+  when: fabric_reconfig_tls_ca == "" and fabric_reconfig_network_uses_tls
+  ansible.builtin.copy:
+    content: "{{ fabric_reconfig_tls_ca_contents | join('\n') }}"
+    dest: "{{ fabric_reconfig_artifacts_dir }}/tls_ca_bundle.pem"
+    mode: "0o644"
+
+- name: Set the resolved TLS CA bundle
+  when: fabric_reconfig_tls_ca == "" and fabric_reconfig_network_uses_tls
+  ansible.builtin.set_fact:
+    fabric_reconfig_resolved_tls_ca: "{{ fabric_reconfig_artifacts_dir }}/tls_ca_bundle.pem"

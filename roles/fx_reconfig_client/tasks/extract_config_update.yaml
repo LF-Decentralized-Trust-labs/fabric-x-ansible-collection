@@ -1,0 +1,24 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure extract_config_update output directory exists
+  ansible.builtin.file:
+    path: "{{ fx_reconfig_client_extract_config_update_output | dirname }}"
+    state: directory
+    mode: "0o755"
+
+- name: Run {{ fx_reconfig_client_bin_name }} extract-config-update
+  vars:
+    bin_run_with_tmux: false
+    bin_remote_dir: "{{ cli_bin_dir }}"
+    bin_command: >-
+      {{ fx_reconfig_client_bin_name }} extract-config-update
+      --envelope {{ fx_reconfig_client_config_update_envelope_input }}
+      --output {{ fx_reconfig_client_extract_config_update_output }}
+    bin_collect_logs: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start

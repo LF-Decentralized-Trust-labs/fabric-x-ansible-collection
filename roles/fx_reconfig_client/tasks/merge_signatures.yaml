@@ -1,0 +1,25 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure merge_signatures output directory exists
+  ansible.builtin.file:
+    path: "{{ fx_reconfig_client_merge_signatures_output | dirname }}"
+    state: directory
+    mode: "0o755"
+
+- name: Run {{ fx_reconfig_client_bin_name }} merge-signatures
+  vars:
+    bin_run_with_tmux: false
+    bin_remote_dir: "{{ cli_bin_dir }}"
+    bin_command: >-
+      {{ fx_reconfig_client_bin_name }} merge-signatures
+      --envelope {{ fx_reconfig_client_unsigned_envelope_file }}
+      --signatures {{ fx_reconfig_client_signature_files | join(',') }}
+      --output {{ fx_reconfig_client_merge_signatures_output }}
+    bin_collect_logs: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start

@@ -38,6 +38,7 @@ The roles that come within such collection are listed hereafter. Click on them t
 - [`hyperledger.fabricx.cryptogen`](./cryptogen);
 - [`hyperledger.fabricx.fabric_ca`](./fabric_ca);
 - [`hyperledger.fabricx.fabric_reconfig`](./fabric_reconfig);
+- [`hyperledger.fabricx.fx_reconfig_client`](./fx_reconfig_client);
 - [`hyperledger.fabricx.fxconfig`](./fxconfig);
 - [`hyperledger.fabricx.git`](./git);
 - [`hyperledger.fabricx.go`](./go);

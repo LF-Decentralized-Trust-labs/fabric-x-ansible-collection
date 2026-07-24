@@ -1,0 +1,248 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+argument_specs:
+  role-options:
+    short_description: Shared option catalog for fx_reconfig_client role entry points
+    description:
+      - Common inputs reused by the C(build) and CLI-invocation entry points in this role.
+      - "This role builds and wraps C(fx-reconfig-client), a small Go client that speaks the standard Fabric C(orderer.AtomicBroadcast) service (Deliver and Broadcast) against Fabric-X Assembler and Router endpoints."
+      - "The client source is vendored under C(files/src) in this role; it depends only on the stable C(github.com/hyperledger/fabric-protos-go-apiv2) proto packages and C(github.com/hyperledger/fabric/protoutil), not on any Fabric-X-internal package."
+    options:
+      cli_bin_dir: &cli_bin_dir
+        type: path
+        required: true
+        description:
+          - Directory used as the C(fx-reconfig-client) binary destination.
+          - "Example: C(/opt/fabricx/bin)."
+      fx_reconfig_client_bin_name: &fx_reconfig_client_bin_name
+        type: str
+        default: fx-reconfig-client
+        description:
+          - Executable name used by the build and CLI-invocation entry points.
+      channel_id: &channel_id
+        type: str
+        description:
+          - Channel identifier for C(fx_reconfig_client_channel_id).
+      fx_reconfig_client_channel_id: &fx_reconfig_client_channel_id
+        type: str
+        default: "{{ channel_id }}"
+        description:
+          - Channel identifier passed to C(fetch_config) and C(build_envelope).
+      fx_reconfig_client_mspid: &fx_reconfig_client_mspid
+        type: str
+        required: true
+        description:
+          - MSP ID of the signing identity used to authenticate the request or produce a signature.
+      fx_reconfig_client_cert: &fx_reconfig_client_cert
+        type: path
+        required: true
+        description:
+          - Path to the signing identity's certificate PEM file.
+      fx_reconfig_client_key: &fx_reconfig_client_key
+        type: path
+        required: true
+        description:
+          - Path to the signing identity's private key PEM file (EC, SEC1 or PKCS8 encoded).
+      fx_reconfig_client_tls_ca: &fx_reconfig_client_tls_ca
+        type: path
+        default: ""
+        description:
+          - Path to the remote endpoint's TLS CA certificate PEM file.
+          - Leave unset to dial in plaintext (no-TLS deployments).
+      fx_reconfig_client_tls_client_cert: &fx_reconfig_client_tls_client_cert
+        type: path
+        default: ""
+        description:
+          - Path to the client's mTLS certificate PEM file.
+          - Only required when the remote endpoint enforces mTLS.
+      fx_reconfig_client_tls_client_key: &fx_reconfig_client_tls_client_key
+        type: path
+        default: ""
+        description:
+          - Path to the client's mTLS private key PEM file.
+          - Only required when the remote endpoint enforces mTLS.
+      fx_reconfig_client_tls_server_name: &fx_reconfig_client_tls_server_name
+        type: str
+        default: ""
+        description:
+          - Override the TLS server name verified against the remote endpoint's certificate SANs.
+          - "Needed whenever the dial address doesn't literally match a SAN entry -- for example a port-forwarded/NATed address such as 127.0.0.1 dialing a container whose certificate only lists its LAN IPs. Leave unset to derive it from the dial address."
+      fx_reconfig_client_assembler_endpoint: &fx_reconfig_client_assembler_endpoint
+        type: str
+        required: true
+        description:
+          - Assembler address to fetch the config block from, as C(host:port).
+      fx_reconfig_client_fetch_config_output: &fx_reconfig_client_fetch_config_output
+        type: path
+        required: true
+        description:
+          - Path to write the raw C(common.Block) proto bytes.
+      fx_reconfig_client_config_update_envelope_input: &fx_reconfig_client_config_update_envelope_input
+        type: path
+        required: true
+        description:
+          - Path to a C(common.ConfigUpdateEnvelope) proto to read the C(config_update) field out of, unchanged.
+      fx_reconfig_client_extract_config_update_output: &fx_reconfig_client_extract_config_update_output
+        type: path
+        required: true
+        description:
+          - Path to write the extracted raw C(common.ConfigUpdate) proto bytes.
+      fx_reconfig_client_config_update_file: &fx_reconfig_client_config_update_file
+        type: path
+        required: true
+        description:
+          - Path to the raw C(common.ConfigUpdate) proto bytes to sign.
+      fx_reconfig_client_sign_config_update_output: &fx_reconfig_client_sign_config_update_output
+        type: path
+        required: true
+        description:
+          - Path to write the resulting C(common.ConfigSignature) proto bytes.
+      fx_reconfig_client_unsigned_envelope_file: &fx_reconfig_client_unsigned_envelope_file
+        type: path
+        required: true
+        description:
+          - Path to the unsigned C(common.ConfigUpdateEnvelope) proto to splice signatures into.
+      fx_reconfig_client_signature_files: &fx_reconfig_client_signature_files
+        type: list
+        elements: path
+        required: true
+        description:
+          - Paths to each collected party's C(common.ConfigSignature) proto file, in the order they should be spliced in.
+      fx_reconfig_client_merge_signatures_output: &fx_reconfig_client_merge_signatures_output
+        type: path
+        required: true
+        description:
+          - Path to write the resulting, fully-signed C(common.ConfigUpdateEnvelope) proto bytes.
+      fx_reconfig_client_config_update_envelope_file: &fx_reconfig_client_config_update_envelope_file
+        type: path
+        required: true
+        description:
+          - Path to the raw, fully-signed C(common.ConfigUpdateEnvelope) proto bytes.
+      fx_reconfig_client_build_envelope_output: &fx_reconfig_client_build_envelope_output
+        type: path
+        required: true
+        description:
+          - Path to write the resulting broadcast-ready C(common.Envelope) proto bytes.
+      fx_reconfig_client_envelope_file: &fx_reconfig_client_envelope_file
+        type: path
+        required: true
+        description:
+          - Path to the signed C(common.Envelope) proto bytes to submit.
+      fx_reconfig_client_router_endpoints: &fx_reconfig_client_router_endpoints
+        type: list
+        elements: str
+        required: true
+        description:
+          - Router addresses to broadcast to, each as C(host:port).
+          - "Confirmed with the ordering team: a config transaction is submitted to ALL Routers in the network (C(BroadcastTxClient.SendTx)), not a single Router."
+      fx_reconfig_client_quorum: &fx_reconfig_client_quorum
+        type: int
+        default: 0
+        description:
+          - Minimum number of SUCCESS acks required.
+          - "C(0) (the default) mirrors C(BroadcastTxClient.SendTx)'s own fault-tolerance formula: for N >= 3 endpoints, tolerate up to floor(N/3) failures (quorum = N - floor(N/3)); for N < 3, require all endpoints to ack."
+
+  build:
+    short_description: Build the fx-reconfig-client binary on the control node
+    description:
+      - Build the C(fx-reconfig-client) binary from the vendored Go source tree in C(files/src) on the control node.
+      - Delegates to the shared C(hyperledger.fabricx.go) role's C(build) entry point; no git clone is involved since the source lives in this role.
+      - The compiled executable is written to C(cli_bin_dir) and reused by every other entry point in this role.
+    options:
+      cli_bin_dir: *cli_bin_dir
+      fx_reconfig_client_bin_name: *fx_reconfig_client_bin_name
+
+  fetch_config:
+    short_description: Fetch the current channel config block from an Assembler
+    description:
+      - Run C(fx-reconfig-client fetch-config) to pull the latest channel config block from an Assembler over the standard Deliver API.
+      - "Mirrors C(peer channel fetch config)'s own resolution against a classic orderer -- pulls the newest block, reads its C(LAST_CONFIG) metadata pointer, then (unless the newest block already is the config block) pulls that block by number."
+      - The seek request must be signed by an identity the channel's Readers policy accepts (any party admin qualifies).
+    options:
+      cli_bin_dir: *cli_bin_dir
+      fx_reconfig_client_bin_name: *fx_reconfig_client_bin_name
+      channel_id: *channel_id
+      fx_reconfig_client_channel_id: *fx_reconfig_client_channel_id
+      fx_reconfig_client_mspid: *fx_reconfig_client_mspid
+      fx_reconfig_client_cert: *fx_reconfig_client_cert
+      fx_reconfig_client_key: *fx_reconfig_client_key
+      fx_reconfig_client_tls_ca: *fx_reconfig_client_tls_ca
+      fx_reconfig_client_tls_client_cert: *fx_reconfig_client_tls_client_cert
+      fx_reconfig_client_tls_client_key: *fx_reconfig_client_tls_client_key
+      fx_reconfig_client_tls_server_name: *fx_reconfig_client_tls_server_name
+      fx_reconfig_client_assembler_endpoint: *fx_reconfig_client_assembler_endpoint
+      fx_reconfig_client_fetch_config_output: *fx_reconfig_client_fetch_config_output
+
+  extract_config_update:
+    short_description: Read the ConfigUpdate bytes out of a ConfigUpdateEnvelope, unchanged
+    description:
+      - "Run C(fx-reconfig-client extract-config-update) to copy the C(config_update) bytes field straight out of a C(common.ConfigUpdateEnvelope), with no re-encoding."
+      - "This matters because C(config_update) is itself an opaque bytes field holding a marshaled C(common.ConfigUpdate), which embeds several protobuf map fields. Producing a copy to sign by decoding the envelope to JSON and re-encoding a fresh C(common.ConfigUpdate) is not guaranteed to reproduce identical bytes across separate configtxlator invocations (each is a fresh process, and Go's map iteration order is randomized per process), which would make the signature fail to verify. Reading the field directly out of the already-built envelope sidesteps that risk."
+    options:
+      cli_bin_dir: *cli_bin_dir
+      fx_reconfig_client_bin_name: *fx_reconfig_client_bin_name
+      fx_reconfig_client_config_update_envelope_input: *fx_reconfig_client_config_update_envelope_input
+      fx_reconfig_client_extract_config_update_output: *fx_reconfig_client_extract_config_update_output
+
+  sign_config_update:
+    short_description: Produce one ConfigSignature for a ConfigUpdate
+    description:
+      - "Run C(fx-reconfig-client sign-config-update) to produce a single C(common.ConfigSignature) over a raw C(common.ConfigUpdate) proto, using the same signing-bytes construction (C(signature_header || config_update)) Fabric itself verifies against."
+      - Intended to be run independently by each required party against their own admin identity; the resulting signature is later spliced into the C(ConfigUpdateEnvelope.signatures) list.
+    options:
+      cli_bin_dir: *cli_bin_dir
+      fx_reconfig_client_bin_name: *fx_reconfig_client_bin_name
+      fx_reconfig_client_mspid: *fx_reconfig_client_mspid
+      fx_reconfig_client_cert: *fx_reconfig_client_cert
+      fx_reconfig_client_key: *fx_reconfig_client_key
+      fx_reconfig_client_config_update_file: *fx_reconfig_client_config_update_file
+      fx_reconfig_client_sign_config_update_output: *fx_reconfig_client_sign_config_update_output
+
+  merge_signatures:
+    short_description: Splice ConfigSignatures into an unsigned ConfigUpdateEnvelope
+    description:
+      - "Run C(fx-reconfig-client merge-signatures) to append each collected C(common.ConfigSignature) to an unsigned C(common.ConfigUpdateEnvelope)'s C(signatures) list, entirely in-process (no configtxlator/JSON round trip)."
+      - The envelope's C(config_update) bytes are carried over unchanged from the input file.
+    options:
+      cli_bin_dir: *cli_bin_dir
+      fx_reconfig_client_bin_name: *fx_reconfig_client_bin_name
+      fx_reconfig_client_unsigned_envelope_file: *fx_reconfig_client_unsigned_envelope_file
+      fx_reconfig_client_signature_files: *fx_reconfig_client_signature_files
+      fx_reconfig_client_merge_signatures_output: *fx_reconfig_client_merge_signatures_output
+
+  build_envelope:
+    short_description: Wrap and sign a ConfigUpdateEnvelope into a broadcast-ready Envelope
+    description:
+      - Run C(fx-reconfig-client build-envelope) to wrap a (fully signed) C(common.ConfigUpdateEnvelope) into a C(common.Envelope), signed once by the submitting identity.
+      - Produces the same shape C(peer channel update) builds internally via C(protoutil.CreateSignedEnvelope) with header type C(CONFIG_UPDATE).
+    options:
+      cli_bin_dir: *cli_bin_dir
+      fx_reconfig_client_bin_name: *fx_reconfig_client_bin_name
+      channel_id: *channel_id
+      fx_reconfig_client_channel_id: *fx_reconfig_client_channel_id
+      fx_reconfig_client_mspid: *fx_reconfig_client_mspid
+      fx_reconfig_client_cert: *fx_reconfig_client_cert
+      fx_reconfig_client_key: *fx_reconfig_client_key
+      fx_reconfig_client_config_update_envelope_file: *fx_reconfig_client_config_update_envelope_file
+      fx_reconfig_client_build_envelope_output: *fx_reconfig_client_build_envelope_output
+
+  broadcast:
+    short_description: Submit a signed Envelope to a set of Routers
+    description:
+      - Run C(fx-reconfig-client broadcast) to send an already-signed C(common.Envelope) to every given Router endpoint over the standard Broadcast API, in parallel, and require at least C(fx_reconfig_client_quorum) SUCCESS acks.
+      - "Confirmed with the ordering team: submission targets ALL Routers in the network (C(BroadcastTxClient.SendTx)), not a single Router."
+    options:
+      cli_bin_dir: *cli_bin_dir
+      fx_reconfig_client_bin_name: *fx_reconfig_client_bin_name
+      fx_reconfig_client_tls_ca: *fx_reconfig_client_tls_ca
+      fx_reconfig_client_tls_client_cert: *fx_reconfig_client_tls_client_cert
+      fx_reconfig_client_tls_client_key: *fx_reconfig_client_tls_client_key
+      fx_reconfig_client_tls_server_name: *fx_reconfig_client_tls_server_name
+      fx_reconfig_client_envelope_file: *fx_reconfig_client_envelope_file
+      fx_reconfig_client_router_endpoints: *fx_reconfig_client_router_endpoints
+      fx_reconfig_client_quorum: *fx_reconfig_client_quorum

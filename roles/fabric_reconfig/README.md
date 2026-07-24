@@ -8,6 +8,8 @@
 - [ansible-doc](#ansible-doc)
 - [Tasks](#tasks)
   - [main](#main)
+  - [resolve\_identity](#resolve_identity)
+  - [resolve\_tls\_ca](#resolve_tls_ca)
   - [fetch\_current\_config](#fetch_current_config)
   - [render\_desired\_config](#render_desired_config)
   - [diff\_check](#diff_check)
@@ -49,11 +51,51 @@ Assert that exactly one party is targeted for this run.
     tasks_from: main
 ```
 
+### resolve_identity
+
+> Resolve an admin identity from a PartyID (internal helper)
+
+Included via `include_tasks` by `fetch_current_config`, `sign`, `submit`, and `verify` to derive an admin identity's MSP ID, cert, key, and TLS client cert/key from a PartyID and the standard cryptogen crypto material layout. Not intended to be run as its own entry point.
+
+```yaml
+- name: Resolve an admin identity from a PartyID (internal helper)
+  vars:
+    # Control-node directory holding cryptogen-generated crypto material, used to auto-derive admin identities and TLS CA certs by PartyID.
+    cryptogen_artifacts_dir: "string"
+    # PartyID to resolve an admin identity for, from inventory and the standard cryptogen crypto material layout.
+    fabric_reconfig_identity_party: 1000
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_reconfig
+    tasks_from: resolve_identity
+```
+
+### resolve_tls_ca
+
+> Auto-derive a TLS CA bundle from inventory (internal helper)
+
+Included via `include_tasks` by `fetch_current_config`, `submit`, and `verify`. When `fabric_reconfig_tls_ca` is unset and the network uses TLS, builds one PEM bundle covering every orderer org's TLS CA cert. Not intended to be run as its own entry point.
+
+```yaml
+- name: Auto-derive a TLS CA bundle from inventory (internal helper)
+  vars:
+    # Base build directory for `fabric_reconfig_artifacts_dir`.
+    config_build_dir: "string"
+    # Working directory on the control node for every intermediate and final artifact produced by this role.
+    fabric_reconfig_artifacts_dir: "{{ config_build_dir }}/fabric-reconfig-artifacts"
+    # Control-node directory holding cryptogen-generated crypto material, used to auto-derive admin identities and TLS CA certs by PartyID.
+    cryptogen_artifacts_dir: "string"
+    # Path to a TLS CA certificate (or bundle) PEM file trusted for Assembler/Router connections. Leave unset to auto-derive: when `orderer_use_tls` is true, a bundle covering every orderer org's TLS CA cert is built from inventory; when false, connections are made in plaintext.
+    fabric_reconfig_tls_ca: ""
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_reconfig
+    tasks_from: resolve_tls_ca
+```
+
 ### fetch_current_config
 
 > Fetch and extract the current channel config
 
-Resolves `fabric_reconfig_fetch_party`'s Assembler endpoint from inventory, then BLOCKED: fails with the exact fetch operation the ordering team's not-yet-built CLI needs to perform (see role description).
+Resolves `fabric_reconfig_fetch_party`'s Assembler endpoint from inventory, fetches the current config block via `hyperledger.fabricx.fx_reconfig_client` (Deliver API), decodes it with `configtxlator`, and extracts `.data.data[0].payload.data.config` into `current_config.json`.
 
 ```yaml
 - name: Fetch and extract the current channel config
@@ -70,14 +112,22 @@ Resolves `fabric_reconfig_fetch_party`'s Assembler endpoint from inventory, then
     fabric_reconfig_fetch_party: 1000
     # PartyID whose Assembler endpoint is being changed. Only one party may be reconfigured per run.
     fabric_reconfig_target_party: 1000
-    # MSP ID of the identity used to fetch the current config (must satisfy the channel's Readers policy; any party admin qualifies).
-    fabric_reconfig_reader_mspid: "string"
-    # Path to the reader identity's certificate PEM file.
-    fabric_reconfig_reader_cert: "string"
-    # Path to the reader identity's private key PEM file.
-    fabric_reconfig_reader_key: "string"
-    # Path to the Assembler/Router TLS CA certificate PEM file. Leave unset for plaintext (no-TLS) deployments.
+    # PartyID whose admin identity is used to authenticate fetch/verify requests (must satisfy the channel's Readers policy; any party admin qualifies). Defaults to `fabric_reconfig_target_party`. Ignored once `fabric_reconfig_reader_cert` is set explicitly.
+    fabric_reconfig_reader_party: 1000
+    # MSP ID of the reader identity. Leave unset to auto-derive from `fabric_reconfig_reader_party` and inventory (cryptogen layout). Set explicitly for fabric-ca-based or non-standard deployments.
+    fabric_reconfig_reader_mspid: ""
+    # Path to the reader identity's certificate PEM file. Leave unset to auto-derive; see `fabric_reconfig_reader_mspid`.
+    fabric_reconfig_reader_cert: ""
+    # Path to the reader identity's private key PEM file. Leave unset to auto-derive; see `fabric_reconfig_reader_mspid`.
+    fabric_reconfig_reader_key: ""
+    # Path to a TLS CA certificate (or bundle) PEM file trusted for Assembler/Router connections. Leave unset to auto-derive: when `orderer_use_tls` is true, a bundle covering every orderer org's TLS CA cert is built from inventory; when false, connections are made in plaintext.
     fabric_reconfig_tls_ca: ""
+    # Override the TLS server name verified against the remote endpoint's certificate SANs. Needed whenever the dial address doesn't literally match a SAN entry -- for example a port-forwarded/NATed address such as 127.0.0.1 dialing a container whose certificate only lists its LAN IPs. Leave unset to derive it from the dial address.
+    fabric_reconfig_tls_server_name: ""
+    # Path to the reader identity's TLS client certificate PEM file. Required when the target network enforces mTLS (`orderer_use_mtls`): the Assembler's Deliver API rejects requests that don't bind a client TLS cert hash. Leave unset to auto-derive alongside `fabric_reconfig_reader_mspid`, or for TLS deployments that don't require a client certificate.
+    fabric_reconfig_reader_tls_client_cert: ""
+    # Path to the reader identity's TLS client private key PEM file.
+    fabric_reconfig_reader_tls_client_key: ""
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_reconfig
     tasks_from: fetch_current_config
@@ -169,7 +219,7 @@ Wrap `config_update.pb` into a `common.ConfigUpdateEnvelope` with an empty `sign
 
 > Produce one ConfigSignature for the pending update
 
-Decodes the unsigned envelope produced by `build_unsigned_envelope` and isolates the ConfigUpdate bytes to sign, then BLOCKED: fails with the exact signing operation the ordering team's not-yet-built CLI needs to perform (see role description).
+Decodes the unsigned envelope produced by `build_unsigned_envelope`, isolates the ConfigUpdate bytes, and signs them via `hyperledger.fabricx.fx_reconfig_client` (a signature over `signature_header || config_update`, matching Fabric's ConfigSignature construction).
 
 ```yaml
 - name: Produce one ConfigSignature for the pending update
@@ -180,12 +230,12 @@ Decodes the unsigned envelope produced by `build_unsigned_envelope` and isolates
     fabric_reconfig_artifacts_dir: "{{ config_build_dir }}/fabric-reconfig-artifacts"
     # PartyID of the admin identity running the `sign` entry point in this invocation.
     fabric_reconfig_signing_party: 1000
-    # MSP ID of the signing party's admin identity.
-    fabric_reconfig_signer_mspid: "string"
-    # Path to the signing party's admin certificate PEM file.
-    fabric_reconfig_signer_cert: "string"
-    # Path to the signing party's admin private key PEM file.
-    fabric_reconfig_signer_key: "string"
+    # MSP ID of the signing party's admin identity. Leave unset to auto-derive from `fabric_reconfig_signing_party` and inventory (cryptogen layout). Set explicitly for fabric-ca-based or non-standard deployments.
+    fabric_reconfig_signer_mspid: ""
+    # Path to the signing party's admin certificate PEM file. Leave unset to auto-derive; see `fabric_reconfig_signer_mspid`.
+    fabric_reconfig_signer_cert: ""
+    # Path to the signing party's admin private key PEM file. Leave unset to auto-derive; see `fabric_reconfig_signer_mspid`.
+    fabric_reconfig_signer_key: ""
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_reconfig
     tasks_from: sign
@@ -215,7 +265,7 @@ Splice each `fabric_reconfig_required_signers` party's `signature_party<id>.json
 
 > Wrap, sign, and submit the final Envelope
 
-Resolves `fabric_reconfig_submitting_party`'s Router endpoint from inventory, then BLOCKED: fails with the exact wrap/sign/submit operation the ordering team's not-yet-built CLI needs to perform (see role description). Submission is intended to target only the submitting party's Router, matching Fabric-X's own `BroadcastClient.SendTxTo` usage for config transactions in their test harness -- not a fan-out to every Router -- but this is inferred, not confirmed with the ordering team.
+Wraps and signs the outer Envelope via `hyperledger.fabricx.fx_reconfig_client`, then resolves every Router in `fabric_x_orderers` from inventory and broadcasts the signed Envelope to all of them. Confirmed with the ordering team: submission targets ALL Routers (`BroadcastTxClient.SendTx`), not a single Router. Quorum defaults to `BroadcastTxClient.SendTx`'s own fault-tolerance formula; see `hyperledger.fabricx.fx_reconfig_client`.
 
 ```yaml
 - name: Wrap, sign, and submit the final Envelope
@@ -228,16 +278,24 @@ Resolves `fabric_reconfig_submitting_party`'s Router endpoint from inventory, th
     channel_id: "string"
     # Channel identifier used for the reconfig update.
     fabric_reconfig_channel_id: "{{ channel_id }}"
-    # PartyID whose Router the final signed Envelope is submitted to.
-    fabric_reconfig_submitting_party: 1000
-    # MSP ID of the submitting party's admin identity (signs the outer Envelope).
-    fabric_reconfig_submitter_mspid: "string"
-    # Path to the submitting party's admin certificate PEM file.
-    fabric_reconfig_submitter_cert: "string"
-    # Path to the submitting party's admin private key PEM file.
-    fabric_reconfig_submitter_key: "string"
-    # Path to the Assembler/Router TLS CA certificate PEM file. Leave unset for plaintext (no-TLS) deployments.
+    # PartyID whose Assembler endpoint is being changed. Only one party may be reconfigured per run.
+    fabric_reconfig_target_party: 1000
+    # PartyID whose admin identity signs and submits the outer Envelope. Defaults to `fabric_reconfig_target_party`. Ignored once `fabric_reconfig_submitter_cert` is set explicitly.
+    fabric_reconfig_submitter_party: 1000
+    # MSP ID of the submitting party's admin identity (signs the outer Envelope). Leave unset to auto-derive from `fabric_reconfig_submitter_party` and inventory (cryptogen layout). Set explicitly for fabric-ca-based or non-standard deployments.
+    fabric_reconfig_submitter_mspid: ""
+    # Path to the submitting party's admin certificate PEM file. Leave unset to auto-derive; see `fabric_reconfig_submitter_mspid`.
+    fabric_reconfig_submitter_cert: ""
+    # Path to the submitting party's admin private key PEM file. Leave unset to auto-derive; see `fabric_reconfig_submitter_mspid`.
+    fabric_reconfig_submitter_key: ""
+    # Path to a TLS CA certificate (or bundle) PEM file trusted for Assembler/Router connections. Leave unset to auto-derive: when `orderer_use_tls` is true, a bundle covering every orderer org's TLS CA cert is built from inventory; when false, connections are made in plaintext.
     fabric_reconfig_tls_ca: ""
+    # Override the TLS server name verified against the remote endpoint's certificate SANs. Needed whenever the dial address doesn't literally match a SAN entry -- for example a port-forwarded/NATed address such as 127.0.0.1 dialing a container whose certificate only lists its LAN IPs. Leave unset to derive it from the dial address.
+    fabric_reconfig_tls_server_name: ""
+    # Path to the submitting party's TLS client certificate PEM file. Required when the target network enforces mTLS (`orderer_use_mtls`). Leave unset to auto-derive alongside `fabric_reconfig_submitter_mspid`, or for TLS deployments that don't require a client certificate.
+    fabric_reconfig_submitter_tls_client_cert: ""
+    # Path to the submitting party's TLS client private key PEM file.
+    fabric_reconfig_submitter_tls_client_key: ""
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_reconfig
     tasks_from: submit
@@ -247,7 +305,7 @@ Resolves `fabric_reconfig_submitting_party`'s Router endpoint from inventory, th
 
 > Confirm the update landed on-chain
 
-Resolves `fabric_reconfig_fetch_party`'s Assembler endpoint from inventory, then BLOCKED: fails with the same fetch operation as `fetch_current_config` (see role description). Once fetch works, this compares the result against `desired_config.json`. A mismatch there usually means the submission was rejected (for example a stale config version at the consensus layer); re-run from `fetch_current_config` rather than treating it as a generic error.
+Resolves `fabric_reconfig_fetch_party`'s Assembler endpoint from inventory, re-fetches the config the same way `fetch_current_config` does, and compares the result against `desired_config.json`. A mismatch there usually means the submission was rejected (for example a stale config version at the consensus layer); re-run from `fetch_current_config` rather than treating it as a generic error.
 
 ```yaml
 - name: Confirm the update landed on-chain
@@ -264,14 +322,22 @@ Resolves `fabric_reconfig_fetch_party`'s Assembler endpoint from inventory, then
     fabric_reconfig_fetch_party: 1000
     # PartyID whose Assembler endpoint is being changed. Only one party may be reconfigured per run.
     fabric_reconfig_target_party: 1000
-    # MSP ID of the identity used to fetch the current config (must satisfy the channel's Readers policy; any party admin qualifies).
-    fabric_reconfig_reader_mspid: "string"
-    # Path to the reader identity's certificate PEM file.
-    fabric_reconfig_reader_cert: "string"
-    # Path to the reader identity's private key PEM file.
-    fabric_reconfig_reader_key: "string"
-    # Path to the Assembler/Router TLS CA certificate PEM file. Leave unset for plaintext (no-TLS) deployments.
+    # PartyID whose admin identity is used to authenticate fetch/verify requests (must satisfy the channel's Readers policy; any party admin qualifies). Defaults to `fabric_reconfig_target_party`. Ignored once `fabric_reconfig_reader_cert` is set explicitly.
+    fabric_reconfig_reader_party: 1000
+    # MSP ID of the reader identity. Leave unset to auto-derive from `fabric_reconfig_reader_party` and inventory (cryptogen layout). Set explicitly for fabric-ca-based or non-standard deployments.
+    fabric_reconfig_reader_mspid: ""
+    # Path to the reader identity's certificate PEM file. Leave unset to auto-derive; see `fabric_reconfig_reader_mspid`.
+    fabric_reconfig_reader_cert: ""
+    # Path to the reader identity's private key PEM file. Leave unset to auto-derive; see `fabric_reconfig_reader_mspid`.
+    fabric_reconfig_reader_key: ""
+    # Path to a TLS CA certificate (or bundle) PEM file trusted for Assembler/Router connections. Leave unset to auto-derive: when `orderer_use_tls` is true, a bundle covering every orderer org's TLS CA cert is built from inventory; when false, connections are made in plaintext.
     fabric_reconfig_tls_ca: ""
+    # Override the TLS server name verified against the remote endpoint's certificate SANs. Needed whenever the dial address doesn't literally match a SAN entry -- for example a port-forwarded/NATed address such as 127.0.0.1 dialing a container whose certificate only lists its LAN IPs. Leave unset to derive it from the dial address.
+    fabric_reconfig_tls_server_name: ""
+    # Path to the reader identity's TLS client certificate PEM file. Required when the target network enforces mTLS (`orderer_use_mtls`): the Assembler's Deliver API rejects requests that don't bind a client TLS cert hash. Leave unset to auto-derive alongside `fabric_reconfig_reader_mspid`, or for TLS deployments that don't require a client certificate.
+    fabric_reconfig_reader_tls_client_cert: ""
+    # Path to the reader identity's TLS client private key PEM file.
+    fabric_reconfig_reader_tls_client_key: ""
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_reconfig
     tasks_from: verify

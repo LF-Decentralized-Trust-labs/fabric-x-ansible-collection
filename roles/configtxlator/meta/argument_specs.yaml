@@ -10,7 +10,8 @@ argument_specs:
     short_description: Shared option catalog for configtxlator role entry points
     description:
       - Common inputs reused by the binary, container, and dispatch entry points in this role.
-      - This role wraps the C(configtxlator) CLI for one-shot proto_encode, proto_decode, and compute_update operations.
+      - This role wraps the C(configtxlator) CLI for one-shot proto_encode, proto_decode, and compute_update operations, plus a composite C(create_config_update_envelope) task built on top of them.
+      - "Workflow: decode a config block to JSON (C(proto_decode), type C(common.Block)), edit the extracted C(common.Config) JSON, encode both the original and edited config back to protobuf (C(proto_encode), type C(common.Config)), diff them into a C(common.ConfigUpdate) (C(compute_update)), then wrap that into an unsigned C(common.ConfigUpdateEnvelope) (C(create_config_update_envelope)). Signing and submission are out of scope for this role."
     options:
       cli_bin_dir: &cli_bin_dir
         type: path
@@ -131,6 +132,18 @@ argument_specs:
         description:
           - Filename of the updated config proto within C(configtxlator_artifacts_dir) passed to C(compute_update).
           - "Example: C(modified_config.pb)."
+      configtxlator_config_update_file: &configtxlator_config_update_file
+        type: str
+        required: true
+        description:
+          - Filename of the computed C(common.ConfigUpdate) proto within C(configtxlator_artifacts_dir), as produced by C(compute_update), passed to C(create_config_update_envelope).
+          - "Example: C(config_update.pb)."
+      configtxlator_config_update_envelope_file: &configtxlator_config_update_envelope_file
+        type: str
+        required: true
+        description:
+          - Filename of the unsigned C(common.ConfigUpdateEnvelope) proto written within C(configtxlator_artifacts_dir) by C(create_config_update_envelope).
+          - "Example: C(config_update_envelope.pb)."
 
   bin/build:
     short_description: Build the configtxlator binary on the control node
@@ -280,3 +293,14 @@ argument_specs:
       - Select the binary or container execution path for C(compute_update) based on C(configtxlator_use_bin).
     options:
       configtxlator_use_bin: *configtxlator_use_bin
+
+  create_config_update_envelope:
+    short_description: Wrap a ConfigUpdate into an unsigned ConfigUpdateEnvelope
+    description:
+      - Wrap a computed C(common.ConfigUpdate) proto (C(configtxlator_config_update_file), the output of C(compute_update)) into a C(common.ConfigUpdateEnvelope) with an empty C(signatures) list, ready to hand off for out-of-band signing.
+      - A composite task built on top of C(proto_encode) -- it honors C(configtxlator_use_bin) the same way, with no separate binary or container entry point of its own.
+    options:
+      config_build_dir: *config_build_dir
+      configtxlator_artifacts_dir: *configtxlator_artifacts_dir
+      configtxlator_config_update_file: *configtxlator_config_update_file
+      configtxlator_config_update_envelope_file: *configtxlator_config_update_envelope_file

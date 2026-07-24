@@ -1,0 +1,32 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure fetch_config output directory exists
+  ansible.builtin.file:
+    path: "{{ fx_reconfig_client_fetch_config_output | dirname }}"
+    state: directory
+    mode: "0o755"
+
+- name: Run {{ fx_reconfig_client_bin_name }} fetch-config
+  vars:
+    bin_run_with_tmux: false
+    bin_remote_dir: "{{ cli_bin_dir }}"
+    bin_command: >-
+      {{ fx_reconfig_client_bin_name }} fetch-config
+      --endpoint {{ fx_reconfig_client_assembler_endpoint }}
+      --channel {{ fx_reconfig_client_channel_id }}
+      --mspid {{ fx_reconfig_client_mspid }}
+      --cert {{ fx_reconfig_client_cert }}
+      --key {{ fx_reconfig_client_key }}
+      {% if fx_reconfig_client_tls_ca %}--tls-ca {{ fx_reconfig_client_tls_ca }}{% endif %}
+      {% if fx_reconfig_client_tls_client_cert %}--tls-client-cert {{ fx_reconfig_client_tls_client_cert }}{% endif %}
+      {% if fx_reconfig_client_tls_client_key %}--tls-client-key {{ fx_reconfig_client_tls_client_key }}{% endif %}
+      {% if fx_reconfig_client_tls_server_name %}--tls-server-name {{ fx_reconfig_client_tls_server_name }}{% endif %}
+      --output {{ fx_reconfig_client_fetch_config_output }}
+    bin_collect_logs: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start

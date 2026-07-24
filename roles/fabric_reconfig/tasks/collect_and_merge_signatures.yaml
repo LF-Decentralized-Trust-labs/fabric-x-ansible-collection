@@ -4,37 +4,27 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Load each required signer's ConfigSignature JSON
+- name: Resolve each required signer's ConfigSignature file path
   ansible.builtin.set_fact:
-    fabric_reconfig_collected_signatures: >-
+    fabric_reconfig_signature_files: >-
       {{
-        fabric_reconfig_collected_signatures | default([]) +
-        [lookup('ansible.builtin.file', fabric_reconfig_artifacts_dir + '/signature_party' ~ item ~ '.json') | from_json]
+        fabric_reconfig_signature_files | default([]) +
+        [fabric_reconfig_artifacts_dir + '/signature_party' ~ item ~ '.pb']
       }}
   loop: "{{ fabric_reconfig_required_signers }}"
 
-- name: Assert every required signature was collected
-  ansible.builtin.assert:
-    that:
-      - fabric_reconfig_collected_signatures | length == fabric_reconfig_required_signers | length
-    fail_msg: >-
-      Expected {{ fabric_reconfig_required_signers | length }} signatures ({{ fabric_reconfig_required_signers }}),
-      collected {{ fabric_reconfig_collected_signatures | length }}.
+- name: Assert every required signature file was collected
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  register: fabric_reconfig_signature_stat
+  loop: "{{ fabric_reconfig_signature_files }}"
+  failed_when: not fabric_reconfig_signature_stat.stat.exists
 
-- name: Splice the collected signatures into the ConfigUpdateEnvelope JSON
+- name: Merge the collected ConfigSignatures into the ConfigUpdateEnvelope
   vars:
-    fabric_reconfig_unsigned_envelope: "{{ lookup('ansible.builtin.file', fabric_reconfig_artifacts_dir + '/unsigned_config_update_envelope.json') | from_json }}"
-  ansible.builtin.copy:
-    content: "{{ (fabric_reconfig_unsigned_envelope | combine({'signatures': fabric_reconfig_collected_signatures})) | to_nice_json }}"
-    dest: "{{ fabric_reconfig_artifacts_dir }}/signed_config_update_envelope.json"
-    mode: "0o644"
-
-- name: Encode the signed ConfigUpdateEnvelope to protobuf
-  vars:
-    configtxlator_artifacts_dir: "{{ fabric_reconfig_artifacts_dir }}"
-    configtxlator_proto_type: common.ConfigUpdateEnvelope
-    configtxlator_input_file: signed_config_update_envelope.json
-    configtxlator_output_file: signed_config_update_envelope.pb
+    fx_reconfig_client_unsigned_envelope_file: "{{ fabric_reconfig_artifacts_dir }}/unsigned_config_update_envelope.pb"
+    fx_reconfig_client_signature_files: "{{ fabric_reconfig_signature_files }}"
+    fx_reconfig_client_merge_signatures_output: "{{ fabric_reconfig_artifacts_dir }}/signed_config_update_envelope.pb"
   ansible.builtin.include_role:
-    name: hyperledger.fabricx.configtxlator
-    tasks_from: proto_encode
+    name: hyperledger.fabricx.fx_reconfig_client
+    tasks_from: merge_signatures

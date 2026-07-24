@@ -2,7 +2,7 @@
 
 The `fabric_reconfig` playbooks perform a live channel-config update against a running Fabric-X network. v1 scope: changing one party's Assembler endpoint. The workflow is split across three playbooks to support out-of-band, per-party signing across separate trust domains.
 
-**Deliberately incomplete today.** The ordering (Fabric-X-Orderer) team does not yet have a CLI or script to fetch a config block, sign a `ConfigUpdate`, or submit the final transaction -- confirmed directly with them. Rather than reimplementing that protocol logic ourselves, `fetch_current_config`, `sign`, and `submit` resolve everything they can from inventory and then stop with `ansible.builtin.fail`, describing the exact operation still needed (endpoint, identity, expected input/output). Everything before those stops is real and runs today; those three steps are a deliberate, visible boundary, not a bug.
+**Fetch/sign/submit are driven by `hyperledger.fabricx.fx_reconfig_client`**, a small Go client this collection builds and vendors because the ordering (Fabric-X-Orderer) team does not yet have CLI tooling of its own for this -- confirmed directly with them, and consistent with their own in-progress `reconfig.md` guide. Expect these steps to be pointed at their CLI once it exists; see `fx_reconfig_client`'s role docs for the exact protocol details (Deliver/Broadcast against `orderer.AtomicBroadcast`).
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -23,7 +23,7 @@ flowchart LR
 
 ## prepare.yaml
 
-[`prepare.yaml`](./prepare.yaml) resolves the fetch-source Assembler from inventory, then **stops (BLOCKED)** at the point where it needs an ordering-team fetch-config CLI. Once that exists, this playbook will fetch the current channel config, render the desired config from inventory (the target party's Assembler endpoint, edited in place), check whether anything actually changed, compute the `ConfigUpdate`, and wrap it into an unsigned `ConfigUpdateEnvelope`.
+[`prepare.yaml`](./prepare.yaml) fetches the current channel config from an Assembler, renders the desired config from inventory (the target party's Assembler endpoint, edited in place), checks whether anything actually changed, computes the `ConfigUpdate`, and wraps it into an unsigned `ConfigUpdateEnvelope`.
 
 ```shell
 ansible-playbook hyperledger.fabricx.fabric_reconfig.prepare \
@@ -37,12 +37,12 @@ Properties:
 
 - Target hosts: `localhost`.
 - No `fabric_reconfig_new_host`/`fabric_reconfig_new_port` to pass: the new Assembler endpoint is derived from the target party's Assembler entry in inventory -- edit `ansible_host`/`orderer_rpc_port` there before running this.
-- Nuance: ends the play with no further action when the rendered config is identical to the current one (see `diff_check` in the role) -- once fetch is unblocked.
-- Currently stops at `fetch_current_config` with a `BLOCKED` message (see above).
+- Nuance: ends the play with no further action when the rendered config is identical to the current one (see `diff_check` in the role).
+- Output: `{{ fabric_reconfig_artifacts_dir }}/unsigned_config_update_envelope.pb`, to be handed to each required signer.
 
 ## sign.yaml
 
-[`sign.yaml`](./sign.yaml) decodes the unsigned envelope and isolates the `ConfigUpdate` bytes to sign, then **stops (BLOCKED)** at the point where it needs an ordering-team signing CLI. Once that exists, this playbook is run independently by each party listed in `fabric_reconfig_required_signers`, against that party's own admin identity, producing one `ConfigSignature` over the pending update.
+[`sign.yaml`](./sign.yaml) is run independently by each party listed in `fabric_reconfig_required_signers`, against that party's own admin identity, producing one `ConfigSignature` over the pending update.
 
 ```shell
 ansible-playbook hyperledger.fabricx.fabric_reconfig.sign \
@@ -55,17 +55,16 @@ ansible-playbook hyperledger.fabricx.fabric_reconfig.sign \
 Properties:
 
 - Target hosts: `localhost`.
-- Nuance: requires `unsigned_config_update_envelope.pb` from `prepare` to already exist under `fabric_reconfig_artifacts_dir` -- which itself requires `prepare` to be unblocked first.
-- Currently stops with a `BLOCKED` message describing the exact ConfigSignature to produce.
+- Nuance: requires `unsigned_config_update_envelope.pb` from `prepare` to already exist under `fabric_reconfig_artifacts_dir`.
+- Output: `{{ fabric_reconfig_artifacts_dir }}/signature_party<id>.pb` and its decoded JSON form.
 
 ## submit.yaml
 
-[`submit.yaml`](./submit.yaml) resolves the submitting party's Router from inventory, then **stops (BLOCKED)** at the point where it needs an ordering-team wrap/sign/submit CLI. Once that exists, this playbook will splice every collected `ConfigSignature` into the `ConfigUpdateEnvelope`, wrap and sign the final broadcast-ready `Envelope`, submit it, re-fetch the config to confirm it landed, and restart only the reconfigured Assembler.
+[`submit.yaml`](./submit.yaml) splices every collected `ConfigSignature` into the `ConfigUpdateEnvelope`, wraps and signs the final broadcast-ready `Envelope`, submits it to every Router in the network, re-fetches the config to confirm it landed, and restarts only the reconfigured Assembler.
 
 ```shell
 ansible-playbook hyperledger.fabricx.fabric_reconfig.submit \
   -e fabric_reconfig_required_signers='[1,2,3]' \
-  -e fabric_reconfig_submitting_party=1 \
   -e fabric_reconfig_submitter_mspid=Org1MSP \
   -e fabric_reconfig_submitter_cert=/path/to/org1-admin-cert.pem \
   -e fabric_reconfig_submitter_key=/path/to/org1-admin-key.pem
@@ -75,9 +74,8 @@ Properties:
 
 - Target hosts: `localhost` for collect/submit/verify, then `fabric_x_orderers` for the restart stage.
 - No `fabric_reconfig_target_host` to pass: the reconfigured Assembler's `inventory_hostname` is derived from `fabric_reconfig_target_party` via inventory.
-- Nuance (once unblocked): submission is intended to target only the submitting party's Router (matching Fabric-X's own `BroadcastClient.SendTxTo` usage for config transactions), not every Router in the network -- inferred from their test harness, not confirmed with the ordering team.
-- Nuance: only the reconfigured Assembler is stopped and started; every other node in `fabric_x_orderers` relaunches itself dynamically once the update lands and needs no Ansible-driven restart. The restart stage runs immediately after verify succeeds -- the ordering team's own test harness waits for a "pending admin state" first, and we don't yet know an externally observable signal for that.
-- Currently stops with a `BLOCKED` message at the wrap/sign/submit step, before the restart stage is ever reached.
+- Nuance: submission targets **every Router** in `fabric_x_orderers` (confirmed with the ordering team: `BroadcastTxClient.SendTx`), not a single Router. The required ack quorum defaults to `SendTx`'s own fault-tolerance formula (tolerate up to 1/3 Router failures); override with `fx_reconfig_client_quorum` if needed.
+- Nuance: only the reconfigured Assembler is stopped and started; every other node in `fabric_x_orderers` relaunches itself dynamically once the update lands and needs no Ansible-driven restart. The restart stage runs immediately after verify succeeds -- the ordering team's own `reconfig.md` guide confirms nodes can enter a "pending-admin" state first, but does not yet document an externally observable signal for it (their own TODO, not something we missed).
 
 > [!WARNING]
-> A verification failure after submit (once unblocked) usually means the update was rejected (for example a stale config version at the consensus layer), not a generic error. Re-run from `prepare` rather than retrying `submit` directly.
+> A verification failure after submit usually means the update was rejected (for example a stale config version at the consensus layer), not a generic error. Re-run from `prepare` rather than retrying `submit` directly.

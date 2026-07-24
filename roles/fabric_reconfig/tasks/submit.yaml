@@ -4,34 +4,66 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Resolve the submitting party's Router endpoint from inventory
+- name: Resolve the submitter identity from party number, unless explicitly overridden
+  when: fabric_reconfig_submitter_cert == ""
   vars:
-    fabric_reconfig_router_hostvars: >-
+    fabric_reconfig_identity_party: "{{ fabric_reconfig_submitter_party | default(fabric_reconfig_target_party) }}"
+  ansible.builtin.include_tasks: resolve_identity.yaml
+
+- name: Determine the effective submitter identity
+  ansible.builtin.set_fact:
+    fabric_reconfig_resolved_submitter_mspid: "{{ fabric_reconfig_submitter_mspid if fabric_reconfig_submitter_cert != '' else fabric_reconfig_identity_mspid }}"
+    fabric_reconfig_resolved_submitter_cert: "{{ fabric_reconfig_submitter_cert if fabric_reconfig_submitter_cert != '' else fabric_reconfig_identity_cert }}"
+    fabric_reconfig_resolved_submitter_key: "{{ fabric_reconfig_submitter_key if fabric_reconfig_submitter_cert != '' else fabric_reconfig_identity_key }}"
+    fabric_reconfig_resolved_submitter_tls_client_cert: "{{ fabric_reconfig_submitter_tls_client_cert if fabric_reconfig_submitter_cert != '' else fabric_reconfig_identity_tls_client_cert }}"
+    fabric_reconfig_resolved_submitter_tls_client_key: "{{ fabric_reconfig_submitter_tls_client_key if fabric_reconfig_submitter_cert != '' else fabric_reconfig_identity_tls_client_key }}"
+
+- name: Resolve the TLS CA bundle, unless explicitly overridden
+  ansible.builtin.include_tasks: resolve_tls_ca.yaml
+
+- name: Determine the effective TLS CA bundle
+  ansible.builtin.set_fact:
+    fabric_reconfig_resolved_tls_ca: "{{ fabric_reconfig_resolved_tls_ca | default(fabric_reconfig_tls_ca) }}"
+
+- name: Wrap and sign the outer Envelope
+  vars:
+    fx_reconfig_client_channel_id: "{{ fabric_reconfig_channel_id }}"
+    fx_reconfig_client_config_update_envelope_file: "{{ fabric_reconfig_artifacts_dir }}/signed_config_update_envelope.pb"
+    fx_reconfig_client_mspid: "{{ fabric_reconfig_resolved_submitter_mspid }}"
+    fx_reconfig_client_cert: "{{ fabric_reconfig_resolved_submitter_cert }}"
+    fx_reconfig_client_key: "{{ fabric_reconfig_resolved_submitter_key }}"
+    fx_reconfig_client_build_envelope_output: "{{ fabric_reconfig_artifacts_dir }}/envelope.pb"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fx_reconfig_client
+    tasks_from: build_envelope
+
+- name: Resolve every Router endpoint in the network from inventory
+  vars:
+    fabric_reconfig_router_hostvars_list: >-
       {{
         groups['fabric_x_orderers']
         | map('extract', hostvars)
-        | selectattr('orderer_group', 'defined')
-        | selectattr('orderer_group', '==', fabric_reconfig_submitting_party | int)
         | selectattr('orderer_component_type', '==', 'router')
-        | first
+        | list
       }}
   ansible.builtin.set_fact:
-    fabric_reconfig_submitting_router_endpoint: "{{ fabric_reconfig_router_hostvars.ansible_host }}:{{ fabric_reconfig_router_hostvars.orderer_rpc_port }}"
+    fabric_reconfig_router_endpoints: >-
+      {{
+        fabric_reconfig_router_hostvars_list
+        | map(attribute='ansible_host')
+        | zip(fabric_reconfig_router_hostvars_list | map(attribute='orderer_rpc_port'))
+        | map('join', ':')
+        | list
+      }}
 
-# BLOCKED: no CLI or script exists yet from the ordering team to wrap/sign the final Envelope
-# or to submit it. May Buzaglo confirmed this is on their side (same gap noted in sign.yaml).
-# Everything up to this point (resolving which Router to submit to) is ours; this step is a
-# deliberate stop, not a bug.
-- name: "BLOCKED: wrap, sign, and submit the final Envelope (needs an ordering-team CLI)"
-  ansible.builtin.fail:
-    msg: >-
-      No CLI/script exists yet from the ordering team to build or submit the final signed
-      Envelope. This step is ready to call one once it exists: wrap
-      {{ fabric_reconfig_artifacts_dir }}/signed_config_update_envelope.pb into a common.Envelope
-      (header type CONFIG_UPDATE, channel {{ fabric_reconfig_channel_id }}), signed by submitting
-      identity {{ fabric_reconfig_submitter_mspid }} (cert {{ fabric_reconfig_submitter_cert }},
-      key {{ fabric_reconfig_submitter_key }}), then submit it via Broadcast to
-      {{ fabric_reconfig_submitting_router_endpoint }}
-      {%- if fabric_reconfig_tls_ca %}(TLS CA {{ fabric_reconfig_tls_ca }}){% else %}(plaintext){% endif %}
-      (party {{ fabric_reconfig_submitting_party }}'s own Router -- to be confirmed with the
-      ordering team; inferred from BroadcastClient.SendTxTo in their test harness, not from a doc).
+- name: Submit the signed Envelope to every Router in the network
+  vars:
+    fx_reconfig_client_envelope_file: "{{ fabric_reconfig_artifacts_dir }}/envelope.pb"
+    fx_reconfig_client_router_endpoints: "{{ fabric_reconfig_router_endpoints }}"
+    fx_reconfig_client_tls_ca: "{{ fabric_reconfig_resolved_tls_ca }}"
+    fx_reconfig_client_tls_server_name: "{{ fabric_reconfig_tls_server_name }}"
+    fx_reconfig_client_tls_client_cert: "{{ fabric_reconfig_resolved_submitter_tls_client_cert }}"
+    fx_reconfig_client_tls_client_key: "{{ fabric_reconfig_resolved_submitter_tls_client_key }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fx_reconfig_client
+    tasks_from: broadcast

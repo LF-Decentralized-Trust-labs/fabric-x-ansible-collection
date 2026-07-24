@@ -6,7 +6,7 @@
 ---
 galaxy_info:
   author: IBM
-  description: "Wraps the configtxlator CLI for one-shot proto_encode, proto_decode, and compute_update operations through binary or container entry points, plus a composite create_config_update_envelope task for the full decode-edit-encode-diff-wrap config update workflow."
+  description: "Builds and runs the fx-reconfig-client CLI, a small Fabric orderer.AtomicBroadcast client used to fetch, sign, and submit live channel-config updates against a Fabric-X network."
   license: Apache-2.0
   min_ansible_version: "2.17.0"
   platforms:

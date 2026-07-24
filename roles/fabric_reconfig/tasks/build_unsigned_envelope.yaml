@@ -4,26 +4,14 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Read the computed ConfigUpdate
-  ansible.builtin.slurp:
-    src: "{{ fabric_reconfig_artifacts_dir }}/config_update.pb"
-  register: fabric_reconfig_config_update_slurp
-
-- name: Write the unsigned ConfigUpdateEnvelope JSON
-  ansible.builtin.copy:
-    content: "{{ {'config_update': fabric_reconfig_config_update_slurp.content, 'signatures': []} | to_nice_json }}"
-    dest: "{{ fabric_reconfig_artifacts_dir }}/unsigned_config_update_envelope.json"
-    mode: "0o644"
-
-- name: Encode the unsigned ConfigUpdateEnvelope to protobuf
+- name: Create the unsigned ConfigUpdateEnvelope
   vars:
     configtxlator_artifacts_dir: "{{ fabric_reconfig_artifacts_dir }}"
-    configtxlator_proto_type: common.ConfigUpdateEnvelope
-    configtxlator_input_file: unsigned_config_update_envelope.json
-    configtxlator_output_file: unsigned_config_update_envelope.pb
+    configtxlator_config_update_file: config_update.pb
+    configtxlator_config_update_envelope_file: unsigned_config_update_envelope.pb
   ansible.builtin.include_role:
     name: hyperledger.fabricx.configtxlator
-    tasks_from: proto_encode
+    tasks_from: create_config_update_envelope
 
 - name: Report the unsigned envelope artifact ready for handoff
   ansible.builtin.debug:

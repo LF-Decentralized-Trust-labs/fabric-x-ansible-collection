@@ -1,0 +1,36 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Included with fabric_reconfig_identity_party (int) set by the caller.
+# Derives an admin identity for that PartyID straight from inventory and the
+# standard cryptogen layout, so callers don't have to type mspid/cert/key
+# paths by hand for the common (cryptogen-based) case. Sets
+# fabric_reconfig_identity_mspid, _cert, _key, _tls_client_cert, _tls_client_key.
+
+- name: Resolve org info for party {{ fabric_reconfig_identity_party }}
+  vars:
+    fabric_reconfig_identity_hostvars: >-
+      {{
+        groups['fabric_x_orderers']
+        | map('extract', hostvars)
+        | selectattr('orderer_group', 'defined')
+        | selectattr('orderer_group', '==', fabric_reconfig_identity_party | int)
+        | first
+      }}
+  ansible.builtin.set_fact:
+    fabric_reconfig_identity_org_domain: "{{ fabric_reconfig_identity_hostvars.organization.domain }}"
+    fabric_reconfig_identity_org_name: "{{ fabric_reconfig_identity_hostvars.organization.name }}"
+
+- name: Resolve admin identity paths for party {{ fabric_reconfig_identity_party }}
+  vars:
+    fabric_reconfig_identity_admin_dir: >-
+      {{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ fabric_reconfig_identity_org_domain }}/users/Admin@{{ fabric_reconfig_identity_org_domain }}
+  ansible.builtin.set_fact:
+    fabric_reconfig_identity_mspid: "{{ fabric_reconfig_identity_org_name }}MSP"
+    fabric_reconfig_identity_cert: "{{ fabric_reconfig_identity_admin_dir }}/msp/signcerts/Admin@{{ fabric_reconfig_identity_org_domain }}-cert.pem"
+    fabric_reconfig_identity_key: "{{ fabric_reconfig_identity_admin_dir }}/msp/keystore/priv_sk"
+    fabric_reconfig_identity_tls_client_cert: "{{ fabric_reconfig_identity_admin_dir }}/tls/client.crt"
+    fabric_reconfig_identity_tls_client_key: "{{ fabric_reconfig_identity_admin_dir }}/tls/client.key"

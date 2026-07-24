@@ -1,0 +1,23 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Create {{ cli_bin_dir }}
+  ansible.builtin.file:
+    path: "{{ cli_bin_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Resolve this role's source path
+  ansible.builtin.set_fact:
+    fx_reconfig_client_source_path: "{{ role_path }}/files/src"
+
+- name: Build {{ fx_reconfig_client_bin_name }}
+  vars:
+    go_source_code_path: "{{ fx_reconfig_client_source_path }}"
+    go_output_name: "{{ cli_bin_dir }}/{{ fx_reconfig_client_bin_name }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.go
+    tasks_from: build

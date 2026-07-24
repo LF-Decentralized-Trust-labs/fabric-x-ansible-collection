@@ -1,0 +1,31 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Decode the computed ConfigUpdate to JSON
+  vars:
+    configtxlator_proto_type: common.ConfigUpdate
+    configtxlator_input_file: "{{ configtxlator_config_update_file }}"
+    configtxlator_output_file: config_update.json
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.configtxlator
+    tasks_from: proto_decode
+
+- name: Write the unsigned ConfigUpdateEnvelope JSON
+  vars:
+    configtxlator_decoded_config_update: "{{ lookup('ansible.builtin.file', configtxlator_artifacts_dir + '/config_update.json') | from_json }}"
+  ansible.builtin.copy:
+    content: "{{ {'config_update': configtxlator_decoded_config_update, 'signatures': []} | to_nice_json }}"
+    dest: "{{ configtxlator_artifacts_dir }}/config_update_envelope.json"
+    mode: "0o644"
+
+- name: Encode the unsigned ConfigUpdateEnvelope to protobuf
+  vars:
+    configtxlator_proto_type: common.ConfigUpdateEnvelope
+    configtxlator_input_file: config_update_envelope.json
+    configtxlator_output_file: "{{ configtxlator_config_update_envelope_file }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.configtxlator
+    tasks_from: proto_encode
