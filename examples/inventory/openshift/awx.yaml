@@ -32,3 +32,4 @@ all:
           awx_openshift_route: "awx.{{ openshift_apps_domain }}"
           awx_restore_openshift_route: "awx-restore.{{ openshift_apps_domain }}"
           awx_restore_name: awx
+          awx_config_enable_collection_sync: true

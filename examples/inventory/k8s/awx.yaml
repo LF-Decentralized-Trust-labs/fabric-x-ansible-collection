@@ -27,3 +27,4 @@ all:
           awx_k8s_wait_timeout: 300
           awx_k8s_node_port: 30080
           awx_restore_name: awx
+          awx_config_enable_collection_sync: true

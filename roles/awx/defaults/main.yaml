@@ -64,6 +64,13 @@ awx_config_controller_username: admin
 awx_config_validate_certs: false
 # Name of the AWX organization that owns the Fabric-X examples project, credentials, inventories, and job templates.
 awx_config_organization_name: Fabric-X
+# Enable the C(AWX_COLLECTIONS_ENABLED)/C(AWX_ROLES_ENABLED) instance settings and attach C(awx_config_galaxy_credential_names) to the organization, so the project's C(collections/requirements.yml) actually gets installed on sync.
+# Off by default: C(AWX_COLLECTIONS_ENABLED)/C(AWX_ROLES_ENABLED) are AWX instance-wide settings, not scoped to this organization, so enabling this affects every project on the AWX instance, not just this one.
+awx_config_enable_collection_sync: false
+# Names of existing Galaxy-type credentials to attach to the organization so it can install collections/roles from them. Only used when C(awx_config_enable_collection_sync) is enabled.
+# Defaults to the built-in C(Ansible Galaxy) credential AWX ships pointing at C(galaxy.ansible.com).
+awx_config_galaxy_credential_names:
+  - Ansible Galaxy
 # Name of the AWX project synced from C(awx_config_project_scm_url).
 awx_config_project_name: Fabric-X Examples
 # SCM type used for the AWX project.

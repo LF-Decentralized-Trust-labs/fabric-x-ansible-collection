@@ -28,6 +28,7 @@
   - [restore](#restore)
   - [configure](#configure)
   - [configure/organization](#configureorganization)
+  - [configure/collection\_sync](#configurecollection_sync)
   - [configure/credentials](#configurecredentials)
   - [configure/project](#configureproject)
   - [configure/inventories](#configureinventories)
@@ -439,6 +440,8 @@ ansible-doc -t role hyperledger.fabricx.awx
     awx_config_controller_username: admin
     # Validate TLS certificates when talking to the AWX/Controller API. Left disabled by default because the AWX Operator's default web certificate is self-signed.
     awx_config_validate_certs: false
+    # Enable the `AWX_COLLECTIONS_ENABLED`/`AWX_ROLES_ENABLED` instance settings and attach `awx_config_galaxy_credential_names` to the organization, so the project's `collections/requirements.yml` actually gets installed on sync. Off by default: `AWX_COLLECTIONS_ENABLED`/`AWX_ROLES_ENABLED` are AWX instance-wide settings, not scoped to this organization, so enabling this affects every project on the AWX instance, not just this one.
+    awx_config_enable_collection_sync: false
     # Credential objects created before the project and job templates. Each item is passed to `awx.awx.credential` (`name`, `credential_type`, optional `organization`, optional `inputs`). Use this for Source Control tokens (private/enterprise repositories) and container-registry credentials. Machine/SSH credentials used to reach target hosts are intentionally out of scope: create those manually in the AWX UI so private key material is never read or transmitted by this role.
     awx_config_credentials:
       - name: "GHE Fabric-X Token"
@@ -520,6 +523,23 @@ ansible-doc -t role hyperledger.fabricx.awx
   ansible.builtin.include_role:
     name: hyperledger.fabricx.awx
     tasks_from: configure/organization
+```
+
+### configure/collection_sync
+
+> Enable AWX collection/role syncing and attach Galaxy credentials to the organization
+
+```yaml
+- name: Enable AWX collection/role syncing and attach Galaxy credentials to the organization
+  vars:
+    # Name of the AWX organization that owns the Fabric-X examples project, credentials, inventories, and job templates.
+    awx_config_organization_name: Fabric-X
+    # Names of existing Galaxy-type credentials to attach to the organization so it can install collections/roles from them. Only used when `awx_config_enable_collection_sync` is enabled. Defaults to the built-in `Ansible Galaxy` credential AWX ships pointing at `galaxy.ansible.com`.
+    awx_config_galaxy_credential_names:
+      - Ansible Galaxy
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.awx
+    tasks_from: configure/collection_sync
 ```
 
 ### configure/credentials

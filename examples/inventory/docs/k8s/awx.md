@@ -27,6 +27,7 @@ A single logical host, `awx-controller`, represents the AWX deployment:
 - `awx_use_k8s: true` selects the Kubernetes task path.
 - `awx_k8s_node_port: 30080` exposes the AWX web service through a NodePort, reachable at `http://localhost:30080` on a local cluster.
 - `awx_restore_name: awx` restores in place by default, reusing the same NodePort without a service port conflict.
+- `awx_config_enable_collection_sync: true` lets `configure` enable AWX's instance-wide collection/role syncing settings and attach the built-in `Ansible Galaxy` credential to the organization, so the examples project's `collections/requirements.yml` actually installs on sync.
 
 Run the lifecycle playbooks directly against this inventory, for example:
 

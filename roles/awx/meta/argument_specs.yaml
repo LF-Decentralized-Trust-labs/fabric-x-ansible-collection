@@ -185,6 +185,20 @@ argument_specs:
         default: "Fabric-X"
         description:
           - "Name of the AWX organization that owns the Fabric-X examples project, credentials, inventories, and job templates."
+      awx_config_enable_collection_sync: &awx_config_enable_collection_sync
+        type: bool
+        default: false
+        description:
+          - "Enable the C(AWX_COLLECTIONS_ENABLED)/C(AWX_ROLES_ENABLED) instance settings and attach C(awx_config_galaxy_credential_names) to the organization, so the project's C(collections/requirements.yml) actually gets installed on sync."
+          - "Off by default: C(AWX_COLLECTIONS_ENABLED)/C(AWX_ROLES_ENABLED) are AWX instance-wide settings, not scoped to this organization, so enabling this affects every project on the AWX instance, not just this one."
+      awx_config_galaxy_credential_names: &awx_config_galaxy_credential_names
+        type: list
+        elements: str
+        default:
+          - "Ansible Galaxy"
+        description:
+          - "Names of existing Galaxy-type credentials to attach to the organization so it can install collections/roles from them. Only used when C(awx_config_enable_collection_sync) is enabled."
+          - "Defaults to the built-in C(Ansible Galaxy) credential AWX ships pointing at C(galaxy.ansible.com)."
       awx_config_project_name: &awx_config_project_name
         type: str
         default: "Fabric-X Examples"
@@ -453,6 +467,7 @@ argument_specs:
     options:
       awx_config_controller_username: *awx_config_controller_username
       awx_config_validate_certs: *awx_config_validate_certs
+      awx_config_enable_collection_sync: *awx_config_enable_collection_sync
       awx_config_credentials: *awx_config_credentials
       awx_config_inventories: *awx_config_inventories
       awx_config_job_templates: *awx_config_job_templates
@@ -461,6 +476,12 @@ argument_specs:
     short_description: Ensure the AWX organization exists
     options:
       awx_config_organization_name: *awx_config_organization_name
+
+  configure/collection_sync:
+    short_description: Enable AWX collection/role syncing and attach Galaxy credentials to the organization
+    options:
+      awx_config_organization_name: *awx_config_organization_name
+      awx_config_galaxy_credential_names: *awx_config_galaxy_credential_names
 
   configure/credentials:
     short_description: Ensure AWX credentials exist

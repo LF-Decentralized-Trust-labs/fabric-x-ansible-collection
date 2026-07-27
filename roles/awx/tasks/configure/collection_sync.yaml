@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Enable AWX collection and role syncing
+  awx.awx.settings:
+    settings:
+      AWX_COLLECTIONS_ENABLED: true
+      AWX_ROLES_ENABLED: true
+
+- name: Attach Galaxy credentials to the organization
+  awx.awx.organization:
+    name: "{{ awx_config_organization_name }}"
+    galaxy_credentials: "{{ awx_config_galaxy_credential_names }}"
+    state: present

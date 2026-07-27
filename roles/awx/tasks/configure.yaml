@@ -26,6 +26,11 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.awx
         tasks_from: configure/organization
+    - name: Enable AWX collection and role syncing
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.awx
+        tasks_from: configure/collection_sync
+      when: awx_config_enable_collection_sync
     - name: Ensure AWX credentials exist
       ansible.builtin.include_role:
         name: hyperledger.fabricx.awx
