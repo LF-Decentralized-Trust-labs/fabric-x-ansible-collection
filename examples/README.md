@@ -208,4 +208,6 @@ make init
 make teardown
 ```
 
+`start`, `teardown`, and `wipe` also drive AWX (see the [`awx` playbooks](../playbooks/awx/README.md)) when the loaded inventory defines an `awx` group — start and configure a running AWX with this collection's examples, then tear it down or wipe it, alongside the rest of the network.
+
 For the complete playbook workflow and group contract, see the [playbooks documentation](../playbooks/README.md).

@@ -25,6 +25,7 @@ dependencies:
   community.docker: ">=4.3.1"
   containers.podman: ">=1.16.2"
   kubernetes.core: ">=6.3.0"
+  awx.awx: ">=24.6.1"
 build_ignore:
   - examples/images
   - .github

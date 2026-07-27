@@ -15,3 +15,5 @@ collections:
     version: ">=1.16.2"
   - name: kubernetes.core
     version: ">=6.3.0"
+  - name: awx.awx
+    version: ">=24.6.1"

@@ -7,6 +7,7 @@ The `awx` playbooks operate AWX through the same lifecycle used by the rest of t
 - [Operational model](#operational-model)
 - [Playbooks flow](#playbooks-flow)
 - [start.yaml](#startyaml)
+- [configure.yaml](#configureyaml)
 - [teardown.yaml](#teardownyaml)
 - [wipe.yaml](#wipeyaml)
 - [backup.yaml](#backupyaml)
@@ -20,11 +21,14 @@ AWX is managed by the AWX Operator. This role installs and removes the AWX Opera
 
 The generated role README ([`roles/awx/README.md`](../../roles/awx/README.md)) documents all role variables. This playbook README explains how to operate the deployed AWX instance.
 
+`start`, `configure`, `teardown`, and `wipe` are also folded into the same numbered wrappers under [`examples/playbooks/`](../../examples/README.md) that operate the rest of the collection, so `make start`, `make teardown`, and `make wipe` drive AWX alongside everything else in one command. This works because every component's play targets `"{{ target_hosts | default('<its own group>') }}:&<its own group>"` (AWX's own group being `awx`) — when an inventory has no `awx` group, that play simply matches zero hosts and is skipped, so bundling AWX in is harmless even against inventories that don't deploy it. `backup` and `restore` are maintenance operations without a wrapper; invoke them directly via `ansible-playbook` as shown below.
+
 ## Playbooks flow
 
 ```mermaid
 flowchart LR
-  START[start] --> BACKUP[backup]
+  START[start] --> CONFIGURE[configure]
+  START --> BACKUP[backup]
   BACKUP --> RESTORE[restore]
   START --> TEARDOWN[teardown]
   TEARDOWN --> WIPE[wipe]
@@ -41,11 +45,40 @@ flowchart LR
 ansible-playbook hyperledger.fabricx.awx.start --extra-vars '{"target_hosts": "awx"}'
 ```
 
+Or, from the repository root, via [`examples/playbooks/40-start.yaml`](../../examples/playbooks/40-start.yaml):
+
+```shell
+make start
+```
+
 Properties:
 
 - Target hosts: `awx` by default.
 - For Kubernetes, define `awx_k8s_node_port` in the inventory to expose the AWX service outside the cluster.
 - After a successful start, the playbook computes AWX's effective address (`tasks_from: effective_address`) and prints the URL, username, and password. The URL is derived automatically, in priority order, from the OpenShift route (`awx_openshift_route`), the Kubernetes NodePort (`awx_k8s_node_port`), or the ClusterIP port (`awx_port`) — no inventory variable needs to be set for the URL itself.
+
+## configure.yaml
+
+[`configure.yaml`](./configure.yaml) populates a running AWX instance so the [`examples`](../../examples/README.md) playbooks and inventories can be run from the AWX UI without any manual setup: an organization, a Git SCM project synced from this collection's repository, one inventory per `examples/inventory` family, and one job template per numbered playbook under `examples/playbooks`.
+
+```shell
+ansible-playbook hyperledger.fabricx.awx.configure --extra-vars '{"target_hosts": "awx"}'
+```
+
+Or, from the repository root, via [`examples/playbooks/40-start.yaml`](../../examples/playbooks/40-start.yaml), which imports `configure` right after `start`:
+
+```shell
+make start
+```
+
+Properties:
+
+- Target hosts: `awx` by default. Runs after `start` on the same inventory, since it authenticates using the same admin-password Secret and computed effective address.
+- Idempotent: reconciles the organization, project, inventories, and job templates through the `awx.awx` collection modules — running it again after AWX or the underlying data changes settles back to the same state instead of erroring or duplicating objects.
+- The project defaults to the public collection repository (`awx_config_project_scm_url`) on the `main` branch (`awx_config_project_scm_branch`). To point at an internal/enterprise mirror instead (for example a `github.ibm.com` repository), override `awx_config_project_scm_url`/`awx_config_project_scm_branch` and add a matching `Source Control` credential entry to `awx_config_credentials`, then reference its name in `awx_config_project_scm_credential`.
+- `awx_config_credentials` only covers non-machine secrets such as Source Control tokens and container-registry credentials — supply their values via vaulted vars, never commit them. Machine/SSH credentials used to reach target hosts (for example the `distributed` example family) are intentionally left out of scope: create those manually in the AWX UI so private key material is never read from disk or transmitted by this role.
+- Job templates prompt for inventory and extra vars on launch (`ask_inventory_on_launch`, `ask_variables_on_launch`), mirroring the `TARGET_HOSTS`/`target_hosts` override supported by the repository `Makefile`.
+- The AWX project needs `hyperledger.fabricx` (and its own dependencies) installed as collections to resolve the `hyperledger.fabricx.*` FQCN used by the `examples/playbooks` wrappers. This repository ships a [`collections/requirements.yml`](../../collections/requirements.yml) at its root for that purpose, which AWX installs automatically on every project sync; update its URL if the project points at a mirror instead of the public repository.
 
 ## teardown.yaml
 
@@ -53,6 +86,12 @@ Properties:
 
 ```shell
 ansible-playbook hyperledger.fabricx.awx.teardown --extra-vars '{"target_hosts": "awx"}'
+```
+
+Or, from the repository root, via [`examples/playbooks/60-teardown.yaml`](../../examples/playbooks/60-teardown.yaml):
+
+```shell
+make teardown
 ```
 
 Properties:
@@ -69,6 +108,12 @@ Properties:
 
 ```shell
 ansible-playbook hyperledger.fabricx.awx.wipe --extra-vars '{"target_hosts": "awx"}'
+```
+
+Or, from the repository root, via [`examples/playbooks/100-wipe.yaml`](../../examples/playbooks/100-wipe.yaml):
+
+```shell
+make wipe
 ```
 
 Properties:

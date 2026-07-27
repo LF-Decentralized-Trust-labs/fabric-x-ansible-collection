@@ -148,6 +148,159 @@ argument_specs:
         description:
           - "New admin credential for AWX restore, used only as a fallback if the restored instance's admin-password Secret is missing a password."
           - "Has no default; supply a vaulted or otherwise secret-managed value. Only required when that fallback path is actually reached."
+      awx_admin_password_secret_name: &awx_admin_password_secret_name
+        type: str
+        default: "awx-admin-password"
+        description:
+          - "Name of the Secret holding the AWX admin password."
+      awx_admin_password_retries: &awx_admin_password_retries
+        type: int
+        default: "{{ awx_k8s_ready_retries }}"
+        description:
+          - "Readiness polling retry count while waiting for the admin password Secret."
+      awx_admin_password_delay: &awx_admin_password_delay
+        type: int
+        default: "{{ awx_k8s_ready_delay }}"
+        description:
+          - "Readiness polling delay in seconds while waiting for the admin password Secret."
+      awx_admin_password_require_password: &awx_admin_password_require_password
+        type: bool
+        default: true
+        description:
+          - "Wait for the C(password) key to appear in the Secret, not just for the Secret to exist."
+          - "Disabled during restore, where a missing C(password) key is a legitimate outcome handled by a fallback reset rather than a wait condition."
+      awx_config_controller_username: &awx_config_controller_username
+        type: str
+        default: "admin"
+        description:
+          - "AWX/Controller username used to authenticate configuration requests."
+      awx_config_validate_certs: &awx_config_validate_certs
+        type: bool
+        default: false
+        description:
+          - "Validate TLS certificates when talking to the AWX/Controller API."
+          - "Left disabled by default because the AWX Operator's default web certificate is self-signed."
+      awx_config_organization_name: &awx_config_organization_name
+        type: str
+        default: "Fabric-X"
+        description:
+          - "Name of the AWX organization that owns the Fabric-X examples project, credentials, inventories, and job templates."
+      awx_config_project_name: &awx_config_project_name
+        type: str
+        default: "Fabric-X Examples"
+        description:
+          - "Name of the AWX project synced from C(awx_config_project_scm_url)."
+      awx_config_project_scm_type: &awx_config_project_scm_type
+        type: str
+        default: "git"
+        description:
+          - "SCM type used for the AWX project."
+      awx_config_project_scm_url: &awx_config_project_scm_url
+        type: str
+        default: "https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection.git"
+        description:
+          - "Git URL of the repository synced into the AWX project."
+          - "Point this at an internal/enterprise mirror (for example a github.ibm.com repository) together with C(awx_config_project_scm_credential) when the public repository is not reachable from AWX."
+      awx_config_project_scm_branch: &awx_config_project_scm_branch
+        type: str
+        default: "main"
+        description:
+          - "Git branch, tag, or commit synced into the AWX project."
+      awx_config_project_scm_credential: &awx_config_project_scm_credential
+        type: str
+        description:
+          - "Name of a Source Control credential (see C(awx_config_credentials)) to attach to the project."
+          - "Required for private or enterprise repositories such as github.ibm.com; leave unset for the public repository."
+      awx_config_project_scm_update_on_launch: &awx_config_project_scm_update_on_launch
+        type: bool
+        default: true
+        description:
+          - "Refresh the project from its SCM source before launching a job that uses it."
+      awx_config_project_wait: &awx_config_project_wait
+        type: bool
+        default: true
+        description:
+          - "Wait for the project's initial SCM sync to finish before creating inventories and job templates against it."
+      awx_config_project_wait_timeout: &awx_config_project_wait_timeout
+        type: int
+        default: 120
+        description:
+          - "Seconds to wait for the project's initial SCM sync (see C(awx_config_project_wait))."
+      awx_config_credentials: &awx_config_credentials
+        type: list
+        elements: dict
+        description:
+          - "Credential objects created before the project and job templates. Each item is passed to M(awx.awx.credential) (C(name), C(credential_type), optional C(organization), optional C(inputs))."
+          - "Use this for Source Control tokens (private/enterprise repositories) and container-registry credentials. Machine/SSH credentials used to reach target hosts are intentionally out of scope: create those manually in the AWX UI so private key material is never read or transmitted by this role."
+          - "Example: C([{'name': 'GHE Fabric-X Token', 'credential_type': 'Source Control', 'inputs': {'username': 'svc-fabricx', 'password': 'REPLACE_WITH_VAULTED_TOKEN'}}])."
+      awx_config_inventories: &awx_config_inventories
+        type: list
+        elements: dict
+        default:
+          - name: "Fabric-X - local"
+            source_path: "examples/inventory/local/fabric-x.yaml"
+          - name: "Fabric-X - k8s"
+            source_path: "examples/inventory/k8s/fabric-x.yaml"
+          - name: "Fabric-X - openshift"
+            source_path: "examples/inventory/openshift/fabric-x.yaml"
+          - name: "Fabric-X - distributed"
+            source_path: "examples/inventory/distributed/fabric-x.yaml"
+        description:
+          - "Inventories created from the AWX project, one per C(examples/inventory) family. Each item is passed to M(awx.awx.inventory) and M(awx.awx.inventory_source) (C(name), optional C(description), C(source_path), optional C(credential) name of a machine/SSH credential created manually in the AWX UI)."
+          - "This list is not discovered automatically; it is kept in sync by hand with C(examples/inventory). Add, rename, or remove an entry here when a family is added, renamed, or removed there."
+      awx_config_job_templates: &awx_config_job_templates
+        type: list
+        elements: dict
+        default:
+          - name: "Fabric-X - Binaries"
+            playbook: "examples/playbooks/10-binaries.yaml"
+            inventory: "Fabric-X - k8s"
+          - name: "Fabric-X - Generate Crypto"
+            playbook: "examples/playbooks/20-generate-crypto.yaml"
+            inventory: "Fabric-X - k8s"
+          - name: "Fabric-X - Build Genesis Block"
+            playbook: "examples/playbooks/21-build-genesis-block.yaml"
+            inventory: "Fabric-X - k8s"
+          - name: "Fabric-X - Configs"
+            playbook: "examples/playbooks/30-configs.yaml"
+            inventory: "Fabric-X - k8s"
+          - name: "Fabric-X - Start"
+            playbook: "examples/playbooks/40-start.yaml"
+            inventory: "Fabric-X - k8s"
+          - name: "Fabric-X - Init"
+            playbook: "examples/playbooks/41-init.yaml"
+            inventory: "Fabric-X - k8s"
+          - name: "Fabric-X - Stop"
+            playbook: "examples/playbooks/50-stop.yaml"
+            inventory: "Fabric-X - k8s"
+          - name: "Fabric-X - Teardown"
+            playbook: "examples/playbooks/60-teardown.yaml"
+            inventory: "Fabric-X - k8s"
+          - name: "Fabric-X - Ping"
+            playbook: "examples/playbooks/70-ping.yaml"
+            inventory: "Fabric-X - k8s"
+          - name: "Fabric-X - Get Metrics"
+            playbook: "examples/playbooks/93-get-metrics.yaml"
+            inventory: "Fabric-X - k8s"
+          - name: "Fabric-X - Fetch Crypto"
+            playbook: "examples/playbooks/95-fetch-crypto.yaml"
+            inventory: "Fabric-X - k8s"
+          - name: "Fabric-X - Fetch Logs"
+            playbook: "examples/playbooks/96-fetch-logs.yaml"
+            inventory: "Fabric-X - k8s"
+          - name: "Fabric-X - Wipe"
+            playbook: "examples/playbooks/100-wipe.yaml"
+            inventory: "Fabric-X - k8s"
+          - name: "Fabric-X - Hard Wipe"
+            playbook: "examples/playbooks/110-hard-wipe.yaml"
+            inventory: "Fabric-X - k8s"
+          - name: "Fabric-X - Run Command"
+            playbook: "examples/playbooks/999-run-command.yaml"
+            inventory: "Fabric-X - k8s"
+        description:
+          - "Job templates created for the numbered example playbooks under C(examples/playbooks/). Each item is passed to M(awx.awx.job_template) (C(name), C(playbook), optional C(inventory), optional C(extra_vars), optional C(credentials))."
+          - "C(ask_inventory_on_launch) and C(ask_variables_on_launch) are always enabled so operators can pick a different example family or override C(extra_vars) such as C(target_hosts) at launch time, mirroring the C(TARGET_HOSTS) override supported by the repository Makefile."
+          - "This list is not discovered automatically; it is kept in sync by hand with C(examples/playbooks). Add, rename, or remove an entry here when a numbered playbook is added, renamed, or removed there."
   start:
     short_description: Start AWX
     options:
@@ -207,6 +360,15 @@ argument_specs:
     short_description: Compute the effective AWX web address
     options:
       awx_host: *awx_host
+
+  get_admin_password:
+    short_description: Retrieve and decode the AWX admin password Secret
+    options:
+      k8s_namespace: *k8s_namespace
+      awx_admin_password_secret_name: *awx_admin_password_secret_name
+      awx_admin_password_retries: *awx_admin_password_retries
+      awx_admin_password_delay: *awx_admin_password_delay
+      awx_admin_password_require_password: *awx_admin_password_require_password
 
   k8s/rm:
     short_description: Remove AWX Kubernetes resources
@@ -285,3 +447,50 @@ argument_specs:
       awx_restore_openshift_route: *awx_restore_openshift_route
       awx_new_admin_credential: *awx_new_admin_credential
       awx_k8s_wait_timeout: *awx_k8s_wait_timeout
+
+  configure:
+    short_description: Populate a running AWX with the Fabric-X examples project, inventories, and job templates
+    options:
+      awx_config_controller_username: *awx_config_controller_username
+      awx_config_validate_certs: *awx_config_validate_certs
+      awx_config_credentials: *awx_config_credentials
+      awx_config_inventories: *awx_config_inventories
+      awx_config_job_templates: *awx_config_job_templates
+
+  configure/organization:
+    short_description: Ensure the AWX organization exists
+    options:
+      awx_config_organization_name: *awx_config_organization_name
+
+  configure/credentials:
+    short_description: Ensure AWX credentials exist
+    options:
+      awx_config_credentials: *awx_config_credentials
+      awx_config_organization_name: *awx_config_organization_name
+
+  configure/project:
+    short_description: Ensure the AWX Fabric-X examples project exists
+    options:
+      awx_config_organization_name: *awx_config_organization_name
+      awx_config_project_name: *awx_config_project_name
+      awx_config_project_scm_type: *awx_config_project_scm_type
+      awx_config_project_scm_url: *awx_config_project_scm_url
+      awx_config_project_scm_branch: *awx_config_project_scm_branch
+      awx_config_project_scm_credential: *awx_config_project_scm_credential
+      awx_config_project_scm_update_on_launch: *awx_config_project_scm_update_on_launch
+      awx_config_project_wait: *awx_config_project_wait
+      awx_config_project_wait_timeout: *awx_config_project_wait_timeout
+
+  configure/inventories:
+    short_description: Ensure AWX inventories and their SCM inventory sources exist
+    options:
+      awx_config_organization_name: *awx_config_organization_name
+      awx_config_project_name: *awx_config_project_name
+      awx_config_inventories: *awx_config_inventories
+
+  configure/job_templates:
+    short_description: Ensure AWX job templates for the numbered example playbooks exist
+    options:
+      awx_config_organization_name: *awx_config_organization_name
+      awx_config_project_name: *awx_config_project_name
+      awx_config_job_templates: *awx_config_job_templates

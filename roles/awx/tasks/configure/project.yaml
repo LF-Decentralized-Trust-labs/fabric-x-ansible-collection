@@ -1,0 +1,18 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure AWX Fabric-X examples project exists
+  awx.awx.project:
+    name: "{{ awx_config_project_name }}"
+    organization: "{{ awx_config_organization_name }}"
+    scm_type: "{{ awx_config_project_scm_type }}"
+    scm_url: "{{ awx_config_project_scm_url }}"
+    scm_branch: "{{ awx_config_project_scm_branch }}"
+    credential: "{{ awx_config_project_scm_credential | default(omit) }}"
+    scm_update_on_launch: "{{ awx_config_project_scm_update_on_launch }}"
+    wait: "{{ awx_config_project_wait }}"
+    timeout: "{{ awx_config_project_wait_timeout }}"
+    state: present

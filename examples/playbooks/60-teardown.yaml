@@ -24,3 +24,6 @@
 
 - name: Remove container networks
   ansible.builtin.import_playbook: hyperledger.fabricx.remove_container_networks
+
+- name: Teardown AWX
+  ansible.builtin.import_playbook: hyperledger.fabricx.awx.teardown

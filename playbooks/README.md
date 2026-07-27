@@ -124,7 +124,7 @@ Namespaced playbooks are collections of playbooks tailored for a specific group 
 | Namespace                                        | Description                                                                                                                                     |
 | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | [artifacts](./artifacts/README.md)               | Generates network-wide crypto material and the genesis block on the control node. Not tied to a remote host group.                              |
-| [awx](./awx/README.md)                           | Operates AWX (Ansible automation controller) on Kubernetes or OpenShift: start, teardown, wipe, backup, and restore, targeting the `awx` group. |
+| [awx](./awx/README.md)                           | Operates AWX (Ansible automation controller) on Kubernetes or OpenShift: start, teardown, wipe, backup, restore, configure.                     |
 | [fabric_ca_server](./fabric_ca_server/README.md) | Operates Fabric CA servers and their PostgreSQL databases: start, enroll admins, register identities, stop, teardown, and wipe.                 |
 | [fabric_ca_client](./fabric_ca_client/README.md) | Prepares the Fabric CA client binary used by enrollment and registration tasks.                                                                 |
 | [orderer](./orderer/README.md)                   | Operates Fabric-X orderer components (routers, batchers, consenters, assemblers) targeting the `fabric_x_orderers` group.                       |

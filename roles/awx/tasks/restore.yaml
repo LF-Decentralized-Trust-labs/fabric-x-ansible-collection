@@ -206,22 +206,15 @@
 # =========================
 # Resolve admin credentials
 # =========================
-- name: Get admin password secret for new instance
-  kubernetes.core.k8s_info:
-    api_version: v1
-    kind: Secret
-    namespace: "{{ k8s_namespace | default('default') }}"
-    name: "{{ awx_restore_name }}-admin-password"
-  register: awx_admin_secret
-  failed_when: awx_admin_secret.resources | length == 0
-
-- name: Check if admin password data exists
-  ansible.builtin.set_fact:
-    awx_admin_secret_has_password: >-
-      {{
-        awx_admin_secret.resources[0].data is defined and
-        ('password' in awx_admin_secret.resources[0].data)
-      }}
+- name: Retrieve admin password secret for new instance
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.awx
+    tasks_from: get_admin_password
+  vars:
+    awx_admin_password_secret_name: "{{ awx_restore_name }}-admin-password"
+    awx_admin_password_retries: 1
+    awx_admin_password_delay: 0
+    awx_admin_password_require_password: false
 
 - name: Reset admin password via awx-manage shell if secret is missing password
   kubernetes.core.k8s_exec:
@@ -235,22 +228,19 @@
       u.save()
       print("Password changed for admin")'
   register: awx_reset_admin_password
-  when: not awx_admin_secret_has_password
+  when: not (awx_admin_password | length > 0)
   changed_when: true
   failed_when: awx_reset_admin_password.rc != 0
 
-- name: Decode admin password from secret if present
+- name: Set effective admin password from secret
   ansible.builtin.set_fact:
-    awx_effective_admin_password: >-
-      {{
-        awx_admin_secret.resources[0].data.password | b64decode
-      }}
-  when: awx_admin_secret_has_password
+    awx_effective_admin_password: "{{ awx_admin_password }}"
+  when: awx_admin_password | length > 0
 
 - name: Use fallback password if we set it manually
   ansible.builtin.set_fact:
     awx_effective_admin_password: "{{ awx_new_admin_credential }}"
-  when: not awx_admin_secret_has_password
+  when: not (awx_admin_password | length > 0)
 
 - name: Set restored AWX effective address from OpenShift route
   ansible.builtin.set_fact:
