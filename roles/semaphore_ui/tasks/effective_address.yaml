@@ -1,0 +1,11 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Set Semaphore UI effective address
+  vars:
+    semaphore_ui_http_protocol: "{{ 'https' if semaphore_ui_use_tls else 'http' }}"
+  ansible.builtin.set_fact:
+    semaphore_ui_effective_address: "{{ semaphore_ui_http_protocol }}://{{ actual_host }}:{{ semaphore_ui_port }}"

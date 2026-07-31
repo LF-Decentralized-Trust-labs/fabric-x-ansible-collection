@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Generate Semaphore UI TLS crypto material
+  hosts: "{{ target_hosts | default('semaphore_ui') }}:&semaphore_ui"
+  tasks:
+    - name: Generate the Semaphore UI TLS crypto material
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.semaphore_ui
+        tasks_from: crypto/setup
+      when:
+        - semaphore_ui_port is defined

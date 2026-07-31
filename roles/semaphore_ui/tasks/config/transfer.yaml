@@ -1,0 +1,179 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =======================
+# Directories
+# =======================
+- name: Ensure the Semaphore UI config directory exists
+  ansible.builtin.file:
+    path: "{{ semaphore_ui_remote_config_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Ensure the Semaphore UI data directory exists
+  ansible.builtin.file:
+    path: "{{ semaphore_ui_remote_data_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Ensure the Semaphore UI secrets directory exists
+  ansible.builtin.file:
+    path: "{{ semaphore_ui_remote_data_dir }}/.secrets"
+    state: directory
+    mode: "0o700"
+
+# =======================
+# Secrets
+# =======================
+- name: Generate the Semaphore UI cookie_hash secret on first run # noqa: command-instead-of-shell
+  ansible.builtin.shell: >-
+    openssl rand -base64 32 > {{ semaphore_ui_remote_data_dir }}/.secrets/cookie_hash
+  args:
+    creates: "{{ semaphore_ui_remote_data_dir }}/.secrets/cookie_hash"
+
+- name: Generate the Semaphore UI cookie_encryption secret on first run # noqa: command-instead-of-shell
+  ansible.builtin.shell: >-
+    openssl rand -base64 32 > {{ semaphore_ui_remote_data_dir }}/.secrets/cookie_encryption
+  args:
+    creates: "{{ semaphore_ui_remote_data_dir }}/.secrets/cookie_encryption"
+
+- name: Generate the Semaphore UI access_key_encryption secret on first run # noqa: command-instead-of-shell
+  ansible.builtin.shell: >-
+    openssl rand -base64 32 > {{ semaphore_ui_remote_data_dir }}/.secrets/access_key_encryption
+  args:
+    creates: "{{ semaphore_ui_remote_data_dir }}/.secrets/access_key_encryption"
+
+- name: Read the Semaphore UI cookie_hash secret
+  ansible.builtin.slurp:
+    src: "{{ semaphore_ui_remote_data_dir }}/.secrets/cookie_hash"
+  register: semaphore_ui_cookie_hash_secret_file
+  no_log: true
+
+- name: Read the Semaphore UI cookie_encryption secret
+  ansible.builtin.slurp:
+    src: "{{ semaphore_ui_remote_data_dir }}/.secrets/cookie_encryption"
+  register: semaphore_ui_cookie_encryption_secret_file
+  no_log: true
+
+- name: Read the Semaphore UI access_key_encryption secret
+  ansible.builtin.slurp:
+    src: "{{ semaphore_ui_remote_data_dir }}/.secrets/access_key_encryption"
+  register: semaphore_ui_access_key_encryption_secret_file
+  no_log: true
+
+- name: Set Semaphore UI secret facts
+  ansible.builtin.set_fact:
+    semaphore_ui_secrets:
+      cookie_hash: "{{ (semaphore_ui_cookie_hash_secret_file.content | b64decode).strip() }}"
+      cookie_encryption: "{{ (semaphore_ui_cookie_encryption_secret_file.content | b64decode).strip() }}"
+      access_key_encryption: "{{ (semaphore_ui_access_key_encryption_secret_file.content | b64decode).strip() }}"
+
+# =======================
+# Inventory discovery
+# =======================
+# Powers the target_hosts survey variable's enum choices (see project.json.j2): every
+# seeded task template lets an operator pick, from a real list of what actually exists,
+# which group this collection's own target_hosts convention (examples/playbooks/*.yaml)
+# should confine a run to. Groups only, not individual hosts: with every seeded inventory
+# combined, the per-host list becomes too large to be a usable dropdown. failed_when: false
+# skips inventories that cannot be listed without external prerequisites this control node
+# may not have set (for example K8S_NODE_IP, OPENSHIFT_APPS_DOMAIN, or the distributed
+# family's host_machine_* placeholders) rather than failing the whole configuration.
+- name: List the groups of every seeded inventory
+  ansible.builtin.command: >-
+    ansible-inventory --list -i {{ project_dir }}/{{ current_semaphore_ui_inventory.path }}
+  loop: "{{ semaphore_ui_inventories }}"
+  loop_control:
+    loop_var: current_semaphore_ui_inventory
+    label: "{{ current_semaphore_ui_inventory.name }}"
+  register: semaphore_ui_inventory_list
+  changed_when: false
+  failed_when: false
+
+- name: Set the target_hosts survey variable choices
+  vars:
+    semaphore_ui_inventory_group_names: >-
+      {{
+        semaphore_ui_inventory_list.results
+        | selectattr('rc', 'equalto', 0)
+        | map(attribute='stdout')
+        | map('from_json')
+        | map('dict2items')
+        | map('map', attribute='key')
+        | list
+        | flatten
+        | reject('equalto', '_meta')
+        | list
+      }}
+  ansible.builtin.set_fact:
+    semaphore_ui_target_hosts_choices: "{{ semaphore_ui_inventory_group_names | unique | sort }}"
+
+# =======================
+# Templates
+# =======================
+- name: Render the Semaphore UI server configuration
+  ansible.builtin.template:
+    src: config.json.j2
+    dest: "{{ semaphore_ui_remote_config_dir }}/{{ semaphore_ui_config_file }}"
+    mode: "0o600"
+
+- name: Render the Semaphore UI project seed
+  ansible.builtin.template:
+    src: project.json.j2
+    dest: "{{ semaphore_ui_remote_config_dir }}/{{ semaphore_ui_project_seed_file }}"
+    mode: "0o600"
+
+# =======================
+# Database migration and seeding
+# =======================
+- name: Run Semaphore UI database migrations
+  ansible.builtin.command: >-
+    {{ remote_node_dir }}/bin/{{ semaphore_ui_bin_name }} migrate
+    --config {{ semaphore_ui_remote_config_dir }}/{{ semaphore_ui_config_file }}
+  register: semaphore_ui_migrate
+  changed_when: "'Migrations Finished' in semaphore_ui_migrate.stdout"
+
+- name: Check if the Semaphore UI admin user exists
+  ansible.builtin.command: >-
+    {{ remote_node_dir }}/bin/{{ semaphore_ui_bin_name }} user get
+    --login {{ semaphore_ui_username }}
+    --config {{ semaphore_ui_remote_config_dir }}/{{ semaphore_ui_config_file }}
+  register: semaphore_ui_admin_user_check
+  changed_when: false
+  failed_when: false
+  no_log: true
+
+- name: Create the Semaphore UI admin user
+  vars:
+    bin_name: "{{ semaphore_ui_bin_name }}"
+    bin_run_with_tmux: false
+    bin_collect_logs: false
+    bin_command: >-
+      {{ semaphore_ui_bin_name }} user add
+      --admin --login {{ semaphore_ui_username }}
+      --email {{ semaphore_ui_email }}
+      --name {{ semaphore_ui_username }}
+      --password {{ semaphore_ui_password | quote }}
+      --config {{ semaphore_ui_remote_config_dir }}/{{ semaphore_ui_config_file }}
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start
+  when:
+    - semaphore_ui_admin_user_check.rc != 0
+
+# Safe to re-run: Semaphore UI refuses to import over an existing project rather than
+# overwriting it. It will not, however, update an existing project when
+# semaphore_ui_inventories/semaphore_ui_job_templates change.
+- name: Import the Semaphore UI Fabric-X project
+  ansible.builtin.command: >-
+    {{ remote_node_dir }}/bin/{{ semaphore_ui_bin_name }} project import
+    --file {{ semaphore_ui_remote_config_dir }}/{{ semaphore_ui_project_seed_file }}
+    --config {{ semaphore_ui_remote_config_dir }}/{{ semaphore_ui_config_file }}
+  register: semaphore_ui_project_import
+  changed_when: semaphore_ui_project_import.rc == 0
+  failed_when:
+    - semaphore_ui_project_import.rc != 0
+    - "'already exists' not in semaphore_ui_project_import.stderr"

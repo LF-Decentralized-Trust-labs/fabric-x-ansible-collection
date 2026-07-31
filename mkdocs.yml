@@ -112,6 +112,7 @@ nav:
           - fabric-x-cryptogen: examples/inventory/docs/local/fabric-x-cryptogen.md
           - fabric-x-no-mtls: examples/inventory/docs/local/fabric-x-no-mtls.md
           - fabric-x-no-tls: examples/inventory/docs/local/fabric-x-no-tls.md
+          - semaphore-ui: examples/inventory/docs/local/semaphore-ui.md
       - Kubernetes:
           - fabric-x: examples/inventory/docs/k8s/fabric-x.md
           - fabric-x-yugabyte: examples/inventory/docs/k8s/fabric-x-yugabyte.md
@@ -136,6 +137,7 @@ nav:
       - loadgen: playbooks/loadgen/index.md
       - monitoring: playbooks/monitoring/index.md
       - orderer: playbooks/orderer/index.md
+      - semaphore_ui: playbooks/semaphore_ui/index.md
       - yugabyte: playbooks/yugabyte/index.md
   - Roles:
       - Overview: roles/index.md
@@ -168,6 +170,7 @@ nav:
       - postgres: roles/postgres/index.md
       - postgres_exporter: roles/postgres_exporter/index.md
       - prometheus: roles/prometheus/index.md
+      - semaphore_ui: roles/semaphore_ui/index.md
       - tmux: roles/tmux/index.md
       - utils: roles/utils/index.md
       - yugabyte: roles/yugabyte/index.md

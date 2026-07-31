@@ -1,0 +1,14 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Generate the Semaphore UI TLS crypto material with OpenSSL
+  vars:
+    openssl_common_name: "{{ inventory_hostname }}"
+    openssl_private_key_path: "{{ semaphore_ui_remote_config_dir }}/tls/{{ semaphore_ui_tls_private_key_file }}"
+    openssl_cert_path: "{{ semaphore_ui_remote_config_dir }}/tls/{{ semaphore_ui_tls_cert_file }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openssl
+    tasks_from: generate_self_signed_cert

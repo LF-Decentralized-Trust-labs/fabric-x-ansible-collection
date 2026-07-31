@@ -27,3 +27,5 @@ all:
           awx_k8s_wait_timeout: 300
           awx_k8s_node_port: 30080
           awx_restore_name: awx
+          awx_config_enable_collection_sync: true
+          awx_config_project_scm_branch: "35c37c90316f7426ce5cba55daf7969ddda0802c"

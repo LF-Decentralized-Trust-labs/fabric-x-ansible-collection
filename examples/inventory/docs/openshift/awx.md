@@ -28,6 +28,7 @@ A single logical host, `awx-controller`, represents the AWX deployment:
 - `awx_openshift_route` and `awx_restore_openshift_route` derive their hostnames from `openshift_apps_domain`, the same cluster ingress domain used by the other OpenShift samples (defaults to `apps-crc.testing` on CRC).
 - `awx_postgres_fix_pvc_permissions: true` and `awx_postgres_security_context_settings.runAsUser: 26` work around storage provisioners that don't apply correct PVC ownership on mount, which is common on CRC's default storage.
 - `awx_restore_name: awx` restores in place by default, reusing the same Route without a naming conflict.
+- `awx_config_enable_collection_sync: true` lets `configure` enable AWX's instance-wide collection/role syncing settings and attach the built-in `Ansible Galaxy` credential to the organization, so the examples project's `collections/requirements.yml` actually installs on sync.
 
 Run the lifecycle playbooks directly against this inventory, for example:
 

@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Teardown Semaphore UI
+  hosts: "{{ target_hosts | default('semaphore_ui') }}:&semaphore_ui"
+  tasks:
+    - name: Teardown Semaphore UI
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.semaphore_ui
+        tasks_from: teardown
+      when:
+        - semaphore_ui_port is defined

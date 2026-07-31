@@ -24,3 +24,6 @@
 
 - name: Transfer Loadgen configs
   ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.configs
+
+- name: Configure Semaphore UI
+  ansible.builtin.import_playbook: hyperledger.fabricx.semaphore_ui.configs

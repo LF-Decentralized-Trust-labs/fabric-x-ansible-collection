@@ -1,0 +1,22 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start the Semaphore UI binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.semaphore_ui
+    tasks_from: bin/start
+
+- name: Get Semaphore UI effective address
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.semaphore_ui
+    tasks_from: effective_address
+
+- name: Show Semaphore UI access details
+  ansible.builtin.debug:
+    msg:
+      - "Semaphore UI is ready."
+      - "URL: {{ semaphore_ui_effective_address }}"
+      - "Username: {{ semaphore_ui_username }}"

@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Stop the Semaphore UI binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.semaphore_ui
+    tasks_from: stop
+
+- name: Remove the Semaphore UI data
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.semaphore_ui
+    tasks_from: data/rm

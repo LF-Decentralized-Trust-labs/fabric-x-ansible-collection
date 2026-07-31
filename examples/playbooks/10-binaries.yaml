@@ -21,3 +21,6 @@
 
 - name: Build Loadgen binaries
   ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.binaries
+
+- name: Install Semaphore UI
+  ansible.builtin.import_playbook: hyperledger.fabricx.semaphore_ui.binaries

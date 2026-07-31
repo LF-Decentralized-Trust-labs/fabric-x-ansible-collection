@@ -1,0 +1,52 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Get AWX effective address
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.awx
+    tasks_from: effective_address
+
+- name: Retrieve AWX admin password
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.awx
+    tasks_from: get_admin_password
+
+- name: Reconcile AWX organization, project, inventories, and job templates
+  module_defaults:
+    group/awx.awx.controller:
+      controller_host: "{{ awx_effective_address }}"
+      controller_username: "{{ awx_config_controller_username }}"
+      controller_password: "{{ awx_admin_password }}"
+      validate_certs: "{{ awx_config_validate_certs }}"
+  block:
+    - name: Ensure AWX organization exists
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.awx
+        tasks_from: configure/organization
+    - name: Enable AWX collection and role syncing
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.awx
+        tasks_from: configure/collection_sync
+      when: awx_config_enable_collection_sync
+    - name: Ensure AWX credentials exist
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.awx
+        tasks_from: configure/credentials
+      when: awx_config_credentials is defined
+    - name: Ensure AWX Fabric-X examples project exists
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.awx
+        tasks_from: configure/project
+    - name: Ensure AWX inventories exist
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.awx
+        tasks_from: configure/inventories
+      when: awx_config_inventories | length > 0
+    - name: Ensure AWX job templates exist
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.awx
+        tasks_from: configure/job_templates
+      when: awx_config_job_templates | length > 0

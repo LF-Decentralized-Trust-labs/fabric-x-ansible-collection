@@ -1,0 +1,123 @@
+{#
+Copyright IBM Corp. All Rights Reserved.
+
+SPDX-License-Identifier: Apache-2.0
+#}
+{
+{#
+Project metadata. Re-running "project import" with this same name is a safe no-op:
+Semaphore UI refuses to import over an existing project rather than overwriting it.
+#}
+  "meta": {
+    "name": "{{ semaphore_ui_project_name }}",
+    "alert": false,
+    "max_parallel_tasks": 0,
+    "type": ""
+  },
+{#
+A single "none" access key: playbooks here connect over the local connection or via each
+inventory's own SSH settings, so Semaphore UI itself does not need to hold a key.
+#}
+  "keys": [
+    {
+      "name": "None",
+      "type": "none",
+      "owner": ""
+    }
+  ],
+{#
+The collection checkout already on this host, referenced by absolute path (a "local"
+repository) so Semaphore UI runs playbooks in place instead of cloning a copy. This is
+required for the collection's fetch/distribute crypto model: generated artifacts under
+out/control-node must persist on this same host across runs.
+#}
+  "repositories": [
+    {
+      "name": "{{ semaphore_ui_repository_name }}",
+      "git_url": "{{ project_dir }}",
+      "git_branch": "master",
+      "ssh_key": "None"
+    }
+  ],
+{#
+One inventory per example family we choose to expose in the UI. Not discovered
+automatically; kept in sync by hand with semaphore_ui_inventories (see
+meta/argument_specs.yaml), mirroring examples/inventory.
+#}
+  "inventories": [
+{% for current_semaphore_ui_inventory in semaphore_ui_inventories %}
+    {
+      "name": "{{ current_semaphore_ui_inventory.name }}",
+      "type": "file",
+      "inventory": "{{ current_semaphore_ui_inventory.path }}",
+      "ssh_key": "None"
+    }{{ "," if not loop.last else "" }}
+{% endfor %}
+  ],
+{#
+A single empty environment. Every Ansible task template needs one, and none of the seeded
+playbooks require extra variables beyond what their inventory already sets.
+#}
+  "environments": [
+    {
+      "name": "{{ semaphore_ui_environment_name }}",
+      "json": "{}",
+      "env": "{}"
+    }
+  ],
+{#
+One task template per numbered example playbook we choose to expose. Not discovered
+automatically; kept in sync by hand with semaphore_ui_job_templates, mirroring
+examples/playbooks.
+skip_galaxy_install is mandatory here: Semaphore UI otherwise runs
+"ansible-galaxy" against this repository's own requirements.yml files before every task,
+which would reinstall this very collection from Git over the checkout it is running from.
+#}
+  "templates": [
+{% for current_semaphore_ui_job_template in semaphore_ui_job_templates %}
+    {
+      "name": "{{ current_semaphore_ui_job_template.name }}",
+      "playbook": "{{ current_semaphore_ui_job_template.playbook }}",
+      "app": "ansible",
+{% if 'inventory' in current_semaphore_ui_job_template %}
+      "inventory": "{{ current_semaphore_ui_job_template['inventory'] }}",
+{% endif %}
+      "repository": "{{ semaphore_ui_repository_name }}",
+      "environments": ["{{ semaphore_ui_environment_name }}"],
+      "allow_override_args_in_task": true,
+      "survey_vars": [
+        {
+          "name": "target_hosts",
+          "title": "Target hosts",
+          "description": "Group to confine this run to. Leave blank to run against the playbook's default group.",
+          "required": false,
+          "type": "enum",
+          "values": [
+{% for current_semaphore_ui_target_hosts_choice in semaphore_ui_target_hosts_choices %}
+            {
+              "name": "{{ current_semaphore_ui_target_hosts_choice }}",
+              "value": "{{ current_semaphore_ui_target_hosts_choice }}"
+            }{{ "," if not loop.last else "" }}
+{% endfor %}
+          ]
+        }{{ "," if semaphore_ui_extra_survey_vars is defined and (semaphore_ui_extra_survey_vars | length > 0) else "" }}
+{% if semaphore_ui_extra_survey_vars is defined and (semaphore_ui_extra_survey_vars | length > 0) %}
+{% for current_semaphore_ui_extra_survey_var in semaphore_ui_extra_survey_vars %}
+        {{ current_semaphore_ui_extra_survey_var | to_json }}{{ "," if not loop.last else "" }}
+{% endfor %}
+{% endif %}
+      ],
+      "task_params": {
+        "skip_galaxy_install": {{ semaphore_ui_skip_galaxy_install | lower }},
+        "allow_override_limit": true,
+        "allow_override_tags": true,
+        "allow_override_skip_tags": true,
+        "allow_override_inventory": true{{ "," if 'limit' in current_semaphore_ui_job_template else "" }}
+{% if current_semaphore_ui_job_template.limit is defined %}
+        "limit": {{ current_semaphore_ui_job_template.limit | to_json }}
+{% endif %}
+      }
+    }{{ "," if not loop.last else "" }}
+{% endfor %}
+  ]
+}

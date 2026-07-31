@@ -4,6 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Start AWX
+  ansible.builtin.import_playbook: hyperledger.fabricx.awx.start
+
+- name: Configure AWX
+  ansible.builtin.import_playbook: hyperledger.fabricx.awx.configure
+
 - name: Start Fabric CA servers
   ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.start
 
@@ -21,3 +27,6 @@
 
 - name: Start Loadgen
   ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.start
+
+- name: Start Semaphore UI
+  ansible.builtin.import_playbook: hyperledger.fabricx.semaphore_ui.start

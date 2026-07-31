@@ -95,19 +95,10 @@
 # =========================
 # Surface AWX access details
 # =========================
-- name: Retrieve AWX admin password secret
-  kubernetes.core.k8s_info:
-    api_version: v1
-    kind: Secret
-    namespace: "{{ k8s_namespace | default('default') }}"
-    name: "awx-admin-password"
-  register: awx_admin_password_secret
-  retries: "{{ awx_k8s_ready_retries }}"
-  delay: "{{ awx_k8s_ready_delay }}"
-  until:
-    - awx_admin_password_secret.resources | length > 0
-    - "'password' in (awx_admin_password_secret.resources[0].data | default({}))"
-  no_log: true
+- name: Retrieve AWX admin password
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.awx
+    tasks_from: get_admin_password
 
 - name: Get AWX effective address
   ansible.builtin.include_role:
@@ -120,4 +111,4 @@
       - "AWX is ready."
       - "URL: {{ awx_effective_address }}"
       - "Username: admin"
-      - "Password: {{ awx_admin_password_secret.resources[0].data.password | b64decode }}"
+      - "Password: {{ awx_admin_password }}"

@@ -208,4 +208,8 @@ make init
 make teardown
 ```
 
+`start`, `teardown`, and `wipe` also drive AWX (see the [`awx` playbooks](../playbooks/awx/README.md)) when the loaded inventory defines an `awx` group — start and configure a running AWX with this collection's examples, then tear it down or wipe it, alongside the rest of the network.
+
+`binaries`, `generate-crypto`, `configs`, `start`, `stop`, `teardown`, and `wipe` likewise drive Semaphore UI (see the [`semaphore_ui` playbooks](../playbooks/semaphore_ui/README.md)) when the loaded inventory defines a `semaphore_ui` group — no network inventory does, so this only takes effect against its own dedicated inventory ([`examples/inventory/local/semaphore-ui.yaml`](./inventory/local/semaphore-ui.yaml)).
+
 For the complete playbook workflow and group contract, see the [playbooks documentation](../playbooks/README.md).

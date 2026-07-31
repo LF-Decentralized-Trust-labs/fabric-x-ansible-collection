@@ -324,10 +324,19 @@ def _render_default_value(value, indent="      "):
         return "\n" + "\n".join(lines)
     if isinstance(value, (list, tuple)):
         inner = indent + "  "
-        lines = [
-            f"{indent}- {_render_default_value(item, inner)}"
-            for item in value
-        ]
+        lines = []
+        for item in value:
+            rendered_item = _render_default_value(item, inner)
+            if rendered_item.startswith("\n"):
+                # Nested dict/list items render as their own indented block
+                # starting with "\n"; pull their first line onto the "- "
+                # dash instead of leaving a blank scalar after it, matching
+                # how a mapping/sequence normally nests under a YAML dash.
+                item_lines = rendered_item[1:].split("\n")
+                lines.append(f"{indent}- {item_lines[0][len(inner):]}")
+                lines.extend(item_lines[1:])
+            else:
+                lines.append(f"{indent}- {rendered_item}")
         return "\n" + "\n".join(lines)
     return str(value)
 
