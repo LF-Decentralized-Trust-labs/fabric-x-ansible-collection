@@ -1,0 +1,12 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Generate the Semaphore UI TLS crypto material with OpenSSL
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.semaphore_ui
+    tasks_from: crypto/openssl/generate_cert
+  when:
+    - semaphore_ui_use_tls

@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Fetch Semaphore UI logs
+  hosts: "{{ target_hosts | default('semaphore_ui') }}:&semaphore_ui"
+  tasks:
+    - name: Fetch the Semaphore UI logs
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.semaphore_ui
+        tasks_from: fetch_logs
+      when:
+        - semaphore_ui_port is defined

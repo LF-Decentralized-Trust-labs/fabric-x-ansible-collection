@@ -1,0 +1,73 @@
+{#
+Copyright IBM Corp. All Rights Reserved.
+
+SPDX-License-Identifier: Apache-2.0
+#}
+{
+{#
+Storage backend: SQLite keeps Semaphore UI's own state (projects, credentials, task
+history) in a single file.
+#}
+  "dialect": "sqlite",
+  "sqlite": {
+    "host": "{{ semaphore_ui_remote_data_dir }}/{{ semaphore_ui_database_file }}"
+  },
+{#
+TCP port the web UI and API listen on.
+#}
+  "port": ":{{ semaphore_ui_port }}",
+{% if semaphore_ui_use_tls %}
+{#
+Native TLS termination inside Semaphore UI.
+#}
+  "tls": {
+    "enabled": true,
+    "cert_file": "{{ semaphore_ui_remote_config_dir }}/tls/{{ semaphore_ui_tls_cert_file }}",
+    "key_file": "{{ semaphore_ui_remote_config_dir }}/tls/{{ semaphore_ui_tls_private_key_file }}"
+  },
+{% endif %}
+{#
+Scratch directory for Semaphore UI's own bookkeeping. Not where playbook repositories
+run: a "local" repository (see project.json.j2) runs in place instead.
+#}
+  "tmp_path": "{{ semaphore_ui_remote_data_dir }}/tmp",
+{#
+"user_home" leaves HOME untouched and skips Semaphore UI's own ANSIBLE_HOME override, so
+~/.ansible/collections resolves this collection exactly as running ansible-playbook from
+the CLI does.
+#}
+  "home_dir_mode": "user_home",
+{#
+Exported to every task's environment. Semaphore UI's own Go runtime builds each task's
+process environment directly (no shell involved), and a later duplicate key wins over an
+earlier one, so these entries fully replace whatever the server process itself happened to
+inherit when it was started.
+ANSIBLE_CONFIG points Semaphore UI's ansible-playbook runs at the same examples/ansible.cfg
+the repository Makefile uses (ANSIBLE_CONFIG=$(PROJECT_DIR)/examples/ansible.cfg), so a task
+launched here behaves like "make <target>" for every other setting in that file
+(host_key_checking, gathering, deprecation_warnings, and so on).
+ANSIBLE_PYTHON_INTERPRETER pins the exact interpreter, the same way and to the same value
+the Makefile does (ANSIBLE_PYTHON_INTERPRETER ?= $(VENV_BIN_DIR)/python, exported) - an
+exported environment variable always wins over an ini setting, so this is what actually
+takes effect over examples/ansible.cfg's own interpreter_python = auto_silent when running
+via "make", and it is what this mirrors here. Pinning the path outright, rather than relying
+on auto_silent's per-host discovery-but-do-not-warn behavior, is what actually skips
+discovery instead of merely silencing its warning.
+Without PROJECT_DIR, examples/inventory/vars.yaml's project_dir/out_dir would fall back to
+their own defaults, which may not match this checkout.
+#}
+  "env_vars": {
+    "PATH": "{{ ansible_playbook_python | dirname }}:{{ lookup('env', 'PATH') }}",
+    "ANSIBLE_CONFIG": "{{ project_dir }}/examples/ansible.cfg",
+    "ANSIBLE_PYTHON_INTERPRETER": "{{ ansible_playbook_python }}",
+    "PROJECT_DIR": "{{ project_dir }}"
+  },
+{#
+Session cookie signing/encryption keys and the access-key-at-rest encryption key. Generated
+once (see tasks/config/transfer.yaml) and persisted under the data directory: rotating them
+invalidates existing sessions and stored access keys.
+#}
+  "cookie_hash": "{{ semaphore_ui_secrets.cookie_hash }}",
+  "cookie_encryption": "{{ semaphore_ui_secrets.cookie_encryption }}",
+  "access_key_encryption": "{{ semaphore_ui_secrets.access_key_encryption }}"
+}

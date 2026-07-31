@@ -58,3 +58,9 @@
 
 - name: Generate Monitoring tools crypto
   ansible.builtin.import_playbook: hyperledger.fabricx.monitoring.generate_crypto
+
+######################################
+# Semaphore UI TLS crypto
+######################################
+- name: Generate Semaphore UI TLS crypto material
+  ansible.builtin.import_playbook: hyperledger.fabricx.semaphore_ui.generate_crypto

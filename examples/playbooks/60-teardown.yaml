@@ -27,3 +27,6 @@
 
 - name: Teardown AWX
   ansible.builtin.import_playbook: hyperledger.fabricx.awx.teardown
+
+- name: Teardown Semaphore UI
+  ansible.builtin.import_playbook: hyperledger.fabricx.semaphore_ui.teardown

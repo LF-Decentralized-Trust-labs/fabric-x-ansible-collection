@@ -1,0 +1,65 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Map host platform to a Semaphore UI release asset name
+  vars:
+    semaphore_ui_os_map:
+      Linux: linux
+      Darwin: darwin
+    semaphore_ui_arch_map:
+      x86_64: amd64
+      aarch64: arm64
+  ansible.builtin.set_fact:
+    semaphore_ui_archive_name: >-
+      {{ semaphore_ui_edition }}_{{ semaphore_ui_version }}_{{
+      semaphore_ui_os_map[ansible_facts.system] | default(ansible_facts.system | lower) }}_{{
+      semaphore_ui_arch_map[ansible_facts.architecture] | default(ansible_facts.architecture) }}.tar.gz
+
+- name: Check if Semaphore UI is already installed
+  ansible.builtin.command: "{{ remote_node_dir }}/bin/{{ semaphore_ui_bin_name }} version"
+  register: semaphore_ui_version_check
+  changed_when: false
+  failed_when: false
+
+- name: Skip installation if Semaphore UI is already installed
+  ansible.builtin.debug:
+    msg: "Semaphore UI is already installed: {{ semaphore_ui_version_check.stdout }}"
+  when:
+    - semaphore_ui_version_check.rc == 0
+
+- name: Install Semaphore UI
+  when:
+    - semaphore_ui_version_check.rc != 0
+  block:
+    - name: Ensure the Semaphore UI install directory exists
+      ansible.builtin.file:
+        path: "{{ remote_node_dir }}/bin"
+        state: directory
+        mode: "0o755"
+    - name: Download the Semaphore UI release archive
+      ansible.builtin.get_url:
+        url: "https://github.com/semaphoreui/semaphore/releases/download/v{{ semaphore_ui_version }}/{{ semaphore_ui_archive_name }}"
+        dest: "/tmp/{{ semaphore_ui_archive_name }}"
+        mode: "0o644"
+    - name: Extract the Semaphore UI binary
+      # noqa: command-instead-of-module
+      # ansible.builtin.unarchive requires GNU tar and rejects macOS's bundled BSD tar,
+      # even though BSD tar extracts this flat, single-directory-less archive fine.
+      ansible.builtin.command: "tar -xzf /tmp/{{ semaphore_ui_archive_name }} -C {{ remote_node_dir }}/bin"
+      args:
+        creates: "{{ remote_node_dir }}/bin/{{ semaphore_ui_bin_name }}"
+    - name: Verify the Semaphore UI installation
+      ansible.builtin.command: "{{ remote_node_dir }}/bin/{{ semaphore_ui_bin_name }} version"
+      register: semaphore_ui_verify
+      changed_when: false
+    - name: Display the Semaphore UI installation result
+      ansible.builtin.debug:
+        msg: "Semaphore UI installed successfully: {{ semaphore_ui_verify.stdout }}"
+  always:
+    - name: Clean up the downloaded archive
+      ansible.builtin.file:
+        path: "/tmp/{{ semaphore_ui_archive_name }}"
+        state: absent

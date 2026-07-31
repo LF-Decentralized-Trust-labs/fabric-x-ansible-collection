@@ -27,3 +27,6 @@
 
 - name: Start Loadgen
   ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.start
+
+- name: Start Semaphore UI
+  ansible.builtin.import_playbook: hyperledger.fabricx.semaphore_ui.start
