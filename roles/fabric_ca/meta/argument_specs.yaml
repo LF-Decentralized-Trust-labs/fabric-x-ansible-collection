@@ -41,7 +41,7 @@ argument_specs:
           - "Sets the Fabric CA image name."
       fabric_ca_image_tag: &fabric_ca_image_tag
         type: str
-        default: 1.5.20
+        default: 1.5.22
         description:
           - "Sets the Fabric CA image tag."
       fabric_ca_image: &fabric_ca_image
@@ -66,7 +66,7 @@ argument_specs:
           - "Sets the Fabric CA source repository."
       fabric_ca_git_commit: &fabric_ca_git_commit
         type: str
-        default: v1.5.20
+        default: v1.5.22
         description:
           - "Pins the Fabric CA source revision."
       fabric_ca_server_source_code_package:

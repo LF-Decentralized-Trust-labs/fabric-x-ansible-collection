@@ -249,7 +249,7 @@ Builds the Fabric CA client binary from the configured Fabric CA Git source revi
     # Sets the Fabric CA source repository.
     fabric_ca_git_repo: hyperledger/fabric-ca
     # Pins the Fabric CA source revision.
-    fabric_ca_git_commit: v1.5.20
+    fabric_ca_git_commit: v1.5.22
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
     # Sets the Go package path used to build the client binary.
@@ -279,7 +279,7 @@ Installs the Fabric CA client binary directly on the managed host with Go toolin
     # Sets the Go package path used to build the client binary.
     fabric_ca_client_source_code_package: cmd/fabric-ca-client
     # Pins the Fabric CA source revision.
-    fabric_ca_git_commit: v1.5.20
+    fabric_ca_git_commit: v1.5.22
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/bin/install
@@ -600,7 +600,7 @@ Enrolls an identity with a transient Fabric CA client container. Mounts the loca
     # Sets the Fabric CA image name.
     fabric_ca_image_name: fabric-ca
     # Sets the Fabric CA image tag.
-    fabric_ca_image_tag: 1.5.20
+    fabric_ca_image_tag: 1.5.22
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
     # Sets the in-container client config root.
@@ -663,7 +663,7 @@ Registers a new identity with a transient Fabric CA client container. Uses the m
     # Sets the Fabric CA image name.
     fabric_ca_image_name: fabric-ca
     # Sets the Fabric CA image tag.
-    fabric_ca_image_tag: 1.5.20
+    fabric_ca_image_tag: 1.5.22
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
     # Sets the in-container client config root.
@@ -716,7 +716,7 @@ Reenrolls an existing identity with a transient Fabric CA client container. Refr
     # Sets the Fabric CA image name.
     fabric_ca_image_name: fabric-ca
     # Sets the Fabric CA image tag.
-    fabric_ca_image_tag: 1.5.20
+    fabric_ca_image_tag: 1.5.22
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
     # Sets the in-container client config root.
@@ -771,7 +771,7 @@ Lists identities registered in the target Fabric CA server with a transient clie
     # Sets the Fabric CA image name.
     fabric_ca_image_name: fabric-ca
     # Sets the Fabric CA image tag.
-    fabric_ca_image_tag: 1.5.20
+    fabric_ca_image_tag: 1.5.22
     # Sets the client binary name.
     fabric_ca_client_bin_name: fabric-ca-client
     # Sets the in-container client config root.
@@ -815,7 +815,7 @@ Revokes an enrolled identity with a transient Fabric CA client container. Uses t
     # Sets the Fabric CA image name.
     fabric_ca_image_name: fabric-ca
     # Sets the Fabric CA image tag.
-    fabric_ca_image_tag: 1.5.20
+    fabric_ca_image_tag: 1.5.22
     # Sets the in-container client config root.
     fabric_ca_client_container_config_dir: /config
     # Sets the client URL scheme.
@@ -849,7 +849,7 @@ Generates a certificate revocation list from the target Fabric CA server with a 
     # Sets the Fabric CA image name.
     fabric_ca_image_name: fabric-ca
     # Sets the Fabric CA image tag.
-    fabric_ca_image_tag: 1.5.20
+    fabric_ca_image_tag: 1.5.22
     # Sets the in-container client config root.
     fabric_ca_client_container_config_dir: /config
     # Sets the client URL scheme.
@@ -1005,7 +1005,7 @@ Builds the Fabric CA server binary from the configured Fabric CA Git source revi
     # Sets the Fabric CA source repository.
     fabric_ca_git_repo: hyperledger/fabric-ca
     # Pins the Fabric CA source revision.
-    fabric_ca_git_commit: v1.5.20
+    fabric_ca_git_commit: v1.5.22
     # Sets the server binary name.
     fabric_ca_server_bin_name: fabric-ca-server
     # Sets the Go package path used to build the server binary.
@@ -1035,7 +1035,7 @@ Installs the Fabric CA server binary directly on the managed host with Go toolin
     # Sets the Go package path used to build the server binary.
     fabric_ca_server_source_code_package: cmd/fabric-ca-server
     # Pins the Fabric CA source revision.
-    fabric_ca_git_commit: v1.5.20
+    fabric_ca_git_commit: v1.5.22
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: server/bin/install
@@ -1143,7 +1143,7 @@ Starts the Fabric CA server as a managed container. Mounts rendered configuratio
     # Sets the Fabric CA image name.
     fabric_ca_image_name: fabric-ca
     # Sets the Fabric CA image tag.
-    fabric_ca_image_tag: 1.5.20
+    fabric_ca_image_tag: 1.5.22
     # Sets the Fabric CA API port.
     fabric_ca_port: 7054
     # Sets the Fabric CA operations port.
@@ -1223,7 +1223,7 @@ Creates Fabric CA Kubernetes runtime resources for the server. Uses the ConfigMa
     # Sets the Fabric CA image name.
     fabric_ca_image_name: fabric-ca
     # Sets the Fabric CA image tag.
-    fabric_ca_image_tag: 1.5.20
+    fabric_ca_image_tag: 1.5.22
     # Sets the in-container Fabric CA config root.
     fabric_ca_server_container_config_dir: /config
     # Sets the Fabric CA API port.
