@@ -53,10 +53,10 @@ argument_specs:
           - "Executable name of the installed Semaphore UI binary. Also used as its tmux session name."
       semaphore_ui_port: &semaphore_ui_port
         type: int
-        default: 3010
         description:
           - "TCP port the Semaphore UI web server listens on."
           - "Not the Semaphore UI default of 3000, since Grafana already binds that port on the local family's control node."
+          - "Example: C(3010)."
       semaphore_ui_use_tls: &semaphore_ui_use_tls
         type: bool
         default: false
