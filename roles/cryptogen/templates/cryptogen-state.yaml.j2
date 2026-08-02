@@ -1,0 +1,18 @@
+{#
+Copyright IBM Corp. All Rights Reserved.
+
+SPDX-License-Identifier: Apache-2.0
+#}
+{#
+Persists the fingerprint of every expected cryptogen component (cryptogen_expected_components)
+so the next run can detect drift (see drifted-components.yaml.j2). Written unconditionally on
+every run, whether or not cryptogen actually executed, so that components already on disk
+before this state file existed get their fingerprint captured ("adopted") on the very first
+run rather than never being tracked. Organizations are skipped: they carry no fingerprint.
+#}
+components:
+{% for current_component in cryptogen_expected_components %}
+{% if current_component.fingerprint is not none %}
+  {{ current_component.dir | to_json }}: {{ current_component.fingerprint | to_json }}
+{% endif %}
+{% endfor %}

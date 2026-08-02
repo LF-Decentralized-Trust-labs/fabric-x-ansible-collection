@@ -1,0 +1,72 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Read the rendered cryptogen configuration
+  ansible.builtin.slurp:
+    src: "{{ cryptogen_artifacts_dir }}/{{ cryptogen_config_file }}"
+  register: cryptogen_rendered_config_raw
+
+# A single find is used rather than one stat per expected component: the deepest component
+# lives four levels down (for example, ordererOrganizations/<domain>/orderers/<name>), and
+# looping stat over every component costs one module round-trip each, which dominates the
+# runtime of this role on a network of any size.
+- name: List the cryptogen component directories that already exist
+  ansible.builtin.find:
+    paths: "{{ cryptogen_output_dir }}"
+    file_type: directory
+    recurse: true
+    depth: 4
+  register: cryptogen_existing_dirs
+
+- name: Check if a cryptogen state file already exists
+  ansible.builtin.stat:
+    path: "{{ cryptogen_artifacts_dir }}/{{ cryptogen_state_file }}"
+  register: cryptogen_state_stat
+
+- name: Read the previous cryptogen state file
+  ansible.builtin.slurp:
+    src: "{{ cryptogen_artifacts_dir }}/{{ cryptogen_state_file }}"
+  register: cryptogen_state_raw
+  when:
+    - cryptogen_state_stat.stat.exists
+
+- name: Set the expected cryptogen components
+  vars:
+    cryptogen_rendered_config: "{{ cryptogen_rendered_config_raw.content | b64decode | from_yaml }}"
+  ansible.builtin.set_fact:
+    cryptogen_expected_components: "{{ lookup('template', 'expected-components.yaml.j2') | from_yaml | default([], true) }}"
+
+- name: Determine the drifted cryptogen components and whether cryptogen must run
+  vars:
+    cryptogen_existing_component_dirs: >-
+      {{
+        cryptogen_existing_dirs.files
+        | map(attribute='path')
+        | map('relpath', cryptogen_output_dir)
+        | list
+      }}
+    cryptogen_missing_components: >-
+      {{
+        cryptogen_expected_components
+        | rejectattr('dir', 'in', cryptogen_existing_component_dirs)
+        | list
+      }}
+    cryptogen_previous_fingerprints: "{{ (cryptogen_state_raw.content | b64decode | from_yaml).components | default({}, true) }}"
+    cryptogen_drifted: "{{ lookup('template', 'drifted-components.yaml.j2') | from_yaml | default([], true) }}"
+  ansible.builtin.set_fact:
+    cryptogen_drifted_components: "{{ cryptogen_drifted }}"
+    cryptogen_must_run: "{{ (cryptogen_missing_components | length > 0) or (cryptogen_drifted | length > 0) }}"
+  when:
+    - cryptogen_state_stat.stat.exists
+
+# Without a previous state file there is no baseline, so no component can be said to have
+# drifted and cryptogen_drifted_components is left undefined. Cryptogen runs regardless and
+# reconciles the material itself: extending an already complete tree is a no-op.
+- name: Run cryptogen unconditionally without a previous cryptogen state file
+  ansible.builtin.set_fact:
+    cryptogen_must_run: true
+  when:
+    - not cryptogen_state_stat.stat.exists

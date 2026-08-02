@@ -74,42 +74,55 @@
 # =======================
 # Inventory discovery
 # =======================
-# Powers the target_hosts survey variable's enum choices (see project.json.j2): every
-# seeded task template lets an operator pick, from a real list of what actually exists,
-# which group this collection's own target_hosts convention (examples/playbooks/*.yaml)
-# should confine a run to. Groups only, not individual hosts: with every seeded inventory
-# combined, the per-host list becomes too large to be a usable dropdown. failed_when: false
-# skips inventories that cannot be listed without external prerequisites this control node
-# may not have set (for example K8S_NODE_IP, OPENSHIFT_APPS_DOMAIN, or the distributed
-# family's host_machine_* placeholders) rather than failing the whole configuration.
-- name: List the groups of every seeded inventory
-  ansible.builtin.command: >-
-    ansible-inventory --list -i {{ project_dir }}/{{ current_semaphore_ui_inventory.path }}
-  loop: "{{ semaphore_ui_inventories }}"
-  loop_control:
-    loop_var: current_semaphore_ui_inventory
-    label: "{{ current_semaphore_ui_inventory.name }}"
-  register: semaphore_ui_inventory_list
-  changed_when: false
-  failed_when: false
-
-- name: Set the target_hosts survey variable choices
+- name: Discover inventory groups for the target_hosts survey choices
   vars:
-    semaphore_ui_inventory_group_names: >-
+    semaphore_ui_seeded_inventory_path: >-
+      {{ (project_dir ~ '/' ~ semaphore_ui_inventories[0].path) | ansible.builtin.realpath }}
+    semaphore_ui_current_inventory_paths: >-
+      {{ ansible_inventory_sources | map('ansible.builtin.realpath') | list }}
+    semaphore_ui_seeded_inventory_is_current: >-
       {{
-        semaphore_ui_inventory_list.results
-        | selectattr('rc', 'equalto', 0)
-        | map(attribute='stdout')
-        | map('from_json')
-        | map('dict2items')
-        | map('map', attribute='key')
-        | list
-        | flatten
-        | reject('equalto', '_meta')
-        | list
+        (semaphore_ui_inventories | length == 1)
+        and semaphore_ui_seeded_inventory_path in semaphore_ui_current_inventory_paths
       }}
-  ansible.builtin.set_fact:
-    semaphore_ui_target_hosts_choices: "{{ semaphore_ui_inventory_group_names | unique | sort }}"
+  block:
+    - name: Set the target_hosts survey variable choices from the inventory in use
+      ansible.builtin.set_fact:
+        semaphore_ui_target_hosts_choices: "{{ groups.keys() | reject('equalto', 'ungrouped') | sort }}"
+      when:
+        - semaphore_ui_seeded_inventory_is_current
+    - name: Set the target_hosts survey variable choices from every seeded inventory
+      when:
+        - not semaphore_ui_seeded_inventory_is_current
+      block:
+        - name: List the groups of every seeded inventory
+          ansible.builtin.command: >-
+            ansible-inventory --list --export -i {{ project_dir }}/{{ current_semaphore_ui_inventory.path }}
+          loop: "{{ semaphore_ui_inventories }}"
+          loop_control:
+            loop_var: current_semaphore_ui_inventory
+            label: "{{ current_semaphore_ui_inventory.name }}"
+          register: semaphore_ui_inventory_list
+          changed_when: false
+          failed_when: false
+        - name: Set the target_hosts survey variable choices from every seeded inventory
+          vars:
+            semaphore_ui_inventory_group_names: >-
+              {{
+                semaphore_ui_inventory_list.results
+                | selectattr('rc', 'defined')
+                | selectattr('rc', 'equalto', 0)
+                | map(attribute='stdout')
+                | map('from_json')
+                | map('dict2items')
+                | map('map', attribute='key')
+                | list
+                | flatten
+                | reject('equalto', '_meta')
+                | list
+              }}
+          ansible.builtin.set_fact:
+            semaphore_ui_target_hosts_choices: "{{ semaphore_ui_inventory_group_names | unique | sort }}"
 
 # =======================
 # Templates

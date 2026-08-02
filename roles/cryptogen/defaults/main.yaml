@@ -45,3 +45,5 @@ cryptogen_orderers_by_org: {}
 cryptogen_peers_by_org: {}
 # Sets the cryptogen configuration filename.
 cryptogen_config_file: crypto-config.yaml
+# Sets the filename that tracks a fingerprint of every generated component, used to detect components missing or changed since the last run.
+cryptogen_state_file: cryptogen-state.yaml

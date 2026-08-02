@@ -4,14 +4,40 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Inspect the existing cryptogen components
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.cryptogen
+    tasks_from: inspect
+
+- name: Remove the drifted cryptogen components so they get re-issued
+  ansible.builtin.file:
+    state: absent
+    path: "{{ cryptogen_output_dir }}/{{ current_component.dir }}"
+  loop: "{{ cryptogen_drifted_components }}"
+  loop_control:
+    loop_var: current_component
+    label: "{{ current_component.dir }}"
+  when:
+    - cryptogen_drifted_components is defined
+
 - name: Start cryptogen as container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.cryptogen
     tasks_from: container/start
-  when: not cryptogen_use_bin
+  when:
+    - not cryptogen_use_bin
+    - cryptogen_must_run
 
 - name: Start cryptogen as binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.cryptogen
     tasks_from: bin/start
-  when: cryptogen_use_bin
+  when:
+    - cryptogen_use_bin
+    - cryptogen_must_run
+
+- name: Write the cryptogen state file
+  ansible.builtin.template:
+    src: cryptogen-state.yaml.j2
+    dest: "{{ cryptogen_artifacts_dir }}/{{ cryptogen_state_file }}"
+    mode: "0o644"

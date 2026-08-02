@@ -33,7 +33,7 @@ OrdererOrgs:
 {% for orderer in orderer_org_info.orderers %}
       - Hostname: {{ hostvars[orderer.name].organization.orderer.name | default(orderer.name) }}
         SANS:
-{% for orderer_ip in hostvars[orderer.name].ansible_facts.all_ipv4_addresses %}
+{% for orderer_ip in (hostvars[orderer.name].ansible_facts.all_ipv4_addresses | sort) %}
           - {{ orderer_ip }}
 {% endfor %}
           - {{ hostvars[orderer.name].ansible_host }}
@@ -89,7 +89,7 @@ PeerOrgs:
 {% for peer in (peer_org_info.peers | unique) %}
       - Hostname: {{ hostvars[peer.name].organization.peer.name | default(peer.name) }}
         SANS:
-{% for peer_ip in hostvars[peer.name].ansible_facts.all_ipv4_addresses %}
+{% for peer_ip in (hostvars[peer.name].ansible_facts.all_ipv4_addresses | sort) %}
           - {{ peer_ip }}
 {% endfor %}
           - {{ hostvars[peer.name].ansible_host }}
