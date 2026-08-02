@@ -41,3 +41,7 @@ armageddon_container_config_dir: /tmp/config
 armageddon_container_crypto_artifacts_dir: /tmp/crypto
 # Shared-config filename.
 armageddon_shared_config_file: shared_config.yaml
+# Shared-config protobuf filename written by Armageddon, used to detect whether it already exists.
+armageddon_shared_config_binpb_file: shared_config.binpb
+# Filename that tracks a fingerprint of the rendered shared config and the orderer crypto inputs, used to detect changes since the last run.
+armageddon_state_file: armageddon-state.yaml

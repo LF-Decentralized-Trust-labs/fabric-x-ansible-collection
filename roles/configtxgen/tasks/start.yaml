@@ -4,14 +4,29 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Inspect the existing configtxgen genesis block
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.configtxgen
+    tasks_from: inspect
+
 - name: Start configtxgen as container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.configtxgen
     tasks_from: container/start
-  when: not configtxgen_use_bin
+  when:
+    - not configtxgen_use_bin
+    - configtxgen_must_run
 
 - name: Start configtxgen as binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.configtxgen
     tasks_from: bin/start
-  when: configtxgen_use_bin
+  when:
+    - configtxgen_use_bin
+    - configtxgen_must_run
+
+- name: Write the configtxgen state file
+  ansible.builtin.template:
+    src: configtxgen-state.yaml.j2
+    dest: "{{ configtxgen_artifacts_dir }}/{{ configtxgen_state_file }}"
+    mode: "0o644"

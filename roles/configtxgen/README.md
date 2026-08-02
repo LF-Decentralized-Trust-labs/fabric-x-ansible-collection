@@ -8,6 +8,7 @@
 - [ansible-doc](#ansible-doc)
 - [Tasks](#tasks)
   - [config/build](#configbuild)
+  - [inspect](#inspect)
   - [bin/build](#binbuild)
   - [bin/install](#bininstall)
   - [bin/start](#binstart)
@@ -104,6 +105,40 @@ Generate `configtx.yaml` for Fabric-X genesis block creation. Render the config 
     tasks_from: config/build
 ```
 
+### inspect
+
+> Detect whether configtxgen needs to run
+
+Fingerprint the rendered `configtx.yaml`, the Armageddon shared-config binary, and every fetched crypto artifact, then compare it against the fingerprint recorded by the previous run. Publishes `configtxgen_input_fingerprint` and `configtxgen_must_run` as facts for `start` to consume. Without a previous state file there is no baseline, so `configtxgen_must_run` is set unconditionally, and configtxgen runs once to establish one. Fingerprinting the Armageddon binary rather than only `configtx.yaml` is what lets a crypto-only change, which does not alter `configtx.yaml` itself, still trigger regeneration.
+
+```yaml
+- name: Detect whether configtxgen needs to run
+  vars:
+    # Base build directory for `configtxgen_artifacts_dir`.
+    config_build_dir: "/opt/fabricx/build/configtxgen"
+    # Directory used for the generated config file and genesis block artifacts.
+    configtxgen_artifacts_dir: "{{ config_build_dir }}/configtxgen-artifacts"
+    # Generated configuration file name written by `config/build` and mounted by `container/start`.
+    configtxgen_config_file: configtx.yaml
+    # Genesis block filename written by `configtxgen`, used to detect whether it already exists.
+    configtxgen_genesis_block_file: "{{ configtxgen_channel_id }}_block.pb"
+    # Filename that tracks a fingerprint of the rendered config, the Armageddon shared-config binary, and the crypto inputs, used to detect changes since the last run.
+    configtxgen_state_file: configtxgen-state.yaml
+    # Shared config binary file name consumed by the config template.
+    configtxgen_armageddon_binpb_file: shared_config.binpb
+    # Channel identifier passed to `configtxgen` and used in the output block filename.
+    configtxgen_channel_id: "{{ channel_id }}"
+    # Channel identifier for `configtxgen_channel_id`.
+    channel_id: "fabricx-main-channel"
+    # Directory containing armageddon artifacts used by the binary path and container mounts.
+    armageddon_artifacts_dir: "/opt/fabricx/artifacts/armageddon"
+    # Directory containing fetched crypto artifacts used by the binary path and container mounts.
+    fetched_artifacts_dir: "/opt/fabricx/artifacts/crypto"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.configtxgen
+    tasks_from: inspect
+```
+
 ### bin/build
 
 > Build the configtxgen binary on the control node
@@ -162,7 +197,7 @@ Install the `configtxgen` Go package through the shared `bin` role. The installe
 
 > Generate a genesis block with the configtxgen binary
 
-Run the local `configtxgen` binary to generate the channel genesis block. The output block is written beneath `configtxgen_artifacts_dir` as `<channel_id>_block.pb`; with the bundled example channel, that becomes `fabricx-main-channel_block.pb`.
+Run the local `configtxgen` binary to generate the channel genesis block. The output block is written beneath `configtxgen_artifacts_dir` as `configtxgen_genesis_block_file`; with the bundled example channel, that becomes `fabricx-main-channel_block.pb`.
 
 ```yaml
 - name: Generate a genesis block with the configtxgen binary
@@ -181,6 +216,8 @@ Run the local `configtxgen` binary to generate the channel genesis block. The ou
     configtxgen_profile_id: OrgsChannel
     # Directory used for the generated config file and genesis block artifacts.
     configtxgen_artifacts_dir: "{{ config_build_dir }}/configtxgen-artifacts"
+    # Genesis block filename written by `configtxgen`, used to detect whether it already exists.
+    configtxgen_genesis_block_file: "{{ configtxgen_channel_id }}_block.pb"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.configtxgen
     tasks_from: bin/start
@@ -190,7 +227,7 @@ Run the local `configtxgen` binary to generate the channel genesis block. The ou
 
 > Generate a genesis block with the configtxgen container
 
-Run `configtxgen` in a container to generate the channel genesis block. The container consumes the rendered `configtx.yaml` plus mounted crypto and armageddon artifacts, then writes `<channel_id>_block.pb` beneath `configtxgen_container_artifacts_dir`.
+Run `configtxgen` in a container to generate the channel genesis block. The container consumes the rendered `configtx.yaml` plus mounted crypto and armageddon artifacts, then writes `configtxgen_genesis_block_file` beneath `configtxgen_container_artifacts_dir`.
 
 ```yaml
 - name: Generate a genesis block with the configtxgen container
@@ -223,6 +260,8 @@ Run `configtxgen` in a container to generate the channel genesis block. The cont
     configtxgen_container_artifacts_dir: /tmp/configtxgen-artifacts
     # Generated configuration file name written by `config/build` and mounted by `container/start`.
     configtxgen_config_file: configtx.yaml
+    # Genesis block filename written by `configtxgen`, used to detect whether it already exists.
+    configtxgen_genesis_block_file: "{{ configtxgen_channel_id }}_block.pb"
     # Container mount path for armageddon artifacts.
     configtxgen_armageddon_container_artifacts_dir: /tmp/armageddon-artifacts
     # Container mount path for fetched crypto artifacts.
@@ -240,13 +279,19 @@ Run `configtxgen` in a container to generate the channel genesis block. The cont
 
 > Dispatch genesis block generation to binary or container
 
-Select the binary or container execution path for `configtxgen` based on `configtxgen_use_bin`. Both execution paths consume the rendered configuration and emit the same `<channel_id>_block.pb` artifact name.
+Inspect the existing genesis block, then select the binary or container execution path for `configtxgen`, based on `configtxgen_use_bin`, only when the inputs changed since the last run. Both execution paths consume the rendered configuration and emit the same `configtxgen_genesis_block_file` artifact name.
 
 ```yaml
 - name: Dispatch genesis block generation to binary or container
   vars:
     # Dispatch selector for the public start entry point and the config template branch selection. When false, the container path is used.
     configtxgen_use_bin: false
+    # Base build directory for `configtxgen_artifacts_dir`.
+    config_build_dir: "/opt/fabricx/build/configtxgen"
+    # Directory used for the generated config file and genesis block artifacts.
+    configtxgen_artifacts_dir: "{{ config_build_dir }}/configtxgen-artifacts"
+    # Filename that tracks a fingerprint of the rendered config, the Armageddon shared-config binary, and the crypto inputs, used to detect changes since the last run.
+    configtxgen_state_file: configtxgen-state.yaml
   ansible.builtin.include_role:
     name: hyperledger.fabricx.configtxgen
     tasks_from: start

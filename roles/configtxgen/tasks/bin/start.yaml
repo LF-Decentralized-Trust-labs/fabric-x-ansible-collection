@@ -13,7 +13,7 @@
       -channelID {{ configtxgen_channel_id }}
       -profile {{ configtxgen_profile_id }}
       -configPath {{ configtxgen_artifacts_dir }}
-      --outputBlock {{ configtxgen_artifacts_dir }}/{{ configtxgen_channel_id }}_block.pb
+      --outputBlock {{ configtxgen_artifacts_dir }}/{{ configtxgen_genesis_block_file }}
     bin_collect_logs: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin

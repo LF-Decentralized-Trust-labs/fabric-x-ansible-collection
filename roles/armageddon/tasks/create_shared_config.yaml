@@ -4,11 +4,18 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Inspect the existing Armageddon shared-config output
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.armageddon
+    tasks_from: inspect
+
 - name: Start armageddon as container
   ansible.builtin.include_role:
     name: hyperledger.fabricx.armageddon
     tasks_from: container/create_shared_config
-  when: not armageddon_use_bin
+  when:
+    - not armageddon_use_bin
+    - armageddon_must_run
 
 - name: Install armageddon as binary
   ansible.builtin.include_role:
@@ -20,4 +27,12 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.armageddon
     tasks_from: bin/create_shared_config
-  when: armageddon_use_bin
+  when:
+    - armageddon_use_bin
+    - armageddon_must_run
+
+- name: Write the Armageddon state file
+  ansible.builtin.template:
+    src: armageddon-state.yaml.j2
+    dest: "{{ armageddon_artifacts_dir }}/{{ armageddon_state_file }}"
+    mode: "0o644"

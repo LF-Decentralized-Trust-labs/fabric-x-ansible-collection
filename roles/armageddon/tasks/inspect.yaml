@@ -1,0 +1,82 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Current inputs
+# =========================
+- name: Stat the rendered Armageddon shared config
+  ansible.builtin.stat:
+    path: "{{ armageddon_artifacts_dir }}/{{ armageddon_shared_config_file }}"
+  register: armageddon_shared_config_stat
+
+- name: Find the fetched orderer crypto artifacts checksums
+  ansible.builtin.find:
+    paths: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations"
+    file_type: file
+    recurse: true
+    get_checksum: true
+  register: armageddon_crypto_files
+
+# =========================
+# Existing output
+# =========================
+- name: Stat the Armageddon shared-config protobuf output
+  ansible.builtin.stat:
+    path: "{{ armageddon_artifacts_dir }}/{{ armageddon_shared_config_binpb_file }}"
+  register: armageddon_output_stat
+
+# =========================
+# Previous state
+# =========================
+- name: Check if an Armageddon state file already exists
+  ansible.builtin.stat:
+    path: "{{ armageddon_artifacts_dir }}/{{ armageddon_state_file }}"
+  register: armageddon_state_stat
+
+- name: Read the previous Armageddon state file
+  ansible.builtin.slurp:
+    src: "{{ armageddon_artifacts_dir }}/{{ armageddon_state_file }}"
+  register: armageddon_state_raw
+  when:
+    - armageddon_state_stat.stat.exists
+
+# =========================
+# Fingerprint
+# =========================
+- name: Set the Armageddon input fingerprint and whether Armageddon must run
+  vars:
+    armageddon_crypto_files_fingerprint: >-
+      {{
+        armageddon_crypto_files.files
+        | map(attribute='checksum')
+        | sort
+        | list
+        | to_json
+        | hash('sha1')
+      }}
+    armageddon_fingerprints:
+      - "{{ armageddon_crypto_files_fingerprint }}"
+      - "{{ armageddon_shared_config_stat.stat.checksum }}"
+    armageddon_current_fingerprint: >-
+      {{
+        armageddon_fingerprints
+        | to_json
+        | hash('sha1')
+      }}
+    armageddon_previous_fingerprint: >-
+      {{
+        (armageddon_state_raw.content | b64decode | from_yaml).fingerprint
+        if armageddon_state_stat.stat.exists
+        else none
+      }}
+  ansible.builtin.set_fact:
+    armageddon_input_fingerprint: "{{ armageddon_current_fingerprint }}"
+    armageddon_must_run: >-
+      {{
+        (not armageddon_output_stat.stat.exists)
+        or (not armageddon_state_stat.stat.exists)
+        or (armageddon_previous_fingerprint != armageddon_current_fingerprint)
+      }}
