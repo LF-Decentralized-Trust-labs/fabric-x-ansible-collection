@@ -1,0 +1,24 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Selects the expected cryptogen components (cryptogen_expected_components) that are present
+# on disk -- that is, not in cryptogen_missing_components -- but whose spec no longer matches
+# the fingerprint recorded for them by the previous run (cryptogen_previous_fingerprints).
+# Those components are deleted before cryptogen runs,
+# so that it re-issues them with the same CA: "cryptogen extend" skips any node whose
+# directory already exists and would otherwise leave a stale certificate in place.
+# A component with no recorded fingerprint is treated as adopted rather than drifted, so an
+# existing network is recognized without being regenerated. Organizations are never drifted:
+# they carry no fingerprint. Renders empty when nothing qualifies, so the caller defaults it
+# to an empty list.
+{% set missing_dirs = cryptogen_missing_components | map(attribute='dir') | list %}
+{% for current_component in cryptogen_expected_components %}
+{% if current_component.dir not in missing_dirs
+      and current_component.fingerprint is not none
+      and cryptogen_previous_fingerprints.get(current_component.dir) not in [none, current_component.fingerprint] %}
+- {{ current_component | to_json }}
+{% endif %}
+{% endfor %}

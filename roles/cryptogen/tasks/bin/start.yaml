@@ -4,19 +4,20 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Ensure that the cryptogen output folder is clean
+- name: Create the cryptogen output folder
   ansible.builtin.file:
-    state: absent
+    state: directory
     path: "{{ cryptogen_output_dir }}"
+    mode: "0o755"
 
 - name: Start the cryptogen binary
   vars:
     bin_run_with_tmux: false
     bin_remote_dir: "{{ cli_bin_dir }}"
     bin_command: >-
-      {{ cryptogen_bin_name }} generate
+      {{ cryptogen_bin_name }} extend
       --config={{ cryptogen_artifacts_dir }}/{{ cryptogen_config_file }}
-      --output={{ cryptogen_output_dir }}
+      --input={{ cryptogen_output_dir }}
     bin_collect_logs: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin

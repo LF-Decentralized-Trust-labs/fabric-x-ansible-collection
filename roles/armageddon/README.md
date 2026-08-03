@@ -8,6 +8,7 @@
 - [ansible-doc](#ansible-doc)
 - [Tasks](#tasks)
   - [config/build](#configbuild)
+  - [inspect](#inspect)
   - [create\_shared\_config](#create_shared_config)
   - [bin/install](#bininstall)
   - [bin/build](#binbuild)
@@ -59,17 +60,49 @@ Render `shared_config.yaml` for the Fabric-X orderer topology. This entry point 
     tasks_from: config/build
 ```
 
+### inspect
+
+> Detect whether Armageddon needs to run
+
+Fingerprint the rendered `shared_config.yaml` together with every fetched orderer crypto artifact, then compare it against the fingerprint recorded by the previous run. Only `fetched_artifacts_dir`/crypto/ordererOrganizations is walked, not the whole crypto tree, since `shared_config.yaml` never references peer organization material, only orderer CAs, TLS CAs, and per-orderer certs. Publishes `armageddon_input_fingerprint` and `armageddon_must_run` as facts for `create_shared_config` to consume. Without a previous state file there is no baseline, so `armageddon_must_run` is set unconditionally, and Armageddon runs once to establish one.
+
+```yaml
+- name: Detect whether Armageddon needs to run
+  vars:
+    # Base directory for `armageddon_artifacts_dir`.
+    config_build_dir: "/opt/fabricx/build/armageddon"
+    # Directory for rendered Armageddon config and generated protobuf output.
+    armageddon_artifacts_dir: "{{ config_build_dir }}/armageddon-artifacts"
+    # Shared-config filename.
+    armageddon_shared_config_file: shared_config.yaml
+    # Shared-config protobuf filename written by Armageddon, used to detect whether it already exists.
+    armageddon_shared_config_binpb_file: shared_config.binpb
+    # Filename that tracks a fingerprint of the rendered shared config and the orderer crypto inputs, used to detect changes since the last run.
+    armageddon_state_file: armageddon-state.yaml
+    # Host directory with fetched crypto artifacts. The binary flow reads this directory directly and the container flow mounts it read-only.
+    fetched_artifacts_dir: "/opt/fabricx/fetched-artifacts"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.armageddon
+    tasks_from: inspect
+```
+
 ### create_shared_config
 
 > Dispatch shared-config generation
 
-Dispatch shared-config generation to the binary or container flow. This is the top-level Armageddon entry point for producing `shared_config.binpb` from the rendered shared config. `armageddon_use_bin` selects which sub-entry point runs.
+Inspect the existing shared-config output, then dispatch generation to the binary or container flow only when the inputs changed since the last run. This is the top-level Armageddon entry point for producing `shared_config.binpb` from the rendered shared config. `armageddon_use_bin` selects which sub-entry point runs.
 
 ```yaml
 - name: Dispatch shared-config generation
   vars:
     # Run Armageddon as a local binary instead of a container.
     armageddon_use_bin: false
+    # Base directory for `armageddon_artifacts_dir`.
+    config_build_dir: "/opt/fabricx/build/armageddon"
+    # Directory for rendered Armageddon config and generated protobuf output.
+    armageddon_artifacts_dir: "{{ config_build_dir }}/armageddon-artifacts"
+    # Filename that tracks a fingerprint of the rendered shared config and the orderer crypto inputs, used to detect changes since the last run.
+    armageddon_state_file: armageddon-state.yaml
   ansible.builtin.include_role:
     name: hyperledger.fabricx.armageddon
     tasks_from: create_shared_config

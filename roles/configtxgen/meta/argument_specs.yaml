@@ -131,6 +131,16 @@ argument_specs:
         default: OrgsChannel
         description:
           - Config profile passed to `configtxgen`.
+      configtxgen_genesis_block_file: &configtxgen_genesis_block_file
+        type: str
+        default: "{{ configtxgen_channel_id }}_block.pb"
+        description:
+          - Genesis block filename written by `configtxgen`, used to detect whether it already exists.
+      configtxgen_state_file: &configtxgen_state_file
+        type: str
+        default: configtxgen-state.yaml
+        description:
+          - Filename that tracks a fingerprint of the rendered config, the Armageddon shared-config binary, and the crypto inputs, used to detect changes since the last run.
       configtxgen_orderers_by_org: &configtxgen_orderers_by_org
         type: dict
         default: {}
@@ -332,6 +342,25 @@ argument_specs:
       configtxgen_channel_policies_writers_operator: *configtxgen_channel_policies_writers_operator
       configtxgen_channel_policies_admins_operator: *configtxgen_channel_policies_admins_operator
 
+  inspect:
+    short_description: Detect whether configtxgen needs to run
+    description:
+      - Fingerprint the rendered C(configtx.yaml), the Armageddon shared-config binary, and every fetched crypto artifact, then compare it against the fingerprint recorded by the previous run.
+      - Publishes C(configtxgen_input_fingerprint) and C(configtxgen_must_run) as facts for C(start) to consume.
+      - Without a previous state file there is no baseline, so C(configtxgen_must_run) is set unconditionally, and configtxgen runs once to establish one.
+      - Fingerprinting the Armageddon binary rather than only C(configtx.yaml) is what lets a crypto-only change, which does not alter C(configtx.yaml) itself, still trigger regeneration.
+    options:
+      config_build_dir: *config_build_dir
+      configtxgen_artifacts_dir: *configtxgen_artifacts_dir
+      configtxgen_config_file: *configtxgen_config_file
+      configtxgen_genesis_block_file: *configtxgen_genesis_block_file
+      configtxgen_state_file: *configtxgen_state_file
+      configtxgen_armageddon_binpb_file: *configtxgen_armageddon_binpb_file
+      configtxgen_channel_id: *configtxgen_channel_id
+      channel_id: *channel_id
+      armageddon_artifacts_dir: *armageddon_artifacts_dir
+      fetched_artifacts_dir: *fetched_artifacts_dir
+
   bin/build:
     short_description: Build the configtxgen binary on the control node
     description:
@@ -363,7 +392,7 @@ argument_specs:
     short_description: Generate a genesis block with the configtxgen binary
     description:
       - Run the local `configtxgen` binary to generate the channel genesis block.
-      - The output block is written beneath C(configtxgen_artifacts_dir) as C(<channel_id>_block.pb); with the bundled example channel, that becomes C(fabricx-main-channel_block.pb).
+      - The output block is written beneath C(configtxgen_artifacts_dir) as C(configtxgen_genesis_block_file); with the bundled example channel, that becomes C(fabricx-main-channel_block.pb).
     options:
       channel_id: *channel_id
       config_build_dir: *config_build_dir
@@ -372,12 +401,13 @@ argument_specs:
       configtxgen_channel_id: *configtxgen_channel_id
       configtxgen_profile_id: *configtxgen_profile_id
       configtxgen_artifacts_dir: *configtxgen_artifacts_dir
+      configtxgen_genesis_block_file: *configtxgen_genesis_block_file
 
   container/start:
     short_description: Generate a genesis block with the configtxgen container
     description:
       - Run `configtxgen` in a container to generate the channel genesis block.
-      - The container consumes the rendered `configtx.yaml` plus mounted crypto and armageddon artifacts, then writes C(<channel_id>_block.pb) beneath C(configtxgen_container_artifacts_dir).
+      - The container consumes the rendered `configtx.yaml` plus mounted crypto and armageddon artifacts, then writes C(configtxgen_genesis_block_file) beneath C(configtxgen_container_artifacts_dir).
     options:
       channel_id: *channel_id
       config_build_dir: *config_build_dir
@@ -393,6 +423,7 @@ argument_specs:
       configtxgen_container_config_dir: *configtxgen_container_config_dir
       configtxgen_container_artifacts_dir: *configtxgen_container_artifacts_dir
       configtxgen_config_file: *configtxgen_config_file
+      configtxgen_genesis_block_file: *configtxgen_genesis_block_file
       configtxgen_armageddon_container_artifacts_dir: *configtxgen_armageddon_container_artifacts_dir
       configtxgen_container_crypto_artifacts_dir: *configtxgen_container_crypto_artifacts_dir
       armageddon_artifacts_dir: *armageddon_artifacts_dir
@@ -401,7 +432,10 @@ argument_specs:
   start:
     short_description: Dispatch genesis block generation to binary or container
     description:
-      - Select the binary or container execution path for `configtxgen` based on C(configtxgen_use_bin).
-      - Both execution paths consume the rendered configuration and emit the same C(<channel_id>_block.pb) artifact name.
+      - Inspect the existing genesis block, then select the binary or container execution path for `configtxgen`, based on C(configtxgen_use_bin), only when the inputs changed since the last run.
+      - Both execution paths consume the rendered configuration and emit the same C(configtxgen_genesis_block_file) artifact name.
     options:
       configtxgen_use_bin: *configtxgen_use_bin
+      config_build_dir: *config_build_dir
+      configtxgen_artifacts_dir: *configtxgen_artifacts_dir
+      configtxgen_state_file: *configtxgen_state_file

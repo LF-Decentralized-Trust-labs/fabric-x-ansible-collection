@@ -4,58 +4,89 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# =========================
+# Output directories
+# =========================
 - name: Ensure that the config directory exists
   ansible.builtin.file:
     path: "{{ openssl_remote_config_dir }}"
     state: directory
-    mode: "0o755"
+    mode: "{{ openssl_dir_mode }}"
 
 - name: Ensure that the key output directory exists
   ansible.builtin.file:
     path: "{{ openssl_private_key_path | dirname }}"
     state: directory
-    mode: "0755"
+    mode: "{{ openssl_dir_mode }}"
 
 - name: Ensure that the cert output directory exists
   ansible.builtin.file:
     path: "{{ openssl_cert_path | dirname }}"
     state: directory
-    mode: "0755"
+    mode: "{{ openssl_dir_mode }}"
 
-- name: Create the OpenSSL configuration file
-  ansible.builtin.template:
-    src: "conf.yaml.j2"
-    dest: "{{ openssl_remote_config_dir }}/openssl.conf"
-    mode: "0o644"
-
-- name: Generate private key and self-signed certificate
-  ansible.builtin.command: >-
-    openssl req
-    -x509
-    -newkey {{ openssl_key_type }}
-    -keyout {{ openssl_private_key_path }}
-    -out {{ openssl_cert_path }}
-    -days {{ openssl_cert_duration }}
-    -config {{ openssl_remote_config_dir }}/openssl.conf
-    -nodes
-    {% if openssl_key_opt is defined %}
-    -pkeyopt {{ openssl_key_opt }}
-    {% endif %}
-  args:
-    creates: "{{ openssl_cert_path }}"
-
-- name: Set self-signed certificate as CA certificate
+# =========================
+# Drift detection
+# =========================
+- name: Inspect the existing self-signed certificate
   vars:
-    ca_cert_path: "{{ openssl_cert_path | dirname }}"
-  ansible.builtin.copy:
-    src: "{{ openssl_cert_path }}"
-    dest: "{{ ca_cert_path }}/{{ openssl_ca_cert_file }}"
-    mode: "0o644"
-    remote_src: true
+    openssl_artifact_path: "{{ openssl_cert_path }}"
+    openssl_fingerprint_inputs:
+      - "{{ lookup('template', 'conf.yaml.j2') }}"
+      - "{{ openssl_key_type }}"
+      - "{{ openssl_key_opt | default('') }}"
+      - "{{ openssl_cert_duration }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openssl
+    tasks_from: inspect
 
-- name: Clean the OpenSSL configuration folder
-  ansible.builtin.file:
-    dest: "{{ openssl_remote_config_dir }}"
-    state: absent
+# =========================
+# Generation
+# =========================
+- name: Generate the self-signed certificate and record its fingerprint
   when:
-    - openssl_clean_after_gen
+    - openssl_must_run
+  block:
+    - name: Create the OpenSSL configuration file
+      ansible.builtin.template:
+        src: "conf.yaml.j2"
+        dest: "{{ openssl_remote_config_dir }}/{{ openssl_config_file }}"
+        mode: "0o644"
+    - name: Generate private key and self-signed certificate
+      ansible.builtin.command: >-
+        openssl req
+        -x509
+        -newkey {{ openssl_key_type }}
+        -keyout {{ openssl_private_key_path }}
+        -out {{ openssl_cert_path }}
+        -days {{ openssl_cert_duration }}
+        -config {{ openssl_remote_config_dir }}/{{ openssl_config_file }}
+        -nodes
+        {% if openssl_key_opt is defined %}
+        -pkeyopt {{ openssl_key_opt }}
+        {% endif %}
+      changed_when: true
+    - name: Set self-signed certificate as CA certificate
+      vars:
+        ca_cert_path: "{{ openssl_cert_path | dirname }}"
+      ansible.builtin.copy:
+        src: "{{ openssl_cert_path }}"
+        dest: "{{ ca_cert_path }}/{{ openssl_ca_cert_file }}"
+        mode: "0o644"
+        remote_src: true
+    # =========================
+    # State
+    # =========================
+    - name: Write the OpenSSL state file
+      vars:
+        openssl_state_fingerprints: >-
+          {{
+            openssl_recorded_fingerprints | default({})
+            | combine({
+              openssl_cert_path: openssl_current_fingerprint
+            })
+          }}
+      ansible.builtin.template:
+        src: openssl-state.yaml.j2
+        dest: "{{ openssl_state_file }}"
+        mode: "0o644"

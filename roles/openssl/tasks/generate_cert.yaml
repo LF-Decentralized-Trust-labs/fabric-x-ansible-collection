@@ -4,25 +4,85 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# =========================
+# Output directory
+# =========================
 - name: Ensure that the cert output directory exists
   ansible.builtin.file:
     path: "{{ openssl_cert_path | dirname }}"
     state: directory
-    mode: "0755"
+    mode: "{{ openssl_dir_mode }}"
 
-- name: Generate a signed certificate from CSR
-  ansible.builtin.command: >-
-    openssl x509
-    -req
-    -in {{ openssl_csr_path }}
-    -CA {{ openssl_ca_cert_path }}
-    -CAkey {{ openssl_ca_private_key_path }}
-    -CAcreateserial
-    -out {{ openssl_cert_path }}
-    -days {{ openssl_cert_duration }}
-    {% if openssl_ext_file_path is defined %}
-    -extfile {{ openssl_ext_file_path }}
-    -extensions v3_req
-    {% endif %}
-  args:
-    creates: "{{ openssl_cert_path }}"
+# =========================
+# Drift detection
+# =========================
+# There is no config file rendered by this entry point -- the CSR was already rendered (and
+# fingerprinted) by generate_csr -- so the inputs here are read directly off disk: the CSR and
+# CA certificate this signs, plus the extension file when one is used.
+- name: Stat the CSR being signed
+  ansible.builtin.stat:
+    path: "{{ openssl_csr_path }}"
+  register: openssl_csr_stat
+
+- name: Stat the CA certificate signing the CSR
+  ansible.builtin.stat:
+    path: "{{ openssl_ca_cert_path }}"
+  register: openssl_ca_cert_stat
+
+- name: Stat the extension file applied while signing
+  ansible.builtin.stat:
+    path: "{{ openssl_ext_file_path }}"
+  register: openssl_ext_file_stat
+  when:
+    - openssl_ext_file_path is defined
+
+- name: Inspect the existing signed certificate
+  vars:
+    openssl_artifact_path: "{{ openssl_cert_path }}"
+    openssl_fingerprint_inputs:
+      - "{{ openssl_csr_stat.stat.checksum }}"
+      - "{{ openssl_ca_cert_stat.stat.checksum }}"
+      - "{{ openssl_ext_file_stat.stat.checksum | default('') }}"
+      - "{{ openssl_cert_duration }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openssl
+    tasks_from: inspect
+
+# =========================
+# Generation
+# =========================
+- name: Sign the certificate from CSR and record its fingerprint
+  when:
+    - openssl_must_run
+  block:
+    - name: Generate a signed certificate from CSR
+      ansible.builtin.command: >-
+        openssl x509
+        -req
+        -in {{ openssl_csr_path }}
+        -CA {{ openssl_ca_cert_path }}
+        -CAkey {{ openssl_ca_private_key_path }}
+        -CAcreateserial
+        -out {{ openssl_cert_path }}
+        -days {{ openssl_cert_duration }}
+        {% if openssl_ext_file_path is defined %}
+        -extfile {{ openssl_ext_file_path }}
+        -extensions v3_req
+        {% endif %}
+      changed_when: true
+    # =========================
+    # State
+    # =========================
+    - name: Write the OpenSSL state file
+      vars:
+        openssl_state_fingerprints: >-
+          {{
+            openssl_recorded_fingerprints | default({})
+            | combine({
+              openssl_cert_path: openssl_current_fingerprint
+            })
+          }}
+      ansible.builtin.template:
+        src: openssl-state.yaml.j2
+        dest: "{{ openssl_state_file }}"
+        mode: "0o644"

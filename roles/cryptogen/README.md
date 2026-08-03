@@ -8,6 +8,7 @@
 - [ansible-doc](#ansible-doc)
 - [Tasks](#tasks)
   - [start](#start)
+  - [inspect](#inspect)
   - [fetch](#fetch)
   - [config/build](#configbuild)
   - [container/start](#containerstart)
@@ -31,18 +32,50 @@ ansible-doc -t role hyperledger.fabricx.cryptogen
 
 ### start
 
-> Select the cryptogen execution mode
+> Extend or generate the Fabric-X crypto material
 
-Choose whether cryptogen runs as a binary or in a container. This dispatcher selects either the `bin/start` or `container/start` entry point so the role can render configuration and generate crypto material in the requested execution mode.
+Inspect the existing crypto material, then run cryptogen only for the components that are missing or changed, extending the material already on disk instead of regenerating it. This dispatcher selects either the `bin/start` or `container/start` entry point so the role can render configuration and generate crypto material in the requested execution mode. Delete `cryptogen_output_dir` to rebuild the whole network from scratch.
 
 ```yaml
-- name: Select the cryptogen execution mode
+- name: Extend or generate the Fabric-X crypto material
   vars:
     # Selects binary mode when true; otherwise container mode is used.
     cryptogen_use_bin: false
+    # Sets the base directory for generated configuration artifacts.
+    config_build_dir: "/opt/hyperledger/fabricx/build"
+    # Sets the directory that stores cryptogen inputs and generated files.
+    cryptogen_artifacts_dir: "{{ config_build_dir }}/cryptogen-artifacts"
+    # Sets the directory where cryptogen writes generated crypto material.
+    cryptogen_output_dir: "{{ cryptogen_artifacts_dir }}/crypto"
+    # Sets the filename that tracks a fingerprint of every generated component, used to detect components missing or changed since the last run.
+    cryptogen_state_file: cryptogen-state.yaml
   ansible.builtin.include_role:
     name: hyperledger.fabricx.cryptogen
     tasks_from: start
+```
+
+### inspect
+
+> Detect missing or changed cryptogen components
+
+Read back the rendered `crypto-config.yaml` and the persisted state file, then determine which orderer, peer, and user components are missing from `cryptogen_output_dir` or have a spec (Common Name, SANS, key algorithm) that no longer matches the one recorded for them. Publishes `cryptogen_expected_components` and `cryptogen_must_run`, plus `cryptogen_drifted_components` when a previous state file exists, as facts for the rest of the role to consume. A component already on disk with no recorded fingerprint is treated as adopted rather than drifted, so an existing network is recognized without being regenerated.
+
+```yaml
+- name: Detect missing or changed cryptogen components
+  vars:
+    # Sets the base directory for generated configuration artifacts.
+    config_build_dir: "/opt/hyperledger/fabricx/build"
+    # Sets the directory that stores cryptogen inputs and generated files.
+    cryptogen_artifacts_dir: "{{ config_build_dir }}/cryptogen-artifacts"
+    # Sets the directory where cryptogen writes generated crypto material.
+    cryptogen_output_dir: "{{ cryptogen_artifacts_dir }}/crypto"
+    # Sets the cryptogen configuration filename.
+    cryptogen_config_file: crypto-config.yaml
+    # Sets the filename that tracks a fingerprint of every generated component, used to detect components missing or changed since the last run.
+    cryptogen_state_file: cryptogen-state.yaml
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.cryptogen
+    tasks_from: inspect
 ```
 
 ### fetch

@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Persists a fingerprint per OpenSSL-generated artifact, keyed by its absolute output path, so
+# future runs can detect whether the inputs that produced it changed. Multiple artifacts can
+# share one state file when a role calls more than one OpenSSL entry point against the same
+# output directory (for example a self-signed CA followed by a CSR); each keeps its own key.
+# Written unconditionally after each artifact is inspected, whether or not it was regenerated.
+fingerprints:
+{% for openssl_fingerprint_path, openssl_fingerprint_value in openssl_state_fingerprints.items() %}
+  "{{ openssl_fingerprint_path }}": "{{ openssl_fingerprint_value }}"
+{% endfor %}

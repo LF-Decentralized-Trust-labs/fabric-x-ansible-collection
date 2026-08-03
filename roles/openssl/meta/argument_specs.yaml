@@ -61,16 +61,28 @@ argument_specs:
         default: "{{ remote_node_dir }}/openssl"
         description:
           - Directory for the temporary OpenSSL config file.
+      openssl_config_file: &openssl_config_file
+        type: str
+        default: openssl.conf
+        description:
+          - Filename for the rendered OpenSSL config beneath C(openssl_remote_config_dir).
+          - Override this when a role calls more than one C(openssl) entry point against the same C(openssl_remote_config_dir) (for example a self-signed CA followed by a CSR), so each rendered config is distinguishable from the other.
+      openssl_state_file: &openssl_state_file
+        type: path
+        default: "{{ openssl_remote_config_dir }}/openssl-state.yaml"
+        description:
+          - Path to the file that tracks a fingerprint of the inputs behind each generated artifact, keyed by output path, used to detect changes since the last run.
       openssl_ext_file_path: &openssl_ext_file_path
         type: path
         description:
           - Optional extension file path passed to C(openssl x509 -extfile).
           - "Example: C(/var/hyperledger/fabricx/openssl/server.ext)."
-      openssl_clean_after_gen: &openssl_clean_after_gen
-        type: bool
-        default: false
+      openssl_dir_mode: &openssl_dir_mode
+        type: str
+        default: "0755"
         description:
-          - Remove the rendered OpenSSL config directory after generation.
+          - Mode applied to directories created for the generated key, CSR, and certificate.
+          - Override this when the destination directory is also managed by the caller with a different mode (for example a keystore directory a role keeps at C(0750)), so the two do not fight over it every run.
       openssl_ca_cert_file: &openssl_ca_cert_file
         type: str
         default: ca.crt
@@ -184,11 +196,13 @@ argument_specs:
               + (ansible_facts.all_ipv4_addresses | default([]))
             )
             | unique
+            | sort
             | map('regex_replace', '^', 'IP:')
             | list
           }}
         description:
           - IP SAN entries generated from C(openssl_san_hosts) and C(ansible_facts.all_ipv4_addresses).
+          - Sorted so the rendered config, and therefore its drift fingerprint, does not depend on the order C(all_ipv4_addresses) happens to be reported in.
       openssl_san_entries: &openssl_san_entries
         type: list
         elements: str
@@ -214,20 +228,32 @@ argument_specs:
       openssl_key_alg: *openssl_key_alg
       openssl_key_opt: *openssl_key_opt
 
+  inspect:
+    short_description: Detect whether an OpenSSL artifact needs to be (re)generated
+    description:
+      - Fingerprint the inputs behind one OpenSSL-generated artifact (a rendered config, key/cert parameters, or the checksums of files it was built from) and compare it against the fingerprint recorded for that same C(openssl_artifact_path) by the previous run.
+      - Runs unconditionally when the output artifact or the state file is missing, since there is no recorded fingerprint to trust yet.
+      - Publishes C(openssl_must_run) and C(openssl_current_fingerprint) as facts for the calling entry point to consume.
+    options:
+      remote_node_dir: *remote_node_dir
+      openssl_remote_config_dir: *openssl_remote_config_dir
+      openssl_state_file: *openssl_state_file
+
   generate_self_signed_cert:
     short_description: Generate a self-signed certificate
     description:
-      - Generate a private key and a self-signed X.509 certificate.
+      - Generate a private key and a self-signed X.509 certificate, regenerating them only when their inputs changed since the last run.
       - The certificate is written to C(openssl_cert_path) and remains valid for C(openssl_cert_duration) days.
       - The role renders a temporary OpenSSL config file beneath C(openssl_remote_config_dir), then copies the generated certificate to C(openssl_ca_cert_file) in the certificate directory so the self-signed output can also act as a CA certificate.
-      - When C(openssl_clean_after_gen) is true, the temporary configuration directory is removed after generation.
     options:
       remote_node_dir: *remote_node_dir
       actual_host: *actual_host
       openssl_private_key_path: *openssl_private_key_path
       openssl_cert_path: *openssl_cert_path
       openssl_remote_config_dir: *openssl_remote_config_dir
-      openssl_clean_after_gen: *openssl_clean_after_gen
+      openssl_config_file: *openssl_config_file
+      openssl_state_file: *openssl_state_file
+      openssl_dir_mode: *openssl_dir_mode
       openssl_ca_cert_file: *openssl_ca_cert_file
       openssl_key_type: *openssl_key_type
       openssl_key_opt: *openssl_key_opt
@@ -251,18 +277,19 @@ argument_specs:
   generate_csr:
     short_description: Generate a certificate signing request
     description:
-      - Generate a private key and certificate signing request using a rendered OpenSSL config file.
+      - Generate a private key and certificate signing request using a rendered OpenSSL config file, regenerating them only when their inputs changed since the last run.
       - The private key is written to C(openssl_private_key_path) and the CSR to C(openssl_csr_path).
       - The role renders a temporary OpenSSL config file beneath C(openssl_remote_config_dir) and, when C(openssl_ext_file_path) is set, also renders an extension file for later signing.
-      - When C(openssl_clean_after_gen) is true, the temporary configuration directory is removed after generation.
     options:
       remote_node_dir: *remote_node_dir
       actual_host: *actual_host
       openssl_private_key_path: *openssl_private_key_path
       openssl_csr_path: *openssl_csr_path
       openssl_remote_config_dir: *openssl_remote_config_dir
+      openssl_config_file: *openssl_config_file
+      openssl_state_file: *openssl_state_file
+      openssl_dir_mode: *openssl_dir_mode
       openssl_ext_file_path: *openssl_ext_file_path
-      openssl_clean_after_gen: *openssl_clean_after_gen
       openssl_key_type: *openssl_key_type
       openssl_key_opt: *openssl_key_opt
       openssl_cert_duration: *openssl_cert_duration
@@ -285,10 +312,14 @@ argument_specs:
   generate_cert:
     short_description: Sign a certificate from a CSR
     description:
-      - Generate a certificate from an existing CSR using the provided CA certificate and private key.
+      - Generate a certificate from an existing CSR using the provided CA certificate and private key, re-signing it only when the CSR, CA certificate, extension file, or duration changed since the last run.
       - The signed certificate is written to C(openssl_cert_path) and remains valid for C(openssl_cert_duration) days.
       - When C(openssl_ext_file_path) is set, the role applies the rendered extension file while signing so the resulting certificate inherits the requested X.509 v3 extensions.
     options:
+      remote_node_dir: *remote_node_dir
+      openssl_remote_config_dir: *openssl_remote_config_dir
+      openssl_state_file: *openssl_state_file
+      openssl_dir_mode: *openssl_dir_mode
       openssl_ca_private_key_path: *openssl_ca_private_key_path
       openssl_ca_cert_path: *openssl_ca_cert_path
       openssl_csr_path: *openssl_csr_path

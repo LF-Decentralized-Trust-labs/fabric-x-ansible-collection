@@ -1,0 +1,11 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Persists the fingerprint of the current configtxgen inputs (rendered configtx.yaml, the
+# Armageddon shared-config binary, and the fetched crypto tree) so the next run can detect
+# whether they changed. Written unconditionally on every run, whether or not configtxgen
+# actually executed.
+fingerprint: "{{ configtxgen_input_fingerprint }}"

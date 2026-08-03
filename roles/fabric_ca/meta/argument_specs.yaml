@@ -14,6 +14,16 @@ argument_specs:
         default: false
         description:
           - "Uses the binary client flow instead of the container flow."
+      remote_node_dir: &remote_node_dir
+        type: path
+        description:
+          - "Base directory for remote role state on the target host."
+          - "Example: C(/tmp/fabricx)."
+      fabric_ca_client_state_file: &fabric_ca_client_state_file
+        type: path
+        default: "{{ remote_node_dir }}/fabric-ca-enroll-state.yaml"
+        description:
+          - "Path to the file that tracks a fingerprint of the enrollment inputs behind each BCCSP identity's certificate, keyed by C(fabric_ca_msp_dir), used to detect changes since the last run."
       fabric_ca_server_use_bin: &fabric_ca_server_use_bin
         type: bool
         default: false
@@ -414,13 +424,35 @@ argument_specs:
         description:
           - Specifies the OpenShift Route host.
           - "Example: C(fabric-ca-operations.apps.example.com)."
+  client/inspect:
+    short_description: Detect whether a BCCSP or Idemix identity needs to be enrolled or reenrolled
+    description:
+      - "For a BCCSP identity: fingerprint the enrollment inputs (identity name, CA name, and CSR hosts) and compare it against the fingerprint recorded for the same output path by the previous run. Without a recorded state file, an existing certificate is reenrolled unconditionally, since there is no fingerprint to trust yet."
+      - "The enrollment secret and the CA's connection address are deliberately excluded from the fingerprint: rotating a password does not invalidate an issued certificate, and the address is not encoded in it."
+      - "For an Idemix identity: only check whether the signer config already exists. Idemix has no SANs and nothing else that can meaningfully drift, so it is never reenrolled."
+      - "Publishes C(fabric_ca_client_must_enroll) and C(fabric_ca_client_must_reenroll) as facts for C(client/enroll) to consume; C(fabric_ca_client_current_fingerprint) is additionally published for the BCCSP path."
+    options:
+      fabric_ca_msp_dir: *fabric_ca_msp_dir
+      fabric_ca_identity: *fabric_ca_identity
+      fabric_ca_name: *fabric_ca_name
+      fabric_ca_enrollment_type: *fabric_ca_enrollment_type
+      fabric_ca_enrollment_profile: *fabric_ca_enrollment_profile
+      fabric_ca_csr_hosts: *fabric_ca_csr_hosts
+      fabric_ca_cryptogenize_msp_signcert_file: *fabric_ca_cryptogenize_msp_signcert_file
+      fabric_ca_cryptogenize_tls_cert_file: *fabric_ca_cryptogenize_tls_cert_file
+      remote_node_dir: *remote_node_dir
+      fabric_ca_client_state_file: *fabric_ca_client_state_file
+
   client/enroll:
     short_description: Dispatch client enrollment
     description:
-      - "Dispatches client enrollment to the binary or transient-container implementation."
+      - "Dispatches client enrollment to the binary or transient-container implementation, and reenrollment instead when a BCCSP identity's certificate already exists but its inputs changed since the last run."
       - "Creates MSP or Idemix material for the requested identity under C(fabric_ca_msp_dir), using TLS profile settings when requested."
     options:
       fabric_ca_client_use_bin: *fabric_ca_client_use_bin
+      fabric_ca_enrollment_type: *fabric_ca_enrollment_type
+      remote_node_dir: *remote_node_dir
+      fabric_ca_client_state_file: *fabric_ca_client_state_file
 
   client/register:
     short_description: Dispatch client registration

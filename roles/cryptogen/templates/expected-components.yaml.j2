@@ -1,0 +1,79 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Derives the set of MSP/TLS components "cryptogen" is expected to produce from the
+# already-rendered crypto-config.yaml (cryptogen_rendered_config), mirroring the path and
+# Common Name derivation of fabric-x-common/tools/cryptogen (newOrgCryptoTree, subNode,
+# renderNodeSpec, generateUsers, adminUser). Each entry is later stat-ed on disk to detect
+# missing components, and non-null fingerprints are compared against a persisted state file
+# to detect components whose spec changed (for example, a node's SANS) and therefore need
+# re-issuing. Organizations carry no fingerprint: they either exist or they do not.
+#
+# Only the shapes crypto-config.yaml.j2 actually renders are walked here: OrdererOrgs and
+# PeerOrgs, each with Specs, plus the peer Users. Should that template ever grow GenericOrgs
+# or a node Template (Count/Start), this file has to grow with it, or those components will
+# be missing from the expected set and never detected as absent.
+{% for org in cryptogen_rendered_config.OrdererOrgs | default([]) %}
+- kind: orderer_org
+  org: {{ org.Domain | to_json }}
+  dir: {{ ('ordererOrganizations/' ~ org.Domain) | to_json }}
+  fingerprint: null
+{% for spec in org.Specs | default([]) %}
+{% set cn = spec.CommonName | default(spec.Hostname ~ '.' ~ org.Domain) %}
+{% set pubkey = spec.PublicKeyAlgorithm | default('ecdsa') %}
+{% set sans = spec.SANS | default([]) | sort %}
+- kind: orderer
+  org: {{ org.Domain | to_json }}
+  name: {{ cn | to_json }}
+  dir: {{ ('ordererOrganizations/' ~ org.Domain ~ '/orderers/' ~ cn) | to_json }}
+  fingerprint: {{ (cn ~ '|' ~ (sans | join(',')) ~ '|' ~ pubkey) | hash('sha1') | to_json }}
+{% endfor %}
+{% set admin_cn = 'Admin@' ~ org.Domain %}
+- kind: user
+  org: {{ org.Domain | to_json }}
+  name: {{ admin_cn | to_json }}
+  dir: {{ ('ordererOrganizations/' ~ org.Domain ~ '/users/' ~ admin_cn) | to_json }}
+  fingerprint: {{ (admin_cn ~ '|ecdsa') | hash('sha1') | to_json }}
+{% endfor %}
+{% for org in cryptogen_rendered_config.PeerOrgs | default([]) %}
+- kind: peer_org
+  org: {{ org.Domain | to_json }}
+  dir: {{ ('peerOrganizations/' ~ org.Domain) | to_json }}
+  fingerprint: null
+{% for spec in org.Specs | default([]) %}
+{% set cn = spec.CommonName | default(spec.Hostname ~ '.' ~ org.Domain) %}
+{% set pubkey = spec.PublicKeyAlgorithm | default('ecdsa') %}
+{% set sans = spec.SANS | default([]) | sort %}
+- kind: peer
+  org: {{ org.Domain | to_json }}
+  name: {{ cn | to_json }}
+  dir: {{ ('peerOrganizations/' ~ org.Domain ~ '/peers/' ~ cn) | to_json }}
+  fingerprint: {{ (cn ~ '|' ~ (sans | join(',')) ~ '|' ~ pubkey) | hash('sha1') | to_json }}
+{% endfor %}
+{% set admin_cn = 'Admin@' ~ org.Domain %}
+- kind: user
+  org: {{ org.Domain | to_json }}
+  name: {{ admin_cn | to_json }}
+  dir: {{ ('peerOrganizations/' ~ org.Domain ~ '/users/' ~ admin_cn) | to_json }}
+  fingerprint: {{ (admin_cn ~ '|ecdsa') | hash('sha1') | to_json }}
+{% set users_pubkey = org.Users.PublicKeyAlgorithm | default('ecdsa') %}
+{% for i in range(1, (org.Users.Count | default(0)) + 1) %}
+{% set user_cn = 'User' ~ i ~ '@' ~ org.Domain %}
+- kind: user
+  org: {{ org.Domain | to_json }}
+  name: {{ user_cn | to_json }}
+  dir: {{ ('peerOrganizations/' ~ org.Domain ~ '/users/' ~ user_cn) | to_json }}
+  fingerprint: {{ (user_cn ~ '|' ~ users_pubkey) | hash('sha1') | to_json }}
+{% endfor %}
+{% for user_spec in org.Users.Specs | default([]) %}
+{% set user_cn = user_spec.Name ~ '@' ~ org.Domain %}
+- kind: user
+  org: {{ org.Domain | to_json }}
+  name: {{ user_cn | to_json }}
+  dir: {{ ('peerOrganizations/' ~ org.Domain ~ '/users/' ~ user_cn) | to_json }}
+  fingerprint: {{ (user_cn ~ '|' ~ users_pubkey) | hash('sha1') | to_json }}
+{% endfor %}
+{% endfor %}

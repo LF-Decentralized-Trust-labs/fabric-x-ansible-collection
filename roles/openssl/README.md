@@ -9,6 +9,7 @@
 - [Tasks](#tasks)
   - [install](#install)
   - [generate\_keypair](#generate_keypair)
+  - [inspect](#inspect)
   - [generate\_self\_signed\_cert](#generate_self_signed_cert)
   - [generate\_csr](#generate_csr)
   - [generate\_cert](#generate_cert)
@@ -62,11 +63,31 @@ Generate a private key and the matching public key on the target host. The priva
     tasks_from: generate_keypair
 ```
 
+### inspect
+
+> Detect whether an OpenSSL artifact needs to be (re)generated
+
+Fingerprint the inputs behind one OpenSSL-generated artifact (a rendered config, key/cert parameters, or the checksums of files it was built from) and compare it against the fingerprint recorded for that same `openssl_artifact_path` by the previous run. Runs unconditionally when the output artifact or the state file is missing, since there is no recorded fingerprint to trust yet. Publishes `openssl_must_run` and `openssl_current_fingerprint` as facts for the calling entry point to consume.
+
+```yaml
+- name: Detect whether an OpenSSL artifact needs to be (re)generated
+  vars:
+    # Base directory for remote role state and temporary OpenSSL config files.
+    remote_node_dir: "/tmp/fabricx/openssl"
+    # Directory for the temporary OpenSSL config file.
+    openssl_remote_config_dir: "{{ remote_node_dir }}/openssl"
+    # Path to the file that tracks a fingerprint of the inputs behind each generated artifact, keyed by output path, used to detect changes since the last run.
+    openssl_state_file: "{{ openssl_remote_config_dir }}/openssl-state.yaml"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openssl
+    tasks_from: inspect
+```
+
 ### generate_self_signed_cert
 
 > Generate a self-signed certificate
 
-Generate a private key and a self-signed X.509 certificate. The certificate is written to `openssl_cert_path` and remains valid for `openssl_cert_duration` days. The role renders a temporary OpenSSL config file beneath `openssl_remote_config_dir`, then copies the generated certificate to `openssl_ca_cert_file` in the certificate directory so the self-signed output can also act as a CA certificate. When `openssl_clean_after_gen` is true, the temporary configuration directory is removed after generation.
+Generate a private key and a self-signed X.509 certificate, regenerating them only when their inputs changed since the last run. The certificate is written to `openssl_cert_path` and remains valid for `openssl_cert_duration` days. The role renders a temporary OpenSSL config file beneath `openssl_remote_config_dir`, then copies the generated certificate to `openssl_ca_cert_file` in the certificate directory so the self-signed output can also act as a CA certificate.
 
 ```yaml
 - name: Generate a self-signed certificate
@@ -81,8 +102,12 @@ Generate a private key and a self-signed X.509 certificate. The certificate is w
     openssl_cert_path: "/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.crt"
     # Directory for the temporary OpenSSL config file.
     openssl_remote_config_dir: "{{ remote_node_dir }}/openssl"
-    # Remove the rendered OpenSSL config directory after generation.
-    openssl_clean_after_gen: false
+    # Filename for the rendered OpenSSL config beneath `openssl_remote_config_dir`. Override this when a role calls more than one `openssl` entry point against the same `openssl_remote_config_dir` (for example a self-signed CA followed by a CSR), so each rendered config is distinguishable from the other.
+    openssl_config_file: openssl.conf
+    # Path to the file that tracks a fingerprint of the inputs behind each generated artifact, keyed by output path, used to detect changes since the last run.
+    openssl_state_file: "{{ openssl_remote_config_dir }}/openssl-state.yaml"
+    # Mode applied to directories created for the generated key, CSR, and certificate. Override this when the destination directory is also managed by the caller with a different mode (for example a keystore directory a role keeps at `0750`), so the two do not fight over it every run.
+    openssl_dir_mode: 0755
     # Filename used when copying the self-signed certificate as the CA certificate.
     openssl_ca_cert_file: ca.crt
     # Key type passed to `openssl req -newkey`.
@@ -128,7 +153,7 @@ Generate a private key and a self-signed X.509 certificate. The certificate is w
         | map('regex_replace', '^', 'DNS:')
         | list
       }}
-    # IP SAN entries generated from `openssl_san_hosts` and `ansible_facts.all_ipv4_addresses`.
+    # IP SAN entries generated from `openssl_san_hosts` and `ansible_facts.all_ipv4_addresses`. Sorted so the rendered config, and therefore its drift fingerprint, does not depend on the order `all_ipv4_addresses` happens to be reported in.
     openssl_san_ip_entries: >-
       {{
         (
@@ -136,6 +161,7 @@ Generate a private key and a self-signed X.509 certificate. The certificate is w
           + (ansible_facts.all_ipv4_addresses | default([]))
         )
         | unique
+        | sort
         | map('regex_replace', '^', 'IP:')
         | list
       }}
@@ -150,7 +176,7 @@ Generate a private key and a self-signed X.509 certificate. The certificate is w
 
 > Generate a certificate signing request
 
-Generate a private key and certificate signing request using a rendered OpenSSL config file. The private key is written to `openssl_private_key_path` and the CSR to `openssl_csr_path`. The role renders a temporary OpenSSL config file beneath `openssl_remote_config_dir` and, when `openssl_ext_file_path` is set, also renders an extension file for later signing. When `openssl_clean_after_gen` is true, the temporary configuration directory is removed after generation.
+Generate a private key and certificate signing request using a rendered OpenSSL config file, regenerating them only when their inputs changed since the last run. The private key is written to `openssl_private_key_path` and the CSR to `openssl_csr_path`. The role renders a temporary OpenSSL config file beneath `openssl_remote_config_dir` and, when `openssl_ext_file_path` is set, also renders an extension file for later signing.
 
 ```yaml
 - name: Generate a certificate signing request
@@ -165,10 +191,14 @@ Generate a private key and certificate signing request using a rendered OpenSSL 
     openssl_csr_path: "/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.csr"
     # Directory for the temporary OpenSSL config file.
     openssl_remote_config_dir: "{{ remote_node_dir }}/openssl"
+    # Filename for the rendered OpenSSL config beneath `openssl_remote_config_dir`. Override this when a role calls more than one `openssl` entry point against the same `openssl_remote_config_dir` (for example a self-signed CA followed by a CSR), so each rendered config is distinguishable from the other.
+    openssl_config_file: openssl.conf
+    # Path to the file that tracks a fingerprint of the inputs behind each generated artifact, keyed by output path, used to detect changes since the last run.
+    openssl_state_file: "{{ openssl_remote_config_dir }}/openssl-state.yaml"
+    # Mode applied to directories created for the generated key, CSR, and certificate. Override this when the destination directory is also managed by the caller with a different mode (for example a keystore directory a role keeps at `0750`), so the two do not fight over it every run.
+    openssl_dir_mode: 0755
     # Optional extension file path passed to `openssl x509 -extfile`.
     openssl_ext_file_path: "/var/hyperledger/fabricx/openssl/server.ext"
-    # Remove the rendered OpenSSL config directory after generation.
-    openssl_clean_after_gen: false
     # Key type passed to `openssl req -newkey`.
     openssl_key_type: "rsa:4096"
     # Optional key-generation option passed with `-pkeyopt`.
@@ -212,7 +242,7 @@ Generate a private key and certificate signing request using a rendered OpenSSL 
         | map('regex_replace', '^', 'DNS:')
         | list
       }}
-    # IP SAN entries generated from `openssl_san_hosts` and `ansible_facts.all_ipv4_addresses`.
+    # IP SAN entries generated from `openssl_san_hosts` and `ansible_facts.all_ipv4_addresses`. Sorted so the rendered config, and therefore its drift fingerprint, does not depend on the order `all_ipv4_addresses` happens to be reported in.
     openssl_san_ip_entries: >-
       {{
         (
@@ -220,6 +250,7 @@ Generate a private key and certificate signing request using a rendered OpenSSL 
           + (ansible_facts.all_ipv4_addresses | default([]))
         )
         | unique
+        | sort
         | map('regex_replace', '^', 'IP:')
         | list
       }}
@@ -234,11 +265,19 @@ Generate a private key and certificate signing request using a rendered OpenSSL 
 
 > Sign a certificate from a CSR
 
-Generate a certificate from an existing CSR using the provided CA certificate and private key. The signed certificate is written to `openssl_cert_path` and remains valid for `openssl_cert_duration` days. When `openssl_ext_file_path` is set, the role applies the rendered extension file while signing so the resulting certificate inherits the requested X.509 v3 extensions.
+Generate a certificate from an existing CSR using the provided CA certificate and private key, re-signing it only when the CSR, CA certificate, extension file, or duration changed since the last run. The signed certificate is written to `openssl_cert_path` and remains valid for `openssl_cert_duration` days. When `openssl_ext_file_path` is set, the role applies the rendered extension file while signing so the resulting certificate inherits the requested X.509 v3 extensions.
 
 ```yaml
 - name: Sign a certificate from a CSR
   vars:
+    # Base directory for remote role state and temporary OpenSSL config files.
+    remote_node_dir: "/tmp/fabricx/openssl"
+    # Directory for the temporary OpenSSL config file.
+    openssl_remote_config_dir: "{{ remote_node_dir }}/openssl"
+    # Path to the file that tracks a fingerprint of the inputs behind each generated artifact, keyed by output path, used to detect changes since the last run.
+    openssl_state_file: "{{ openssl_remote_config_dir }}/openssl-state.yaml"
+    # Mode applied to directories created for the generated key, CSR, and certificate. Override this when the destination directory is also managed by the caller with a different mode (for example a keystore directory a role keeps at `0750`), so the two do not fight over it every run.
+    openssl_dir_mode: 0755
     # Path to the CA private key used to sign the certificate. Store this value in Ansible Vault.
     openssl_ca_private_key_path: "/var/hyperledger/fabricx/crypto/org1.example.com/ca/ca.key"
     # Path to the CA certificate used to sign the certificate.

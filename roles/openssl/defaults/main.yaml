@@ -9,8 +9,14 @@
 
 # Directory for the temporary OpenSSL config file.
 openssl_remote_config_dir: '{{ remote_node_dir }}/openssl'
-# Remove the rendered OpenSSL config directory after generation.
-openssl_clean_after_gen: false
+# Filename for the rendered OpenSSL config beneath C(openssl_remote_config_dir).
+# Override this when a role calls more than one C(openssl) entry point against the same C(openssl_remote_config_dir) (for example a self-signed CA followed by a CSR), so each rendered config is distinguishable from the other.
+openssl_config_file: openssl.conf
+# Path to the file that tracks a fingerprint of the inputs behind each generated artifact, keyed by output path, used to detect changes since the last run.
+openssl_state_file: '{{ openssl_remote_config_dir }}/openssl-state.yaml'
+# Mode applied to directories created for the generated key, CSR, and certificate.
+# Override this when the destination directory is also managed by the caller with a different mode (for example a keystore directory a role keeps at C(0750)), so the two do not fight over it every run.
+openssl_dir_mode: '0755'
 # Filename used when copying the self-signed certificate as the CA certificate.
 openssl_ca_cert_file: ca.crt
 # OpenSSL algorithm passed to C(openssl genpkey).
@@ -53,6 +59,7 @@ openssl_san_dns_entries: >-
     | list
   }}
 # IP SAN entries generated from C(openssl_san_hosts) and C(ansible_facts.all_ipv4_addresses).
+# Sorted so the rendered config, and therefore its drift fingerprint, does not depend on the order C(all_ipv4_addresses) happens to be reported in.
 openssl_san_ip_entries: >-
   {{
     (
@@ -60,6 +67,7 @@ openssl_san_ip_entries: >-
       + (ansible_facts.all_ipv4_addresses | default([]))
     )
     | unique
+    | sort
     | map('regex_replace', '^', 'IP:')
     | list
   }}

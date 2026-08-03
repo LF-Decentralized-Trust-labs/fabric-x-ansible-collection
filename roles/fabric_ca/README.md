@@ -7,6 +7,7 @@
 - [Role Defaults](#role-defaults)
 - [ansible-doc](#ansible-doc)
 - [Tasks](#tasks)
+  - [client/inspect](#clientinspect)
   - [client/enroll](#clientenroll)
   - [client/register](#clientregister)
   - [client/gather\_identities](#clientgather_identities)
@@ -82,17 +83,66 @@ ansible-doc -t role hyperledger.fabricx.fabric_ca
 
 ## Tasks
 
+### client/inspect
+
+> Detect whether a BCCSP or Idemix identity needs to be enrolled or reenrolled
+
+For a BCCSP identity: fingerprint the enrollment inputs (identity name, CA name, and CSR hosts) and compare it against the fingerprint recorded for the same output path by the previous run. Without a recorded state file, an existing certificate is reenrolled unconditionally, since there is no fingerprint to trust yet. The enrollment secret and the CA's connection address are deliberately excluded from the fingerprint: rotating a password does not invalidate an issued certificate, and the address is not encoded in it. For an Idemix identity: only check whether the signer config already exists. Idemix has no SANs and nothing else that can meaningfully drift, so it is never reenrolled. Publishes `fabric_ca_client_must_enroll` and `fabric_ca_client_must_reenroll` as facts for `client/enroll` to consume; `fabric_ca_client_current_fingerprint` is additionally published for the BCCSP path.
+
+```yaml
+- name: Detect whether a BCCSP or Idemix identity needs to be enrolled or reenrolled
+  vars:
+    # Sets the MSP directory used by Fabric CA client flows.
+    fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp"
+    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault.
+    fabric_ca_identity:
+      name: "peer0"
+      secret: "peer0PWD"
+      type: "peer"
+      affiliation: "org1.department1"
+      attrs:
+        hf.Revoker: "true"
+    # Sets the CA name.
+    fabric_ca_name: "{{ inventory_hostname }}"
+    # Selects the enrollment type.
+    fabric_ca_enrollment_type: bccsp
+    # Sets an optional enrollment profile such as `tls`.
+    fabric_ca_enrollment_profile: "tls"
+    # Sets the CSR SAN host list.
+    fabric_ca_csr_hosts:
+      - "{{ ansible_host }}"
+      - "{{ actual_host }}"
+      - "{{ inventory_hostname }}"
+    # Sets the Fabric CA client MSP sign certificate output path relative to `fabric_ca_msp_dir`.
+    fabric_ca_cryptogenize_msp_signcert_file: signcerts/cert.pem
+    # Sets the Fabric CA client TLS certificate output path relative to `fabric_ca_msp_dir`.
+    fabric_ca_cryptogenize_tls_cert_file: server.crt
+    # Base directory for remote role state on the target host.
+    remote_node_dir: "/tmp/fabricx"
+    # Path to the file that tracks a fingerprint of the enrollment inputs behind each BCCSP identity's certificate, keyed by `fabric_ca_msp_dir`, used to detect changes since the last run.
+    fabric_ca_client_state_file: "{{ remote_node_dir }}/fabric-ca-enroll-state.yaml"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/inspect
+```
+
 ### client/enroll
 
 > Dispatch client enrollment
 
-Dispatches client enrollment to the binary or transient-container implementation. Creates MSP or Idemix material for the requested identity under `fabric_ca_msp_dir`, using TLS profile settings when requested.
+Dispatches client enrollment to the binary or transient-container implementation, and reenrollment instead when a BCCSP identity's certificate already exists but its inputs changed since the last run. Creates MSP or Idemix material for the requested identity under `fabric_ca_msp_dir`, using TLS profile settings when requested.
 
 ```yaml
 - name: Dispatch client enrollment
   vars:
     # Uses the binary client flow instead of the container flow.
     fabric_ca_client_use_bin: false
+    # Selects the enrollment type.
+    fabric_ca_enrollment_type: bccsp
+    # Base directory for remote role state on the target host.
+    remote_node_dir: "/tmp/fabricx"
+    # Path to the file that tracks a fingerprint of the enrollment inputs behind each BCCSP identity's certificate, keyed by `fabric_ca_msp_dir`, used to detect changes since the last run.
+    fabric_ca_client_state_file: "{{ remote_node_dir }}/fabric-ca-enroll-state.yaml"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/enroll

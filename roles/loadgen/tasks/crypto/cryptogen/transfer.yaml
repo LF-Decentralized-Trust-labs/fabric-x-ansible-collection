@@ -43,14 +43,6 @@
 # =========================
 # TLS
 # =========================
-- name: Ensure Hyperledger Fabric-X Loadgen TLS directory exists
-  ansible.builtin.file:
-    path: "{{ loadgen_remote_config_dir }}/tls"
-    state: directory
-    mode: "0o755"
-  when:
-    - loadgen_use_tls or loadgen_monitoring_use_tls
-
 - name: Transfer the TLS crypto material generated with cryptogen
   ansible.posix.synchronize:
     src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ loadgen_crypto_name }}.{{ organization.domain }}/tls"

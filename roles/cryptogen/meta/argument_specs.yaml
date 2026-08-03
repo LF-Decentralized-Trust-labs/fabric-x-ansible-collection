@@ -123,14 +123,37 @@ argument_specs:
         default: "crypto-config.yaml"
         description:
           - "Sets the cryptogen configuration filename."
+      cryptogen_state_file: &cryptogen_state_file
+        type: str
+        default: "cryptogen-state.yaml"
+        description:
+          - "Sets the filename that tracks a fingerprint of every generated component, used to detect components missing or changed since the last run."
 
   start:
-    short_description: Select the cryptogen execution mode
+    short_description: Extend or generate the Fabric-X crypto material
     description:
-      - "Choose whether cryptogen runs as a binary or in a container."
+      - "Inspect the existing crypto material, then run cryptogen only for the components that are missing or changed, extending the material already on disk instead of regenerating it."
       - "This dispatcher selects either the C(bin/start) or C(container/start) entry point so the role can render configuration and generate crypto material in the requested execution mode."
+      - "Delete C(cryptogen_output_dir) to rebuild the whole network from scratch."
     options:
       cryptogen_use_bin: *cryptogen_use_bin
+      config_build_dir: *config_build_dir
+      cryptogen_artifacts_dir: *cryptogen_artifacts_dir
+      cryptogen_output_dir: *cryptogen_output_dir
+      cryptogen_state_file: *cryptogen_state_file
+
+  inspect:
+    short_description: Detect missing or changed cryptogen components
+    description:
+      - "Read back the rendered C(crypto-config.yaml) and the persisted state file, then determine which orderer, peer, and user components are missing from C(cryptogen_output_dir) or have a spec (Common Name, SANS, key algorithm) that no longer matches the one recorded for them."
+      - "Publishes C(cryptogen_expected_components) and C(cryptogen_must_run), plus C(cryptogen_drifted_components) when a previous state file exists, as facts for the rest of the role to consume."
+      - "A component already on disk with no recorded fingerprint is treated as adopted rather than drifted, so an existing network is recognized without being regenerated."
+    options:
+      config_build_dir: *config_build_dir
+      cryptogen_artifacts_dir: *cryptogen_artifacts_dir
+      cryptogen_output_dir: *cryptogen_output_dir
+      cryptogen_config_file: *cryptogen_config_file
+      cryptogen_state_file: *cryptogen_state_file
 
   fetch:
     short_description: Fetch generated MSP directories

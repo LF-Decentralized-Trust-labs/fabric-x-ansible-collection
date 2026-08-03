@@ -24,6 +24,8 @@
     src: "{{ loadgen_remote_config_dir }}/msp/signcerts/{{ loadgen_crypto_name }}.{{ organization.domain }}-cert.pem"
     dest: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/msp/knowncerts/{{ loadgen_crypto_name }}.{{ organization.domain }}-cert.pem"
     flat: true
+  when:
+    - organization.fabric_ca_host is defined
 
 - name: Fetch Hyperledger Fabric-X Loadgen user sign certificates into organization knowncerts
   ansible.builtin.fetch:
@@ -36,6 +38,7 @@
     label: "{{ organization.domain }}:{{ current_user.name }}"
   when:
     - organization.users is defined
+    - organization.fabric_ca_host is defined
 
 # =========================
 # TLS certs

@@ -1,0 +1,88 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Current inputs
+# =========================
+- name: Stat the rendered configtxgen configuration
+  ansible.builtin.stat:
+    path: "{{ configtxgen_artifacts_dir }}/{{ configtxgen_config_file }}"
+  register: configtxgen_config_stat
+
+- name: Stat the Armageddon shared-config binary
+  ansible.builtin.stat:
+    path: "{{ armageddon_artifacts_dir }}/{{ configtxgen_armageddon_binpb_file }}"
+  register: configtxgen_armageddon_binpb_stat
+
+- name: Find the fetched crypto artifacts checksums
+  ansible.builtin.find:
+    paths: "{{ fetched_artifacts_dir }}/crypto"
+    file_type: file
+    recurse: true
+    get_checksum: true
+  register: configtxgen_crypto_files
+
+# =========================
+# Existing output
+# =========================
+- name: Stat the configtxgen genesis block output
+  ansible.builtin.stat:
+    path: "{{ configtxgen_artifacts_dir }}/{{ configtxgen_genesis_block_file }}"
+  register: configtxgen_output_stat
+
+# =========================
+# Previous state
+# =========================
+- name: Check if a configtxgen state file already exists
+  ansible.builtin.stat:
+    path: "{{ configtxgen_artifacts_dir }}/{{ configtxgen_state_file }}"
+  register: configtxgen_state_stat
+
+- name: Read the previous configtxgen state file
+  ansible.builtin.slurp:
+    src: "{{ configtxgen_artifacts_dir }}/{{ configtxgen_state_file }}"
+  register: configtxgen_state_raw
+  when:
+    - configtxgen_state_stat.stat.exists
+
+# =========================
+# Fingerprint
+# =========================
+- name: Set the configtxgen input fingerprint and whether configtxgen must run
+  vars:
+    configtxgen_crypto_files_fingerprint: >-
+      {{
+        configtxgen_crypto_files.files
+        | map(attribute='checksum')
+        | sort
+        | list
+        | to_json
+        | hash('sha1')
+      }}
+    configtxgen_fingerprints:
+      - "{{ configtxgen_crypto_files_fingerprint }}"
+      - "{{ configtxgen_config_stat.stat.checksum }}"
+      - "{{ configtxgen_armageddon_binpb_stat.stat.checksum }}"
+    configtxgen_current_fingerprint: >-
+      {{
+        configtxgen_fingerprints
+        | to_json
+        | hash('sha1')
+      }}
+    configtxgen_previous_fingerprint: >-
+      {{
+        (configtxgen_state_raw.content | b64decode | from_yaml).fingerprint
+        if configtxgen_state_stat.stat.exists
+        else none
+      }}
+  ansible.builtin.set_fact:
+    configtxgen_input_fingerprint: "{{ configtxgen_current_fingerprint }}"
+    configtxgen_must_run: >-
+      {{
+        (not configtxgen_output_stat.stat.exists)
+        or (not configtxgen_state_stat.stat.exists)
+        or (configtxgen_previous_fingerprint != configtxgen_current_fingerprint)
+      }}

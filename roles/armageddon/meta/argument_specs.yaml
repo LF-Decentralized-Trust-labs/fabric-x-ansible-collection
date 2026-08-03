@@ -104,6 +104,16 @@ argument_specs:
         default: shared_config.yaml
         description:
           - Shared-config filename.
+      armageddon_shared_config_binpb_file: &armageddon_shared_config_binpb_file
+        type: str
+        default: shared_config.binpb
+        description:
+          - Shared-config protobuf filename written by Armageddon, used to detect whether it already exists.
+      armageddon_state_file: &armageddon_state_file
+        type: str
+        default: armageddon-state.yaml
+        description:
+          - Filename that tracks a fingerprint of the rendered shared config and the orderer crypto inputs, used to detect changes since the last run.
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         required: true
@@ -142,14 +152,32 @@ argument_specs:
       armageddon_container_crypto_artifacts_dir: *armageddon_container_crypto_artifacts_dir
       armageddon_shared_config_file: *armageddon_shared_config_file
 
+  inspect:
+    short_description: Detect whether Armageddon needs to run
+    description:
+      - Fingerprint the rendered C(shared_config.yaml) together with every fetched orderer crypto artifact, then compare it against the fingerprint recorded by the previous run.
+      - Only C(fetched_artifacts_dir)/crypto/ordererOrganizations is walked, not the whole crypto tree, since C(shared_config.yaml) never references peer organization material, only orderer CAs, TLS CAs, and per-orderer certs.
+      - Publishes C(armageddon_input_fingerprint) and C(armageddon_must_run) as facts for C(create_shared_config) to consume.
+      - Without a previous state file there is no baseline, so C(armageddon_must_run) is set unconditionally, and Armageddon runs once to establish one.
+    options:
+      config_build_dir: *config_build_dir
+      armageddon_artifacts_dir: *armageddon_artifacts_dir
+      armageddon_shared_config_file: *armageddon_shared_config_file
+      armageddon_shared_config_binpb_file: *armageddon_shared_config_binpb_file
+      armageddon_state_file: *armageddon_state_file
+      fetched_artifacts_dir: *fetched_artifacts_dir
+
   create_shared_config:
     short_description: Dispatch shared-config generation
     description:
-      - Dispatch shared-config generation to the binary or container flow.
+      - Inspect the existing shared-config output, then dispatch generation to the binary or container flow only when the inputs changed since the last run.
       - This is the top-level Armageddon entry point for producing C(shared_config.binpb) from the rendered shared config.
       - C(armageddon_use_bin) selects which sub-entry point runs.
     options:
       armageddon_use_bin: *armageddon_use_bin
+      config_build_dir: *config_build_dir
+      armageddon_artifacts_dir: *armageddon_artifacts_dir
+      armageddon_state_file: *armageddon_state_file
 
   bin/install:
     short_description: Install the Armageddon binary

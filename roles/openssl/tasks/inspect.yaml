@@ -1,0 +1,54 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Current inputs
+# =========================
+- name: Set the current OpenSSL input fingerprint
+  ansible.builtin.set_fact:
+    openssl_current_fingerprint: "{{ openssl_fingerprint_inputs | to_json | hash('sha1') }}"
+
+# =========================
+# Existing output
+# =========================
+- name: Stat the OpenSSL artifact
+  ansible.builtin.stat:
+    path: "{{ openssl_artifact_path }}"
+  register: openssl_artifact_stat
+
+# =========================
+# Previous state
+# =========================
+- name: Check if an OpenSSL state file already exists
+  ansible.builtin.stat:
+    path: "{{ openssl_state_file }}"
+  register: openssl_state_stat
+
+- name: Read the previously recorded OpenSSL fingerprints
+  when:
+    - openssl_state_stat.stat.exists
+  block:
+    - name: Read the previous OpenSSL state file
+      ansible.builtin.slurp:
+        src: "{{ openssl_state_file }}"
+      register: openssl_state_raw
+    - name: Set the previously recorded OpenSSL fingerprints
+      ansible.builtin.set_fact:
+        openssl_recorded_fingerprints: "{{ (openssl_state_raw.content | b64decode | from_yaml).fingerprints }}"
+
+# =========================
+# Drift decision
+# =========================
+# No state file means this artifact has never been through this drift check before, so it must
+# run regardless of what is already on disk -- there is no recorded fingerprint to trust.
+- name: Set whether this OpenSSL artifact must be (re)generated
+  ansible.builtin.set_fact:
+    openssl_must_run: >-
+      {{
+        (not openssl_artifact_stat.stat.exists)
+        or (not openssl_state_stat.stat.exists)
+        or (openssl_recorded_fingerprints.get(openssl_artifact_path) != openssl_current_fingerprint)
+      }}

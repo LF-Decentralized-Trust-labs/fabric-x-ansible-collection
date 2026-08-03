@@ -13,7 +13,12 @@
     state: directory
     mode: "0o755"
 
-- name: Transfer the Fabric-X Orderer crypto material generated with cryptogen
+- name: Transfer the MSP crypto material generated with cryptogen
   ansible.posix.synchronize:
-    src: "{{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/"
+    src: "{{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/msp"
+    dest: "{{ orderer_remote_config_dir }}"
+
+- name: Transfer the TLS crypto material generated with cryptogen
+  ansible.posix.synchronize:
+    src: "{{ cryptogen_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/tls"
     dest: "{{ orderer_remote_config_dir }}"
