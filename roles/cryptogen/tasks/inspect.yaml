@@ -9,10 +9,12 @@
     src: "{{ cryptogen_artifacts_dir }}/{{ cryptogen_config_file }}"
   register: cryptogen_rendered_config_raw
 
-# A single find is used rather than one stat per expected component: the deepest component
-# lives four levels down (for example, ordererOrganizations/<domain>/orderers/<name>), and
-# looping stat over every component costs one module round-trip each, which dominates the
-# runtime of this role on a network of any size.
+- name: Ensure the cryptogen output directory exists
+  ansible.builtin.file:
+    path: "{{ cryptogen_output_dir }}"
+    state: directory
+    mode: "0o755"
+
 - name: List the cryptogen component directories that already exist
   ansible.builtin.find:
     paths: "{{ cryptogen_output_dir }}"
