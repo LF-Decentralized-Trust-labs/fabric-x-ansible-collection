@@ -4,6 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Ensure MSP directory exists
+  ansible.builtin.file:
+    path: "{{ fabric_ca_msp_dir }}"
+    state: directory
+    mode: "0o755"
+
 - name: Resolve effective Fabric CA connection port
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
