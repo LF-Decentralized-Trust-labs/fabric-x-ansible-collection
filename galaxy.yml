@@ -32,6 +32,7 @@ build_ignore:
   - scripts
   - mkdocs.yml
   - AGENTS.md
+  - CLAUDE.md
   - .markdownlint.yaml
   - .gitignore
   - .venv
