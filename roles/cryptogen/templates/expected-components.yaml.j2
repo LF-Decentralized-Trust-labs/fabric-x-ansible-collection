@@ -1,22 +1,21 @@
-{#
-Copyright IBM Corp. All Rights Reserved.
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 
-SPDX-License-Identifier: Apache-2.0
-#}
-{#
-Derives the set of MSP/TLS components "cryptogen" is expected to produce from the
-already-rendered crypto-config.yaml (cryptogen_rendered_config), mirroring the path and
-Common Name derivation of fabric-x-common/tools/cryptogen (newOrgCryptoTree, subNode,
-renderNodeSpec, generateUsers, adminUser). Each entry is later stat-ed on disk to detect
-missing components, and non-null fingerprints are compared against a persisted state file
-to detect components whose spec changed (for example, a node's SANS) and therefore need
-re-issuing. Organizations carry no fingerprint: they either exist or they do not.
-
-Only the shapes crypto-config.yaml.j2 actually renders are walked here: OrdererOrgs and
-PeerOrgs, each with Specs, plus the peer Users. Should that template ever grow GenericOrgs
-or a node Template (Count/Start), this file has to grow with it, or those components will
-be missing from the expected set and never detected as absent.
-#}
+# Derives the set of MSP/TLS components "cryptogen" is expected to produce from the
+# already-rendered crypto-config.yaml (cryptogen_rendered_config), mirroring the path and
+# Common Name derivation of fabric-x-common/tools/cryptogen (newOrgCryptoTree, subNode,
+# renderNodeSpec, generateUsers, adminUser). Each entry is later stat-ed on disk to detect
+# missing components, and non-null fingerprints are compared against a persisted state file
+# to detect components whose spec changed (for example, a node's SANS) and therefore need
+# re-issuing. Organizations carry no fingerprint: they either exist or they do not.
+#
+# Only the shapes crypto-config.yaml.j2 actually renders are walked here: OrdererOrgs and
+# PeerOrgs, each with Specs, plus the peer Users. Should that template ever grow GenericOrgs
+# or a node Template (Count/Start), this file has to grow with it, or those components will
+# be missing from the expected set and never detected as absent.
 {% for org in cryptogen_rendered_config.OrdererOrgs | default([]) %}
 - kind: orderer_org
   org: {{ org.Domain | to_json }}

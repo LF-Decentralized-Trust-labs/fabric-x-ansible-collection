@@ -1,0 +1,81 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# BCCSP
+# =========================
+- name: Inspect the existing BCCSP enrollment
+  when:
+    - fabric_ca_enrollment_type == 'bccsp'
+  block:
+    - name: Set the current Fabric CA enrollment fingerprint
+      vars:
+        fabric_ca_bccsp_enrollment_cert_file: >-
+          {{
+            fabric_ca_cryptogenize_tls_cert_file
+            if (fabric_ca_enrollment_profile is defined and fabric_ca_enrollment_profile == 'tls')
+            else fabric_ca_cryptogenize_msp_signcert_file
+          }}
+        fabric_ca_fingerprint_inputs:
+          - "{{ fabric_ca_identity.name }}"
+          - "{{ fabric_ca_name }}"
+      ansible.builtin.set_fact:
+        fabric_ca_client_artifact_path: "{{ fabric_ca_msp_dir }}/{{ fabric_ca_bccsp_enrollment_cert_file }}"
+        fabric_ca_client_current_fingerprint: >-
+          {{
+            (
+              fabric_ca_fingerprint_inputs
+              + (fabric_ca_csr_hosts | default([]) | sort | list)
+            ) | to_json | hash('sha1')
+          }}
+    - name: Stat the Fabric CA enrollment certificate
+      ansible.builtin.stat:
+        path: "{{ fabric_ca_client_artifact_path }}"
+      register: fabric_ca_client_artifact_stat
+    - name: Check if a Fabric CA enrollment state file already exists
+      ansible.builtin.stat:
+        path: "{{ fabric_ca_client_state_file }}"
+      register: fabric_ca_client_state_stat
+    - name: Read the previously recorded Fabric CA enrollment fingerprints
+      when:
+        - fabric_ca_client_state_stat.stat.exists
+      block:
+        - name: Read the previous Fabric CA enrollment state file
+          ansible.builtin.slurp:
+            src: "{{ fabric_ca_client_state_file }}"
+          register: fabric_ca_client_state_raw
+        - name: Set the previously recorded Fabric CA enrollment fingerprints
+          ansible.builtin.set_fact:
+            fabric_ca_client_recorded_fingerprints: "{{ (fabric_ca_client_state_raw.content | b64decode | from_yaml).fingerprints }}"
+    - name: Set whether this BCCSP identity must be enrolled or reenrolled
+      ansible.builtin.set_fact:
+        fabric_ca_client_must_enroll: "{{ not fabric_ca_client_artifact_stat.stat.exists }}"
+        fabric_ca_client_must_reenroll: >-
+          {{
+            fabric_ca_client_artifact_stat.stat.exists
+            and (
+              (not fabric_ca_client_state_stat.stat.exists)
+              or (fabric_ca_client_recorded_fingerprints.get(fabric_ca_client_artifact_path) != fabric_ca_client_current_fingerprint)
+            )
+          }}
+
+# =========================
+# Idemix
+# =========================
+- name: Inspect the existing Idemix enrollment
+  when:
+    - fabric_ca_enrollment_type == 'idemix'
+  block:
+    # Idemix enrollment has no SANs and nothing else that can meaningfully drift, so it keeps
+    # a simpler exists-or-enroll check: no fingerprint, and it is never reenrolled.
+    - name: Stat the Fabric CA Idemix signer config
+      ansible.builtin.stat:
+        path: "{{ fabric_ca_msp_dir }}/msp/user/SignerConfig"
+      register: fabric_ca_client_artifact_stat
+    - name: Set whether this Idemix identity must be enrolled
+      ansible.builtin.set_fact:
+        fabric_ca_client_must_enroll: "{{ not fabric_ca_client_artifact_stat.stat.exists }}"
+        fabric_ca_client_must_reenroll: false

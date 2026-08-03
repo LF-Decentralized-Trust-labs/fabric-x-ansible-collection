@@ -4,16 +4,78 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Enroll identity with Fabric CA client container
+# =========================
+# Drift detection
+# =========================
+# BCCSP identities are drift-checked: a certificate whose CN, SANs, or enrollment type/profile
+# no longer matches what it was issued with is reenrolled below rather than left stale. Idemix
+# enrollment has no SANs and nothing else that can meaningfully drift, so it keeps the simpler
+# exists-or-enroll check it always had. Either way, client/inspect publishes
+# fabric_ca_client_must_enroll and fabric_ca_client_must_reenroll.
+- name: Inspect the existing Fabric CA enrollment
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
-    tasks_from: client/container/enroll
-  when:
-    - not fabric_ca_client_use_bin
+    tasks_from: client/inspect
 
-- name: Enroll all identities with Fabric CA client binary
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.fabric_ca
-    tasks_from: client/bin/enroll
+# =========================
+# Enroll
+# =========================
+- name: Enroll the identity
   when:
-    - fabric_ca_client_use_bin
+    - fabric_ca_client_must_enroll
+  block:
+    - name: Enroll identity with Fabric CA client container
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: client/container/enroll
+      when:
+        - not fabric_ca_client_use_bin
+    - name: Enroll all identities with Fabric CA client binary
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: client/bin/enroll
+      when:
+        - fabric_ca_client_use_bin
+
+# =========================
+# Reenroll
+# =========================
+# Only reached for a BCCSP identity that already exists but whose fingerprint no longer
+# matches. Idemix never reenrolls: client/inspect always sets fabric_ca_client_must_reenroll
+# to false for it.
+- name: Reenroll the identity
+  when:
+    - fabric_ca_client_must_reenroll
+  block:
+    - name: Reenroll identity with Fabric CA client container
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: client/container/reenroll
+      when:
+        - not fabric_ca_client_use_bin
+    - name: Reenroll identity with Fabric CA client binary
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: client/bin/reenroll
+      when:
+        - fabric_ca_client_use_bin
+
+# =========================
+# State
+# =========================
+- name: Write the Fabric CA enrollment state file
+  vars:
+    fabric_ca_client_state_fingerprints: >-
+      {{
+        fabric_ca_client_recorded_fingerprints | default({})
+        | combine({
+          fabric_ca_client_artifact_path: fabric_ca_client_current_fingerprint
+        })
+      }}
+  ansible.builtin.template:
+    src: fabric-ca-enroll-state.yaml.j2
+    dest: "{{ fabric_ca_client_state_file }}"
+    mode: "0o644"
+  when:
+    - fabric_ca_enrollment_type == 'bccsp'
+    - fabric_ca_client_must_enroll or fabric_ca_client_must_reenroll

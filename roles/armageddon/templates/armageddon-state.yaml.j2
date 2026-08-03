@@ -1,11 +1,10 @@
-{#
-Copyright IBM Corp. All Rights Reserved.
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 
-SPDX-License-Identifier: Apache-2.0
-#}
-{#
-Persists the fingerprint of the current Armageddon inputs (rendered shared_config.yaml and
-the fetched orderer crypto tree) so the next run can detect whether they changed. Written
-unconditionally on every run, whether or not Armageddon actually executed.
-#}
+# Persists the fingerprint of the current Armageddon inputs (rendered shared_config.yaml and
+# the fetched orderer crypto tree) so the next run can detect whether they changed. Written
+# unconditionally on every run, whether or not Armageddon actually executed.
 fingerprint: "{{ armageddon_input_fingerprint }}"

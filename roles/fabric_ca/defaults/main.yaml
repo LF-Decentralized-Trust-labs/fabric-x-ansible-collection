@@ -9,6 +9,8 @@
 
 # Uses the binary client flow instead of the container flow.
 fabric_ca_client_use_bin: false
+# Path to the file that tracks a fingerprint of the enrollment inputs behind each BCCSP identity's certificate, keyed by C(fabric_ca_msp_dir), used to detect changes since the last run.
+fabric_ca_client_state_file: '{{ remote_node_dir }}/fabric-ca-enroll-state.yaml'
 # Uses the binary server flow instead of container or Kubernetes.
 fabric_ca_server_use_bin: false
 # Uses the Kubernetes server flow instead of the local runtimes.

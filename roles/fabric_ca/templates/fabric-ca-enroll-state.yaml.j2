@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Persists a fingerprint of the enrollment inputs (identity name, CA name, enrollment type and
+# profile, and CSR hosts) that produced each MSP directory's enrolled certificate, keyed by
+# that directory's absolute path, so future runs can detect whether they changed and reenroll
+# instead of silently leaving a stale certificate in place. Written unconditionally after
+# inspection, whether or not the identity was (re)enrolled.
+fingerprints:
+{% for fabric_ca_client_fingerprint_path, fabric_ca_client_fingerprint_value in fabric_ca_client_state_fingerprints.items() %}
+  "{{ fabric_ca_client_fingerprint_path }}": "{{ fabric_ca_client_fingerprint_value }}"
+{% endfor %}
