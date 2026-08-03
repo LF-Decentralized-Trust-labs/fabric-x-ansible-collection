@@ -7,15 +7,6 @@
 # =========================
 # MSP certs
 # =========================
-- name: Copy Hyperledger Fabric-X Committer sign certificate into organization knowncerts
-  ansible.builtin.copy:
-    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ committer_crypto_name }}.{{ organization.domain }}/msp/signcerts/{{ committer_crypto_name }}.{{ organization.domain }}-cert.pem"
-    dest: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/msp/knowncerts/{{ committer_crypto_name }}.{{ organization.domain }}-cert.pem"
-    mode: preserve
-  delegate_to: localhost
-  when:
-    - organization.fabric_ca_host is undefined
-
 - name: Fetch Hyperledger Fabric-X Committer sidecar sign certificate into organization knowncerts
   ansible.builtin.fetch:
     src: "{{ committer_remote_config_dir }}/msp/signcerts/{{ committer_crypto_name }}.{{ organization.domain }}-cert.pem"

@@ -18,6 +18,8 @@
     src: "{{ orderer_remote_config_dir }}/msp/signcerts/{{ orderer_crypto_name }}.{{ organization.domain }}-cert.pem"
     dest: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/msp/knowncerts/{{ orderer_crypto_name }}.{{ organization.domain }}-cert.pem"
     flat: true
+  when:
+    - organization.fabric_ca_host is defined
 
 # =========================
 # TLS certs
