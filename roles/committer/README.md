@@ -12,9 +12,6 @@
   - [openshift/ping](#openshiftping)
   - [stop](#stop)
   - [teardown](#teardown)
-  - [query\_service/teardown](#query_serviceteardown)
-  - [sidecar/teardown](#sidecarteardown)
-  - [coordinator/teardown](#coordinatorteardown)
   - [wipe](#wipe)
   - [fetch\_logs](#fetch_logs)
   - [effective\_address](#effective_address)
@@ -70,8 +67,6 @@
   - [coordinator/k8s/config/transfer](#coordinatork8sconfigtransfer)
   - [sidecar/k8s/config/transfer](#sidecark8sconfigtransfer)
   - [query\_service/k8s/config/transfer](#query_servicek8sconfigtransfer)
-  - [validator/teardown](#validatorteardown)
-  - [verifier/teardown](#verifierteardown)
   - [validator/openshift/start](#validatoropenshiftstart)
   - [validator/openshift/rm](#validatoropenshiftrm)
   - [verifier/openshift/start](#verifieropenshiftstart)
@@ -193,82 +188,24 @@ Stop the selected component in bin or container mode. Kubernetes teardown is han
 
 > Teardown a selected component
 
-Remove the selected component according to its deployment mode. Sidecar teardown also removes sidecar data. Dispatches by `committer_component_type` to the component-specific teardown entry point.
+Remove the selected component according to its deployment mode. Sidecar teardown also removes sidecar data. Dispatches by `committer_component_type` and `committer_deployment_mode`.
 
 ```yaml
 - name: Teardown a selected component
   vars:
     # Committer component handled by the entry point.
     committer_component_type: "coordinator"
+    # Deployment mode selected by the role.
+    committer_deployment_mode: "{%- if committer_use_bin -%}bin{%- elif committer_use_openshift -%}openshift{%- elif committer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
+    # Enable host-binary deployment mode.
+    committer_use_bin: false
+    # Enable Kubernetes deployment mode.
+    committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: teardown
-```
-
-### query_service/teardown
-
-> Teardown the query-service
-
-Remove the query-service according to its deployment mode. Deletes the runtime process, container, or Kubernetes query-service resources.
-
-```yaml
-- name: Teardown the query-service
-  vars:
-    # Enable host-binary deployment mode.
-    committer_use_bin: false
-    # Enable Kubernetes deployment mode.
-    committer_use_k8s: false
-    # Selects the OpenShift deployment branch.
-    committer_use_openshift: false
-    # Enable container deployment mode.
-    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: query_service/teardown
-```
-
-### sidecar/teardown
-
-> Teardown the sidecar
-
-Remove the sidecar according to its deployment mode and delete sidecar data. Deletes the runtime process, container, or Kubernetes StatefulSet and storage artifacts.
-
-```yaml
-- name: Teardown the sidecar
-  vars:
-    # Enable host-binary deployment mode.
-    committer_use_bin: false
-    # Enable Kubernetes deployment mode.
-    committer_use_k8s: false
-    # Selects the OpenShift deployment branch.
-    committer_use_openshift: false
-    # Enable container deployment mode.
-    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: sidecar/teardown
-```
-
-### coordinator/teardown
-
-> Teardown the coordinator
-
-Remove the coordinator according to its deployment mode. Deletes the runtime process, container, or Kubernetes coordinator resources.
-
-```yaml
-- name: Teardown the coordinator
-  vars:
-    # Enable host-binary deployment mode.
-    committer_use_bin: false
-    # Enable Kubernetes deployment mode.
-    committer_use_k8s: false
-    # Selects the OpenShift deployment branch.
-    committer_use_openshift: false
-    # Enable container deployment mode.
-    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: coordinator/teardown
 ```
 
 ### wipe
@@ -553,7 +490,7 @@ Copy the built committer binary to the target host. Uses `committer_bin_name` fo
 
 > Start the committer container
 
-Run the container for the selected committer component, with its generated configuration directory mounted read-only. For the sidecar, also ensures the data directory exists and mounts it as a second volume. `committer_component_type` selects the CLI subcommand and, for the sidecar, whether the data volume and a longer wait timeout apply.
+Run the container for the selected committer component, with its generated configuration directory mounted read-only. For the sidecar, also ensures the data directory exists and mounts it as a second volume. `committer_component_type` selects the CLI subcommand and, for the sidecar, whether the data volume and a longer wait timeout apply. Configures the image-native gRPC healthcheck with TLS verification when `committer_use_tls` is enabled.
 
 ```yaml
 - name: Start the committer container
@@ -584,6 +521,8 @@ Run the container for the selected committer component, with its generated confi
     committer_remote_data_dir: "{{ remote_data_dir }}"
     # RPC port exposed by the selected committer component.
     committer_rpc_port: 7051
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
     # Remote config directory used by delegated crypto tasks.
     remote_config_dir: "/opt/fabricx/committer/config"
     # Remote data directory used by delegated sidecar tasks.
@@ -2674,50 +2613,6 @@ Ensure the namespace exists and create the query-service Kubernetes ConfigMap. P
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: query_service/k8s/config/transfer
-```
-
-### validator/teardown
-
-> Teardown the validator
-
-Remove validator runtime resources for the active deployment mode. Dispatches to Kubernetes, container, or host-binary cleanup based on deployment flags.
-
-```yaml
-- name: Teardown the validator
-  vars:
-    # Enable Kubernetes deployment mode.
-    committer_use_k8s: false
-    # Selects the OpenShift deployment branch.
-    committer_use_openshift: false
-    # Enable container deployment mode.
-    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}"
-    # Enable host-binary deployment mode.
-    committer_use_bin: false
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: validator/teardown
-```
-
-### verifier/teardown
-
-> Teardown the verifier
-
-Remove verifier runtime resources for the active deployment mode. Dispatches to Kubernetes, container, or host-binary cleanup based on deployment flags.
-
-```yaml
-- name: Teardown the verifier
-  vars:
-    # Enable Kubernetes deployment mode.
-    committer_use_k8s: false
-    # Selects the OpenShift deployment branch.
-    committer_use_openshift: false
-    # Enable container deployment mode.
-    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}"
-    # Enable host-binary deployment mode.
-    committer_use_bin: false
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: verifier/teardown
 ```
 
 ### validator/openshift/start

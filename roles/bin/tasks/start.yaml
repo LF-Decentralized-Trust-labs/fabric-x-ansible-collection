@@ -30,6 +30,13 @@
   when:
     - bin_collect_logs
 
+- name: Check if log file exists
+  ansible.builtin.stat:
+    path: "{{ bin_remote_logs_dir }}/{{ bin_remote_logs_file }}"
+  register: bin_log_file_stat
+  when:
+    - bin_collect_logs
+
 - name: Create log file
   ansible.builtin.file:
     path: "{{ bin_remote_logs_dir }}/{{ bin_remote_logs_file }}"
@@ -37,6 +44,7 @@
     mode: "0o644"
   when:
     - bin_collect_logs
+    - not bin_log_file_stat.stat.exists
 
 - name: Show command to run
   ansible.builtin.debug:

@@ -382,7 +382,7 @@ Stops the binary-mode orderer process and removes its persisted data directory. 
 
 > Start the orderer container
 
-Ensures the host data directory exists and starts the orderer container with the selected component command. Mounts generated config and TLS/MSP material read-only, mounts the data directory read-write, and exposes gRPC and operations ports.
+Ensures the host data directory exists and starts the orderer container with the selected component command. Mounts generated config and TLS/MSP material read-only, mounts the data directory read-write, and exposes gRPC and operations ports. Configures an image-native curl healthcheck against the plaintext operations `/healthz` endpoint.
 
 ```yaml
 - name: Start the orderer container

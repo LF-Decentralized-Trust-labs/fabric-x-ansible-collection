@@ -298,7 +298,7 @@ argument_specs:
   start:
     short_description: Start the Semaphore UI binary
     description:
-      - "Starts the Semaphore UI binary, then prints its effective URL and admin username."
+      - "Migrates and seeds the database if it is missing (C(db/setup)), starts the Semaphore UI binary, then prints its effective URL and admin username."
     options:
       semaphore_ui_username: *semaphore_ui_username
 
@@ -318,7 +318,7 @@ argument_specs:
     short_description: Stop Semaphore UI and remove its data
     description:
       - "Stops the Semaphore UI binary and deletes its data directory (SQLite database, scratch space, and generated secrets)."
-      - "Leaves the installed binary and rendered configuration files in place."
+      - "Leaves the installed binary and rendered configuration files in place. A subsequent C(start) re-migrates and re-seeds the database (C(db/setup))."
     options: {}
 
   wipe:
@@ -344,17 +344,14 @@ argument_specs:
       semaphore_ui_use_tls: *semaphore_ui_use_tls
 
   config/transfer:
-    short_description: Render, migrate, and seed a Semaphore UI instance
+    short_description: Render the Semaphore UI server configuration and project seed
     description:
-      - "Generates and persists the server secrets on first run, renders C(config.json) and the project seed file from templates, then runs database migrations and ensures the admin user and the Fabric-X project exist."
-      - "Run this before C(start) on first install: the CLI commands used here write directly to the SQLite database, so running them while the server is live risks contending for the same file."
-      - "Idempotent, but not a reconciler. The admin user is only created if it does not already exist, and the project import is a safe no-op if a project with the same name already exists — but it will not update an existing project when C(semaphore_ui_inventories)/C(semaphore_ui_job_templates) change."
+      - "Generates and persists the server secrets on first run, then renders C(config.json) and the project seed file from templates."
+      - "Database migration and seeding is not done here: C(start) does it (C(db/setup)), skipping it when the database already exists."
     options:
-      remote_node_dir: *remote_node_dir
       remote_config_dir: *remote_config_dir
       remote_data_dir: *remote_data_dir
       project_dir: *project_dir
-      semaphore_ui_bin_name: *semaphore_ui_bin_name
       semaphore_ui_remote_config_dir: *semaphore_ui_remote_config_dir
       semaphore_ui_remote_data_dir: *semaphore_ui_remote_data_dir
       semaphore_ui_config_file: *semaphore_ui_config_file
@@ -364,9 +361,6 @@ argument_specs:
       semaphore_ui_use_tls: *semaphore_ui_use_tls
       semaphore_ui_tls_private_key_file: *semaphore_ui_tls_private_key_file
       semaphore_ui_tls_cert_file: *semaphore_ui_tls_cert_file
-      semaphore_ui_username: *semaphore_ui_username
-      semaphore_ui_email: *semaphore_ui_email
-      semaphore_ui_password: *semaphore_ui_password
       semaphore_ui_project_name: *semaphore_ui_project_name
       semaphore_ui_repository_name: *semaphore_ui_repository_name
       semaphore_ui_inventories: *semaphore_ui_inventories
@@ -374,6 +368,26 @@ argument_specs:
       semaphore_ui_job_templates: *semaphore_ui_job_templates
       semaphore_ui_extra_survey_vars: *semaphore_ui_extra_survey_vars
       semaphore_ui_skip_galaxy_install: *semaphore_ui_skip_galaxy_install
+
+  db/setup:
+    short_description: Migrate and seed the Semaphore UI database if it is missing
+    description:
+      - "Checks whether the Semaphore UI SQLite database file exists and, only if it does not, ensures the data directory exists, runs database migrations, then ensures the admin user and the Fabric-X project exist. A repeated run against a live instance is a no-op."
+      - "Run this only against a stopped server: the CLI commands used here write directly to the SQLite database, so running them while the server is live risks contending for the same file."
+      - "Idempotent, but not a reconciler. The admin user is only created if it does not already exist, and the project import is a safe no-op if a project with the same name already exists — but it will not update an existing project when C(semaphore_ui_inventories)/C(semaphore_ui_job_templates) change."
+    options:
+      remote_node_dir: *remote_node_dir
+      remote_config_dir: *remote_config_dir
+      remote_data_dir: *remote_data_dir
+      semaphore_ui_bin_name: *semaphore_ui_bin_name
+      semaphore_ui_remote_config_dir: *semaphore_ui_remote_config_dir
+      semaphore_ui_remote_data_dir: *semaphore_ui_remote_data_dir
+      semaphore_ui_config_file: *semaphore_ui_config_file
+      semaphore_ui_database_file: *semaphore_ui_database_file
+      semaphore_ui_project_seed_file: *semaphore_ui_project_seed_file
+      semaphore_ui_username: *semaphore_ui_username
+      semaphore_ui_email: *semaphore_ui_email
+      semaphore_ui_password: *semaphore_ui_password
 
   config/rm:
     short_description: Remove the Semaphore UI configuration files

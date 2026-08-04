@@ -782,6 +782,7 @@ argument_specs:
     description:
       - "Ensures the host data directory exists and starts the orderer container with the selected component command."
       - "Mounts generated config and TLS/MSP material read-only, mounts the data directory read-write, and exposes gRPC and operations ports."
+      - "Configures an image-native curl healthcheck against the plaintext operations C(/healthz) endpoint."
     options:
       orderer_component_type: *orderer_component_type
       orderer_container_name: *orderer_container_name

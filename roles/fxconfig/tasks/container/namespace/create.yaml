@@ -47,7 +47,7 @@
       - >-
         {{ fxconfig_bin_name }} namespace
         create {{ fxconfig_namespace_id }}
-        --policy=$FXCONFIG_POLICY
+        --policy="$FXCONFIG_POLICY"
         --output=/tmp/{{ fxconfig_output | basename }}
     container_volumes: "{{ fxconfig_volumes }}"
     container_run_detach_mode: false

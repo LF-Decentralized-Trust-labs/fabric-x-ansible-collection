@@ -37,6 +37,13 @@
     container_command: >-
       start {{ committer_subcommands[committer_component_type] }}
       --config={{ committer_container_config_dir }}/{{ committer_config_file }}
+    container_healthcheck_test: >-
+      SC_{{ committer_subcommands[committer_component_type] | upper }}_SERVER_ENDPOINT={{ actual_host }}:{{ committer_rpc_port }}
+      {% if committer_use_tls %}
+      SC_{{ committer_subcommands[committer_component_type] | upper }}_SERVER_TLS_CA_CERT_PATHS={{ committer_container_config_dir }}/tls/ca.crt
+      {% endif %}
+      /bin/entrypoint healthcheck {{ committer_subcommands[committer_component_type] }}
+      --config={{ committer_container_config_dir }}/{{ committer_config_file }}
     container_ports:
       - "{{ committer_rpc_port }}:{{ committer_rpc_port }}"
       - "{{ committer_metrics_port }}:{{ committer_metrics_port }}"

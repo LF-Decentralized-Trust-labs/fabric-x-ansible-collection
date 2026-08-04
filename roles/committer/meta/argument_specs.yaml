@@ -741,42 +741,13 @@ argument_specs:
     description:
       - Remove the selected component according to its deployment mode.
       - Sidecar teardown also removes sidecar data.
-      - Dispatches by C(committer_component_type) to the component-specific teardown entry point.
+      - Dispatches by C(committer_component_type) and C(committer_deployment_mode).
     options:
       committer_component_type: *committer_component_type
-
-  query_service/teardown:
-    short_description: Teardown the query-service
-    description:
-      - Remove the query-service according to its deployment mode.
-      - Deletes the runtime process, container, or Kubernetes query-service resources.
-    options:
+      committer_deployment_mode: *committer_deployment_mode
       committer_use_bin: *committer_use_bin
       committer_use_k8s: *committer_use_k8s
       committer_use_openshift: *committer_use_openshift
-      committer_use_container: *committer_use_container
-
-  sidecar/teardown:
-    short_description: Teardown the sidecar
-    description:
-      - Remove the sidecar according to its deployment mode and delete sidecar data.
-      - Deletes the runtime process, container, or Kubernetes StatefulSet and storage artifacts.
-    options:
-      committer_use_bin: *committer_use_bin
-      committer_use_k8s: *committer_use_k8s
-      committer_use_openshift: *committer_use_openshift
-      committer_use_container: *committer_use_container
-
-  coordinator/teardown:
-    short_description: Teardown the coordinator
-    description:
-      - Remove the coordinator according to its deployment mode.
-      - Deletes the runtime process, container, or Kubernetes coordinator resources.
-    options:
-      committer_use_bin: *committer_use_bin
-      committer_use_k8s: *committer_use_k8s
-      committer_use_openshift: *committer_use_openshift
-      committer_use_container: *committer_use_container
 
   wipe:
     short_description: Remove all committer artifacts
@@ -920,6 +891,7 @@ argument_specs:
       - Run the container for the selected committer component, with its generated configuration directory mounted read-only.
       - For the sidecar, also ensures the data directory exists and mounts it as a second volume.
       - C(committer_component_type) selects the CLI subcommand and, for the sidecar, whether the data volume and a longer wait timeout apply.
+      - Configures the image-native gRPC healthcheck with TLS verification when C(committer_use_tls) is enabled.
     options:
       committer_component_type: *committer_component_type
       committer_config_file: *committer_config_file
@@ -934,6 +906,7 @@ argument_specs:
       committer_remote_config_dir: *committer_remote_config_dir
       committer_remote_data_dir: *committer_remote_data_dir
       committer_rpc_port: *committer_rpc_port
+      committer_use_tls: *committer_use_tls
       remote_config_dir: *remote_config_dir
       remote_data_dir: *remote_data_dir
 
@@ -1833,28 +1806,6 @@ argument_specs:
       postgres_db_host: *postgres_db_host
       remote_config_dir: *remote_config_dir
       yugabyte_cluster_ref_id: *yugabyte_cluster_ref_id
-
-  validator/teardown:
-    short_description: Teardown the validator
-    description:
-      - Remove validator runtime resources for the active deployment mode.
-      - Dispatches to Kubernetes, container, or host-binary cleanup based on deployment flags.
-    options:
-      committer_use_k8s: *committer_use_k8s
-      committer_use_openshift: *committer_use_openshift
-      committer_use_container: *committer_use_container
-      committer_use_bin: *committer_use_bin
-
-  verifier/teardown:
-    short_description: Teardown the verifier
-    description:
-      - Remove verifier runtime resources for the active deployment mode.
-      - Dispatches to Kubernetes, container, or host-binary cleanup based on deployment flags.
-    options:
-      committer_use_k8s: *committer_use_k8s
-      committer_use_openshift: *committer_use_openshift
-      committer_use_container: *committer_use_container
-      committer_use_bin: *committer_use_bin
 
   validator/openshift/start:
     short_description: Start the committer validator OpenShift deployment
