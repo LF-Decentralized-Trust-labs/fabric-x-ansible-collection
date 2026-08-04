@@ -12,6 +12,7 @@
 
 - name: Set fxconfig volumes
   ansible.builtin.set_fact:
+    fxconfig_threshold_namespace_policy: ""
     fxconfig_volumes:
       - "{{ fxconfig_output | dirname }}:/tmp:z"
 
@@ -34,7 +35,7 @@
     container_name: "{{ fxconfig_container_name }}-{{ fxconfig_namespace_id }}-create"
     container_image: "{{ fxconfig_image }}"
     container_env:
-      FXCONFIG_POLICY: "{{ fxconfig_threshold_namespace_policy | default(fxconfig_namespace_policy) }}"
+      FXCONFIG_POLICY: "{{ fxconfig_threshold_namespace_policy | default(fxconfig_namespace_policy, true) }}"
       FXCONFIG_LOGGING_LEVEL: "{{ fxconfig_log_level }}"
       FXCONFIG_LOGGING_FORMAT: "{{ fxconfig_log_format | quote }}"
     # We use the shell command to overcome the issue of quote escaping within

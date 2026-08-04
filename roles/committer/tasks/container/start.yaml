@@ -1,0 +1,50 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Define the Committer container volumes
+  ansible.builtin.set_fact:
+    committer_container_volumes:
+      - "{{ committer_remote_config_dir }}:{{ committer_container_config_dir }}:z,ro"
+
+- name: Configure Committer Sidecar container volumes
+  when:
+    - committer_component_type == 'sidecar'
+  block:
+    - name: Ensure Committer Sidecar data directory exists
+      ansible.builtin.file:
+        path: "{{ committer_remote_data_dir }}"
+        state: directory
+        mode: "0o755"
+    - name: Add the Committer Sidecar data volume
+      vars:
+        committer_sidecar_data_volume: "{{ committer_remote_data_dir }}:{{ committer_container_data_dir }}:z"
+      ansible.builtin.set_fact:
+        committer_container_volumes: "{{ committer_container_volumes + [committer_sidecar_data_volume] }}"
+
+- name: Start the Fabric-X Committer container
+  vars:
+    committer_subcommands:
+      validator: vc
+      verifier: verifier
+      coordinator: coordinator
+      sidecar: sidecar
+      query-service: query
+    container_name: "{{ committer_container_name }}"
+    container_image: "{{ committer_image }}"
+    container_command: >-
+      start {{ committer_subcommands[committer_component_type] }}
+      --config={{ committer_container_config_dir }}/{{ committer_config_file }}
+    container_ports:
+      - "{{ committer_rpc_port }}:{{ committer_rpc_port }}"
+      - "{{ committer_metrics_port }}:{{ committer_metrics_port }}"
+    container_volumes: "{{ committer_container_volumes }}"
+    container_wait_until_running: true
+    container_run_as_host_user: true
+    container_wait_port: "{{ committer_rpc_port }}"
+    container_wait_timeout: 120
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start

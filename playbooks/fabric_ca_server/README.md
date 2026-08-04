@@ -120,7 +120,7 @@ Properties:
 
 ## stop.yaml
 
-[`stop.yaml`](./stop.yaml) stops Fabric CA servers first, then stops their PostgreSQL databases. It leaves generated files and database data in place for a later restart.
+[`stop.yaml`](./stop.yaml) stops Fabric CA servers, leaving generated files and database data in place for a later restart.
 
 ```shell
 ansible-playbook hyperledger.fabricx.fabric_ca_server.stop --extra-vars '{"target_hosts": "fabric_cas"}'
@@ -129,11 +129,10 @@ ansible-playbook hyperledger.fabricx.fabric_ca_server.stop --extra-vars '{"targe
 Properties:
 
 - Target hosts: `fabric_cas` by default.
-- Nuance: stops Fabric CA servers before their PostgreSQL databases while preserving generated files and database data.
 
 ## teardown.yaml
 
-[`teardown.yaml`](./teardown.yaml) tears down Fabric CA servers and their databases, removing runtime state according to the selected runtime mode.
+[`teardown.yaml`](./teardown.yaml) tears down Fabric CA servers, removing runtime state according to the selected runtime mode.
 
 ```shell
 ansible-playbook hyperledger.fabricx.fabric_ca_server.teardown --extra-vars '{"target_hosts": "fabric_cas"}'
@@ -142,11 +141,10 @@ ansible-playbook hyperledger.fabricx.fabric_ca_server.teardown --extra-vars '{"t
 Properties:
 
 - Target hosts: `fabric_cas` by default.
-- Nuance: removes Fabric CA and CA database runtime state according to the selected runtime mode.
 
 ## wipe.yaml
 
-[`wipe.yaml`](./wipe.yaml) removes Fabric CA server artifacts, Fabric CA client binaries, and CA database files managed by the roles.
+[`wipe.yaml`](./wipe.yaml) removes Fabric CA server artifacts and Fabric CA client binaries managed by the roles.
 
 ```shell
 ansible-playbook hyperledger.fabricx.fabric_ca_server.wipe --extra-vars '{"target_hosts": "fabric_cas"}'
@@ -155,11 +153,10 @@ ansible-playbook hyperledger.fabricx.fabric_ca_server.wipe --extra-vars '{"targe
 Properties:
 
 - Target hosts: `fabric_cas` by default.
-- Nuance: removes Fabric CA server artifacts, Fabric CA client binaries, and CA database files managed by the roles.
 
 ## ping.yaml
 
-[`ping.yaml`](./ping.yaml) checks CA database and Fabric CA server endpoints so you can confirm the enrollment stack is reachable before initialization or identity registration.
+[`ping.yaml`](./ping.yaml) checks Fabric CA server endpoints so you can confirm the enrollment stack is reachable before initialization or identity registration.
 
 ```shell
 ansible-playbook hyperledger.fabricx.fabric_ca_server.ping --extra-vars '{"target_hosts": "fabric_cas"}'

@@ -16,12 +16,3 @@
         tasks_from: teardown
       when:
         - block_explorer_port is defined
-    # =========================
-    # Postgres
-    # =========================
-    - name: Teardown the Fabric-X Block Explorer Postgres DB
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.postgres
-        tasks_from: teardown
-      when:
-        - postgres_port is defined

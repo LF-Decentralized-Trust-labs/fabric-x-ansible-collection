@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start PostgreSQL databases
+  hosts: "{{ target_hosts | default('all') }}"
+  tasks:
+    - name: Start PostgreSQL database
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres
+        tasks_from: start
+      when:
+        - postgres_port is defined

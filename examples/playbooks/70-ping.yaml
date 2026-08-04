@@ -4,6 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Ping PostgreSQL databases
+  ansible.builtin.import_playbook: hyperledger.fabricx.postgres.ping
+
+- name: Ping YugabyteDB clusters
+  ansible.builtin.import_playbook: hyperledger.fabricx.yugabyte.ping
+
 - name: Ping Fabric CA servers
   ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.ping
 

@@ -4,6 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Start PostgreSQL databases
+  ansible.builtin.import_playbook: hyperledger.fabricx.postgres.start
+
+- name: Start YugabyteDB clusters
+  ansible.builtin.import_playbook: hyperledger.fabricx.yugabyte.start
+
 - name: Start AWX
   ansible.builtin.import_playbook: hyperledger.fabricx.awx.start
 

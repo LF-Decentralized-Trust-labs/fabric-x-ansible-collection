@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Wipe PostgreSQL databases
+  hosts: "{{ target_hosts | default('all') }}"
+  tasks:
+    - name: Wipe PostgreSQL database
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres
+        tasks_from: wipe
+      when:
+        - postgres_port is defined

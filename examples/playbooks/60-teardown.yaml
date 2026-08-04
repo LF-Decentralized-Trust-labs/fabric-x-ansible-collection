@@ -22,6 +22,12 @@
 - name: Teardown Fabric CA servers
   ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.teardown
 
+- name: Teardown PostgreSQL databases
+  ansible.builtin.import_playbook: hyperledger.fabricx.postgres.teardown
+
+- name: Teardown YugabyteDB clusters
+  ansible.builtin.import_playbook: hyperledger.fabricx.yugabyte.teardown
+
 - name: Remove container networks
   ansible.builtin.import_playbook: hyperledger.fabricx.remove_container_networks
 

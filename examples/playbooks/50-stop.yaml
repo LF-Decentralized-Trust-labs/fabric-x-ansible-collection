@@ -22,5 +22,11 @@
 - name: Stop Fabric CA servers
   ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.stop
 
+- name: Stop PostgreSQL databases
+  ansible.builtin.import_playbook: hyperledger.fabricx.postgres.stop
+
+- name: Stop YugabyteDB clusters
+  ansible.builtin.import_playbook: hyperledger.fabricx.yugabyte.stop
+
 - name: Stop Semaphore UI
   ansible.builtin.import_playbook: hyperledger.fabricx.semaphore_ui.stop

@@ -61,7 +61,7 @@ Properties:
 
 ## start.yaml
 
-[`start.yaml`](./start.yaml) starts the PostgreSQL backend, then the combined Block Explorer server and UI, in that order.
+[`start.yaml`](./start.yaml) starts the combined Block Explorer server and UI.
 
 ```shell
 ansible-playbook hyperledger.fabricx.block_explorer.start --extra-vars '{"target_hosts": "fabric_x_block_explorer"}'
@@ -70,11 +70,11 @@ ansible-playbook hyperledger.fabricx.block_explorer.start --extra-vars '{"target
 Properties:
 
 - Target hosts: `fabric_x_block_explorer` by default.
-- Nuance: each component is opt-in per host through its enabling variable: `postgres_port` and `block_explorer_port`.
+- Nuance: opt-in per host through `block_explorer_port`.
 
 ## stop.yaml
 
-[`stop.yaml`](./stop.yaml) stops the combined Block Explorer server and UI, then PostgreSQL, leaving generated files and runtime data in place.
+[`stop.yaml`](./stop.yaml) stops the combined Block Explorer server and UI, leaving generated files and runtime data in place.
 
 ```shell
 ansible-playbook hyperledger.fabricx.block_explorer.stop --extra-vars '{"target_hosts": "fabric_x_block_explorer"}'
@@ -86,7 +86,7 @@ Properties:
 
 ## teardown.yaml
 
-[`teardown.yaml`](./teardown.yaml) removes the combined Block Explorer server/UI and PostgreSQL runtime resources while leaving configuration and crypto material intact.
+[`teardown.yaml`](./teardown.yaml) removes the combined Block Explorer server/UI runtime resources while leaving configuration and crypto material intact.
 
 ```shell
 ansible-playbook hyperledger.fabricx.block_explorer.teardown --extra-vars '{"target_hosts": "fabric_x_block_explorer"}'
@@ -98,7 +98,7 @@ Properties:
 
 ## wipe.yaml
 
-[`wipe.yaml`](./wipe.yaml) removes the combined Block Explorer server/UI and PostgreSQL artifacts from targeted hosts, including generated configuration and crypto material.
+[`wipe.yaml`](./wipe.yaml) removes the combined Block Explorer server/UI artifacts from targeted hosts, including generated configuration and crypto material.
 
 ```shell
 ansible-playbook hyperledger.fabricx.block_explorer.wipe --extra-vars '{"target_hosts": "fabric_x_block_explorer"}'
@@ -110,7 +110,7 @@ Properties:
 
 ## ping.yaml
 
-[`ping.yaml`](./ping.yaml) checks the PostgreSQL and combined Block Explorer server/UI endpoints declared by targeted hosts.
+[`ping.yaml`](./ping.yaml) checks the combined Block Explorer server/UI endpoints declared by targeted hosts.
 
 ```shell
 ansible-playbook hyperledger.fabricx.block_explorer.ping --extra-vars '{"target_hosts": "fabric_x_block_explorer"}'

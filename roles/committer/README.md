@@ -10,11 +10,6 @@
   - [ping](#ping)
   - [k8s/ping](#k8sping)
   - [openshift/ping](#openshiftping)
-  - [validator/start](#validatorstart)
-  - [verifier/start](#verifierstart)
-  - [coordinator/start](#coordinatorstart)
-  - [sidecar/start](#sidecarstart)
-  - [query\_service/start](#query_servicestart)
   - [stop](#stop)
   - [teardown](#teardown)
   - [query\_service/teardown](#query_serviceteardown)
@@ -33,11 +28,7 @@
   - [bin/rm](#binrm)
   - [bin/fetch\_logs](#binfetch_logs)
   - [bin/transfer](#bintransfer)
-  - [validator/container/start](#validatorcontainerstart)
-  - [verifier/container/start](#verifiercontainerstart)
-  - [coordinator/container/start](#coordinatorcontainerstart)
-  - [sidecar/container/start](#sidecarcontainerstart)
-  - [query\_service/container/start](#query_servicecontainerstart)
+  - [container/start](#containerstart)
   - [container/stop](#containerstop)
   - [container/rm](#containerrm)
   - [container/fetch\_logs](#containerfetch_logs)
@@ -58,11 +49,7 @@
   - [k8s/crypto/transfer](#k8scryptotransfer)
   - [k8s/fetch\_logs](#k8sfetch_logs)
   - [prometheus/get\_scrapers](#prometheusget_scrapers)
-  - [validator/bin/start](#validatorbinstart)
-  - [verifier/bin/start](#verifierbinstart)
-  - [coordinator/bin/start](#coordinatorbinstart)
-  - [sidecar/bin/start](#sidecarbinstart)
-  - [query\_service/bin/start](#query_servicebinstart)
+  - [bin/start](#binstart)
   - [validator/config/transfer](#validatorconfigtransfer)
   - [verifier/config/transfer](#verifierconfigtransfer)
   - [coordinator/config/transfer](#coordinatorconfigtransfer)
@@ -176,116 +163,6 @@ Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: openshift/ping
-```
-
-### validator/start
-
-> Start a validator component
-
-Start a validator in bin, container, or Kubernetes mode. The selected runtime path depends on `committer_use_bin` and `committer_use_k8s`. Expects validator configuration and database settings to be generated before the process starts.
-
-```yaml
-- name: Start a validator component
-  vars:
-    # Enable host-binary deployment mode.
-    committer_use_bin: false
-    # Enable Kubernetes deployment mode.
-    committer_use_k8s: false
-    # Selects the OpenShift deployment branch.
-    committer_use_openshift: false
-    # Enable container deployment mode.
-    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: validator/start
-```
-
-### verifier/start
-
-> Start a verifier component
-
-Start a verifier in bin, container, or Kubernetes mode. The selected runtime path depends on `committer_use_bin` and `committer_use_k8s`. Expects verifier configuration and optional TLS/mTLS assets to be available.
-
-```yaml
-- name: Start a verifier component
-  vars:
-    # Enable host-binary deployment mode.
-    committer_use_bin: false
-    # Enable Kubernetes deployment mode.
-    committer_use_k8s: false
-    # Selects the OpenShift deployment branch.
-    committer_use_openshift: false
-    # Enable container deployment mode.
-    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: verifier/start
-```
-
-### coordinator/start
-
-> Start a coordinator component
-
-Start a coordinator in bin, container, or Kubernetes mode. Coordinators connect to validator and verifier hosts that must already be configured. Uses `committer_validators` and `committer_verifiers` to locate upstream committers.
-
-```yaml
-- name: Start a coordinator component
-  vars:
-    # Enable host-binary deployment mode.
-    committer_use_bin: false
-    # Enable Kubernetes deployment mode.
-    committer_use_k8s: false
-    # Selects the OpenShift deployment branch.
-    committer_use_openshift: false
-    # Enable container deployment mode.
-    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: coordinator/start
-```
-
-### sidecar/start
-
-> Start a sidecar component
-
-Start a sidecar in bin, container, or Kubernetes mode. Sidecars require persistent data storage and connect to coordinator and orderer hosts. Uses MSP material plus `committer_coordinator`, `orderer_assemblers`, and `channel_id`.
-
-```yaml
-- name: Start a sidecar component
-  vars:
-    # Enable host-binary deployment mode.
-    committer_use_bin: false
-    # Enable Kubernetes deployment mode.
-    committer_use_k8s: false
-    # Selects the OpenShift deployment branch.
-    committer_use_openshift: false
-    # Enable container deployment mode.
-    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: sidecar/start
-```
-
-### query_service/start
-
-> Start a query-service component
-
-Start a query-service in bin, container, or Kubernetes mode. The selected runtime path depends on `committer_use_bin` and `committer_use_k8s`. Expects generated database-backed query-service configuration.
-
-```yaml
-- name: Start a query-service component
-  vars:
-    # Enable host-binary deployment mode.
-    committer_use_bin: false
-    # Enable Kubernetes deployment mode.
-    committer_use_k8s: false
-    # Selects the OpenShift deployment branch.
-    committer_use_openshift: false
-    # Enable container deployment mode.
-    committer_use_container: "{{ (not committer_use_bin) and (not committer_use_k8s) and (not committer_use_openshift) }}"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: query_service/start
 ```
 
 ### stop
@@ -476,13 +353,21 @@ Query the component metrics endpoint and print the response body. Delegates addr
 
 > Start a committer component by type
 
-Dispatch startup to the selected committer component. `committer_component_type` selects validator, verifier, coordinator, sidecar, or query-service.
+Dispatch startup to the selected committer component. `committer_component_type` selects validator, verifier, coordinator, sidecar, or query-service. `committer_deployment_mode` selects bin, container, Kubernetes, or OpenShift.
 
 ```yaml
 - name: Start a committer component by type
   vars:
     # Committer component handled by the entry point.
     committer_component_type: "coordinator"
+    # Deployment mode selected by the role.
+    committer_deployment_mode: "{%- if committer_use_bin -%}bin{%- elif committer_use_openshift -%}openshift{%- elif committer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
+    # Enable host-binary deployment mode.
+    committer_use_bin: false
+    # Enable Kubernetes deployment mode.
+    committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: start
@@ -664,128 +549,14 @@ Copy the built committer binary to the target host. Uses `committer_bin_name` fo
     tasks_from: bin/transfer
 ```
 
-### validator/container/start
+### container/start
 
-> Start the validator container
+> Start the committer container
 
-Run the validator container with its generated configuration directory mounted read-only. Publishes validator RPC and metrics ports from the container to the host.
-
-```yaml
-- name: Start the validator container
-  vars:
-    # Committer component handled by the entry point.
-    committer_component_type: "coordinator"
-    # Generated config file name used by the selected component.
-    committer_config_file: "config-{{ committer_component_type }}.yml"
-    # Config directory inside the committer container.
-    committer_container_config_dir: /config
-    # Container name used by the committer container helper.
-    committer_container_name: "{{ inventory_hostname }}"
-    # Fully qualified committer image.
-    committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
-    # Image name for the committer container.
-    committer_image_name: fabric-x-committer
-    # Image tag for the committer container.
-    committer_image_tag: 1.0.4
-    # Metrics port exposed by the selected committer component.
-    committer_metrics_port: 9443
-    # Container registry endpoint for the committer image.
-    committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # Remote config directory managed by the role.
-    committer_remote_config_dir: "{{ remote_config_dir }}"
-    # RPC port exposed by the selected committer component.
-    committer_rpc_port: 7051
-    # Remote config directory used by delegated crypto tasks.
-    remote_config_dir: "/opt/fabricx/committer/config"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: validator/container/start
-```
-
-### verifier/container/start
-
-> Start the verifier container
-
-Run the verifier container with its generated configuration directory mounted read-only. Publishes verifier RPC and metrics ports from the container to the host.
+Run the container for the selected committer component, with its generated configuration directory mounted read-only. For the sidecar, also ensures the data directory exists and mounts it as a second volume. `committer_component_type` selects the CLI subcommand and, for the sidecar, whether the data volume and a longer wait timeout apply.
 
 ```yaml
-- name: Start the verifier container
-  vars:
-    # Committer component handled by the entry point.
-    committer_component_type: "coordinator"
-    # Generated config file name used by the selected component.
-    committer_config_file: "config-{{ committer_component_type }}.yml"
-    # Config directory inside the committer container.
-    committer_container_config_dir: /config
-    # Container name used by the committer container helper.
-    committer_container_name: "{{ inventory_hostname }}"
-    # Fully qualified committer image.
-    committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
-    # Image name for the committer container.
-    committer_image_name: fabric-x-committer
-    # Image tag for the committer container.
-    committer_image_tag: 1.0.4
-    # Metrics port exposed by the selected committer component.
-    committer_metrics_port: 9443
-    # Container registry endpoint for the committer image.
-    committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # Remote config directory managed by the role.
-    committer_remote_config_dir: "{{ remote_config_dir }}"
-    # RPC port exposed by the selected committer component.
-    committer_rpc_port: 7051
-    # Remote config directory used by delegated crypto tasks.
-    remote_config_dir: "/opt/fabricx/committer/config"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: verifier/container/start
-```
-
-### coordinator/container/start
-
-> Start the coordinator container
-
-Run the coordinator container with its generated configuration directory mounted read-only. Publishes coordinator RPC and metrics ports from the container to the host.
-
-```yaml
-- name: Start the coordinator container
-  vars:
-    # Committer component handled by the entry point.
-    committer_component_type: "coordinator"
-    # Generated config file name used by the selected component.
-    committer_config_file: "config-{{ committer_component_type }}.yml"
-    # Config directory inside the committer container.
-    committer_container_config_dir: /config
-    # Container name used by the committer container helper.
-    committer_container_name: "{{ inventory_hostname }}"
-    # Fully qualified committer image.
-    committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
-    # Image name for the committer container.
-    committer_image_name: fabric-x-committer
-    # Image tag for the committer container.
-    committer_image_tag: 1.0.4
-    # Metrics port exposed by the selected committer component.
-    committer_metrics_port: 9443
-    # Container registry endpoint for the committer image.
-    committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # Remote config directory managed by the role.
-    committer_remote_config_dir: "{{ remote_config_dir }}"
-    # RPC port exposed by the selected committer component.
-    committer_rpc_port: 7051
-    # Remote config directory used by delegated crypto tasks.
-    remote_config_dir: "/opt/fabricx/committer/config"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: coordinator/container/start
-```
-
-### sidecar/container/start
-
-> Start the sidecar container
-
-Ensure the sidecar data directory exists and run the sidecar container with config and data volumes mounted. Persists the sidecar ledger under `committer_remote_data_dir`.
-
-```yaml
-- name: Start the sidecar container
+- name: Start the committer container
   vars:
     # Committer component handled by the entry point.
     committer_component_type: "coordinator"
@@ -819,45 +590,7 @@ Ensure the sidecar data directory exists and run the sidecar container with conf
     remote_data_dir: "/var/lib/fabricx/committer/sidecar"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
-    tasks_from: sidecar/container/start
-```
-
-### query_service/container/start
-
-> Start the query-service container
-
-Run the query-service container with its generated configuration directory mounted read-only. Publishes query-service RPC and metrics ports from the container to the host.
-
-```yaml
-- name: Start the query-service container
-  vars:
-    # Committer component handled by the entry point.
-    committer_component_type: "coordinator"
-    # Generated config file name used by the selected component.
-    committer_config_file: "config-{{ committer_component_type }}.yml"
-    # Config directory inside the committer container.
-    committer_container_config_dir: /config
-    # Container name used by the committer container helper.
-    committer_container_name: "{{ inventory_hostname }}"
-    # Fully qualified committer image.
-    committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
-    # Image name for the committer container.
-    committer_image_name: fabric-x-committer
-    # Image tag for the committer container.
-    committer_image_tag: 1.0.4
-    # Metrics port exposed by the selected committer component.
-    committer_metrics_port: 9443
-    # Container registry endpoint for the committer image.
-    committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # Remote config directory managed by the role.
-    committer_remote_config_dir: "{{ remote_config_dir }}"
-    # RPC port exposed by the selected committer component.
-    committer_rpc_port: 7051
-    # Remote config directory used by delegated crypto tasks.
-    remote_config_dir: "/opt/fabricx/committer/config"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: query_service/container/start
+    tasks_from: container/start
 ```
 
 ### container/stop
@@ -1324,92 +1057,14 @@ Construct the Prometheus scrape service definitions for all deployed committer c
     tasks_from: prometheus/get_scrapers
 ```
 
-### validator/bin/start
+### bin/start
 
-> Start the validator binary
+> Start the committer binary
 
-Run the validator binary with its generated configuration file. Waits for the validator RPC port after starting `start-vc`.
-
-```yaml
-- name: Start the validator binary
-  vars:
-    # Binary name managed by the committer role.
-    committer_bin_name: committer
-    # Committer component handled by the entry point.
-    committer_component_type: "coordinator"
-    # Generated config file name used by the selected component.
-    committer_config_file: "config-{{ committer_component_type }}.yml"
-    # Remote config directory managed by the role.
-    committer_remote_config_dir: "{{ remote_config_dir }}"
-    # RPC port exposed by the selected committer component.
-    committer_rpc_port: 7051
-    # Remote config directory used by delegated crypto tasks.
-    remote_config_dir: "/opt/fabricx/committer/config"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: validator/bin/start
-```
-
-### verifier/bin/start
-
-> Start the verifier binary
-
-Run the verifier binary with its generated configuration file. Waits for the verifier RPC port after starting `start-verifier`.
+Run the binary for the selected committer component with its generated configuration file. For the sidecar, also ensures the data directory exists. `committer_component_type` selects the CLI subcommand and, for the sidecar, the data directory and a longer wait timeout.
 
 ```yaml
-- name: Start the verifier binary
-  vars:
-    # Binary name managed by the committer role.
-    committer_bin_name: committer
-    # Committer component handled by the entry point.
-    committer_component_type: "coordinator"
-    # Generated config file name used by the selected component.
-    committer_config_file: "config-{{ committer_component_type }}.yml"
-    # Remote config directory managed by the role.
-    committer_remote_config_dir: "{{ remote_config_dir }}"
-    # RPC port exposed by the selected committer component.
-    committer_rpc_port: 7051
-    # Remote config directory used by delegated crypto tasks.
-    remote_config_dir: "/opt/fabricx/committer/config"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: verifier/bin/start
-```
-
-### coordinator/bin/start
-
-> Start the coordinator binary
-
-Run the coordinator binary with its generated configuration file. Waits for the coordinator RPC port after starting `start-coordinator`.
-
-```yaml
-- name: Start the coordinator binary
-  vars:
-    # Binary name managed by the committer role.
-    committer_bin_name: committer
-    # Committer component handled by the entry point.
-    committer_component_type: "coordinator"
-    # Generated config file name used by the selected component.
-    committer_config_file: "config-{{ committer_component_type }}.yml"
-    # Remote config directory managed by the role.
-    committer_remote_config_dir: "{{ remote_config_dir }}"
-    # RPC port exposed by the selected committer component.
-    committer_rpc_port: 7051
-    # Remote config directory used by delegated crypto tasks.
-    remote_config_dir: "/opt/fabricx/committer/config"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: coordinator/bin/start
-```
-
-### sidecar/bin/start
-
-> Start the sidecar binary
-
-Ensure the sidecar data directory exists and run the sidecar binary. Waits for the sidecar RPC port after starting `start-sidecar`.
-
-```yaml
-- name: Start the sidecar binary
+- name: Start the committer binary
   vars:
     # Binary name managed by the committer role.
     committer_bin_name: committer
@@ -1429,33 +1084,7 @@ Ensure the sidecar data directory exists and run the sidecar binary. Waits for t
     remote_data_dir: "/var/lib/fabricx/committer/sidecar"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
-    tasks_from: sidecar/bin/start
-```
-
-### query_service/bin/start
-
-> Start the query-service binary
-
-Run the query-service binary with its generated configuration file. Waits for the query-service RPC port after starting `start-query`.
-
-```yaml
-- name: Start the query-service binary
-  vars:
-    # Binary name managed by the committer role.
-    committer_bin_name: committer
-    # Committer component handled by the entry point.
-    committer_component_type: "coordinator"
-    # Generated config file name used by the selected component.
-    committer_config_file: "config-{{ committer_component_type }}.yml"
-    # Remote config directory managed by the role.
-    committer_remote_config_dir: "{{ remote_config_dir }}"
-    # RPC port exposed by the selected committer component.
-    committer_rpc_port: 7051
-    # Remote config directory used by delegated crypto tasks.
-    remote_config_dir: "/opt/fabricx/committer/config"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: query_service/bin/start
+    tasks_from: bin/start
 ```
 
 ### validator/config/transfer
