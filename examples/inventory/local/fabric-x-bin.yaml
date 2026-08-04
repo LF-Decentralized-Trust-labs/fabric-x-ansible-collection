@@ -131,6 +131,8 @@ all:
               vars:
                 orderer_use_tls: true
                 orderer_use_mtls: true
+                orderer_operations_mtls_clients:
+                  - prometheus
                 orderer_use_bin: true
               children:
                 fabric_x_orderer_1:

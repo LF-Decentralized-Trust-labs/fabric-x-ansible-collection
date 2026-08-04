@@ -243,7 +243,7 @@ Builds the orderer binary through the shared bin role using the configured Git r
     # Repository path for the orderer source code.
     orderer_git_repo: hyperledger/fabric-x-orderer
     # Git ref or release tag used by the bin build and install branches.
-    orderer_git_commit: v1.0.3
+    orderer_git_commit: v1.0.4
     # Go package path that builds the orderer binary.
     orderer_source_code_package: cmd/arma
   ansible.builtin.include_role:
@@ -271,7 +271,7 @@ Installs the configured released orderer binary through the shared bin role. Use
     # Go package path that builds the orderer binary.
     orderer_source_code_package: cmd/arma
     # Git ref or release tag used by the bin build and install branches.
-    orderer_git_commit: v1.0.3
+    orderer_git_commit: v1.0.4
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: bin/install
@@ -398,7 +398,7 @@ Ensures the host data directory exists and starts the orderer container with the
     # Image name used for the orderer container.
     orderer_image_name: fabric-x-orderer
     # Image tag used for the orderer container.
-    orderer_image_tag: 1.0.3
+    orderer_image_tag: 1.0.4
     # Shared base directory for generated configuration.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
     # Shared base directory for persisted runtime data.
@@ -417,6 +417,16 @@ Ensures the host data directory exists and starts the orderer container with the
     orderer_rpc_port: 7050
     # Operations endpoint port exposed by the orderer. This endpoint serves operational APIs and Prometheus metrics.
     orderer_operations_port: 7060
+    # Real machine host.
+    actual_host: "myvpc.cloud.ibm.com"
+    # Enables server-side TLS in the rendered config.
+    orderer_use_tls: false
+    # Enables client mutual TLS in the rendered config.
+    orderer_use_mtls: false
+    # Enables TLS for the orderer operations endpoint.
+    orderer_operations_use_tls: "{{ orderer_use_tls }}"
+    # Enables client mutual TLS for the orderer operations endpoint.
+    orderer_operations_use_mtls: "{{ orderer_use_mtls }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: container/start
@@ -611,7 +621,7 @@ Renders the component-specific orderer config for `consensus`, `batcher`, `assem
     # IP address on which the orderer operations server binds.
     orderer_operations_listen_address: "0.0.0.0"
     # Enables TLS for the orderer operations endpoint.
-    orderer_operations_use_tls: false
+    orderer_operations_use_tls: "{{ orderer_use_tls }}"
     # Enables client mutual TLS for the orderer operations endpoint.
     orderer_operations_use_mtls: "{{ orderer_use_mtls }}"
     # Client identifiers whose TLS CA certificates are trusted by the operations endpoint. Trusts fetched `tls/ca.crt` files under those artifact directories.
@@ -857,8 +867,10 @@ Copies the Fabric CA TLS certificate when needed and enrolls both MSP and TLS id
     orderer_openshift_route: "orderer-rpc.apps.example.com"
     # Specifies the OpenShift Route host for the operations/metrics endpoint.
     orderer_openshift_metrics_route: "orderer-metrics.apps.example.com"
+    # Enables server-side TLS in the rendered config.
+    orderer_use_tls: false
     # Enables TLS for the orderer operations endpoint.
-    orderer_operations_use_tls: false
+    orderer_operations_use_tls: "{{ orderer_use_tls }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: crypto/fabric_ca/enroll
@@ -962,7 +974,7 @@ Creates the orderer Kubernetes Service, StatefulSet, and optional NodePort and L
     # Image name used for the orderer container.
     orderer_image_name: fabric-x-orderer
     # Image tag used for the orderer container.
-    orderer_image_tag: 1.0.3
+    orderer_image_tag: 1.0.4
     # Container path where orderer configuration is mounted.
     orderer_container_config_dir: /config
     # Container path where orderer data is mounted.
@@ -1281,7 +1293,7 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     # Enables server-side TLS in the rendered config.
     orderer_use_tls: false
     # Enables TLS for the orderer operations endpoint.
-    orderer_operations_use_tls: false
+    orderer_operations_use_tls: "{{ orderer_use_tls }}"
     # Organization metadata shared by the orderer crypto and config branches.
     organization:
       name: "OrdererOrg1"
@@ -1312,7 +1324,7 @@ Checks configured OpenShift Routes and reuses the Kubernetes service ping flow.
     # Enables server-side TLS in the rendered config.
     orderer_use_tls: false
     # Enables TLS for the orderer operations endpoint.
-    orderer_operations_use_tls: false
+    orderer_operations_use_tls: "{{ orderer_use_tls }}"
     # Specifies the OpenShift Route host.
     orderer_openshift_route: "orderer-rpc.apps.example.com"
     # Specifies the OpenShift Route host for the operations/metrics endpoint.

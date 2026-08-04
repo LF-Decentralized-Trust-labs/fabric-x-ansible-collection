@@ -250,7 +250,7 @@ Orderer: &OrdererDefaults
     # this value will be rejected by ordering.
     # It is recommended not to exceed 49 MB, given the default grpc max message size of 100 MB
     # configured on orderer and peer nodes (and allowing for message expansion during communication).
-    AbsoluteMaxBytes: 16 MB
+    AbsoluteMaxBytes: 10 MB
 
     # Preferred Max Bytes: The preferred maximum number of bytes allowed
     # for the serialized messages in a batch. Roughly, this field may be considered
