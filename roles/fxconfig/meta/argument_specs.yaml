@@ -508,6 +508,7 @@ argument_specs:
     description:
       - "Dispatches namespace listing to either the host binary or a transient container based on C(fxconfig_use_bin)."
       - "Consumes the rendered fxconfig configuration that points at the Orderer Router and Committer services."
+      - "Stores discovered namespace identifiers in C(fxconfig_existing_namespace_ids); namespace versions and policies are ignored."
     options:
       fxconfig_use_bin: *fxconfig_use_bin
 

@@ -7,6 +7,12 @@
 - name: Transfer Fabric CAs configs
   ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.configs
 
+- name: Transfer PostgreSQL configs
+  ansible.builtin.import_playbook: hyperledger.fabricx.postgres.configs
+
+- name: Transfer YugabyteDB configs
+  ansible.builtin.import_playbook: hyperledger.fabricx.yugabyte.configs
+
 - name: Transfer Fabric-X Orderer configs
   ansible.builtin.import_playbook: hyperledger.fabricx.orderer.configs
 

@@ -35,7 +35,7 @@ flowchart LR
 
 ## generate_crypto.yaml
 
-[`generate_crypto.yaml`](./generate_crypto.yaml) prepares PostgreSQL TLS material and, when the committer sidecar requires mTLS, a self-signed client certificate for the Block Explorer server.
+[`generate_crypto.yaml`](./generate_crypto.yaml) prepares, when the committer sidecar requires mTLS, a self-signed client certificate for the Block Explorer server.
 
 ```shell
 ansible-playbook hyperledger.fabricx.block_explorer.generate_crypto --extra-vars '{"target_hosts": "fabric_x_block_explorer"}'

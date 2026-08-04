@@ -17,3 +17,21 @@
     tasks_from: container/namespace/list
   when:
     - not fxconfig_use_bin
+
+- name: Extract existing namespace IDs
+  vars:
+    fxconfig_namespace_list_output_lines: >-
+      {{
+        bin_output.stdout_lines
+        if fxconfig_use_bin
+        else container_output.stdout_lines
+      }}
+  ansible.builtin.set_fact:
+    fxconfig_existing_namespace_ids: >-
+      {{
+        fxconfig_namespace_list_output_lines
+        | map('regex_findall', '^[0-9]+[)][ \t]+([a-z0-9_]+):[ \t]+version')
+        | flatten
+        | unique
+        | list
+      }}

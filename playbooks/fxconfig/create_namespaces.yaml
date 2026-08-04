@@ -4,6 +4,18 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Discover existing Fabric-X namespaces
+  hosts: "{{ target_hosts | default('all') }}"
+  tasks:
+    - name: List existing Fabric-X namespaces
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxconfig
+        tasks_from: namespace/list
+      when:
+        - organization is defined
+        - organization.namespaces is defined
+        - organization.users is defined
+
 - name: Create Fabric-X namespaces transactions on the control node
   hosts: localhost
   vars:
@@ -13,6 +25,34 @@
         if target_hosts in groups
         else [target_hosts]
       }}
+    fxconfig_discovered_namespace_ids: >-
+      {{
+        targeted_hosts
+        | map('extract', hostvars)
+        | selectattr('fxconfig_existing_namespace_ids', 'defined')
+        | map(attribute='fxconfig_existing_namespace_ids')
+        | flatten
+        | unique
+        | sort
+        | list
+      }}
+    fxconfig_declared_namespace_ids: >-
+      {{
+        targeted_hosts
+        | map('extract', hostvars)
+        | map('to_json')
+        | map('from_json')
+        | selectattr('organization', 'defined')
+        | map(attribute='organization')
+        | selectattr('namespaces', 'defined')
+        | map(attribute='namespaces')
+        | flatten
+        | map(attribute='id')
+        | map('string')
+        | unique
+        | sort
+        | list
+      }}
   tasks:
     - name: Group hosts per namespace
       vars:
@@ -20,6 +60,8 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.fxconfig
         tasks_from: namespace/group
+      when:
+        - fxconfig_declared_namespace_ids | difference(fxconfig_discovered_namespace_ids) | length > 0
     - name: Create FabricX namespaces with fxconfig on the control node
       vars:
         bin_remote_dir: "{{ cli_bin_dir }}"
@@ -35,6 +77,7 @@
         label: "{{ fxconfig_namespace_id }}"
       when:
         - fxconfig_hosts_per_namespaces is defined
+        - (fxconfig_namespace_id | string) not in fxconfig_discovered_namespace_ids
 
 - name: Endorse Fabric-X namespace transactions
   hosts: "{{ target_hosts | default('all') }}"
@@ -43,6 +86,11 @@
       when:
         - organization is defined
         - organization.namespaces is defined
+        - organization.namespaces
+          | map(attribute='id')
+          | map('string')
+          | difference(fxconfig_existing_namespace_ids)
+          | length > 0
       block:
         - name: Get the endorser user
           ansible.builtin.include_role:
@@ -59,6 +107,8 @@
           loop_control:
             loop_var: fxconfig_namespace
             label: "{{ fxconfig_namespace.id }}"
+          when:
+            - (fxconfig_namespace.id | string) not in fxconfig_existing_namespace_ids
 
 - name: Merge endorsed Fabric-X namespaces transactions on the control node
   hosts: localhost
@@ -68,6 +118,17 @@
         groups[target_hosts]
         if target_hosts in groups
         else [target_hosts]
+      }}
+    fxconfig_discovered_namespace_ids: >-
+      {{
+        targeted_hosts
+        | map('extract', hostvars)
+        | selectattr('fxconfig_existing_namespace_ids', 'defined')
+        | map(attribute='fxconfig_existing_namespace_ids')
+        | flatten
+        | unique
+        | sort
+        | list
       }}
   tasks:
     - name: Merge endorsed FabricX namespaces transactions in one single multi-endorsed transaction
@@ -94,6 +155,8 @@
       loop_control:
         loop_var: fxconfig_namespace
         label: "{{ fxconfig_namespace.id }}"
+      when:
+        - (fxconfig_namespace.id | string) not in fxconfig_discovered_namespace_ids
 
 - name: Submit Fabric-X namespace transactions
   hosts: "{{ target_hosts | default('all') }}"
@@ -102,6 +165,11 @@
       when:
         - organization is defined
         - organization.namespaces is defined
+        - organization.namespaces
+          | map(attribute='id')
+          | map('string')
+          | difference(fxconfig_existing_namespace_ids)
+          | length > 0
       block:
         - name: Group hosts per namespace
           ansible.builtin.include_role:
@@ -121,3 +189,4 @@
             label: "{{ fxconfig_namespace.id }}"
           when:
             - fxconfig_hosts_per_namespaces[fxconfig_namespace.id].hosts[0] == inventory_hostname # makes sure is run on a single node only
+            - (fxconfig_namespace.id | string) not in fxconfig_existing_namespace_ids

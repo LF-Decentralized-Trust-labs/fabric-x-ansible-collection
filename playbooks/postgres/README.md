@@ -5,6 +5,8 @@ The `postgres` playbooks operate the PostgreSQL databases shared across the netw
 ## Table of Contents <!-- omit in toc -->
 
 - [Playbooks flow](#playbooks-flow)
+- [generate\_crypto.yaml](#generate_cryptoyaml)
+- [configs.yaml](#configsyaml)
 - [start.yaml](#startyaml)
 - [stop.yaml](#stopyaml)
 - [teardown.yaml](#teardownyaml)
@@ -15,15 +17,43 @@ The `postgres` playbooks operate the PostgreSQL databases shared across the netw
 
 ```mermaid
 flowchart LR
-  START[start] --> PING[ping]
+  CRYPTO[generate_crypto] --> CONFIGS[configs]
+  CONFIGS --> START[start]
+  START --> PING[ping]
   PING --> STOP[stop]
   STOP --> TEARDOWN[teardown]
   TEARDOWN --> WIPE[wipe]
 ```
 
+## generate_crypto.yaml
+
+[`generate_crypto.yaml`](./generate_crypto.yaml) generates TLS crypto material for every PostgreSQL database in the inventory: cryptogen transfer or Fabric CA enrollment depending on inventory configuration. The Fabric CA databases generate their own crypto directly (see [`fabric_ca_server.generate_crypto`](../fabric_ca_server/README.md)) so it can run before a Fabric CA server exists to enroll against; running this playbook too is harmless, since it is a no-op for hosts whose crypto already exists.
+
+```shell
+ansible-playbook hyperledger.fabricx.postgres.generate_crypto --extra-vars '{"target_hosts": "all"}'
+```
+
+Properties:
+
+- Target hosts: `all` by default. Use `target_hosts` to restrict to a subset.
+- Nuance: only hosts that define `postgres_port` participate. Hosts enrolling through Fabric CA require a reachable, already-started Fabric CA server.
+
+## configs.yaml
+
+[`configs.yaml`](./configs.yaml) transfers PostgreSQL configuration files (mTLS `pg_hba.conf` rules, Kubernetes ConfigMaps) for every database in the inventory.
+
+```shell
+ansible-playbook hyperledger.fabricx.postgres.configs --extra-vars '{"target_hosts": "all"}'
+```
+
+Properties:
+
+- Target hosts: `all` by default.
+- Nuance: only hosts that define `postgres_port` participate.
+
 ## start.yaml
 
-[`start.yaml`](./start.yaml) starts every PostgreSQL database in the inventory in a single pass, ahead of the components that depend on them. Run it before starting the committer or the Block Explorer. The Fabric CA playbooks start their own CA databases directly (see [`fabric_ca_server.start`](../fabric_ca_server/README.md)) so a scoped `make generate-crypto` run doesn't reach into every database in the network; running this playbook too is harmless, since starting an already-running database is a no-op.
+[`start.yaml`](./start.yaml) starts every PostgreSQL database in the inventory in a single pass, ahead of the components that depend on them. Run it before starting the committer or the Block Explorer.
 
 ```shell
 ansible-playbook hyperledger.fabricx.postgres.start --extra-vars '{"target_hosts": "all"}'

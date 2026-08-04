@@ -52,7 +52,7 @@ Properties:
 
 ## generate_crypto.yaml
 
-[`generate_crypto.yaml`](./generate_crypto.yaml) prepares TLS/MSP material for committer services and whichever database backend the inventory declares. It handles PostgreSQL, YugabyteDB, and Fabric-X committer hosts in one pass so the committer pipeline and storage backend use consistent artifacts.
+[`generate_crypto.yaml`](./generate_crypto.yaml) prepares TLS/MSP material for committer services according to each host's `committer_component_type`.
 
 ```shell
 ansible-playbook hyperledger.fabricx.committer.generate_crypto --extra-vars '{"target_hosts": "fabric_x_committers"}'
@@ -61,11 +61,10 @@ ansible-playbook hyperledger.fabricx.committer.generate_crypto --extra-vars '{"t
 Properties:
 
 - Target hosts: `fabric_x_committers` by default.
-- Nuance: hosts with `postgres_port` are handled by the PostgreSQL role, hosts with `yugabyte_component_type` are handled by the YugabyteDB role, and hosts with `committer_component_type` are handled by the committer role.
 
 ## configs.yaml
 
-[`configs.yaml`](./configs.yaml) transfers database configuration when PostgreSQL or YugabyteDB hosts are present, then renders committer service configuration from the selected inventory. It discovers validators, verifiers, the coordinator, and orderer assemblers so the sidecar/coordinator path can connect to the right services.
+[`configs.yaml`](./configs.yaml) renders committer service configuration from the selected inventory. It discovers validators, verifiers, the coordinator, and orderer assemblers so the sidecar/coordinator path can connect to the right services.
 
 ```shell
 ansible-playbook hyperledger.fabricx.committer.configs --extra-vars '{"target_hosts": "fabric_x_committers"}'

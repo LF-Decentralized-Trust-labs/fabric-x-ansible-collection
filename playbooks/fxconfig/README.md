@@ -48,7 +48,7 @@ Properties:
 
 ## create_namespaces.yaml
 
-[`create_namespaces.yaml`](./create_namespaces.yaml) performs the full namespace transaction workflow. It groups namespace definitions from the inventory, creates unsigned namespace transactions on the control node, asks the relevant organizations to endorse them, merges the endorsements, and submits the finalized transactions to the running Fabric-X network.
+[`create_namespaces.yaml`](./create_namespaces.yaml) first lists the namespace IDs already committed to the Fabric-X network, then performs the transaction workflow only for namespace IDs not yet present. For new namespaces it groups inventory definitions, creates unsigned transactions on the control node, asks the relevant organizations to endorse them, merges the endorsements, and submits the finalized transactions.
 
 ```shell
 ansible-playbook hyperledger.fabricx.fxconfig.create_namespaces
@@ -57,6 +57,7 @@ ansible-playbook hyperledger.fabricx.fxconfig.create_namespaces
 Properties:
 
 - Target hosts: `all` by default, with transaction construction and submission coordinated by the `fxconfig` role.
+- Idempotency: an existing namespace ID is skipped across creation, endorsement, merge, and submission. Current namespace versions and policies are not reconciled by this playbook.
 
 > [!WARNING]
 > Run this after the network is started and the required committer endpoints are reachable. Running it too early fails by design because namespace transactions must be endorsed and submitted through live Fabric-X endpoints.
