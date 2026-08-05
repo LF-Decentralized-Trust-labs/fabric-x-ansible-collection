@@ -1,0 +1,14 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Persists a fingerprint of the declared policy (and, for threshold policies, the declared
+# signer) per namespace ID, so future runs can detect whether the inventory's intent for that
+# namespace changed. Written per namespace, right after its create or update transaction is
+# successfully submitted.
+fingerprints:
+{% for fxconfig_namespace_id, fxconfig_namespace_fingerprint in fxconfig_state_fingerprints.items() %}
+  "{{ fxconfig_namespace_id }}": "{{ fxconfig_namespace_fingerprint }}"
+{% endfor %}

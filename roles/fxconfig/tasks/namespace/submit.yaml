@@ -1,0 +1,24 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Submit namespace transaction for {{ fxconfig_namespace_id }}
+  vars:
+    fxconfig_tx_to_submit_path: "{{ fxconfig_artifacts_dir }}/{{ fxconfig_namespace_id }}/merged.json"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxconfig
+    tasks_from: submit
+
+- name: Record the fingerprint for namespace {{ fxconfig_namespace_id }}
+  vars:
+    fxconfig_namespace_fingerprints_to_record: >-
+      {{
+        {
+          fxconfig_namespace_id: fxconfig_namespace_fingerprints[fxconfig_namespace_id]
+        }
+      }}
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxconfig
+    tasks_from: namespace/record_state

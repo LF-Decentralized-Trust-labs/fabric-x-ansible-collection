@@ -1,0 +1,43 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure the fxconfig artifacts directory exists
+  ansible.builtin.file:
+    path: "{{ fxconfig_artifacts_dir }}"
+    state: directory
+    mode: "0o755"
+  delegate_to: localhost
+
+- name: Check if a fxconfig namespace state file already exists
+  ansible.builtin.stat:
+    path: "{{ fxconfig_artifacts_dir }}/{{ fxconfig_state_file }}"
+  register: fxconfig_state_stat
+  delegate_to: localhost
+
+- name: Read the existing fxconfig namespace state file
+  ansible.builtin.slurp:
+    src: "{{ fxconfig_artifacts_dir }}/{{ fxconfig_state_file }}"
+  register: fxconfig_state_raw
+  delegate_to: localhost
+  when:
+    - fxconfig_state_stat.stat.exists
+
+- name: Write the fxconfig namespace state file
+  vars:
+    fxconfig_state_fingerprints: >-
+      {{
+        (
+          (fxconfig_state_raw.content | b64decode | from_yaml).fingerprints
+          if fxconfig_state_stat.stat.exists
+          else {}
+        )
+        | combine(fxconfig_namespace_fingerprints_to_record)
+      }}
+  ansible.builtin.template:
+    src: fxconfig-state.yaml.j2
+    dest: "{{ fxconfig_artifacts_dir }}/{{ fxconfig_state_file }}"
+    mode: "0o644"
+  delegate_to: localhost

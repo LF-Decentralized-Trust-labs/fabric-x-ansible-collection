@@ -1,0 +1,108 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Current state
+# =========================
+- name: List existing Fabric-X namespaces
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxconfig
+    tasks_from: namespace/list
+
+# =========================
+# Previous state
+# =========================
+- name: Check if a fxconfig namespace state file already exists
+  ansible.builtin.stat:
+    path: "{{ fxconfig_artifacts_dir }}/{{ fxconfig_state_file }}"
+  register: fxconfig_state_stat
+  delegate_to: localhost
+
+- name: Read the previous fxconfig namespace state file
+  ansible.builtin.slurp:
+    src: "{{ fxconfig_artifacts_dir }}/{{ fxconfig_state_file }}"
+  register: fxconfig_state_raw
+  delegate_to: localhost
+  when:
+    - fxconfig_state_stat.stat.exists
+
+- name: Set the recorded fxconfig namespace fingerprints
+  ansible.builtin.set_fact:
+    fxconfig_recorded_fingerprints: >-
+      {{
+        (fxconfig_state_raw.content | b64decode | from_yaml).fingerprints
+        if fxconfig_state_stat.stat.exists
+        else {}
+      }}
+
+# =========================
+# Drift decision
+# =========================
+# Reset before the loop below, so calling this entry point more than once for the same
+# host never accumulates stale entries from an earlier call.
+- name: Reset the fxconfig namespace drift facts
+  ansible.builtin.set_fact:
+    fxconfig_namespace_fingerprints: {}
+    fxconfig_namespaces_to_create: []
+    fxconfig_namespaces_to_update: {}
+
+- name: Determine which declared namespaces need to be created or updated
+  vars:
+    fxconfig_namespace_id_str: "{{ current_namespace.id | string }}"
+    fxconfig_namespace_fingerprint_inputs:
+      - "{{ current_namespace.policy }}"
+      # User identifies the pubkey in case of threshold policy. Hence, is not
+      # always available.
+      - "{{ current_namespace.user | default(none) }}"
+    fxconfig_namespace_fingerprint: >-
+      {{
+        fxconfig_namespace_fingerprint_inputs
+        | to_json
+        | hash('sha1')
+      }}
+    # get(key, default) returns the value for key if key is in the dictionary, else default.
+    # In this case we use -1 as the default to indicate that the namespace is not present on chain.
+    fxconfig_namespace_current_version: >-
+      {{
+        fxconfig_existing_namespaces.get(fxconfig_namespace_id_str, -1)
+        | int
+      }}
+    fxconfig_namespace_needs_update: >-
+      {{
+        (fxconfig_namespace_current_version | int >= 0)
+        and (fxconfig_recorded_fingerprints.get(fxconfig_namespace_id_str) != fxconfig_namespace_fingerprint)
+      }}
+  ansible.builtin.set_fact:
+    fxconfig_namespace_fingerprints: >-
+      {{
+        fxconfig_namespace_fingerprints
+        | combine({
+          fxconfig_namespace_id_str: fxconfig_namespace_fingerprint
+        })
+      }}
+    fxconfig_namespaces_to_create: >-
+      {{
+        fxconfig_namespaces_to_create
+        + (
+          [fxconfig_namespace_id_str]
+          if (fxconfig_namespace_current_version | int) < 0
+          else []
+        )
+      }}
+    fxconfig_namespaces_to_update: >-
+      {{
+        fxconfig_namespaces_to_update
+        | combine({
+            fxconfig_namespace_id_str: fxconfig_namespace_current_version
+          }
+          if fxconfig_namespace_needs_update
+          else {}
+          )
+      }}
+  loop: "{{ organization.namespaces | default([]) }}"
+  loop_control:
+    loop_var: current_namespace
+    label: "{{ current_namespace.id }}"
