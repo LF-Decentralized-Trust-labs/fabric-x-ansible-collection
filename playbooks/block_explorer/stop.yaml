@@ -16,12 +16,3 @@
         tasks_from: stop
       when:
         - block_explorer_port is defined
-    # =========================
-    # Postgres
-    # =========================
-    - name: Stop the Fabric-X Block Explorer Postgres DB
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.postgres
-        tasks_from: stop
-      when:
-        - postgres_port is defined

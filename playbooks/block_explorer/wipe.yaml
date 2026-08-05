@@ -16,12 +16,3 @@
         tasks_from: wipe
       when:
         - block_explorer_port is defined
-    # =========================
-    # Postgres
-    # =========================
-    - name: Wipe the Fabric-X Block Explorer Postgres DB
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.postgres
-        tasks_from: wipe
-      when:
-        - postgres_port is defined

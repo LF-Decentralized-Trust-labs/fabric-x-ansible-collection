@@ -36,10 +36,12 @@ idemixgen_output_dir: '{{ config_build_dir }}/idemixgen-artifacts'
 # Defines the container registry used for the idemixgen image.
 idemixgen_registry_endpoint: "{{ lookup('env', 'IDEMIXGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
 # Defines the revocation handle embedded in the signer configuration.
-# The default is a random integer from 100 to 998.
-idemixgen_rev_handle: '{{ range(100, 999) | random }}'
+# Defaults to C(idemixgen_enrollment_id) so repeated runs fingerprint identically; the tool accepts any string.
+idemixgen_rev_handle: '{{ idemixgen_enrollment_id }}'
 # Defines the source package path built into the idemixgen binary.
 idemixgen_source_code_package: tools/idemixgen
+# Sets the path to the file that tracks a fingerprint of the inputs behind the signer artifact set generated under C(idemixgen_output_dir), used to detect changes since the last run.
+idemixgen_state_file: '{{ idemixgen_output_dir }}/idemixgen-state.yaml'
 # Enables Aries-based Idemix material generation.
 idemixgen_use_aries: false
 # Runs idemixgen through the locally installed binary instead of a container.

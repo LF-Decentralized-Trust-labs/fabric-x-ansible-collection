@@ -4,26 +4,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Teardown Fabric-X Orderer router nodes
+- name: Teardown Fabric-X Orderer nodes
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: "{{ orderer_deployment_mode }}/teardown"
-  when: orderer_component_type == 'router'
-
-- name: Teardown Fabric-X Orderer assembler nodes
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: "{{ orderer_deployment_mode }}/teardown"
-  when: orderer_component_type == 'assembler'
-
-- name: Teardown Fabric-X Orderer batcher nodes
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: "{{ orderer_deployment_mode }}/teardown"
-  when: orderer_component_type == 'batcher'
-
-- name: Teardown Fabric-X Orderer consensus nodes
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: "{{ orderer_deployment_mode }}/teardown"
-  when: orderer_component_type == 'consensus'
+  when: orderer_component_type is defined

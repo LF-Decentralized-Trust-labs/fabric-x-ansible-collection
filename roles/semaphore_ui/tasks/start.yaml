@@ -4,6 +4,11 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Ensure the Semaphore UI database exists and is seeded
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.semaphore_ui
+    tasks_from: db/setup
+
 - name: Start the Semaphore UI binary
   ansible.builtin.include_role:
     name: hyperledger.fabricx.semaphore_ui

@@ -21,8 +21,6 @@ flowchart TD
 
 A single logical host, `semaphore`, represents the Semaphore UI deployment:
 
-- `semaphore_ui_port: 3010` is the web UI/API port. Not Semaphore UI's default of 3000, since Grafana already binds that port on this control node.
-- `semaphore_ui_username`/`semaphore_ui_password`/`semaphore_ui_email` are the admin account created by `configs`.
 - `semaphore_ui_use_tls: true` enables Semaphore UI's own native HTTPS listener with a self-signed certificate.
 - Kept in its own dedicated inventory, separate from every network inventory, so Semaphore UI can drive many inventories/playbooks and is never a host that a network `teardown`/`wipe` could stop.
 

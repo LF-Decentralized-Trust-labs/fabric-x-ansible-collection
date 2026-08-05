@@ -4,26 +4,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Start Fabric-X Orderer consensus nodes
+- name: Start Fabric-X Orderer nodes
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: "{{ orderer_deployment_mode }}/start"
-  when: orderer_component_type == 'consensus'
-
-- name: Start Fabric-X Orderer batcher nodes
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: "{{ orderer_deployment_mode }}/start"
-  when: orderer_component_type == 'batcher'
-
-- name: Start Fabric-X Orderer assembler nodes
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: "{{ orderer_deployment_mode }}/start"
-  when: orderer_component_type == 'assembler'
-
-- name: Start Fabric-X Orderer router nodes
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.orderer
-    tasks_from: "{{ orderer_deployment_mode }}/start"
-  when: orderer_component_type == 'router'
+  when: orderer_component_type is defined

@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Teardown YugabyteDB clusters
+  hosts: "{{ target_hosts | default('all') }}"
+  tasks:
+    - name: Teardown YugabyteDB node
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.yugabyte
+        tasks_from: teardown
+      when:
+        - yugabyte_component_type is defined

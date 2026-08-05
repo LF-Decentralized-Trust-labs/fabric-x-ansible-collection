@@ -5,12 +5,12 @@ This directory contains the reusable playbooks that the `hyperledger.fabricx` co
 ## Table of Contents <!-- omit in toc -->
 
 - [Playbook Usage](#playbook-usage)
-- [install_prerequisites.yaml](#install_prerequisitesyaml)
-- [log_in_container_registry.yaml](#log_in_container_registryyaml)
-- [create_container_networks.yaml](#create_container_networksyaml)
-- [remove_container_networks.yaml](#remove_container_networksyaml)
-- [generate_target_hosts.yaml](#generate_target_hostsyaml)
-- [openshift/config_hosts.yaml](#openshiftconfig_hostsyaml)
+- [install\_prerequisites.yaml](#install_prerequisitesyaml)
+- [log\_in\_container\_registry.yaml](#log_in_container_registryyaml)
+- [create\_container\_networks.yaml](#create_container_networksyaml)
+- [remove\_container\_networks.yaml](#remove_container_networksyaml)
+- [generate\_target\_hosts.yaml](#generate_target_hostsyaml)
+- [openshift/config\_hosts.yaml](#openshiftconfig_hostsyaml)
 - [Namespaced Playbooks](#namespaced-playbooks)
 
 ## Playbook Usage
@@ -121,17 +121,18 @@ Properties:
 
 Namespaced playbooks are collections of playbooks tailored for a specific group of hosts:
 
-| Namespace                                        | Description                                                                                                                                                 |
-| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [artifacts](./artifacts/README.md)               | Generates network-wide crypto material and the genesis block on the control node. Not tied to a remote host group.                                          |
-| [awx](./awx/README.md)                           | Operates AWX (Ansible automation controller) on Kubernetes or OpenShift: start, teardown, wipe, backup, restore, configure.                                 |
-| [fabric_ca_server](./fabric_ca_server/README.md) | Operates Fabric CA servers and their PostgreSQL databases: start, enroll admins, register identities, stop, teardown, and wipe.                             |
-| [fabric_ca_client](./fabric_ca_client/README.md) | Prepares the Fabric CA client binary used by enrollment and registration tasks.                                                                             |
-| [orderer](./orderer/README.md)                   | Operates Fabric-X orderer components (routers, batchers, consenters, assemblers) targeting the `fabric_x_orderers` group.                                   |
-| [committer](./committer/README.md)               | Operates Fabric-X committer services and their PostgreSQL or YugabyteDB backend targeting the `fabric_x_committers` group.                                  |
-| [block_explorer](./block_explorer/README.md)     | Operates the Block Explorer server, UI, and PostgreSQL backend targeting the `fabric_x_block_explorer` group.                                               |
-| [fxconfig](./fxconfig/README.md)                 | Builds, endorses, and submits Fabric-X configuration transactions including namespace creation. Run after `start` during initialization.                    |
-| [loadgen](./loadgen/README.md)                   | Operates load generators: start, stop, reconfigure submission rate at runtime, collect metrics and logs.                                                    |
-| [monitoring](./monitoring/README.md)             | Operates observability components: Prometheus, Grafana, Loki, Alloy, node exporter, PostgreSQL exporter, Elasticsearch, and Jaeger.                         |
-| [semaphore_ui](./semaphore_ui/README.md)         | Operates Semaphore UI (Ansible automation controller) as a binary on its own control node: binaries, generate_crypto, configs, start, stop, teardown, wipe. |
-| [yugabyte](./yugabyte/README.md)                 | Standalone TLS certificate generation for YugabyteDB clusters. Most YugabyteDB lifecycle is handled through the `committer` namespace.                      |
+| Namespace                                        | Description                                                                                                                                                           |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [artifacts](./artifacts/README.md)               | Generates network-wide crypto material and the genesis block on the control node. Not tied to a remote host group.                                                    |
+| [awx](./awx/README.md)                           | Operates AWX (Ansible automation controller) on Kubernetes or OpenShift: start, teardown, wipe, backup, restore, configure.                                           |
+| [fabric_ca_server](./fabric_ca_server/README.md) | Operates Fabric CA servers: start, enroll admins, register identities, stop, teardown, and wipe.                                                                      |
+| [fabric_ca_client](./fabric_ca_client/README.md) | Prepares the Fabric CA client binary used by enrollment and registration tasks.                                                                                       |
+| [postgres](./postgres/README.md)                 | Operates every PostgreSQL database in the inventory in one pass: crypto, configs, start, stop, teardown, wipe, ping. Serves Fabric CA, committer, and Block Explorer. |
+| [orderer](./orderer/README.md)                   | Operates Fabric-X orderer components (routers, batchers, consenters, assemblers) targeting the `fabric_x_orderers` group.                                             |
+| [committer](./committer/README.md)               | Operates Fabric-X committer services targeting the `fabric_x_committers` group, backed by PostgreSQL or YugabyteDB.                                                   |
+| [block_explorer](./block_explorer/README.md)     | Operates the Block Explorer server and UI, backed by PostgreSQL, targeting the `fabric_x_block_explorer` group.                                                       |
+| [fxconfig](./fxconfig/README.md)                 | Builds, endorses, and submits Fabric-X configuration transactions including namespace creation. Run after `start` during initialization.                              |
+| [loadgen](./loadgen/README.md)                   | Operates load generators: start, stop, reconfigure submission rate at runtime, collect metrics and logs.                                                              |
+| [monitoring](./monitoring/README.md)             | Operates observability components: Prometheus, Grafana, Loki, Alloy, node exporter, PostgreSQL exporter, Elasticsearch, and Jaeger.                                   |
+| [semaphore_ui](./semaphore_ui/README.md)         | Operates Semaphore UI (Ansible automation controller) as a binary on its own control node: binaries, generate_crypto, configs, start, stop, teardown, wipe.           |
+| [yugabyte](./yugabyte/README.md)                 | Operates every YugabyteDB cluster in one pass: crypto, configs, start, stop, teardown, wipe, ping. Also provides a standalone TLS CA path.                            |

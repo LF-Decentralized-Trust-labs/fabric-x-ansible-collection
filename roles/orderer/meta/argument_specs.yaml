@@ -84,7 +84,7 @@ argument_specs:
       orderer_image_tag: &orderer_image_tag
         type: str
         required: false
-        default: "1.0.3"
+        default: "1.0.4"
         description:
           - "Image tag used for the orderer container."
       orderer_image: &orderer_image
@@ -110,7 +110,7 @@ argument_specs:
       orderer_git_commit: &orderer_git_commit
         type: str
         required: false
-        default: v1.0.3
+        default: v1.0.4
         description:
           - "Git ref or release tag used by the bin build and install branches."
       orderer_source_code_package: &orderer_source_code_package
@@ -454,7 +454,7 @@ argument_specs:
           - "Example: C(0.0.0.0)."
       orderer_operations_use_tls: &orderer_operations_use_tls
         type: bool
-        default: false
+        default: "{{ orderer_use_tls }}"
         description:
           - "Enables TLS for the orderer operations endpoint."
       orderer_operations_use_mtls: &orderer_operations_use_mtls
@@ -782,6 +782,7 @@ argument_specs:
     description:
       - "Ensures the host data directory exists and starts the orderer container with the selected component command."
       - "Mounts generated config and TLS/MSP material read-only, mounts the data directory read-write, and exposes gRPC and operations ports."
+      - "Configures an image-native curl healthcheck against the plaintext operations C(/healthz) endpoint."
     options:
       orderer_component_type: *orderer_component_type
       orderer_container_name: *orderer_container_name
@@ -798,6 +799,11 @@ argument_specs:
       orderer_config_file: *orderer_config_file
       orderer_rpc_port: *orderer_rpc_port
       orderer_operations_port: *orderer_operations_port
+      actual_host: *actual_host
+      orderer_use_tls: *orderer_use_tls
+      orderer_use_mtls: *orderer_use_mtls
+      orderer_operations_use_tls: *orderer_operations_use_tls
+      orderer_operations_use_mtls: *orderer_operations_use_mtls
 
   container/stop:
     short_description: Stop the orderer container
@@ -996,6 +1002,7 @@ argument_specs:
       orderer_remote_config_dir: *orderer_remote_config_dir
       orderer_openshift_route: *orderer_openshift_route
       orderer_openshift_metrics_route: *orderer_openshift_metrics_route
+      orderer_use_tls: *orderer_use_tls
       orderer_operations_use_tls: *orderer_operations_use_tls
 
   crypto/fetch:

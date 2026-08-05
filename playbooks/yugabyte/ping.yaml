@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ping YugabyteDB clusters
+  hosts: "{{ target_hosts | default('all') }}"
+  tasks:
+    - name: Check that the YugabyteDB node ports are open
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.yugabyte
+        tasks_from: ping
+      when:
+        - yugabyte_component_type is defined

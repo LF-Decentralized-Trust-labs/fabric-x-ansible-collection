@@ -52,7 +52,7 @@ Properties:
 
 ## generate_crypto.yaml
 
-[`generate_crypto.yaml`](./generate_crypto.yaml) prepares TLS/MSP material for committer services and whichever database backend the inventory declares. It handles PostgreSQL, YugabyteDB, and Fabric-X committer hosts in one pass so the committer pipeline and storage backend use consistent artifacts.
+[`generate_crypto.yaml`](./generate_crypto.yaml) prepares TLS/MSP material for committer services according to each host's `committer_component_type`.
 
 ```shell
 ansible-playbook hyperledger.fabricx.committer.generate_crypto --extra-vars '{"target_hosts": "fabric_x_committers"}'
@@ -61,11 +61,10 @@ ansible-playbook hyperledger.fabricx.committer.generate_crypto --extra-vars '{"t
 Properties:
 
 - Target hosts: `fabric_x_committers` by default.
-- Nuance: hosts with `postgres_port` are handled by the PostgreSQL role, hosts with `yugabyte_component_type` are handled by the YugabyteDB role, and hosts with `committer_component_type` are handled by the committer role.
 
 ## configs.yaml
 
-[`configs.yaml`](./configs.yaml) transfers database configuration when PostgreSQL or YugabyteDB hosts are present, then renders committer service configuration from the selected inventory. It discovers validators, verifiers, the coordinator, and orderer assemblers so the sidecar/coordinator path can connect to the right services.
+[`configs.yaml`](./configs.yaml) renders committer service configuration from the selected inventory. It discovers validators, verifiers, the coordinator, and orderer assemblers so the sidecar/coordinator path can connect to the right services.
 
 ```shell
 ansible-playbook hyperledger.fabricx.committer.configs --extra-vars '{"target_hosts": "fabric_x_committers"}'
@@ -78,7 +77,7 @@ Properties:
 
 ## start.yaml
 
-[`start.yaml`](./start.yaml) starts the committer storage backend before the Fabric-X committer services that depend on it. After PostgreSQL or YugabyteDB is running, it starts validators, verifiers, the coordinator, sidecar, and query service according to each host's `committer_component_type`.
+[`start.yaml`](./start.yaml) starts validators, verifiers, the coordinator, sidecar, and query service according to each host's `committer_component_type`.
 
 ```shell
 ansible-playbook hyperledger.fabricx.committer.start --extra-vars '{"target_hosts": "fabric_x_committers"}'
@@ -87,11 +86,10 @@ ansible-playbook hyperledger.fabricx.committer.start --extra-vars '{"target_host
 Properties:
 
 - Target hosts: `fabric_x_committers` by default.
-- Nuance: the database backend is detected from inventory variables: PostgreSQL hosts define `postgres_port`, while YugabyteDB hosts define `yugabyte_component_type`.
 
 ## stop.yaml
 
-[`stop.yaml`](./stop.yaml) stops committer services before stopping the configured database backend. It leaves generated files and runtime data in place so the same committer deployment can be started again.
+[`stop.yaml`](./stop.yaml) stops committer services, leaving generated files and runtime data in place so the same committer deployment can be started again.
 
 ```shell
 ansible-playbook hyperledger.fabricx.committer.stop --extra-vars '{"target_hosts": "fabric_x_committers"}'
@@ -100,11 +98,10 @@ ansible-playbook hyperledger.fabricx.committer.stop --extra-vars '{"target_hosts
 Properties:
 
 - Target hosts: `fabric_x_committers` by default.
-- Nuance: stops committer services before the database backend while preserving generated files and runtime data.
 
 ## teardown.yaml
 
-[`teardown.yaml`](./teardown.yaml) tears down committer services and database runtime state. Use it when you want to remove the running deployment state rather than simply pause services.
+[`teardown.yaml`](./teardown.yaml) tears down committer service runtime state. Use it when you want to remove the running deployment state rather than simply pause services.
 
 ```shell
 ansible-playbook hyperledger.fabricx.committer.teardown --extra-vars '{"target_hosts": "fabric_x_committers"}'
@@ -113,11 +110,10 @@ ansible-playbook hyperledger.fabricx.committer.teardown --extra-vars '{"target_h
 Properties:
 
 - Target hosts: `fabric_x_committers` by default.
-- Nuance: removes runtime state for committer services and the configured database backend.
 
 ## wipe.yaml
 
-[`wipe.yaml`](./wipe.yaml) removes committer and database artifacts from targeted hosts, including generated configuration, crypto, and role-managed files that should not remain after a full cleanup.
+[`wipe.yaml`](./wipe.yaml) removes committer artifacts from targeted hosts, including generated configuration, crypto, and role-managed files that should not remain after a full cleanup.
 
 ```shell
 ansible-playbook hyperledger.fabricx.committer.wipe --extra-vars '{"target_hosts": "fabric_x_committers"}'
@@ -126,11 +122,10 @@ ansible-playbook hyperledger.fabricx.committer.wipe --extra-vars '{"target_hosts
 Properties:
 
 - Target hosts: `fabric_x_committers` by default.
-- Nuance: removes role-managed committer and database artifacts, including generated configuration and crypto.
 
 ## ping.yaml
 
-[`ping.yaml`](./ping.yaml) checks committer and database endpoints declared by targeted hosts. It is the quickest post-start validation for sidecar/query access and backend availability.
+[`ping.yaml`](./ping.yaml) checks committer endpoints declared by targeted hosts. It is the quickest post-start validation for sidecar/query access.
 
 ```shell
 ansible-playbook hyperledger.fabricx.committer.ping --extra-vars '{"target_hosts": "fabric_x_committers"}'
@@ -139,7 +134,6 @@ ansible-playbook hyperledger.fabricx.committer.ping --extra-vars '{"target_hosts
 Properties:
 
 - Target hosts: `fabric_x_committers` by default.
-- Nuance: useful as a post-start validation for committer service and backend availability.
 
 ## get_metrics.yaml
 

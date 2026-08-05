@@ -18,7 +18,7 @@ fabric_ca_server_use_k8s: false
 # Uses the container server flow.
 fabric_ca_server_use_container: '{{ (not fabric_ca_server_use_bin) and (not fabric_ca_server_use_k8s) and (not fabric_ca_server_use_openshift) }}'
 # Sets the registry endpoint used to resolve the Fabric CA image.
-fabric_ca_registry_endpoint: "{{ lookup('env', 'FABRIC_CA_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+fabric_ca_registry_endpoint: "{{ lookup('env', 'FABRIC_CA_REGISTRY_ENDPOINT') or 'ghcr.io/hyperledger' }}"
 # Sets the Fabric CA image name.
 fabric_ca_image_name: fabric-ca
 # Sets the Fabric CA image tag.

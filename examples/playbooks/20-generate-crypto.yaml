@@ -44,6 +44,15 @@
   when:
     - "'fabric_cas' in groups"
 
+######################################
+# Crypto material for databases
+######################################
+- name: Generate PostgreSQL crypto material
+  ansible.builtin.import_playbook: hyperledger.fabricx.postgres.generate_crypto
+
+- name: Generate YugabyteDB crypto material
+  ansible.builtin.import_playbook: hyperledger.fabricx.yugabyte.generate_crypto
+
 - name: Generate Hyperledger Fabric-X Orderers crypto
   ansible.builtin.import_playbook: hyperledger.fabricx.orderer.generate_crypto
 

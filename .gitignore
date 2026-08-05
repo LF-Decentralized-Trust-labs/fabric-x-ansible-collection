@@ -9,6 +9,7 @@ target_hosts.mk
 graphify-out/
 plans/
 docs/mkdocs/
+docs/superpowers/
 site/
 
 # python

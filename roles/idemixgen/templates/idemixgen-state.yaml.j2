@@ -1,0 +1,12 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Persists the fingerprint of the current idemixgen signer inputs (see roles/idemixgen/tasks/inspect.yaml)
+# so the next run can detect whether they changed. Written unconditionally on every run, whether
+# or not idemixgen actually executed. There is only ever one signer artifact set under
+# idemixgen_output_dir, so one fingerprint is enough; a different signer configuration is
+# requested by pointing at a different idemixgen_output_dir.
+fingerprint: "{{ idemixgen_current_fingerprint }}"

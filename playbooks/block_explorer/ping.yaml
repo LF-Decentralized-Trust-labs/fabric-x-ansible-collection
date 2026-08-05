@@ -8,15 +8,6 @@
   hosts: "{{ target_hosts | default('fabric_x_block_explorer') }}:&fabric_x_block_explorer"
   tasks:
     # =========================
-    # Postgres
-    # =========================
-    - name: Check that the Fabric-X Block Explorer Postgres DB port is open
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.postgres
-        tasks_from: ping
-      when:
-        - postgres_port is defined
-    # =========================
     # Block Explorer server and UI
     # =========================
     - name: Ping the Fabric-X Block Explorer server and UI

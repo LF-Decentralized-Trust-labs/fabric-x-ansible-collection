@@ -9,14 +9,23 @@
     path: "{{ committer_remote_data_dir }}"
     state: directory
     mode: "0o755"
+  when:
+    - committer_component_type == 'sidecar'
 
-- name: Start Hyperledger Fabric-X Committer Sidecar binary
+- name: Start the Fabric-X Committer binary
   vars:
+    committer_subcommands:
+      validator: vc
+      verifier: verifier
+      coordinator: coordinator
+      sidecar: sidecar
+      query-service: query
     bin_command: >-
-      {{ committer_bin_name }} start sidecar
+      {{ committer_bin_name }} start {{ committer_subcommands[committer_component_type] }}
       --config={{ committer_remote_config_dir }}/{{ committer_config_file }}
     bin_wait_until_running: true
     bin_wait_port: "{{ committer_rpc_port }}"
+    bin_wait_timeout: "{{ 120 if committer_component_type in ['validator', 'query-service'] else 60 }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.bin
     tasks_from: start

@@ -1,0 +1,21 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Generate PostgreSQL crypto material
+  hosts: "{{ target_hosts | default('all') }}"
+  tasks:
+    - name: Setup PostgreSQL database crypto material
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres
+        tasks_from: crypto/setup
+      when:
+        - postgres_port is defined
+    - name: Fetch PostgreSQL database certificates
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres
+        tasks_from: crypto/fetch
+      when:
+        - postgres_port is defined

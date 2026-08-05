@@ -17,3 +17,36 @@
     tasks_from: container/namespace/list
   when:
     - not fxconfig_use_bin
+
+- name: Reset the fxconfig existing namespaces fact
+  ansible.builtin.set_fact:
+    fxconfig_existing_namespaces: {}
+
+- name: Extract existing namespaces and their versions
+  vars:
+    fxconfig_namespace_list_match: >-
+      {{
+        current_namespace_list_line
+        | regex_search('^[0-9]+[)][ \t]+([a-z0-9_]+):[ \t]+version[ \t]+([0-9]+)', '\1', '\2')
+      }}
+    fxconfig_namespace_name: "{{ fxconfig_namespace_list_match[0] | default('') }}"
+    fxconfig_namespace_version: "{{ fxconfig_namespace_list_match[1] | default(0) | int }}"
+  ansible.builtin.set_fact:
+    fxconfig_existing_namespaces: >-
+      {{
+        fxconfig_existing_namespaces
+        | combine({
+          fxconfig_namespace_name: fxconfig_namespace_version
+        })
+      }}
+  loop: >-
+    {{
+      bin_output.stdout_lines
+      if fxconfig_use_bin
+      else container_output.stdout_lines
+    }}
+  loop_control:
+    loop_var: current_namespace_list_line
+    label: "ns: {{ fxconfig_namespace_name }} - version: {{ fxconfig_namespace_version }}"
+  when:
+    - fxconfig_namespace_list_match is not none

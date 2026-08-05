@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Transfer PostgreSQL config files
+  hosts: "{{ target_hosts | default('all') }}"
+  tasks:
+    - name: Transfer PostgreSQL database config files
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres
+        tasks_from: config/transfer
+      when:
+        - postgres_port is defined

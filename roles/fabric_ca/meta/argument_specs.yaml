@@ -41,7 +41,7 @@ argument_specs:
           - "Uses the container server flow."
       fabric_ca_registry_endpoint: &fabric_ca_registry_endpoint
         type: str
-        default: "{{ lookup('env', 'FABRIC_CA_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+        default: "{{ lookup('env', 'FABRIC_CA_REGISTRY_ENDPOINT') or 'ghcr.io/hyperledger' }}"
         description:
           - "Sets the registry endpoint used to resolve the Fabric CA image."
       fabric_ca_image_name: &fabric_ca_image_name

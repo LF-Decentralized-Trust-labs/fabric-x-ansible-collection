@@ -13,7 +13,7 @@ The `semaphore_ui` playbooks operate Semaphore UI, an automation controller run 
 - [teardown.yaml](#teardownyaml)
 - [wipe.yaml](#wipeyaml)
 - [ping.yaml](#pingyaml)
-- [fetch_logs.yaml](#fetch_logsyaml)
+- [fetch\_logs.yaml](#fetch_logsyaml)
 
 ## Playbooks flow
 
@@ -68,15 +68,14 @@ ansible-playbook hyperledger.fabricx.semaphore_ui.configs --extra-vars '{"target
 
 Properties:
 
-- Target hosts: `semaphore_ui` by default. Run after `generate_crypto` and before `start` on first install: the CLI commands used here write directly to the SQLite database, so running them while the server is live risks contending for the same file.
-- Nuance: idempotent, but not a reconciler. The admin user is only created if it does not already exist, and the project import is a safe no-op if a project with the same name already exists — but it will *not* update an existing project when `semaphore_ui_inventories`/`semaphore_ui_job_templates` change. To pick up such a change, remove the project in the UI (or `wipe` and reconfigure) and run `configs` again.
+- Target hosts: `semaphore_ui` by default. Run after `generate_crypto` and before `start`. Does not touch the database; `start` handles migrating and seeding it.
 - Nuance: the repository is seeded as a `local` repository pointing at this collection's own checkout (`project_dir`), which Semaphore UI runs in place instead of cloning — the reason artifacts under `out/control-node/` persist across runs.
 - Nuance: every seeded task template sets `skip_galaxy_install: true` and this must never be changed: Semaphore UI otherwise runs `ansible-galaxy` against this repository's own `requirements.yml` and `collections/requirements.yml` before each run, which would reinstall this very collection from Git over the checkout it is running from.
 - Nuance: `semaphore_ui_inventories`/`semaphore_ui_job_templates` are not discovered automatically; they are kept in sync by hand with `examples/inventory`/`examples/playbooks` in `roles/semaphore_ui/meta/argument_specs.yaml`.
 
 ## start.yaml
 
-[`start.yaml`](./start.yaml) starts the Semaphore UI binary in a tmux session and waits for its web port to become reachable.
+[`start.yaml`](./start.yaml) migrates and seeds the Semaphore UI database if it does not exist yet, starts the Semaphore UI binary in a tmux session, and waits for its web port to become reachable.
 
 ```shell
 ansible-playbook hyperledger.fabricx.semaphore_ui.start --extra-vars '{"target_hosts": "semaphore_ui"}'
@@ -85,8 +84,6 @@ ansible-playbook hyperledger.fabricx.semaphore_ui.start --extra-vars '{"target_h
 Properties:
 
 - Target hosts: `semaphore_ui` by default.
-- Nuance: starting an already-running instance is a no-op (the tmux session already exists).
-- Nuance: after a successful start, the playbook computes the effective address (`tasks_from: effective_address`, `https` when `semaphore_ui_use_tls: true`) and prints the URL and admin username. The password is not printed back, since it is a value the operator already supplied in the inventory.
 
 ## stop.yaml
 
@@ -111,7 +108,6 @@ ansible-playbook hyperledger.fabricx.semaphore_ui.teardown --extra-vars '{"targe
 Properties:
 
 - Target hosts: `semaphore_ui` by default.
-- Nuance: the next `start` runs against an empty database; run `configs` again first.
 
 ## wipe.yaml
 

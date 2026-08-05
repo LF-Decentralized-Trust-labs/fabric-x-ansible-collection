@@ -25,6 +25,12 @@
 - name: Wipe Fabric CA servers
   ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.wipe
 
+- name: Wipe PostgreSQL databases
+  ansible.builtin.import_playbook: hyperledger.fabricx.postgres.wipe
+
+- name: Wipe YugabyteDB clusters
+  ansible.builtin.import_playbook: hyperledger.fabricx.yugabyte.wipe
+
 - name: Remove container networks
   ansible.builtin.import_playbook: hyperledger.fabricx.remove_container_networks
 

@@ -22,6 +22,7 @@
   - [ping](#ping)
   - [effective\_address](#effective_address)
   - [config/transfer](#configtransfer)
+  - [db/setup](#dbsetup)
   - [config/rm](#configrm)
   - [data/rm](#datarm)
 
@@ -175,7 +176,7 @@ Generates a self-signed TLS certificate and private key for Semaphore UI's nativ
 
 > Start the Semaphore UI binary
 
-Starts the Semaphore UI binary, then prints its effective URL and admin username.
+Migrates and seeds the database if it is missing (`db/setup`), starts the Semaphore UI binary, then prints its effective URL and admin username.
 
 ```yaml
 - name: Start the Semaphore UI binary
@@ -217,7 +218,7 @@ Copies the Semaphore UI log file from the managed host to the control node witho
 
 > Stop Semaphore UI and remove its data
 
-Stops the Semaphore UI binary and deletes its data directory (SQLite database, scratch space, and generated secrets). Leaves the installed binary and rendered configuration files in place.
+Stops the Semaphore UI binary and deletes its data directory (SQLite database, scratch space, and generated secrets). Leaves the installed binary and rendered configuration files in place. A subsequent `start` re-migrates and re-seeds the database (`db/setup`).
 
 ```yaml
 - name: Stop Semaphore UI and remove its data
@@ -277,23 +278,19 @@ Sets `semaphore_ui_effective_address` from `actual_host`, `semaphore_ui_port`, a
 
 ### config/transfer
 
-> Render, migrate, and seed a Semaphore UI instance
+> Render the Semaphore UI server configuration and project seed
 
-Generates and persists the server secrets on first run, renders `config.json` and the project seed file from templates, then runs database migrations and ensures the admin user and the Fabric-X project exist. Run this before `start` on first install: the CLI commands used here write directly to the SQLite database, so running them while the server is live risks contending for the same file. Idempotent, but not a reconciler. The admin user is only created if it does not already exist, and the project import is a safe no-op if a project with the same name already exists — but it will not update an existing project when `semaphore_ui_inventories`/`semaphore_ui_job_templates` change.
+Generates and persists the server secrets on first run, then renders `config.json` and the project seed file from templates. Database migration and seeding is not done here: `start` does it (`db/setup`), skipping it when the database already exists.
 
 ```yaml
-- name: Render, migrate, and seed a Semaphore UI instance
+- name: Render the Semaphore UI server configuration and project seed
   vars:
-    # Base directory on the managed host under which the Semaphore UI binary is installed.
-    remote_node_dir: "/var/lib/fabricx"
     # Base directory on the managed host for `semaphore_ui_remote_config_dir`.
     remote_config_dir: "/var/lib/fabricx/config"
     # Base directory on the managed host for `semaphore_ui_remote_data_dir`.
     remote_data_dir: "/var/lib/fabricx/data"
     # Project root directory on the managed host. Seeded as the Semaphore UI repository's absolute path, since it is a `local` repository that Semaphore UI runs in place rather than cloning, so generated artifacts (for example `out/control-node`) persist across runs.
     project_dir: "/path/to/hyperledger/fabricx"
-    # Executable name of the installed Semaphore UI binary. Also used as its tmux session name.
-    semaphore_ui_bin_name: semaphore
     # Directory on the managed host holding the rendered Semaphore UI server configuration and project seed files.
     semaphore_ui_remote_config_dir: "{{ remote_config_dir }}"
     # Directory on the managed host holding the Semaphore UI SQLite database, scratch space, and generated secrets.
@@ -312,12 +309,6 @@ Generates and persists the server secrets on first run, renders `config.json` an
     semaphore_ui_tls_private_key_file: server.key
     # Sets the Semaphore UI TLS certificate filename.
     semaphore_ui_tls_cert_file: server.crt
-    # Login of the Semaphore UI admin user created on `config/transfer`.
-    semaphore_ui_username: "admin"
-    # Email address of the Semaphore UI admin user created on `config/transfer`.
-    semaphore_ui_email: "admin@example.com"
-    # Password of the Semaphore UI admin user created on `config/transfer`. Store this value in Ansible Vault.
-    semaphore_ui_password: "my_semaphore_password"
     # Name of the Semaphore UI project seeded on `config/transfer`.
     semaphore_ui_project_name: Fabric-X
     # Name of the Semaphore UI repository seeded on `config/transfer`.
@@ -419,6 +410,44 @@ Generates and persists the server secrets on first run, renders `config.json` an
   ansible.builtin.include_role:
     name: hyperledger.fabricx.semaphore_ui
     tasks_from: config/transfer
+```
+
+### db/setup
+
+> Migrate and seed the Semaphore UI database if it is missing
+
+Checks whether the Semaphore UI SQLite database file exists and, only if it does not, ensures the data directory exists, runs database migrations, then ensures the admin user and the Fabric-X project exist. A repeated run against a live instance is a no-op. Run this only against a stopped server: the CLI commands used here write directly to the SQLite database, so running them while the server is live risks contending for the same file. Idempotent, but not a reconciler. The admin user is only created if it does not already exist, and the project import is a safe no-op if a project with the same name already exists — but it will not update an existing project when `semaphore_ui_inventories`/`semaphore_ui_job_templates` change.
+
+```yaml
+- name: Migrate and seed the Semaphore UI database if it is missing
+  vars:
+    # Base directory on the managed host under which the Semaphore UI binary is installed.
+    remote_node_dir: "/var/lib/fabricx"
+    # Base directory on the managed host for `semaphore_ui_remote_config_dir`.
+    remote_config_dir: "/var/lib/fabricx/config"
+    # Base directory on the managed host for `semaphore_ui_remote_data_dir`.
+    remote_data_dir: "/var/lib/fabricx/data"
+    # Executable name of the installed Semaphore UI binary. Also used as its tmux session name.
+    semaphore_ui_bin_name: semaphore
+    # Directory on the managed host holding the rendered Semaphore UI server configuration and project seed files.
+    semaphore_ui_remote_config_dir: "{{ remote_config_dir }}"
+    # Directory on the managed host holding the Semaphore UI SQLite database, scratch space, and generated secrets.
+    semaphore_ui_remote_data_dir: "{{ remote_data_dir }}"
+    # File name of the rendered Semaphore UI server configuration.
+    semaphore_ui_config_file: config.json
+    # File name of the Semaphore UI SQLite database.
+    semaphore_ui_database_file: database.db
+    # File name of the rendered Semaphore UI project seed, consumed by `semaphore project import`.
+    semaphore_ui_project_seed_file: project.json
+    # Login of the Semaphore UI admin user created on `config/transfer`.
+    semaphore_ui_username: "admin"
+    # Email address of the Semaphore UI admin user created on `config/transfer`.
+    semaphore_ui_email: "admin@example.com"
+    # Password of the Semaphore UI admin user created on `config/transfer`. Store this value in Ansible Vault.
+    semaphore_ui_password: "my_semaphore_password"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.semaphore_ui
+    tasks_from: db/setup
 ```
 
 ### config/rm

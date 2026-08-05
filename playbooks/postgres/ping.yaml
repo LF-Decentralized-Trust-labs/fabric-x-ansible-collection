@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ping PostgreSQL databases
+  hosts: "{{ target_hosts | default('all') }}"
+  tasks:
+    - name: Check that the PostgreSQL database port is open
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres
+        tasks_from: ping
+      when:
+        - postgres_port is defined

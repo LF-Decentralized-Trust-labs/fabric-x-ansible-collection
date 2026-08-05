@@ -105,16 +105,21 @@ argument_specs:
         description:
           - "Defines the container registry used for the idemixgen image."
       idemixgen_rev_handle: &idemixgen_rev_handle
-        type: int
-        default: "{{ range(100, 999) | random }}"
+        type: str
+        default: "{{ idemixgen_enrollment_id }}"
         description:
           - "Defines the revocation handle embedded in the signer configuration."
-          - "The default is a random integer from 100 to 998."
+          - "Defaults to C(idemixgen_enrollment_id) so repeated runs fingerprint identically; the tool accepts any string."
       idemixgen_source_code_package: &idemixgen_source_code_package
         type: str
         default: "tools/idemixgen"
         description:
           - "Defines the source package path built into the idemixgen binary."
+      idemixgen_state_file: &idemixgen_state_file
+        type: path
+        default: "{{ idemixgen_output_dir }}/idemixgen-state.yaml"
+        description:
+          - "Sets the path to the file that tracks a fingerprint of the inputs behind the signer artifact set generated under C(idemixgen_output_dir), used to detect changes since the last run."
       idemixgen_use_aries: &idemixgen_use_aries
         type: bool
         default: false
@@ -132,8 +137,10 @@ argument_specs:
       - "Select whether Idemix CA key generation runs in a container or through the locally installed binary."
       - "The generated CA key material is written under C(idemixgen_output_dir)/ca and the CA MSP material under C(idemixgen_output_dir)/msp."
       - "Set C(idemixgen_use_bin) to choose the execution mode."
+      - "An existing C(idemixgen_output_dir)/ca/IssuerSecretKey is preserved as-is; if missing, both C(idemixgen_output_dir)/ca and C(idemixgen_output_dir)/msp are replaced as one unit. The CA key material is not fingerprinted: it is random, and rotating it would silently invalidate every signer already issued from it, so delete both directories manually to force a deliberate rotation."
     options:
       idemixgen_use_bin: *idemixgen_use_bin
+      idemixgen_output_dir: *idemixgen_output_dir
 
   signerconfig:
     short_description: Dispatch Idemix signer configuration generation in binary or container mode
@@ -141,8 +148,17 @@ argument_specs:
       - "Select whether Idemix signer configuration generation runs in a container or through the locally installed binary."
       - "The signer configuration consumes C(idemixgen_ca_input_dir) and writes MSP and user artifacts under C(idemixgen_output_dir)."
       - "Set C(idemixgen_use_bin) to choose the execution mode."
+      - "An existing C(idemixgen_output_dir)/user/SignerConfig whose fingerprint of C(idemixgen_rev_handle), C(idemixgen_enrollment_id), C(idemixgen_org_domain), C(idemixgen_curve_id), and C(idemixgen_use_aries) still matches the fingerprint recorded in C(idemixgen_state_file) is preserved; a missing SignerConfig or a change to any of those inputs replaces C(idemixgen_output_dir)/msp and C(idemixgen_output_dir)/user as one unit. Tool version changes do not trigger regeneration."
     options:
       idemixgen_use_bin: *idemixgen_use_bin
+      idemixgen_output_dir: *idemixgen_output_dir
+      idemixgen_rev_handle: *idemixgen_rev_handle
+      idemixgen_enrollment_id: *idemixgen_enrollment_id
+      idemixgen_org_domain: *idemixgen_org_domain
+      idemixgen_curve_id: *idemixgen_curve_id
+      idemixgen_use_aries: *idemixgen_use_aries
+      idemixgen_state_file: *idemixgen_state_file
+      config_build_dir: *config_build_dir
 
   bin/build:
     short_description: Build the idemixgen binary
@@ -176,6 +192,7 @@ argument_specs:
     description:
       - "Runs C(idemixgen ca-keygen) through the locally installed binary."
       - "The task removes any existing CA and MSP output directories before generating fresh artifacts under C(idemixgen_output_dir)."
+      - "Called from C(ca-keygen) only when the existing CA artifact set is incomplete."
     options:
       cli_bin_dir: *cli_bin_dir
       config_build_dir: *config_build_dir
@@ -189,6 +206,7 @@ argument_specs:
     description:
       - "Runs C(idemixgen signerconfig) through the locally installed binary."
       - "The task removes any existing MSP and user output directories before generating fresh artifacts under C(idemixgen_output_dir)."
+      - "Called from C(signerconfig) only when the existing signer artifact set is incomplete or its fingerprint has drifted."
     options:
       cli_bin_dir: *cli_bin_dir
       config_build_dir: *config_build_dir
@@ -206,6 +224,7 @@ argument_specs:
     description:
       - "Runs C(idemixgen ca-keygen) in the configured container image."
       - "The task removes any existing CA and MSP output directories before generating fresh artifacts under C(idemixgen_output_dir)."
+      - "Called from C(ca-keygen) only when the existing CA artifact set is incomplete."
     options:
       config_build_dir: *config_build_dir
       idemixgen_bin_name: *idemixgen_bin_name
@@ -224,6 +243,7 @@ argument_specs:
     description:
       - "Runs C(idemixgen signerconfig) in the configured container image."
       - "The task removes any existing MSP and user output directories before generating fresh artifacts under C(idemixgen_output_dir)."
+      - "Called from C(signerconfig) only when the existing signer artifact set is incomplete or its fingerprint has drifted."
     options:
       config_build_dir: *config_build_dir
       idemixgen_bin_name: *idemixgen_bin_name

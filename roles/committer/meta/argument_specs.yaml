@@ -723,66 +723,6 @@ argument_specs:
       committer_openshift_route: *committer_openshift_route
       committer_openshift_metrics_route: *committer_openshift_metrics_route
 
-  validator/start:
-    short_description: Start a validator component
-    description:
-      - Start a validator in bin, container, or Kubernetes mode.
-      - The selected runtime path depends on C(committer_use_bin) and C(committer_use_k8s).
-      - Expects validator configuration and database settings to be generated before the process starts.
-    options:
-      committer_use_bin: *committer_use_bin
-      committer_use_k8s: *committer_use_k8s
-      committer_use_openshift: *committer_use_openshift
-      committer_use_container: *committer_use_container
-
-  verifier/start:
-    short_description: Start a verifier component
-    description:
-      - Start a verifier in bin, container, or Kubernetes mode.
-      - The selected runtime path depends on C(committer_use_bin) and C(committer_use_k8s).
-      - Expects verifier configuration and optional TLS/mTLS assets to be available.
-    options:
-      committer_use_bin: *committer_use_bin
-      committer_use_k8s: *committer_use_k8s
-      committer_use_openshift: *committer_use_openshift
-      committer_use_container: *committer_use_container
-
-  coordinator/start:
-    short_description: Start a coordinator component
-    description:
-      - Start a coordinator in bin, container, or Kubernetes mode.
-      - Coordinators connect to validator and verifier hosts that must already be configured.
-      - Uses C(committer_validators) and C(committer_verifiers) to locate upstream committers.
-    options:
-      committer_use_bin: *committer_use_bin
-      committer_use_k8s: *committer_use_k8s
-      committer_use_openshift: *committer_use_openshift
-      committer_use_container: *committer_use_container
-
-  sidecar/start:
-    short_description: Start a sidecar component
-    description:
-      - Start a sidecar in bin, container, or Kubernetes mode.
-      - Sidecars require persistent data storage and connect to coordinator and orderer hosts.
-      - Uses MSP material plus C(committer_coordinator), C(orderer_assemblers), and C(channel_id).
-    options:
-      committer_use_bin: *committer_use_bin
-      committer_use_k8s: *committer_use_k8s
-      committer_use_openshift: *committer_use_openshift
-      committer_use_container: *committer_use_container
-
-  query_service/start:
-    short_description: Start a query-service component
-    description:
-      - Start a query-service in bin, container, or Kubernetes mode.
-      - The selected runtime path depends on C(committer_use_bin) and C(committer_use_k8s).
-      - Expects generated database-backed query-service configuration.
-    options:
-      committer_use_bin: *committer_use_bin
-      committer_use_k8s: *committer_use_k8s
-      committer_use_openshift: *committer_use_openshift
-      committer_use_container: *committer_use_container
-
   stop:
     short_description: Stop a committer process
     description:
@@ -801,42 +741,13 @@ argument_specs:
     description:
       - Remove the selected component according to its deployment mode.
       - Sidecar teardown also removes sidecar data.
-      - Dispatches by C(committer_component_type) to the component-specific teardown entry point.
+      - Dispatches by C(committer_component_type) and C(committer_deployment_mode).
     options:
       committer_component_type: *committer_component_type
-
-  query_service/teardown:
-    short_description: Teardown the query-service
-    description:
-      - Remove the query-service according to its deployment mode.
-      - Deletes the runtime process, container, or Kubernetes query-service resources.
-    options:
+      committer_deployment_mode: *committer_deployment_mode
       committer_use_bin: *committer_use_bin
       committer_use_k8s: *committer_use_k8s
       committer_use_openshift: *committer_use_openshift
-      committer_use_container: *committer_use_container
-
-  sidecar/teardown:
-    short_description: Teardown the sidecar
-    description:
-      - Remove the sidecar according to its deployment mode and delete sidecar data.
-      - Deletes the runtime process, container, or Kubernetes StatefulSet and storage artifacts.
-    options:
-      committer_use_bin: *committer_use_bin
-      committer_use_k8s: *committer_use_k8s
-      committer_use_openshift: *committer_use_openshift
-      committer_use_container: *committer_use_container
-
-  coordinator/teardown:
-    short_description: Teardown the coordinator
-    description:
-      - Remove the coordinator according to its deployment mode.
-      - Deletes the runtime process, container, or Kubernetes coordinator resources.
-    options:
-      committer_use_bin: *committer_use_bin
-      committer_use_k8s: *committer_use_k8s
-      committer_use_openshift: *committer_use_openshift
-      committer_use_container: *committer_use_container
 
   wipe:
     short_description: Remove all committer artifacts
@@ -885,8 +796,13 @@ argument_specs:
     description:
       - Dispatch startup to the selected committer component.
       - C(committer_component_type) selects validator, verifier, coordinator, sidecar, or query-service.
+      - C(committer_deployment_mode) selects bin, container, Kubernetes, or OpenShift.
     options:
       committer_component_type: *committer_component_type
+      committer_deployment_mode: *committer_deployment_mode
+      committer_use_bin: *committer_use_bin
+      committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
 
   crypto/setup:
     short_description: Prepare crypto material
@@ -969,68 +885,13 @@ argument_specs:
     options:
       committer_bin_name: *committer_bin_name
 
-  validator/container/start:
-    short_description: Start the validator container
+  container/start:
+    short_description: Start the committer container
     description:
-      - Run the validator container with its generated configuration directory mounted read-only.
-      - Publishes validator RPC and metrics ports from the container to the host.
-    options:
-      committer_component_type: *committer_component_type
-      committer_config_file: *committer_config_file
-      committer_container_config_dir: *committer_container_config_dir
-      committer_container_name: *committer_container_name
-      committer_image: *committer_image
-      committer_image_name: *committer_image_name
-      committer_image_tag: *committer_image_tag
-      committer_metrics_port: *committer_metrics_port
-      committer_registry_endpoint: *committer_registry_endpoint
-      committer_remote_config_dir: *committer_remote_config_dir
-      committer_rpc_port: *committer_rpc_port
-      remote_config_dir: *remote_config_dir
-
-  verifier/container/start:
-    short_description: Start the verifier container
-    description:
-      - Run the verifier container with its generated configuration directory mounted read-only.
-      - Publishes verifier RPC and metrics ports from the container to the host.
-    options:
-      committer_component_type: *committer_component_type
-      committer_config_file: *committer_config_file
-      committer_container_config_dir: *committer_container_config_dir
-      committer_container_name: *committer_container_name
-      committer_image: *committer_image
-      committer_image_name: *committer_image_name
-      committer_image_tag: *committer_image_tag
-      committer_metrics_port: *committer_metrics_port
-      committer_registry_endpoint: *committer_registry_endpoint
-      committer_remote_config_dir: *committer_remote_config_dir
-      committer_rpc_port: *committer_rpc_port
-      remote_config_dir: *remote_config_dir
-
-  coordinator/container/start:
-    short_description: Start the coordinator container
-    description:
-      - Run the coordinator container with its generated configuration directory mounted read-only.
-      - Publishes coordinator RPC and metrics ports from the container to the host.
-    options:
-      committer_component_type: *committer_component_type
-      committer_config_file: *committer_config_file
-      committer_container_config_dir: *committer_container_config_dir
-      committer_container_name: *committer_container_name
-      committer_image: *committer_image
-      committer_image_name: *committer_image_name
-      committer_image_tag: *committer_image_tag
-      committer_metrics_port: *committer_metrics_port
-      committer_registry_endpoint: *committer_registry_endpoint
-      committer_remote_config_dir: *committer_remote_config_dir
-      committer_rpc_port: *committer_rpc_port
-      remote_config_dir: *remote_config_dir
-
-  sidecar/container/start:
-    short_description: Start the sidecar container
-    description:
-      - Ensure the sidecar data directory exists and run the sidecar container with config and data volumes mounted.
-      - Persists the sidecar ledger under C(committer_remote_data_dir).
+      - Run the container for the selected committer component, with its generated configuration directory mounted read-only.
+      - For the sidecar, also ensures the data directory exists and mounts it as a second volume.
+      - C(committer_component_type) selects the CLI subcommand and, for the sidecar, whether the data volume and a longer wait timeout apply.
+      - Configures the image-native gRPC healthcheck with TLS verification when C(committer_use_tls) is enabled.
     options:
       committer_component_type: *committer_component_type
       committer_config_file: *committer_config_file
@@ -1045,27 +906,9 @@ argument_specs:
       committer_remote_config_dir: *committer_remote_config_dir
       committer_remote_data_dir: *committer_remote_data_dir
       committer_rpc_port: *committer_rpc_port
+      committer_use_tls: *committer_use_tls
       remote_config_dir: *remote_config_dir
       remote_data_dir: *remote_data_dir
-
-  query_service/container/start:
-    short_description: Start the query-service container
-    description:
-      - Run the query-service container with its generated configuration directory mounted read-only.
-      - Publishes query-service RPC and metrics ports from the container to the host.
-    options:
-      committer_component_type: *committer_component_type
-      committer_config_file: *committer_config_file
-      committer_container_config_dir: *committer_container_config_dir
-      committer_container_name: *committer_container_name
-      committer_image: *committer_image
-      committer_image_name: *committer_image_name
-      committer_image_tag: *committer_image_tag
-      committer_metrics_port: *committer_metrics_port
-      committer_registry_endpoint: *committer_registry_endpoint
-      committer_remote_config_dir: *committer_remote_config_dir
-      committer_rpc_port: *committer_rpc_port
-      remote_config_dir: *remote_config_dir
 
   container/stop:
     short_description: Stop a committer container
@@ -1294,50 +1137,12 @@ argument_specs:
         <<: *fetched_artifacts_dir
         required: true
 
-  validator/bin/start:
-    short_description: Start the validator binary
+  bin/start:
+    short_description: Start the committer binary
     description:
-      - Run the validator binary with its generated configuration file.
-      - Waits for the validator RPC port after starting C(start-vc).
-    options:
-      committer_bin_name: *committer_bin_name
-      committer_component_type: *committer_component_type
-      committer_config_file: *committer_config_file
-      committer_remote_config_dir: *committer_remote_config_dir
-      committer_rpc_port: *committer_rpc_port
-      remote_config_dir: *remote_config_dir
-
-  verifier/bin/start:
-    short_description: Start the verifier binary
-    description:
-      - Run the verifier binary with its generated configuration file.
-      - Waits for the verifier RPC port after starting C(start-verifier).
-    options:
-      committer_bin_name: *committer_bin_name
-      committer_component_type: *committer_component_type
-      committer_config_file: *committer_config_file
-      committer_remote_config_dir: *committer_remote_config_dir
-      committer_rpc_port: *committer_rpc_port
-      remote_config_dir: *remote_config_dir
-
-  coordinator/bin/start:
-    short_description: Start the coordinator binary
-    description:
-      - Run the coordinator binary with its generated configuration file.
-      - Waits for the coordinator RPC port after starting C(start-coordinator).
-    options:
-      committer_bin_name: *committer_bin_name
-      committer_component_type: *committer_component_type
-      committer_config_file: *committer_config_file
-      committer_remote_config_dir: *committer_remote_config_dir
-      committer_rpc_port: *committer_rpc_port
-      remote_config_dir: *remote_config_dir
-
-  sidecar/bin/start:
-    short_description: Start the sidecar binary
-    description:
-      - Ensure the sidecar data directory exists and run the sidecar binary.
-      - Waits for the sidecar RPC port after starting C(start-sidecar).
+      - Run the binary for the selected committer component with its generated configuration file.
+      - For the sidecar, also ensures the data directory exists.
+      - C(committer_component_type) selects the CLI subcommand and, for the sidecar, the data directory and a longer wait timeout.
     options:
       committer_bin_name: *committer_bin_name
       committer_component_type: *committer_component_type
@@ -1347,19 +1152,6 @@ argument_specs:
       committer_rpc_port: *committer_rpc_port
       remote_config_dir: *remote_config_dir
       remote_data_dir: *remote_data_dir
-
-  query_service/bin/start:
-    short_description: Start the query-service binary
-    description:
-      - Run the query-service binary with its generated configuration file.
-      - Waits for the query-service RPC port after starting C(start-query).
-    options:
-      committer_bin_name: *committer_bin_name
-      committer_component_type: *committer_component_type
-      committer_config_file: *committer_config_file
-      committer_remote_config_dir: *committer_remote_config_dir
-      committer_rpc_port: *committer_rpc_port
-      remote_config_dir: *remote_config_dir
 
   validator/config/transfer:
     short_description: Generate validator config
@@ -2014,28 +1806,6 @@ argument_specs:
       postgres_db_host: *postgres_db_host
       remote_config_dir: *remote_config_dir
       yugabyte_cluster_ref_id: *yugabyte_cluster_ref_id
-
-  validator/teardown:
-    short_description: Teardown the validator
-    description:
-      - Remove validator runtime resources for the active deployment mode.
-      - Dispatches to Kubernetes, container, or host-binary cleanup based on deployment flags.
-    options:
-      committer_use_k8s: *committer_use_k8s
-      committer_use_openshift: *committer_use_openshift
-      committer_use_container: *committer_use_container
-      committer_use_bin: *committer_use_bin
-
-  verifier/teardown:
-    short_description: Teardown the verifier
-    description:
-      - Remove verifier runtime resources for the active deployment mode.
-      - Dispatches to Kubernetes, container, or host-binary cleanup based on deployment flags.
-    options:
-      committer_use_k8s: *committer_use_k8s
-      committer_use_openshift: *committer_use_openshift
-      committer_use_container: *committer_use_container
-      committer_use_bin: *committer_use_bin
 
   validator/openshift/start:
     short_description: Start the committer validator OpenShift deployment

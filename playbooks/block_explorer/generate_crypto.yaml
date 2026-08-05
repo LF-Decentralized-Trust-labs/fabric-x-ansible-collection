@@ -8,21 +8,6 @@
   hosts: "{{ target_hosts | default('fabric_x_block_explorer') }}:&fabric_x_block_explorer"
   tasks:
     # =========================
-    # Postgres
-    # =========================
-    - name: Setup the Fabric-X Block Explorer Postgres DB crypto material
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.postgres
-        tasks_from: crypto/setup
-      when:
-        - postgres_port is defined
-    - name: Fetch the Fabric-X Block Explorer Postgres DB certificates
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.postgres
-        tasks_from: crypto/fetch
-      when:
-        - postgres_port is defined
-    # =========================
     # Block Explorer server
     # =========================
     - name: Setup the Fabric-X Block Explorer server crypto material

@@ -17,3 +17,8 @@
     tasks_from: container/merge
   when:
     - not fxconfig_use_bin
+
+- name: Remove merged endorsed transaction files
+  ansible.builtin.file:
+    path: "{{ fxconfig_endorsed_txs_dir }}"
+    state: absent

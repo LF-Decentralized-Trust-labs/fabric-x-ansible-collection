@@ -17,6 +17,20 @@
     container_command: >-
       {{ orderer_component_type }}
       --config={{ orderer_container_config_dir }}/{{ orderer_config_file }}
+    container_healthcheck_test: >-
+      curl -f
+      --silent
+      --show-error
+      {% if orderer_operations_use_tls %}
+      --cacert {{ orderer_container_config_dir }}/tls/ca.crt
+      {% if orderer_operations_use_mtls %}
+      --cert {{ orderer_container_config_dir }}/tls/server.crt
+      --key {{ orderer_container_config_dir }}/tls/server.key
+      {% endif %}
+      https://{{ actual_host }}:{{ orderer_operations_port }}/healthz
+      {% else %}
+      http://localhost:{{ orderer_operations_port }}/healthz
+      {% endif %}
     container_ports:
       - "{{ orderer_rpc_port }}:{{ orderer_rpc_port }}"
       - "{{ orderer_operations_port }}:{{ orderer_operations_port }}"

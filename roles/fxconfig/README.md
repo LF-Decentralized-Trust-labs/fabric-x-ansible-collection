@@ -13,6 +13,7 @@
   - [bin/merge](#binmerge)
   - [bin/namespace/create](#binnamespacecreate)
   - [bin/namespace/list](#binnamespacelist)
+  - [bin/namespace/update](#binnamespaceupdate)
   - [bin/rm](#binrm)
   - [bin/submit](#binsubmit)
   - [bin/transfer](#bintransfer)
@@ -23,13 +24,18 @@
   - [container/merge](#containermerge)
   - [container/namespace/create](#containernamespacecreate)
   - [container/namespace/list](#containernamespacelist)
+  - [container/namespace/update](#containernamespaceupdate)
   - [container/submit](#containersubmit)
   - [endorse](#endorse)
   - [get\_endorser](#get_endorser)
   - [merge](#merge)
   - [namespace/create](#namespacecreate)
   - [namespace/group](#namespacegroup)
+  - [namespace/inspect](#namespaceinspect)
   - [namespace/list](#namespacelist)
+  - [namespace/record\_state](#namespacerecord_state)
+  - [namespace/submit](#namespacesubmit)
+  - [namespace/update](#namespaceupdate)
   - [submit](#submit)
   - [wipe](#wipe)
 
@@ -205,6 +211,38 @@ Lists namespaces from the configured Fabric-X network by invoking the local fxco
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
     tasks_from: bin/namespace/list
+```
+
+### bin/namespace/update
+
+> Update a namespace transaction with the fxconfig binary
+
+Creates a namespace update transaction JSON artifact for the configured namespace, endorsement policy, and current version with the local fxconfig binary.
+
+```yaml
+- name: Update a namespace transaction with the fxconfig binary
+  vars:
+    # Defines the fxconfig binary name.
+    fxconfig_bin_name: fxconfig
+    # Defines the fxconfig log format.
+    fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
+    # Defines the fxconfig log level.
+    fxconfig_log_level: info
+    # Defines the namespace identifier used when creating namespace transaction artifacts. Accepts either a string or an integer value.
+    fxconfig_namespace_id: payments
+    # Defines the namespace endorsement policy.
+    fxconfig_namespace_policy: "threshold:/tmp/fabricx/config-build/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem"
+    # Defines the namespace's current on-chain version, passed as the compare-and-swap token fxconfig requires for an update.
+    fxconfig_namespace_version: 0
+    # Defines the transaction artifact path on the managed host.
+    fxconfig_output: "{{ fxconfig_remote_config_dir }}/tx.json"
+    # Defines the fxconfig remote configuration directory.
+    fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
+    # Provides the base remote configuration directory used by the role.
+    remote_config_dir: "/opt/hyperledger/fabricx/config"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxconfig
+    tasks_from: bin/namespace/update
 ```
 
 ### bin/rm
@@ -524,6 +562,48 @@ Lists namespaces from the configured Fabric-X network by mounting the rendered c
     tasks_from: container/namespace/list
 ```
 
+### container/namespace/update
+
+> Update a namespace transaction with the fxconfig container
+
+Creates a namespace update transaction JSON artifact for the configured namespace, endorsement policy, and current version by running fxconfig in a transient container. For threshold policies, mounts the referenced signing certificate into the container and rewrites the policy path for container execution.
+
+```yaml
+- name: Update a namespace transaction with the fxconfig container
+  vars:
+    # Defines the fxconfig binary name.
+    fxconfig_bin_name: fxconfig
+    # Defines the base container name used by fxconfig workflows.
+    fxconfig_container_name: fxconfig
+    # Defines the fxconfig container image.
+    fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ fxconfig_image_tag }}"
+    # Defines the image name used by the fxconfig container image.
+    fxconfig_image_name: fabric-x-tools
+    # Defines the image tag used by the fxconfig container image.
+    fxconfig_image_tag: 1.0.0
+    # Defines the fxconfig log format.
+    fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
+    # Defines the fxconfig log level.
+    fxconfig_log_level: info
+    # Defines the namespace identifier used when creating namespace transaction artifacts. Accepts either a string or an integer value.
+    fxconfig_namespace_id: payments
+    # Defines the namespace endorsement policy.
+    fxconfig_namespace_policy: "threshold:/tmp/fabricx/config-build/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem"
+    # Defines the namespace's current on-chain version, passed as the compare-and-swap token fxconfig requires for an update.
+    fxconfig_namespace_version: 0
+    # Defines the transaction artifact path on the managed host.
+    fxconfig_output: "{{ fxconfig_remote_config_dir }}/tx.json"
+    # Defines the registry endpoint used by the fxconfig container image.
+    fxconfig_registry_endpoint: "{{ lookup('env', 'FXCONFIG_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+    # Defines the fxconfig remote configuration directory.
+    fxconfig_remote_config_dir: "{{ remote_config_dir }}/fxconfig"
+    # Provides the base remote configuration directory used by the role.
+    remote_config_dir: "/opt/hyperledger/fabricx/config"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxconfig
+    tasks_from: container/namespace/update
+```
+
 ### container/submit
 
 > Submit a namespace transaction with the fxconfig container
@@ -605,11 +685,13 @@ Selects the preferred endorser from `organization.users` for namespace transacti
 
 > Merge endorsed namespace transactions
 
-Dispatches endorsed namespace transaction merging to either the host binary or a transient container based on `fxconfig_use_bin`. Consumes endorsed JSON artifacts and writes the merged transaction artifact used by submission.
+Dispatches endorsed namespace transaction merging to either the host binary or a transient container based on `fxconfig_use_bin`. Consumes endorsed JSON artifacts and writes the merged transaction artifact used by submission, then removes the merged endorsed transaction files since they are spent once merged.
 
 ```yaml
 - name: Merge endorsed namespace transactions
   vars:
+    # Defines the local directory containing endorsed namespace transaction JSON files to merge.
+    fxconfig_endorsed_txs_dir: "/tmp/fabricx/config-build/fxconfig-artifacts/mychannel/endorsed"
     # Selects the host-binary workflow instead of the container workflow.
     fxconfig_use_bin: false
   ansible.builtin.include_role:
@@ -653,11 +735,42 @@ Builds a namespace-to-host mapping from inventory organization data before creat
     tasks_from: namespace/group
 ```
 
+### namespace/inspect
+
+> Determine which namespaces need to be created or updated
+
+Lists existing Fabric-X namespaces via `namespace/list`, then compares each declared namespace's fingerprint (its policy, and for threshold policies its signer) against the namespace state file to decide whether it must be created, updated, or left alone. A namespace absent from the chain is always slated for creation. A namespace on chain whose recorded fingerprint does not exactly match its declared policy -- including having no recorded fingerprint at all -- is slated for update, using its current on-chain version as fxconfig's required compare-and-swap token. Populates `fxconfig_namespaces_to_create`, `fxconfig_namespaces_to_update`, and `fxconfig_namespace_fingerprints` for the caller to act on and to persist via `namespace/record_state`.
+
+```yaml
+- name: Determine which namespaces need to be created or updated
+  vars:
+    # Defines the base local build directory used to derive `fxconfig_artifacts_dir`.
+    config_build_dir: "/tmp/fabricx/config-build"
+    # Defines the local directory that stores generated namespace transaction artifacts and the namespace state file.
+    fxconfig_artifacts_dir: "{{ config_build_dir }}/fxconfig-artifacts"
+    # Defines the namespace state file name, stored under `fxconfig_artifacts_dir`.
+    fxconfig_state_file: fxconfig-state.yaml
+    # Provides organization metadata used by tasks that read `organization.*`, including names, users, domains, and namespace declarations.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      role: "peer"
+      users:
+        - name: "endorser"
+          cert: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem"
+      namespaces:
+        - id: "payments"
+          policy: "threshold"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxconfig
+    tasks_from: namespace/inspect
+```
+
 ### namespace/list
 
 > List namespaces
 
-Dispatches namespace listing to either the host binary or a transient container based on `fxconfig_use_bin`. Consumes the rendered fxconfig configuration that points at the Orderer Router and Committer services.
+Dispatches namespace listing to either the host binary or a transient container based on `fxconfig_use_bin`. Consumes the rendered fxconfig configuration that points at the Orderer Router and Committer services. Stores discovered namespace IDs and their current on-chain versions in `fxconfig_existing_namespaces`.
 
 ```yaml
 - name: List namespaces
@@ -667,6 +780,68 @@ Dispatches namespace listing to either the host binary or a transient container 
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fxconfig
     tasks_from: namespace/list
+```
+
+### namespace/record_state
+
+> Persist namespace fingerprints to the state file
+
+Merges the given namespace fingerprints into the namespace state file, preserving any other namespace's previously recorded fingerprint. Called per namespace immediately after its create or update transaction is successfully submitted.
+
+```yaml
+- name: Persist namespace fingerprints to the state file
+  vars:
+    # Defines the base local build directory used to derive `fxconfig_artifacts_dir`.
+    config_build_dir: "/tmp/fabricx/config-build"
+    # Defines the local directory that stores generated namespace transaction artifacts and the namespace state file.
+    fxconfig_artifacts_dir: "{{ config_build_dir }}/fxconfig-artifacts"
+    # Maps namespace IDs to the fingerprint to merge into the namespace state file.
+    fxconfig_namespace_fingerprints_to_record:
+      payments: "a1b2c3"
+    # Defines the namespace state file name, stored under `fxconfig_artifacts_dir`.
+    fxconfig_state_file: fxconfig-state.yaml
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxconfig
+    tasks_from: namespace/record_state
+```
+
+### namespace/submit
+
+> Submit a namespace transaction and record its fingerprint
+
+Submits a merged namespace transaction via `submit`, then immediately records the namespace's fingerprint via `namespace/record_state`. Recording happens right after this namespace's own submission succeeds, not in a separate pass over every namespace, so one namespace's failure cannot leave an already-submitted sibling unrecorded.
+
+```yaml
+- name: Submit a namespace transaction and record its fingerprint
+  vars:
+    # Defines the base local build directory used to derive `fxconfig_artifacts_dir`.
+    config_build_dir: "/tmp/fabricx/config-build"
+    # Defines the local directory that stores generated namespace transaction artifacts and the namespace state file.
+    fxconfig_artifacts_dir: "{{ config_build_dir }}/fxconfig-artifacts"
+    # Maps namespace IDs to the fingerprint computed by `namespace/inspect` for each namespace's declared policy.
+    fxconfig_namespace_fingerprints:
+      payments: "a1b2c3"
+    # Defines the namespace identifier used when creating namespace transaction artifacts. Accepts either a string or an integer value.
+    fxconfig_namespace_id: payments
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxconfig
+    tasks_from: namespace/submit
+```
+
+### namespace/update
+
+> Update a namespace transaction
+
+Dispatches namespace transaction update to either the host binary or a transient container based on `fxconfig_use_bin`. Writes a namespace update transaction JSON artifact for the configured namespace identifier, endorsement policy, and current version.
+
+```yaml
+- name: Update a namespace transaction
+  vars:
+    # Selects the host-binary workflow instead of the container workflow.
+    fxconfig_use_bin: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxconfig
+    tasks_from: namespace/update
 ```
 
 ### submit

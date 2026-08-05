@@ -8,36 +8,6 @@
   hosts: "{{ target_hosts | default('fabric_x_committers') }}:&fabric_x_committers"
   tasks:
     # =========================
-    # Postgres
-    # =========================
-    - name: Setup Hyperledger Fabric-X Committer Postgres DB crypto material
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.postgres
-        tasks_from: crypto/setup
-      when:
-        - postgres_port is defined
-    - name: Fetch Hyperledger Fabric-X Committer Postgres DB certificates
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.postgres
-        tasks_from: crypto/fetch
-      when:
-        - postgres_port is defined
-    # =========================
-    # Yugabyte
-    # =========================
-    - name: Setup Hyperledger Fabric-X Committer Yugabyte DB crypto material
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.yugabyte
-        tasks_from: crypto/setup
-      when:
-        - yugabyte_component_type is defined
-    - name: Fetch Hyperledger Fabric-X Committer Yugabyte DB certificates
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.yugabyte
-        tasks_from: crypto/fetch
-      when:
-        - yugabyte_component_type is defined
-    # =========================
     # HLFX Committer
     # =========================
     - name: Setup Hyperledger Fabric-X Committer crypto material

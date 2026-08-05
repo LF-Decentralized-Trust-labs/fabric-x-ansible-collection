@@ -45,12 +45,23 @@ argument_specs:
         description:
           - "Defines the Committer Sidecar notification waiting timeout written into the rendered fxconfig file."
           - "Example: C(2m)."
+      config_build_dir: &config_build_dir
+        type: path
+        required: true
+        description:
+          - "Defines the base local build directory used to derive C(fxconfig_artifacts_dir)."
+          - "Example: C(/tmp/fabricx/config-build)."
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         required: true
         description:
           - "Defines the local directory that stores fetched crypto and TLS artifacts consumed by fxconfig."
           - "Example: C(/tmp/fabricx/config-build)."
+      fxconfig_artifacts_dir: &fxconfig_artifacts_dir
+        type: path
+        default: "{{ config_build_dir }}/fxconfig-artifacts"
+        description:
+          - "Defines the local directory that stores generated namespace transaction artifacts and the namespace state file."
       fxconfig_bin_name: &fxconfig_bin_name
         type: str
         default: "fxconfig"
@@ -150,6 +161,18 @@ argument_specs:
         default: "{{ remote_config_dir }}/tls/server.key"
         description:
           - "Defines the source private key path used for fxconfig mTLS."
+      fxconfig_namespace_fingerprints: &fxconfig_namespace_fingerprints
+        type: dict
+        required: true
+        description:
+          - "Maps namespace IDs to the fingerprint computed by C(namespace/inspect) for each namespace's declared policy."
+          - "Example: C({'payments': 'a1b2c3'})."
+      fxconfig_namespace_fingerprints_to_record: &fxconfig_namespace_fingerprints_to_record
+        type: dict
+        required: true
+        description:
+          - "Maps namespace IDs to the fingerprint to merge into the namespace state file."
+          - "Example: C({'payments': 'a1b2c3'})."
       fxconfig_namespace_id: &fxconfig_namespace_id
         type: raw
         required: true
@@ -162,6 +185,12 @@ argument_specs:
         description:
           - "Defines the namespace endorsement policy."
           - "Example: C(threshold:/tmp/fabricx/config-build/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem)."
+      fxconfig_namespace_version: &fxconfig_namespace_version
+        type: int
+        required: true
+        description:
+          - "Defines the namespace's current on-chain version, passed as the compare-and-swap token fxconfig requires for an update."
+          - "Example: C(0)."
       fxconfig_orderer_connection_timeout: &fxconfig_orderer_connection_timeout
         type: str
         description:
@@ -187,6 +216,11 @@ argument_specs:
         default: "tools/fxconfig"
         description:
           - "Defines the Go package path containing the fxconfig source code."
+      fxconfig_state_file: &fxconfig_state_file
+        type: str
+        default: "fxconfig-state.yaml"
+        description:
+          - "Defines the namespace state file name, stored under C(fxconfig_artifacts_dir)."
       fxconfig_tx_to_endorse: &fxconfig_tx_to_endorse
         type: path
         required: true
@@ -292,6 +326,21 @@ argument_specs:
       fxconfig_config_file: *fxconfig_config_file
       fxconfig_log_format: *fxconfig_log_format
       fxconfig_log_level: *fxconfig_log_level
+      fxconfig_remote_config_dir: *fxconfig_remote_config_dir
+      remote_config_dir: *remote_config_dir
+
+  bin/namespace/update:
+    short_description: Update a namespace transaction with the fxconfig binary
+    description:
+      - "Creates a namespace update transaction JSON artifact for the configured namespace, endorsement policy, and current version with the local fxconfig binary."
+    options:
+      fxconfig_bin_name: *fxconfig_bin_name
+      fxconfig_log_format: *fxconfig_log_format
+      fxconfig_log_level: *fxconfig_log_level
+      fxconfig_namespace_id: *fxconfig_namespace_id
+      fxconfig_namespace_policy: *fxconfig_namespace_policy
+      fxconfig_namespace_version: *fxconfig_namespace_version
+      fxconfig_output: *fxconfig_output
       fxconfig_remote_config_dir: *fxconfig_remote_config_dir
       remote_config_dir: *remote_config_dir
 
@@ -443,6 +492,27 @@ argument_specs:
       fxconfig_remote_config_dir: *fxconfig_remote_config_dir
       remote_config_dir: *remote_config_dir
 
+  container/namespace/update:
+    short_description: Update a namespace transaction with the fxconfig container
+    description:
+      - "Creates a namespace update transaction JSON artifact for the configured namespace, endorsement policy, and current version by running fxconfig in a transient container."
+      - "For threshold policies, mounts the referenced signing certificate into the container and rewrites the policy path for container execution."
+    options:
+      fxconfig_bin_name: *fxconfig_bin_name
+      fxconfig_container_name: *fxconfig_container_name
+      fxconfig_image: *fxconfig_image
+      fxconfig_image_name: *fxconfig_image_name
+      fxconfig_image_tag: *fxconfig_image_tag
+      fxconfig_log_format: *fxconfig_log_format
+      fxconfig_log_level: *fxconfig_log_level
+      fxconfig_namespace_id: *fxconfig_namespace_id
+      fxconfig_namespace_policy: *fxconfig_namespace_policy
+      fxconfig_namespace_version: *fxconfig_namespace_version
+      fxconfig_output: *fxconfig_output
+      fxconfig_registry_endpoint: *fxconfig_registry_endpoint
+      fxconfig_remote_config_dir: *fxconfig_remote_config_dir
+      remote_config_dir: *remote_config_dir
+
   container/submit:
     short_description: Submit a namespace transaction with the fxconfig container
     description:
@@ -481,8 +551,9 @@ argument_specs:
     short_description: Merge endorsed namespace transactions
     description:
       - "Dispatches endorsed namespace transaction merging to either the host binary or a transient container based on C(fxconfig_use_bin)."
-      - "Consumes endorsed JSON artifacts and writes the merged transaction artifact used by submission."
+      - "Consumes endorsed JSON artifacts and writes the merged transaction artifact used by submission, then removes the merged endorsed transaction files since they are spent once merged."
     options:
+      fxconfig_endorsed_txs_dir: *fxconfig_endorsed_txs_dir
       fxconfig_use_bin: *fxconfig_use_bin
 
   namespace/create:
@@ -503,11 +574,54 @@ argument_specs:
       fetched_artifacts_dir: *fetched_artifacts_dir
       fxconfig_hosts: *fxconfig_hosts
 
+  namespace/inspect:
+    short_description: Determine which namespaces need to be created or updated
+    description:
+      - "Lists existing Fabric-X namespaces via C(namespace/list), then compares each declared namespace's fingerprint (its policy, and for threshold policies its signer) against the namespace state file to decide whether it must be created, updated, or left alone."
+      - "A namespace absent from the chain is always slated for creation. A namespace on chain whose recorded fingerprint does not exactly match its declared policy -- including having no recorded fingerprint at all -- is slated for update, using its current on-chain version as fxconfig's required compare-and-swap token."
+      - "Populates C(fxconfig_namespaces_to_create), C(fxconfig_namespaces_to_update), and C(fxconfig_namespace_fingerprints) for the caller to act on and to persist via C(namespace/record_state)."
+    options:
+      config_build_dir: *config_build_dir
+      fxconfig_artifacts_dir: *fxconfig_artifacts_dir
+      fxconfig_state_file: *fxconfig_state_file
+      organization: *organization
+
   namespace/list:
     short_description: List namespaces
     description:
       - "Dispatches namespace listing to either the host binary or a transient container based on C(fxconfig_use_bin)."
       - "Consumes the rendered fxconfig configuration that points at the Orderer Router and Committer services."
+      - "Stores discovered namespace IDs and their current on-chain versions in C(fxconfig_existing_namespaces)."
+    options:
+      fxconfig_use_bin: *fxconfig_use_bin
+
+  namespace/record_state:
+    short_description: Persist namespace fingerprints to the state file
+    description:
+      - "Merges the given namespace fingerprints into the namespace state file, preserving any other namespace's previously recorded fingerprint."
+      - "Called per namespace immediately after its create or update transaction is successfully submitted."
+    options:
+      config_build_dir: *config_build_dir
+      fxconfig_artifacts_dir: *fxconfig_artifacts_dir
+      fxconfig_namespace_fingerprints_to_record: *fxconfig_namespace_fingerprints_to_record
+      fxconfig_state_file: *fxconfig_state_file
+
+  namespace/submit:
+    short_description: Submit a namespace transaction and record its fingerprint
+    description:
+      - "Submits a merged namespace transaction via C(submit), then immediately records the namespace's fingerprint via C(namespace/record_state)."
+      - "Recording happens right after this namespace's own submission succeeds, not in a separate pass over every namespace, so one namespace's failure cannot leave an already-submitted sibling unrecorded."
+    options:
+      config_build_dir: *config_build_dir
+      fxconfig_artifacts_dir: *fxconfig_artifacts_dir
+      fxconfig_namespace_fingerprints: *fxconfig_namespace_fingerprints
+      fxconfig_namespace_id: *fxconfig_namespace_id
+
+  namespace/update:
+    short_description: Update a namespace transaction
+    description:
+      - "Dispatches namespace transaction update to either the host binary or a transient container based on C(fxconfig_use_bin)."
+      - "Writes a namespace update transaction JSON artifact for the configured namespace identifier, endorsement policy, and current version."
     options:
       fxconfig_use_bin: *fxconfig_use_bin
 

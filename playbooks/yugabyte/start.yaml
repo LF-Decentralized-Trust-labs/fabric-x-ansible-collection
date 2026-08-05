@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start YugabyteDB clusters
+  hosts: "{{ target_hosts | default('all') }}"
+  tasks:
+    - name: Start YugabyteDB node
+      vars:
+        yugabyte_cluster: >-
+          {{
+            groups['all']
+            | map('extract', hostvars)
+            | selectattr('yugabyte_component_type', 'defined')
+            | selectattr('yugabyte_cluster_id', 'defined')
+            | selectattr('yugabyte_cluster_id', '==', yugabyte_cluster_id)
+            | map(attribute='inventory_hostname')
+            | list
+          }}
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.yugabyte
+        tasks_from: start
+      when:
+        - yugabyte_component_type is defined
