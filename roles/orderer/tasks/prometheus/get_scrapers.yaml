@@ -46,29 +46,29 @@
     orderer_batcher_ref_host: "{{ orderer_batcher_hosts | first }}"
     orderer_scrape_services:
       - job_name: "assembler_service.{{ hostvars[orderer_assembler_ref_host].organization.domain }}"
-        use_tls: "{{ hostvars[orderer_assembler_ref_host].orderer_operations_use_tls | default(false) }}"
-        use_mtls: "{{ hostvars[orderer_assembler_ref_host].orderer_operations_use_mtls | default(false) }}"
+        use_tls: "{{ hostvars[orderer_assembler_ref_host].orderer_operations_use_tls | default(hostvars[orderer_assembler_ref_host].orderer_use_tls) | default(false) }}"
+        use_mtls: "{{ hostvars[orderer_assembler_ref_host].orderer_operations_use_mtls | default(hostvars[orderer_assembler_ref_host].orderer_use_mtls) | default(false) }}"
         tls_ca_file: "{{ fetched_artifacts_dir }}/{{ orderer_assembler_ref_host }}/tls/ca.crt"
         targets:
           - hosts: "{{ orderer_assembler_hosts }}"
             port_to_scrape: orderer_operations_port
       - job_name: "consenter_service.{{ hostvars[orderer_consenter_ref_host].organization.domain }}"
-        use_tls: "{{ hostvars[orderer_consenter_ref_host].orderer_operations_use_tls | default(false) }}"
-        use_mtls: "{{ hostvars[orderer_consenter_ref_host].orderer_operations_use_mtls | default(false) }}"
+        use_tls: "{{ hostvars[orderer_consenter_ref_host].orderer_operations_use_tls | default(hostvars[orderer_consenter_ref_host].orderer_use_tls) | default(false) }}"
+        use_mtls: "{{ hostvars[orderer_consenter_ref_host].orderer_operations_use_mtls | default(hostvars[orderer_consenter_ref_host].orderer_use_mtls) | default(false) }}"
         tls_ca_file: "{{ fetched_artifacts_dir }}/{{ orderer_consenter_ref_host }}/tls/ca.crt"
         targets:
           - hosts: "{{ orderer_consenter_hosts }}"
             port_to_scrape: orderer_operations_port
       - job_name: "router_service.{{ hostvars[orderer_router_ref_host].organization.domain }}"
-        use_tls: "{{ hostvars[orderer_router_ref_host].orderer_operations_use_tls | default(false) }}"
-        use_mtls: "{{ hostvars[orderer_router_ref_host].orderer_operations_use_mtls | default(false) }}"
+        use_tls: "{{ hostvars[orderer_router_ref_host].orderer_operations_use_tls | default(hostvars[orderer_router_ref_host].orderer_use_tls) | default(false) }}"
+        use_mtls: "{{ hostvars[orderer_router_ref_host].orderer_operations_use_mtls | default(hostvars[orderer_router_ref_host].orderer_use_mtls) | default(false) }}"
         tls_ca_file: "{{ fetched_artifacts_dir }}/{{ orderer_router_ref_host }}/tls/ca.crt"
         targets:
           - hosts: "{{ orderer_router_hosts }}"
             port_to_scrape: orderer_operations_port
       - job_name: "batcher_service.{{ hostvars[orderer_batcher_ref_host].organization.domain }}"
-        use_tls: "{{ hostvars[orderer_batcher_ref_host].orderer_operations_use_tls | default(false) }}"
-        use_mtls: "{{ hostvars[orderer_batcher_ref_host].orderer_operations_use_mtls | default(false) }}"
+        use_tls: "{{ hostvars[orderer_batcher_ref_host].orderer_operations_use_tls | default(hostvars[orderer_batcher_ref_host].orderer_use_tls) | default(false) }}"
+        use_mtls: "{{ hostvars[orderer_batcher_ref_host].orderer_operations_use_mtls | default(hostvars[orderer_batcher_ref_host].orderer_use_mtls) | default(false) }}"
         tls_ca_file: "{{ fetched_artifacts_dir }}/{{ orderer_batcher_ref_host }}/tls/ca.crt"
         targets:
           - hosts: "{{ orderer_batcher_hosts }}"
