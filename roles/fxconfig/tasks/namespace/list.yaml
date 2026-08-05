@@ -35,3 +35,10 @@
         | unique
         | list
       }}
+
+- name: Print retrieved Fabric-X namespaces
+  ansible.builtin.debug:
+    msg: "Fabric-X Namespaces: {{ fxconfig_existing_namespace_ids }}"
+  when:
+    - fxconfig_existing_namespace_ids is defined
+    - fxconfig_existing_namespace_ids | length > 0

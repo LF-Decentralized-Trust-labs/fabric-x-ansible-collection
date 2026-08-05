@@ -657,7 +657,7 @@ Builds a namespace-to-host mapping from inventory organization data before creat
 
 > List namespaces
 
-Dispatches namespace listing to either the host binary or a transient container based on `fxconfig_use_bin`. Consumes the rendered fxconfig configuration that points at the Orderer Router and Committer services.
+Dispatches namespace listing to either the host binary or a transient container based on `fxconfig_use_bin`. Consumes the rendered fxconfig configuration that points at the Orderer Router and Committer services. Stores discovered namespace identifiers in `fxconfig_existing_namespace_ids`; namespace versions and policies are ignored.
 
 ```yaml
 - name: List namespaces
