@@ -4,23 +4,78 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Start idemixgen signerconfig as container
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.idemixgen
-    tasks_from: container/signerconfig
-  when:
-    - not idemixgen_use_bin
+- name: Stat the existing idemixgen signer configuration
+  ansible.builtin.stat:
+    path: "{{ idemixgen_output_dir }}/user/SignerConfig"
+  register: idemixgen_signerconfig_stat
 
-- name: Install idemixgen as binary
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.idemixgen
-    tasks_from: bin/install
-  when:
-    - idemixgen_use_bin
+- name: Set the current idemixgen input fingerprint
+  vars:
+    idemixgen_fingerprint_inputs:
+      - "{{ idemixgen_rev_handle }}"
+      - "{{ idemixgen_enrollment_id }}"
+      - "{{ idemixgen_org_domain }}"
+      - "{{ idemixgen_curve_id }}"
+      - "{{ idemixgen_use_aries }}"
+  ansible.builtin.set_fact:
+    idemixgen_current_fingerprint: "{{ idemixgen_fingerprint_inputs | to_json | hash('sha1') }}"
 
-- name: Start idemixgen signerconfig as binary
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.idemixgen
-    tasks_from: bin/signerconfig
+- name: Set whether idemixgen must run when no signer configuration exists yet
+  ansible.builtin.set_fact:
+    idemixgen_must_run: true
   when:
-    - idemixgen_use_bin
+    - not idemixgen_signerconfig_stat.stat.exists
+
+# The state file is only meaningful once a signer configuration exists to fingerprint, so it is
+# only looked up when idemixgen_signerconfig_stat confirms one is there.
+- name: Determine whether the existing idemixgen signer configuration still matches its inputs
+  when:
+    - idemixgen_signerconfig_stat.stat.exists
+  block:
+    - name: Check if an idemixgen state file already exists
+      ansible.builtin.stat:
+        path: "{{ idemixgen_state_file }}"
+      register: idemixgen_state_stat
+    - name: Read the previous idemixgen state file
+      ansible.builtin.slurp:
+        src: "{{ idemixgen_state_file }}"
+      register: idemixgen_state_raw
+      when:
+        - idemixgen_state_stat.stat.exists
+    - name: Set whether idemixgen must run
+      vars:
+        idemixgen_previous_fingerprint: "{{ (idemixgen_state_raw.content | b64decode | from_yaml).fingerprint }}"
+      ansible.builtin.set_fact:
+        idemixgen_must_run: >-
+          {{
+            (not idemixgen_state_stat.stat.exists)
+            or (idemixgen_previous_fingerprint != idemixgen_current_fingerprint)
+          }}
+
+- name: Generate the idemix signer crypto material
+  when:
+    - idemixgen_must_run
+  block:
+    - name: Start idemixgen signerconfig as container
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.idemixgen
+        tasks_from: container/signerconfig
+      when:
+        - not idemixgen_use_bin
+    - name: Generate the idemix signer crypto material with the binary
+      when:
+        - idemixgen_use_bin
+      block:
+        - name: Install idemixgen as binary
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.idemixgen
+            tasks_from: bin/install
+        - name: Start idemixgen signerconfig as binary
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.idemixgen
+            tasks_from: bin/signerconfig
+    - name: Record the idemixgen signer state
+      ansible.builtin.template:
+        src: idemixgen-state.yaml.j2
+        dest: "{{ idemixgen_state_file }}"
+        mode: "0o644"

@@ -4,23 +4,30 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Start idemixgen ca-keygen as container
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.idemixgen
-    tasks_from: container/ca-keygen
-  when:
-    - not idemixgen_use_bin
+- name: Stat the existing idemixgen CA issuer secret key
+  ansible.builtin.stat:
+    path: "{{ idemixgen_output_dir }}/ca/IssuerSecretKey"
+  register: idemixgen_ca_issuer_secret_key_stat
 
-- name: Install idemixgen as binary
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.idemixgen
-    tasks_from: bin/install
+- name: Generate the idemixgen CA key material
   when:
-    - idemixgen_use_bin
-
-- name: Start idemixgen ca-keygen as binary
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.idemixgen
-    tasks_from: bin/ca-keygen
-  when:
-    - idemixgen_use_bin
+    - not idemixgen_ca_issuer_secret_key_stat.stat.exists
+  block:
+    - name: Start idemixgen ca-keygen as container
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.idemixgen
+        tasks_from: container/ca-keygen
+      when:
+        - not idemixgen_use_bin
+    - name: Generate the idemixgen CA key material with the binary
+      when:
+        - idemixgen_use_bin
+      block:
+        - name: Install idemixgen as binary
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.idemixgen
+            tasks_from: bin/install
+        - name: Start idemixgen ca-keygen as binary
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.idemixgen
+            tasks_from: bin/ca-keygen

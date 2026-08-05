@@ -34,13 +34,15 @@ ansible-doc -t role hyperledger.fabricx.idemixgen
 
 > Dispatch Idemix CA key generation in binary or container mode
 
-Select whether Idemix CA key generation runs in a container or through the locally installed binary. The generated CA key material is written under `idemixgen_output_dir`/ca and the CA MSP material under `idemixgen_output_dir`/msp. Set `idemixgen_use_bin` to choose the execution mode.
+Select whether Idemix CA key generation runs in a container or through the locally installed binary. The generated CA key material is written under `idemixgen_output_dir`/ca and the CA MSP material under `idemixgen_output_dir`/msp. Set `idemixgen_use_bin` to choose the execution mode. An existing `idemixgen_output_dir`/ca/IssuerSecretKey is preserved as-is; if missing, both `idemixgen_output_dir`/ca and `idemixgen_output_dir`/msp are replaced as one unit. The CA key material is not fingerprinted: it is random, and rotating it would silently invalidate every signer already issued from it, so delete both directories manually to force a deliberate rotation.
 
 ```yaml
 - name: Dispatch Idemix CA key generation in binary or container mode
   vars:
     # Runs idemixgen through the locally installed binary instead of a container.
     idemixgen_use_bin: false
+    # Sets the host directory where the generated artifacts are written.
+    idemixgen_output_dir: "{{ config_build_dir }}/idemixgen-artifacts"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.idemixgen
     tasks_from: ca-keygen
@@ -50,13 +52,29 @@ Select whether Idemix CA key generation runs in a container or through the local
 
 > Dispatch Idemix signer configuration generation in binary or container mode
 
-Select whether Idemix signer configuration generation runs in a container or through the locally installed binary. The signer configuration consumes `idemixgen_ca_input_dir` and writes MSP and user artifacts under `idemixgen_output_dir`. Set `idemixgen_use_bin` to choose the execution mode.
+Select whether Idemix signer configuration generation runs in a container or through the locally installed binary. The signer configuration consumes `idemixgen_ca_input_dir` and writes MSP and user artifacts under `idemixgen_output_dir`. Set `idemixgen_use_bin` to choose the execution mode. An existing `idemixgen_output_dir`/user/SignerConfig whose fingerprint of `idemixgen_rev_handle`, `idemixgen_enrollment_id`, `idemixgen_org_domain`, `idemixgen_curve_id`, and `idemixgen_use_aries` still matches the fingerprint recorded in `idemixgen_state_file` is preserved; a missing SignerConfig or a change to any of those inputs replaces `idemixgen_output_dir`/msp and `idemixgen_output_dir`/user as one unit. Tool version changes do not trigger regeneration.
 
 ```yaml
 - name: Dispatch Idemix signer configuration generation in binary or container mode
   vars:
     # Runs idemixgen through the locally installed binary instead of a container.
     idemixgen_use_bin: false
+    # Sets the host directory where the generated artifacts are written.
+    idemixgen_output_dir: "{{ config_build_dir }}/idemixgen-artifacts"
+    # Defines the revocation handle embedded in the signer configuration. Defaults to `idemixgen_enrollment_id` so repeated runs fingerprint identically; the tool accepts any string.
+    idemixgen_rev_handle: "{{ idemixgen_enrollment_id }}"
+    # Defines the enrollment identifier embedded in the signer configuration.
+    idemixgen_enrollment_id: "{{ inventory_hostname }}"
+    # Sets the organization unit passed to `signerconfig`.
+    idemixgen_org_domain: "org1.example.com"
+    # Selects the cryptographic curve passed to idemixgen.
+    idemixgen_curve_id: BLS12_381_BBS
+    # Enables Aries-based Idemix material generation.
+    idemixgen_use_aries: false
+    # Sets the path to the file that tracks a fingerprint of the inputs behind the signer artifact set generated under `idemixgen_output_dir`, used to detect changes since the last run.
+    idemixgen_state_file: "{{ idemixgen_output_dir }}/idemixgen-state.yaml"
+    # Sets the shared build root used by `idemixgen_output_dir`. Required when using `idemixgen_output_dir`.
+    config_build_dir: "/opt/hyperledger/fabricx/build"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.idemixgen
     tasks_from: signerconfig
@@ -120,7 +138,7 @@ Installs the idemixgen CLI from the configured repository and commit before bina
 
 > Generate Idemix CA key material with the binary
 
-Runs `idemixgen ca-keygen` through the locally installed binary. The task removes any existing CA and MSP output directories before generating fresh artifacts under `idemixgen_output_dir`.
+Runs `idemixgen ca-keygen` through the locally installed binary. The task removes any existing CA and MSP output directories before generating fresh artifacts under `idemixgen_output_dir`. Called from `ca-keygen` only when the existing CA artifact set is incomplete.
 
 ```yaml
 - name: Generate Idemix CA key material with the binary
@@ -146,7 +164,7 @@ Runs `idemixgen ca-keygen` through the locally installed binary. The task remove
 
 > Generate Idemix signer configuration with the binary
 
-Runs `idemixgen signerconfig` through the locally installed binary. The task removes any existing MSP and user output directories before generating fresh artifacts under `idemixgen_output_dir`.
+Runs `idemixgen signerconfig` through the locally installed binary. The task removes any existing MSP and user output directories before generating fresh artifacts under `idemixgen_output_dir`. Called from `signerconfig` only when the existing signer artifact set is incomplete or its fingerprint has drifted.
 
 ```yaml
 - name: Generate Idemix signer configuration with the binary
@@ -167,8 +185,8 @@ Runs `idemixgen signerconfig` through the locally installed binary. The task rem
     idemixgen_org_domain: "org1.example.com"
     # Sets the host directory where the generated artifacts are written.
     idemixgen_output_dir: "{{ config_build_dir }}/idemixgen-artifacts"
-    # Defines the revocation handle embedded in the signer configuration. The default is a random integer from 100 to 998.
-    idemixgen_rev_handle: "{{ range(100, 999) | random }}"
+    # Defines the revocation handle embedded in the signer configuration. Defaults to `idemixgen_enrollment_id` so repeated runs fingerprint identically; the tool accepts any string.
+    idemixgen_rev_handle: "{{ idemixgen_enrollment_id }}"
     # Enables Aries-based Idemix material generation.
     idemixgen_use_aries: false
   ansible.builtin.include_role:
@@ -180,7 +198,7 @@ Runs `idemixgen signerconfig` through the locally installed binary. The task rem
 
 > Generate Idemix CA key material in a container
 
-Runs `idemixgen ca-keygen` in the configured container image. The task removes any existing CA and MSP output directories before generating fresh artifacts under `idemixgen_output_dir`.
+Runs `idemixgen ca-keygen` in the configured container image. The task removes any existing CA and MSP output directories before generating fresh artifacts under `idemixgen_output_dir`. Called from `ca-keygen` only when the existing CA artifact set is incomplete.
 
 ```yaml
 - name: Generate Idemix CA key material in a container
@@ -216,7 +234,7 @@ Runs `idemixgen ca-keygen` in the configured container image. The task removes a
 
 > Generate Idemix signer configuration in a container
 
-Runs `idemixgen signerconfig` in the configured container image. The task removes any existing MSP and user output directories before generating fresh artifacts under `idemixgen_output_dir`.
+Runs `idemixgen signerconfig` in the configured container image. The task removes any existing MSP and user output directories before generating fresh artifacts under `idemixgen_output_dir`. Called from `signerconfig` only when the existing signer artifact set is incomplete or its fingerprint has drifted.
 
 ```yaml
 - name: Generate Idemix signer configuration in a container
@@ -247,8 +265,8 @@ Runs `idemixgen signerconfig` in the configured container image. The task remove
     idemixgen_output_dir: "{{ config_build_dir }}/idemixgen-artifacts"
     # Defines the container registry used for the idemixgen image.
     idemixgen_registry_endpoint: "{{ lookup('env', 'IDEMIXGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # Defines the revocation handle embedded in the signer configuration. The default is a random integer from 100 to 998.
-    idemixgen_rev_handle: "{{ range(100, 999) | random }}"
+    # Defines the revocation handle embedded in the signer configuration. Defaults to `idemixgen_enrollment_id` so repeated runs fingerprint identically; the tool accepts any string.
+    idemixgen_rev_handle: "{{ idemixgen_enrollment_id }}"
     # Enables Aries-based Idemix material generation.
     idemixgen_use_aries: false
   ansible.builtin.include_role:
