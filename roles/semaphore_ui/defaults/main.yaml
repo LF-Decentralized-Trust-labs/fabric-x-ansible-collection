@@ -29,6 +29,9 @@ semaphore_ui_config_file: config.json
 semaphore_ui_database_file: database.db
 # File name of the rendered Semaphore UI project seed, consumed by C(semaphore project import).
 semaphore_ui_project_seed_file: project.json
+# Absolute path on the managed host of the C(ansible.cfg) exported as C(ANSIBLE_CONFIG) to every Semaphore UI task, so a task launched from the UI picks up the same Ansible settings (C(host_key_checking), C(gathering), C(deprecation_warnings), and so on) as running C(make <target>) from a shell.
+# Defaults to the repository's own C(examples/ansible.cfg), the very file the Makefile itself exports as C(ANSIBLE_CONFIG). Point this at any other file, inside or outside C(project_dir), to run Semaphore UI tasks under a different Ansible configuration.
+semaphore_ui_ansible_config_path: '{{ project_dir }}/examples/ansible.cfg'
 # Name of the Semaphore UI project seeded on C(config/transfer).
 semaphore_ui_project_name: Fabric-X
 # Name of the Semaphore UI repository seeded on C(config/transfer).

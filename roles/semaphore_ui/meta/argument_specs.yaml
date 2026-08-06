@@ -116,6 +116,13 @@ argument_specs:
         default: "project.json"
         description:
           - "File name of the rendered Semaphore UI project seed, consumed by C(semaphore project import)."
+      semaphore_ui_ansible_config_path: &semaphore_ui_ansible_config_path
+        type: path
+        default: "{{ project_dir }}/examples/ansible.cfg"
+        description:
+          - "Absolute path on the managed host of the C(ansible.cfg) exported as C(ANSIBLE_CONFIG) to every Semaphore UI task, so a task launched from the UI picks up the same Ansible settings (C(host_key_checking), C(gathering), C(deprecation_warnings), and so on) as running C(make <target>) from a shell."
+          - "Defaults to the repository's own C(examples/ansible.cfg), the very file the Makefile itself exports as C(ANSIBLE_CONFIG). Point this at any other file, inside or outside C(project_dir), to run Semaphore UI tasks under a different Ansible configuration."
+          - "Example: C(/etc/ansible/ansible.cfg)."
       semaphore_ui_project_name: &semaphore_ui_project_name
         type: str
         default: "Fabric-X"
@@ -361,6 +368,7 @@ argument_specs:
       semaphore_ui_use_tls: *semaphore_ui_use_tls
       semaphore_ui_tls_private_key_file: *semaphore_ui_tls_private_key_file
       semaphore_ui_tls_cert_file: *semaphore_ui_tls_cert_file
+      semaphore_ui_ansible_config_path: *semaphore_ui_ansible_config_path
       semaphore_ui_project_name: *semaphore_ui_project_name
       semaphore_ui_repository_name: *semaphore_ui_repository_name
       semaphore_ui_inventories: *semaphore_ui_inventories

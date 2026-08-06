@@ -309,6 +309,8 @@ Generates and persists the server secrets on first run, then renders `config.jso
     semaphore_ui_tls_private_key_file: server.key
     # Sets the Semaphore UI TLS certificate filename.
     semaphore_ui_tls_cert_file: server.crt
+    # Absolute path on the managed host of the `ansible.cfg` exported as `ANSIBLE_CONFIG` to every Semaphore UI task, so a task launched from the UI picks up the same Ansible settings (`host_key_checking`, `gathering`, `deprecation_warnings`, and so on) as running `make <target>` from a shell. Defaults to the repository's own `examples/ansible.cfg`, the very file the Makefile itself exports as `ANSIBLE_CONFIG`. Point this at any other file, inside or outside `project_dir`, to run Semaphore UI tasks under a different Ansible configuration.
+    semaphore_ui_ansible_config_path: "{{ project_dir }}/examples/ansible.cfg"
     # Name of the Semaphore UI project seeded on `config/transfer`.
     semaphore_ui_project_name: Fabric-X
     # Name of the Semaphore UI repository seeded on `config/transfer`.
