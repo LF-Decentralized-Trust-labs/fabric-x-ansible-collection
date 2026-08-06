@@ -8,22 +8,16 @@
   when:
     - committer_component_type is defined
   block:
-    - name: Teardown Fabric-X Committer components as container or binary
+    - name: Teardown Fabric-X Committer components
       vars:
         committer_teardown_tasks:
           container: container/rm
           bin: bin/stop
+          k8s: k8s/rm
+          openshift: openshift/rm
       ansible.builtin.include_role:
         name: hyperledger.fabricx.committer
         tasks_from: "{{ committer_teardown_tasks[committer_deployment_mode] }}"
-      when:
-        - committer_deployment_mode in ['bin', 'container']
-    - name: Teardown Fabric-X Committer components on Kubernetes or OpenShift
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.committer
-        tasks_from: "{{ committer_component_type | replace('-', '_') }}/{{ committer_deployment_mode }}/rm"
-      when:
-        - committer_deployment_mode in ['k8s', 'openshift']
     - name: Remove Fabric-X Committer sidecar data
       ansible.builtin.include_role:
         name: hyperledger.fabricx.committer

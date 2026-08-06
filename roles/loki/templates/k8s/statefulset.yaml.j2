@@ -29,7 +29,8 @@ spec:
         app.kubernetes.io/part-of: {{ loki_k8s_part_of }}
     spec:
       securityContext:
-        runAsUser: 0
+        runAsUser: {{ loki_k8s_run_as_user }}
+        runAsNonRoot: {{ (loki_k8s_run_as_user != 0) | lower }}
         fsGroup: {{ loki_k8s_fs_group }}
       containers:
         - name: loki

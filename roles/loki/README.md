@@ -333,6 +333,8 @@ Applies the ConfigMap, a headless Service, and a StatefulSet (with a PVC via vol
     loki_k8s_wait_timeout: 120
     # Filesystem group used by the Loki pod security context for writable mounted volumes.
     loki_k8s_fs_group: 10001
+    # UID the Loki container runs as. Defaults to `0` (root). On OpenShift, set to a UID within the namespace's allowed range so the pod satisfies the default `restricted-v2` SCC.
+    loki_k8s_run_as_user: 0
     # Requested storage size for the Loki StatefulSet's volumeClaimTemplate on Kubernetes/OpenShift.
     loki_pvc_size: 50Gi
     # StorageClass name for the Loki volumeClaimTemplate. Leave empty to use the cluster default.

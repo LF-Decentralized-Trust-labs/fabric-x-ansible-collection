@@ -7,7 +7,7 @@
 # =========================
 # Namespace
 # =========================
-- name: Ensure Kubernetes namespace exists for Fabric-X Committer verifier
+- name: Ensure Kubernetes namespace exists for Fabric-X Committer
   ansible.builtin.include_role:
     name: hyperledger.fabricx.k8s
     tasks_from: namespace/create
@@ -15,14 +15,14 @@
 # =========================
 # Apply Resources
 # =========================
-- name: Apply Fabric-X Committer verifier Service
+- name: Apply Fabric-X Committer Service
   kubernetes.core.k8s:
     state: present
     namespace: "{{ k8s_namespace | default('default') }}"
     template:
       path: k8s/service.yaml.j2
 
-- name: Apply Fabric-X Committer verifier NodePort Service
+- name: Apply Fabric-X Committer NodePort Service
   kubernetes.core.k8s:
     state: present
     namespace: "{{ k8s_namespace | default('default') }}"
@@ -42,11 +42,27 @@
     - committer_k8s_loadbalancer_expose_rpc_port or
       committer_k8s_loadbalancer_expose_metrics_port
 
-- name: Apply Fabric-X Committer verifier Deployment
+- name: Apply Fabric-X Committer Deployment
+  vars:
+    committer_validator_ref_host: "{{ committer_validators | first }}"
+    committer_verifier_ref_host: "{{ committer_verifiers | first }}"
   kubernetes.core.k8s:
     state: present
     namespace: "{{ k8s_namespace | default('default') }}"
     template:
-      path: k8s/deployment-verifier.yaml.j2
+      path: "k8s/deployment-{{ committer_component_type }}.yaml.j2"
     wait: true
     wait_timeout: "{{ committer_k8s_wait_timeout }}"
+  when:
+    - committer_component_type != 'sidecar'
+
+- name: Apply Fabric-X Committer sidecar StatefulSet
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/statefulset-sidecar.yaml.j2
+    wait: true
+    wait_timeout: "{{ committer_k8s_wait_timeout }}"
+  when:
+    - committer_component_type == 'sidecar'
