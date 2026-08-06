@@ -4,12 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Start Hyperledger Fabric-X Committer sidecar workload using generic k8s flow
+- name: Start Hyperledger Fabric-X Committer workload using generic k8s flow
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
-    tasks_from: sidecar/k8s/start
+    tasks_from: k8s/start
 
-- name: Apply Hyperledger Fabric-X Committer sidecar rpc OpenShift Route
+- name: Apply Hyperledger Fabric-X Committer rpc OpenShift Route
   vars:
     openshift_route_name: "{{ committer_k8s_resource_name }}-rpc"
     openshift_route_host: "{{ committer_openshift_route }}"
@@ -25,7 +25,7 @@
     tasks_from: route/apply
   when: committer_openshift_route is defined
 
-- name: Apply Hyperledger Fabric-X Committer sidecar metrics OpenShift Route
+- name: Apply Hyperledger Fabric-X Committer metrics OpenShift Route
   vars:
     openshift_route_name: "{{ committer_k8s_resource_name }}-metrics"
     openshift_route_host: "{{ committer_openshift_metrics_route }}"

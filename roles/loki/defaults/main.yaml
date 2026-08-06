@@ -60,5 +60,8 @@ loki_k8s_part_of: monitoring
 loki_k8s_wait_timeout: 120
 # Filesystem group used by the Loki pod security context for writable mounted volumes.
 loki_k8s_fs_group: 10001
+# UID the Loki container runs as.
+# Defaults to C(0) (root). On OpenShift, set to a UID within the namespace's allowed range so the pod satisfies the default C(restricted-v2) SCC.
+loki_k8s_run_as_user: 0
 # Set to C(true) to create a LoadBalancer Service entry that exposes the Loki HTTP port externally.
 loki_k8s_loadbalancer_expose_port: false

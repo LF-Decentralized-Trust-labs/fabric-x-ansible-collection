@@ -52,31 +52,15 @@
   - [coordinator/config/transfer](#coordinatorconfigtransfer)
   - [sidecar/config/transfer](#sidecarconfigtransfer)
   - [query\_service/config/transfer](#query_serviceconfigtransfer)
-  - [validator/k8s/start](#validatork8sstart)
-  - [verifier/k8s/start](#verifierk8sstart)
-  - [coordinator/k8s/start](#coordinatork8sstart)
-  - [sidecar/k8s/start](#sidecark8sstart)
-  - [query\_service/k8s/start](#query_servicek8sstart)
-  - [validator/k8s/rm](#validatork8srm)
-  - [verifier/k8s/rm](#verifierk8srm)
-  - [coordinator/k8s/rm](#coordinatork8srm)
-  - [sidecar/k8s/rm](#sidecark8srm)
-  - [query\_service/k8s/rm](#query_servicek8srm)
+  - [k8s/start](#k8sstart)
+  - [k8s/rm](#k8srm)
   - [validator/k8s/config/transfer](#validatork8sconfigtransfer)
   - [verifier/k8s/config/transfer](#verifierk8sconfigtransfer)
   - [coordinator/k8s/config/transfer](#coordinatork8sconfigtransfer)
   - [sidecar/k8s/config/transfer](#sidecark8sconfigtransfer)
   - [query\_service/k8s/config/transfer](#query_servicek8sconfigtransfer)
-  - [validator/openshift/start](#validatoropenshiftstart)
-  - [validator/openshift/rm](#validatoropenshiftrm)
-  - [verifier/openshift/start](#verifieropenshiftstart)
-  - [verifier/openshift/rm](#verifieropenshiftrm)
-  - [coordinator/openshift/start](#coordinatoropenshiftstart)
-  - [coordinator/openshift/rm](#coordinatoropenshiftrm)
-  - [sidecar/openshift/start](#sidecaropenshiftstart)
-  - [sidecar/openshift/rm](#sidecaropenshiftrm)
-  - [query\_service/openshift/start](#query_serviceopenshiftstart)
-  - [query\_service/openshift/rm](#query_serviceopenshiftrm)
+  - [openshift/start](#openshiftstart)
+  - [openshift/rm](#openshiftrm)
 
 ## Role Defaults
 
@@ -1577,362 +1561,15 @@ Render query-service configuration, DB settings, mTLS assets, and optional Kuber
     tasks_from: query_service/config/transfer
 ```
 
-### validator/k8s/start
+### k8s/start
 
-> Start the validator on Kubernetes
+> Create the committer Kubernetes workload
 
-Ensure the namespace exists and apply the validator Service, NodePort and LoadBalancer Services, and Deployment. Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
-
-```yaml
-- name: Start the validator on Kubernetes
-  vars:
-    # Committer component handled by the entry point.
-    committer_component_type: "coordinator"
-    # Generated config file name used by the selected component.
-    committer_config_file: "config-{{ committer_component_type }}.yml"
-    # Config directory inside the committer container.
-    committer_container_config_dir: /config
-    # Fully qualified committer image.
-    committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
-    # Image name for the committer container.
-    committer_image_name: fabric-x-committer
-    # Image tag for the committer container.
-    committer_image_tag: 1.0.4
-    # Filesystem group assigned to committer pods.
-    committer_k8s_fs_group: 10001
-    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
-    committer_k8s_loadbalancer_expose_metrics_port: false
-    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
-    committer_k8s_loadbalancer_expose_rpc_port: false
-    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
-    committer_k8s_metrics_node_port: 31052
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
-    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
-    committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
-    committer_k8s_rpc_node_port: 31051
-    # Wait timeout in seconds for Kubernetes rollouts.
-    committer_k8s_wait_timeout: 120
-    # Metrics port exposed by the selected committer component.
-    committer_metrics_port: 9443
-    # Monitoring mTLS client identifiers trusted by the component.
-    committer_monitoring_mtls_clients:
-      - "prometheus-1"
-    # Monitoring mTLS organizations trusted by the component.
-    committer_monitoring_mtls_orgs:
-      - name: "MonitoringOrg"
-        domain: "monitoring.example.com"
-    # Enable mTLS for the monitoring endpoint.
-    committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
-    # mTLS client identifiers trusted by the component.
-    committer_mtls_clients:
-      - "committer-sidecar-1"
-      - "loadgen-1"
-    # mTLS organizations trusted by the component.
-    committer_mtls_orgs:
-      - name: "Org2"
-        domain: "org2.example.com"
-      - name: "OrdererOrg1"
-        domain: "ordererorg1.example.com"
-    # Container registry endpoint for the committer image.
-    committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # RPC port exposed by the selected committer component.
-    committer_rpc_port: 7051
-    # Enable mTLS for the selected component.
-    committer_use_mtls: false
-    # Enable TLS material for the selected component.
-    committer_use_tls: false
-    # Optional image pull secret referenced by Kubernetes workloads.
-    k8s_image_pull_secret: "fabricx-registry-secret"
-    # Liveness probe failure threshold for Kubernetes workloads.
-    k8s_liveness_probe_failure_threshold: 5
-    # Liveness probe initial delay for Kubernetes workloads.
-    k8s_liveness_probe_initial_delay_seconds: 30
-    # Liveness probe period for Kubernetes workloads.
-    k8s_liveness_probe_period_seconds: 15
-    # Liveness probe timeout for Kubernetes workloads.
-    k8s_liveness_probe_timeout_seconds: 5
-    # Kubernetes namespace that contains the committer resources.
-    k8s_namespace: "fabricx-committer"
-    # Readiness probe failure threshold for Kubernetes workloads.
-    k8s_readiness_probe_failure_threshold: 3
-    # Readiness probe initial delay for Kubernetes workloads.
-    k8s_readiness_probe_initial_delay_seconds: 10
-    # Readiness probe period for Kubernetes workloads.
-    k8s_readiness_probe_period_seconds: 10
-    # Readiness probe timeout for Kubernetes workloads.
-    k8s_readiness_probe_timeout_seconds: 5
-    # Optional Kubernetes container resource requests and limits.
-    k8s_resources:
-      requests:
-        memory: "1Gi"
-        cpu: "500m"
-      limits:
-        memory: "2Gi"
-        cpu: "1000m"
-    # Organization definition consumed by crypto and sidecar configuration tasks.
-    organization:
-      name: "Org1"
-      domain: "org1.example.com"
-      role: "peer"
-      fabric_ca_host: "fca-org1"
-      peer:
-        name: "committer-sidecar"
-        secret: "committer-sidecarPWD"
-      users:
-        - name: "committer-sidecar"
-          secret: "committer-sidecarPWD"
-    # Inventory host name of the Postgres backend used by validator or query-service configuration.
-    postgres_db_host: "postgres-committer-1"
-    # Yugabyte cluster identifier used by validator or query-service configuration.
-    yugabyte_cluster_ref_id: "yb-committer-ledger"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: validator/k8s/start
-```
-
-### verifier/k8s/start
-
-> Start the verifier on Kubernetes
-
-Ensure the namespace exists and apply the verifier Service, NodePort and LoadBalancer Services, and Deployment. Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
+Creates the committer Service, and optional NodePort and LoadBalancer Services, after ensuring the namespace exists. Applies the Deployment or StatefulSet matching the host's `committer_component_type`, consuming ConfigMap and Secret artifacts generated by the Kubernetes config and crypto transfer entrypoints.
 
 ```yaml
-- name: Start the verifier on Kubernetes
+- name: Create the committer Kubernetes workload
   vars:
-    # Committer component handled by the entry point.
-    committer_component_type: "coordinator"
-    # Generated config file name used by the selected component.
-    committer_config_file: "config-{{ committer_component_type }}.yml"
-    # Config directory inside the committer container.
-    committer_container_config_dir: /config
-    # Fully qualified committer image.
-    committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
-    # Image name for the committer container.
-    committer_image_name: fabric-x-committer
-    # Image tag for the committer container.
-    committer_image_tag: 1.0.4
-    # Filesystem group assigned to committer pods.
-    committer_k8s_fs_group: 10001
-    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
-    committer_k8s_loadbalancer_expose_metrics_port: false
-    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
-    committer_k8s_loadbalancer_expose_rpc_port: false
-    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
-    committer_k8s_metrics_node_port: 31052
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
-    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
-    committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
-    committer_k8s_rpc_node_port: 31051
-    # Wait timeout in seconds for Kubernetes rollouts.
-    committer_k8s_wait_timeout: 120
-    # Metrics port exposed by the selected committer component.
-    committer_metrics_port: 9443
-    # Monitoring mTLS client identifiers trusted by the component.
-    committer_monitoring_mtls_clients:
-      - "prometheus-1"
-    # Monitoring mTLS organizations trusted by the component.
-    committer_monitoring_mtls_orgs:
-      - name: "MonitoringOrg"
-        domain: "monitoring.example.com"
-    # Enable mTLS for the monitoring endpoint.
-    committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
-    # mTLS client identifiers trusted by the component.
-    committer_mtls_clients:
-      - "committer-sidecar-1"
-      - "loadgen-1"
-    # mTLS organizations trusted by the component.
-    committer_mtls_orgs:
-      - name: "Org2"
-        domain: "org2.example.com"
-      - name: "OrdererOrg1"
-        domain: "ordererorg1.example.com"
-    # Container registry endpoint for the committer image.
-    committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # RPC port exposed by the selected committer component.
-    committer_rpc_port: 7051
-    # Enable mTLS for the selected component.
-    committer_use_mtls: false
-    # Enable TLS material for the selected component.
-    committer_use_tls: false
-    # Optional image pull secret referenced by Kubernetes workloads.
-    k8s_image_pull_secret: "fabricx-registry-secret"
-    # Liveness probe failure threshold for Kubernetes workloads.
-    k8s_liveness_probe_failure_threshold: 5
-    # Liveness probe initial delay for Kubernetes workloads.
-    k8s_liveness_probe_initial_delay_seconds: 30
-    # Liveness probe period for Kubernetes workloads.
-    k8s_liveness_probe_period_seconds: 15
-    # Liveness probe timeout for Kubernetes workloads.
-    k8s_liveness_probe_timeout_seconds: 5
-    # Kubernetes namespace that contains the committer resources.
-    k8s_namespace: "fabricx-committer"
-    # Readiness probe failure threshold for Kubernetes workloads.
-    k8s_readiness_probe_failure_threshold: 3
-    # Readiness probe initial delay for Kubernetes workloads.
-    k8s_readiness_probe_initial_delay_seconds: 10
-    # Readiness probe period for Kubernetes workloads.
-    k8s_readiness_probe_period_seconds: 10
-    # Readiness probe timeout for Kubernetes workloads.
-    k8s_readiness_probe_timeout_seconds: 5
-    # Optional Kubernetes container resource requests and limits.
-    k8s_resources:
-      requests:
-        memory: "1Gi"
-        cpu: "500m"
-      limits:
-        memory: "2Gi"
-        cpu: "1000m"
-    # Organization definition consumed by crypto and sidecar configuration tasks.
-    organization:
-      name: "Org1"
-      domain: "org1.example.com"
-      role: "peer"
-      fabric_ca_host: "fca-org1"
-      peer:
-        name: "committer-sidecar"
-        secret: "committer-sidecarPWD"
-      users:
-        - name: "committer-sidecar"
-          secret: "committer-sidecarPWD"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: verifier/k8s/start
-```
-
-### coordinator/k8s/start
-
-> Start the coordinator on Kubernetes
-
-Ensure the namespace exists and apply the coordinator Service, NodePort and LoadBalancer Services, and Deployment. Uses validator and verifier host lists to prepare TLS mounts and startup dependencies.
-
-```yaml
-- name: Start the coordinator on Kubernetes
-  vars:
-    # Committer component handled by the entry point.
-    committer_component_type: "coordinator"
-    # Generated config file name used by the selected component.
-    committer_config_file: "config-{{ committer_component_type }}.yml"
-    # Config directory inside the committer container.
-    committer_container_config_dir: /config
-    # Fully qualified committer image.
-    committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
-    # Image name for the committer container.
-    committer_image_name: fabric-x-committer
-    # Image tag for the committer container.
-    committer_image_tag: 1.0.4
-    # Filesystem group assigned to committer pods.
-    committer_k8s_fs_group: 10001
-    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
-    committer_k8s_loadbalancer_expose_metrics_port: false
-    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
-    committer_k8s_loadbalancer_expose_rpc_port: false
-    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
-    committer_k8s_metrics_node_port: 31052
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
-    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
-    committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
-    committer_k8s_rpc_node_port: 31051
-    # Wait timeout in seconds for Kubernetes rollouts.
-    committer_k8s_wait_timeout: 120
-    # Metrics port exposed by the selected committer component.
-    committer_metrics_port: 9443
-    # Monitoring mTLS client identifiers trusted by the component.
-    committer_monitoring_mtls_clients:
-      - "prometheus-1"
-    # Monitoring mTLS organizations trusted by the component.
-    committer_monitoring_mtls_orgs:
-      - name: "MonitoringOrg"
-        domain: "monitoring.example.com"
-    # Enable mTLS for the monitoring endpoint.
-    committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
-    # mTLS client identifiers trusted by the component.
-    committer_mtls_clients:
-      - "committer-sidecar-1"
-      - "loadgen-1"
-    # mTLS organizations trusted by the component.
-    committer_mtls_orgs:
-      - name: "Org2"
-        domain: "org2.example.com"
-      - name: "OrdererOrg1"
-        domain: "ordererorg1.example.com"
-    # Container registry endpoint for the committer image.
-    committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # RPC port exposed by the selected committer component.
-    committer_rpc_port: 7051
-    # Enable mTLS for the selected component.
-    committer_use_mtls: false
-    # Enable TLS material for the selected component.
-    committer_use_tls: false
-    # Inventory hosts for validator components.
-    committer_validators:
-      - "committer-validator-1"
-      - "committer-validator-2"
-    # Inventory hosts for verifier components.
-    committer_verifiers:
-      - "committer-verifier-1"
-      - "committer-verifier-2"
-    # Optional image pull secret referenced by Kubernetes workloads.
-    k8s_image_pull_secret: "fabricx-registry-secret"
-    # Liveness probe failure threshold for Kubernetes workloads.
-    k8s_liveness_probe_failure_threshold: 5
-    # Liveness probe initial delay for Kubernetes workloads.
-    k8s_liveness_probe_initial_delay_seconds: 30
-    # Liveness probe period for Kubernetes workloads.
-    k8s_liveness_probe_period_seconds: 15
-    # Liveness probe timeout for Kubernetes workloads.
-    k8s_liveness_probe_timeout_seconds: 5
-    # Kubernetes namespace that contains the committer resources.
-    k8s_namespace: "fabricx-committer"
-    # Readiness probe failure threshold for Kubernetes workloads.
-    k8s_readiness_probe_failure_threshold: 3
-    # Readiness probe initial delay for Kubernetes workloads.
-    k8s_readiness_probe_initial_delay_seconds: 10
-    # Readiness probe period for Kubernetes workloads.
-    k8s_readiness_probe_period_seconds: 10
-    # Readiness probe timeout for Kubernetes workloads.
-    k8s_readiness_probe_timeout_seconds: 5
-    # Optional Kubernetes container resource requests and limits.
-    k8s_resources:
-      requests:
-        memory: "1Gi"
-        cpu: "500m"
-      limits:
-        memory: "2Gi"
-        cpu: "1000m"
-    # Organization definition consumed by crypto and sidecar configuration tasks.
-    organization:
-      name: "Org1"
-      domain: "org1.example.com"
-      role: "peer"
-      fabric_ca_host: "fca-org1"
-      peer:
-        name: "committer-sidecar"
-        secret: "committer-sidecarPWD"
-      users:
-        - name: "committer-sidecar"
-          secret: "committer-sidecarPWD"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: coordinator/k8s/start
-```
-
-### sidecar/k8s/start
-
-> Start the sidecar on Kubernetes
-
-Ensure the namespace exists and apply the sidecar Service, NodePort and LoadBalancer Services, and StatefulSet. Creates the persistent sidecar ledger volume from the configured storage settings.
-
-```yaml
-- name: Start the sidecar on Kubernetes
-  vars:
-    # Filename of the genesis config block placed in the sidecar config directory.
-    committer_sidecar_config_block_file: config-block.pb.bin
     # Committer component handled by the entry point.
     committer_component_type: "coordinator"
     # Generated config file name used by the selected component.
@@ -1992,10 +1629,20 @@ Ensure the namespace exists and apply the sidecar Service, NodePort and LoadBala
     committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # RPC port exposed by the selected committer component.
     committer_rpc_port: 7051
+    # Filename of the genesis config block placed in the sidecar config directory.
+    committer_sidecar_config_block_file: config-block.pb.bin
     # Enable mTLS for the selected component.
     committer_use_mtls: false
     # Enable TLS material for the selected component.
     committer_use_tls: false
+    # Inventory hosts for validator components.
+    committer_validators:
+      - "committer-validator-1"
+      - "committer-validator-2"
+    # Inventory hosts for verifier components.
+    committer_verifiers:
+      - "committer-verifier-1"
+      - "committer-verifier-2"
     # Optional image pull secret referenced by Kubernetes workloads.
     k8s_image_pull_secret: "fabricx-registry-secret"
     # Liveness probe failure threshold for Kubernetes workloads.
@@ -2040,139 +1687,30 @@ Ensure the namespace exists and apply the sidecar Service, NodePort and LoadBala
       users:
         - name: "committer-sidecar"
           secret: "committer-sidecarPWD"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: sidecar/k8s/start
-```
-
-### query_service/k8s/start
-
-> Start the query-service on Kubernetes
-
-Ensure the namespace exists and apply the query-service Service, NodePort and LoadBalancer Services, and Deployment. Uses generated ConfigMap and Secret artifacts plus RPC and metrics port settings.
-
-```yaml
-- name: Start the query-service on Kubernetes
-  vars:
-    # Committer component handled by the entry point.
-    committer_component_type: "coordinator"
-    # Generated config file name used by the selected component.
-    committer_config_file: "config-{{ committer_component_type }}.yml"
-    # Config directory inside the committer container.
-    committer_container_config_dir: /config
-    # Fully qualified committer image.
-    committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
-    # Image name for the committer container.
-    committer_image_name: fabric-x-committer
-    # Image tag for the committer container.
-    committer_image_tag: 1.0.4
-    # Filesystem group assigned to committer pods.
-    committer_k8s_fs_group: 10001
-    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
-    committer_k8s_loadbalancer_expose_metrics_port: false
-    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
-    committer_k8s_loadbalancer_expose_rpc_port: false
-    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
-    committer_k8s_metrics_node_port: 31052
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
-    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
-    committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
-    committer_k8s_rpc_node_port: 31051
-    # Wait timeout in seconds for Kubernetes rollouts.
-    committer_k8s_wait_timeout: 120
-    # Metrics port exposed by the selected committer component.
-    committer_metrics_port: 9443
-    # Monitoring mTLS client identifiers trusted by the component.
-    committer_monitoring_mtls_clients:
-      - "prometheus-1"
-    # Monitoring mTLS organizations trusted by the component.
-    committer_monitoring_mtls_orgs:
-      - name: "MonitoringOrg"
-        domain: "monitoring.example.com"
-    # Enable mTLS for the monitoring endpoint.
-    committer_monitoring_use_mtls: "{{ committer_use_mtls }}"
-    # mTLS client identifiers trusted by the component.
-    committer_mtls_clients:
-      - "committer-sidecar-1"
-      - "loadgen-1"
-    # mTLS organizations trusted by the component.
-    committer_mtls_orgs:
-      - name: "Org2"
-        domain: "org2.example.com"
-      - name: "OrdererOrg1"
-        domain: "ordererorg1.example.com"
-    # Container registry endpoint for the committer image.
-    committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
-    # RPC port exposed by the selected committer component.
-    committer_rpc_port: 7051
-    # Enable mTLS for the selected component.
-    committer_use_mtls: false
-    # Enable TLS material for the selected component.
-    committer_use_tls: false
-    # Optional image pull secret referenced by Kubernetes workloads.
-    k8s_image_pull_secret: "fabricx-registry-secret"
-    # Liveness probe failure threshold for Kubernetes workloads.
-    k8s_liveness_probe_failure_threshold: 5
-    # Liveness probe initial delay for Kubernetes workloads.
-    k8s_liveness_probe_initial_delay_seconds: 30
-    # Liveness probe period for Kubernetes workloads.
-    k8s_liveness_probe_period_seconds: 15
-    # Liveness probe timeout for Kubernetes workloads.
-    k8s_liveness_probe_timeout_seconds: 5
-    # Kubernetes namespace that contains the committer resources.
-    k8s_namespace: "fabricx-committer"
-    # Readiness probe failure threshold for Kubernetes workloads.
-    k8s_readiness_probe_failure_threshold: 3
-    # Readiness probe initial delay for Kubernetes workloads.
-    k8s_readiness_probe_initial_delay_seconds: 10
-    # Readiness probe period for Kubernetes workloads.
-    k8s_readiness_probe_period_seconds: 10
-    # Readiness probe timeout for Kubernetes workloads.
-    k8s_readiness_probe_timeout_seconds: 5
-    # Optional Kubernetes container resource requests and limits.
-    k8s_resources:
-      requests:
-        memory: "1Gi"
-        cpu: "500m"
-      limits:
-        memory: "2Gi"
-        cpu: "1000m"
-    # Organization definition consumed by crypto and sidecar configuration tasks.
-    organization:
-      name: "Org1"
-      domain: "org1.example.com"
-      role: "peer"
-      fabric_ca_host: "fca-org1"
-      peer:
-        name: "committer-sidecar"
-        secret: "committer-sidecarPWD"
-      users:
-        - name: "committer-sidecar"
-          secret: "committer-sidecarPWD"
     # Inventory host name of the Postgres backend used by validator or query-service configuration.
     postgres_db_host: "postgres-committer-1"
     # Yugabyte cluster identifier used by validator or query-service configuration.
     yugabyte_cluster_ref_id: "yb-committer-ledger"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
-    tasks_from: query_service/k8s/start
+    tasks_from: k8s/start
 ```
 
-### validator/k8s/rm
+### k8s/rm
 
-> Remove validator Kubernetes resources
+> Remove the committer Kubernetes workload
 
-Delete the validator Deployment and Services. Uses `committer_k8s_resource_name` in `k8s_namespace` to select resources.
+Deletes the committer Deployment or StatefulSet and Services from the configured namespace. Leaves ConfigMap, Secret, and PVC artifacts for explicit config, crypto, or data cleanup entrypoints.
 
 ```yaml
-- name: Remove validator Kubernetes resources
+- name: Remove the committer Kubernetes workload
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
     # Kubernetes namespace that contains the committer resources.
     k8s_namespace: "fabricx-committer"
+    # Committer component handled by the entry point.
+    committer_component_type: "coordinator"
     # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
     committer_k8s_rpc_node_port: 31051
     # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
@@ -2183,111 +1721,7 @@ Delete the validator Deployment and Services. Uses `committer_k8s_resource_name`
     committer_k8s_loadbalancer_expose_metrics_port: false
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
-    tasks_from: validator/k8s/rm
-```
-
-### verifier/k8s/rm
-
-> Remove verifier Kubernetes resources
-
-Delete the verifier Deployment and Services. Uses `committer_k8s_resource_name` in `k8s_namespace` to select resources.
-
-```yaml
-- name: Remove verifier Kubernetes resources
-  vars:
-    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
-    committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes namespace that contains the committer resources.
-    k8s_namespace: "fabricx-committer"
-    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
-    committer_k8s_rpc_node_port: 31051
-    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
-    committer_k8s_loadbalancer_expose_rpc_port: false
-    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
-    committer_k8s_metrics_node_port: 31052
-    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
-    committer_k8s_loadbalancer_expose_metrics_port: false
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: verifier/k8s/rm
-```
-
-### coordinator/k8s/rm
-
-> Remove coordinator Kubernetes resources
-
-Delete the coordinator Deployment and Services. Uses `committer_k8s_resource_name` in `k8s_namespace` to select resources.
-
-```yaml
-- name: Remove coordinator Kubernetes resources
-  vars:
-    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
-    committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes namespace that contains the committer resources.
-    k8s_namespace: "fabricx-committer"
-    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
-    committer_k8s_rpc_node_port: 31051
-    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
-    committer_k8s_loadbalancer_expose_rpc_port: false
-    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
-    committer_k8s_metrics_node_port: 31052
-    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
-    committer_k8s_loadbalancer_expose_metrics_port: false
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: coordinator/k8s/rm
-```
-
-### sidecar/k8s/rm
-
-> Remove sidecar Kubernetes resources
-
-Delete the sidecar StatefulSet and Services. Uses `committer_k8s_resource_name` in `k8s_namespace` to select resources.
-
-```yaml
-- name: Remove sidecar Kubernetes resources
-  vars:
-    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
-    committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes namespace that contains the committer resources.
-    k8s_namespace: "fabricx-committer"
-    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
-    committer_k8s_rpc_node_port: 31051
-    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
-    committer_k8s_loadbalancer_expose_rpc_port: false
-    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
-    committer_k8s_metrics_node_port: 31052
-    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
-    committer_k8s_loadbalancer_expose_metrics_port: false
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: sidecar/k8s/rm
-```
-
-### query_service/k8s/rm
-
-> Remove query-service Kubernetes resources
-
-Delete the query-service Deployment and Services. Uses `committer_k8s_resource_name` in `k8s_namespace` to select resources.
-
-```yaml
-- name: Remove query-service Kubernetes resources
-  vars:
-    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
-    committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Kubernetes namespace that contains the committer resources.
-    k8s_namespace: "fabricx-committer"
-    # Kubernetes NodePort value used by the external RPC Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
-    committer_k8s_rpc_node_port: 31051
-    # Set to `true` to create a LoadBalancer Service entry that exposes the RPC port externally. When undefined or `false`, the RPC port is not included in the LoadBalancer Service.
-    committer_k8s_loadbalancer_expose_rpc_port: false
-    # Kubernetes NodePort value used by the external metrics Service port. Defining this variable enables the NodePort Service; the value is set as the static `nodePort` in the Service spec.
-    committer_k8s_metrics_node_port: 31052
-    # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
-    committer_k8s_loadbalancer_expose_metrics_port: false
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: query_service/k8s/rm
+    tasks_from: k8s/rm
 ```
 
 ### validator/k8s/config/transfer
@@ -2615,14 +2049,14 @@ Ensure the namespace exists and create the query-service Kubernetes ConfigMap. P
     tasks_from: query_service/k8s/config/transfer
 ```
 
-### validator/openshift/start
+### openshift/start
 
-> Start the committer validator OpenShift deployment
+> Start the committer OpenShift deployment
 
 Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
 
 ```yaml
-- name: Start the committer validator OpenShift deployment
+- name: Start the committer OpenShift deployment
   vars:
     # Committer component handled by the entry point.
     committer_component_type: "coordinator"
@@ -2652,17 +2086,17 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
           secret: "committer-sidecarPWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
-    tasks_from: validator/openshift/start
+    tasks_from: openshift/start
 ```
 
-### validator/openshift/rm
+### openshift/rm
 
-> Rm the committer validator OpenShift deployment
+> Remove the committer OpenShift deployment
 
 Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
 
 ```yaml
-- name: Rm the committer validator OpenShift deployment
+- name: Remove the committer OpenShift deployment
   vars:
     # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
     committer_k8s_resource_name: "{{ inventory_hostname }}"
@@ -2672,245 +2106,5 @@ Reuses the Kubernetes workload flow and manages OpenShift Routes for configured 
     committer_openshift_metrics_route: "committer-metrics.apps.example.com"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
-    tasks_from: validator/openshift/rm
-```
-
-### verifier/openshift/start
-
-> Start the committer verifier OpenShift deployment
-
-Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
-
-```yaml
-- name: Start the committer verifier OpenShift deployment
-  vars:
-    # Committer component handled by the entry point.
-    committer_component_type: "coordinator"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
-    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
-    committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Enable TLS for the monitoring endpoint.
-    committer_monitoring_use_tls: "{{ committer_use_tls }}"
-    # Specifies the OpenShift Route host.
-    committer_openshift_metrics_route: "committer-metrics.apps.example.com"
-    # Specifies the OpenShift Route host.
-    committer_openshift_route: "committer-rpc.apps.example.com"
-    # Enable TLS material for the selected component.
-    committer_use_tls: false
-    # Organization definition consumed by crypto and sidecar configuration tasks.
-    organization:
-      name: "Org1"
-      domain: "org1.example.com"
-      role: "peer"
-      fabric_ca_host: "fca-org1"
-      peer:
-        name: "committer-sidecar"
-        secret: "committer-sidecarPWD"
-      users:
-        - name: "committer-sidecar"
-          secret: "committer-sidecarPWD"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: verifier/openshift/start
-```
-
-### verifier/openshift/rm
-
-> Rm the committer verifier OpenShift deployment
-
-Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
-
-```yaml
-- name: Rm the committer verifier OpenShift deployment
-  vars:
-    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
-    committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Specifies the OpenShift Route host.
-    committer_openshift_route: "committer-rpc.apps.example.com"
-    # Specifies the OpenShift Route host.
-    committer_openshift_metrics_route: "committer-metrics.apps.example.com"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: verifier/openshift/rm
-```
-
-### coordinator/openshift/start
-
-> Start the committer coordinator OpenShift deployment
-
-Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
-
-```yaml
-- name: Start the committer coordinator OpenShift deployment
-  vars:
-    # Committer component handled by the entry point.
-    committer_component_type: "coordinator"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
-    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
-    committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Enable TLS for the monitoring endpoint.
-    committer_monitoring_use_tls: "{{ committer_use_tls }}"
-    # Specifies the OpenShift Route host.
-    committer_openshift_metrics_route: "committer-metrics.apps.example.com"
-    # Specifies the OpenShift Route host.
-    committer_openshift_route: "committer-rpc.apps.example.com"
-    # Enable TLS material for the selected component.
-    committer_use_tls: false
-    # Organization definition consumed by crypto and sidecar configuration tasks.
-    organization:
-      name: "Org1"
-      domain: "org1.example.com"
-      role: "peer"
-      fabric_ca_host: "fca-org1"
-      peer:
-        name: "committer-sidecar"
-        secret: "committer-sidecarPWD"
-      users:
-        - name: "committer-sidecar"
-          secret: "committer-sidecarPWD"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: coordinator/openshift/start
-```
-
-### coordinator/openshift/rm
-
-> Rm the committer coordinator OpenShift deployment
-
-Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
-
-```yaml
-- name: Rm the committer coordinator OpenShift deployment
-  vars:
-    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
-    committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Specifies the OpenShift Route host.
-    committer_openshift_route: "committer-rpc.apps.example.com"
-    # Specifies the OpenShift Route host.
-    committer_openshift_metrics_route: "committer-metrics.apps.example.com"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: coordinator/openshift/rm
-```
-
-### sidecar/openshift/start
-
-> Start the committer sidecar OpenShift deployment
-
-Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
-
-```yaml
-- name: Start the committer sidecar OpenShift deployment
-  vars:
-    # Committer component handled by the entry point.
-    committer_component_type: "coordinator"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
-    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
-    committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Enable TLS for the monitoring endpoint.
-    committer_monitoring_use_tls: "{{ committer_use_tls }}"
-    # Specifies the OpenShift Route host.
-    committer_openshift_metrics_route: "committer-metrics.apps.example.com"
-    # Specifies the OpenShift Route host.
-    committer_openshift_route: "committer-rpc.apps.example.com"
-    # Enable TLS material for the selected component.
-    committer_use_tls: false
-    # Organization definition consumed by crypto and sidecar configuration tasks.
-    organization:
-      name: "Org1"
-      domain: "org1.example.com"
-      role: "peer"
-      fabric_ca_host: "fca-org1"
-      peer:
-        name: "committer-sidecar"
-        secret: "committer-sidecarPWD"
-      users:
-        - name: "committer-sidecar"
-          secret: "committer-sidecarPWD"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: sidecar/openshift/start
-```
-
-### sidecar/openshift/rm
-
-> Rm the committer sidecar OpenShift deployment
-
-Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
-
-```yaml
-- name: Rm the committer sidecar OpenShift deployment
-  vars:
-    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
-    committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Specifies the OpenShift Route host.
-    committer_openshift_route: "committer-rpc.apps.example.com"
-    # Specifies the OpenShift Route host.
-    committer_openshift_metrics_route: "committer-metrics.apps.example.com"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: sidecar/openshift/rm
-```
-
-### query_service/openshift/start
-
-> Start the committer query_service OpenShift deployment
-
-Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
-
-```yaml
-- name: Start the committer query_service OpenShift deployment
-  vars:
-    # Committer component handled by the entry point.
-    committer_component_type: "coordinator"
-    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
-    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
-    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
-    committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Enable TLS for the monitoring endpoint.
-    committer_monitoring_use_tls: "{{ committer_use_tls }}"
-    # Specifies the OpenShift Route host.
-    committer_openshift_metrics_route: "committer-metrics.apps.example.com"
-    # Specifies the OpenShift Route host.
-    committer_openshift_route: "committer-rpc.apps.example.com"
-    # Enable TLS material for the selected component.
-    committer_use_tls: false
-    # Organization definition consumed by crypto and sidecar configuration tasks.
-    organization:
-      name: "Org1"
-      domain: "org1.example.com"
-      role: "peer"
-      fabric_ca_host: "fca-org1"
-      peer:
-        name: "committer-sidecar"
-        secret: "committer-sidecarPWD"
-      users:
-        - name: "committer-sidecar"
-          secret: "committer-sidecarPWD"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: query_service/openshift/start
-```
-
-### query_service/openshift/rm
-
-> Rm the committer query_service OpenShift deployment
-
-Reuses the Kubernetes workload flow and manages OpenShift Routes for configured HTTP-capable ports.
-
-```yaml
-- name: Rm the committer query_service OpenShift deployment
-  vars:
-    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
-    committer_k8s_resource_name: "{{ inventory_hostname }}"
-    # Specifies the OpenShift Route host.
-    committer_openshift_route: "committer-rpc.apps.example.com"
-    # Specifies the OpenShift Route host.
-    committer_openshift_metrics_route: "committer-metrics.apps.example.com"
-  ansible.builtin.include_role:
-    name: hyperledger.fabricx.committer
-    tasks_from: query_service/openshift/rm
+    tasks_from: openshift/rm
 ```

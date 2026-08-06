@@ -155,6 +155,12 @@ argument_specs:
         default: 10001
         description:
           - "Filesystem group used by the Loki pod security context for writable mounted volumes."
+      loki_k8s_run_as_user: &loki_k8s_run_as_user
+        type: int
+        default: 0
+        description:
+          - "UID the Loki container runs as."
+          - "Defaults to C(0) (root). On OpenShift, set to a UID within the namespace's allowed range so the pod satisfies the default C(restricted-v2) SCC."
       loki_k8s_node_port: &loki_k8s_node_port
         type: int
         description:
@@ -350,6 +356,7 @@ argument_specs:
       loki_container_data_dir: *loki_container_data_dir
       loki_k8s_wait_timeout: *loki_k8s_wait_timeout
       loki_k8s_fs_group: *loki_k8s_fs_group
+      loki_k8s_run_as_user: *loki_k8s_run_as_user
       loki_pvc_size: *loki_pvc_size
       loki_storage_class: *loki_storage_class
       k8s_namespace: *k8s_namespace

@@ -5,18 +5,8 @@
 #
 
 - name: Start Fabric-X Committer components
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: "{{ committer_deployment_mode }}/start"
   when:
     - committer_component_type is defined
-  block:
-    - name: Start Fabric-X Committer components as container or binary
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.committer
-        tasks_from: "{{ committer_deployment_mode }}/start"
-      when:
-        - committer_deployment_mode in ['bin', 'container']
-    - name: Start Fabric-X Committer components on Kubernetes or OpenShift
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.committer
-        tasks_from: "{{ committer_component_type | replace('-', '_') }}/{{ committer_deployment_mode }}/start"
-      when:
-        - committer_deployment_mode in ['k8s', 'openshift']

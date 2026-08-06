@@ -4,15 +4,22 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Delete Fabric-X Committer query-service Deployment
+- name: Delete Fabric-X Committer workload
+  vars:
+    committer_k8s_workload_kinds:
+      validator: Deployment
+      verifier: Deployment
+      coordinator: Deployment
+      sidecar: StatefulSet
+      query-service: Deployment
   kubernetes.core.k8s:
     state: absent
     api_version: apps/v1
-    kind: Deployment
+    kind: "{{ committer_k8s_workload_kinds[committer_component_type] }}"
     name: "{{ committer_k8s_resource_name }}"
     namespace: "{{ k8s_namespace | default('default') }}"
 
-- name: Delete Fabric-X Committer query-service Service
+- name: Delete Fabric-X Committer Service
   kubernetes.core.k8s:
     state: absent
     api_version: v1
@@ -20,7 +27,7 @@
     name: "{{ committer_k8s_resource_name }}"
     namespace: "{{ k8s_namespace | default('default') }}"
 
-- name: Delete Fabric-X Committer query-service NodePort Service
+- name: Delete Fabric-X Committer NodePort Service
   kubernetes.core.k8s:
     state: absent
     api_version: v1
