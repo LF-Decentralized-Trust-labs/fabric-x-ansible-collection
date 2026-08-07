@@ -62,7 +62,7 @@
     cadvisor_socket_already_mounted: "{{ (container_socket_path | regex_search('^(/run|/var/run|/var/lib/docker)(/|$)')) is not none }}"
     cadvisor_socket_volume: "{{ container_socket_path }}:{{ container_socket_path }}:ro"
   ansible.builtin.set_fact:
-    cadvisor_container_volumes: "{{ cadvisor_container_volumes + cadvisor_socket_volume }}"
+    cadvisor_container_volumes: "{{ cadvisor_container_volumes + [cadvisor_socket_volume] }}"
   when:
     - container_socket_path is defined
     - container_socket_path | length > 0
