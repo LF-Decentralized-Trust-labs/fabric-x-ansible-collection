@@ -14,6 +14,6 @@
 # Target the {{ host }} for the command being run (e.g. make {{ host }} start).
 .PHONY: {{ host }}
 {{ host }}:
-	@$(eval TARGET_HOSTS = {{ host }}):
+	@$(call add_target_hosts,{{ host }}):
 
 {% endfor %}
