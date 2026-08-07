@@ -47,13 +47,21 @@ by default the same examples/ansible.cfg the repository Makefile uses
 (ANSIBLE_CONFIG=$(PROJECT_DIR)/examples/ansible.cfg), so a task launched here behaves like
 "make <target>" for every other setting in that file (host_key_checking, gathering,
 deprecation_warnings, and so on).
-ANSIBLE_PYTHON_INTERPRETER pins the exact interpreter, the same way and to the same value
-the Makefile does (ANSIBLE_PYTHON_INTERPRETER ?= $(VENV_BIN_DIR)/python, exported) - an
-exported environment variable always wins over an ini setting, so this is what actually
-takes effect over that file's own interpreter_python = auto_silent when running
-via "make", and it is what this mirrors here. Pinning the path outright, rather than relying
-on auto_silent's per-host discovery-but-do-not-warn behavior, is what actually skips
-discovery instead of merely silencing its warning.
+ANSIBLE_PYTHON_INTERPRETER is only the fallback interpreter for hosts that leave
+ansible_python_interpreter unset: an inventory or group_vars ansible_python_interpreter
+always outranks this environment variable, which in turn only outranks ansible.cfg's own
+interpreter_python setting. So this mirrors what the Makefile exports
+(ANSIBLE_PYTHON_INTERPRETER ?= $(VENV_BIN_DIR)/python) for hosts relying on that fallback,
+but cannot override a host that pins its own interpreter.
+ANSIBLE_CACHE_PLUGIN_CONNECTION mirrors the Makefile's own export
+(ANSIBLE_CACHE_PLUGIN_CONNECTION ?= $(OUT_DIR)/ansible_fact_cache) as an absolute path, so a
+custom semaphore_ui_ansible_config_path does not change where fact_caching_connection
+resolves: that ini setting is relative to the ansible.cfg file's own directory, and the
+exported env var always wins over it.
+USER is not part of the Go runtime's own environment (only PYTHONUNBUFFERED,
+ANSIBLE_FORCE_COLOR, ANSIBLE_HOST_KEY_CHECKING, HOME and PWD are set before these entries),
+so inventories deriving vars like ansible_user from lookup('env', 'USER') would otherwise
+silently see an empty value here, unlike a "make" run from an interactive shell.
 Without PROJECT_DIR, examples/inventory/vars.yaml's project_dir/out_dir would fall back to
 their own defaults, which may not match this checkout.
 #}
@@ -61,7 +69,9 @@ their own defaults, which may not match this checkout.
     "PATH": "{{ ansible_playbook_python | dirname }}:{{ lookup('env', 'PATH') }}",
     "ANSIBLE_CONFIG": "{{ semaphore_ui_ansible_config_path }}",
     "ANSIBLE_PYTHON_INTERPRETER": "{{ ansible_playbook_python }}",
-    "PROJECT_DIR": "{{ project_dir }}"
+    "ANSIBLE_CACHE_PLUGIN_CONNECTION": "{{ out_dir }}/ansible_fact_cache",
+    "PROJECT_DIR": "{{ project_dir }}",
+    "USER": "{{ lookup('env', 'USER') }}"
   },
 {#
 Session cookie signing/encryption keys and the access-key-at-rest encryption key. Generated
