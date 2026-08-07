@@ -29,6 +29,11 @@ argument_specs:
         description:
           - "Project root directory on the managed host. Seeded as the Semaphore UI repository's absolute path, since it is a C(local) repository that Semaphore UI runs in place rather than cloning, so generated artifacts (for example C(out/control-node)) persist across runs."
           - "Example: C(/path/to/hyperledger/fabricx)."
+      out_dir: &out_dir
+        type: path
+        description:
+          - "Root output directory for generated material, as resolved by C(examples/inventory/vars.yaml). Exported to every Semaphore UI task as C(ANSIBLE_CACHE_PLUGIN_CONNECTION), mirroring the Makefile's own C(ANSIBLE_CACHE_PLUGIN_CONNECTION) export."
+          - "Example: C(/path/to/hyperledger/fabricx/out)."
       actual_host: &actual_host
         type: str
         required: true
@@ -359,6 +364,7 @@ argument_specs:
       remote_config_dir: *remote_config_dir
       remote_data_dir: *remote_data_dir
       project_dir: *project_dir
+      out_dir: *out_dir
       semaphore_ui_remote_config_dir: *semaphore_ui_remote_config_dir
       semaphore_ui_remote_data_dir: *semaphore_ui_remote_data_dir
       semaphore_ui_config_file: *semaphore_ui_config_file

@@ -291,6 +291,8 @@ Generates and persists the server secrets on first run, then renders `config.jso
     remote_data_dir: "/var/lib/fabricx/data"
     # Project root directory on the managed host. Seeded as the Semaphore UI repository's absolute path, since it is a `local` repository that Semaphore UI runs in place rather than cloning, so generated artifacts (for example `out/control-node`) persist across runs.
     project_dir: "/path/to/hyperledger/fabricx"
+    # Root output directory for generated material, as resolved by `examples/inventory/vars.yaml`. Exported to every Semaphore UI task as `ANSIBLE_CACHE_PLUGIN_CONNECTION`, mirroring the Makefile's own `ANSIBLE_CACHE_PLUGIN_CONNECTION` export.
+    out_dir: "/path/to/hyperledger/fabricx/out"
     # Directory on the managed host holding the rendered Semaphore UI server configuration and project seed files.
     semaphore_ui_remote_config_dir: "{{ remote_config_dir }}"
     # Directory on the managed host holding the Semaphore UI SQLite database, scratch space, and generated secrets.
