@@ -27,13 +27,15 @@
 # image does not symlink one to the other internally — mounting only one of
 # the two leaves the other empty inside the container.
 - name: Set cAdvisor mandatory volumes
+  vars:
+    cadvisor_var_run_source: "{{ '/run' if ansible_facts.os_family == 'Darwin' else '/var/run' }}"
   ansible.builtin.set_fact:
     cadvisor_container_volumes:
       - "/:/rootfs:ro"
       - "/sys:/sys:ro"
       - "/dev/disk/:/dev/disk/:ro"
+      - "{{ cadvisor_var_run_source }}:/var/run:ro"
       - "/run:/run:ro"
-      - "/var/run:/var/run:ro"
 
 - name: Add Docker storage volume
   vars:
@@ -50,6 +52,21 @@
     cadvisor_container_volumes: "{{ cadvisor_container_volumes + [cadvisor_podman_storage_volume] }}"
   when:
     - container_client == 'podman'
+
+# Docker Desktop for Mac's default context socket lives under $HOME (e.g.
+# /Users/<user>/.docker/run/docker.sock) rather than /run or /var/run, so the
+# mandatory volumes above don't expose it inside the container. Bind-mount it
+# explicitly whenever it isn't already covered by one of those paths.
+- name: Add container runtime socket volume
+  vars:
+    cadvisor_socket_already_mounted: "{{ (container_socket_path | regex_search('^(/run|/var/run|/var/lib/docker)(/|$)')) is not none }}"
+    cadvisor_socket_volume: "{{ container_socket_path }}:{{ container_socket_path }}:ro"
+  ansible.builtin.set_fact:
+    cadvisor_container_volumes: "{{ cadvisor_container_volumes + cadvisor_socket_volume }}"
+  when:
+    - container_socket_path is defined
+    - container_socket_path | length > 0
+    - not cadvisor_socket_already_mounted
 
 - name: Start cAdvisor container
   vars:
