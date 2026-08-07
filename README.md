@@ -290,6 +290,14 @@ make fabric_x_orderers start
 
 restricts the command to the host group `fabric_x_orderers` defined within the inventory.
 
+Group/host targets can also be chained on the same command line to union their hosts, for example:
+
+```shell
+make fabric_x_orderers fabric_x_committers start
+```
+
+restricts the command to the union of the `fabric_x_orderers` and `fabric_x_committers` host groups.
+
 All these groups are reflected in the [sample inventories](./examples/README.md). If you plan to use the playbooks provided with the collection, keep the group names identical so the high-level lifecycle commands keep working.
 
 ## Contributing
