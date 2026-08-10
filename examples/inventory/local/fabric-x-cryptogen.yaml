@@ -237,8 +237,6 @@ all:
             namespaces:
               - id: 0
                 policy: threshold
-              - id: dada
-                policy: "OR('Org1MSP.member', 'Org2MSP.member', 'Org3MSP.member')"
           loadgen_use_tls: true
           loadgen_metrics_port: 12010
           loadgen_rpc_port: 12020
