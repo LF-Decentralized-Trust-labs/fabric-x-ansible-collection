@@ -13,8 +13,8 @@ docs_dir: docs/mkdocs
 
 theme:
   name: material
-  favicon: examples/images/lf-dec-trust-icon.png
-  logo: examples/images/lf-dec-trust-icon.png
+  favicon: examples/images/fabric-x-ansible-collection-logo.png
+  logo: examples/images/fabric-x-ansible-collection-logo.png
   palette:
     - scheme: default
       primary: light blue
