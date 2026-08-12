@@ -2,6 +2,10 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE) [![Docs](https://img.shields.io/badge/docs-online-brightgreen.svg)](https://lf-decentralized-trust-labs.github.io/fabric-x-ansible-collection/) ![Tests](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/test.yaml/badge.svg) ![Lint](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/lint.yaml/badge.svg) ![Publish](https://github.com/LF-Decentralized-Trust-labs/fabric-x-ansible-collection/actions/workflows/publish.yaml/badge.svg) [![Galaxy Downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgalaxy.ansible.com%2Fapi%2Fv3%2Fplugin%2Fansible%2Fcontent%2Fpublished%2Fcollections%2Findex%2Fhyperledger%2Ffabricx%2F&query=%24.download_count&label=Galaxy%20Downloads&logo=ansible&color=blue)](https://galaxy.ansible.com/ui/repo/published/hyperledger/fabricx/)
 
+<p align="center">
+  <img src="./examples/images/fabric-x-ansible-collection-logo.png" alt="Hyperledger Fabric-X Ansible Collection" width="240">
+</p>
+
 Hyperledger Fabric-X is an open source project that builds on top of Hyperledger Fabric and is tailored specifically for digital asset use cases. Fabric-X builds on the core principles of Hyperledger Fabric (_sovereign_, _horizontally scalable smart contract execution_ and a _modular_, _agile_ architecture), making it well-suited to meet the governance and compliance needs of regulated digital assets.
 
 This repository contains the `hyperledger.fabricx` Ansible collection, which can be used to deploy a Hyperledger Fabric-X network locally, on Kubernetes, or across multiple nodes.
