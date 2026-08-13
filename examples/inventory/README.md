@@ -211,7 +211,6 @@ Kubernetes inventories deploy the same logical Fabric-X services as Kubernetes w
 | [`k8s/fabric-x-cryptogen.yaml`](./docs/k8s/fabric-x-cryptogen.md) | Kubernetes deployment using centrally generated `cryptogen` material.                     |
 | [`k8s/fabric-x-no-mtls.yaml`](./docs/k8s/fabric-x-no-mtls.md)     | Kubernetes deployment with TLS enabled and mTLS disabled.                                 |
 | [`k8s/fabric-x-no-tls.yaml`](./docs/k8s/fabric-x-no-tls.md)       | Kubernetes deployment with TLS and mTLS disabled for debugging only.                      |
-| [`k8s/awx.yaml`](./docs/k8s/awx.md)                               | Standalone AWX (Ansible automation controller) deployment. Not a Fabric-X network sample. |
 
 For remote clusters, set the externally reachable node address used by NodePort services:
 
@@ -228,7 +227,6 @@ OpenShift inventories deploy Kubernetes-compatible workloads and services, then 
 | Inventory                                                                     | Description                                                                                                                   |
 | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | [`openshift/fabric-x-cryptogen.yaml`](./docs/openshift/fabric-x-cryptogen.md) | OpenShift deployment using centrally generated `cryptogen` material and route-based access.                                   |
-| [`openshift/awx.yaml`](./docs/openshift/awx.md)                               | Standalone AWX (Ansible automation controller) deployment.
 
 Set the OpenShift wildcard route domain before running the inventory:
 
