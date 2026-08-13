@@ -134,7 +134,7 @@ Creates the Loki data directory and starts the Loki container via hyperledger.fa
     # Sets the Grafana Loki image name.
     loki_image_name: loki
     # Sets the Grafana Loki image tag.
-    loki_image_tag: 3.7.4
+    loki_image_tag: 3.7.6
     # Sets the Grafana Loki image reference.
     loki_image: "{{ loki_registry_endpoint }}/{{ loki_image_name }}:{{ loki_image_tag }}"
     # Port Loki listens on.
@@ -308,7 +308,7 @@ Applies the ConfigMap, a headless Service, and a StatefulSet (with a PVC via vol
     # Sets the Grafana Loki image name.
     loki_image_name: loki
     # Sets the Grafana Loki image tag.
-    loki_image_tag: 3.7.4
+    loki_image_tag: 3.7.6
     # Sets the Grafana Loki image reference.
     loki_image: "{{ loki_registry_endpoint }}/{{ loki_image_name }}:{{ loki_image_tag }}"
     # Port Loki listens on.
