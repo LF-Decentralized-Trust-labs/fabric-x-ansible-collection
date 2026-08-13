@@ -70,7 +70,7 @@ Properties:
 
 - Target hosts: `semaphore_ui` by default. Run after `generate_crypto` and before `start`. Does not touch the database; `start` handles migrating and seeding it.
 - Nuance: the repository is seeded as a `local` repository pointing at this collection's own checkout (`project_dir`), which Semaphore UI runs in place instead of cloning — the reason artifacts under `out/control-node/` persist across runs.
-- Nuance: every seeded task template sets `skip_galaxy_install: true` and this must never be changed: Semaphore UI otherwise runs `ansible-galaxy` against this repository's own `requirements.yml` and `collections/requirements.yml` before each run, which would reinstall this very collection from Git over the checkout it is running from.
+- Nuance: every seeded task template sets `skip_galaxy_install: true` and this must never be changed: Semaphore UI otherwise runs `ansible-galaxy` against this repository's own `requirements.yml` before each run, adding unnecessary network calls and non-determinism to every run.
 - Nuance: `semaphore_ui_inventories`/`semaphore_ui_job_templates` are not discovered automatically; they are kept in sync by hand with `examples/inventory`/`examples/playbooks` in `roles/semaphore_ui/meta/argument_specs.yaml`.
 
 ## start.yaml
