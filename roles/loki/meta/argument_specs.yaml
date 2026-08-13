@@ -21,10 +21,10 @@ argument_specs:
           - "Sets the Grafana Loki image name."
       loki_image_tag: &loki_image_tag
         type: str
-        default: "3.4.2"
+        default: "3.7.4"
         description:
           - "Sets the Grafana Loki image tag."
-          - "Example: C(3.4.2)"
+          - "Example: C(3.7.4)"
       loki_image: &loki_image
         type: str
         default: "{{ loki_registry_endpoint }}/{{ loki_image_name }}:{{ loki_image_tag }}"

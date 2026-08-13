@@ -12,7 +12,7 @@ loki_registry_endpoint: "{{ lookup('env', 'LOKI_REGISTRY_ENDPOINT') or 'docker.i
 # Sets the Grafana Loki image name.
 loki_image_name: loki
 # Sets the Grafana Loki image tag.
-loki_image_tag: 3.4.2
+loki_image_tag: 3.7.4
 # Sets the Grafana Loki image reference.
 loki_image: "{{ loki_registry_endpoint }}/{{ loki_image_name }}:{{ loki_image_tag }}"
 # Name of the Loki container.
