@@ -44,7 +44,18 @@
     log_driver: "{{ container_log_driver }}"
     log_options:
       max_size: "{{ container_log_max_size }}"
-    healthcheck: "{{ container_healthcheck_test | default(omit) }}"
+    # containers.podman.podman_container's healthcheck param is a plain string
+    # (--healthcheck-command), unlike docker_container's list-accepting "raw"
+    # test param. Roles that need exec form (no shell in the image) express
+    # container_healthcheck_test as a list so it works with docker's module
+    # unmodified; join it back into a string here for podman's CLI, which
+    # parses a leading CMD/CMD-SHELL/NONE token the same way either way.
+    healthcheck: >-
+      {{
+        container_healthcheck_test | join(' ')
+        if (container_healthcheck_test is defined and container_healthcheck_test is not string)
+        else (container_healthcheck_test | default(omit))
+      }}
     healthcheck_interval: "{{ container_healthcheck_interval }}"
     state: started
     detach: "{{ container_run_detach_mode }}"

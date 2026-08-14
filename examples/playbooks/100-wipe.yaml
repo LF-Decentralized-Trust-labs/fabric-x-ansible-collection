@@ -34,8 +34,5 @@
 - name: Remove container networks
   ansible.builtin.import_playbook: hyperledger.fabricx.remove_container_networks
 
-- name: Wipe AWX
-  ansible.builtin.import_playbook: hyperledger.fabricx.awx.wipe
-
 - name: Wipe Semaphore UI
   ansible.builtin.import_playbook: hyperledger.fabricx.semaphore_ui.wipe

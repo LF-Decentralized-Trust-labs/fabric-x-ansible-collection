@@ -21,14 +21,19 @@
     container_volumes:
       - "{{ loki_remote_config_dir }}:{{ loki_container_config_dir }}:ro,z"
       - "{{ loki_remote_data_dir }}:{{ loki_container_data_dir }}:z"
-    # `grafana/loki` ships BusyBox wget/nc but no curl. BusyBox wget is unreliable
-    # over TLS (docker-library/busybox#162), so fall back to a TCP check when TLS is on:
-    container_healthcheck_test: >-
-      {% if loki_use_tls %}
-      nc -z -w 3 localhost {{ loki_port }}
-      {% else %}
-      wget -q --spider http://localhost:{{ loki_port }}/ready
-      {% endif %}
+    # grafana/loki dropped BusyBox/shell in 3.6.0 (#19502); -health (3.7.0+,
+    # #20313) replaces wget/curl checks, run as a binary arg. No TLS-skip-verify
+    # flag, so SSL_CERT_FILE supplies our self-signed CA; URL host must match a
+    # cert SAN (ansible_host). List form (leading "CMD") forces exec form on
+    # both engines — a bare string is always shell-wrapped, and there's no
+    # shell to run it with (see roles/container/tasks/podman/start.yaml for
+    # how this list is adapted back to a string for podman's CLI).
+    container_healthcheck_test:
+      - CMD
+      - /usr/bin/loki
+      - -health
+      - "-health.url={{ 'https://' ~ ansible_host if loki_use_tls else 'http://localhost' }}:{{ loki_port }}/ready"
+    container_env: "{{ {'SSL_CERT_FILE': loki_container_config_dir ~ '/tls/ca.crt'} if loki_use_tls else {} }}"
     container_run_as_host_user: true
     container_wait_until_running: true
     container_wait_port: "{{ loki_port }}"

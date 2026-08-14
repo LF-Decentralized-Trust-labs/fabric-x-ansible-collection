@@ -70,8 +70,8 @@ One task template per numbered example playbook we choose to expose. Not discove
 automatically; kept in sync by hand with semaphore_ui_job_templates, mirroring
 examples/playbooks.
 skip_galaxy_install is mandatory here: Semaphore UI otherwise runs
-"ansible-galaxy" against this repository's own requirements.yml files before every task,
-which would reinstall this very collection from Git over the checkout it is running from.
+"ansible-galaxy" against this repository's own requirements.yml before every task,
+adding unnecessary network calls and non-determinism to every run.
 #}
   "templates": [
 {% for current_semaphore_ui_job_template in semaphore_ui_job_templates %}

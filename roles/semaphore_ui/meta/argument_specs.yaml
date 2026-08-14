@@ -148,7 +148,7 @@ argument_specs:
         default: true
         description:
           - "Sets C(skip_galaxy_install) on every seeded task template."
-          - "Must stay C(true): Semaphore UI otherwise runs C(ansible-galaxy) against this repository's own C(requirements.yml) and C(collections/requirements.yml) before each task, which would reinstall this very collection from Git over the checkout it is running from."
+          - "Must stay C(true): Semaphore UI otherwise runs C(ansible-galaxy) against this repository's own C(requirements.yml) before each task, adding unnecessary network calls and non-determinism to every run."
       semaphore_ui_inventories: &semaphore_ui_inventories
         type: list
         elements: dict

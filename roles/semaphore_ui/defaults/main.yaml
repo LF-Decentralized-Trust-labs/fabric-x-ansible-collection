@@ -39,7 +39,7 @@ semaphore_ui_repository_name: Fabric-X collection
 # Name of the empty Semaphore UI environment seeded on C(config/transfer) and attached to every seeded task template.
 semaphore_ui_environment_name: Default
 # Sets C(skip_galaxy_install) on every seeded task template.
-# Must stay C(true): Semaphore UI otherwise runs C(ansible-galaxy) against this repository's own C(requirements.yml) and C(collections/requirements.yml) before each task, which would reinstall this very collection from Git over the checkout it is running from.
+# Must stay C(true): Semaphore UI otherwise runs C(ansible-galaxy) against this repository's own C(requirements.yml) before each task, adding unnecessary network calls and non-determinism to every run.
 semaphore_ui_skip_galaxy_install: true
 # Inventories seeded as Semaphore UI C(file) inventories, one per Fabric-X network sample under C(examples/inventory). Each item needs C(name) and C(path) (relative to C(project_dir)).
 # Not discovered automatically; kept in sync by hand with C(examples/inventory). Add, rename, or remove an entry here when a sample inventory is added, renamed, or removed there.

@@ -409,7 +409,7 @@ Generates and persists the server secrets on first run, then renders `config.jso
             value: "debug"
           - name: "info"
             value: "info"
-    # Sets `skip_galaxy_install` on every seeded task template. Must stay `true`: Semaphore UI otherwise runs `ansible-galaxy` against this repository's own `requirements.yml` and `collections/requirements.yml` before each task, which would reinstall this very collection from Git over the checkout it is running from.
+    # Sets `skip_galaxy_install` on every seeded task template. Must stay `true`: Semaphore UI otherwise runs `ansible-galaxy` against this repository's own `requirements.yml` before each task, adding unnecessary network calls and non-determinism to every run.
     semaphore_ui_skip_galaxy_install: true
   ansible.builtin.include_role:
     name: hyperledger.fabricx.semaphore_ui
