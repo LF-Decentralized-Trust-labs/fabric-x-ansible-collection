@@ -240,6 +240,7 @@ argument_specs:
           - "Task templates seeded for the numbered example playbooks under C(examples/playbooks/). Each item needs C(name) and C(playbook), and an optional C(inventory) name. Omitted entirely from the seed if not set — there is no fallback to any other C(semaphore_ui_inventories) entry."
           - "Not discovered automatically; kept in sync by hand with C(examples/playbooks). Add, rename, or remove an entry here when a numbered playbook is added, renamed, or removed there."
           - 'An optional C(limit) sets this template''s default Ansible C(--limit), rendered as-is. Set to C(["all:!semaphore_ui"]) on the C(teardown)/C(wipe)/C(hard-wipe) entries by default, so they never tear Semaphore UI down along with a Fabric-X network sharing its inventory. An operator can still override it per run through the Limit field.'
+          - "An optional C(survey_vars) list adds extra Semaphore UI survey variables to this template only, on top of C(target_hosts) and any project-wide C(semaphore_ui_extra_survey_vars). Each item follows Semaphore UI's own survey variable schema, same as C(semaphore_ui_extra_survey_vars)."
       semaphore_ui_extra_survey_vars: &semaphore_ui_extra_survey_vars
         type: list
         elements: dict

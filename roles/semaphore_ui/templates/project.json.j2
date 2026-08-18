@@ -100,12 +100,12 @@ adding unnecessary network calls and non-determinism to every run.
             }{{ "," if not loop.last else "" }}
 {% endfor %}
           ]
-        }{{ "," if semaphore_ui_extra_survey_vars is defined and (semaphore_ui_extra_survey_vars | length > 0) else "" }}
-{% if semaphore_ui_extra_survey_vars is defined and (semaphore_ui_extra_survey_vars | length > 0) %}
-{% for current_semaphore_ui_extra_survey_var in semaphore_ui_extra_survey_vars %}
-        {{ current_semaphore_ui_extra_survey_var | to_json }}{{ "," if not loop.last else "" }}
+        }
+{% set current_semaphore_ui_template_survey_vars = (current_semaphore_ui_job_template.survey_vars | default([])) + (semaphore_ui_extra_survey_vars | default([])) %}
+{{ "," if current_semaphore_ui_template_survey_vars | length > 0 else "" }}
+{% for current_semaphore_ui_template_survey_var in current_semaphore_ui_template_survey_vars %}
+        {{ current_semaphore_ui_template_survey_var | to_json }}{{ "," if not loop.last else "" }}
 {% endfor %}
-{% endif %}
       ],
       "task_params": {
         "skip_galaxy_install": {{ semaphore_ui_skip_galaxy_install | lower }},
