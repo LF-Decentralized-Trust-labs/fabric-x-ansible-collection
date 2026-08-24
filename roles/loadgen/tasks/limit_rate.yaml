@@ -19,10 +19,6 @@
     validate_certs: false
     method: POST
     body_format: json
-    body: >-
-      {{
-        {
-          'rate': loadgen_limit_rate | int
-        }
-      }}
+    body:
+      rate: "{{ loadgen_limit_rate | int }}"
     status_code: 200
