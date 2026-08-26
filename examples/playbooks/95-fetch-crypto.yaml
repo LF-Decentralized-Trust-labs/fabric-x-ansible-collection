@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Fetch PostgreSQL crypto material
+  ansible.builtin.import_playbook: hyperledger.fabricx.postgres.fetch_crypto
+
 - name: Fetch Fabric CA server crypto material
   ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.fetch_crypto
 

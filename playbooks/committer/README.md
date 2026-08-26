@@ -150,7 +150,7 @@ Properties:
 
 ## fetch_crypto.yaml
 
-[`fetch_crypto.yaml`](./fetch_crypto.yaml) fetches committer and database crypto material into the configured artifacts directory for inspection, reuse, or debugging.
+[`fetch_crypto.yaml`](./fetch_crypto.yaml) fetches committer and Yugabyte DB crypto material into the configured artifacts directory for inspection, reuse, or debugging.
 
 ```shell
 ansible-playbook hyperledger.fabricx.committer.fetch_crypto --extra-vars '{"target_hosts": "fabric_x_committers"}'
@@ -159,11 +159,11 @@ ansible-playbook hyperledger.fabricx.committer.fetch_crypto --extra-vars '{"targ
 Properties:
 
 - Target hosts: `fabric_x_committers` by default.
-- Nuance: fetches committer and database crypto for inspection, reuse, or debugging.
+- Nuance: fetches committer and Yugabyte DB crypto for inspection, reuse, or debugging.
 
 ## fetch_logs.yaml
 
-[`fetch_logs.yaml`](./fetch_logs.yaml) fetches committer service and database logs from targeted hosts into the configured output directory.
+[`fetch_logs.yaml`](./fetch_logs.yaml) fetches committer service and Yugabyte DB logs from targeted hosts into the configured output directory.
 
 ```shell
 ansible-playbook hyperledger.fabricx.committer.fetch_logs --extra-vars '{"target_hosts": "committer-validator"}'

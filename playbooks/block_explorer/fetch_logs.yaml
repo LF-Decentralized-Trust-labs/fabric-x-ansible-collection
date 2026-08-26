@@ -7,18 +7,6 @@
 - name: Fetch the Fabric-X Block Explorer logs
   hosts: "{{ target_hosts | default('fabric_x_block_explorer') }}:&fabric_x_block_explorer"
   tasks:
-    # =========================
-    # Postgres
-    # =========================
-    - name: Fetch the Fabric-X Block Explorer Postgres DB logs
-      ansible.builtin.include_role:
-        name: hyperledger.fabricx.postgres
-        tasks_from: fetch_logs
-      when:
-        - postgres_port is defined
-    # =========================
-    # Block Explorer server and UI
-    # =========================
     - name: Fetch the Fabric-X Block Explorer server and UI logs
       ansible.builtin.include_role:
         name: hyperledger.fabricx.block_explorer

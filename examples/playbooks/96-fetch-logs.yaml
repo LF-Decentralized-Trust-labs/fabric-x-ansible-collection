@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+- name: Fetch PostgreSQL database logs
+  ansible.builtin.import_playbook: hyperledger.fabricx.postgres.fetch_logs
+
 - name: Fetch Fabric CA server logs
   ansible.builtin.import_playbook: hyperledger.fabricx.fabric_ca_server.fetch_logs
 

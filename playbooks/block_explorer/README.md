@@ -122,7 +122,7 @@ Properties:
 
 ## fetch_crypto.yaml
 
-[`fetch_crypto.yaml`](./fetch_crypto.yaml) fetches PostgreSQL and Block Explorer server crypto material into the configured artifacts directory.
+[`fetch_crypto.yaml`](./fetch_crypto.yaml) fetches Block Explorer server crypto material into the configured artifacts directory.
 
 ```shell
 ansible-playbook hyperledger.fabricx.block_explorer.fetch_crypto --extra-vars '{"target_hosts": "fabric_x_block_explorer"}'
@@ -134,7 +134,7 @@ Properties:
 
 ## fetch_logs.yaml
 
-[`fetch_logs.yaml`](./fetch_logs.yaml) fetches PostgreSQL and combined Block Explorer server/UI logs from targeted hosts into the configured output directory.
+[`fetch_logs.yaml`](./fetch_logs.yaml) fetches combined Block Explorer server/UI logs from targeted hosts into the configured output directory.
 
 ```shell
 ansible-playbook hyperledger.fabricx.block_explorer.fetch_logs --extra-vars '{"target_hosts": "fabric_x_block_explorer"}'
