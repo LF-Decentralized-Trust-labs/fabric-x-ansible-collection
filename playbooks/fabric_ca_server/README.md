@@ -169,7 +169,7 @@ Properties:
 
 ## fetch_crypto.yaml
 
-[`fetch_crypto.yaml`](./fetch_crypto.yaml) fetches Fabric CA server and CA database crypto material into the configured artifacts directory.
+[`fetch_crypto.yaml`](./fetch_crypto.yaml) fetches Fabric CA server crypto material into the configured artifacts directory.
 
 ```shell
 ansible-playbook hyperledger.fabricx.fabric_ca_server.fetch_crypto --extra-vars '{"target_hosts": "fabric_cas"}'
@@ -178,11 +178,11 @@ ansible-playbook hyperledger.fabricx.fabric_ca_server.fetch_crypto --extra-vars 
 Properties:
 
 - Target hosts: `fabric_cas` by default.
-- Nuance: fetches Fabric CA server and CA database crypto into the configured artifacts directory.
+- Nuance: fetches Fabric CA server crypto into the configured artifacts directory.
 
 ## fetch_logs.yaml
 
-[`fetch_logs.yaml`](./fetch_logs.yaml) fetches Fabric CA server and CA database logs into the configured output directory for debugging enrollment, registration, or database startup issues.
+[`fetch_logs.yaml`](./fetch_logs.yaml) fetches Fabric CA server logs into the configured output directory for debugging enrollment or registration issues.
 
 ```shell
 ansible-playbook hyperledger.fabricx.fabric_ca_server.fetch_logs --extra-vars '{"target_hosts": "fabric_cas"}'

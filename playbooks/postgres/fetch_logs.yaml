@@ -1,0 +1,15 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Fetch PostgreSQL database logs
+  hosts: "{{ target_hosts | default('all') }}"
+  tasks:
+    - name: Fetch PostgreSQL database logs
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.postgres
+        tasks_from: fetch_logs
+      when:
+        - postgres_port is defined

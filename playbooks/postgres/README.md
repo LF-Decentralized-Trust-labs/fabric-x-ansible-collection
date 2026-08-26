@@ -12,6 +12,8 @@ The `postgres` playbooks operate the PostgreSQL databases shared across the netw
 - [teardown.yaml](#teardownyaml)
 - [wipe.yaml](#wipeyaml)
 - [ping.yaml](#pingyaml)
+- [fetch\_crypto.yaml](#fetch_cryptoyaml)
+- [fetch\_logs.yaml](#fetch_logsyaml)
 
 ## Playbooks flow
 
@@ -109,6 +111,32 @@ Properties:
 
 ```shell
 ansible-playbook hyperledger.fabricx.postgres.ping --extra-vars '{"target_hosts": "all"}'
+```
+
+Properties:
+
+- Target hosts: `all` by default.
+- Nuance: only hosts that define `postgres_port` participate.
+
+## fetch_crypto.yaml
+
+[`fetch_crypto.yaml`](./fetch_crypto.yaml) fetches every PostgreSQL database's crypto material into the configured artifacts directory for inspection, reuse, or debugging.
+
+```shell
+ansible-playbook hyperledger.fabricx.postgres.fetch_crypto --extra-vars '{"target_hosts": "all"}'
+```
+
+Properties:
+
+- Target hosts: `all` by default.
+- Nuance: only hosts that define `postgres_port` participate.
+
+## fetch_logs.yaml
+
+[`fetch_logs.yaml`](./fetch_logs.yaml) fetches every PostgreSQL database's logs from targeted hosts into the configured output directory.
+
+```shell
+ansible-playbook hyperledger.fabricx.postgres.fetch_logs --extra-vars '{"target_hosts": "all"}'
 ```
 
 Properties:
