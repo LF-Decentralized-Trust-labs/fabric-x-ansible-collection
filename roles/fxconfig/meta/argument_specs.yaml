@@ -84,9 +84,10 @@ argument_specs:
           - "Defines the configuration directory mounted inside the fxconfig container."
       fxconfig_container_name: &fxconfig_container_name
         type: str
-        default: "fxconfig"
+        default: "fxconfig-{{ inventory_hostname }}"
         description:
           - "Defines the base container name used by fxconfig workflows."
+          - "Includes C(inventory_hostname) by default so container names never collide when this role runs across multiple hosts in parallel against the same local container storage."
       fxconfig_endorsed_txs_dir: &fxconfig_endorsed_txs_dir
         type: path
         required: true

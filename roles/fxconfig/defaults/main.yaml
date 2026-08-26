@@ -18,7 +18,8 @@ fxconfig_config_file: fxconfig.yaml
 # Defines the configuration directory mounted inside the fxconfig container.
 fxconfig_container_config_dir: /config
 # Defines the base container name used by fxconfig workflows.
-fxconfig_container_name: fxconfig
+# Includes C(inventory_hostname) by default so container names never collide when this role runs across multiple hosts in parallel against the same local container storage.
+fxconfig_container_name: fxconfig-{{ inventory_hostname }}
 # Selects the Git ref used by build and install workflows.
 fxconfig_git_commit: v1.0.0
 # Defines the Git host used to resolve the Fabric-X source repository.
