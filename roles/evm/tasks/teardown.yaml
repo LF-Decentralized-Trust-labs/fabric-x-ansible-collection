@@ -1,0 +1,23 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove EVM container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.evm
+    tasks_from: container/rm
+  when: evm_use_container
+
+- name: Remove EVM Kubernetes workload
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.evm
+    tasks_from: k8s/rm
+  when: evm_use_k8s
+
+- name: Teardown EVM on OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.evm
+    tasks_from: openshift/rm
+  when: evm_use_openshift

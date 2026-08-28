@@ -1,0 +1,46 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that a peer role is provided
+  ansible.builtin.fail:
+    msg: "Cannot setup crypto material for the Fabric-X EVM gateway if organization.role is not 'peer'. Please set the field 'organization.role' as 'peer'."
+  when:
+    - (organization.role is undefined) or (organization.role != 'peer')
+
+- name: Check that at least one user is declared
+  ansible.builtin.fail:
+    msg: "Cannot setup crypto material for the Fabric-X EVM gateway without a signing identity. Please declare at least one entry under 'organization.users'."
+  when:
+    - (organization.users is undefined) or (organization.users | length == 0)
+
+# =========================
+# With cryptogen
+# =========================
+- name: Transfer the crypto material generated with cryptogen
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.evm
+    tasks_from: crypto/cryptogen/transfer
+  when:
+    - organization.fabric_ca_host is undefined
+
+# =========================
+# With Fabric-CA
+# =========================
+- name: Enroll EVM identities with Fabric-CA
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.evm
+    tasks_from: crypto/fabric_ca/enroll
+  when:
+    - organization.fabric_ca_host is defined
+
+# =========================
+# Kubernetes Secret
+# =========================
+- name: Transfer EVM Kubernetes Secret
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.evm
+    tasks_from: k8s/crypto/transfer
+  when: evm_use_k8s or evm_use_openshift

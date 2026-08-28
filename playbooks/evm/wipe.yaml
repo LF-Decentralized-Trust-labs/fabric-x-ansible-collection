@@ -1,0 +1,13 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Wipe the Fabric-X EVM gateway
+  hosts: "{{ target_hosts | default('fabric_x_evm') }}:&fabric_x_evm"
+  tasks:
+    - name: Wipe the Fabric-X EVM gateway
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.evm
+        tasks_from: wipe

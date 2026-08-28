@@ -1,0 +1,25 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Teardown EVM
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.evm
+    tasks_from: teardown
+
+- name: Remove EVM crypto files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.evm
+    tasks_from: crypto/rm
+
+- name: Remove EVM configuration files
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.evm
+    tasks_from: config/rm
+
+- name: Remove EVM persisted state
+  ansible.builtin.file:
+    path: "{{ evm_remote_data_dir }}"
+    state: absent

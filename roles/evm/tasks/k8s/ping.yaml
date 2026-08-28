@@ -1,0 +1,43 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Check that the EVM node port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ evm_k8s_node_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - evm_k8s_node_port is defined
+
+- name: Check the EVM JSON-RPC endpoint via node port
+  vars:
+    evm_ping_base_url: "http://{{ actual_host }}:{{ evm_k8s_node_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.evm
+    tasks_from: rpc_check
+  when:
+    - evm_k8s_node_port is defined
+
+- name: Check that the EVM load balancer port is open
+  vars:
+    utils_ports_to_ping:
+      - "{{ evm_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.utils
+    tasks_from: ping
+  when:
+    - evm_k8s_loadbalancer_expose_port
+
+- name: Check the EVM JSON-RPC endpoint via load balancer
+  vars:
+    evm_ping_base_url: "http://{{ actual_host }}:{{ evm_port }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.evm
+    tasks_from: rpc_check
+  when:
+    - evm_k8s_loadbalancer_expose_port

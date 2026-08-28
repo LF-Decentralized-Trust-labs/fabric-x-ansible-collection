@@ -1,0 +1,49 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# MSP certs
+# =========================
+- name: Fetch EVM user sign certificates
+  ansible.builtin.fetch:
+    src: "{{ evm_remote_config_dir }}/users/{{ current_user.name }}@{{ organization.domain }}/msp/signcerts/{{ current_user.name }}@{{ organization.domain }}-cert.pem"
+    dest: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/users/{{ current_user.name }}@{{ organization.domain }}/msp/signcerts/{{ current_user.name }}@{{ organization.domain }}-cert.pem"
+    flat: true
+  loop: "{{ organization.users }}"
+  loop_control:
+    loop_var: current_user
+    label: "{{ organization.domain }}:{{ current_user.name }}"
+
+- name: Fetch EVM peer sign certificate into organization knowncerts
+  ansible.builtin.fetch:
+    src: "{{ evm_remote_config_dir }}/msp/signcerts/{{ evm_crypto_name }}.{{ organization.domain }}-cert.pem"
+    dest: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/msp/knowncerts/{{ evm_crypto_name }}.{{ organization.domain }}-cert.pem"
+    flat: true
+  when:
+    - organization.fabric_ca_host is defined
+
+- name: Fetch EVM user sign certificates into organization knowncerts
+  ansible.builtin.fetch:
+    src: "{{ evm_remote_config_dir }}/users/{{ current_user.name }}@{{ organization.domain }}/msp/signcerts/{{ current_user.name }}@{{ organization.domain }}-cert.pem"
+    dest: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/msp/knowncerts/{{ current_user.name }}@{{ organization.domain }}-cert.pem"
+    flat: true
+  loop: "{{ organization.users }}"
+  loop_control:
+    loop_var: current_user
+    label: "{{ organization.domain }}:{{ current_user.name }}"
+  when:
+    - organization.fabric_ca_host is defined
+
+# =========================
+# Client TLS CA certificate
+# =========================
+- name: Fetch EVM client TLS CA certificate
+  ansible.builtin.fetch:
+    src: "{{ evm_remote_config_dir }}/tls/ca.crt"
+    dest: "{{ fetched_artifacts_dir }}/{{ inventory_hostname }}/tls/ca.crt"
+    flat: true
+  when:
+    - evm_use_tls

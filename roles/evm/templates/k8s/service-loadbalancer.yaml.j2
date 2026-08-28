@@ -1,0 +1,23 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: v1
+kind: Service
+metadata:
+  # LoadBalancer Service -- exposes the EVM JSON-RPC port outside the cluster for external clients.
+  name: {{ evm_k8s_resource_name }}-loadbalancer
+  labels:
+    app.kubernetes.io/name: {{ evm_k8s_resource_name }}
+    app.kubernetes.io/component: evm
+    app.kubernetes.io/part-of: {{ evm_k8s_part_of }}
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: {{ evm_k8s_resource_name }}
+  ports:
+    - name: rest
+      port: {{ evm_port }}
+      targetPort: rest

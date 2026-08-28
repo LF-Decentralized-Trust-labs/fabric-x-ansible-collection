@@ -57,6 +57,11 @@ fabric_x_committers:
 fabric_x_block_explorer:
 	@$(call add_target_hosts,fabric_x_block_explorer):
 
+# Target the Fabric-X EVM components for the command being run (e.g. make fabric_x_evm start).
+.PHONY: fabric_x_evm
+fabric_x_evm:
+	@$(call add_target_hosts,fabric_x_evm):
+
 # Target the load_generators for the command being run (e.g. make load_generators start).
 .PHONY: load_generators
 load_generators:

@@ -1,0 +1,31 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove EVM MSP directory
+  ansible.builtin.file:
+    path: "{{ evm_remote_config_dir }}/msp"
+    state: absent
+
+- name: Remove EVM users directory
+  ansible.builtin.file:
+    path: "{{ evm_remote_config_dir }}/users"
+    state: absent
+
+- name: Remove EVM TLS directory
+  ansible.builtin.file:
+    path: "{{ evm_remote_config_dir }}/tls"
+    state: absent
+
+- name: Remove EVM TLS CA certs directory
+  ansible.builtin.file:
+    path: "{{ evm_remote_config_dir }}/tlscacerts"
+    state: absent
+
+- name: Delete EVM Kubernetes Secret
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.evm
+    tasks_from: k8s/crypto/rm
+  when: evm_use_k8s or evm_use_openshift

@@ -1,0 +1,40 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start the Fabric-X EVM gateway
+  hosts: "{{ target_hosts | default('fabric_x_evm') }}:&fabric_x_evm"
+  tasks:
+    - name: Start the Fabric-X EVM gateway
+      vars:
+        committer_hosts: >-
+          {{
+            (
+              groups['fabric_x_committers']
+              | default([])
+              | map('extract', hostvars)
+              | selectattr('organization', 'defined')
+              | selectattr('organization.domain', 'defined')
+              | selectattr('organization.domain', '==', organization.domain)
+              | map(attribute='inventory_hostname')
+              | list
+            )
+            or groups['fabric_x_committers'] | default([])
+          }}
+        orderer_router_hosts: >-
+          {{
+            groups['fabric_x_orderers']
+            | default([])
+            | map('extract', hostvars)
+            | selectattr('orderer_component_type', 'defined')
+            | selectattr('orderer_component_type', '==', 'router')
+            | map(attribute='inventory_hostname')
+            | list
+          }}
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.evm
+        tasks_from: start
+      when:
+        - evm_port is defined

@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Fetch the logs from the EVM container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.evm
+    tasks_from: container/fetch_logs
+  when: evm_use_container
+
+- name: Fetch EVM pod logs
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.evm
+    tasks_from: k8s/fetch_logs
+  when: evm_use_k8s or evm_use_openshift

@@ -62,6 +62,9 @@
 - name: Generate Hyperledger Fabric-X Block Explorer crypto
   ansible.builtin.import_playbook: hyperledger.fabricx.block_explorer.generate_crypto
 
+- name: Generate Hyperledger Fabric-X EVM crypto
+  ansible.builtin.import_playbook: hyperledger.fabricx.evm.generate_crypto
+
 - name: Generate Hyperledger Fabric-X Load generators crypto
   ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.generate_crypto
 

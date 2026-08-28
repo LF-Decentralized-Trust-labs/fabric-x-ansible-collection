@@ -1,0 +1,25 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start EVM workload using generic k8s flow
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.evm
+    tasks_from: k8s/start
+
+- name: Apply EVM OpenShift Route
+  vars:
+    openshift_route_name: "{{ evm_k8s_resource_name }}-rest"
+    openshift_route_host: "{{ evm_openshift_route }}"
+    openshift_route_service_name: "{{ evm_k8s_resource_name }}"
+    openshift_route_service_port: rest
+    openshift_route_labels:
+      app.kubernetes.io/name: "{{ evm_k8s_resource_name }}"
+      app.kubernetes.io/component: evm
+      app.kubernetes.io/part-of: "{{ evm_k8s_part_of }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openshift
+    tasks_from: route/apply
+  when: evm_openshift_route is defined

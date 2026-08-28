@@ -283,6 +283,7 @@ The `Makefile` comes with a set of [predefined host groups](./target_groups.mk) 
 | `fabric_x`            | The Fabric-X network nodes (orderers+committer). |
 | `fabric_x_orderers`   | All the Fabric-X orderers.                       |
 | `fabric_x_committers` | The Fabric-X committer components.               |
+| `fabric_x_evm`        | The Fabric-X EVM gateway.                        |
 | `load_generators`     | All the load_generators.                         |
 | `monitoring`          | All the monitoring instances.                    |
 

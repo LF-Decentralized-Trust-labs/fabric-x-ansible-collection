@@ -1,0 +1,33 @@
+# ---------------------------------------------------------------------------
+# Embedded endorser configuration
+# Runs this process's own endorser peer, which validates and endorses EVM
+# transactions before they are committed through Fabric-X.
+# ---------------------------------------------------------------------------
+endorser:
+  # Label for the embedded endorser.
+  name: {{ evm_endorser_name }}
+  identity:
+    # MSP ID identifying the organization.
+    msp-id: {{ organization.name }}MSP
+    # Peer identity backing the embedded endorser.
+    msp-dir: {{ evm_container_config_dir }}/msp
+  committer:
+    endpoint:
+      host: {{ hostvars[sidecar_host].ansible_host }}
+      port: {{ hostvars[sidecar_host].committer_rpc_port }}
+{% if (hostvars[sidecar_host].committer_use_tls is defined) and hostvars[sidecar_host].committer_use_tls %}
+    tls:
+{% if (hostvars[sidecar_host].committer_use_mtls is defined) and hostvars[sidecar_host].committer_use_mtls %}
+      mode: mtls
+      cert-path: {{ evm_container_config_dir }}/tls/server.crt
+      key-path: {{ evm_container_config_dir }}/tls/server.key
+{% else %}
+      mode: tls
+{% endif %}
+      ca-cert-paths:
+        - {{ evm_container_config_dir }}/tls/sidecar/ca.crt
+{% endif %}
+  database:
+    # sqlite is the only backend this role configures.
+    database: sqlite
+    connection-string: "file:{{ evm_container_data_dir }}/endorser.db"

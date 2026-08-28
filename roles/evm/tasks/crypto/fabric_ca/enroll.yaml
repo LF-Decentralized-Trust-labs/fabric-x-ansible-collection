@@ -1,0 +1,93 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Transfer TLS CA certificate of Fabric CA
+  when:
+    - hostvars[organization.fabric_ca_host].fabric_ca_use_tls is defined
+    - hostvars[organization.fabric_ca_host].fabric_ca_use_tls
+  block:
+    - name: Ensure TLS CA certificate folder exists
+      ansible.builtin.file:
+        path: "{{ evm_remote_config_dir }}/tlscacerts"
+        state: directory
+        mode: "0o755"
+    - name: Copy TLS CA certificate of Fabric CA
+      ansible.builtin.copy:
+        src: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
+        dest: "{{ evm_remote_config_dir }}/tlscacerts"
+        mode: "preserve"
+
+# =========================
+# Peer MSP
+# =========================
+- name: Generate EVM MSP peer crypto material
+  vars:
+    fabric_ca_host: "{{ organization.fabric_ca_host }}"
+    fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls | default(false) }}"
+    fabric_ca_name: "{{ hostvars[organization.fabric_ca_host].fabric_ca_name }}"
+    fabric_ca_msp_dir: "{{ evm_remote_config_dir }}/msp"
+    fabric_ca_cryptogenize_msp_signcert_file: "signcerts/{{ evm_crypto_name }}.{{ organization.domain }}-cert.pem"
+    fabric_ca_tls_certfile: "{{ evm_remote_config_dir }}/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
+    fabric_ca_csr_hosts: "{{ ansible_all_ipv4_addresses + [ansible_host] }}"
+    fabric_ca_identity:
+      name: "{{ organization.peer.name | default(inventory_hostname) }}"
+      secret: "{{ organization.peer.secret }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/enroll
+
+# =========================
+# Users MSP
+# =========================
+- name: Generate EVM MSP user crypto material
+  vars:
+    fabric_ca_host: "{{ organization.fabric_ca_host }}"
+    fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls | default(false) }}"
+    fabric_ca_name: "{{ hostvars[organization.fabric_ca_host].fabric_ca_name }}"
+    fabric_ca_msp_dir: "{{ evm_remote_config_dir }}/users/{{ current_user.name }}@{{ organization.domain }}/msp"
+    fabric_ca_cryptogenize_msp_signcert_file: "signcerts/{{ current_user.name }}@{{ organization.domain }}-cert.pem"
+    fabric_ca_tls_certfile: "{{ evm_remote_config_dir }}/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
+    fabric_ca_csr_hosts:
+      - "{{ inventory_hostname }}"
+      - "{{ ansible_host }}"
+      - "{{ actual_host }}"
+      - "{{ current_user.name }}"
+    fabric_ca_identity:
+      name: "{{ current_user.name }}"
+      secret: "{{ current_user.secret }}"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/enroll
+  loop: "{{ organization.users }}"
+  loop_control:
+    loop_var: current_user
+    label: "{{ organization.domain }}:{{ current_user.name }}"
+
+# =========================
+# TLS
+# =========================
+- name: Generate EVM client TLS crypto material
+  when:
+    - evm_use_tls
+  block:
+    - name: Initialize EVM TLS SAN hosts
+      ansible.builtin.set_fact:
+        evm_tls_san_hosts: "{{ ansible_all_ipv4_addresses + [ansible_host, actual_host] }}"
+    - name: Generate EVM client TLS crypto material
+      vars:
+        fabric_ca_host: "{{ organization.fabric_ca_host }}"
+        fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls | default(false) }}"
+        fabric_ca_name: "{{ hostvars[organization.fabric_ca_host].fabric_ca_name }}"
+        fabric_ca_msp_dir: "{{ evm_remote_config_dir }}/tls"
+        fabric_ca_tls_certfile: "{{ evm_remote_config_dir }}/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
+        fabric_ca_enrollment_profile: tls
+        fabric_ca_csr_hosts: "{{ evm_tls_san_hosts | unique }}"
+        fabric_ca_identity:
+          name: "{{ organization.peer.name | default(inventory_hostname) }}"
+          secret: "{{ organization.peer.secret }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: client/enroll

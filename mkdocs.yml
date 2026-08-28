@@ -108,6 +108,7 @@ nav:
       - Local:
           - fabric-x: examples/inventory/docs/local/fabric-x.md
           - fabric-x-yugabyte: examples/inventory/docs/local/fabric-x-yugabyte.md
+          - fabric-x-evm: examples/inventory/docs/local/fabric-x-evm.md
           - fabric-x-bin: examples/inventory/docs/local/fabric-x-bin.md
           - fabric-x-cryptogen: examples/inventory/docs/local/fabric-x-cryptogen.md
           - fabric-x-no-mtls: examples/inventory/docs/local/fabric-x-no-mtls.md
@@ -116,6 +117,7 @@ nav:
       - Kubernetes:
           - fabric-x: examples/inventory/docs/k8s/fabric-x.md
           - fabric-x-yugabyte: examples/inventory/docs/k8s/fabric-x-yugabyte.md
+          - fabric-x-evm: examples/inventory/docs/k8s/fabric-x-evm.md
           - fabric-x-cryptogen: examples/inventory/docs/k8s/fabric-x-cryptogen.md
           - fabric-x-no-mtls: examples/inventory/docs/k8s/fabric-x-no-mtls.md
           - fabric-x-no-tls: examples/inventory/docs/k8s/fabric-x-no-tls.md
@@ -129,6 +131,7 @@ nav:
       - artifacts: playbooks/artifacts/index.md
       - block_explorer: playbooks/block_explorer/index.md
       - committer: playbooks/committer/index.md
+      - evm: playbooks/evm/index.md
       - fabric_ca_client: playbooks/fabric_ca_client/index.md
       - fabric_ca_server: playbooks/fabric_ca_server/index.md
       - fxconfig: playbooks/fxconfig/index.md
@@ -150,6 +153,7 @@ nav:
       - container: roles/container/index.md
       - cryptogen: roles/cryptogen/index.md
       - elasticsearch: roles/elasticsearch/index.md
+      - evm: roles/evm/index.md
       - fabric_ca: roles/fabric_ca/index.md
       - fxconfig: roles/fxconfig/index.md
       - git: roles/git/index.md
