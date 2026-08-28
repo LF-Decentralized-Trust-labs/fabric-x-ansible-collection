@@ -26,6 +26,7 @@ jobs:
           - inventory: "fabric-x-no-mtls"
           - inventory: "fabric-x-no-tls"
           - inventory: "fabric-x-yugabyte"
+          - inventory: "fabric-x-evm"
       fail-fast: false
 
     steps:
