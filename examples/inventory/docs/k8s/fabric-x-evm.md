@@ -12,38 +12,9 @@ Use it to validate the EVM gateway's StatefulSet, PersistentVolumeClaim, Service
 
 ## Network Diagram
 
-```mermaid
-flowchart TD
-  all --> network
-  network --> fabric_cas
-  network --> fabric_x
-  all --> load_generators
-  all --> monitoring
-  monitoring --> prometheus
-  monitoring --> grafana
-  monitoring --> loki
-  monitoring --> alloy
-  monitoring --> node_exporter
-  monitoring --> postgres_exporter
-  grafana --> prometheus
-  grafana --> loki
-  alloy --> loki
-  prometheus --> node_exporter
-  prometheus --> postgres_exporter
-  fabric_cas --> fabric_ca_servers
-  fabric_cas --> fabric_ca_dbs
-  fabric_x --> fabric_x_orderers
-  fabric_x --> fabric_x_committers
-  fabric_x --> fabric_x_block_explorer
-  fabric_x --> fabric_x_evm
-  fabric_x_committers --> fabric_x_committer
-  fabric_x_orderers --> fabric_x_orderer_1
-  fabric_x_orderers --> fabric_x_orderer_2
-  fabric_x_orderers --> fabric_x_orderer_3
-  fabric_x_orderers --> fabric_x_orderer_4
-  fabric_x_evm -.->|submits to| fabric_x_orderers
-  fabric_x_evm -.->|synchronizes with| fabric_x_committer
-```
+The diagram below summarizes this inventory's Fabric-X services and how they fit together.
+
+![k8s Fabric-X-EVM inventory](../../../images/fabric-x-k8s-evm.drawio.png)
 
 ## Inventory Details
 

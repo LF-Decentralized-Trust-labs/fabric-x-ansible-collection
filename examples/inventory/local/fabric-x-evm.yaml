@@ -303,27 +303,27 @@ all:
                   sidecar_host: committer-sidecar
                   postgres_db_host: block-explorer-db
 
-            # =========================
-            # HLFX EVM
-            # =========================
-            fabric_x_evm:
-              hosts:
-                fabric-x-evm:
-                  evm_port: 8545
-                  evm_use_tls: true
-                  organization:
-                    <<: *Org1
-                    fabric_ca_host: fca-org1
-                    role: peer
-                    peer:
-                      name: "{{ inventory_hostname }}"
-                      secret: "{{ inventory_hostname }}PWD"
-                    users:
-                      - name: fabric-x-evm
-                        secret: "{{ inventory_hostname }}PWD"
-                    namespaces:
-                      - id: basic
-                        policy: threshold
+        # =========================
+        # HLFX EVM
+        # =========================
+        fabric_x_evm:
+          hosts:
+            fabric-x-evm:
+              evm_port: 8545
+              evm_use_tls: true
+              organization:
+                <<: *Org1
+                fabric_ca_host: fca-org1
+                role: peer
+                peer:
+                  name: "{{ inventory_hostname }}"
+                  secret: "{{ inventory_hostname }}PWD"
+                users:
+                  - name: fabric-x-evm
+                    secret: "{{ inventory_hostname }}PWD"
+                namespaces:
+                  - id: basic
+                    policy: threshold
 
     # =========================
     # HLFX LoadGens
