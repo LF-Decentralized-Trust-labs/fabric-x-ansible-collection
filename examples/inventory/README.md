@@ -66,15 +66,15 @@ Keep the standard groups when adapting an example inventory. If you rename them,
 
 The most important groups are:
 
-| Group                 | Purpose                                                                    |
-| --------------------- | -------------------------------------------------------------------------- |
-| `network`             | Parent group for the deployable Fabric-X network.                          |
-| `fabric_cas`          | Fabric CA servers and their databases, when the inventory uses Fabric CA.  |
-| `fabric_x`            | Parent group for Fabric-X orderer and committer components.                |
-| `fabric_x_orderers`   | All Fabric-X orderer component hosts.                                      |
-| `fabric_x_committers` | Parent group for one or more Fabric-X committer deployments.               |
-| `fabric_x_committer`  | The default Fabric-X committer deployment and selected committer database. |
-| `load_generators`     | Load generator instances.                                                  |
+| Group                 | Purpose                                                                        |
+| --------------------- | ------------------------------------------------------------------------------ |
+| `network`             | Parent group for the deployable Fabric-X network.                              |
+| `fabric_cas`          | Fabric CA servers and their databases, when the inventory uses Fabric CA.      |
+| `fabric_x`            | Parent group for Fabric-X orderer and committer components.                    |
+| `fabric_x_orderers`   | All Fabric-X orderer component hosts.                                          |
+| `fabric_x_committers` | Parent group for one or more Fabric-X committer deployments.                   |
+| `fabric_x_committer`  | The default Fabric-X committer deployment and selected committer database.     |
+| `load_generators`     | Load generator instances.                                                      |
 | `monitoring`          | Monitoring components such as exporters, Prometheus, Grafana, Loki, and Alloy. |
 
 ```mermaid
@@ -187,6 +187,7 @@ Local inventories run a complete network on the control machine with `ansible_co
 | --------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
 | [`local/fabric-x.yaml`](./docs/local/fabric-x.md)                     | Default local container deployment with Fabric CA, PostgreSQL, TLS, and mTLS. |
 | [`local/fabric-x-yugabyte.yaml`](./docs/local/fabric-x-yugabyte.md)   | Local container deployment using YugabyteDB as the committer database.        |
+| [`local/fabric-x-evm.yaml`](./docs/local/fabric-x-evm.md)             | Local container deployment with the Fabric-X EVM gateway attached.            |
 | [`local/fabric-x-bin.yaml`](./docs/local/fabric-x-bin.md)             | Local deployment that runs Fabric-X services as binaries.                     |
 | [`local/fabric-x-cryptogen.yaml`](./docs/local/fabric-x-cryptogen.md) | Local container deployment using centrally generated `cryptogen` material.    |
 | [`local/fabric-x-no-mtls.yaml`](./docs/local/fabric-x-no-mtls.md)     | Local container deployment with TLS enabled and mTLS disabled.                |
@@ -204,13 +205,14 @@ Kubernetes inventories deploy the same logical Fabric-X services as Kubernetes w
 
 [`k8s/group_vars/all/env.yaml`](./k8s/group_vars/all/env.yaml) uses local Ansible execution against Kubernetes services and adds Kubernetes defaults such as `k8s_namespace` and `k8s_storage_size`.
 
-| Inventory                                                         | Description                                                                               |
-| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| [`k8s/fabric-x.yaml`](./docs/k8s/fabric-x.md)                     | Default Kubernetes deployment with Fabric CA, PostgreSQL, TLS, and mTLS.                  |
-| [`k8s/fabric-x-yugabyte.yaml`](./docs/k8s/fabric-x-yugabyte.md)   | Kubernetes deployment using YugabyteDB as the committer database.                         |
-| [`k8s/fabric-x-cryptogen.yaml`](./docs/k8s/fabric-x-cryptogen.md) | Kubernetes deployment using centrally generated `cryptogen` material.                     |
-| [`k8s/fabric-x-no-mtls.yaml`](./docs/k8s/fabric-x-no-mtls.md)     | Kubernetes deployment with TLS enabled and mTLS disabled.                                 |
-| [`k8s/fabric-x-no-tls.yaml`](./docs/k8s/fabric-x-no-tls.md)       | Kubernetes deployment with TLS and mTLS disabled for debugging only.                      |
+| Inventory                                                         | Description                                                              |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| [`k8s/fabric-x.yaml`](./docs/k8s/fabric-x.md)                     | Default Kubernetes deployment with Fabric CA, PostgreSQL, TLS, and mTLS. |
+| [`k8s/fabric-x-yugabyte.yaml`](./docs/k8s/fabric-x-yugabyte.md)   | Kubernetes deployment using YugabyteDB as the committer database.        |
+| [`k8s/fabric-x-evm.yaml`](./docs/k8s/fabric-x-evm.md)             | Kubernetes deployment with the Fabric-X EVM gateway attached.            |
+| [`k8s/fabric-x-cryptogen.yaml`](./docs/k8s/fabric-x-cryptogen.md) | Kubernetes deployment using centrally generated `cryptogen` material.    |
+| [`k8s/fabric-x-no-mtls.yaml`](./docs/k8s/fabric-x-no-mtls.md)     | Kubernetes deployment with TLS enabled and mTLS disabled.                |
+| [`k8s/fabric-x-no-tls.yaml`](./docs/k8s/fabric-x-no-tls.md)       | Kubernetes deployment with TLS and mTLS disabled for debugging only.     |
 
 For remote clusters, set the externally reachable node address used by NodePort services:
 
@@ -224,9 +226,9 @@ OpenShift inventories deploy Kubernetes-compatible workloads and services, then 
 
 [`openshift/group_vars/all/env.yaml`](./openshift/group_vars/all/env.yaml) uses local Ansible execution against OpenShift services and stores generated deployment state below `out_dir`.
 
-| Inventory                                                                     | Description                                                                                                                   |
-| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| [`openshift/fabric-x-cryptogen.yaml`](./docs/openshift/fabric-x-cryptogen.md) | OpenShift deployment using centrally generated `cryptogen` material and route-based access.                                   |
+| Inventory                                                                     | Description                                                                                 |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [`openshift/fabric-x-cryptogen.yaml`](./docs/openshift/fabric-x-cryptogen.md) | OpenShift deployment using centrally generated `cryptogen` material and route-based access. |
 
 Set the OpenShift wildcard route domain before running the inventory:
 

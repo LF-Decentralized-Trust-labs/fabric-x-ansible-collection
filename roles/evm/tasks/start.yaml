@@ -1,0 +1,23 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Start EVM container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.evm
+    tasks_from: container/start
+  when: evm_use_container
+
+- name: Start EVM on Kubernetes
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.evm
+    tasks_from: k8s/start
+  when: evm_use_k8s
+
+- name: Start EVM on OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.evm
+    tasks_from: openshift/start
+  when: evm_use_openshift

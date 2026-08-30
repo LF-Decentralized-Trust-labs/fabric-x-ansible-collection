@@ -1,0 +1,9 @@
+# ---------------------------------------------------------------------------
+# Logging configuration
+# ---------------------------------------------------------------------------
+logging:
+  # Log level specification. Can be a single level (e.g., "info", "debug") or
+  # module-specific levels.
+  spec: {{ evm_log_level }}
+  # Log record format specifier.
+  format: "{{ evm_log_format }}"

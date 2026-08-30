@@ -1,0 +1,164 @@
+{% set evm_gateway_user = organization.users | first %}
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ evm_k8s_resource_name }}
+  labels:
+    app.kubernetes.io/name: {{ evm_k8s_resource_name }}
+    app.kubernetes.io/component: evm
+    app.kubernetes.io/part-of: {{ evm_k8s_part_of }}
+spec:
+  # Must match the headless Service name so DNS-based pod addressing works.
+  serviceName: {{ evm_k8s_resource_name }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ evm_k8s_resource_name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ evm_k8s_resource_name }}
+        app.kubernetes.io/component: evm
+        app.kubernetes.io/part-of: {{ evm_k8s_part_of }}
+    spec:
+      securityContext:
+        fsGroup: {{ evm_k8s_fs_group }}
+      containers:
+        - name: evm
+          image: {{ evm_image }}
+{% if k8s_resources is defined and k8s_resources %}
+          resources:
+{{ k8s_resources | to_nice_yaml(indent=2) | indent(12, true) }}
+{% endif %}
+          args:
+            - "start"
+            - "--config={{ evm_container_config_dir }}/{{ evm_config_file }}"
+          ports:
+            - name: rest
+              containerPort: {{ evm_port }}
+              protocol: TCP
+          volumeMounts:
+            # Main gateway configuration file.
+            - name: config
+              mountPath: {{ evm_container_config_dir }}/{{ evm_config_file }}
+              subPath: {{ evm_config_file }}
+              readOnly: true
+{% if hostvars[sidecar_host].committer_use_tls is defined and hostvars[sidecar_host].committer_use_tls %}
+            # TLS CA certificate of the committer sidecar.
+            - name: config
+              mountPath: {{ evm_container_config_dir }}/tls/sidecar/ca.crt
+              subPath: sidecar-ca.crt
+              readOnly: true
+{% endif %}
+{% for current_orderer_router_host in orderer_router_hosts %}
+{% if hostvars[current_orderer_router_host].orderer_use_tls is defined and hostvars[current_orderer_router_host].orderer_use_tls %}
+            # TLS CA certificate of orderer router {{ current_orderer_router_host }}.
+            - name: config
+              mountPath: {{ evm_container_config_dir }}/tls/orderer/{{ current_orderer_router_host }}/ca.crt
+              subPath: orderer-{{ current_orderer_router_host }}-ca.crt
+              readOnly: true
+{% endif %}
+{% endfor %}
+            # Peer MSP signing certificate backing the embedded endorser identity.
+            - name: secret
+              mountPath: {{ evm_container_config_dir }}/msp/signcerts/{{ evm_crypto_name }}.{{ organization.domain }}-cert.pem
+              subPath: msp-signcert.pem
+              readOnly: true
+            # Peer MSP private key.
+            - name: secret
+              mountPath: {{ evm_container_config_dir }}/msp/keystore/priv_sk
+              subPath: msp-keystore-priv-sk
+              readOnly: true
+            # Peer MSP CA certificate.
+            - name: secret
+              mountPath: {{ evm_container_config_dir }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem
+              subPath: msp-cacert.pem
+              readOnly: true
+            # Peer MSP NodeOUs configuration.
+            - name: secret
+              mountPath: {{ evm_container_config_dir }}/msp/config.yaml
+              subPath: msp-config.yaml
+              readOnly: true
+            # Gateway signing identity: user MSP signing certificate.
+            - name: secret
+              mountPath: {{ evm_container_config_dir }}/users/{{ evm_gateway_user.name }}@{{ organization.domain }}/msp/signcerts/{{ evm_gateway_user.name }}@{{ organization.domain }}-cert.pem
+              subPath: user-{{ evm_gateway_user.name }}-msp-signcert.pem
+              readOnly: true
+            # Gateway signing identity: user MSP private key.
+            - name: secret
+              mountPath: {{ evm_container_config_dir }}/users/{{ evm_gateway_user.name }}@{{ organization.domain }}/msp/keystore/priv_sk
+              subPath: user-{{ evm_gateway_user.name }}-msp-keystore-priv-sk
+              readOnly: true
+            # Gateway signing identity: user MSP CA certificate.
+            - name: secret
+              mountPath: {{ evm_container_config_dir }}/users/{{ evm_gateway_user.name }}@{{ organization.domain }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem
+              subPath: user-{{ evm_gateway_user.name }}-msp-cacert.pem
+              readOnly: true
+{% if evm_use_tls %}
+            # Client TLS private key used for connections to orderers and the committer sidecar.
+            - name: secret
+              mountPath: {{ evm_container_config_dir }}/tls/server.key
+              subPath: tls-server.key
+              readOnly: true
+            # Client TLS certificate used for connections to orderers and the committer sidecar.
+            - name: secret
+              mountPath: {{ evm_container_config_dir }}/tls/server.crt
+              subPath: tls-server.crt
+              readOnly: true
+{% endif %}
+            # Persistent volume for the gateway and embedded endorser SQLite state.
+            - name: data
+              mountPath: {{ evm_container_data_dir }}
+          # No HTTP health path exists (only JSON-RPC POST /); a bare GET returns
+          # 415. tcpSocket mirrors what the image's own `fxevm healthcheck` does:
+          # the listener only opens once the embedded endorser has synchronized
+          # with the committer sidecar, so a successful probe already proves
+          # Fabric-X connectivity.
+          readinessProbe:
+            tcpSocket:
+              port: rest
+            initialDelaySeconds: {{ k8s_readiness_probe_initial_delay_seconds | default(10) }}
+            periodSeconds: {{ k8s_readiness_probe_period_seconds | default(10) }}
+            timeoutSeconds: {{ k8s_readiness_probe_timeout_seconds | default(5) }}
+            failureThreshold: {{ k8s_readiness_probe_failure_threshold | default(3) }}
+            successThreshold: 1
+          livenessProbe:
+            tcpSocket:
+              port: rest
+            initialDelaySeconds: {{ k8s_liveness_probe_initial_delay_seconds | default(30) }}
+            periodSeconds: {{ k8s_liveness_probe_period_seconds | default(15) }}
+            timeoutSeconds: {{ k8s_liveness_probe_timeout_seconds | default(5) }}
+            failureThreshold: {{ k8s_liveness_probe_failure_threshold | default(5) }}
+            successThreshold: 1
+      volumes:
+        - name: config
+          configMap:
+            name: {{ evm_k8s_resource_name }}
+            defaultMode: 0640
+        - name: secret
+          secret:
+            secretName: {{ evm_k8s_resource_name }}
+            defaultMode: 0640
+{% if k8s_image_pull_secret is defined and k8s_image_pull_secret %}
+      imagePullSecrets:
+        - name: {{ k8s_image_pull_secret }}
+{% endif %}
+  volumeClaimTemplates:
+    # PVC name — Kubernetes appends the pod ordinal (e.g. data-<name>-0).
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+{% if k8s_storage_class is defined and k8s_storage_class %}
+        storageClassName: {{ k8s_storage_class }}
+{% endif %}
+        resources:
+          requests:
+            storage: {{ k8s_storage_size }}

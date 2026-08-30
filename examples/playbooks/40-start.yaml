@@ -22,6 +22,9 @@
 - name: Start Hyperledger Fabric-X Block Explorer
   ansible.builtin.import_playbook: hyperledger.fabricx.block_explorer.start
 
+- name: Start Hyperledger Fabric-X EVM
+  ansible.builtin.import_playbook: hyperledger.fabricx.evm.start
+
 - name: Start Monitoring
   ansible.builtin.import_playbook: hyperledger.fabricx.monitoring.start
 

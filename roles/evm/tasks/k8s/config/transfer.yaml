@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Namespace
+# =========================
+- name: Ensure Kubernetes namespace exists for EVM
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.k8s
+    tasks_from: namespace/create
+
+# =========================
+# Apply ConfigMap
+# =========================
+- name: Apply EVM ConfigMap
+  vars:
+    evm_k8s_config_path: "{{ evm_remote_config_dir }}/{{ evm_config_file }}"
+    evm_k8s_sidecar_ca_path: "{{ evm_remote_config_dir }}/tls/sidecar/ca.crt"
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ k8s_namespace | default('default') }}"
+    template:
+      path: k8s/configmap.yaml.j2

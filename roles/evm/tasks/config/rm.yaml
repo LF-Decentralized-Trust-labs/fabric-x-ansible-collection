@@ -1,0 +1,16 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Delete EVM Kubernetes ConfigMap
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.evm
+    tasks_from: k8s/config/rm
+  when: evm_use_k8s or evm_use_openshift
+
+- name: Remove EVM config directory
+  ansible.builtin.file:
+    path: "{{ evm_remote_config_dir }}"
+    state: absent

@@ -1,0 +1,42 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Included with `evm_ping_base_url` set by the caller. The gateway only opens
+# its JSON-RPC listener once its embedded endorser has synchronized with the
+# committer sidecar (see gateway/app/app.go WaitUntilSynced upstream), so a
+# successful eth_chainId reply already proves Fabric-X connectivity; the
+# retries below cover the time that initial sync takes.
+- name: Check the EVM JSON-RPC chain ID at {{ evm_ping_base_url }}
+  ansible.builtin.uri:
+    url: "{{ evm_ping_base_url }}"
+    method: POST
+    body_format: json
+    body:
+      jsonrpc: "2.0"
+      id: 1
+      method: eth_chainId
+      params: []
+    status_code: 200
+  register: evm_chain_id_result
+  until: (evm_chain_id_result.json.result | default('0') | int(base=16)) == (evm_chain_id | int)
+  retries: 30
+  delay: 2
+
+- name: Check the EVM JSON-RPC block indexer at {{ evm_ping_base_url }}
+  ansible.builtin.uri:
+    url: "{{ evm_ping_base_url }}"
+    method: POST
+    body_format: json
+    body:
+      jsonrpc: "2.0"
+      id: 2
+      method: eth_blockNumber
+      params: []
+    status_code: 200
+  register: evm_block_number_result
+  until: evm_block_number_result.json.error is not defined
+  retries: 5
+  delay: 2

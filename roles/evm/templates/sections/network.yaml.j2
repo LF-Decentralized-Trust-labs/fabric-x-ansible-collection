@@ -1,0 +1,17 @@
+{% set evm_namespace = organization.namespaces | first %}
+# ---------------------------------------------------------------------------
+# Network configuration
+# Identifies the Fabric-X channel, application namespace, and Ethereum-style
+# chain ID served by this gateway.
+# ---------------------------------------------------------------------------
+network:
+  # Network protocol: 'fabric' or 'fabric-x'.
+  protocol: {{ evm_protocol }}
+  # Fabric channel.
+  channel: {{ channel_id }}
+  # Fabric-X application namespace for EVM state, created with fxconfig.
+  namespace: {{ evm_namespace.id }}
+  # Version of the application namespace, usually "1.0".
+  ns-version: "{{ evm_ns_version }}"
+  # Ethereum-style chain ID served by the gateway.
+  chain-id: {{ evm_chain_id }}

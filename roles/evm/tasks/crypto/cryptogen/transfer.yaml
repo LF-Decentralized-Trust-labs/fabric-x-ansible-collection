@@ -1,0 +1,47 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Peer MSP
+# =========================
+- name: Ensure the EVM config directory exists
+  ansible.builtin.file:
+    path: "{{ evm_remote_config_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Transfer the peer MSP crypto material generated with cryptogen
+  ansible.posix.synchronize:
+    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ evm_crypto_name }}.{{ organization.domain }}/msp"
+    dest: "{{ evm_remote_config_dir }}"
+
+# =========================
+# Users MSP
+# =========================
+- name: Ensure the EVM users config directory exists
+  ansible.builtin.file:
+    path: "{{ evm_remote_config_dir }}/users"
+    state: directory
+    mode: "0o755"
+
+- name: Transfer the EVM users crypto material
+  ansible.posix.synchronize:
+    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/users/{{ current_user.name }}@{{ organization.domain }}"
+    dest: "{{ evm_remote_config_dir }}/users"
+  loop: "{{ organization.users }}"
+  loop_control:
+    label: "{{ current_user.name }}"
+    loop_var: current_user
+
+# =========================
+# TLS
+# =========================
+- name: Transfer the client TLS crypto material generated with cryptogen
+  ansible.posix.synchronize:
+    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ evm_crypto_name }}.{{ organization.domain }}/tls"
+    dest: "{{ evm_remote_config_dir }}"
+  when:
+    - evm_use_tls

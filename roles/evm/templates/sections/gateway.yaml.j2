@@ -1,0 +1,62 @@
+{% set evm_gateway_user = organization.users | first %}
+# ---------------------------------------------------------------------------
+# Gateway configuration
+# Ethereum JSON-RPC endpoint, signing identity, and connections to the
+# Fabric-X orderers and committer sidecar used to submit and observe
+# transactions.
+# ---------------------------------------------------------------------------
+gateway:
+  # HTTP listen address. Serves Ethereum JSON-RPC and WebSocket on the same port.
+  listen: "0.0.0.0:{{ evm_port }}"
+  identity:
+    # MSP ID identifying the organization.
+    msp-id: {{ organization.name }}MSP
+    # User identity used to sign transactions submitted by the gateway.
+    msp-dir: {{ evm_container_config_dir }}/users/{{ evm_gateway_user.name }}@{{ organization.domain }}/msp
+  database:
+    # SQLite connection string for the block/transaction/log index.
+    connection-string: "file:{{ evm_container_data_dir }}/gateway.db"
+
+  # One entry per Fabric-X Orderer router the gateway submits transactions to.
+  orderers:
+{% for current_orderer_router_host in orderer_router_hosts %}
+    - endpoint:
+        host: {{ hostvars[current_orderer_router_host].ansible_host }}
+        port: {{ hostvars[current_orderer_router_host].orderer_rpc_port }}
+{% if (hostvars[current_orderer_router_host].orderer_use_tls is defined) and hostvars[current_orderer_router_host].orderer_use_tls %}
+      tls:
+{% if (hostvars[current_orderer_router_host].orderer_use_mtls is defined) and hostvars[current_orderer_router_host].orderer_use_mtls %}
+        mode: mtls
+        cert-path: {{ evm_container_config_dir }}/tls/server.crt
+        key-path: {{ evm_container_config_dir }}/tls/server.key
+{% else %}
+        mode: tls
+{% endif %}
+        ca-cert-paths:
+          - {{ evm_container_config_dir }}/tls/orderer/{{ current_orderer_router_host }}/ca.crt
+{% endif %}
+{% endfor %}
+
+  # Committer sidecar the gateway synchronizes with for block delivery.
+  committer:
+    endpoint:
+      host: {{ hostvars[sidecar_host].ansible_host }}
+      port: {{ hostvars[sidecar_host].committer_rpc_port }}
+{% if (hostvars[sidecar_host].committer_use_tls is defined) and hostvars[sidecar_host].committer_use_tls %}
+    tls:
+{% if (hostvars[sidecar_host].committer_use_mtls is defined) and hostvars[sidecar_host].committer_use_mtls %}
+      mode: mtls
+      cert-path: {{ evm_container_config_dir }}/tls/server.crt
+      key-path: {{ evm_container_config_dir }}/tls/server.key
+{% else %}
+      mode: tls
+{% endif %}
+      ca-cert-paths:
+        - {{ evm_container_config_dir }}/tls/sidecar/ca.crt
+{% endif %}
+  # Number of gateway worker goroutines.
+  worker-count: {{ evm_worker_count }}
+  # Number of parallel orderer submitter instances.
+  submitter-count: {{ evm_submitter_count }}
+  # Buffer size of the endorsement channel.
+  endorsement-chan-size: {{ evm_endorsement_chan_size }}

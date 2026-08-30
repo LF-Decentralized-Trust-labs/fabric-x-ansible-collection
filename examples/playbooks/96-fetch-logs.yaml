@@ -19,6 +19,9 @@
 - name: Fetch Hyperledger Fabric-X Block Explorer logs
   ansible.builtin.import_playbook: hyperledger.fabricx.block_explorer.fetch_logs
 
+- name: Fetch Hyperledger Fabric-X EVM logs
+  ansible.builtin.import_playbook: hyperledger.fabricx.evm.fetch_logs
+
 - name: Fetch Hyperledger Fabric-X Loadgen logs
   ansible.builtin.import_playbook: hyperledger.fabricx.loadgen.fetch_logs
 

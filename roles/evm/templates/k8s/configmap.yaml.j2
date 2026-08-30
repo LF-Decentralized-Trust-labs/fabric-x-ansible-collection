@@ -1,0 +1,27 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ evm_k8s_resource_name }}
+  labels:
+    app.kubernetes.io/name: {{ evm_k8s_resource_name }}
+    app.kubernetes.io/component: evm
+    app.kubernetes.io/part-of: {{ evm_k8s_part_of }}
+data:
+  {{ evm_config_file }}: |
+{{ lookup('file', evm_k8s_config_path) | indent(4, true) }}
+{% if hostvars[sidecar_host].committer_use_tls is defined and hostvars[sidecar_host].committer_use_tls %}
+  sidecar-ca.crt: |
+{{ lookup('file', evm_k8s_sidecar_ca_path) | indent(4, true) }}
+{% endif %}
+{% for current_orderer_router_host in orderer_router_hosts %}
+{% if hostvars[current_orderer_router_host].orderer_use_tls is defined and hostvars[current_orderer_router_host].orderer_use_tls %}
+  orderer-{{ current_orderer_router_host }}-ca.crt: |
+{{ lookup('file', evm_remote_config_dir + '/tls/orderer/' + current_orderer_router_host + '/ca.crt') | indent(4, true) }}
+{% endif %}
+{% endfor %}

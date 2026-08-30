@@ -1,0 +1,38 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove EVM StatefulSet
+  kubernetes.core.k8s:
+    state: absent
+    kind: StatefulSet
+    name: "{{ evm_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
+
+- name: Remove EVM Service
+  kubernetes.core.k8s:
+    state: absent
+    kind: Service
+    name: "{{ evm_k8s_resource_name }}"
+    namespace: "{{ k8s_namespace | default('default') }}"
+
+- name: Remove EVM NodePort Service
+  kubernetes.core.k8s:
+    state: absent
+    kind: Service
+    name: "{{ evm_k8s_resource_name }}-nodeport"
+    namespace: "{{ k8s_namespace | default('default') }}"
+  when:
+    - evm_k8s_node_port is defined
+
+- name: Delete EVM LoadBalancer Service
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Service
+    name: "{{ evm_k8s_resource_name }}-loadbalancer"
+    namespace: "{{ k8s_namespace | default('default') }}"
+  when:
+    - evm_k8s_loadbalancer_expose_port

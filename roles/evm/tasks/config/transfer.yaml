@@ -1,0 +1,96 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Transfer the EVM gateway config files
+  vars:
+    sidecar_host: >-
+      {{
+        committer_hosts
+        | map('extract', hostvars)
+        | selectattr('committer_component_type', 'defined')
+        | selectattr('committer_component_type', '==', 'sidecar')
+        | map(attribute='inventory_hostname')
+        | list
+        | first
+      }}
+  block:
+    - name: Check that exactly one Fabric-X namespace is declared for the EVM gateway
+      ansible.builtin.fail:
+        msg: >-
+          The Fabric-X EVM gateway can only serve a single Fabric-X application namespace, but
+          organization.namespaces declares {{ organization.namespaces | default([]) | length }}.
+          Please declare exactly one entry under 'organization.namespaces' for this host.
+      when:
+        - (organization.namespaces | default([]) | length) != 1
+
+    - name: Ensure the EVM config directory exists
+      ansible.builtin.file:
+        path: "{{ evm_remote_config_dir }}"
+        state: directory
+        mode: "0o755"
+
+    - name: Generate the config for the EVM gateway
+      ansible.builtin.template:
+        src: config.yaml.j2
+        dest: "{{ evm_remote_config_dir }}/{{ evm_config_file }}"
+        mode: "0o644"
+
+    # =========================
+    # Committer Sidecar TLS
+    # =========================
+    - name: Transfer Committer Sidecar TLS CA certificate
+      when:
+        - hostvars[sidecar_host].committer_use_tls is defined
+        - hostvars[sidecar_host].committer_use_tls
+      block:
+        - name: Ensure Committer Sidecar TLS folder exists
+          ansible.builtin.file:
+            path: "{{ evm_remote_config_dir }}/tls/sidecar"
+            state: directory
+            mode: "0o755"
+        - name: Transfer Committer Sidecar TLS CA certificate
+          ansible.builtin.copy:
+            src: "{{ fetched_artifacts_dir }}/{{ sidecar_host }}/tls/ca.crt"
+            dest: "{{ evm_remote_config_dir }}/tls/sidecar/ca.crt"
+            mode: "0o644"
+
+    # =========================
+    # Orderer Router TLS
+    # =========================
+    - name: Ensure Orderer Router TLS folders exist
+      ansible.builtin.file:
+        path: "{{ evm_remote_config_dir }}/tls/orderer/{{ current_orderer_router_host }}"
+        state: directory
+        mode: "0o755"
+      loop: "{{ orderer_router_hosts }}"
+      loop_control:
+        loop_var: current_orderer_router_host
+        label: "{{ current_orderer_router_host }}"
+      when:
+        - hostvars[current_orderer_router_host].orderer_use_tls is defined
+        - hostvars[current_orderer_router_host].orderer_use_tls
+
+    - name: Transfer Orderer Router TLS CA certificates
+      ansible.builtin.copy:
+        src: "{{ fetched_artifacts_dir }}/{{ current_orderer_router_host }}/tls/ca.crt"
+        dest: "{{ evm_remote_config_dir }}/tls/orderer/{{ current_orderer_router_host }}/ca.crt"
+        mode: "0o644"
+      loop: "{{ orderer_router_hosts }}"
+      loop_control:
+        loop_var: current_orderer_router_host
+        label: "{{ current_orderer_router_host }}"
+      when:
+        - hostvars[current_orderer_router_host].orderer_use_tls is defined
+        - hostvars[current_orderer_router_host].orderer_use_tls
+
+    # =========================
+    # Kubernetes ConfigMap
+    # =========================
+    - name: Transfer EVM Kubernetes ConfigMap
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.evm
+        tasks_from: k8s/config/transfer
+      when: evm_use_k8s or evm_use_openshift
