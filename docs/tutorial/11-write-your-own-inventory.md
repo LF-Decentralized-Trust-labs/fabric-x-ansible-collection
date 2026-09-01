@@ -280,7 +280,7 @@ The committer needs all five services plus a database. None of them is optional:
 `postgres_db_host` appears on exactly two hosts — the validator that writes state and the query service that reads it — for the reason you worked out in the [lesson 5 exercise](./05-read-the-inventory.md#exercise). Rule 6 in action: a database reference is a per-instance fact, not a group policy.
 
 > [!WARNING]
-> `sc_user` / `sc_secret_pwd` are the sample credentials. For anything beyond a local exercise, move every credential into an Ansible Vault file — `group_vars/all/vault.yaml` — and reference it as `{{ vault_committer_db_password }}`. Plaintext credentials in an inventory you might share are the most common way this collection gets misused.
+> `sc_user` / `sc_secret_pwd` are the sample credentials. For anything beyond a local exercise, protect them with Ansible Vault instead — encrypt `postgres_password` in place, or move it into a dedicated `group_vars/all/vault.yaml` and reference it as `{{ vault_committer_db_password }}`. Plaintext credentials in an inventory you might share are the most common way this collection gets misused. [Lesson 12](./12-using-ansible-vault-for-secrets.md) covers both techniques and when to reach for each.
 
 ## Step 6: The Load Generator
 
@@ -463,6 +463,6 @@ The committer restart is the part worth remembering: you changed `committer_mtls
 
 ## Next
 
-| Previous                                       | Next                                           |
-| ---------------------------------------------- | ---------------------------------------------- |
-| [10. Go Beyond Local](./10-go-beyond-local.md) | [12. Troubleshooting](./12-troubleshooting.md) |
+| Previous                                       | Next                                                                           |
+| ---------------------------------------------- | ------------------------------------------------------------------------------ |
+| [10. Go Beyond Local](./10-go-beyond-local.md) | [12. Using Ansible Vault for Secrets](./12-using-ansible-vault-for-secrets.md) |
