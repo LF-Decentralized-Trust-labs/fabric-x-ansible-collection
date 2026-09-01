@@ -103,6 +103,8 @@ Sometimes you want one service. Generate a make target for every host in the cur
 make targets
 ```
 
+![make targets gif](./images/make-targets.gif)
+
 This runs the `generate_target_hosts` playbook, which reads `groups['all']` and writes [`target_hosts.mk`](../../target_hosts.mk) — one target per inventory host. The file is gitignored, and the `Makefile` includes it if it exists. After that:
 
 ```shell
