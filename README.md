@@ -10,6 +10,9 @@ Hyperledger Fabric-X is an open source project that builds on top of Hyperledger
 
 This repository contains the `hyperledger.fabricx` Ansible collection, which can be used to deploy a Hyperledger Fabric-X network locally, on Kubernetes, or across multiple nodes.
 
+> [!TIP]
+> New to Fabric-X? Start with the [**Tutorial**](./docs/tutorial/index.md) — a twelve-lesson learning path that takes you from the core concepts to a running network, and on to writing your own inventory. The rest of this README is reference material.
+
 ## Table of Contents <!-- omit in toc -->
 
 - [Installation](#installation)

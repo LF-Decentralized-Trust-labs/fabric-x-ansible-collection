@@ -193,6 +193,15 @@ def discover_doc_pages(repo_root: Path) -> dict[Path, Path]:
         Path("examples") / "inventory" / "README.md": Path("examples") / "inventory" / "index.md",
     }
 
+    # Add the hand-written tutorial lessons. Unlike every other page here they
+    # are not READMEs, so they are flattened from docs/tutorial into the
+    # Tutorial section of the site: docs/tutorial/index.md -> tutorial/index.md.
+    tutorial_dir = repo_root / "docs" / "tutorial"
+    if tutorial_dir.exists():
+        for page in sorted(tutorial_dir.rglob("*.md")):
+            repo_page = page.relative_to(repo_root)
+            pages[repo_page] = Path("tutorial") / page.relative_to(tutorial_dir)
+
     # Add per-inventory Markdown pages. These pages sit beside the example
     # inventory YAML files and document each deployment variant.
     inventory_docs_dir = repo_root / "examples" / "inventory" / "docs"
@@ -239,6 +248,15 @@ def discover_assets(repo_root: Path) -> dict[Path, Path]:
             if asset.is_file():
                 repo_path = asset.relative_to(repo_root)
                 assets[repo_path] = Path("assets") / asset.relative_to(docs_assets_dir)
+
+    # Copy tutorial screenshots and gifs so lessons under docs/tutorial can
+    # reference them with plain relative links (e.g. ./images/make-help.gif).
+    tutorial_images_dir = repo_root / "docs" / "tutorial" / "images"
+    if tutorial_images_dir.exists():
+        for asset in sorted(tutorial_images_dir.rglob("*")):
+            if asset.is_file():
+                repo_path = asset.relative_to(repo_root)
+                assets[repo_path] = Path("tutorial") / "images" / asset.relative_to(tutorial_images_dir)
     return assets
 
 

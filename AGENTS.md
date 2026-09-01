@@ -178,6 +178,21 @@ Agents must use the Makefile targets for repository checks. Do not rewrite or by
 
 When a new inventory is added under [`examples/inventory/`](examples/inventory/), write a corresponding doc under [`examples/inventory/docs/`](examples/inventory/docs/) following the structure of existing docs (e.g. [`examples/inventory/docs/local/fabric-x.md`](examples/inventory/docs/local/fabric-x.md)). Then register the new doc in [`mkdocs.yml`](mkdocs.yml) under the `nav.Inventories` section, in the appropriate deployment-type group.
 
+## Adding or modifying a tutorial lesson
+
+The tutorial under [`docs/tutorial/`](docs/tutorial/) is hand-written and is the only documentation in the repository that is a *learning path* rather than reference material. Keep the two roles distinct: reference detail belongs in the inventory/playbook/role docs, and the tutorial links to them.
+
+When adding or renaming a lesson:
+
+1. Follow the existing lesson skeleton: `# <N>. <Title>`, a framing paragraph, a `> [!NOTE]` stating the estimated time and the prerequisite lesson, `## Table of Contents <!-- omit in toc -->`, `## What You Will Learn`, the content sections, `## Exercise`, and a `## Next` table.
+2. Exercises pose the task in a `> [!TIP]` callout and hide the answer in a `<details markdown="1">` block. The `markdown="1"` attribute is **required** — without it `md_in_html` does not render the fenced code inside the block on the MkDocs site.
+3. Never place two callouts adjacent with only a blank line between them; markdownlint reports `MD028`. Put prose between them, or merge them into one callout using a `>` continuation line.
+4. Update the previous/next links in **both** neighbouring lessons, and the learning-path table in [`docs/tutorial/index.md`](docs/tutorial/index.md).
+5. Register the lesson in [`mkdocs.yml`](mkdocs.yml) under `nav.Tutorial`. Pages under `docs/tutorial/` are copied to the site by [`scripts/build_mkdocs_source.py`](scripts/build_mkdocs_source.py), but only the nav makes them reachable.
+6. Verify with `npx --yes markdownlint-cli2 "docs/tutorial/**/*.md"` (zero issues, using the repo's `.markdownlint.yaml`) and `make mkdocs-build`, which runs `mkdocs build --strict` and fails on any broken internal link.
+
+Markdown files need no license header — `scripts/check_license_header.sh` only checks `*.yaml` and `*.yml`.
+
 ## Modifying a playbook
 
 When a playbook under [`playbooks/`](playbooks/) is modified, update the corresponding `README.md` in the same directory. These READMEs are **not** auto-generated.
