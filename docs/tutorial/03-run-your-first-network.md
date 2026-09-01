@@ -19,6 +19,8 @@ Three commands and you have a Fabric-X network. This lesson runs them, then expl
 - [Confirm It Works](#confirm-it-works)
 - [Where Everything Landed](#where-everything-landed)
 - [Stopping and Tearing Down](#stopping-and-tearing-down)
+  - [Stop](#stop)
+  - [Teardown](#teardown)
 - [Exercise](#exercise)
 - [Next](#next)
 
@@ -224,14 +226,27 @@ cat out/local-deployment/committer-coordinator/config/*.yaml
 
 ## Stopping and Tearing Down
 
-Two different things, and the difference matters:
+The network is running, but you do not have to leave it up forever. There are two levels of shutdown:
+
+### Stop
 
 ```shell
 make stop        # stop the services, keep all data and configuration
+```
+
+![make stop gif](./images/make-stop.gif)
+
+Use `stop` when you want to come back to the same ledger later — `make start` will resume it.
+
+### Teardown
+
+```shell
 make teardown    # stop the services and delete their runtime data
 ```
 
-Use `stop` when you want to come back to the same ledger later — `make start` will resume it. Use `teardown` when you want a clean slate; the next `make start` begins from the genesis block again.
+![make teardown gif](./images/make-teardown.gif)
+
+Use `teardown` when you want a clean slate; the next `make start` begins from the genesis block again.
 
 There is a third level, covered in [lesson 6](./06-target-hosts-and-lifecycle.md), that also removes the generated configuration and binaries.
 
