@@ -81,6 +81,8 @@ Group targets can be chained on a single command line, and their hosts are **uni
 make fabric_x_orderers fabric_x_committers start
 ```
 
+![make chained ping gif](./images/make-chained-ping.gif)
+
 That starts the orderers and the committer, leaving monitoring, the load generator, and the CAs alone.
 
 The mechanism is worth a glance, because it explains why the order matters. Each group target appends to `TARGET_HOSTS` rather than overwriting it, building up an Ansible union pattern:
