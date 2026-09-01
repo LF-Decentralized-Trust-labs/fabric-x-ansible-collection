@@ -119,6 +119,8 @@ It also renders the `fxconfig` configuration, which needs to know where the orde
 make start
 ```
 
+![make start gif](./images/make-start.gif)
+
 Now the services come up, in dependency order. The playbook behind it starts each family in turn:
 
 ```mermaid
@@ -148,6 +150,8 @@ The network is running, but it cannot accept application transactions yet — th
 ```shell
 make init
 ```
+
+![make init gif](./images/make-start.gif)
 
 This runs the `fxconfig.create_namespaces` playbook, which:
 
