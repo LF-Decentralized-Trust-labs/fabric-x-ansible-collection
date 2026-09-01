@@ -64,10 +64,12 @@ Typing `TARGET_HOSTS=` every time is tedious, so [`target_groups.mk`](../../targ
 | `monitoring`              | Prometheus, Grafana, Loki, Alloy, exporters          |
 
 ```shell
-make fabric_x_orderers restart
+make fabric_x_orderers ping
 make monitoring stop
 make load_generators get-metrics
 ```
+
+![make selective ping gif](./images/make-selective-ping.gif)
 
 These are exactly the group names from the inventory you read in [lesson 5](./05-read-the-inventory.md). That is the point: the group contract runs all the way from the inventory YAML to your command line.
 
