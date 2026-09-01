@@ -153,7 +153,7 @@ The network is running, but it cannot accept application transactions yet — th
 make init
 ```
 
-![make init gif](./images/make-start.gif)
+![make init gif](./images/make-init.gif)
 
 This runs the `fxconfig.create_namespaces` playbook, which:
 
