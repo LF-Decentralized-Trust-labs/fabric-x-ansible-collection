@@ -27,6 +27,7 @@ dependencies:
   kubernetes.core: ">=6.3.0"
 build_ignore:
   - examples/images
+  - docs
   - .github
   - scripts
   - mkdocs.yml

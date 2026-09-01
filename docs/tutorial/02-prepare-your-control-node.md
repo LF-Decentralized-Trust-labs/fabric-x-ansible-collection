@@ -138,6 +138,8 @@ Every high-level command in this repository is a `Makefile` target, and every ta
 make help
 ```
 
+![make help gif](./images/make-help.gif)
+
 You get a two-column list: the target name and a one-line description. This is the map. When you forget whether the command is `make artifacts` or `make generate-artifacts`, this is where you look — not the documentation.
 
 The targets fall into four families, and you will meet all four:

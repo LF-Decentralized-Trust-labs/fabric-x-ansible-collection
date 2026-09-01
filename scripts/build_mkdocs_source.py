@@ -248,6 +248,15 @@ def discover_assets(repo_root: Path) -> dict[Path, Path]:
             if asset.is_file():
                 repo_path = asset.relative_to(repo_root)
                 assets[repo_path] = Path("assets") / asset.relative_to(docs_assets_dir)
+
+    # Copy tutorial screenshots and gifs so lessons under docs/tutorial can
+    # reference them with plain relative links (e.g. ./images/make-help.gif).
+    tutorial_images_dir = repo_root / "docs" / "tutorial" / "images"
+    if tutorial_images_dir.exists():
+        for asset in sorted(tutorial_images_dir.rglob("*")):
+            if asset.is_file():
+                repo_path = asset.relative_to(repo_root)
+                assets[repo_path] = Path("tutorial") / "images" / asset.relative_to(tutorial_images_dir)
     return assets
 
 
