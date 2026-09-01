@@ -83,6 +83,8 @@ Run them in order. Read the sections below while they execute.
 make setup
 ```
 
+![make setup gif](./images/make-setup.gif)
+
 `setup` is a wrapper around three sub-phases, and you can run any of them on its own:
 
 ```shell
