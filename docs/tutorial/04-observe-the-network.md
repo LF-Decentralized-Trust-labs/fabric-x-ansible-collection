@@ -133,6 +133,8 @@ You do not need a browser. From the repository root:
 make get-metrics
 ```
 
+![make get-metrics gif](./images/make-get-metrics.gif)
+
 This scrapes every component that exposes metrics and prints the result. Restrict it to the component you care about:
 
 ```shell
