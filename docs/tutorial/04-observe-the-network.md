@@ -69,6 +69,8 @@ Note where the metrics come from: the orderer components expose them on their `o
 
 Open <https://localhost:3000> and log in with `admin` / `adminPWD`.
 
+![grafana dashboards](./images/grafana-dashboards.gif)
+
 > [!WARNING]
 > Note the **`https`**. The default local inventory sets `grafana_use_tls: true`, so Grafana serves TLS with a self-signed certificate. Your browser will warn you; accept the certificate and continue. If you use `http://` you will get an empty response and wonder what broke.
 >
@@ -95,12 +97,16 @@ When a Grafana panel looks wrong, go one level down and query Prometheus directl
 
 The **Status → Targets** page is the single most useful page in this whole stack. It lists every scrape target and whether it is `UP`. A component that failed to start, or whose metrics port is misconfigured, or whose mTLS client certificate was not accepted, shows up here as `DOWN` with the reason.
 
+![prometheus dashboards](./images/prometheus-dashboard.gif)
+
 > [!TIP]
 > Prometheus scrapes the Fabric-X components over mTLS. That is what the `orderer_operations_mtls_clients: [prometheus]` and `committer_monitoring_mtls_clients: [prometheus]` lines in the inventory are for — they tell each component to trust `prometheus` as an mTLS client. Remove them and every Fabric-X target goes `DOWN`.
 
 ## Block Explorer: Your Own Blocks
 
 Open <http://localhost:18000> — this one is plain `http`.
+
+![block-explorer dashboards](./images/block-explorer.gif)
 
 The Block Explorer streams blocks over gRPC from the committer sidecar, indexes them into its own PostgreSQL database, and gives you a browsable view: blocks, their transactions, and each transaction's status.
 
@@ -156,7 +162,11 @@ make ping
 
 ## Logs from the Command Line
 
-Alloy is already shipping every container's logs into Loki, so Grafana's **Explore** view is the richest way to read them. But when you want log files on disk — to attach to a bug report, or to grep offline — collect them:
+Alloy is already shipping every container's logs into Loki, so Grafana's **Explore** view is the richest way to read them.
+
+![grafana dashboard logs](./images/grafana-logs.gif)
+
+But when you want log files on disk — to attach to a bug report, or to grep offline — collect them:
 
 ```shell
 make fetch-logs
