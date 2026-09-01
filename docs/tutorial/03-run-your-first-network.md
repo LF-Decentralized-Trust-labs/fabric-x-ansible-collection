@@ -177,6 +177,8 @@ Two health checks, in increasing strength.
 make ping
 ```
 
+![make ping gif](./images/make-ping.gif)
+
 This walks every host in the inventory and checks that the ports it declared are actually accepting connections. It is fast and it catches the most common failure — a service that exited on startup.
 
 **Are transactions flowing?**
