@@ -193,6 +193,15 @@ def discover_doc_pages(repo_root: Path) -> dict[Path, Path]:
         Path("examples") / "inventory" / "README.md": Path("examples") / "inventory" / "index.md",
     }
 
+    # Add the hand-written tutorial lessons. Unlike every other page here they
+    # are not READMEs, so they are flattened from docs/tutorial into the
+    # Tutorial section of the site: docs/tutorial/index.md -> tutorial/index.md.
+    tutorial_dir = repo_root / "docs" / "tutorial"
+    if tutorial_dir.exists():
+        for page in sorted(tutorial_dir.rglob("*.md")):
+            repo_page = page.relative_to(repo_root)
+            pages[repo_page] = Path("tutorial") / page.relative_to(tutorial_dir)
+
     # Add per-inventory Markdown pages. These pages sit beside the example
     # inventory YAML files and document each deployment variant.
     inventory_docs_dir = repo_root / "examples" / "inventory" / "docs"
