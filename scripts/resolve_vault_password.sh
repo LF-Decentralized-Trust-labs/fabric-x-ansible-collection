@@ -16,6 +16,11 @@
 #
 # Create `.vault_pass` at the repository root (gitignored by `.vault_pass*` in
 # .gitignore; never commit it) with your Vault password to use this automatically.
+#
+# Once it exists, `make vault-view` prints every host's decrypted variables on
+# the CLI, and `make vault-encrypt VAULT_VAR_NAME=<name>` encrypts a new value
+# under the same password, ready to paste into an inventory. See
+# docs/tutorial/12-using-ansible-vault-for-secrets.md.
 
 set -euo pipefail
 

@@ -32,12 +32,14 @@ ifeq ($(USE_VENV),true)
 ANSIBLE_PLAYBOOK ?= $(VENV_BIN_DIR)/ansible-playbook
 ANSIBLE_GALAXY ?= $(VENV_BIN_DIR)/ansible-galaxy
 ANSIBLE_LINT ?= $(VENV_BIN_DIR)/ansible-lint
+ANSIBLE_VAULT ?= $(VENV_BIN_DIR)/ansible-vault
 ANSIBLE_PYTHON_INTERPRETER ?= $(VENV_BIN_DIR)/python
 export ANSIBLE_PYTHON_INTERPRETER
 else
 ANSIBLE_PLAYBOOK ?= ansible-playbook
 ANSIBLE_GALAXY ?= ansible-galaxy
 ANSIBLE_LINT ?= ansible-lint
+ANSIBLE_VAULT ?= ansible-vault
 ANSIBLE_PYTHON_INTERPRETER ?= python3
 endif
 
@@ -54,6 +56,7 @@ PLAYBOOK_PATH := $(PROJECT_DIR)/examples/playbooks
 TARGET_HOSTS ?= all
 ASSERT_METRICS ?= false
 LIMIT ?= 1000
+VAULT_VAR_NAME ?=
 
 # Vars to log into CR using env vars
 CONTAINER_REGISTRY ?=
@@ -332,6 +335,18 @@ run-command:
 ping:
 	@printf "$(COLOR_CYAN)🚩 Checking component ports on hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
 	$(ANSIBLE_PLAYBOOK) "$(PLAYBOOK_PATH)/70-ping.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}';
+
+# Print every decrypted variable for the targeted hosts, Vault-protected or not (e.g. make vault-view TARGET_HOSTS=grafana).
+.PHONY: vault-view
+vault-view:
+	@printf "$(COLOR_CYAN)🚩 Printing decrypted variables for hosts [$(COLOR_GREEN)$(TARGET_HOSTS)$(COLOR_CYAN)]...$(COLOR_RESET)\n"
+	$(ANSIBLE_PLAYBOOK) "$(PLAYBOOK_PATH)/998-vault-view.yaml" --extra-vars '{"target_hosts": "$(TARGET_HOSTS)"}';
+
+# Encrypt a new value into Vault notation, ready to paste into an inventory (e.g. make vault-encrypt VAULT_VAR_NAME=postgres_password).
+.PHONY: vault-encrypt
+vault-encrypt:
+	@printf "$(COLOR_CYAN)🚩 Encrypting a new Vault value for [$(COLOR_GREEN)$(VAULT_VAR_NAME)$(COLOR_CYAN)]. Type the value, then press Enter followed by Ctrl-D.$(COLOR_RESET)\n"
+	$(ANSIBLE_VAULT) encrypt_string --stdin-name "$(VAULT_VAR_NAME)"
 
 # Get the metrics from the targeted components and assert they are working correctly (e.g make load_generators get-metrics).
 .PHONY: get-metrics

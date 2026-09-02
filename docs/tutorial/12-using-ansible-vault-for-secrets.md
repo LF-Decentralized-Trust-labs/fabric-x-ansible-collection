@@ -46,14 +46,32 @@ That last row is worth pausing on. Fabric CA enrollment secrets are built from a
 
 ## Viewing It
 
-The password used to encrypt `fabric-x-vault.yaml` for this tutorial is `fabricx-vault-demo`. Use it to look inside:
+The password used to encrypt `fabric-x-vault.yaml` for this tutorial is `fabricx-vault-demo`:
 
 ```shell
 echo -n 'fabricx-vault-demo' > .vault_pass
-.venv/bin/ansible-vault view --vault-password-file .vault_pass examples/inventory/local/fabric-x-vault.yaml | head -30
 ```
 
-`ansible-vault view` decrypts to your terminal without writing a plaintext copy to disk. You can also confirm the whole inventory resolves correctly, exactly as you validated your own inventory in lesson 11:
+You might reach for `ansible-vault view` next, the way you would for a whole encrypted file — but it fails here:
+
+```shell
+.venv/bin/ansible-vault view --vault-password-file .vault_pass examples/inventory/local/fabric-x-vault.yaml
+# [ERROR]: Input is not vault encrypted data.
+```
+
+`ansible-vault view` only decrypts a file that is encrypted *as a whole*. `fabric-x-vault.yaml` is not — most of it is plain YAML, with individual values encrypted in place as `!vault` blocks (the technique this lesson focuses on; the whole-file alternative is covered later, in [Encrypting Your Own Secrets](#encrypting-your-own-secrets)). Ansible only decrypts an inline value at the moment a task or template actually reads it, so seeing the plaintext means asking Ansible to read it — which is exactly what this repository's `vault-view` target does:
+
+```shell
+export ANSIBLE_INVENTORY=examples/inventory/local/fabric-x-vault.yaml
+make vault-view TARGET_HOSTS=fca-orderer-org1-db
+```
+
+This runs [`examples/playbooks/998-vault-view.yaml`](../../examples/playbooks/998-vault-view.yaml), which prints every variable for the targeted host or group, decrypted — `postgres_password: example` included. Omit `TARGET_HOSTS` (default `all`) to print the whole inventory, every host.
+
+> [!TIP]
+> Every Vault-protected value in `fabric-x-vault.yaml` is also written as a `# decrypted value: ...` comment directly above its encrypted block, so you can look one up by just reading the file — no command needed. This particular inventory exists purely to demonstrate the mechanism, so nothing in it is worth protecting from a curious reader; do not carry that habit into an inventory holding real credentials.
+
+You can also query a single variable directly, exactly as you validated your own inventory in lesson 11:
 
 ```shell
 .venv/bin/ansible-inventory -i examples/inventory/local/fabric-x-vault.yaml --vault-password-file .vault_pass --graph
@@ -173,25 +191,35 @@ This opens your `$EDITOR` on a decrypted buffer; write plain YAML (`vault_commit
 
 ### One Value In Place: `ansible-vault encrypt_string`
 
-Use this when you want most of the inventory readable and only specific values protected — the pattern `fabric-x-vault.yaml` uses throughout:
+Use this when you want most of the inventory readable and only specific values protected — the pattern `fabric-x-vault.yaml` uses throughout. The convenient way is the `make` target this repository wires up for exactly this:
 
 ```shell
-.venv/bin/ansible-vault encrypt_string --vault-password-file .vault_pass \
-  --name 'postgres_password' 'sc_secret_pwd'
+make vault-encrypt VAULT_VAR_NAME=postgres_password
+# Type the value, then press Enter followed by Ctrl-D:
+sc_secret_pwd
 ```
 
-This prints a ready-to-paste `key: !vault |` block, exactly like the ones in `fabric-x-vault.yaml`. Paste it in place of the plaintext value at the same indentation as the key it replaces — the file stays otherwise readable, and only the credential itself is opaque.
+The equivalent raw command:
 
-> [!TIP]
-> Encrypting the same plaintext twice produces *different* ciphertext each time — `encrypt_string` uses a random salt per call. That is expected; both blocks decrypt to the same value. Do not compare inventories by diffing ciphertext.
+```shell
+.venv/bin/ansible-vault encrypt_string --vault-password-file .vault_pass --stdin-name 'postgres_password'
+```
+
+Either way prints a ready-to-paste `key: !vault |` block, exactly like the ones in `fabric-x-vault.yaml`. Paste it in place of the plaintext value at the same indentation as the key it replaces — the file stays otherwise readable, and only the credential itself is opaque.
+
+> [!WARNING]
+> Do not pass the secret as a trailing command-line argument (`encrypt_string --name X 'the-secret'`). It lands in your shell history in plain text, in a file most shells keep forever. `--stdin-name` reads the value from stdin instead, so it is only ever typed, never remembered by the shell — though note it is *not* hidden as you type it, the way a password prompt would be, so avoid running this where someone can see your screen.
+>
+> Separately: encrypting the same plaintext twice produces *different* ciphertext each time — `encrypt_string` uses a random salt per call. That is expected; both blocks decrypt to the same value. Do not compare inventories by diffing ciphertext.
 
 ## Applying This to Your Own Inventory
 
 Go back to the inventory you wrote in [lesson 11](./11-write-your-own-inventory.md) and its `sc_user` / `sc_secret_pwd` warning. Replace the plaintext `postgres_password`:
 
 ```shell
-.venv/bin/ansible-vault encrypt_string --vault-password-file .vault_pass \
-  --name 'postgres_password' 'sc_secret_pwd'
+make vault-encrypt VAULT_VAR_NAME=postgres_password
+# Type the value, then press Enter followed by Ctrl-D:
+sc_secret_pwd
 ```
 
 Paste the resulting block over the plaintext line in `my-network/fabric-x-minimal.yaml`, at `committer-db`'s existing indentation. Then confirm it still resolves:
@@ -223,8 +251,9 @@ Step 1 is exactly the [Applying This to Your Own Inventory](#applying-this-to-yo
 Step 2:
 
 ```shell
-.venv/bin/ansible-vault encrypt_string --vault-password-file .vault_pass \
-  --name 'vault_identity_secret_suffix' 'PWD'
+make vault-encrypt VAULT_VAR_NAME=vault_identity_secret_suffix
+# Type the value, then press Enter followed by Ctrl-D:
+PWD
 ```
 
 Paste the result into `all.vars`, alongside `organizations:`. Then change the load generator:

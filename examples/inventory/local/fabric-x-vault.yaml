@@ -35,6 +35,10 @@ all:
     # =========================
     # Vault-Protected Secrets
     # =========================
+    # decrypted value: PWD
+    # To generate a replacement (or any other Vault-encrypted value), run:
+    #   make vault-encrypt VAULT_VAR_NAME=vault_identity_secret_suffix
+    # then paste the printed block over this one.
     vault_identity_secret_suffix: !vault |
               $ANSIBLE_VAULT;1.1;AES256
               38323638336130313937363763646630316163613533306637356433303265666362386438316466
@@ -59,6 +63,7 @@ all:
             fabric_ca_dbs:
               vars:
                 postgres_user: postgres
+                # decrypted value: example
                 postgres_password: !vault |
                           $ANSIBLE_VAULT;1.1;AES256
                           61633237636237613434616238623766373335653438613236623634356263663664313631323666
@@ -92,6 +97,7 @@ all:
                 fabric_ca_name: "{{ inventory_hostname }}"
                 fabric_ca_admin:
                   name: admin
+                  # decrypted value: adminPWD
                   secret: !vault |
                             $ANSIBLE_VAULT;1.1;AES256
                             61353933313161303561326137633431353732353863323234313361373233613437633836386438
@@ -282,6 +288,7 @@ all:
                   hosts:
                     committer-db:
                       postgres_user: sc_user
+                      # decrypted value: sc_secret_pwd
                       postgres_password: !vault |
                                 $ANSIBLE_VAULT;1.1;AES256
                                 35343366663139373064326635656265336334643938396263353434616262646639386433313732
@@ -322,6 +329,7 @@ all:
               hosts:
                 block-explorer-db:
                   postgres_user: block_explorer_user
+                  # decrypted value: block_explorer_pwd
                   postgres_password: !vault |
                             $ANSIBLE_VAULT;1.1;AES256
                             30636431353132323937363964306561353561303334626566323565333965363963663432396234
@@ -380,6 +388,7 @@ all:
           prometheus_use_tls: true
         grafana:
           grafana_username: admin
+          # decrypted value: adminPWD
           grafana_password: !vault |
                     $ANSIBLE_VAULT;1.1;AES256
                     64393532353131323838323162343966626464383766333234326339363030396438333435333332
