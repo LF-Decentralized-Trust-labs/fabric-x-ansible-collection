@@ -75,6 +75,7 @@ jobs:
       - name: Install all the required packages and collections
         env:
           CONTAINER_CLIENT: docker
+          ANSIBLE_INVENTORY: ./examples/inventory/local/${{ matrix.inventory }}.yaml
           ANSIBLE_CACHE_PLUGIN: jsonfile
           ANSIBLE_CACHE_PLUGIN_CONNECTION: /tmp/ansible_fact_cache
         run: |
