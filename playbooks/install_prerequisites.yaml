@@ -19,10 +19,15 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.container
         tasks_from: install
+    - name: Discover binary services on this machine
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.bin
+        tasks_from: get_bin_services
     - name: Install tmux
       ansible.builtin.include_role:
         name: hyperledger.fabricx.tmux
         tasks_from: install
+      when: bin_service_hosts | length > 0
     - name: Install openssl
       ansible.builtin.include_role:
         name: hyperledger.fabricx.openssl
@@ -35,6 +40,7 @@
       ansible.builtin.include_role:
         name: hyperledger.fabricx.go
         tasks_from: install_go
+      when: bin_service_hosts | length > 0
     - name: Install rsync
       vars:
         package_name: rsync
