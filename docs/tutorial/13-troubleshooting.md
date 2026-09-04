@@ -1,4 +1,4 @@
-# 12. Troubleshooting
+# 13. Troubleshooting
 
 The reference lesson. Unlike the others this one is not meant to be read straight through — come back to it when something breaks. It is organised by symptom, and every entry tells you which layer from [lesson 7](./07-behind-the-scenes.md) to look at.
 
@@ -357,6 +357,6 @@ You have reached the end of the tutorial. From here:
 - The [roles documentation](../../roles/README.md) documents every variable of every role, generated from each role's `argument_specs.yaml`.
 - The [example inventories](../../examples/README.md) are working references for topologies this tutorial only mentioned.
 
-| Previous                                                         | Next                            |
-| ---------------------------------------------------------------- | ------------------------------- |
-| [11. Write Your Own Inventory](./11-write-your-own-inventory.md) | [Tutorial Overview](./index.md) |
+| Previous                                                                       | Next                            |
+| ------------------------------------------------------------------------------ | ------------------------------- |
+| [12. Using Ansible Vault for Secrets](./12-using-ansible-vault-for-secrets.md) | [Tutorial Overview](./index.md) |

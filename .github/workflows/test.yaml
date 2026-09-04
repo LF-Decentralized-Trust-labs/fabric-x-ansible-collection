@@ -27,6 +27,7 @@ jobs:
           - inventory: "fabric-x-cryptogen"
           - inventory: "fabric-x-no-tls"
           - inventory: "fabric-x-no-mtls"
+          - inventory: "fabric-x-vault"
       fail-fast: false
 
     steps:
@@ -80,6 +81,13 @@ jobs:
           ANSIBLE_CACHE_PLUGIN_CONNECTION: /tmp/ansible_fact_cache
         run: |
           make install install-remote-node-deps
+
+      # fabric-x-vault.yaml encrypts its credentials with Ansible Vault; provide the
+      # tutorial's documented demo password so the resolver script configured in
+      # examples/ansible.cfg (see scripts/resolve_vault_password.sh) can decrypt them.
+      - name: Configure the Ansible Vault password for the fabric-x-vault inventory
+        if: matrix.inventory == 'fabric-x-vault'
+        run: echo -n 'fabricx-vault-demo' > .vault_pass
 
       # Run the Hyperledger Fabric-X inventory
       - name: Test the (${{ matrix.inventory }}) inventory

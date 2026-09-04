@@ -117,11 +117,13 @@ nav:
       - 9. Add the Extras: tutorial/09-add-the-extras.md
       - 10. Go Beyond Local: tutorial/10-go-beyond-local.md
       - 11. Write Your Own Inventory: tutorial/11-write-your-own-inventory.md
-      - 12. Troubleshooting: tutorial/12-troubleshooting.md
+      - 12. Using Ansible Vault for Secrets: tutorial/12-using-ansible-vault-for-secrets.md
+      - 13. Troubleshooting: tutorial/13-troubleshooting.md
   - Inventories:
       - Overview: examples/inventory/index.md
       - Local:
           - fabric-x: examples/inventory/docs/local/fabric-x.md
+          - fabric-x-vault: examples/inventory/docs/local/fabric-x-vault.md
           - fabric-x-yugabyte: examples/inventory/docs/local/fabric-x-yugabyte.md
           - fabric-x-evm: examples/inventory/docs/local/fabric-x-evm.md
           - fabric-x-bin: examples/inventory/docs/local/fabric-x-bin.md
