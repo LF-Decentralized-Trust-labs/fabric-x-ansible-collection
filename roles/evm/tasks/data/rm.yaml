@@ -1,0 +1,19 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Remove EVM data directory
+  ansible.builtin.file:
+    path: "{{ evm_remote_data_dir }}"
+    state: absent
+
+- name: Delete EVM PersistentVolumeClaim
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: PersistentVolumeClaim
+    name: "data-{{ evm_k8s_resource_name }}-0"
+    namespace: "{{ k8s_namespace | default('default') }}"
+  when: evm_use_k8s or evm_use_openshift
