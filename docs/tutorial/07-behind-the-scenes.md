@@ -66,6 +66,7 @@ Every piece of that command comes from a make variable, and all of them are over
 | `ANSIBLE_CONFIG`   | `examples/ansible.cfg`       | export your own                          |
 | `TARGET_HOSTS`     | `all`                        | a group target, or `TARGET_HOSTS=`       |
 | `OUT_DIR`          | `$(PROJECT_DIR)/out`         | export to move all generated material    |
+| `ANSIBLE_FORKS`    | `20`                         | `ANSIBLE_FORKS=5` to slow the fan-out    |
 
 > [!TIP]
 > The `Makefile` also honours a `.env` file at the repository root, via `-include $(PROJECT_DIR)/.env`. That is the tidiest place to keep your own `LOCAL_ANSIBLE_HOST`, `OUT_DIR`, or `ANSIBLE_INVENTORY` without exporting them in every shell.

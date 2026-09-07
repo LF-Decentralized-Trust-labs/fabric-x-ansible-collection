@@ -11,6 +11,7 @@
   - [stop](#stop)
   - [teardown](#teardown)
   - [wipe](#wipe)
+  - [data/rm](#datarm)
   - [fetch\_logs](#fetch_logs)
   - [ping](#ping)
   - [rpc\_check](#rpc_check)
@@ -95,7 +96,7 @@ Stop the active EVM container without removing configuration, crypto material, l
 
 > Remove runtime artifacts
 
-Remove runtime resources for the selected EVM deployment mode. Deletes the local container or Kubernetes workload resources while leaving generated config, crypto material, and fetched artifacts intact.
+Remove runtime resources and persisted state for the selected EVM deployment mode. Deletes the local container or Kubernetes workload resources, then the gateway and endorser SQLite state, while leaving generated config, crypto material, and fetched artifacts intact. The state must go with the workload, otherwise a gateway restarted against a fresh network resumes block delivery from a block the new ordering service does not have and fails with `NOT_FOUND`.
 
 ```yaml
 - name: Remove runtime artifacts
@@ -115,18 +116,39 @@ Remove runtime resources for the selected EVM deployment mode. Deletes the local
 
 > Remove all EVM data
 
-Remove EVM runtime resources, generated configuration, crypto material, and persisted state from the host.
+Remove EVM runtime resources, generated configuration, crypto material, and persisted state from the host. Sequences `teardown`, `crypto/rm`, and `config/rm`, so the persisted state is removed by `teardown` together with the workload.
 
 ```yaml
 - name: Remove all EVM data
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.evm
+    tasks_from: wipe
+```
+
+### data/rm
+
+> Remove EVM persisted state
+
+Remove the EVM data directory holding the gateway and embedded endorser SQLite state (`gateway.db`, `endorser.db`, and their WAL and SHM sidecar files). Kubernetes and OpenShift modes also delete the StatefulSet PVC in `k8s_namespace`, which Kubernetes keeps when the StatefulSet is deleted.
+
+```yaml
+- name: Remove EVM persisted state
   vars:
+    # Use Kubernetes resources.
+    evm_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    evm_use_openshift: false
+    # Kubernetes resource name used for the StatefulSet, Service, ConfigMap, Secret, optional NodePort Service, and PersistentVolumeClaim.
+    evm_k8s_resource_name: "{{ inventory_hostname }}"
     # Remote data directory used by EVM for the gateway and embedded endorser SQLite state.
     evm_remote_data_dir: "{{ remote_data_dir }}"
     # Base remote data directory that feeds `evm_remote_data_dir`.
     remote_data_dir: "/var/hyperledger/fabricx/evm/data"
+    # Kubernetes namespace used for EVM resources.
+    k8s_namespace: "fabricx-evm"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.evm
-    tasks_from: wipe
+    tasks_from: data/rm
 ```
 
 ### fetch_logs
