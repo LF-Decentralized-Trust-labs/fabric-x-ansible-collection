@@ -184,7 +184,7 @@ Start the combined Block Explorer server and UI as a local container with the re
     # Image name used by the Block Explorer container.
     block_explorer_image_name: fabric-x-block-explorer
     # Image tag used by the Block Explorer container.
-    block_explorer_image_tag: 0.1.0
+    block_explorer_image_tag: 0.1.1
     # Base remote config directory that feeds `block_explorer_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/block-explorer/config"
     # Remote config directory used by Block Explorer.
@@ -510,7 +510,7 @@ Create or update Kubernetes resources for the combined Block Explorer server and
     # Image name used by the Block Explorer container.
     block_explorer_image_name: fabric-x-block-explorer
     # Image tag used by the Block Explorer container.
-    block_explorer_image_tag: 0.1.0
+    block_explorer_image_tag: 0.1.1
     # Config mount path inside a container or pod.
     block_explorer_container_config_dir: /app/config
     # Rendered Block Explorer config filename.
