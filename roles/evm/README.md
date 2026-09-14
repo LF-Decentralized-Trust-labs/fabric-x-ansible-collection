@@ -13,6 +13,7 @@
   - [wipe](#wipe)
   - [data/rm](#datarm)
   - [fetch\_logs](#fetch_logs)
+  - [effective\_address](#effective_address)
   - [ping](#ping)
   - [rpc\_check](#rpc_check)
   - [container/start](#containerstart)
@@ -169,6 +170,22 @@ Collect EVM gateway logs for the selected deployment mode.
   ansible.builtin.include_role:
     name: hyperledger.fabricx.evm
     tasks_from: fetch_logs
+```
+
+### effective_address
+
+> Resolve the effective EVM JSON-RPC address
+
+Compute the address used to reach an EVM gateway's JSON-RPC endpoint from outside its own host. Sets `evm_effective_address` as an Ansible fact on the calling host. Resolution priority is OpenShift Route, then Kubernetes NodePort, then the plain host port. Accepts an `evm_host` variable so the task can be called from any host in the inventory. All EVM-specific variables are read from `hostvars[evm_host]`.
+
+```yaml
+- name: Resolve the effective EVM JSON-RPC address
+  vars:
+    # Inventory host whose EVM effective address should be resolved.
+    evm_host: "evm-1"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.evm
+    tasks_from: effective_address
 ```
 
 ### ping

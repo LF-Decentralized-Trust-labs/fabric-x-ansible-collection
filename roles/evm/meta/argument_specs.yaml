@@ -137,6 +137,11 @@ argument_specs:
         description:
           - Sets the EVM liveness probe failure threshold.
           - "Example: C(5)."
+      evm_host: &evm_host
+        type: str
+        description:
+          - Inventory host whose EVM effective address should be resolved.
+          - "Example: C(evm-1)."
       evm_use_k8s: &evm_use_k8s
         type: bool
         default: false
@@ -361,6 +366,17 @@ argument_specs:
       evm_use_container: *evm_use_container
       evm_use_k8s: *evm_use_k8s
       evm_use_openshift: *evm_use_openshift
+
+  effective_address:
+    short_description: Resolve the effective EVM JSON-RPC address
+    description:
+      - Compute the address used to reach an EVM gateway's JSON-RPC endpoint from outside its own host.
+      - Sets C(evm_effective_address) as an Ansible fact on the calling host.
+      - Resolution priority is OpenShift Route, then Kubernetes NodePort, then the plain host port.
+      - Accepts an C(evm_host) variable so the task can be called from any host in the inventory.
+      - All EVM-specific variables are read from C(hostvars[evm_host]).
+    options:
+      evm_host: *evm_host
 
   ping:
     short_description: Check the JSON-RPC endpoint
