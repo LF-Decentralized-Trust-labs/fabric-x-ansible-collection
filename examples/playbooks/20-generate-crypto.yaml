@@ -56,6 +56,9 @@
 - name: Generate Hyperledger Fabric-X Orderers crypto
   ansible.builtin.import_playbook: hyperledger.fabricx.orderer.generate_crypto
 
+- name: Provision fxadmin orderer organization admin identities
+  ansible.builtin.import_playbook: hyperledger.fabricx.fxadmin.generate_crypto
+
 - name: Generate Hyperledger Fabric-X Committers crypto
   ansible.builtin.import_playbook: hyperledger.fabricx.committer.generate_crypto
 

@@ -65,6 +65,41 @@
         }}
       loop_control:
         loop_var: peer
+    - name: Add users to the Hyperledger Fabric-X orderer organizations
+      vars:
+        org_domain: "{{ hostvars[orderer].organization.domain }}"
+        org_name: "{{ hostvars[orderer].organization.name }}"
+        users: "{{ hostvars[orderer].organization.users }}"
+      # Deduplicated with unique: every host in an orderer organization shares
+      # the same organization.users (inherited from one org-level inventory
+      # anchor), unlike peer organizations where today only a single host
+      # declares them -- without it, each of an org's orderer hosts visited by
+      # this loop would re-append the same identities.
+      ansible.builtin.set_fact:
+        cryptogen_orderers_by_org: >-
+          {{
+            cryptogen_orderers_by_org | default({}) | combine({
+              org_domain: {
+                'name': org_name,
+                'domain': org_domain,
+                'users': ((cryptogen_orderers_by_org | default({})).get(org_domain, {}).get('users', []) + users) | unique,
+                'orderers': (cryptogen_orderers_by_org | default({})).get(org_domain, {}).get('orderers', [])
+              }
+            })
+          }}
+      loop: >-
+        {{
+          groups['all']
+          | map('extract', hostvars)
+          | selectattr('organization', 'defined')
+          | selectattr('organization.fabric_ca_host', 'undefined')
+          | selectattr('organization.role', 'defined')
+          | selectattr('organization.role', '==', 'orderer')
+          | selectattr('organization.users', 'defined')
+          | map(attribute='inventory_hostname')
+        }}
+      loop_control:
+        loop_var: orderer
     - name: Add users to the Hyperledger Fabric-X peer organizations
       vars:
         org_domain: "{{ hostvars[peer].organization.domain }}"
@@ -88,6 +123,8 @@
           | map('extract', hostvars)
           | selectattr('organization', 'defined')
           | selectattr('organization.fabric_ca_host', 'undefined')
+          | selectattr('organization.role', 'defined')
+          | selectattr('organization.role', '==', 'peer')
           | selectattr('organization.users', 'defined')
           | map(attribute='inventory_hostname')
         }}

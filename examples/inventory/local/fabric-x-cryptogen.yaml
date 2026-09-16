@@ -22,15 +22,43 @@ all:
       orderer_org_1: &OrdererOrg1
         name: OrdererOrg1
         domain: ordererorg1.example.com
+        users:
+          - name: ordererorg1-admin
+            secret: ordererorg1-adminPWD
+            type: admin
+          - name: ordererorg1-reader
+            secret: ordererorg1-readerPWD
+            type: client
       orderer_org_2: &OrdererOrg2
         name: OrdererOrg2
         domain: ordererorg2.example.com
+        users:
+          - name: ordererorg2-admin
+            secret: ordererorg2-adminPWD
+            type: admin
+          - name: ordererorg2-reader
+            secret: ordererorg2-readerPWD
+            type: client
       orderer_org_3: &OrdererOrg3
         name: OrdererOrg3
         domain: ordererorg3.example.com
+        users:
+          - name: ordererorg3-admin
+            secret: ordererorg3-adminPWD
+            type: admin
+          - name: ordererorg3-reader
+            secret: ordererorg3-readerPWD
+            type: client
       orderer_org_4: &OrdererOrg4
         name: OrdererOrg4
         domain: ordererorg4.example.com
+        users:
+          - name: ordererorg4-admin
+            secret: ordererorg4-adminPWD
+            type: admin
+          - name: ordererorg4-reader
+            secret: ordererorg4-readerPWD
+            type: client
       org1: &Org1
         name: Org1
         domain: org1.example.com

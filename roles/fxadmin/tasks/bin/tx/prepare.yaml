@@ -1,0 +1,38 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure fxadmin output directory exists
+  ansible.builtin.file:
+    path: "{{ fxadmin_output | dirname }}"
+    state: directory
+    mode: "0o755"
+
+- name: Transfer the merged, endorsed ConfigUpdate to prepare
+  ansible.builtin.copy:
+    src: "{{ fxadmin_endorsed_config_update }}"
+    dest: "{{ fxadmin_output | dirname }}/endorsed_config_update.pb"
+    mode: preserve
+
+- name: Prepare the Fabric-X transaction from the endorsed ConfigUpdate
+  vars:
+    bin_command: >-
+      {{ fxadmin_bin_name }} tx
+      prepare
+      {{ fxadmin_output | dirname }}/endorsed_config_update.pb
+      --config={{ fxadmin_remote_config_dir }}/{{ fxadmin_config_file }}
+      --output={{ fxadmin_output }}
+    bin_run_with_tmux: false
+    bin_collect_logs: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start
+
+- name: Fetch the prepared transaction back to the control node
+  ansible.builtin.fetch:
+    src: "{{ fxadmin_output }}"
+    dest: "{{ fxadmin_output_fetch_dest }}"
+    flat: true
+    mode: preserve

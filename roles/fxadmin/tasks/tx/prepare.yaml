@@ -1,0 +1,19 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Prepare the Fabric-X transaction with the fxadmin binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxadmin
+    tasks_from: bin/tx/prepare
+  when:
+    - fxadmin_use_bin
+
+- name: Prepare the Fabric-X transaction with the fxadmin container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxadmin
+    tasks_from: container/tx/prepare
+  when:
+    - not fxadmin_use_bin

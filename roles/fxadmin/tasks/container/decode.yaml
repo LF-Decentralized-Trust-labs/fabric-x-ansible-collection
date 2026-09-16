@@ -1,0 +1,38 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Define fxadmin output directory
+  ansible.builtin.set_fact:
+    fxadmin_output_dir: "{{ fxadmin_output | dirname }}"
+
+- name: Ensure fxadmin output directory exists
+  ansible.builtin.file:
+    path: "{{ fxadmin_output_dir }}"
+    state: directory
+    mode: "0o755"
+
+- name: Transfer the configuration block to decode
+  ansible.builtin.copy:
+    src: "{{ fxadmin_config_block }}"
+    dest: "{{ fxadmin_output_dir }}/config_block.pb"
+    mode: preserve
+
+- name: Decode the Fabric-X channel configuration block to JSON
+  vars:
+    container_name: "{{ fxadmin_container_name }}-decode"
+    container_image: "{{ fxadmin_image }}"
+    container_command: >-
+      {{ fxadmin_bin_name }} decode
+      --output=/tmp/{{ fxadmin_output | basename }}
+      /tmp/config_block.pb
+    container_volumes:
+      - "{{ fxadmin_output_dir }}:/tmp:z"
+    container_run_detach_mode: false
+    container_run_as_host_user: true
+    container_autoremove: true
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start

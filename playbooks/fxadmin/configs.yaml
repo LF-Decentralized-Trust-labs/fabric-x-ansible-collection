@@ -1,0 +1,105 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Renders fxadmin's configuration for every Fabric-X orderer organization on
+# that organization's own reference orderer host (one per org, the lowest
+# -sorted inventory_hostname among its orderer nodes) -- never on the control
+# node -- so a private identity's key material is only ever synced to a real
+# node, matching how roles/orderer/tasks/crypto/cryptogen/transfer.yaml and
+# playbooks/fxconfig/configs.yaml handle their own per-organization material.
+#
+# One config is rendered per identity declared in each organization's
+# organization.users (provisioned by
+# hyperledger.fabricx.fxadmin.generate_crypto): by convention an "admin"-type
+# identity used strictly for tx/endorse -- the only step that needs to
+# satisfy the channel's per-org Admins policy -- and a "client"-type identity
+# used for everything else (ledger reads, follow, tx/prepare, tx/submit),
+# none of which need admin rights.
+- name: Resolve fxadmin configuration inputs on the control node
+  hosts: localhost
+  vars:
+    fxadmin_orderer_organizations: >-
+      {{
+        groups['fabric_x_orderers']
+        | map('extract', hostvars)
+        | selectattr('organization', 'defined')
+        | map(attribute='organization')
+        | unique
+        | list
+      }}
+    # Orderer organizations never needed organization.users before fxadmin,
+    # so an inventory that hasn't declared any for a given org must be a safe
+    # no-op here.
+    fxadmin_orgs_with_users: "{{ fxadmin_orderer_organizations | selectattr('users', 'defined') | list }}"
+  tasks:
+    - name: Assert every organization declares exactly one admin identity
+      vars:
+        fxadmin_admin_user_count: "{{ fxadmin_users_org.users | selectattr('type', 'eq', 'admin') | list | length }}"
+      ansible.builtin.assert:
+        that:
+          - fxadmin_admin_user_count | int == 1
+        fail_msg: >-
+          {{ fxadmin_users_org.name }} declares {{ fxadmin_admin_user_count }}
+          organization.users entries with type: admin (expected exactly 1).
+          Every non-admin identity shares the same "-reader" config
+          directory, keyed only by type, so more than one admin entry would
+          make config rendering pick one arbitrarily and fewer than one
+          leaves tx/endorse with no admin config to use.
+      loop: "{{ fxadmin_orgs_with_users }}"
+      loop_control:
+        loop_var: fxadmin_users_org
+        label: "{{ fxadmin_users_org.name }}"
+
+    - name: Resolve one reference orderer host per organization
+      ansible.builtin.set_fact:
+        fxadmin_org_reference_hosts: >-
+          {{
+            fxadmin_org_reference_hosts | default({}) | combine({
+              current_org.name: (
+                groups['fabric_x_orderers']
+                | map('extract', hostvars)
+                | selectattr('organization', 'defined')
+                | selectattr('organization.name', 'eq', current_org.name)
+                | selectattr('orderer_component_type', 'defined')
+                | map(attribute='inventory_hostname')
+                | sort
+                | first
+              )
+            })
+          }}
+      loop: "{{ fxadmin_orderer_organizations }}"
+      loop_control:
+        loop_var: current_org
+        label: "{{ current_org.name }}"
+
+- name: Render fxadmin configuration on each organization's reference orderer host
+  hosts: fabric_x_orderers
+  tasks:
+    - name: Render fxadmin configuration for every identity declared by this organization
+      vars:
+        fxadmin_identity: "{{ fxadmin_user }}"
+        fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin{{ '' if fxadmin_identity.type == 'admin' else '-reader' }}"
+        fxadmin_identity_dir: >-
+          {{
+            fetched_artifacts_dir
+          }}/crypto/ordererOrganizations/{{ organization.domain }}/users/{{ fxadmin_identity.name }}@{{ organization.domain }}
+        fxadmin_msp_config_path: "{{ fxadmin_identity_dir }}/msp"
+        fxadmin_msp_id: "{{ organization.name }}MSP"
+        fxadmin_use_tls: "{{ orderer_use_tls | default(false) }}"
+        fxadmin_use_mtls: "{{ orderer_use_mtls | default(false) }}"
+        fxadmin_mtls_client_cert_path: "{{ fxadmin_remote_config_dir }}/tls/client.crt"
+        fxadmin_mtls_client_key_path: "{{ fxadmin_remote_config_dir }}/tls/client.key"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxadmin
+        tasks_from: config/transfer
+      loop: "{{ organization.users }}"
+      loop_control:
+        loop_var: fxadmin_user
+        label: "{{ fxadmin_user.name }}"
+      when:
+        - organization is defined
+        - organization.users is defined
+        - inventory_hostname == hostvars['localhost'].fxadmin_org_reference_hosts[organization.name]

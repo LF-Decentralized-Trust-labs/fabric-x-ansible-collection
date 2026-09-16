@@ -1,0 +1,24 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Read the current decoded Fabric-X channel configuration
+  ansible.builtin.slurp:
+    src: "{{ fxadmin_current_config_json }}"
+  register: fxadmin_current_config_slurp
+
+- name: Ensure the modified configuration output directory exists
+  ansible.builtin.file:
+    path: "{{ fxadmin_modified_config_json | dirname }}"
+    state: directory
+    mode: "0o755"
+
+- name: Write the patched Fabric-X channel configuration
+  vars:
+    fxadmin_current_config: "{{ fxadmin_current_config_slurp.content | b64decode | from_json }}"
+  ansible.builtin.copy:
+    content: "{{ fxadmin_current_config | combine(fxadmin_json_patch, recursive=True) | to_nice_json }}"
+    dest: "{{ fxadmin_modified_config_json }}"
+    mode: "0o644"
