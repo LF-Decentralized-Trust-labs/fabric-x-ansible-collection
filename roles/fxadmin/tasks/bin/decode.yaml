@@ -1,0 +1,24 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Ensure fxadmin output directory exists
+  ansible.builtin.file:
+    path: "{{ fxadmin_output | dirname }}"
+    state: directory
+    mode: "0o755"
+
+- name: Decode the Fabric-X channel configuration block to JSON
+  vars:
+    bin_command: >-
+      {{ fxadmin_bin_name }} decode
+      --output={{ fxadmin_output }}
+      {{ fxadmin_config_block }}
+    bin_remote_dir: "{{ cli_bin_dir }}"
+    bin_run_with_tmux: false
+    bin_collect_logs: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start

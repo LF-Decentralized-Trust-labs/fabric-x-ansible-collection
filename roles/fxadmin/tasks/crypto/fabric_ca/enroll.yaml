@@ -1,0 +1,117 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Nothing enrolls an org-level admin or reader identity for orderer
+# organizations today (orderer nodes only enroll their own node identity; see
+# roles/orderer/tasks/crypto/fabric_ca/enroll.yaml). Register and enroll one
+# here, dedicated to fxadmin, using the same hyperledger.fabricx.fabric_ca
+# client/register + client/enroll entry points every other identity in this
+# collection is provisioned through. client/register's own description
+# explicitly lists "admin" and "client" as supported identity types.
+#
+# Enrolls both an MSP identity (for signing/reading) and a dedicated TLS
+# identity (for the mTLS connection), mirroring
+# roles/orderer/tasks/crypto/fabric_ca/enroll.yaml's own dual enrollment --
+# rather than borrowing another host's TLS material.
+#
+# Registration and enrollment run delegated to the organization's Fabric CA
+# host, since that is where the CA client tooling and the CA's own bootstrap
+# registrar identity (fabric_ca_admin) already live -- mirroring how
+# playbooks/fabric_ca_server/register_identities.yaml registers identities on
+# hosts: fabric_ca_servers rather than on the control node.
+
+- name: Resolve the fxadmin {{ fxadmin_identity_name }} identity for this organization
+  ansible.builtin.set_fact:
+    fxadmin_admin_identity:
+      name: "{{ fxadmin_identity_name }}"
+      secret: "{{ fxadmin_identity_secret }}"
+      type: "{{ fxadmin_identity_type }}"
+
+- name: Register and enroll the fxadmin {{ fxadmin_identity_name }} identity on the Fabric CA host
+  vars:
+    fabric_ca_host: "{{ organization.fabric_ca_host }}"
+    fabric_ca_use_tls: "{{ hostvars[organization.fabric_ca_host].fabric_ca_use_tls | default(false) }}"
+    fabric_ca_name: "{{ hostvars[organization.fabric_ca_host].fabric_ca_name }}"
+    fabric_ca_server_effective_remote_config_dir: "{{ hostvars[organization.fabric_ca_host].fabric_ca_server_remote_config_dir | default(hostvars[organization.fabric_ca_host].remote_config_dir) }}"
+    fabric_ca_tls_certfile: "{{ fabric_ca_server_effective_remote_config_dir }}/{{ hostvars[organization.fabric_ca_host].fabric_ca_server_tls_cert_file | default('tls-cert.pem') }}"
+    fabric_ca_identity: "{{ fxadmin_admin_identity }}"
+    # Scratch directory for the enrolled identity, staged under the CA host's
+    # own config dir rather than /tmp -- a container runtime's host-mount
+    # sharing (for example Podman Machine on macOS) is not guaranteed to
+    # reach /tmp.
+    fxadmin_enroll_scratch_dir: "{{ fabric_ca_server_effective_remote_config_dir }}/fxadmin-enroll/{{ organization.domain }}/{{ fxadmin_identity_name }}"
+  delegate_to: "{{ organization.fabric_ca_host }}"
+  block:
+    - name: Register the fxadmin {{ fxadmin_identity_name }} identity
+      vars:
+        fabric_ca_msp_dir: "{{ fabric_ca_server_effective_remote_config_dir }}/{{ hostvars[organization.fabric_ca_host].fabric_ca_admin.name }}/msp"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: client/register
+
+    - name: Enroll the fxadmin {{ fxadmin_identity_name }} MSP identity
+      vars:
+        fabric_ca_msp_dir: "{{ fxadmin_enroll_scratch_dir }}/msp"
+        # Overridden because the default derives from remote_node_dir, which
+        # resolves against this play's own host (localhost) rather than the
+        # delegated Fabric CA host.
+        fabric_ca_client_state_file: "{{ fxadmin_enroll_scratch_dir }}/fabric-ca-enroll-state-msp.yaml"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: client/enroll
+
+    - name: Enroll the fxadmin {{ fxadmin_identity_name }} TLS identity
+      vars:
+        fabric_ca_msp_dir: "{{ fxadmin_enroll_scratch_dir }}/tls"
+        fabric_ca_enrollment_profile: tls
+        fabric_ca_client_state_file: "{{ fxadmin_enroll_scratch_dir }}/fabric-ca-enroll-state-tls.yaml"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fabric_ca
+        tasks_from: client/enroll
+
+    - name: Find the enrolled fxadmin {{ fxadmin_identity_name }} identity files
+      ansible.builtin.find:
+        paths:
+          - "{{ fxadmin_enroll_scratch_dir }}/msp"
+          - "{{ fxadmin_enroll_scratch_dir }}/tls"
+        recurse: true
+        file_type: file
+      register: fxadmin_enrolled_admin_files
+
+    - name: Fetch the enrolled fxadmin {{ fxadmin_identity_name }} identity to the control node
+      vars:
+        # Fabric CA's TLS enrollment profile names its output tls/server.crt
+        # and tls/server.key (the same convention roles/orderer and
+        # roles/fxconfig already use for TLS-profile enrollment), but
+        # cryptogen names the equivalent per-user TLS material
+        # tls/client.crt and tls/client.key. Renamed here so both
+        # provisioning paths present the same layout to callers such as
+        # playbooks/fxadmin/configs.yaml, regardless of which one ran.
+        fxadmin_enrolled_relative_path: >-
+          {{
+            fxadmin_enrolled_file.path
+            | replace(fxadmin_enroll_scratch_dir ~ '/', '')
+            | replace('tls/server.crt', 'tls/client.crt')
+            | replace('tls/server.key', 'tls/client.key')
+          }}
+      ansible.builtin.fetch:
+        src: "{{ fxadmin_enrolled_file.path }}"
+        dest: >-
+          {{
+            fetched_artifacts_dir
+          }}/crypto/ordererOrganizations/{{ organization.domain }}/users/{{ fxadmin_identity_name }}@{{ organization.domain }}/{{
+            fxadmin_enrolled_relative_path
+          }}
+        flat: true
+      loop: "{{ fxadmin_enrolled_admin_files.files }}"
+      loop_control:
+        loop_var: fxadmin_enrolled_file
+        label: "{{ fxadmin_enrolled_file.path }}"
+
+    - name: Remove the temporary enrollment scratch directory
+      ansible.builtin.file:
+        path: "{{ fxadmin_enroll_scratch_dir }}"
+        state: absent

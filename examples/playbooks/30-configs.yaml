@@ -28,6 +28,9 @@
 - name: Transfer fxconfig configs
   ansible.builtin.import_playbook: hyperledger.fabricx.fxconfig.configs
 
+- name: Transfer fxadmin configs
+  ansible.builtin.import_playbook: hyperledger.fabricx.fxadmin.configs
+
 - name: Transfer Monitoring configs
   ansible.builtin.import_playbook: hyperledger.fabricx.monitoring.configs
 

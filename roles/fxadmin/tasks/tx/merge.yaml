@@ -1,0 +1,24 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Merge Fabric-X endorsements with the fxadmin binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxadmin
+    tasks_from: bin/tx/merge
+  when:
+    - fxadmin_use_bin
+
+- name: Merge Fabric-X endorsements with the fxadmin container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fxadmin
+    tasks_from: container/tx/merge
+  when:
+    - not fxadmin_use_bin
+
+- name: Remove merged endorsement files
+  ansible.builtin.file:
+    path: "{{ fxadmin_endorsements_dir }}"
+    state: absent

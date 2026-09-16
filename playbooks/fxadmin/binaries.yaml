@@ -1,0 +1,66 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Only decode/compute_update/merge stay on the control node (pure artifact
+# transforms with no identity involved). Every entrypoint that authenticates
+# as an organization's identity -- config_latest, tx/endorse, tx/prepare,
+# tx/submit, follow -- runs on that organization's own orderer hosts instead
+# (see playbooks/fxadmin/configs.yaml and reconfigure_assembler_port.yaml),
+# so the fxadmin binary must exist there too, mirroring
+# playbooks/fxconfig/binaries.yaml.
+- name: Build the fxadmin binary on the control node
+  hosts: localhost
+  tasks:
+    - name: Handle fxadmin build for the control node
+      when:
+        - fxadmin_use_bin is defined
+        - fxadmin_use_bin
+      block:
+        - name: Build the fxadmin binary on the control node
+          vars:
+            bin_build_on_control_node: true
+            bin_dir: "{{ cli_bin_dir }}"
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.fxadmin
+            tasks_from: bin/build
+          when:
+            - fxadmin_build_bin is defined
+            - fxadmin_build_bin
+
+        - name: Install the fxadmin binary on the control node
+          vars:
+            bin_build_on_control_node: true
+            bin_dir: "{{ cli_bin_dir }}"
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.fxadmin
+            tasks_from: bin/install
+          when:
+            - fxadmin_build_bin is undefined
+
+- name: Ensure the fxadmin binary is on each orderer organization's hosts
+  hosts: "{{ target_hosts | default('fabric_x_orderers') }}:&fabric_x_orderers"
+  tasks:
+    - name: Setup fxadmin binary on the orderer organization's hosts
+      when:
+        - fxadmin_use_bin is defined
+        - fxadmin_use_bin
+        - organization is defined
+        - organization.users is defined
+      block:
+        - name: Setup fxadmin binary using appropriate method
+          vars:
+            # Determine the operation based on flags
+            bin_operation: >-
+              {{
+                'transfer' if (bin_build_on_control_node is defined and bin_build_on_control_node)
+                else ('build' if (fxadmin_build_bin is defined and fxadmin_build_bin)
+                else 'install')
+              }}
+          block:
+            - name: "{{ bin_operation | capitalize }} fxadmin binary on the orderer organization's hosts"
+              ansible.builtin.include_role:
+                name: hyperledger.fabricx.fxadmin
+                tasks_from: "bin/{{ bin_operation }}"

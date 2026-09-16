@@ -1,0 +1,283 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Reconfigures the network-level port of one Fabric-X orderer Assembler.
+#
+# Scope: this playbook only submits the channel ConfigUpdate. It does NOT
+# restart the affected Assembler process -- run
+# `make <affected_orderer_node> configs restart` afterwards to pick up the
+# new port on the running component.
+#
+# Identity scope: the target organization's Reader identity (NodeOU role
+# client) is used for every step except endorsement -- ledger reads, follow,
+# tx/prepare, and tx/submit only need to authenticate as a channel member, not
+# approve a governance change. Each orderer organization's Admin identity
+# (NodeOU role admin) is used strictly for tx/endorse, the one step that must
+# satisfy the channel's per-org Admins policy.
+#
+# Control node vs. remote nodes: every step that authenticates as an
+# organization's identity runs on that organization's own reference orderer
+# host (one per org, resolved below), never on the control node -- a private
+# key is never persisted there. Artifacts hand off through the control node
+# between phases (matches playbooks/fxconfig/create_namespaces.yaml): each
+# remote step fetches its own output back immediately, and the next remote
+# step pushes it back out from there. Only pure, identity-less transforms
+# (decode, patch_config_value, compute_update, tx/merge) run on the control
+# node directly.
+#
+# Prerequisite: run `hyperledger.fabricx.fxadmin.binaries` and
+# `hyperledger.fabricx.fxadmin.configs` first (both are wired into the main
+# `make setup` flow) so the fxadmin CLI and every orderer organization's admin
+# configuration already exist on their reference hosts before this playbook
+# runs.
+#
+# NOTE: the JSON path patched below (channel_group.groups.Orderer.groups
+# .<OrgName>.values.Endpoints.value.addresses, keyed by the plain
+# organization name -- e.g. "OrdererOrg1", NOT its "OrdererOrg1MSP" MSP ID --
+# each entry is a "id=<PartyID>,broadcast|deliver,host:port" string, one per
+# router (broadcast) and assembler (deliver)) has been confirmed against a
+# real `fxadmin decode` sample from this repo's local dev network.
+
+- name: Resolve inputs for reconfiguring a Fabric-X orderer Assembler's port
+  hosts: localhost
+  vars:
+    fxadmin_orderer_organizations: >-
+      {{
+        groups['fabric_x_orderers']
+        | map('extract', hostvars)
+        | selectattr('organization', 'defined')
+        | map(attribute='organization')
+        | unique
+        | list
+      }}
+  tasks:
+    - name: Assert required inputs are provided
+      ansible.builtin.assert:
+        that:
+          - target_hosts is defined
+          - target_hosts in groups['fabric_x_orderers']
+          - hostvars[target_hosts].orderer_component_type == 'assembler'
+          - new_assembler_port is defined
+          - new_assembler_port | string | length > 0
+          - new_assembler_port | int(-1) > 0
+        fail_msg: >-
+          target_hosts must name a single Assembler host in the fabric_x_orderers group,
+          and new_assembler_port must be set (e.g. make reconfigure-assembler-port
+          TARGET_HOSTS=orderer-assembler-1 NEW_PORT=7065).
+
+    - name: Resolve and persist the target organization and party ID
+      ansible.builtin.set_fact:
+        fxadmin_target_host: "{{ target_hosts }}"
+        fxadmin_target_organization: "{{ hostvars[target_hosts].organization }}"
+        fxadmin_target_party_id: "{{ hostvars[target_hosts].orderer_group }}"
+
+    - name: Resolve one reference orderer host per organization
+      ansible.builtin.set_fact:
+        fxadmin_org_reference_hosts: >-
+          {{
+            fxadmin_org_reference_hosts | default({}) | combine({
+              current_org.name: (
+                groups['fabric_x_orderers']
+                | map('extract', hostvars)
+                | selectattr('organization', 'defined')
+                | selectattr('organization.name', 'eq', current_org.name)
+                | selectattr('orderer_component_type', 'defined')
+                | map(attribute='inventory_hostname')
+                | sort
+                | first
+              )
+            })
+          }}
+      loop: "{{ fxadmin_orderer_organizations }}"
+      loop_control:
+        loop_var: current_org
+        label: "{{ current_org.name }}"
+
+- name: Fetch the latest Fabric-X channel configuration block
+  hosts: fabric_x_orderers
+  vars:
+    fxadmin_artifacts_dir: "{{ config_build_dir }}/fxadmin-artifacts"
+    fxadmin_target_organization: "{{ hostvars['localhost'].fxadmin_target_organization }}"
+  tasks:
+    - name: Fetch the latest configuration block as the target organization's Reader identity
+      vars:
+        fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin-reader"
+        # Reconstructed from config_build_dir + channel_id (both set at the
+        # inventory level) rather than configtxgen's own role defaults, which
+        # are only merged into vars once that role has actually run in this
+        # playbook invocation -- not the case here.
+        fxadmin_current_block: "{{ fxadmin_genesis_block | default(config_build_dir ~ '/configtxgen-artifacts/' ~ channel_id ~ '_block.pb') }}"
+        fxadmin_output: "{{ fxadmin_remote_config_dir }}/config.pb"
+        fxadmin_output_fetch_dest: "{{ fxadmin_artifacts_dir }}/config.pb"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxadmin
+        tasks_from: ledger/config_latest
+      when:
+        - inventory_hostname == hostvars['localhost'].fxadmin_org_reference_hosts[fxadmin_target_organization.name]
+
+- name: Compute the Fabric-X ConfigUpdate on the control node
+  hosts: localhost
+  vars:
+    fxadmin_artifacts_dir: "{{ config_build_dir }}/fxadmin-artifacts"
+    fxadmin_target_organization: "{{ hostvars['localhost'].fxadmin_target_organization }}"
+    fxadmin_target_party_id: "{{ hostvars['localhost'].fxadmin_target_party_id }}"
+  tasks:
+    - name: Decode the current channel configuration to JSON
+      vars:
+        fxadmin_config_block: "{{ fxadmin_artifacts_dir }}/config.pb"
+        fxadmin_output: "{{ fxadmin_artifacts_dir }}/current_config.json"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxadmin
+        tasks_from: decode
+
+    - name: Read the current decoded Fabric-X channel configuration
+      ansible.builtin.slurp:
+        src: "{{ fxadmin_artifacts_dir }}/current_config.json"
+      register: fxadmin_current_config_slurp
+
+    - name: Compute the patched OrdererEndpoints for the target organization
+      vars:
+        fxadmin_target_host: "{{ hostvars['localhost'].fxadmin_target_host }}"
+        fxadmin_current_config: "{{ fxadmin_current_config_slurp.content | b64decode | from_json }}"
+        fxadmin_current_endpoints: >-
+          {{
+            fxadmin_current_config['channel_group']['groups']['Orderer']['groups'][fxadmin_target_organization.name]['values']['Endpoints']['value']['addresses']
+          }}
+        fxadmin_new_assembler_endpoint: >-
+          id={{ fxadmin_target_party_id }},deliver,{{ hostvars[fxadmin_target_host].actual_host | default(fxadmin_target_host) }}:{{ new_assembler_port }}
+      ansible.builtin.set_fact:
+        fxadmin_patched_endpoints: >-
+          {{
+            (
+              fxadmin_current_endpoints
+              | reject('match', '^id=' ~ fxadmin_target_party_id ~ ',deliver,')
+              | list
+            )
+            + [fxadmin_new_assembler_endpoint]
+          }}
+
+    - name: Patch the target Assembler's port
+      vars:
+        fxadmin_current_config_json: "{{ fxadmin_artifacts_dir }}/current_config.json"
+        fxadmin_modified_config_json: "{{ fxadmin_artifacts_dir }}/modified_config.json"
+        # A YAML mapping key written as a literal "{{ ... }}" string (as a
+        # nested key normally would be here) is never re-templated once
+        # ansible.builtin.combine() picks it up inside patch_config_value --
+        # it is passed through completely unrendered, corrupting the
+        # ConfigUpdate with a literal "{{ fxadmin_target_organization.name
+        # }}" group name instead of the organization's real name. Building
+        # the whole patch as one Jinja dict literal instead forces the key
+        # itself through template evaluation.
+        fxadmin_json_patch: >-
+          {{
+            {
+              'channel_group': {
+                'groups': {
+                  'Orderer': {
+                    'groups': {
+                      fxadmin_target_organization.name: {
+                        'values': {
+                          'Endpoints': {
+                            'value': {
+                              'addresses': fxadmin_patched_endpoints
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }}
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxadmin
+        tasks_from: patch_config_value
+
+    - name: Compute the Fabric-X ConfigUpdate
+      vars:
+        fxadmin_current_block: "{{ fxadmin_artifacts_dir }}/config.pb"
+        fxadmin_current_config_json: "{{ fxadmin_artifacts_dir }}/current_config.json"
+        fxadmin_modified_config_json: "{{ fxadmin_artifacts_dir }}/modified_config.json"
+        fxadmin_output: "{{ fxadmin_artifacts_dir }}/config_update.pb"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxadmin
+        tasks_from: compute_update
+
+- name: Endorse the ConfigUpdate as every orderer organization's admin
+  hosts: fabric_x_orderers
+  vars:
+    fxadmin_artifacts_dir: "{{ config_build_dir }}/fxadmin-artifacts"
+  tasks:
+    - name: Endorse the ConfigUpdate on this organization's reference host
+      vars:
+        fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin"
+        fxadmin_config_update: "{{ fxadmin_artifacts_dir }}/config_update.pb"
+        fxadmin_endorsements_dir: "{{ fxadmin_artifacts_dir }}/endorsements"
+        # Basename must be unique per organization: tx/endorse's fetch step
+        # collects every org's endorsement into fxadmin_endorsements_dir
+        # keyed only by this file's basename, so a shared literal name here
+        # would make each org's endorsement overwrite the previous one.
+        fxadmin_output: "{{ fxadmin_remote_config_dir }}/{{ organization.name }}-endorsement.pb"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxadmin
+        tasks_from: tx/endorse
+      when:
+        - organization is defined
+        - organization.users is defined
+        - inventory_hostname == hostvars['localhost'].fxadmin_org_reference_hosts[organization.name]
+
+- name: Merge the collected endorsements on the control node
+  hosts: localhost
+  vars:
+    fxadmin_artifacts_dir: "{{ config_build_dir }}/fxadmin-artifacts"
+  tasks:
+    - name: Merge the collected endorsements
+      vars:
+        fxadmin_endorsements_dir: "{{ fxadmin_artifacts_dir }}/endorsements"
+        fxadmin_output: "{{ fxadmin_artifacts_dir }}/merged.pb"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxadmin
+        tasks_from: tx/merge
+
+- name: Prepare, submit and follow the Fabric-X ConfigUpdate
+  hosts: fabric_x_orderers
+  vars:
+    fxadmin_artifacts_dir: "{{ config_build_dir }}/fxadmin-artifacts"
+    fxadmin_target_organization: "{{ hostvars['localhost'].fxadmin_target_organization }}"
+  tasks:
+    - name: Perform submission of the Fabric-X ConfigUpdate as the target organization's Reader identity
+      vars:
+        fxadmin_remote_config_dir: "{{ remote_config_dir }}/fxadmin-reader"
+      when:
+        - inventory_hostname == hostvars['localhost'].fxadmin_org_reference_hosts[fxadmin_target_organization.name]
+      block:
+        - name: Prepare the transaction from the merged, endorsed ConfigUpdate
+          vars:
+            fxadmin_endorsed_config_update: "{{ fxadmin_artifacts_dir }}/merged.pb"
+            fxadmin_output: "{{ fxadmin_remote_config_dir }}/config_tx.pb"
+            fxadmin_output_fetch_dest: "{{ fxadmin_artifacts_dir }}/config_tx.pb"
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.fxadmin
+            tasks_from: tx/prepare
+
+        - name: Submit the transaction
+          vars:
+            fxadmin_config_tx: "{{ fxadmin_artifacts_dir }}/config_tx.pb"
+            fxadmin_current_block: "{{ fxadmin_artifacts_dir }}/config.pb"
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.fxadmin
+            tasks_from: tx/submit
+
+        - name: Follow the ledger until the new configuration commits
+          vars:
+            fxadmin_current_block: "{{ fxadmin_artifacts_dir }}/config.pb"
+            fxadmin_follow_timeout: "{{ fxadmin_follow_timeout | default('60s') }}"
+            fxadmin_output: "{{ fxadmin_remote_config_dir }}/next_config.pb"
+            fxadmin_output_fetch_dest: "{{ fxadmin_artifacts_dir }}/next_config.pb"
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.fxadmin
+            tasks_from: follow

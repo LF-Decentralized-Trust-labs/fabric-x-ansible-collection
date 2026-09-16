@@ -37,6 +37,23 @@
   name: {{ admin_cn | to_json }}
   dir: {{ ('ordererOrganizations/' ~ org.Domain ~ '/users/' ~ admin_cn) | to_json }}
   fingerprint: {{ (admin_cn ~ '|ecdsa') | hash('sha1') | to_json }}
+{% set orderer_users_pubkey = org.Users.PublicKeyAlgorithm | default('ecdsa') %}
+{% for i in range(1, (org.Users.Count | default(0)) + 1) %}
+{% set user_cn = 'User' ~ i ~ '@' ~ org.Domain %}
+- kind: user
+  org: {{ org.Domain | to_json }}
+  name: {{ user_cn | to_json }}
+  dir: {{ ('ordererOrganizations/' ~ org.Domain ~ '/users/' ~ user_cn) | to_json }}
+  fingerprint: {{ (user_cn ~ '|' ~ orderer_users_pubkey) | hash('sha1') | to_json }}
+{% endfor %}
+{% for user_spec in org.Users.Specs | default([]) %}
+{% set user_cn = user_spec.Name ~ '@' ~ org.Domain %}
+- kind: user
+  org: {{ org.Domain | to_json }}
+  name: {{ user_cn | to_json }}
+  dir: {{ ('ordererOrganizations/' ~ org.Domain ~ '/users/' ~ user_cn) | to_json }}
+  fingerprint: {{ (user_cn ~ '|' ~ orderer_users_pubkey) | hash('sha1') | to_json }}
+{% endfor %}
 {% endfor %}
 {% for org in cryptogen_rendered_config.PeerOrgs | default([]) %}
 - kind: peer_org

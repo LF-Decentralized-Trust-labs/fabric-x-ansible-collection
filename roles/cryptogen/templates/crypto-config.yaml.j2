@@ -45,6 +45,42 @@ OrdererOrgs:
 {% endif %}
 {% endfor %}
 {% endif %}
+
+    # ---------------------------------------------------------------------------
+    # "Users"
+    # ---------------------------------------------------------------------------
+    # Only non-admin users are listed under Specs: cryptogen hard-codes OU=client
+    # for every Specs entry regardless of name, so an "admin"-type entry here
+    # would silently fail to satisfy the channel's per-org Admins policy (which
+    # requires OU=admin). The only way to obtain an OU=admin identity is
+    # cryptogen's own implicit, automatically-generated Admin@<domain> user
+    # (unconditional, not driven by this Users block at all) -- see
+    # roles/fxadmin/tasks/crypto/cryptogen/transfer.yaml, which fetches an
+    # admin-type identity from that fixed name regardless of what it is
+    # called in organization.users.
+    Users:
+      # Count: The number of user accounts _in addition_ to Admin
+      Count: 0
+{% set orderer_org_non_admin_users = [] %}
+{% for user in (orderer_org_info.users | default([]) | unique) %}
+{% if (user.type | default('client')) != 'admin' %}
+{% set _ = orderer_org_non_admin_users.append(user) %}
+{% endif %}
+{% endfor %}
+{% if orderer_org_non_admin_users | length > 0 %}
+      # ---------------------------------------------------------------------------
+      # "Specs"
+      # ---------------------------------------------------------------------------
+      # Specs is an array of Spec entries.  Each Spec entry consists of two fields:
+      #   - Name:   (Required) The desired name for the user.
+      #
+      # ---------------------------------------------------------------------------
+      Specs:
+{% for user in orderer_org_non_admin_users %}
+        - Name: {{ user.name }}
+          HSM: false
+{% endfor %}
+{% endif %}
 {% endfor %}
 {% endif %}
 

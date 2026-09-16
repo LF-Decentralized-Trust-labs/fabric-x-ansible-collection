@@ -1,0 +1,26 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Wipe the fxadmin binary from every orderer organization's hosts
+  hosts: "{{ target_hosts | default('fabric_x_orderers') }}:&fabric_x_orderers"
+  tasks:
+    - name: Wipe the fxadmin binary
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxadmin
+        tasks_from: wipe
+      when:
+        - organization is defined
+        - organization.users is defined
+
+- name: Wipe fxadmin artifacts on the control node
+  hosts: localhost
+  vars:
+    fxadmin_artifacts_dir: "{{ config_build_dir }}/fxadmin-artifacts"
+  tasks:
+    - name: Remove generated fxadmin configuration and reconfiguration artifacts
+      ansible.builtin.file:
+        path: "{{ fxadmin_artifacts_dir }}"
+        state: absent

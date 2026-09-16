@@ -1,0 +1,39 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Provisions and fetches one admin identity per Fabric-X orderer organization
+# onto the control node, for later use by fxadmin reconfiguration flows.
+#
+# Runs right after the base crypto material and Fabric CA identities have
+# been generated (wired into examples/playbooks/20-generate-crypto.yaml,
+# after hyperledger.fabricx.orderer.generate_crypto), while cryptogen's own
+# generation output is still around to fetch from -- mirroring how
+# hyperledger.fabricx.orderer.generate_crypto and
+# hyperledger.fabricx.loadgen.generate_crypto fetch what they need at this
+# same lifecycle point rather than later, on demand.
+- name: Provision an admin identity for every Fabric-X orderer organization
+  hosts: localhost
+  vars:
+    fxadmin_orderer_organizations: >-
+      {{
+        groups['fabric_x_orderers']
+        | map('extract', hostvars)
+        | selectattr('organization', 'defined')
+        | map(attribute='organization')
+        | unique
+        | list
+      }}
+  tasks:
+    - name: Provision the admin identity for the organization
+      vars:
+        organization: "{{ fxadmin_generate_crypto_org }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.fxadmin
+        tasks_from: crypto/fetch
+      loop: "{{ fxadmin_orderer_organizations }}"
+      loop_control:
+        loop_var: fxadmin_generate_crypto_org
+        label: "{{ fxadmin_generate_crypto_org.name }}"
