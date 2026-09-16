@@ -183,15 +183,16 @@ Local inventories run a complete network on the control machine with `ansible_co
 
 [`local/group_vars/all/env.yaml`](./local/group_vars/all/env.yaml) uses local Ansible execution and writes deployment state below `out_dir`.
 
-| Inventory                                                             | Description                                                                   |
-| --------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| [`local/fabric-x.yaml`](./docs/local/fabric-x.md)                     | Default local container deployment with Fabric CA, PostgreSQL, TLS, and mTLS. |
-| [`local/fabric-x-yugabyte.yaml`](./docs/local/fabric-x-yugabyte.md)   | Local container deployment using YugabyteDB as the committer database.        |
-| [`local/fabric-x-evm.yaml`](./docs/local/fabric-x-evm.md)             | Local container deployment with the Fabric-X EVM gateway attached.            |
-| [`local/fabric-x-bin.yaml`](./docs/local/fabric-x-bin.md)             | Local deployment that runs Fabric-X services as binaries.                     |
-| [`local/fabric-x-cryptogen.yaml`](./docs/local/fabric-x-cryptogen.md) | Local container deployment using centrally generated `cryptogen` material.    |
-| [`local/fabric-x-no-mtls.yaml`](./docs/local/fabric-x-no-mtls.md)     | Local container deployment with TLS enabled and mTLS disabled.                |
-| [`local/fabric-x-no-tls.yaml`](./docs/local/fabric-x-no-tls.md)       | Local container deployment with TLS and mTLS disabled for debugging only.     |
+| Inventory                                                             | Description                                                                           |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| [`local/fabric-x.yaml`](./docs/local/fabric-x.md)                     | Default local container deployment with Fabric CA, PostgreSQL, TLS, and mTLS.         |
+| [`local/fabric-x-vault.yaml`](./docs/local/fabric-x-vault.md)         | Same topology as `fabric-x.yaml` with every credential encrypted using Ansible Vault. |
+| [`local/fabric-x-yugabyte.yaml`](./docs/local/fabric-x-yugabyte.md)   | Local container deployment using YugabyteDB as the committer database.                |
+| [`local/fabric-x-evm.yaml`](./docs/local/fabric-x-evm.md)             | Local container deployment with the Fabric-X EVM gateway attached.                    |
+| [`local/fabric-x-bin.yaml`](./docs/local/fabric-x-bin.md)             | Local deployment that runs Fabric-X services as binaries.                             |
+| [`local/fabric-x-cryptogen.yaml`](./docs/local/fabric-x-cryptogen.md) | Local container deployment using centrally generated `cryptogen` material.            |
+| [`local/fabric-x-no-mtls.yaml`](./docs/local/fabric-x-no-mtls.md)     | Local container deployment with TLS enabled and mTLS disabled.                        |
+| [`local/fabric-x-no-tls.yaml`](./docs/local/fabric-x-no-tls.md)       | Local container deployment with TLS and mTLS disabled for debugging only.             |
 
 When running local containers on macOS, set `LOCAL_ANSIBLE_HOST` so containers can reach services on the host:
 
