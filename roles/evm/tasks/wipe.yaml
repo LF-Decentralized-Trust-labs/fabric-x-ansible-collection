@@ -18,8 +18,3 @@
   ansible.builtin.include_role:
     name: hyperledger.fabricx.evm
     tasks_from: config/rm
-
-- name: Remove EVM persisted state
-  ansible.builtin.file:
-    path: "{{ evm_remote_data_dir }}"
-    state: absent

@@ -137,6 +137,11 @@ argument_specs:
         description:
           - Sets the EVM liveness probe failure threshold.
           - "Example: C(5)."
+      evm_host: &evm_host
+        type: str
+        description:
+          - Inventory host whose EVM effective address should be resolved.
+          - "Example: C(evm-1)."
       evm_use_k8s: &evm_use_k8s
         type: bool
         default: false
@@ -325,8 +330,9 @@ argument_specs:
   teardown:
     short_description: Remove runtime artifacts
     description:
-      - Remove runtime resources for the selected EVM deployment mode.
-      - Deletes the local container or Kubernetes workload resources while leaving generated config, crypto material, and fetched artifacts intact.
+      - Remove runtime resources and persisted state for the selected EVM deployment mode.
+      - Deletes the local container or Kubernetes workload resources, then the gateway and endorser SQLite state, while leaving generated config, crypto material, and fetched artifacts intact.
+      - The state must go with the workload, otherwise a gateway restarted against a fresh network resumes block delivery from a block the new ordering service does not have and fails with C(NOT_FOUND).
     options:
       evm_use_container: *evm_use_container
       evm_use_k8s: *evm_use_k8s
@@ -336,9 +342,21 @@ argument_specs:
     short_description: Remove all EVM data
     description:
       - Remove EVM runtime resources, generated configuration, crypto material, and persisted state from the host.
+      - Sequences C(teardown), C(crypto/rm), and C(config/rm), so the persisted state is removed by C(teardown) together with the workload.
+    options: {}
+
+  data/rm:
+    short_description: Remove EVM persisted state
+    description:
+      - Remove the EVM data directory holding the gateway and embedded endorser SQLite state (C(gateway.db), C(endorser.db), and their WAL and SHM sidecar files).
+      - Kubernetes and OpenShift modes also delete the StatefulSet PVC in C(k8s_namespace), which Kubernetes keeps when the StatefulSet is deleted.
     options:
+      evm_use_k8s: *evm_use_k8s
+      evm_use_openshift: *evm_use_openshift
+      evm_k8s_resource_name: *evm_k8s_resource_name
       evm_remote_data_dir: *evm_remote_data_dir
       remote_data_dir: *remote_data_dir
+      k8s_namespace: *k8s_namespace
 
   fetch_logs:
     short_description: Collect runtime logs
@@ -348,6 +366,17 @@ argument_specs:
       evm_use_container: *evm_use_container
       evm_use_k8s: *evm_use_k8s
       evm_use_openshift: *evm_use_openshift
+
+  effective_address:
+    short_description: Resolve the effective EVM JSON-RPC address
+    description:
+      - Compute the address used to reach an EVM gateway's JSON-RPC endpoint from outside its own host.
+      - Sets C(evm_effective_address) as an Ansible fact on the calling host.
+      - Resolution priority is OpenShift Route, then Kubernetes NodePort, then the plain host port.
+      - Accepts an C(evm_host) variable so the task can be called from any host in the inventory.
+      - All EVM-specific variables are read from C(hostvars[evm_host]).
+    options:
+      evm_host: *evm_host
 
   ping:
     short_description: Check the JSON-RPC endpoint

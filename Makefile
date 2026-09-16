@@ -19,10 +19,12 @@ VENV_BIN_DIR := $(VENV_DIR)/bin
 # Ansible vars
 ANSIBLE_CONFIG ?= $(PROJECT_DIR)/examples/ansible.cfg
 ANSIBLE_CACHE_PLUGIN_CONNECTION ?= $(OUT_DIR)/ansible_fact_cache
+ANSIBLE_FORKS ?= 20
 
 # Ansible
 export ANSIBLE_CONFIG
 export ANSIBLE_CACHE_PLUGIN_CONNECTION
+export ANSIBLE_FORKS
 export PROJECT_DIR
 
 # Ansible commands

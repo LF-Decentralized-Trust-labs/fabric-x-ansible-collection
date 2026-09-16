@@ -1,0 +1,27 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Set EVM effective address as OpenShift Route
+  ansible.builtin.set_fact:
+    evm_effective_address: "http://{{ hostvars[evm_host].evm_openshift_route }}"
+  when:
+    - hostvars[evm_host].evm_use_openshift is defined
+    - hostvars[evm_host].evm_use_openshift
+    - hostvars[evm_host].evm_openshift_route is defined
+
+- name: Set EVM effective address as k8s NodePort
+  ansible.builtin.set_fact:
+    evm_effective_address: "http://{{ hostvars[evm_host].actual_host }}:{{ hostvars[evm_host].evm_k8s_node_port }}"
+  when:
+    - hostvars[evm_host].evm_openshift_route is not defined
+    - hostvars[evm_host].evm_k8s_node_port is defined
+
+- name: Set EVM effective address
+  ansible.builtin.set_fact:
+    evm_effective_address: "http://{{ hostvars[evm_host].actual_host }}:{{ hostvars[evm_host].evm_port }}"
+  when:
+    - hostvars[evm_host].evm_openshift_route is not defined
+    - hostvars[evm_host].evm_k8s_node_port is not defined

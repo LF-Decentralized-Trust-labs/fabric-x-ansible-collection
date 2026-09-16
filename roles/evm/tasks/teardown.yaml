@@ -21,3 +21,8 @@
     name: hyperledger.fabricx.evm
     tasks_from: openshift/rm
   when: evm_use_openshift
+
+- name: Remove EVM persisted state
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.evm
+    tasks_from: data/rm
