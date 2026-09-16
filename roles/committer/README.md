@@ -494,7 +494,7 @@ Run the container for the selected committer component, with its generated confi
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 1.0.4
+    committer_image_tag: 1.0.5
     # Metrics port exposed by the selected committer component.
     committer_metrics_port: 9443
     # Container registry endpoint for the committer image.
@@ -1587,7 +1587,7 @@ Creates the committer Service, and optional NodePort and LoadBalancer Services, 
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 1.0.4
+    committer_image_tag: 1.0.5
     # Filesystem group assigned to committer pods.
     committer_k8s_fs_group: 10001
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.

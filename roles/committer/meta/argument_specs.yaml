@@ -24,7 +24,7 @@ argument_specs:
       committer_image_tag: &committer_image_tag
         type: str
         required: false
-        default: "1.0.4"
+        default: "1.0.5"
         description:
           - Image tag for the committer container.
       committer_image: &committer_image

@@ -12,7 +12,7 @@ committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or
 # Image name for the committer container.
 committer_image_name: fabric-x-committer
 # Image tag for the committer container.
-committer_image_tag: 1.0.4
+committer_image_tag: 1.0.5
 # Fully qualified committer image.
 committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
 # Container name used by the committer container helper.
