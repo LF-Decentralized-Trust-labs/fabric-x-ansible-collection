@@ -34,12 +34,23 @@
 # configuration already exist on their reference hosts before this playbook
 # runs.
 #
-# NOTE: the JSON path patched below (channel_group.groups.Orderer.groups
-# .<OrgName>.values.Endpoints.value.addresses, keyed by the plain
-# organization name -- e.g. "OrdererOrg1", NOT its "OrdererOrg1MSP" MSP ID --
-# each entry is a "id=<PartyID>,broadcast|deliver,host:port" string, one per
-# router (broadcast) and assembler (deliver)) has been confirmed against a
-# real `fxadmin decode` sample from this repo's local dev network.
+# NOTE: an Assembler's address is recorded in two places in the channel
+# config, and both must change together in the same ConfigUpdate or ARMA
+# rejects the transaction (confirmed with fxadmin's own maintainers):
+#   1. channel_group.groups.Orderer.groups.<OrgName>.values.Endpoints
+#      .value.addresses, keyed by the plain organization name -- e.g.
+#      "OrdererOrg1", NOT its "OrdererOrg1MSP" MSP ID -- each entry a
+#      "id=<PartyID>,broadcast|deliver,host:port" string, one per router
+#      (broadcast) and assembler (deliver). Governed by that org's own
+#      per-org Admins policy.
+#   2. channel_group.groups.Orderer.values.ConsensusType.value.metadata
+#      .PartiesConfig, a list of per-party structs (matched by PartyID)
+#      each carrying its own AssemblerConfig.host/port -- a second,
+#      authoritative copy ARMA's consensus layer reads directly. Governed
+#      by the channel-wide /Channel/Orderer/Admins policy, not any single
+#      org's.
+# Both paths have been confirmed against a real `fxadmin decode` sample
+# from this repo's local dev network.
 
 - name: Resolve inputs for reconfiguring a Fabric-X orderer Assembler's port
   hosts: localhost
@@ -159,6 +170,38 @@
             + [fxadmin_new_assembler_endpoint]
           }}
 
+    # The org's own Endpoints value is only half of what describes an
+    # Assembler's address: ARMA's ConsensusType.Metadata.PartiesConfig
+    # carries a second, authoritative copy of every party's
+    # AssemblerConfig.host/port, channel-wide (governed by
+    # /Channel/Orderer/Admins, not any single org's Admins policy). The two
+    # must be updated together in the same ConfigUpdate or ARMA rejects the
+    # transaction -- confirmed with fxadmin's own maintainers after the
+    # network kept rejecting a ConfigUpdate that only touched Endpoints,
+    # regardless of how many orgs endorsed it.
+    - name: Compute the patched ConsensusType metadata for the target party
+      vars:
+        fxadmin_current_config: "{{ fxadmin_current_config_slurp.content | b64decode | from_json }}"
+        fxadmin_current_parties_config: "{{ fxadmin_current_config['channel_group']['groups']['Orderer']['values']['ConsensusType']['value']['metadata']['PartiesConfig'] }}"
+      ansible.builtin.set_fact:
+        fxadmin_patched_parties_config: >-
+          {{
+            (fxadmin_patched_parties_config | default([])) + [
+              (
+                fxadmin_current_party
+                | combine({
+                    'AssemblerConfig': fxadmin_current_party['AssemblerConfig'] | combine({'port': new_assembler_port | int})
+                  }, recursive=True)
+              )
+              if fxadmin_current_party['PartyID'] == (fxadmin_target_party_id | int)
+              else fxadmin_current_party
+            ]
+          }}
+      loop: "{{ fxadmin_current_parties_config }}"
+      loop_control:
+        loop_var: fxadmin_current_party
+        label: "{{ fxadmin_current_party.PartyID }}"
+
     - name: Patch the target Assembler's port
       vars:
         fxadmin_current_config_json: "{{ fxadmin_artifacts_dir }}/current_config.json"
@@ -184,6 +227,15 @@
                             'value': {
                               'addresses': fxadmin_patched_endpoints
                             }
+                          }
+                        }
+                      }
+                    },
+                    'values': {
+                      'ConsensusType': {
+                        'value': {
+                          'metadata': {
+                            'PartiesConfig': fxadmin_patched_parties_config
                           }
                         }
                       }
