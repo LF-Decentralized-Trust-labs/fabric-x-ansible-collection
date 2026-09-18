@@ -16,6 +16,7 @@
   - [fetch\_logs](#fetch_logs)
   - [effective\_address](#effective_address)
   - [get\_metrics](#get_metrics)
+  - [init\_db](#init_db)
   - [start](#start)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
@@ -25,6 +26,7 @@
   - [bin/rm](#binrm)
   - [bin/fetch\_logs](#binfetch_logs)
   - [bin/transfer](#bintransfer)
+  - [container/init\_db](#containerinit_db)
   - [container/start](#containerstart)
   - [container/stop](#containerstop)
   - [container/rm](#containerrm)
@@ -46,12 +48,14 @@
   - [k8s/crypto/transfer](#k8scryptotransfer)
   - [k8s/fetch\_logs](#k8sfetch_logs)
   - [prometheus/get\_scrapers](#prometheusget_scrapers)
+  - [bin/init\_db](#bininit_db)
   - [bin/start](#binstart)
   - [validator/config/transfer](#validatorconfigtransfer)
   - [verifier/config/transfer](#verifierconfigtransfer)
   - [coordinator/config/transfer](#coordinatorconfigtransfer)
   - [sidecar/config/transfer](#sidecarconfigtransfer)
   - [query\_service/config/transfer](#query_serviceconfigtransfer)
+  - [k8s/init\_db](#k8sinit_db)
   - [k8s/start](#k8sstart)
   - [k8s/rm](#k8srm)
   - [validator/k8s/config/transfer](#validatork8sconfigtransfer)
@@ -59,6 +63,7 @@
   - [coordinator/k8s/config/transfer](#coordinatork8sconfigtransfer)
   - [sidecar/k8s/config/transfer](#sidecark8sconfigtransfer)
   - [query\_service/k8s/config/transfer](#query_servicek8sconfigtransfer)
+  - [openshift/init\_db](#openshiftinit_db)
   - [openshift/start](#openshiftstart)
   - [openshift/rm](#openshiftrm)
 
@@ -270,6 +275,28 @@ Query the component metrics endpoint and print the response body. Delegates addr
     tasks_from: get_metrics
 ```
 
+### init_db
+
+> Initialize the committer database
+
+Dispatch database initialization to the entry point matching `committer_deployment_mode`. Run once, on a single validator reference host, after the database is reachable but before any validator-committer starts -- see roles/committer/tasks/init_db.yaml for why.
+
+```yaml
+- name: Initialize the committer database
+  vars:
+    # Deployment mode selected by the role.
+    committer_deployment_mode: "{%- if committer_use_bin -%}bin{%- elif committer_use_openshift -%}openshift{%- elif committer_use_k8s -%}k8s{%- else -%}container{%- endif -%}"
+    # Enable host-binary deployment mode.
+    committer_use_bin: false
+    # Enable Kubernetes deployment mode.
+    committer_use_k8s: false
+    # Selects the OpenShift deployment branch.
+    committer_use_openshift: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: init_db
+```
+
 ### start
 
 > Start a committer component by type
@@ -470,6 +497,42 @@ Copy the built committer binary to the target host. Uses `committer_bin_name` fo
     tasks_from: bin/transfer
 ```
 
+### container/init_db
+
+> Initialize the committer database with the container
+
+Run `committer init-db` as a one-shot, auto-removing container against the current host's own rendered config (normally the validator's).
+
+```yaml
+- name: Initialize the committer database with the container
+  vars:
+    # Committer component handled by the entry point.
+    committer_component_type: "coordinator"
+    # Generated config file name used by the selected component.
+    committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Config directory inside the committer container.
+    committer_container_config_dir: /config
+    # Container name used by the committer container helper.
+    committer_container_name: "{{ inventory_hostname }}"
+    # Fully qualified committer image.
+    committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
+    # Image name for the committer container.
+    committer_image_name: fabric-x-committer
+    # Image tag for the committer container.
+    committer_image_tag: 1.0.5
+    # Timeout passed to `committer init-db` while it waits for the database to become reachable.
+    committer_init_db_timeout: 5m
+    # Container registry endpoint for the committer image.
+    committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+    # Remote config directory managed by the role.
+    committer_remote_config_dir: "{{ remote_config_dir }}"
+    # Remote config directory used by delegated crypto tasks.
+    remote_config_dir: "/opt/fabricx/committer/config"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: container/init_db
+```
+
 ### container/start
 
 > Start the committer container
@@ -494,7 +557,7 @@ Run the container for the selected committer component, with its generated confi
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 1.0.4
+    committer_image_tag: 1.0.5
     # Metrics port exposed by the selected committer component.
     committer_metrics_port: 9443
     # Container registry endpoint for the committer image.
@@ -978,6 +1041,32 @@ Construct the Prometheus scrape service definitions for all deployed committer c
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: prometheus/get_scrapers
+```
+
+### bin/init_db
+
+> Initialize the committer database with the binary
+
+Run `committer init-db` against the current host's own rendered config (normally the validator's).
+
+```yaml
+- name: Initialize the committer database with the binary
+  vars:
+    # Binary name managed by the committer role.
+    committer_bin_name: committer
+    # Committer component handled by the entry point.
+    committer_component_type: "coordinator"
+    # Generated config file name used by the selected component.
+    committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Timeout passed to `committer init-db` while it waits for the database to become reachable.
+    committer_init_db_timeout: 5m
+    # Remote config directory managed by the role.
+    committer_remote_config_dir: "{{ remote_config_dir }}"
+    # Remote config directory used by delegated crypto tasks.
+    remote_config_dir: "/opt/fabricx/committer/config"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: bin/init_db
 ```
 
 ### bin/start
@@ -1561,6 +1650,68 @@ Render query-service configuration, DB settings, mTLS assets, and optional Kuber
     tasks_from: query_service/config/transfer
 ```
 
+### k8s/init_db
+
+> Initialize the committer database with a Kubernetes Job
+
+Run `committer init-db` as a Job against the validator ConfigMap, deleting any previous run first since Job specs are immutable. Waits for the Job to reach the Complete condition before returning.
+
+```yaml
+- name: Initialize the committer database with a Kubernetes Job
+  vars:
+    # Committer component handled by the entry point.
+    committer_component_type: "coordinator"
+    # Generated config file name used by the selected component.
+    committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Config directory inside the committer container.
+    committer_container_config_dir: /config
+    # Fully qualified committer image.
+    committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
+    # Image name for the committer container.
+    committer_image_name: fabric-x-committer
+    # Image tag for the committer container.
+    committer_image_tag: 1.0.5
+    # Timeout passed to `committer init-db` while it waits for the database to become reachable.
+    committer_init_db_timeout: 5m
+    # Filesystem group assigned to committer pods.
+    committer_k8s_fs_group: 10001
+    # Wait timeout in seconds for the database-init Job to reach Complete. Kept above `committer_init_db_timeout`, which governs the binary's own retry budget once running.
+    committer_k8s_init_db_wait_timeout: 360
+    # Value for the Kubernetes `app.kubernetes.io/part-of` label applied to committer resources.
+    committer_k8s_part_of: "fabric-x-committer-{{ organization.name }}"
+    # Base Kubernetes resource name for committer objects. Used by the service, workload, secret, and optional NodePort resources.
+    committer_k8s_resource_name: "{{ inventory_hostname }}"
+    # Container registry endpoint for the committer image.
+    committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+    # Remote config directory managed by the role.
+    committer_remote_config_dir: "{{ remote_config_dir }}"
+    # Optional image pull secret referenced by Kubernetes workloads.
+    k8s_image_pull_secret: "fabricx-registry-secret"
+    # Kubernetes namespace that contains the committer resources.
+    k8s_namespace: "fabricx-committer"
+    # Organization definition consumed by crypto and sidecar configuration tasks.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
+      peer:
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
+    # Inventory host name of the Postgres backend used by validator or query-service configuration.
+    postgres_db_host: "postgres-committer-1"
+    # Remote config directory used by delegated crypto tasks.
+    remote_config_dir: "/opt/fabricx/committer/config"
+    # Yugabyte cluster identifier used by validator or query-service configuration.
+    yugabyte_cluster_ref_id: "yb-committer-ledger"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: k8s/init_db
+```
+
 ### k8s/start
 
 > Create the committer Kubernetes workload
@@ -1587,7 +1738,7 @@ Creates the committer Service, and optional NodePort and LoadBalancer Services, 
     # Image name for the committer container.
     committer_image_name: fabric-x-committer
     # Image tag for the committer container.
-    committer_image_tag: 1.0.4
+    committer_image_tag: 1.0.5
     # Filesystem group assigned to committer pods.
     committer_k8s_fs_group: 10001
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
@@ -2047,6 +2198,19 @@ Ensure the namespace exists and create the query-service Kubernetes ConfigMap. P
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: query_service/k8s/config/transfer
+```
+
+### openshift/init_db
+
+> Initialize the committer database on OpenShift
+
+Reuses the Kubernetes database-init Job flow; no Route is needed since a Job exposes no port.
+
+```yaml
+- name: Initialize the committer database on OpenShift
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: openshift/init_db
 ```
 
 ### openshift/start

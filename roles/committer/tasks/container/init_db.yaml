@@ -1,0 +1,22 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Initialize the committer database
+  vars:
+    container_name: "{{ committer_container_name }}-init-db"
+    container_image: "{{ committer_image }}"
+    container_command: >-
+      init-db
+      --config={{ committer_container_config_dir }}/{{ committer_config_file }}
+      --timeout={{ committer_init_db_timeout }}
+    container_volumes:
+      - "{{ committer_remote_config_dir }}:{{ committer_container_config_dir }}:z,ro"
+    container_run_detach_mode: false
+    container_run_as_host_user: true
+    container_autoremove: true
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.container
+    tasks_from: start

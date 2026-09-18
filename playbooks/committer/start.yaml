@@ -34,9 +34,26 @@
             | map(attribute='inventory_hostname')
             | list
           }}
+        committer_validators: >-
+          {{
+            reference_committer_hosts
+            | map('extract', hostvars)
+            | selectattr('committer_component_type', 'defined')
+            | selectattr('committer_component_type', '==', 'validator')
+            | map(attribute='inventory_hostname')
+            | sort
+            | list
+          }}
       when:
         - committer_component_type is defined
       block:
+        - name: Initialize the committer database
+          ansible.builtin.include_role:
+            name: hyperledger.fabricx.committer
+            tasks_from: init_db
+          when:
+            - inventory_hostname in committer_validators[:1]
+
         - name: Start Hyperledger Fabric-X Committer services
           vars:
             committer_verifiers: >-
@@ -45,15 +62,6 @@
                 | map('extract', hostvars)
                 | selectattr('committer_component_type', 'defined')
                 | selectattr('committer_component_type', '==', 'verifier')
-                | map(attribute='inventory_hostname')
-                | list
-              }}
-            committer_validators: >-
-              {{
-                reference_committer_hosts
-                | map('extract', hostvars)
-                | selectattr('committer_component_type', 'defined')
-                | selectattr('committer_component_type', '==', 'validator')
                 | map(attribute='inventory_hostname')
                 | list
               }}

@@ -398,7 +398,7 @@ Ensures the host data directory exists and starts the orderer container with the
     # Image name used for the orderer container.
     orderer_image_name: fabric-x-orderer
     # Image tag used for the orderer container.
-    orderer_image_tag: 1.0.4
+    orderer_image_tag: 1.0.6
     # Shared base directory for generated configuration.
     remote_config_dir: "/var/hyperledger/fabric-x/config/orderer/assembler-1"
     # Shared base directory for persisted runtime data.
@@ -974,7 +974,7 @@ Creates the orderer Kubernetes Service, StatefulSet, and optional NodePort and L
     # Image name used for the orderer container.
     orderer_image_name: fabric-x-orderer
     # Image tag used for the orderer container.
-    orderer_image_tag: 1.0.4
+    orderer_image_tag: 1.0.6
     # Container path where orderer configuration is mounted.
     orderer_container_config_dir: /config
     # Container path where orderer data is mounted.

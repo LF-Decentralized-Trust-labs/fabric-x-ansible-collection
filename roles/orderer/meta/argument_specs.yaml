@@ -84,7 +84,7 @@ argument_specs:
       orderer_image_tag: &orderer_image_tag
         type: str
         required: false
-        default: "1.0.4"
+        default: "1.0.6"
         description:
           - "Image tag used for the orderer container."
       orderer_image: &orderer_image

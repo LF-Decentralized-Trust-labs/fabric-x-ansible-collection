@@ -196,6 +196,32 @@ Application: &ApplicationDefaults
     Endorsement:
       Type: ImplicitMeta
       Rule: "{{ configtxgen_application_policies_endorsement_operator | default('MAJORITY') }} Endorsement"
+    SnapshotEndorsement:
+{% if configtxgen_peers_by_org.items() | length > 0 %}
+      Type: Signature
+      Rule: >
+        OR (
+{% for peer_org_domain, peer_org_info in configtxgen_peers_by_org.items() %}
+        '{{ peer_org_info.name }}MSP.member'{% if not loop.last %},{% endif +%}
+{% endfor %}
+        )
+{% else %}
+      Type: ImplicitMeta
+      Rule: ANY Admins
+{% endif %}
+    CheckpointEndorsement:
+{% if configtxgen_peers_by_org.items() | length > 0 %}
+      Type: Signature
+      Rule: >
+        OR (
+{% for peer_org_domain, peer_org_info in configtxgen_peers_by_org.items() %}
+        '{{ peer_org_info.name }}MSP.member'{% if not loop.last %},{% endif +%}
+{% endfor %}
+        )
+{% else %}
+      Type: ImplicitMeta
+      Rule: ANY Admins
+{% endif %}
     LifecycleEndorsement:
 {% if configtxgen_peers_by_org.items() | length > 0 %}
       Type: Signature
