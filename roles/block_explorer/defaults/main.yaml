@@ -18,7 +18,7 @@ block_explorer_registry_endpoint: "{{ lookup('env', 'BLOCK_EXPLORER_REGISTRY_END
 # Image name used by the Block Explorer container.
 block_explorer_image_name: fabric-x-block-explorer
 # Image tag used by the Block Explorer container.
-block_explorer_image_tag: 0.1.1
+block_explorer_image_tag: 0.1.2
 # Block Explorer container image.
 block_explorer_image: "{{ block_explorer_registry_endpoint }}/{{ block_explorer_image_name }}:{{ block_explorer_image_tag }}"
 # Container name used by the runtime.
