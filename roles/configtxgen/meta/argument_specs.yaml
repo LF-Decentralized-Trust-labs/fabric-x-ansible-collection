@@ -253,6 +253,20 @@ argument_specs:
         description:
           - ImplicitMeta operator for the Application Endorsement policy.
           - "Example: C(MAJORITY)"
+      configtxgen_application_policies_snapshot_endorsement_operator:
+        &configtxgen_application_policies_snapshot_endorsement_operator
+        type: str
+        required: false
+        description:
+          - ImplicitMeta operator for the Application SnapshotEndorsement policy.
+          - "Example: C(MAJORITY)"
+      configtxgen_application_policies_checkpoint_endorsement_operator:
+        &configtxgen_application_policies_checkpoint_endorsement_operator
+        type: str
+        required: false
+        description:
+          - ImplicitMeta operator for the Application CheckpointEndorsement policy.
+          - "Example: C(MAJORITY)"
       configtxgen_orderer_policies_readers_operator:
         &configtxgen_orderer_policies_readers_operator
         type: str
@@ -334,6 +348,8 @@ argument_specs:
       configtxgen_application_policies_writers_operator: *configtxgen_application_policies_writers_operator
       configtxgen_application_policies_admins_operator: *configtxgen_application_policies_admins_operator
       configtxgen_application_policies_endorsement_operator: *configtxgen_application_policies_endorsement_operator
+      configtxgen_application_policies_snapshot_endorsement_operator: *configtxgen_application_policies_snapshot_endorsement_operator
+      configtxgen_application_policies_checkpoint_endorsement_operator: *configtxgen_application_policies_checkpoint_endorsement_operator
       configtxgen_orderer_policies_readers_operator: *configtxgen_orderer_policies_readers_operator
       configtxgen_orderer_policies_writers_operator: *configtxgen_orderer_policies_writers_operator
       configtxgen_orderer_policies_admins_operator: *configtxgen_orderer_policies_admins_operator

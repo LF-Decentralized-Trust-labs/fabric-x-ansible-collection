@@ -353,12 +353,14 @@ Render the Loadgen configuration file and transfer config-side support artifacts
     loadgen_key_scheme: "ECDSA"
     # Optional query tuning block consumed by the load profile.
     loadgen_query_settings:{'size': 4, 'min_invalid_keys_portion': 0.1, 'shuffle': true}
-    # Optional conflict injection block consumed by the load profile.
-    loadgen_conflicts_settings:
-      invalid_signatures: 1
-      dependencies:
-        - source: 1
-          target: 2
+    # Fraction of transactions to generate with invalid signatures (0.0 to 1.0), for exercising signature verification and error handling.
+    loadgen_invalid_signatures_rate: 0.1
+    # Fraction of transactions whose keys back-reference an earlier transaction's keys, injecting read-write conflicts to exercise MVCC validation. Requires committer v1.0.5 or later; replaces the removed `load-profile.conflicts.dependencies` block.
+    loadgen_key_backref_rate: 0.05
+    # Distance, in transaction count, between a transaction and the earlier one it back-references. Used with `loadgen_key_backref_rate`.
+    loadgen_tx_reference_gap: 500
+    # Number of prior transactions eligible as a back-reference source. Used with `loadgen_key_backref_rate`.
+    loadgen_key_lookback_window: 1000
     # Monitoring endpoint rate limit in requests per second.
     loadgen_monitoring_rate_limit_requests_per_second: 50
     # Monitoring endpoint rate limit burst size.

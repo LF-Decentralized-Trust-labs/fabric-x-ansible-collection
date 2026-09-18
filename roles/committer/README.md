@@ -16,6 +16,7 @@
   - [fetch\_logs](#fetch_logs)
   - [effective\_address](#effective_address)
   - [get\_metrics](#get_metrics)
+  - [init\_db](#init_db)
   - [start](#start)
   - [crypto/setup](#cryptosetup)
   - [crypto/fetch](#cryptofetch)
@@ -25,6 +26,7 @@
   - [bin/rm](#binrm)
   - [bin/fetch\_logs](#binfetch_logs)
   - [bin/transfer](#bintransfer)
+  - [container/init\_db](#containerinit_db)
   - [container/start](#containerstart)
   - [container/stop](#containerstop)
   - [container/rm](#containerrm)
@@ -46,6 +48,7 @@
   - [k8s/crypto/transfer](#k8scryptotransfer)
   - [k8s/fetch\_logs](#k8sfetch_logs)
   - [prometheus/get\_scrapers](#prometheusget_scrapers)
+  - [bin/init\_db](#bininit_db)
   - [bin/start](#binstart)
   - [validator/config/transfer](#validatorconfigtransfer)
   - [verifier/config/transfer](#verifierconfigtransfer)
@@ -270,6 +273,22 @@ Query the component metrics endpoint and print the response body. Delegates addr
     tasks_from: get_metrics
 ```
 
+### init_db
+
+> Initialize the committer database
+
+Dispatch database initialization to the binary or container entry point based on `committer_use_bin`. Run once, on a single validator reference host, after the database is reachable but before any validator-committer starts -- see roles/committer/tasks/init_db.yaml for why.
+
+```yaml
+- name: Initialize the committer database
+  vars:
+    # Enable host-binary deployment mode.
+    committer_use_bin: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: init_db
+```
+
 ### start
 
 > Start a committer component by type
@@ -468,6 +487,42 @@ Copy the built committer binary to the target host. Uses `committer_bin_name` fo
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: bin/transfer
+```
+
+### container/init_db
+
+> Initialize the committer database with the container
+
+Run `committer init-db` as a one-shot, auto-removing container against the current host's own rendered config (normally the validator's).
+
+```yaml
+- name: Initialize the committer database with the container
+  vars:
+    # Committer component handled by the entry point.
+    committer_component_type: "coordinator"
+    # Generated config file name used by the selected component.
+    committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Config directory inside the committer container.
+    committer_container_config_dir: /config
+    # Container name used by the committer container helper.
+    committer_container_name: "{{ inventory_hostname }}"
+    # Fully qualified committer image.
+    committer_image: "{{ committer_registry_endpoint }}/{{ committer_image_name }}:{{ committer_image_tag }}"
+    # Image name for the committer container.
+    committer_image_name: fabric-x-committer
+    # Image tag for the committer container.
+    committer_image_tag: 1.0.5
+    # Timeout passed to `committer init-db` while it waits for the database to become reachable.
+    committer_init_db_timeout: 5m
+    # Container registry endpoint for the committer image.
+    committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
+    # Remote config directory managed by the role.
+    committer_remote_config_dir: "{{ remote_config_dir }}"
+    # Remote config directory used by delegated crypto tasks.
+    remote_config_dir: "/opt/fabricx/committer/config"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: container/init_db
 ```
 
 ### container/start
@@ -978,6 +1033,32 @@ Construct the Prometheus scrape service definitions for all deployed committer c
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: prometheus/get_scrapers
+```
+
+### bin/init_db
+
+> Initialize the committer database with the binary
+
+Run `committer init-db` against the current host's own rendered config (normally the validator's).
+
+```yaml
+- name: Initialize the committer database with the binary
+  vars:
+    # Binary name managed by the committer role.
+    committer_bin_name: committer
+    # Committer component handled by the entry point.
+    committer_component_type: "coordinator"
+    # Generated config file name used by the selected component.
+    committer_config_file: "config-{{ committer_component_type }}.yml"
+    # Timeout passed to `committer init-db` while it waits for the database to become reachable.
+    committer_init_db_timeout: 5m
+    # Remote config directory managed by the role.
+    committer_remote_config_dir: "{{ remote_config_dir }}"
+    # Remote config directory used by delegated crypto tasks.
+    remote_config_dir: "/opt/fabricx/committer/config"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: bin/init_db
 ```
 
 ### bin/start

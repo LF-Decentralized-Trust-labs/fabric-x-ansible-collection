@@ -1,0 +1,40 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# Initializes the committer's state database schema. Required once per
+# database, after it is reachable but before any validator-committer starts
+# serving. This is a deliberate design choice by the fabric-x-committer
+# maintainers as of v1.0.5, not an omission to work around: schema DDL is an
+# explicit, operator-run, one-shot admin operation (matching Kafka KRaft,
+# CockroachDB, Vault) rather than something every VC replica races to
+# self-initialize, since a future schema migration command landing beside
+# init-db will not be safely re-runnable the way today's initialization is.
+# An Ansible task invoking the same binary/image/config the VC itself uses,
+# with no DB exposure or extra image required, is one of the maintainers'
+# own suggested integration patterns for it.
+#
+# Skipping this step currently hangs validator-committer/coordinator startup
+# for minutes on "loading policies" rather than failing fast, because a
+# missing table is retried as transient for the full retry budget and the
+# coordinator's policy-load RPC has no deadline -- both filed upstream
+# (fabric-x-committer#829, #830) and expected to turn this into an immediate,
+# named error once fixed, independent of init-db remaining a required step.
+#
+# The caller runs this on a single validator reference host, since the
+# validator's own config carries the correct database connection details.
+- name: Initialize the committer database with the binary
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: bin/init_db
+  when:
+    - committer_use_bin
+
+- name: Initialize the committer database with the container
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.committer
+    tasks_from: container/init_db
+  when:
+    - not committer_use_bin

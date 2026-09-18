@@ -282,11 +282,27 @@ argument_specs:
         description:
           - Optional query tuning block consumed by the load profile.
           - "Example: C({'size': 4, 'min_invalid_keys_portion': 0.1, 'shuffle': true})."
-      loadgen_conflicts_settings: &loadgen_conflicts_settings
-        type: dict
+      loadgen_invalid_signatures_rate: &loadgen_invalid_signatures_rate
+        type: float
         description:
-          - Optional conflict injection block consumed by the load profile.
-          - "Example: C({'invalid_signatures': 1, 'dependencies': [{'source': 1, 'target': 2}]})."
+          - Fraction of transactions to generate with invalid signatures (0.0 to 1.0), for exercising signature verification and error handling.
+          - "Example: C(0.1)."
+      loadgen_key_backref_rate: &loadgen_key_backref_rate
+        type: float
+        description:
+          - Fraction of transactions whose keys back-reference an earlier transaction's keys, injecting read-write conflicts to exercise MVCC validation.
+          - Requires committer v1.0.5 or later; replaces the removed C(load-profile.conflicts.dependencies) block.
+          - "Example: C(0.05)."
+      loadgen_tx_reference_gap: &loadgen_tx_reference_gap
+        type: int
+        description:
+          - Distance, in transaction count, between a transaction and the earlier one it back-references. Used with C(loadgen_key_backref_rate).
+          - "Example: C(500)."
+      loadgen_key_lookback_window: &loadgen_key_lookback_window
+        type: int
+        description:
+          - Number of prior transactions eligible as a back-reference source. Used with C(loadgen_key_backref_rate).
+          - "Example: C(1000)."
       loadgen_monitoring_rate_limit_requests_per_second:
         &loadgen_monitoring_rate_limit_requests_per_second
         type: int
@@ -665,7 +681,10 @@ argument_specs:
       loadgen_read_write_tx_val_size: *loadgen_read_write_tx_val_size
       loadgen_key_scheme: *loadgen_key_scheme
       loadgen_query_settings: *loadgen_query_settings
-      loadgen_conflicts_settings: *loadgen_conflicts_settings
+      loadgen_invalid_signatures_rate: *loadgen_invalid_signatures_rate
+      loadgen_key_backref_rate: *loadgen_key_backref_rate
+      loadgen_tx_reference_gap: *loadgen_tx_reference_gap
+      loadgen_key_lookback_window: *loadgen_key_lookback_window
       loadgen_monitoring_rate_limit_requests_per_second: *loadgen_monitoring_rate_limit_requests_per_second
       loadgen_monitoring_rate_limit_burst: *loadgen_monitoring_rate_limit_burst
       loadgen_latency_sampler_prefix: *loadgen_latency_sampler_prefix

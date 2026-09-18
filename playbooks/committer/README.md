@@ -77,7 +77,7 @@ Properties:
 
 ## start.yaml
 
-[`start.yaml`](./start.yaml) starts validators, verifiers, the coordinator, sidecar, and query service according to each host's `committer_component_type`.
+[`start.yaml`](./start.yaml) starts validators, verifiers, the coordinator, sidecar, and query service according to each host's `committer_component_type`. Before any component starts, it runs `committer init-db` once on a single validator reference host to initialize the state database schema -- a required, explicit, one-shot admin step as of committer v1.0.5 (not automatic on-demand creation), without which validator-committer/coordinator startup can hang for minutes instead of failing fast (confirmed with the fabric-x-committer maintainers).
 
 ```shell
 ansible-playbook hyperledger.fabricx.committer.start --extra-vars '{"target_hosts": "fabric_x_committers"}'
@@ -86,6 +86,7 @@ ansible-playbook hyperledger.fabricx.committer.start --extra-vars '{"target_host
 Properties:
 
 - Target hosts: `fabric_x_committers` by default.
+- Nuance: run this after `hyperledger.fabricx.postgres.start` (or `yugabyte.start`), since database initialization requires the database to already be reachable.
 
 ## stop.yaml
 
