@@ -87,7 +87,6 @@ argument_specs:
         default: "1.0.6"
         description:
           - "Image tag used for the orderer container."
-          - "Pinned at 1.0.6 to match committer_image_tag: per the fabric-x-committer maintainers, committer 1.0.5 requires orderer 1.0.6."
       orderer_image: &orderer_image
         type: str
         default: "{{ orderer_registry_endpoint }}/{{ orderer_image_name }}:{{ orderer_image_tag }}"

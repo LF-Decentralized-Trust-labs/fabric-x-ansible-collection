@@ -44,6 +44,9 @@ committer_k8s_resource_name: '{{ inventory_hostname }}'
 committer_k8s_part_of: fabric-x-committer-{{ organization.name }}
 # Wait timeout in seconds for Kubernetes rollouts.
 committer_k8s_wait_timeout: 120
+# Wait timeout in seconds for the database-init Job to reach Complete.
+# Kept above C(committer_init_db_timeout), which governs the binary's own retry budget once running.
+committer_k8s_init_db_wait_timeout: 360
 # Filesystem group assigned to committer pods.
 committer_k8s_fs_group: 10001
 # Set to C(true) to create a LoadBalancer Service entry that exposes the RPC port externally.

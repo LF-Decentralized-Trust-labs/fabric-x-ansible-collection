@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Initialize the committer database
+- name: Initialize the committer database using generic k8s flow
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
-    tasks_from: "{{ committer_deployment_mode }}/init_db"
+    tasks_from: k8s/init_db

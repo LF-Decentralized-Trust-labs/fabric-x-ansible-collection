@@ -50,12 +50,10 @@ load-profile:
 {% endif %}
 {% if loadgen_invalid_signatures_rate is defined %}
     # Fraction of transactions to generate with invalid signatures (0.0 to 1.0).
-    # Used to test signature verification and error handling. 0.1 = 10% invalid.
     invalid-signatures: {{ loadgen_invalid_signatures_rate }}
 {% endif %}
 {% if loadgen_key_backref_rate is defined %}
-    # Fraction of transactions whose keys back-reference an earlier transaction's
-    # keys, injecting read-write conflicts to exercise MVCC validation.
+    # Fraction of transactions whose keys back-reference an earlier transaction.
     key-backref-rate: {{ loadgen_key_backref_rate }}
 {% endif %}
 {% if loadgen_tx_reference_gap is defined %}

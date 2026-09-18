@@ -196,19 +196,32 @@ Application: &ApplicationDefaults
     Endorsement:
       Type: ImplicitMeta
       Rule: "{{ configtxgen_application_policies_endorsement_operator | default('MAJORITY') }} Endorsement"
-    # Required from committer v1.0.5 (fabric-x-common v0.2.9) onward: the
-    # verifier validates a config block against SystemNamespacePolicies,
-    # which includes these two alongside LifecycleEndorsement -- a config
-    # block missing either is rejected outright (see
-    # service/verifier/policy/policy.go). Absent on the wire with earlier
-    # committer versions, but harmless to always render since ImplicitMeta
-    # policies with no matching sub-policy just never get exercised.
     SnapshotEndorsement:
+{% if configtxgen_peers_by_org.items() | length > 0 %}
+      Type: Signature
+      Rule: >
+        OR (
+{% for peer_org_domain, peer_org_info in configtxgen_peers_by_org.items() %}
+        '{{ peer_org_info.name }}MSP.member'{% if not loop.last %},{% endif +%}
+{% endfor %}
+        )
+{% else %}
       Type: ImplicitMeta
-      Rule: "{{ configtxgen_application_policies_snapshot_endorsement_operator | default('MAJORITY') }} Endorsement"
+      Rule: ANY Admins
+{% endif %}
     CheckpointEndorsement:
+{% if configtxgen_peers_by_org.items() | length > 0 %}
+      Type: Signature
+      Rule: >
+        OR (
+{% for peer_org_domain, peer_org_info in configtxgen_peers_by_org.items() %}
+        '{{ peer_org_info.name }}MSP.member'{% if not loop.last %},{% endif +%}
+{% endfor %}
+        )
+{% else %}
       Type: ImplicitMeta
-      Rule: "{{ configtxgen_application_policies_checkpoint_endorsement_operator | default('MAJORITY') }} Endorsement"
+      Rule: ANY Admins
+{% endif %}
     LifecycleEndorsement:
 {% if configtxgen_peers_by_org.items() | length > 0 %}
       Type: Signature

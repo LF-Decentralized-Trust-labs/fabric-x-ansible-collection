@@ -86,10 +86,6 @@ Generate `configtx.yaml` for Fabric-X genesis block creation. Render the config 
     configtxgen_application_policies_admins_operator: "MAJORITY"
     # ImplicitMeta operator for the Application Endorsement policy.
     configtxgen_application_policies_endorsement_operator: "MAJORITY"
-    # ImplicitMeta operator for the Application SnapshotEndorsement policy.
-    configtxgen_application_policies_snapshot_endorsement_operator: "MAJORITY"
-    # ImplicitMeta operator for the Application CheckpointEndorsement policy.
-    configtxgen_application_policies_checkpoint_endorsement_operator: "MAJORITY"
     # ImplicitMeta operator for the Orderer Readers policy.
     configtxgen_orderer_policies_readers_operator: "ANY"
     # ImplicitMeta operator for the Orderer Writers policy.

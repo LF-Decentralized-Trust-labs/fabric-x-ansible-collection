@@ -87,6 +87,7 @@ Properties:
 
 - Target hosts: `fabric_x_committers` by default.
 - Nuance: run this after `hyperledger.fabricx.postgres.start` (or `yugabyte.start`), since database initialization requires the database to already be reachable.
+- Nuance: the reference validator host is the alphabetically first name in `committer_validators` (same deterministic selection `yugabyte.start` uses to pick its DB-init host), so repeated runs always target the same host.
 
 ## stop.yaml
 

@@ -41,15 +41,12 @@
             | selectattr('committer_component_type', 'defined')
             | selectattr('committer_component_type', '==', 'validator')
             | map(attribute='inventory_hostname')
+            | sort
             | list
           }}
       when:
         - committer_component_type is defined
       block:
-        # A required, one-time schema-initialization step as of committer
-        # v1.0.5 -- see roles/committer/tasks/init_db.yaml for the full
-        # rationale. Runs once, on a single validator reference host, before
-        # any component starts.
         - name: Initialize the committer database
           ansible.builtin.include_role:
             name: hyperledger.fabricx.committer
