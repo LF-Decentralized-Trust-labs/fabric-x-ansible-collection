@@ -1,4 +1,3 @@
-{% set evm_gateway_user = organization.users | first %}
 # ---------------------------------------------------------------------------
 # Gateway configuration
 # Ethereum JSON-RPC endpoint, signing identity, and connections to the
@@ -11,8 +10,8 @@ gateway:
   identity:
     # MSP ID identifying the organization.
     msp-id: {{ organization.name }}MSP
-    # User identity used to sign transactions submitted by the gateway.
-    msp-dir: {{ evm_container_config_dir }}/users/{{ evm_gateway_user.name }}@{{ organization.domain }}/msp
+    # Peer identity used to sign transactions submitted by the gateway.
+    msp-dir: {{ evm_container_config_dir }}/msp
   database:
     # SQLite connection string for the block/transaction/log index.
     connection-string: "file:{{ evm_container_data_dir }}/gateway.db"
