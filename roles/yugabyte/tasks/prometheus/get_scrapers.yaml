@@ -44,7 +44,7 @@
       use_tls: "{{ current_yugabyte_cluster_webserver_use_tls }}"
       tls_ca_file: >-
         {{
-          fetched_artifacts_dir ~ '/crypto/peerOrganizations/' ~ current_yugabyte_cluster_ref_host.organization.domain ~ '/msp/tlscacerts/tlsca.' ~ current_yugabyte_cluster_ref_host.organization.domain ~ '-cert.pem'
+          fetched_artifacts_dir ~ '/crypto/organizations/' ~ current_yugabyte_cluster_ref_host.organization.domain ~ '/msp/tlscacerts/tlsca.' ~ current_yugabyte_cluster_ref_host.organization.domain ~ '-cert.pem'
           if current_yugabyte_cluster_webserver_use_tls
           else ''
         }}

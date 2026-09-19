@@ -96,16 +96,11 @@ argument_specs:
         default: "cryptogen"
         description:
           - "Sets the cryptogen executable name."
-      cryptogen_orderers_by_org: &cryptogen_orderers_by_org
+      cryptogen_orgs_by_domain: &cryptogen_orgs_by_domain
         type: dict
         default: {}
         description:
-          - "Maps orderer organization domains to their organization definitions."
-      cryptogen_peers_by_org: &cryptogen_peers_by_org
-        type: dict
-        default: {}
-        description:
-          - "Maps peer organization domains to their organization definitions."
+          - "Maps organization domains to their organization definitions, each node carrying its own organizational unit (orderer or peer)."
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         required: true
@@ -158,29 +153,27 @@ argument_specs:
   fetch:
     short_description: Fetch generated MSP directories
     description:
-      - "Copy generated MSP directories for orderer and peer organizations into the fetched artifacts directory."
-      - "The role mirrors each organization MSP subtree from C(cryptogen_output_dir) into C({{ fetched_artifacts_dir }}/crypto/ordererOrganizations) and C({{ fetched_artifacts_dir }}/crypto/peerOrganizations)."
+      - "Copy generated MSP directories for every organization into the fetched artifacts directory."
+      - "The role mirrors each organization MSP subtree from C(cryptogen_output_dir) into C({{ fetched_artifacts_dir }}/crypto/organizations)."
       - "Run this after crypto material has already been generated so downstream roles can consume the fetched artifacts."
     options:
       config_build_dir: *config_build_dir
       cryptogen_artifacts_dir: *cryptogen_artifacts_dir
       fetched_artifacts_dir: *fetched_artifacts_dir
       cryptogen_output_dir: *cryptogen_output_dir
-      cryptogen_orderers_by_org: *cryptogen_orderers_by_org
-      cryptogen_peers_by_org: *cryptogen_peers_by_org
+      cryptogen_orgs_by_domain: *cryptogen_orgs_by_domain
 
   config/build:
     short_description: Build the cryptogen configuration file
     description:
       - "Render C(crypto-config.yaml) for the cryptogen CLI."
-      - "This entry point gathers host IPv4 facts for referenced orderer and peer hosts before templating C({{ cryptogen_artifacts_dir }}/{{ cryptogen_config_file }})."
-      - "The rendered file captures the Fabric-X organization layout that cryptogen uses to generate orderer and peer MSP and TLS material."
+      - "This entry point gathers host IPv4 facts for every referenced node before templating C({{ cryptogen_artifacts_dir }}/{{ cryptogen_config_file }})."
+      - "The rendered file captures the Fabric-X organization layout, as a single C(GenericOrgs) list, that cryptogen uses to generate orderer and peer MSP and TLS material."
     options:
       config_build_dir: *config_build_dir
       cryptogen_artifacts_dir: *cryptogen_artifacts_dir
       cryptogen_config_file: *cryptogen_config_file
-      cryptogen_orderers_by_org: *cryptogen_orderers_by_org
-      cryptogen_peers_by_org: *cryptogen_peers_by_org
+      cryptogen_orgs_by_domain: *cryptogen_orgs_by_domain
 
   container/start:
     short_description: Generate crypto material with a container

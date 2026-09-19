@@ -52,10 +52,8 @@ Generate `configtx.yaml` for Fabric-X genesis block creation. Render the config 
     configtxgen_config_file: configtx.yaml
     # Shared config binary file name consumed by the config template.
     configtxgen_armageddon_binpb_file: shared_config.binpb
-    # Orderer organization map rendered into `configtx.yaml`.
-    configtxgen_orderers_by_org: {}
-    # Peer organization map rendered into `configtx.yaml`.
-    configtxgen_peers_by_org: {}
+    # Organization map rendered into `configtx.yaml`, keyed by domain, each carrying its own `orderers` and `peers` node lists so a single organization can appear on both sides of the network.
+    configtxgen_orgs_by_domain: {}
     # Config profile passed to `configtxgen`.
     configtxgen_profile_id: OrgsChannel
     # Directory containing fetched crypto artifacts used by the binary path and container mounts.

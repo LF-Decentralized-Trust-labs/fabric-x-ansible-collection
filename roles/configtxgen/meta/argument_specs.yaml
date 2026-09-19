@@ -141,16 +141,11 @@ argument_specs:
         default: configtxgen-state.yaml
         description:
           - Filename that tracks a fingerprint of the rendered config, the Armageddon shared-config binary, and the crypto inputs, used to detect changes since the last run.
-      configtxgen_orderers_by_org: &configtxgen_orderers_by_org
+      configtxgen_orgs_by_domain: &configtxgen_orgs_by_domain
         type: dict
         default: {}
         description:
-          - Orderer organization map rendered into `configtx.yaml`.
-      configtxgen_peers_by_org: &configtxgen_peers_by_org
-        type: dict
-        default: {}
-        description:
-          - Peer organization map rendered into `configtx.yaml`.
+          - Organization map rendered into `configtx.yaml`, keyed by domain, each carrying its own `orderers` and `peers` node lists so a single organization can appear on both sides of the network.
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         required: true
@@ -317,8 +312,7 @@ argument_specs:
       configtxgen_armageddon_container_artifacts_dir: *configtxgen_armageddon_container_artifacts_dir
       configtxgen_config_file: *configtxgen_config_file
       configtxgen_armageddon_binpb_file: *configtxgen_armageddon_binpb_file
-      configtxgen_orderers_by_org: *configtxgen_orderers_by_org
-      configtxgen_peers_by_org: *configtxgen_peers_by_org
+      configtxgen_orgs_by_domain: *configtxgen_orgs_by_domain
       configtxgen_profile_id: *configtxgen_profile_id
       fetched_artifacts_dir: *fetched_artifacts_dir
       armageddon_artifacts_dir: *armageddon_artifacts_dir
