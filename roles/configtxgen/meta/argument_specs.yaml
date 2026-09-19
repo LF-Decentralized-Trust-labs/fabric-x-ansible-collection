@@ -141,16 +141,11 @@ argument_specs:
         default: configtxgen-state.yaml
         description:
           - Filename that tracks a fingerprint of the rendered config, the Armageddon shared-config binary, and the crypto inputs, used to detect changes since the last run.
-      configtxgen_orderers_by_org: &configtxgen_orderers_by_org
+      configtxgen_orgs_by_domain: &configtxgen_orgs_by_domain
         type: dict
         default: {}
         description:
-          - Orderer organization map rendered into `configtx.yaml`.
-      configtxgen_peers_by_org: &configtxgen_peers_by_org
-        type: dict
-        default: {}
-        description:
-          - Peer organization map rendered into `configtx.yaml`.
+          - Organization map rendered into `configtx.yaml`, keyed by domain, each carrying its own `orderers` and `peers` node lists so a single organization can appear on both sides of the network.
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         required: true
@@ -169,139 +164,261 @@ argument_specs:
         description:
           - Directory used as the `configtxgen` binary destination or lookup path.
           - "Example: C(/opt/fabricx/bin)."
-      configtxgen_orderer_org_policies_readers_operator:
-        &configtxgen_orderer_org_policies_readers_operator
+      configtxgen_orderer_org_policies_readers_type:
+        &configtxgen_orderer_org_policies_readers_type
+        type: str
+        default: Signature
+        description:
+          - Policy type for the orderer organization Readers policy.
+      configtxgen_orderer_org_policies_readers_rule:
+        &configtxgen_orderer_org_policies_readers_rule
+        type: str
+        default: "OR('{msp_id}.member')"
+        description:
+          - "Rule for the orderer organization Readers policy. C({msp_id}) is replaced with the organization's own MSP id."
+      configtxgen_orderer_org_policies_writers_type:
+        &configtxgen_orderer_org_policies_writers_type
+        type: str
+        default: Signature
+        description:
+          - Policy type for the orderer organization Writers policy.
+      configtxgen_orderer_org_policies_writers_rule:
+        &configtxgen_orderer_org_policies_writers_rule
+        type: str
+        default: "OR('{msp_id}.member')"
+        description:
+          - "Rule for the orderer organization Writers policy. C({msp_id}) is replaced with the organization's own MSP id."
+      configtxgen_orderer_org_policies_admins_type:
+        &configtxgen_orderer_org_policies_admins_type
+        type: str
+        default: Signature
+        description:
+          - Policy type for the orderer organization Admins policy.
+      configtxgen_orderer_org_policies_admins_rule:
+        &configtxgen_orderer_org_policies_admins_rule
+        type: str
+        default: "OR('{msp_id}.admin')"
+        description:
+          - "Rule for the orderer organization Admins policy. C({msp_id}) is replaced with the organization's own MSP id."
+      configtxgen_orderer_org_policies_endorsement_type:
+        &configtxgen_orderer_org_policies_endorsement_type
+        type: str
+        default: Signature
+        description:
+          - Policy type for the orderer organization Endorsement policy.
+      configtxgen_orderer_org_policies_endorsement_rule:
+        &configtxgen_orderer_org_policies_endorsement_rule
+        type: str
+        default: "OR('{msp_id}.member')"
+        description:
+          - "Rule for the orderer organization Endorsement policy. C({msp_id}) is replaced with the organization's own MSP id."
+      configtxgen_peer_org_policies_readers_type:
+        &configtxgen_peer_org_policies_readers_type
+        type: str
+        default: Signature
+        description:
+          - Policy type for the peer organization Readers policy.
+      configtxgen_peer_org_policies_readers_rule:
+        &configtxgen_peer_org_policies_readers_rule
+        type: str
+        default: "OR('{msp_id}.member')"
+        description:
+          - "Rule for the peer organization Readers policy. C({msp_id}) is replaced with the organization's own MSP id."
+      configtxgen_peer_org_policies_writers_type:
+        &configtxgen_peer_org_policies_writers_type
+        type: str
+        default: Signature
+        description:
+          - Policy type for the peer organization Writers policy.
+      configtxgen_peer_org_policies_writers_rule:
+        &configtxgen_peer_org_policies_writers_rule
+        type: str
+        default: "OR('{msp_id}.member')"
+        description:
+          - "Rule for the peer organization Writers policy. C({msp_id}) is replaced with the organization's own MSP id."
+      configtxgen_peer_org_policies_admins_type:
+        &configtxgen_peer_org_policies_admins_type
+        type: str
+        default: Signature
+        description:
+          - Policy type for the peer organization Admins policy.
+      configtxgen_peer_org_policies_admins_rule:
+        &configtxgen_peer_org_policies_admins_rule
+        type: str
+        default: "OR('{msp_id}.admin')"
+        description:
+          - "Rule for the peer organization Admins policy. C({msp_id}) is replaced with the organization's own MSP id."
+      configtxgen_peer_org_policies_endorsement_type:
+        &configtxgen_peer_org_policies_endorsement_type
+        type: str
+        default: Signature
+        description:
+          - Policy type for the peer organization Endorsement policy.
+      configtxgen_peer_org_policies_endorsement_rule:
+        &configtxgen_peer_org_policies_endorsement_rule
+        type: str
+        default: "OR('{msp_id}.member')"
+        description:
+          - "Rule for the peer organization Endorsement policy. C({msp_id}) is replaced with the organization's own MSP id."
+      configtxgen_application_policies_readers_type:
+        &configtxgen_application_policies_readers_type
+        type: str
+        default: ImplicitMeta
+        description:
+          - Policy type for the Application Readers policy.
+      configtxgen_application_policies_readers_rule:
+        &configtxgen_application_policies_readers_rule
+        type: str
+        default: "ANY Readers"
+        description:
+          - Rule for the Application Readers policy.
+      configtxgen_application_policies_writers_type:
+        &configtxgen_application_policies_writers_type
+        type: str
+        default: ImplicitMeta
+        description:
+          - Policy type for the Application Writers policy.
+      configtxgen_application_policies_writers_rule:
+        &configtxgen_application_policies_writers_rule
+        type: str
+        default: "ANY Writers"
+        description:
+          - Rule for the Application Writers policy.
+      configtxgen_application_policies_admins_type:
+        &configtxgen_application_policies_admins_type
+        type: str
+        default: ImplicitMeta
+        description:
+          - Policy type for the Application Admins policy.
+      configtxgen_application_policies_admins_rule:
+        &configtxgen_application_policies_admins_rule
+        type: str
+        default: "MAJORITY Admins"
+        description:
+          - Rule for the Application Admins policy.
+      configtxgen_application_policies_endorsement_type:
+        &configtxgen_application_policies_endorsement_type
+        type: str
+        default: ImplicitMeta
+        description:
+          - Policy type for the Application Endorsement policy.
+      configtxgen_application_policies_endorsement_rule:
+        &configtxgen_application_policies_endorsement_rule
+        type: str
+        default: "MAJORITY Endorsement"
+        description:
+          - Rule for the Application Endorsement policy.
+      configtxgen_application_policies_lifecycle_endorsement_type:
+        &configtxgen_application_policies_lifecycle_endorsement_type
+        type: str
+        default: Signature
+        description:
+          - Policy type for the Application LifecycleEndorsement policy.
+      configtxgen_application_policies_lifecycle_endorsement_rule:
+        &configtxgen_application_policies_lifecycle_endorsement_rule
         type: str
         required: false
         description:
-          - Operator for the orderer organization Readers Signature policy.
-          - "Example: C(OR)"
-      configtxgen_orderer_org_policies_writers_operator:
-        &configtxgen_orderer_org_policies_writers_operator
+          - Rule for the Application LifecycleEndorsement policy.
+          - When left undefined, the rule is generated from C(configtxgen_application_policies_lifecycle_endorsement_operator) and C(configtxgen_application_policies_lifecycle_endorsement_ou) as an operator combining every application organization's MSP OU.
+      configtxgen_application_policies_lifecycle_endorsement_operator:
+        &configtxgen_application_policies_lifecycle_endorsement_operator
         type: str
-        required: false
+        default: OR
         description:
-          - Operator for the orderer organization Writers Signature policy.
-          - "Example: C(OR)"
-      configtxgen_orderer_org_policies_admins_operator:
-        &configtxgen_orderer_org_policies_admins_operator
+          - Operator combining every application organization's MSP OU in the generated LifecycleEndorsement rule.
+          - Only used when C(configtxgen_application_policies_lifecycle_endorsement_rule) is left undefined.
+      configtxgen_application_policies_lifecycle_endorsement_ou:
+        &configtxgen_application_policies_lifecycle_endorsement_ou
         type: str
-        required: false
+        default: member
         description:
-          - Operator for the orderer organization Admins Signature policy.
-          - "Example: C(OR)"
-      configtxgen_orderer_org_policies_endorsement_operator:
-        &configtxgen_orderer_org_policies_endorsement_operator
+          - MSP OU required from every application organization in the generated LifecycleEndorsement rule.
+          - Only used when C(configtxgen_application_policies_lifecycle_endorsement_rule) is left undefined.
+      configtxgen_orderer_policies_readers_type:
+        &configtxgen_orderer_policies_readers_type
         type: str
-        required: false
+        default: ImplicitMeta
         description:
-          - Operator for the orderer organization Endorsement Signature policy.
-          - "Example: C(OR)"
-      configtxgen_peer_org_policies_readers_operator:
-        &configtxgen_peer_org_policies_readers_operator
+          - Policy type for the Orderer Readers policy.
+      configtxgen_orderer_policies_readers_rule:
+        &configtxgen_orderer_policies_readers_rule
         type: str
-        required: false
+        default: "ANY Readers"
         description:
-          - Operator for the peer organization Readers Signature policy.
-          - "Example: C(OR)"
-      configtxgen_peer_org_policies_writers_operator:
-        &configtxgen_peer_org_policies_writers_operator
+          - Rule for the Orderer Readers policy.
+      configtxgen_orderer_policies_writers_type:
+        &configtxgen_orderer_policies_writers_type
         type: str
-        required: false
+        default: ImplicitMeta
         description:
-          - Operator for the peer organization Writers Signature policy.
-          - "Example: C(OR)"
-      configtxgen_peer_org_policies_admins_operator:
-        &configtxgen_peer_org_policies_admins_operator
+          - Policy type for the Orderer Writers policy.
+      configtxgen_orderer_policies_writers_rule:
+        &configtxgen_orderer_policies_writers_rule
         type: str
-        required: false
+        default: "ANY Writers"
         description:
-          - Operator for the peer organization Admins Signature policy.
-          - "Example: C(OR)"
-      configtxgen_peer_org_policies_endorsement_operator:
-        &configtxgen_peer_org_policies_endorsement_operator
+          - Rule for the Orderer Writers policy.
+      configtxgen_orderer_policies_admins_type:
+        &configtxgen_orderer_policies_admins_type
         type: str
-        required: false
+        default: ImplicitMeta
         description:
-          - Operator for the peer organization Endorsement Signature policy.
-          - "Example: C(OR)"
-      configtxgen_application_policies_readers_operator:
-        &configtxgen_application_policies_readers_operator
+          - Policy type for the Orderer Admins policy.
+      configtxgen_orderer_policies_admins_rule:
+        &configtxgen_orderer_policies_admins_rule
         type: str
-        required: false
+        default: "MAJORITY Admins"
         description:
-          - ImplicitMeta operator for the Application Readers policy.
-          - "Example: C(ANY)"
-      configtxgen_application_policies_writers_operator:
-        &configtxgen_application_policies_writers_operator
+          - Rule for the Orderer Admins policy.
+      configtxgen_orderer_policies_block_validation_type:
+        &configtxgen_orderer_policies_block_validation_type
         type: str
-        required: false
+        default: ImplicitMeta
         description:
-          - ImplicitMeta operator for the Application Writers policy.
-          - "Example: C(ANY)"
-      configtxgen_application_policies_admins_operator:
-        &configtxgen_application_policies_admins_operator
+          - Policy type for the Orderer BlockValidation policy.
+      configtxgen_orderer_policies_block_validation_rule:
+        &configtxgen_orderer_policies_block_validation_rule
         type: str
-        required: false
+        default: "MAJORITY Writers"
         description:
-          - ImplicitMeta operator for the Application Admins policy.
-          - "Example: C(MAJORITY)"
-      configtxgen_application_policies_endorsement_operator:
-        &configtxgen_application_policies_endorsement_operator
+          - Rule for the Orderer BlockValidation policy.
+      configtxgen_channel_policies_readers_type:
+        &configtxgen_channel_policies_readers_type
         type: str
-        required: false
+        default: ImplicitMeta
         description:
-          - ImplicitMeta operator for the Application Endorsement policy.
-          - "Example: C(MAJORITY)"
-      configtxgen_orderer_policies_readers_operator:
-        &configtxgen_orderer_policies_readers_operator
+          - Policy type for the Channel Readers policy.
+      configtxgen_channel_policies_readers_rule:
+        &configtxgen_channel_policies_readers_rule
         type: str
-        required: false
+        default: "ANY Readers"
         description:
-          - ImplicitMeta operator for the Orderer Readers policy.
-          - "Example: C(ANY)"
-      configtxgen_orderer_policies_writers_operator:
-        &configtxgen_orderer_policies_writers_operator
+          - Rule for the Channel Readers policy.
+      configtxgen_channel_policies_writers_type:
+        &configtxgen_channel_policies_writers_type
         type: str
-        required: false
+        default: ImplicitMeta
         description:
-          - ImplicitMeta operator for the Orderer Writers policy.
-          - "Example: C(ANY)"
-      configtxgen_orderer_policies_admins_operator:
-        &configtxgen_orderer_policies_admins_operator
+          - Policy type for the Channel Writers policy.
+      configtxgen_channel_policies_writers_rule:
+        &configtxgen_channel_policies_writers_rule
         type: str
-        required: false
+        default: "ANY Writers"
         description:
-          - ImplicitMeta operator for the Orderer Admins policy.
-          - "Example: C(MAJORITY)"
-      configtxgen_orderer_policies_block_validation_operator:
-        &configtxgen_orderer_policies_block_validation_operator
+          - Rule for the Channel Writers policy.
+      configtxgen_channel_policies_admins_type:
+        &configtxgen_channel_policies_admins_type
         type: str
-        required: false
+        default: ImplicitMeta
         description:
-          - ImplicitMeta operator for the Orderer BlockValidation policy.
-          - "Example: C(MAJORITY)"
-      configtxgen_channel_policies_readers_operator:
-        &configtxgen_channel_policies_readers_operator
+          - Policy type for the Channel Admins policy.
+      configtxgen_channel_policies_admins_rule:
+        &configtxgen_channel_policies_admins_rule
         type: str
-        required: false
+        default: "MAJORITY Admins"
         description:
-          - ImplicitMeta operator for the Channel Readers policy.
-          - "Example: C(ANY)"
-      configtxgen_channel_policies_writers_operator:
-        &configtxgen_channel_policies_writers_operator
-        type: str
-        required: false
-        description:
-          - ImplicitMeta operator for the Channel Writers policy.
-          - "Example: C(ANY)"
-      configtxgen_channel_policies_admins_operator:
-        &configtxgen_channel_policies_admins_operator
-        type: str
-        required: false
-        description:
-          - ImplicitMeta operator for the Channel Admins policy.
-          - "Example: C(MAJORITY)"
+          - Rule for the Channel Admins policy.
 
   config/build:
     short_description: Render the configtxgen configuration file
@@ -317,30 +434,52 @@ argument_specs:
       configtxgen_armageddon_container_artifacts_dir: *configtxgen_armageddon_container_artifacts_dir
       configtxgen_config_file: *configtxgen_config_file
       configtxgen_armageddon_binpb_file: *configtxgen_armageddon_binpb_file
-      configtxgen_orderers_by_org: *configtxgen_orderers_by_org
-      configtxgen_peers_by_org: *configtxgen_peers_by_org
+      configtxgen_orgs_by_domain: *configtxgen_orgs_by_domain
       configtxgen_profile_id: *configtxgen_profile_id
       fetched_artifacts_dir: *fetched_artifacts_dir
       armageddon_artifacts_dir: *armageddon_artifacts_dir
-      configtxgen_orderer_org_policies_readers_operator: *configtxgen_orderer_org_policies_readers_operator
-      configtxgen_orderer_org_policies_writers_operator: *configtxgen_orderer_org_policies_writers_operator
-      configtxgen_orderer_org_policies_admins_operator: *configtxgen_orderer_org_policies_admins_operator
-      configtxgen_orderer_org_policies_endorsement_operator: *configtxgen_orderer_org_policies_endorsement_operator
-      configtxgen_peer_org_policies_readers_operator: *configtxgen_peer_org_policies_readers_operator
-      configtxgen_peer_org_policies_writers_operator: *configtxgen_peer_org_policies_writers_operator
-      configtxgen_peer_org_policies_admins_operator: *configtxgen_peer_org_policies_admins_operator
-      configtxgen_peer_org_policies_endorsement_operator: *configtxgen_peer_org_policies_endorsement_operator
-      configtxgen_application_policies_readers_operator: *configtxgen_application_policies_readers_operator
-      configtxgen_application_policies_writers_operator: *configtxgen_application_policies_writers_operator
-      configtxgen_application_policies_admins_operator: *configtxgen_application_policies_admins_operator
-      configtxgen_application_policies_endorsement_operator: *configtxgen_application_policies_endorsement_operator
-      configtxgen_orderer_policies_readers_operator: *configtxgen_orderer_policies_readers_operator
-      configtxgen_orderer_policies_writers_operator: *configtxgen_orderer_policies_writers_operator
-      configtxgen_orderer_policies_admins_operator: *configtxgen_orderer_policies_admins_operator
-      configtxgen_orderer_policies_block_validation_operator: *configtxgen_orderer_policies_block_validation_operator
-      configtxgen_channel_policies_readers_operator: *configtxgen_channel_policies_readers_operator
-      configtxgen_channel_policies_writers_operator: *configtxgen_channel_policies_writers_operator
-      configtxgen_channel_policies_admins_operator: *configtxgen_channel_policies_admins_operator
+      configtxgen_orderer_org_policies_readers_type: *configtxgen_orderer_org_policies_readers_type
+      configtxgen_orderer_org_policies_readers_rule: *configtxgen_orderer_org_policies_readers_rule
+      configtxgen_orderer_org_policies_writers_type: *configtxgen_orderer_org_policies_writers_type
+      configtxgen_orderer_org_policies_writers_rule: *configtxgen_orderer_org_policies_writers_rule
+      configtxgen_orderer_org_policies_admins_type: *configtxgen_orderer_org_policies_admins_type
+      configtxgen_orderer_org_policies_admins_rule: *configtxgen_orderer_org_policies_admins_rule
+      configtxgen_orderer_org_policies_endorsement_type: *configtxgen_orderer_org_policies_endorsement_type
+      configtxgen_orderer_org_policies_endorsement_rule: *configtxgen_orderer_org_policies_endorsement_rule
+      configtxgen_peer_org_policies_readers_type: *configtxgen_peer_org_policies_readers_type
+      configtxgen_peer_org_policies_readers_rule: *configtxgen_peer_org_policies_readers_rule
+      configtxgen_peer_org_policies_writers_type: *configtxgen_peer_org_policies_writers_type
+      configtxgen_peer_org_policies_writers_rule: *configtxgen_peer_org_policies_writers_rule
+      configtxgen_peer_org_policies_admins_type: *configtxgen_peer_org_policies_admins_type
+      configtxgen_peer_org_policies_admins_rule: *configtxgen_peer_org_policies_admins_rule
+      configtxgen_peer_org_policies_endorsement_type: *configtxgen_peer_org_policies_endorsement_type
+      configtxgen_peer_org_policies_endorsement_rule: *configtxgen_peer_org_policies_endorsement_rule
+      configtxgen_application_policies_readers_type: *configtxgen_application_policies_readers_type
+      configtxgen_application_policies_readers_rule: *configtxgen_application_policies_readers_rule
+      configtxgen_application_policies_writers_type: *configtxgen_application_policies_writers_type
+      configtxgen_application_policies_writers_rule: *configtxgen_application_policies_writers_rule
+      configtxgen_application_policies_admins_type: *configtxgen_application_policies_admins_type
+      configtxgen_application_policies_admins_rule: *configtxgen_application_policies_admins_rule
+      configtxgen_application_policies_endorsement_type: *configtxgen_application_policies_endorsement_type
+      configtxgen_application_policies_endorsement_rule: *configtxgen_application_policies_endorsement_rule
+      configtxgen_application_policies_lifecycle_endorsement_type: *configtxgen_application_policies_lifecycle_endorsement_type
+      configtxgen_application_policies_lifecycle_endorsement_rule: *configtxgen_application_policies_lifecycle_endorsement_rule
+      configtxgen_application_policies_lifecycle_endorsement_operator: *configtxgen_application_policies_lifecycle_endorsement_operator
+      configtxgen_application_policies_lifecycle_endorsement_ou: *configtxgen_application_policies_lifecycle_endorsement_ou
+      configtxgen_orderer_policies_readers_type: *configtxgen_orderer_policies_readers_type
+      configtxgen_orderer_policies_readers_rule: *configtxgen_orderer_policies_readers_rule
+      configtxgen_orderer_policies_writers_type: *configtxgen_orderer_policies_writers_type
+      configtxgen_orderer_policies_writers_rule: *configtxgen_orderer_policies_writers_rule
+      configtxgen_orderer_policies_admins_type: *configtxgen_orderer_policies_admins_type
+      configtxgen_orderer_policies_admins_rule: *configtxgen_orderer_policies_admins_rule
+      configtxgen_orderer_policies_block_validation_type: *configtxgen_orderer_policies_block_validation_type
+      configtxgen_orderer_policies_block_validation_rule: *configtxgen_orderer_policies_block_validation_rule
+      configtxgen_channel_policies_readers_type: *configtxgen_channel_policies_readers_type
+      configtxgen_channel_policies_readers_rule: *configtxgen_channel_policies_readers_rule
+      configtxgen_channel_policies_writers_type: *configtxgen_channel_policies_writers_type
+      configtxgen_channel_policies_writers_rule: *configtxgen_channel_policies_writers_rule
+      configtxgen_channel_policies_admins_type: *configtxgen_channel_policies_admins_type
+      configtxgen_channel_policies_admins_rule: *configtxgen_channel_policies_admins_rule
 
   inspect:
     short_description: Detect whether configtxgen needs to run

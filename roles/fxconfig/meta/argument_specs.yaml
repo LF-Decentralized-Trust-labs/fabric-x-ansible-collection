@@ -146,7 +146,7 @@ argument_specs:
         required: true
         description:
           - "Defines the source MSP directory copied into the fxconfig configuration directory."
-          - "Example: C(/opt/hyperledger/fabricx/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp)."
+          - "Example: C(/opt/hyperledger/fabricx/crypto/organizations/org1.example.com/users/User1@org1.example.com/msp)."
       fxconfig_msp_id: &fxconfig_msp_id
         type: str
         default: "{{ organization.name }}MSP"
@@ -185,7 +185,7 @@ argument_specs:
         required: true
         description:
           - "Defines the namespace endorsement policy."
-          - "Example: C(threshold:/tmp/fabricx/config-build/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem)."
+          - "Example: C(threshold:/tmp/fabricx/config-build/crypto/organizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem)."
       fxconfig_namespace_version: &fxconfig_namespace_version
         type: int
         required: true
@@ -243,7 +243,7 @@ argument_specs:
         type: dict
         description:
           - "Provides organization metadata used by tasks that read C(organization.*), including names, users, domains, and namespace declarations."
-          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'users': [{'name': 'endorser', 'cert': '/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem'}], 'namespaces': [{'id': 'payments', 'policy': 'threshold'}]})."
+          - "Example: C({'name': 'Org1', 'domain': 'org1.example.com', 'role': 'peer', 'users': [{'name': 'endorser', 'cert': '/tmp/fabricx/crypto-config/organizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem'}], 'namespaces': [{'id': 'payments', 'policy': 'threshold'}]})."
       orderer_router_host: &orderer_router_host
         type: str
         required: true

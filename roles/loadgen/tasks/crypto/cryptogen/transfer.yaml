@@ -15,7 +15,7 @@
 
 - name: Transfer the MSP peer crypto material generated with cryptogen
   ansible.posix.synchronize:
-    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ loadgen_crypto_name }}.{{ organization.domain }}/msp"
+    src: "{{ cryptogen_artifacts_dir }}/crypto/organizations/{{ organization.domain }}/peers/{{ loadgen_crypto_name }}.{{ organization.domain }}/msp"
     dest: "{{ loadgen_remote_config_dir }}"
 
 # =========================
@@ -31,7 +31,7 @@
 
 - name: Transfer the Fabric-X Loadgen users crypto material
   ansible.posix.synchronize:
-    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/users/{{ user.name }}@{{ organization.domain }}"
+    src: "{{ cryptogen_artifacts_dir }}/crypto/organizations/{{ organization.domain }}/users/{{ user.name }}@{{ organization.domain }}"
     dest: "{{ loadgen_remote_config_dir }}/users"
   loop: "{{ organization.users }}"
   loop_control:
@@ -45,7 +45,7 @@
 # =========================
 - name: Transfer the TLS crypto material generated with cryptogen
   ansible.posix.synchronize:
-    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ loadgen_crypto_name }}.{{ organization.domain }}/tls"
+    src: "{{ cryptogen_artifacts_dir }}/crypto/organizations/{{ organization.domain }}/peers/{{ loadgen_crypto_name }}.{{ organization.domain }}/tls"
     dest: "{{ loadgen_remote_config_dir }}"
   when:
     - loadgen_use_tls or loadgen_monitoring_use_tls

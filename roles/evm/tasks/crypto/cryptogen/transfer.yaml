@@ -15,7 +15,7 @@
 
 - name: Transfer the peer MSP crypto material generated with cryptogen
   ansible.posix.synchronize:
-    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ evm_crypto_name }}.{{ organization.domain }}/msp"
+    src: "{{ cryptogen_artifacts_dir }}/crypto/organizations/{{ organization.domain }}/peers/{{ evm_crypto_name }}.{{ organization.domain }}/msp"
     dest: "{{ evm_remote_config_dir }}"
 
 # =========================
@@ -29,7 +29,7 @@
 
 - name: Transfer the EVM users crypto material
   ansible.posix.synchronize:
-    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/users/{{ current_user.name }}@{{ organization.domain }}"
+    src: "{{ cryptogen_artifacts_dir }}/crypto/organizations/{{ organization.domain }}/users/{{ current_user.name }}@{{ organization.domain }}"
     dest: "{{ evm_remote_config_dir }}/users"
   loop: "{{ organization.users }}"
   loop_control:
@@ -41,7 +41,7 @@
 # =========================
 - name: Transfer the client TLS crypto material generated with cryptogen
   ansible.posix.synchronize:
-    src: "{{ cryptogen_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/peers/{{ evm_crypto_name }}.{{ organization.domain }}/tls"
+    src: "{{ cryptogen_artifacts_dir }}/crypto/organizations/{{ organization.domain }}/peers/{{ evm_crypto_name }}.{{ organization.domain }}/tls"
     dest: "{{ evm_remote_config_dir }}"
   when:
     - evm_use_tls

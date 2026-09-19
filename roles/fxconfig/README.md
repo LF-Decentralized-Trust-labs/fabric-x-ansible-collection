@@ -175,7 +175,7 @@ Creates a namespace transaction JSON artifact for the configured namespace and e
     # Defines the namespace identifier used when creating namespace transaction artifacts. Accepts either a string or an integer value.
     fxconfig_namespace_id: payments
     # Defines the namespace endorsement policy.
-    fxconfig_namespace_policy: "threshold:/tmp/fabricx/config-build/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem"
+    fxconfig_namespace_policy: "threshold:/tmp/fabricx/config-build/crypto/organizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem"
     # Defines the transaction artifact path on the managed host.
     fxconfig_output: "{{ fxconfig_remote_config_dir }}/tx.json"
     # Defines the fxconfig remote configuration directory.
@@ -231,7 +231,7 @@ Creates a namespace update transaction JSON artifact for the configured namespac
     # Defines the namespace identifier used when creating namespace transaction artifacts. Accepts either a string or an integer value.
     fxconfig_namespace_id: payments
     # Defines the namespace endorsement policy.
-    fxconfig_namespace_policy: "threshold:/tmp/fabricx/config-build/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem"
+    fxconfig_namespace_policy: "threshold:/tmp/fabricx/config-build/crypto/organizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem"
     # Defines the namespace's current on-chain version, passed as the compare-and-swap token fxconfig requires for an update.
     fxconfig_namespace_version: 0
     # Defines the transaction artifact path on the managed host.
@@ -377,7 +377,7 @@ Creates the remote fxconfig configuration directory, renders the fxconfig file, 
     # Defines the fxconfig log level.
     fxconfig_log_level: info
     # Defines the source MSP directory copied into the fxconfig configuration directory.
-    fxconfig_msp_config_path: "/opt/hyperledger/fabricx/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp"
+    fxconfig_msp_config_path: "/opt/hyperledger/fabricx/crypto/organizations/org1.example.com/users/User1@org1.example.com/msp"
     # Defines the MSP identifier written into the rendered configuration.
     fxconfig_msp_id: "{{ organization.name }}MSP"
     # Defines the Orderer Router connection timeout written into the rendered fxconfig file.
@@ -395,7 +395,7 @@ Creates the remote fxconfig configuration directory, renders the fxconfig file, 
       role: "peer"
       users:
         - name: "endorser"
-          cert: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem"
+          cert: "/tmp/fabricx/crypto-config/organizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem"
       namespaces:
         - id: "payments"
           policy: "threshold"
@@ -510,7 +510,7 @@ Creates a namespace transaction JSON artifact for the configured namespace and e
     # Defines the namespace identifier used when creating namespace transaction artifacts. Accepts either a string or an integer value.
     fxconfig_namespace_id: payments
     # Defines the namespace endorsement policy.
-    fxconfig_namespace_policy: "threshold:/tmp/fabricx/config-build/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem"
+    fxconfig_namespace_policy: "threshold:/tmp/fabricx/config-build/crypto/organizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem"
     # Defines the transaction artifact path on the managed host.
     fxconfig_output: "{{ fxconfig_remote_config_dir }}/tx.json"
     # Defines the registry endpoint used by the fxconfig container image.
@@ -588,7 +588,7 @@ Creates a namespace update transaction JSON artifact for the configured namespac
     # Defines the namespace identifier used when creating namespace transaction artifacts. Accepts either a string or an integer value.
     fxconfig_namespace_id: payments
     # Defines the namespace endorsement policy.
-    fxconfig_namespace_policy: "threshold:/tmp/fabricx/config-build/crypto/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem"
+    fxconfig_namespace_policy: "threshold:/tmp/fabricx/config-build/crypto/organizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem"
     # Defines the namespace's current on-chain version, passed as the compare-and-swap token fxconfig requires for an update.
     fxconfig_namespace_version: 0
     # Defines the transaction artifact path on the managed host.
@@ -672,7 +672,7 @@ Selects the preferred endorser from `organization.users` for namespace transacti
       role: "peer"
       users:
         - name: "endorser"
-          cert: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem"
+          cert: "/tmp/fabricx/crypto-config/organizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem"
       namespaces:
         - id: "payments"
           policy: "threshold"
@@ -757,7 +757,7 @@ Lists existing Fabric-X namespaces via `namespace/list`, then compares each decl
       role: "peer"
       users:
         - name: "endorser"
-          cert: "/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem"
+          cert: "/tmp/fabricx/crypto-config/organizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem"
       namespaces:
         - id: "payments"
           policy: "threshold"

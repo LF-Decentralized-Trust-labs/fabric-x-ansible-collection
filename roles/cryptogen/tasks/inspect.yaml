@@ -20,7 +20,7 @@
     paths: "{{ cryptogen_output_dir }}"
     file_type: directory
     recurse: true
-    depth: 4
+    depth: 3
   register: cryptogen_existing_dirs
 
 - name: Check if a cryptogen state file already exists

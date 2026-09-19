@@ -7,20 +7,42 @@
 - name: Build crypto material
   hosts: localhost
   tasks:
-    - name: Define the Hyperledger Fabric-X orderer organizations
+    - name: Assert Hyperledger Fabric-X organization roles are valid
+      ansible.builtin.assert:
+        that:
+          - hostvars[current_host].organization.role in ['orderer', 'peer']
+        fail_msg: >-
+          Host {{ current_host }} has an invalid organization.role
+          {{ hostvars[current_host].organization.role }}; expected 'orderer' or 'peer'.
+      loop: >-
+        {{
+          groups['all']
+          | map('extract', hostvars)
+          | selectattr('organization', 'defined')
+          | selectattr('organization.fabric_ca_host', 'undefined')
+          | selectattr('organization.role', 'defined')
+          | map(attribute='inventory_hostname')
+        }}
+      loop_control:
+        loop_var: current_host
+        label: "{{ current_host }}"
+
+    - name: Define the Hyperledger Fabric-X organizations
       vars:
-        org_domain: "{{ hostvars[orderer].organization.domain }}"
-        org_name: "{{ hostvars[orderer].organization.name }}"
-        orderer_info:
-          name: "{{ orderer }}"
+        org_domain: "{{ hostvars[node].organization.domain }}"
+        org_name: "{{ hostvars[node].organization.name }}"
+        node_info:
+          name: "{{ node }}"
+          ou: "{{ hostvars[node].organization.role }}"
       ansible.builtin.set_fact:
-        cryptogen_orderers_by_org: >-
+        cryptogen_orgs_by_domain: >-
           {{
-            cryptogen_orderers_by_org | default({}) | combine({
+            cryptogen_orgs_by_domain | default({}) | combine({
               org_domain: {
                 'name': org_name,
                 'domain': org_domain,
-                'orderers': (cryptogen_orderers_by_org | default({})).get(org_domain, {}).get('orderers', []) + [orderer_info]
+                'nodes': (cryptogen_orgs_by_domain | default({})).get(org_domain, {}).get('nodes', []) + [node_info],
+                'users': (cryptogen_orgs_by_domain | default({})).get(org_domain, {}).get('users', [])
               }
             })
           }}
@@ -31,54 +53,26 @@
           | selectattr('organization', 'defined')
           | selectattr('organization.fabric_ca_host', 'undefined')
           | selectattr('organization.role', 'defined')
-          | selectattr('organization.role', '==', 'orderer')
           | map(attribute='inventory_hostname')
         }}
       loop_control:
-        loop_var: orderer
-    - name: Define the Hyperledger Fabric-X peer organizations
+        loop_var: node
+        label: "{{ node }}"
+
+    - name: Add users to the Hyperledger Fabric-X organizations
       vars:
-        org_domain: "{{ hostvars[peer].organization.domain }}"
-        org_name: "{{ hostvars[peer].organization.name }}"
-        peer_info:
-          name: "{{ peer }}"
+        org_domain: "{{ hostvars[current_host].organization.domain }}"
+        org_name: "{{ hostvars[current_host].organization.name }}"
+        users: "{{ hostvars[current_host].organization.users }}"
       ansible.builtin.set_fact:
-        cryptogen_peers_by_org: >-
+        cryptogen_orgs_by_domain: >-
           {{
-            cryptogen_peers_by_org | default({}) | combine({
+            cryptogen_orgs_by_domain | default({}) | combine({
               org_domain: {
                 'name': org_name,
                 'domain': org_domain,
-                'peers': (cryptogen_peers_by_org | default({})).get(org_domain, {}).get('peers', []) + [peer_info]
-              }
-            })
-          }}
-      loop: >-
-        {{
-          groups['all']
-          | map('extract', hostvars)
-          | selectattr('organization', 'defined')
-          | selectattr('organization.fabric_ca_host', 'undefined')
-          | selectattr('organization.role', 'defined')
-          | selectattr('organization.role', '==', 'peer')
-          | map(attribute='inventory_hostname')
-        }}
-      loop_control:
-        loop_var: peer
-    - name: Add users to the Hyperledger Fabric-X peer organizations
-      vars:
-        org_domain: "{{ hostvars[peer].organization.domain }}"
-        org_name: "{{ hostvars[peer].organization.name }}"
-        users: "{{ hostvars[peer].organization.users }}"
-      ansible.builtin.set_fact:
-        cryptogen_peers_by_org: >-
-          {{
-            cryptogen_peers_by_org | default({}) | combine({
-              org_domain: {
-                'name': org_name,
-                'domain': org_domain,
-                'users': (cryptogen_peers_by_org | default({})).get(org_domain, {}).get('users', []) + users,
-                'peers': (cryptogen_peers_by_org | default({})).get(org_domain, {}).get('peers', [])
+                'nodes': (cryptogen_orgs_by_domain | default({})).get(org_domain, {}).get('nodes', []),
+                'users': (cryptogen_orgs_by_domain | default({})).get(org_domain, {}).get('users', []) + users
               }
             })
           }}
@@ -92,19 +86,21 @@
           | map(attribute='inventory_hostname')
         }}
       loop_control:
-        loop_var: peer
+        loop_var: current_host
+        label: "{{ current_host }}"
+
     - name: Generate crypto-config.yaml
       ansible.builtin.include_role:
         name: hyperledger.fabricx.cryptogen
         tasks_from: config/build
       when:
-        - (cryptogen_peers_by_org is defined) or (cryptogen_orderers_by_org is defined)
+        - cryptogen_orgs_by_domain is defined
     - name: Install cryptogen as binary for Fabric-X
       ansible.builtin.include_role:
         name: hyperledger.fabricx.cryptogen
         tasks_from: bin/install
       when:
-        - (cryptogen_peers_by_org is defined) or (cryptogen_orderers_by_org is defined)
+        - cryptogen_orgs_by_domain is defined
         - cryptogen_use_bin is defined
         - cryptogen_use_bin
     - name: Generate the crypto material with cryptogen
@@ -112,10 +108,10 @@
         name: hyperledger.fabricx.cryptogen
         tasks_from: start
       when:
-        - (cryptogen_peers_by_org is defined) or (cryptogen_orderers_by_org is defined)
+        - cryptogen_orgs_by_domain is defined
     - name: Fetch the orgs certificates generated with cryptogen
       ansible.builtin.include_role:
         name: hyperledger.fabricx.cryptogen
         tasks_from: fetch
       when:
-        - (cryptogen_peers_by_org is defined) or (cryptogen_orderers_by_org is defined)
+        - cryptogen_orgs_by_domain is defined

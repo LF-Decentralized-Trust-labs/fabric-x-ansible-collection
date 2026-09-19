@@ -11,41 +11,23 @@
     mode: "0o755"
 
 # We gather facts in order to get the IP addresses of the
-# orderers and peers and generate TLS certificates which
-# contain such IPs.
-- name: Gather Hyperledger Fabric-X Orderers facts
+# nodes and generate TLS certificates which contain such IPs.
+- name: Gather Hyperledger Fabric-X node facts
   ansible.builtin.setup:
-  delegate_to: "{{ current_orderer.name }}"
+  delegate_to: "{{ current_node.name }}"
   delegate_facts: true
   loop: >-
     {{
-      cryptogen_orderers_by_org.values()
-      | selectattr('orderers', 'defined')
-      | map(attribute='orderers')
+      cryptogen_orgs_by_domain.values()
+      | selectattr('nodes', 'defined')
+      | map(attribute='nodes')
       | flatten
     }}
   loop_control:
-    loop_var: current_orderer
-    label: "{{ current_orderer.name }}"
+    loop_var: current_node
+    label: "{{ current_node.name }}"
   when:
-    - hostvars[current_orderer.name].ansible_facts.all_ipv4_addresses is undefined
-
-- name: Gather Hyperledger Fabric-X Peers facts
-  ansible.builtin.setup:
-  delegate_to: "{{ current_peer.name }}"
-  delegate_facts: true
-  loop: >-
-    {{
-      cryptogen_peers_by_org.values()
-      | selectattr('peers', 'defined')
-      | map(attribute='peers')
-      | flatten
-    }}
-  loop_control:
-    loop_var: current_peer
-    label: "{{ current_peer.name }}"
-  when:
-    - hostvars[current_peer.name].ansible_facts.all_ipv4_addresses is undefined
+    - hostvars[current_node.name].ansible_facts.all_ipv4_addresses is undefined
 
 - name: Create crypto-config.yaml from template
   ansible.builtin.template:

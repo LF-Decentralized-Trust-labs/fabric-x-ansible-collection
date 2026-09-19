@@ -19,7 +19,7 @@
             | selectattr('yugabyte_cluster_id', '==', current_yugabyte_cluster_id)
             | first
           }}
-        yugabyte_cluster_ca_dir: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ yugabyte_cluster_ref_host.organization.domain }}"
+        yugabyte_cluster_ca_dir: "{{ fetched_artifacts_dir }}/crypto/organizations/{{ yugabyte_cluster_ref_host.organization.domain }}"
         openssl_remote_config_dir: "{{ yugabyte_cluster_ca_dir }}"
         openssl_private_key_path: "{{ yugabyte_cluster_ca_dir }}/ca/priv_sk"
         openssl_cert_path: "{{ yugabyte_cluster_ca_dir }}/msp/tlscacerts/tlsca.{{ yugabyte_cluster_ref_host.organization.domain }}-cert.pem"
@@ -66,7 +66,7 @@
   tasks:
     - name: Sign CSR and generate TLS
       vars:
-        yugabyte_cluster_ca_dir: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ hostvars[current_yugabyte_node].organization.domain }}"
+        yugabyte_cluster_ca_dir: "{{ fetched_artifacts_dir }}/crypto/organizations/{{ hostvars[current_yugabyte_node].organization.domain }}"
         openssl_ca_private_key_path: "{{ yugabyte_cluster_ca_dir }}/ca/priv_sk"
         openssl_ca_cert_path: "{{ yugabyte_cluster_ca_dir }}/msp/tlscacerts/tlsca.{{ hostvars[current_yugabyte_node].organization.domain }}-cert.pem"
         openssl_csr_path: "{{ fetched_artifacts_dir }}/{{ current_yugabyte_node }}/tls/tls.csr"

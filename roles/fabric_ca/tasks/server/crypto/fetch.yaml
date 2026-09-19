@@ -4,29 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Determine if the current organization is an orderer organization
-  ansible.builtin.set_fact:
-    fabric_ca_orderer_organization: >-
-      {{
-        groups['all']
-        | map('extract', hostvars)
-        | selectattr('organization', 'defined')
-        | selectattr('organization.domain', '==', organization.domain)
-        | selectattr('organization.role', 'defined')
-        | selectattr('organization.role', '==', 'orderer')
-        | length > 0
-      }}
-
 - name: Set the MSP folder
-  vars:
-    org_dir: >-
-      {{
-        'ordererOrganizations'
-        if fabric_ca_orderer_organization is defined and fabric_ca_orderer_organization
-        else 'peerOrganizations'
-      }}
   ansible.builtin.set_fact:
-    fabric_ca_org_dir: "{{ fetched_artifacts_dir }}/crypto/{{ org_dir }}/{{ organization.domain }}"
+    fabric_ca_org_dir: "{{ fetched_artifacts_dir }}/crypto/organizations/{{ organization.domain }}"
 
 - name: Fetch the CA certificate
   ansible.builtin.fetch:
