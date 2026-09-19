@@ -44,44 +44,45 @@ Organizations:
     # For organization policies, their canonical path is usually
     #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
     Policies: &{{ org_info.name }}Policies
+{% set msp_id = org_info.name ~ 'MSP' %}
 {% if has_orderers %}
       Readers:
-        Type: Signature
-        Rule: "{{ configtxgen_orderer_org_policies_readers_operator | default('OR') }}('{{ org_info.name }}MSP.member')"
+        Type: {{ configtxgen_orderer_org_policies_readers_type }}
+        Rule: "{{ configtxgen_orderer_org_policies_readers_rule | replace('{msp_id}', msp_id) }}"
         # If your MSP is configured with the new NodeOUs, you might
         # want to use a more specific rule like the following:
         # Rule: "OR('SampleOrg.admin', 'SampleOrg.peer', 'SampleOrg.client')"
       Writers:
-        Type: Signature
-        Rule: "{{ configtxgen_orderer_org_policies_writers_operator | default('OR') }}('{{ org_info.name }}MSP.member')"
+        Type: {{ configtxgen_orderer_org_policies_writers_type }}
+        Rule: "{{ configtxgen_orderer_org_policies_writers_rule | replace('{msp_id}', msp_id) }}"
         # If your MSP is configured with the new NodeOUs, you might
         # want to use a more specific rule like the following:
         # Rule: "OR('SampleOrg.admin', 'SampleOrg.client')"
       Admins:
-        Type: Signature
-        Rule: "{{ configtxgen_orderer_org_policies_admins_operator | default('OR') }}('{{ org_info.name }}MSP.admin')"
+        Type: {{ configtxgen_orderer_org_policies_admins_type }}
+        Rule: "{{ configtxgen_orderer_org_policies_admins_rule | replace('{msp_id}', msp_id) }}"
       Endorsement:
-        Type: Signature
-        Rule: "{{ configtxgen_orderer_org_policies_endorsement_operator | default('OR') }}('{{ org_info.name }}MSP.member')"
+        Type: {{ configtxgen_orderer_org_policies_endorsement_type }}
+        Rule: "{{ configtxgen_orderer_org_policies_endorsement_rule | replace('{msp_id}', msp_id) }}"
 {% else %}
       Readers:
-        Type: Signature
-        Rule: "{{ configtxgen_peer_org_policies_readers_operator | default('OR') }}('{{ org_info.name }}MSP.member')"
+        Type: {{ configtxgen_peer_org_policies_readers_type }}
+        Rule: "{{ configtxgen_peer_org_policies_readers_rule | replace('{msp_id}', msp_id) }}"
         # If your MSP is configured with the new NodeOUs, you might
         # want to use a more specific rule like the following:
         # Rule: "OR('SampleOrg.admin', 'SampleOrg.peer', 'SampleOrg.client')"
       Writers:
-        Type: Signature
-        Rule: "{{ configtxgen_peer_org_policies_writers_operator | default('OR') }}('{{ org_info.name }}MSP.member')"
+        Type: {{ configtxgen_peer_org_policies_writers_type }}
+        Rule: "{{ configtxgen_peer_org_policies_writers_rule | replace('{msp_id}', msp_id) }}"
         # If your MSP is configured with the new NodeOUs, you might
         # want to use a more specific rule like the following:
         # Rule: "OR('SampleOrg.admin', 'SampleOrg.client')"
       Endorsement:
-        Type: Signature
-        Rule: "{{ configtxgen_peer_org_policies_endorsement_operator | default('OR') }}('{{ org_info.name }}MSP.member')"
+        Type: {{ configtxgen_peer_org_policies_endorsement_type }}
+        Rule: "{{ configtxgen_peer_org_policies_endorsement_rule | replace('{msp_id}', msp_id) }}"
       Admins:
-        Type: Signature
-        Rule: "{{ configtxgen_peer_org_policies_admins_operator | default('OR') }}('{{ org_info.name }}MSP.admin')"
+        Type: {{ configtxgen_peer_org_policies_admins_type }}
+        Rule: "{{ configtxgen_peer_org_policies_admins_rule | replace('{msp_id}', msp_id) }}"
 {% endif %}
 
 {% if has_orderers %}
@@ -172,25 +173,28 @@ Application: &ApplicationDefaults
   #   /Channel/Application/<PolicyName>
   Policies:
     Readers:
-      Type: ImplicitMeta
-      Rule: "{{ configtxgen_application_policies_readers_operator | default('ANY') }} Readers"
+      Type: {{ configtxgen_application_policies_readers_type }}
+      Rule: "{{ configtxgen_application_policies_readers_rule }}"
     Writers:
-      Type: ImplicitMeta
-      Rule: "{{ configtxgen_application_policies_writers_operator | default('ANY') }} Writers"
+      Type: {{ configtxgen_application_policies_writers_type }}
+      Rule: "{{ configtxgen_application_policies_writers_rule }}"
     Admins:
-      Type: ImplicitMeta
-      Rule: "{{ configtxgen_application_policies_admins_operator | default('MAJORITY') }} Admins"
+      Type: {{ configtxgen_application_policies_admins_type }}
+      Rule: "{{ configtxgen_application_policies_admins_rule }}"
     Endorsement:
-      Type: ImplicitMeta
-      Rule: "{{ configtxgen_application_policies_endorsement_operator | default('MAJORITY') }} Endorsement"
+      Type: {{ configtxgen_application_policies_endorsement_type }}
+      Rule: "{{ configtxgen_application_policies_endorsement_rule }}"
     LifecycleEndorsement:
 {% set application_orgs = configtxgen_orgs_by_domain.values() | selectattr('peers', 'defined') | selectattr('peers', '!=', []) | list %}
-{% if application_orgs | length > 0 %}
-      Type: Signature
+{% if configtxgen_application_policies_lifecycle_endorsement_rule is defined %}
+      Type: {{ configtxgen_application_policies_lifecycle_endorsement_type }}
+      Rule: "{{ configtxgen_application_policies_lifecycle_endorsement_rule }}"
+{% elif application_orgs | length > 0 %}
+      Type: {{ configtxgen_application_policies_lifecycle_endorsement_type }}
       Rule: >
-        OR (
+        {{ configtxgen_application_policies_lifecycle_endorsement_operator }} (
 {% for org_info in application_orgs %}
-        '{{ org_info.name }}MSP.member'{% if not loop.last %},{% endif +%}
+        '{{ org_info.name }}MSP.{{ configtxgen_application_policies_lifecycle_endorsement_ou }}'{% if not loop.last %},{% endif +%}
 {% endfor %}
         )
 {% else %}
@@ -358,19 +362,19 @@ Orderer: &OrdererDefaults
   #   /Channel/Orderer/<PolicyName>
   Policies:
     Readers:
-      Type: ImplicitMeta
-      Rule: "{{ configtxgen_orderer_policies_readers_operator | default('ANY') }} Readers"
+      Type: {{ configtxgen_orderer_policies_readers_type }}
+      Rule: "{{ configtxgen_orderer_policies_readers_rule }}"
     Writers:
-      Type: ImplicitMeta
-      Rule: "{{ configtxgen_orderer_policies_writers_operator | default('ANY') }} Writers"
+      Type: {{ configtxgen_orderer_policies_writers_type }}
+      Rule: "{{ configtxgen_orderer_policies_writers_rule }}"
     Admins:
-      Type: ImplicitMeta
-      Rule: "{{ configtxgen_orderer_policies_admins_operator | default('MAJORITY') }} Admins"
+      Type: {{ configtxgen_orderer_policies_admins_type }}
+      Rule: "{{ configtxgen_orderer_policies_admins_rule }}"
     # BlockValidation specifies what signatures must be included in the block
     # from the orderer for the peer to validate it.
     BlockValidation:
-      Type: ImplicitMeta
-      Rule: "{{ configtxgen_orderer_policies_block_validation_operator | default('MAJORITY') }} Writers"
+      Type: {{ configtxgen_orderer_policies_block_validation_type }}
+      Rule: "{{ configtxgen_orderer_policies_block_validation_rule }}"
 
   # Capabilities describes the orderer level capabilities, see the
   # dedicated Capabilities section elsewhere in this file for a full
@@ -393,16 +397,16 @@ Channel: &ChannelDefaults
   Policies: &DefaultPolicies
     # Who may invoke the 'Deliver' API
     Readers:
-      Type: ImplicitMeta
-      Rule: "{{ configtxgen_channel_policies_readers_operator | default('ANY') }} Readers"
+      Type: {{ configtxgen_channel_policies_readers_type }}
+      Rule: "{{ configtxgen_channel_policies_readers_rule }}"
     # Who may invoke the 'Broadcast' API
     Writers:
-      Type: ImplicitMeta
-      Rule: "{{ configtxgen_channel_policies_writers_operator | default('ANY') }} Writers"
+      Type: {{ configtxgen_channel_policies_writers_type }}
+      Rule: "{{ configtxgen_channel_policies_writers_rule }}"
     # By default, who may modify elements at this config level
     Admins:
-      Type: ImplicitMeta
-      Rule: "{{ configtxgen_channel_policies_admins_operator | default('MAJORITY') }} Admins"
+      Type: {{ configtxgen_channel_policies_admins_type }}
+      Rule: "{{ configtxgen_channel_policies_admins_rule }}"
 
   # Capabilities describes the channel level capabilities, see the
   # dedicated Capabilities section elsewhere in this file for a full

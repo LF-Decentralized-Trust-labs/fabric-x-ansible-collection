@@ -60,44 +60,90 @@ Generate `configtx.yaml` for Fabric-X genesis block creation. Render the config 
     fetched_artifacts_dir: "/opt/fabricx/artifacts/crypto"
     # Directory containing armageddon artifacts used by the binary path and container mounts.
     armageddon_artifacts_dir: "/opt/fabricx/artifacts/armageddon"
-    # Operator for the orderer organization Readers Signature policy.
-    configtxgen_orderer_org_policies_readers_operator: "OR"
-    # Operator for the orderer organization Writers Signature policy.
-    configtxgen_orderer_org_policies_writers_operator: "OR"
-    # Operator for the orderer organization Admins Signature policy.
-    configtxgen_orderer_org_policies_admins_operator: "OR"
-    # Operator for the orderer organization Endorsement Signature policy.
-    configtxgen_orderer_org_policies_endorsement_operator: "OR"
-    # Operator for the peer organization Readers Signature policy.
-    configtxgen_peer_org_policies_readers_operator: "OR"
-    # Operator for the peer organization Writers Signature policy.
-    configtxgen_peer_org_policies_writers_operator: "OR"
-    # Operator for the peer organization Admins Signature policy.
-    configtxgen_peer_org_policies_admins_operator: "OR"
-    # Operator for the peer organization Endorsement Signature policy.
-    configtxgen_peer_org_policies_endorsement_operator: "OR"
-    # ImplicitMeta operator for the Application Readers policy.
-    configtxgen_application_policies_readers_operator: "ANY"
-    # ImplicitMeta operator for the Application Writers policy.
-    configtxgen_application_policies_writers_operator: "ANY"
-    # ImplicitMeta operator for the Application Admins policy.
-    configtxgen_application_policies_admins_operator: "MAJORITY"
-    # ImplicitMeta operator for the Application Endorsement policy.
-    configtxgen_application_policies_endorsement_operator: "MAJORITY"
-    # ImplicitMeta operator for the Orderer Readers policy.
-    configtxgen_orderer_policies_readers_operator: "ANY"
-    # ImplicitMeta operator for the Orderer Writers policy.
-    configtxgen_orderer_policies_writers_operator: "ANY"
-    # ImplicitMeta operator for the Orderer Admins policy.
-    configtxgen_orderer_policies_admins_operator: "MAJORITY"
-    # ImplicitMeta operator for the Orderer BlockValidation policy.
-    configtxgen_orderer_policies_block_validation_operator: "MAJORITY"
-    # ImplicitMeta operator for the Channel Readers policy.
-    configtxgen_channel_policies_readers_operator: "ANY"
-    # ImplicitMeta operator for the Channel Writers policy.
-    configtxgen_channel_policies_writers_operator: "ANY"
-    # ImplicitMeta operator for the Channel Admins policy.
-    configtxgen_channel_policies_admins_operator: "MAJORITY"
+    # Policy type for the orderer organization Readers policy.
+    configtxgen_orderer_org_policies_readers_type: Signature
+    # Rule for the orderer organization Readers policy. `{msp_id}` is replaced with the organization's own MSP id.
+    configtxgen_orderer_org_policies_readers_rule: "OR('{msp_id}.member')"
+    # Policy type for the orderer organization Writers policy.
+    configtxgen_orderer_org_policies_writers_type: Signature
+    # Rule for the orderer organization Writers policy. `{msp_id}` is replaced with the organization's own MSP id.
+    configtxgen_orderer_org_policies_writers_rule: "OR('{msp_id}.member')"
+    # Policy type for the orderer organization Admins policy.
+    configtxgen_orderer_org_policies_admins_type: Signature
+    # Rule for the orderer organization Admins policy. `{msp_id}` is replaced with the organization's own MSP id.
+    configtxgen_orderer_org_policies_admins_rule: "OR('{msp_id}.admin')"
+    # Policy type for the orderer organization Endorsement policy.
+    configtxgen_orderer_org_policies_endorsement_type: Signature
+    # Rule for the orderer organization Endorsement policy. `{msp_id}` is replaced with the organization's own MSP id.
+    configtxgen_orderer_org_policies_endorsement_rule: "OR('{msp_id}.member')"
+    # Policy type for the peer organization Readers policy.
+    configtxgen_peer_org_policies_readers_type: Signature
+    # Rule for the peer organization Readers policy. `{msp_id}` is replaced with the organization's own MSP id.
+    configtxgen_peer_org_policies_readers_rule: "OR('{msp_id}.member')"
+    # Policy type for the peer organization Writers policy.
+    configtxgen_peer_org_policies_writers_type: Signature
+    # Rule for the peer organization Writers policy. `{msp_id}` is replaced with the organization's own MSP id.
+    configtxgen_peer_org_policies_writers_rule: "OR('{msp_id}.member')"
+    # Policy type for the peer organization Admins policy.
+    configtxgen_peer_org_policies_admins_type: Signature
+    # Rule for the peer organization Admins policy. `{msp_id}` is replaced with the organization's own MSP id.
+    configtxgen_peer_org_policies_admins_rule: "OR('{msp_id}.admin')"
+    # Policy type for the peer organization Endorsement policy.
+    configtxgen_peer_org_policies_endorsement_type: Signature
+    # Rule for the peer organization Endorsement policy. `{msp_id}` is replaced with the organization's own MSP id.
+    configtxgen_peer_org_policies_endorsement_rule: "OR('{msp_id}.member')"
+    # Policy type for the Application Readers policy.
+    configtxgen_application_policies_readers_type: ImplicitMeta
+    # Rule for the Application Readers policy.
+    configtxgen_application_policies_readers_rule: ANY Readers
+    # Policy type for the Application Writers policy.
+    configtxgen_application_policies_writers_type: ImplicitMeta
+    # Rule for the Application Writers policy.
+    configtxgen_application_policies_writers_rule: ANY Writers
+    # Policy type for the Application Admins policy.
+    configtxgen_application_policies_admins_type: ImplicitMeta
+    # Rule for the Application Admins policy.
+    configtxgen_application_policies_admins_rule: MAJORITY Admins
+    # Policy type for the Application Endorsement policy.
+    configtxgen_application_policies_endorsement_type: ImplicitMeta
+    # Rule for the Application Endorsement policy.
+    configtxgen_application_policies_endorsement_rule: MAJORITY Endorsement
+    # Policy type for the Application LifecycleEndorsement policy.
+    configtxgen_application_policies_lifecycle_endorsement_type: Signature
+    # Rule for the Application LifecycleEndorsement policy. When left undefined, the rule is generated from `configtxgen_application_policies_lifecycle_endorsement_operator` and `configtxgen_application_policies_lifecycle_endorsement_ou` as an operator combining every application organization's MSP OU.
+    configtxgen_application_policies_lifecycle_endorsement_rule: "string"
+    # Operator combining every application organization's MSP OU in the generated LifecycleEndorsement rule. Only used when `configtxgen_application_policies_lifecycle_endorsement_rule` is left undefined.
+    configtxgen_application_policies_lifecycle_endorsement_operator: OR
+    # MSP OU required from every application organization in the generated LifecycleEndorsement rule. Only used when `configtxgen_application_policies_lifecycle_endorsement_rule` is left undefined.
+    configtxgen_application_policies_lifecycle_endorsement_ou: member
+    # Policy type for the Orderer Readers policy.
+    configtxgen_orderer_policies_readers_type: ImplicitMeta
+    # Rule for the Orderer Readers policy.
+    configtxgen_orderer_policies_readers_rule: ANY Readers
+    # Policy type for the Orderer Writers policy.
+    configtxgen_orderer_policies_writers_type: ImplicitMeta
+    # Rule for the Orderer Writers policy.
+    configtxgen_orderer_policies_writers_rule: ANY Writers
+    # Policy type for the Orderer Admins policy.
+    configtxgen_orderer_policies_admins_type: ImplicitMeta
+    # Rule for the Orderer Admins policy.
+    configtxgen_orderer_policies_admins_rule: MAJORITY Admins
+    # Policy type for the Orderer BlockValidation policy.
+    configtxgen_orderer_policies_block_validation_type: ImplicitMeta
+    # Rule for the Orderer BlockValidation policy.
+    configtxgen_orderer_policies_block_validation_rule: MAJORITY Writers
+    # Policy type for the Channel Readers policy.
+    configtxgen_channel_policies_readers_type: ImplicitMeta
+    # Rule for the Channel Readers policy.
+    configtxgen_channel_policies_readers_rule: ANY Readers
+    # Policy type for the Channel Writers policy.
+    configtxgen_channel_policies_writers_type: ImplicitMeta
+    # Rule for the Channel Writers policy.
+    configtxgen_channel_policies_writers_rule: ANY Writers
+    # Policy type for the Channel Admins policy.
+    configtxgen_channel_policies_admins_type: ImplicitMeta
+    # Rule for the Channel Admins policy.
+    configtxgen_channel_policies_admins_rule: MAJORITY Admins
   ansible.builtin.include_role:
     name: hyperledger.fabricx.configtxgen
     tasks_from: config/build
