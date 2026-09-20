@@ -360,7 +360,7 @@ all:
               name: "{{ inventory_hostname }}"
               secret: "{{ inventory_hostname }}{{ vault_identity_secret_suffix }}"
             users:
-              - name: orderer-loadgen
+              - name: orderer-loadgen-client
                 secret: "{{ inventory_hostname }}{{ vault_identity_secret_suffix }}"
             namespaces:
               - id: 0
