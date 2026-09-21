@@ -366,7 +366,7 @@ all:
               name: "{{ inventory_hostname }}"
               secret: "{{ inventory_hostname }}PWD"
             users:
-              - name: orderer-loadgen
+              - name: orderer-loadgen-client
                 secret: "{{ inventory_hostname }}PWD"
             namespaces:
               - id: 0
