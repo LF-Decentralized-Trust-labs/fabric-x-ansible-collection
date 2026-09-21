@@ -50,7 +50,7 @@ argument_specs:
       committer_git_commit: &committer_git_commit
         type: str
         required: false
-        default: v1.0.4
+        default: v1.0.5
         description:
           - Git ref used for building or installing the binary.
       committer_source_code_package: &committer_source_code_package

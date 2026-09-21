@@ -243,7 +243,7 @@ Builds the orderer binary through the shared bin role using the configured Git r
     # Repository path for the orderer source code.
     orderer_git_repo: hyperledger/fabric-x-orderer
     # Git ref or release tag used by the bin build and install branches.
-    orderer_git_commit: v1.0.4
+    orderer_git_commit: v1.0.6
     # Go package path that builds the orderer binary.
     orderer_source_code_package: cmd/arma
   ansible.builtin.include_role:
@@ -271,7 +271,7 @@ Installs the configured released orderer binary through the shared bin role. Use
     # Go package path that builds the orderer binary.
     orderer_source_code_package: cmd/arma
     # Git ref or release tag used by the bin build and install branches.
-    orderer_git_commit: v1.0.4
+    orderer_git_commit: v1.0.6
   ansible.builtin.include_role:
     name: hyperledger.fabricx.orderer
     tasks_from: bin/install

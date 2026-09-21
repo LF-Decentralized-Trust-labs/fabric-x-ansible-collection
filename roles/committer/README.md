@@ -407,7 +407,7 @@ Install the committer binary through the shared `bin` role Go installer entry po
     # Git repository that contains the committer sources.
     committer_git_repo: hyperledger/fabric-x-committer
     # Git ref used for building or installing the binary.
-    committer_git_commit: v1.0.4
+    committer_git_commit: v1.0.5
     # Go package path used as the build or install target.
     committer_source_code_package: cmd/committer
   ansible.builtin.include_role:
@@ -431,7 +431,7 @@ Build the committer binary through the shared `bin` role Go build entry point. P
     # Git repository that contains the committer sources.
     committer_git_repo: hyperledger/fabric-x-committer
     # Git ref used for building or installing the binary.
-    committer_git_commit: v1.0.4
+    committer_git_commit: v1.0.5
     # Go package path used as the build or install target.
     committer_source_code_package: cmd/committer
   ansible.builtin.include_role:
