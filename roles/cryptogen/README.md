@@ -1,6 +1,6 @@
 # hyperledger.fabricx.cryptogen
 
-> Renders cryptogen configuration, generates Fabric-X crypto material, and fetches MSP artifacts for orderer and peer organizations.
+> Renders cryptogen configuration, generates Fabric-X crypto material, and fetches MSP artifacts for organizations that can own both orderer and peer nodes.
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -82,7 +82,7 @@ Read back the rendered `crypto-config.yaml` and the persisted state file, then d
 
 > Fetch generated MSP directories
 
-Copy generated MSP directories for orderer and peer organizations into the fetched artifacts directory. The role mirrors each organization MSP subtree from `cryptogen_output_dir` into `{{ fetched_artifacts_dir }}/crypto/ordererOrganizations` and `{{ fetched_artifacts_dir }}/crypto/peerOrganizations`. Run this after crypto material has already been generated so downstream roles can consume the fetched artifacts.
+Copy generated MSP directories for every organization into the fetched artifacts directory. The role mirrors each organization MSP subtree from `cryptogen_output_dir` into `{{ fetched_artifacts_dir }}/crypto/organizations`. Run this after crypto material has already been generated so downstream roles can consume the fetched artifacts.
 
 ```yaml
 - name: Fetch generated MSP directories
@@ -95,10 +95,8 @@ Copy generated MSP directories for orderer and peer organizations into the fetch
     fetched_artifacts_dir: "/opt/hyperledger/fabricx/build/fetched-artifacts"
     # Sets the directory where cryptogen writes generated crypto material.
     cryptogen_output_dir: "{{ cryptogen_artifacts_dir }}/crypto"
-    # Maps orderer organization domains to their organization definitions.
-    cryptogen_orderers_by_org: {}
-    # Maps peer organization domains to their organization definitions.
-    cryptogen_peers_by_org: {}
+    # Maps organization domains to their organization definitions, each node carrying its own organizational unit (orderer or peer).
+    cryptogen_orgs_by_domain: {}
   ansible.builtin.include_role:
     name: hyperledger.fabricx.cryptogen
     tasks_from: fetch
@@ -108,7 +106,7 @@ Copy generated MSP directories for orderer and peer organizations into the fetch
 
 > Build the cryptogen configuration file
 
-Render `crypto-config.yaml` for the cryptogen CLI. This entry point gathers host IPv4 facts for referenced orderer and peer hosts before templating `{{ cryptogen_artifacts_dir }}/{{ cryptogen_config_file }}`. The rendered file captures the Fabric-X organization layout that cryptogen uses to generate orderer and peer MSP and TLS material.
+Render `crypto-config.yaml` for the cryptogen CLI. This entry point gathers host IPv4 facts for every referenced node before templating `{{ cryptogen_artifacts_dir }}/{{ cryptogen_config_file }}`. The rendered file captures the Fabric-X organization layout, as a single `GenericOrgs` list, that cryptogen uses to generate orderer and peer MSP and TLS material.
 
 ```yaml
 - name: Build the cryptogen configuration file
@@ -119,10 +117,8 @@ Render `crypto-config.yaml` for the cryptogen CLI. This entry point gathers host
     cryptogen_artifacts_dir: "{{ config_build_dir }}/cryptogen-artifacts"
     # Sets the cryptogen configuration filename.
     cryptogen_config_file: crypto-config.yaml
-    # Maps orderer organization domains to their organization definitions.
-    cryptogen_orderers_by_org: {}
-    # Maps peer organization domains to their organization definitions.
-    cryptogen_peers_by_org: {}
+    # Maps organization domains to their organization definitions, each node carrying its own organizational unit (orderer or peer).
+    cryptogen_orgs_by_domain: {}
   ansible.builtin.include_role:
     name: hyperledger.fabricx.cryptogen
     tasks_from: config/build

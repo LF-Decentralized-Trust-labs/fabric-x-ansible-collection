@@ -12,9 +12,9 @@
     path: "{{ armageddon_artifacts_dir }}/{{ armageddon_shared_config_file }}"
   register: armageddon_shared_config_stat
 
-- name: Find the fetched orderer crypto artifacts checksums
+- name: Find the fetched crypto artifacts checksums
   ansible.builtin.find:
-    paths: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations"
+    paths: "{{ fetched_artifacts_dir }}/crypto/organizations"
     file_type: file
     recurse: true
     get_checksum: true

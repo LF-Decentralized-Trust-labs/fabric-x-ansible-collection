@@ -39,10 +39,8 @@ cryptogen_source_code_package: tools/cryptogen
 cryptogen_bin_package: '{{ cryptogen_git_hub_url }}/{{ cryptogen_git_repo }}/{{ cryptogen_source_code_package }}'
 # Sets the cryptogen executable name.
 cryptogen_bin_name: cryptogen
-# Maps orderer organization domains to their organization definitions.
-cryptogen_orderers_by_org: {}
-# Maps peer organization domains to their organization definitions.
-cryptogen_peers_by_org: {}
+# Maps organization domains to their organization definitions, each node carrying its own organizational unit (orderer or peer).
+cryptogen_orgs_by_domain: {}
 # Sets the cryptogen configuration filename.
 cryptogen_config_file: crypto-config.yaml
 # Sets the filename that tracks a fingerprint of every generated component, used to detect components missing or changed since the last run.

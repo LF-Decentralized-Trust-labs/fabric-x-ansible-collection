@@ -26,15 +26,16 @@
         orderer_info:
           name: "{{ orderer }}"
       ansible.builtin.set_fact:
-        configtxgen_orderers_by_org: >-
+        configtxgen_orgs_by_domain: >-
           {{
-            configtxgen_orderers_by_org | default({}) | combine({
+            configtxgen_orgs_by_domain | default({}) | combine({
               org_domain: {
                 'name': org_name,
                 'domain': org_domain,
                 'orderers': (
-                  (configtxgen_orderers_by_org | default({})).get(org_domain, {}).get('orderers', []) + [orderer_info]
-                )
+                  (configtxgen_orgs_by_domain | default({})).get(org_domain, {}).get('orderers', []) + [orderer_info]
+                ),
+                'peers': (configtxgen_orgs_by_domain | default({})).get(org_domain, {}).get('peers', [])
               }
             })
           }}
@@ -57,14 +58,15 @@
         peer_info:
           name: "{{ peer }}"
       ansible.builtin.set_fact:
-        configtxgen_peers_by_org: >-
+        configtxgen_orgs_by_domain: >-
           {{
-            configtxgen_peers_by_org | default({}) | combine({
+            configtxgen_orgs_by_domain | default({}) | combine({
               org_domain: {
                 'name': org_name,
                 'domain': org_domain,
+                'orderers': (configtxgen_orgs_by_domain | default({})).get(org_domain, {}).get('orderers', []),
                 'peers': (
-                  (configtxgen_peers_by_org | default({})).get(org_domain, {}).get('peers', []) + [peer_info]
+                  (configtxgen_orgs_by_domain | default({})).get(org_domain, {}).get('peers', []) + [peer_info]
                 )
               }
             })

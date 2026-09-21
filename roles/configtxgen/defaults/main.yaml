@@ -54,7 +54,107 @@ configtxgen_profile_id: OrgsChannel
 configtxgen_genesis_block_file: '{{ configtxgen_channel_id }}_block.pb'
 # Filename that tracks a fingerprint of the rendered config, the Armageddon shared-config binary, and the crypto inputs, used to detect changes since the last run.
 configtxgen_state_file: configtxgen-state.yaml
-# Orderer organization map rendered into `configtx.yaml`.
-configtxgen_orderers_by_org: {}
-# Peer organization map rendered into `configtx.yaml`.
-configtxgen_peers_by_org: {}
+# Organization map rendered into `configtx.yaml`, keyed by domain, each carrying its own `orderers` and `peers` node lists so a single organization can appear on both sides of the network.
+configtxgen_orgs_by_domain: {}
+# Policy type for the orderer organization Readers policy.
+configtxgen_orderer_org_policies_readers_type: Signature
+# Rule for the orderer organization Readers policy. C({msp_id}) is replaced with the organization's own MSP id.
+configtxgen_orderer_org_policies_readers_rule: OR('{msp_id}.member')
+# Policy type for the orderer organization Writers policy.
+configtxgen_orderer_org_policies_writers_type: Signature
+# Rule for the orderer organization Writers policy. C({msp_id}) is replaced with the organization's own MSP id.
+configtxgen_orderer_org_policies_writers_rule: OR('{msp_id}.member')
+# Policy type for the orderer organization Admins policy.
+configtxgen_orderer_org_policies_admins_type: Signature
+# Rule for the orderer organization Admins policy. C({msp_id}) is replaced with the organization's own MSP id.
+configtxgen_orderer_org_policies_admins_rule: OR('{msp_id}.admin')
+# Policy type for the orderer organization Endorsement policy.
+configtxgen_orderer_org_policies_endorsement_type: Signature
+# Rule for the orderer organization Endorsement policy. C({msp_id}) is replaced with the organization's own MSP id.
+configtxgen_orderer_org_policies_endorsement_rule: OR('{msp_id}.member')
+# Policy type for the peer organization Readers policy.
+configtxgen_peer_org_policies_readers_type: Signature
+# Rule for the peer organization Readers policy. C({msp_id}) is replaced with the organization's own MSP id.
+configtxgen_peer_org_policies_readers_rule: OR('{msp_id}.member')
+# Policy type for the peer organization Writers policy.
+configtxgen_peer_org_policies_writers_type: Signature
+# Rule for the peer organization Writers policy. C({msp_id}) is replaced with the organization's own MSP id.
+configtxgen_peer_org_policies_writers_rule: OR('{msp_id}.member')
+# Policy type for the peer organization Admins policy.
+configtxgen_peer_org_policies_admins_type: Signature
+# Rule for the peer organization Admins policy. C({msp_id}) is replaced with the organization's own MSP id.
+configtxgen_peer_org_policies_admins_rule: OR('{msp_id}.admin')
+# Policy type for the peer organization Endorsement policy.
+configtxgen_peer_org_policies_endorsement_type: Signature
+# Rule for the peer organization Endorsement policy. C({msp_id}) is replaced with the organization's own MSP id.
+configtxgen_peer_org_policies_endorsement_rule: OR('{msp_id}.member')
+# Policy type for the Application Readers policy.
+configtxgen_application_policies_readers_type: ImplicitMeta
+# Rule for the Application Readers policy.
+configtxgen_application_policies_readers_rule: ANY Readers
+# Policy type for the Application Writers policy.
+configtxgen_application_policies_writers_type: ImplicitMeta
+# Rule for the Application Writers policy.
+configtxgen_application_policies_writers_rule: ANY Writers
+# Policy type for the Application Admins policy.
+configtxgen_application_policies_admins_type: ImplicitMeta
+# Rule for the Application Admins policy.
+configtxgen_application_policies_admins_rule: MAJORITY Admins
+# Policy type for the Application Endorsement policy.
+configtxgen_application_policies_endorsement_type: ImplicitMeta
+# Rule for the Application Endorsement policy.
+configtxgen_application_policies_endorsement_rule: MAJORITY Endorsement
+# Policy type for the Application SnapshotEndorsement policy.
+# Required from committer v1.0.5 (fabric-x-common v0.2.9) onward.
+configtxgen_application_policies_snapshot_endorsement_type: Signature
+# Operator combining every application organization's MSP OU in the generated SnapshotEndorsement rule.
+# Only used when C(configtxgen_application_policies_snapshot_endorsement_rule) is left undefined.
+configtxgen_application_policies_snapshot_endorsement_operator: OR
+# MSP OU required from every application organization in the generated SnapshotEndorsement rule.
+# Only used when C(configtxgen_application_policies_snapshot_endorsement_rule) is left undefined.
+configtxgen_application_policies_snapshot_endorsement_ou: member
+# Policy type for the Application CheckpointEndorsement policy.
+# Required from committer v1.0.5 (fabric-x-common v0.2.9) onward.
+configtxgen_application_policies_checkpoint_endorsement_type: Signature
+# Operator combining every application organization's MSP OU in the generated CheckpointEndorsement rule.
+# Only used when C(configtxgen_application_policies_checkpoint_endorsement_rule) is left undefined.
+configtxgen_application_policies_checkpoint_endorsement_operator: OR
+# MSP OU required from every application organization in the generated CheckpointEndorsement rule.
+# Only used when C(configtxgen_application_policies_checkpoint_endorsement_rule) is left undefined.
+configtxgen_application_policies_checkpoint_endorsement_ou: member
+# Policy type for the Application LifecycleEndorsement policy.
+configtxgen_application_policies_lifecycle_endorsement_type: Signature
+# Operator combining every application organization's MSP OU in the generated LifecycleEndorsement rule.
+# Only used when C(configtxgen_application_policies_lifecycle_endorsement_rule) is left undefined.
+configtxgen_application_policies_lifecycle_endorsement_operator: OR
+# MSP OU required from every application organization in the generated LifecycleEndorsement rule.
+# Only used when C(configtxgen_application_policies_lifecycle_endorsement_rule) is left undefined.
+configtxgen_application_policies_lifecycle_endorsement_ou: member
+# Policy type for the Orderer Readers policy.
+configtxgen_orderer_policies_readers_type: ImplicitMeta
+# Rule for the Orderer Readers policy.
+configtxgen_orderer_policies_readers_rule: ANY Readers
+# Policy type for the Orderer Writers policy.
+configtxgen_orderer_policies_writers_type: ImplicitMeta
+# Rule for the Orderer Writers policy.
+configtxgen_orderer_policies_writers_rule: ANY Writers
+# Policy type for the Orderer Admins policy.
+configtxgen_orderer_policies_admins_type: ImplicitMeta
+# Rule for the Orderer Admins policy.
+configtxgen_orderer_policies_admins_rule: MAJORITY Admins
+# Policy type for the Orderer BlockValidation policy.
+configtxgen_orderer_policies_block_validation_type: ImplicitMeta
+# Rule for the Orderer BlockValidation policy.
+configtxgen_orderer_policies_block_validation_rule: MAJORITY Writers
+# Policy type for the Channel Readers policy.
+configtxgen_channel_policies_readers_type: ImplicitMeta
+# Rule for the Channel Readers policy.
+configtxgen_channel_policies_readers_rule: ANY Readers
+# Policy type for the Channel Writers policy.
+configtxgen_channel_policies_writers_type: ImplicitMeta
+# Rule for the Channel Writers policy.
+configtxgen_channel_policies_writers_rule: ANY Writers
+# Policy type for the Channel Admins policy.
+configtxgen_channel_policies_admins_type: ImplicitMeta
+# Rule for the Channel Admins policy.
+configtxgen_channel_policies_admins_rule: MAJORITY Admins

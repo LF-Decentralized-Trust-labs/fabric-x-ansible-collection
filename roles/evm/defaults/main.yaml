@@ -51,7 +51,7 @@ evm_submitter_count: 16
 evm_endorsement_chan_size: 1000
 # Label for the embedded endorser.
 evm_endorser_name: '{{ organization.name | lower }}'
-# Name of the enrolled peer identity backing the embedded endorser.
+# Name of the enrolled peer identity backing the gateway.
 evm_crypto_name: '{{ organization.peer.name | default(inventory_hostname) }}'
 # Enroll a shared client TLS key pair for EVM, used when any connected orderer or the committer sidecar requires mTLS.
 # Set this to C(true) whenever any orderer router (from C(orderer_hosts)) or the committer sidecar (derived from C(committer_hosts)) has C(orderer_use_mtls) or C(committer_use_mtls) enabled; the TLS mode used on each individual connection is still derived from that host's own flags.

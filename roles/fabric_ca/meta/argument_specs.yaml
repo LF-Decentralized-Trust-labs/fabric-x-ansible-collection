@@ -342,7 +342,7 @@ argument_specs:
         required: true
         description:
           - "Sets the MSP directory used by Fabric CA client flows."
-          - "Example: C(/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp)."
+          - "Example: C(/tmp/fabricx/crypto-config/organizations/org1.example.com/users/Admin@org1.example.com/msp)."
       fabric_ca_cryptogenize_msp_private_key_file:
         &fabric_ca_cryptogenize_msp_private_key_file
         type: str
@@ -406,7 +406,7 @@ argument_specs:
         type: path
         description:
           - "Sets the TLS root certificate file used by Fabric CA client flows when TLS is enabled."
-          - "Example: C(/tmp/fabricx/crypto-config/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem)."
+          - "Example: C(/tmp/fabricx/crypto-config/organizations/org1.example.com/ca/ca.org1.example.com-cert.pem)."
 
       fabric_ca_server_use_openshift: &fabric_ca_server_use_openshift
         type: bool

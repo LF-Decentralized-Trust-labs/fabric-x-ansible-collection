@@ -350,7 +350,7 @@ all:
           peer:
             name: orderer-loadgen
           users:
-            - name: orderer-loadgen
+            - name: orderer-loadgen-client
           namespaces:
             - id: 0
               policy: threshold

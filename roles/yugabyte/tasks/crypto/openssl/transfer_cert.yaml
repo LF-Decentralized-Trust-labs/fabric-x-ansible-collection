@@ -15,6 +15,6 @@
         mode: "0o644"
     - name: Copy TLS CA cert
       ansible.builtin.copy:
-        src: "{{ fetched_artifacts_dir }}/crypto/peerOrganizations/{{ organization.domain }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
+        src: "{{ fetched_artifacts_dir }}/crypto/organizations/{{ organization.domain }}/msp/tlscacerts/tlsca.{{ organization.domain }}-cert.pem"
         dest: "{{ yugabyte_remote_config_dir }}/tls/ca.crt"
         mode: "0o644"

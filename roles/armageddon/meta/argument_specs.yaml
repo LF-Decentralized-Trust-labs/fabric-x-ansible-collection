@@ -155,8 +155,8 @@ argument_specs:
   inspect:
     short_description: Detect whether Armageddon needs to run
     description:
-      - Fingerprint the rendered C(shared_config.yaml) together with every fetched orderer crypto artifact, then compare it against the fingerprint recorded by the previous run.
-      - Only C(fetched_artifacts_dir)/crypto/ordererOrganizations is walked, not the whole crypto tree, since C(shared_config.yaml) never references peer organization material, only orderer CAs, TLS CAs, and per-orderer certs.
+      - Fingerprint the rendered C(shared_config.yaml) together with every fetched crypto artifact, then compare it against the fingerprint recorded by the previous run.
+      - C(fetched_artifacts_dir)/crypto/organizations is walked in full, since an organization can now own both orderer and peer nodes side by side and C(shared_config.yaml) still only references the orderer CAs, TLS CAs, and per-orderer certs within it.
       - Publishes C(armageddon_input_fingerprint) and C(armageddon_must_run) as facts for C(create_shared_config) to consume.
       - Without a previous state file there is no baseline, so C(armageddon_must_run) is set unconditionally, and Armageddon runs once to establish one.
     options:

@@ -10,13 +10,13 @@
 - name: Fetch Hyperledger Fabric-X Orderer sign certificates
   ansible.builtin.fetch:
     src: "{{ orderer_remote_config_dir }}/msp/signcerts/{{ orderer_crypto_name }}.{{ organization.domain }}-cert.pem"
-    dest: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/msp/signcerts/{{ orderer_crypto_name }}.{{ organization.domain }}-cert.pem"
+    dest: "{{ fetched_artifacts_dir }}/crypto/organizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/msp/signcerts/{{ orderer_crypto_name }}.{{ organization.domain }}-cert.pem"
     flat: true
 
 - name: Fetch Hyperledger Fabric-X Orderer sign certificate into organization knowncerts
   ansible.builtin.fetch:
     src: "{{ orderer_remote_config_dir }}/msp/signcerts/{{ orderer_crypto_name }}.{{ organization.domain }}-cert.pem"
-    dest: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/msp/knowncerts/{{ orderer_crypto_name }}.{{ organization.domain }}-cert.pem"
+    dest: "{{ fetched_artifacts_dir }}/crypto/organizations/{{ organization.domain }}/msp/knowncerts/{{ orderer_crypto_name }}.{{ organization.domain }}-cert.pem"
     flat: true
   when:
     - organization.fabric_ca_host is defined
@@ -27,7 +27,7 @@
 - name: Fetch Hyperledger Fabric-X Orderer TLS certificate to build genesis block
   ansible.builtin.fetch:
     src: "{{ orderer_remote_config_dir }}/tls/server.crt"
-    dest: "{{ fetched_artifacts_dir }}/crypto/ordererOrganizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/tls/server.crt"
+    dest: "{{ fetched_artifacts_dir }}/crypto/organizations/{{ organization.domain }}/orderers/{{ orderer_crypto_name }}.{{ organization.domain }}/tls/server.crt"
     flat: true
 
 - name: Fetch Hyperledger Fabric-X Orderer TLS CA certificate

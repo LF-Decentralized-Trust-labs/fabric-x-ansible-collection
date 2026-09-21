@@ -65,37 +65,37 @@ spec:
               readOnly: true
 {% endif %}
 {% endfor %}
-            # Peer MSP signing certificate backing the embedded endorser identity.
+            # Gateway signing identity: peer MSP signing certificate.
             - name: secret
               mountPath: {{ evm_container_config_dir }}/msp/signcerts/{{ evm_crypto_name }}.{{ organization.domain }}-cert.pem
               subPath: msp-signcert.pem
               readOnly: true
-            # Peer MSP private key.
+            # Gateway signing identity: peer MSP private key.
             - name: secret
               mountPath: {{ evm_container_config_dir }}/msp/keystore/priv_sk
               subPath: msp-keystore-priv-sk
               readOnly: true
-            # Peer MSP CA certificate.
+            # Gateway signing identity: peer MSP CA certificate.
             - name: secret
               mountPath: {{ evm_container_config_dir }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem
               subPath: msp-cacert.pem
               readOnly: true
-            # Peer MSP NodeOUs configuration.
+            # Gateway signing identity: peer MSP NodeOUs configuration.
             - name: secret
               mountPath: {{ evm_container_config_dir }}/msp/config.yaml
               subPath: msp-config.yaml
               readOnly: true
-            # Gateway signing identity: user MSP signing certificate.
+            # User MSP signing certificate backing the embedded endorser identity.
             - name: secret
               mountPath: {{ evm_container_config_dir }}/users/{{ evm_gateway_user.name }}@{{ organization.domain }}/msp/signcerts/{{ evm_gateway_user.name }}@{{ organization.domain }}-cert.pem
               subPath: user-{{ evm_gateway_user.name }}-msp-signcert.pem
               readOnly: true
-            # Gateway signing identity: user MSP private key.
+            # User MSP private key backing the embedded endorser identity.
             - name: secret
               mountPath: {{ evm_container_config_dir }}/users/{{ evm_gateway_user.name }}@{{ organization.domain }}/msp/keystore/priv_sk
               subPath: user-{{ evm_gateway_user.name }}-msp-keystore-priv-sk
               readOnly: true
-            # Gateway signing identity: user MSP CA certificate.
+            # User MSP CA certificate backing the embedded endorser identity.
             - name: secret
               mountPath: {{ evm_container_config_dir }}/users/{{ evm_gateway_user.name }}@{{ organization.domain }}/msp/cacerts/ca.{{ organization.domain }}-cert.pem
               subPath: user-{{ evm_gateway_user.name }}-msp-cacert.pem
