@@ -136,7 +136,7 @@ argument_specs:
           - Image name used by the Block Explorer container.
       block_explorer_image_tag: &block_explorer_image_tag
         type: str
-        default: 0.1.1
+        default: 0.1.2
         description:
           - Image tag used by the Block Explorer container.
       block_explorer_image: &block_explorer_image
