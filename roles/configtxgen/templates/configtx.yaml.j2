@@ -138,12 +138,14 @@ Capabilities:
   # Channel capabilities apply to both the orderers and the peers and must be
   # supported by both.
   # Set the value of the capability to true to require it.
-  Channel: &ChannelCapabilities {}
+  Channel: &ChannelCapabilities
+    V2_0: true
 
   # Orderer capabilities apply only to the orderers, and may be safely
   # used with prior release peers.
   # Set the value of the capability to true to require it.
-  Orderer: &OrdererCapabilities {}
+  Orderer: &OrdererCapabilities
+    V2_0: true
 
   # Application capabilities apply only to the peer network, and may be safely
   # used with prior release orderers.
