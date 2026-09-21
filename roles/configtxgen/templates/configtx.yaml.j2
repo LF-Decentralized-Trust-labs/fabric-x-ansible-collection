@@ -185,12 +185,6 @@ Application: &ApplicationDefaults
       Type: {{ configtxgen_application_policies_endorsement_type }}
       Rule: "{{ configtxgen_application_policies_endorsement_rule }}"
 {% set application_orgs = configtxgen_orgs_by_domain.values() | selectattr('peers', 'defined') | selectattr('peers', '!=', []) | list %}
-    # Required from committer v1.0.5 (fabric-x-common v0.2.9) onward: the
-    # verifier validates a config block against SystemNamespacePolicies,
-    # which includes SnapshotEndorsement and CheckpointEndorsement alongside
-    # LifecycleEndorsement -- a config block missing either is rejected
-    # outright (see service/verifier/policy/policy.go). Absent on the wire
-    # with earlier committer versions, but harmless to always render.
     SnapshotEndorsement:
 {% if configtxgen_application_policies_snapshot_endorsement_rule is defined %}
       Type: {{ configtxgen_application_policies_snapshot_endorsement_type }}
