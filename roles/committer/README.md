@@ -1654,7 +1654,7 @@ Render query-service configuration, DB settings, mTLS assets, and optional Kuber
 
 > Initialize the committer database with a Kubernetes Job
 
-Run `committer init-db` as a Job against the validator ConfigMap, deleting any previous run first since Job specs are immutable. Waits for the Job to reach the Complete condition before returning.
+Run `committer init-db` as a Job against the validator ConfigMap and Secret. Job specs are immutable, but committer init-db is itself idempotent, so an already-applied Job is left as-is. Waits for the Job to reach the Complete condition before returning.
 
 ```yaml
 - name: Initialize the committer database with a Kubernetes Job
@@ -1685,6 +1685,8 @@ Run `committer init-db` as a Job against the validator ConfigMap, deleting any p
     committer_registry_endpoint: "{{ lookup('env', 'COMMITTER_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
     # Remote config directory managed by the role.
     committer_remote_config_dir: "{{ remote_config_dir }}"
+    # Enable TLS material for the selected component.
+    committer_use_tls: false
     # Optional image pull secret referenced by Kubernetes workloads.
     k8s_image_pull_secret: "fabricx-registry-secret"
     # Kubernetes namespace that contains the committer resources.
@@ -1870,6 +1872,18 @@ Deletes the committer Deployment or StatefulSet and Services from the configured
     committer_k8s_metrics_node_port: 31052
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
     committer_k8s_loadbalancer_expose_metrics_port: false
+    # Organization definition consumed by crypto and sidecar configuration tasks.
+    organization:
+      name: "Org1"
+      domain: "org1.example.com"
+      role: "peer"
+      fabric_ca_host: "fca-org1"
+      peer:
+        name: "committer-sidecar"
+        secret: "committer-sidecarPWD"
+      users:
+        - name: "committer-sidecar"
+          secret: "committer-sidecarPWD"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: k8s/rm

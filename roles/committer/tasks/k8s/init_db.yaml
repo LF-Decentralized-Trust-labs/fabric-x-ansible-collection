@@ -4,15 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-- name: Delete any previous Fabric-X Committer database-init Job
-  kubernetes.core.k8s:
-    state: absent
-    api_version: batch/v1
-    kind: Job
-    name: "{{ committer_k8s_resource_name }}-init-db"
-    namespace: "{{ k8s_namespace | default('default') }}"
-    wait: true
-
 - name: Initialize the committer database with a Kubernetes Job
   vars:
     committer_k8s_db_ca_path: "{{ committer_remote_config_dir }}/tls/db/ca.crt"

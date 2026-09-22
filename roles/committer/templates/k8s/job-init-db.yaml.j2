@@ -13,7 +13,7 @@ metadata:
     app.kubernetes.io/component: {{ committer_component_type }}
     app.kubernetes.io/part-of: {{ committer_k8s_part_of }}
 spec:
-  backoffLimit: 2
+  backoffLimit: 0
   template:
     metadata:
       labels:
@@ -35,6 +35,20 @@ spec:
             - name: config
               mountPath: {{ committer_container_config_dir }}/{{ committer_config_file }}
               subPath: config-validator.yml
+{% if committer_use_tls %}
+            - name: secret
+              mountPath: {{ committer_container_config_dir }}/tls/server.key
+              subPath: tls-server.key
+              readOnly: true
+            - name: secret
+              mountPath: {{ committer_container_config_dir }}/tls/server.crt
+              subPath: tls-server.crt
+              readOnly: true
+            - name: secret
+              mountPath: {{ committer_container_config_dir }}/tls/ca.crt
+              subPath: tls-ca.crt
+              readOnly: true
+{% endif %}
 {% if postgres_db_host is defined and hostvars[postgres_db_host].postgres_use_tls is defined and hostvars[postgres_db_host].postgres_use_tls %}
             - name: config
               mountPath: {{ committer_container_config_dir }}/tls/db/ca.crt
@@ -54,6 +68,12 @@ spec:
           configMap:
             name: {{ committer_k8s_resource_name }}-config
             defaultMode: 0640
+{% if committer_use_tls %}
+        - name: secret
+          secret:
+            secretName: {{ committer_k8s_resource_name }}-secret
+            defaultMode: 0640
+{% endif %}
 {% if k8s_image_pull_secret is defined and k8s_image_pull_secret %}
       imagePullSecrets:
         - name: {{ k8s_image_pull_secret }}

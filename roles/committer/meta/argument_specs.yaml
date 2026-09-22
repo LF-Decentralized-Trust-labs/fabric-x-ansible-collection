@@ -1456,7 +1456,7 @@ argument_specs:
   k8s/init_db:
     short_description: Initialize the committer database with a Kubernetes Job
     description:
-      - "Run C(committer init-db) as a Job against the validator ConfigMap, deleting any previous run first since Job specs are immutable."
+      - "Run C(committer init-db) as a Job against the validator ConfigMap and Secret. Job specs are immutable, but committer init-db is itself idempotent, so an already-applied Job is left as-is."
       - Waits for the Job to reach the Complete condition before returning.
     options:
       committer_component_type: *committer_component_type
@@ -1472,6 +1472,7 @@ argument_specs:
       committer_k8s_resource_name: *committer_k8s_resource_name
       committer_registry_endpoint: *committer_registry_endpoint
       committer_remote_config_dir: *committer_remote_config_dir
+      committer_use_tls: *committer_use_tls
       k8s_image_pull_secret: *k8s_image_pull_secret
       k8s_namespace: *k8s_namespace
       organization: *organization
@@ -1546,6 +1547,7 @@ argument_specs:
       committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
       committer_k8s_metrics_node_port: *committer_k8s_metrics_node_port
       committer_k8s_loadbalancer_expose_metrics_port: *committer_k8s_loadbalancer_expose_metrics_port
+      organization: *organization
 
   validator/k8s/config/transfer:
     short_description: Create the validator ConfigMap
