@@ -191,9 +191,9 @@ Generate a private key and an X.509 certificate, regenerating them only when the
     # Filename used to publish the trust anchor for the generated certificate. Holds the generated self-signed certificate when no root CA is configured, or the configured root CA certificate when one signs the generated certificate.
     openssl_ca_cert_file: ca.crt
     # Path to a root CA certificate used to sign the generated certificate instead of self-signing it. Defaults to `OPENSSL_ROOT_CA_CERT_PATH` when set in the Ansible process environment. Must be set together with `openssl_root_ca_private_key_path`. Both are read on the host running this task, so a distributed deployment would need the root CA present on every remote node.
-    openssl_root_ca_cert_path: "{{ lookup('env', 'OPENSSL_ROOT_CA_CERT_PATH') or None }}"
+    openssl_root_ca_cert_path: "{{ lookup('env', 'OPENSSL_ROOT_CA_CERT_PATH') | trim('\"') | expanduser or None }}"
     # Path to the private key matching `openssl_root_ca_cert_path`. Defaults to `OPENSSL_ROOT_CA_PRIVATE_KEY_PATH` when set in the Ansible process environment. Store this value in Ansible Vault.
-    openssl_root_ca_private_key_path: "{{ lookup('env', 'OPENSSL_ROOT_CA_PRIVATE_KEY_PATH') or None }}"
+    openssl_root_ca_private_key_path: "{{ lookup('env', 'OPENSSL_ROOT_CA_PRIVATE_KEY_PATH') | trim('\"') | expanduser or None }}"
     # Path to the intermediate certificate signing request generated when `openssl_root_ca_cert_path` is set.
     openssl_ca_signed_csr_path: "{{ openssl_remote_config_dir }}/{{ openssl_config_file }}.csr"
     # Path to the intermediate extension file applied while signing against `openssl_root_ca_cert_path`.
