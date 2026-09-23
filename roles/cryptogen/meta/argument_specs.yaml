@@ -42,7 +42,7 @@ argument_specs:
       cryptogen_image_tag: &cryptogen_image_tag
         type: str
         required: false
-        default: "1.0.0"
+        default: "1.0.2"
         description:
           - "Sets the cryptogen image tag."
       cryptogen_image: &cryptogen_image
@@ -78,7 +78,7 @@ argument_specs:
       cryptogen_git_commit: &cryptogen_git_commit
         type: str
         required: false
-        default: "v1.0.0"
+        default: "v1.0.2"
         description:
           - "Pins the cryptogen source revision."
       cryptogen_source_code_package: &cryptogen_source_code_package
@@ -101,6 +101,7 @@ argument_specs:
         default: {}
         description:
           - "Maps organization domains to their organization definitions, each node carrying its own organizational unit (orderer or peer)."
+          - "Users default to client identities; setting C(type: admin) generates an administrator identity."
       fetched_artifacts_dir: &fetched_artifacts_dir
         type: path
         required: true
@@ -140,7 +141,7 @@ argument_specs:
   inspect:
     short_description: Detect missing or changed cryptogen components
     description:
-      - "Read back the rendered C(crypto-config.yaml) and the persisted state file, then determine which orderer, peer, and user components are missing from C(cryptogen_output_dir) or have a spec (Common Name, SANS, key algorithm) that no longer matches the one recorded for them."
+      - "Read back the rendered C(crypto-config.yaml) and the persisted state file, then determine which orderer, peer, and user components are missing from C(cryptogen_output_dir) or have a spec (Common Name, SANS, key algorithm, or administrator status) that no longer matches the one recorded for them."
       - "Publishes C(cryptogen_expected_components) and C(cryptogen_must_run), plus C(cryptogen_drifted_components) when a previous state file exists, as facts for the rest of the role to consume."
       - "A component already on disk with no recorded fingerprint is treated as adopted rather than drifted, so an existing network is recognized without being regenerated."
     options:

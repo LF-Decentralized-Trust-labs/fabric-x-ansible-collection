@@ -36,7 +36,7 @@ argument_specs:
       configtxlator_image_tag: &configtxlator_image_tag
         type: str
         required: false
-        default: "1.0.0"
+        default: "1.0.2"
         description:
           - Image tag for C(configtxlator_image).
       configtxlator_image: &configtxlator_image
@@ -62,7 +62,7 @@ argument_specs:
       configtxlator_git_commit: &configtxlator_git_commit
         type: str
         required: false
-        default: v1.0.0
+        default: v1.0.2
         description:
           - Git reference used by the binary build and install entry points.
       configtxlator_source_code_package: &configtxlator_source_code_package

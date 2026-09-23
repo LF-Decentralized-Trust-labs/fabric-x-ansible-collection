@@ -21,7 +21,7 @@ fxconfig_container_config_dir: /config
 # Includes C(inventory_hostname) by default so container names never collide when this role runs across multiple hosts in parallel against the same local container storage.
 fxconfig_container_name: fxconfig-{{ inventory_hostname }}
 # Selects the Git ref used by build and install workflows.
-fxconfig_git_commit: v1.0.0
+fxconfig_git_commit: v1.0.2
 # Defines the Git host used to resolve the Fabric-X source repository.
 fxconfig_git_hub_url: github.com
 # Defines the Fabric-X source repository path.
@@ -31,7 +31,7 @@ fxconfig_image: "{{ fxconfig_registry_endpoint }}/{{ fxconfig_image_name }}:{{ f
 # Defines the image name used by the fxconfig container image.
 fxconfig_image_name: fabric-x-tools
 # Defines the image tag used by the fxconfig container image.
-fxconfig_image_tag: 1.0.0
+fxconfig_image_tag: 1.0.2
 # Defines the fxconfig log format.
 fxconfig_log_format: "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
 # Defines the fxconfig log level.
