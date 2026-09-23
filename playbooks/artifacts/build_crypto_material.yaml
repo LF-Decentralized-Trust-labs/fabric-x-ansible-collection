@@ -7,13 +7,13 @@
 - name: Build crypto material
   hosts: localhost
   tasks:
-    - name: Assert Hyperledger Fabric-X organization roles are valid
-      ansible.builtin.assert:
-        that:
-          - hostvars[current_host].organization.role in ['orderer', 'peer']
-        fail_msg: >-
+    - name: Fail when a Hyperledger Fabric-X organization role is invalid
+      ansible.builtin.fail:
+        msg: >-
           Host {{ current_host }} has an invalid organization.role
           {{ hostvars[current_host].organization.role }}; expected 'orderer' or 'peer'.
+      when:
+        - hostvars[current_host].organization.role not in ['orderer', 'peer']
       loop: >-
         {{
           groups['all']
