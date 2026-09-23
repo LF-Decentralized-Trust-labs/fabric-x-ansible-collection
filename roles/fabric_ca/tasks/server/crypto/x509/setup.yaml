@@ -25,6 +25,46 @@
     tasks_from: generate_signed_cert
 
 # =========================
+# Intermediate CA chain
+# =========================
+- name: Assemble Fabric CA intermediate certificate chain
+  vars:
+    is_intermediate_ca: >-
+      {{
+        lookup('vars', 'openssl_root_ca_cert_path', default=lookup('env', 'OPENSSL_ROOT_CA_CERT_PATH'))
+        | default('', true)
+        | trim('"')
+        | length > 0
+      }}
+  when: is_intermediate_ca
+  block:
+    - name: Create Fabric CA intermediate certificate chain directory
+      ansible.builtin.file:
+        path: "{{ fabric_ca_server_remote_config_dir }}/ca-chain"
+        state: directory
+        mode: "0750"
+
+    - name: Copy Fabric CA root certificate to the chain
+      ansible.builtin.copy:
+        src: "{{ fabric_ca_server_remote_config_dir }}/ca.crt"
+        dest: "{{ fabric_ca_server_remote_config_dir }}/ca-chain/00-root.pem"
+        mode: "0644"
+        remote_src: true
+
+    - name: Copy Fabric CA intermediate certificate to the chain
+      ansible.builtin.copy:
+        src: "{{ fabric_ca_server_remote_config_dir }}/{{ fabric_ca_server_ca_cert_file }}"
+        dest: "{{ fabric_ca_server_remote_config_dir }}/ca-chain/01-intermediate.pem"
+        mode: "0644"
+        remote_src: true
+
+    - name: Assemble Fabric CA intermediate certificate chain
+      ansible.builtin.assemble:
+        src: "{{ fabric_ca_server_remote_config_dir }}/ca-chain"
+        dest: "{{ fabric_ca_server_remote_config_dir }}/ca-chain.pem"
+        mode: "0644"
+
+# =========================
 # TLS certificate
 # =========================
 - name: Initialize Fabric CA server TLS SAN hosts

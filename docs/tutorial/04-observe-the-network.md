@@ -72,9 +72,15 @@ Open <https://localhost:3000> and log in with `admin` / `adminPWD`.
 ![grafana dashboards](./images/grafana-dashboards.gif)
 
 > [!WARNING]
-> Note the **`https`**. The default local inventory sets `grafana_use_tls: true`, so Grafana serves TLS with a self-signed certificate. Your browser will warn you; accept the certificate and continue. If you use `http://` you will get an empty response and wonder what broke.
+> Note the **`https`**. The default local inventory sets `grafana_use_tls: true`. Without a configured root CA, Grafana uses a self-signed certificate and your browser will warn you. If you configured `OPENSSL_ROOT_CA_CERT_PATH`, trust that root on macOS by installing the certificate—not its private key—in the **System** keychain:
 >
-> Also note that `admin` / `adminPWD` are sample defaults baked into the example inventory. Change `grafana_username` and `grafana_password` before using an adapted inventory anywhere shared.
+> ```shell
+> sudo security add-trusted-cert -d -r trustRoot \
+>   -k /Library/Keychains/System.keychain \
+>   ~/.fabricx-ca/rootCA.pem
+> ```
+>
+> Fully quit and restart the browser after installing it. If you use `http://`, you will get an empty response and wonder what broke. The `admin` / `adminPWD` credentials are sample defaults baked into the example inventory; change `grafana_username` and `grafana_password` before using an adapted inventory anywhere shared.
 
 Five dashboards are provisioned automatically. Go to **Dashboards** and you will find:
 
