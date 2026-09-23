@@ -1547,7 +1547,7 @@ argument_specs:
       committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
       committer_k8s_metrics_node_port: *committer_k8s_metrics_node_port
       committer_k8s_loadbalancer_expose_metrics_port: *committer_k8s_loadbalancer_expose_metrics_port
-      organization: *organization
+      committer_validators: *committer_validators
 
   validator/k8s/config/transfer:
     short_description: Create the validator ConfigMap

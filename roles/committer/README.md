@@ -1872,18 +1872,10 @@ Deletes the committer Deployment or StatefulSet and Services from the configured
     committer_k8s_metrics_node_port: 31052
     # Set to `true` to create a LoadBalancer Service entry that exposes the metrics port externally. When undefined or `false`, the metrics port is not included in the LoadBalancer Service.
     committer_k8s_loadbalancer_expose_metrics_port: false
-    # Organization definition consumed by crypto and sidecar configuration tasks.
-    organization:
-      name: "Org1"
-      domain: "org1.example.com"
-      role: "peer"
-      fabric_ca_host: "fca-org1"
-      peer:
-        name: "committer-sidecar"
-        secret: "committer-sidecarPWD"
-      users:
-        - name: "committer-sidecar"
-          secret: "committer-sidecarPWD"
+    # Inventory hosts for validator components.
+    committer_validators:
+      - "committer-validator-1"
+      - "committer-validator-2"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.committer
     tasks_from: k8s/rm

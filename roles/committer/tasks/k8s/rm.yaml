@@ -50,30 +50,6 @@
       committer_k8s_loadbalancer_expose_metrics_port
 
 - name: Delete Fabric-X Committer database-init Job
-  vars:
-    reference_committer_hosts: >-
-      {{
-        (
-          groups['fabric_x_committers']
-          | map('extract', hostvars)
-          | selectattr('organization', 'defined')
-          | selectattr('organization.domain', 'defined')
-          | selectattr('organization.domain', '==', organization.domain)
-          | map(attribute='inventory_hostname')
-          | list
-        )
-        or groups['fabric_x_committers']
-      }}
-    committer_validators: >-
-      {{
-        reference_committer_hosts
-        | map('extract', hostvars)
-        | selectattr('committer_component_type', 'defined')
-        | selectattr('committer_component_type', '==', 'validator')
-        | map(attribute='inventory_hostname')
-        | sort
-        | list
-      }}
   kubernetes.core.k8s:
     state: absent
     api_version: batch/v1
