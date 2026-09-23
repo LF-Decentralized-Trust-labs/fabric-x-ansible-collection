@@ -11,14 +11,14 @@
   ansible.builtin.fail:
     msg: >-
       openssl_root_ca_cert_path and openssl_root_ca_private_key_path must be set together
-      (currently {{ openssl_root_ca_cert_path | default('unset') }} /
-      {{ openssl_root_ca_private_key_path | default('unset') }}).
+      (currently {{ openssl_root_ca_cert_path | default('unset', true) }} /
+      {{ openssl_root_ca_private_key_path | default('unset', true) }}).
   when:
-    - (openssl_root_ca_cert_path is defined) != (openssl_root_ca_private_key_path is defined)
+    - (openssl_root_ca_cert_path is not none) != (openssl_root_ca_private_key_path is not none)
 
 - name: Check the configured root CA
   when:
-    - openssl_root_ca_cert_path is defined
+    - openssl_root_ca_cert_path is not none
   block:
     - name: Stat the configured root CA certificate
       ansible.builtin.stat:
@@ -44,14 +44,14 @@
 # =========================
 - name: Generate a self-signed certificate
   when:
-    - openssl_root_ca_cert_path is not defined
+    - openssl_root_ca_cert_path is none
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openssl
     tasks_from: generate_self_signed_cert
 
 - name: Generate a certificate signed by the configured root CA
   when:
-    - openssl_root_ca_cert_path is defined
+    - openssl_root_ca_cert_path is not none
   block:
     - name: Generate a certificate signing request for the configured root CA
       vars:
