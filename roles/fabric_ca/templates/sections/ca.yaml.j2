@@ -1,3 +1,9 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
 #############################################################################
 #  The CA section contains information related to the Certificate Authority
 #  including the name of the CA, which should be unique for all members
@@ -15,6 +21,10 @@ ca:
   # Certificate file (default: ca-cert.pem)
   certfile: "{{ fabric_ca_server_config_dir }}/{{ fabric_ca_server_ca_cert_file }}"
   # Chain file
+{% if is_intermediate_ca %}
+  chainfile: "{{ fabric_ca_server_config_dir }}/ca-chain.pem"
+{% else %}
   chainfile:
+{% endif %}
   # Ignore Certificate Expiration in the case of re-enroll
   reenrollIgnoreCertExpiry: false

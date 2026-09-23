@@ -11,6 +11,7 @@
   - [generate\_keypair](#generate_keypair)
   - [inspect](#inspect)
   - [generate\_self\_signed\_cert](#generate_self_signed_cert)
+  - [generate\_signed\_cert](#generate_signed_cert)
   - [generate\_csr](#generate_csr)
   - [generate\_cert](#generate_cert)
 
@@ -87,7 +88,7 @@ Fingerprint the inputs behind one OpenSSL-generated artifact (a rendered config,
 
 > Generate a self-signed certificate
 
-Generate a private key and a self-signed X.509 certificate, regenerating them only when their inputs changed since the last run. The certificate is written to `openssl_cert_path` and remains valid for `openssl_cert_duration` days. The role renders a temporary OpenSSL config file beneath `openssl_remote_config_dir`, then copies the generated certificate to `openssl_ca_cert_file` in the certificate directory so the self-signed output can also act as a CA certificate.
+Generate a private key and a self-signed X.509 certificate, regenerating them only when their inputs changed since the last run. The certificate is written to `openssl_cert_path`, remains valid for `openssl_cert_duration` days, and is copied to `openssl_ca_cert_file` in the certificate directory so the output can also act as a CA certificate.
 
 ```yaml
 - name: Generate a self-signed certificate
@@ -108,7 +109,7 @@ Generate a private key and a self-signed X.509 certificate, regenerating them on
     openssl_state_file: "{{ openssl_remote_config_dir }}/openssl-state.yaml"
     # Mode applied to directories created for the generated key, CSR, and certificate. Override this when the destination directory is also managed by the caller with a different mode (for example a keystore directory a role keeps at `0750`), so the two do not fight over it every run.
     openssl_dir_mode: 0755
-    # Filename used when copying the self-signed certificate as the CA certificate.
+    # Filename used to publish the trust anchor for the generated certificate. Holds the generated self-signed certificate when no root CA is configured, or the configured root CA certificate when one signs the generated certificate.
     openssl_ca_cert_file: ca.crt
     # Key type passed to `openssl req -newkey`.
     openssl_key_type: "rsa:4096"
@@ -170,6 +171,36 @@ Generate a private key and a self-signed X.509 certificate, regenerating them on
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openssl
     tasks_from: generate_self_signed_cert
+```
+
+### generate_signed_cert
+
+> Generate a certificate signed by a configured root CA or self-signed
+
+Generate a private key and an X.509 certificate, regenerating them only when their inputs changed since the last run. When `openssl_root_ca_cert_path` and `openssl_root_ca_private_key_path` are both set, the certificate is signed by that root CA and `openssl_ca_cert_file` contains the configured root CA certificate. Without a configured root CA, the certificate is self-signed and copied to `openssl_ca_cert_file`.
+
+```yaml
+- name: Generate a certificate signed by a configured root CA or self-signed
+  vars:
+    # Base directory for remote role state and temporary OpenSSL config files.
+    remote_node_dir: "/tmp/fabricx/openssl"
+    # Directory for the temporary OpenSSL config file.
+    openssl_remote_config_dir: "{{ remote_node_dir }}/openssl"
+    # Path to the certificate file to create.
+    openssl_cert_path: "/var/hyperledger/fabricx/crypto/org1.example.com/tls/server.crt"
+    # Filename used to publish the trust anchor for the generated certificate. Holds the generated self-signed certificate when no root CA is configured, or the configured root CA certificate when one signs the generated certificate.
+    openssl_ca_cert_file: ca.crt
+    # Path to a root CA certificate used to sign the generated certificate instead of self-signing it. Defaults to `OPENSSL_ROOT_CA_CERT_PATH` when set in the Ansible process environment. Must be set together with `openssl_root_ca_private_key_path`. Both are read on the host running this task, so a distributed deployment would need the root CA present on every remote node.
+    openssl_root_ca_cert_path: "{{ lookup('env', 'OPENSSL_ROOT_CA_CERT_PATH') | trim('\"') | expanduser or None }}"
+    # Path to the private key matching `openssl_root_ca_cert_path`. Defaults to `OPENSSL_ROOT_CA_PRIVATE_KEY_PATH` when set in the Ansible process environment. Store this value in Ansible Vault.
+    openssl_root_ca_private_key_path: "{{ lookup('env', 'OPENSSL_ROOT_CA_PRIVATE_KEY_PATH') | trim('\"') | expanduser or None }}"
+    # Path to the intermediate certificate signing request generated when `openssl_root_ca_cert_path` is set.
+    openssl_ca_signed_csr_path: "{{ openssl_remote_config_dir }}/{{ openssl_config_file }}.csr"
+    # Path to the intermediate extension file applied while signing against `openssl_root_ca_cert_path`.
+    openssl_ca_signed_ext_path: "{{ openssl_remote_config_dir }}/{{ openssl_config_file }}.ext"
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openssl
+    tasks_from: generate_signed_cert
 ```
 
 ### generate_csr
