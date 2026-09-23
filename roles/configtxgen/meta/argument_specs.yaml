@@ -24,7 +24,7 @@ argument_specs:
       configtxgen_image_tag: &configtxgen_image_tag
         type: str
         required: false
-        default: "1.0.0"
+        default: "1.0.2"
         description:
           - Image tag for C(configtxgen_image).
       configtxgen_image: &configtxgen_image
@@ -50,7 +50,7 @@ argument_specs:
       configtxgen_git_commit: &configtxgen_git_commit
         type: str
         required: false
-        default: v1.0.0
+        default: v1.0.2
         description:
           - Git reference used by the binary build and install entry points.
       configtxgen_source_code_package: &configtxgen_source_code_package
@@ -308,6 +308,62 @@ argument_specs:
         default: "MAJORITY Endorsement"
         description:
           - Rule for the Application Endorsement policy.
+      configtxgen_application_policies_snapshot_endorsement_type:
+        &configtxgen_application_policies_snapshot_endorsement_type
+        type: str
+        default: Signature
+        description:
+          - Policy type for the Application SnapshotEndorsement policy.
+          - Required from committer v1.0.5 (fabric-x-common v0.2.9) onward.
+      configtxgen_application_policies_snapshot_endorsement_rule:
+        &configtxgen_application_policies_snapshot_endorsement_rule
+        type: str
+        required: false
+        description:
+          - Rule for the Application SnapshotEndorsement policy.
+          - When left undefined, the rule is generated from C(configtxgen_application_policies_snapshot_endorsement_operator) and C(configtxgen_application_policies_snapshot_endorsement_ou) as an operator combining every application organization's MSP OU.
+      configtxgen_application_policies_snapshot_endorsement_operator:
+        &configtxgen_application_policies_snapshot_endorsement_operator
+        type: str
+        default: OR
+        description:
+          - Operator combining every application organization's MSP OU in the generated SnapshotEndorsement rule.
+          - Only used when C(configtxgen_application_policies_snapshot_endorsement_rule) is left undefined.
+      configtxgen_application_policies_snapshot_endorsement_ou:
+        &configtxgen_application_policies_snapshot_endorsement_ou
+        type: str
+        default: member
+        description:
+          - MSP OU required from every application organization in the generated SnapshotEndorsement rule.
+          - Only used when C(configtxgen_application_policies_snapshot_endorsement_rule) is left undefined.
+      configtxgen_application_policies_checkpoint_endorsement_type:
+        &configtxgen_application_policies_checkpoint_endorsement_type
+        type: str
+        default: Signature
+        description:
+          - Policy type for the Application CheckpointEndorsement policy.
+          - Required from committer v1.0.5 (fabric-x-common v0.2.9) onward.
+      configtxgen_application_policies_checkpoint_endorsement_rule:
+        &configtxgen_application_policies_checkpoint_endorsement_rule
+        type: str
+        required: false
+        description:
+          - Rule for the Application CheckpointEndorsement policy.
+          - When left undefined, the rule is generated from C(configtxgen_application_policies_checkpoint_endorsement_operator) and C(configtxgen_application_policies_checkpoint_endorsement_ou) as an operator combining every application organization's MSP OU.
+      configtxgen_application_policies_checkpoint_endorsement_operator:
+        &configtxgen_application_policies_checkpoint_endorsement_operator
+        type: str
+        default: OR
+        description:
+          - Operator combining every application organization's MSP OU in the generated CheckpointEndorsement rule.
+          - Only used when C(configtxgen_application_policies_checkpoint_endorsement_rule) is left undefined.
+      configtxgen_application_policies_checkpoint_endorsement_ou:
+        &configtxgen_application_policies_checkpoint_endorsement_ou
+        type: str
+        default: member
+        description:
+          - MSP OU required from every application organization in the generated CheckpointEndorsement rule.
+          - Only used when C(configtxgen_application_policies_checkpoint_endorsement_rule) is left undefined.
       configtxgen_application_policies_lifecycle_endorsement_type:
         &configtxgen_application_policies_lifecycle_endorsement_type
         type: str
@@ -462,6 +518,14 @@ argument_specs:
       configtxgen_application_policies_admins_rule: *configtxgen_application_policies_admins_rule
       configtxgen_application_policies_endorsement_type: *configtxgen_application_policies_endorsement_type
       configtxgen_application_policies_endorsement_rule: *configtxgen_application_policies_endorsement_rule
+      configtxgen_application_policies_snapshot_endorsement_type: *configtxgen_application_policies_snapshot_endorsement_type
+      configtxgen_application_policies_snapshot_endorsement_rule: *configtxgen_application_policies_snapshot_endorsement_rule
+      configtxgen_application_policies_snapshot_endorsement_operator: *configtxgen_application_policies_snapshot_endorsement_operator
+      configtxgen_application_policies_snapshot_endorsement_ou: *configtxgen_application_policies_snapshot_endorsement_ou
+      configtxgen_application_policies_checkpoint_endorsement_type: *configtxgen_application_policies_checkpoint_endorsement_type
+      configtxgen_application_policies_checkpoint_endorsement_rule: *configtxgen_application_policies_checkpoint_endorsement_rule
+      configtxgen_application_policies_checkpoint_endorsement_operator: *configtxgen_application_policies_checkpoint_endorsement_operator
+      configtxgen_application_policies_checkpoint_endorsement_ou: *configtxgen_application_policies_checkpoint_endorsement_ou
       configtxgen_application_policies_lifecycle_endorsement_type: *configtxgen_application_policies_lifecycle_endorsement_type
       configtxgen_application_policies_lifecycle_endorsement_rule: *configtxgen_application_policies_lifecycle_endorsement_rule
       configtxgen_application_policies_lifecycle_endorsement_operator: *configtxgen_application_policies_lifecycle_endorsement_operator

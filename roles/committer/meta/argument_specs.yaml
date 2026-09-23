@@ -24,7 +24,7 @@ argument_specs:
       committer_image_tag: &committer_image_tag
         type: str
         required: false
-        default: "1.0.4"
+        default: "1.0.5"
         description:
           - Image tag for the committer container.
       committer_image: &committer_image
@@ -50,7 +50,7 @@ argument_specs:
       committer_git_commit: &committer_git_commit
         type: str
         required: false
-        default: v1.0.4
+        default: v1.0.5
         description:
           - Git ref used for building or installing the binary.
       committer_source_code_package: &committer_source_code_package
@@ -104,6 +104,12 @@ argument_specs:
         default: 120
         description:
           - Wait timeout in seconds for Kubernetes rollouts.
+      committer_k8s_init_db_wait_timeout: &committer_k8s_init_db_wait_timeout
+        type: int
+        default: 360
+        description:
+          - Wait timeout in seconds for the database-init Job to reach Complete.
+          - Kept above C(committer_init_db_timeout), which governs the binary's own retry budget once running.
       committer_k8s_fs_group: &committer_k8s_fs_group
         type: int
         default: 10001
@@ -170,6 +176,11 @@ argument_specs:
         default: "config-{{ committer_component_type }}.yml"
         description:
           - Generated config file name used by the selected component.
+      committer_init_db_timeout: &committer_init_db_timeout
+        type: str
+        default: "5m"
+        description:
+          - "Timeout passed to C(committer init-db) while it waits for the database to become reachable."
       committer_sidecar_config_block_file: &committer_sidecar_config_block_file
         type: str
         required: false
@@ -791,6 +802,17 @@ argument_specs:
       committer_use_mtls: *committer_use_mtls
       remote_config_dir: *remote_config_dir
 
+  init_db:
+    short_description: Initialize the committer database
+    description:
+      - Dispatch database initialization to the entry point matching C(committer_deployment_mode).
+      - "Run once, on a single validator reference host, after the database is reachable but before any validator-committer starts -- see roles/committer/tasks/init_db.yaml for why."
+    options:
+      committer_deployment_mode: *committer_deployment_mode
+      committer_use_bin: *committer_use_bin
+      committer_use_k8s: *committer_use_k8s
+      committer_use_openshift: *committer_use_openshift
+
   start:
     short_description: Start a committer component by type
     description:
@@ -884,6 +906,23 @@ argument_specs:
       - Uses C(committer_bin_name) for the executable transferred by the shared C(bin) role.
     options:
       committer_bin_name: *committer_bin_name
+
+  container/init_db:
+    short_description: Initialize the committer database with the container
+    description:
+      - Run C(committer init-db) as a one-shot, auto-removing container against the current host's own rendered config (normally the validator's).
+    options:
+      committer_component_type: *committer_component_type
+      committer_config_file: *committer_config_file
+      committer_container_config_dir: *committer_container_config_dir
+      committer_container_name: *committer_container_name
+      committer_image: *committer_image
+      committer_image_name: *committer_image_name
+      committer_image_tag: *committer_image_tag
+      committer_init_db_timeout: *committer_init_db_timeout
+      committer_registry_endpoint: *committer_registry_endpoint
+      committer_remote_config_dir: *committer_remote_config_dir
+      remote_config_dir: *remote_config_dir
 
   container/start:
     short_description: Start the committer container
@@ -1136,6 +1175,18 @@ argument_specs:
       fetched_artifacts_dir:
         <<: *fetched_artifacts_dir
         required: true
+
+  bin/init_db:
+    short_description: Initialize the committer database with the binary
+    description:
+      - Run C(committer init-db) against the current host's own rendered config (normally the validator's).
+    options:
+      committer_bin_name: *committer_bin_name
+      committer_component_type: *committer_component_type
+      committer_config_file: *committer_config_file
+      committer_init_db_timeout: *committer_init_db_timeout
+      committer_remote_config_dir: *committer_remote_config_dir
+      remote_config_dir: *remote_config_dir
 
   bin/start:
     short_description: Start the committer binary
@@ -1402,6 +1453,33 @@ argument_specs:
       remote_config_dir: *remote_config_dir
       yugabyte_cluster_ref_id: *yugabyte_cluster_ref_id
 
+  k8s/init_db:
+    short_description: Initialize the committer database with a Kubernetes Job
+    description:
+      - "Run C(committer init-db) as a Job against the validator ConfigMap and Secret. Job specs are immutable, but committer init-db is itself idempotent, so an already-applied Job is left as-is."
+      - Waits for the Job to reach the Complete condition before returning.
+    options:
+      committer_component_type: *committer_component_type
+      committer_config_file: *committer_config_file
+      committer_container_config_dir: *committer_container_config_dir
+      committer_image: *committer_image
+      committer_image_name: *committer_image_name
+      committer_image_tag: *committer_image_tag
+      committer_init_db_timeout: *committer_init_db_timeout
+      committer_k8s_fs_group: *committer_k8s_fs_group
+      committer_k8s_init_db_wait_timeout: *committer_k8s_init_db_wait_timeout
+      committer_k8s_part_of: *committer_k8s_part_of
+      committer_k8s_resource_name: *committer_k8s_resource_name
+      committer_registry_endpoint: *committer_registry_endpoint
+      committer_remote_config_dir: *committer_remote_config_dir
+      committer_use_tls: *committer_use_tls
+      k8s_image_pull_secret: *k8s_image_pull_secret
+      k8s_namespace: *k8s_namespace
+      organization: *organization
+      postgres_db_host: *postgres_db_host
+      remote_config_dir: *remote_config_dir
+      yugabyte_cluster_ref_id: *yugabyte_cluster_ref_id
+
   k8s/start:
     short_description: Create the committer Kubernetes workload
     description:
@@ -1469,6 +1547,7 @@ argument_specs:
       committer_k8s_loadbalancer_expose_rpc_port: *committer_k8s_loadbalancer_expose_rpc_port
       committer_k8s_metrics_node_port: *committer_k8s_metrics_node_port
       committer_k8s_loadbalancer_expose_metrics_port: *committer_k8s_loadbalancer_expose_metrics_port
+      committer_validators: *committer_validators
 
   validator/k8s/config/transfer:
     short_description: Create the validator ConfigMap
@@ -1582,6 +1661,12 @@ argument_specs:
       postgres_db_host: *postgres_db_host
       remote_config_dir: *remote_config_dir
       yugabyte_cluster_ref_id: *yugabyte_cluster_ref_id
+
+  openshift/init_db:
+    short_description: Initialize the committer database on OpenShift
+    description:
+      - Reuses the Kubernetes database-init Job flow; no Route is needed since a Job exposes no port.
+    options: {}
 
   openshift/start:
     short_description: Start the committer OpenShift deployment

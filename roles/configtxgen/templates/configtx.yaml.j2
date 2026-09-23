@@ -186,8 +186,40 @@ Application: &ApplicationDefaults
     Endorsement:
       Type: {{ configtxgen_application_policies_endorsement_type }}
       Rule: "{{ configtxgen_application_policies_endorsement_rule }}"
-    LifecycleEndorsement:
 {% set application_orgs = configtxgen_orgs_by_domain.values() | selectattr('peers', 'defined') | selectattr('peers', '!=', []) | list %}
+    SnapshotEndorsement:
+{% if configtxgen_application_policies_snapshot_endorsement_rule is defined %}
+      Type: {{ configtxgen_application_policies_snapshot_endorsement_type }}
+      Rule: "{{ configtxgen_application_policies_snapshot_endorsement_rule }}"
+{% elif application_orgs | length > 0 %}
+      Type: {{ configtxgen_application_policies_snapshot_endorsement_type }}
+      Rule: >
+        {{ configtxgen_application_policies_snapshot_endorsement_operator }} (
+{% for org_info in application_orgs %}
+        '{{ org_info.name }}MSP.{{ configtxgen_application_policies_snapshot_endorsement_ou }}'{% if not loop.last %},{% endif +%}
+{% endfor %}
+        )
+{% else %}
+      Type: ImplicitMeta
+      Rule: ANY Admins
+{% endif %}
+    CheckpointEndorsement:
+{% if configtxgen_application_policies_checkpoint_endorsement_rule is defined %}
+      Type: {{ configtxgen_application_policies_checkpoint_endorsement_type }}
+      Rule: "{{ configtxgen_application_policies_checkpoint_endorsement_rule }}"
+{% elif application_orgs | length > 0 %}
+      Type: {{ configtxgen_application_policies_checkpoint_endorsement_type }}
+      Rule: >
+        {{ configtxgen_application_policies_checkpoint_endorsement_operator }} (
+{% for org_info in application_orgs %}
+        '{{ org_info.name }}MSP.{{ configtxgen_application_policies_checkpoint_endorsement_ou }}'{% if not loop.last %},{% endif +%}
+{% endfor %}
+        )
+{% else %}
+      Type: ImplicitMeta
+      Rule: ANY Admins
+{% endif %}
+    LifecycleEndorsement:
 {% if configtxgen_application_policies_lifecycle_endorsement_rule is defined %}
       Type: {{ configtxgen_application_policies_lifecycle_endorsement_type }}
       Rule: "{{ configtxgen_application_policies_lifecycle_endorsement_rule }}"

@@ -353,12 +353,14 @@ Render the Loadgen configuration file and transfer config-side support artifacts
     loadgen_key_scheme: "ECDSA"
     # Optional query tuning block consumed by the load profile.
     loadgen_query_settings:{'size': 4, 'min_invalid_keys_portion': 0.1, 'shuffle': true}
-    # Optional conflict injection block consumed by the load profile.
-    loadgen_conflicts_settings:
-      invalid_signatures: 1
-      dependencies:
-        - source: 1
-          target: 2
+    # Fraction of transactions to generate with invalid signatures (0.0 to 1.0), for exercising signature verification and error handling.
+    loadgen_invalid_signatures_rate: 0.1
+    # Fraction of transactions whose keys back-reference an earlier transaction's keys, injecting read-write conflicts to exercise MVCC validation. Requires committer v1.0.5 or later; replaces the removed `load-profile.conflicts.dependencies` block.
+    loadgen_key_backref_rate: 0.05
+    # Distance, in transaction count, between a transaction and the earlier one it back-references. Used with `loadgen_key_backref_rate`.
+    loadgen_tx_reference_gap: 500
+    # Number of prior transactions eligible as a back-reference source. Used with `loadgen_key_backref_rate`.
+    loadgen_key_lookback_window: 1000
     # Monitoring endpoint rate limit in requests per second.
     loadgen_monitoring_rate_limit_requests_per_second: 50
     # Monitoring endpoint rate limit burst size.
@@ -677,7 +679,7 @@ Build the `loadgen` binary from the configured Fabric-X source repository. Uses 
     # Git repository that provides the Loadgen source.
     loadgen_git_repo: hyperledger/fabric-x-committer
     # Git revision used for binary builds and installs.
-    loadgen_git_commit: v1.0.4
+    loadgen_git_commit: v1.0.5
     # Go package path for the Loadgen binary.
     loadgen_source_code_package: cmd/loadgen
   ansible.builtin.include_role:
@@ -703,7 +705,7 @@ Install the `loadgen` binary through the shared binary helper role. Consumes the
     # Git repository that provides the Loadgen source.
     loadgen_git_repo: hyperledger/fabric-x-committer
     # Git revision used for binary builds and installs.
-    loadgen_git_commit: v1.0.4
+    loadgen_git_commit: v1.0.5
     # Go package path for the Loadgen binary.
     loadgen_source_code_package: cmd/loadgen
   ansible.builtin.include_role:
@@ -811,7 +813,7 @@ Start Loadgen as a local container with the rendered config directory mounted re
     # Image name used by the Loadgen container.
     loadgen_image_name: fabric-x-loadgen
     # Image tag used by the Loadgen container.
-    loadgen_image_tag: 1.0.4
+    loadgen_image_tag: 1.0.5
     # Base remote config directory that feeds `loadgen_remote_config_dir`.
     remote_config_dir: "/var/hyperledger/fabricx/loadgen/lg-1/config"
     # Remote config directory used by Loadgen.
@@ -845,7 +847,7 @@ Stop the local Loadgen container. Preserves the container definition, image refe
     # Image name used by the Loadgen container.
     loadgen_image_name: fabric-x-loadgen
     # Image tag used by the Loadgen container.
-    loadgen_image_tag: 1.0.4
+    loadgen_image_tag: 1.0.5
     # Image registry endpoint.
     loadgen_registry_endpoint: "{{ lookup('env', 'LOADGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
   ansible.builtin.include_role:
@@ -869,7 +871,7 @@ Remove the local Loadgen container runtime resources. Leaves host-side generated
     # Image name used by the Loadgen container.
     loadgen_image_name: fabric-x-loadgen
     # Image tag used by the Loadgen container.
-    loadgen_image_tag: 1.0.4
+    loadgen_image_tag: 1.0.5
     # Image registry endpoint.
     loadgen_registry_endpoint: "{{ lookup('env', 'LOADGEN_REGISTRY_ENDPOINT') or 'docker.io/hyperledger' }}"
   ansible.builtin.include_role:
@@ -934,7 +936,7 @@ Create or update Kubernetes resources for Loadgen. Ensures the namespace exists,
     # Image name used by the Loadgen container.
     loadgen_image_name: fabric-x-loadgen
     # Image tag used by the Loadgen container.
-    loadgen_image_tag: 1.0.4
+    loadgen_image_tag: 1.0.5
     # Config mount path inside a container or pod.
     loadgen_container_config_dir: /config
     # Rendered Loadgen config filename.

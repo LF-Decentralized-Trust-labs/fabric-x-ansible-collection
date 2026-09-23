@@ -1,0 +1,17 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+- name: Initialize the committer database
+  vars:
+    bin_command: >-
+      {{ committer_bin_name }} init-db
+      --config={{ committer_remote_config_dir }}/{{ committer_config_file }}
+      --timeout={{ committer_init_db_timeout }}
+    bin_run_with_tmux: false
+    bin_collect_logs: false
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.bin
+    tasks_from: start

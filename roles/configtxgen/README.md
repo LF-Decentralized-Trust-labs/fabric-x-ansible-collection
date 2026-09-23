@@ -108,6 +108,22 @@ Generate `configtx.yaml` for Fabric-X genesis block creation. Render the config 
     configtxgen_application_policies_endorsement_type: ImplicitMeta
     # Rule for the Application Endorsement policy.
     configtxgen_application_policies_endorsement_rule: MAJORITY Endorsement
+    # Policy type for the Application SnapshotEndorsement policy. Required from committer v1.0.5 (fabric-x-common v0.2.9) onward.
+    configtxgen_application_policies_snapshot_endorsement_type: Signature
+    # Rule for the Application SnapshotEndorsement policy. When left undefined, the rule is generated from `configtxgen_application_policies_snapshot_endorsement_operator` and `configtxgen_application_policies_snapshot_endorsement_ou` as an operator combining every application organization's MSP OU.
+    configtxgen_application_policies_snapshot_endorsement_rule: "string"
+    # Operator combining every application organization's MSP OU in the generated SnapshotEndorsement rule. Only used when `configtxgen_application_policies_snapshot_endorsement_rule` is left undefined.
+    configtxgen_application_policies_snapshot_endorsement_operator: OR
+    # MSP OU required from every application organization in the generated SnapshotEndorsement rule. Only used when `configtxgen_application_policies_snapshot_endorsement_rule` is left undefined.
+    configtxgen_application_policies_snapshot_endorsement_ou: member
+    # Policy type for the Application CheckpointEndorsement policy. Required from committer v1.0.5 (fabric-x-common v0.2.9) onward.
+    configtxgen_application_policies_checkpoint_endorsement_type: Signature
+    # Rule for the Application CheckpointEndorsement policy. When left undefined, the rule is generated from `configtxgen_application_policies_checkpoint_endorsement_operator` and `configtxgen_application_policies_checkpoint_endorsement_ou` as an operator combining every application organization's MSP OU.
+    configtxgen_application_policies_checkpoint_endorsement_rule: "string"
+    # Operator combining every application organization's MSP OU in the generated CheckpointEndorsement rule. Only used when `configtxgen_application_policies_checkpoint_endorsement_rule` is left undefined.
+    configtxgen_application_policies_checkpoint_endorsement_operator: OR
+    # MSP OU required from every application organization in the generated CheckpointEndorsement rule. Only used when `configtxgen_application_policies_checkpoint_endorsement_rule` is left undefined.
+    configtxgen_application_policies_checkpoint_endorsement_ou: member
     # Policy type for the Application LifecycleEndorsement policy.
     configtxgen_application_policies_lifecycle_endorsement_type: Signature
     # Rule for the Application LifecycleEndorsement policy. When left undefined, the rule is generated from `configtxgen_application_policies_lifecycle_endorsement_operator` and `configtxgen_application_policies_lifecycle_endorsement_ou` as an operator combining every application organization's MSP OU.
@@ -197,7 +213,7 @@ Build the `configtxgen` binary from the Fabric-X source tree on the control node
     # Repository path for `configtxgen_bin_package`.
     configtxgen_git_repo: hyperledger/fabric-x
     # Git reference used by the binary build and install entry points.
-    configtxgen_git_commit: v1.0.0
+    configtxgen_git_commit: v1.0.2
     # Go package path for the `configtxgen` source tree.
     configtxgen_source_code_package: tools/configtxgen
     # Executable name used by the binary and container entry points.
@@ -227,7 +243,7 @@ Install the `configtxgen` Go package through the shared `bin` role. The installe
     # Go package reference used by `bin/install`.
     configtxgen_bin_package: "{{ configtxgen_git_hub_url }}/{{ configtxgen_git_repo }}/{{ configtxgen_source_code_package }}"
     # Git reference used by the binary build and install entry points.
-    configtxgen_git_commit: v1.0.0
+    configtxgen_git_commit: v1.0.2
     # Executable name used by the binary and container entry points.
     configtxgen_bin_name: configtxgen
     # Directory used as the `configtxgen` binary destination or lookup path.
@@ -289,7 +305,7 @@ Run `configtxgen` in a container to generate the channel genesis block. The cont
     # Image repository name for `configtxgen_image`.
     configtxgen_image_name: fabric-x-tools
     # Image tag for `configtxgen_image`.
-    configtxgen_image_tag: 1.0.0
+    configtxgen_image_tag: 1.0.2
     # Full container image reference for `configtxgen`.
     configtxgen_image: "{{ configtxgen_registry_endpoint }}/{{ configtxgen_image_name }}:{{ configtxgen_image_tag }}"
     # Executable name used by the binary and container entry points.
