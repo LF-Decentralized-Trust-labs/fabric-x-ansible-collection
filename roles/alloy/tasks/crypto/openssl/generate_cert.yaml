@@ -25,4 +25,4 @@
     openssl_san_hosts: "{{ alloy_tls_san_hosts | unique }}"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openssl
-    tasks_from: generate_self_signed_cert
+    tasks_from: generate_signed_cert

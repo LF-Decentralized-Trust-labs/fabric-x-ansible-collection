@@ -22,7 +22,7 @@
     openssl_key_usage: "critical, keyCertSign, cRLSign, digitalSignature"
   ansible.builtin.include_role:
     name: hyperledger.fabricx.openssl
-    tasks_from: generate_self_signed_cert
+    tasks_from: generate_signed_cert
 
 # =========================
 # TLS certificate

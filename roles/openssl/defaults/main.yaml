@@ -17,8 +17,13 @@ openssl_state_file: '{{ openssl_remote_config_dir }}/openssl-state.yaml'
 # Mode applied to directories created for the generated key, CSR, and certificate.
 # Override this when the destination directory is also managed by the caller with a different mode (for example a keystore directory a role keeps at C(0750)), so the two do not fight over it every run.
 openssl_dir_mode: '0755'
-# Filename used when copying the self-signed certificate as the CA certificate.
+# Filename used to publish the trust anchor for the generated certificate.
+# Holds the generated self-signed certificate when no root CA is configured, or the configured root CA certificate when one signs the generated certificate.
 openssl_ca_cert_file: ca.crt
+# Path to the intermediate certificate signing request generated when C(openssl_root_ca_cert_path) is set.
+openssl_ca_signed_csr_path: '{{ openssl_remote_config_dir }}/{{ openssl_config_file }}.csr'
+# Path to the intermediate extension file applied while signing against C(openssl_root_ca_cert_path).
+openssl_ca_signed_ext_path: '{{ openssl_remote_config_dir }}/{{ openssl_config_file }}.ext'
 # OpenSSL algorithm passed to C(openssl genpkey).
 openssl_key_alg: RSA
 # Key type passed to C(openssl req -newkey).

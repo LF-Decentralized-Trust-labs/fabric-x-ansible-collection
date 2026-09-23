@@ -1,0 +1,77 @@
+#
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# =========================
+# Root CA validation
+# =========================
+- name: Fail when the root CA cert and key are not configured together
+  ansible.builtin.fail:
+    msg: >-
+      openssl_root_ca_cert_path and openssl_root_ca_private_key_path must be set together
+      (currently {{ openssl_root_ca_cert_path | default('unset') }} /
+      {{ openssl_root_ca_private_key_path | default('unset') }}).
+  when:
+    - (openssl_root_ca_cert_path is defined) != (openssl_root_ca_private_key_path is defined)
+
+- name: Check the configured root CA
+  when:
+    - openssl_root_ca_cert_path is defined
+  block:
+    - name: Stat the configured root CA certificate
+      ansible.builtin.stat:
+        path: "{{ openssl_root_ca_cert_path }}"
+      register: openssl_root_ca_cert_stat
+    - name: Stat the configured root CA private key
+      ansible.builtin.stat:
+        path: "{{ openssl_root_ca_private_key_path }}"
+      register: openssl_root_ca_key_stat
+    - name: Fail when the configured root CA cert or key does not exist
+      ansible.builtin.fail:
+        msg: "{{ openssl_root_ca_cert_path }} does not exist. Please point to a valid CA cert or unset the variable to produce a self-signed certificate."
+      when:
+        - not openssl_root_ca_cert_stat.stat.exists
+    - name: Fail when the configured root CA key does not exist
+      ansible.builtin.fail:
+        msg: "{{ openssl_root_ca_private_key_path }} does not exist. Please point to a valid CA key or unset the variable to produce a self-signed certificate."
+      when:
+        - not openssl_root_ca_key_stat.stat.exists
+
+# =========================
+# Certificate generation
+# =========================
+- name: Generate a self-signed certificate
+  when:
+    - openssl_root_ca_cert_path is not defined
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.openssl
+    tasks_from: generate_self_signed_cert
+
+- name: Generate a certificate signed by the configured root CA
+  when:
+    - openssl_root_ca_cert_path is defined
+  block:
+    - name: Generate a certificate signing request for the configured root CA
+      vars:
+        openssl_csr_path: "{{ openssl_ca_signed_csr_path }}"
+        openssl_ext_file_path: "{{ openssl_ca_signed_ext_path }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.openssl
+        tasks_from: generate_csr
+    - name: Generate a certificate signed by the configured root CA
+      vars:
+        openssl_ca_private_key_path: "{{ openssl_root_ca_private_key_path }}"
+        openssl_ca_cert_path: "{{ openssl_root_ca_cert_path }}"
+        openssl_csr_path: "{{ openssl_ca_signed_csr_path }}"
+        openssl_ext_file_path: "{{ openssl_ca_signed_ext_path }}"
+      ansible.builtin.include_role:
+        name: hyperledger.fabricx.openssl
+        tasks_from: generate_cert
+    - name: Publish the configured root CA certificate
+      ansible.builtin.copy:
+        src: "{{ openssl_root_ca_cert_path }}"
+        dest: "{{ openssl_cert_path | dirname }}/{{ openssl_ca_cert_file }}"
+        mode: "0o644"
+        remote_src: true

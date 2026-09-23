@@ -87,7 +87,30 @@ argument_specs:
         type: str
         default: ca.crt
         description:
-          - Filename used when copying the self-signed certificate as the CA certificate.
+          - Filename used to publish the trust anchor for the generated certificate.
+          - Holds the generated self-signed certificate when no root CA is configured, or the configured root CA certificate when one signs the generated certificate.
+      openssl_root_ca_cert_path: &openssl_root_ca_cert_path
+        type: path
+        description:
+          - Path to a root CA certificate used to sign the generated certificate instead of self-signing it.
+          - Must be set together with C(openssl_root_ca_private_key_path). Both are read on the host running this task, so a distributed deployment would need the root CA present on every remote node.
+          - "Example: C(/home/user/.fabricx-ca/rootCA.pem)."
+      openssl_root_ca_private_key_path: &openssl_root_ca_private_key_path
+        type: path
+        description:
+          - Path to the private key matching C(openssl_root_ca_cert_path).
+          - Store this value in Ansible Vault.
+          - "Example: C(/home/user/.fabricx-ca/rootCA.key)."
+      openssl_ca_signed_csr_path: &openssl_ca_signed_csr_path
+        type: path
+        default: "{{ openssl_remote_config_dir }}/{{ openssl_config_file }}.csr"
+        description:
+          - Path to the intermediate certificate signing request generated when C(openssl_root_ca_cert_path) is set.
+      openssl_ca_signed_ext_path: &openssl_ca_signed_ext_path
+        type: path
+        default: "{{ openssl_remote_config_dir }}/{{ openssl_config_file }}.ext"
+        description:
+          - Path to the intermediate extension file applied while signing against C(openssl_root_ca_cert_path).
       openssl_key_alg: &openssl_key_alg
         type: str
         default: RSA
@@ -243,8 +266,7 @@ argument_specs:
     short_description: Generate a self-signed certificate
     description:
       - Generate a private key and a self-signed X.509 certificate, regenerating them only when their inputs changed since the last run.
-      - The certificate is written to C(openssl_cert_path) and remains valid for C(openssl_cert_duration) days.
-      - The role renders a temporary OpenSSL config file beneath C(openssl_remote_config_dir), then copies the generated certificate to C(openssl_ca_cert_file) in the certificate directory so the self-signed output can also act as a CA certificate.
+      - The certificate is written to C(openssl_cert_path), remains valid for C(openssl_cert_duration) days, and is copied to C(openssl_ca_cert_file) in the certificate directory so the output can also act as a CA certificate.
     options:
       remote_node_dir: *remote_node_dir
       actual_host: *actual_host
@@ -274,6 +296,21 @@ argument_specs:
       openssl_san_ip_entries: *openssl_san_ip_entries
       openssl_san_entries: *openssl_san_entries
 
+  generate_signed_cert:
+    short_description: Generate a certificate signed by a configured root CA or self-signed
+    description:
+      - Generate a private key and an X.509 certificate, regenerating them only when their inputs changed since the last run.
+      - When C(openssl_root_ca_cert_path) and C(openssl_root_ca_private_key_path) are both set, the certificate is signed by that root CA and C(openssl_ca_cert_file) contains the configured root CA certificate.
+      - Without a configured root CA, the certificate is self-signed and copied to C(openssl_ca_cert_file).
+    options:
+      remote_node_dir: *remote_node_dir
+      openssl_remote_config_dir: *openssl_remote_config_dir
+      openssl_cert_path: *openssl_cert_path
+      openssl_ca_cert_file: *openssl_ca_cert_file
+      openssl_root_ca_cert_path: *openssl_root_ca_cert_path
+      openssl_root_ca_private_key_path: *openssl_root_ca_private_key_path
+      openssl_ca_signed_csr_path: *openssl_ca_signed_csr_path
+      openssl_ca_signed_ext_path: *openssl_ca_signed_ext_path
   generate_csr:
     short_description: Generate a certificate signing request
     description:
