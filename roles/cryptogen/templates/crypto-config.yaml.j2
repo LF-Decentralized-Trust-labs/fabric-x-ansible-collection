@@ -61,13 +61,17 @@ GenericOrgs:
       # ---------------------------------------------------------------------------
       # "Specs"
       # ---------------------------------------------------------------------------
-      # Specs is an array of Spec entries.  Each Spec entry consists of one field:
-      #   - Name:   (Required) The desired name for the user.
+      # Specs is an array of Spec entries.  Each Spec entry consists of two fields:
+      #   - Name:  (Required) The desired name for the user.
+      #   - Admin: (Optional) Generates an administrator when true.
       #
       # ---------------------------------------------------------------------------
       Specs:
 {% for user in (org_info.users | unique) %}
         - Name: {{ user.name }}
+{% if user.type | default('client') == 'admin' %}
+          Admin: true
+{% endif %}
 {% endfor %}
 {% endif %}
 {% endfor %}

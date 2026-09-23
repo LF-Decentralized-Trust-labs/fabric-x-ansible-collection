@@ -57,10 +57,11 @@
 {% endfor %}
 {% for user_spec in org.Users.Specs | default([]) %}
 {% set user_cn = user_spec.Name ~ '@' ~ org.Domain %}
+{% set user_admin = user_spec.Admin | default(false) %}
 - kind: user
   org: {{ org.Domain | to_json }}
   name: {{ user_cn | to_json }}
   dir: {{ ('organizations/' ~ org.Domain ~ '/users/' ~ user_cn) | to_json }}
-  fingerprint: {{ (user_cn ~ '|' ~ users_pubkey) | hash('sha1') | to_json }}
+  fingerprint: {{ (user_cn ~ '|' ~ users_pubkey ~ ('|admin' if user_admin else '')) | hash('sha1') | to_json }}
 {% endfor %}
 {% endfor %}
