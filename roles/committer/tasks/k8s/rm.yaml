@@ -48,3 +48,14 @@
   when:
     - committer_k8s_loadbalancer_expose_rpc_port or
       committer_k8s_loadbalancer_expose_metrics_port
+
+- name: Delete Fabric-X Committer database-init Job
+  kubernetes.core.k8s:
+    state: absent
+    api_version: batch/v1
+    kind: Job
+    name: "{{ committer_k8s_resource_name }}-init-db"
+    namespace: "{{ k8s_namespace | default('default') }}"
+  when:
+    - committer_component_type == 'validator'
+    - inventory_hostname == committer_validators[0]

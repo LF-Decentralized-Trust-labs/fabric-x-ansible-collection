@@ -108,6 +108,22 @@ Generate `configtx.yaml` for Fabric-X genesis block creation. Render the config 
     configtxgen_application_policies_endorsement_type: ImplicitMeta
     # Rule for the Application Endorsement policy.
     configtxgen_application_policies_endorsement_rule: MAJORITY Endorsement
+    # Policy type for the Application SnapshotEndorsement policy. Required from committer v1.0.5 (fabric-x-common v0.2.9) onward.
+    configtxgen_application_policies_snapshot_endorsement_type: Signature
+    # Rule for the Application SnapshotEndorsement policy. When left undefined, the rule is generated from `configtxgen_application_policies_snapshot_endorsement_operator` and `configtxgen_application_policies_snapshot_endorsement_ou` as an operator combining every application organization's MSP OU.
+    configtxgen_application_policies_snapshot_endorsement_rule: "string"
+    # Operator combining every application organization's MSP OU in the generated SnapshotEndorsement rule. Only used when `configtxgen_application_policies_snapshot_endorsement_rule` is left undefined.
+    configtxgen_application_policies_snapshot_endorsement_operator: OR
+    # MSP OU required from every application organization in the generated SnapshotEndorsement rule. Only used when `configtxgen_application_policies_snapshot_endorsement_rule` is left undefined.
+    configtxgen_application_policies_snapshot_endorsement_ou: member
+    # Policy type for the Application CheckpointEndorsement policy. Required from committer v1.0.5 (fabric-x-common v0.2.9) onward.
+    configtxgen_application_policies_checkpoint_endorsement_type: Signature
+    # Rule for the Application CheckpointEndorsement policy. When left undefined, the rule is generated from `configtxgen_application_policies_checkpoint_endorsement_operator` and `configtxgen_application_policies_checkpoint_endorsement_ou` as an operator combining every application organization's MSP OU.
+    configtxgen_application_policies_checkpoint_endorsement_rule: "string"
+    # Operator combining every application organization's MSP OU in the generated CheckpointEndorsement rule. Only used when `configtxgen_application_policies_checkpoint_endorsement_rule` is left undefined.
+    configtxgen_application_policies_checkpoint_endorsement_operator: OR
+    # MSP OU required from every application organization in the generated CheckpointEndorsement rule. Only used when `configtxgen_application_policies_checkpoint_endorsement_rule` is left undefined.
+    configtxgen_application_policies_checkpoint_endorsement_ou: member
     # Policy type for the Application LifecycleEndorsement policy.
     configtxgen_application_policies_lifecycle_endorsement_type: Signature
     # Rule for the Application LifecycleEndorsement policy. When left undefined, the rule is generated from `configtxgen_application_policies_lifecycle_endorsement_operator` and `configtxgen_application_policies_lifecycle_endorsement_ou` as an operator combining every application organization's MSP OU.
