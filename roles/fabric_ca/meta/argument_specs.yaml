@@ -310,6 +310,21 @@ argument_specs:
         default: ca-cert.pem
         description:
           - "Sets the server CA certificate path, relative to the Fabric CA config root."
+      fabric_ca_is_intermediate_ca: &fabric_ca_is_intermediate_ca
+        type: bool
+        default: >-
+          {{
+            lookup('vars', 'openssl_root_ca_cert_path', default=lookup('env', 'OPENSSL_ROOT_CA_CERT_PATH'))
+            | default('', true)
+            | trim('"')
+            | length > 0
+          }}
+        description:
+          - "Reports whether this Fabric CA is an intermediate CA, meaning its own CA certificate was signed by
+             an external root CA rather than being self-signed. Derived from C(openssl_root_ca_cert_path), falling
+             back to the C(OPENSSL_ROOT_CA_CERT_PATH) environment variable because that variable is an C(openssl)
+             role default and is therefore out of scope here. Drives the CA chain file and the split of the fetched
+             organization MSP into C(cacerts) and C(intermediatecerts)."
       fabric_ca_server_tls_private_key_file:
         &fabric_ca_server_tls_private_key_file
         type: str
@@ -451,6 +466,9 @@ argument_specs:
     options:
       fabric_ca_client_use_bin: *fabric_ca_client_use_bin
       fabric_ca_enrollment_type: *fabric_ca_enrollment_type
+      fabric_ca_enrollment_profile: *fabric_ca_enrollment_profile
+      fabric_ca_msp_dir: *fabric_ca_msp_dir
+      fabric_ca_cryptogenize_tls_ca_cert_file: *fabric_ca_cryptogenize_tls_ca_cert_file
       remote_node_dir: *remote_node_dir
       fabric_ca_client_state_file: *fabric_ca_client_state_file
 
@@ -1094,6 +1112,7 @@ argument_specs:
       actual_host: *actual_host
       fabric_ca_server_ca_private_key_file: *fabric_ca_server_ca_private_key_file
       fabric_ca_server_ca_cert_file: *fabric_ca_server_ca_cert_file
+      fabric_ca_is_intermediate_ca: *fabric_ca_is_intermediate_ca
       fabric_ca_server_tls_private_key_file: *fabric_ca_server_tls_private_key_file
       fabric_ca_server_tls_cert_file: *fabric_ca_server_tls_cert_file
       fabric_ca_server_openssl_curve: *fabric_ca_server_openssl_curve
@@ -1126,6 +1145,7 @@ argument_specs:
       fabric_ca_server_remote_config_dir: *fabric_ca_server_remote_config_dir
       remote_config_dir: *remote_config_dir
       fabric_ca_server_ca_cert_file: *fabric_ca_server_ca_cert_file
+      fabric_ca_is_intermediate_ca: *fabric_ca_is_intermediate_ca
 
   server/crypto/rm:
     short_description: Remove server Secret
@@ -1155,6 +1175,7 @@ argument_specs:
       fabric_ca_name: *fabric_ca_name
       fabric_ca_server_ca_private_key_file: *fabric_ca_server_ca_private_key_file
       fabric_ca_server_ca_cert_file: *fabric_ca_server_ca_cert_file
+      fabric_ca_is_intermediate_ca: *fabric_ca_is_intermediate_ca
       fabric_ca_admin: *fabric_ca_admin
       fabric_ca_registry_identities: *fabric_ca_registry_identities
       fabric_ca_csr_cn: *fabric_ca_csr_cn

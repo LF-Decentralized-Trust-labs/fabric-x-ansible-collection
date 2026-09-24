@@ -11,14 +11,6 @@
     mode: "0750"
 
 - name: Render Fabric CA server configuration
-  vars:
-    is_intermediate_ca: >-
-      {{
-        lookup('vars', 'openssl_root_ca_cert_path', default=lookup('env', 'OPENSSL_ROOT_CA_CERT_PATH'))
-        | default('', true)
-        | trim('"')
-        | length > 0
-      }}
   ansible.builtin.template:
     src: fabric-ca-server-config.yaml.j2
     dest: "{{ fabric_ca_server_remote_config_dir }}/fabric-ca-server-config.yaml"

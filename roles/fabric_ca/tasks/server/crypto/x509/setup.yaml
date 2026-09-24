@@ -28,15 +28,7 @@
 # Intermediate CA chain
 # =========================
 - name: Assemble Fabric CA intermediate certificate chain
-  vars:
-    is_intermediate_ca: >-
-      {{
-        lookup('vars', 'openssl_root_ca_cert_path', default=lookup('env', 'OPENSSL_ROOT_CA_CERT_PATH'))
-        | default('', true)
-        | trim('"')
-        | length > 0
-      }}
-  when: is_intermediate_ca
+  when: fabric_ca_is_intermediate_ca
   block:
     - name: Create Fabric CA intermediate certificate chain directory
       ansible.builtin.file:
