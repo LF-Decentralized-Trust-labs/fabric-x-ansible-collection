@@ -145,10 +145,8 @@ Dispatches client enrollment to the binary or transient-container implementation
     fabric_ca_enrollment_profile: "tls"
     # Sets the MSP directory used by Fabric CA client flows.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/organizations/org1.example.com/users/Admin@org1.example.com/msp"
-    # Rebuilds `fabric_ca_cryptogenize_tls_ca_cert_file` as the root certificate followed by every intermediate certificate when enrolling against an intermediate Fabric CA, restoring the truststore `fabric-ca-client` split apart at enrollment.
-    fabric_ca_chain_ca_certs: true
     # Rebuilds `fabric_ca_cryptogenize_tls_cert_file` as the leaf certificate followed by every intermediate certificate when enrolling against an intermediate Fabric CA, so the server presents a complete chain instead of a bare leaf.
-    fabric_ca_chain_server_certs: false
+    fabric_ca_chain_tls_server_certs: false
     # Base directory for remote role state on the target host.
     remote_node_dir: "/tmp/fabricx"
     # Path to the file that tracks a fingerprint of the enrollment inputs behind each BCCSP identity's certificate, keyed by `fabric_ca_msp_dir`, used to detect changes since the last run.

@@ -391,12 +391,7 @@ argument_specs:
         default: server.crt
         description:
           - "Sets the Fabric CA client TLS certificate output path relative to C(fabric_ca_msp_dir)."
-      fabric_ca_chain_ca_certs: &fabric_ca_chain_ca_certs
-        type: bool
-        default: true
-        description:
-          - "Rebuilds C(fabric_ca_cryptogenize_tls_ca_cert_file) as the root certificate followed by every intermediate certificate when enrolling against an intermediate Fabric CA, restoring the truststore C(fabric-ca-client) split apart at enrollment."
-      fabric_ca_chain_server_certs: &fabric_ca_chain_server_certs
+      fabric_ca_chain_tls_server_certs: &fabric_ca_chain_tls_server_certs
         type: bool
         default: false
         description:
@@ -475,8 +470,7 @@ argument_specs:
       fabric_ca_enrollment_type: *fabric_ca_enrollment_type
       fabric_ca_enrollment_profile: *fabric_ca_enrollment_profile
       fabric_ca_msp_dir: *fabric_ca_msp_dir
-      fabric_ca_chain_ca_certs: *fabric_ca_chain_ca_certs
-      fabric_ca_chain_server_certs: *fabric_ca_chain_server_certs
+      fabric_ca_chain_tls_server_certs: *fabric_ca_chain_tls_server_certs
       remote_node_dir: *remote_node_dir
       fabric_ca_client_state_file: *fabric_ca_client_state_file
 
