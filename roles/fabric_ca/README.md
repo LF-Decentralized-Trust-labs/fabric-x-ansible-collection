@@ -9,6 +9,8 @@
 - [Tasks](#tasks)
   - [client/inspect](#clientinspect)
   - [client/enroll](#clientenroll)
+  - [client/intermediate\_ca/build\_ca\_chain](#clientintermediate_cabuild_ca_chain)
+  - [client/intermediate\_ca/build\_server\_chain](#clientintermediate_cabuild_server_chain)
   - [client/register](#clientregister)
   - [client/gather\_identities](#clientgather_identities)
   - [client/reenroll](#clientreenroll)
@@ -94,7 +96,7 @@ For a BCCSP identity: fingerprint the enrollment inputs (identity name, CA name,
   vars:
     # Sets the MSP directory used by Fabric CA client flows.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/organizations/org1.example.com/users/Admin@org1.example.com/msp"
-    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault.
+    # Supplies the identity used by Fabric CA client operations.
     fabric_ca_identity:
       name: "peer0"
       secret: "peer0PWD"
@@ -143,8 +145,8 @@ Dispatches client enrollment to the binary or transient-container implementation
     fabric_ca_enrollment_profile: "tls"
     # Sets the MSP directory used by Fabric CA client flows.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/organizations/org1.example.com/users/Admin@org1.example.com/msp"
-    # Sets the Fabric CA client TLS CA certificate output path relative to `fabric_ca_msp_dir`.
-    fabric_ca_cryptogenize_tls_ca_cert_file: ca.crt
+    # Rebuilds `fabric_ca_cryptogenize_tls_cert_file` as the leaf certificate followed by every intermediate certificate when enrolling against an intermediate Fabric CA, so the server presents a complete chain instead of a bare leaf.
+    fabric_ca_chain_tls_server_certs: false
     # Base directory for remote role state on the target host.
     remote_node_dir: "/tmp/fabricx"
     # Path to the file that tracks a fingerprint of the enrollment inputs behind each BCCSP identity's certificate, keyed by `fabric_ca_msp_dir`, used to detect changes since the last run.
@@ -152,6 +154,42 @@ Dispatches client enrollment to the binary or transient-container implementation
   ansible.builtin.include_role:
     name: hyperledger.fabricx.fabric_ca
     tasks_from: client/enroll
+```
+
+### client/intermediate_ca/build_ca_chain
+
+> Rebuild the TLS CA certificate as a full chain
+
+Reassembles `fabric_ca_cryptogenize_tls_ca_cert_file` as the root certificate followed by every certificate found under `fabric_ca_msp_dir`/tlsintermediatecerts, restoring the chain `fabric-ca-client` split apart at enrollment. A no-op when no intermediate certificates were found.
+
+```yaml
+- name: Rebuild the TLS CA certificate as a full chain
+  vars:
+    # Sets the MSP directory used by Fabric CA client flows.
+    fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/organizations/org1.example.com/users/Admin@org1.example.com/msp"
+    # Sets the Fabric CA client TLS CA certificate output path relative to `fabric_ca_msp_dir`.
+    fabric_ca_cryptogenize_tls_ca_cert_file: ca.crt
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/intermediate_ca/build_ca_chain
+```
+
+### client/intermediate_ca/build_server_chain
+
+> Rebuild the TLS server certificate as a full chain
+
+Reassembles `fabric_ca_cryptogenize_tls_cert_file` as the leaf certificate followed by every certificate found under `fabric_ca_msp_dir`/tlsintermediatecerts, so the server presents a complete chain instead of a bare leaf. The self-signed root is intentionally left out. A no-op when no intermediate certificates were found.
+
+```yaml
+- name: Rebuild the TLS server certificate as a full chain
+  vars:
+    # Sets the MSP directory used by Fabric CA client flows.
+    fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/organizations/org1.example.com/users/Admin@org1.example.com/msp"
+    # Sets the Fabric CA client TLS certificate output path relative to `fabric_ca_msp_dir`.
+    fabric_ca_cryptogenize_tls_cert_file: server.crt
+  ansible.builtin.include_role:
+    name: hyperledger.fabricx.fabric_ca
+    tasks_from: client/intermediate_ca/build_server_chain
 ```
 
 ### client/register
@@ -384,7 +422,7 @@ Enrolls an identity with the locally installed Fabric CA client binary. Writes X
   vars:
     # Sets the MSP directory used by Fabric CA client flows.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/organizations/org1.example.com/users/Admin@org1.example.com/msp"
-    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault.
+    # Supplies the identity used by Fabric CA client operations.
     fabric_ca_identity:
       name: "peer0"
       secret: "peer0PWD"
@@ -448,7 +486,7 @@ Registers a new identity with the locally installed Fabric CA client binary. Use
   vars:
     # Sets the MSP directory used by Fabric CA client flows.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/organizations/org1.example.com/users/Admin@org1.example.com/msp"
-    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault.
+    # Supplies the identity used by Fabric CA client operations.
     fabric_ca_identity:
       name: "peer0"
       secret: "peer0PWD"
@@ -482,7 +520,7 @@ Reenrolls an existing identity with the locally installed Fabric CA client binar
   vars:
     # Sets the MSP directory used by Fabric CA client flows.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/organizations/org1.example.com/users/Admin@org1.example.com/msp"
-    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault.
+    # Supplies the identity used by Fabric CA client operations.
     fabric_ca_identity:
       name: "peer0"
       secret: "peer0PWD"
@@ -570,7 +608,7 @@ Revokes an enrolled identity with the locally installed Fabric CA client binary.
   vars:
     # Sets the MSP directory used by Fabric CA client flows.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/organizations/org1.example.com/users/Admin@org1.example.com/msp"
-    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault.
+    # Supplies the identity used by Fabric CA client operations.
     fabric_ca_identity:
       name: "peer0"
       secret: "peer0PWD"
@@ -630,7 +668,7 @@ Enrolls an identity with a transient Fabric CA client container. Mounts the loca
   vars:
     # Sets the MSP directory used by Fabric CA client flows.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/organizations/org1.example.com/users/Admin@org1.example.com/msp"
-    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault.
+    # Supplies the identity used by Fabric CA client operations.
     fabric_ca_identity:
       name: "peer0"
       secret: "peer0PWD"
@@ -704,7 +742,7 @@ Registers a new identity with a transient Fabric CA client container. Uses the m
   vars:
     # Sets the MSP directory used by Fabric CA client flows.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/organizations/org1.example.com/users/Admin@org1.example.com/msp"
-    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault.
+    # Supplies the identity used by Fabric CA client operations.
     fabric_ca_identity:
       name: "peer0"
       secret: "peer0PWD"
@@ -748,7 +786,7 @@ Reenrolls an existing identity with a transient Fabric CA client container. Refr
   vars:
     # Sets the MSP directory used by Fabric CA client flows.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/organizations/org1.example.com/users/Admin@org1.example.com/msp"
-    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault.
+    # Supplies the identity used by Fabric CA client operations.
     fabric_ca_identity:
       name: "peer0"
       secret: "peer0PWD"
@@ -856,7 +894,7 @@ Revokes an enrolled identity with a transient Fabric CA client container. Uses t
   vars:
     # Sets the MSP directory used by Fabric CA client flows.
     fabric_ca_msp_dir: "/tmp/fabricx/crypto-config/organizations/org1.example.com/users/Admin@org1.example.com/msp"
-    # Supplies the identity used by Fabric CA client operations. Store secrets in Ansible Vault.
+    # Supplies the identity used by Fabric CA client operations.
     fabric_ca_identity:
       name: "peer0"
       secret: "peer0PWD"
@@ -1716,7 +1754,7 @@ Renders and transfers the Fabric CA server configuration. Includes bootstrap adm
         | trim('"')
         | length > 0
       }}
-    # Supplies the bootstrap administrator rendered into the server registry section; `name` and `secret` are required. Store the secret in Ansible Vault.
+    # Supplies the bootstrap administrator rendered into the server registry section; `name` and `secret` are required.
     fabric_ca_admin:
       name: "admin"
       secret: "adminPWD"
